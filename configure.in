@@ -1,0 +1,227 @@
+AC_INIT(src/main.c)
+
+AC_CONFIG_HEADER(config.h)
+
+AC_PROG_CC
+AC_PROG_INSTALL
+AC_C_BIGENDIAN
+
+if test $prefix = NONE
+then
+    myprefix=/usr/local
+else
+    myprefix=$prefix
+fi
+
+######################################################################
+# configure arguments
+######################################################################
+DEBUGGING=0
+LOGGING=0
+
+AC_ARG_WITH(debug,              [  --with-debug              include debug info ], [ DEBUGGING=1; ], [])
+AC_ARG_WITH(log,                [  --with-log                create log ], [ LOGGING=1; ], [])
+AC_ARG_WITH(optimize,           [  --with-optimize           with optimize(-O in CFLAGS) ], [ ENABLE_OPTIMIZE=1 ], [ ENABLE_OPTIMIZE=0 ])
+AC_ARG_WITH(onig-dir,           [  --with-onig-dir=DIR       set install prefix of oniguruma which located at non standerd directory and installed by user ], [ ONIG_DIR="$withval"; ], [ ONIG_DIR=; ])
+
+#####################################################################
+# check cpu type
+#####################################################################
+AC_MSG_CHECKING(CPU type)
+
+if test `uname -m` = x86_64
+then
+    echo x86_64
+
+    AC_DEFINE(__64BIT_CPU__, 1)
+else
+    echo 32BIT_CPU
+
+    AC_DEFINE(__32BIT_CPU__, 1)
+fi
+
+#####################################################################
+# check operating systems
+#####################################################################
+SO_VERSION=1.0.0
+AC_SUBST(SO_VERSION)
+AC_MSG_CHECKING(Operating System)
+
+CFLAGS='-DSYSCONFDIR="\"${sysconfdir}/\"" -DDOCDIR="\"${docdir}/\"" -DDATAROOTDIR="\"${datarootdir}/\""'
+
+if test `uname -s` = "Darwin"; then
+    echo "Darwin"
+
+    OS=DARWIN
+
+    AC_DEFINE(__DARWIN__, 1)
+
+    LIBSONAME=libclover2.dylib
+    LIBSO2NAME=libclover2.$SO_VERSION.dylib
+
+    if test $myprefix = /usr/local; then
+        CFLAGS="-Isrc/ -I. -L . -fPIC $CFLAGS"
+    else 
+        CFLAGS="-Isrc/ -I. -L . -I$myprefix/include -L$myprefix/lib -fPIC $CFLAGS"
+    fi
+elif test `uname -s` = "SunOS"; then
+    echo "SunOS"
+
+    OS=SUNOS
+
+    AC_DEFINE(__SUNOS__, 1)
+
+    LIBSONAME=libclover2.so
+    LIBSO2NAME=libclover2.so.$SO_VERSION
+
+    if test $myprefix = /usr/local; then
+        CFLAGS="-Isrc/ -I. -L . -fPIC $CFLAGS"
+    else 
+        CFLAGS="-Isrc/ -I. -L . -I$myprefix/include -L$myprefix/lib -fPIC $CFLAGS"
+    fi
+elif test `uname -s` = "FreeBSD"; then
+    echo "FreeBSD"
+
+    OS=FREEBSD
+
+    AC_DEFINE(__FREEBSD__, 1)
+
+    LIBSONAME=libclover2.so
+    LIBSO2NAME=libclover2.so.$SO_VERSION
+
+    CFLAGS="-Isrc/ -I. -L . -I$myprefix/include -L$myprefix/lib -fPIC $CFLAGS"
+elif uname -s | grep -q CYGWIN_NT; then
+    echo CYGWIN
+
+    OS=CYGWIN
+
+    AC_DEFINE(__CYGWIN__, 1)
+
+    LIBSONAME=libclover2.so
+    LIBSO2NAME=libclover2.so.$SO_VERSION
+
+    if test $myprefix = /usr/local; then
+        CFLAGS="-Isrc/ -I. -L . $CFLAGS"
+    else 
+        CFLAGS="-Isrc/ -I. -L . -I$myprefix/include -L$myprefix/lib $CFLAGS"
+    fi
+else
+    echo "Linux"
+
+    OS=LINUX
+
+    AC_DEFINE(__LINUX__, 1)
+
+    LIBSONAME=libclover2.so
+    LIBSO2NAME=libclover2.so.$SO_VERSION
+
+    if test $myprefix = /usr/local; then
+        CFLAGS="-Isrc/ -I. -L . -fPIC $CFLAGS"
+    else
+        CFLAGS="-Isrc/ -I. -L . -I$myprefix/include -L$myprefix/lib -fPIC $CFLAGS"
+    fi
+
+    AC_HAVE_LIBRARY(util, [ LIBS="$LIBS -lutil"; ], [])
+fi
+
+##########################################################################
+# CFLAGS settings
+##########################################################################
+if test -d /usr/local/include
+then
+    CFLAGS="$CFLAGS -I/usr/local/include"
+fi
+
+if test -d /usr/local/lib
+then
+    CFLAGS="$CFLAGS -L /usr/local/lib"
+fi
+
+if test -d /opt/local/include
+then
+    CFLAGS="$CFLAGS -I/opt/local/include"
+fi
+
+if test -d /opt/local/lib
+then
+    CFLAGS="$CFLAGS -L /opt/local/lib"
+fi
+
+if test -n "$ONIG_DIR"
+then
+    if test -e "$ONIG_DIR/include/oniguruma.h" && test -e "$ONIG_DIR/lib/libonig.a"
+    then
+         CFLAGS="$CFLAGS -I$ONIG_DIR/include -L $ONIG_DIR/lib"
+    else
+        echo "can't found oniguruma.h in $ONIG_DIR/include or libonig.a in $ONIG_DIR/lib"
+    fi
+fi
+
+if test $ENABLE_OPTIMIZE = 1
+then
+    CFLAGS="$CFLAGS -O3"
+fi
+
+if test $DEBUGGING = 1
+then
+    CFLAGS="$CFLAGS -g -DMDEBUG -Werror"
+fi
+
+if test $LOGGING = 1
+then
+    CFLAGS="$CFLAGS -DVM_DEBUG"
+fi
+
+AC_SUBST(OS)
+AC_SUBST(LIBANAME)
+AC_SUBST(LIBSONAME)
+AC_SUBST(LIBSO2NAME)
+
+##########################################################
+# Libs
+##########################################################
+CC=gcc
+INSTALL="/usr/bin/install -c"
+
+AC_CHECK_HEADER(oniguruma.h, [AC_DEFINE(HAVE_ONIGURUMA_H, 1)], [ exit ])
+AC_HAVE_LIBRARY(onig, [ LIBS="$LIBS -lonig"; ], [ exit ])
+
+AC_CHECK_HEADER(pthread.h, [AC_DEFINE(HAVE_PTHREAD_H, 1)], [ exit ])
+AC_HAVE_LIBRARY(pthread, [ LIBS="$LIBS -lpthread"; ], [ exit ])
+AC_CHECK_HEADER(readline/readline.h, [AC_DEFINE(HAVE_READLINE_H, 1)], [ exit ])
+AC_HAVE_LIBRARY(readline, [ LIBS="$LIBS -lreadline"; ], [ exit ])
+if test "$OS" != FREEBSD
+then
+    AC_HAVE_LIBRARY(dl, [ LIBS="$LIBS -ldl"; ], [])
+fi
+
+AC_CHECK_HEADER(math.h, [AC_DEFINE(HAVE_MATH_H,1)], [])
+AC_HAVE_LIBRARY(m, [ LIBS="$LIBS -lm"; ], [])
+AC_CHECK_HEADER(iconv.h, [AC_DEFINE(HAVE_ICONV_H, 1)], [])
+
+if test "$OS" = CYGWIN || test "$OS" = DARWIN || test "$OS" = FREEBSD
+then
+    LIBS="$LIBS -liconv"
+fi
+
+AC_SUBST(LIBS)
+
+CC=clang
+
+AC_SUBST(CC)
+
+CFLAGS="$CFLAGS -Qunused-arguments"
+#CFLAGS="$CFLAGS -Qunused-arguments -Wunused-variable"
+
+AC_SUBST(CFLAGS)
+
+OBJS="src/main.o src/vm.o"
+COMPILER_OBJS="src/compiler.o src/parser.o src/node_type.o src/node.o src/vtable.o src/script.o src/block.o"
+LIB_OBJS="src/buffer.o src/debug.o src/xfunc.o src/klass.o src/constant.o src/code.o"
+
+AC_SUBST(OBJS)
+AC_SUBST(COMPILER_OBJS)
+AC_SUBST(LIB_OBJS)
+
+AC_OUTPUT(Makefile)
+

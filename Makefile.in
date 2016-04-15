@@ -1,0 +1,95 @@
+#######################################################
+# installed directories
+#######################################################
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+bindir=@bindir@
+datadir=@datadir@
+mandir=@mandir@
+libdir=@libdir@
+sharedstatedir=@sharedstatedir@
+sysconfdir=@sysconfdir@/clover2
+includedir=@includedir@/clover2
+datarootdir=@datarootdir@/clover2
+docdir=@datadir@/doc
+
+##########################################################
+# environmnet variables
+##########################################################
+CC=@CC@
+INSTALL=@INSTALL@
+CFLAGS=@CFLAGS@
+LIBS=@LIBS@
+DESTDIR=
+SO_VERSION=@SO_VERSION@
+LIBSONAME=@LIBSONAME@
+LIBSO2NAME=@LIBSO2NAME@
+OS=@OS@
+OBJS=@OBJS@
+COMPILER_OBJS=@COMPILER_OBJS@
+LIB_OBJS=@LIB_OBJS@
+
+##########################################################
+# main
+##########################################################
+all: lib cclover2 clover2
+	if test $(OS) = DARWIN; then ctags src/*.c > /dev/null 2>&1; else ctags -R; fi
+
+cclover2: config.h $(COMPILER_OBJS)
+	clang -o cclover2 $(COMPILER_OBJS) $(CFLAGS) -lclover2 $(LIBS)
+
+clover2: config.h $(OBJS)
+	clang -o clover2 $(OBJS) $(CFLAGS) -lclover2 $(LIBS)
+
+lib: $(LIBSONAME)
+#	rm -f install
+
+########################################################
+# clover2 libraries
+########################################################
+libclover2.so.$(SO_VERSION): $(LIB_OBJS)
+	clang -shared -o libclover2.so.$(SO_VERSION) $(LIB_OBJS) -lc $(LIBS) $(CFLAGS)
+
+libclover2.so: libclover2.so.$(SO_VERSION)
+	ln -s -f libclover2.so.$(SO_VERSION) libclover2.so.1
+	ln -s -f libclover2.so.$(SO_VERSION) libclover2.so
+
+########################################################
+# clover2 libraries on Darwin
+########################################################
+libclover2.$(SO_VERSION).dylib: $(OBJ)
+	clang -dynamiclib -o libclover2.$(SO_VERSION).dylib $(OBJ) -lc $(LIBS) $(CFLAGS)
+
+libclover2.dylib: libclover2.$(SO_VERSION).dylib
+	cp libclover2.$(SO_VERSION).dylib libclover2.1.dylib
+	cp libclover2.$(SO_VERSION).dylib libclover2.dylib
+
+#########################################################
+# Object files
+#########################################################
+$(OBJ): src/*.h Makefile configure
+
+#########################################################
+# uninstall
+#########################################################
+uninstall:
+	rm -Rf ~/.clover2
+
+#########################################################
+# permission
+#########################################################
+permission:
+	chmod 644 *
+	chmod 755 .git man src configure
+	chmod 644 src/*.c
+	chmod 644 src/*.h
+
+########################################################
+# clean
+########################################################
+clean:
+	rm -fR clover2 clover2.dSYM cclover2 cclover2.dSYM src/*.o libclover* config.log config.status *.stackdump autom4te.cache .DS_Store core.* a.out
+
+distclean: clean
+	rm -fR  config.h Makefile autom4te.cache
+

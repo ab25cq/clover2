@@ -1,0 +1,16 @@
+#undef HAVE_MATH_H
+#undef HAVE_ICONV_H
+#undef HAVE_NANOSLEEP
+#undef HAVE_NCURSES_H
+#undef HAVE_NCURSES_NCURSES_H
+#undef HAVE_ICONV_H
+#undef HAVE_ONIGURUMA_H
+#undef HAVE_ONIGUCHAR
+#undef HAVE_HISTEDIT_H
+#undef __CYGWIN__
+#undef __SUNOS__
+#undef __DARWIN__
+#undef __LINUX__
+#undef __FREEBSD__
+#undef __64BIT_CPU__
+#undef __32BIT_CPU__

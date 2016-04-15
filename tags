@@ -1,0 +1,370 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+ALLOC	src/macros.h	17;"	d
+ARRAY_SIZE	src/debug.c	98;"	d	file:
+BOOL	src/macros.h	5;"	d
+BREAK_NUM_MAX	src/common.h	29;"	d
+BUFFER_H	src/buffer.h	2;"	d
+BYTE_CODE_INIT_SIZE	src/code.c	3;"	d	file:
+CC	Makefile	/^CC=clang$/;"	m
+CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -I\/home\/ab25cq\/include -L\/home\/ab25cq\/lib -fPIC -DSYSCONFDIR="\\"${sysconfdir}\/\\"" -DDOCDIR="\\"${docdir}\/\\"" -DDATAROOTDIR="\\"${datarootdir}\/\\"" -I\/usr\/local\/include -L \/usr\/local\/lib -g -DMDEBUG -Werror -DVM_DEBUG -Qunused-arguments$/;"	m
+CHECKML_BEGIN	src/debug.h	11;"	d
+CHECKML_BEGIN	src/debug.h	38;"	d
+CHECKML_END	src/debug.h	12;"	d
+CHECKML_END	src/debug.h	39;"	d
+CLASS_FLAGS_PRIMITIVE	src/common.h	69;"	d
+CLASS_NAME	src/common.h	80;"	d
+CLASS_NAME_MAX	src/common.h	26;"	d
+CLASS_NUM_MAX	src/klass.c	3;"	d	file:
+CLObject	src/common.h	/^typedef unsigned int CLObject;$/;"	t
+CLVALUE	src/common.h	/^typedef union CLVALUEUnion CLVALUE;$/;"	t	typeref:union:CLVALUEUnion
+CLVALUEUnion	src/common.h	/^union CLVALUEUnion {$/;"	u
+COMMON_H	src/common.h	2;"	d
+COMPILER_OBJS	Makefile	/^COMPILER_OBJS=src\/compiler.o src\/parser.o src\/node_type.o src\/node.o src\/vtable.o src\/script.o src\/block.o$/;"	m
+CONS_str	src/common.h	56;"	d
+DEBUG_H	src/debug.h	2;"	d
+DESTDIR	Makefile	/^DESTDIR=$/;"	m
+ELIF_NUM_MAX	src/common.h	28;"	d
+FALSE	src/macros.h	13;"	d
+GENERICS_TYPES_MAX	src/common.h	90;"	d
+HAVE_ICONV_H	config.h	3;"	d
+HAVE_ICONV_H	config.h	7;"	d
+HAVE_MATH_H	config.h	2;"	d
+HAVE_ONIGURUMA_H	config.h	8;"	d
+INSTALL	Makefile	/^INSTALL=\/usr\/bin\/install -c$/;"	m
+LIBS	Makefile	/^LIBS= -lutil -lonig -lpthread -lreadline -ldl -lm$/;"	m
+LIBSO2NAME	Makefile	/^LIBSO2NAME=libclover2.so.1.0.0$/;"	m
+LIBSONAME	Makefile	/^LIBSONAME=libclover2.so$/;"	m
+LIB_OBJS	Makefile	/^LIB_OBJS=src\/buffer.o src\/debug.o src\/xfunc.o src\/klass.o src\/constant.o src\/code.o$/;"	m
+LOCAL_VARIABLE_MAX	src/common.h	123;"	d
+MACROS_H	src/macros.h	2;"	d
+MANAGED	src/macros.h	21;"	d
+MASSERT	src/debug.h	25;"	d
+MASSERT	src/debug.h	47;"	d
+MCALLOC	src/debug.h	22;"	d
+MCALLOC	src/debug.h	42;"	d
+MFREE	src/debug.h	23;"	d
+MFREE	src/debug.h	45;"	d
+MMALLOC	src/debug.h	19;"	d
+MMALLOC	src/debug.h	41;"	d
+MREALLOC	src/debug.h	21;"	d
+MREALLOC	src/debug.h	44;"	d
+MSTRDUP	src/debug.h	20;"	d
+MSTRDUP	src/debug.h	43;"	d
+NAME_SIZE	src/debug.c	83;"	d	file:
+NODE_TYPE_PAGE_SIZE	src/node_type.c	8;"	d	file:
+NULLABLE	src/macros.h	25;"	d
+OBJS	Makefile	/^OBJS=src\/main.o src\/vm.o$/;"	m
+OP_COND_JUMP	src/common.h	267;"	d
+OP_GOTO	src/common.h	268;"	d
+OP_IADD	src/common.h	276;"	d
+OP_IEQ	src/common.h	278;"	d
+OP_INOTEQ	src/common.h	279;"	d
+OP_ISUB	src/common.h	277;"	d
+OP_LDCINT	src/common.h	273;"	d
+OP_LDCNULL	src/common.h	274;"	d
+OP_LOAD	src/common.h	271;"	d
+OP_POP	src/common.h	265;"	d
+OP_POP_N	src/common.h	266;"	d
+OP_STORE	src/common.h	270;"	d
+OS	Makefile	/^OS=LINUX$/;"	m
+SO_VERSION	Makefile	/^SO_VERSION=1.0.0$/;"	m
+TRUE	src/macros.h	9;"	d
+VAR_NAME_MAX	src/common.h	27;"	d
+XFUNC_H	src/xfunc.h	2;"	d
+__64BIT_CPU__	config.h	16;"	d
+__LINUX__	config.h	14;"	d
+_t_malloc_entry	src/debug.c	/^struct _t_malloc_entry$/;"	s	file:
+ac_fn_c_check_header_compile	configure	/^ac_fn_c_check_header_compile ()$/;"	f
+ac_fn_c_check_header_mongrel	configure	/^ac_fn_c_check_header_mongrel ()$/;"	f
+ac_fn_c_try_compile	configure	/^ac_fn_c_try_compile ()$/;"	f
+ac_fn_c_try_cpp	configure	/^ac_fn_c_try_cpp ()$/;"	f
+ac_fn_c_try_link	configure	/^ac_fn_c_try_link ()$/;"	f
+ac_fn_c_try_run	configure	/^ac_fn_c_try_run ()$/;"	f
+add_variable_to_table	src/vtable.c	/^BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_)$/;"	f
+alloc_class	src/klass.c	/^sCLClass* alloc_class(char* name, BOOL primitive_)$/;"	f
+alloc_node	src/node.c	/^static unsigned int alloc_node()$/;"	f	file:
+alloc_node_type	src/node_type.c	/^sNodeType* alloc_node_type()$/;"	f
+append_double_value_to_constant_pool	src/constant.c	/^int append_double_value_to_constant_pool(sConst* constant, double n, BOOL no_output)$/;"	f
+append_float_value_to_constant_pool	src/constant.c	/^int append_float_value_to_constant_pool(sConst* constant, float n, BOOL no_output)$/;"	f
+append_int_value_to_code	src/code.c	/^void append_int_value_to_code(sByteCode* code, int value, BOOL no_output)$/;"	f
+append_int_value_to_constant_pool	src/constant.c	/^int append_int_value_to_constant_pool(sConst* constant, int n, BOOL no_output)$/;"	f
+append_node_to_node_block	src/block.c	/^static void append_node_to_node_block(sNodeBlock* node_block, unsigned int node)$/;"	f	file:
+append_opecode_to_code	src/code.c	/^void append_opecode_to_code(sByteCode* code, unsigned int op, BOOL no_output)$/;"	f
+append_str_to_constant_pool	src/constant.c	/^int append_str_to_constant_pool(sConst* constant, char* str, BOOL no_output)$/;"	f
+append_value_to_code	src/code.c	/^void append_value_to_code(sByteCode* code, void* data, size_t size, BOOL no_output)$/;"	f
+append_wstr_to_constant_pool	src/constant.c	/^int append_wstr_to_constant_pool(sConst* constant, char* str, BOOL no_output)$/;"	f
+arrange_alignment	src/code.c	/^static void arrange_alignment(sByteCode* code)$/;"	f	file:
+arrange_alignment	src/constant.c	/^static void arrange_alignment(sConst* self)$/;"	f	file:
+arrange_stack	src/node.c	/^void arrange_stack(sCompileInfo* cinfo)$/;"	f
+as_fn_append	configure	/^  as_fn_append ()$/;"	f
+as_fn_arith	configure	/^  as_fn_arith ()$/;"	f
+as_fn_error	configure	/^as_fn_error ()$/;"	f
+as_fn_executable_p	configure	/^as_fn_executable_p ()$/;"	f
+as_fn_exit	configure	/^as_fn_exit ()$/;"	f
+as_fn_failure	configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
+as_fn_mkdir_p	configure	/^as_fn_mkdir_p ()$/;"	f
+as_fn_ret_failure	configure	/^as_fn_ret_failure () { return 1; }$/;"	f
+as_fn_ret_success	configure	/^as_fn_ret_success () { return 0; }$/;"	f
+as_fn_set_status	configure	/^as_fn_set_status ()$/;"	f
+as_fn_success	configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
+as_fn_unset	configure	/^as_fn_unset ()$/;"	f
+bindir	Makefile	/^bindir=${exec_prefix}\/bin$/;"	m
+break_points	src/common.h	/^    int* break_points;$/;"	m	struct:sCompileInfoStruct
+class_final	src/klass.c	/^void class_final()$/;"	f
+class_init	src/klass.c	/^void class_init()$/;"	f
+clone_node_type	src/node_type.c	/^sNodeType* clone_node_type(sNodeType* node_type)$/;"	f
+clover2_final	src/main.c	/^static void clover2_final()$/;"	f	file:
+clover2_init	src/main.c	/^static void clover2_init()$/;"	f	file:
+clover_final	src/compiler.c	/^static void clover_final()$/;"	f	file:
+clover_init	src/compiler.c	/^static void clover_init()$/;"	f	file:
+code	src/common.h	/^    sByteCode* code;$/;"	m	struct:sCompileInfoStruct
+compile	src/node.c	/^BOOL compile(unsigned int node, sCompileInfo* info)$/;"	f
+compile_assign_variable	src/node.c	/^static BOOL compile_assign_variable(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compile_break_expression	src/node.c	/^static BOOL compile_break_expression(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compile_false_expression	src/node.c	/^static BOOL compile_false_expression(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compile_for_expression	src/node.c	/^static BOOL compile_for_expression(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compile_if_expression	src/node.c	/^static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compile_int_value	src/node.c	/^static BOOL compile_int_value(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compile_load_variable	src/node.c	/^static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compile_normal_block	src/block.c	/^BOOL compile_normal_block(sNodeBlock* block, sCompileInfo* info)$/;"	f
+compile_operand	src/node.c	/^static BOOL compile_operand(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compile_script	src/script.c	/^BOOL compile_script(char* fname, char* source)$/;"	f
+compile_true_expression	src/node.c	/^static BOOL compile_true_expression(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compile_while_expression	src/node.c	/^static BOOL compile_while_expression(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compiler	src/compiler.c	/^static BOOL compiler(char* fname)$/;"	f	file:
+constant	src/common.h	/^    sConst* constant;$/;"	m	struct:sCompileInfoStruct
+create_node_type_with_class_name	src/node_type.c	/^sNodeType* create_node_type_with_class_name(char* class_name)$/;"	f
+datadir	Makefile	/^datadir=${datarootdir}$/;"	m
+datarootdir	Makefile	/^datarootdir=${prefix}\/share\/clover2$/;"	m
+debug_calloc	src/debug.c	/^ALLOC void* debug_calloc(size_t count, size_t size, const char* file_name, int line, const char* func_name)$/;"	f
+debug_final	src/debug.c	/^void debug_final()$/;"	f
+debug_free	src/debug.c	/^void debug_free(void* memory, const char* file_name, int line, const char* func_name)$/;"	f
+debug_init	src/debug.c	/^void debug_init()$/;"	f
+debug_malloc	src/debug.c	/^ALLOC void* debug_malloc(size_t size, const char* file_name, int line, const char* func_name)$/;"	f
+debug_realloc	src/debug.c	/^ALLOC void* debug_realloc(void* memory, size_t size, const char* file_name, int line, const char* func_name)$/;"	f
+debug_strdup	src/debug.c	/^ALLOC char* debug_strdup(char* str, const char* file_name, int line, const char* func_name)$/;"	f
+docdir	Makefile	/^docdir=${datarootdir}\/doc$/;"	m
+eNodeType	src/common.h	/^enum eNodeType { kNodeTypeOperand, kNodeTypeIntValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeFor };$/;"	g
+eOperand	src/common.h	/^enum eOperand { kOperandAdd, kOperandSub, kOperandComparisonEqual, kOperandComparisonNotEqual };$/;"	g
+err_num	src/common.h	/^    int err_num;$/;"	m	struct:sCompileInfoStruct
+err_num	src/common.h	/^    int err_num;$/;"	m	struct:sParserInfoStruct
+eval_file	src/main.c	/^static BOOL eval_file(char* fname, int stack_size)$/;"	f	file:
+exec_prefix	Makefile	/^exec_prefix=${prefix}$/;"	m
+expect_next_character	src/parser.c	/^BOOL expect_next_character(char* characters, sParserInfo* info)$/;"	f
+expect_next_character_with_one_forward	src/parser.c	/^void expect_next_character_with_one_forward(char* characters, sParserInfo* info)$/;"	f
+expression	src/parser.c	/^BOOL expression(unsigned int* node, sParserInfo* info) $/;"	f
+expression_add_sub	src/parser.c	/^static BOOL expression_add_sub(unsigned int* node, sParserInfo* info)$/;"	f	file:
+expression_comparison_equal_operator	src/parser.c	/^static BOOL expression_comparison_equal_operator(unsigned int* node, sParserInfo* info)$/;"	f	file:
+expression_node	src/parser.c	/^static BOOL expression_node(unsigned int* node, sParserInfo* info)$/;"	f	file:
+final_vtable	src/vtable.c	/^void final_vtable()$/;"	f
+for_expression	src/parser.c	/^static BOOL for_expression(unsigned int* node, sParserInfo* info)$/;"	f	file:
+free_class	src/klass.c	/^static void free_class(sCLClass* klass)$/;"	f	file:
+free_node_types	src/node_type.c	/^void free_node_types()$/;"	f
+free_nodes	src/node.c	/^void free_nodes()$/;"	f
+gClassTable	src/klass.c	/^static sClassTable gClassTable[CLASS_NUM_MAX];$/;"	v	file:
+gHeadClassTable	src/klass.c	/^static sClassTable* gHeadClassTable = NULL;$/;"	v	file:
+gHeadVTable	src/vtable.c	/^sVarTable* gHeadVTable;$/;"	v
+gMallocEntries	src/debug.c	/^static t_malloc_entry* gMallocEntries[ARRAY_SIZE];$/;"	v	file:
+gNodeTypes	src/node_type.c	/^static sNodeType** gNodeTypes = NULL;$/;"	v	file:
+gNodes	src/node.c	/^sNodeTree* gNodes;$/;"	v
+gSizeNodes	src/node.c	/^static unsigned int gSizeNodes = 0;$/;"	v	file:
+gSizePageNodeTypes	src/node_type.c	/^static int gSizePageNodeTypes = 0;$/;"	v	file:
+gUsedNodeTypes	src/node_type.c	/^static int gUsedNodeTypes = 0;$/;"	v	file:
+gUsedNodes	src/node.c	/^static unsigned int gUsedNodes = 0;$/;"	v	file:
+gUsedPageNodeTypes	src/node_type.c	/^static int gUsedPageNodeTypes = 0;$/;"	v	file:
+get_class	src/klass.c	/^sCLClass* get_class(char* name)$/;"	f
+get_hash_key	src/klass.c	/^unsigned int get_hash_key(char* name, unsigned int max)$/;"	f
+get_number	src/parser.c	/^static BOOL get_number(BOOL minus, unsigned int* node, sParserInfo* info)$/;"	f	file:
+get_var_num	src/vtable.c	/^int get_var_num(sVarTable* table)$/;"	f
+get_variable_from_table	src/vtable.c	/^sVar* get_variable_from_table(sVarTable* table, char* name)$/;"	f
+get_variable_from_this_table_only	src/vtable.c	/^static sVar* get_variable_from_this_table_only(sVarTable* table, char* name)$/;"	f	file:
+if_expression	src/parser.c	/^static BOOL if_expression(unsigned int* node, sParserInfo* info)$/;"	f	file:
+includedir	Makefile	/^includedir=${prefix}\/include\/clover2$/;"	m
+init_node_types	src/node_type.c	/^void init_node_types()$/;"	f
+init_nodes	src/node.c	/^void init_nodes()$/;"	f
+init_var_table	src/vtable.c	/^sVarTable* init_var_table()$/;"	f
+init_vtable	src/vtable.c	/^void init_vtable()$/;"	f
+kNodeTypeAssignVariable	src/common.h	/^enum eNodeType { kNodeTypeOperand, kNodeTypeIntValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeFor };$/;"	e	enum:eNodeType
+kNodeTypeBreak	src/common.h	/^enum eNodeType { kNodeTypeOperand, kNodeTypeIntValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeFor };$/;"	e	enum:eNodeType
+kNodeTypeFalse	src/common.h	/^enum eNodeType { kNodeTypeOperand, kNodeTypeIntValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeFor };$/;"	e	enum:eNodeType
+kNodeTypeFor	src/common.h	/^enum eNodeType { kNodeTypeOperand, kNodeTypeIntValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeFor };$/;"	e	enum:eNodeType
+kNodeTypeIf	src/common.h	/^enum eNodeType { kNodeTypeOperand, kNodeTypeIntValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeFor };$/;"	e	enum:eNodeType
+kNodeTypeIntValue	src/common.h	/^enum eNodeType { kNodeTypeOperand, kNodeTypeIntValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeFor };$/;"	e	enum:eNodeType
+kNodeTypeLoadVariable	src/common.h	/^enum eNodeType { kNodeTypeOperand, kNodeTypeIntValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeFor };$/;"	e	enum:eNodeType
+kNodeTypeOperand	src/common.h	/^enum eNodeType { kNodeTypeOperand, kNodeTypeIntValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeFor };$/;"	e	enum:eNodeType
+kNodeTypeTrue	src/common.h	/^enum eNodeType { kNodeTypeOperand, kNodeTypeIntValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeFor };$/;"	e	enum:eNodeType
+kNodeTypeWhile	src/common.h	/^enum eNodeType { kNodeTypeOperand, kNodeTypeIntValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeFor };$/;"	e	enum:eNodeType
+kOperandAdd	src/common.h	/^enum eOperand { kOperandAdd, kOperandSub, kOperandComparisonEqual, kOperandComparisonNotEqual };$/;"	e	enum:eOperand
+kOperandComparisonEqual	src/common.h	/^enum eOperand { kOperandAdd, kOperandSub, kOperandComparisonEqual, kOperandComparisonNotEqual };$/;"	e	enum:eOperand
+kOperandComparisonNotEqual	src/common.h	/^enum eOperand { kOperandAdd, kOperandSub, kOperandComparisonEqual, kOperandComparisonNotEqual };$/;"	e	enum:eOperand
+kOperandSub	src/common.h	/^enum eOperand { kOperandAdd, kOperandSub, kOperandComparisonEqual, kOperandComparisonNotEqual };$/;"	e	enum:eOperand
+libdir	Makefile	/^libdir=${exec_prefix}\/lib$/;"	m
+lv_table	src/common.h	/^    sVarTable* lv_table;$/;"	m	struct:sCompileInfoStruct
+lv_table	src/common.h	/^    sVarTable* lv_table;$/;"	m	struct:sParserInfoStruct
+mBlockLevel	src/common.h	/^    int mBlockLevel;$/;"	m	struct:sVarStruct
+mBlockLevel	src/common.h	/^    int mBlockLevel;$/;"	m	struct:sVarTableStruct
+mBoolValue	src/common.h	/^    BOOL mBoolValue;$/;"	m	union:CLVALUEUnion
+mBuf	src/buffer.h	/^    char* mBuf;$/;"	m	struct:sBufStruct
+mByteValue	src/common.h	/^    char mByteValue;$/;"	m	union:CLVALUEUnion
+mCharValue	src/common.h	/^    wchar_t mCharValue;$/;"	m	union:CLVALUEUnion
+mClass	src/common.h	/^    sCLClass* mClass;$/;"	m	struct:sNodeTypeStruct
+mClassNameOffset	src/common.h	/^    int mClassNameOffset;$/;"	m	struct:sCLClassStruct
+mCodes	src/common.h	/^    char* mCodes;$/;"	m	struct:sByteCodeStruct
+mConst	src/common.h	/^    char* mConst;$/;"	m	struct:sConstStruct
+mConst	src/common.h	/^    sConst mConst;$/;"	m	struct:sCLClassStruct
+mDoubleValue	src/common.h	/^    double mDoubleValue;$/;"	m	union:CLVALUEUnion
+mElifExpressionNodes	src/common.h	/^            unsigned int mElifExpressionNodes[ELIF_NUM_MAX];$/;"	m	struct:sNodeTreeStruct::__anon1::__anon2
+mElifNodeBlocks	src/common.h	/^            MANAGED sNodeBlock* mElifNodeBlocks[ELIF_NUM_MAX];$/;"	m	struct:sNodeTreeStruct::__anon1::__anon2
+mElifNum	src/common.h	/^            int mElifNum;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon2
+mElseNodeBlock	src/common.h	/^            MANAGED sNodeBlock* mElseNodeBlock;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon2
+mExpressionNode	src/common.h	/^            unsigned int mExpressionNode;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon2
+mExpressionNode	src/common.h	/^            unsigned int mExpressionNode;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon3
+mExpressionNode	src/common.h	/^            unsigned int mExpressionNode;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon4
+mExpressionNode2	src/common.h	/^            unsigned int mExpressionNode2;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon4
+mExpressionNode3	src/common.h	/^            unsigned int mExpressionNode3;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon4
+mFileName	src/debug.c	/^    char mFileName[NAME_SIZE];$/;"	m	struct:_t_malloc_entry	file:
+mFlags	src/common.h	/^    long mFlags;$/;"	m	struct:sCLClassStruct
+mFloatValue	src/common.h	/^    float mFloatValue;$/;"	m	union:CLVALUEUnion
+mForNodeBlock	src/common.h	/^            MANAGED sNodeBlock* mForNodeBlock;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon4
+mFuncName	src/debug.c	/^    char mFuncName[NAME_SIZE];$/;"	m	struct:_t_malloc_entry	file:
+mGenericsTypes	src/common.h	/^    struct sNodeTypeStruct* mGenericsTypes[GENERICS_TYPES_MAX];$/;"	m	struct:sNodeTypeStruct	typeref:struct:sNodeTypeStruct::sNodeTypeStruct
+mIfNodeBlock	src/common.h	/^            MANAGED sNodeBlock* mIfNodeBlock;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon2
+mIndex	src/common.h	/^    int mIndex;$/;"	m	struct:sVarStruct
+mIntValue	src/common.h	/^        int mIntValue;$/;"	m	union:sNodeTreeStruct::__anon1
+mIntValue	src/common.h	/^    int mIntValue;$/;"	m	union:CLVALUEUnion
+mItem	src/klass.c	/^    sCLClass* mItem;$/;"	m	struct:sClassTableStruct	file:
+mLeft	src/common.h	/^    unsigned int mLeft;$/;"	m	struct:sNodeTreeStruct
+mLen	src/buffer.h	/^    int mLen;$/;"	m	struct:sBufStruct
+mLen	src/common.h	/^    int mLen;$/;"	m	struct:sConstStruct
+mLen	src/common.h	/^    unsigned int mLen;$/;"	m	struct:sByteCodeStruct
+mLine	src/debug.c	/^    int mLine;$/;"	m	struct:_t_malloc_entry	file:
+mLocalVariables	src/common.h	/^    sVar mLocalVariables[LOCAL_VARIABLE_MAX];  \/\/ open address hash$/;"	m	struct:sVarTableStruct
+mLongValue	src/common.h	/^    long mLongValue;$/;"	m	union:CLVALUEUnion
+mMaxBlockVarNum	src/common.h	/^    int mMaxBlockVarNum;$/;"	m	struct:sVarTableStruct
+mMemory	src/debug.c	/^    void* mMemory;$/;"	m	struct:_t_malloc_entry	file:
+mMiddle	src/common.h	/^    unsigned int mMiddle;$/;"	m	struct:sNodeTreeStruct
+mName	src/common.h	/^    char mName[VAR_NAME_MAX];$/;"	m	struct:sVarStruct
+mName	src/klass.c	/^    char* mName;$/;"	m	struct:sClassTableStruct	file:
+mNext	src/common.h	/^    struct sVarTableStruct* mNext;              \/\/ for free var table$/;"	m	struct:sVarTableStruct	typeref:struct:sVarTableStruct::sVarTableStruct
+mNextClass	src/klass.c	/^    struct sClassTableStruct* mNextClass;$/;"	m	struct:sClassTableStruct	typeref:struct:sClassTableStruct::sClassTableStruct	file:
+mNextEntry	src/debug.c	/^    struct _t_malloc_entry* mNextEntry;$/;"	m	struct:_t_malloc_entry	typeref:struct:_t_malloc_entry::_t_malloc_entry	file:
+mNodeType	src/common.h	/^    enum eNodeType mNodeType;$/;"	m	struct:sNodeTreeStruct	typeref:enum:sNodeTreeStruct::eNodeType
+mNodes	src/common.h	/^    unsigned int* mNodes;$/;"	m	struct:sNodeBlockStruct
+mNumGenericsTypes	src/common.h	/^    int mNumGenericsTypes;$/;"	m	struct:sNodeTypeStruct
+mNumNodes	src/common.h	/^    unsigned int mNumNodes;$/;"	m	struct:sNodeBlockStruct
+mObjectValue	src/common.h	/^    CLObject mObjectValue;$/;"	m	union:CLVALUEUnion
+mOperand	src/common.h	/^        enum eOperand mOperand;$/;"	m	union:sNodeTreeStruct::__anon1	typeref:enum:sNodeTreeStruct::__anon1::eOperand
+mParent	src/common.h	/^    struct sVarTableStruct* mParent;            \/\/ make linked list$/;"	m	struct:sVarTableStruct	typeref:struct:sVarTableStruct::sVarTableStruct
+mRight	src/common.h	/^    unsigned int mRight;$/;"	m	struct:sNodeTreeStruct
+mShortValue	src/common.h	/^    short mShortValue;$/;"	m	union:CLVALUEUnion
+mSize	src/buffer.h	/^    int mSize;$/;"	m	struct:sBufStruct
+mSize	src/common.h	/^    int mSize;$/;"	m	struct:sConstStruct
+mSize	src/common.h	/^    size_t mSize;$/;"	m	struct:sByteCodeStruct
+mSizeNodes	src/common.h	/^    unsigned int mSizeNodes;$/;"	m	struct:sNodeBlockStruct
+mType	src/common.h	/^    sNodeType* mType;$/;"	m	struct:sNodeTreeStruct
+mType	src/common.h	/^    sNodeType* mType;$/;"	m	struct:sVarStruct
+mUByteValue	src/common.h	/^    unsigned char mUByteValue;$/;"	m	union:CLVALUEUnion
+mUIntValue	src/common.h	/^    unsigned int mUIntValue;$/;"	m	union:CLVALUEUnion
+mULongValue	src/common.h	/^    unsigned long mULongValue;$/;"	m	union:CLVALUEUnion
+mUShortValue	src/common.h	/^    unsigned short mUShortValue;$/;"	m	union:CLVALUEUnion
+mVarName	src/common.h	/^        char mVarName[VAR_NAME_MAX];$/;"	m	union:sNodeTreeStruct::__anon1
+mVarNum	src/common.h	/^    int mVarNum;$/;"	m	struct:sVarTableStruct
+mWhileNodeBlock	src/common.h	/^            MANAGED sNodeBlock* mWhileNodeBlock;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon3
+main	a.c	/^int main() {$/;"	f
+main	src/compiler.c	/^int main(int argc, char** argv)$/;"	f
+main	src/main.c	/^int main(int argc, char** argv)$/;"	f
+mandir	Makefile	/^mandir=${datarootdir}\/man$/;"	m
+no_output	src/common.h	/^    BOOL no_output;$/;"	m	struct:sCompileInfoStruct
+num_break_points	src/common.h	/^    int* num_break_points;$/;"	m	struct:sCompileInfoStruct
+operand_posibility	src/node_type.c	/^BOOL operand_posibility(sNodeType* left, sNodeType* right)$/;"	f
+operand_posibility_with_class_name	src/node_type.c	/^BOOL operand_posibility_with_class_name(sNodeType* left, char* right_class_name)$/;"	f
+p	src/common.h	/^    char* p;$/;"	m	struct:sParserInfoStruct
+parse_normal_block	src/block.c	/^BOOL parse_normal_block(ALLOC sNodeBlock** node_block, sParserInfo* info)$/;"	f
+parse_word	src/parser.c	/^BOOL parse_word(char* buf, int buf_size, sParserInfo* info, BOOL print_out_err_msg)$/;"	f
+parser_err_msg	src/parser.c	/^void parser_err_msg(sParserInfo* info, const char* msg, ...)$/;"	f
+pinfo	src/common.h	/^    sParserInfo* pinfo;$/;"	m	struct:sCompileInfoStruct
+prefix	Makefile	/^prefix=\/home\/ab25cq$/;"	m
+prototypes	configure	/^   function prototypes and stuff, but not '\\xHH' hex character constants.$/;"	f
+put_class_to_table	src/klass.c	/^static BOOL put_class_to_table(char* name, sCLClass* klass)$/;"	f	file:
+read_source	src/compiler.c	/^static BOOL read_source(char* fname, sBuf* source)$/;"	f	file:
+release_entry	src/debug.c	/^void release_entry(void* memory, const char* file_name, int line, const char* func_name)$/;"	f
+sBuf	src/buffer.h	/^typedef struct sBufStruct sBuf;$/;"	t	typeref:struct:sBufStruct
+sBufStruct	src/buffer.h	/^struct sBufStruct {$/;"	s
+sBuf_append	src/buffer.c	/^void sBuf_append(sBuf* self, void* str, size_t size)$/;"	f
+sBuf_append_char	src/buffer.c	/^void sBuf_append_char(sBuf* self, char c)$/;"	f
+sBuf_append_str	src/buffer.c	/^void sBuf_append_str(sBuf* self, char* str)$/;"	f
+sBuf_init	src/buffer.c	/^void sBuf_init(sBuf* self)$/;"	f
+sByteCode	src/common.h	/^typedef struct sByteCodeStruct sByteCode;$/;"	t	typeref:struct:sByteCodeStruct
+sByteCodeStruct	src/common.h	/^struct sByteCodeStruct {$/;"	s
+sByteCode_free	src/code.c	/^void sByteCode_free(sByteCode* code)$/;"	f
+sByteCode_init	src/code.c	/^void sByteCode_init(sByteCode* code)$/;"	f
+sCLClass	src/common.h	/^typedef struct sCLClassStruct sCLClass;$/;"	t	typeref:struct:sCLClassStruct
+sCLClassStruct	src/common.h	/^struct sCLClassStruct {$/;"	s
+sClassTable	src/klass.c	/^typedef struct sClassTableStruct sClassTable;$/;"	t	typeref:struct:sClassTableStruct	file:
+sClassTableStruct	src/klass.c	/^struct sClassTableStruct$/;"	s	file:
+sCompileInfo	src/common.h	/^typedef struct sCompileInfoStruct sCompileInfo;$/;"	t	typeref:struct:sCompileInfoStruct
+sCompileInfoStruct	src/common.h	/^struct sCompileInfoStruct$/;"	s
+sConst	src/common.h	/^typedef struct sConstStruct sConst;$/;"	t	typeref:struct:sConstStruct
+sConstStruct	src/common.h	/^struct sConstStruct$/;"	s
+sConst_append	src/constant.c	/^int sConst_append(sConst* self, void* data, size_t size, BOOL no_output)$/;"	f
+sConst_free	src/constant.c	/^void sConst_free(sConst* self)$/;"	f
+sConst_init	src/constant.c	/^void sConst_init(sConst* self)$/;"	f
+sFor	src/common.h	/^        } sFor;$/;"	m	union:sNodeTreeStruct::__anon1	typeref:struct:sNodeTreeStruct::__anon1::__anon4
+sIf	src/common.h	/^        } sIf;$/;"	m	union:sNodeTreeStruct::__anon1	typeref:struct:sNodeTreeStruct::__anon1::__anon2
+sNodeBlock	src/common.h	/^typedef struct sNodeBlockStruct sNodeBlock;$/;"	t	typeref:struct:sNodeBlockStruct
+sNodeBlockStruct	src/common.h	/^struct sNodeBlockStruct$/;"	s
+sNodeBlock_alloc	src/block.c	/^static sNodeBlock* sNodeBlock_alloc()$/;"	f	file:
+sNodeBlock_free	src/block.c	/^void sNodeBlock_free(sNodeBlock* block)$/;"	f
+sNodeTree	src/common.h	/^typedef struct sNodeTreeStruct sNodeTree;$/;"	t	typeref:struct:sNodeTreeStruct
+sNodeTreeStruct	src/common.h	/^struct sNodeTreeStruct $/;"	s
+sNodeTree_break_expression	src/node.c	/^unsigned int sNodeTree_break_expression()$/;"	f
+sNodeTree_create_assign_variable	src/node.c	/^unsigned int sNodeTree_create_assign_variable(char* var_name, sNodeType* node_type, int right)$/;"	f
+sNodeTree_create_int_value	src/node.c	/^unsigned int sNodeTree_create_int_value(int value, unsigned int left, unsigned int right, unsigned int middle)$/;"	f
+sNodeTree_create_load_variable	src/node.c	/^unsigned int sNodeTree_create_load_variable(char* var_name)$/;"	f
+sNodeTree_create_operand	src/node.c	/^unsigned int sNodeTree_create_operand(enum eOperand operand, unsigned int left, unsigned int right, unsigned int middle)$/;"	f
+sNodeTree_false_expression	src/node.c	/^unsigned int sNodeTree_false_expression()$/;"	f
+sNodeTree_for_expression	src/node.c	/^unsigned int sNodeTree_for_expression(unsigned int expression_node1, unsigned int expression_node2, unsigned int expression_node3, MANAGED sNodeBlock* for_node_block)$/;"	f
+sNodeTree_if_expression	src/node.c	/^unsigned int sNodeTree_if_expression(unsigned int expression_node, MANAGED sNodeBlock* if_node_block, unsigned int* elif_expression_nodes, MANAGED sNodeBlock** elif_node_blocks, int elif_num, MANAGED sNodeBlock* else_node_block)$/;"	f
+sNodeTree_true_expression	src/node.c	/^unsigned int sNodeTree_true_expression()$/;"	f
+sNodeTree_while_expression	src/node.c	/^unsigned int sNodeTree_while_expression(unsigned int expression_node, MANAGED sNodeBlock* while_node_block)$/;"	f
+sNodeType	src/common.h	/^typedef struct sNodeTypeStruct sNodeType;$/;"	t	typeref:struct:sNodeTypeStruct
+sNodeTypeStruct	src/common.h	/^struct sNodeTypeStruct {$/;"	s
+sParserInfo	src/common.h	/^typedef struct sParserInfoStruct sParserInfo;$/;"	t	typeref:struct:sParserInfoStruct
+sParserInfoStruct	src/common.h	/^struct sParserInfoStruct$/;"	s
+sVar	src/common.h	/^typedef struct sVarStruct sVar;$/;"	t	typeref:struct:sVarStruct
+sVarStruct	src/common.h	/^struct sVarStruct {$/;"	s
+sVarTable	src/common.h	/^typedef struct sVarTableStruct sVarTable;$/;"	t	typeref:struct:sVarTableStruct
+sVarTableStruct	src/common.h	/^struct sVarTableStruct {$/;"	s
+sWhile	src/common.h	/^        } sWhile;$/;"	m	union:sNodeTreeStruct::__anon1	typeref:struct:sNodeTreeStruct::__anon1::__anon3
+sharedstatedir	Makefile	/^sharedstatedir=${prefix}\/com$/;"	m
+show_inst	src/vm.c	/^static void show_inst(unsigned inst)$/;"	f	file:
+show_node	src/node.c	/^void show_node(unsigned int node)$/;"	f
+show_stack	src/vm.c	/^static void show_stack(CLVALUE* stack, CLVALUE* stack_ptr)$/;"	f	file:
+skip_spaces_and_lf	src/parser.c	/^void skip_spaces_and_lf(sParserInfo* info)$/;"	f
+sline	src/common.h	/^    int sline;$/;"	m	struct:sParserInfoStruct
+sname	src/common.h	/^    char* sname;$/;"	m	struct:sParserInfoStruct
+stack_num	src/common.h	/^    int stack_num;$/;"	m	struct:sCompileInfoStruct
+substitution_posibility	src/node_type.c	/^BOOL substitution_posibility(sNodeType* left, sNodeType* right)$/;"	f
+substitution_posibility_with_class_name	src/node_type.c	/^BOOL substitution_posibility_with_class_name(sNodeType* left, char* right_class_name)$/;"	f
+sysconfdir	Makefile	/^sysconfdir=${prefix}\/etc\/clover2$/;"	m
+t_malloc_entry	src/debug.c	/^typedef struct _t_malloc_entry t_malloc_entry;$/;"	t	typeref:struct:_t_malloc_entry	file:
+type	src/common.h	/^    sNodeType* type;$/;"	m	struct:sCompileInfoStruct
+uValue	src/common.h	/^    } uValue;$/;"	m	struct:sNodeTreeStruct	typeref:union:sNodeTreeStruct::__anon1
+vm	src/vm.c	/^BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass)$/;"	f
+vm_mutex_off	src/vm.c	/^static void vm_mutex_off()$/;"	f	file:
+vm_mutex_on	src/vm.c	/^static void vm_mutex_on()$/;"	f	file:
+while_expression	src/parser.c	/^static BOOL while_expression(unsigned int* node, sParserInfo* info)$/;"	f	file:
+write_code_and_constant_to_file	src/script.c	/^static BOOL write_code_and_constant_to_file(sByteCode* code, sConst* constant, int var_num, char* fname)$/;"	f	file:
+xcalloc	src/debug.c	/^ALLOC void* xcalloc(size_t count, size_t size)$/;"	f
+xmalloc	src/debug.c	/^ALLOC void* xmalloc(size_t size)$/;"	f
+xrealloc	src/debug.c	/^ALLOC void* xrealloc(void* ptr, size_t size)$/;"	f
+xstrdup	src/debug.c	/^ALLOC char* xstrdup(char* str)$/;"	f
+xstrncat	src/debug.c	/^static char* xstrncat(char* des, char* str, int size)$/;"	f	file:
+xstrncat	src/xfunc.c	/^char* xstrncat(char* des, char* str, int size)$/;"	f
+xstrncpy	src/debug.c	/^static char* xstrncpy(char* des, char* src, int size)$/;"	f	file:
+xstrncpy	src/xfunc.c	/^char* xstrncpy(char* des, char* src, int size)$/;"	f
