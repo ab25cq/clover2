@@ -1,0 +1,14 @@
+
+class System: final
+{
+    def exit(num:int): native static; # thows SystemException;
+    def assert(exp:bool): native static;  # thows SystemException;
+}
+
+class Clover: final
+{
+    def malloc(size:int): native static pointer;
+    def GC_malloc(size:int): native static pointer;
+    def free(ptr:pointer): native static;
+}
+

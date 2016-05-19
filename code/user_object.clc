@@ -1,0 +1,28 @@
+
+class UserObjectTest {
+    def method(): static {
+        a := 1;
+        b := 2;
+
+        c := a + b;
+    }
+
+    def method2(a:int, b:int): static {
+        c:= a + b
+    }
+
+    def method3(a:int, b:int): static int {
+        return a + b;
+    }
+}
+
+class UserObjectTest2 {
+    a: private int;
+    b: private int;
+
+    def initialize() {
+        1 + 1
+        #self.a = 1;
+        #self.b = 2;
+    }
+}

@@ -7,6 +7,7 @@ static sNodeBlock* sNodeBlock_alloc()
     block->mSizeNodes = 32;
     block->mNumNodes = 0;
     block->mNodes = MCALLOC(1, sizeof(unsigned int)*block->mSizeNodes);
+    block->mLVTable = NULL;
 
     return block;
 }
@@ -42,11 +43,16 @@ BOOL parse_normal_block(ALLOC sNodeBlock** node_block, sParserInfo* info)
         return TRUE;
     }
 
+    sVarTable* old_vtable = info->lv_table;
+    info->lv_table = init_block_vtable(old_vtable);
+
     while(1) {
         unsigned int node = 0;
 
         if(!expression(&node, info)) {
             sNodeBlock_free(*node_block);
+
+            info->lv_table = old_vtable;
             return FALSE;
         }
 
@@ -68,27 +74,40 @@ BOOL parse_normal_block(ALLOC sNodeBlock** node_block, sParserInfo* info)
             skip_spaces_and_lf(info);
             break;
         }
-        else if(*info->p == 0) {
+        else if(*info->p == '\0') {
             parser_err_msg(info, "require } before the source end");
-            break;
+            info->err_num++;
+
+            info->lv_table = old_vtable;
+            return TRUE;
         }
     }
+
+    set_max_block_var_num(info->lv_table, old_vtable);
+    (*node_block)->mLVTable = info->lv_table;
+    info->lv_table = old_vtable;
 
     return TRUE;
 }
 
 BOOL compile_normal_block(sNodeBlock* block, sCompileInfo* info)
 {
+    sVarTable* old_table = info->lv_table;
+    info->lv_table = block->mLVTable;
+
     int i;
     for(i=0; i<block->mNumNodes; i++) {
         unsigned int node = block->mNodes[i];
 
         if(!compile(node, info)) {
+            info->lv_table = old_table;
             return FALSE;
         }
 
         arrange_stack(info);
     }
+
+    info->lv_table = old_table;
 
     return TRUE;
 }

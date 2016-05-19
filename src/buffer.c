@@ -49,3 +49,14 @@ void sBuf_append_str(sBuf* self, char* str)
 {
     sBuf_append(self, str, strlen(str));
 }
+
+void sBuf_append_int(sBuf* self, int value)
+{
+    sBuf_append(self, &value, sizeof(int));
+}
+
+void sBuf_append_long(sBuf* self, long value)
+{
+    sBuf_append(self, &value, sizeof(long));
+}
+

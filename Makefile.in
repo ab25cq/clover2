@@ -88,8 +88,16 @@ permission:
 # clean
 ########################################################
 clean:
-	rm -fR clover2 clover2.dSYM cclover2 cclover2.dSYM src/*.o libclover* config.log config.status *.stackdump autom4te.cache .DS_Store core.* a.out
+	rm -fR clover2 clover2.dSYM cclover2 cclover2.dSYM src/*.o libclover* config.log config.status *.stackdump autom4te.cache .DS_Store core.* a.out *.clcl *.clo
 
 distclean: clean
 	rm -fR  config.h Makefile autom4te.cache
+
+########################################################
+# test
+########################################################
+test:
+	@echo "Compile to test code..."
+	./cclover2 code/block_var_test.cl && ./clover2 code/block_var_test.clo
+	./cclover2 -class code/user_object.clc code/user_object.cl && ./clover2 code/user_object.clo
 

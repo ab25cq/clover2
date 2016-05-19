@@ -17,72 +17,250 @@ static void show_stack(CLVALUE* stack, CLVALUE* stack_ptr)
 static void show_inst(unsigned inst)
 {
     switch(inst) {
-        case OP_POP:
+        case OP_POP :
             puts("OP_POP");
             break;
 
-        case OP_POP_N:
+        case OP_POP_N :
             puts("OP_POP_N");
             break;
 
-        case OP_COND_JUMP:
+        case OP_COND_JUMP :
             puts("OP_COND_JUMP");
             break;
 
-        case OP_GOTO:
+        case OP_GOTO :
             puts("OP_GOTO");
             break;
 
-        case OP_STORE:
+        case OP_RETURN :
+            puts("OP_RETURN");
+            break;
+
+        case OP_STORE :
             puts("OP_STORE");
             break;
 
-        case OP_LOAD:
+        case OP_LOAD :
             puts("OP_LOAD");
             break;
 
-        case OP_LDCINT:
+        case OP_LDCBYTE :
+            puts("OP_LDCBYTE");
+            break;
+
+        case OP_LDCUBYTE :
+            puts("OP_LDCUBYTE");
+            break;
+
+        case OP_LDCSHORT :
+            puts("OP_LDCSHORT");
+            break;
+
+        case OP_LDCUSHORT :
+            puts("OP_LDCUSHORT");
+            break;
+
+        case OP_LDCINT :
             puts("OP_LDCINT");
             break;
 
-        case OP_LDCNULL:
+        case OP_LDCUINT :
+            puts("OP_LDCUINT");
+            break;
+
+        case OP_LDCLONG :
+            puts("OP_LDCLONG");
+            break;
+
+        case OP_LDCULONG :
+            puts("OP_LDCULONG");
+            break;
+
+        case OP_LDCNULL :
             puts("OP_LDCNULL");
             break;
 
-        case OP_IADD:
+        case OP_BADD :
+            puts("OP_BADD");
+            break;
+
+        case OP_UBADD :
+            puts("OP_UBADD");
+            break;
+
+        case OP_SADD :
+            puts("OP_SADD");
+            break;
+
+        case OP_USADD :
+            puts("OP_USADD");
+            break;
+
+        case OP_IADD :
             puts("OP_IADD");
             break;
 
-        case OP_ISUB:
+        case OP_UIADD :
+            puts("OP_UIADD");
+            break;
+
+        case OP_LADD :
+            puts("OP_LADD");
+            break;
+
+        case OP_ULADD :
+            puts("OP_ULADD");
+            break;
+
+        case OP_FADD :
+            puts("OP_FADD");
+            break;
+
+        case OP_DADD :
+            puts("OP_DADD");
+            break;
+
+        case OP_BSUB :
+            puts("OP_BSUB");
+            break;
+
+        case OP_UBSUB :
+            puts("OP_UBSUB");
+            break;
+
+        case OP_SSUB :
+            puts("OP_SSUB");
+            break;
+
+        case OP_USSUB :
+            puts("OP_USSUB");
+            break;
+
+        case OP_ISUB :
             puts("OP_ISUB");
             break;
 
-        case OP_IEQ:
+        case OP_UISUB :
+            puts("OP_UISUB");
+            break;
+
+        case OP_LSUB :
+            puts("OP_LSUB");
+            break;
+
+        case OP_ULSUB :
+            puts("OP_ULSUB");
+            break;
+
+        case OP_FSUB :
+            puts("OP_FSUB");
+            break;
+
+        case OP_DSUB :
+            puts("OP_DSUB");
+            break;
+
+        case OP_IEQ :
             puts("OP_IEQ");
             break;
 
-        case OP_INOTEQ:
+        case OP_INOTEQ :
             puts("OP_INOTEQ");
+            break;
+
+        case OP_ANDAND:
+            puts("OP_ANDAND");
+            break;
+
+        case OP_OROR:
+            puts("OP_OROR");
+            break;
+
+        case OP_INVOKE_METHOD :
+            puts("OP_INVOKE_METHOD");
+            break;
+
+        case OP_NEW :
+            puts("OP_NEW");
+            break;
+
+        default:
+            printf("inst %d\n", inst);
             break;
     }
 }
 
 #endif
 
-static void vm_mutex_on()
+void vm_mutex_on()
 {
 }
 
-static void vm_mutex_off()
+void vm_mutex_off()
 {
 }
 
-BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass)
+static BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, CLVALUE** stack_ptr, sVMInfo* info)
+{
+    if(method->mFlags & METHOD_FLAGS_NATIVE) {
+        CLVALUE* lvar = *stack_ptr - method->mNumParams;
+
+        if(method->uCode.mNativeMethod == NULL) {
+            entry_exception_object_with_class_name(stack, "MethodNotFoundException", "method not found");
+            return FALSE;
+        }
+
+        if(!method->uCode.mNativeMethod(stack_ptr, lvar, info)) {
+            return FALSE;
+        }
+
+        if(is_void_type(method->mResultType, klass)) {
+            (*stack_ptr)->mIntValue = 0;
+            (*stack_ptr)++;
+        }
+        else {
+            CLVALUE result = *(*stack_ptr - 1);
+            *stack_ptr = lvar;
+            **stack_ptr = result;
+            (*stack_ptr)++;
+        }
+    }
+    else {
+        int real_param_num = method->mNumParams + (method->mFlags & METHOD_FLAGS_CLASS_METHOD ? 0:1);
+        CLVALUE* lvar = *stack_ptr - real_param_num;
+
+        sByteCode* code = &method->uCode.mByteCodes;
+        sConst* constant = &klass->mConst;
+        CLVALUE* stack = lvar;
+        int var_num = method->mVarNum;
+
+        if(!vm(code, constant, stack, var_num, klass, info)) {
+            return FALSE;
+        }
+        
+        if(is_void_type(method->mResultType, klass)) {
+            (*stack_ptr)->mIntValue = 0;
+            (*stack_ptr)++;
+        }
+        else {
+            *stack_ptr = lvar;      // see OP_RETURN
+            **stack_ptr = *stack;
+            (*stack_ptr)++;
+        }
+    }
+
+    return TRUE;
+}
+
+BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sVMInfo* info)
 {
     register char* pc = code->mCodes;
 
     CLVALUE* stack_ptr = stack + var_num;
     CLVALUE* lvar = stack;
+
+    append_stack_to_stack_list(stack, &stack_ptr);
 
     while(pc - code->mCodes < code->mLen) {
         unsigned int inst = *(unsigned int*)pc;
@@ -143,6 +321,11 @@ show_inst(inst);
                 }
                 break;
 
+            case OP_RETURN:
+                *stack = *(stack_ptr-1);
+                remove_stack_to_stack_list(stack);
+                return TRUE;
+
             case OP_STORE:
                 {
                     vm_mutex_on();
@@ -170,6 +353,62 @@ show_inst(inst);
                 }
                 break;
 
+            case OP_LDCBYTE: 
+                {
+                    vm_mutex_on();
+
+                    int value = *(int*)pc;
+                    pc += sizeof(int);
+
+                    stack_ptr->mByteValue = (char)value;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_LDCUBYTE: 
+                {
+                    vm_mutex_on();
+
+                    int value = *(int*)pc;
+                    pc += sizeof(int);
+
+                    stack_ptr->mUByteValue = (unsigned char)value;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_LDCSHORT: 
+                {
+                    vm_mutex_on();
+
+                    int value = *(int*)pc;
+                    pc += sizeof(int);
+
+                    stack_ptr->mShortValue = (short)value;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_LDCUSHORT: 
+                {
+                    vm_mutex_on();
+
+                    int value = *(int*)pc;
+                    pc += sizeof(int);
+
+                    stack_ptr->mUShortValue = (unsigned short)value;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
             case OP_LDCINT: 
                 {
                     vm_mutex_on();
@@ -184,11 +423,137 @@ show_inst(inst);
                 }
                 break;
 
+            case OP_LDCUINT: 
+                {
+                    vm_mutex_on();
+
+                    unsigned int value = *(unsigned int*)pc;
+                    pc += sizeof(int);
+
+                    stack_ptr->mUIntValue = value;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_LDCLONG: 
+                {
+                    vm_mutex_on();
+
+                    int value1 = *(int*)pc;
+                    pc += sizeof(int);
+
+                    int value2 = *(int*)pc;
+                    pc += sizeof(int);
+
+                    long lvalue;
+
+                    memcpy(&lvalue, &value1, sizeof(int));
+                    memcpy((char*)&lvalue + sizeof(int), &value2, sizeof(int));
+
+                    stack_ptr->mLongValue = lvalue;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_LDCULONG: 
+                {
+                    vm_mutex_on();
+
+                    int value1 = *(int*)pc;
+                    pc += sizeof(int);
+
+                    int value2 = *(int*)pc;
+                    pc += sizeof(int);
+
+                    unsigned long lvalue;
+
+                    memcpy(&lvalue, &value1, sizeof(int));
+                    memcpy((char*)&lvalue + sizeof(int), &value2, sizeof(int));
+
+                    stack_ptr->mULongValue = lvalue;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
             case OP_LDCNULL:
                 {
                     vm_mutex_on();
 
                     stack_ptr->mIntValue = 0;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_BADD:
+                {
+                    vm_mutex_on();
+
+                    char left = (stack_ptr-2)->mByteValue;
+                    char right = (stack_ptr-1)->mByteValue;
+
+                    char result = left + right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mByteValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_UBADD:
+                {
+                    vm_mutex_on();
+
+                    unsigned char left = (stack_ptr-2)->mByteValue;
+                    unsigned char right = (stack_ptr-1)->mByteValue;
+
+                    unsigned char result = left + right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mUByteValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_SADD:
+                {
+                    vm_mutex_on();
+
+                    short left = (stack_ptr-2)->mShortValue;
+                    short right = (stack_ptr-1)->mShortValue;
+
+                    short result = left + right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mShortValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_USADD:
+                {
+                    vm_mutex_on();
+
+                    unsigned short left = (stack_ptr-2)->mUShortValue;
+                    unsigned short right = (stack_ptr-1)->mUShortValue;
+
+                    unsigned short result = left + right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mUShortValue = result;
                     stack_ptr++;
 
                     vm_mutex_off();
@@ -212,6 +577,125 @@ show_inst(inst);
                 }
                 break;
 
+            case OP_UIADD: 
+                {
+                    vm_mutex_on();
+
+                    unsigned int left = (stack_ptr-2)->mUIntValue;
+                    unsigned int right = (stack_ptr-1)->mUIntValue;
+
+                    unsigned int result = left + right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mUIntValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_LADD: 
+                {
+                    vm_mutex_on();
+
+                    long left = (stack_ptr-2)->mLongValue;
+                    long right = (stack_ptr-1)->mLongValue;
+
+                    long result = left + right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mLongValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_ULADD: 
+                {
+                    vm_mutex_on();
+
+                    unsigned long left = (stack_ptr-2)->mULongValue;
+                    unsigned long right = (stack_ptr-1)->mULongValue;
+
+                    unsigned long result = left + right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mULongValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_BEQ:
+                {
+                    vm_mutex_on();
+
+                    char left = (stack_ptr-2)->mByteValue;
+                    char right = (stack_ptr-1)->mByteValue;
+
+                    BOOL result = left == right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mBoolValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_UBEQ:
+                {
+                    vm_mutex_on();
+
+                    unsigned char left = (stack_ptr-2)->mUByteValue;
+                    unsigned char right = (stack_ptr-1)->mUByteValue;
+
+                    BOOL result = left == right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mBoolValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_SEQ:
+                {
+                    vm_mutex_on();
+
+                    short left = (stack_ptr-2)->mShortValue;
+                    short right = (stack_ptr-1)->mShortValue;
+
+                    BOOL result = left == right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mBoolValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_USEQ:
+                {
+                    vm_mutex_on();
+
+                    unsigned short left = (stack_ptr-2)->mUShortValue;
+                    unsigned short right = (stack_ptr-1)->mUShortValue;
+
+                    BOOL result = left == right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mBoolValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
             case OP_IEQ:
                 {
                     vm_mutex_on();
@@ -226,6 +710,159 @@ show_inst(inst);
                     stack_ptr++;
 
                     vm_mutex_off();
+                }
+                break;
+
+            case OP_UIEQ:
+                {
+                    vm_mutex_on();
+
+                    unsigned int left = (stack_ptr-2)->mUIntValue;
+                    unsigned int right = (stack_ptr-1)->mUIntValue;
+
+                    BOOL result = left == right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mBoolValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_LEQ:
+                {
+                    vm_mutex_on();
+
+                    long left = (stack_ptr-2)->mLongValue;
+                    long right = (stack_ptr-1)->mLongValue;
+
+                    BOOL result = left == right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mBoolValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_ULEQ:
+                {
+                    vm_mutex_on();
+
+                    unsigned long left = (stack_ptr-2)->mULongValue;
+                    unsigned long right = (stack_ptr-1)->mULongValue;
+
+                    BOOL result = left == right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mBoolValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_FEQ:
+                {
+                    vm_mutex_on();
+
+                    float left = (stack_ptr-2)->mFloatValue;
+                    float right = (stack_ptr-1)->mFloatValue;
+
+                    BOOL result = left == right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mBoolValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_DEQ:
+                {
+                    vm_mutex_on();
+
+                    double left = (stack_ptr-2)->mDoubleValue;
+                    double right = (stack_ptr-1)->mDoubleValue;
+
+                    BOOL result = left == right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mBoolValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_BNOTEQ:
+                {
+                    vm_mutex_on();
+
+                    char left = (stack_ptr-2)->mByteValue;
+                    char right = (stack_ptr-1)->mByteValue;
+
+                    BOOL result = left != right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mBoolValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_on();
+                }
+                break;
+
+            case OP_UBNOTEQ:
+                {
+                    vm_mutex_on();
+
+                    unsigned char left = (stack_ptr-2)->mUByteValue;
+                    unsigned char right = (stack_ptr-1)->mUByteValue;
+
+                    BOOL result = left != right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mBoolValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_on();
+                }
+                break;
+
+            case OP_SNOTEQ:
+                {
+                    vm_mutex_on();
+
+                    short left = (stack_ptr-2)->mShortValue;
+                    short right = (stack_ptr-1)->mShortValue;
+
+                    BOOL result = left != right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mBoolValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_on();
+                }
+                break;
+
+            case OP_USNOTEQ:
+                {
+                    vm_mutex_on();
+
+                    unsigned short left = (stack_ptr-2)->mShortValue;
+                    unsigned short right = (stack_ptr-1)->mShortValue;
+
+                    BOOL result = left != right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mBoolValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_on();
                 }
                 break;
 
@@ -245,11 +882,198 @@ show_inst(inst);
                     vm_mutex_on();
                 }
                 break;
+
+            case OP_UINOTEQ:
+                {
+                    vm_mutex_on();
+
+                    unsigned int left = (stack_ptr-2)->mUIntValue;
+                    unsigned int right = (stack_ptr-1)->mUIntValue;
+
+                    BOOL result = left != right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mBoolValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_on();
+                }
+                break;
+
+            case OP_LNOTEQ:
+                {
+                    vm_mutex_on();
+
+                    long left = (stack_ptr-2)->mLongValue;
+                    long right = (stack_ptr-1)->mLongValue;
+
+                    BOOL result = left != right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mBoolValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_on();
+                }
+                break;
+
+            case OP_ULNOTEQ:
+                {
+                    vm_mutex_on();
+
+                    unsigned long left = (stack_ptr-2)->mULongValue;
+                    unsigned long right = (stack_ptr-1)->mULongValue;
+
+                    BOOL result = left != right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mBoolValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_on();
+                }
+                break;
+
+            case OP_FNOTEQ:
+                {
+                    vm_mutex_on();
+
+                    float left = (stack_ptr-2)->mFloatValue;
+                    float right = (stack_ptr-1)->mFloatValue;
+
+                    BOOL result = left != right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mBoolValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_on();
+                }
+                break;
+
+            case OP_DNOTEQ:
+                {
+                    vm_mutex_on();
+
+                    double left = (stack_ptr-2)->mDoubleValue;
+                    double right = (stack_ptr-1)->mDoubleValue;
+
+                    BOOL result = left != right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mBoolValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_on();
+                }
+                break;
+
+            case OP_ANDAND:
+                {
+                    vm_mutex_on();
+
+                    int left = (stack_ptr-2)->mBoolValue;
+                    int right = (stack_ptr-1)->mBoolValue;
+
+                    BOOL result = left && right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mBoolValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_on();
+                }
+                break;
+
+            case OP_OROR:
+                {
+                    vm_mutex_on();
+
+                    int left = (stack_ptr-2)->mBoolValue;
+                    int right = (stack_ptr-1)->mBoolValue;
+
+                    BOOL result = left || right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mBoolValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_on();
+                }
+                break;
+
+            case OP_INVOKE_METHOD:
+                {
+                    vm_mutex_on();
+
+                    int offset = *(int*)pc;
+                    pc += sizeof(int);
+
+                    int method_index = *(int*)pc;
+                    pc += sizeof(int);
+
+                    char* class_name = CONS_str(constant, offset);
+
+                    sCLClass* klass = get_class_with_load(class_name);
+
+                    if(klass == NULL) {
+                        vm_mutex_off();
+                        entry_exception_object_with_class_name(stack, "ClassNotFoundException", "class not found");
+                        remove_stack_to_stack_list(stack);
+                        return FALSE;
+                    }
+
+                    if(method_index < 0 || method_index >= klass->mNumMethods) {
+                        vm_mutex_off();
+                        entry_exception_object_with_class_name(stack, "Exception", "Calling method index is invalid");
+                        remove_stack_to_stack_list(stack);
+                        return FALSE;
+                    }
+
+                    sCLMethod* method = klass->mMethods + method_index;
+
+                    if(!invoke_method(klass, method, stack, &stack_ptr, info)) {
+                        vm_mutex_off();
+                        remove_stack_to_stack_list(stack);
+                        return FALSE;
+                    }
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_NEW:
+                {
+                    vm_mutex_on();
+
+                    int offset = *(int*)pc;
+                    pc += sizeof(int);
+
+                    char* class_name = CONS_str(constant, offset);
+
+                    sCLClass* klass = get_class_with_load(class_name);
+
+                    if(klass == NULL) {
+                        vm_mutex_off();
+                        entry_exception_object_with_class_name(stack, "ClassNotFoundException", "class not found");
+                        remove_stack_to_stack_list(stack);
+                        return FALSE;
+                    }
+
+                    CLObject obj = create_object(klass);
+                    stack_ptr->mObjectValue = obj;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
         }
 #ifdef VM_DEBUG
 show_stack(stack, stack_ptr);
 #endif
     }
+
+    remove_stack_to_stack_list(stack);
 
     return TRUE;
 }

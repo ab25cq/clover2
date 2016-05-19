@@ -215,9 +215,9 @@ CFLAGS="$CFLAGS -Qunused-arguments"
 
 AC_SUBST(CFLAGS)
 
-OBJS="src/main.o src/vm.o"
-COMPILER_OBJS="src/compiler.o src/parser.o src/node_type.o src/node.o src/vtable.o src/script.o src/block.o"
-LIB_OBJS="src/buffer.o src/debug.o src/xfunc.o src/klass.o src/constant.o src/code.o"
+OBJS="src/main.o src/vm.o src/type.o src/stack.o"
+COMPILER_OBJS="src/compiler.o src/parser.o src/node_type.o src/node.o src/vtable.o src/script.o src/block.o src/class_compiler.o src/klass_compile_time.o src/method_compiler.o"
+LIB_OBJS="src/buffer.o src/debug.o src/xfunc.o src/klass.o src/constant.o src/code.o src/native_method.o src/exception.o src/object.o src/heap.o src/class_system.o src/class_clover.o"
 
 AC_SUBST(OBJS)
 AC_SUBST(COMPILER_OBJS)

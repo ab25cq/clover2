@@ -1,0 +1,6 @@
+
+class ClassI {
+    def method(a:int, b:int): int {
+        return a + b;
+    }
+}

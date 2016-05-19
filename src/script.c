@@ -62,6 +62,7 @@ BOOL compile_script(char* fname, char* source)
     info.sname = fname;
     info.sline = 1;
     info.lv_table = init_var_table();
+    info.parse_phase = 0;
 
     sCompileInfo cinfo;
     
@@ -86,7 +87,7 @@ BOOL compile_script(char* fname, char* source)
         }
 
 #ifdef VM_DEBUG
-show_node(node);
+    //show_node(node);
 #endif
 
         if(info.err_num == 0) {
@@ -98,7 +99,6 @@ show_node(node);
 
             arrange_stack(&cinfo);
         }
-
 
         if(*info.p == ';') {
             info.p++;

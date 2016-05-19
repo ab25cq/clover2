@@ -10,6 +10,13 @@ void sConst_init(sConst* self)
     self->mConst = MCALLOC(1, sizeof(char)*self->mSize);
 }
 
+void sConst_init_with_size(sConst* self, int size)
+{
+    self->mSize = size;
+    self->mLen = 0;
+    self->mConst = MCALLOC(1, sizeof(char)*self->mSize);
+}
+
 void sConst_free(sConst* self)
 {
     MFREE(self->mConst);
@@ -85,3 +92,8 @@ int append_wstr_to_constant_pool(sConst* constant, char* str, BOOL no_output)
     return result;
 }
 
+void append_str_to_constant_pool_and_code(sConst* constant, sByteCode* code, char* str, BOOL no_output)
+{
+    int offset = append_str_to_constant_pool(constant, str, no_output);
+    append_int_value_to_code(code, offset, no_output);
+}

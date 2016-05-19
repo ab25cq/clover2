@@ -86,9 +86,29 @@ sNodeType* create_node_type_with_class_name(char* class_name)
 
     node_type->mClass = get_class(class_name);
 
-    MASSERT(node_type->mClass != NULL);
+    if(node_type->mClass == NULL) {
+        node_type->mClass = load_class(class_name);
+    }
 
     node_type->mNumGenericsTypes = 0;
+
+    return node_type;
+}
+
+sNodeType* create_node_type_from_cl_type(sCLType* cl_type, sCLClass* klass)
+{
+    sNodeType* node_type = alloc_node_type();
+
+    node_type->mClass = get_class(CONS_str(&klass->mConst, cl_type->mClassNameOffset));
+
+    MASSERT(node_type->mClass != NULL);
+
+    node_type->mNumGenericsTypes = cl_type->mNumGenericsTypes;
+
+    int i;
+    for(i=0; i<cl_type->mNumGenericsTypes; i++) {
+        node_type->mGenericsTypes[i] = create_node_type_from_cl_type(cl_type->mGenericsTypes[i], klass);
+    }
 
     return node_type;
 }
@@ -113,4 +133,40 @@ BOOL operand_posibility_with_class_name(sNodeType* left, char* right_class_name)
     return operand_posibility(left, create_node_type_with_class_name(right_class_name));
 }
 
+BOOL solve_generics_types_for_node_type(sNodeType* node_type, ALLOC sNodeType** result, sNodeType* generics_type)
+{
+    int i;
+    int j;
+
+    if(generics_type) {
+        for(i=0; i<GENERICS_TYPES_MAX; i++) {
+            if(node_type->mClass->mGenericsParamClassNum == i) {
+                if(i < generics_type->mNumGenericsTypes) {
+                    *result = ALLOC clone_node_type(generics_type->mGenericsTypes[i]);
+                    return TRUE;
+                }
+                else {
+                    *result = ALLOC clone_node_type(node_type); // no solve
+                    return FALSE; // error
+                }
+            }
+        }
+
+        *result = alloc_node_type();
+        (*result)->mClass = node_type->mClass;
+
+        (*result)->mNumGenericsTypes = node_type->mNumGenericsTypes;
+
+        for(j=0; j<node_type->mNumGenericsTypes; j++) {
+            (void)solve_generics_types_for_node_type(node_type->mGenericsTypes[j], &(*result)->mGenericsTypes[j], generics_type);
+
+            // if it can not be solved generics, no solve the generics type
+        }
+    }
+    else {
+        *result = clone_node_type(node_type); // no solve
+    }
+
+    return TRUE;
+}
 

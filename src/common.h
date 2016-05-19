@@ -10,6 +10,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <ctype.h>
+#include <stdarg.h>
 
 #include "macros.h"
 
@@ -25,8 +26,35 @@
 /// limits ///
 #define CLASS_NAME_MAX 32
 #define VAR_NAME_MAX 32
+#define METHOD_NAME_MAX VAR_NAME_MAX
 #define ELIF_NUM_MAX 32
 #define BREAK_NUM_MAX 32
+#define PARAMS_MAX 32
+#define GENERICS_TYPES_MAX 32
+#define CLASS_VERSION_MAX 128
+#define METHOD_PATH_MAX 1024
+
+/// CLVALUE ///
+typedef unsigned int CLObject;
+
+union CLVALUEUnion {
+    unsigned int mUIntValue;
+    unsigned char mUByteValue;
+    unsigned short mUShortValue;
+    unsigned long mULongValue;
+    int mIntValue;
+    char mByteValue;
+    short mShortValue;
+    long mLongValue;
+    CLObject mObjectValue;
+    wchar_t mCharValue;
+    float mFloatValue;
+    double mDoubleValue;
+    BOOL mBoolValue;
+    void* mPointerValue;
+};
+
+typedef union CLVALUEUnion CLVALUE;
 
 /// code.c ///
 struct sByteCodeStruct {
@@ -38,10 +66,12 @@ struct sByteCodeStruct {
 typedef struct sByteCodeStruct sByteCode;
 
 void sByteCode_init(sByteCode* code);
+void sByteCode_init_with_size(sByteCode* code, int size);
 void sByteCode_free(sByteCode* code);
 void append_value_to_code(sByteCode* code, void* data, size_t size, BOOL no_output);
 void append_opecode_to_code(sByteCode* code, unsigned int op, BOOL no_output);
 void append_int_value_to_code(sByteCode* code, int value, BOOL no_output);
+void append_long_value_to_code(sByteCode* code, long value, BOOL no_output);
 
 /// constant.c ///
 struct sConstStruct
@@ -56,6 +86,7 @@ typedef struct sConstStruct sConst;
 #define CONS_str(constant, offset) (char*)((constant)->mConst + offset)
 
 void sConst_init(sConst* self);
+void sConst_init_with_size(sConst* self, int size);
 void sConst_free(sConst* self);
 
 int sConst_append(sConst* self, void* data, size_t size, BOOL no_output);
@@ -64,31 +95,131 @@ int append_float_value_to_constant_pool(sConst* constant, float n, BOOL no_outpu
 int append_double_value_to_constant_pool(sConst* constant, double n, BOOL no_output);
 int append_str_to_constant_pool(sConst* constant, char* str, BOOL no_output);
 int append_wstr_to_constant_pool(sConst* constant, char* str, BOOL no_output);
+void append_str_to_constant_pool_and_code(sConst* constant, sByteCode* code, char* str, BOOL no_output);
 
 /// klass.c ///
 #define CLASS_FLAGS_PRIMITIVE 0x01
+#define CLASS_FLAGS_FINAL 0x02
+#define CLASS_FLAGS_MODIFIED 0x04
+
+struct sCLClassStruct;
+
+struct sCLTypeStruct {
+    int mClassNameOffset;
+
+    int mNumGenericsTypes;
+    struct sCLTypeStruct* mGenericsTypes[GENERICS_TYPES_MAX];
+};
+
+typedef struct sCLTypeStruct sCLType;
+
+struct sCLParamStruct {
+    int mNameOffset;                // variable name
+
+    sCLType* mType;
+};
+
+typedef struct sCLParamStruct sCLParam;
+
+#define METHOD_FLAGS_NATIVE 0x01
+#define METHOD_FLAGS_CLASS_METHOD 0x02
+
+struct sVMInfoStruct {
+};
+
+typedef struct sVMInfoStruct sVMInfo;
+
+typedef BOOL (*fNativeMethod)(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+
+struct sCLMethodStruct {
+    long mFlags;
+    int mNameOffset;
+    int mPathOffset;
+
+    sCLParam mParams[PARAMS_MAX]; // +1 --> self
+    int mNumParams;
+
+    sCLType* mResultType;
+
+    union {
+        sByteCode mByteCodes;
+        fNativeMethod mNativeMethod;
+    } uCode;
+    
+    int mVarNum;
+};
+
+typedef struct sCLMethodStruct sCLMethod;
+
+#define FIELD_FLAGS_PRIVATE 0x01
+#define FIELD_FLAGS_PROTECTED 0x02
+
+struct sCLFieldStruct {
+    long mFlags;
+    int mNameOffset;
+
+    sCLType* mResultType;
+};
+
+typedef struct sCLFieldStruct sCLField;
+
+typedef void (*fMarkFun)(CLObject self, unsigned char* mark_flg);
+typedef void (*fFreeFun)(CLObject self);
 
 struct sCLClassStruct {
     long mFlags;
+
+    int mGenericsParamClassNum;   // -1 is none generics param 
+
+    int mVersion;
     sConst mConst;
 
     int mClassNameOffset;
+
+    sCLMethod* mMethods;
+    int mNumMethods;
+    int mSizeMethods;
+
+    sCLField* mFields;
+    int mNumFields;
+    int mSizeFields;
+
+    int mNumMethodsOnLoadTime; // This requires from the compile time
+    int mMethodIndexOnCompileTime; // This require from the compile time
+
+    fFreeFun mFreeFun;
+    fMarkFun mMarkFun;
 };
 
 typedef struct sCLClassStruct sCLClass;
 
 #define CLASS_NAME(klass) (CONS_str((&(klass)->mConst), (klass)->mClassNameOffset))
+#define METHOD_NAME2(klass, method) (CONS_str((&(klass)->mConst), (method)->mNameOffset))
 
 void class_init();
 void class_final();
 
 sCLClass* get_class(char* name);
 unsigned int get_hash_key(char* name, unsigned int max);
-sCLClass* alloc_class(char* name, BOOL primitive_);
+sCLClass* alloc_class(char* class_name, BOOL primitive_, BOOL final_, int generics_param_class_num);
+ALLOC sCLType* create_cl_type(sCLClass* klass, sCLClass* klass2);
+void free_cl_type(sCLType* cl_type);
+sCLClass* load_class_with_version(char* class_name, int class_version);
+sCLClass* load_class(char* class_name);
+
+struct sClassTableStruct
+{
+    char* mName;
+    sCLClass* mItem;
+
+    struct sClassTableStruct* mNextClass;
+};
+
+typedef struct sClassTableStruct sClassTable;
+
+sClassTable* gHeadClassTable;
 
 /// node_type.c ///
-#define GENERICS_TYPES_MAX 32
-
 struct sNodeTypeStruct {
     sCLClass* mClass;
 
@@ -103,11 +234,13 @@ void free_node_types();
 sNodeType* alloc_node_type();
 sNodeType* clone_node_type(sNodeType* node_type);
 sNodeType* create_node_type_with_class_name(char* class_name);
+sNodeType* create_node_type_from_cl_type(sCLType* cl_type, sCLClass* klass);
 
 BOOL substitution_posibility(sNodeType* left, sNodeType* right);
 BOOL substitution_posibility_with_class_name(sNodeType* left, char* right_class_name);
 BOOL operand_posibility(sNodeType* left, sNodeType* right);
 BOOL operand_posibility_with_class_name(sNodeType* left, char* right_class_name);
+BOOL solve_generics_types_for_node_type(sNodeType* node_type, ALLOC sNodeType** result, sNodeType* type_);
 
 /// vtable.c ///
 struct sVarStruct {
@@ -138,7 +271,13 @@ typedef struct sVarTableStruct sVarTable;
 void init_vtable();
 void final_vtable();
 
+sVarTable* init_block_vtable(sVarTable* lv_table);
+
 sVarTable* init_var_table();
+
+void set_max_block_var_num(sVarTable* new_table, sVarTable* lv_table);
+
+int get_variable_index(sVarTable* table, char* name);
 
 // result: (true) success (false) overflow the table or a variable which has the same name exists
 BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_);
@@ -156,6 +295,8 @@ struct sParserInfoStruct
     int sline;
     int err_num;
     sVarTable* lv_table;
+    int parse_phase;
+    sCLClass* klass;
 };
 
 typedef struct sParserInfoStruct sParserInfo;
@@ -164,6 +305,8 @@ void parser_err_msg(sParserInfo* info, const char* msg, ...);
 BOOL expression(unsigned int* node, sParserInfo* info);
 void skip_spaces_and_lf(sParserInfo* info);
 void expect_next_character_with_one_forward(char* characters, sParserInfo* info);
+BOOL parse_word(char* buf, int buf_size, sParserInfo* info, BOOL print_out_err_msg);
+BOOL parse_type(sNodeType** result_type, sParserInfo* info);
 
 /// node_block ///
 struct sNodeBlockStruct
@@ -171,6 +314,8 @@ struct sNodeBlockStruct
     unsigned int* mNodes;
     unsigned int mSizeNodes;
     unsigned int mNumNodes;
+
+    sVarTable* mLVTable;
 };
 
 typedef struct sNodeBlockStruct sNodeBlock;
@@ -181,8 +326,8 @@ struct sCompileInfoStruct;
 BOOL compile_normal_block(sNodeBlock* block, struct sCompileInfoStruct* info);
 
 /// node.c ///
-enum eNodeType { kNodeTypeOperand, kNodeTypeIntValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeFor };
-enum eOperand { kOpAdd, kOpSub, kOpComparisonEqual, kOpComparisonNotEqual };
+enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeUByteValue, kNodeTypeShortValue, kNodeTypeUShortValue, kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeReturn, kNodeTypeNewOperator };
+enum eOperand { kOpAdd, kOpSub , kOpComplement, kOpLogicalDenial, kOpMult, kOpDiv, kOpMod, kOpLeftShift, kOpRightShift, kOpComparisonEqual, kOpComparisonNotEqual,kOpComparisonGreaterEqual, kOpComparisonLesserEqual, kOpComparisonGreater, kOpComparisonLesser, kOpAnd, kOpXor, kOpOr, kOpAndAnd, kOpOrOr, kOpConditional };
 
 struct sNodeTreeStruct 
 {
@@ -194,8 +339,20 @@ struct sNodeTreeStruct
 
     union {
         enum eOperand mOperand;
+        char mByteValue;
+        unsigned char mUByteValue;
+        short mShortValue;
+        unsigned short mUShortValue;
         int mIntValue;
+        unsigned int mUIntValue;
+        long mLongValue;
+        unsigned long mULongValue;
         char mVarName[VAR_NAME_MAX];
+
+        struct {
+            char mVarName[VAR_NAME_MAX];
+            sCLClass* mClass;
+        } sAssignVariable;
 
         struct {
             unsigned int mExpressionNode;
@@ -215,6 +372,17 @@ struct sNodeTreeStruct
             unsigned int mExpressionNode3;
             MANAGED sNodeBlock* mForNodeBlock;
         } sFor;
+        struct {
+            sCLClass* mClass;
+            char mMethodName[METHOD_NAME_MAX];
+            unsigned int mParams[PARAMS_MAX];
+            int mNumParams;
+        } sClassMethodCall;
+        struct {
+            sNodeType* mType;
+            unsigned int mParams[PARAMS_MAX];
+            int mNumParams;
+        } sNewOperator;
     } uValue;
 
     sNodeType* mType;
@@ -234,6 +402,7 @@ struct sCompileInfoStruct
     sNodeType* type;
     int* num_break_points;
     int* break_points;
+    sCLMethod* method;
 };
 
 typedef struct sCompileInfoStruct sCompileInfo;
@@ -248,15 +417,27 @@ BOOL compile(unsigned int node, sCompileInfo* info);
 void arrange_stack(sCompileInfo* cinfo);
 
 unsigned int sNodeTree_create_operand(enum eOperand operand, unsigned int left, unsigned int right, unsigned int middle);
+unsigned int sNodeTree_create_byte_value(char value, unsigned int left, unsigned int right, unsigned int middle);
+unsigned int sNodeTree_create_ubyte_value(unsigned char value, unsigned int left, unsigned int right, unsigned int middle);
+unsigned int sNodeTree_create_short_value(short value, unsigned int left, unsigned int right, unsigned int middle);
+unsigned int sNodeTree_create_ushort_value(unsigned short value, unsigned int left, unsigned int right, unsigned int middle);
 unsigned int sNodeTree_create_int_value(int value, unsigned int left, unsigned int right, unsigned int middle);
-unsigned int sNodeTree_create_assign_variable(char* var_name, sNodeType* node_type, int right);
+unsigned int sNodeTree_create_uint_value(unsigned int value, unsigned int left, unsigned int right, unsigned int middle);
+unsigned int sNodeTree_create_long_value(long value, unsigned int left, unsigned int right, unsigned int middle);
+unsigned int sNodeTree_create_ulong_value(unsigned long value, unsigned int left, unsigned int right, unsigned int middle);
+unsigned int sNodeTree_create_assign_variable(char* var_name, sNodeType* node_type, int right, sCLClass* klass);
 unsigned int sNodeTree_create_load_variable(char* var_name);
+unsigned int sNodeTree_create_return_expression(unsigned int expression_node);
 unsigned int sNodeTree_if_expression(unsigned int expression_node, MANAGED sNodeBlock* if_node_block, unsigned int* elif_expression_node, MANAGED sNodeBlock** elif_node_block, int elif_num, MANAGED sNodeBlock* else_node_block);
 unsigned int sNodeTree_while_expression(unsigned int expression_node, MANAGED sNodeBlock* while_node_block);
 unsigned int sNodeTree_break_expression();
 unsigned int sNodeTree_false_expression();
 unsigned int sNodeTree_true_expression();
+unsigned int sNodeTree_null_expression();
 unsigned int sNodeTree_for_expression(unsigned int expression_node1, unsigned int expression_node2, unsigned int expression_node3, MANAGED sNodeBlock* for_node_block);
+BOOL check_node_is_variable(unsigned int node);
+unsigned int sNodeTree_create_class_method_call(sCLClass* klass, char* method_name, unsigned int* params, int num_params);
+unsigned int sNodeTree_create_new_operator(sNodeType* node_type, unsigned int* params, int num_params);
 
 /// script.c ///
 BOOL compile_script(char* fname, char* source);
@@ -266,39 +447,180 @@ BOOL compile_script(char* fname, char* source);
 #define OP_POP_N 2
 #define OP_COND_JUMP 3
 #define OP_GOTO 4
+#define OP_RETURN 5
 
 #define OP_STORE 10
 #define OP_LOAD 11
 
-#define OP_LDCINT 20
-#define OP_LDCNULL 21
+#define OP_LDCBYTE 20
+#define OP_LDCUBYTE 21
+#define OP_LDCSHORT 22
+#define OP_LDCUSHORT 23
+#define OP_LDCINT 24
+#define OP_LDCUINT 25
+#define OP_LDCLONG 26
+#define OP_LDCULONG 27
+#define OP_LDCNULL 28
 
-#define OP_IADD 40
-#define OP_ISUB 41
-#define OP_IEQ 42
-#define OP_INOTEQ 43
+#define OP_BADD 40
+#define OP_UBADD 41
+#define OP_SADD 42
+#define OP_USADD 43
+#define OP_IADD 44
+#define OP_UIADD 45
+#define OP_LADD 46
+#define OP_ULADD 47
+#define OP_FADD 48
+#define OP_DADD 49
+#define OP_BSUB 50
+#define OP_UBSUB 51
+#define OP_SSUB 52
+#define OP_USSUB 53
+#define OP_ISUB 54
+#define OP_UISUB 55
+#define OP_LSUB 56
+#define OP_ULSUB 57
+#define OP_FSUB 58
+#define OP_DSUB 59
 
-typedef unsigned int CLObject;
+#define OP_BEQ 100
+#define OP_UBEQ 101
+#define OP_SEQ 102
+#define OP_USEQ 103
+#define OP_IEQ 104
+#define OP_UIEQ 105
+#define OP_LEQ 106
+#define OP_ULEQ 107
+#define OP_FEQ 108
+#define OP_DEQ 109
 
-union CLVALUEUnion {
-    unsigned int mUIntValue;
-    unsigned char mUByteValue;
-    unsigned short mUShortValue;
-    unsigned long mULongValue;
-    int mIntValue;
-    char mByteValue;
-    short mShortValue;
-    long mLongValue;
-    CLObject mObjectValue;
-    wchar_t mCharValue;
-    float mFloatValue;
-    double mDoubleValue;
-    BOOL mBoolValue;
+#define OP_BNOTEQ 110
+#define OP_UBNOTEQ 111
+#define OP_SNOTEQ 112
+#define OP_USNOTEQ 113
+#define OP_INOTEQ 114
+#define OP_UINOTEQ 115
+#define OP_LNOTEQ 116
+#define OP_ULNOTEQ 117
+#define OP_FNOTEQ 118
+#define OP_DNOTEQ 119
+
+#define OP_ANDAND 150
+#define OP_OROR 151
+
+#define OP_INVOKE_METHOD 200
+
+#define OP_NEW 300
+
+BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sVMInfo* info);
+void vm_mutex_on();
+void vm_mutex_off();
+
+/// class_compiler.c ///
+#define PARSE_PHASE_ALLOC_CLASSES 1
+#define PARSE_PHASE_ADD_SUPER_CLASSES 2
+#define PARSE_PHASE_CALCULATE_SUPER_CLASSES 3
+#define PARSE_PHASE_ADD_GENERICS_TYPES 4
+#define PARSE_PHASE_ADD_METHODS_AND_FIELDS 5
+#define PARSE_PHASE_COMPILE_PARAM_INITIALIZER 6
+#define PARSE_PHASE_DO_COMPILE_CODE 7
+#define PARSE_PHASE_MAX 8
+
+struct sParserParamStruct 
+{
+    char mName[VAR_NAME_MAX];
+    sNodeType* mType;
 };
 
-typedef union CLVALUEUnion CLVALUE;
+typedef struct sParserParamStruct sParserParam;
 
-BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass);
+BOOL compile_class_source(char* fname, char* source);
+
+/// klass_compile_time.c ///
+BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_);
+BOOL add_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type);
+void add_code_to_method(sCLMethod* method, sByteCode* code, int var_num);
+BOOL write_all_modified_classes();
+int search_for_method(sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, int start_point, sNodeType* generics_type, sNodeType** result_type);
+void add_dependences_with_node_type(sCLClass* klass, sNodeType* node_type);
+sCLClass* get_class_with_load(char* class_name);
+
+/// native_method.c ///
+void native_method_init();
+fNativeMethod get_native_method(char* path);
+
+/// exception.c ///
+void entry_exception_object_with_class_name(CLVALUE* stack, char* class_name, char* msg, ...);
+
+/// method_compiler.c ///
+BOOL compile_method(sCLMethod* method, sParserParam* params, int num_params, sParserInfo* info, sCompileInfo* cinfo);
+
+/// type.c ///
+BOOL is_void_type(sCLType* cl_type, sCLClass* klass);
+sCLClass* get_class_from_cl_type(sCLType* cl_type, sCLClass* klass);
+
+/// stack.c ///
+struct sCLStackStruct {
+    CLVALUE* mStack;
+    CLVALUE** mStackPtr;
+
+    struct sCLStackStruct* mNextStack;
+};
+
+typedef struct sCLStackStruct sCLStack;
+
+void stack_init();
+void stack_final();
+
+void append_stack_to_stack_list(CLVALUE* stack, CLVALUE** stack_ptr);
+BOOL remove_stack_to_stack_list(CLVALUE* stack);
+
+sCLStack* gHeadStack;
+
+/// heap.c ///
+struct sCLHeapMemStruct {
+    int mSize;
+    sCLClass* mClass;       // NULL --> no class only memory
+    void* mMem;
+};
+
+typedef struct sCLHeapMemStruct sCLHeapMem;
+
+#define CLHEAPMEM(obj) (get_object_pointer((obj)))
+
+void heap_init(int heap_size, int size_hadles);
+void heap_final();
+
+CLObject alloc_heap_mem(int size, sCLClass* klass);
+sCLHeapMem* get_object_pointer(CLObject obj);
+void show_heap(sVMInfo* info);
+void mark_object(CLObject obj, unsigned char* mark_flg);
+
+/// object.c ///
+#define DUMMY_ARRAY_SIZE 32
+
+struct sCLObjectStruct {
+    int mSize;
+    sCLClass* mClass;
+    int mNumFields;
+    CLVALUE mFields[DUMMY_ARRAY_SIZE];
+};
+
+typedef struct sCLObjectStruct sCLObject;
+
+#define CLOBJECT(obj) (sCLObject*)(get_object_pointer((obj)))
+
+void object_mark_fun(CLObject self, unsigned char* mark_flg);;
+CLObject create_object(sCLClass* klass);
+
+/// class_system.c ///
+BOOL System_exit(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_assert(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+
+/// class_clover.c ///
+BOOL Clover_malloc(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL Clover_free(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL Clover_GC_malloc(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 #endif
 

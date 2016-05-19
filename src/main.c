@@ -2,11 +2,16 @@
 
 static void clover2_init()
 {
+    native_method_init();
     class_init();
+    heap_init(128, 128);
+    stack_init();
 }
 
 static void clover2_final()
 {
+    stack_final();
+    heap_final();
     class_final();
 }
 
@@ -82,7 +87,10 @@ static BOOL eval_file(char* fname, int stack_size)
 
     CLVALUE* stack = MCALLOC(1, sizeof(CLVALUE)*stack_size);
 
-    if(!vm(&code, &constant, stack, var_num, NULL)) {
+    sVMInfo info;
+    memset(&info, 0, sizeof(sVMInfo));
+
+    if(!vm(&code, &constant, stack, var_num, NULL, &info)) {
         fclose(f);
         MFREE(stack);
         MFREE(code_contents);
