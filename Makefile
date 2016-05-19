@@ -1,33 +1,33 @@
 #######################################################
 # installed directories
 #######################################################
-prefix=@prefix@
-exec_prefix=@exec_prefix@
-bindir=@bindir@
-datadir=@datadir@
-mandir=@mandir@
-libdir=@libdir@
-sharedstatedir=@sharedstatedir@
-sysconfdir=@sysconfdir@/clover2
-includedir=@includedir@/clover2
-datarootdir=@datarootdir@/clover2
-docdir=@datadir@/doc
+prefix=/home/ab25cq
+exec_prefix=${prefix}
+bindir=${exec_prefix}/bin
+datadir=${datarootdir}
+mandir=${datarootdir}/man
+libdir=${exec_prefix}/lib
+sharedstatedir=${prefix}/com
+sysconfdir=${prefix}/etc/clover2
+includedir=${prefix}/include/clover2
+datarootdir=${prefix}/share/clover2
+docdir=${datarootdir}/doc
 
 ##########################################################
 # environmnet variables
 ##########################################################
-CC=@CC@
-INSTALL=@INSTALL@
-CFLAGS=@CFLAGS@
-LIBS=@LIBS@
+CC=clang
+INSTALL=/usr/bin/install -c
+CFLAGS=-Isrc/ -I. -L . -I/home/ab25cq/include -L/home/ab25cq/lib -fPIC -DSYSCONFDIR="\"${sysconfdir}/\"" -DDOCDIR="\"${docdir}/\"" -DDATAROOTDIR="\"${datarootdir}/\"" -I/usr/local/include -L /usr/local/lib -g -DMDEBUG -Werror -DVM_DEBUG -Qunused-arguments
+LIBS= -lutil -lonig -lpthread -lreadline -ldl -lm
 DESTDIR=
-SO_VERSION=@SO_VERSION@
-LIBSONAME=@LIBSONAME@
-LIBSO2NAME=@LIBSO2NAME@
-OS=@OS@
-OBJS=@OBJS@
-COMPILER_OBJS=@COMPILER_OBJS@
-LIB_OBJS=@LIB_OBJS@
+SO_VERSION=1.0.0
+LIBSONAME=libclover2.so
+LIBSO2NAME=libclover2.so.1.0.0
+OS=LINUX
+OBJS=src/main.o src/vm.o src/type.o src/stack.o
+COMPILER_OBJS=src/compiler.o src/parser.o src/node_type.o src/node.o src/vtable.o src/script.o src/block.o src/class_compiler.o src/klass_compile_time.o src/method_compiler.o
+LIB_OBJS=src/buffer.o src/debug.o src/xfunc.o src/klass.o src/constant.o src/code.o src/native_method.o src/exception.o src/object.o src/heap.o src/class_system.o src/class_clover.o
 
 ##########################################################
 # main
