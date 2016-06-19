@@ -51,7 +51,7 @@ union CLVALUEUnion {
     float mFloatValue;
     double mDoubleValue;
     BOOL mBoolValue;
-    void* mPointerValue;
+    char* mPointerValue;
 };
 
 typedef union CLVALUEUnion CLVALUE;
@@ -159,6 +159,7 @@ struct sCLFieldStruct {
     int mNameOffset;
 
     sCLType* mResultType;
+    CLVALUE mValue;
 };
 
 typedef struct sCLFieldStruct sCLField;
@@ -184,11 +185,17 @@ struct sCLClassStruct {
     int mNumFields;
     int mSizeFields;
 
-    int mNumMethodsOnLoadTime; // This requires from the compile time
-    int mMethodIndexOnCompileTime; // This require from the compile time
+    sCLField* mClassFields;
+    int mNumClassFields;
+    int mSizeClassFields;
 
     fFreeFun mFreeFun;
     fMarkFun mMarkFun;
+
+    int mInitializeMethodIndex;
+
+    int mNumMethodsOnLoadTime; // This requires from the compile time
+    int mMethodIndexOnCompileTime; // This require from the compile time
 };
 
 typedef struct sCLClassStruct sCLClass;
@@ -206,6 +213,7 @@ ALLOC sCLType* create_cl_type(sCLClass* klass, sCLClass* klass2);
 void free_cl_type(sCLType* cl_type);
 sCLClass* load_class_with_version(char* class_name, int class_version);
 sCLClass* load_class(char* class_name);
+void mark_all_class_fields(unsigned char* mark_flg);
 
 struct sClassTableStruct
 {
@@ -241,6 +249,8 @@ BOOL substitution_posibility_with_class_name(sNodeType* left, char* right_class_
 BOOL operand_posibility(sNodeType* left, sNodeType* right);
 BOOL operand_posibility_with_class_name(sNodeType* left, char* right_class_name);
 BOOL solve_generics_types_for_node_type(sNodeType* node_type, ALLOC sNodeType** result, sNodeType* type_);
+BOOL type_identify_with_class_name(sNodeType* left, char* right_class_name);
+BOOL type_identify(sNodeType* left, sNodeType* right);
 
 /// vtable.c ///
 struct sVarStruct {
@@ -326,7 +336,8 @@ struct sCompileInfoStruct;
 BOOL compile_normal_block(sNodeBlock* block, struct sCompileInfoStruct* info);
 
 /// node.c ///
-enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeUByteValue, kNodeTypeShortValue, kNodeTypeUShortValue, kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeReturn, kNodeTypeNewOperator };
+enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeUByteValue, kNodeTypeShortValue, kNodeTypeUShortValue, kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodetTypeIncrementOperand, kNodeTypeDecrementOperand };
+
 enum eOperand { kOpAdd, kOpSub , kOpComplement, kOpLogicalDenial, kOpMult, kOpDiv, kOpMod, kOpLeftShift, kOpRightShift, kOpComparisonEqual, kOpComparisonNotEqual,kOpComparisonGreaterEqual, kOpComparisonLesserEqual, kOpComparisonGreater, kOpComparisonLesser, kOpAnd, kOpXor, kOpOr, kOpAndAnd, kOpOrOr, kOpConditional };
 
 struct sNodeTreeStruct 
@@ -383,6 +394,10 @@ struct sNodeTreeStruct
             unsigned int mParams[PARAMS_MAX];
             int mNumParams;
         } sNewOperator;
+        struct {
+            char mVarName[VAR_NAME_MAX];
+            sCLClass* mClass;
+        } sClassField;
     } uValue;
 
     sNodeType* mType;
@@ -426,6 +441,7 @@ unsigned int sNodeTree_create_uint_value(unsigned int value, unsigned int left, 
 unsigned int sNodeTree_create_long_value(long value, unsigned int left, unsigned int right, unsigned int middle);
 unsigned int sNodeTree_create_ulong_value(unsigned long value, unsigned int left, unsigned int right, unsigned int middle);
 unsigned int sNodeTree_create_assign_variable(char* var_name, sNodeType* node_type, int right, sCLClass* klass);
+unsigned int sNodeTree_create_assign_field(char* var_name, unsigned int left_node, unsigned int right_node);
 unsigned int sNodeTree_create_load_variable(char* var_name);
 unsigned int sNodeTree_create_return_expression(unsigned int expression_node);
 unsigned int sNodeTree_if_expression(unsigned int expression_node, MANAGED sNodeBlock* if_node_block, unsigned int* elif_expression_node, MANAGED sNodeBlock** elif_node_block, int elif_num, MANAGED sNodeBlock* else_node_block);
@@ -438,11 +454,19 @@ unsigned int sNodeTree_for_expression(unsigned int expression_node1, unsigned in
 BOOL check_node_is_variable(unsigned int node);
 unsigned int sNodeTree_create_class_method_call(sCLClass* klass, char* method_name, unsigned int* params, int num_params);
 unsigned int sNodeTree_create_new_operator(sNodeType* node_type, unsigned int* params, int num_params);
+unsigned int sNodeTree_create_fields(char* name, unsigned int left_node);
+unsigned int sNodeTree_create_class_fields(sCLClass* klass, char* name);
+unsigned int sNodeTree_create_assign_class_field(sCLClass* klass, char* name , unsigned int right_node);
+unsigned int sNodeTree_create_store_value_to_pointer(unsigned int left_node, sNodeType* node_type, unsigned int right_node);
+unsigned int sNodeTree_create_load_value_from_pointer(unsigned int left_node, sNodeType* node_type);
+BOOL sNodeTree_create_decment_operand(unsigned int left_node);
+BOOL sNodeTree_create_increment_operand(unsigned int left_node);
 
 /// script.c ///
 BOOL compile_script(char* fname, char* source);
 
 /// vm.c ///
+
 #define OP_POP 1
 #define OP_POP_N 2
 #define OP_COND_JUMP 3
@@ -472,16 +496,19 @@ BOOL compile_script(char* fname, char* source);
 #define OP_ULADD 47
 #define OP_FADD 48
 #define OP_DADD 49
-#define OP_BSUB 50
-#define OP_UBSUB 51
-#define OP_SSUB 52
-#define OP_USSUB 53
-#define OP_ISUB 54
-#define OP_UISUB 55
-#define OP_LSUB 56
-#define OP_ULSUB 57
-#define OP_FSUB 58
-#define OP_DSUB 59
+#define OP_PADD 50
+
+#define OP_BSUB 75
+#define OP_UBSUB 76
+#define OP_SSUB 77
+#define OP_USSUB 78
+#define OP_ISUB 79
+#define OP_UISUB 80
+#define OP_LSUB 81
+#define OP_ULSUB 82
+#define OP_FSUB 83
+#define OP_DSUB 84
+#define OP_PSUB 85
 
 #define OP_BEQ 100
 #define OP_UBEQ 101
@@ -493,6 +520,7 @@ BOOL compile_script(char* fname, char* source);
 #define OP_ULEQ 107
 #define OP_FEQ 108
 #define OP_DEQ 109
+#define OP_PEQ 110
 
 #define OP_BNOTEQ 110
 #define OP_UBNOTEQ 111
@@ -504,6 +532,7 @@ BOOL compile_script(char* fname, char* source);
 #define OP_ULNOTEQ 117
 #define OP_FNOTEQ 118
 #define OP_DNOTEQ 119
+#define OP_PNOTEQ 120
 
 #define OP_ANDAND 150
 #define OP_OROR 151
@@ -511,10 +540,33 @@ BOOL compile_script(char* fname, char* source);
 #define OP_INVOKE_METHOD 200
 
 #define OP_NEW 300
+#define OP_LOAD_FIELD 301
+#define OP_STORE_FIELD 302
+#define OP_LOAD_CLASS_FIELD 303
+#define OP_STORE_CLASS_FIELD 304
+
+#define OP_STORE_VALUE_TO_INT_ADDRESS 400
+#define OP_STORE_VALUE_TO_UINT_ADDRESS 401
+#define OP_STORE_VALUE_TO_BYTE_ADDRESS 402
+#define OP_STORE_VALUE_TO_UBYTE_ADDRESS 403
+#define OP_STORE_VALUE_TO_SHORT_ADDRESS 404
+#define OP_STORE_VALUE_TO_USHORT_ADDRESS 405
+#define OP_STORE_VALUE_TO_LONG_ADDRESS 406
+#define OP_STORE_VALUE_TO_ULONG_ADDRESS 407
+
+#define OP_LOAD_VALUE_FROM_INT_ADDRESS 450
+#define OP_LOAD_VALUE_FROM_UINT_ADDRESS 451
+#define OP_LOAD_VALUE_FROM_BYTE_ADDRESS 452
+#define OP_LOAD_VALUE_FROM_UBYTE_ADDRESS 453
+#define OP_LOAD_VALUE_FROM_SHORT_ADDRESS 454
+#define OP_LOAD_VALUE_FROM_USHORT_ADDRESS 455
+#define OP_LOAD_VALUE_FROM_LONG_ADDRESS 456
+#define OP_LOAD_VALUE_FROM_ULONG_ADDRESS 457
 
 BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sVMInfo* info);
 void vm_mutex_on();
 void vm_mutex_off();
+sCLClass* get_class_with_load_and_initialize(char* class_name);
 
 /// class_compiler.c ///
 #define PARSE_PHASE_ALLOC_CLASSES 1
@@ -539,14 +591,18 @@ BOOL compile_class_source(char* fname, char* source);
 /// klass_compile_time.c ///
 BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_);
 BOOL add_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type);
+BOOL add_class_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type);
 void add_code_to_method(sCLMethod* method, sByteCode* code, int var_num);
 BOOL write_all_modified_classes();
 int search_for_method(sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, int start_point, sNodeType* generics_type, sNodeType** result_type);
+int search_for_field(sCLClass* klass, char* field_name);
+int search_for_class_field(sCLClass* klass, char* field_name);
 void add_dependences_with_node_type(sCLClass* klass, sNodeType* node_type);
 sCLClass* get_class_with_load(char* class_name);
 
 /// native_method.c ///
 void native_method_init();
+void native_method_final();
 fNativeMethod get_native_method(char* path);
 
 /// exception.c ///
@@ -620,7 +676,6 @@ BOOL System_assert(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 /// class_clover.c ///
 BOOL Clover_malloc(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL Clover_free(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
-BOOL Clover_GC_malloc(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 #endif
 

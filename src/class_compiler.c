@@ -258,7 +258,7 @@ static BOOL parse_method_name_and_params(char* method_name, int method_name_max,
     return TRUE;
 }
 
-static BOOL parse_field_attributes_and_type(BOOL* private_, BOOL* protected_, sNodeType** result_type, sParserInfo* info, sCompileInfo* cinfo)
+static BOOL parse_field_attributes_and_type(BOOL* private_, BOOL* protected_, BOOL* static_, sNodeType** result_type, sParserInfo* info, sCompileInfo* cinfo)
 {
     /// atributes ///
     while(1) {
@@ -276,6 +276,9 @@ static BOOL parse_field_attributes_and_type(BOOL* private_, BOOL* protected_, sN
         }
         else if(strcmp(buf, "protected") == 0) {
             *protected_ = TRUE;
+        }
+        else if(strcmp(buf, "static") == 0) {
+            *static_ = TRUE;
         }
         else {
             info->p = p_saved;
@@ -350,16 +353,24 @@ static BOOL parse_class_on_add_methods_and_fields(sParserInfo* info, sCompileInf
         else {
             BOOL private_ = FALSE;
             BOOL protected_ = FALSE;
+            BOOL static_ = FALSE;
             sNodeType* result_type = NULL;
 
             expect_next_character_with_one_forward(":", info);
 
-            if(!parse_field_attributes_and_type(&private_, &protected_, &result_type, info, cinfo)) {
+            if(!parse_field_attributes_and_type(&private_, &protected_, &static_, &result_type, info, cinfo)) {
                 return FALSE;
             }
 
-            if(!add_field_to_class(info->klass, buf, private_, protected_, result_type)) {
-                return FALSE;
+            if(static_) {
+                if(!add_class_field_to_class(info->klass, buf, private_, protected_, result_type)) {
+                    return FALSE;
+                }
+            }
+            else {
+                if(!add_field_to_class(info->klass, buf, private_, protected_, result_type)) {
+                    return FALSE;
+                }
             }
 
             if(*info->p == ';') {
@@ -447,11 +458,12 @@ static BOOL parse_class_on_compile_code(sParserInfo* info, sCompileInfo* cinfo)
         else {
             BOOL private_ = FALSE;
             BOOL protected_ = FALSE;
+            BOOL static_ = FALSE;
             sNodeType* result_type = NULL;
 
             expect_next_character_with_one_forward(":", info);
 
-            if(!parse_field_attributes_and_type(&private_, &protected_, &result_type, info, cinfo)) {
+            if(!parse_field_attributes_and_type(&private_, &protected_, &static_, &result_type, info, cinfo)) {
                 return FALSE;
             }
 

@@ -111,6 +111,9 @@ static void mark(unsigned char* mark_flg)
 
         it = it->mNextStack;
     }
+
+    /// mark class fields ///
+    mark_all_class_fields(mark_flg);
 }
 
 static void compaction(unsigned char* mark_flg)

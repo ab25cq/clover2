@@ -10,6 +10,7 @@ static void clover2_init()
 
 static void clover2_final()
 {
+    native_method_final();
     stack_final();
     heap_final();
     class_final();
@@ -113,14 +114,21 @@ static BOOL eval_file(char* fname, int stack_size)
 int main(int argc, char** argv)
 {
     int i;
+
+    CHECKML_BEGIN;
+
     for(i=1; i<argc; i++) {
         clover2_init();
         if(!eval_file(argv[i], 512)) {
             fprintf(stderr, "script file(%s) is abort\n", argv[i]);
+            clover2_final();
+            CHECKML_END;
             exit(1);
         }
         clover2_final();
     }
+    CHECKML_END;
 
     return 0;
 }
+

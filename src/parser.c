@@ -489,6 +489,153 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
     return TRUE;
 }
 
+static BOOL postposition_operator(unsigned int* node, sParserInfo* info)
+{
+    if(*node == 0) {
+        return TRUE;
+    }
+
+    while(*info->p) {
+        /// call method or access field ///
+        if(*info->p == '.' && *(info->p+1) != '.') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            if(isalpha(*info->p)) {
+                char buf[VAR_NAME_MAX];
+
+                if(!parse_word(buf, VAR_NAME_MAX, info, TRUE)) {
+                    return FALSE;
+                }
+                skip_spaces_and_lf(info);
+
+                /// call methods ///
+                if(*info->p == '(') {
+                }
+                /// access fields ///
+                else {
+                    if(*info->p == '=' && *(info->p +1) != '=') {
+                        info->p++;
+                        skip_spaces_and_lf(info);
+
+                        unsigned int right_node = 0;
+
+                        if(!expression(&right_node, info)) {
+                            return FALSE;
+                        }
+
+                        if(right_node == 0) {
+                            parser_err_msg(info, "Require right value");
+                            info->err_num++;
+
+                            *node = 0;
+                        }
+                        else {
+                            *node = sNodeTree_create_assign_field(buf, *node, right_node);
+                        }
+                    }
+                    else {
+                        *node = sNodeTree_create_fields(buf, *node);
+                    }
+                }
+            }
+            else {
+                parser_err_msg(info, "require method name or field name after .");
+                info->err_num++;
+                *node = 0;
+                break;
+            }
+        }
+        /// get value from pointer ///
+        else if(*info->p == '-' && *(info->p+1) == '>')
+        {
+            info->p+=2;
+            skip_spaces_and_lf(info);
+
+            sNodeType* node_type = NULL;
+
+            if(!parse_type(&node_type, info)) {
+                return FALSE;
+            }
+
+            if(node_type == NULL) {
+                parser_err_msg(info, "require a type for the pointer value");
+                info->err_num++;
+                *node = 0;
+                return TRUE;
+            }
+
+            if(*info->p == '=' && *(info->p + 1) != '=') {
+                info->p++;
+                skip_spaces_and_lf(info);
+
+                unsigned int right_node = 0;
+
+                if(!expression(&right_node, info)) {
+                    return FALSE;
+                }
+
+                if(right_node == 0) {
+                    parser_err_msg(info, "Require right value");
+                    info->err_num++;
+
+                    *node = 0;
+                }
+                else {
+                    *node = sNodeTree_create_store_value_to_pointer(*node, node_type, right_node);
+                }
+            }
+            else {
+                *node = sNodeTree_create_load_value_from_pointer(*node, node_type);
+            }
+        }
+/*
+        /// indexing ///
+        else if(**info->p == '[') {
+            unsigned int param_node;
+            unsigned int block_object;
+            unsigned int block_node;
+
+            if(quote) {
+                parser_err_msg_format(info->sname, sline_top, "can't quote [ operand");
+                (*info->err_num)++;
+                *node = 0;
+                return TRUE;
+            }
+            
+            param_node = 0;
+            if(!get_params(info, &param_node, '[', ']', lv_table, &block_object, &block_node, FALSE)) {
+                return FALSE;
+            }
+
+            if(block_object != 0 || block_node != 0) {
+                parser_err_msg_format(info->sname, *info->sline, "Clover can't get block with indexing operator");
+                (*info->err_num)++;
+            }
+
+            *node = sNodeTree_create_operand(kOpIndexing, *node, param_node, 0, quote);
+        }
+*/
+        else if(**info->p == '+' && *(*info->p+1) == '+') {
+            (*info->p)+=2;
+            skip_spaces_and_lf(info->p, info->sline);
+
+            *node = sNodeTree_create_increment_operand(*node);
+        }
+        else if(**info->p == '-' && *(*info->p+1) == '-') {
+            (*info->p)+=2;
+            skip_spaces_and_lf(info->p, info->sline);
+
+            *node = sNodeTree_create_decment_operand(*node);
+        }
+        else {
+            break;
+        }
+    }
+
+    return TRUE;
+}
+
 static BOOL expression_node(unsigned int* node, sParserInfo* info)
 {
     if((*info->p == '-' && *(info->p+1) != '=' && *(info->p+1) != '-' && *(info->p+1) != '>') || (*info->p == '+' && *(info->p+1) != '=' && *(info->p+1) != '+')) 
@@ -578,7 +725,6 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     *node = 0;
                     return TRUE;
                 }
-
                 if(node_type) {
                     add_variable_to_table(info->lv_table, buf, node_type);
                 }
@@ -589,7 +735,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             }
 
             /// assign the value to a variable ///
-            if(*info->p == '=') {
+            if(*info->p == '=' && *(info->p+1) != '=') {
                 info->p++;
                 skip_spaces_and_lf(info);
 
@@ -669,6 +815,29 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     }
                     /// class field ///
                     else {
+                        if(*info->p == '=' && *(info->p +1) != '=') {
+                            info->p++;
+                            skip_spaces_and_lf(info);
+
+                            unsigned int right_node = 0;
+
+                            if(!expression(&right_node, info)) {
+                                return FALSE;
+                            }
+
+                            if(right_node == 0) {
+                                parser_err_msg(info, "Require right value");
+                                info->err_num++;
+
+                                *node = 0;
+                            }
+                            else {
+                                *node = sNodeTree_create_assign_class_field(klass, buf, right_node);
+                            }
+                        }
+                        else {
+                            *node = sNodeTree_create_class_fields(klass, buf);
+                        }
                     }
                 }
                 /// class name ///
@@ -683,6 +852,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
     }
     /// comment ///
     else if(*info->p == '/' && *(info->p+1) == '*') {
+        info->p+=2;
         int nest = 0;
 
         while(*info->p) {
@@ -739,13 +909,11 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         *node = 0;
     }
 
-/*
     /// postposition operator ///
     if(!postposition_operator(node, info))
     {
         return FALSE;
     }
-*/
 
     return TRUE;
 }

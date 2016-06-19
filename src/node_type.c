@@ -125,12 +125,34 @@ BOOL substitution_posibility_with_class_name(sNodeType* left, char* right_class_
 
 BOOL operand_posibility(sNodeType* left, sNodeType* right)
 {
-    return left->mClass == right->mClass;
+    sCLClass* pointer_class = get_class("pointer");
+
+    MASSERT(pointer_class != NULL);
+
+    if(left->mClass == pointer_class) {
+        sCLClass* int_class = get_class("int");
+        MASSERT(int_class != NULL);
+
+        return right->mClass == int_class;
+    }
+    else {
+        return left->mClass == right->mClass;
+    }
 }
 
 BOOL operand_posibility_with_class_name(sNodeType* left, char* right_class_name)
 {
     return operand_posibility(left, create_node_type_with_class_name(right_class_name));
+}
+
+BOOL type_identify(sNodeType* left, sNodeType* right)
+{
+    return left->mClass == right->mClass;
+}
+
+BOOL type_identify_with_class_name(sNodeType* left, char* right_class_name)
+{
+    return type_identify(left, create_node_type_with_class_name(right_class_name));
 }
 
 BOOL solve_generics_types_for_node_type(sNodeType* node_type, ALLOC sNodeType** result, sNodeType* generics_type)

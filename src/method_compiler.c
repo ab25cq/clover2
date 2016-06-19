@@ -78,6 +78,20 @@ BOOL compile_method(sCLMethod* method, sParserParam* params, int num_params, sPa
         }
     }
 
+    /// set result value on the stack ///
+    sNodeType* result_type = create_node_type_from_cl_type(method->mResultType, info->klass);
+    if(!(method->mFlags & METHOD_FLAGS_CLASS_METHOD) && strcmp(CONS_str(&info->klass->mConst, method->mNameOffset), "initialize") == 0) 
+    {
+        append_opecode_to_code(cinfo2.code, OP_LOAD, FALSE);
+        append_int_value_to_code(cinfo2.code, 0, FALSE);
+        append_opecode_to_code(cinfo2.code, OP_RETURN, FALSE);
+    }
+    else if(type_identify_with_class_name(result_type, "Null")) {
+        append_opecode_to_code(cinfo2.code, OP_LDCINT, FALSE);
+        append_int_value_to_code(cinfo2.code, 0, FALSE);
+        append_opecode_to_code(cinfo2.code, OP_RETURN, FALSE);
+    }
+
     int var_num = get_var_num(cinfo2.lv_table);
     add_code_to_method(method, cinfo2.code, var_num);
     cinfo->err_num += cinfo2.err_num;

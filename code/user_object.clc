@@ -20,9 +20,16 @@ class UserObjectTest2 {
     a: private int;
     b: private int;
 
+    c: static int;
+    d: static int;
+
     def initialize() {
-        1 + 1
-        #self.a = 1;
-        #self.b = 2;
+        self.a = 1;
+        self.b = 2;
+    }
+
+    def initialize(): static {
+        UserObjectTest2.c = 111;
+        UserObjectTest2.d = 222;
     }
 }

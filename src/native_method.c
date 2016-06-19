@@ -92,9 +92,8 @@ typedef struct sNativeMethodStruct sNativeMethod;
 static sNativeMethod gNativeMethods[] = {
     { "System.exit(int)", System_exit },
     { "System.assert(bool)", System_assert },
-    //{ "Clover.malloc(int)", Clover_malloc },
-    //{ "Clover.GC_malloc(int)", Clover_GC_malloc },
-    //{ "Clover.free(pointer)", Clover_free },
+    { "Clover.malloc(int)", Clover_malloc },
+    { "Clover.free(pointer)", Clover_free },
 
     { "", 0 }  // sentinel
 };
@@ -113,3 +112,14 @@ void native_method_init()
         p++;
     }
 }
+
+void native_method_final()
+{
+    int i;
+    for(i=0; i<NATIVE_METHOD_HASH_SIZE; i++) {
+        if(gNativeMethodHash[i].mPath) {
+            MFREE(gNativeMethodHash[i].mPath);
+        }
+    }
+}
+

@@ -129,73 +129,81 @@ static BOOL single_operator(sNodeType* type, int byte_operand, int short_operand
     return TRUE;
 }
 
-static BOOL binary_operator(sNodeType* type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, int float_operand, int double_operand, int null_operand, char* op_string, sCompileInfo* info)
+static BOOL binary_operator(sNodeType* type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, int float_operand, int double_operand, int pointer_operand, int null_operand, char* op_string, sCompileInfo* info)
 {
-    if(operand_posibility_with_class_name(type, "byte") && byte_operand != -1) {
+    if(substitution_posibility_with_class_name(type, "byte") && byte_operand != -1) {
         append_opecode_to_code(info->code, byte_operand, info->no_output);
         info->stack_num--;
 
         info->type = create_node_type_with_class_name("byte");
     }
-    else if(operand_posibility_with_class_name(type, "ubyte") && ubyte_operand != -1) {
+    else if(substitution_posibility_with_class_name(type, "ubyte") && ubyte_operand != -1) {
         append_opecode_to_code(info->code, ubyte_operand, info->no_output);
         info->stack_num--;
 
         info->type = create_node_type_with_class_name("ubyte");
     }
-    else if(operand_posibility_with_class_name(type, "short") && short_operand != -1) {
+    else if(substitution_posibility_with_class_name(type, "short") && short_operand != -1) {
         append_opecode_to_code(info->code, short_operand, info->no_output);
         info->stack_num--;
 
         info->type = create_node_type_with_class_name("short");
     }
-    else if(operand_posibility_with_class_name(type, "ushort") && ushort_operand != -1) {
+    else if(substitution_posibility_with_class_name(type, "ushort") && ushort_operand != -1) {
         append_opecode_to_code(info->code, ushort_operand, info->no_output);
         info->stack_num--;
 
         info->type = create_node_type_with_class_name("ushort");
     }
-    else if(operand_posibility_with_class_name(type, "int") && int_operand != -1) {
+    else if(substitution_posibility_with_class_name(type, "int") && int_operand != -1) {
         append_opecode_to_code(info->code, int_operand, info->no_output);
         info->stack_num--;
 
         info->type = create_node_type_with_class_name("int");
     }
-    else if(operand_posibility_with_class_name(type, "uint") && uint_operand != -1) {
+    else if(substitution_posibility_with_class_name(type, "uint") && uint_operand != -1) {
         append_opecode_to_code(info->code, uint_operand, info->no_output);
         info->stack_num--;
 
         info->type = create_node_type_with_class_name("uint");
     }
-    else if(operand_posibility_with_class_name(type, "long") && long_operand != -1) {
+    else if(substitution_posibility_with_class_name(type, "long") && long_operand != -1) {
         append_opecode_to_code(info->code, long_operand, info->no_output);
         info->stack_num--;
 
         info->type = create_node_type_with_class_name("long");
     }
-    else if(operand_posibility_with_class_name(type, "ulong") && ulong_operand != -1) {
+    else if(substitution_posibility_with_class_name(type, "ulong") && ulong_operand != -1) {
         append_opecode_to_code(info->code, ulong_operand, info->no_output);
         info->stack_num--;
 
         info->type = create_node_type_with_class_name("ulong");
     }
-    else if(operand_posibility_with_class_name(type, "float") && float_operand != -1) {
+    else if(substitution_posibility_with_class_name(type, "float") && float_operand != -1) {
         append_opecode_to_code(info->code, float_operand, info->no_output);
         info->stack_num--;
 
         info->type = create_node_type_with_class_name("float");
     }
-    else if(operand_posibility_with_class_name(type, "double") && double_operand != -1) {
+    else if(substitution_posibility_with_class_name(type, "double") && double_operand != -1) {
         append_opecode_to_code(info->code, double_operand, info->no_output);
         info->stack_num--;
 
         info->type = create_node_type_with_class_name("double");
     }
-    else if(operand_posibility_with_class_name(type, "Null") && null_operand != -1) {
+    else if(substitution_posibility_with_class_name(type, "Null") && null_operand != -1) {
+puts("1");
         append_opecode_to_code(info->code, null_operand, info->no_output);
         info->stack_num--;
 
         info->type = create_node_type_with_class_name("null");
+    }
+    else if(substitution_posibility_with_class_name(type, "pointer") && pointer_operand != -1) {
+puts("2");
+        append_opecode_to_code(info->code, pointer_operand, info->no_output);
+        info->stack_num--;
+
+        info->type = create_node_type_with_class_name("pointer");
     }
     else {
         parser_err_msg(info->pinfo, "%s.%s is not implemented", CLASS_NAME(type->mClass), op_string);
@@ -207,7 +215,7 @@ static BOOL binary_operator(sNodeType* type, int byte_operand, int ubyte_operand
 
 static BOOL binary_operator_for_bool(sNodeType* type, int bool_operand, sCompileInfo* info)
 {
-    if(operand_posibility_with_class_name(type, "bool")) {
+    if(substitution_posibility_with_class_name(type, "bool")) {
         append_opecode_to_code(info->code, bool_operand, info->no_output);
         info->stack_num--;
 
@@ -232,7 +240,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
     sNodeType* right_type = info->type;
 
     if(!operand_posibility(left_type, right_type)) {
-        parser_err_msg(info->pinfo, "The different class. The left type is %s. The right type is %s.", CLASS_NAME(left_type->mClass), CLASS_NAME(right_type->mClass));
+        parser_err_msg(info->pinfo, "Invalid class for operand. The left type is %s. The right type is %s.", CLASS_NAME(left_type->mClass), CLASS_NAME(right_type->mClass));
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -244,14 +252,14 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
 
     switch(gNodes[node].uValue.mOperand) {
         case kOpAdd:
-            if(!binary_operator(node_type, OP_BADD, OP_UBADD, OP_SADD, OP_USADD, OP_IADD, OP_UIADD, OP_LADD, OP_ULADD, OP_FADD, OP_DADD, -1, "+", info))
+            if(!binary_operator(node_type, OP_BADD, OP_UBADD, OP_SADD, OP_USADD, OP_IADD, OP_UIADD, OP_LADD, OP_ULADD, OP_FADD, OP_DADD, OP_PADD, -1, "+", info))
             {
                 return FALSE;
             }
             break;
 
         case kOpSub:
-            if(!binary_operator(node_type, OP_BSUB, OP_UBSUB, OP_SSUB, OP_USSUB, OP_ISUB, OP_UISUB, OP_LSUB, OP_ULSUB, OP_FSUB, OP_DSUB, -1, "-", info))
+            if(!binary_operator(node_type, OP_BSUB, OP_UBSUB, OP_SSUB, OP_USSUB, OP_ISUB, OP_UISUB, OP_LSUB, OP_ULSUB, OP_FSUB, OP_DSUB, OP_PSUB, -1, "-", info))
             {
                 return FALSE;
             }
@@ -279,7 +287,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
             break;
             
         case kOpComparisonEqual:
-            if(!binary_operator(node_type, OP_BEQ, OP_UBEQ, OP_SEQ, OP_USEQ, OP_IEQ, OP_UIEQ, OP_LEQ, OP_ULEQ, OP_FEQ, OP_DEQ, OP_IEQ, "==", info))
+            if(!binary_operator(node_type, OP_BEQ, OP_UBEQ, OP_SEQ, OP_USEQ, OP_IEQ, OP_UIEQ, OP_LEQ, OP_ULEQ, OP_FEQ, OP_DEQ, OP_PEQ, OP_IEQ, "==", info))
             {
                 return FALSE;
             }
@@ -288,7 +296,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
             break;
             
         case kOpComparisonNotEqual:
-            if(!binary_operator(node_type, OP_BNOTEQ, OP_UBNOTEQ, OP_SNOTEQ, OP_USNOTEQ, OP_INOTEQ, OP_UINOTEQ, OP_LNOTEQ, OP_ULNOTEQ, OP_FNOTEQ, OP_DNOTEQ, OP_INOTEQ, "!=", info))
+            if(!binary_operator(node_type, OP_BNOTEQ, OP_UBNOTEQ, OP_SNOTEQ, OP_USNOTEQ, OP_INOTEQ, OP_UINOTEQ, OP_LNOTEQ, OP_ULNOTEQ, OP_FNOTEQ, OP_DNOTEQ, OP_PNOTEQ, OP_INOTEQ, "!=", info))
             {
                 return FALSE;
             }
@@ -343,7 +351,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
             break;
 
         case kOpLogicalDenial:
-            if(!operand_posibility_with_class_name(node_type, "bool")) {
+            if(!substitution_posibility_with_class_name(node_type, "bool")) {
                 parser_err_msg(info->pinfo, "require bool type for operator !");
                 info->err_num++;
             }
@@ -356,7 +364,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
 
         case kOpComparisonEqual:
             {
-                if(operand_posibility_with_class_name(node_type, "int")) {
+                if(substitution_posibility_with_class_name(node_type, "int")) {
                     append_opecode_to_code(info->code, OP_IEQ, info->no_output);
                     info->stack_num--;
 
@@ -367,7 +375,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
 
         case kOpComparisonNotEqual:
             {
-                if(operand_posibility_with_class_name(node_type, "int")) {
+                if(substitution_posibility_with_class_name(node_type, "int")) {
                     append_opecode_to_code(info->code, OP_INOTEQ, info->no_output);
                     info->stack_num--;
 
@@ -748,7 +756,7 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
         return FALSE;
     }
 
-    if(!substitution_posibility_with_class_name(info->type, "bool")) {
+    if(!type_identify_with_class_name(info->type, "bool")) {
         parser_err_msg(info->pinfo, "This conditional type is not bool");
         info->err_num++;
 
@@ -789,7 +797,7 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
                 return FALSE;
             }
 
-            if(!substitution_posibility_with_class_name(info->type, "bool")) {
+            if(!type_identify_with_class_name(info->type, "bool")) {
                 parser_err_msg(info->pinfo, "This conditional type is not bool");
                 info->err_num++;
 
@@ -874,7 +882,7 @@ static BOOL compile_while_expression(unsigned int node, sCompileInfo* info)
         return FALSE;
     }
 
-    if(!substitution_posibility_with_class_name(info->type, "bool")) {
+    if(!type_identify_with_class_name(info->type, "bool")) {
         parser_err_msg(info->pinfo, "This conditional type is not bool");
         info->err_num++;
 
@@ -966,7 +974,7 @@ static BOOL compile_for_expression(unsigned int node, sCompileInfo* info)
         return FALSE;
     }
 
-    if(!substitution_posibility_with_class_name(info->type, "bool")) {
+    if(!type_identify_with_class_name(info->type, "bool")) {
         parser_err_msg(info->pinfo, "This conditional type is not bool");
         info->err_num++;
 
@@ -1316,8 +1324,8 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
 
     sNodeType* result_type = create_node_type_from_cl_type(info->method->mResultType, info->pinfo->klass);
 
-    if((!substitution_posibility_with_class_name(result_type, "Null") && expression_node == 0)
-        || (substitution_posibility_with_class_name(result_type, "Null") && expression_node != 0))
+    if((!type_identify_with_class_name(result_type, "Null") && expression_node == 0)
+        || (type_identify_with_class_name(result_type, "Null") && expression_node != 0))
     {
         parser_err_msg(info->pinfo, "Invalid type of return value");
         info->err_num++;
@@ -1336,7 +1344,7 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
-    if(substitution_posibility_with_class_name(result_type, "Null")) {
+    if(type_identify_with_class_name(result_type, "Null")) {
         if(info->stack_num != 0) {
             parser_err_msg(info->pinfo, "Invalid type of return value");
             info->err_num++;
@@ -1364,6 +1372,527 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
     info->type = create_node_type_with_class_name("Null");
     
     return TRUE;
+}
+
+unsigned int sNodeTree_create_fields(char* name, unsigned int left_node)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeLoadField;
+
+    xstrncpy(gNodes[node].uValue.mVarName, name, VAR_NAME_MAX);
+
+    gNodes[node].mLeft = left_node;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    gNodes[node].mType = NULL;
+
+    return node;
+}
+
+static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
+{
+    /// compile left node ///
+    unsigned int lnode = gNodes[node].mLeft;
+
+    if(!compile(lnode, info)) {
+        return FALSE;
+    }
+
+    if(info->type == NULL 
+        || type_identify_with_class_name(info->type, "Null"))
+    {
+        parser_err_msg(info->pinfo, "no type for loading field");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    sCLClass* klass = info->type->mClass;
+    char* field_name = gNodes[node].uValue.mVarName;
+
+    int field_index = search_for_field(klass, field_name);
+
+    if(field_index == -1) {
+        parser_err_msg(info->pinfo, "There is no field(%s) in this class(%s)", field_name, CLASS_NAME(klass));
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    sCLField* field = klass->mFields + field_index;
+    sNodeType* field_type = create_node_type_from_cl_type(field->mResultType, klass);
+
+    append_opecode_to_code(info->code, OP_LOAD_FIELD, info->no_output);
+    append_int_value_to_code(info->code, field_index, info->no_output);
+
+    info->stack_num--;
+    info->stack_num++;
+
+    info->type = field_type;
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_assign_field(char* var_name, unsigned int left_node, unsigned int right_node)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeStoreField;
+
+    xstrncpy(gNodes[node].uValue.mVarName, var_name, VAR_NAME_MAX);
+
+    gNodes[node].mLeft = left_node;
+    gNodes[node].mRight = right_node;
+    gNodes[node].mMiddle = 0;
+
+    gNodes[node].mType = NULL;
+
+    return node;
+}
+
+static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
+{
+    /// compile left node ///
+    unsigned int lnode = gNodes[node].mLeft;
+
+    if(!compile(lnode, info)) {
+        return FALSE;
+    }
+
+    sNodeType* left_type = info->type;
+
+    if(left_type == NULL 
+        || type_identify_with_class_name(left_type, "Null"))
+    {
+        parser_err_msg(info->pinfo, "no type for object");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    /// compile right node ///
+    unsigned int rnode = gNodes[node].mRight;
+
+    if(!compile(rnode, info)) {
+        return FALSE;
+    }
+
+    sNodeType* right_type = info->type;
+
+    if(right_type == NULL 
+        || type_identify_with_class_name(right_type, "Null"))
+    {
+        parser_err_msg(info->pinfo, "no type for right object type");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    sCLClass* klass = left_type->mClass;
+    char* field_name = gNodes[node].uValue.mVarName;
+
+    int field_index = search_for_field(klass, field_name);
+
+    if(field_index == -1) {
+        parser_err_msg(info->pinfo, "There is no field(%s) in this class(%s)", field_name, CLASS_NAME(klass));
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    sCLField* field = klass->mFields + field_index;
+    sNodeType* field_type = create_node_type_from_cl_type(field->mResultType, klass);
+
+    if(!substitution_posibility(field_type, right_type)) {
+        parser_err_msg(info->pinfo, "The different type between left type and right type");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+
+    }
+
+    append_opecode_to_code(info->code, OP_STORE_FIELD, info->no_output);
+    append_int_value_to_code(info->code, field_index, info->no_output);
+
+    info->stack_num--;
+
+    info->type = field_type;
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_class_fields(sCLClass* klass, char* name)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeLoadClassField;
+
+    xstrncpy(gNodes[node].uValue.sClassField.mVarName, name, VAR_NAME_MAX);
+    gNodes[node].uValue.sClassField.mClass = klass;
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    gNodes[node].mType = NULL;
+
+    return node;
+}
+
+static BOOL compile_load_class_field(unsigned int node, sCompileInfo* info)
+{
+    sCLClass* klass = gNodes[node].uValue.sClassField.mClass;
+    char* field_name = gNodes[node].uValue.sClassField.mVarName;
+
+    int field_index = search_for_class_field(klass, field_name);
+
+    if(field_index == -1) {
+        parser_err_msg(info->pinfo, "There is no field(%s) in this class(%s)", field_name, CLASS_NAME(klass));
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    sCLField* field = klass->mClassFields + field_index;
+    sNodeType* field_type = create_node_type_from_cl_type(field->mResultType, klass);
+
+    append_opecode_to_code(info->code, OP_LOAD_CLASS_FIELD, info->no_output);
+    append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(klass), info->no_output);
+    append_int_value_to_code(info->code, field_index, info->no_output);
+
+    info->stack_num++;
+
+    info->type = field_type;
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_assign_class_field(sCLClass* klass, char* name , unsigned int right_node)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeStoreClassField;
+
+    xstrncpy(gNodes[node].uValue.sClassField.mVarName, name, VAR_NAME_MAX);
+    gNodes[node].uValue.sClassField.mClass = klass;
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = right_node;
+    gNodes[node].mMiddle = 0;
+
+    gNodes[node].mType = NULL;
+
+    return node;
+}
+
+static BOOL compile_store_class_field(unsigned int node, sCompileInfo* info)
+{
+    /// compile right node ///
+    unsigned int rnode = gNodes[node].mRight;
+
+    if(!compile(rnode, info)) {
+        return FALSE;
+    }
+
+    sNodeType* right_type = info->type;
+
+    if(right_type == NULL 
+        || type_identify_with_class_name(right_type, "Null"))
+    {
+        parser_err_msg(info->pinfo, "no type for right object type");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    sCLClass* klass = gNodes[node].uValue.sClassField.mClass;
+    char* field_name = gNodes[node].uValue.sClassField.mVarName;
+
+    int field_index = search_for_class_field(klass, field_name);
+
+    if(field_index == -1) {
+        parser_err_msg(info->pinfo, "There is no field(%s) in this class(%s)", field_name, CLASS_NAME(klass));
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    sCLField* field = klass->mClassFields + field_index;
+    sNodeType* field_type = create_node_type_from_cl_type(field->mResultType, klass);
+
+    if(!substitution_posibility(field_type, right_type)) {
+        parser_err_msg(info->pinfo, "The different type between left type and right type");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+
+    }
+
+    append_opecode_to_code(info->code, OP_STORE_CLASS_FIELD, info->no_output);
+    append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(klass), info->no_output);
+    append_int_value_to_code(info->code, field_index, info->no_output);
+
+    info->type = field_type;
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_store_value_to_pointer(unsigned int left_node, sNodeType* node_type, unsigned int right_node)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeStoreValueToPointer;
+
+    gNodes[node].mLeft = left_node;
+    gNodes[node].mRight = right_node;
+    gNodes[node].mMiddle = 0;
+
+    gNodes[node].mType = node_type;
+
+    return node;
+}
+
+BOOL compile_store_value_to_pointer(unsigned int node, sCompileInfo* info)
+{
+    sNodeType* node_type = gNodes[node].mType;
+
+    /// compile left node ///
+    unsigned int lnode = gNodes[node].mLeft;
+
+    if(!compile(lnode, info)) {
+        return FALSE;
+    }
+
+    sNodeType* left_type = info->type;
+
+    if(left_type == NULL 
+        || !substitution_posibility_with_class_name(left_type, "pointer"))
+    {
+        parser_err_msg(info->pinfo, "Left node requires the pointer class");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    /// compile right node ///
+    unsigned int rnode = gNodes[node].mRight;
+
+    if(!compile(rnode, info)) {
+        return FALSE;
+    }
+
+    sNodeType* right_type = info->type;
+
+    if(right_type == NULL 
+        || !substitution_posibility(node_type, right_type))
+    {
+        parser_err_msg(info->pinfo, "The different type between left type and right type");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    /// check node_type ///
+    if(node_type && !(node_type->mClass->mFlags & CLASS_FLAGS_PRIMITIVE)) {
+        parser_err_msg(info->pinfo, "Pointer class can't cast for none primitive class");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    if(substitution_posibility_with_class_name(node_type, "int")) {
+        append_opecode_to_code(info->code, OP_STORE_VALUE_TO_INT_ADDRESS, info->no_output);
+    }
+    else if(substitution_posibility_with_class_name(node_type, "uint")) {
+        append_opecode_to_code(info->code, OP_STORE_VALUE_TO_UINT_ADDRESS, info->no_output);
+    }
+    else if(substitution_posibility_with_class_name(node_type, "byte")) {
+        append_opecode_to_code(info->code, OP_STORE_VALUE_TO_BYTE_ADDRESS, info->no_output);
+    }
+    else if(substitution_posibility_with_class_name(node_type, "ubyte")) {
+        append_opecode_to_code(info->code, OP_STORE_VALUE_TO_UBYTE_ADDRESS, info->no_output);
+    }
+    else if(substitution_posibility_with_class_name(node_type, "short")) {
+        append_opecode_to_code(info->code, OP_STORE_VALUE_TO_SHORT_ADDRESS, info->no_output);
+    }
+    else if(substitution_posibility_with_class_name(node_type, "ushort")) {
+        append_opecode_to_code(info->code, OP_STORE_VALUE_TO_USHORT_ADDRESS, info->no_output);
+    }
+    else if(substitution_posibility_with_class_name(node_type, "long")) {
+        append_opecode_to_code(info->code, OP_STORE_VALUE_TO_LONG_ADDRESS, info->no_output);
+    }
+    else if(substitution_posibility_with_class_name(node_type, "ulong")) {
+        append_opecode_to_code(info->code, OP_STORE_VALUE_TO_ULONG_ADDRESS, info->no_output);
+    }
+    else {
+        parser_err_msg(info->pinfo, "Invalid type for pointer cast");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    info->stack_num--;
+
+    info->type = right_type;
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_load_value_from_pointer(unsigned int left_node, sNodeType* node_type)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeLoadValueFromPointer;
+
+    gNodes[node].mLeft = left_node;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    gNodes[node].mType = node_type;
+
+    return node;
+}
+
+BOOL compile_load_value_from_pointer(unsigned int node, sCompileInfo* info)
+{
+    sNodeType* node_type = gNodes[node].mType;
+
+    /// compile left node ///
+    unsigned int lnode = gNodes[node].mLeft;
+
+    if(!compile(lnode, info)) {
+        return FALSE;
+    }
+
+    sNodeType* left_type = info->type;
+
+    if(left_type == NULL 
+        || !substitution_posibility_with_class_name(left_type, "pointer"))
+    {
+        parser_err_msg(info->pinfo, "Left node requires the pointer class");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    /// check node_type ///
+    if(node_type && !(node_type->mClass->mFlags & CLASS_FLAGS_PRIMITIVE)) {
+        parser_err_msg(info->pinfo, "Pointer class can't cast for none primitive class");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    if(substitution_posibility_with_class_name(node_type, "int")) {
+        append_opecode_to_code(info->code, OP_LOAD_VALUE_FROM_INT_ADDRESS, info->no_output);
+    }
+    else if(substitution_posibility_with_class_name(node_type, "uint")) {
+        append_opecode_to_code(info->code, OP_LOAD_VALUE_FROM_UINT_ADDRESS, info->no_output);
+    }
+    else if(substitution_posibility_with_class_name(node_type, "byte")) {
+        append_opecode_to_code(info->code, OP_LOAD_VALUE_FROM_BYTE_ADDRESS, info->no_output);
+    }
+    else if(substitution_posibility_with_class_name(node_type, "ubyte")) {
+        append_opecode_to_code(info->code, OP_LOAD_VALUE_FROM_UBYTE_ADDRESS, info->no_output);
+    }
+    else if(substitution_posibility_with_class_name(node_type, "short")) {
+        append_opecode_to_code(info->code, OP_LOAD_VALUE_FROM_SHORT_ADDRESS, info->no_output);
+    }
+    else if(substitution_posibility_with_class_name(node_type, "ushort")) {
+        append_opecode_to_code(info->code, OP_LOAD_VALUE_FROM_USHORT_ADDRESS, info->no_output);
+    }
+    else if(substitution_posibility_with_class_name(node_type, "long")) {
+        append_opecode_to_code(info->code, OP_LOAD_VALUE_FROM_LONG_ADDRESS, info->no_output);
+    }
+    else if(substitution_posibility_with_class_name(node_type, "ulong")) {
+        append_opecode_to_code(info->code, OP_LOAD_VALUE_FROM_ULONG_ADDRESS, info->no_output);
+    }
+    else {
+        parser_err_msg(info->pinfo, "Invalid type for pointer cast");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    info->type = node_type;
+
+    return TRUE;
+}
+
+BOOL sNodeTree_create_increment_operand(unsigned int left_node)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeIncrementOperand;
+
+    gNodes[node].mLeft = left_node;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    gNodes[node].mType = NULL;
+
+    return node;
+}
+
+BOOL compile_increment_operand(unsigned int node, sCompileInfo* info) 
+{
+    return TRUE;
+}
+
+BOOL compile_decrement_operand(unsigned int node, sCompileInfo* info)
+{
+    return TRUE;
+}
+
+BOOL sNodeTree_create_decment_operand(unsigned int left_node)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeDecrementOperand;
+
+    gNodes[node].mLeft = left_node;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    gNodes[node].mType = NULL;
+
+    return node;
 }
 
 void show_node(unsigned int node)
@@ -1459,6 +1988,38 @@ void show_node(unsigned int node)
 
         case kNodeTypeReturn:
             puts("return");
+            break;
+
+        case kNodeTypeLoadField:
+            puts("load field");
+            break;
+
+        case kNodeTypeStoreField:
+            puts("store field");
+            break;
+
+        case kNodeTypeLoadClassField:
+            puts("load field");
+            break;
+
+        case kNodeTypeStoreClassField:
+            puts("store class field");
+            break;
+
+        case kNodeTypeStoreValueToPointer:
+            puts("store value to pointer");
+            break;
+
+        case kNodeTypeLoadValueFromPointer:
+            puts("load value from pointer");
+            break;
+
+        case kNodeTypeIncrementOperand:
+            puts("increment operand");
+            break;
+
+        case kNodeTypeDecrementOperand:
+            puts("increment operand");
             break;
     }
 }
@@ -1592,6 +2153,54 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeReturn:
             if(!compile_return_expression(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeLoadField:
+            if(!compile_load_field(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeStoreField:
+            if(!compile_store_field(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeLoadClassField:
+            if(!compile_load_class_field(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeStoreClassField:
+            if(!compile_store_class_field(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeStoreValueToPointer:
+            if(!compile_store_value_to_pointer(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeLoadValueFromPointer:
+            if(!compile_load_value_from_pointer(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeIncrementOperand:
+            if(!compile_increment_operand(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeDecrementOperand:
+            if(!compile_decrement_operand(node, info)) {
                 return FALSE;
             }
             break;

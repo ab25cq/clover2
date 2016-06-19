@@ -4,7 +4,7 @@ sCLClass* get_class_from_cl_type(sCLType* cl_type, sCLClass* klass)
 {
     char* class_name = CONS_str(&klass->mConst, cl_type->mClassNameOffset);
 
-    return get_class_with_load(class_name);
+    return get_class_with_load_and_initialize(class_name);
 }
 
 BOOL is_void_type(sCLType* cl_type, sCLClass* klass)

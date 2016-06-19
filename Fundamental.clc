@@ -8,7 +8,6 @@ class System: final
 class Clover: final
 {
     def malloc(size:int): native static pointer;
-    def GC_malloc(size:int): native static pointer;
     def free(ptr:pointer): native static;
 }
 

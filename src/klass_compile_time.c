@@ -112,6 +112,27 @@ BOOL add_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protect
     return TRUE;
 }
 
+BOOL add_class_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type)
+{
+    if(klass->mNumClassFields == klass->mSizeClassFields) {
+        int new_size = klass->mSizeClassFields * 2;
+        klass->mClassFields = MREALLOC(klass->mClassFields, sizeof(sCLField)*new_size);
+        memset(klass->mClassFields + klass->mSizeClassFields, 0, sizeof(sCLField)*(new_size - klass->mSizeClassFields));
+        klass->mSizeClassFields = new_size;
+    }
+
+    const int num_fields = klass->mNumClassFields;
+
+    klass->mClassFields[num_fields].mFlags = (private_ ? FIELD_FLAGS_PRIVATE : 0) | (protected_ ? FIELD_FLAGS_PROTECTED:0);
+    klass->mClassFields[num_fields].mNameOffset = append_str_to_constant_pool(&klass->mConst, name, FALSE);
+
+    node_type_to_cl_type(result_type, ALLOC &klass->mClassFields[num_fields].mResultType, klass);
+
+    klass->mNumClassFields++;
+    
+    return TRUE;
+}
+
 void add_code_to_method(sCLMethod* method, sByteCode* code, int var_num)
 {
     method->uCode.mByteCodes = *code;
@@ -173,6 +194,34 @@ int search_for_method(sCLClass* klass, char* method_name, sNodeType** param_type
 
                 return i;
             }
+        }
+    }
+
+    return -1;
+}
+
+int search_for_field(sCLClass* klass, char* field_name)
+{
+    int i;
+    for(i=0; i<klass->mNumFields; i++) {
+        sCLField* field = klass->mFields + i;
+
+        if(strcmp(CONS_str(&klass->mConst, field->mNameOffset), field_name) == 0) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+int search_for_class_field(sCLClass* klass, char* field_name)
+{
+    int i;
+    for(i=0; i<klass->mNumClassFields; i++) {
+        sCLField* field = klass->mClassFields + i;
+
+        if(strcmp(CONS_str(&klass->mConst, field->mNameOffset), field_name) == 0) {
+            return i;
         }
     }
 
@@ -257,6 +306,8 @@ static void write_class_to_buffer(sCLClass* klass, sBuf* buf)
     sBuf_append_int(buf, klass->mClassNameOffset);
     append_methods_to_buffer(buf, klass->mMethods, klass->mNumMethods);
     append_fields_to_buffer(buf, klass->mFields, klass->mNumFields);
+    append_fields_to_buffer(buf, klass->mClassFields, klass->mNumClassFields);
+    sBuf_append_int(buf, klass->mInitializeMethodIndex);
 }
 
 BOOL write_class_to_class_file(sCLClass* klass)
@@ -313,6 +364,23 @@ BOOL write_class_to_class_file(sCLClass* klass)
     return TRUE;
 }
 
+void set_method_index_to_class(sCLClass* klass)
+{
+    klass->mInitializeMethodIndex = -1;
+
+    int i;
+    for(i=klass->mNumMethods-1; i>=0; i--) {
+        sCLMethod* method = klass->mMethods + i;
+
+        if((method->mFlags & METHOD_FLAGS_CLASS_METHOD) 
+            && strcmp(CONS_str(&klass->mConst, method->mNameOffset), "initialize") == 0
+            && method->mNumParams == 0)
+        {
+            klass->mInitializeMethodIndex = i;
+        }
+    }
+}
+
 BOOL write_all_modified_classes()
 {
     sClassTable* p = gHeadClassTable;
@@ -321,6 +389,7 @@ BOOL write_all_modified_classes()
         sCLClass* klass = p->mItem;
 
         if(klass->mFlags & CLASS_FLAGS_MODIFIED) {
+            set_method_index_to_class(klass);
             if(!write_class_to_class_file(klass)) {
                 fprintf(stderr, "Clover failed to write class file(%s)\n", CLASS_NAME(klass));
                 return FALSE;

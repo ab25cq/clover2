@@ -450,6 +450,17 @@ static sCLClass* read_class_from_file(int fd)
         return NULL;
     }
 
+    if(!read_fields_from_file(fd, &klass->mClassFields, &klass->mNumClassFields, &klass->mSizeClassFields, klass)) {
+        MFREE(klass);
+        return NULL;
+    }
+
+    if(!read_int_from_file(fd, &n)) {
+        MFREE(klass);
+        return NULL;
+    }
+    klass->mInitializeMethodIndex = n;
+
     klass->mFreeFun = NULL;
     klass->mMarkFun = object_mark_fun;
 
@@ -554,6 +565,10 @@ sCLClass* alloc_class(char* class_name, BOOL primitive_, BOOL final_, int generi
     klass->mSizeFields = 4;
     klass->mNumFields = 0;
 
+    klass->mClassFields = MCALLOC(1, sizeof(sCLField)*4);
+    klass->mSizeClassFields = 4;
+    klass->mNumClassFields = 0;
+
     klass->mFreeFun = NULL;
     klass->mMarkFun = object_mark_fun;
 
@@ -575,12 +590,25 @@ static void free_class(sCLClass* klass)
         }
 
         free_cl_type(method->mResultType);
+
+        if(!(method->mFlags & METHOD_FLAGS_NATIVE)) {
+            sByteCode_free(&method->uCode.mByteCodes);
+        }
     }
+    MFREE(klass->mMethods);
     for(i=0; i<klass->mNumFields; i++) {
         sCLField* field = klass->mFields + i;
 
         free_cl_type(field->mResultType);
     }
+    MFREE(klass->mFields);
+    for(i=0; i<klass->mNumClassFields; i++) {
+        sCLField* field = klass->mClassFields + i;
+
+        free_cl_type(field->mResultType);
+    }
+    MFREE(klass->mClassFields);
+
     MFREE(klass);
 }
 
@@ -605,6 +633,25 @@ void free_cl_type(sCLType* cl_type)
 static void load_fundamental_classes()
 {
     (void)load_class("System");
+    (void)load_class("Clover");
+}
+
+void mark_all_class_fields(unsigned char* mark_flg)
+{
+    sClassTable* p = gHeadClassTable;
+
+    while(p) {
+        sCLClass* klass = p->mItem;
+
+        int i;
+        for(i=0; i<klass->mNumClassFields; i++) {
+            sCLField* field = klass->mClassFields + i;
+
+            mark_object(field->mValue.mObjectValue, mark_flg);
+        }
+
+        p = p->mNextClass;
+    }
 }
 
 void class_init()
@@ -674,5 +721,3 @@ void class_final()
     gHeadClassTable = NULL;
     memset(gClassTable, 0, sizeof(sClassTable)*CLASS_NUM_MAX);
 }
-
-
