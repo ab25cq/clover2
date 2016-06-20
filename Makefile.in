@@ -101,4 +101,5 @@ test:
 	./cclover2 code/block_var_test.cl && ./clover2 code/block_var_test.clo
 	./cclover2 -class code/user_object.clc code/user_object.cl && ./clover2 code/user_object.clo
 	./cclover2 code/pointer.cl && ./clover2 code/pointer.clo
+	./cclover2 -class code/increment.clc && ./cclover2 code/increment.cl && ./clover2 code/increment.clo
 

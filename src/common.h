@@ -336,7 +336,7 @@ struct sCompileInfoStruct;
 BOOL compile_normal_block(sNodeBlock* block, struct sCompileInfoStruct* info);
 
 /// node.c ///
-enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeUByteValue, kNodeTypeShortValue, kNodeTypeUShortValue, kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodetTypeIncrementOperand, kNodeTypeDecrementOperand };
+enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeUByteValue, kNodeTypeShortValue, kNodeTypeUShortValue, kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand };
 
 enum eOperand { kOpAdd, kOpSub , kOpComplement, kOpLogicalDenial, kOpMult, kOpDiv, kOpMod, kOpLeftShift, kOpRightShift, kOpComparisonEqual, kOpComparisonNotEqual,kOpComparisonGreaterEqual, kOpComparisonLesserEqual, kOpComparisonGreater, kOpComparisonLesser, kOpAnd, kOpXor, kOpOr, kOpAndAnd, kOpOrOr, kOpConditional };
 
@@ -469,9 +469,10 @@ BOOL compile_script(char* fname, char* source);
 
 #define OP_POP 1
 #define OP_POP_N 2
-#define OP_COND_JUMP 3
-#define OP_GOTO 4
-#define OP_RETURN 5
+#define OP_REVERSE 3
+#define OP_COND_JUMP 4
+#define OP_GOTO 5
+#define OP_RETURN 6
 
 #define OP_STORE 10
 #define OP_LOAD 11
@@ -487,52 +488,50 @@ BOOL compile_script(char* fname, char* source);
 #define OP_LDCNULL 28
 
 #define OP_BADD 40
-#define OP_UBADD 41
-#define OP_SADD 42
-#define OP_USADD 43
-#define OP_IADD 44
-#define OP_UIADD 45
-#define OP_LADD 46
-#define OP_ULADD 47
-#define OP_FADD 48
-#define OP_DADD 49
-#define OP_PADD 50
-
-#define OP_BSUB 75
-#define OP_UBSUB 76
-#define OP_SSUB 77
-#define OP_USSUB 78
-#define OP_ISUB 79
-#define OP_UISUB 80
-#define OP_LSUB 81
-#define OP_ULSUB 82
-#define OP_FSUB 83
-#define OP_DSUB 84
-#define OP_PSUB 85
+#define OP_BSUB 41
+#define OP_UBADD 42
+#define OP_UBSUB 43
+#define OP_SADD 44
+#define OP_SSUB 45
+#define OP_USADD 46
+#define OP_USSUB 47
+#define OP_IADD 48
+#define OP_ISUB 49
+#define OP_UISUB 50
+#define OP_UIADD 51
+#define OP_LADD 52
+#define OP_LSUB 53
+#define OP_ULADD 54
+#define OP_ULSUB 55
+#define OP_FADD 56
+#define OP_FSUB 57
+#define OP_DADD 58
+#define OP_DSUB 59
+#define OP_PADD 60
+#define OP_PSUB 61
 
 #define OP_BEQ 100
-#define OP_UBEQ 101
-#define OP_SEQ 102
-#define OP_USEQ 103
-#define OP_IEQ 104
-#define OP_UIEQ 105
-#define OP_LEQ 106
-#define OP_ULEQ 107
-#define OP_FEQ 108
-#define OP_DEQ 109
-#define OP_PEQ 110
-
-#define OP_BNOTEQ 110
-#define OP_UBNOTEQ 111
-#define OP_SNOTEQ 112
-#define OP_USNOTEQ 113
-#define OP_INOTEQ 114
-#define OP_UINOTEQ 115
-#define OP_LNOTEQ 116
-#define OP_ULNOTEQ 117
-#define OP_FNOTEQ 118
-#define OP_DNOTEQ 119
-#define OP_PNOTEQ 120
+#define OP_BNOTEQ 101
+#define OP_UBEQ 102
+#define OP_UBNOTEQ 103
+#define OP_SEQ 104
+#define OP_SNOTEQ 105
+#define OP_USEQ 106
+#define OP_USNOTEQ 107
+#define OP_IEQ 108
+#define OP_INOTEQ 109
+#define OP_UIEQ 110
+#define OP_UINOTEQ 111
+#define OP_LEQ 112
+#define OP_LNOTEQ 123
+#define OP_ULEQ 124
+#define OP_ULNOTEQ 125
+#define OP_FEQ 126
+#define OP_FNOTEQ 127
+#define OP_DEQ 128
+#define OP_DNOTEQ 129
+#define OP_PEQ 130
+#define OP_PNOTEQ 131
 
 #define OP_ANDAND 150
 #define OP_OROR 151

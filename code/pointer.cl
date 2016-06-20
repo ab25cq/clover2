@@ -10,6 +10,16 @@ b->int = 245;
 
 System.assert(b->int == 245);
 
+b++;
+b++;
+b++
+b++;
+
+b->int = 345;
+
+c:pointer = a + 8;
+System.assert(c->int == 345);
+
 Clover.free(a);
 
 /*

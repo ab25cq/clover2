@@ -616,15 +616,15 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info)
             *node = sNodeTree_create_operand(kOpIndexing, *node, param_node, 0, quote);
         }
 */
-        else if(**info->p == '+' && *(*info->p+1) == '+') {
-            (*info->p)+=2;
-            skip_spaces_and_lf(info->p, info->sline);
+        else if(*info->p == '+' && *(info->p+1) == '+') {
+            info->p+=2;
+            skip_spaces_and_lf(info);
 
             *node = sNodeTree_create_increment_operand(*node);
         }
-        else if(**info->p == '-' && *(*info->p+1) == '-') {
-            (*info->p)+=2;
-            skip_spaces_and_lf(info->p, info->sline);
+        else if(*info->p == '-' && *(info->p+1) == '-') {
+            info->p+=2;
+            skip_spaces_and_lf(info);
 
             *node = sNodeTree_create_decment_operand(*node);
         }

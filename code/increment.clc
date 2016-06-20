@@ -1,0 +1,10 @@
+
+class IncrementOperandTest {
+    a:int;
+    b:int
+
+    def initialize() {
+        self.a = 111;
+        self.b = 222;
+    }
+}
