@@ -1870,10 +1870,16 @@ BOOL sNodeTree_create_increment_operand(unsigned int left_node)
     return node;
 }
 
-static void increment_operand_core(unsigned int node, sCompileInfo* info, unsigned int lnode, int add_operand, int sub_operand)
+static void increment_operand_core(unsigned int node, sCompileInfo* info, unsigned int lnode, int add_operand, int sub_operand, int ldc_operand)
 {
-    append_opecode_to_code(info->code, OP_LDCINT, info->no_output);
-    append_int_value_to_code(info->code, 1, info->no_output);
+    append_opecode_to_code(info->code, ldc_operand, info->no_output);
+    if(ldc_operand == OP_LDCLONG || ldc_operand == OP_LDCULONG) {
+        append_int_value_to_code(info->code, 1, info->no_output);
+        append_int_value_to_code(info->code, 0, info->no_output);
+    }
+    else {
+        append_int_value_to_code(info->code, 1, info->no_output);
+    }
 
     info->stack_num++;
 
@@ -1889,8 +1895,14 @@ static void increment_operand_core(unsigned int node, sCompileInfo* info, unsign
     append_opecode_to_code(info->code, OP_STORE, info->no_output);
     append_int_value_to_code(info->code, var_index, info->no_output);
 
-    append_opecode_to_code(info->code, OP_LDCINT, info->no_output);
-    append_opecode_to_code(info->code, 1, info->no_output);
+    append_opecode_to_code(info->code, ldc_operand, info->no_output);
+    if(ldc_operand == OP_LDCLONG || ldc_operand == OP_LDCULONG) {
+        append_int_value_to_code(info->code, 1, info->no_output);
+        append_int_value_to_code(info->code, 0, info->no_output);
+    }
+    else {
+        append_int_value_to_code(info->code, 1, info->no_output);
+    }
 
     info->stack_num++;
 
@@ -1899,10 +1911,16 @@ static void increment_operand_core(unsigned int node, sCompileInfo* info, unsign
     info->stack_num--;
 }
 
-static BOOL increment_operand_core_for_field(unsigned int node, sCompileInfo* info, unsigned int lnode, int add_operand, int sub_operand)
+static BOOL increment_operand_core_for_field(unsigned int node, sCompileInfo* info, unsigned int lnode, int add_operand, int sub_operand, int ldc_operand)
 {
-    append_opecode_to_code(info->code, OP_LDCINT, info->no_output);
-    append_int_value_to_code(info->code, 1, info->no_output);
+    append_opecode_to_code(info->code, ldc_operand, info->no_output);
+    if(ldc_operand == OP_LDCLONG || ldc_operand == OP_LDCULONG) {
+        append_int_value_to_code(info->code, 1, info->no_output);
+        append_int_value_to_code(info->code, 0, info->no_output);
+    }
+    else {
+        append_int_value_to_code(info->code, 1, info->no_output);
+    }
 
     info->stack_num++;
 
@@ -1933,8 +1951,14 @@ static BOOL increment_operand_core_for_field(unsigned int node, sCompileInfo* in
 
     info->stack_num--;
 
-    append_opecode_to_code(info->code, OP_LDCINT, info->no_output);
-    append_opecode_to_code(info->code, 1, info->no_output);
+    append_opecode_to_code(info->code, ldc_operand, info->no_output);
+    if(ldc_operand == OP_LDCLONG || ldc_operand == OP_LDCULONG) {
+        append_int_value_to_code(info->code, 1, info->no_output);
+        append_int_value_to_code(info->code, 0, info->no_output);
+    }
+    else {
+        append_int_value_to_code(info->code, 1, info->no_output);
+    }
 
     info->stack_num++;
 
@@ -1967,39 +1991,39 @@ BOOL compile_increment_operand(unsigned int node, sCompileInfo* info)
 
     if(gNodes[lnode].mNodeType == kNodeTypeLoadVariable) {
         if(substitution_posibility_with_class_name(node_type, "int")) {
-            increment_operand_core(node, info, lnode, OP_IADD, OP_ISUB);
+            increment_operand_core(node, info, lnode, OP_IADD, OP_ISUB, OP_LDCINT);
             info->type = create_node_type_with_class_name("int");
         }
         else if(substitution_posibility_with_class_name(node_type, "uint")) {
-            increment_operand_core(node, info, lnode, OP_UIADD, OP_UISUB);
+            increment_operand_core(node, info, lnode, OP_UIADD, OP_UISUB, OP_LDCUINT);
             info->type = create_node_type_with_class_name("uint");
         }
         else if(substitution_posibility_with_class_name(node_type, "byte")) {
-            increment_operand_core(node, info, lnode, OP_BADD, OP_BSUB);
+            increment_operand_core(node, info, lnode, OP_BADD, OP_BSUB, OP_LDCBYTE);
             info->type = create_node_type_with_class_name("byte");
         }
         else if(substitution_posibility_with_class_name(node_type, "ubyte")) {
-            increment_operand_core(node, info, lnode, OP_UIADD, OP_UISUB);
+            increment_operand_core(node, info, lnode, OP_UBADD, OP_UBSUB, OP_LDCUBYTE);
             info->type = create_node_type_with_class_name("ubyte");
         }
         else if(substitution_posibility_with_class_name(node_type, "short")) {
-            increment_operand_core(node, info, lnode, OP_SADD, OP_SSUB);
+            increment_operand_core(node, info, lnode, OP_SADD, OP_SSUB, OP_LDCSHORT);
             info->type = create_node_type_with_class_name("short");
         }
         else if(substitution_posibility_with_class_name(node_type, "ushort")) {
-            increment_operand_core(node, info, lnode, OP_USADD, OP_USSUB);
+            increment_operand_core(node, info, lnode, OP_USADD, OP_USSUB, OP_LDCUSHORT);
             info->type = create_node_type_with_class_name("ushort");
         }
         else if(substitution_posibility_with_class_name(node_type, "long")) {
-            increment_operand_core(node, info, lnode, OP_LADD, OP_LSUB);
+            increment_operand_core(node, info, lnode, OP_LADD, OP_LSUB, OP_LDCLONG);
             info->type = create_node_type_with_class_name("long");
         }
         else if(substitution_posibility_with_class_name(node_type, "ulong")) {
-            increment_operand_core(node, info, lnode, OP_ULADD, OP_ULSUB);
+            increment_operand_core(node, info, lnode, OP_ULADD, OP_ULSUB, OP_LDCULONG);
             info->type = create_node_type_with_class_name("ulong");
         }
         else if(substitution_posibility_with_class_name(node_type, "pointer")) {
-            increment_operand_core(node, info, lnode, OP_PADD, OP_PSUB);
+            increment_operand_core(node, info, lnode, OP_PADD, OP_PSUB, OP_LDCINT);
             info->type = create_node_type_with_class_name("pointer");
         }
         else {
@@ -2013,55 +2037,55 @@ BOOL compile_increment_operand(unsigned int node, sCompileInfo* info)
     }
     else { // gNodes[lnode].mNodeType == kNodeTypeLoadField
         if(substitution_posibility_with_class_name(node_type, "int")) {
-            if(!increment_operand_core_for_field(node, info, lnode, OP_IADD, OP_ISUB)) {
+            if(!increment_operand_core_for_field(node, info, lnode, OP_IADD, OP_ISUB, OP_LDCINT)) {
                 return FALSE;
             }
             info->type = create_node_type_with_class_name("int");
         }
         else if(substitution_posibility_with_class_name(node_type, "uint")) {
-            if(!increment_operand_core_for_field(node, info, lnode, OP_UIADD, OP_UISUB)) {
+            if(!increment_operand_core_for_field(node, info, lnode, OP_UIADD, OP_UISUB, OP_LDCUINT)) {
                 return FALSE;
             }
             info->type = create_node_type_with_class_name("uint");
         }
         else if(substitution_posibility_with_class_name(node_type, "byte")) {
-            if(!increment_operand_core_for_field(node, info, lnode, OP_BADD, OP_BSUB)) {
+            if(!increment_operand_core_for_field(node, info, lnode, OP_BADD, OP_BSUB, OP_LDCBYTE)) {
                 return FALSE;
             }
             info->type = create_node_type_with_class_name("byte");
         }
         else if(substitution_posibility_with_class_name(node_type, "ubyte")) {
-            if(!increment_operand_core_for_field(node, info, lnode, OP_UIADD, OP_UISUB)) {
+            if(!increment_operand_core_for_field(node, info, lnode, OP_UBADD, OP_UBSUB, OP_LDCUBYTE)) {
                 return FALSE;
             }
             info->type = create_node_type_with_class_name("ubyte");
         }
         else if(substitution_posibility_with_class_name(node_type, "short")) {
-            if(!increment_operand_core_for_field(node, info, lnode, OP_SADD, OP_SSUB)) {
+            if(!increment_operand_core_for_field(node, info, lnode, OP_SADD, OP_SSUB, OP_LDCSHORT)) {
                 return FALSE;
             }
             info->type = create_node_type_with_class_name("short");
         }
         else if(substitution_posibility_with_class_name(node_type, "ushort")) {
-            if(!increment_operand_core_for_field(node, info, lnode, OP_USADD, OP_USSUB)) {
+            if(!increment_operand_core_for_field(node, info, lnode, OP_USADD, OP_USSUB, OP_LDCUSHORT)) {
                 return FALSE;
             }
             info->type = create_node_type_with_class_name("ushort");
         }
         else if(substitution_posibility_with_class_name(node_type, "long")) {
-            if(!increment_operand_core_for_field(node, info, lnode, OP_LADD, OP_LSUB)) {
+            if(!increment_operand_core_for_field(node, info, lnode, OP_LADD, OP_LSUB, OP_LDCLONG)) {
                 return FALSE;
             }
             info->type = create_node_type_with_class_name("long");
         }
         else if(substitution_posibility_with_class_name(node_type, "ulong")) {
-            if(!increment_operand_core_for_field(node, info, lnode, OP_ULADD, OP_ULSUB)) {
+            if(!increment_operand_core_for_field(node, info, lnode, OP_ULADD, OP_ULSUB, OP_LDCULONG)) {
                 return FALSE;
             }
             info->type = create_node_type_with_class_name("ulong");
         }
         else if(substitution_posibility_with_class_name(node_type, "pointer")) {
-            if(!increment_operand_core_for_field(node, info, lnode, OP_PADD, OP_PSUB)) {
+            if(!increment_operand_core_for_field(node, info, lnode, OP_PADD, OP_PSUB, OP_LDCINT)) {
                 return FALSE;
             }
             info->type = create_node_type_with_class_name("pointer");
@@ -2079,10 +2103,16 @@ BOOL compile_increment_operand(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-static void decrement_operand_core(unsigned int node, sCompileInfo* info, unsigned int lnode, int add_operand, int sub_operand)
+static void decrement_operand_core(unsigned int node, sCompileInfo* info, unsigned int lnode, int add_operand, int sub_operand, int ldc_operand)
 {
-    append_opecode_to_code(info->code, OP_LDCINT, info->no_output);
-    append_int_value_to_code(info->code, 1, info->no_output);
+    append_opecode_to_code(info->code, ldc_operand, info->no_output);
+    if(ldc_operand == OP_LDCLONG || ldc_operand == OP_LDCULONG) {
+        append_int_value_to_code(info->code, 1, info->no_output);
+        append_int_value_to_code(info->code, 0, info->no_output);
+    }
+    else {
+        append_int_value_to_code(info->code, 1, info->no_output);
+    }
 
     info->stack_num++;
 
@@ -2098,8 +2128,14 @@ static void decrement_operand_core(unsigned int node, sCompileInfo* info, unsign
     append_opecode_to_code(info->code, OP_STORE, info->no_output);
     append_int_value_to_code(info->code, var_index, info->no_output);
 
-    append_opecode_to_code(info->code, OP_LDCINT, info->no_output);
-    append_opecode_to_code(info->code, 1, info->no_output);
+    append_opecode_to_code(info->code, ldc_operand, info->no_output);
+    if(ldc_operand == OP_LDCLONG || ldc_operand == OP_LDCULONG) {
+        append_int_value_to_code(info->code, 1, info->no_output);
+        append_int_value_to_code(info->code, 0, info->no_output);
+    }
+    else {
+        append_int_value_to_code(info->code, 1, info->no_output);
+    }
 
     info->stack_num++;
 
@@ -2110,8 +2146,14 @@ static void decrement_operand_core(unsigned int node, sCompileInfo* info, unsign
 
 static BOOL decrement_operand_core_for_field(unsigned int node, sCompileInfo* info, unsigned int lnode, int add_operand, int sub_operand)
 {
-    append_opecode_to_code(info->code, OP_LDCINT, info->no_output);
-    append_int_value_to_code(info->code, 1, info->no_output);
+    append_opecode_to_code(info->code, ldc_operand, info->no_output);
+    if(ldc_operand == OP_LDCLONG || ldc_operand == OP_LDCULONG) {
+        append_int_value_to_code(info->code, 1, info->no_output);
+        append_int_value_to_code(info->code, 0, info->no_output);
+    }
+    else {
+        append_int_value_to_code(info->code, 1, info->no_output);
+    }
 
     info->stack_num++;
 
@@ -2142,8 +2184,14 @@ static BOOL decrement_operand_core_for_field(unsigned int node, sCompileInfo* in
 
     info->stack_num--;
 
-    append_opecode_to_code(info->code, OP_LDCINT, info->no_output);
-    append_opecode_to_code(info->code, 1, info->no_output);
+    append_opecode_to_code(info->code, ldc_operand, info->no_output);
+    if(ldc_operand == OP_LDCLONG || ldc_operand == OP_LDCULONG) {
+        append_int_value_to_code(info->code, 1, info->no_output);
+        append_int_value_to_code(info->code, 0, info->no_output);
+    }
+    else {
+        append_int_value_to_code(info->code, 1, info->no_output);
+    }
 
     info->stack_num++;
 
@@ -2154,7 +2202,7 @@ static BOOL decrement_operand_core_for_field(unsigned int node, sCompileInfo* in
     return TRUE;
 }
 
-BOOL sNodeTree_create_decment_operand(unsigned int left_node)
+BOOL sNodeTree_create_decrement_operand(unsigned int left_node)
 {
     unsigned int node = alloc_node();
 
@@ -2191,39 +2239,39 @@ BOOL compile_decrement_operand(unsigned int node, sCompileInfo* info)
 
     if(gNodes[lnode].mNodeType == kNodeTypeLoadVariable) {
         if(substitution_posibility_with_class_name(node_type, "int")) {
-            decrement_operand_core(node, info, lnode, OP_IADD, OP_ISUB);
+            decrement_operand_core(node, info, lnode, OP_IADD, OP_ISUB, OP_LDCINT);
             info->type = create_node_type_with_class_name("int");
         }
         else if(substitution_posibility_with_class_name(node_type, "uint")) {
-            decrement_operand_core(node, info, lnode, OP_UIADD, OP_UISUB);
+            decrement_operand_core(node, info, lnode, OP_UIADD, OP_UISUB, OP_LDCUINT);
             info->type = create_node_type_with_class_name("uint");
         }
         else if(substitution_posibility_with_class_name(node_type, "byte")) {
-            decrement_operand_core(node, info, lnode, OP_BADD, OP_BSUB);
+            decrement_operand_core(node, info, lnode, OP_BADD, OP_BSUB, OP_LDCBYTE);
             info->type = create_node_type_with_class_name("byte");
         }
         else if(substitution_posibility_with_class_name(node_type, "ubyte")) {
-            decrement_operand_core(node, info, lnode, OP_UIADD, OP_UISUB);
+            decrement_operand_core(node, info, lnode, OP_UBADD, OP_UBSUB, OP_LDCUBYTE);
             info->type = create_node_type_with_class_name("ubyte");
         }
         else if(substitution_posibility_with_class_name(node_type, "short")) {
-            decrement_operand_core(node, info, lnode, OP_SADD, OP_SSUB);
+            decrement_operand_core(node, info, lnode, OP_SADD, OP_SSUB, OP_LDCSHORT);
             info->type = create_node_type_with_class_name("short");
         }
         else if(substitution_posibility_with_class_name(node_type, "ushort")) {
-            decrement_operand_core(node, info, lnode, OP_USADD, OP_USSUB);
+            decrement_operand_core(node, info, lnode, OP_USADD, OP_USSUB, OP_LDCSHORT);
             info->type = create_node_type_with_class_name("ushort");
         }
         else if(substitution_posibility_with_class_name(node_type, "long")) {
-            decrement_operand_core(node, info, lnode, OP_LADD, OP_LSUB);
+            decrement_operand_core(node, info, lnode, OP_LADD, OP_LSUB, OP_LDCLONG);
             info->type = create_node_type_with_class_name("long");
         }
         else if(substitution_posibility_with_class_name(node_type, "ulong")) {
-            decrement_operand_core(node, info, lnode, OP_ULADD, OP_ULSUB);
+            decrement_operand_core(node, info, lnode, OP_ULADD, OP_ULSUB, OP_LDCULONG);
             info->type = create_node_type_with_class_name("ulong");
         }
         else if(substitution_posibility_with_class_name(node_type, "pointer")) {
-            decrement_operand_core(node, info, lnode, OP_PADD, OP_PSUB);
+            decrement_operand_core(node, info, lnode, OP_PADD, OP_PSUB, OP_LDCPOINTER);
             info->type = create_node_type_with_class_name("pointer");
         }
         else {
@@ -2300,6 +2348,46 @@ BOOL compile_decrement_operand(unsigned int node, sCompileInfo* info)
         }
     }
 
+    return TRUE;
+}
+
+BOOL sNodeTree_create_increment_operand_with_value(unsigned int left_node, unsigned int value)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeIncrementWithValueOperand;
+
+    gNodes[node].mLeft = left_node;
+    gNodes[node].mRight = value;
+    gNodes[node].mMiddle = 0;
+
+    gNodes[node].mType = NULL;
+
+    return node;
+}
+
+BOOL compile_increment_operand_with_value(unsigned int node, sCompileInfo* info) 
+{
+    return TRUE;
+}
+
+BOOL sNodeTree_create_decrement_operand_with_value(unsigned int left_node, unsigned int value)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeDecrementOperand;
+
+    gNodes[node].mLeft = left_node;
+    gNodes[node].mRight = value;
+    gNodes[node].mMiddle = 0;
+
+    gNodes[node].mType = NULL;
+
+    return node;
+}
+
+BOOL compile_decrement_operand_with_value(unsigned int node, sCompileInfo* info)
+{
     return TRUE;
 }
 
@@ -2427,7 +2515,15 @@ void show_node(unsigned int node)
             break;
 
         case kNodeTypeDecrementOperand:
-            puts("increment operand");
+            puts("decrement operand");
+            break;
+
+        case kNodeTypeIncrementWithValueOperand:
+            puts("increment operand with value");
+            break;
+
+        case kNodeTypeDecrementWithValueOperand:
+            puts("decrement operand with value");
             break;
     }
 }
@@ -2609,6 +2705,18 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeDecrementOperand:
             if(!compile_decrement_operand(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeIncrementWithValueOperand:
+            if(!compile_increment_operand_with_value(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeDecrementWithValueOperand:
+            if(!compile_decrement_operand_with_value(node, info)) {
                 return FALSE;
             }
             break;

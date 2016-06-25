@@ -85,6 +85,10 @@ static void show_inst(unsigned inst)
             puts("OP_LDCNULL");
             break;
 
+        case OP_LDCPOINTER :
+            puts("OP_LDCPOINTER");
+            break;
+
         case OP_BADD :
             puts("OP_BADD");
             break;
@@ -582,6 +586,28 @@ show_inst(inst);
                     vm_mutex_on();
 
                     stack_ptr->mIntValue = 0;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_LDCPOINTER: 
+                {
+                    vm_mutex_on();
+
+                    int value1 = *(int*)pc;
+                    pc += sizeof(int);
+
+                    int value2 = *(int*)pc;
+                    pc += sizeof(int);
+
+                    void* lvalue;
+
+                    memcpy(&lvalue, &value1, sizeof(int));
+                    memcpy((char*)&lvalue + sizeof(int), &value2, sizeof(int));
+
+                    stack_ptr->mPointerValue = lvalue;
                     stack_ptr++;
 
                     vm_mutex_off();

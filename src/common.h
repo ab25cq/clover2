@@ -336,7 +336,7 @@ struct sCompileInfoStruct;
 BOOL compile_normal_block(sNodeBlock* block, struct sCompileInfoStruct* info);
 
 /// node.c ///
-enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeUByteValue, kNodeTypeShortValue, kNodeTypeUShortValue, kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand };
+enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeUByteValue, kNodeTypeShortValue, kNodeTypeUShortValue, kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand, kNodeTypeIncrementWithValueOperand, kNodeTypeDecrementWithValueOperand };
 
 enum eOperand { kOpAdd, kOpSub , kOpComplement, kOpLogicalDenial, kOpMult, kOpDiv, kOpMod, kOpLeftShift, kOpRightShift, kOpComparisonEqual, kOpComparisonNotEqual,kOpComparisonGreaterEqual, kOpComparisonLesserEqual, kOpComparisonGreater, kOpComparisonLesser, kOpAnd, kOpXor, kOpOr, kOpAndAnd, kOpOrOr, kOpConditional };
 
@@ -459,8 +459,10 @@ unsigned int sNodeTree_create_class_fields(sCLClass* klass, char* name);
 unsigned int sNodeTree_create_assign_class_field(sCLClass* klass, char* name , unsigned int right_node);
 unsigned int sNodeTree_create_store_value_to_pointer(unsigned int left_node, sNodeType* node_type, unsigned int right_node);
 unsigned int sNodeTree_create_load_value_from_pointer(unsigned int left_node, sNodeType* node_type);
-BOOL sNodeTree_create_decment_operand(unsigned int left_node);
+BOOL sNodeTree_create_decrement_operand(unsigned int left_node);
 BOOL sNodeTree_create_increment_operand(unsigned int left_node);
+BOOL sNodeTree_create_increment_operand_with_value(unsigned int left_node, unsigned int value);
+BOOL sNodeTree_create_decrement_operand_with_value(unsigned int left_node, unsigned int value);
 
 /// script.c ///
 BOOL compile_script(char* fname, char* source);
@@ -486,6 +488,7 @@ BOOL compile_script(char* fname, char* source);
 #define OP_LDCLONG 26
 #define OP_LDCULONG 27
 #define OP_LDCNULL 28
+#define OP_LDCPOINTER 29
 
 #define OP_BADD 40
 #define OP_BSUB 41

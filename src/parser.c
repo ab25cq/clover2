@@ -622,11 +622,35 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info)
 
             *node = sNodeTree_create_increment_operand(*node);
         }
+        else if(*info->p == '+' && *(info->p+1) == '=') {
+            info->p+=2;
+            skip_spaces_and_lf(info);
+
+            unsigned int value = 0;
+
+            if(!expression(&value, info)) {
+                return FALSE;
+            }
+
+            *node = sNodeTree_create_increment_operand_with_value(*node, value);
+        }
         else if(*info->p == '-' && *(info->p+1) == '-') {
             info->p+=2;
             skip_spaces_and_lf(info);
 
-            *node = sNodeTree_create_decment_operand(*node);
+            *node = sNodeTree_create_decrement_operand(*node);
+        }
+        else if(*info->p == '-' && *(info->p+1) == '=') {
+            info->p+=2;
+            skip_spaces_and_lf(info);
+
+            unsigned int value = 0;
+
+            if(!expression(&value, info)) {
+                return FALSE;
+            }
+
+            *node = sNodeTree_create_decrement_operand_with_value(*node, value);
         }
         else {
             break;
@@ -951,6 +975,25 @@ static BOOL expression_monadic_operator(unsigned int* node, sParserInfo* info)
 
             if(*node == 0) {
                 parser_err_msg(info, "require value for operator --");
+                info->err_num++;
+            }
+
+            if(!check_node_is_variable(*node)) {
+                parser_err_msg(info, "require the variable name for operator ++");
+                info->err_num++;
+            }
+            break;
+        }
+        else if(*info->p == '+' && *(info->p+1) == '=') {
+            info->p +=2;
+            skip_spaces_and_lf(info);
+
+            if(!expression_monadic_operator(node, info)) {
+                return FALSE;
+            }
+
+            if(*node == 0) {
+                parser_err_msg(info, "require value for operator ++");
                 info->err_num++;
             }
 
