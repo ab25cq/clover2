@@ -243,152 +243,66 @@ static void cast_left_type_to_righ_type(sNodeType* left_type, sNodeType** right_
 
 static BOOL binary_operator(sNodeType* left_type, sNodeType* right_type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, int float_operand, int double_operand, int pointer_operand, int null_operand, char* op_string, sCompileInfo* info)
 {
+    cast_left_type_to_righ_type(left_type, &right_type, info);
+
+    if(!operand_posibility(left_type, right_type)) {
+        parser_err_msg(info->pinfo, "Invalid type for operand. The left type is %s. The right type is %s.", CLASS_NAME(left_type->mClass), CLASS_NAME(right_type->mClass));
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
     if(type_identify_with_class_name(left_type, "byte") && byte_operand != -1) {
-        cast_right_type_to_byte(&right_type, info);
-
-        if(!operand_posibility(left_type, right_type)) {
-            parser_err_msg(info->pinfo, "Invalid type for operand. The left type is %s. The right type is %s.", CLASS_NAME(left_type->mClass), CLASS_NAME(right_type->mClass));
-            info->err_num++;
-
-            info->type = create_node_type_with_class_name("int"); // dummy
-
-            return TRUE;
-        }
-
         append_opecode_to_code(info->code, byte_operand, info->no_output);
         info->stack_num--;
 
         info->type = create_node_type_with_class_name("byte");
     }
     else if(type_identify_with_class_name(left_type, "ubyte") && ubyte_operand != -1) {
-        cast_right_type_to_byte(&right_type, info);
-
-        if(!operand_posibility(left_type, right_type)) {
-            parser_err_msg(info->pinfo, "Invalid type for operand. The left type is %s. The right type is %s.", CLASS_NAME(left_type->mClass), CLASS_NAME(right_type->mClass));
-            info->err_num++;
-
-            info->type = create_node_type_with_class_name("int"); // dummy
-
-            return TRUE;
-        }
-
         append_opecode_to_code(info->code, ubyte_operand, info->no_output);
         info->stack_num--;
 
         info->type = create_node_type_with_class_name("ubyte");
     }
     else if(type_identify_with_class_name(left_type, "short") && short_operand != -1) {
-        cast_right_type_to_short(&right_type, info);
-
-        if(!operand_posibility(left_type, right_type)) {
-            parser_err_msg(info->pinfo, "Invalid type for operand. The left type is %s. The right type is %s.", CLASS_NAME(left_type->mClass), CLASS_NAME(right_type->mClass));
-            info->err_num++;
-
-            info->type = create_node_type_with_class_name("int"); // dummy
-
-            return TRUE;
-        }
-
         append_opecode_to_code(info->code, short_operand, info->no_output);
         info->stack_num--;
 
         info->type = create_node_type_with_class_name("short");
     }
     else if(type_identify_with_class_name(left_type, "ushort") && ushort_operand != -1) {
-        cast_right_type_to_short(&right_type, info);
-
-        if(!operand_posibility(left_type, right_type)) {
-            parser_err_msg(info->pinfo, "Invalid type for operand. The left type is %s. The right type is %s.", CLASS_NAME(left_type->mClass), CLASS_NAME(right_type->mClass));
-            info->err_num++;
-
-            info->type = create_node_type_with_class_name("int"); // dummy
-
-            return TRUE;
-        }
-
         append_opecode_to_code(info->code, ushort_operand, info->no_output);
         info->stack_num--;
 
         info->type = create_node_type_with_class_name("ushort");
     }
     else if(type_identify_with_class_name(left_type, "int") && int_operand != -1) {
-        cast_right_type_to_int(&right_type, info);
-
-        if(!operand_posibility(left_type, right_type)) {
-            parser_err_msg(info->pinfo, "Invalid type for operand. The left type is %s. The right type is %s.", CLASS_NAME(left_type->mClass), CLASS_NAME(right_type->mClass));
-            info->err_num++;
-
-            info->type = create_node_type_with_class_name("int"); // dummy
-
-            return TRUE;
-        }
-
         append_opecode_to_code(info->code, int_operand, info->no_output);
         info->stack_num--;
 
         info->type = create_node_type_with_class_name("int");
     }
     else if(type_identify_with_class_name(left_type, "uint") && uint_operand != -1) {
-        cast_right_type_to_int(&right_type, info);
-
-        if(!operand_posibility(left_type, right_type)) {
-            parser_err_msg(info->pinfo, "Invalid type for operand. The left type is %s. The right type is %s.", CLASS_NAME(left_type->mClass), CLASS_NAME(right_type->mClass));
-            info->err_num++;
-
-            info->type = create_node_type_with_class_name("int"); // dummy
-
-            return TRUE;
-        }
-
         append_opecode_to_code(info->code, uint_operand, info->no_output);
         info->stack_num--;
 
         info->type = create_node_type_with_class_name("uint");
     }
     else if(type_identify_with_class_name(left_type, "long") && long_operand != -1) {
-        cast_right_type_to_long(&right_type, info);
-
-        if(!operand_posibility(left_type, right_type)) {
-            parser_err_msg(info->pinfo, "Invalid type for operand. The left type is %s. The right type is %s.", CLASS_NAME(left_type->mClass), CLASS_NAME(right_type->mClass));
-            info->err_num++;
-
-            info->type = create_node_type_with_class_name("int"); // dummy
-
-            return TRUE;
-        }
-
         append_opecode_to_code(info->code, long_operand, info->no_output);
         info->stack_num--;
 
         info->type = create_node_type_with_class_name("long");
     }
     else if(type_identify_with_class_name(left_type, "ulong") && ulong_operand != -1) {
-        cast_right_type_to_long(&right_type, info);
-
-        if(!operand_posibility(left_type, right_type)) {
-            parser_err_msg(info->pinfo, "Invalid type for operand. The left type is %s. The right type is %s.", CLASS_NAME(left_type->mClass), CLASS_NAME(right_type->mClass));
-            info->err_num++;
-
-            info->type = create_node_type_with_class_name("int"); // dummy
-
-            return TRUE;
-        }
-
         append_opecode_to_code(info->code, ulong_operand, info->no_output);
         info->stack_num--;
 
         info->type = create_node_type_with_class_name("ulong");
     }
     else if(type_identify_with_class_name(left_type, "float") && float_operand != -1) {
-        if(!operand_posibility(left_type, right_type)) {
-            parser_err_msg(info->pinfo, "Invalid type for operand. The left type is %s. The right type is %s.", CLASS_NAME(left_type->mClass), CLASS_NAME(right_type->mClass));
-            info->err_num++;
-
-            info->type = create_node_type_with_class_name("int"); // dummy
-
-            return TRUE;
-        }
-
         append_opecode_to_code(info->code, float_operand, info->no_output);
 
         info->stack_num--;
@@ -396,46 +310,18 @@ static BOOL binary_operator(sNodeType* left_type, sNodeType* right_type, int byt
         info->type = create_node_type_with_class_name("float");
     }
     else if(type_identify_with_class_name(left_type, "double") && double_operand != -1) {
-        if(!operand_posibility(left_type, right_type)) {
-            parser_err_msg(info->pinfo, "Invalid type for operand. The left type is %s. The right type is %s.", CLASS_NAME(left_type->mClass), CLASS_NAME(right_type->mClass));
-            info->err_num++;
-
-            info->type = create_node_type_with_class_name("int"); // dummy
-
-            return TRUE;
-        }
-
         append_opecode_to_code(info->code, double_operand, info->no_output);
         info->stack_num--;
 
         info->type = create_node_type_with_class_name("double");
     }
     else if(type_identify_with_class_name(left_type, "Null") && null_operand != -1) {
-        cast_right_type_to_int(&right_type, info);
-        if(!operand_posibility(left_type, right_type)) {
-            parser_err_msg(info->pinfo, "Invalid type for operand. The left type is %s. The right type is %s.", CLASS_NAME(left_type->mClass), CLASS_NAME(right_type->mClass));
-            info->err_num++;
-
-            info->type = create_node_type_with_class_name("int"); // dummy
-
-            return TRUE;
-        }
-
         append_opecode_to_code(info->code, null_operand, info->no_output);
         info->stack_num--;
 
         info->type = create_node_type_with_class_name("null");
     }
     else if(type_identify_with_class_name(left_type, "pointer") && pointer_operand != -1) {
-        if(!operand_posibility(left_type, right_type)) {
-            parser_err_msg(info->pinfo, "Invalid type for operand. The left type is %s. The right type is %s.", CLASS_NAME(left_type->mClass), CLASS_NAME(right_type->mClass));
-            info->err_num++;
-
-            info->type = create_node_type_with_class_name("int"); // dummy
-
-            return TRUE;
-        }
-
         append_opecode_to_code(info->code, pointer_operand, info->no_output);
         info->stack_num--;
 
@@ -848,7 +734,7 @@ static BOOL compile_ulong_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_assign_variable(char* var_name, sNodeType* node_type, int right, sCLClass* klass)
+unsigned int sNodeTree_create_store_variable(char* var_name, sNodeType* node_type, int right, sCLClass* klass)
 {
     unsigned node = alloc_node();
 
@@ -866,7 +752,7 @@ unsigned int sNodeTree_create_assign_variable(char* var_name, sNodeType* node_ty
     return node;
 }
 
-static BOOL compile_assign_variable(unsigned int node, sCompileInfo* info)
+static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
 {
     sVar* var = get_variable_from_table(info->lv_table, gNodes[node].uValue.sAssignVariable.mVarName);
 
@@ -886,13 +772,34 @@ static BOOL compile_assign_variable(unsigned int node, sCompileInfo* info)
 
     sNodeType* right_type = info->type;
 
+    /// type inference ///
     if(gNodes[node].mType == NULL) {
         gNodes[node].mType = right_type;
         var->mType = right_type;
     }
 
-    if(gNodes[node].mType->mClass == NULL || right_type->mClass == NULL) {
+    sNodeType* left_type = var->mType;
+
+    if(gNodes[node].mType->mClass == NULL || left_type == NULL || right_type == NULL || left_type->mClass == NULL || right_type->mClass == NULL) 
+    {
         parser_err_msg(info->pinfo, "invalid type");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    cast_left_type_to_righ_type(left_type, &right_type, info);
+
+    if(!substitution_posibility(left_type, right_type)) {
+        parser_err_msg(info->pinfo, "The different type between left type and right type");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+
     }
 
     int var_index = get_variable_index(info->lv_table, gNodes[node].uValue.sAssignVariable.mVarName);
@@ -948,6 +855,14 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
     info->stack_num++;
 
     info->type = gNodes[node].mType;
+
+    if(info->type == NULL) {
+        parser_err_msg(info->pinfo, "null type %s", gNodes[node].uValue.mVarName);
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+        return TRUE;
+    }
 
     return TRUE;
 }
@@ -2824,7 +2739,7 @@ BOOL compile(unsigned int node, sCompileInfo* info)
             break;
 
         case kNodeTypeAssignVariable:
-            if(!compile_assign_variable(node, info)) {
+            if(!compile_store_variable(node, info)) {
                 return FALSE;
             }
             break;

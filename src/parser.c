@@ -776,7 +776,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     *node = 0;
                 }
                 else {
-                    *node = sNodeTree_create_assign_variable(buf, node_type, right_node, info->klass);
+                    *node = sNodeTree_create_store_variable(buf, node_type, right_node, info->klass);
                 }
             }
             else {
@@ -802,7 +802,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 *node = 0;
             }
             else {
-                *node = sNodeTree_create_assign_variable(buf, NULL, right_node, info->klass);
+                *node = sNodeTree_create_store_variable(buf, NULL, right_node, info->klass);
             }
         }
         else {

@@ -270,7 +270,6 @@ clover2_init	src/main.c	/^static void clover2_init()$/;"	f	file:
 code	src/common.h	/^    sByteCode* code;$/;"	m	struct:sCompileInfoStruct
 compaction	src/heap.c	/^static void compaction(unsigned char* mark_flg)$/;"	f	file:
 compile	src/node.c	/^BOOL compile(unsigned int node, sCompileInfo* info)$/;"	f
-compile_assign_variable	src/node.c	/^static BOOL compile_assign_variable(unsigned int node, sCompileInfo* info)$/;"	f	file:
 compile_break_expression	src/node.c	/^static BOOL compile_break_expression(unsigned int node, sCompileInfo* info)$/;"	f	file:
 compile_byte_value	src/node.c	/^static BOOL compile_byte_value(unsigned int node, sCompileInfo* info)$/;"	f	file:
 compile_class_method_call	src/node.c	/^static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)$/;"	f	file:
@@ -299,6 +298,7 @@ compile_short_value	src/node.c	/^static BOOL compile_short_value(unsigned int no
 compile_store_class_field	src/node.c	/^static BOOL compile_store_class_field(unsigned int node, sCompileInfo* info)$/;"	f	file:
 compile_store_field	src/node.c	/^static BOOL compile_store_field(unsigned int node, sCompileInfo* info)$/;"	f	file:
 compile_store_value_to_pointer	src/node.c	/^BOOL compile_store_value_to_pointer(unsigned int node, sCompileInfo* info)$/;"	f
+compile_store_variable	src/node.c	/^static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)$/;"	f	file:
 compile_true_expression	src/node.c	/^static BOOL compile_true_expression(unsigned int node, sCompileInfo* info)$/;"	f	file:
 compile_ubyte_value	src/node.c	/^static BOOL compile_ubyte_value(unsigned int node, sCompileInfo* info)$/;"	f	file:
 compile_uint_value	src/node.c	/^static BOOL compile_uint_value(unsigned int node, sCompileInfo* info)$/;"	f	file:
@@ -740,7 +740,6 @@ sNodeTreeStruct	src/common.h	/^struct sNodeTreeStruct $/;"	s
 sNodeTree_break_expression	src/node.c	/^unsigned int sNodeTree_break_expression()$/;"	f
 sNodeTree_create_assign_class_field	src/node.c	/^unsigned int sNodeTree_create_assign_class_field(sCLClass* klass, char* name , unsigned int right_node)$/;"	f
 sNodeTree_create_assign_field	src/node.c	/^unsigned int sNodeTree_create_assign_field(char* var_name, unsigned int left_node, unsigned int right_node)$/;"	f
-sNodeTree_create_assign_variable	src/node.c	/^unsigned int sNodeTree_create_assign_variable(char* var_name, sNodeType* node_type, int right, sCLClass* klass)$/;"	f
 sNodeTree_create_byte_value	src/node.c	/^unsigned int sNodeTree_create_byte_value(char value, unsigned int left, unsigned int right, unsigned int middle)$/;"	f
 sNodeTree_create_class_fields	src/node.c	/^unsigned int sNodeTree_create_class_fields(sCLClass* klass, char* name)$/;"	f
 sNodeTree_create_class_method_call	src/node.c	/^unsigned int sNodeTree_create_class_method_call(sCLClass* klass, char* method_name, unsigned int* params, int num_params)$/;"	f
@@ -758,6 +757,7 @@ sNodeTree_create_operand	src/node.c	/^unsigned int sNodeTree_create_operand(enum
 sNodeTree_create_return_expression	src/node.c	/^unsigned int sNodeTree_create_return_expression(unsigned int expression_node)$/;"	f
 sNodeTree_create_short_value	src/node.c	/^unsigned int sNodeTree_create_short_value(short value, unsigned int left, unsigned int right, unsigned int middle)$/;"	f
 sNodeTree_create_store_value_to_pointer	src/node.c	/^unsigned int sNodeTree_create_store_value_to_pointer(unsigned int left_node, sNodeType* node_type, unsigned int right_node)$/;"	f
+sNodeTree_create_store_variable	src/node.c	/^unsigned int sNodeTree_create_store_variable(char* var_name, sNodeType* node_type, int right, sCLClass* klass)$/;"	f
 sNodeTree_create_ubyte_value	src/node.c	/^unsigned int sNodeTree_create_ubyte_value(unsigned char value, unsigned int left, unsigned int right, unsigned int middle)$/;"	f
 sNodeTree_create_uint_value	src/node.c	/^unsigned int sNodeTree_create_uint_value(unsigned int value, unsigned int left, unsigned int right, unsigned int middle)$/;"	f
 sNodeTree_create_ulong_value	src/node.c	/^unsigned int sNodeTree_create_ulong_value(unsigned long value, unsigned int left, unsigned int right, unsigned int middle)$/;"	f

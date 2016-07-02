@@ -440,7 +440,7 @@ unsigned int sNodeTree_create_int_value(int value, unsigned int left, unsigned i
 unsigned int sNodeTree_create_uint_value(unsigned int value, unsigned int left, unsigned int right, unsigned int middle);
 unsigned int sNodeTree_create_long_value(long value, unsigned int left, unsigned int right, unsigned int middle);
 unsigned int sNodeTree_create_ulong_value(unsigned long value, unsigned int left, unsigned int right, unsigned int middle);
-unsigned int sNodeTree_create_assign_variable(char* var_name, sNodeType* node_type, int right, sCLClass* klass);
+unsigned int sNodeTree_create_store_variable(char* var_name, sNodeType* node_type, int right, sCLClass* klass);
 unsigned int sNodeTree_create_assign_field(char* var_name, unsigned int left_node, unsigned int right_node);
 unsigned int sNodeTree_create_load_variable(char* var_name);
 unsigned int sNodeTree_create_return_expression(unsigned int expression_node);
