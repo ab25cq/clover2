@@ -1776,6 +1776,150 @@ show_inst(inst);
                     vm_mutex_off();
                 }
                 break;
+
+            case OP_SHORT_TO_BYTE_CAST:
+                {
+                    vm_mutex_on();
+
+                    unsigned char value = (unsigned char)(stack_ptr-1)->mShortValue;
+
+                    (stack_ptr-1)->mByteValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_INT_TO_BYTE_CAST:
+                {
+                    vm_mutex_on();
+
+                    unsigned char value = (unsigned char)(stack_ptr-1)->mIntValue;
+
+                    (stack_ptr-1)->mByteValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_LONG_TO_BYTE_CAST:
+                {
+                    vm_mutex_on();
+
+                    unsigned char value = (unsigned char)(stack_ptr-1)->mLongValue;
+
+                    (stack_ptr-1)->mByteValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_BYTE_TO_SHORT_CAST:
+                {
+                    vm_mutex_on();
+
+                    unsigned short value = (unsigned short)(stack_ptr-1)->mByteValue;
+
+                    (stack_ptr-1)->mShortValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_INT_TO_SHORT_CAST:
+                {
+                    vm_mutex_on();
+
+                    unsigned short value = (unsigned short)(stack_ptr-1)->mIntValue;
+
+                    (stack_ptr-1)->mShortValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_LONG_TO_SHORT_CAST:
+                {
+                    vm_mutex_on();
+
+                    unsigned short value = (unsigned short)(stack_ptr-1)->mLongValue;
+
+                    (stack_ptr-1)->mShortValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_BYTE_TO_INT_CAST:
+                {
+                    vm_mutex_on();
+
+                    unsigned int value = (unsigned int)(stack_ptr-1)->mByteValue;
+
+                    (stack_ptr-1)->mIntValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_SHORT_TO_INT_CAST:
+                {
+                    vm_mutex_on();
+
+                    unsigned int value = (unsigned int)(stack_ptr-1)->mShortValue;
+
+                    (stack_ptr-1)->mIntValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_LONG_TO_INT_CAST:
+                {
+                    vm_mutex_on();
+
+                    unsigned long value = (unsigned long)(stack_ptr-1)->mIntValue;
+
+                    (stack_ptr-1)->mLongValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_BYTE_TO_LONG_CAST:
+                {
+                    vm_mutex_on();
+
+                    unsigned long value = (unsigned long)(stack_ptr-1)->mByteValue;
+
+                    (stack_ptr-1)->mLongValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_SHORT_TO_LONG_CAST:
+                {
+                    vm_mutex_on();
+
+                    unsigned long value = (unsigned long)(stack_ptr-1)->mShortValue;
+
+                    (stack_ptr-1)->mLongValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_INT_TO_LONG_CAST:
+                {
+                    vm_mutex_on();
+
+                    unsigned long value = (unsigned long)(stack_ptr-1)->mIntValue;
+
+                    (stack_ptr-1)->mLongValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
         }
 #ifdef VM_DEBUG
 show_stack(stack, stack_ptr);

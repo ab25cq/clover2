@@ -984,25 +984,6 @@ static BOOL expression_monadic_operator(unsigned int* node, sParserInfo* info)
             }
             break;
         }
-        else if(*info->p == '+' && *(info->p+1) == '=') {
-            info->p +=2;
-            skip_spaces_and_lf(info);
-
-            if(!expression_monadic_operator(node, info)) {
-                return FALSE;
-            }
-
-            if(*node == 0) {
-                parser_err_msg(info, "require value for operator ++");
-                info->err_num++;
-            }
-
-            if(!check_node_is_variable(*node)) {
-                parser_err_msg(info, "require the variable name for operator ++");
-                info->err_num++;
-            }
-            break;
-        }
         else if(*info->p == '~') {
             info->p++;
             skip_spaces_and_lf(info);

@@ -23,8 +23,8 @@ CLASS_NAME	src/common.h	203;"	d
 CLASS_NAME_MAX	src/common.h	27;"	d
 CLASS_NUM_MAX	src/klass.c	7;"	d	file:
 CLASS_VERSION_MAX	src/common.h	34;"	d
-CLHEAPMEM	src/common.h	647;"	d
-CLOBJECT	src/common.h	669;"	d
+CLHEAPMEM	src/common.h	660;"	d
+CLOBJECT	src/common.h	682;"	d
 CLObject	src/common.h	/^typedef unsigned int CLObject;$/;"	t
 CLVALUE	src/common.h	/^typedef union CLVALUEUnion CLVALUE;$/;"	t	typeref:union:CLVALUEUnion
 CLVALUEUnion	src/common.h	/^union CLVALUEUnion {$/;"	u
@@ -35,7 +35,7 @@ Clover_free	src/class_clover.c	/^BOOL Clover_free(CLVALUE** stack_ptr, CLVALUE* 
 Clover_malloc	src/class_clover.c	/^BOOL Clover_malloc(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 DEBUG_H	src/debug.h	2;"	d
 DESTDIR	Makefile	/^DESTDIR=$/;"	m
-DUMMY_ARRAY_SIZE	src/common.h	658;"	d
+DUMMY_ARRAY_SIZE	src/common.h	671;"	d
 ELIF_NUM_MAX	src/common.h	30;"	d
 FALSE	src/macros.h	13;"	d
 FIELD_FLAGS_PRIVATE	src/common.h	154;"	d
@@ -81,6 +81,9 @@ OP_BADD	src/common.h	493;"	d
 OP_BEQ	src/common.h	516;"	d
 OP_BNOTEQ	src/common.h	517;"	d
 OP_BSUB	src/common.h	494;"	d
+OP_BYTE_TO_INT_CAST	src/common.h	574;"	d
+OP_BYTE_TO_LONG_CAST	src/common.h	577;"	d
+OP_BYTE_TO_SHORT_CAST	src/common.h	571;"	d
 OP_COND_JUMP	src/common.h	475;"	d
 OP_DADD	src/common.h	511;"	d
 OP_DEQ	src/common.h	534;"	d
@@ -94,6 +97,9 @@ OP_GOTO	src/common.h	476;"	d
 OP_IADD	src/common.h	501;"	d
 OP_IEQ	src/common.h	524;"	d
 OP_INOTEQ	src/common.h	525;"	d
+OP_INT_TO_BYTE_CAST	src/common.h	569;"	d
+OP_INT_TO_LONG_CAST	src/common.h	579;"	d
+OP_INT_TO_SHORT_CAST	src/common.h	572;"	d
 OP_INVOKE_METHOD	src/common.h	542;"	d
 OP_ISUB	src/common.h	502;"	d
 OP_LADD	src/common.h	505;"	d
@@ -120,6 +126,9 @@ OP_LOAD_VALUE_FROM_UBYTE_ADDRESS	src/common.h	562;"	d
 OP_LOAD_VALUE_FROM_UINT_ADDRESS	src/common.h	560;"	d
 OP_LOAD_VALUE_FROM_ULONG_ADDRESS	src/common.h	566;"	d
 OP_LOAD_VALUE_FROM_USHORT_ADDRESS	src/common.h	564;"	d
+OP_LONG_TO_BYTE_CAST	src/common.h	570;"	d
+OP_LONG_TO_INT_CAST	src/common.h	576;"	d
+OP_LONG_TO_SHORT_CAST	src/common.h	573;"	d
 OP_LSUB	src/common.h	506;"	d
 OP_NEW	src/common.h	544;"	d
 OP_OROR	src/common.h	540;"	d
@@ -133,6 +142,9 @@ OP_RETURN	src/common.h	477;"	d
 OP_REVERSE	src/common.h	474;"	d
 OP_SADD	src/common.h	497;"	d
 OP_SEQ	src/common.h	520;"	d
+OP_SHORT_TO_BYTE_CAST	src/common.h	568;"	d
+OP_SHORT_TO_INT_CAST	src/common.h	575;"	d
+OP_SHORT_TO_LONG_CAST	src/common.h	578;"	d
 OP_SNOTEQ	src/common.h	521;"	d
 OP_SSUB	src/common.h	498;"	d
 OP_STORE	src/common.h	479;"	d
@@ -164,14 +176,14 @@ OP_USNOTEQ	src/common.h	523;"	d
 OP_USSUB	src/common.h	500;"	d
 OS	Makefile	/^OS=LINUX$/;"	m
 PARAMS_MAX	src/common.h	32;"	d
-PARSE_PHASE_ADD_GENERICS_TYPES	src/common.h	577;"	d
-PARSE_PHASE_ADD_METHODS_AND_FIELDS	src/common.h	578;"	d
-PARSE_PHASE_ADD_SUPER_CLASSES	src/common.h	575;"	d
-PARSE_PHASE_ALLOC_CLASSES	src/common.h	574;"	d
-PARSE_PHASE_CALCULATE_SUPER_CLASSES	src/common.h	576;"	d
-PARSE_PHASE_COMPILE_PARAM_INITIALIZER	src/common.h	579;"	d
-PARSE_PHASE_DO_COMPILE_CODE	src/common.h	580;"	d
-PARSE_PHASE_MAX	src/common.h	581;"	d
+PARSE_PHASE_ADD_GENERICS_TYPES	src/common.h	590;"	d
+PARSE_PHASE_ADD_METHODS_AND_FIELDS	src/common.h	591;"	d
+PARSE_PHASE_ADD_SUPER_CLASSES	src/common.h	588;"	d
+PARSE_PHASE_ALLOC_CLASSES	src/common.h	587;"	d
+PARSE_PHASE_CALCULATE_SUPER_CLASSES	src/common.h	589;"	d
+PARSE_PHASE_COMPILE_PARAM_INITIALIZER	src/common.h	592;"	d
+PARSE_PHASE_DO_COMPILE_CODE	src/common.h	593;"	d
+PARSE_PHASE_MAX	src/common.h	594;"	d
 SO_VERSION	Makefile	/^SO_VERSION=1.0.0$/;"	m
 System_assert	src/class_system.c	/^BOOL System_assert(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_exit	src/class_system.c	/^BOOL System_exit(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
@@ -238,10 +250,15 @@ as_fn_set_status	configure	/^as_fn_set_status ()$/;"	f
 as_fn_success	configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
 as_fn_unset	config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	configure	/^as_fn_unset ()$/;"	f
-binary_operator	src/node.c	/^static BOOL binary_operator(sNodeType* type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, int float_operand, int double_operand, int pointer_operand, int null_operand, char* op_string, sCompileInfo* info)$/;"	f	file:
+binary_operator	src/node.c	/^static BOOL binary_operator(sNodeType* left_type, sNodeType* right_type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, int float_operand, int double_operand, int pointer_operand, int null_operand, char* op_string, sCompileInfo* info)$/;"	f	file:
 binary_operator_for_bool	src/node.c	/^static BOOL binary_operator_for_bool(sNodeType* type, int bool_operand, sCompileInfo* info)$/;"	f	file:
 bindir	Makefile	/^bindir=${exec_prefix}\/bin$/;"	m
 break_points	src/common.h	/^    int* break_points;$/;"	m	struct:sCompileInfoStruct
+cast_left_type_to_righ_type	src/node.c	/^static void cast_left_type_to_righ_type(sNodeType* left_type, sNodeType** right_type, sCompileInfo* info)$/;"	f	file:
+cast_right_type_to_byte	src/node.c	/^static void cast_right_type_to_byte(sNodeType** right_type, sCompileInfo* info)$/;"	f	file:
+cast_right_type_to_int	src/node.c	/^static void cast_right_type_to_int(sNodeType** right_type, sCompileInfo* info)$/;"	f	file:
+cast_right_type_to_long	src/node.c	/^static void cast_right_type_to_long(sNodeType** right_type, sCompileInfo* info)$/;"	f	file:
+cast_right_type_to_short	src/node.c	/^static void cast_right_type_to_short(sNodeType** right_type, sCompileInfo* info)$/;"	f	file:
 check_method_params	src/klass_compile_time.c	/^static BOOL check_method_params(sCLMethod* method, sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, sNodeType* generics_type)$/;"	f	file:
 check_node_is_variable	src/node.c	/^BOOL check_node_is_variable(unsigned int node)$/;"	f
 class_compiler	src/compiler.c	/^static BOOL class_compiler(char* fname)$/;"	f	file:
@@ -307,7 +324,7 @@ debug_malloc	src/debug.c	/^ALLOC void* debug_malloc(size_t size, const char* fil
 debug_realloc	src/debug.c	/^ALLOC void* debug_realloc(void* memory, size_t size, const char* file_name, int line, const char* func_name)$/;"	f
 debug_strdup	src/debug.c	/^ALLOC char* debug_strdup(char* str, const char* file_name, int line, const char* func_name)$/;"	f
 decrement_operand_core	src/node.c	/^static void decrement_operand_core(unsigned int node, sCompileInfo* info, unsigned int lnode, int add_operand, int sub_operand, int ldc_operand)$/;"	f	file:
-decrement_operand_core_for_field	src/node.c	/^static BOOL decrement_operand_core_for_field(unsigned int node, sCompileInfo* info, unsigned int lnode, int add_operand, int sub_operand)$/;"	f	file:
+decrement_operand_core_for_field	src/node.c	/^static BOOL decrement_operand_core_for_field(unsigned int node, sCompileInfo* info, unsigned int lnode, int add_operand, int sub_operand, int ldc_operand)$/;"	f	file:
 delete_all_object	src/heap.c	/^static void delete_all_object()$/;"	f	file:
 delete_comment	src/compiler.c	/^static BOOL delete_comment(sBuf* source, sBuf* source2)$/;"	f	file:
 docdir	Makefile	/^docdir=${datarootdir}\/doc$/;"	m

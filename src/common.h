@@ -565,6 +565,19 @@ BOOL compile_script(char* fname, char* source);
 #define OP_LOAD_VALUE_FROM_LONG_ADDRESS 456
 #define OP_LOAD_VALUE_FROM_ULONG_ADDRESS 457
 
+#define OP_SHORT_TO_BYTE_CAST 500
+#define OP_INT_TO_BYTE_CAST 501
+#define OP_LONG_TO_BYTE_CAST 502
+#define OP_BYTE_TO_SHORT_CAST 503
+#define OP_INT_TO_SHORT_CAST 504
+#define OP_LONG_TO_SHORT_CAST 505
+#define OP_BYTE_TO_INT_CAST 506
+#define OP_SHORT_TO_INT_CAST 507
+#define OP_LONG_TO_INT_CAST 508
+#define OP_BYTE_TO_LONG_CAST 509
+#define OP_SHORT_TO_LONG_CAST 510
+#define OP_INT_TO_LONG_CAST 511
+
 BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sVMInfo* info);
 void vm_mutex_on();
 void vm_mutex_off();

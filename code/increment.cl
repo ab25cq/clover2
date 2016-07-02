@@ -19,6 +19,16 @@ b.b--;
 System.assert(b.b == 221 && b.b-- == 221);
 System.assert(b.b == 220);
 
+System.assert(b.c == 555);
+
+b.c++;
+
+System.assert(b.c == 556);
+
+b.c--;
+
+System.assert(b.c == 555);
+
 c:int = 2;
 c--;
 
@@ -29,7 +39,23 @@ d:long = 4;
 
 d++;
 
+System.assert(d == 5 && d++ == 5);
+
+d--;
+
 System.assert(d == 5);
+
+e:short = 123;
+
+System.assert(e == 123 && e++ == 123);
+
+System.assert(e == 124);
+
+e--;
+
+System.assert(e == 123);
+
+
 
 /*
 c:int = 3;

@@ -11,13 +11,10 @@ union ValueUnion {
 typedef union ValueUnion Value;
 
 int main() {
-    long a;
-    int b = 1;
-    int c = 0;
-    memcpy(&a, &b, sizeof(int));
-    memcpy((char*)&a + sizeof(int), &c, sizeof(int));
+    long l = 5;
+    int a = 5;
 
-    if(a == 1) {
+    if(l == a) {
         puts("YES");
     }
     else {
