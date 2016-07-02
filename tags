@@ -254,9 +254,9 @@ binary_operator	src/node.c	/^static BOOL binary_operator(sNodeType* left_type, s
 binary_operator_for_bool	src/node.c	/^static BOOL binary_operator_for_bool(sNodeType* type, int bool_operand, sCompileInfo* info)$/;"	f	file:
 bindir	Makefile	/^bindir=${exec_prefix}\/bin$/;"	m
 break_points	src/common.h	/^    int* break_points;$/;"	m	struct:sCompileInfoStruct
-cast_left_type_to_righ_type	src/node.c	/^static void cast_left_type_to_righ_type(sNodeType* left_type, sNodeType** right_type, sCompileInfo* info)$/;"	f	file:
 cast_right_type_to_byte	src/node.c	/^static void cast_right_type_to_byte(sNodeType** right_type, sCompileInfo* info)$/;"	f	file:
 cast_right_type_to_int	src/node.c	/^static void cast_right_type_to_int(sNodeType** right_type, sCompileInfo* info)$/;"	f	file:
+cast_right_type_to_left_type	src/node.c	/^static void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, sCompileInfo* info)$/;"	f	file:
 cast_right_type_to_long	src/node.c	/^static void cast_right_type_to_long(sNodeType** right_type, sCompileInfo* info)$/;"	f	file:
 cast_right_type_to_short	src/node.c	/^static void cast_right_type_to_short(sNodeType** right_type, sCompileInfo* info)$/;"	f	file:
 check_method_params	src/klass_compile_time.c	/^static BOOL check_method_params(sCLMethod* method, sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, sNodeType* generics_type)$/;"	f	file:

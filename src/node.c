@@ -217,7 +217,7 @@ static void cast_right_type_to_long(sNodeType** right_type, sCompileInfo* info)
     }
 }
 
-static void cast_left_type_to_righ_type(sNodeType* left_type, sNodeType** right_type, sCompileInfo* info)
+static void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, sCompileInfo* info)
 {
     if(type_identify_with_class_name(left_type, "byte") || type_identify_with_class_name(left_type, "ubyte")) 
     {
@@ -243,7 +243,7 @@ static void cast_left_type_to_righ_type(sNodeType* left_type, sNodeType** right_
 
 static BOOL binary_operator(sNodeType* left_type, sNodeType* right_type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, int float_operand, int double_operand, int pointer_operand, int null_operand, char* op_string, sCompileInfo* info)
 {
-    cast_left_type_to_righ_type(left_type, &right_type, info);
+    cast_right_type_to_left_type(left_type, &right_type, info);
 
     if(!operand_posibility(left_type, right_type)) {
         parser_err_msg(info->pinfo, "Invalid type for operand. The left type is %s. The right type is %s.", CLASS_NAME(left_type->mClass), CLASS_NAME(right_type->mClass));
@@ -790,7 +790,7 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
-    cast_left_type_to_righ_type(left_type, &right_type, info);
+    cast_right_type_to_left_type(left_type, &right_type, info);
 
     if(!substitution_posibility(left_type, right_type)) {
         parser_err_msg(info->pinfo, "The different type between left type and right type");
@@ -1478,7 +1478,7 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
     }
 
     sNodeType* value_type = info->type;
-    cast_left_type_to_righ_type(result_type, &value_type, info);
+    cast_right_type_to_left_type(result_type, &value_type, info);
 
     if(!substitution_posibility(result_type, value_type)) {
         parser_err_msg(info->pinfo, "Invalid type of return value");
@@ -1660,7 +1660,7 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
     sCLField* field = klass->mFields + field_index;
     sNodeType* field_type = create_node_type_from_cl_type(field->mResultType, klass);
 
-    cast_left_type_to_righ_type(field_type, &right_type, info);
+    cast_right_type_to_left_type(field_type, &right_type, info);
 
     if(!substitution_posibility(field_type, right_type)) {
         parser_err_msg(info->pinfo, "The different type between left type and right type");
@@ -1787,7 +1787,7 @@ static BOOL compile_store_class_field(unsigned int node, sCompileInfo* info)
     sCLField* field = klass->mClassFields + field_index;
     sNodeType* field_type = create_node_type_from_cl_type(field->mResultType, klass);
 
-    cast_left_type_to_righ_type(field_type, &right_type, info);
+    cast_right_type_to_left_type(field_type, &right_type, info);
 
     if(!substitution_posibility(field_type, right_type)) {
         parser_err_msg(info->pinfo, "The different type between left type and right type");
