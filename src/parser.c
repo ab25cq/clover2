@@ -963,6 +963,8 @@ static BOOL expression_monadic_operator(unsigned int* node, sParserInfo* info)
                 parser_err_msg(info, "require the variable name for operator ++");
                 info->err_num++;
             }
+
+            *node = sNodeTree_create_monadic_increment_operand(*node);
             break;
         }
         else if(*info->p == '-' && *(info->p+1) == '-') {
@@ -982,6 +984,8 @@ static BOOL expression_monadic_operator(unsigned int* node, sParserInfo* info)
                 parser_err_msg(info, "require the variable name for operator ++");
                 info->err_num++;
             }
+
+            *node = sNodeTree_create_monadic_decrement_operand(*node);
             break;
         }
         else if(*info->p == '~') {

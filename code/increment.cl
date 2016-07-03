@@ -55,6 +55,16 @@ e--;
 
 System.assert(e == 123);
 
+f := 123;
+
+++f;
+
+System.assert(f == 124 && ++f == 125);
+
+--f;
+
+System.assert(f == 124 && --f == 123);
+
 
 
 /*
