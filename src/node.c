@@ -2987,7 +2987,7 @@ BOOL sNodeTree_create_decrement_operand_with_value(unsigned int left_node, unsig
 {
     unsigned int node = alloc_node();
 
-    gNodes[node].mNodeType = kNodeTypeDecrementOperand;
+    gNodes[node].mNodeType = kNodeTypeDecrementWithValueOperand;
 
     gNodes[node].mLeft = left_node;
     gNodes[node].mRight = value;
@@ -3000,6 +3000,155 @@ BOOL sNodeTree_create_decrement_operand_with_value(unsigned int left_node, unsig
 
 BOOL compile_decrement_operand_with_value(unsigned int node, sCompileInfo* info)
 {
+    /// compile left node ///
+    unsigned int lnode = gNodes[node].mLeft;
+
+    if(!compile(lnode, info)) {
+        return FALSE;
+    }
+
+    if((gNodes[lnode].mNodeType != kNodeTypeLoadVariable && gNodes[lnode].mNodeType != kNodeTypeLoadField )|| info->type == NULL) {
+        parser_err_msg(info->pinfo, "Invalid increment operand");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    sNodeType* left_type = info->type;
+
+    /// compile right node ///
+    unsigned int rnode = gNodes[node].mRight;
+
+    if(!compile(rnode, info)) {
+        return FALSE;
+    }
+
+    sNodeType* right_type = info->type;
+
+    cast_right_type_to_left_type(left_type, &right_type, info);
+
+    if(!substitution_posibility(left_type, right_type)) {
+        parser_err_msg(info->pinfo, "The different type between left type and right type");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    if(gNodes[lnode].mNodeType == kNodeTypeLoadVariable) {
+        if(type_identify_with_class_name(left_type, "int")) {
+            decrement_operand_core(node, info, lnode, OP_IADD, OP_ISUB, OP_LDCINT, FALSE, TRUE);
+            info->type = create_node_type_with_class_name("int");
+        }
+        else if(type_identify_with_class_name(left_type, "uint")) {
+            decrement_operand_core(node, info, lnode, OP_UIADD, OP_UISUB, OP_LDCUINT, FALSE, TRUE);
+            info->type = create_node_type_with_class_name("uint");
+        }
+        else if(type_identify_with_class_name(left_type, "byte")) {
+            decrement_operand_core(node, info, lnode, OP_BADD, OP_BSUB, OP_LDCBYTE, FALSE, TRUE);
+            info->type = create_node_type_with_class_name("byte");
+        }
+        else if(type_identify_with_class_name(left_type, "ubyte")) {
+            decrement_operand_core(node, info, lnode, OP_UBADD, OP_UBSUB, OP_LDCUBYTE, FALSE, TRUE);
+            info->type = create_node_type_with_class_name("ubyte");
+        }
+        else if(type_identify_with_class_name(left_type, "short")) {
+            decrement_operand_core(node, info, lnode, OP_SADD, OP_SSUB, OP_LDCSHORT, FALSE, TRUE);
+            info->type = create_node_type_with_class_name("short");
+        }
+        else if(type_identify_with_class_name(left_type, "ushort")) {
+            decrement_operand_core(node, info, lnode, OP_USADD, OP_USSUB, OP_LDCSHORT, FALSE, TRUE);
+            info->type = create_node_type_with_class_name("ushort");
+        }
+        else if(type_identify_with_class_name(left_type, "long")) {
+            decrement_operand_core(node, info, lnode, OP_LADD, OP_LSUB, OP_LDCLONG, FALSE, TRUE);
+            info->type = create_node_type_with_class_name("long");
+        }
+        else if(type_identify_with_class_name(left_type, "ulong")) {
+            decrement_operand_core(node, info, lnode, OP_ULADD, OP_ULSUB, OP_LDCULONG, FALSE, TRUE);
+            info->type = create_node_type_with_class_name("ulong");
+        }
+        else if(type_identify_with_class_name(left_type, "pointer")) {
+            decrement_operand_core(node, info, lnode, OP_PADD, OP_PSUB, OP_LDCPOINTER, FALSE, TRUE);
+            info->type = create_node_type_with_class_name("pointer");
+        }
+        else {
+            parser_err_msg(info->pinfo, "Invalid type for increment operand");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+    }
+    else { // gNodes[lnode].mNodeType == kNodeTypeLoadField
+        if(type_identify_with_class_name(left_type, "int")) {
+            if(!decrement_operand_core_for_field(node, info, lnode, OP_IADD, OP_ISUB, OP_LDCINT, FALSE, TRUE)) {
+                return FALSE;
+            }
+            info->type = create_node_type_with_class_name("int");
+        }
+        else if(type_identify_with_class_name(left_type, "uint")) {
+            if(!decrement_operand_core_for_field(node, info, lnode, OP_UIADD, OP_UISUB, OP_LDCUINT, FALSE, TRUE)) {
+                return FALSE;
+            }
+            info->type = create_node_type_with_class_name("uint");
+        }
+        else if(type_identify_with_class_name(left_type, "byte")) {
+            if(!decrement_operand_core_for_field(node, info, lnode, OP_BADD, OP_BSUB, OP_LDCBYTE, FALSE, TRUE)) {
+                return FALSE;
+            }
+            info->type = create_node_type_with_class_name("byte");
+        }
+        else if(type_identify_with_class_name(left_type, "ubyte")) {
+            if(!decrement_operand_core_for_field(node, info, lnode, OP_UIADD, OP_UISUB, OP_LDCUINT, FALSE, TRUE)) {
+                return FALSE;
+            }
+            info->type = create_node_type_with_class_name("ubyte");
+        }
+        else if(type_identify_with_class_name(left_type, "short")) {
+            if(!decrement_operand_core_for_field(node, info, lnode, OP_SADD, OP_SSUB, OP_LDCSHORT, FALSE, TRUE)) {
+                return FALSE;
+            }
+            info->type = create_node_type_with_class_name("short");
+        }
+        else if(type_identify_with_class_name(left_type, "ushort")) {
+            if(!decrement_operand_core_for_field(node, info, lnode, OP_USADD, OP_USSUB, OP_LDCUSHORT, FALSE, TRUE)) {
+                return FALSE;
+            }
+            info->type = create_node_type_with_class_name("ushort");
+        }
+        else if(type_identify_with_class_name(left_type, "long")) {
+            if(!decrement_operand_core_for_field(node, info, lnode, OP_LADD, OP_LSUB, OP_LDCLONG, FALSE, TRUE)) {
+                return FALSE;
+            }
+            info->type = create_node_type_with_class_name("long");
+        }
+        else if(type_identify_with_class_name(left_type, "ulong")) {
+            if(!decrement_operand_core_for_field(node, info, lnode, OP_ULADD, OP_ULSUB, OP_LDCULONG, FALSE, TRUE)) {
+                return FALSE;
+            }
+            info->type = create_node_type_with_class_name("ulong");
+        }
+        else if(type_identify_with_class_name(left_type, "pointer")) {
+            if(!decrement_operand_core_for_field(node, info, lnode, OP_PADD, OP_PSUB, OP_LDCINT, FALSE, TRUE)) {
+                return FALSE;
+            }
+            info->type = create_node_type_with_class_name("pointer");
+        }
+        else {
+            parser_err_msg(info->pinfo, "Invalid type for increment operand");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+    }
+
     return TRUE;
 }
 

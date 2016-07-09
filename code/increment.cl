@@ -77,6 +77,10 @@ System.assert(g == 354);
 
 System.assert(f == 123);
 
+f-=3;
+
+System.assert(f == 120);
+
 
 
 

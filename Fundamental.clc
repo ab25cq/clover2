@@ -28,6 +28,7 @@ class String: final
         self.len = 0;
     }
 
+/*
     def setValue(str: pointer) {
         new_size:int = System.strlen(str) + 1;
 
@@ -41,5 +42,6 @@ class String: final
             self.len = new_size - 1;
         }
     }
+*/
 }
 
