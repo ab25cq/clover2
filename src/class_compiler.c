@@ -310,84 +310,90 @@ static BOOL parse_class_on_add_methods_and_fields(sParserInfo* info, sCompileInf
 
     expect_next_character_with_one_forward("{", info);
 
-    while(1) {
-        char buf[VAR_NAME_MAX];
-        BOOL native_ = FALSE;
-        BOOL static_ = FALSE;
-
-        if(!parse_word(buf, VAR_NAME_MAX, info, TRUE)) {
-            return FALSE;
-        }
-
-        /// function ///
-        if(strcmp(buf, "def") == 0) {
-            char method_name[VAR_NAME_MAX];
-            sParserParam params[PARAMS_MAX];
-            int num_params = 0;
-            sNodeType* result_type = NULL;
+    if(*info->p == '}') {
+        info->p++;
+        skip_spaces_and_lf(info);
+    }
+    else {
+        while(1) {
+            char buf[VAR_NAME_MAX];
             BOOL native_ = FALSE;
             BOOL static_ = FALSE;
 
-            if(!parse_method_name_and_params(method_name, VAR_NAME_MAX, params, &num_params, &result_type, &native_, &static_, info, cinfo)) 
-            {
+            if(!parse_word(buf, VAR_NAME_MAX, info, TRUE)) {
                 return FALSE;
             }
 
-            if(!add_method_to_class(info->klass, method_name, params, num_params, result_type, native_, static_)) {
-                return FALSE;
-            }
+            /// function ///
+            if(strcmp(buf, "def") == 0) {
+                char method_name[VAR_NAME_MAX];
+                sParserParam params[PARAMS_MAX];
+                int num_params = 0;
+                sNodeType* result_type = NULL;
+                BOOL native_ = FALSE;
+                BOOL static_ = FALSE;
 
-            if(native_) {
+                if(!parse_method_name_and_params(method_name, VAR_NAME_MAX, params, &num_params, &result_type, &native_, &static_, info, cinfo)) 
+                {
+                    return FALSE;
+                }
+
+                if(!add_method_to_class(info->klass, method_name, params, num_params, result_type, native_, static_)) {
+                    return FALSE;
+                }
+
+                if(native_) {
+                    if(*info->p == ';') {
+                        info->p++;
+                        skip_spaces_and_lf(info);
+                    }
+                }
+                else {
+                    if(!skip_block(info)) {
+                        return FALSE;
+                    }
+                }
+            }
+            /// variable ///
+            else {
+                BOOL private_ = FALSE;
+                BOOL protected_ = FALSE;
+                BOOL static_ = FALSE;
+                sNodeType* result_type = NULL;
+
+                expect_next_character_with_one_forward(":", info);
+
+                if(!parse_field_attributes_and_type(&private_, &protected_, &static_, &result_type, info, cinfo)) {
+                    return FALSE;
+                }
+
+                if(static_) {
+                    if(!add_class_field_to_class(info->klass, buf, private_, protected_, result_type)) {
+                        return FALSE;
+                    }
+                }
+                else {
+                    if(!add_field_to_class(info->klass, buf, private_, protected_, result_type)) {
+                        return FALSE;
+                    }
+                }
+
                 if(*info->p == ';') {
                     info->p++;
                     skip_spaces_and_lf(info);
                 }
             }
-            else {
-                if(!skip_block(info)) {
-                    return FALSE;
-                }
-            }
-        }
-        /// variable ///
-        else {
-            BOOL private_ = FALSE;
-            BOOL protected_ = FALSE;
-            BOOL static_ = FALSE;
-            sNodeType* result_type = NULL;
 
-            expect_next_character_with_one_forward(":", info);
-
-            if(!parse_field_attributes_and_type(&private_, &protected_, &static_, &result_type, info, cinfo)) {
-                return FALSE;
+            if(*info->p == '\0') {
+                parser_err_msg(info, "It is the source end. Close class definition with }");
+                info->err_num++;
+                return TRUE;
             }
-
-            if(static_) {
-                if(!add_class_field_to_class(info->klass, buf, private_, protected_, result_type)) {
-                    return FALSE;
-                }
-            }
-            else {
-                if(!add_field_to_class(info->klass, buf, private_, protected_, result_type)) {
-                    return FALSE;
-                }
-            }
-
-            if(*info->p == ';') {
+            else if(*info->p == '}') {
                 info->p++;
                 skip_spaces_and_lf(info);
+                break;
             }
-        }
-
-        if(*info->p == '\0') {
-            parser_err_msg(info, "It is the source end. Close class definition with }");
-            info->err_num++;
-            return TRUE;
-        }
-        else if(*info->p == '}') {
-            info->p++;
-            skip_spaces_and_lf(info);
-            break;
         }
     }
 
@@ -409,79 +415,85 @@ static BOOL parse_class_on_compile_code(sParserInfo* info, sCompileInfo* cinfo)
 
     expect_next_character_with_one_forward("{", info);
 
-    while(1) {
-        char buf[VAR_NAME_MAX];
+    if(*info->p == '}') {
+        info->p++;
+        skip_spaces_and_lf(info);
+    }
+    else {
+        while(1) {
+            char buf[VAR_NAME_MAX];
 
-        if(!parse_word(buf, VAR_NAME_MAX, info, TRUE)) {
-            return FALSE;
-        }
-
-        /// function ///
-        if(strcmp(buf, "def") == 0) {
-            char method_name[VAR_NAME_MAX];
-            sParserParam params[PARAMS_MAX];
-            int num_params = 0;
-            sNodeType* result_type = NULL;
-            BOOL native_ = FALSE;
-            BOOL static_ = FALSE;
-
-            if(!parse_method_name_and_params(method_name, VAR_NAME_MAX, params, &num_params, &result_type, &native_, &static_, info, cinfo)) 
-            {
+            if(!parse_word(buf, VAR_NAME_MAX, info, TRUE)) {
                 return FALSE;
             }
 
-            sCLMethod* method = info->klass->mMethods + info->klass->mMethodIndexOnCompileTime + info->klass->mNumMethodsOnLoadTime;
-            info->klass->mMethodIndexOnCompileTime++;
+            /// function ///
+            if(strcmp(buf, "def") == 0) {
+                char method_name[VAR_NAME_MAX];
+                sParserParam params[PARAMS_MAX];
+                int num_params = 0;
+                sNodeType* result_type = NULL;
+                BOOL native_ = FALSE;
+                BOOL static_ = FALSE;
 
-            if(native_) {
+                if(!parse_method_name_and_params(method_name, VAR_NAME_MAX, params, &num_params, &result_type, &native_, &static_, info, cinfo)) 
+                {
+                    return FALSE;
+                }
+
+                sCLMethod* method = info->klass->mMethods + info->klass->mMethodIndexOnCompileTime + info->klass->mNumMethodsOnLoadTime;
+                info->klass->mMethodIndexOnCompileTime++;
+
+                if(native_) {
+                    if(*info->p == ';') {
+                        info->p++;
+                        skip_spaces_and_lf(info);
+                    }
+                }
+                else {
+                    if(*info->p == '{') {
+                        info->p++;
+                        skip_spaces_and_lf(info);
+
+                        if(!compile_method(method, params, num_params, info, cinfo)) {
+                            return FALSE;
+                        }
+                    }
+                    else {
+                        parser_err_msg(info, "The next character is required {");
+                        info->err_num++;
+                    }
+                }
+            }
+            /// variable ///
+            else {
+                BOOL private_ = FALSE;
+                BOOL protected_ = FALSE;
+                BOOL static_ = FALSE;
+                sNodeType* result_type = NULL;
+
+                expect_next_character_with_one_forward(":", info);
+
+                if(!parse_field_attributes_and_type(&private_, &protected_, &static_, &result_type, info, cinfo)) {
+                    return FALSE;
+                }
+
                 if(*info->p == ';') {
                     info->p++;
                     skip_spaces_and_lf(info);
                 }
             }
-            else {
-                if(*info->p == '{') {
-                    info->p++;
-                    skip_spaces_and_lf(info);
 
-                    if(!compile_method(method, params, num_params, info, cinfo)) {
-                        return FALSE;
-                    }
-                }
-                else {
-                    parser_err_msg(info, "The next character is required {");
-                    info->err_num++;
-                }
+            if(*info->p == '\0') {
+                parser_err_msg(info, "It is the source end. Close class definition with }");
+                info->err_num++;
+                return TRUE;
             }
-        }
-        /// variable ///
-        else {
-            BOOL private_ = FALSE;
-            BOOL protected_ = FALSE;
-            BOOL static_ = FALSE;
-            sNodeType* result_type = NULL;
-
-            expect_next_character_with_one_forward(":", info);
-
-            if(!parse_field_attributes_and_type(&private_, &protected_, &static_, &result_type, info, cinfo)) {
-                return FALSE;
-            }
-
-            if(*info->p == ';') {
+            else if(*info->p == '}') {
                 info->p++;
                 skip_spaces_and_lf(info);
+                break;
             }
-        }
-
-        if(*info->p == '\0') {
-            parser_err_msg(info, "It is the source end. Close class definition with }");
-            info->err_num++;
-            return TRUE;
-        }
-        else if(*info->p == '}') {
-            info->p++;
-            skip_spaces_and_lf(info);
-            break;
         }
     }
 

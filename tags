@@ -31,8 +31,6 @@ CLVALUEUnion	src/common.h	/^union CLVALUEUnion {$/;"	u
 COMMON_H	src/common.h	2;"	d
 COMPILER_OBJS	Makefile	/^COMPILER_OBJS=src\/compiler.o src\/parser.o src\/node_type.o src\/node.o src\/vtable.o src\/script.o src\/block.o src\/class_compiler.o src\/klass_compile_time.o src\/method_compiler.o$/;"	m
 CONS_str	src/common.h	86;"	d
-Clover_free	src/class_clover.c	/^BOOL Clover_free(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
-Clover_malloc	src/class_clover.c	/^BOOL Clover_malloc(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 DEBUG_H	src/debug.h	2;"	d
 DESTDIR	Makefile	/^DESTDIR=$/;"	m
 DUMMY_ARRAY_SIZE	src/common.h	673;"	d
@@ -186,11 +184,15 @@ PARSE_PHASE_DO_COMPILE_CODE	src/common.h	595;"	d
 PARSE_PHASE_MAX	src/common.h	596;"	d
 SO_VERSION	Makefile	/^SO_VERSION=1.0.0$/;"	m
 System_assert	src/class_system.c	/^BOOL System_assert(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
+System_calloc	src/class_system.c	/^BOOL System_calloc(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_exit	src/class_system.c	/^BOOL System_exit(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
+System_free	src/class_system.c	/^BOOL System_free(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
+System_malloc	src/class_system.c	/^BOOL System_malloc(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
+System_strcpy	src/class_system.c	/^BOOL System_strcpy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
+System_strlen	src/class_system.c	/^BOOL System_strlen(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
+System_strncpy	src/class_system.c	/^BOOL System_strncpy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 TRUE	src/macros.h	9;"	d
 VAR_NAME_MAX	src/common.h	28;"	d
-Value	a.c	/^typedef union ValueUnion Value;$/;"	t	typeref:union:ValueUnion	file:
-ValueUnion	a.c	/^union ValueUnion {$/;"	u	file:
 XFUNC_H	src/xfunc.h	2;"	d
 __64BIT_CPU__	config.h	16;"	d
 __LINUX__	config.h	14;"	d
@@ -325,8 +327,8 @@ debug_init	src/debug.c	/^void debug_init()$/;"	f
 debug_malloc	src/debug.c	/^ALLOC void* debug_malloc(size_t size, const char* file_name, int line, const char* func_name)$/;"	f
 debug_realloc	src/debug.c	/^ALLOC void* debug_realloc(void* memory, size_t size, const char* file_name, int line, const char* func_name)$/;"	f
 debug_strdup	src/debug.c	/^ALLOC char* debug_strdup(char* str, const char* file_name, int line, const char* func_name)$/;"	f
-decrement_operand_core	src/node.c	/^static void decrement_operand_core(unsigned int node, sCompileInfo* info, unsigned int lnode, int add_operand, int sub_operand, int ldc_operand, BOOL monadic)$/;"	f	file:
-decrement_operand_core_for_field	src/node.c	/^static BOOL decrement_operand_core_for_field(unsigned int node, sCompileInfo* info, unsigned int lnode, int add_operand, int sub_operand, int ldc_operand, BOOL monadic)$/;"	f	file:
+decrement_operand_core	src/node.c	/^static void decrement_operand_core(unsigned int node, sCompileInfo* info, unsigned int lnode, int add_operand, int sub_operand, int ldc_operand, BOOL monadic, BOOL with_value)$/;"	f	file:
+decrement_operand_core_for_field	src/node.c	/^static BOOL decrement_operand_core_for_field(unsigned int node, sCompileInfo* info, unsigned int lnode, int add_operand, int sub_operand, int ldc_operand, BOOL monadic, BOOL with_value)$/;"	f	file:
 delete_all_object	src/heap.c	/^static void delete_all_object()$/;"	f	file:
 delete_comment	src/compiler.c	/^static BOOL delete_comment(sBuf* source, sBuf* source2)$/;"	f	file:
 docdir	Makefile	/^docdir=${datarootdir}\/doc$/;"	m
@@ -399,8 +401,8 @@ heap_final	src/heap.c	/^void heap_final()$/;"	f
 heap_init	src/heap.c	/^void heap_init(int heap_size, int size_hadles)$/;"	f
 if_expression	src/parser.c	/^static BOOL if_expression(unsigned int* node, sParserInfo* info)$/;"	f	file:
 includedir	Makefile	/^includedir=${prefix}\/include\/clover2$/;"	m
-increment_operand_core	src/node.c	/^static void increment_operand_core(unsigned int node, sCompileInfo* info, unsigned int lnode, int add_operand, int sub_operand, int ldc_operand, BOOL monadic)$/;"	f	file:
-increment_operand_core_for_field	src/node.c	/^static BOOL increment_operand_core_for_field(unsigned int node, sCompileInfo* info, unsigned int lnode, int add_operand, int sub_operand, int ldc_operand, BOOL monadic)$/;"	f	file:
+increment_operand_core	src/node.c	/^static void increment_operand_core(unsigned int node, sCompileInfo* info, unsigned int lnode, int add_operand, int sub_operand, int ldc_operand, BOOL monadic, BOOL with_value)$/;"	f	file:
+increment_operand_core_for_field	src/node.c	/^static BOOL increment_operand_core_for_field(unsigned int node, sCompileInfo* info, unsigned int lnode, int add_operand, int sub_operand, int ldc_operand, BOOL monadic, BOOL with_value)$/;"	f	file:
 init_block_vtable	src/vtable.c	/^sVarTable* init_block_vtable(sVarTable* lv_table)$/;"	f
 init_node_types	src/node_type.c	/^void init_node_types()$/;"	f
 init_nodes	src/node.c	/^void init_nodes()$/;"	f
@@ -410,7 +412,6 @@ initialize_class	src/vm.c	/^static BOOL initialize_class(sCLClass* klass)$/;"	f	
 invoke_method	src/vm.c	/^static BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, CLVALUE** stack_ptr, sVMInfo* info)$/;"	f	file:
 is_valid_object	src/heap.c	/^static BOOL is_valid_object(CLObject obj)$/;"	f	file:
 is_void_type	src/type.c	/^BOOL is_void_type(sCLType* cl_type, sCLClass* klass)$/;"	f
-ivalue	a.c	/^    int ivalue;$/;"	m	union:ValueUnion	file:
 kNodeTypeAssignVariable	src/common.h	/^enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeUByteValue, kNodeTypeShortValue, kNodeTypeUShortValue, kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand, kNodeTypeIncrementWithValueOperand, kNodeTypeDecrementWithValueOperand, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand };$/;"	e	enum:eNodeType
 kNodeTypeBreak	src/common.h	/^enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeUByteValue, kNodeTypeShortValue, kNodeTypeUShortValue, kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand, kNodeTypeIncrementWithValueOperand, kNodeTypeDecrementWithValueOperand, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand };$/;"	e	enum:eNodeType
 kNodeTypeByteValue	src/common.h	/^enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeUByteValue, kNodeTypeShortValue, kNodeTypeUShortValue, kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand, kNodeTypeIncrementWithValueOperand, kNodeTypeDecrementWithValueOperand, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand };$/;"	e	enum:eNodeType
@@ -473,7 +474,6 @@ load_class_with_version	src/klass.c	/^sCLClass* load_class_with_version(char* cl
 load_fundamental_classes	src/klass.c	/^static void load_fundamental_classes()$/;"	f	file:
 lv_table	src/common.h	/^    sVarTable* lv_table;$/;"	m	struct:sCompileInfoStruct
 lv_table	src/common.h	/^    sVarTable* lv_table;$/;"	m	struct:sParserInfoStruct
-lvalue	a.c	/^    long lvalue;$/;"	m	union:ValueUnion	file:
 mBlockLevel	src/common.h	/^    int mBlockLevel;$/;"	m	struct:sVarStruct
 mBlockLevel	src/common.h	/^    int mBlockLevel;$/;"	m	struct:sVarTableStruct
 mBoolValue	src/common.h	/^    BOOL mBoolValue;$/;"	m	union:CLVALUEUnion

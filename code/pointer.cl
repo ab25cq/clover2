@@ -1,5 +1,5 @@
 
-a:pointer = Clover.malloc(123);
+a:pointer = System.malloc(123);
 
 a->int = 123;
 System.assert(a->int == 123);
@@ -20,7 +20,7 @@ b->int = 345;
 c:pointer = a + 8;
 System.assert(c->int == 345);
 
-Clover.free(a);
+System.free(a);
 
 /*
 (a.addres + 4)->int = 234;

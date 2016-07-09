@@ -3,23 +3,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-union ValueUnion {
-    int ivalue;
-    long lvalue;
-};
-
-typedef union ValueUnion Value;
-
 int main() {
-    long l = 5;
-    int a = 5;
+    int a = 123;
 
-    if(l == a) {
-        puts("YES");
-    }
-    else {
-        puts("NO");
-    }
+    printf("%d", a += 4);
 
     exit(0);
 }

@@ -3,11 +3,43 @@ class System: final
 {
     def exit(num:int): native static; # thows SystemException;
     def assert(exp:bool): native static;  # thows SystemException;
+
+    def malloc(size:int): native static pointer;
+    def calloc(number: int, size: int): native static pointer;
+    def free(ptr:pointer): native static;
+    def strlen(ptr:pointer): native static int;
+    def strcpy(str1:pointer, str2:pointer): native static pointer;
+    def strncpy(str1:pointer, str2:pointer, size:int): native static pointer;
 }
 
 class Clover: final
 {
-    def malloc(size:int): native static pointer;
-    def free(ptr:pointer): native static;
+}
+
+class String: final
+{
+    buffer: pointer;
+    len: int;
+    size: int;
+
+    def initialize() {
+        self.size = 64;
+        self.buffer = System.malloc(self.size);
+        self.len = 0;
+    }
+
+    def setValue(str: pointer) {
+        new_size:int = System.strlen(str) + 1;
+
+        if(new_size < self.size) {
+            System.strcpy(buffer, str);
+        }
+        else {
+            System.free(self.buffer);
+            self.buffer = System.strdup(str);
+            self.size = new_size;
+            self.len = new_size - 1;
+        }
+    }
 }
 

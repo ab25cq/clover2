@@ -689,10 +689,12 @@ CLObject create_object(sCLClass* klass);
 /// class_system.c ///
 BOOL System_exit(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_assert(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
-
-/// class_clover.c ///
-BOOL Clover_malloc(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
-BOOL Clover_free(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_malloc(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_calloc(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_free(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_strlen(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_strcpy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_strncpy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 #endif
 

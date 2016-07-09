@@ -92,8 +92,12 @@ typedef struct sNativeMethodStruct sNativeMethod;
 static sNativeMethod gNativeMethods[] = {
     { "System.exit(int)", System_exit },
     { "System.assert(bool)", System_assert },
-    { "Clover.malloc(int)", Clover_malloc },
-    { "Clover.free(pointer)", Clover_free },
+    { "System.malloc(int)", System_malloc },
+    { "System.calloc(int,int)", System_calloc },
+    { "System.free(pointer)", System_free },
+    { "System.strlen(pointer)", System_strlen },
+    { "System.strcpy(pointer,pointer)", System_strcpy },
+    { "System.strncpy(pointer,pointer,int)", System_strncpy },
 
     { "", 0 }  // sentinel
 };

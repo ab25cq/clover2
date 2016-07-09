@@ -65,6 +65,19 @@ System.assert(f == 124 && ++f == 125);
 
 System.assert(f == 124 && --f == 123);
 
+g := 345;
+
+g += 4;
+
+System.assert(g == 349);
+
+g += 5;
+
+System.assert(g == 354);
+
+System.assert(f == 123);
+
+
 
 
 /*
