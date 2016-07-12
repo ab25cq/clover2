@@ -377,17 +377,19 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
                 return FALSE;
             }
             break;
-
-        case kOpComplement:
-            break;
-            
-        case kOpLogicalDenial:
-            break;
             
         case kOpMult:
+            if(!binary_operator(left_type, right_type, OP_BMULT, OP_UBMULT, OP_SMULT, OP_USMULT, OP_IMULT, OP_UIMULT, OP_LMULT, OP_ULMULT, OP_FMULT, OP_DMULT, -1, -1, "*", info))
+            {
+                return FALSE;
+            }
             break;
             
         case kOpDiv:
+            if(!binary_operator(left_type, right_type, OP_BDIV, OP_UBDIV, OP_SDIV, OP_USDIV, OP_IDIV, OP_UIDIV, OP_LDIV, OP_ULDIV, OP_FDIV, OP_DDIV, -1, -1, "/", info))
+            {
+                return FALSE;
+            }
             break;
             
         case kOpMod:
@@ -418,15 +420,39 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
             break;
             
         case kOpComparisonGreaterEqual:
+            if(!binary_operator(left_type, right_type, OP_BGTEQ, OP_UBGTEQ, OP_SGTEQ, OP_USGTEQ, OP_IGTEQ, OP_UIGTEQ, OP_LGTEQ, OP_ULGTEQ, OP_FGTEQ, OP_DGTEQ, OP_PGTEQ, -1, ">=", info))
+            {
+                return FALSE;
+            }
+
+            info->type = create_node_type_with_class_name("bool");
             break;
             
         case kOpComparisonLesserEqual:
+            if(!binary_operator(left_type, right_type, OP_BLEEQ, OP_UBLEEQ, OP_SLEEQ, OP_USLEEQ, OP_ILEEQ, OP_UILEEQ, OP_LLEEQ, OP_ULLEEQ, OP_FLEEQ, OP_DLEEQ, OP_PLEEQ, -1, "<=", info))
+            {
+                return FALSE;
+            }
+
+            info->type = create_node_type_with_class_name("bool");
             break;
             
         case kOpComparisonGreater:
+            if(!binary_operator(left_type, right_type, OP_BGT, OP_UBGT, OP_SGT, OP_USGT, OP_IGT, OP_UIGT, OP_LGT, OP_ULGT, OP_FGT, OP_DGT, OP_PGT, -1, ">", info))
+            {
+                return FALSE;
+            }
+
+            info->type = create_node_type_with_class_name("bool");
             break;
             
         case kOpComparisonLesser:
+            if(!binary_operator(left_type, right_type, OP_BLE, OP_UBLE, OP_SLE, OP_USLE, OP_ILE, OP_UILE, OP_LLE, OP_ULLE, OP_FLE, OP_DLE, OP_PLE, -1, "<", info))
+            {
+                return FALSE;
+            }
+
+            info->type = create_node_type_with_class_name("bool");
             break;
             
         case kOpAnd:
@@ -497,6 +523,12 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
             }
             break;
 */
+
+        case kOpComplement:
+            break;
+            
+        case kOpLogicalDenial:
+            break;
     }
 
     return TRUE;

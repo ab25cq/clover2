@@ -164,9 +164,6 @@ struct sCLFieldStruct {
 
 typedef struct sCLFieldStruct sCLField;
 
-typedef void (*fMarkFun)(CLObject self, unsigned char* mark_flg);
-typedef void (*fFreeFun)(CLObject self);
-
 struct sCLClassStruct {
     long mFlags;
 
@@ -189,10 +186,9 @@ struct sCLClassStruct {
     int mNumClassFields;
     int mSizeClassFields;
 
-    fFreeFun mFreeFun;
-    fMarkFun mMarkFun;
-
-    int mInitializeMethodIndex;
+    int mClassInitializeMethodIndex;
+    int mClassFinalizeMethodIndex;
+    int mFinalizeMethodIndex;
 
     int mNumMethodsOnLoadTime; // This requires from the compile time
     int mMethodIndexOnCompileTime; // This require from the compile time
@@ -213,7 +209,6 @@ ALLOC sCLType* create_cl_type(sCLClass* klass, sCLClass* klass2);
 void free_cl_type(sCLType* cl_type);
 sCLClass* load_class_with_version(char* class_name, int class_version);
 sCLClass* load_class(char* class_name);
-void mark_all_class_fields(unsigned char* mark_flg);
 
 struct sClassTableStruct
 {
@@ -226,6 +221,9 @@ struct sClassTableStruct
 typedef struct sClassTableStruct sClassTable;
 
 sClassTable* gHeadClassTable;
+
+typedef fNativeMethod (*fGetNativeMethod)(char* path);
+extern fGetNativeMethod gGetNativeMethod;
 
 /// node_type.c ///
 struct sNodeTypeStruct {
@@ -494,96 +492,182 @@ BOOL compile_script(char* fname, char* source);
 
 #define OP_BADD 40
 #define OP_BSUB 41
-#define OP_UBADD 42
-#define OP_UBSUB 43
-#define OP_SADD 44
-#define OP_SSUB 45
-#define OP_USADD 46
-#define OP_USSUB 47
-#define OP_IADD 48
-#define OP_ISUB 49
-#define OP_UISUB 50
-#define OP_UIADD 51
-#define OP_LADD 52
-#define OP_LSUB 53
-#define OP_ULADD 54
-#define OP_ULSUB 55
-#define OP_FADD 56
-#define OP_FSUB 57
-#define OP_DADD 58
-#define OP_DSUB 59
-#define OP_PADD 60
-#define OP_PSUB 61
+#define OP_BMULT 42
+#define OP_BDIV 43
 
-#define OP_BEQ 100
-#define OP_BNOTEQ 101
-#define OP_UBEQ 102
-#define OP_UBNOTEQ 103
-#define OP_SEQ 104
-#define OP_SNOTEQ 105
-#define OP_USEQ 106
-#define OP_USNOTEQ 107
-#define OP_IEQ 108
-#define OP_INOTEQ 109
-#define OP_UIEQ 110
-#define OP_UINOTEQ 111
-#define OP_LEQ 112
-#define OP_LNOTEQ 123
-#define OP_ULEQ 124
-#define OP_ULNOTEQ 125
-#define OP_FEQ 126
-#define OP_FNOTEQ 127
-#define OP_DEQ 128
-#define OP_DNOTEQ 129
-#define OP_PEQ 130
-#define OP_PNOTEQ 131
+#define OP_UBADD 80
+#define OP_UBSUB 81
+#define OP_UBMULT 82
+#define OP_UBDIV 83
 
-#define OP_ANDAND 150
-#define OP_OROR 151
+#define OP_SADD 100
+#define OP_SSUB 101
+#define OP_SMULT 102
+#define OP_SDIV 103
 
-#define OP_INVOKE_METHOD 200
+#define OP_USADD 150
+#define OP_USSUB 151
+#define OP_USMULT 152
+#define OP_USDIV 153
 
-#define OP_NEW 300
-#define OP_LOAD_FIELD 301
-#define OP_STORE_FIELD 302
-#define OP_LOAD_CLASS_FIELD 303
-#define OP_STORE_CLASS_FIELD 304
+#define OP_IADD 200
+#define OP_ISUB 201
+#define OP_IMULT 202
+#define OP_IDIV 203
 
-#define OP_STORE_VALUE_TO_INT_ADDRESS 400
-#define OP_STORE_VALUE_TO_UINT_ADDRESS 401
-#define OP_STORE_VALUE_TO_BYTE_ADDRESS 402
-#define OP_STORE_VALUE_TO_UBYTE_ADDRESS 403
-#define OP_STORE_VALUE_TO_SHORT_ADDRESS 404
-#define OP_STORE_VALUE_TO_USHORT_ADDRESS 405
-#define OP_STORE_VALUE_TO_LONG_ADDRESS 406
-#define OP_STORE_VALUE_TO_ULONG_ADDRESS 407
+#define OP_UISUB 250
+#define OP_UIADD 251
+#define OP_UIMULT 252
+#define OP_UIDIV 253
 
-#define OP_LOAD_VALUE_FROM_INT_ADDRESS 450
-#define OP_LOAD_VALUE_FROM_UINT_ADDRESS 451
-#define OP_LOAD_VALUE_FROM_BYTE_ADDRESS 452
-#define OP_LOAD_VALUE_FROM_UBYTE_ADDRESS 453
-#define OP_LOAD_VALUE_FROM_SHORT_ADDRESS 454
-#define OP_LOAD_VALUE_FROM_USHORT_ADDRESS 455
-#define OP_LOAD_VALUE_FROM_LONG_ADDRESS 456
-#define OP_LOAD_VALUE_FROM_ULONG_ADDRESS 457
+#define OP_LADD 300
+#define OP_LSUB 301
+#define OP_LMULT 302
+#define OP_LDIV 303
 
-#define OP_SHORT_TO_BYTE_CAST 500
-#define OP_INT_TO_BYTE_CAST 501
-#define OP_LONG_TO_BYTE_CAST 502
-#define OP_BYTE_TO_SHORT_CAST 503
-#define OP_INT_TO_SHORT_CAST 504
-#define OP_LONG_TO_SHORT_CAST 505
-#define OP_BYTE_TO_INT_CAST 506
-#define OP_SHORT_TO_INT_CAST 507
-#define OP_LONG_TO_INT_CAST 508
-#define OP_BYTE_TO_LONG_CAST 509
-#define OP_SHORT_TO_LONG_CAST 510
-#define OP_INT_TO_LONG_CAST 511
+#define OP_ULADD 400
+#define OP_ULSUB 401
+#define OP_ULMULT 402
+#define OP_ULDIV 403
+
+#define OP_FADD 450
+#define OP_FSUB 451
+#define OP_FMULT 452
+#define OP_FDIV 453
+
+#define OP_DADD 500
+#define OP_DSUB 501
+#define OP_DMULT 502
+#define OP_DDIV 503
+
+#define OP_PADD 600
+#define OP_PSUB 601
+
+#define OP_BEQ 1000
+#define OP_BNOTEQ 1001
+#define OP_BGT 1002
+#define OP_BLE 1003
+#define OP_BGTEQ 1004
+#define OP_BLEEQ 1005
+
+#define OP_UBEQ 1010
+#define OP_UBNOTEQ 1011
+#define OP_UBGT 1012
+#define OP_UBLE 1013
+#define OP_UBGTEQ 1014
+#define OP_UBLEEQ 1015
+
+#define OP_SEQ 1020
+#define OP_SNOTEQ 1021
+#define OP_SGT 1022
+#define OP_SLE 1023
+#define OP_SGTEQ 1024
+#define OP_SLEEQ 1025
+
+#define OP_USEQ 1030
+#define OP_USNOTEQ 1031
+#define OP_USGT 1032
+#define OP_USLE 1033
+#define OP_USGTEQ 1034
+#define OP_USLEEQ 1035
+
+#define OP_IEQ 1040
+#define OP_INOTEQ 1041
+#define OP_IGT 1042
+#define OP_ILE 1043
+#define OP_IGTEQ 1044
+#define OP_ILEEQ 1045
+
+#define OP_UIEQ 1050
+#define OP_UINOTEQ 1051
+#define OP_UIGT 1052
+#define OP_UILE 1053
+#define OP_UIGTEQ 1054
+#define OP_UILEEQ 1055
+
+#define OP_LEQ 1060
+#define OP_LNOTEQ 1061
+#define OP_LGT 1062
+#define OP_LLE 1063
+#define OP_LGTEQ 1064
+#define OP_LLEEQ 1065
+
+#define OP_ULEQ 1070
+#define OP_ULNOTEQ 1071
+#define OP_ULGT 1072
+#define OP_ULLE 1073
+#define OP_ULGTEQ 1074
+#define OP_ULLEEQ 1075
+
+#define OP_FEQ 1080
+#define OP_FNOTEQ 1081
+#define OP_FGT 1082
+#define OP_FLE 1083
+#define OP_FGTEQ 1084
+#define OP_FLEEQ 1085
+
+#define OP_DEQ 1090
+#define OP_DNOTEQ 1091
+#define OP_DGT 1092
+#define OP_DLE 1093
+#define OP_DGTEQ 1094
+#define OP_DLEEQ 1095
+
+#define OP_PEQ 1100
+#define OP_PNOTEQ 1101
+#define OP_PGT 1102
+#define OP_PLE 1103
+#define OP_PGTEQ 1104
+#define OP_PLEEQ 1105
+
+#define OP_ANDAND 2000
+#define OP_OROR 2001
+
+#define OP_INVOKE_METHOD 3000
+
+#define OP_NEW 4000
+#define OP_LOAD_FIELD 4001
+#define OP_STORE_FIELD 4002
+#define OP_LOAD_CLASS_FIELD 4003
+#define OP_STORE_CLASS_FIELD 4004
+
+#define OP_STORE_VALUE_TO_INT_ADDRESS 5000
+#define OP_STORE_VALUE_TO_UINT_ADDRESS 5001
+#define OP_STORE_VALUE_TO_BYTE_ADDRESS 5002
+#define OP_STORE_VALUE_TO_UBYTE_ADDRESS 5003
+#define OP_STORE_VALUE_TO_SHORT_ADDRESS 5004
+#define OP_STORE_VALUE_TO_USHORT_ADDRESS 5005
+#define OP_STORE_VALUE_TO_LONG_ADDRESS 5006
+#define OP_STORE_VALUE_TO_ULONG_ADDRESS 5007
+
+#define OP_LOAD_VALUE_FROM_INT_ADDRESS 6000
+#define OP_LOAD_VALUE_FROM_UINT_ADDRESS 6001
+#define OP_LOAD_VALUE_FROM_BYTE_ADDRESS 6002
+#define OP_LOAD_VALUE_FROM_UBYTE_ADDRESS 6003
+#define OP_LOAD_VALUE_FROM_SHORT_ADDRESS 6004
+#define OP_LOAD_VALUE_FROM_USHORT_ADDRESS 6005
+#define OP_LOAD_VALUE_FROM_LONG_ADDRESS 6006
+#define OP_LOAD_VALUE_FROM_ULONG_ADDRESS 6007
+
+#define OP_SHORT_TO_BYTE_CAST 7000
+#define OP_INT_TO_BYTE_CAST 7001
+#define OP_LONG_TO_BYTE_CAST 7002
+#define OP_BYTE_TO_SHORT_CAST 7003
+#define OP_INT_TO_SHORT_CAST 7004
+#define OP_LONG_TO_SHORT_CAST 7005
+#define OP_BYTE_TO_INT_CAST 7006
+#define OP_SHORT_TO_INT_CAST 7007
+#define OP_LONG_TO_INT_CAST 7008
+#define OP_BYTE_TO_LONG_CAST 7009
+#define OP_SHORT_TO_LONG_CAST 7010
+#define OP_INT_TO_LONG_CAST 7011
 
 BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sVMInfo* info);
 void vm_mutex_on();
 void vm_mutex_off();
 sCLClass* get_class_with_load_and_initialize(char* class_name);
+void class_final_on_runtime();
+BOOL call_finalize_method_on_free_object(sCLClass* klass, CLObject self);
 
 /// class_compiler.c ///
 #define PARSE_PHASE_ALLOC_CLASSES 1
@@ -620,6 +704,7 @@ sCLClass* get_class_with_load(char* class_name);
 /// native_method.c ///
 void native_method_init();
 void native_method_final();
+
 fNativeMethod get_native_method(char* path);
 
 /// exception.c ///
@@ -683,8 +768,9 @@ typedef struct sCLObjectStruct sCLObject;
 
 #define CLOBJECT(obj) (sCLObject*)(get_object_pointer((obj)))
 
-void object_mark_fun(CLObject self, unsigned char* mark_flg);;
 CLObject create_object(sCLClass* klass);
+BOOL free_object(CLObject self);
+void object_mark_fun(CLObject self, unsigned char* mark_flg);
 
 /// class_system.c ///
 BOOL System_exit(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
@@ -695,6 +781,7 @@ BOOL System_free(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_strlen(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_strcpy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_strncpy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_strdup(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 #endif
 

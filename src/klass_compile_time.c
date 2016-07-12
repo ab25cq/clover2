@@ -307,7 +307,9 @@ static void write_class_to_buffer(sCLClass* klass, sBuf* buf)
     append_methods_to_buffer(buf, klass->mMethods, klass->mNumMethods);
     append_fields_to_buffer(buf, klass->mFields, klass->mNumFields);
     append_fields_to_buffer(buf, klass->mClassFields, klass->mNumClassFields);
-    sBuf_append_int(buf, klass->mInitializeMethodIndex);
+    sBuf_append_int(buf, klass->mClassInitializeMethodIndex);
+    sBuf_append_int(buf, klass->mClassFinalizeMethodIndex);
+    sBuf_append_int(buf, klass->mFinalizeMethodIndex);
 }
 
 BOOL write_class_to_class_file(sCLClass* klass)
@@ -366,7 +368,7 @@ BOOL write_class_to_class_file(sCLClass* klass)
 
 void set_method_index_to_class(sCLClass* klass)
 {
-    klass->mInitializeMethodIndex = -1;
+    klass->mClassInitializeMethodIndex = -1;
 
     int i;
     for(i=klass->mNumMethods-1; i>=0; i--) {
@@ -376,7 +378,33 @@ void set_method_index_to_class(sCLClass* klass)
             && strcmp(CONS_str(&klass->mConst, method->mNameOffset), "initialize") == 0
             && method->mNumParams == 0)
         {
-            klass->mInitializeMethodIndex = i;
+            klass->mClassInitializeMethodIndex = i;
+        }
+    }
+
+    klass->mClassFinalizeMethodIndex = -1;
+
+    for(i=klass->mNumMethods-1; i>=0; i--) {
+        sCLMethod* method = klass->mMethods + i;
+
+        if((method->mFlags & METHOD_FLAGS_CLASS_METHOD) 
+            && strcmp(CONS_str(&klass->mConst, method->mNameOffset), "finalize") == 0
+            && method->mNumParams == 0)
+        {
+            klass->mClassFinalizeMethodIndex = i;
+        }
+    }
+
+    klass->mFinalizeMethodIndex = -1;
+
+    for(i=klass->mNumMethods-1; i>=0; i--) {
+        sCLMethod* method = klass->mMethods + i;
+
+        if(!(method->mFlags & METHOD_FLAGS_CLASS_METHOD) 
+            && strcmp(CONS_str(&klass->mConst, method->mNameOffset), "finalize") == 0
+            && method->mNumParams == 0)
+        {
+            klass->mFinalizeMethodIndex = i;
         }
     }
 }

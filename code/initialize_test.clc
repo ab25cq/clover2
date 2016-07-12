@@ -1,0 +1,20 @@
+class InitializeAndFinalizeTest {
+    a:static pointer;
+    b:pointer;
+
+    def initialize() {
+        self.b = System.malloc(1);
+    }
+
+    def finalize() {
+        System.free(self.b);
+    }
+
+    def initialize():static {
+        InitializeAndFinalizeTest.a = System.malloc(1);
+    }
+
+    def finalize():static {
+        System.free(InitializeAndFinalizeTest.a);
+    }
+}

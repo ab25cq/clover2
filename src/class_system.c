@@ -91,3 +91,15 @@ BOOL System_strncpy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     return TRUE;
 }
+
+BOOL System_strdup(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* str = lvar;
+
+    char* result = MSTRDUP(str->mPointerValue);
+
+    (*stack_ptr)->mPointerValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}

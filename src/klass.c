@@ -4,11 +4,13 @@ static void free_class(sCLClass* klass);
 ALLOC sCLType* create_cl_type(sCLClass* klass, sCLClass* klass2);
 void free_cl_type(sCLType* cl_type);
 
-#define CLASS_NUM_MAX 512
-
 sClassTable* gHeadClassTable = NULL;
 
+#define CLASS_NUM_MAX 512
+
 static sClassTable gClassTable[CLASS_NUM_MAX];
+
+fGetNativeMethod gGetNativeMethod = NULL;
 
 unsigned int get_hash_key(char* name, unsigned int max)
 {
@@ -342,14 +344,16 @@ static BOOL read_methods_from_file(int fd, sCLMethod** methods, int* num_methods
         if(method->mFlags & METHOD_FLAGS_NATIVE) {
             char* path = CONS_str(&klass->mConst, method->mPathOffset);
 
-            fNativeMethod native_method = get_native_method(path);
+            if(gGetNativeMethod) { // if running Virtual Matchine,  gGetNativeMethod is not NULL
+                fNativeMethod native_method = gGetNativeMethod(path);
 
-            if(native_method == NULL) {
-                fprintf(stderr, "%s is not found\n", path);
-                return FALSE;
+                if(native_method == NULL) {
+                    fprintf(stderr, "%s is not found\n", path);
+                    return FALSE;
+                }
+
+                method->uCode.mNativeMethod = native_method;
             }
-
-            method->uCode.mNativeMethod = native_method;
 
             method->mVarNum = 0;
         }
@@ -459,10 +463,19 @@ static sCLClass* read_class_from_file(int fd)
         MFREE(klass);
         return NULL;
     }
-    klass->mInitializeMethodIndex = n;
+    klass->mClassInitializeMethodIndex = n;
 
-    klass->mFreeFun = NULL;
-    klass->mMarkFun = object_mark_fun;
+    if(!read_int_from_file(fd, &n)) {
+        MFREE(klass);
+        return NULL;
+    }
+    klass->mClassFinalizeMethodIndex = n;
+
+    if(!read_int_from_file(fd, &n)) {
+        MFREE(klass);
+        return NULL;
+    }
+    klass->mFinalizeMethodIndex = n;
 
     return klass;
 }
@@ -545,6 +558,7 @@ sCLClass* load_class(char* class_name)
     return load_class_from_class_file(class_name, class_file_name);
 }
 
+
 sCLClass* alloc_class(char* class_name, BOOL primitive_, BOOL final_, int generics_param_class_num)
 {
     sCLClass* klass = MCALLOC(1, sizeof(sCLClass));
@@ -568,9 +582,6 @@ sCLClass* alloc_class(char* class_name, BOOL primitive_, BOOL final_, int generi
     klass->mClassFields = MCALLOC(1, sizeof(sCLField)*4);
     klass->mSizeClassFields = 4;
     klass->mNumClassFields = 0;
-
-    klass->mFreeFun = NULL;
-    klass->mMarkFun = object_mark_fun;
 
     put_class_to_table(class_name, klass);
 
@@ -634,24 +645,6 @@ static void load_fundamental_classes()
 {
     (void)load_class("System");
     (void)load_class("Clover");
-}
-
-void mark_all_class_fields(unsigned char* mark_flg)
-{
-    sClassTable* p = gHeadClassTable;
-
-    while(p) {
-        sCLClass* klass = p->mItem;
-
-        int i;
-        for(i=0; i<klass->mNumClassFields; i++) {
-            sCLField* field = klass->mClassFields + i;
-
-            mark_object(field->mValue.mObjectValue, mark_flg);
-        }
-
-        p = p->mNextClass;
-    }
 }
 
 void class_init()

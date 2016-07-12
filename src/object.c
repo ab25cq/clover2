@@ -10,6 +10,19 @@ void object_mark_fun(CLObject self, unsigned char* mark_flg)
     }
 }
 
+BOOL free_object(CLObject self)
+{
+    sCLObject* object = CLOBJECT(self);
+    sCLClass* klass = object->mClass;
+
+
+    if(!call_finalize_method_on_free_object(klass, self)) {
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
 static unsigned int object_size(sCLClass* klass)
 {
     unsigned int size;

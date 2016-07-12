@@ -98,6 +98,7 @@ static sNativeMethod gNativeMethods[] = {
     { "System.strlen(pointer)", System_strlen },
     { "System.strcpy(pointer,pointer)", System_strcpy },
     { "System.strncpy(pointer,pointer,int)", System_strncpy },
+    { "System.strdup(pointer)", System_strdup },
 
     { "", 0 }  // sentinel
 };
@@ -115,6 +116,8 @@ void native_method_init()
         put_fun_to_hash_for_native_method((char*)p->mPath, p->mFun);
         p++;
     }
+
+    gGetNativeMethod = get_native_method;
 }
 
 void native_method_final()

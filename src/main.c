@@ -13,7 +13,7 @@ static void clover2_final()
     native_method_final();
     stack_final();
     heap_final();
-    class_final();
+    class_final_on_runtime();
 }
 
 static BOOL eval_file(char* fname, int stack_size)

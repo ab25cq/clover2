@@ -87,10 +87,28 @@ void mark_object(CLObject obj, unsigned char* mark_flg)
             sCLClass* klass = object->mClass;
 
             /// mark objects which is contained in ///
-            if(klass && klass->mMarkFun) {
-                klass->mMarkFun(obj, mark_flg);
+            if(klass && !(klass->mFlags & CLASS_FLAGS_PRIMITIVE)) {
+                object_mark_fun(obj, mark_flg);
             }
         }
+    }
+}
+
+static void mark_all_class_fields(unsigned char* mark_flg)
+{
+    sClassTable* p = gHeadClassTable;
+
+    while(p) {
+        sCLClass* klass = p->mItem;
+
+        int i;
+        for(i=0; i<klass->mNumClassFields; i++) {
+            sCLField* field = klass->mClassFields + i;
+
+            mark_object(field->mValue.mObjectValue, mark_flg);
+        }
+
+        p = p->mNextClass;
     }
 }
 
@@ -124,6 +142,25 @@ static void compaction(unsigned char* mark_flg)
     memset(gCLHeap.mSleepMem, 0, gCLHeap.mMemSize);
     gCLHeap.mMemLen = 0;
 
+    /// call finalizer before compaction ///
+    for(i=0; i<gCLHeap.mNumHandles; i++) {
+        if(gCLHeap.mHandles[i].mOffset != -1) {
+            void* data = (void*)(gCLHeap.mCurrentMem + gCLHeap.mHandles[i].mOffset);
+            sCLClass* klass = ((sCLHeapMem*)data)->mClass;
+
+            CLObject obj = i + FIRST_OBJ;
+
+            /// this is not a marked object ///
+            if(!mark_flg[i]) {
+                /// call the destructor ///
+                if(klass && !(klass->mFlags & CLASS_FLAGS_PRIMITIVE)) {
+                    (void)free_object(obj);
+                }
+            }
+        }
+    }
+
+    /// go to compaction ///
     for(i=0; i<gCLHeap.mNumHandles; i++) {
         if(gCLHeap.mHandles[i].mOffset != -1) {
             void* data = (void*)(gCLHeap.mCurrentMem + gCLHeap.mHandles[i].mOffset);
@@ -137,11 +174,6 @@ static void compaction(unsigned char* mark_flg)
 
                 gCLHeap.mHandles[i].mOffset = -1;
 
-                /// call the destructor ///
-                if(klass && klass->mFreeFun) {
-                    klass->mFreeFun(obj);
-                }
-                
                 /// chain free handles ///
                 top_of_free_handle = gCLHeap.mFreeHandles;
                 gCLHeap.mFreeHandles = i;

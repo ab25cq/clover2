@@ -2,7 +2,6 @@
 
 static void compiler_init()
 {
-    native_method_init();
     init_nodes();
     init_node_types();
     class_init();

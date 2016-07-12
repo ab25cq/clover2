@@ -102,5 +102,6 @@ test:
 	./cclover2 -class code/user_object.clc code/user_object.cl && ./clover2 code/user_object.clo
 	./cclover2 code/pointer.cl && ./clover2 code/pointer.clo
 	./cclover2 -class code/increment.clc && ./cclover2 code/increment.cl && ./clover2 code/increment.clo
+	./cclover2 -class code/initialize_test.clc && ./cclover2 code/initialize_test.cl && ./clover2 code/initialize_test.clo
 	./cclover2 code/string.cl && ./clover2 code/string.cl
 
