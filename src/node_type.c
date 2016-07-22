@@ -77,6 +77,8 @@ sNodeType* clone_node_type(sNodeType* node_type)
         node_type2->mGenericsTypes[i] = ALLOC clone_node_type(node_type->mGenericsTypes[i]);
     }
 
+    node_type2->mArray = node_type->mArray;
+
     return node_type2;
 }
 
@@ -91,6 +93,8 @@ sNodeType* create_node_type_with_class_name(char* class_name)
     }
 
     node_type->mNumGenericsTypes = 0;
+
+    node_type->mArray = FALSE;
 
     return node_type;
 }
@@ -110,12 +114,14 @@ sNodeType* create_node_type_from_cl_type(sCLType* cl_type, sCLClass* klass)
         node_type->mGenericsTypes[i] = create_node_type_from_cl_type(cl_type->mGenericsTypes[i], klass);
     }
 
+    node_type->mArray = cl_type->mArray;
+
     return node_type;
 }
 
 BOOL substitution_posibility(sNodeType* left, sNodeType* right)
 {
-    return left->mClass == right->mClass;
+    return left->mClass == right->mClass && left->mArray == right->mArray;
 }
 
 BOOL substitution_posibility_with_class_name(sNodeType* left, char* right_class_name)
@@ -147,7 +153,7 @@ BOOL operand_posibility_with_class_name(sNodeType* left, char* right_class_name)
 
 BOOL type_identify(sNodeType* left, sNodeType* right)
 {
-    return left->mClass == right->mClass;
+    return left->mClass == right->mClass && left->mArray == right->mArray;
 }
 
 BOOL type_identify_with_class_name(sNodeType* left, char* right_class_name)

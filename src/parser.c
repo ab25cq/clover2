@@ -1,6 +1,7 @@
 #include "common.h"
 
 static BOOL expression_substitution(unsigned int* node, sParserInfo* info);
+BOOL parse_type_for_new(sNodeType** result_type, int* array_num, sParserInfo* info);
 
 void parser_err_msg(sParserInfo* info, const char* msg, ...)
 {
@@ -454,8 +455,9 @@ static BOOL return_expression(unsigned int* node, sParserInfo* info)
 static BOOL new_expression(unsigned int* node, sParserInfo* info)
 {
     sNodeType* node_type = NULL;
+    int array_num = -1;
 
-    if(!parse_type(&node_type, info)) {
+    if(!parse_type_for_new(&node_type, &array_num, info)) {
         return FALSE;
     }
 
@@ -466,7 +468,7 @@ static BOOL new_expression(unsigned int* node, sParserInfo* info)
         return FALSE;
     }
 
-    *node = sNodeTree_create_new_operator(node_type, params, num_params);
+    *node = sNodeTree_create_new_operator(node_type, params, num_params, array_num);
 
     return TRUE;
 }
@@ -484,6 +486,58 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
     if(*result_type == NULL || (*result_type)->mClass == NULL) {
         parser_err_msg(info, "%s is not defined class", type_name);
         info->err_num++;
+    }
+
+    if(*info->p == '[' && *(info->p+1) == ']') {
+        info->p+=2;
+        skip_spaces_and_lf(info);
+
+        (*result_type)->mArray = TRUE;
+    }
+
+    return TRUE;
+}
+
+BOOL parse_type_for_new(sNodeType** result_type, int* array_num, sParserInfo* info)
+{
+    char type_name[CLASS_NAME_MAX];
+
+    if(!parse_word(type_name, CLASS_NAME_MAX, info, TRUE)) {
+        return FALSE;
+    }
+
+    *result_type = create_node_type_with_class_name(type_name);
+
+    if(*result_type == NULL || (*result_type)->mClass == NULL) {
+        parser_err_msg(info, "%s is not defined class", type_name);
+        info->err_num++;
+    }
+
+    *array_num = -1;
+
+    if(*info->p == '[') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        if(!isdigit(*info->p)) {
+            parser_err_msg(info, "require digit character for array");
+            info->err_num++;
+
+            return TRUE;
+        }
+
+        *array_num = 0;
+        while(isdigit(*info->p)) {
+            *array_num = (*array_num) * 10 + (*info->p - '0');
+            info->p++;
+            skip_spaces_and_lf(info);
+        }
+
+        skip_spaces_and_lf(info);
+
+        expect_next_character_with_one_forward("]", info);
+
+        (*result_type)->mArray = TRUE;
     }
 
     return TRUE;

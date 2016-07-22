@@ -10,6 +10,8 @@ static void node_type_to_cl_type(sNodeType* node_type, ALLOC sCLType** cl_type, 
     for(i=0; i<node_type->mNumGenericsTypes; i++) {
         node_type_to_cl_type(node_type->mGenericsTypes[i], ALLOC &(*cl_type)->mGenericsTypes[i], klass);
     }
+
+    (*cl_type)->mArray = node_type->mArray;
 }
 
 static void parser_param_to_cl_param(sParserParam* param, sCLParam* type, sCLClass* klass)
@@ -244,6 +246,8 @@ static void append_cl_type_to_buffer(sBuf* buf, sCLType* cl_type)
     for(i=0; i<cl_type->mNumGenericsTypes; i++) {
         append_cl_type_to_buffer(buf, cl_type->mGenericsTypes[i]);
     }
+
+    sBuf_append_int(buf, cl_type->mArray);
 }
 
 static void append_byte_codes_to_buffer(sBuf* buf, sByteCode* code)

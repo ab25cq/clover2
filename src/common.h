@@ -109,6 +109,8 @@ struct sCLTypeStruct {
 
     int mNumGenericsTypes;
     struct sCLTypeStruct* mGenericsTypes[GENERICS_TYPES_MAX];
+
+    BOOL mArray;
 };
 
 typedef struct sCLTypeStruct sCLType;
@@ -231,6 +233,8 @@ struct sNodeTypeStruct {
 
     struct sNodeTypeStruct* mGenericsTypes[GENERICS_TYPES_MAX];
     int mNumGenericsTypes;
+
+    BOOL mArray;
 };
 
 typedef struct sNodeTypeStruct sNodeType;
@@ -391,6 +395,7 @@ struct sNodeTreeStruct
             sNodeType* mType;
             unsigned int mParams[PARAMS_MAX];
             int mNumParams;
+            int mArrayNum;
         } sNewOperator;
         struct {
             char mVarName[VAR_NAME_MAX];
@@ -451,7 +456,7 @@ unsigned int sNodeTree_null_expression();
 unsigned int sNodeTree_for_expression(unsigned int expression_node1, unsigned int expression_node2, unsigned int expression_node3, MANAGED sNodeBlock* for_node_block);
 BOOL check_node_is_variable(unsigned int node);
 unsigned int sNodeTree_create_class_method_call(sCLClass* klass, char* method_name, unsigned int* params, int num_params);
-unsigned int sNodeTree_create_new_operator(sNodeType* node_type, unsigned int* params, int num_params);
+unsigned int sNodeTree_create_new_operator(sNodeType* node_type, unsigned int* params, int num_params, int array_num);
 unsigned int sNodeTree_create_fields(char* name, unsigned int left_node);
 unsigned int sNodeTree_create_class_fields(sCLClass* klass, char* name);
 unsigned int sNodeTree_create_assign_class_field(sCLClass* klass, char* name , unsigned int right_node);
@@ -739,6 +744,7 @@ sCLStack* gHeadStack;
 struct sCLHeapMemStruct {
     int mSize;
     sCLClass* mClass;       // NULL --> no class only memory
+    int mArrayNum;
     void* mMem;
 };
 
@@ -749,7 +755,7 @@ typedef struct sCLHeapMemStruct sCLHeapMem;
 void heap_init(int heap_size, int size_hadles);
 void heap_final();
 
-CLObject alloc_heap_mem(int size, sCLClass* klass);
+CLObject alloc_heap_mem(int size, sCLClass* klass, int array_num);
 sCLHeapMem* get_object_pointer(CLObject obj);
 void show_heap(sVMInfo* info);
 void mark_object(CLObject obj, unsigned char* mark_flg);
@@ -760,6 +766,7 @@ void mark_object(CLObject obj, unsigned char* mark_flg);
 struct sCLObjectStruct {
     int mSize;
     sCLClass* mClass;
+    int mArrayNum;
     int mNumFields;
     CLVALUE mFields[DUMMY_ARRAY_SIZE];
 };
@@ -771,6 +778,10 @@ typedef struct sCLObjectStruct sCLObject;
 CLObject create_object(sCLClass* klass);
 BOOL free_object(CLObject self);
 void object_mark_fun(CLObject self, unsigned char* mark_flg);
+
+/// array.c ///
+CLObject create_array_object(sCLClass* klass, int array_num);
+void array_mark_fun(CLObject self, unsigned char* mark_flg);
 
 /// class_system.c ///
 BOOL System_exit(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);

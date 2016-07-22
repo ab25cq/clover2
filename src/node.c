@@ -219,25 +219,27 @@ static void cast_right_type_to_long(sNodeType** right_type, sCompileInfo* info)
 
 static void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, sCompileInfo* info)
 {
-    if(type_identify_with_class_name(left_type, "byte") || type_identify_with_class_name(left_type, "ubyte")) 
-    {
-        cast_right_type_to_byte(right_type, info);
-        *right_type = create_node_type_with_class_name("byte");
-    }
-    else if(type_identify_with_class_name(left_type, "short") || type_identify_with_class_name(left_type, "ushort"))
-    {
-        cast_right_type_to_short(right_type, info);
-        *right_type = create_node_type_with_class_name("short");
-    }
-    else if(type_identify_with_class_name(left_type, "int") || type_identify_with_class_name(left_type, "uint"))
-    {
-        cast_right_type_to_int(right_type, info);
-        *right_type = create_node_type_with_class_name("int");
-    }
-    else if(type_identify_with_class_name(left_type, "long") || type_identify_with_class_name(left_type, "ulong"))
-    {
-        cast_right_type_to_long(right_type, info);
-        *right_type = create_node_type_with_class_name("long");
+    if(!left_type->mArray && !(*right_type)->mArray) {
+        if(type_identify_with_class_name(left_type, "byte") || type_identify_with_class_name(left_type, "ubyte")) 
+        {
+            cast_right_type_to_byte(right_type, info);
+            *right_type = create_node_type_with_class_name("byte");
+        }
+        else if(type_identify_with_class_name(left_type, "short") || type_identify_with_class_name(left_type, "ushort"))
+        {
+            cast_right_type_to_short(right_type, info);
+            *right_type = create_node_type_with_class_name("short");
+        }
+        else if(type_identify_with_class_name(left_type, "int") || type_identify_with_class_name(left_type, "uint"))
+        {
+            cast_right_type_to_int(right_type, info);
+            *right_type = create_node_type_with_class_name("int");
+        }
+        else if(type_identify_with_class_name(left_type, "long") || type_identify_with_class_name(left_type, "ulong"))
+        {
+            cast_right_type_to_long(right_type, info);
+            *right_type = create_node_type_with_class_name("long");
+        }
     }
 }
 
@@ -1390,7 +1392,7 @@ static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_new_operator(sNodeType* node_type, unsigned int* params, int num_params)
+unsigned int sNodeTree_create_new_operator(sNodeType* node_type, unsigned int* params, int num_params, int array_num)
 {
     unsigned int node = alloc_node();
 
@@ -1400,6 +1402,7 @@ unsigned int sNodeTree_create_new_operator(sNodeType* node_type, unsigned int* p
     for(i=0; i<num_params; i++) {
         gNodes[node].uValue.sNewOperator.mParams[i] = params[i];
     }
+    gNodes[node].uValue.sNewOperator.mArrayNum = array_num;
 
     gNodes[node].mNodeType = kNodeTypeNewOperator;
     gNodes[node].mRight = 0;
@@ -1413,51 +1416,59 @@ unsigned int sNodeTree_create_new_operator(sNodeType* node_type, unsigned int* p
 static BOOL compile_new_operator(unsigned int node, sCompileInfo* info)
 {
     sCLClass* klass = gNodes[node].uValue.sNewOperator.mType->mClass;
+    int array_num = gNodes[node].uValue.sNewOperator.mArrayNum;
 
     append_opecode_to_code(info->code, OP_NEW, info->no_output);
     append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(klass), info->no_output);
+    append_int_value_to_code(info->code, array_num, info->no_output);
 
     info->stack_num++;
 
-    sNodeType* param_types[PARAMS_MAX];
+    if(array_num >= 0) {
+        info->type = gNodes[node].uValue.sNewOperator.mType;
+        info->type->mArray = TRUE;
+    }
+    else {
+        sNodeType* param_types[PARAMS_MAX];
 
-    int num_params = gNodes[node].uValue.sNewOperator.mNumParams;
+        int num_params = gNodes[node].uValue.sNewOperator.mNumParams;
 
-    int i;
-    for(i=0; i<num_params; i++) {
-        int node2 = gNodes[node].uValue.sNewOperator.mParams[i];
-        if(!compile(node2, info)) {
-            return FALSE;
+        int i;
+        for(i=0; i<num_params; i++) {
+            int node2 = gNodes[node].uValue.sNewOperator.mParams[i];
+            if(!compile(node2, info)) {
+                return FALSE;
+            }
+
+            param_types[i] = info->type;
         }
 
-        param_types[i] = info->type;
+        char* method_name = "initialize";
+
+        sNodeType* result_type;
+        int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, NULL, &result_type);
+
+        if(method_index == -1) {
+            parser_err_msg(info->pinfo, "method not found");
+            info->err_num++;
+
+            err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
+        append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(klass), info->no_output);
+        append_int_value_to_code(info->code, method_index, info->no_output);
+
+        info->stack_num-=num_params+1;
+        info->stack_num++;
+
+        info->type = gNodes[node].uValue.sNewOperator.mType;
     }
 
-    char* method_name = "initialize";
-
-    sNodeType* result_type;
-    int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, NULL, &result_type);
-
-    if(method_index == -1) {
-        parser_err_msg(info->pinfo, "method not found");
-        info->err_num++;
-
-        err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
-
-        info->type = create_node_type_with_class_name("int"); // dummy
-
-        return TRUE;
-    }
-
-    append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
-    append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(klass), info->no_output);
-    append_int_value_to_code(info->code, method_index, info->no_output);
-
-    info->stack_num-=num_params+1;
-    info->stack_num++;
-
-    info->type = gNodes[node].uValue.sNewOperator.mType;
-    
     return TRUE;
 }
 

@@ -40,7 +40,7 @@ CLObject create_object(sCLClass* klass)
 {
     int size = object_size(klass);
 
-    CLObject obj = alloc_heap_mem(size, klass);
+    CLObject obj = alloc_heap_mem(size, klass, -1);
 
     return obj;
 }

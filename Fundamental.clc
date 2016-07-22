@@ -1,8 +1,8 @@
 
 class System: final
 {
-    def exit(num:int): native static; # thows SystemException;
-    def assert(exp:bool): native static;  # thows SystemException;
+    def exit(num:int): native static; # throws SystemException;
+    def assert(exp:bool): native static;  # throws SystemException;
 
     def malloc(size:int): native static pointer;
     def calloc(number: int, size: int): native static pointer;
@@ -11,6 +11,9 @@ class System: final
     def strcpy(str1:pointer, str2:pointer): native static pointer;
     def strncpy(str1:pointer, str2:pointer, size:int): native static pointer;
     def strdup(str:pointer): native static pointer;
+
+#    def wcstombs(dest:pointer, src:pointer, size:int): native int;
+#    def mbstowcs(dest:pointer, src:pointer, size:int):native int;
 }
 
 class Clover: final
@@ -33,11 +36,18 @@ class String: final
         System.free(self.buffer);
     }
 
+    def chars(index:int):String {
+    }
+
+    def length():int {
+        return self.len;
+    }
+
     def setValue(str: pointer) {
         new_size:int = System.strlen(str) + 1;
 
         if(new_size < self.size) {
-            System.strcpy(self.buffer, str);
+            System.strncpy(self.buffer, str, self.size);
         }
         else {
             System.free(self.buffer);
@@ -45,6 +55,15 @@ class String: final
             self.size = new_size;
             self.len = new_size - 1;
         }
+    }
+}
+
+class Exception
+{
+    message:String;
+
+    def initialize(message:String) {
+        self.message = message;
     }
 }
 

@@ -2645,6 +2645,9 @@ show_inst(inst);
                     int offset = *(int*)pc;
                     pc += sizeof(int);
 
+                    int array_num = *(int*)pc;
+                    pc += sizeof(int);
+
                     char* class_name = CONS_str(constant, offset);
 
                     sCLClass* klass = get_class_with_load_and_initialize(class_name);
@@ -2656,9 +2659,16 @@ show_inst(inst);
                         return FALSE;
                     }
 
-                    CLObject obj = create_object(klass);
-                    stack_ptr->mObjectValue = obj;
-                    stack_ptr++;
+                    if(array_num == -1) {
+                        CLObject obj = create_object(klass);
+                        stack_ptr->mObjectValue = obj;
+                        stack_ptr++;
+                    }
+                    else {
+                        CLObject array = create_array_object(klass, array_num);
+                        stack_ptr->mObjectValue = array;
+                        stack_ptr++;
+                    }
 
                     vm_mutex_off();
                 }

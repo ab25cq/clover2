@@ -85,10 +85,14 @@ void mark_object(CLObject obj, unsigned char* mark_flg)
             sCLHeapMem* object = get_object_pointer(obj);
 
             sCLClass* klass = object->mClass;
+            int array_num = object->mArrayNum;
 
             /// mark objects which is contained in ///
             if(klass && !(klass->mFlags & CLASS_FLAGS_PRIMITIVE)) {
                 object_mark_fun(obj, mark_flg);
+            }
+            else if(array_num != -1) {
+                array_mark_fun(obj, mark_flg);
             }
         }
     }
@@ -147,13 +151,14 @@ static void compaction(unsigned char* mark_flg)
         if(gCLHeap.mHandles[i].mOffset != -1) {
             void* data = (void*)(gCLHeap.mCurrentMem + gCLHeap.mHandles[i].mOffset);
             sCLClass* klass = ((sCLHeapMem*)data)->mClass;
+            int array_num = ((sCLHeapMem*)data)->mArrayNum;
 
             CLObject obj = i + FIRST_OBJ;
 
             /// this is not a marked object ///
             if(!mark_flg[i]) {
                 /// call the destructor ///
-                if(klass && !(klass->mFlags & CLASS_FLAGS_PRIMITIVE)) {
+                if(klass && !(klass->mFlags & CLASS_FLAGS_PRIMITIVE) && array_num == -1) {
                     (void)free_object(obj);
                 }
             }
@@ -224,7 +229,7 @@ static void gc()
     MFREE(mark_flg);
 }
 
-CLObject alloc_heap_mem(int size, sCLClass* klass)
+CLObject alloc_heap_mem(int size, sCLClass* klass, int array_num)
 {
     int handle;
     CLObject obj;
@@ -288,6 +293,7 @@ CLObject alloc_heap_mem(int size, sCLClass* klass)
 
     object_ptr->mSize = size;
     object_ptr->mClass = klass;
+    object_ptr->mArrayNum = array_num;
 
     return obj;
 }
