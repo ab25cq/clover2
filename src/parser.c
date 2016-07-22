@@ -600,6 +600,51 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info)
                 break;
             }
         }
+        /// access element ///
+        else if(*info->p == '[') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            unsigned int index_node = 0;
+
+            if(!expression(&index_node, info)) {
+                return FALSE;
+            }
+
+            if(index_node == 0) {
+                parser_err_msg(info, "Require index value");
+                info->err_num++;
+
+                *node = 0;
+            }
+            else {
+                expect_next_character_with_one_forward("]", info);
+
+                if(*info->p == '=' && *(info->p+1) != '=') {
+                    info->p++;
+                    skip_spaces_and_lf(info);
+
+                    unsigned int right_node = 0;
+
+                    if(!expression(&right_node, info)) {
+                        return FALSE;
+                    }
+
+                    if(right_node == 0) {
+                        parser_err_msg(info, "Require right value");
+                        info->err_num++;
+
+                        *node = 0;
+                    }
+                    else {
+                        *node = sNodeTree_create_store_array_element(*node, index_node, right_node);
+                    }
+                }
+                else {
+                    *node = sNodeTree_create_load_array_element(*node, index_node);
+                }
+            }
+        }
         /// get value from pointer ///
         else if(*info->p == '-' && *(info->p+1) == '>')
         {

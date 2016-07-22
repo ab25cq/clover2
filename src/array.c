@@ -6,7 +6,7 @@ void array_mark_fun(CLObject self, unsigned char* mark_flg)
 
     int array_num = object->mArrayNum;
 
-    CLVALUE* elements = (CLVALUE*)object->mFields;
+    CLVALUE* elements = object->mFields;
 
     int i;
     for(i=0; i<array_num; i++) {

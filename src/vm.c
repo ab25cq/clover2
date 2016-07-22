@@ -208,7 +208,6 @@ static void show_inst(unsigned inst)
         case OP_STORE_FIELD:
             puts("OP_STORE_FIELD");
             break;
-
         case OP_LOAD_CLASS_FIELD:
             puts("OP_LOAD_CLASS_FIELD");
             break;
@@ -216,6 +215,15 @@ static void show_inst(unsigned inst)
         case OP_STORE_CLASS_FIELD:
             puts("OP_STORE_CLASS_FIELD");
             break;
+
+        case OP_LOAD_ELEMENT:
+            puts("OP_LOAD_ELEMENT");
+            break;
+
+        case OP_STORE_ELEMENT:
+            puts("OP_STORE_ELEMENT");
+            break;
+
 
         case OP_STORE_VALUE_TO_INT_ADDRESS:
             puts("OP_STORE_VALUE_TO_INT_ADDRESS");
@@ -2814,6 +2822,57 @@ show_inst(inst);
 
                     sCLField* field = klass->mClassFields + field_index;
                     field->mValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_LOAD_ELEMENT:
+                {
+                    vm_mutex_on();
+
+                    CLObject array = (stack_ptr -2)->mObjectValue;
+                    int element_num = (stack_ptr -1)->mIntValue;
+                    stack_ptr-=2;
+
+                    sCLObject* object_pointer = CLOBJECT(array);
+
+                    if(element_num < 0 || element_num >= object_pointer->mArrayNum) {
+                        vm_mutex_off();
+                        entry_exception_object_with_class_name(stack, "Exception", "element index is invalid");
+                        remove_stack_to_stack_list(stack);
+                        return FALSE;
+                    }
+
+                    CLVALUE value = object_pointer->mFields[element_num];
+                    *stack_ptr = value;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_STORE_ELEMENT:
+                {
+                    vm_mutex_on();
+
+                    CLObject array = (stack_ptr -3)->mObjectValue;
+                    int element_num = (stack_ptr -2)->mIntValue;
+                    CLVALUE value = *(stack_ptr-1);
+
+                    sCLObject* object_pointer = CLOBJECT(array);
+
+                    if(element_num < 0 || element_num >= object_pointer->mArrayNum) {
+                        vm_mutex_off();
+                        entry_exception_object_with_class_name(stack, "Exception", "element index is invalid");
+                        remove_stack_to_stack_list(stack);
+                        return FALSE;
+                    }
+
+                    object_pointer->mFields[element_num] = value;
+                    stack_ptr-=3;
+                    *stack_ptr = value;
+                    stack_ptr++;
 
                     vm_mutex_off();
                 }

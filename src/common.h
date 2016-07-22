@@ -338,7 +338,7 @@ struct sCompileInfoStruct;
 BOOL compile_normal_block(sNodeBlock* block, struct sCompileInfoStruct* info);
 
 /// node.c ///
-enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeUByteValue, kNodeTypeShortValue, kNodeTypeUShortValue, kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand, kNodeTypeIncrementWithValueOperand, kNodeTypeDecrementWithValueOperand, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand };
+enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeUByteValue, kNodeTypeShortValue, kNodeTypeUShortValue, kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand, kNodeTypeIncrementWithValueOperand, kNodeTypeDecrementWithValueOperand, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand, kNodeTypeLoadArrayElement, kNodeTypeStoreArrayElement };
 
 enum eOperand { kOpAdd, kOpSub , kOpComplement, kOpLogicalDenial, kOpMult, kOpDiv, kOpMod, kOpLeftShift, kOpRightShift, kOpComparisonEqual, kOpComparisonNotEqual,kOpComparisonGreaterEqual, kOpComparisonLesserEqual, kOpComparisonGreater, kOpComparisonLesser, kOpAnd, kOpXor, kOpOr, kOpAndAnd, kOpOrOr, kOpConditional };
 
@@ -468,6 +468,8 @@ BOOL sNodeTree_create_increment_operand_with_value(unsigned int left_node, unsig
 BOOL sNodeTree_create_decrement_operand_with_value(unsigned int left_node, unsigned int value);
 BOOL sNodeTree_create_monadic_decrement_operand(unsigned int right_node);
 BOOL sNodeTree_create_monadic_increment_operand(unsigned int right_node);
+unsigned int sNodeTree_create_load_array_element(unsigned int array, unsigned int index_node);
+unsigned int sNodeTree_create_store_array_element(unsigned int array, unsigned int index_ndoe, unsigned int right_node);
 
 /// script.c ///
 BOOL compile_script(char* fname, char* source);
@@ -635,6 +637,8 @@ BOOL compile_script(char* fname, char* source);
 #define OP_STORE_FIELD 4002
 #define OP_LOAD_CLASS_FIELD 4003
 #define OP_STORE_CLASS_FIELD 4004
+#define OP_LOAD_ELEMENT 4005
+#define OP_STORE_ELEMENT 4006
 
 #define OP_STORE_VALUE_TO_INT_ADDRESS 5000
 #define OP_STORE_VALUE_TO_UINT_ADDRESS 5001
@@ -766,8 +770,10 @@ void mark_object(CLObject obj, unsigned char* mark_flg);
 struct sCLObjectStruct {
     int mSize;
     sCLClass* mClass;
-    int mArrayNum;
-    int mNumFields;
+    union {
+        int mArrayNum;
+        int mNumFields;
+    };
     CLVALUE mFields[DUMMY_ARRAY_SIZE];
 };
 

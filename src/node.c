@@ -3195,6 +3195,221 @@ BOOL compile_decrement_operand_with_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_load_array_element(unsigned int array, unsigned int index_node)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeLoadArrayElement;
+
+    gNodes[node].mLeft = array;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = index_node;
+
+    gNodes[node].mType = NULL;
+
+    return node;
+}
+
+BOOL compile_load_array_element(unsigned int node, sCompileInfo* info)
+{
+    /// compile left node ///
+    unsigned int lnode = gNodes[node].mLeft;
+
+    if(!compile(lnode, info)) {
+        return FALSE;
+    }
+
+    sNodeType* left_type = info->type;
+
+    if(left_type == NULL 
+        || type_identify_with_class_name(left_type, "Null"))
+    {
+        parser_err_msg(info->pinfo, "no type for loading element");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    if(left_type->mArray == FALSE) {
+        parser_err_msg(info->pinfo, "Clover2 can't get an element from this type.");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    /// compile middle node ///
+    unsigned int mnode = gNodes[node].mMiddle;
+
+    if(!compile(mnode, info)) {
+        return FALSE;
+    }
+
+    sNodeType* middle_type = info->type;
+
+    /// check ///
+    if(middle_type == NULL 
+        || type_identify_with_class_name(middle_type, "Null"))
+    {
+        parser_err_msg(info->pinfo, "no type for element index");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    sNodeType* int_type = create_node_type_with_class_name("int");
+
+    cast_right_type_to_left_type(int_type, &middle_type, info);
+
+    if(!substitution_posibility_with_class_name(middle_type, "int")) {
+        parser_err_msg(info->pinfo, "Type of index should be number");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    /// generate code ///
+    append_opecode_to_code(info->code, OP_LOAD_ELEMENT, info->no_output);
+
+    info->stack_num-=2;
+    info->stack_num++;
+
+    info->type = clone_node_type(left_type);
+    info->type->mArray = FALSE;
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_store_array_element(unsigned int array, unsigned int index_node, unsigned int right_node)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeStoreArrayElement;
+
+    gNodes[node].mLeft = array;
+    gNodes[node].mRight = right_node;
+    gNodes[node].mMiddle = index_node;
+
+    gNodes[node].mType = NULL;
+
+    return node;
+}
+
+BOOL compile_store_array_element(unsigned int node, sCompileInfo* info)
+{
+    /// compile left node ///
+    unsigned int lnode = gNodes[node].mLeft;
+
+    if(!compile(lnode, info)) {
+        return FALSE;
+    }
+
+    sNodeType* left_type = info->type;
+
+    if(left_type == NULL 
+        || type_identify_with_class_name(left_type, "Null"))
+    {
+        parser_err_msg(info->pinfo, "no type for object");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    if(left_type->mArray == FALSE) {
+        parser_err_msg(info->pinfo, "Clover2 can't get an element from this type.");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    /// compile middle node ///
+    unsigned int mnode = gNodes[node].mMiddle;
+
+    if(!compile(mnode, info)) {
+        return FALSE;
+    }
+
+    sNodeType* middle_type = info->type;
+
+    if(middle_type == NULL 
+        || type_identify_with_class_name(middle_type, "Null"))
+    {
+        parser_err_msg(info->pinfo, "no type for element index");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    sNodeType* int_type = create_node_type_with_class_name("int");
+
+    cast_right_type_to_left_type(int_type, &middle_type, info);
+
+    if(!substitution_posibility_with_class_name(middle_type, "int")) {
+        parser_err_msg(info->pinfo, "Type of index should be number");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    /// compile right node ///
+    unsigned int rnode = gNodes[node].mRight;
+
+    if(!compile(rnode, info)) {
+        return FALSE;
+    }
+
+    sNodeType* right_type = info->type;
+
+    if(right_type == NULL 
+        || type_identify_with_class_name(right_type, "Null"))
+    {
+        parser_err_msg(info->pinfo, "no type for right object type");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    sNodeType* left_type2 = clone_node_type(left_type);
+    left_type2->mArray = FALSE;
+
+    cast_right_type_to_left_type(left_type2, &right_type, info);
+
+    if(!substitution_posibility(left_type2, right_type)) {
+        parser_err_msg(info->pinfo, "The different type between left type and right type");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    //// generate code ///
+    append_opecode_to_code(info->code, OP_STORE_ELEMENT, info->no_output);
+
+    info->stack_num-=2;
+
+    info->type = right_type;
+
+    return TRUE;
+}
+
 void show_node(unsigned int node)
 {
     if(node == 0) {
@@ -3336,6 +3551,14 @@ void show_node(unsigned int node)
 
         case kNodeTypeMonadicDecrementOperand:
             puts("monadic decrement operand");
+            break;
+
+        case kNodeTypeStoreArrayElement:
+            puts("load element");
+            break;
+
+        case kNodeTypeLoadArrayElement:
+            puts("load element");
             break;
     }
 }
@@ -3541,6 +3764,18 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeMonadicDecrementOperand:
             if(!compile_monadic_decrement_operand(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeLoadArrayElement:
+            if(!compile_load_array_element(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeStoreArrayElement:
+            if(!compile_store_array_element(node, info)) {
                 return FALSE;
             }
             break;
