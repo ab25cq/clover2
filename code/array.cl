@@ -13,4 +13,6 @@ c:=3;
 
 System.assert(a[c] == 300);
 
+x:=100;
 
+d:int[] = new int[x]();

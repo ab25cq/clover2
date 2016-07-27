@@ -1,7 +1,7 @@
 #include "common.h"
 
 static BOOL expression_substitution(unsigned int* node, sParserInfo* info);
-BOOL parse_type_for_new(sNodeType** result_type, int* array_num, sParserInfo* info);
+BOOL parse_type_for_new(sNodeType** result_type, unsigned int* array_num, sParserInfo* info);
 
 void parser_err_msg(sParserInfo* info, const char* msg, ...)
 {
@@ -455,7 +455,7 @@ static BOOL return_expression(unsigned int* node, sParserInfo* info)
 static BOOL new_expression(unsigned int* node, sParserInfo* info)
 {
     sNodeType* node_type = NULL;
-    int array_num = -1;
+    unsigned int array_num = 0;
 
     if(!parse_type_for_new(&node_type, &array_num, info)) {
         return FALSE;
@@ -498,7 +498,7 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
     return TRUE;
 }
 
-BOOL parse_type_for_new(sNodeType** result_type, int* array_num, sParserInfo* info)
+BOOL parse_type_for_new(sNodeType** result_type, unsigned int* array_num, sParserInfo* info)
 {
     char type_name[CLASS_NAME_MAX];
 
@@ -513,27 +513,15 @@ BOOL parse_type_for_new(sNodeType** result_type, int* array_num, sParserInfo* in
         info->err_num++;
     }
 
-    *array_num = -1;
+    *array_num = 0;
 
     if(*info->p == '[') {
         info->p++;
         skip_spaces_and_lf(info);
 
-        if(!isdigit(*info->p)) {
-            parser_err_msg(info, "require digit character for array");
-            info->err_num++;
-
-            return TRUE;
+        if(!expression(array_num, info)) {
+            return FALSE;
         }
-
-        *array_num = 0;
-        while(isdigit(*info->p)) {
-            *array_num = (*array_num) * 10 + (*info->p - '0');
-            info->p++;
-            skip_spaces_and_lf(info);
-        }
-
-        skip_spaces_and_lf(info);
 
         expect_next_character_with_one_forward("]", info);
 

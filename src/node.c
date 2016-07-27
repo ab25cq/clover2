@@ -1392,7 +1392,7 @@ static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_new_operator(sNodeType* node_type, unsigned int* params, int num_params, int array_num)
+unsigned int sNodeTree_create_new_operator(sNodeType* node_type, unsigned int* params, int num_params, unsigned int array_num)
 {
     unsigned int node = alloc_node();
 
@@ -1416,17 +1416,37 @@ unsigned int sNodeTree_create_new_operator(sNodeType* node_type, unsigned int* p
 static BOOL compile_new_operator(unsigned int node, sCompileInfo* info)
 {
     sCLClass* klass = gNodes[node].uValue.sNewOperator.mType->mClass;
-    int array_num = gNodes[node].uValue.sNewOperator.mArrayNum;
+    unsigned int array_num = gNodes[node].uValue.sNewOperator.mArrayNum;
+
+    if(array_num > 0) {
+        if(!compile(array_num, info)) {
+            return FALSE;
+        }
+    }
 
     append_opecode_to_code(info->code, OP_NEW, info->no_output);
     append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(klass), info->no_output);
-    append_int_value_to_code(info->code, array_num, info->no_output);
+    append_int_value_to_code(info->code, array_num ? 1:0, info->no_output);
 
     info->stack_num++;
 
-    if(array_num >= 0) {
+    if(array_num > 0) {
+        int num_params = gNodes[node].uValue.sNewOperator.mNumParams;
+
+        if(num_params > 0) {
+            parser_err_msg(info->pinfo, "Array can't create with initialize method");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+
+        }
+
         info->type = gNodes[node].uValue.sNewOperator.mType;
         info->type->mArray = TRUE;
+
+        info->stack_num--;
     }
     else {
         sNodeType* param_types[PARAMS_MAX];

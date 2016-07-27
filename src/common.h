@@ -395,7 +395,7 @@ struct sNodeTreeStruct
             sNodeType* mType;
             unsigned int mParams[PARAMS_MAX];
             int mNumParams;
-            int mArrayNum;
+            unsigned int mArrayNum;
         } sNewOperator;
         struct {
             char mVarName[VAR_NAME_MAX];
@@ -456,7 +456,7 @@ unsigned int sNodeTree_null_expression();
 unsigned int sNodeTree_for_expression(unsigned int expression_node1, unsigned int expression_node2, unsigned int expression_node3, MANAGED sNodeBlock* for_node_block);
 BOOL check_node_is_variable(unsigned int node);
 unsigned int sNodeTree_create_class_method_call(sCLClass* klass, char* method_name, unsigned int* params, int num_params);
-unsigned int sNodeTree_create_new_operator(sNodeType* node_type, unsigned int* params, int num_params, int array_num);
+unsigned int sNodeTree_create_new_operator(sNodeType* node_type, unsigned int* params, int num_params, unsigned int array_num);
 unsigned int sNodeTree_create_fields(char* name, unsigned int left_node);
 unsigned int sNodeTree_create_class_fields(sCLClass* klass, char* name);
 unsigned int sNodeTree_create_assign_class_field(sCLClass* klass, char* name , unsigned int right_node);

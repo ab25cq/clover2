@@ -1,8 +1,17 @@
 #include "common.h"
 
 #ifdef VM_DEBUG
-static void show_stack(CLVALUE* stack, CLVALUE* stack_ptr)
+static void show_stack(CLVALUE* stack, CLVALUE* stack_ptr, CLVALUE* lvar, int var_num)
 {
+    if(stack_ptr == lvar+var_num) {
+        puts("stack is empty");
+    }
+
+    if(stack_ptr < stack) {
+        puts("stack is invalid. abort.");
+        exit(3);
+    }
+
     int i;
     for(i=0; i<10; i++) {
         if(stack_ptr-1 == stack + i) {
@@ -284,6 +293,7 @@ static BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, CL
         }
 
         if(is_void_type(method->mResultType, klass)) {
+            *stack_ptr = lvar;
             (*stack_ptr)->mIntValue = 0;
             (*stack_ptr)++;
         }
@@ -493,6 +503,9 @@ show_inst(inst);
             case OP_RETURN:
                 *stack = *(stack_ptr-1);
                 remove_stack_to_stack_list(stack);
+#ifdef VM_DEBUG
+show_stack(stack, stack_ptr, lvar, var_num);
+#endif
                 return TRUE;
 
             case OP_STORE:
@@ -2653,7 +2666,7 @@ show_inst(inst);
                     int offset = *(int*)pc;
                     pc += sizeof(int);
 
-                    int array_num = *(int*)pc;
+                    BOOL flg_array = *(int*)pc;
                     pc += sizeof(int);
 
                     char* class_name = CONS_str(constant, offset);
@@ -2667,14 +2680,17 @@ show_inst(inst);
                         return FALSE;
                     }
 
-                    if(array_num == -1) {
-                        CLObject obj = create_object(klass);
-                        stack_ptr->mObjectValue = obj;
+                    if(flg_array) {
+                        int array_num = (stack_ptr-1)->mIntValue;
+                        stack_ptr--;
+
+                        CLObject array = create_array_object(klass, array_num);
+                        stack_ptr->mObjectValue = array;
                         stack_ptr++;
                     }
                     else {
-                        CLObject array = create_array_object(klass, array_num);
-                        stack_ptr->mObjectValue = array;
+                        CLObject obj = create_object(klass);
+                        stack_ptr->mObjectValue = obj;
                         stack_ptr++;
                     }
 
@@ -3295,11 +3311,18 @@ show_inst(inst);
                 break;
         }
 #ifdef VM_DEBUG
-show_stack(stack, stack_ptr);
+show_stack(stack, stack_ptr, lvar, var_num);
 #endif
     }
 
     remove_stack_to_stack_list(stack);
+
+#ifdef VM_DEBUG
+if(stack_ptr != lvar + var_num) {
+    fprintf(stderr, "invalid stack\n");
+    exit(3);
+}
+#endif
 
     return TRUE;
 }
