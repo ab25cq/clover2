@@ -16,3 +16,5 @@ System.assert(a[c] == 300);
 x:=100;
 
 d:int[] = new int[x]();
+
+System.assert(d.length == 100);

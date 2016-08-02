@@ -187,6 +187,8 @@ static BOOL class_compiler(char* fname)
 int main(int argc, char** argv)
 {
     int i;
+    
+    setlocale(LC_ALL, "");
 
     for(i=1; i<argc; i++) {
         compiler_init();

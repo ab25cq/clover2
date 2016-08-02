@@ -3309,6 +3309,21 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     vm_mutex_off();
                 }
                 break;
+
+            case OP_GET_ARRAY_LENGTH:
+                {
+                    vm_mutex_on();
+
+                    CLObject array = (stack_ptr-1)->mObjectValue;
+                    sCLObject* array_data = CLOBJECT(array);
+                    stack_ptr--;
+
+                    stack_ptr->mIntValue = array_data->mArrayNum;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
         }
 #ifdef VM_DEBUG
 show_stack(stack, stack_ptr, lvar, var_num);

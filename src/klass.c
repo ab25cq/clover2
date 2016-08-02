@@ -670,6 +670,7 @@ void class_init()
     alloc_class("bool", TRUE, TRUE, -1);
     alloc_class("Null", TRUE, TRUE, -1);
     alloc_class("pointer", TRUE, TRUE, -1);
+    alloc_class("char", TRUE, TRUE, -1);
 
     alloc_class("GenericsParametorClass1", TRUE, TRUE, 1);
     alloc_class("GenericsParametorClass2", TRUE, TRUE, 2);

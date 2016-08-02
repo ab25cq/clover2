@@ -243,7 +243,7 @@ static void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right
     }
 }
 
-static BOOL binary_operator(sNodeType* left_type, sNodeType* right_type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, int float_operand, int double_operand, int pointer_operand, int null_operand, char* op_string, sCompileInfo* info)
+static BOOL binary_operator(sNodeType* left_type, sNodeType* right_type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, int float_operand, int double_operand, int pointer_operand, int null_operand, int char_operand, char* op_string, sCompileInfo* info)
 {
     cast_right_type_to_left_type(left_type, &right_type, info);
 
@@ -329,6 +329,12 @@ static BOOL binary_operator(sNodeType* left_type, sNodeType* right_type, int byt
 
         info->type = create_node_type_with_class_name("pointer");
     }
+    else if(type_identify_with_class_name(left_type, "char") && char_operand != -1) {
+        append_opecode_to_code(info->code, char_operand, info->no_output);
+        info->stack_num--;
+
+        info->type = create_node_type_with_class_name("char");
+    }
     else {
         parser_err_msg(info->pinfo, "%s.%s is not implemented", CLASS_NAME(left_type->mClass), op_string);
         info->err_num++;
@@ -367,28 +373,28 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
 
     switch(gNodes[node].uValue.mOperand) {
         case kOpAdd:
-            if(!binary_operator(left_type, right_type, OP_BADD, OP_UBADD, OP_SADD, OP_USADD, OP_IADD, OP_UIADD, OP_LADD, OP_ULADD, OP_FADD, OP_DADD, OP_PADD, -1, "+", info))
+            if(!binary_operator(left_type, right_type, OP_BADD, OP_UBADD, OP_SADD, OP_USADD, OP_IADD, OP_UIADD, OP_LADD, OP_ULADD, OP_FADD, OP_DADD, OP_PADD, -1, OP_IADD, "+", info))
             {
                 return FALSE;
             }
             break;
 
         case kOpSub:
-            if(!binary_operator(left_type, right_type, OP_BSUB, OP_UBSUB, OP_SSUB, OP_USSUB, OP_ISUB, OP_UISUB, OP_LSUB, OP_ULSUB, OP_FSUB, OP_DSUB, OP_PSUB, -1, "-", info))
+            if(!binary_operator(left_type, right_type, OP_BSUB, OP_UBSUB, OP_SSUB, OP_USSUB, OP_ISUB, OP_UISUB, OP_LSUB, OP_ULSUB, OP_FSUB, OP_DSUB, OP_PSUB, -1, OP_ISUB, "-", info))
             {
                 return FALSE;
             }
             break;
             
         case kOpMult:
-            if(!binary_operator(left_type, right_type, OP_BMULT, OP_UBMULT, OP_SMULT, OP_USMULT, OP_IMULT, OP_UIMULT, OP_LMULT, OP_ULMULT, OP_FMULT, OP_DMULT, -1, -1, "*", info))
+            if(!binary_operator(left_type, right_type, OP_BMULT, OP_UBMULT, OP_SMULT, OP_USMULT, OP_IMULT, OP_UIMULT, OP_LMULT, OP_ULMULT, OP_FMULT, OP_DMULT, -1, -1, -1, "*", info))
             {
                 return FALSE;
             }
             break;
             
         case kOpDiv:
-            if(!binary_operator(left_type, right_type, OP_BDIV, OP_UBDIV, OP_SDIV, OP_USDIV, OP_IDIV, OP_UIDIV, OP_LDIV, OP_ULDIV, OP_FDIV, OP_DDIV, -1, -1, "/", info))
+            if(!binary_operator(left_type, right_type, OP_BDIV, OP_UBDIV, OP_SDIV, OP_USDIV, OP_IDIV, OP_UIDIV, OP_LDIV, OP_ULDIV, OP_FDIV, OP_DDIV, -1, -1, -1, "/", info))
             {
                 return FALSE;
             }
@@ -404,7 +410,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
             break;
             
         case kOpComparisonEqual:
-            if(!binary_operator(left_type, right_type, OP_BEQ, OP_UBEQ, OP_SEQ, OP_USEQ, OP_IEQ, OP_UIEQ, OP_LEQ, OP_ULEQ, OP_FEQ, OP_DEQ, OP_PEQ, OP_IEQ, "==", info))
+            if(!binary_operator(left_type, right_type, OP_BEQ, OP_UBEQ, OP_SEQ, OP_USEQ, OP_IEQ, OP_UIEQ, OP_LEQ, OP_ULEQ, OP_FEQ, OP_DEQ, OP_PEQ, OP_IEQ, OP_IEQ, "==", info))
             {
                 return FALSE;
             }
@@ -413,7 +419,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
             break;
             
         case kOpComparisonNotEqual:
-            if(!binary_operator(left_type, right_type, OP_BNOTEQ, OP_UBNOTEQ, OP_SNOTEQ, OP_USNOTEQ, OP_INOTEQ, OP_UINOTEQ, OP_LNOTEQ, OP_ULNOTEQ, OP_FNOTEQ, OP_DNOTEQ, OP_PNOTEQ, OP_INOTEQ, "!=", info))
+            if(!binary_operator(left_type, right_type, OP_BNOTEQ, OP_UBNOTEQ, OP_SNOTEQ, OP_USNOTEQ, OP_INOTEQ, OP_UINOTEQ, OP_LNOTEQ, OP_ULNOTEQ, OP_FNOTEQ, OP_DNOTEQ, OP_PNOTEQ, OP_INOTEQ, OP_INOTEQ, "!=", info))
             {
                 return FALSE;
             }
@@ -422,7 +428,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
             break;
             
         case kOpComparisonGreaterEqual:
-            if(!binary_operator(left_type, right_type, OP_BGTEQ, OP_UBGTEQ, OP_SGTEQ, OP_USGTEQ, OP_IGTEQ, OP_UIGTEQ, OP_LGTEQ, OP_ULGTEQ, OP_FGTEQ, OP_DGTEQ, OP_PGTEQ, -1, ">=", info))
+            if(!binary_operator(left_type, right_type, OP_BGTEQ, OP_UBGTEQ, OP_SGTEQ, OP_USGTEQ, OP_IGTEQ, OP_UIGTEQ, OP_LGTEQ, OP_ULGTEQ, OP_FGTEQ, OP_DGTEQ, OP_PGTEQ, -1, OP_IGTEQ, ">=", info))
             {
                 return FALSE;
             }
@@ -431,7 +437,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
             break;
             
         case kOpComparisonLesserEqual:
-            if(!binary_operator(left_type, right_type, OP_BLEEQ, OP_UBLEEQ, OP_SLEEQ, OP_USLEEQ, OP_ILEEQ, OP_UILEEQ, OP_LLEEQ, OP_ULLEEQ, OP_FLEEQ, OP_DLEEQ, OP_PLEEQ, -1, "<=", info))
+            if(!binary_operator(left_type, right_type, OP_BLEEQ, OP_UBLEEQ, OP_SLEEQ, OP_USLEEQ, OP_ILEEQ, OP_UILEEQ, OP_LLEEQ, OP_ULLEEQ, OP_FLEEQ, OP_DLEEQ, OP_PLEEQ, -1, OP_ILEEQ, "<=", info))
             {
                 return FALSE;
             }
@@ -440,7 +446,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
             break;
             
         case kOpComparisonGreater:
-            if(!binary_operator(left_type, right_type, OP_BGT, OP_UBGT, OP_SGT, OP_USGT, OP_IGT, OP_UIGT, OP_LGT, OP_ULGT, OP_FGT, OP_DGT, OP_PGT, -1, ">", info))
+            if(!binary_operator(left_type, right_type, OP_BGT, OP_UBGT, OP_SGT, OP_USGT, OP_IGT, OP_UIGT, OP_LGT, OP_ULGT, OP_FGT, OP_DGT, OP_PGT, -1, OP_IGT, ">", info))
             {
                 return FALSE;
             }
@@ -449,7 +455,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
             break;
             
         case kOpComparisonLesser:
-            if(!binary_operator(left_type, right_type, OP_BLE, OP_UBLE, OP_SLE, OP_USLE, OP_ILE, OP_UILE, OP_LLE, OP_ULLE, OP_FLE, OP_DLE, OP_PLE, -1, "<", info))
+            if(!binary_operator(left_type, right_type, OP_BLE, OP_UBLE, OP_SLE, OP_USLE, OP_ILE, OP_UILE, OP_LLE, OP_ULLE, OP_FLE, OP_DLE, OP_PLE, -1, OP_ILE, "<", info))
             {
                 return FALSE;
             }
@@ -1621,28 +1627,39 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
 
     sCLClass* klass = info->type->mClass;
     char* field_name = gNodes[node].uValue.mVarName;
+    BOOL array = info->type->mArray;
 
-    int field_index = search_for_field(klass, field_name);
+    if(array && strcmp(field_name, "length") == 0) {
+        append_opecode_to_code(info->code, OP_GET_ARRAY_LENGTH, info->no_output);
 
-    if(field_index == -1) {
-        parser_err_msg(info->pinfo, "There is no field(%s) in this class(%s)", field_name, CLASS_NAME(klass));
-        info->err_num++;
+        info->stack_num--;
+        info->stack_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
-
-        return TRUE;
+        info->type = create_node_type_with_class_name("int");
     }
+    else {
+        int field_index = search_for_field(klass, field_name);
 
-    sCLField* field = klass->mFields + field_index;
-    sNodeType* field_type = create_node_type_from_cl_type(field->mResultType, klass);
+        if(field_index == -1) {
+            parser_err_msg(info->pinfo, "There is no field(%s) in this class(%s)", field_name, CLASS_NAME(klass));
+            info->err_num++;
 
-    append_opecode_to_code(info->code, OP_LOAD_FIELD, info->no_output);
-    append_int_value_to_code(info->code, field_index, info->no_output);
+            info->type = create_node_type_with_class_name("int"); // dummy
 
-    info->stack_num--;
-    info->stack_num++;
+            return TRUE;
+        }
 
-    info->type = field_type;
+        sCLField* field = klass->mFields + field_index;
+        sNodeType* field_type = create_node_type_from_cl_type(field->mResultType, klass);
+
+        append_opecode_to_code(info->code, OP_LOAD_FIELD, info->no_output);
+        append_int_value_to_code(info->code, field_index, info->no_output);
+
+        info->stack_num--;
+        info->stack_num++;
+
+        info->type = field_type;
+    }
 
     return TRUE;
 }
@@ -2246,6 +2263,10 @@ BOOL compile_increment_operand(unsigned int node, sCompileInfo* info)
             increment_operand_core(node, info, lnode, OP_PADD, OP_PSUB, OP_LDCINT, FALSE, FALSE);
             info->type = create_node_type_with_class_name("pointer");
         }
+        else if(type_identify_with_class_name(node_type, "char")) {
+            increment_operand_core(node, info, lnode, OP_IADD, OP_ISUB, OP_LDCINT, FALSE, FALSE);
+            info->type = create_node_type_with_class_name("char");
+        }
         else {
             parser_err_msg(info->pinfo, "Invalid type for increment operand");
             info->err_num++;
@@ -2309,6 +2330,12 @@ BOOL compile_increment_operand(unsigned int node, sCompileInfo* info)
                 return FALSE;
             }
             info->type = create_node_type_with_class_name("pointer");
+        }
+        else if(type_identify_with_class_name(node_type, "char")) {
+            if(!increment_operand_core_for_field(node, info, lnode, OP_IADD, OP_ISUB, OP_LDCINT, FALSE, FALSE)) {
+                return FALSE;
+            }
+            info->type = create_node_type_with_class_name("char");
         }
         else {
             parser_err_msg(info->pinfo, "Invalid type for increment operand");
@@ -2396,6 +2423,10 @@ static BOOL compile_monadic_increment_operand(unsigned int node, sCompileInfo* i
             increment_operand_core(node, info, rnode, OP_PADD, OP_PSUB, OP_LDCINT, TRUE, FALSE);
             info->type = create_node_type_with_class_name("pointer");
         }
+        else if(type_identify_with_class_name(node_type, "char")) {
+            increment_operand_core(node, info, rnode, OP_IADD, OP_ISUB, OP_LDCINT, TRUE, FALSE);
+            info->type = create_node_type_with_class_name("char");
+        }
         else {
             parser_err_msg(info->pinfo, "Invalid type for increment operand");
             info->err_num++;
@@ -2459,6 +2490,12 @@ static BOOL compile_monadic_increment_operand(unsigned int node, sCompileInfo* i
                 return FALSE;
             }
             info->type = create_node_type_with_class_name("pointer");
+        }
+        else if(type_identify_with_class_name(node_type, "char")) {
+            if(!increment_operand_core_for_field(node, info, rnode, OP_IADD, OP_ISUB, OP_LDCINT, TRUE, FALSE)) {
+                return FALSE;
+            }
+            info->type = create_node_type_with_class_name("char");
         }
         else {
             parser_err_msg(info->pinfo, "Invalid type for increment operand");
@@ -2565,6 +2602,10 @@ BOOL compile_increment_operand_with_value(unsigned int node, sCompileInfo* info)
             increment_operand_core(node, info, lnode, OP_PADD, OP_PSUB, OP_LDCINT, FALSE, TRUE);
             info->type = create_node_type_with_class_name("pointer");
         }
+        else if(type_identify_with_class_name(left_type, "char")) {
+            increment_operand_core(node, info, lnode, OP_IADD, OP_ISUB, OP_LDCINT, FALSE, TRUE);
+            info->type = create_node_type_with_class_name("char");
+        }
         else {
             parser_err_msg(info->pinfo, "Invalid type for increment operand");
             info->err_num++;
@@ -2628,6 +2669,12 @@ BOOL compile_increment_operand_with_value(unsigned int node, sCompileInfo* info)
                 return FALSE;
             }
             info->type = create_node_type_with_class_name("pointer");
+        }
+        else if(type_identify_with_class_name(left_type, "char")) {
+            if(!increment_operand_core_for_field(node, info, lnode, OP_IADD, OP_ISUB, OP_LDCINT, FALSE, TRUE)) {
+                return FALSE;
+            }
+            info->type = create_node_type_with_class_name("char");
         }
         else {
             parser_err_msg(info->pinfo, "Invalid type for increment operand");
@@ -2820,6 +2867,10 @@ BOOL compile_decrement_operand(unsigned int node, sCompileInfo* info)
             decrement_operand_core(node, info, lnode, OP_PADD, OP_PSUB, OP_LDCPOINTER, FALSE, FALSE);
             info->type = create_node_type_with_class_name("pointer");
         }
+        else if(type_identify_with_class_name(node_type, "char")) {
+            decrement_operand_core(node, info, lnode, OP_IADD, OP_ISUB, OP_LDCINT, FALSE, FALSE);
+            info->type = create_node_type_with_class_name("char");
+        }
         else {
             parser_err_msg(info->pinfo, "Invalid type for increment operand");
             info->err_num++;
@@ -2883,6 +2934,12 @@ BOOL compile_decrement_operand(unsigned int node, sCompileInfo* info)
                 return FALSE;
             }
             info->type = create_node_type_with_class_name("pointer");
+        }
+        else if(type_identify_with_class_name(node_type, "char")) {
+            if(!decrement_operand_core_for_field(node, info, lnode, OP_IADD, OP_ISUB, OP_LDCINT, FALSE, FALSE)) {
+                return FALSE;
+            }
+            info->type = create_node_type_with_class_name("char");
         }
         else {
             parser_err_msg(info->pinfo, "Invalid type for increment operand");
@@ -2969,6 +3026,10 @@ static BOOL compile_monadic_decrement_operand(unsigned int node, sCompileInfo* i
             decrement_operand_core(node, info, rnode, OP_PADD, OP_PSUB, OP_LDCPOINTER, TRUE, FALSE);
             info->type = create_node_type_with_class_name("pointer");
         }
+        else if(type_identify_with_class_name(node_type, "char")) {
+            decrement_operand_core(node, info, rnode, OP_IADD, OP_ISUB, OP_LDCINT, TRUE, FALSE);
+            info->type = create_node_type_with_class_name("char");
+        }
         else {
             parser_err_msg(info->pinfo, "Invalid type for increment operand");
             info->err_num++;
@@ -3032,6 +3093,12 @@ static BOOL compile_monadic_decrement_operand(unsigned int node, sCompileInfo* i
                 return FALSE;
             }
             info->type = create_node_type_with_class_name("pointer");
+        }
+        else if(type_identify_with_class_name(node_type, "char")) {
+            if(!decrement_operand_core_for_field(node, info, rnode, OP_IADD, OP_ISUB, OP_LDCINT, TRUE, FALSE)) {
+                return FALSE;
+            }
+            info->type = create_node_type_with_class_name("char");
         }
         else {
             parser_err_msg(info->pinfo, "Invalid type for increment operand");
@@ -3138,6 +3205,10 @@ BOOL compile_decrement_operand_with_value(unsigned int node, sCompileInfo* info)
             decrement_operand_core(node, info, lnode, OP_PADD, OP_PSUB, OP_LDCPOINTER, FALSE, TRUE);
             info->type = create_node_type_with_class_name("pointer");
         }
+        else if(type_identify_with_class_name(left_type, "char")) {
+            decrement_operand_core(node, info, lnode, OP_IADD, OP_ISUB, OP_LDCINT, FALSE, TRUE);
+            info->type = create_node_type_with_class_name("char");
+        }
         else {
             parser_err_msg(info->pinfo, "Invalid type for increment operand");
             info->err_num++;
@@ -3201,6 +3272,12 @@ BOOL compile_decrement_operand_with_value(unsigned int node, sCompileInfo* info)
                 return FALSE;
             }
             info->type = create_node_type_with_class_name("pointer");
+        }
+        else if(type_identify_with_class_name(left_type, "char")) {
+            if(!decrement_operand_core_for_field(node, info, lnode, OP_IADD, OP_ISUB, OP_LDCINT, FALSE, TRUE)) {
+                return FALSE;
+            }
+            info->type = create_node_type_with_class_name("char");
         }
         else {
             parser_err_msg(info->pinfo, "Invalid type for increment operand");
@@ -3430,6 +3507,37 @@ BOOL compile_store_array_element(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_character_value(wchar_t c)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeChar;
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    gNodes[node].mType = NULL;
+
+    gNodes[node].uValue.mCharacter = c;
+
+    return node;
+}
+
+BOOL compile_char_value(unsigned int node, sCompileInfo* info)
+{
+    wchar_t c = gNodes[node].uValue.mCharacter;
+
+    append_opecode_to_code(info->code, OP_LDCINT, info->no_output);
+    append_int_value_to_code(info->code, (int)c, info->no_output);
+
+    info->stack_num++;
+
+    info->type = create_node_type_with_class_name("char");
+
+    return TRUE;
+}
+
 void show_node(unsigned int node)
 {
     if(node == 0) {
@@ -3575,6 +3683,10 @@ void show_node(unsigned int node)
 
         case kNodeTypeStoreArrayElement:
             puts("load element");
+            break;
+
+        case kNodeTypeChar:
+            puts("char");
             break;
 
         case kNodeTypeLoadArrayElement:
@@ -3796,6 +3908,12 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeStoreArrayElement:
             if(!compile_store_array_element(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeChar:
+            if(!compile_char_value(node, info)) {
                 return FALSE;
             }
             break;

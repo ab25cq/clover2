@@ -773,6 +773,93 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             return FALSE;
         }
     }
+    else if(*info->p == '\'') {
+        info->p++;
+
+        wchar_t c;
+
+        if(*info->p == '\\') {
+            info->p++;
+
+            switch(*info->p) {
+                case 'n':
+                    c = '\n';
+                    info->p++;
+                    break;
+
+                case 't':
+                    c = '\t';
+                    info->p++;
+                    break;
+
+                case 'r':
+                    c = '\r';
+                    info->p++;
+                    break;
+
+                case 'a':
+                    c = '\a';
+                    info->p++;
+                    break;
+
+                case '\\':
+                    c = '\\';
+                    info->p++;
+                    break;
+
+                default:
+                    c = *info->p;
+                    info->p++;
+                    break;
+            }
+        }
+        else {
+            unsigned char p2 = *(unsigned char*)info->p;
+
+            /// utf-8 character ///
+            if(p2 > 127) {
+                int size;
+                char str[MB_LEN_MAX+1];
+
+                size = ((p2 & 0x80) >> 7) + ((p2 & 0x40) >> 6) + ((p2 & 0x20) >> 5) + ((p2 & 0x10) >> 4);
+
+                if(size > MB_LEN_MAX) {
+                    parser_err_msg(info, "invalid utf-8 character. MB_LEN_MAX");
+                    info->err_num++;
+                }
+                else {
+                    memcpy(str, info->p, size);
+                    str[size] = 0;
+
+                    if(mbtowc(&c, str, size) < 0) {
+                        parser_err_msg(info, "invalid utf-8 character. mbtowc");
+                        info->err_num++;
+                        c = 0;
+                    }
+
+                    info->p += size;
+                }
+            }
+            /// ASCII character ///
+            else {
+                c = *info->p;
+                info->p++;
+            }
+        }
+
+        if(*info->p != '\'') {
+            parser_err_msg(info, "close \' to make character value");
+            info->err_num++;
+        }
+        else {
+            info->p++;
+
+            skip_spaces_and_lf(info);
+
+            *node = sNodeTree_create_character_value(c);
+        }
+
+    }
     else if(isalpha(*info->p)) {
         char buf[VAR_NAME_MAX];
 

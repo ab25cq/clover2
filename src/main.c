@@ -116,6 +116,7 @@ int main(int argc, char** argv)
     int i;
 
     CHECKML_BEGIN;
+    setlocale(LC_ALL, "");
 
     for(i=1; i<argc; i++) {
         clover2_init();
