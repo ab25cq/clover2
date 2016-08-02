@@ -249,8 +249,8 @@ sNodeType* create_node_type_from_cl_type(sCLType* cl_type, sCLClass* klass);
 
 BOOL substitution_posibility(sNodeType* left, sNodeType* right);
 BOOL substitution_posibility_with_class_name(sNodeType* left, char* right_class_name);
-BOOL operand_posibility(sNodeType* left, sNodeType* right);
-BOOL operand_posibility_with_class_name(sNodeType* left, char* right_class_name);
+BOOL operand_posibility(sNodeType* left, sNodeType* right, BOOL add_or_sub_operand);
+BOOL operand_posibility_with_class_name(sNodeType* left, char* right_class_name, BOOL add_or_sub_operand);
 BOOL solve_generics_types_for_node_type(sNodeType* node_type, ALLOC sNodeType** result, sNodeType* type_);
 BOOL type_identify_with_class_name(sNodeType* left, char* right_class_name);
 BOOL type_identify(sNodeType* left, sNodeType* right);
@@ -554,6 +554,9 @@ BOOL compile_script(char* fname, char* source);
 #define OP_PADD 600
 #define OP_PSUB 601
 
+#define OP_CADD 700
+#define OP_CSUB 701
+
 #define OP_BEQ 1000
 #define OP_BNOTEQ 1001
 #define OP_BGT 1002
@@ -630,6 +633,13 @@ BOOL compile_script(char* fname, char* source);
 #define OP_PLE 1103
 #define OP_PGTEQ 1104
 #define OP_PLEEQ 1105
+
+#define OP_CEQ 1200
+#define OP_CNOTEQ 1201
+#define OP_CGT 1202
+#define OP_CLE 1203
+#define OP_CGTEQ 1204
+#define OP_CLEEQ 1205
 
 #define OP_ANDAND 2000
 #define OP_OROR 2001

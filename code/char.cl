@@ -21,4 +21,3 @@ y:char = 'あ';
 
 System.assert(y == 'あ');
 
-

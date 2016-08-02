@@ -142,6 +142,10 @@ static void show_inst(unsigned inst)
             puts("OP_PADD");
             break;
 
+        case OP_CADD :
+            puts("OP_CADD");
+            break;
+
         case OP_BSUB :
             puts("OP_BSUB");
             break;
@@ -184,6 +188,10 @@ static void show_inst(unsigned inst)
 
         case OP_PSUB :
             puts("OP_PSUB");
+            break;
+
+        case OP_CSUB :
+            puts("OP_CSUB");
             break;
 
         case OP_IEQ :
@@ -1480,6 +1488,40 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 }
                 break;
 
+            case OP_CADD: 
+                {
+                    vm_mutex_on();
+
+                    wchar_t left = (stack_ptr-2)->mCharValue;
+                    int right = (stack_ptr-1)->mIntValue;
+
+                    wchar_t result = left + right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mCharValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CSUB: 
+                {
+                    vm_mutex_on();
+
+                    wchar_t left = (stack_ptr-2)->mCharValue;
+                    int right = (stack_ptr-1)->mIntValue;
+
+                    wchar_t result = left - right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mCharValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
             case OP_BEQ:
                 {
                     vm_mutex_on();
@@ -2517,6 +2559,23 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 }
                 break;
 
+            case OP_PNOTEQ:
+                {
+                    vm_mutex_on();
+
+                    char* left = (stack_ptr-2)->mPointerValue;
+                    char* right = (stack_ptr-1)->mPointerValue;
+
+                    BOOL result = left != right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mBoolValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
             case OP_PGT:
                 {
                     vm_mutex_on();
@@ -2574,6 +2633,108 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char* left = (stack_ptr-2)->mPointerValue;
                     char* right = (stack_ptr-1)->mPointerValue;
+
+                    BOOL result = left <= right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mBoolValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CEQ:
+                {
+                    vm_mutex_on();
+
+                    wchar_t left = (stack_ptr-2)->mCharValue;
+                    wchar_t right = (stack_ptr-1)->mCharValue;
+
+                    BOOL result = left == right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mBoolValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CNOTEQ:
+                {
+                    vm_mutex_on();
+
+                    wchar_t left = (stack_ptr-2)->mCharValue;
+                    wchar_t right = (stack_ptr-1)->mCharValue;
+
+                    BOOL result = left != right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mBoolValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CGT:
+                {
+                    vm_mutex_on();
+
+                    wchar_t left = (stack_ptr-2)->mCharValue;
+                    wchar_t right = (stack_ptr-1)->mCharValue;
+
+                    BOOL result = left > right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mBoolValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CLE:
+                {
+                    vm_mutex_on();
+
+                    wchar_t left = (stack_ptr-2)->mCharValue;
+                    wchar_t right = (stack_ptr-1)->mCharValue;
+
+                    BOOL result = left < right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mBoolValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CGTEQ:
+                {
+                    vm_mutex_on();
+
+                    wchar_t left = (stack_ptr-2)->mCharValue;
+                    wchar_t right = (stack_ptr-1)->mCharValue;
+
+                    BOOL result = left >= right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mBoolValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CLEEQ:
+                {
+                    vm_mutex_on();
+
+                    wchar_t left = (stack_ptr-2)->mCharValue;
+                    wchar_t right = (stack_ptr-1)->mCharValue;
 
                     BOOL result = left <= right;
 

@@ -129,13 +129,18 @@ BOOL substitution_posibility_with_class_name(sNodeType* left, char* right_class_
     return substitution_posibility(left, create_node_type_with_class_name(right_class_name));
 }
 
-BOOL operand_posibility(sNodeType* left, sNodeType* right)
+BOOL operand_posibility(sNodeType* left, sNodeType* right, BOOL add_or_sub_operand)
 {
     sCLClass* pointer_class = get_class("pointer");
 
     MASSERT(pointer_class != NULL);
 
-    if(left->mClass == pointer_class) {
+    sCLClass* char_class = get_class("char");
+
+    MASSERT(char_class != NULL);
+
+    if(add_or_sub_operand && (left->mClass == pointer_class || left->mClass == char_class)) 
+    {
         sCLClass* int_class = get_class("int");
         MASSERT(int_class != NULL);
 
@@ -146,9 +151,9 @@ BOOL operand_posibility(sNodeType* left, sNodeType* right)
     }
 }
 
-BOOL operand_posibility_with_class_name(sNodeType* left, char* right_class_name)
+BOOL operand_posibility_with_class_name(sNodeType* left, char* right_class_name, BOOL add_or_sub_operand)
 {
-    return operand_posibility(left, create_node_type_with_class_name(right_class_name));
+    return operand_posibility(left, create_node_type_with_class_name(right_class_name), add_or_sub_operand);
 }
 
 BOOL type_identify(sNodeType* left, sNodeType* right)
