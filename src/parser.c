@@ -553,6 +553,14 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info)
 
                 /// call methods ///
                 if(*info->p == '(') {
+                    unsigned int params[PARAMS_MAX];
+                    int num_params = 0;
+
+                    if(!parse_method_params(&num_params, params, info)) {
+                        return FALSE;
+                    }
+
+                    *node = sNodeTree_create_method_call(*node, buf, params, num_params);
                 }
                 /// access fields ///
                 else {
@@ -773,6 +781,67 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             return FALSE;
         }
     }
+    else if(*info->p == '"') {
+        info->p++;
+
+        sBuf value;
+        sBuf_init(&value);
+
+        while(1) {
+            if(*info->p == '"') {
+                info->p++;
+                break;
+            }
+            else if(*info->p == '\\') {
+                info->p++;
+                switch(*info->p) {
+                    case 'n':
+                        sBuf_append_char(&value, '\n');
+                        info->p++;
+                        break;
+
+                    case 't':
+                        sBuf_append_char(&value, '\t');
+                        info->p++;
+                        break;
+
+                    case 'r':
+                        sBuf_append_char(&value, '\r');
+                        info->p++;
+                        break;
+
+                    case 'a':
+                        sBuf_append_char(&value, '\a');
+                        info->p++;
+                        break;
+
+                    case '\\':
+                        sBuf_append_char(&value, '\\');
+                        info->p++;
+                        break;
+
+                    default:
+                        sBuf_append_char(&value, *info->p);
+                        info->p++;
+                        break;
+                }
+            }
+            else if(*info->p == '\0') {
+                parser_err_msg(info, "close \" to make string value");
+                return FALSE;
+            }
+            else {
+                if(*info->p == '\n') info->sline++;
+
+                sBuf_append_char(&value, *info->p);
+                info->p++;
+            }
+        }
+
+        skip_spaces_and_lf(info);
+
+        *node = sNodeTree_create_string_value(MANAGED value.mBuf);
+    }
     else if(*info->p == '\'') {
         info->p++;
 
@@ -804,6 +873,11 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
                 case '\\':
                     c = '\\';
+                    info->p++;
+                    break;
+
+                case '0':
+                    c = '\0';
                     info->p++;
                     break;
 

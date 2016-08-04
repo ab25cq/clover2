@@ -339,7 +339,7 @@ struct sCompileInfoStruct;
 BOOL compile_normal_block(sNodeBlock* block, struct sCompileInfoStruct* info);
 
 /// node.c ///
-enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeUByteValue, kNodeTypeShortValue, kNodeTypeUShortValue, kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand, kNodeTypeIncrementWithValueOperand, kNodeTypeDecrementWithValueOperand, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand, kNodeTypeLoadArrayElement, kNodeTypeStoreArrayElement, kNodeTypeChar };
+enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeUByteValue, kNodeTypeShortValue, kNodeTypeUShortValue, kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand, kNodeTypeIncrementWithValueOperand, kNodeTypeDecrementWithValueOperand, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand, kNodeTypeLoadArrayElement, kNodeTypeStoreArrayElement, kNodeTypeChar, kNodeTypeString };
 
 enum eOperand { kOpAdd, kOpSub , kOpComplement, kOpLogicalDenial, kOpMult, kOpDiv, kOpMod, kOpLeftShift, kOpRightShift, kOpComparisonEqual, kOpComparisonNotEqual,kOpComparisonGreaterEqual, kOpComparisonLesserEqual, kOpComparisonGreater, kOpComparisonLesser, kOpAnd, kOpXor, kOpOr, kOpAndAnd, kOpOrOr, kOpConditional };
 
@@ -393,6 +393,11 @@ struct sNodeTreeStruct
             int mNumParams;
         } sClassMethodCall;
         struct {
+            char mMethodName[METHOD_NAME_MAX];
+            unsigned int mParams[PARAMS_MAX];
+            int mNumParams;
+        } sMethodCall;
+        struct {
             sNodeType* mType;
             unsigned int mParams[PARAMS_MAX];
             int mNumParams;
@@ -404,6 +409,7 @@ struct sNodeTreeStruct
         } sClassField;
 
         wchar_t mCharacter;
+        char* mString;
     } uValue;
 
     sNodeType* mType;
@@ -459,6 +465,7 @@ unsigned int sNodeTree_null_expression();
 unsigned int sNodeTree_for_expression(unsigned int expression_node1, unsigned int expression_node2, unsigned int expression_node3, MANAGED sNodeBlock* for_node_block);
 BOOL check_node_is_variable(unsigned int node);
 unsigned int sNodeTree_create_class_method_call(sCLClass* klass, char* method_name, unsigned int* params, int num_params);
+unsigned int sNodeTree_create_method_call(unsigned int object_node, char* method_name, unsigned int* params, int num_params);
 unsigned int sNodeTree_create_new_operator(sNodeType* node_type, unsigned int* params, int num_params, unsigned int array_num);
 unsigned int sNodeTree_create_fields(char* name, unsigned int left_node);
 unsigned int sNodeTree_create_class_fields(sCLClass* klass, char* name);
@@ -474,6 +481,7 @@ BOOL sNodeTree_create_monadic_increment_operand(unsigned int right_node);
 unsigned int sNodeTree_create_load_array_element(unsigned int array, unsigned int index_node);
 unsigned int sNodeTree_create_store_array_element(unsigned int array, unsigned int index_ndoe, unsigned int right_node);
 unsigned int sNodeTree_create_character_value(wchar_t c);
+unsigned int sNodeTree_create_string_value(MANAGED char* value);
 
 /// script.c ///
 BOOL compile_script(char* fname, char* source);
@@ -643,6 +651,7 @@ BOOL compile_script(char* fname, char* source);
 
 #define OP_ANDAND 2000
 #define OP_OROR 2001
+#define OP_LOGICAL_DENIAL 2002
 
 #define OP_INVOKE_METHOD 3000
 
@@ -686,6 +695,8 @@ BOOL compile_script(char* fname, char* source);
 #define OP_INT_TO_LONG_CAST 7011
 
 #define OP_GET_ARRAY_LENGTH 7100
+
+#define OP_CREATE_STRING 8000
 
 BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sVMInfo* info);
 void vm_mutex_on();
@@ -759,6 +770,8 @@ void append_stack_to_stack_list(CLVALUE* stack, CLVALUE** stack_ptr);
 BOOL remove_stack_to_stack_list(CLVALUE* stack);
 
 sCLStack* gHeadStack;
+CLVALUE* gGlobalStack;
+CLVALUE* gGlobalStackPtr;
 
 /// heap.c ///
 struct sCLHeapMemStruct {
@@ -804,6 +817,9 @@ void object_mark_fun(CLObject self, unsigned char* mark_flg);
 /// array.c ///
 CLObject create_array_object(sCLClass* klass, int array_num);
 void array_mark_fun(CLObject self, unsigned char* mark_flg);
+
+/// string.c ///
+CLObject create_string_object(char* str);
 
 /// class_system.c ///
 BOOL System_exit(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);

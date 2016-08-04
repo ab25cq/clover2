@@ -106,5 +106,5 @@ test:
 	./cclover2 -class code/stack.clc && ./cclover2 code/stack.cl && ./clover2 code/stack.clo
 	./cclover2 code/array.cl && ./clover2 code/array.clo
 	./cclover2 code/char.cl && ./clover2 code/char.clo
-#	./cclover2 code/string.cl && ./clover2 code/string.cl
+	./cclover2 code/string.cl && ./clover2 code/string.clo
 

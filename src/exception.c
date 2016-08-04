@@ -4,30 +4,20 @@ void entry_exception_object_with_class_name(CLVALUE* stack, char* class_name, ch
 {
     char msg2[1024];
 
-    va_list args;
-    va_start(args, msg);
-    vsnprintf(msg2, 1024, msg, args);
-    va_end(args);
+    vm_mutex_on();
 
-    fprintf(stderr, "%s\n", msg2);
-/*
-
-    vm_mutex_lock();
-
-    klass = cl_get_class(class_name);
+    sCLClass* klass = get_class(class_name);
 
     if(klass == NULL) {
         fprintf(stderr, "unexpected error. abort on entry_exception_object_with_class_name. The class name is %s.\n", class_name);
         exit(2);
     }
 
-    type1 = create_type_object(klass);
+    CLObject object = create_object(klass);
 
-    (void)create_user_object(type1, &ovalue, 0, NULL, 0, info);
+    stack->mObjectValue = object;
 
-    info->stack_ptr->mObjectValue.mValue = ovalue;
-    info->stack_ptr++;
-
+/*
     wcs = MMALLOC(sizeof(wchar_t)*(strlen(msg2)+1));
     (void)mbstowcs(wcs, msg2, strlen(msg2)+1);
     size = wcslen(wcs);
@@ -40,7 +30,7 @@ void entry_exception_object_with_class_name(CLVALUE* stack, char* class_name, ch
 
     info->mRunningClassOnException = info->mRunningClass;
     info->mRunningMethodOnException = info->mRunningMethod;
-
-    vm_mutex_unlock();
 */
+
+    vm_mutex_off();
 }

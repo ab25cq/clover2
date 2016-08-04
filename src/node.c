@@ -52,6 +52,10 @@ void free_nodes()
                     }
                     break;
 
+                case kNodeTypeString:
+                    MFREE(gNodes[i].uValue.mString);
+                    break;
+
                 default:
                     break;
             }
@@ -243,7 +247,7 @@ static void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right
     }
 }
 
-static BOOL binary_operator(sNodeType* left_type, sNodeType* right_type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, int float_operand, int double_operand, int pointer_operand, int null_operand, int char_operand, char* op_string, sCompileInfo* info)
+static BOOL binary_operator(sNodeType* left_type, sNodeType* right_type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, int float_operand, int double_operand, int pointer_operand, int null_operand, int char_operand, int bool_operand, char* op_string, sCompileInfo* info)
 {
     cast_right_type_to_left_type(left_type, &right_type, info);
 
@@ -335,6 +339,12 @@ static BOOL binary_operator(sNodeType* left_type, sNodeType* right_type, int byt
 
         info->type = create_node_type_with_class_name("char");
     }
+    else if(type_identify_with_class_name(left_type, "bool") && bool_operand != -1) {
+        append_opecode_to_code(info->code, bool_operand, info->no_output);
+        info->stack_num--;
+
+        info->type = create_node_type_with_class_name("bool");
+    }
     else {
         parser_err_msg(info->pinfo, "%s.%s is not implemented", CLASS_NAME(left_type->mClass), op_string);
         info->err_num++;
@@ -373,28 +383,28 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
 
     switch(gNodes[node].uValue.mOperand) {
         case kOpAdd:
-            if(!binary_operator(left_type, right_type, OP_BADD, OP_UBADD, OP_SADD, OP_USADD, OP_IADD, OP_UIADD, OP_LADD, OP_ULADD, OP_FADD, OP_DADD, OP_PADD, -1, OP_CADD, "+", info))
+            if(!binary_operator(left_type, right_type, OP_BADD, OP_UBADD, OP_SADD, OP_USADD, OP_IADD, OP_UIADD, OP_LADD, OP_ULADD, OP_FADD, OP_DADD, OP_PADD, -1, OP_CADD, -1, "+", info))
             {
                 return FALSE;
             }
             break;
 
         case kOpSub:
-            if(!binary_operator(left_type, right_type, OP_BSUB, OP_UBSUB, OP_SSUB, OP_USSUB, OP_ISUB, OP_UISUB, OP_LSUB, OP_ULSUB, OP_FSUB, OP_DSUB, OP_PSUB, -1, OP_CSUB, "-", info))
+            if(!binary_operator(left_type, right_type, OP_BSUB, OP_UBSUB, OP_SSUB, OP_USSUB, OP_ISUB, OP_UISUB, OP_LSUB, OP_ULSUB, OP_FSUB, OP_DSUB, OP_PSUB, -1, OP_CSUB, -1, "-", info))
             {
                 return FALSE;
             }
             break;
             
         case kOpMult:
-            if(!binary_operator(left_type, right_type, OP_BMULT, OP_UBMULT, OP_SMULT, OP_USMULT, OP_IMULT, OP_UIMULT, OP_LMULT, OP_ULMULT, OP_FMULT, OP_DMULT, -1, -1, -1, "*", info))
+            if(!binary_operator(left_type, right_type, OP_BMULT, OP_UBMULT, OP_SMULT, OP_USMULT, OP_IMULT, OP_UIMULT, OP_LMULT, OP_ULMULT, OP_FMULT, OP_DMULT, -1, -1, -1, -1, "*", info))
             {
                 return FALSE;
             }
             break;
             
         case kOpDiv:
-            if(!binary_operator(left_type, right_type, OP_BDIV, OP_UBDIV, OP_SDIV, OP_USDIV, OP_IDIV, OP_UIDIV, OP_LDIV, OP_ULDIV, OP_FDIV, OP_DDIV, -1, -1, -1, "/", info))
+            if(!binary_operator(left_type, right_type, OP_BDIV, OP_UBDIV, OP_SDIV, OP_USDIV, OP_IDIV, OP_UIDIV, OP_LDIV, OP_ULDIV, OP_FDIV, OP_DDIV, -1, -1, -1, -1, "/", info))
             {
                 return FALSE;
             }
@@ -410,7 +420,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
             break;
             
         case kOpComparisonEqual:
-            if(!binary_operator(left_type, right_type, OP_BEQ, OP_UBEQ, OP_SEQ, OP_USEQ, OP_IEQ, OP_UIEQ, OP_LEQ, OP_ULEQ, OP_FEQ, OP_DEQ, OP_PEQ, OP_IEQ, OP_CEQ, "==", info))
+            if(!binary_operator(left_type, right_type, OP_BEQ, OP_UBEQ, OP_SEQ, OP_USEQ, OP_IEQ, OP_UIEQ, OP_LEQ, OP_ULEQ, OP_FEQ, OP_DEQ, OP_PEQ, OP_IEQ, OP_CEQ, OP_IEQ, "==", info))
             {
                 return FALSE;
             }
@@ -419,7 +429,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
             break;
             
         case kOpComparisonNotEqual:
-            if(!binary_operator(left_type, right_type, OP_BNOTEQ, OP_UBNOTEQ, OP_SNOTEQ, OP_USNOTEQ, OP_INOTEQ, OP_UINOTEQ, OP_LNOTEQ, OP_ULNOTEQ, OP_FNOTEQ, OP_DNOTEQ, OP_PNOTEQ, OP_INOTEQ, OP_CNOTEQ, "!=", info))
+            if(!binary_operator(left_type, right_type, OP_BNOTEQ, OP_UBNOTEQ, OP_SNOTEQ, OP_USNOTEQ, OP_INOTEQ, OP_UINOTEQ, OP_LNOTEQ, OP_ULNOTEQ, OP_FNOTEQ, OP_DNOTEQ, OP_PNOTEQ, OP_INOTEQ, OP_CNOTEQ, OP_INOTEQ, "!=", info))
             {
                 return FALSE;
             }
@@ -428,7 +438,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
             break;
             
         case kOpComparisonGreaterEqual:
-            if(!binary_operator(left_type, right_type, OP_BGTEQ, OP_UBGTEQ, OP_SGTEQ, OP_USGTEQ, OP_IGTEQ, OP_UIGTEQ, OP_LGTEQ, OP_ULGTEQ, OP_FGTEQ, OP_DGTEQ, OP_PGTEQ, -1, OP_CGTEQ, ">=", info))
+            if(!binary_operator(left_type, right_type, OP_BGTEQ, OP_UBGTEQ, OP_SGTEQ, OP_USGTEQ, OP_IGTEQ, OP_UIGTEQ, OP_LGTEQ, OP_ULGTEQ, OP_FGTEQ, OP_DGTEQ, OP_PGTEQ, -1, OP_CGTEQ, -1, ">=", info))
             {
                 return FALSE;
             }
@@ -437,7 +447,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
             break;
             
         case kOpComparisonLesserEqual:
-            if(!binary_operator(left_type, right_type, OP_BLEEQ, OP_UBLEEQ, OP_SLEEQ, OP_USLEEQ, OP_ILEEQ, OP_UILEEQ, OP_LLEEQ, OP_ULLEEQ, OP_FLEEQ, OP_DLEEQ, OP_PLEEQ, -1, OP_CLEEQ, "<=", info))
+            if(!binary_operator(left_type, right_type, OP_BLEEQ, OP_UBLEEQ, OP_SLEEQ, OP_USLEEQ, OP_ILEEQ, OP_UILEEQ, OP_LLEEQ, OP_ULLEEQ, OP_FLEEQ, OP_DLEEQ, OP_PLEEQ, -1, OP_CLEEQ, -1, "<=", info))
             {
                 return FALSE;
             }
@@ -446,7 +456,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
             break;
             
         case kOpComparisonGreater:
-            if(!binary_operator(left_type, right_type, OP_BGT, OP_UBGT, OP_SGT, OP_USGT, OP_IGT, OP_UIGT, OP_LGT, OP_ULGT, OP_FGT, OP_DGT, OP_PGT, -1, OP_CGT, ">", info))
+            if(!binary_operator(left_type, right_type, OP_BGT, OP_UBGT, OP_SGT, OP_USGT, OP_IGT, OP_UIGT, OP_LGT, OP_ULGT, OP_FGT, OP_DGT, OP_PGT, -1, OP_CGT, -1, ">", info))
             {
                 return FALSE;
             }
@@ -455,7 +465,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
             break;
             
         case kOpComparisonLesser:
-            if(!binary_operator(left_type, right_type, OP_BLE, OP_UBLE, OP_SLE, OP_USLE, OP_ILE, OP_UILE, OP_LLE, OP_ULLE, OP_FLE, OP_DLE, OP_PLE, -1, OP_CLE, "<", info))
+            if(!binary_operator(left_type, right_type, OP_BLE, OP_UBLE, OP_SLE, OP_USLE, OP_ILE, OP_UILE, OP_LLE, OP_ULLE, OP_FLE, OP_DLE, OP_PLE, -1, OP_CLE, -1, "<", info))
             {
                 return FALSE;
             }
@@ -489,12 +499,13 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
         case kOpConditional:
             break;
 
-/*
         case kOpComplement:
+/*
             if(!single_operator(node_type, OP_BCOMPLEMENT, OP_SHCOMPLEMENT, OP_ICOMPLEMENT, OP_LCOMPLEMENT, info))
             {
                 return FALSE;
             }
+*/
             break;
 
         case kOpLogicalDenial:
@@ -507,35 +518,6 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
 
                 info->type = create_node_type_with_class_name("bool");
             }
-            break;
-
-        case kOpComparisonEqual:
-            {
-                if(type_identify_with_class_name(node_type, "int")) {
-                    append_opecode_to_code(info->code, OP_IEQ, info->no_output);
-                    info->stack_num--;
-
-                    info->type = create_node_type_with_class_name("bool");
-                }
-            }
-            break;
-
-        case kOpComparisonNotEqual:
-            {
-                if(type_identify_with_class_name(node_type, "int")) {
-                    append_opecode_to_code(info->code, OP_INOTEQ, info->no_output);
-                    info->stack_num--;
-
-                    info->type = create_node_type_with_class_name("bool");
-                }
-            }
-            break;
-*/
-
-        case kOpComplement:
-            break;
-            
-        case kOpLogicalDenial:
             break;
     }
 
@@ -1147,6 +1129,8 @@ static BOOL compile_for_expression(unsigned int node, sCompileInfo* info)
         return FALSE;
     }
 
+    arrange_stack(info);
+
     /// compile expression ///
     unsigned int expression_node2 = gNodes[node].uValue.sFor.mExpressionNode2;
 
@@ -1198,6 +1182,8 @@ static BOOL compile_for_expression(unsigned int node, sCompileInfo* info)
     if(!compile(expression_node3, info)) {
         return FALSE;
     }
+
+    arrange_stack(info);
 
     append_opecode_to_code(info->code, OP_GOTO, info->no_output);
     append_int_value_to_code(info->code, start_point, info->no_output);
@@ -1300,6 +1286,8 @@ static BOOL compile_false_expression(unsigned int node, sCompileInfo* info)
     append_int_value_to_code(info->code, 0, info->no_output);
     info->stack_num++;
 
+printf("info->stack_num %d false\n", info->stack_num);
+
     info->type = create_node_type_with_class_name("bool");
     
     return TRUE;
@@ -1391,6 +1379,91 @@ static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)
     append_int_value_to_code(info->code, method_index, info->no_output);
 
     info->stack_num-=num_params;
+    info->stack_num++;
+
+    info->type = result_type;
+    
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_method_call(unsigned int object_node, char* method_name, unsigned int* params, int num_params)
+{
+    unsigned int node = alloc_node();
+
+    xstrncpy(gNodes[node].uValue.sMethodCall.mMethodName, method_name, METHOD_NAME_MAX);
+    gNodes[node].uValue.sMethodCall.mNumParams = num_params;
+    int i;
+    for(i=0; i<num_params; i++) {
+        gNodes[node].uValue.sMethodCall.mParams[i] = params[i];
+    }
+
+    gNodes[node].mNodeType = kNodeTypeMethodCall;
+
+    gNodes[node].mLeft = object_node;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    gNodes[node].mType = NULL;
+
+    return node;
+}
+
+static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
+{
+    /// compile left node ///
+    unsigned int lnode = gNodes[node].mLeft;
+
+    if(!compile(lnode, info)) {
+        return FALSE;
+    }
+
+    if(info->type == NULL 
+        || type_identify_with_class_name(info->type, "Null"))
+    {
+        parser_err_msg(info->pinfo, "no type for method call");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    sCLClass* klass = info->type->mClass;
+
+    sNodeType* param_types[PARAMS_MAX];
+
+    int num_params = gNodes[node].uValue.sMethodCall.mNumParams;
+    char* method_name = gNodes[node].uValue.sMethodCall.mMethodName;
+
+    int i;
+    for(i=0; i<num_params; i++) {
+        int node2 = gNodes[node].uValue.sMethodCall.mParams[i];
+        if(!compile(node2, info)) {
+            return FALSE;
+        }
+
+        param_types[i] = info->type;
+    }
+
+    sNodeType* result_type;
+    int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, NULL, &result_type);
+
+    if(method_index == -1) {
+        parser_err_msg(info->pinfo, "method not found");
+        info->err_num++;
+
+        err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
+    append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(klass), info->no_output);
+    append_int_value_to_code(info->code, method_index, info->no_output);
+
+    info->stack_num-=num_params + 1;
     info->stack_num++;
 
     info->type = result_type;
@@ -1518,11 +1591,14 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
     /// compile expression ///
     unsigned int expression_node = gNodes[node].mLeft;
 
+printf("compile_return_expression %d\n", info->stack_num);
+
     if(expression_node != 0) {
         if(!compile(expression_node, info)) {
             return FALSE;
         }
     }
+printf("compile_return_expression2 %d\n", info->stack_num);
 
     if(info->method == NULL) {
         parser_err_msg(info->pinfo, "Return expressioin should be in a method definition");
@@ -1538,7 +1614,7 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
     if((!type_identify_with_class_name(result_type, "Null") && expression_node == 0)
         || (type_identify_with_class_name(result_type, "Null") && expression_node != 0))
     {
-        parser_err_msg(info->pinfo, "Invalid type of return value");
+        parser_err_msg(info->pinfo, "Invalid type of return value(1)");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -1550,7 +1626,7 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
     cast_right_type_to_left_type(result_type, &value_type, info);
 
     if(!substitution_posibility(result_type, value_type)) {
-        parser_err_msg(info->pinfo, "Invalid type of return value");
+        parser_err_msg(info->pinfo, "Invalid type of return value(2)");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -1560,7 +1636,7 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
 
     if(type_identify_with_class_name(result_type, "Null")) {
         if(info->stack_num != 0) {
-            parser_err_msg(info->pinfo, "Invalid type of return value");
+            parser_err_msg(info->pinfo, "Invalid type of return value(3)");
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
@@ -1570,7 +1646,8 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
     }
     else {
         if(info->stack_num != 1) {
-            parser_err_msg(info->pinfo, "Invalid type of return value");
+printf("info->stack_num %d\n", info->stack_num);
+            parser_err_msg(info->pinfo, "Invalid type of return value(4)");
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
@@ -3538,6 +3615,37 @@ BOOL compile_char_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_string_value(MANAGED char* value)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeString;
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    gNodes[node].mType = NULL;
+
+    gNodes[node].uValue.mString = MANAGED value;
+
+    return node;
+}
+
+BOOL compile_string_value(unsigned int node, sCompileInfo* info)
+{
+    char* str = gNodes[node].uValue.mString;
+
+    append_opecode_to_code(info->code, OP_CREATE_STRING, info->no_output);
+    append_str_to_constant_pool_and_code(info->constant, info->code, str, info->no_output);
+
+    info->stack_num++;
+
+    info->type = create_node_type_with_class_name("String");
+
+    return TRUE;
+}
+
 void show_node(unsigned int node)
 {
     if(node == 0) {
@@ -3625,6 +3733,10 @@ void show_node(unsigned int node)
             puts("class method call");
             break;
 
+        case kNodeTypeMethodCall:
+            puts("method call");
+            break;
+
         case kNodeTypeNewOperator:
             puts("new operator");
             break;
@@ -3687,6 +3799,10 @@ void show_node(unsigned int node)
 
         case kNodeTypeChar:
             puts("char");
+            break;
+
+        case kNodeTypeString:
+            puts("string");
             break;
 
         case kNodeTypeLoadArrayElement:
@@ -3816,6 +3932,12 @@ BOOL compile(unsigned int node, sCompileInfo* info)
             }
             break;
 
+        case kNodeTypeMethodCall:
+            if(!compile_method_call(node, info)) {
+                return FALSE;
+            }
+            break;
+
         case kNodeTypeNewOperator:
             if(!compile_new_operator(node, info)) {
                 return FALSE;
@@ -3914,6 +4036,12 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeChar:
             if(!compile_char_value(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeString:
+            if(!compile_string_value(node, info)) {
                 return FALSE;
             }
             break;

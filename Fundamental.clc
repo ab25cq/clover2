@@ -22,38 +22,40 @@ class Clover: final
 
 class String: final
 {
-    buffer: pointer;
-    len: int;
-    size: int;
+    buffer: char[];
 
     def initialize() {
-        self.size = 64;
-        self.buffer = System.malloc(self.size);
-        self.len = 0;
+        self.buffer = new char[1]();
     }
 
-    def finalize() {
-        System.free(self.buffer);
-    }
-
-    def chars(index:int):String {
+    def chars(index:int):char {
+        return self.buffer[index];
     }
 
     def length():int {
-        return self.len;
+        return self.buffer.length;
     }
 
-    def setValue(str: pointer) {
-        new_size:int = System.strlen(str) + 1;
+    def setValue(str: String) {
+        self.buffer = new char[str.length()+1]();
+        for(i:int = 0; i<str.length(); i++) {
+            self.buffer[i] = str.chars(i);
+        }
+        self.buffer[str.length()] = '\0';
+    }
 
-        if(new_size < self.size) {
-            System.strncpy(self.buffer, str, self.size);
+    def equals(str: String):bool {
+        if(self.buffer.length == str.length()) {
+            for(i:int = 0; i<self.buffer.length; i++) {
+                if(self.buffer[i] != str.chars(i)) {
+                    return false;
+                }
+            }
+
+            return true;
         }
         else {
-            System.free(self.buffer);
-            self.buffer = System.strdup(str);
-            self.size = new_size;
-            self.len = new_size - 1;
+            return false;
         }
     }
 }

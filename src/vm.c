@@ -210,6 +210,10 @@ static void show_inst(unsigned inst)
             puts("OP_OROR");
             break;
 
+        case OP_LOGICAL_DENIAL:
+            puts("OP_LOGICAL_DENIAL");
+            break;
+
         case OP_INVOKE_METHOD :
             puts("OP_INVOKE_METHOD");
             break;
@@ -268,6 +272,10 @@ static void show_inst(unsigned inst)
 
         case OP_STORE_VALUE_TO_LONG_ADDRESS: 
             puts("OP_STORE_VALUE_TO_LONG_ADDRESS:");
+            break;
+
+        case OP_CREATE_STRING:
+            puts("OP_CREATE_STRING");
             break;
 
         default:
@@ -2780,6 +2788,21 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 }
                 break;
 
+            case OP_LOGICAL_DENIAL:
+                {
+                    vm_mutex_on();
+
+                    BOOL value = (stack_ptr-1)->mBoolValue;
+                    BOOL result = !value;
+
+                    stack_ptr--;
+                    stack_ptr->mBoolValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_on();
+                }
+                break;
+
             case OP_INVOKE_METHOD:
                 {
                     vm_mutex_on();
@@ -3480,6 +3503,24 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     stack_ptr--;
 
                     stack_ptr->mIntValue = array_data->mArrayNum;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CREATE_STRING:
+                {
+                    vm_mutex_on();
+
+                    int offset = *(int*)pc;
+                    pc += sizeof(int);
+
+                    char* str = CONS_str(constant, offset);
+
+                    CLObject string_object = create_string_object(str);
+
+                    stack_ptr->mObjectValue = string_object;
                     stack_ptr++;
 
                     vm_mutex_off();

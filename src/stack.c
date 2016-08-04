@@ -1,10 +1,21 @@
 #include "common.h"
 
 sCLStack* gHeadStack;
+CLVALUE* gGlobalStack;
+CLVALUE* gGlobalStackPtr;
+
+static void create_global_stack_and_append_it_to_stack_list()
+{
+    gGlobalStack = MCALLOC(1, sizeof(CLVALUE)*256);
+    gGlobalStackPtr = gGlobalStack;
+
+    append_stack_to_stack_list(gGlobalStack, &gGlobalStackPtr);
+}
 
 void stack_init()
 {
     gHeadStack = NULL;
+    create_global_stack_and_append_it_to_stack_list();
 }
 
 void stack_final()
@@ -16,6 +27,8 @@ void stack_final()
         MFREE(it);
         it = next;
     }
+
+    MFREE(gGlobalStack);
 }
 
 void append_stack_to_stack_list(CLVALUE* stack_mem, CLVALUE** stack_ptr)

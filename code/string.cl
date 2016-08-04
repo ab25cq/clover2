@@ -1,7 +1,5 @@
 a:String = "ABC";
 
-System.assert(a == "ABC");
+System.assert(a.equals("ABC"));
 
-a.setValue(p"abc");
 
-System.assert(a == "abc");
