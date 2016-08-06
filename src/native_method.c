@@ -99,6 +99,9 @@ static sNativeMethod gNativeMethods[] = {
     { "System.strcpy(pointer,pointer)", System_strcpy },
     { "System.strncpy(pointer,pointer,int)", System_strncpy },
     { "System.strdup(pointer)", System_strdup },
+    { "System.print(String)", System_print },
+    { "System.println(String)", System_println },
+    { "System.sleep(int)", System_sleep },
 
     { "", 0 }  // sentinel
 };

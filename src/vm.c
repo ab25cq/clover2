@@ -3494,6 +3494,227 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 }
                 break;
 
+            case OP_BYTE_TO_STRING_CAST:
+                {
+                    vm_mutex_on();
+
+                    char value = (stack_ptr-1)->mCharValue;
+
+                    char buf[32];
+                    snprintf(buf, 32, "%d", value);
+
+                    CLObject str = create_string_object(buf);
+
+                    (stack_ptr-1)->mObjectValue = str;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_SHORT_TO_STRING_CAST:
+                {
+                    vm_mutex_on();
+
+                    short value = (stack_ptr-1)->mShortValue;
+
+                    char buf[32];
+                    snprintf(buf, 32, "%d", value);
+
+                    CLObject str = create_string_object(buf);
+
+                    (stack_ptr-1)->mObjectValue = str;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_INT_TO_STRING_CAST:
+                {
+                    vm_mutex_on();
+
+                    int value = (stack_ptr-1)->mIntValue;
+
+                    char buf[32];
+                    snprintf(buf, 32, "%d", value);
+
+                    CLObject str = create_string_object(buf);
+
+                    (stack_ptr-1)->mObjectValue = str;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_LONG_TO_STRING_CAST:
+                {
+                    vm_mutex_on();
+
+                    long value = (stack_ptr-1)->mLongValue;
+
+                    char buf[32];
+                    snprintf(buf, 32, "%ld", value);
+
+                    CLObject str = create_string_object(buf);
+
+                    (stack_ptr-1)->mObjectValue = str;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_UBYTE_TO_STRING_CAST:
+                {
+                    vm_mutex_on();
+
+                    unsigned char value = (stack_ptr-1)->mUByteValue;
+
+                    char buf[32];
+                    snprintf(buf, 32, "%u", value);
+
+                    CLObject str = create_string_object(buf);
+
+                    (stack_ptr-1)->mObjectValue = str;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_USHORT_TO_STRING_CAST:
+                {
+                    vm_mutex_on();
+
+                    unsigned short value = (stack_ptr-1)->mUShortValue;
+
+                    char buf[32];
+                    snprintf(buf, 32, "%u", value);
+
+                    CLObject str = create_string_object(buf);
+
+                    (stack_ptr-1)->mObjectValue = str;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_UINT_TO_STRING_CAST:
+                {
+                    vm_mutex_on();
+
+                    unsigned int value = (stack_ptr-1)->mUIntValue;
+
+                    char buf[32];
+                    snprintf(buf, 32, "%u", value);
+
+                    CLObject str = create_string_object(buf);
+
+                    (stack_ptr-1)->mObjectValue = str;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_ULONG_TO_STRING_CAST:
+                {
+                    vm_mutex_on();
+
+                    unsigned long value = (stack_ptr-1)->mULongValue;
+
+                    char buf[32];
+                    snprintf(buf, 32, "%lu", value);
+
+                    CLObject str = create_string_object(buf);
+
+                    (stack_ptr-1)->mObjectValue = str;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_FLOAT_TO_STRING_CAST:
+                {
+                    vm_mutex_on();
+
+                    float value = (stack_ptr-1)->mFloatValue;
+
+                    char buf[32];
+                    snprintf(buf, 32, "%f", value);
+
+                    CLObject str = create_string_object(buf);
+
+                    (stack_ptr-1)->mObjectValue = str;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_DOUBLE_TO_STRING_CAST:
+                {
+                    vm_mutex_on();
+
+                    double value = (stack_ptr-1)->mDoubleValue;
+
+                    char buf[32];
+                    snprintf(buf, 32, "%lf", value);
+
+                    CLObject str = create_string_object(buf);
+
+                    (stack_ptr-1)->mObjectValue = str;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_BOOL_TO_STRING_CAST:
+                {
+                    vm_mutex_on();
+
+                    BOOL value = (stack_ptr-1)->mBoolValue;
+
+                    char buf[32];
+                    snprintf(buf, 32, "%d", value);
+
+                    CLObject str = create_string_object(buf);
+
+                    (stack_ptr-1)->mObjectValue = str;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_POINTER_TO_STRING_CAST:
+                {
+                    vm_mutex_on();
+
+                    char* value = (stack_ptr-1)->mPointerValue;
+
+                    char buf[32];
+                    snprintf(buf, 32, "%p", value);
+
+                    CLObject str = create_string_object(buf);
+
+                    (stack_ptr-1)->mObjectValue = str;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CHAR_TO_STRING_CAST:
+                {
+                    vm_mutex_on();
+
+                    wchar_t value = (stack_ptr-1)->mCharValue;
+
+                    char buf[32];
+                    snprintf(buf, 32, "%lc", value);
+
+                    CLObject str = create_string_object(buf);
+
+                    (stack_ptr-1)->mObjectValue = str;
+
+                    vm_mutex_off();
+                }
+                break;
+
             case OP_GET_ARRAY_LENGTH:
                 {
                     vm_mutex_on();

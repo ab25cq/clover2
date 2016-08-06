@@ -3,6 +3,9 @@ class System: final
 {
     def exit(num:int): native static; # throws SystemException;
     def assert(exp:bool): native static;  # throws SystemException;
+    def print(str:String): native static;
+    def println(str:String): native static;
+    def sleep(time:int): native static uint;
 
     def malloc(size:int): native static pointer;
     def calloc(number: int, size: int): native static pointer;
@@ -26,6 +29,11 @@ class String: final
 
     def initialize() {
         self.buffer = new char[1]();
+        self.buffer[0] = '\0';
+    }
+
+    def initialize(buffer:char[]) {
+        self.buffer = buffer;
     }
 
     def chars(index:int):char {
@@ -33,7 +41,7 @@ class String: final
     }
 
     def length():int {
-        return self.buffer.length;
+        return self.buffer.length-1;
     }
 
     def setValue(str: String) {
@@ -42,6 +50,19 @@ class String: final
             self.buffer[i] = str.chars(i);
         }
         self.buffer[str.length()] = '\0';
+    }
+
+    def append(str: String): String {
+        new_buffer:char[] = new char[self.buffer.length + str.length()+1]();
+        for(i:int = 0; i<self.buffer.length; i++) {
+            new_buffer[i] = self.buffer[i];
+        }
+        for(i:int = 0; i<str.length(); i++) {
+            new_buffer[i+self.buffer.length] = str.chars(i);
+        }
+        new_buffer[self.buffer.length + str.length()] = '\0';
+
+        return new String(new_buffer);
     }
 
     def equals(str: String):bool {

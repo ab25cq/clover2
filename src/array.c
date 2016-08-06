@@ -3,15 +3,18 @@
 void array_mark_fun(CLObject self, unsigned char* mark_flg)
 {
     sCLObject* object = CLOBJECT(self);
+    sCLClass* klass = object->mClass;
 
-    int array_num = object->mArrayNum;
+    if(!(klass->mFlags & CLASS_FLAGS_PRIMITIVE)) {
+        int array_num = object->mArrayNum;
 
-    CLVALUE* elements = object->mFields;
+        CLVALUE* elements = object->mFields;
 
-    int i;
-    for(i=0; i<array_num; i++) {
-        mark_object(elements->mObjectValue, mark_flg);
-        elements++;
+        int i;
+        for(i=0; i<array_num; i++) {
+            mark_object(elements->mObjectValue, mark_flg);
+            elements++;
+        }
     }
 }
 

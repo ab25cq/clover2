@@ -3,9 +3,10 @@
 void object_mark_fun(CLObject self, unsigned char* mark_flg)
 {
     sCLObject* object = CLOBJECT(self);
+    sCLClass* klass = object->mClass;
 
     int i;
-    for(i=0; i<object->mNumFields; i++) {
+    for(i=0; i<klass->mNumFields; i++) {
         mark_object(object->mFields[i].mObjectValue, mark_flg);
     }
 }
@@ -14,7 +15,6 @@ BOOL free_object(CLObject self)
 {
     sCLObject* object = CLOBJECT(self);
     sCLClass* klass = object->mClass;
-
 
     if(!call_finalize_method_on_free_object(klass, self)) {
         return FALSE;

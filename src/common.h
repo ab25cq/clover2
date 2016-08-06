@@ -694,6 +694,20 @@ BOOL compile_script(char* fname, char* source);
 #define OP_SHORT_TO_LONG_CAST 7010
 #define OP_INT_TO_LONG_CAST 7011
 
+#define OP_BYTE_TO_STRING_CAST 7012
+#define OP_SHORT_TO_STRING_CAST 7013
+#define OP_INT_TO_STRING_CAST 7014
+#define OP_LONG_TO_STRING_CAST 7015
+#define OP_UBYTE_TO_STRING_CAST 7016
+#define OP_USHORT_TO_STRING_CAST 7017
+#define OP_UINT_TO_STRING_CAST 7018
+#define OP_ULONG_TO_STRING_CAST 7019
+#define OP_FLOAT_TO_STRING_CAST 7020
+#define OP_DOUBLE_TO_STRING_CAST 7021
+#define OP_BOOL_TO_STRING_CAST 7022
+#define OP_POINTER_TO_STRING_CAST 7023
+#define OP_CHAR_TO_STRING_CAST 7024
+
 #define OP_GET_ARRAY_LENGTH 7100
 
 #define OP_CREATE_STRING 8000
@@ -820,6 +834,9 @@ void array_mark_fun(CLObject self, unsigned char* mark_flg);
 
 /// string.c ///
 CLObject create_string_object(char* str);
+CLObject create_string_from_two_strings(CLObject left, CLObject right);
+int get_length_from_string_object(CLObject str);
+CLVALUE* get_str_array_from_string_object(CLObject str);
 
 /// class_system.c ///
 BOOL System_exit(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
@@ -831,6 +848,9 @@ BOOL System_strlen(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_strcpy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_strncpy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_strdup(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_print(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_println(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_sleep(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 #endif
 

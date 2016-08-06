@@ -1,5 +1,4 @@
 #include "common.h"
-
 CLObject create_string_object(char* str)
 {
     /// convert str to wstr ///
@@ -43,4 +42,3 @@ CLObject create_string_object(char* str)
 
     return obj;
 }
-
