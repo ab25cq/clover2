@@ -307,7 +307,7 @@ static BOOL binary_operator(sNodeType* left_type, sNodeType* right_type, int byt
     cast_right_type_to_left_type(left_type, &right_type, info);
 
     if(!operand_posibility(left_type, right_type, strcmp(op_string, "+") == 0 || strcmp(op_string, "-") == 0)) {
-        parser_err_msg(info->pinfo, "Invalid type for operand. The left type is %s. The right type is %s.", CLASS_NAME(left_type->mClass), CLASS_NAME(right_type->mClass));
+        parser_err_msg(info->pinfo, "Invalid type for operand(%s). The left type is %s. The right type is %s.", op_string,CLASS_NAME(left_type->mClass), CLASS_NAME(right_type->mClass));
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy

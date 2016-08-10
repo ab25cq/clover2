@@ -850,6 +850,8 @@ BOOL System_strncpy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_strdup(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_print(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_println(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_printlnToError(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_printToError(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_sleep(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 #endif

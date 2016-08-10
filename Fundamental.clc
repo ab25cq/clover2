@@ -5,6 +5,8 @@ class System: final
     def assert(exp:bool): native static;  # throws SystemException;
     def print(str:String): native static;
     def println(str:String): native static;
+    def printToError(str:String): native static;
+    def printlnToError(str:String): native static;
     def sleep(time:int): native static uint;
 
     def malloc(size:int): native static pointer;
@@ -21,6 +23,11 @@ class System: final
 
 class Clover: final
 {
+    def test(msg: String, expression:bool):static {
+        System.printToError(msg.append("..."));
+        System.assert(expression);
+        System.printlnToError("OK");
+    }
 }
 
 class String: final
@@ -53,21 +60,21 @@ class String: final
     }
 
     def append(str: String): String {
-        new_buffer:char[] = new char[self.buffer.length + str.length()+1]();
-        for(i:int = 0; i<self.buffer.length; i++) {
+        new_buffer:char[] = new char[self.buffer.length + str.length()]();
+        for(i:int = 0; i<self.buffer.length-1; i++) {
             new_buffer[i] = self.buffer[i];
         }
         for(i:int = 0; i<str.length(); i++) {
-            new_buffer[i+self.buffer.length] = str.chars(i);
+            new_buffer[i+self.buffer.length-1] = str.chars(i);
         }
-        new_buffer[self.buffer.length + str.length()] = '\0';
+        new_buffer[self.buffer.length-1 + str.length()] = '\0';
 
         return new String(new_buffer);
     }
 
     def equals(str: String):bool {
-        if(self.buffer.length == str.length()) {
-            for(i:int = 0; i<self.buffer.length; i++) {
+        if(self.buffer.length-1 == str.length()) {
+            for(i:int = 0; i<self.buffer.length-1; i++) {
                 if(self.buffer[i] != str.chars(i)) {
                     return false;
                 }

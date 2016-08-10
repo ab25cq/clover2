@@ -1165,6 +1165,26 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             }
         }
     }
+    else if(*info->p == '(') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        if(!expression(node, info)) {
+            return FALSE;
+        }
+        skip_spaces_and_lf(info);
+
+        if(!expect_next_character(")", info)) {
+            return FALSE;
+        }
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        if(*node == 0) {
+            parser_err_msg(info, "require expression as ( operand");
+            info->err_num++;
+        }
+    }
     else if(*info->p == 0) {
         *node = 0;
         return TRUE;

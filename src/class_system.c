@@ -156,6 +156,61 @@ BOOL System_println(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     return TRUE;
 }
 
+BOOL System_printToError(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* str = lvar;
+    sCLObject* str_data = CLOBJECT(str->mObjectValue);
+
+    CLObject wstr_array_object = str_data->mFields[0].mObjectValue;
+    sCLObject* wstr_array_object_data = CLOBJECT(wstr_array_object);
+
+    int len = wstr_array_object_data->mArrayNum;
+    CLVALUE* wchar_t_array = wstr_array_object_data->mFields;
+
+    wchar_t* wstr = MMALLOC(sizeof(wchar_t)*(len+1));
+
+    int i;
+    for(i=0; i<len; i++) {
+        wstr[i] = wchar_t_array[i].mCharValue;
+    }
+    wstr[i] = '\0';
+
+    fprintf(stderr, "%ls", wstr);
+
+    MFREE(wstr);
+
+    return TRUE;
+}
+
+BOOL System_printlnToError(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* str = lvar;
+    sCLObject* str_data = CLOBJECT(str->mObjectValue);
+
+    CLObject wstr_array_object = str_data->mFields[0].mObjectValue;
+    sCLObject* wstr_array_object_data = CLOBJECT(wstr_array_object);
+
+    int len = wstr_array_object_data->mArrayNum;
+    CLVALUE* wchar_t_array = wstr_array_object_data->mFields;
+
+    wchar_t* wstr = MMALLOC(sizeof(wchar_t)*(len+1));
+
+    int i;
+    for(i=0; i<len; i++) {
+        wstr[i] = wchar_t_array[i].mCharValue;
+    }
+    wstr[i] = '\0';
+
+    fprintf(stderr, "%ls\n", wstr);
+
+    MFREE(wstr);
+
+    return TRUE;
+}
+
+
+
+
 BOOL System_sleep(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* time = lvar;

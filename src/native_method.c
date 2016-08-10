@@ -101,6 +101,8 @@ static sNativeMethod gNativeMethods[] = {
     { "System.strdup(pointer)", System_strdup },
     { "System.print(String)", System_print },
     { "System.println(String)", System_println },
+    { "System.printToError(String)", System_printToError },
+    { "System.printlnToError(String)", System_printlnToError },
     { "System.sleep(int)", System_sleep },
 
     { "", 0 }  // sentinel

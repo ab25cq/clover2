@@ -1,12 +1,8 @@
 
-System.assert("ABC".length() == 3);
+Clover.test("String test1", "ABC".length() == 3);
 
-System.println("<<[".append("ABC]>>"));
-
-/*
 a:String = "ABC";
-System.assert(a.equals("ABC"));
-System.assert(a.equals("DEF"));
-*/
+Clover.test("String test2", a.equals("ABC"));
+Clover.test("String test3", !a.equals("DEF"));
 
 
