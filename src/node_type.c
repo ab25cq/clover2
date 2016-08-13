@@ -131,7 +131,12 @@ BOOL substitution_posibility_with_class_name(sNodeType* left, char* right_class_
 
 BOOL operand_posibility(sNodeType* left, sNodeType* right, BOOL add_or_sub_operand)
 {
-    return left->mClass == right->mClass;
+    if(type_identify_with_class_name(left, "pointer") && add_or_sub_operand) {
+        return type_identify_with_class_name(right, "int");
+    }
+    else {
+        return left->mClass == right->mClass;
+    }
 }
 
 BOOL operand_posibility_with_class_name(sNodeType* left, char* right_class_name, BOOL add_or_sub_operand)

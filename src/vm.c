@@ -1501,7 +1501,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     vm_mutex_on();
 
                     wchar_t left = (stack_ptr-2)->mCharValue;
-                    int right = (stack_ptr-1)->mIntValue;
+                    wchar_t right = (stack_ptr-1)->mCharValue;
 
                     wchar_t result = left + right;
 
