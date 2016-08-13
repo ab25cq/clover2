@@ -107,5 +107,6 @@ test:
 	./cclover2 code/array.cl && ./clover2 code/array.clo
 	./cclover2 code/char.cl && ./clover2 code/char.clo
 	./cclover2 code/hello_world.cl && ./clover2 code/hello_world.clo
+	./cclover2 code/cast.cl && ./clover2 code/cast.clo
 	./cclover2 code/string.cl && ./clover2 code/string.clo
 

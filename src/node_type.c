@@ -131,24 +131,7 @@ BOOL substitution_posibility_with_class_name(sNodeType* left, char* right_class_
 
 BOOL operand_posibility(sNodeType* left, sNodeType* right, BOOL add_or_sub_operand)
 {
-    sCLClass* pointer_class = get_class("pointer");
-
-    MASSERT(pointer_class != NULL);
-
-    sCLClass* char_class = get_class("char");
-
-    MASSERT(char_class != NULL);
-
-    if(add_or_sub_operand && (left->mClass == pointer_class || left->mClass == char_class)) 
-    {
-        sCLClass* int_class = get_class("int");
-        MASSERT(int_class != NULL);
-
-        return right->mClass == int_class;
-    }
-    else {
-        return left->mClass == right->mClass;
-    }
+    return left->mClass == right->mClass;
 }
 
 BOOL operand_posibility_with_class_name(sNodeType* left, char* right_class_name, BOOL add_or_sub_operand)

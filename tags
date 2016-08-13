@@ -11,7 +11,7 @@ BREAK_NUM_MAX	src/common.h	32;"	d
 BUFFER_H	src/buffer.h	2;"	d
 BYTE_CODE_INIT_SIZE	src/code.c	3;"	d	file:
 CC	Makefile	/^CC=clang$/;"	m
-CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -I\/home\/ab25cq\/include -L\/home\/ab25cq\/lib -fPIC -DSYSCONFDIR="\\"${sysconfdir}\/\\"" -DDOCDIR="\\"${docdir}\/\\"" -DDATAROOTDIR="\\"${datarootdir}\/\\"" -I\/usr\/local\/include -L \/usr\/local\/lib -g -DMDEBUG -Werror -Qunused-arguments$/;"	m
+CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -I\/home\/ab25cq\/include -L\/home\/ab25cq\/lib -fPIC -DSYSCONFDIR="\\"${sysconfdir}\/\\"" -DDOCDIR="\\"${docdir}\/\\"" -DDATAROOTDIR="\\"${datarootdir}\/\\"" -I\/usr\/local\/include -L \/usr\/local\/lib -g -DMDEBUG -Qunused-arguments$/;"	m
 CHECKML_BEGIN	src/debug.h	11;"	d
 CHECKML_BEGIN	src/debug.h	38;"	d
 CHECKML_END	src/debug.h	12;"	d
@@ -23,8 +23,8 @@ CLASS_NAME	src/common.h	202;"	d
 CLASS_NAME_MAX	src/common.h	28;"	d
 CLASS_NUM_MAX	src/klass.c	9;"	d	file:
 CLASS_VERSION_MAX	src/common.h	35;"	d
-CLHEAPMEM	src/common.h	800;"	d
-CLOBJECT	src/common.h	825;"	d
+CLHEAPMEM	src/common.h	927;"	d
+CLOBJECT	src/common.h	952;"	d
 CLObject	src/common.h	/^typedef unsigned int CLObject;$/;"	t
 CLVALUE	src/common.h	/^typedef union CLVALUEUnion CLVALUE;$/;"	t	typeref:union:CLVALUEUnion
 CLVALUEUnion	src/common.h	/^union CLVALUEUnion {$/;"	u
@@ -33,7 +33,7 @@ COMPILER_OBJS	Makefile	/^COMPILER_OBJS=src\/compiler.o src\/parser.o src\/node_t
 CONS_str	src/common.h	87;"	d
 DEBUG_H	src/debug.h	2;"	d
 DESTDIR	Makefile	/^DESTDIR=$/;"	m
-DUMMY_ARRAY_SIZE	src/common.h	811;"	d
+DUMMY_ARRAY_SIZE	src/common.h	938;"	d
 ELIF_NUM_MAX	src/common.h	31;"	d
 FALSE	src/macros.h	13;"	d
 FIELD_FLAGS_PRIVATE	src/common.h	157;"	d
@@ -84,22 +84,41 @@ OP_BLE	src/common.h	571;"	d
 OP_BLEEQ	src/common.h	573;"	d
 OP_BMULT	src/common.h	514;"	d
 OP_BNOTEQ	src/common.h	569;"	d
-OP_BOOL_TO_STRING_CAST	src/common.h	707;"	d
+OP_BOOL_TO_STRING_CAST	src/common.h	834;"	d
 OP_BSUB	src/common.h	513;"	d
-OP_BYTE_TO_INT_CAST	src/common.h	690;"	d
-OP_BYTE_TO_LONG_CAST	src/common.h	693;"	d
-OP_BYTE_TO_SHORT_CAST	src/common.h	687;"	d
-OP_BYTE_TO_STRING_CAST	src/common.h	697;"	d
+OP_BYTE_TO_CHAR_CAST	src/common.h	812;"	d
+OP_BYTE_TO_DOUBLE_CAST	src/common.h	791;"	d
+OP_BYTE_TO_FLOAT_CAST	src/common.h	780;"	d
+OP_BYTE_TO_INT_CAST	src/common.h	708;"	d
+OP_BYTE_TO_LONG_CAST	src/common.h	720;"	d
+OP_BYTE_TO_POINTER_CAST	src/common.h	802;"	d
+OP_BYTE_TO_SHORT_CAST	src/common.h	696;"	d
+OP_BYTE_TO_STRING_CAST	src/common.h	824;"	d
+OP_BYTE_TO_UBYTE_CAST	src/common.h	732;"	d
+OP_BYTE_TO_UINT_CAST	src/common.h	756;"	d
+OP_BYTE_TO_ULONG_CAST	src/common.h	768;"	d
+OP_BYTE_TO_USHORT_CAST	src/common.h	744;"	d
 OP_CADD	src/common.h	565;"	d
 OP_CEQ	src/common.h	645;"	d
 OP_CGT	src/common.h	647;"	d
 OP_CGTEQ	src/common.h	649;"	d
-OP_CHAR_TO_STRING_CAST	src/common.h	709;"	d
+OP_CHAR_TO_BYTE_CAST	src/common.h	694;"	d
+OP_CHAR_TO_DOUBLE_CAST	src/common.h	800;"	d
+OP_CHAR_TO_FLOAT_CAST	src/common.h	789;"	d
+OP_CHAR_TO_INT_CAST	src/common.h	718;"	d
+OP_CHAR_TO_LONG_CAST	src/common.h	730;"	d
+OP_CHAR_TO_POINTER_CAST	src/common.h	810;"	d
+OP_CHAR_TO_SHORT_CAST	src/common.h	706;"	d
+OP_CHAR_TO_STRING_CAST	src/common.h	836;"	d
+OP_CHAR_TO_UBYTE_CAST	src/common.h	742;"	d
+OP_CHAR_TO_UINT_CAST	src/common.h	766;"	d
+OP_CHAR_TO_ULONG_CAST	src/common.h	778;"	d
+OP_CHAR_TO_USHORT_CAST	src/common.h	754;"	d
 OP_CLE	src/common.h	648;"	d
 OP_CLEEQ	src/common.h	650;"	d
 OP_CNOTEQ	src/common.h	646;"	d
 OP_COND_JUMP	src/common.h	494;"	d
-OP_CREATE_STRING	src/common.h	713;"	d
+OP_CREATE_STRING	src/common.h	840;"	d
 OP_CSUB	src/common.h	566;"	d
 OP_DADD	src/common.h	557;"	d
 OP_DDIV	src/common.h	560;"	d
@@ -110,7 +129,17 @@ OP_DLE	src/common.h	634;"	d
 OP_DLEEQ	src/common.h	636;"	d
 OP_DMULT	src/common.h	559;"	d
 OP_DNOTEQ	src/common.h	632;"	d
-OP_DOUBLE_TO_STRING_CAST	src/common.h	706;"	d
+OP_DOUBLE_TO_BYTE_CAST	src/common.h	692;"	d
+OP_DOUBLE_TO_CHAR_CAST	src/common.h	821;"	d
+OP_DOUBLE_TO_FLOAT_CAST	src/common.h	788;"	d
+OP_DOUBLE_TO_INT_CAST	src/common.h	716;"	d
+OP_DOUBLE_TO_LONG_CAST	src/common.h	728;"	d
+OP_DOUBLE_TO_SHORT_CAST	src/common.h	704;"	d
+OP_DOUBLE_TO_STRING_CAST	src/common.h	833;"	d
+OP_DOUBLE_TO_UBYTE_CAST	src/common.h	740;"	d
+OP_DOUBLE_TO_UINT_CAST	src/common.h	764;"	d
+OP_DOUBLE_TO_ULONG_CAST	src/common.h	776;"	d
+OP_DOUBLE_TO_USHORT_CAST	src/common.h	752;"	d
 OP_DSUB	src/common.h	558;"	d
 OP_FADD	src/common.h	552;"	d
 OP_FDIV	src/common.h	555;"	d
@@ -119,11 +148,21 @@ OP_FGT	src/common.h	626;"	d
 OP_FGTEQ	src/common.h	628;"	d
 OP_FLE	src/common.h	627;"	d
 OP_FLEEQ	src/common.h	629;"	d
-OP_FLOAT_TO_STRING_CAST	src/common.h	705;"	d
+OP_FLOAT_TO_BYTE_CAST	src/common.h	691;"	d
+OP_FLOAT_TO_CHAR_CAST	src/common.h	820;"	d
+OP_FLOAT_TO_DOUBLE_CAST	src/common.h	799;"	d
+OP_FLOAT_TO_INT_CAST	src/common.h	715;"	d
+OP_FLOAT_TO_LONG_CAST	src/common.h	727;"	d
+OP_FLOAT_TO_SHORT_CAST	src/common.h	703;"	d
+OP_FLOAT_TO_STRING_CAST	src/common.h	832;"	d
+OP_FLOAT_TO_UBYTE_CAST	src/common.h	739;"	d
+OP_FLOAT_TO_UINT_CAST	src/common.h	763;"	d
+OP_FLOAT_TO_ULONG_CAST	src/common.h	775;"	d
+OP_FLOAT_TO_USHORT_CAST	src/common.h	751;"	d
 OP_FMULT	src/common.h	554;"	d
 OP_FNOTEQ	src/common.h	625;"	d
 OP_FSUB	src/common.h	553;"	d
-OP_GET_ARRAY_LENGTH	src/common.h	711;"	d
+OP_GET_ARRAY_LENGTH	src/common.h	838;"	d
 OP_GOTO	src/common.h	495;"	d
 OP_IADD	src/common.h	532;"	d
 OP_IDIV	src/common.h	535;"	d
@@ -134,10 +173,18 @@ OP_ILE	src/common.h	599;"	d
 OP_ILEEQ	src/common.h	601;"	d
 OP_IMULT	src/common.h	534;"	d
 OP_INOTEQ	src/common.h	597;"	d
-OP_INT_TO_BYTE_CAST	src/common.h	685;"	d
-OP_INT_TO_LONG_CAST	src/common.h	695;"	d
-OP_INT_TO_SHORT_CAST	src/common.h	688;"	d
-OP_INT_TO_STRING_CAST	src/common.h	699;"	d
+OP_INT_TO_BYTE_CAST	src/common.h	687;"	d
+OP_INT_TO_CHAR_CAST	src/common.h	816;"	d
+OP_INT_TO_DOUBLE_CAST	src/common.h	795;"	d
+OP_INT_TO_FLOAT_CAST	src/common.h	784;"	d
+OP_INT_TO_LONG_CAST	src/common.h	724;"	d
+OP_INT_TO_POINTER_CAST	src/common.h	806;"	d
+OP_INT_TO_SHORT_CAST	src/common.h	699;"	d
+OP_INT_TO_STRING_CAST	src/common.h	826;"	d
+OP_INT_TO_UBYTE_CAST	src/common.h	735;"	d
+OP_INT_TO_UINT_CAST	src/common.h	760;"	d
+OP_INT_TO_ULONG_CAST	src/common.h	772;"	d
+OP_INT_TO_USHORT_CAST	src/common.h	747;"	d
 OP_INVOKE_METHOD	src/common.h	656;"	d
 OP_ISUB	src/common.h	533;"	d
 OP_LADD	src/common.h	542;"	d
@@ -172,10 +219,18 @@ OP_LOAD_VALUE_FROM_UINT_ADDRESS	src/common.h	676;"	d
 OP_LOAD_VALUE_FROM_ULONG_ADDRESS	src/common.h	682;"	d
 OP_LOAD_VALUE_FROM_USHORT_ADDRESS	src/common.h	680;"	d
 OP_LOGICAL_DENIAL	src/common.h	654;"	d
-OP_LONG_TO_BYTE_CAST	src/common.h	686;"	d
-OP_LONG_TO_INT_CAST	src/common.h	692;"	d
-OP_LONG_TO_SHORT_CAST	src/common.h	689;"	d
-OP_LONG_TO_STRING_CAST	src/common.h	700;"	d
+OP_LONG_TO_BYTE_CAST	src/common.h	689;"	d
+OP_LONG_TO_CHAR_CAST	src/common.h	818;"	d
+OP_LONG_TO_DOUBLE_CAST	src/common.h	797;"	d
+OP_LONG_TO_FLOAT_CAST	src/common.h	786;"	d
+OP_LONG_TO_INT_CAST	src/common.h	713;"	d
+OP_LONG_TO_POINTER_CAST	src/common.h	808;"	d
+OP_LONG_TO_SHORT_CAST	src/common.h	701;"	d
+OP_LONG_TO_STRING_CAST	src/common.h	827;"	d
+OP_LONG_TO_UBYTE_CAST	src/common.h	737;"	d
+OP_LONG_TO_UINT_CAST	src/common.h	761;"	d
+OP_LONG_TO_ULONG_CAST	src/common.h	774;"	d
+OP_LONG_TO_USHORT_CAST	src/common.h	749;"	d
 OP_LSUB	src/common.h	543;"	d
 OP_NEW	src/common.h	658;"	d
 OP_OROR	src/common.h	653;"	d
@@ -186,7 +241,16 @@ OP_PGTEQ	src/common.h	642;"	d
 OP_PLE	src/common.h	641;"	d
 OP_PLEEQ	src/common.h	643;"	d
 OP_PNOTEQ	src/common.h	639;"	d
-OP_POINTER_TO_STRING_CAST	src/common.h	708;"	d
+OP_POINTER_TO_BYTE_CAST	src/common.h	693;"	d
+OP_POINTER_TO_CHAR_CAST	src/common.h	822;"	d
+OP_POINTER_TO_INT_CAST	src/common.h	717;"	d
+OP_POINTER_TO_LONG_CAST	src/common.h	729;"	d
+OP_POINTER_TO_SHORT_CAST	src/common.h	705;"	d
+OP_POINTER_TO_STRING_CAST	src/common.h	835;"	d
+OP_POINTER_TO_UBYTE_CAST	src/common.h	741;"	d
+OP_POINTER_TO_UINT_CAST	src/common.h	765;"	d
+OP_POINTER_TO_ULONG_CAST	src/common.h	777;"	d
+OP_POINTER_TO_USHORT_CAST	src/common.h	753;"	d
 OP_POP	src/common.h	491;"	d
 OP_POP_N	src/common.h	492;"	d
 OP_PSUB	src/common.h	563;"	d
@@ -197,10 +261,18 @@ OP_SDIV	src/common.h	525;"	d
 OP_SEQ	src/common.h	582;"	d
 OP_SGT	src/common.h	584;"	d
 OP_SGTEQ	src/common.h	586;"	d
-OP_SHORT_TO_BYTE_CAST	src/common.h	684;"	d
-OP_SHORT_TO_INT_CAST	src/common.h	691;"	d
-OP_SHORT_TO_LONG_CAST	src/common.h	694;"	d
-OP_SHORT_TO_STRING_CAST	src/common.h	698;"	d
+OP_SHORT_TO_BYTE_CAST	src/common.h	685;"	d
+OP_SHORT_TO_CHAR_CAST	src/common.h	814;"	d
+OP_SHORT_TO_DOUBLE_CAST	src/common.h	793;"	d
+OP_SHORT_TO_FLOAT_CAST	src/common.h	782;"	d
+OP_SHORT_TO_INT_CAST	src/common.h	710;"	d
+OP_SHORT_TO_LONG_CAST	src/common.h	722;"	d
+OP_SHORT_TO_POINTER_CAST	src/common.h	804;"	d
+OP_SHORT_TO_STRING_CAST	src/common.h	825;"	d
+OP_SHORT_TO_UBYTE_CAST	src/common.h	733;"	d
+OP_SHORT_TO_UINT_CAST	src/common.h	758;"	d
+OP_SHORT_TO_ULONG_CAST	src/common.h	770;"	d
+OP_SHORT_TO_USHORT_CAST	src/common.h	746;"	d
 OP_SLE	src/common.h	585;"	d
 OP_SLEEQ	src/common.h	587;"	d
 OP_SMULT	src/common.h	524;"	d
@@ -228,7 +300,18 @@ OP_UBLEEQ	src/common.h	580;"	d
 OP_UBMULT	src/common.h	519;"	d
 OP_UBNOTEQ	src/common.h	576;"	d
 OP_UBSUB	src/common.h	518;"	d
-OP_UBYTE_TO_STRING_CAST	src/common.h	701;"	d
+OP_UBYTE_TO_BYTE_CAST	src/common.h	684;"	d
+OP_UBYTE_TO_CHAR_CAST	src/common.h	813;"	d
+OP_UBYTE_TO_DOUBLE_CAST	src/common.h	792;"	d
+OP_UBYTE_TO_FLOAT_CAST	src/common.h	781;"	d
+OP_UBYTE_TO_INT_CAST	src/common.h	709;"	d
+OP_UBYTE_TO_LONG_CAST	src/common.h	721;"	d
+OP_UBYTE_TO_POINTER_CAST	src/common.h	803;"	d
+OP_UBYTE_TO_SHORT_CAST	src/common.h	697;"	d
+OP_UBYTE_TO_STRING_CAST	src/common.h	828;"	d
+OP_UBYTE_TO_UINT_CAST	src/common.h	757;"	d
+OP_UBYTE_TO_ULONG_CAST	src/common.h	769;"	d
+OP_UBYTE_TO_USHORT_CAST	src/common.h	745;"	d
 OP_UIADD	src/common.h	538;"	d
 OP_UIDIV	src/common.h	540;"	d
 OP_UIEQ	src/common.h	603;"	d
@@ -238,7 +321,18 @@ OP_UILE	src/common.h	606;"	d
 OP_UILEEQ	src/common.h	608;"	d
 OP_UIMULT	src/common.h	539;"	d
 OP_UINOTEQ	src/common.h	604;"	d
-OP_UINT_TO_STRING_CAST	src/common.h	703;"	d
+OP_UINT_TO_BYTE_CAST	src/common.h	688;"	d
+OP_UINT_TO_CHAR_CAST	src/common.h	817;"	d
+OP_UINT_TO_DOUBLE_CAST	src/common.h	796;"	d
+OP_UINT_TO_FLOAT_CAST	src/common.h	785;"	d
+OP_UINT_TO_INT_CAST	src/common.h	712;"	d
+OP_UINT_TO_LONG_CAST	src/common.h	725;"	d
+OP_UINT_TO_POINTER_CAST	src/common.h	807;"	d
+OP_UINT_TO_SHORT_CAST	src/common.h	700;"	d
+OP_UINT_TO_STRING_CAST	src/common.h	830;"	d
+OP_UINT_TO_UBYTE_CAST	src/common.h	736;"	d
+OP_UINT_TO_ULONG_CAST	src/common.h	773;"	d
+OP_UINT_TO_USHORT_CAST	src/common.h	748;"	d
 OP_UISUB	src/common.h	537;"	d
 OP_ULADD	src/common.h	547;"	d
 OP_ULDIV	src/common.h	550;"	d
@@ -249,14 +343,36 @@ OP_ULLE	src/common.h	620;"	d
 OP_ULLEEQ	src/common.h	622;"	d
 OP_ULMULT	src/common.h	549;"	d
 OP_ULNOTEQ	src/common.h	618;"	d
-OP_ULONG_TO_STRING_CAST	src/common.h	704;"	d
+OP_ULONG_TO_BYTE_CAST	src/common.h	690;"	d
+OP_ULONG_TO_CHAR_CAST	src/common.h	819;"	d
+OP_ULONG_TO_DOUBLE_CAST	src/common.h	798;"	d
+OP_ULONG_TO_FLOAT_CAST	src/common.h	787;"	d
+OP_ULONG_TO_INT_CAST	src/common.h	714;"	d
+OP_ULONG_TO_LONG_CAST	src/common.h	726;"	d
+OP_ULONG_TO_POINTER_CAST	src/common.h	809;"	d
+OP_ULONG_TO_SHORT_CAST	src/common.h	702;"	d
+OP_ULONG_TO_STRING_CAST	src/common.h	831;"	d
+OP_ULONG_TO_UBYTE_CAST	src/common.h	738;"	d
+OP_ULONG_TO_UINT_CAST	src/common.h	762;"	d
+OP_ULONG_TO_USHORT_CAST	src/common.h	750;"	d
 OP_ULSUB	src/common.h	548;"	d
 OP_USADD	src/common.h	527;"	d
 OP_USDIV	src/common.h	530;"	d
 OP_USEQ	src/common.h	589;"	d
 OP_USGT	src/common.h	591;"	d
 OP_USGTEQ	src/common.h	593;"	d
-OP_USHORT_TO_STRING_CAST	src/common.h	702;"	d
+OP_USHORT_TO_BYTE_CAST	src/common.h	686;"	d
+OP_USHORT_TO_CHAR_CAST	src/common.h	815;"	d
+OP_USHORT_TO_DOUBLE_CAST	src/common.h	794;"	d
+OP_USHORT_TO_FLOAT_CAST	src/common.h	783;"	d
+OP_USHORT_TO_INT_CAST	src/common.h	711;"	d
+OP_USHORT_TO_LONG_CAST	src/common.h	723;"	d
+OP_USHORT_TO_POINTER_CAST	src/common.h	805;"	d
+OP_USHORT_TO_SHORT_CAST	src/common.h	698;"	d
+OP_USHORT_TO_STRING_CAST	src/common.h	829;"	d
+OP_USHORT_TO_UBYTE_CAST	src/common.h	734;"	d
+OP_USHORT_TO_UINT_CAST	src/common.h	759;"	d
+OP_USHORT_TO_ULONG_CAST	src/common.h	771;"	d
 OP_USLE	src/common.h	592;"	d
 OP_USLEEQ	src/common.h	594;"	d
 OP_USMULT	src/common.h	529;"	d
@@ -264,14 +380,14 @@ OP_USNOTEQ	src/common.h	590;"	d
 OP_USSUB	src/common.h	528;"	d
 OS	Makefile	/^OS=LINUX$/;"	m
 PARAMS_MAX	src/common.h	33;"	d
-PARSE_PHASE_ADD_GENERICS_TYPES	src/common.h	726;"	d
-PARSE_PHASE_ADD_METHODS_AND_FIELDS	src/common.h	727;"	d
-PARSE_PHASE_ADD_SUPER_CLASSES	src/common.h	724;"	d
-PARSE_PHASE_ALLOC_CLASSES	src/common.h	723;"	d
-PARSE_PHASE_CALCULATE_SUPER_CLASSES	src/common.h	725;"	d
-PARSE_PHASE_COMPILE_PARAM_INITIALIZER	src/common.h	728;"	d
-PARSE_PHASE_DO_COMPILE_CODE	src/common.h	729;"	d
-PARSE_PHASE_MAX	src/common.h	730;"	d
+PARSE_PHASE_ADD_GENERICS_TYPES	src/common.h	853;"	d
+PARSE_PHASE_ADD_METHODS_AND_FIELDS	src/common.h	854;"	d
+PARSE_PHASE_ADD_SUPER_CLASSES	src/common.h	851;"	d
+PARSE_PHASE_ALLOC_CLASSES	src/common.h	850;"	d
+PARSE_PHASE_CALCULATE_SUPER_CLASSES	src/common.h	852;"	d
+PARSE_PHASE_COMPILE_PARAM_INITIALIZER	src/common.h	855;"	d
+PARSE_PHASE_DO_COMPILE_CODE	src/common.h	856;"	d
+PARSE_PHASE_MAX	src/common.h	857;"	d
 SO_VERSION	Makefile	/^SO_VERSION=1.0.0$/;"	m
 System_assert	src/class_system.c	/^BOOL System_assert(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_calloc	src/class_system.c	/^BOOL System_calloc(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
@@ -356,10 +472,18 @@ break_points	src/common.h	/^    int* break_points;$/;"	m	struct:sCompileInfoStru
 call_finalize_method_on_free_object	src/vm.c	/^BOOL call_finalize_method_on_free_object(sCLClass* klass, CLObject self)$/;"	f
 cast_right_type_to_String	src/node.c	/^static void cast_right_type_to_String(sNodeType** right_type, sCompileInfo* info)$/;"	f	file:
 cast_right_type_to_byte	src/node.c	/^static void cast_right_type_to_byte(sNodeType** right_type, sCompileInfo* info)$/;"	f	file:
+cast_right_type_to_char	src/node.c	/^void cast_right_type_to_char(sNodeType** right_type, sCompileInfo* info)$/;"	f
+cast_right_type_to_double	src/node.c	/^void cast_right_type_to_double(sNodeType** right_type, sCompileInfo* info)$/;"	f
+cast_right_type_to_float	src/node.c	/^void cast_right_type_to_float(sNodeType** right_type, sCompileInfo* info)$/;"	f
 cast_right_type_to_int	src/node.c	/^static void cast_right_type_to_int(sNodeType** right_type, sCompileInfo* info)$/;"	f	file:
 cast_right_type_to_left_type	src/node.c	/^static void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, sCompileInfo* info)$/;"	f	file:
 cast_right_type_to_long	src/node.c	/^static void cast_right_type_to_long(sNodeType** right_type, sCompileInfo* info)$/;"	f	file:
+cast_right_type_to_pointer	src/node.c	/^void cast_right_type_to_pointer(sNodeType** right_type, sCompileInfo* info)$/;"	f
 cast_right_type_to_short	src/node.c	/^static void cast_right_type_to_short(sNodeType** right_type, sCompileInfo* info)$/;"	f	file:
+cast_right_type_to_ubyte	src/node.c	/^static void cast_right_type_to_ubyte(sNodeType** right_type, sCompileInfo* info)$/;"	f	file:
+cast_right_type_to_uint	src/node.c	/^static void cast_right_type_to_uint(sNodeType** right_type, sCompileInfo* info)$/;"	f	file:
+cast_right_type_to_ulong	src/node.c	/^static void cast_right_type_to_ulong(sNodeType** right_type, sCompileInfo* info)$/;"	f	file:
+cast_right_type_to_ushort	src/node.c	/^static void cast_right_type_to_ushort(sNodeType** right_type, sCompileInfo* info)$/;"	f	file:
 check_method_params	src/klass_compile_time.c	/^static BOOL check_method_params(sCLMethod* method, sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, sNodeType* generics_type)$/;"	f	file:
 check_node_is_variable	src/node.c	/^BOOL check_node_is_variable(unsigned int node)$/;"	f
 class_compiler	src/compiler.c	/^static BOOL class_compiler(char* fname)$/;"	f	file:

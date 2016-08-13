@@ -4,9 +4,8 @@
 #include <string.h>
 
 int main() {
-    int a = 123;
-
-    printf("%d", a += 4);
+    unsigned char a = -1;
+    printf("%u", a);
 
     exit(0);
 }

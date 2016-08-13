@@ -164,7 +164,7 @@ fi
 
 if test $DEBUGGING = 1
 then
-    CFLAGS="$CFLAGS -g -DMDEBUG -Werror"
+    CFLAGS="$CFLAGS -g -DMDEBUG"
 fi
 
 if test $LOGGING = 1
