@@ -109,4 +109,5 @@ test:
 	./cclover2 code/hello_world.cl && ./clover2 code/hello_world.clo
 	./cclover2 code/cast.cl && ./clover2 code/cast.clo
 	./cclover2 code/string.cl && ./clover2 code/string.clo
+	./cclover2 -class code/try.clc code/try.cl && ./clover2 code/try.clo
 

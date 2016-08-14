@@ -1121,11 +1121,13 @@ static void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right
 
 static BOOL binary_operator(sNodeType* left_type, sNodeType* right_type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, int float_operand, int double_operand, int pointer_operand, int null_operand, int char_operand, int bool_operand, char* op_string, sCompileInfo* info)
 {
-    if(!(type_identify_with_class_name(left_type, "pointer") && type_identify_with_class_name(right_type, "int"))) {
+    if(!(type_identify_with_class_name(left_type, "pointer") && type_identify_with_class_name(right_type, "int"))) 
+    {
         cast_right_type_to_left_type(left_type, &right_type, info);
     }
 
-    if(!operand_posibility(left_type, right_type, strcmp(op_string, "+") == 0 || strcmp(op_string, "-") == 0)) {
+    if(!operand_posibility(left_type, right_type, strcmp(op_string, "+") == 0 || strcmp(op_string, "-") == 0)) 
+    {
         parser_err_msg(info->pinfo, "Invalid type for operand(%s). The left type is %s. The right type is %s.", op_string,CLASS_NAME(left_type->mClass), CLASS_NAME(right_type->mClass));
         info->err_num++;
 

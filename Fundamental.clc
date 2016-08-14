@@ -43,6 +43,10 @@ class String: final
         self.buffer = buffer;
     }
 
+    def initialize(str:String) {
+        self.setValue(str);
+    }
+
     def chars(index:int):char {
         return self.buffer[index];
     }
@@ -59,6 +63,10 @@ class String: final
         self.buffer[str.length()] = '\0';
     }
 
+    def setValue(buffer:char[]) {
+        self.buffer = buffer;
+    }
+
     def append(str: String): String {
         new_buffer:char[] = new char[self.buffer.length + str.length()]();
         for(i:int = 0; i<self.buffer.length-1; i++) {
@@ -69,7 +77,9 @@ class String: final
         }
         new_buffer[self.buffer.length-1 + str.length()] = '\0';
 
-        return new String(new_buffer);
+        self.setValue(new_buffer);
+
+        return self;
     }
 
     def equals(str: String):bool {
