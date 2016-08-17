@@ -191,3 +191,7 @@ BOOL solve_generics_types_for_node_type(sNodeType* node_type, ALLOC sNodeType** 
     return TRUE;
 }
 
+BOOL is_exception_type(sNodeType* exception_type)
+{
+    return substitution_posibility_with_class_name(exception_type, "SystemException") || substitution_posibility_with_class_name(exception_type, "Exception");
+}

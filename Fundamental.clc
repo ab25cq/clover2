@@ -107,3 +107,12 @@ class Exception
     }
 }
 
+class SystemException
+{
+    message:String;
+
+    def initialize(message:String) {
+        self.message = message;
+    }
+}
+

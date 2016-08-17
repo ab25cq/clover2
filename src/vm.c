@@ -50,6 +50,10 @@ static void show_inst(unsigned inst)
             puts("OP_RETURN");
             break;
 
+        case OP_THROW :
+            puts("OP_THROW");
+            break;
+
         case OP_STORE :
             puts("OP_STORE");
             break;
@@ -440,6 +444,8 @@ sCLClass* get_class_with_load_and_initialize(char* class_name)
     return result;
 }
 
+#pragma clang diagnostic ignored "-Wint-to-pointer-cast"
+
 BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sVMInfo* info)
 {
     register char* pc = code->mCodes;
@@ -517,6 +523,14 @@ show_inst(inst);
                 break;
 
             case OP_RETURN:
+                *stack = *(stack_ptr-1);
+                remove_stack_to_stack_list(stack);
+#ifdef VM_DEBUG
+show_stack(stack, stack_ptr, lvar, var_num);
+#endif
+                return TRUE;
+
+            case OP_THROW:
                 *stack = *(stack_ptr-1);
                 remove_stack_to_stack_list(stack);
 #ifdef VM_DEBUG

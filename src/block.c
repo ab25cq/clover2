@@ -30,7 +30,7 @@ static void append_node_to_node_block(sNodeBlock* node_block, unsigned int node)
     node_block->mNumNodes++;
 }
 
-BOOL parse_normal_block(ALLOC sNodeBlock** node_block, sParserInfo* info)
+BOOL parse_normal_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* new_table)
 {
     expect_next_character_with_one_forward("{", info);
 
@@ -44,7 +44,12 @@ BOOL parse_normal_block(ALLOC sNodeBlock** node_block, sParserInfo* info)
     }
 
     sVarTable* old_vtable = info->lv_table;
-    info->lv_table = init_block_vtable(old_vtable);
+    if(new_table) {
+        info->lv_table = new_table;
+    }
+    else {
+        info->lv_table = init_block_vtable(old_vtable);
+    }
 
     while(1) {
         unsigned int node = 0;

@@ -46,6 +46,15 @@ void free_nodes()
                     }
                     break;
 
+                case kNodeTypeTry:
+                    if(gNodes[i].uValue.sTry.mTryNodeBlock) {
+                        sNodeBlock_free(gNodes[i].uValue.sTry.mTryNodeBlock);
+                    }
+                    if(gNodes[i].uValue.sTry.mCatchNodeBlock) {
+                        sNodeBlock_free(gNodes[i].uValue.sTry.mCatchNodeBlock);
+                    }
+                    break;
+
                 case kNodeTypeFor:
                     if(gNodes[i].uValue.sFor.mForNodeBlock) {
                         sNodeBlock_free(gNodes[i].uValue.sFor.mForNodeBlock);
@@ -2535,6 +2544,86 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_throw_expression(unsigned int expression_node)
+{
+    unsigned node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeThrow;
+
+    gNodes[node].mLeft = expression_node;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    gNodes[node].mType = NULL;
+
+    return node;
+}
+
+static BOOL compile_throw_expression(unsigned int node, sCompileInfo* info)
+{
+    /// compile expression ///
+    unsigned int expression_node = gNodes[node].mLeft;
+
+    if(expression_node != 0) {
+        if(!compile(expression_node, info)) {
+            return FALSE;
+        }
+    }
+
+    if(info->method == NULL) {
+        parser_err_msg(info->pinfo, "Throw expressioin should be in a method definition");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    sNodeType* exception_type = info->type;
+
+    if(!is_exception_type(exception_type))
+    {
+        parser_err_msg(info->pinfo, "Invalid type of exception value");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    append_opecode_to_code(info->code, OP_THROW, info->no_output);
+
+    info->stack_num = 0;   // no pop 
+
+    info->type = create_node_type_with_class_name("Null");
+    
+    return TRUE;
+}
+
+unsigned int sNodeTree_try_expression(MANAGED sNodeBlock* try_node_block, MANAGED sNodeBlock* catch_node_block)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeTry;
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    gNodes[node].mType = NULL;
+
+    gNodes[node].uValue.sTry.mTryNodeBlock = MANAGED try_node_block;
+    gNodes[node].uValue.sTry.mCatchNodeBlock = MANAGED catch_node_block;
+
+    return node;
+}
+
+static BOOL compile_try_expression(unsigned int node, sCompileInfo* info)
+{
+       
+    return TRUE;
+}
+
 unsigned int sNodeTree_create_fields(char* name, unsigned int left_node)
 {
     unsigned int node = alloc_node();
@@ -4670,6 +4759,10 @@ void show_node(unsigned int node)
             puts("return");
             break;
 
+        case kNodeTypeThrow:
+            puts("throw");
+            break;
+
         case kNodeTypeLoadField:
             puts("load field");
             break;
@@ -4728,6 +4821,10 @@ void show_node(unsigned int node)
 
         case kNodeTypeString:
             puts("string");
+            break;
+
+        case kNodeTypeTry:
+            puts("try");
             break;
 
         case kNodeTypeLoadArrayElement:
@@ -4875,6 +4972,12 @@ BOOL compile(unsigned int node, sCompileInfo* info)
             }
             break;
 
+        case kNodeTypeThrow:
+            if(!compile_throw_expression(node, info)) {
+                return FALSE;
+            }
+            break;
+
         case kNodeTypeLoadField:
             if(!compile_load_field(node, info)) {
                 return FALSE;
@@ -4967,6 +5070,12 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeString:
             if(!compile_string_value(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeTry:
+            if(!compile_try_expression(node, info)) {
                 return FALSE;
             }
             break;

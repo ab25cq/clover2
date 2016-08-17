@@ -653,6 +653,7 @@ static void load_fundamental_classes()
     (void)load_class("Clover");
     (void)load_class("String");
     (void)load_class("Exception");
+    (void)load_class("SystemException");
 }
 
 void class_init()

@@ -272,7 +272,7 @@ static BOOL if_expression(unsigned int* node, sParserInfo* info)
     expect_next_character_with_one_forward(")", info);
 
     sNodeBlock* if_node_block = NULL;
-    if(!parse_normal_block(ALLOC &if_node_block, info)) {
+    if(!parse_normal_block(ALLOC &if_node_block, info, NULL)) {
         return FALSE;
     }
 
@@ -301,7 +301,7 @@ static BOOL if_expression(unsigned int* node, sParserInfo* info)
         }
 
         if(strcmp(buf, "else") == 0) {
-            if(!parse_normal_block(ALLOC &else_node_block, info)) {
+            if(!parse_normal_block(ALLOC &else_node_block, info, NULL)) {
                 return FALSE;
             }
             break;
@@ -322,7 +322,7 @@ static BOOL if_expression(unsigned int* node, sParserInfo* info)
 
             expect_next_character_with_one_forward(")", info);
 
-            if(!parse_normal_block(ALLOC &elif_node_blocks[elif_num], info)) {
+            if(!parse_normal_block(ALLOC &elif_node_blocks[elif_num], info, NULL)) {
                 return FALSE;
             }
 
@@ -364,7 +364,7 @@ static BOOL while_expression(unsigned int* node, sParserInfo* info)
     expect_next_character_with_one_forward(")", info);
 
     sNodeBlock* while_node_block = NULL;
-    if(!parse_normal_block(ALLOC &while_node_block, info)) {
+    if(!parse_normal_block(ALLOC &while_node_block, info, NULL)) {
         return FALSE;
     }
 
@@ -420,7 +420,7 @@ static BOOL for_expression(unsigned int* node, sParserInfo* info)
     expect_next_character_with_one_forward(")", info);
 
     sNodeBlock* for_node_block = NULL;
-    if(!parse_normal_block(ALLOC &for_node_block, info)) {
+    if(!parse_normal_block(ALLOC &for_node_block, info, NULL)) {
         return FALSE;
     }
 
@@ -469,6 +469,82 @@ static BOOL new_expression(unsigned int* node, sParserInfo* info)
     }
 
     *node = sNodeTree_create_new_operator(node_type, params, num_params, array_num);
+
+    return TRUE;
+}
+
+static BOOL throw_expression(unsigned int* node, sParserInfo* info)
+{
+    /// expression ///
+    unsigned int expression_node = 0;
+    if(!expression(&expression_node, info)) {
+        return FALSE;
+    }
+
+    *node = sNodeTree_create_throw_expression(expression_node);
+
+    return TRUE;
+}
+
+static BOOL expect_next_word(char* word, sParserInfo* info)
+{
+    char buf[32];
+
+    if(!parse_word(buf, 32, info, TRUE)) {
+        return FALSE;
+    }
+
+    if(strcmp(buf, word) != 0) {
+        parser_err_msg(info, "Expected next word is %s\n", word);
+        info->err_num++;
+    }
+
+    return TRUE;
+}
+
+static BOOL try_expression(unsigned int* node, sParserInfo* info)
+{
+    /// try ///
+    sNodeBlock* try_node_block = NULL;
+    if(!parse_normal_block(ALLOC &try_node_block, info, NULL)) {
+        return FALSE;
+    }
+
+    /// catch ///
+    expect_next_word("catch", info);
+
+    expect_next_character_with_one_forward("(", info);
+
+    sParserParam params[PARAMS_MAX];
+    int num_params = 0;
+
+    /// parse_params ///
+    if(!parse_params(params, &num_params, info)) {
+        return FALSE;
+    }
+
+    if(num_params != 1 || !is_exception_type(params[0].mType)) {
+        parser_err_msg(info, "Require the type of a catch param should be a exception type");
+        info->err_num++;
+    }
+
+    sVarTable* new_table = init_block_vtable(info->lv_table);
+
+    int i;
+    for(i=0; i<num_params; i++) {
+        sParserParam* param = params + i;
+
+        if(!add_variable_to_table(new_table, param->mName, param->mType)) {
+            return FALSE;
+        }
+    }
+
+    sNodeBlock* catch_node_block = NULL;
+    if(!parse_normal_block(ALLOC &catch_node_block, info, new_table)) {
+        return FALSE;
+    }
+
+    *node = sNodeTree_try_expression(MANAGED try_node_block, MANAGED catch_node_block);
 
     return TRUE;
 }
@@ -970,6 +1046,16 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         }
         else if(strcmp(buf, "null") == 0) {
             *node = sNodeTree_null_expression();
+        }
+        else if(strcmp(buf, "throw") == 0) {
+            if(!throw_expression(node, info)) {
+                return FALSE;
+            }
+        }
+        else if(strcmp(buf, "try") == 0) {
+            if(!try_expression(node, info)) {
+                return FALSE;
+            }
         }
         else if(strcmp(buf, "return") == 0) {
             if(!return_expression(node, info)) {

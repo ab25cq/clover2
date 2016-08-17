@@ -1,6 +1,6 @@
 
 class TryTest {
     def method1(): static throws Exception {
-        throws new Exception("ERRROR");
+        throw new Exception("ERRROR");
     }
 }

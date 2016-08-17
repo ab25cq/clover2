@@ -246,6 +246,7 @@ sNodeType* alloc_node_type();
 sNodeType* clone_node_type(sNodeType* node_type);
 sNodeType* create_node_type_with_class_name(char* class_name);
 sNodeType* create_node_type_from_cl_type(sCLType* cl_type, sCLClass* klass);
+BOOL is_exception_type(sNodeType* exception_type);
 
 BOOL substitution_posibility(sNodeType* left, sNodeType* right);
 BOOL substitution_posibility_with_class_name(sNodeType* left, char* right_class_name);
@@ -334,12 +335,12 @@ struct sNodeBlockStruct
 typedef struct sNodeBlockStruct sNodeBlock;
 
 void sNodeBlock_free(sNodeBlock* block);
-BOOL parse_normal_block(ALLOC sNodeBlock** node_block, sParserInfo* info);
+BOOL parse_normal_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* new_table);
 struct sCompileInfoStruct;
 BOOL compile_normal_block(sNodeBlock* block, struct sCompileInfoStruct* info);
 
 /// node.c ///
-enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeUByteValue, kNodeTypeShortValue, kNodeTypeUShortValue, kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand, kNodeTypeIncrementWithValueOperand, kNodeTypeDecrementWithValueOperand, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand, kNodeTypeLoadArrayElement, kNodeTypeStoreArrayElement, kNodeTypeChar, kNodeTypeString };
+enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeUByteValue, kNodeTypeShortValue, kNodeTypeUShortValue, kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand, kNodeTypeIncrementWithValueOperand, kNodeTypeDecrementWithValueOperand, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand, kNodeTypeLoadArrayElement, kNodeTypeStoreArrayElement, kNodeTypeChar, kNodeTypeString, kNodeTypeThrow, kNodeTypeTry };
 
 enum eOperand { kOpAdd, kOpSub , kOpComplement, kOpLogicalDenial, kOpMult, kOpDiv, kOpMod, kOpLeftShift, kOpRightShift, kOpComparisonEqual, kOpComparisonNotEqual,kOpComparisonGreaterEqual, kOpComparisonLesserEqual, kOpComparisonGreater, kOpComparisonLesser, kOpAnd, kOpXor, kOpOr, kOpAndAnd, kOpOrOr, kOpConditional };
 
@@ -386,6 +387,10 @@ struct sNodeTreeStruct
             unsigned int mExpressionNode3;
             MANAGED sNodeBlock* mForNodeBlock;
         } sFor;
+        struct {
+            MANAGED sNodeBlock* mTryNodeBlock;
+            MANAGED sNodeBlock* mCatchNodeBlock;
+        } sTry;
         struct {
             sCLClass* mClass;
             char mMethodName[METHOD_NAME_MAX];
@@ -456,6 +461,7 @@ unsigned int sNodeTree_create_store_variable(char* var_name, sNodeType* node_typ
 unsigned int sNodeTree_create_assign_field(char* var_name, unsigned int left_node, unsigned int right_node);
 unsigned int sNodeTree_create_load_variable(char* var_name);
 unsigned int sNodeTree_create_return_expression(unsigned int expression_node);
+unsigned int sNodeTree_create_throw_expression(unsigned int expression_node);
 unsigned int sNodeTree_if_expression(unsigned int expression_node, MANAGED sNodeBlock* if_node_block, unsigned int* elif_expression_node, MANAGED sNodeBlock** elif_node_block, int elif_num, MANAGED sNodeBlock* else_node_block);
 unsigned int sNodeTree_while_expression(unsigned int expression_node, MANAGED sNodeBlock* while_node_block);
 unsigned int sNodeTree_break_expression();
@@ -482,6 +488,7 @@ unsigned int sNodeTree_create_load_array_element(unsigned int array, unsigned in
 unsigned int sNodeTree_create_store_array_element(unsigned int array, unsigned int index_ndoe, unsigned int right_node);
 unsigned int sNodeTree_create_character_value(wchar_t c);
 unsigned int sNodeTree_create_string_value(MANAGED char* value);
+unsigned int sNodeTree_try_expression(MANAGED sNodeBlock* try_node_block, MANAGED sNodeBlock* catch_node_block);
 
 /// script.c ///
 BOOL compile_script(char* fname, char* source);
@@ -494,6 +501,7 @@ BOOL compile_script(char* fname, char* source);
 #define OP_COND_JUMP 4
 #define OP_GOTO 5
 #define OP_RETURN 6
+#define OP_THROW 7
 
 #define OP_STORE 10
 #define OP_LOAD 11
@@ -877,6 +885,7 @@ int search_for_field(sCLClass* klass, char* field_name);
 int search_for_class_field(sCLClass* klass, char* field_name);
 void add_dependences_with_node_type(sCLClass* klass, sNodeType* node_type);
 sCLClass* get_class_with_load(char* class_name);
+BOOL parse_params(sParserParam* params, int* num_params, sParserInfo* info);
 
 /// native_method.c ///
 void native_method_init();

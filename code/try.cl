@@ -2,7 +2,7 @@
 try {
     TryTest.method1();
 }
-catch(Exception e) {
+catch(e:Exception) {
     System.println(e.message);
     System.println("CATCH EXCEPTION");
 }

@@ -147,7 +147,7 @@ static BOOL parse_param(sParserParam* param, sParserInfo* info)
     return TRUE;
 }
 
-static BOOL parse_params(sParserParam* params, int* num_params, sParserInfo* info)
+BOOL parse_params(sParserParam* params, int* num_params, sParserInfo* info)
 {
     if(*info->p == ')') {
         info->p++;
@@ -198,6 +198,47 @@ static BOOL parse_params(sParserParam* params, int* num_params, sParserInfo* inf
     return TRUE;
 }
 
+static BOOL parse_throws(sParserInfo* info, sCompileInfo* cinfo, BOOL* throw_existance)
+{
+    /// throws ///
+    char* p_saved = info->p;
+    int sline_saved = info->sline;
+
+    char buf[32];
+    
+    if(!parse_word(buf, 32, info, FALSE)) {
+        return FALSE;
+    }
+
+    if(strcmp(buf, "throws") == 0) {
+        *throw_existance = TRUE;
+
+        while(1) {
+            if(isalpha(*info->p)) {
+                sNodeType* exception;
+
+                if(!parse_type(&exception, info)) {
+                    return FALSE;
+                }
+            }
+            else if(*info->p == ',') {
+                info->p++;
+                skip_spaces_and_lf(info);
+            }
+            else {
+                break;
+            }
+        }
+    }
+    else {
+        *throw_existance = FALSE;
+        info->p = p_saved;
+        info->sline = sline_saved;
+    }
+
+    return TRUE;
+}
+
 static BOOL parse_method_name_and_params(char* method_name, int method_name_max, sParserParam* params, int* num_params, sNodeType** result_type, BOOL* native_, BOOL* static_, sParserInfo* info, sCompileInfo* cinfo)
 {
     /// method name ///
@@ -241,10 +282,21 @@ static BOOL parse_method_name_and_params(char* method_name, int method_name_max,
             }
         }
 
+        /// throw or result type ///
         if(isalpha(*info->p)) {
-            /// parse result type ///
-            if(!parse_type(result_type, info)) {
+            BOOL throw_existance = FALSE;
+            if(!parse_throws(info, cinfo, &throw_existance)) {
                 return FALSE;
+            }
+
+            if(!throw_existance) {
+                /// parse result type ///
+                if(!parse_type(result_type, info)) {
+                    return FALSE;
+                }
+            }
+            else {
+                *result_type = create_node_type_with_class_name("Null");
             }
         }
         else {
@@ -253,6 +305,12 @@ static BOOL parse_method_name_and_params(char* method_name, int method_name_max,
     }
     else {
         *result_type = create_node_type_with_class_name("Null");
+    }
+
+    /// throw ///
+    BOOL throw_existance = FALSE;
+    if(!parse_throws(info, cinfo, &throw_existance)) {
+        return FALSE;
     }
 
     return TRUE;

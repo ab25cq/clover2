@@ -3793,7 +3793,7 @@ fi
 
 if test $DEBUGGING = 1
 then
-    CFLAGS="$CFLAGS -g -DMDEBUG"
+    CFLAGS="$CFLAGS -g -DMDEBUG -Werror"
 fi
 
 if test $LOGGING = 1

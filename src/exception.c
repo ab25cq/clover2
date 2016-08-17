@@ -34,3 +34,4 @@ void entry_exception_object_with_class_name(CLVALUE* stack, char* class_name, ch
 
     vm_mutex_off();
 }
+
