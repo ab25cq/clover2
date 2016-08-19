@@ -189,3 +189,25 @@ void set_max_block_var_num(sVarTable* lv_table, sVarTable* old_table)
     }
 }
 
+void show_vtable(sVarTable* table)
+{
+    sVarTable* it = table;
+
+    while(it) {
+        sVar* p = it->mLocalVariables;
+
+        while(1) {
+            if(p->mName[0] != 0) {
+                printf("name %s\n", p->mName);
+            }
+
+            p++;
+
+            if(p == table->mLocalVariables + LOCAL_VARIABLE_MAX) {
+                break;
+            }
+        }
+
+        it = it->mParent;
+    }
+}

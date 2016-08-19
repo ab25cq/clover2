@@ -1,8 +1,8 @@
 
 class System: final
 {
-    def exit(num:int): native static; # throws SystemException;
-    def assert(exp:bool): native static;  # throws SystemException;
+    def exit(num:int): native static;
+    def assert(exp:bool): native static throws Exception;
     def print(str:String): native static;
     def println(str:String): native static;
     def printToError(str:String): native static;

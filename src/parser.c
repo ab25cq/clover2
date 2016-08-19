@@ -544,7 +544,7 @@ static BOOL try_expression(unsigned int* node, sParserInfo* info)
         return FALSE;
     }
 
-    *node = sNodeTree_try_expression(MANAGED try_node_block, MANAGED catch_node_block);
+    *node = sNodeTree_try_expression(MANAGED try_node_block, MANAGED catch_node_block, params[0].mName);
 
     return TRUE;
 }

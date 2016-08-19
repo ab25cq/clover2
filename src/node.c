@@ -2600,7 +2600,7 @@ static BOOL compile_throw_expression(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_try_expression(MANAGED sNodeBlock* try_node_block, MANAGED sNodeBlock* catch_node_block)
+unsigned int sNodeTree_try_expression(MANAGED sNodeBlock* try_node_block, MANAGED sNodeBlock* catch_node_block, char* exception_var_name)
 {
     unsigned int node = alloc_node();
 
@@ -2614,13 +2614,56 @@ unsigned int sNodeTree_try_expression(MANAGED sNodeBlock* try_node_block, MANAGE
 
     gNodes[node].uValue.sTry.mTryNodeBlock = MANAGED try_node_block;
     gNodes[node].uValue.sTry.mCatchNodeBlock = MANAGED catch_node_block;
+    gNodes[node].uValue.sTry.mCatchNodeBlock = MANAGED catch_node_block;
+    xstrncpy(gNodes[node].uValue.sTry.mExceptionVarName, exception_var_name, VAR_NAME_MAX);
 
     return node;
 }
 
 static BOOL compile_try_expression(unsigned int node, sCompileInfo* info)
 {
-       
+    /// try ///
+    append_opecode_to_code(info->code, OP_TRY, info->no_output);
+
+    int try_offset_point = info->code->mLen;
+    append_int_value_to_code(info->code, 0, info->no_output);
+
+    sNodeBlock* try_node_block = gNodes[node].uValue.sTry.mTryNodeBlock;
+    if(!compile_normal_block(try_node_block, info)) {
+        return FALSE;
+    }
+
+    append_opecode_to_code(info->code, OP_GOTO, info->no_output);
+    int goto_point = info->code->mLen;
+    append_int_value_to_code(info->code, 0, info->no_output);
+
+    *(int*)(info->code->mCodes + try_offset_point) = info->code->mLen;
+
+    /// catch ///
+    sNodeBlock* catch_node_block = gNodes[node].uValue.sTry.mCatchNodeBlock;
+
+    sVarTable* catch_block_var_table = catch_node_block->mLVTable;
+    char* var_name = gNodes[node].uValue.sTry.mExceptionVarName;
+
+    int var_index = get_variable_index(catch_block_var_table, var_name);
+    MASSERT(var_index != -1);
+
+    append_opecode_to_code(info->code, OP_STORE, info->no_output);
+    append_int_value_to_code(info->code, var_index, info->no_output);
+
+    append_opecode_to_code(info->code, OP_POP, info->no_output);
+
+    if(!compile_normal_block(catch_node_block, info)) {
+        return FALSE;
+    }
+
+    *(int*)(info->code->mCodes + goto_point) = info->code->mLen;
+
+    append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
+    info->stack_num++;
+
+    info->type = create_node_type_with_class_name("Null");
+    
     return TRUE;
 }
 

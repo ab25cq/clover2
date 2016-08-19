@@ -2,8 +2,6 @@
 
 void entry_exception_object_with_class_name(CLVALUE* stack, char* class_name, char* msg, ...)
 {
-    char msg2[1024];
-
     vm_mutex_on();
 
     sCLClass* klass = get_class(class_name);
@@ -17,20 +15,18 @@ void entry_exception_object_with_class_name(CLVALUE* stack, char* class_name, ch
 
     stack->mObjectValue = object;
 
-/*
-    wcs = MMALLOC(sizeof(wchar_t)*(strlen(msg2)+1));
-    (void)mbstowcs(wcs, msg2, strlen(msg2)+1);
-    size = wcslen(wcs);
+    char msg2[1024];
 
-    ovalue2 = create_string_object(wcs, size, gStringTypeObject, info);
+    va_list args;
+    va_start(args, msg);
+    vsnprintf(msg2, 1024, msg, args);
+    va_end(args);
 
-    CLUSEROBJECT(ovalue)->mFields[0].mObjectValue.mValue = ovalue2;
+    CLObject str = create_string_object(msg2);
 
-    MFREE(wcs);
+    sCLObject* object_data = CLOBJECT(object);
 
-    info->mRunningClassOnException = info->mRunningClass;
-    info->mRunningMethodOnException = info->mRunningMethod;
-*/
+    object_data->mFields[0].mObjectValue = str;
 
     vm_mutex_off();
 }

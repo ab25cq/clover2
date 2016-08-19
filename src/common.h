@@ -300,6 +300,7 @@ BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_);
 sVar* get_variable_from_table(sVarTable* table, char* name);
 
 int get_var_num(sVarTable* table);
+void show_vtable(sVarTable* table);
 
 /// parser.c ///
 struct sParserInfoStruct
@@ -390,6 +391,7 @@ struct sNodeTreeStruct
         struct {
             MANAGED sNodeBlock* mTryNodeBlock;
             MANAGED sNodeBlock* mCatchNodeBlock;
+            char mExceptionVarName[VAR_NAME_MAX];
         } sTry;
         struct {
             sCLClass* mClass;
@@ -488,7 +490,7 @@ unsigned int sNodeTree_create_load_array_element(unsigned int array, unsigned in
 unsigned int sNodeTree_create_store_array_element(unsigned int array, unsigned int index_ndoe, unsigned int right_node);
 unsigned int sNodeTree_create_character_value(wchar_t c);
 unsigned int sNodeTree_create_string_value(MANAGED char* value);
-unsigned int sNodeTree_try_expression(MANAGED sNodeBlock* try_node_block, MANAGED sNodeBlock* catch_node_block);
+unsigned int sNodeTree_try_expression(MANAGED sNodeBlock* try_node_block, MANAGED sNodeBlock* catch_node_block, char* exception_var_name);
 
 /// script.c ///
 BOOL compile_script(char* fname, char* source);
@@ -502,6 +504,7 @@ BOOL compile_script(char* fname, char* source);
 #define OP_GOTO 5
 #define OP_RETURN 6
 #define OP_THROW 7
+#define OP_TRY 8
 
 #define OP_STORE 10
 #define OP_LOAD 11

@@ -309,6 +309,10 @@ static BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, CL
         }
 
         if(!method->uCode.mNativeMethod(stack_ptr, lvar, info)) {
+            CLVALUE result = *(*stack_ptr - 1); // see OP_TRY
+            *stack_ptr = lvar;
+            **stack_ptr = result;
+            (*stack_ptr)++;
             return FALSE;
         }
 
@@ -334,6 +338,9 @@ static BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, CL
         int var_num = method->mVarNum;
 
         if(!vm(code, constant, stack, var_num, klass, info)) {
+            *stack_ptr = lvar;
+            **stack_ptr = *stack;
+            (*stack_ptr)++;
             return FALSE;
         }
         
@@ -453,6 +460,9 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
     CLVALUE* stack_ptr = stack + var_num;
     CLVALUE* lvar = stack;
 
+    int try_offset_before = 0;
+    int try_offset = 0;
+
     append_stack_to_stack_list(stack, &stack_ptr);
 
     while(pc - code->mCodes < code->mLen) {
@@ -536,7 +546,17 @@ show_stack(stack, stack_ptr, lvar, var_num);
 #ifdef VM_DEBUG
 show_stack(stack, stack_ptr, lvar, var_num);
 #endif
-                return TRUE;
+                return FALSE;
+
+            case OP_TRY:
+                vm_mutex_on();
+
+                try_offset_before = try_offset;
+                try_offset = *(int*)pc;
+                pc += sizeof(int);
+                
+                vm_mutex_off();
+                break;
 
             case OP_STORE:
                 {
@@ -2848,9 +2868,15 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     sCLMethod* method = klass->mMethods + method_index;
 
                     if(!invoke_method(klass, method, stack, &stack_ptr, info)) {
-                        vm_mutex_off();
-                        remove_stack_to_stack_list(stack);
-                        return FALSE;
+                        if(try_offset != 0) {
+                            pc = code->mCodes + try_offset;
+                            try_offset = try_offset_before;
+                        }
+                        else {
+                            vm_mutex_off();
+                            remove_stack_to_stack_list(stack);
+                            return FALSE;
+                        }
                     }
 
                     vm_mutex_off();
