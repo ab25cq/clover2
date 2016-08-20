@@ -429,6 +429,12 @@ static sCLClass* read_class_from_file(int fd)
         MFREE(klass);
         return NULL;
     }
+    klass->mNumGenerics = n;
+
+    if(!read_int_from_file(fd, &n)) {
+        MFREE(klass);
+        return NULL;
+    }
     klass->mGenericsParamClassNum = n;
 
     long l;
@@ -565,13 +571,15 @@ sCLClass* load_class(char* class_name)
 }
 
 
-sCLClass* alloc_class(char* class_name, BOOL primitive_, BOOL final_, int generics_param_class_num)
+sCLClass* alloc_class(char* class_name, BOOL primitive_, BOOL final_, int generics_param_class_num, int generics_number)
 {
     sCLClass* klass = MCALLOC(1, sizeof(sCLClass));
 
     klass->mFlags |= (primitive_ ? CLASS_FLAGS_PRIMITIVE:0) | (final_ ? CLASS_FLAGS_FINAL:0);
     klass->mVersion = 1;
     klass->mGenericsParamClassNum = generics_param_class_num;
+
+    klass->mNumGenerics = generics_number;
 
     sConst_init(&klass->mConst);
 
@@ -588,6 +596,7 @@ sCLClass* alloc_class(char* class_name, BOOL primitive_, BOOL final_, int generi
     klass->mClassFields = MCALLOC(1, sizeof(sCLField)*4);
     klass->mSizeClassFields = 4;
     klass->mNumClassFields = 0;
+
 
     put_class_to_table(class_name, klass);
 
@@ -660,53 +669,53 @@ void class_init()
 {
     memset(gClassTable, 0, sizeof(sClassTable)*CLASS_NUM_MAX);
 
-    alloc_class("int", TRUE, TRUE, -1);
-    alloc_class("uint", TRUE, TRUE, -1);
-    alloc_class("byte", TRUE, TRUE, -1);
-    alloc_class("ubyte", TRUE, TRUE, -1);
-    alloc_class("short", TRUE, TRUE, -1);
-    alloc_class("ushort", TRUE, TRUE, -1);
-    alloc_class("long", TRUE, TRUE, -1);
-    alloc_class("ulong", TRUE, TRUE, -1);
-    alloc_class("float", TRUE, TRUE, -1);
-    alloc_class("double", TRUE, TRUE, -1);
-    alloc_class("pointer", TRUE, TRUE, -1);
-    alloc_class("char", TRUE, TRUE, -1);
-    alloc_class("bool", TRUE, TRUE, -1);
-    alloc_class("Null", TRUE, TRUE, -1);
+    alloc_class("int", TRUE, TRUE, -1, 0);
+    alloc_class("uint", TRUE, TRUE, -1, 0);
+    alloc_class("byte", TRUE, TRUE, -1, 0);
+    alloc_class("ubyte", TRUE, TRUE, -1, 0);
+    alloc_class("short", TRUE, TRUE, -1, 0);
+    alloc_class("ushort", TRUE, TRUE, -1, 0);
+    alloc_class("long", TRUE, TRUE, -1, 0);
+    alloc_class("ulong", TRUE, TRUE, -1, 0);
+    alloc_class("float", TRUE, TRUE, -1, 0);
+    alloc_class("double", TRUE, TRUE, -1, 0);
+    alloc_class("pointer", TRUE, TRUE, -1, 0);
+    alloc_class("char", TRUE, TRUE, -1, 0);
+    alloc_class("bool", TRUE, TRUE, -1, 0);
+    alloc_class("Null", TRUE, TRUE, -1, 0);
 
-    alloc_class("GenericsParametorClass1", TRUE, TRUE, 1);
-    alloc_class("GenericsParametorClass2", TRUE, TRUE, 2);
-    alloc_class("GenericsParametorClass3", TRUE, TRUE, 3);
-    alloc_class("GenericsParametorClass4", TRUE, TRUE, 4);
-    alloc_class("GenericsParametorClass5", TRUE, TRUE, 5);
-    alloc_class("GenericsParametorClass6", TRUE, TRUE, 6);
-    alloc_class("GenericsParametorClass7", TRUE, TRUE, 7);
-    alloc_class("GenericsParametorClass8", TRUE, TRUE, 8);
-    alloc_class("GenericsParametorClass9", TRUE, TRUE, 9);
-    alloc_class("GenericsParametorClass10", TRUE, TRUE, 10);
-    alloc_class("GenericsParametorClass11", TRUE, TRUE, 11);
-    alloc_class("GenericsParametorClass12", TRUE, TRUE, 12);
-    alloc_class("GenericsParametorClass13", TRUE, TRUE, 13);
-    alloc_class("GenericsParametorClass14", TRUE, TRUE, 14);
-    alloc_class("GenericsParametorClass15", TRUE, TRUE, 15);
-    alloc_class("GenericsParametorClass16", TRUE, TRUE, 16);
-    alloc_class("GenericsParametorClass17", TRUE, TRUE, 17);
-    alloc_class("GenericsParametorClass18", TRUE, TRUE, 18);
-    alloc_class("GenericsParametorClass19", TRUE, TRUE, 19);
-    alloc_class("GenericsParametorClass20", TRUE, TRUE, 20);
-    alloc_class("GenericsParametorClass21", TRUE, TRUE, 21);
-    alloc_class("GenericsParametorClass22", TRUE, TRUE, 22);
-    alloc_class("GenericsParametorClass23", TRUE, TRUE, 23);
-    alloc_class("GenericsParametorClass24", TRUE, TRUE, 24);
-    alloc_class("GenericsParametorClass25", TRUE, TRUE, 25);
-    alloc_class("GenericsParametorClass26", TRUE, TRUE, 26);
-    alloc_class("GenericsParametorClass27", TRUE, TRUE, 27);
-    alloc_class("GenericsParametorClass28", TRUE, TRUE, 28);
-    alloc_class("GenericsParametorClass29", TRUE, TRUE, 29);
-    alloc_class("GenericsParametorClass30", TRUE, TRUE, 30);
-    alloc_class("GenericsParametorClass31", TRUE, TRUE, 31);
-    alloc_class("GenericsParametorClass32", TRUE, TRUE, 32);
+    alloc_class("GenericsParametorClass1", TRUE, TRUE, 1, 0);
+    alloc_class("GenericsParametorClass2", TRUE, TRUE, 2, 0);
+    alloc_class("GenericsParametorClass3", TRUE, TRUE, 3, 0);
+    alloc_class("GenericsParametorClass4", TRUE, TRUE, 4, 0);
+    alloc_class("GenericsParametorClass5", TRUE, TRUE, 5, 0);
+    alloc_class("GenericsParametorClass6", TRUE, TRUE, 6, 0);
+    alloc_class("GenericsParametorClass7", TRUE, TRUE, 7, 0);
+    alloc_class("GenericsParametorClass8", TRUE, TRUE, 8, 0);
+    alloc_class("GenericsParametorClass9", TRUE, TRUE, 9, 0);
+    alloc_class("GenericsParametorClass10", TRUE, TRUE, 10, 0);
+    alloc_class("GenericsParametorClass11", TRUE, TRUE, 11, 0);
+    alloc_class("GenericsParametorClass12", TRUE, TRUE, 12, 0);
+    alloc_class("GenericsParametorClass13", TRUE, TRUE, 13, 0);
+    alloc_class("GenericsParametorClass14", TRUE, TRUE, 14, 0);
+    alloc_class("GenericsParametorClass15", TRUE, TRUE, 15, 0);
+    alloc_class("GenericsParametorClass16", TRUE, TRUE, 16, 0);
+    alloc_class("GenericsParametorClass17", TRUE, TRUE, 17, 0);
+    alloc_class("GenericsParametorClass18", TRUE, TRUE, 18, 0);
+    alloc_class("GenericsParametorClass19", TRUE, TRUE, 19, 0);
+    alloc_class("GenericsParametorClass20", TRUE, TRUE, 20, 0);
+    alloc_class("GenericsParametorClass21", TRUE, TRUE, 21, 0);
+    alloc_class("GenericsParametorClass22", TRUE, TRUE, 22, 0);
+    alloc_class("GenericsParametorClass23", TRUE, TRUE, 23, 0);
+    alloc_class("GenericsParametorClass24", TRUE, TRUE, 24, 0);
+    alloc_class("GenericsParametorClass25", TRUE, TRUE, 25, 0);
+    alloc_class("GenericsParametorClass26", TRUE, TRUE, 26, 0);
+    alloc_class("GenericsParametorClass27", TRUE, TRUE, 27, 0);
+    alloc_class("GenericsParametorClass28", TRUE, TRUE, 28, 0);
+    alloc_class("GenericsParametorClass29", TRUE, TRUE, 29, 0);
+    alloc_class("GenericsParametorClass30", TRUE, TRUE, 30, 0);
+    alloc_class("GenericsParametorClass31", TRUE, TRUE, 31, 0);
+    alloc_class("GenericsParametorClass32", TRUE, TRUE, 32, 0);
 
     load_fundamental_classes();
 }

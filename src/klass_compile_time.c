@@ -304,6 +304,7 @@ static void append_fields_to_buffer(sBuf* buf, sCLField* fields, int num_fields)
 static void write_class_to_buffer(sCLClass* klass, sBuf* buf)
 {
     sBuf_append_int(buf, klass->mVersion);
+    sBuf_append_int(buf, klass->mNumGenerics);
     sBuf_append_int(buf, klass->mGenericsParamClassNum);
     sBuf_append_long(buf, klass->mFlags);
     append_const_to_buffer(buf, &klass->mConst);

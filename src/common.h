@@ -170,9 +170,11 @@ typedef struct sCLFieldStruct sCLField;
 struct sCLClassStruct {
     long mFlags;
 
-    int mGenericsParamClassNum;   // -1 is none generics param 
-
     int mVersion;
+
+    int mGenericsParamClassNum;   // -1 is none generics param 
+    int mNumGenerics;
+
     sConst mConst;
 
     int mClassNameOffset;
@@ -207,7 +209,7 @@ void class_final();
 
 sCLClass* get_class(char* name);
 unsigned int get_hash_key(char* name, unsigned int max);
-sCLClass* alloc_class(char* class_name, BOOL primitive_, BOOL final_, int generics_param_class_num);
+sCLClass* alloc_class(char* class_name, BOOL primitive_, BOOL final_, int generics_param_class_num, int generics_number);
 ALLOC sCLType* create_cl_type(sCLClass* klass, sCLClass* klass2);
 void free_cl_type(sCLType* cl_type);
 sCLClass* load_class_with_version(char* class_name, int class_version);
@@ -245,6 +247,7 @@ void free_node_types();
 sNodeType* alloc_node_type();
 sNodeType* clone_node_type(sNodeType* node_type);
 sNodeType* create_node_type_with_class_name(char* class_name);
+sNodeType* create_node_type_with_generics_number(int generics_num);
 sNodeType* create_node_type_from_cl_type(sCLType* cl_type, sCLClass* klass);
 BOOL is_exception_type(sNodeType* exception_type);
 
@@ -303,6 +306,14 @@ int get_var_num(sVarTable* table);
 void show_vtable(sVarTable* table);
 
 /// parser.c ///
+struct sGenericsParamInfoStruct
+{
+    char mParamNames[GENERICS_TYPES_MAX][VAR_NAME_MAX];
+    int mNumParams;
+};
+
+typedef struct sGenericsParamInfoStruct sGenericsParamInfo;
+
 struct sParserInfoStruct
 {
     char* p;
@@ -312,6 +323,7 @@ struct sParserInfoStruct
     sVarTable* lv_table;
     int parse_phase;
     sCLClass* klass;
+    sGenericsParamInfo generics_info;
 };
 
 typedef struct sParserInfoStruct sParserInfo;

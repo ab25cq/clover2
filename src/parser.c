@@ -557,7 +557,17 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
         return FALSE;
     }
 
-    *result_type = create_node_type_with_class_name(type_name);
+    int i;
+    for(i=0; i<info->generics_info.mNumParams; i++) {
+        if(strcmp(type_name, info->generics_info.mParamNames[i]) == 0) {
+            *result_type = create_node_type_with_generics_number(i);
+            break;
+        }
+    }
+
+    if(i == info->generics_info.mNumParams) {
+        *result_type = create_node_type_with_class_name(type_name);
+    }
 
     if(*result_type == NULL || (*result_type)->mClass == NULL) {
         parser_err_msg(info, "%s is not defined class", type_name);

@@ -99,6 +99,15 @@ sNodeType* create_node_type_with_class_name(char* class_name)
     return node_type;
 }
 
+sNodeType* create_node_type_with_generics_number(int generics_num)
+{
+    char class_name[CLASS_NAME_MAX+1];
+
+    snprintf(class_name, CLASS_NAME_MAX, "GenericsParametorClass%d", generics_num+1);
+
+    return create_node_type_with_class_name(class_name);
+}
+
 sNodeType* create_node_type_from_cl_type(sCLType* cl_type, sCLClass* klass)
 {
     sNodeType* node_type = alloc_node_type();
@@ -195,3 +204,4 @@ BOOL is_exception_type(sNodeType* exception_type)
 {
     return substitution_posibility_with_class_name(exception_type, "SystemException") || substitution_posibility_with_class_name(exception_type, "Exception");
 }
+

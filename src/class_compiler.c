@@ -40,6 +40,47 @@ static BOOL skip_block(sParserInfo* info)
     return TRUE;
 }
 
+static BOOL parse_generics_params(sParserInfo* info, sCompileInfo* cinfo)
+{
+    info->generics_info.mNumParams = 0;
+
+    if(*info->p == '<') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        while(1) {
+            if(isalpha(*info->p)) {
+                if(!parse_word(info->generics_info.mParamNames[info->generics_info.mNumParams], VAR_NAME_MAX, info, TRUE)) 
+                {
+                    return FALSE;
+                }
+
+                info->generics_info.mNumParams++;
+
+                if(info->generics_info.mNumParams >= GENERICS_TYPES_MAX) {
+                    parser_err_msg(info, "overflow generics params number");
+                    return FALSE;
+                }
+
+                if(*info->p == ',') {
+                    info->p++;
+                    skip_spaces_and_lf(info);
+                }
+                else {
+                    break;
+                }
+            }
+            else {
+                break;
+            }
+        }
+
+        expect_next_character_with_one_forward(">", info);
+    }
+
+    return TRUE;
+}
+
 static BOOL parse_class_name_and_attributes(char* class_name, int class_name_size, BOOL* final_, int* class_version, sParserInfo* info, sCompileInfo* cinfo)
 {
     /// class name ///
@@ -47,6 +88,13 @@ static BOOL parse_class_name_and_attributes(char* class_name, int class_name_siz
         return FALSE;
     }
 
+    /// generics ///
+    if(!parse_generics_params(info, cinfo)) 
+    {
+        return FALSE;
+    }
+
+    /// version ///
     char* p_saved = info->p;
     int sline_saved = info->sline;
 
@@ -119,7 +167,7 @@ static BOOL parse_class_on_alloc_classes_phase(sParserInfo* info, sCompileInfo* 
         info->klass->mNumMethodsOnLoadTime = info->klass->mNumMethods;
     }
     else {
-        info->klass = alloc_class(class_name, FALSE, final_, -1);
+        info->klass = alloc_class(class_name, FALSE, final_, -1, info->generics_info.mNumParams);
         info->klass->mFlags |= CLASS_FLAGS_MODIFIED;
         info->klass->mNumMethodsOnLoadTime = 0;
     }
@@ -396,8 +444,10 @@ static BOOL parse_class_on_add_methods_and_fields(sParserInfo* info, sCompileInf
                     return FALSE;
                 }
 
-                if(!add_method_to_class(info->klass, method_name, params, num_params, result_type, native_, static_)) {
-                    return FALSE;
+                if(info->err_num == 0) {
+                    if(!add_method_to_class(info->klass, method_name, params, num_params, result_type, native_, static_)) {
+                        return FALSE;
+                    }
                 }
 
                 if(native_) {
@@ -425,14 +475,16 @@ static BOOL parse_class_on_add_methods_and_fields(sParserInfo* info, sCompileInf
                     return FALSE;
                 }
 
-                if(static_) {
-                    if(!add_class_field_to_class(info->klass, buf, private_, protected_, result_type)) {
-                        return FALSE;
+                if(info->err_num == 0) {
+                    if(static_) {
+                        if(!add_class_field_to_class(info->klass, buf, private_, protected_, result_type)) {
+                            return FALSE;
+                        }
                     }
-                }
-                else {
-                    if(!add_field_to_class(info->klass, buf, private_, protected_, result_type)) {
-                        return FALSE;
+                    else {
+                        if(!add_field_to_class(info->klass, buf, private_, protected_, result_type)) {
+                            return FALSE;
+                        }
                     }
                 }
 

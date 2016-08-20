@@ -1,0 +1,5 @@
+
+class GenericsTest1 <T, T2> {
+    field: T;
+    field2: T2;
+}

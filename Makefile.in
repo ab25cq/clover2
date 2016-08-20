@@ -110,4 +110,5 @@ test:
 	./cclover2 code/cast.cl && ./clover2 code/cast.clo
 	./cclover2 code/string.cl && ./clover2 code/string.clo
 	./cclover2 -class code/try.clc code/try.cl && ./clover2 code/try.clo
+	./cclover2 -class code/generics.clc code/generics.cl && ./clover2 code/generics.clo
 
