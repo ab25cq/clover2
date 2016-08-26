@@ -326,6 +326,12 @@ static BOOL read_methods_from_file(int fd, sCLMethod** methods, int* num_methods
         if(!read_int_from_file(fd, &n)) {
             return FALSE;
         }
+
+        method->mMethodNameAndParamsOffset = n;
+
+        if(!read_int_from_file(fd, &n)) {
+            return FALSE;
+        }
         method->mNumParams = n;
 
         int j;
@@ -492,6 +498,74 @@ static sCLClass* read_class_from_file(int fd)
     return klass;
 }
 
+static BOOL create_virtual_method_table(sCLClass* klass)
+{
+    int i;
+    for(i=0; i<klass->mNumMethods; i++) {
+        sCLMethod* method = klass->mMethods + i;
+
+        char* method_name_and_params = CONS_str(&klass->mConst, method->mMethodNameAndParamsOffset);
+
+        /// insert method to vritual method table ///
+        unsigned int hash_key = get_hash_key(method_name_and_params, METHOD_NUM_MAX);
+
+        sCLMethod** it = klass->mVirtualMethodTable + hash_key;
+
+        while(1) {
+            if(*it == NULL) {
+                *it = method;
+                break;
+            }
+            else {
+                it++;
+
+                if(it == klass->mVirtualMethodTable + METHOD_NUM_MAX) {
+                    it = klass->mVirtualMethodTable;
+                }
+                else if(it == klass->mVirtualMethodTable + hash_key) {
+                    return FALSE;
+                }
+            }
+        }
+    }
+
+    return TRUE;
+}
+
+sCLMethod* search_for_method_from_virtual_method_table(sCLClass* klass, char* method_name_and_params)
+{
+    unsigned int hash_key = get_hash_key(method_name_and_params, METHOD_NUM_MAX);
+
+    sCLMethod** it = klass->mVirtualMethodTable + hash_key;
+
+    while(1) {
+        if(*it == NULL) {
+            return NULL;
+        }
+        else {
+            sCLMethod* method = *it;
+
+            char* method_name_and_params2 = CONS_str(&klass->mConst, method->mMethodNameAndParamsOffset);
+
+            if(strcmp(method_name_and_params, method_name_and_params2) == 0) {
+                return method;
+            }
+            else {
+                it++;
+
+                if(it == klass->mVirtualMethodTable + METHOD_NUM_MAX) {
+                    it = klass->mVirtualMethodTable;
+                }
+                else if(it == klass->mVirtualMethodTable + hash_key) {
+                    return NULL;
+                }
+            }
+        }
+    }
+
+    return NULL;
+}
+
 static sCLClass* load_class_from_class_file(char* class_name, char* class_file_name)
 {
     /// check the existance of the load class ///
@@ -520,6 +594,13 @@ static sCLClass* load_class_from_class_file(char* class_name, char* class_file_n
 
     if(klass == NULL) {
         fprintf(stderr, "Clover2 can't load class %s because of class file\n", class_name);
+        return NULL;
+    }
+
+    memset(klass->mVirtualMethodTable, 0, sizeof(sCLMethod*)*METHOD_NUM_MAX);
+
+    if(!create_virtual_method_table(klass)) {
+        free_class(klass);
         return NULL;
     }
 
@@ -571,11 +652,11 @@ sCLClass* load_class(char* class_name)
 }
 
 
-sCLClass* alloc_class(char* class_name, BOOL primitive_, BOOL final_, int generics_param_class_num, int generics_number)
+sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_class_num, int generics_number, BOOL interface)
 {
     sCLClass* klass = MCALLOC(1, sizeof(sCLClass));
 
-    klass->mFlags |= (primitive_ ? CLASS_FLAGS_PRIMITIVE:0) | (final_ ? CLASS_FLAGS_FINAL:0);
+    klass->mFlags |= (primitive_ ? CLASS_FLAGS_PRIMITIVE:0) | (interface ? CLASS_FLAGS_INTERFACE:0);
     klass->mVersion = 1;
     klass->mGenericsParamClassNum = generics_param_class_num;
 
@@ -617,7 +698,7 @@ static void free_class(sCLClass* klass)
 
         free_cl_type(method->mResultType);
 
-        if(!(method->mFlags & METHOD_FLAGS_NATIVE)) {
+        if(!(method->mFlags & METHOD_FLAGS_NATIVE) && !(klass->mFlags & CLASS_FLAGS_INTERFACE)) {
             sByteCode_free(&method->uCode.mByteCodes);
         }
     }
@@ -669,53 +750,53 @@ void class_init()
 {
     memset(gClassTable, 0, sizeof(sClassTable)*CLASS_NUM_MAX);
 
-    alloc_class("int", TRUE, TRUE, -1, 0);
-    alloc_class("uint", TRUE, TRUE, -1, 0);
-    alloc_class("byte", TRUE, TRUE, -1, 0);
-    alloc_class("ubyte", TRUE, TRUE, -1, 0);
-    alloc_class("short", TRUE, TRUE, -1, 0);
-    alloc_class("ushort", TRUE, TRUE, -1, 0);
-    alloc_class("long", TRUE, TRUE, -1, 0);
-    alloc_class("ulong", TRUE, TRUE, -1, 0);
-    alloc_class("float", TRUE, TRUE, -1, 0);
-    alloc_class("double", TRUE, TRUE, -1, 0);
-    alloc_class("pointer", TRUE, TRUE, -1, 0);
-    alloc_class("char", TRUE, TRUE, -1, 0);
-    alloc_class("bool", TRUE, TRUE, -1, 0);
-    alloc_class("Null", TRUE, TRUE, -1, 0);
+    alloc_class("int", TRUE, -1, 0, FALSE);
+    alloc_class("uint", TRUE, -1, 0, FALSE);
+    alloc_class("byte", TRUE, -1, 0, FALSE);
+    alloc_class("ubyte", TRUE, -1, 0, FALSE);
+    alloc_class("short", TRUE, -1, 0, FALSE);
+    alloc_class("ushort", TRUE, -1, 0, FALSE);
+    alloc_class("long", TRUE, -1, 0, FALSE);
+    alloc_class("ulong", TRUE, -1, 0, FALSE);
+    alloc_class("float", TRUE, -1, 0, FALSE);
+    alloc_class("double", TRUE, -1, 0, FALSE);
+    alloc_class("pointer", TRUE, -1, 0, FALSE);
+    alloc_class("char", TRUE, -1, 0, FALSE);
+    alloc_class("bool", TRUE, -1, 0, FALSE);
+    alloc_class("Null", TRUE, -1, 0, FALSE);
 
-    alloc_class("GenericsParametorClass1", TRUE, TRUE, 1, 0);
-    alloc_class("GenericsParametorClass2", TRUE, TRUE, 2, 0);
-    alloc_class("GenericsParametorClass3", TRUE, TRUE, 3, 0);
-    alloc_class("GenericsParametorClass4", TRUE, TRUE, 4, 0);
-    alloc_class("GenericsParametorClass5", TRUE, TRUE, 5, 0);
-    alloc_class("GenericsParametorClass6", TRUE, TRUE, 6, 0);
-    alloc_class("GenericsParametorClass7", TRUE, TRUE, 7, 0);
-    alloc_class("GenericsParametorClass8", TRUE, TRUE, 8, 0);
-    alloc_class("GenericsParametorClass9", TRUE, TRUE, 9, 0);
-    alloc_class("GenericsParametorClass10", TRUE, TRUE, 10, 0);
-    alloc_class("GenericsParametorClass11", TRUE, TRUE, 11, 0);
-    alloc_class("GenericsParametorClass12", TRUE, TRUE, 12, 0);
-    alloc_class("GenericsParametorClass13", TRUE, TRUE, 13, 0);
-    alloc_class("GenericsParametorClass14", TRUE, TRUE, 14, 0);
-    alloc_class("GenericsParametorClass15", TRUE, TRUE, 15, 0);
-    alloc_class("GenericsParametorClass16", TRUE, TRUE, 16, 0);
-    alloc_class("GenericsParametorClass17", TRUE, TRUE, 17, 0);
-    alloc_class("GenericsParametorClass18", TRUE, TRUE, 18, 0);
-    alloc_class("GenericsParametorClass19", TRUE, TRUE, 19, 0);
-    alloc_class("GenericsParametorClass20", TRUE, TRUE, 20, 0);
-    alloc_class("GenericsParametorClass21", TRUE, TRUE, 21, 0);
-    alloc_class("GenericsParametorClass22", TRUE, TRUE, 22, 0);
-    alloc_class("GenericsParametorClass23", TRUE, TRUE, 23, 0);
-    alloc_class("GenericsParametorClass24", TRUE, TRUE, 24, 0);
-    alloc_class("GenericsParametorClass25", TRUE, TRUE, 25, 0);
-    alloc_class("GenericsParametorClass26", TRUE, TRUE, 26, 0);
-    alloc_class("GenericsParametorClass27", TRUE, TRUE, 27, 0);
-    alloc_class("GenericsParametorClass28", TRUE, TRUE, 28, 0);
-    alloc_class("GenericsParametorClass29", TRUE, TRUE, 29, 0);
-    alloc_class("GenericsParametorClass30", TRUE, TRUE, 30, 0);
-    alloc_class("GenericsParametorClass31", TRUE, TRUE, 31, 0);
-    alloc_class("GenericsParametorClass32", TRUE, TRUE, 32, 0);
+    alloc_class("GenericsParametorClass1", TRUE, 1, 0, FALSE);
+    alloc_class("GenericsParametorClass2", TRUE, 2, 0, FALSE);
+    alloc_class("GenericsParametorClass3", TRUE, 3, 0, FALSE);
+    alloc_class("GenericsParametorClass4", TRUE, 4, 0, FALSE);
+    alloc_class("GenericsParametorClass5", TRUE, 5, 0, FALSE);
+    alloc_class("GenericsParametorClass6", TRUE, 6, 0, FALSE);
+    alloc_class("GenericsParametorClass7", TRUE, 7, 0, FALSE);
+    alloc_class("GenericsParametorClass8", TRUE, 8, 0, FALSE);
+    alloc_class("GenericsParametorClass9", TRUE, 9, 0, FALSE);
+    alloc_class("GenericsParametorClass10", TRUE, 10, 0, FALSE);
+    alloc_class("GenericsParametorClass11", TRUE, 11, 0, FALSE);
+    alloc_class("GenericsParametorClass12", TRUE, 12, 0, FALSE);
+    alloc_class("GenericsParametorClass13", TRUE, 13, 0, FALSE);
+    alloc_class("GenericsParametorClass14", TRUE, 14, 0, FALSE);
+    alloc_class("GenericsParametorClass15", TRUE, 15, 0, FALSE);
+    alloc_class("GenericsParametorClass16", TRUE, 16, 0, FALSE);
+    alloc_class("GenericsParametorClass17", TRUE, 17, 0, FALSE);
+    alloc_class("GenericsParametorClass18", TRUE, 18, 0, FALSE);
+    alloc_class("GenericsParametorClass19", TRUE, 19, 0, FALSE);
+    alloc_class("GenericsParametorClass20", TRUE, 20, 0, FALSE);
+    alloc_class("GenericsParametorClass21", TRUE, 21, 0, FALSE);
+    alloc_class("GenericsParametorClass22", TRUE, 22, 0, FALSE);
+    alloc_class("GenericsParametorClass23", TRUE, 23, 0, FALSE);
+    alloc_class("GenericsParametorClass24", TRUE, 24, 0, FALSE);
+    alloc_class("GenericsParametorClass25", TRUE, 25, 0, FALSE);
+    alloc_class("GenericsParametorClass26", TRUE, 26, 0, FALSE);
+    alloc_class("GenericsParametorClass27", TRUE, 27, 0, FALSE);
+    alloc_class("GenericsParametorClass28", TRUE, 28, 0, FALSE);
+    alloc_class("GenericsParametorClass29", TRUE, 29, 0, FALSE);
+    alloc_class("GenericsParametorClass30", TRUE, 30, 0, FALSE);
+    alloc_class("GenericsParametorClass31", TRUE, 31, 0, FALSE);
+    alloc_class("GenericsParametorClass32", TRUE, 32, 0, FALSE);
 
     load_fundamental_classes();
 }

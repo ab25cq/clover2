@@ -57,6 +57,27 @@ static void create_method_path(char* result, int result_size, sCLMethod* method,
     }
 */
 }
+static void create_method_name_and_params(char* result, int size_result, char* method_name, sParserParam* params, int num_params)
+{
+    *result = 0;
+
+    xstrncpy(result, method_name, size_result);
+    xstrncat(result, "(", size_result);
+
+    int i;
+    for(i=0; i<num_params; i++) {
+        sParserParam* param = params + i;
+        sCLClass* klass = param->mType->mClass;
+
+        xstrncat(result, CLASS_NAME(klass), size_result);
+        if(i == num_params-1) {
+            xstrncat(result, ")", size_result);
+        }
+        else {
+            xstrncat(result, ",", size_result);
+        }
+    }
+}
 
 BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_)
 {
@@ -88,7 +109,17 @@ BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* param
 
     node_type_to_cl_type(result_type, ALLOC &klass->mMethods[num_methods].mResultType, klass);
 
+    int size_method_name_and_params = METHOD_NAME_MAX + PARAMS_MAX * CLASS_NAME_MAX + 256;
+    char method_name_and_params[size_method_name_and_params];
+    create_method_name_and_params(method_name_and_params, size_method_name_and_params, method_name, params, num_params);
+
+    klass->mMethods[num_methods].mMethodNameAndParamsOffset = append_str_to_constant_pool(&klass->mConst, method_name_and_params, FALSE);
+
     klass->mNumMethods++;
+
+    if(klass->mNumMethods >= METHOD_NUM_MAX) {
+        return FALSE;
+    }
     
     return TRUE;
 }
@@ -230,7 +261,71 @@ int search_for_class_field(sCLClass* klass, char* field_name)
     return -1;
 }
 
-/// write class to a class file ///
+static BOOL check_same_interface_of_two_methods(sCLMethod* method1, sCLClass* klass1, sCLMethod* method2, sCLClass* klass2)
+{
+    char* name1 = METHOD_NAME2(klass1, method1);
+    char* name2 = METHOD_NAME2(klass2, method2);
+
+    if(strcmp(name1, name2) != 0) {
+        return FALSE;
+    }
+
+    sNodeType* result_type1 = create_node_type_from_cl_type(method1->mResultType, klass1);
+    sNodeType* result_type2 = create_node_type_from_cl_type(method2->mResultType, klass2);
+
+    if(!type_identify(result_type1, result_type2)) {
+        return FALSE;
+    }
+
+    if(method1->mNumParams != method2->mNumParams) {
+        return FALSE;
+    }
+
+    int i;
+    for(i=0; i<method1->mNumParams; i++) {
+        sCLParam* param1 = method1->mParams + i;
+        sCLParam* param2 = method2->mParams + i;
+
+        sNodeType* param1_type = create_node_type_from_cl_type(param1->mType, klass1);
+        sNodeType* param2_type = create_node_type_from_cl_type(param2->mType, klass2);
+
+        if(!type_identify(param1_type, param2_type)) {
+            return FALSE;
+        }
+
+    }
+
+    return TRUE;
+}
+
+BOOL check_implemeted_methods_for_interface(sCLClass* left_class, sCLClass* right_class)
+{
+    int i;
+    for(i=0; i<left_class->mNumMethods; i++) {
+        sCLMethod* method = left_class->mMethods + i;
+
+        BOOL found = FALSE;
+
+        int j;
+        for(j=0; j<right_class->mNumMethods; j++) {
+            sCLMethod* method2 = right_class->mMethods + j;
+
+            if(check_same_interface_of_two_methods(method, left_class, method2, right_class)) {
+                found = TRUE;
+            }
+        }
+
+        if(!found) {
+            return FALSE;
+        }
+    }
+
+    return TRUE;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+/// write class to a class file 
+////////////////////////////////////////////////////////////////////////////////
 
 static void append_const_to_buffer(sBuf* buf, sConst* constant)
 {
@@ -266,6 +361,7 @@ static void append_methods_to_buffer(sBuf* buf, sCLMethod* methods, int num_meth
         sBuf_append_long(buf, method->mFlags);
         sBuf_append_int(buf, method->mNameOffset);
         sBuf_append_int(buf, method->mPathOffset);
+        sBuf_append_int(buf, method->mMethodNameAndParamsOffset);
 
         sBuf_append_int(buf, method->mNumParams);
 

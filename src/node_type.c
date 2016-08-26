@@ -130,7 +130,15 @@ sNodeType* create_node_type_from_cl_type(sCLType* cl_type, sCLClass* klass)
 
 BOOL substitution_posibility(sNodeType* left, sNodeType* right)
 {
-    return left->mClass == right->mClass && left->mArray == right->mArray;
+    sCLClass* left_class = left->mClass;
+    sCLClass* right_class = right->mClass;
+
+    if(left_class->mFlags & CLASS_FLAGS_INTERFACE) {
+        return check_implemeted_methods_for_interface(left_class, right_class);
+    }
+    else {
+        return left->mClass == right->mClass && left->mArray == right->mArray;
+    }
 }
 
 BOOL substitution_posibility_with_class_name(sNodeType* left, char* right_class_name)

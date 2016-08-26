@@ -81,7 +81,7 @@ static BOOL parse_generics_params(sParserInfo* info, sCompileInfo* cinfo)
     return TRUE;
 }
 
-static BOOL parse_class_name_and_attributes(char* class_name, int class_name_size, BOOL* final_, int* class_version, sParserInfo* info, sCompileInfo* cinfo)
+static BOOL parse_class_name_and_attributes(char* class_name, int class_name_size, int* class_version, sParserInfo* info, sCompileInfo* cinfo)
 {
     /// class name ///
     if(!parse_word(class_name, VAR_NAME_MAX, info, TRUE)) {
@@ -128,6 +128,7 @@ static BOOL parse_class_name_and_attributes(char* class_name, int class_name_siz
                 return FALSE;
             }
 
+/*
             if(strcmp(buf, "final") == 0) {
                 *final_ = TRUE;
             }
@@ -135,6 +136,7 @@ static BOOL parse_class_name_and_attributes(char* class_name, int class_name_siz
                 parser_err_msg(info, "%s is not class attribute", buf);
                 info->err_num++;
             }
+*/
 
             if(*info->p == '\0') {
                 parser_err_msg(info, "It is the source end. Close class definition");
@@ -150,13 +152,12 @@ static BOOL parse_class_name_and_attributes(char* class_name, int class_name_siz
     return TRUE;
 }
 
-static BOOL parse_class_on_alloc_classes_phase(sParserInfo* info, sCompileInfo* cinfo)
+static BOOL parse_class_on_alloc_classes_phase(sParserInfo* info, sCompileInfo* cinfo, BOOL interface)
 {
     char class_name[VAR_NAME_MAX];
-    BOOL final_ = FALSE;
     int class_version = 1;
 
-    if(!parse_class_name_and_attributes(class_name, VAR_NAME_MAX, &final_, &class_version, info, cinfo))
+    if(!parse_class_name_and_attributes(class_name, VAR_NAME_MAX, &class_version, info, cinfo))
     {
         return FALSE;
     }
@@ -167,7 +168,7 @@ static BOOL parse_class_on_alloc_classes_phase(sParserInfo* info, sCompileInfo* 
         info->klass->mNumMethodsOnLoadTime = info->klass->mNumMethods;
     }
     else {
-        info->klass = alloc_class(class_name, FALSE, final_, -1, info->generics_info.mNumParams);
+        info->klass = alloc_class(class_name, FALSE, -1, info->generics_info.mNumParams, interface);
         info->klass->mFlags |= CLASS_FLAGS_MODIFIED;
         info->klass->mNumMethodsOnLoadTime = 0;
     }
@@ -401,13 +402,12 @@ static BOOL parse_field_attributes_and_type(BOOL* private_, BOOL* protected_, BO
     return TRUE;
 }
 
-static BOOL parse_class_on_add_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo)
+static BOOL parse_class_on_add_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOOL interface)
 {
     char class_name[VAR_NAME_MAX];
-    BOOL final_ = FALSE;
     int class_version = 1;
 
-    if(!parse_class_name_and_attributes(class_name, VAR_NAME_MAX, &final_, &class_version, info, cinfo))
+    if(!parse_class_name_and_attributes(class_name, VAR_NAME_MAX, &class_version, info, cinfo))
     {
         return FALSE;
     }
@@ -446,11 +446,12 @@ static BOOL parse_class_on_add_methods_and_fields(sParserInfo* info, sCompileInf
 
                 if(info->err_num == 0) {
                     if(!add_method_to_class(info->klass, method_name, params, num_params, result_type, native_, static_)) {
+                        fprintf(stderr, "overflow method number\n");
                         return FALSE;
                     }
                 }
 
-                if(native_) {
+                if(native_ || interface) {
                     if(*info->p == ';') {
                         info->p++;
                         skip_spaces_and_lf(info);
@@ -510,13 +511,12 @@ static BOOL parse_class_on_add_methods_and_fields(sParserInfo* info, sCompileInf
     return TRUE;
 }
 
-static BOOL parse_class_on_compile_code(sParserInfo* info, sCompileInfo* cinfo)
+static BOOL parse_class_on_compile_code(sParserInfo* info, sCompileInfo* cinfo, BOOL interface)
 {
     char class_name[VAR_NAME_MAX];
-    BOOL final_ = FALSE;
     int class_version = 1;
 
-    if(!parse_class_name_and_attributes(class_name, VAR_NAME_MAX, &final_, &class_version, info, cinfo))
+    if(!parse_class_name_and_attributes(class_name, VAR_NAME_MAX, &class_version, info, cinfo))
     {
         return FALSE;
     }
@@ -554,7 +554,7 @@ static BOOL parse_class_on_compile_code(sParserInfo* info, sCompileInfo* cinfo)
                 sCLMethod* method = info->klass->mMethods + info->klass->mMethodIndexOnCompileTime + info->klass->mNumMethodsOnLoadTime;
                 info->klass->mMethodIndexOnCompileTime++;
 
-                if(native_) {
+                if(native_ || interface) {
                     if(*info->p == ';') {
                         info->p++;
                         skip_spaces_and_lf(info);
@@ -610,11 +610,11 @@ static BOOL parse_class_on_compile_code(sParserInfo* info, sCompileInfo* cinfo)
     return TRUE;
 }
 
-static BOOL parse_class(sParserInfo* info, sCompileInfo* cinfo)
+static BOOL parse_class(sParserInfo* info, sCompileInfo* cinfo, BOOL interface)
 {
     switch(info->parse_phase) {
         case PARSE_PHASE_ALLOC_CLASSES:
-            if(!parse_class_on_alloc_classes_phase(info, cinfo)) {
+            if(!parse_class_on_alloc_classes_phase(info, cinfo, interface)) {
                 return FALSE;
             }
             break;
@@ -638,7 +638,7 @@ static BOOL parse_class(sParserInfo* info, sCompileInfo* cinfo)
             break;
 
         case PARSE_PHASE_ADD_METHODS_AND_FIELDS:
-            if(!parse_class_on_add_methods_and_fields(info, cinfo)) {
+            if(!parse_class_on_add_methods_and_fields(info, cinfo, interface)) {
                 return FALSE;
             }
             break;
@@ -650,7 +650,7 @@ static BOOL parse_class(sParserInfo* info, sCompileInfo* cinfo)
             break;
 
         case PARSE_PHASE_DO_COMPILE_CODE:
-            if(!parse_class_on_compile_code(info, cinfo)) {
+            if(!parse_class_on_compile_code(info, cinfo, interface)) {
                 return FALSE;
             }
             break;
@@ -671,7 +671,12 @@ static BOOL parse_class_source(sParserInfo* info, sCompileInfo* cinfo)
         }
 
         if(strcmp(buf, "class") == 0) {
-            if(!parse_class(info, cinfo)) {
+            if(!parse_class(info, cinfo, FALSE)) {
+                return FALSE;
+            }
+        }
+        else if(strcmp(buf, "interface") == 0) {
+            if(!parse_class(info, cinfo, TRUE)) {
                 return FALSE;
             }
         }

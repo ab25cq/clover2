@@ -222,6 +222,10 @@ static void show_inst(unsigned inst)
             puts("OP_INVOKE_METHOD");
             break;
 
+        case OP_INVOKE_VIRTUAL_METHOD:
+            puts("OP_INVOKE_VIRTUAL_METHOD");
+            break;
+
         case OP_NEW :
             puts("OP_NEW");
             break;
@@ -2860,12 +2864,58 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(method_index < 0 || method_index >= klass->mNumMethods) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack, "Exception", "Calling method index is invalid");
+                        entry_exception_object_with_class_name(stack, "Exception", "Method not found");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
 
                     sCLMethod* method = klass->mMethods + method_index;
+
+                    if(!invoke_method(klass, method, stack, &stack_ptr, info)) {
+                        if(try_offset != 0) {
+                            pc = code->mCodes + try_offset;
+                            try_offset = try_offset_before;
+                        }
+                        else {
+                            vm_mutex_off();
+                            remove_stack_to_stack_list(stack);
+                            return FALSE;
+                        }
+                    }
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_INVOKE_VIRTUAL_METHOD:
+                {
+                    vm_mutex_on();
+
+                    int num_real_params = *(int*)pc;
+                    pc += sizeof(int);
+
+
+                    int offset = *(int*)pc;
+                    pc += sizeof(int);
+
+                    CLObject object = (stack_ptr-num_real_params)->mObjectValue;
+
+                    sCLObject* object_data = CLOBJECT(object);
+
+                    sCLClass* klass = object_data->mClass;
+
+                    MASSERT(klass != NULL);
+
+                    char* method_name_and_params = CONS_str(constant, offset);
+
+                    sCLMethod* method = search_for_method_from_virtual_method_table(klass, method_name_and_params);
+
+                    if(method == NULL) {
+                        vm_mutex_off();
+                        entry_exception_object_with_class_name(stack, "Exception", "method not found");
+                        remove_stack_to_stack_list(stack);
+                        return FALSE;
+                    }
 
                     if(!invoke_method(klass, method, stack, &stack_ptr, info)) {
                         if(try_offset != 0) {

@@ -2247,7 +2247,7 @@ static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)
     int method_index = search_for_method(klass, method_name, param_types, num_params, TRUE, klass->mNumMethods-1, NULL, &result_type);
 
     if(method_index == -1) {
-        parser_err_msg(info->pinfo, "method not found");
+        parser_err_msg(info->pinfo, "method not found(1)");
         info->err_num++;
 
         err_msg_for_method_not_found(klass, method_name, param_types, num_params, TRUE, info);
@@ -2332,7 +2332,7 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
     int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, NULL, &result_type);
 
     if(method_index == -1) {
-        parser_err_msg(info->pinfo, "method not found");
+        parser_err_msg(info->pinfo, "method not found(2)");
         info->err_num++;
 
         err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
@@ -2342,9 +2342,20 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
-    append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
-    append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(klass), info->no_output);
-    append_int_value_to_code(info->code, method_index, info->no_output);
+    sCLMethod* method = klass->mMethods + method_index;
+
+    if(klass->mFlags & CLASS_FLAGS_INTERFACE) {
+        int num_real_params = method->mNumParams + 1;
+
+        append_opecode_to_code(info->code, OP_INVOKE_VIRTUAL_METHOD, info->no_output);
+        append_int_value_to_code(info->code, num_real_params, info->no_output);
+        append_str_to_constant_pool_and_code(info->constant, info->code, METHOD_NAME_AND_PARAMS(klass, method), info->no_output);
+    }
+    else {
+        append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
+        append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(klass), info->no_output);
+        append_int_value_to_code(info->code, method_index, info->no_output);
+    }
 
     info->stack_num-=num_params + 1;
     info->stack_num++;
@@ -2431,7 +2442,7 @@ static BOOL compile_new_operator(unsigned int node, sCompileInfo* info)
         int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, NULL, &result_type);
 
         if(method_index == -1) {
-            parser_err_msg(info->pinfo, "method not found");
+            parser_err_msg(info->pinfo, "method not found(3)");
             info->err_num++;
 
             err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);

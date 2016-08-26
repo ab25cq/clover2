@@ -34,6 +34,7 @@
 #define GENERICS_TYPES_MAX 32
 #define CLASS_VERSION_MAX 128
 #define METHOD_PATH_MAX 1024
+#define METHOD_NUM_MAX 128
 
 /// CLVALUE ///
 typedef unsigned int CLObject;
@@ -100,7 +101,7 @@ void append_str_to_constant_pool_and_code(sConst* constant, sByteCode* code, cha
 
 /// klass.c ///
 #define CLASS_FLAGS_PRIMITIVE 0x01
-#define CLASS_FLAGS_FINAL 0x02
+#define CLASS_FLAGS_INTERFACE 0x02
 #define CLASS_FLAGS_MODIFIED 0x04
 
 struct sCLClassStruct;
@@ -138,6 +139,7 @@ struct sCLMethodStruct {
     long mFlags;
     int mNameOffset;
     int mPathOffset;
+    int mMethodNameAndParamsOffset;
 
     sCLParam mParams[PARAMS_MAX]; // +1 --> self
     int mNumParams;
@@ -197,12 +199,15 @@ struct sCLClassStruct {
 
     int mNumMethodsOnLoadTime; // This requires from the compile time
     int mMethodIndexOnCompileTime; // This require from the compile time
+
+    sCLMethod* mVirtualMethodTable[METHOD_NUM_MAX];
 };
 
 typedef struct sCLClassStruct sCLClass;
 
 #define CLASS_NAME(klass) (CONS_str((&(klass)->mConst), (klass)->mClassNameOffset))
 #define METHOD_NAME2(klass, method) (CONS_str((&(klass)->mConst), (method)->mNameOffset))
+#define METHOD_NAME_AND_PARAMS(klass, method) (CONS_str((&(klass)->mConst), (method)->mMethodNameAndParamsOffset))
 
 void class_init();
 void class_final();
@@ -214,6 +219,7 @@ ALLOC sCLType* create_cl_type(sCLClass* klass, sCLClass* klass2);
 void free_cl_type(sCLType* cl_type);
 sCLClass* load_class_with_version(char* class_name, int class_version);
 sCLClass* load_class(char* class_name);
+sCLMethod* search_for_method_from_virtual_method_table(sCLClass* klass, char* method_name_and_params);
 
 struct sClassTableStruct
 {
@@ -677,6 +683,7 @@ BOOL compile_script(char* fname, char* source);
 #define OP_LOGICAL_DENIAL 2002
 
 #define OP_INVOKE_METHOD 3000
+#define OP_INVOKE_VIRTUAL_METHOD 3001
 
 #define OP_NEW 4000
 #define OP_LOAD_FIELD 4001
@@ -901,6 +908,7 @@ int search_for_class_field(sCLClass* klass, char* field_name);
 void add_dependences_with_node_type(sCLClass* klass, sNodeType* node_type);
 sCLClass* get_class_with_load(char* class_name);
 BOOL parse_params(sParserParam* params, int* num_params, sParserInfo* info);
+BOOL check_implemeted_methods_for_interface(sCLClass* left_class, sCLClass* right_class);
 
 /// native_method.c ///
 void native_method_init();
