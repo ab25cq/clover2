@@ -50,10 +50,25 @@ static BOOL parse_generics_params(sParserInfo* info, sCompileInfo* cinfo)
 
         while(1) {
             if(isalpha(*info->p)) {
-                if(!parse_word(info->generics_info.mParamNames[info->generics_info.mNumParams], VAR_NAME_MAX, info, TRUE)) 
+                int num_generics_params = info->generics_info.mNumParams;
+                if(!parse_word(info->generics_info.mParamNames[num_generics_params], VAR_NAME_MAX, info, TRUE)) 
                 {
                     return FALSE;
                 }
+
+                expect_next_character_with_one_forward(":", info);
+
+                sCLClass* interface = NULL;
+                if(!parse_class_type(&interface, info)) {
+                    return FALSE;
+                }
+
+                if(interface && !(interface->mFlags & CLASS_FLAGS_INTERFACE)) {
+                    parser_err_msg(info, "This is not interface(%s)\n", CLASS_NAME(info->generics_info.mInterface[num_generics_params]));
+                    info->err_num++;
+                }
+
+                info->generics_info.mInterface[num_generics_params] = interface;
 
                 info->generics_info.mNumParams++;
 
@@ -168,7 +183,7 @@ static BOOL parse_class_on_alloc_classes_phase(sParserInfo* info, sCompileInfo* 
         info->klass->mNumMethodsOnLoadTime = info->klass->mNumMethods;
     }
     else {
-        info->klass = alloc_class(class_name, FALSE, -1, info->generics_info.mNumParams, interface);
+        info->klass = alloc_class(class_name, FALSE, -1, info->generics_info.mNumParams, info->generics_info.mInterface, interface);
         info->klass->mFlags |= CLASS_FLAGS_MODIFIED;
         info->klass->mNumMethodsOnLoadTime = 0;
     }

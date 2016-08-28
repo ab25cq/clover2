@@ -1,5 +1,24 @@
 
-class GenericsTest1 <T, T2> {
+interface GenericsInterface {
+    def method(a:int):int;
+}
+
+class GenericsTestClass {
+    def method(a:int):int {
+        return a;
+    }
+}
+
+class GenericsTest1 <T:GenericsInterface, T2:Object> {
     field: T;
     field2: T2;
+
+    def initialize(value:T, value2:T2) {
+        self.field = value;
+        self.field2 = value2;
+    }
+
+    def method(a:int):int {
+        return self.field.method(a);
+    }
 }

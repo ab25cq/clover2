@@ -549,6 +549,24 @@ static BOOL try_expression(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
+BOOL parse_class_type(sCLClass** klass, sParserInfo* info)
+{
+    char class_name[CLASS_NAME_MAX];
+
+    if(!parse_word(class_name, CLASS_NAME_MAX, info, TRUE)) {
+        return FALSE;
+    }
+
+    *klass = get_class_with_load(class_name);
+
+    if(*klass == NULL) {
+        parser_err_msg(info, "%s is not defined class", class_name);
+        info->err_num++;
+    }
+
+    return TRUE;
+}
+
 BOOL parse_type(sNodeType** result_type, sParserInfo* info)
 {
     char type_name[CLASS_NAME_MAX];

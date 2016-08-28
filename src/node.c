@@ -2313,6 +2313,17 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
 
     sCLClass* klass = info->type->mClass;
 
+    if(klass->mGenericsParamClassNum != -1) {
+        sGenericsParamInfo* generics_info = &info->pinfo->generics_info;
+        if(klass->mGenericsParamClassNum < generics_info->mNumParams) {
+            klass = generics_info->mInterface[klass->mGenericsParamClassNum];
+        }
+        else {
+            parser_err_msg(info->pinfo, "invalid generics interface method call");
+            info->err_num++;
+        }
+    }
+
     sNodeType* param_types[PARAMS_MAX];
 
     int num_params = gNodes[node].uValue.sMethodCall.mNumParams;

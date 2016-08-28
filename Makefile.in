@@ -111,5 +111,5 @@ test:
 	./cclover2 code/string.cl && ./clover2 code/string.clo
 	./cclover2 -class code/try.clc code/try.cl && ./clover2 code/try.clo
 	./cclover2 -class code/interface.clc code/interface.cl && ./clover2 code/interface.clo
-#	./cclover2 -class code/generics.clc code/generics.cl && ./clover2 code/generics.clo
+	./cclover2 -class code/generics.clc code/generics.cl && ./clover2 code/generics.clo
 

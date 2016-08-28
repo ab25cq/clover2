@@ -103,7 +103,7 @@ sNodeType* create_node_type_with_generics_number(int generics_num)
 {
     char class_name[CLASS_NAME_MAX+1];
 
-    snprintf(class_name, CLASS_NAME_MAX, "GenericsParametorClass%d", generics_num+1);
+    snprintf(class_name, CLASS_NAME_MAX, "GenericsParametorClass%d", generics_num);
 
     return create_node_type_with_class_name(class_name);
 }

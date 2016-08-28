@@ -177,6 +177,8 @@ struct sCLClassStruct {
     int mGenericsParamClassNum;   // -1 is none generics param 
     int mNumGenerics;
 
+    int mGenericsParamTypeOffsets[GENERICS_TYPES_MAX];
+
     sConst mConst;
 
     int mClassNameOffset;
@@ -214,7 +216,7 @@ void class_final();
 
 sCLClass* get_class(char* name);
 unsigned int get_hash_key(char* name, unsigned int max);
-sCLClass* alloc_class(char* class_name, BOOL primitive_, BOOL final_, int generics_param_class_num, int generics_number);
+sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_class_num, int generics_number, sCLClass** type_of_generics_params, BOOL interface);
 ALLOC sCLType* create_cl_type(sCLClass* klass, sCLClass* klass2);
 void free_cl_type(sCLType* cl_type);
 sCLClass* load_class_with_version(char* class_name, int class_version);
@@ -316,6 +318,7 @@ struct sGenericsParamInfoStruct
 {
     char mParamNames[GENERICS_TYPES_MAX][VAR_NAME_MAX];
     int mNumParams;
+    sCLClass* mInterface[GENERICS_TYPES_MAX];
 };
 
 typedef struct sGenericsParamInfoStruct sGenericsParamInfo;
@@ -340,6 +343,7 @@ void skip_spaces_and_lf(sParserInfo* info);
 void expect_next_character_with_one_forward(char* characters, sParserInfo* info);
 BOOL parse_word(char* buf, int buf_size, sParserInfo* info, BOOL print_out_err_msg);
 BOOL parse_type(sNodeType** result_type, sParserInfo* info);
+BOOL parse_class_type(sCLClass** klass, sParserInfo* info);
 
 /// node_block ///
 struct sNodeBlockStruct

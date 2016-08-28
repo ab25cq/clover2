@@ -116,3 +116,5 @@ class SystemException
     }
 }
 
+interface Object {
+}
