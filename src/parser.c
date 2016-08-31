@@ -592,12 +592,48 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
         info->err_num++;
     }
 
-    if(*info->p == '[' && *(info->p+1) == ']') {
+    int generics_num = 0;
+
+    if(*info->p == '<') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        while(1) {
+            if(!parse_type(&(*result_type)->mGenericsTypes[generics_num], info)) {
+                return FALSE;
+            }
+
+            generics_num++;
+
+            if(generics_num >= GENERICS_TYPES_MAX) {
+                parser_err_msg(info, "overflow generics parametor number");
+                return FALSE;
+            }
+
+            if(*info->p == ',') {
+                info->p++;
+                skip_spaces_and_lf(info);
+            }
+            else if(*info->p == '>') {
+                info->p++;
+                skip_spaces_and_lf(info);
+                break;
+            }
+            else {
+                parser_err_msg(info, "invalid character(%c) in generics types", *info->p);
+                info->err_num++;
+                break;
+            }
+        }
+    }
+    else if(*info->p == '[' && *(info->p+1) == ']') {
         info->p+=2;
         skip_spaces_and_lf(info);
 
         (*result_type)->mArray = TRUE;
     }
+
+    (*result_type)->mNumGenericsTypes = generics_num;
 
     return TRUE;
 }
@@ -619,7 +655,41 @@ BOOL parse_type_for_new(sNodeType** result_type, unsigned int* array_num, sParse
 
     *array_num = 0;
 
-    if(*info->p == '[') {
+    int generics_num = 0;
+
+    if(*info->p == '<') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        while(1) {
+            if(!parse_type(&(*result_type)->mGenericsTypes[generics_num], info)) {
+                return FALSE;
+            }
+
+            generics_num++;
+
+            if(generics_num >= GENERICS_TYPES_MAX) {
+                parser_err_msg(info, "overflow generics parametor number");
+                return FALSE;
+            }
+
+            if(*info->p == ',') {
+                info->p++;
+                skip_spaces_and_lf(info);
+            }
+            else if(*info->p == '>') {
+                info->p++;
+                skip_spaces_and_lf(info);
+                break;
+            }
+            else {
+                parser_err_msg(info, "invalid character(%c) in generics types", *info->p);
+                info->err_num++;
+                break;
+            }
+        }
+    }
+    else if(*info->p == '[') {
         info->p++;
         skip_spaces_and_lf(info);
 
@@ -631,6 +701,8 @@ BOOL parse_type_for_new(sNodeType** result_type, unsigned int* array_num, sParse
 
         (*result_type)->mArray = TRUE;
     }
+
+    (*result_type)->mNumGenericsTypes = generics_num;
 
     return TRUE;
 }
@@ -1112,11 +1184,13 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     return TRUE;
                 }
                 if(node_type) {
+                    check_already_added_variable(info->lv_table, buf, info);
                     add_variable_to_table(info->lv_table, buf, node_type);
                 }
             }
             else {
                 node_type = NULL;
+                check_already_added_variable(info->lv_table, buf, info);
                 add_variable_to_table(info->lv_table, buf, node_type);
             }
 

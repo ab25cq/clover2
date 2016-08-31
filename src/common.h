@@ -261,8 +261,8 @@ BOOL is_exception_type(sNodeType* exception_type);
 
 BOOL substitution_posibility(sNodeType* left, sNodeType* right);
 BOOL substitution_posibility_with_class_name(sNodeType* left, char* right_class_name);
-BOOL operand_posibility(sNodeType* left, sNodeType* right, BOOL add_or_sub_operand);
-BOOL operand_posibility_with_class_name(sNodeType* left, char* right_class_name, BOOL add_or_sub_operand);
+BOOL operand_posibility_with_class_name(sNodeType* left, char* right_class_name, char* op_string);
+BOOL operand_posibility(sNodeType* left, sNodeType* right, char* op_string);
 BOOL solve_generics_types_for_node_type(sNodeType* node_type, ALLOC sNodeType** result, sNodeType* type_);
 BOOL type_identify_with_class_name(sNodeType* left, char* right_class_name);
 BOOL type_identify(sNodeType* left, sNodeType* right);
@@ -303,6 +303,8 @@ sVarTable* init_var_table();
 void set_max_block_var_num(sVarTable* new_table, sVarTable* lv_table);
 
 int get_variable_index(sVarTable* table, char* name);
+struct sParserInfoStruct;
+void check_already_added_variable(sVarTable* table, char* name, struct sParserInfoStruct* info);
 
 // result: (true) success (false) overflow the table or a variable which has the same name exists
 BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_);
@@ -681,6 +683,9 @@ BOOL compile_script(char* fname, char* source);
 #define OP_CLE 1203
 #define OP_CGTEQ 1204
 #define OP_CLEEQ 1205
+
+#define OP_OBISNULL 1300
+#define OP_CLASSNAME 1301
 
 #define OP_ANDAND 2000
 #define OP_OROR 2001

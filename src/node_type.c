@@ -136,8 +136,23 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right)
     if(left_class->mFlags & CLASS_FLAGS_INTERFACE) {
         return check_implemeted_methods_for_interface(left_class, right_class);
     }
+    else if(type_identify_with_class_name(right, "Null") && !(left_class->mFlags & CLASS_FLAGS_PRIMITIVE)) {
+        return TRUE;
+    }
     else {
-        return left->mClass == right->mClass && left->mArray == right->mArray;
+        if(left->mClass == right->mClass && left->mArray == right->mArray && left->mNumGenericsTypes == right->mNumGenericsTypes) {
+            int i;
+            for(i=0; i<left->mNumGenericsTypes; i++) {
+                if(!type_identify(left->mGenericsTypes[i], right->mGenericsTypes[i])) {
+                    return FALSE;
+                }
+            }
+
+            return TRUE;
+        }
+        else {
+            return FALSE;
+        }
     }
 }
 
@@ -146,19 +161,26 @@ BOOL substitution_posibility_with_class_name(sNodeType* left, char* right_class_
     return substitution_posibility(left, create_node_type_with_class_name(right_class_name));
 }
 
-BOOL operand_posibility(sNodeType* left, sNodeType* right, BOOL add_or_sub_operand)
+BOOL operand_posibility(sNodeType* left, sNodeType* right, char* op_string)
 {
-    if(type_identify_with_class_name(left, "pointer") && add_or_sub_operand) {
+    if(type_identify_with_class_name(left, "pointer") 
+        && (strcmp(op_string, "+") == 0 || strcmp(op_string, "-") == 0))
+    {
         return type_identify_with_class_name(right, "int");
+    }
+    else if(!(left->mClass->mFlags & CLASS_FLAGS_PRIMITIVE) 
+            && (strcmp(op_string, "==") == 0 || strcmp(op_string, "!=") == 0)) 
+    {
+        return type_identify_with_class_name(right, "Null");
     }
     else {
         return left->mClass == right->mClass;
     }
 }
 
-BOOL operand_posibility_with_class_name(sNodeType* left, char* right_class_name, BOOL add_or_sub_operand)
+BOOL operand_posibility_with_class_name(sNodeType* left, char* right_class_name, char* op_string)
 {
-    return operand_posibility(left, create_node_type_with_class_name(right_class_name), add_or_sub_operand);
+    return operand_posibility(left, create_node_type_with_class_name(right_class_name), op_string);
 }
 
 BOOL type_identify(sNodeType* left, sNodeType* right)
@@ -176,7 +198,7 @@ BOOL solve_generics_types_for_node_type(sNodeType* node_type, ALLOC sNodeType** 
     int i;
     int j;
 
-    if(generics_type) {
+    if(generics_type && generics_type->mNumGenericsTypes > 0) {
         for(i=0; i<GENERICS_TYPES_MAX; i++) {
             if(node_type->mClass->mGenericsParamClassNum == i) {
                 if(i < generics_type->mNumGenericsTypes) {

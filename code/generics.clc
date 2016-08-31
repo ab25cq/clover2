@@ -4,8 +4,20 @@ interface GenericsInterface {
 }
 
 class GenericsTestClass {
+    def initialize() {
+    }
+
     def method(a:int):int {
         return a;
+    }
+}
+
+class GenericsTestClass2 {
+    def initialize() {
+    }
+
+    def method():int {
+        return 123;
     }
 }
 
@@ -20,5 +32,17 @@ class GenericsTest1 <T:GenericsInterface, T2:Object> {
 
     def method(a:int):int {
         return self.field.method(a);
+    }
+
+    def method2(value: T): int {
+        return 123;
+    }
+
+    def getField(): T {
+        return self.field;
+    }
+
+    def getField2(): T2 {
+        return self.field2;
     }
 }

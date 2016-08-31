@@ -2792,6 +2792,47 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 }
                 break;
 
+            case OP_OBISNULL:
+                {
+                    vm_mutex_on();
+
+                    CLObject left = (stack_ptr-1)->mObjectValue;
+
+                    BOOL result = left == 0;
+
+                    stack_ptr--;
+                    stack_ptr->mBoolValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CLASSNAME:
+                {
+                    vm_mutex_on();
+
+                    CLObject left = (stack_ptr-1)->mObjectValue;
+
+                    if(left == 0) {
+                        vm_mutex_off();
+                        entry_exception_object_with_class_name(stack, "Exception", "Null pointer exception");
+                        remove_stack_to_stack_list(stack);
+                        return FALSE;
+                    }
+
+                    sCLObject* object_data = CLOBJECT(left);
+
+                    CLObject result = create_string_object(CLASS_NAME(object_data->mClass));
+
+                    stack_ptr--;
+                    stack_ptr->mBoolValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
             case OP_ANDAND:
                 {
                     vm_mutex_on();

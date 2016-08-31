@@ -977,6 +977,80 @@ void cast_right_type_to_pointer(sNodeType** right_type, sCompileInfo* info)
     }
 }
 
+static void cast_right_type_to_bool(sNodeType** right_type, sCompileInfo* info)
+{
+    if(type_identify_with_class_name(*right_type, "byte"))
+    {
+        append_opecode_to_code(info->code, OP_BYTE_TO_INT_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("bool");
+    }
+    else if(type_identify_with_class_name(*right_type, "ubyte")) 
+    {
+        append_opecode_to_code(info->code, OP_UBYTE_TO_INT_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("bool");
+    }
+    else if(type_identify_with_class_name(*right_type, "short"))
+    {
+        append_opecode_to_code(info->code, OP_SHORT_TO_INT_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("bool");
+    }
+    else if(type_identify_with_class_name(*right_type, "int"))
+    {
+        *right_type = create_node_type_with_class_name("bool");
+    }
+    else if(type_identify_with_class_name(*right_type, "uint"))
+    {
+        *right_type = create_node_type_with_class_name("bool");
+    }
+    else if(type_identify_with_class_name(*right_type, "ushort")) 
+    {
+        append_opecode_to_code(info->code, OP_USHORT_TO_INT_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("bool");
+    }
+    else if(type_identify_with_class_name(*right_type, "uint")) 
+    {
+        append_opecode_to_code(info->code, OP_UINT_TO_INT_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("bool");
+    }
+    else if(type_identify_with_class_name(*right_type, "long"))
+    {
+        append_opecode_to_code(info->code, OP_LONG_TO_INT_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("bool");
+    }
+    else if(type_identify_with_class_name(*right_type, "ulong")) 
+    {
+        append_opecode_to_code(info->code, OP_ULONG_TO_INT_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("bool");
+    }
+    else if(type_identify_with_class_name(info->type, "float"))
+    {
+        append_opecode_to_code(info->code, OP_FLOAT_TO_INT_CAST, info->no_output);
+        *right_type = create_node_type_with_class_name("bool");
+    }
+    else if(type_identify_with_class_name(info->type, "double"))
+    {
+        append_opecode_to_code(info->code, OP_DOUBLE_TO_INT_CAST, info->no_output);
+        *right_type = create_node_type_with_class_name("bool");
+    }
+    else if(type_identify_with_class_name(info->type, "pointer"))
+    {
+        append_opecode_to_code(info->code, OP_POINTER_TO_INT_CAST, info->no_output);
+        *right_type = create_node_type_with_class_name("bool");
+    }
+    else if(type_identify_with_class_name(info->type, "char"))
+    {
+        append_opecode_to_code(info->code, OP_CHAR_TO_INT_CAST, info->no_output);
+        *right_type = create_node_type_with_class_name("bool");
+    }
+}
+
 static void cast_right_type_to_String(sNodeType** right_type, sCompileInfo* info)
 {
     if(type_identify_with_class_name(*right_type, "byte")) {
@@ -1058,84 +1132,76 @@ static void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right
         if(type_identify_with_class_name(left_type, "byte"))
         {
             cast_right_type_to_byte(right_type, info);
-            *right_type = create_node_type_with_class_name("byte");
         }
         else if(type_identify_with_class_name(left_type, "ubyte")) 
         {
             cast_right_type_to_ubyte(right_type, info);
-            *right_type = create_node_type_with_class_name("ubyte");
         }
         else if(type_identify_with_class_name(left_type, "short"))
         {
             cast_right_type_to_short(right_type, info);
-            *right_type = create_node_type_with_class_name("short");
         }
         else if(type_identify_with_class_name(left_type, "ushort"))
         {
             cast_right_type_to_ushort(right_type, info);
-            *right_type = create_node_type_with_class_name("ushort");
         }
         else if(type_identify_with_class_name(left_type, "int"))
         {
             cast_right_type_to_int(right_type, info);
-            *right_type = create_node_type_with_class_name("int");
         }
         else if(type_identify_with_class_name(left_type, "uint"))
         {
             cast_right_type_to_int(right_type, info);
-            *right_type = create_node_type_with_class_name("uint");
         }
         else if(type_identify_with_class_name(left_type, "long"))
         {
             cast_right_type_to_long(right_type, info);
-            *right_type = create_node_type_with_class_name("long");
         }
         else if(type_identify_with_class_name(left_type, "ulong"))
         {
             cast_right_type_to_ulong(right_type, info);
-            *right_type = create_node_type_with_class_name("ulong");
         }
         else if(type_identify_with_class_name(left_type, "float"))
         {
             cast_right_type_to_float(right_type, info);
-            *right_type = create_node_type_with_class_name("float");
         }
         else if(type_identify_with_class_name(left_type, "double"))
         {
             cast_right_type_to_double(right_type, info);
-            *right_type = create_node_type_with_class_name("double");
         }
         else if(type_identify_with_class_name(left_type, "pointer"))
         {
             cast_right_type_to_pointer(right_type, info);
-            *right_type = create_node_type_with_class_name("pointer");
         }
         else if(type_identify_with_class_name(left_type, "char"))
         {
             cast_right_type_to_char(right_type, info);
-            *right_type = create_node_type_with_class_name("char");
         }
         else if(type_identify_with_class_name(left_type, "bool"))
         {
-            cast_right_type_to_int(right_type, info);
-            *right_type = create_node_type_with_class_name("bool");
+            cast_right_type_to_bool(right_type, info);
         }
         else if(type_identify_with_class_name(left_type, "String"))
         {
             cast_right_type_to_String(right_type, info);
-            *right_type = create_node_type_with_class_name("String");
         }
     }
 }
 
+static BOOL no_cast_types(sNodeType* left_type, sNodeType* right_type)
+{
+    return (type_identify_with_class_name(left_type, "pointer") && type_identify_with_class_name(right_type, "int"))
+     || (type_identify_with_class_name(left_type, "String") && type_identify_with_class_name(right_type, "Null"));
+}
+
 static BOOL binary_operator(sNodeType* left_type, sNodeType* right_type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, int float_operand, int double_operand, int pointer_operand, int null_operand, int char_operand, int bool_operand, char* op_string, sCompileInfo* info)
 {
-    if(!(type_identify_with_class_name(left_type, "pointer") && type_identify_with_class_name(right_type, "int"))) 
+    if(!no_cast_types(left_type, right_type))
     {
         cast_right_type_to_left_type(left_type, &right_type, info);
     }
 
-    if(!operand_posibility(left_type, right_type, strcmp(op_string, "+") == 0 || strcmp(op_string, "-") == 0)) 
+    if(!operand_posibility(left_type, right_type, op_string))
     {
         parser_err_msg(info->pinfo, "Invalid type for operand(%s). The left type is %s. The right type is %s.", op_string,CLASS_NAME(left_type->mClass), CLASS_NAME(right_type->mClass));
         info->err_num++;
@@ -1700,7 +1766,7 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
     cast_right_type_to_left_type(left_type, &right_type, info);
 
     if(!substitution_posibility(left_type, right_type)) {
-        parser_err_msg(info->pinfo, "The different type between left type and right type");
+        parser_err_msg(info->pinfo, "The different type between left type and right type(1)");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -2311,6 +2377,7 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
+    sNodeType* generics_types = info->type;
     sCLClass* klass = info->type->mClass;
 
     if(klass->mGenericsParamClassNum != -1) {
@@ -2340,7 +2407,7 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
     }
 
     sNodeType* result_type;
-    int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, NULL, &result_type);
+    int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types, &result_type);
 
     if(method_index == -1) {
         parser_err_msg(info->pinfo, "method not found(2)");
@@ -2399,7 +2466,9 @@ unsigned int sNodeTree_create_new_operator(sNodeType* node_type, unsigned int* p
 
 static BOOL compile_new_operator(unsigned int node, sCompileInfo* info)
 {
-    sCLClass* klass = gNodes[node].uValue.sNewOperator.mType->mClass;
+    sNodeType* generics_types = gNodes[node].uValue.sNewOperator.mType;
+
+    sCLClass* klass = generics_types->mClass;
     unsigned int array_num = gNodes[node].uValue.sNewOperator.mArrayNum;
 
     if(array_num > 0) {
@@ -2450,7 +2519,7 @@ static BOOL compile_new_operator(unsigned int node, sCompileInfo* info)
         char* method_name = "initialize";
 
         sNodeType* result_type;
-        int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, NULL, &result_type);
+        int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types, &result_type);
 
         if(method_index == -1) {
             parser_err_msg(info->pinfo, "method not found(3)");
@@ -2738,6 +2807,16 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
 
         info->type = create_node_type_with_class_name("int");
     }
+    else if(strcmp(field_name, "isNull") == 0) {
+        append_opecode_to_code(info->code, OP_OBISNULL, info->no_output);
+
+        info->type = create_node_type_with_class_name("bool");
+    }
+    else if(strcmp(field_name, "className") == 0) {
+        append_opecode_to_code(info->code, OP_CLASSNAME, info->no_output);
+
+        info->type = create_node_type_with_class_name("String");
+    }
     else if(strcmp(field_name, "toString") == 0) {
         cast_right_type_to_String(&info->type, info);
     }
@@ -2899,7 +2978,7 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
     cast_right_type_to_left_type(field_type, &right_type, info);
 
     if(!substitution_posibility(field_type, right_type)) {
-        parser_err_msg(info->pinfo, "The different type between left type and right type");
+        parser_err_msg(info->pinfo, "The different type between left type and right type(2)");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -3026,7 +3105,7 @@ static BOOL compile_store_class_field(unsigned int node, sCompileInfo* info)
     cast_right_type_to_left_type(field_type, &right_type, info);
 
     if(!substitution_posibility(field_type, right_type)) {
-        parser_err_msg(info->pinfo, "The different type between left type and right type");
+        parser_err_msg(info->pinfo, "The different type between left type and right type(3)");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -3095,7 +3174,7 @@ BOOL compile_store_value_to_pointer(unsigned int node, sCompileInfo* info)
     if(right_type == NULL 
         || !substitution_posibility(node_type, right_type))
     {
-        parser_err_msg(info->pinfo, "The different type between left type and right type");
+        parser_err_msg(info->pinfo, "The different type between left type and right type(4)");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -3713,7 +3792,7 @@ BOOL compile_increment_operand_with_value(unsigned int node, sCompileInfo* info)
     cast_right_type_to_left_type(left_type, &right_type, info);
 
     if(!substitution_posibility(left_type, right_type)) {
-        parser_err_msg(info->pinfo, "The different type between left type and right type");
+        parser_err_msg(info->pinfo, "The different type between left type and right type(5)");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -4316,7 +4395,7 @@ BOOL compile_decrement_operand_with_value(unsigned int node, sCompileInfo* info)
     cast_right_type_to_left_type(left_type, &right_type, info);
 
     if(!substitution_posibility(left_type, right_type)) {
-        parser_err_msg(info->pinfo, "The different type between left type and right type");
+        parser_err_msg(info->pinfo, "The different type between left type and right type(6)");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -4645,7 +4724,7 @@ BOOL compile_store_array_element(unsigned int node, sCompileInfo* info)
     cast_right_type_to_left_type(left_type2, &right_type, info);
 
     if(!substitution_posibility(left_type2, right_type)) {
-        parser_err_msg(info->pinfo, "The different type between left type and right type");
+        parser_err_msg(info->pinfo, "The different type between left type and right type(7)");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy

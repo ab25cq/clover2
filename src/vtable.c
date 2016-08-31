@@ -50,7 +50,12 @@ BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_)
         if(p->mName[0] == 0) {
             xstrncpy(p->mName, name, VAR_NAME_MAX);
             p->mIndex = table->mVarNum++;
-            p->mType = type_;
+            if(type_) {
+                p->mType = clone_node_type(type_);
+            }
+            else {
+                p->mType = NULL;
+            }
 
             p->mBlockLevel = table->mBlockLevel;
 
@@ -61,7 +66,12 @@ BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_)
                 if(p->mBlockLevel < table->mBlockLevel) {
                     xstrncpy(p->mName, name, VAR_NAME_MAX);
                     p->mIndex = table->mVarNum++;
-                    p->mType = type_;
+                    if(type_) {
+                        p->mType = clone_node_type(type_);
+                    }
+                    else {
+                        p->mType = NULL;
+                    }
                     p->mBlockLevel = table->mBlockLevel;
 
                     return TRUE;
@@ -110,6 +120,16 @@ static sVar* get_variable_from_this_table_only(sVarTable* table, char* name)
         else if(p == table->mLocalVariables + hash_value) {
             return NULL;
         }
+    }
+}
+
+void check_already_added_variable(sVarTable* table, char* name, struct sParserInfoStruct* info)
+{
+    sVar* var = get_variable_from_this_table_only(table, name);
+    
+    if(var != NULL) {
+        parser_err_msg(info, "Variable (%s) has already_added in this variable table", name);
+        info->err_num++;
     }
 }
 

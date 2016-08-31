@@ -72,7 +72,7 @@ class String: final
         for(i:int = 0; i<self.buffer.length-1; i++) {
             new_buffer[i] = self.buffer[i];
         }
-        for(i:int = 0; i<str.length(); i++) {
+        for(i = 0; i<str.length(); i++) {
             new_buffer[i+self.buffer.length-1] = str.chars(i);
         }
         new_buffer[self.buffer.length-1 + str.length()] = '\0';
