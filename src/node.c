@@ -997,18 +997,14 @@ static void cast_right_type_to_bool(sNodeType** right_type, sCompileInfo* info)
 
         *right_type = create_node_type_with_class_name("bool");
     }
-    else if(type_identify_with_class_name(*right_type, "int"))
-    {
-        *right_type = create_node_type_with_class_name("bool");
-    }
-    else if(type_identify_with_class_name(*right_type, "uint"))
-    {
-        *right_type = create_node_type_with_class_name("bool");
-    }
     else if(type_identify_with_class_name(*right_type, "ushort")) 
     {
         append_opecode_to_code(info->code, OP_USHORT_TO_INT_CAST, info->no_output);
 
+        *right_type = create_node_type_with_class_name("bool");
+    }
+    else if(type_identify_with_class_name(*right_type, "int"))
+    {
         *right_type = create_node_type_with_class_name("bool");
     }
     else if(type_identify_with_class_name(*right_type, "uint")) 
@@ -1190,8 +1186,7 @@ static void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right
 
 static BOOL no_cast_types(sNodeType* left_type, sNodeType* right_type)
 {
-    return (type_identify_with_class_name(left_type, "pointer") && type_identify_with_class_name(right_type, "int"))
-     || (type_identify_with_class_name(left_type, "String") && type_identify_with_class_name(right_type, "Null"));
+    return type_identify_with_class_name(left_type, "pointer") && type_identify_with_class_name(right_type, "int");
 }
 
 static BOOL binary_operator(sNodeType* left_type, sNodeType* right_type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, int float_operand, int double_operand, int pointer_operand, int null_operand, int char_operand, int bool_operand, char* op_string, sCompileInfo* info)

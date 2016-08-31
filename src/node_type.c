@@ -168,11 +168,6 @@ BOOL operand_posibility(sNodeType* left, sNodeType* right, char* op_string)
     {
         return type_identify_with_class_name(right, "int");
     }
-    else if(!(left->mClass->mFlags & CLASS_FLAGS_PRIMITIVE) 
-            && (strcmp(op_string, "==") == 0 || strcmp(op_string, "!=") == 0)) 
-    {
-        return type_identify_with_class_name(right, "Null");
-    }
     else {
         return left->mClass == right->mClass;
     }
