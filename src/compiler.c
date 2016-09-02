@@ -6,10 +6,12 @@ static void compiler_init()
     init_node_types();
     class_init();
     init_vtable();
+    module_init();
 }
 
 static void compiler_final()
 {
+    module_final();
     free_nodes();
     free_node_types();
     class_final();
@@ -177,6 +179,8 @@ static BOOL class_compiler(char* fname)
         MFREE(source2.mBuf);
         return FALSE;
     }
+
+    write_all_modified_modules();
 
     MFREE(source.mBuf);
     MFREE(source2.mBuf);

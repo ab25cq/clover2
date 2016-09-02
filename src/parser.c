@@ -557,7 +557,12 @@ BOOL parse_class_type(sCLClass** klass, sParserInfo* info)
         return FALSE;
     }
 
-    *klass = get_class_with_load(class_name);
+    if(strcmp(class_name, "Self") == 0) {
+        *klass = info->klass;
+    }
+    else {
+        *klass = get_class_with_load(class_name);
+    }
 
     if(*klass == NULL) {
         parser_err_msg(info, "%s is not defined class", class_name);
@@ -584,7 +589,12 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
     }
 
     if(i == info->generics_info.mNumParams) {
-        *result_type = create_node_type_with_class_name(type_name);
+        if(strcmp(type_name, "Self") == 0) {
+            *result_type = create_node_type_with_class_pointer(info->klass);
+        }
+        else {
+            *result_type = create_node_type_with_class_name(type_name);
+        }
     }
 
     if(*result_type == NULL || (*result_type)->mClass == NULL) {

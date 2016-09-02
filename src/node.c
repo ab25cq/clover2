@@ -2802,12 +2802,12 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
 
         info->type = create_node_type_with_class_name("int");
     }
-    else if(strcmp(field_name, "isNull") == 0) {
+    else if(!(klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "isNull") == 0) {
         append_opecode_to_code(info->code, OP_OBISNULL, info->no_output);
 
         info->type = create_node_type_with_class_name("bool");
     }
-    else if(strcmp(field_name, "className") == 0) {
+    else if(!(klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "className") == 0) {
         append_opecode_to_code(info->code, OP_CLASSNAME, info->no_output);
 
         info->type = create_node_type_with_class_name("String");

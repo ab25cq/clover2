@@ -35,6 +35,8 @@
 #define CLASS_VERSION_MAX 128
 #define METHOD_PATH_MAX 1024
 #define METHOD_NUM_MAX 128
+#define CL_MODULE_HASH_SIZE 256
+#define CL_MODULE_NAME_MAX CLASS_NAME_MAX
 
 /// CLVALUE ///
 typedef unsigned int CLObject;
@@ -257,6 +259,7 @@ sNodeType* clone_node_type(sNodeType* node_type);
 sNodeType* create_node_type_with_class_name(char* class_name);
 sNodeType* create_node_type_with_generics_number(int generics_num);
 sNodeType* create_node_type_from_cl_type(sCLType* cl_type, sCLClass* klass);
+sNodeType* create_node_type_with_class_pointer(sCLClass* klass);
 BOOL is_exception_type(sNodeType* exception_type);
 
 BOOL substitution_posibility(sNodeType* left, sNodeType* right);
@@ -974,6 +977,27 @@ CLObject alloc_heap_mem(int size, sCLClass* klass, int array_num);
 sCLHeapMem* get_object_pointer(CLObject obj);
 void show_heap(sVMInfo* info);
 void mark_object(CLObject obj, unsigned char* mark_flg);
+
+/// module.c ///
+struct sCLModuleStruct {
+    BOOL mModified;
+    char mName[CL_MODULE_NAME_MAX+1];
+    sBuf mBody;
+};
+
+typedef struct sCLModuleStruct sCLModule;
+
+void module_init();
+void module_final();
+sCLModule* create_module(char* module_name);
+void unload_module(char* module_name);
+void append_character_to_module(sCLModule* self, char c);
+void append_str_to_module(sCLModule* self, char* str);
+sCLModule* get_module(char* module_name);
+char* get_module_body(sCLModule* module);
+void write_all_modified_modules();
+void this_module_is_modified(sCLModule* self);
+BOOL load_module_from_file(ALLOC sCLModule** self, char* module_name);
 
 /// object.c ///
 #define DUMMY_ARRAY_SIZE 32

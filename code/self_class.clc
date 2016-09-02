@@ -1,0 +1,13 @@
+class SelfTest {
+    value1:int;
+    value2:int;
+
+    def initialize(value1:int, value2:int) {
+        self.value1 = value1;
+        self.value2 = value2;
+    }
+
+    def getSelf():Self {
+        return self;
+    }
+}

@@ -1,0 +1,19 @@
+
+module MModuleTest {
+    def method(): int {
+        return 123;
+    }
+    def method2():int {
+        return self.field;
+    }
+}
+
+class ModuleTest {
+    field:int;
+
+    include MModuleTest;
+
+    def initialize() {
+        self.field = 123;
+    }
+}

@@ -82,6 +82,17 @@ sNodeType* clone_node_type(sNodeType* node_type)
     return node_type2;
 }
 
+sNodeType* create_node_type_with_class_pointer(sCLClass* klass)
+{
+    sNodeType* node_type = alloc_node_type();
+
+    node_type->mClass = klass;
+    node_type->mNumGenericsTypes = 0;
+    node_type->mArray = FALSE;
+
+    return node_type;
+}
+
 sNodeType* create_node_type_with_class_name(char* class_name)
 {
     sNodeType* node_type = alloc_node_type();

@@ -417,6 +417,127 @@ static BOOL parse_field_attributes_and_type(BOOL* private_, BOOL* protected_, BO
     return TRUE;
 }
 
+static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOOL interface)
+{
+    BOOL native_ = FALSE;
+    BOOL static_ = FALSE;
+
+    char buf[VAR_NAME_MAX];
+    if(!parse_word(buf, VAR_NAME_MAX, info, TRUE)) {
+        return FALSE;
+    }
+
+    if(strcmp(buf, "include") == 0) {
+        char module_name[CLASS_NAME_MAX+1];
+
+        if(!parse_word(module_name, CLASS_NAME_MAX, info, TRUE)) {
+            return FALSE;
+        }
+
+        sCLModule* module = get_module(module_name);
+
+        if(module == NULL) {
+            parser_err_msg(info, "The module named %s is not defined", module_name);
+            info->err_num++;
+        }
+        else {
+            char* body = get_module_body(module);
+
+            char* p_saved = info->p;
+            int sline_saved = info->sline;
+            char* sname_saved = info->sname;
+
+            info->p = body;
+            info->sline = 1;
+            info->sname = module_name;
+
+            while(*info->p) {
+                skip_spaces_and_lf(info);
+                if(!parse_methods_and_fields(info, cinfo, interface)) {
+                    return FALSE;
+                }
+                skip_spaces_and_lf(info);
+            }
+
+            info->p = p_saved;
+            info->sline = sline_saved;
+            info->sname = sname_saved;
+        }
+
+        if(*info->p == ';') {
+            info->p++;
+            skip_spaces_and_lf(info);
+        }
+    }
+
+    /// function ///
+    else if(strcmp(buf, "def") == 0) {
+        char method_name[VAR_NAME_MAX];
+        sParserParam params[PARAMS_MAX];
+        int num_params = 0;
+        sNodeType* result_type = NULL;
+        BOOL native_ = FALSE;
+        BOOL static_ = FALSE;
+
+        if(!parse_method_name_and_params(method_name, VAR_NAME_MAX, params, &num_params, &result_type, &native_, &static_, info, cinfo)) 
+        {
+            return FALSE;
+        }
+
+        if(info->err_num == 0) {
+            if(!add_method_to_class(info->klass, method_name, params, num_params, result_type, native_, static_)) {
+                fprintf(stderr, "overflow method number\n");
+                return FALSE;
+            }
+        }
+
+        if(native_ || interface) {
+            if(*info->p == ';') {
+                info->p++;
+                skip_spaces_and_lf(info);
+            }
+        }
+        else {
+            if(!skip_block(info)) {
+                return FALSE;
+            }
+        }
+    }
+    /// variable ///
+    else {
+        BOOL private_ = FALSE;
+        BOOL protected_ = FALSE;
+        BOOL static_ = FALSE;
+        sNodeType* result_type = NULL;
+
+        expect_next_character_with_one_forward(":", info);
+
+        if(!parse_field_attributes_and_type(&private_, &protected_, &static_, &result_type, info, cinfo)) {
+            return FALSE;
+        }
+
+        if(info->err_num == 0) {
+            if(static_) {
+                if(!add_class_field_to_class(info->klass, buf, private_, protected_, result_type)) {
+                    return FALSE;
+                }
+            }
+            else {
+                if(!add_field_to_class(info->klass, buf, private_, protected_, result_type)) {
+                    return FALSE;
+                }
+            }
+        }
+
+        if(*info->p == ';') {
+            info->p++;
+            skip_spaces_and_lf(info);
+        }
+    }
+
+    return TRUE;
+}
+
 static BOOL parse_class_on_add_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOOL interface)
 {
     char class_name[VAR_NAME_MAX];
@@ -437,77 +558,8 @@ static BOOL parse_class_on_add_methods_and_fields(sParserInfo* info, sCompileInf
     }
     else {
         while(1) {
-            char buf[VAR_NAME_MAX];
-            BOOL native_ = FALSE;
-            BOOL static_ = FALSE;
-
-            if(!parse_word(buf, VAR_NAME_MAX, info, TRUE)) {
+            if(!parse_methods_and_fields(info, cinfo, interface)) {
                 return FALSE;
-            }
-
-            /// function ///
-            if(strcmp(buf, "def") == 0) {
-                char method_name[VAR_NAME_MAX];
-                sParserParam params[PARAMS_MAX];
-                int num_params = 0;
-                sNodeType* result_type = NULL;
-                BOOL native_ = FALSE;
-                BOOL static_ = FALSE;
-
-                if(!parse_method_name_and_params(method_name, VAR_NAME_MAX, params, &num_params, &result_type, &native_, &static_, info, cinfo)) 
-                {
-                    return FALSE;
-                }
-
-                if(info->err_num == 0) {
-                    if(!add_method_to_class(info->klass, method_name, params, num_params, result_type, native_, static_)) {
-                        fprintf(stderr, "overflow method number\n");
-                        return FALSE;
-                    }
-                }
-
-                if(native_ || interface) {
-                    if(*info->p == ';') {
-                        info->p++;
-                        skip_spaces_and_lf(info);
-                    }
-                }
-                else {
-                    if(!skip_block(info)) {
-                        return FALSE;
-                    }
-                }
-            }
-            /// variable ///
-            else {
-                BOOL private_ = FALSE;
-                BOOL protected_ = FALSE;
-                BOOL static_ = FALSE;
-                sNodeType* result_type = NULL;
-
-                expect_next_character_with_one_forward(":", info);
-
-                if(!parse_field_attributes_and_type(&private_, &protected_, &static_, &result_type, info, cinfo)) {
-                    return FALSE;
-                }
-
-                if(info->err_num == 0) {
-                    if(static_) {
-                        if(!add_class_field_to_class(info->klass, buf, private_, protected_, result_type)) {
-                            return FALSE;
-                        }
-                    }
-                    else {
-                        if(!add_field_to_class(info->klass, buf, private_, protected_, result_type)) {
-                            return FALSE;
-                        }
-                    }
-                }
-
-                if(*info->p == ';') {
-                    info->p++;
-                    skip_spaces_and_lf(info);
-                }
             }
 
             if(*info->p == '\0') {
@@ -520,6 +572,118 @@ static BOOL parse_class_on_add_methods_and_fields(sParserInfo* info, sCompileInf
                 skip_spaces_and_lf(info);
                 break;
             }
+        }
+    }
+
+    return TRUE;
+}
+
+BOOL parse_methods_and_fields_on_compile_time(sParserInfo* info, sCompileInfo* cinfo, BOOL interface)
+{
+    char buf[VAR_NAME_MAX];
+
+    if(!parse_word(buf, VAR_NAME_MAX, info, TRUE)) {
+        return FALSE;
+    }
+
+    /// incldue ///
+    if(strcmp(buf, "include") == 0) {
+        char module_name[CLASS_NAME_MAX+1];
+
+        if(!parse_word(module_name, CLASS_NAME_MAX, info, TRUE)) {
+            return FALSE;
+        }
+
+        sCLModule* module = get_module(module_name);
+
+        if(module == NULL) {
+            parser_err_msg(info, "The module named %s is not defined", module_name);
+            info->err_num++;
+        }
+        else {
+            char* body = get_module_body(module);
+
+            char* p_saved = info->p;
+            int sline_saved = info->sline;
+            char* sname_saved = info->sname;
+
+            info->p = body;
+            info->sline = 1;
+            info->sname = module_name;
+
+            while(*info->p) {
+                skip_spaces_and_lf(info);
+                if(!parse_methods_and_fields_on_compile_time(info, cinfo, interface)) {
+                    return FALSE;
+                }
+                skip_spaces_and_lf(info);
+            }
+
+            info->p = p_saved;
+            info->sline = sline_saved;
+            info->sname = sname_saved;
+        }
+
+        if(*info->p == ';') {
+            info->p++;
+            skip_spaces_and_lf(info);
+        }
+    }
+
+    /// function ///
+    else if(strcmp(buf, "def") == 0) {
+        char method_name[VAR_NAME_MAX];
+        sParserParam params[PARAMS_MAX];
+        int num_params = 0;
+        sNodeType* result_type = NULL;
+        BOOL native_ = FALSE;
+        BOOL static_ = FALSE;
+
+        if(!parse_method_name_and_params(method_name, VAR_NAME_MAX, params, &num_params, &result_type, &native_, &static_, info, cinfo)) 
+        {
+            return FALSE;
+        }
+
+        sCLMethod* method = info->klass->mMethods + info->klass->mMethodIndexOnCompileTime + info->klass->mNumMethodsOnLoadTime;
+        info->klass->mMethodIndexOnCompileTime++;
+
+        if(native_ || interface) {
+            if(*info->p == ';') {
+                info->p++;
+                skip_spaces_and_lf(info);
+            }
+        }
+        else {
+            if(*info->p == '{') {
+                info->p++;
+                skip_spaces_and_lf(info);
+
+                if(!compile_method(method, params, num_params, info, cinfo)) {
+                    return FALSE;
+                }
+            }
+            else {
+                parser_err_msg(info, "The next character is required {");
+                info->err_num++;
+            }
+        }
+    }
+    /// variable ///
+    else {
+        BOOL private_ = FALSE;
+        BOOL protected_ = FALSE;
+        BOOL static_ = FALSE;
+        sNodeType* result_type = NULL;
+
+        expect_next_character_with_one_forward(":", info);
+
+        if(!parse_field_attributes_and_type(&private_, &protected_, &static_, &result_type, info, cinfo)) {
+            return FALSE;
+        }
+
+        if(*info->p == ';') {
+            info->p++;
+            skip_spaces_and_lf(info);
         }
     }
 
@@ -546,67 +710,8 @@ static BOOL parse_class_on_compile_code(sParserInfo* info, sCompileInfo* cinfo, 
     }
     else {
         while(1) {
-            char buf[VAR_NAME_MAX];
-
-            if(!parse_word(buf, VAR_NAME_MAX, info, TRUE)) {
+            if(!parse_methods_and_fields_on_compile_time(info, cinfo, interface)) {
                 return FALSE;
-            }
-
-            /// function ///
-            if(strcmp(buf, "def") == 0) {
-                char method_name[VAR_NAME_MAX];
-                sParserParam params[PARAMS_MAX];
-                int num_params = 0;
-                sNodeType* result_type = NULL;
-                BOOL native_ = FALSE;
-                BOOL static_ = FALSE;
-
-                if(!parse_method_name_and_params(method_name, VAR_NAME_MAX, params, &num_params, &result_type, &native_, &static_, info, cinfo)) 
-                {
-                    return FALSE;
-                }
-
-                sCLMethod* method = info->klass->mMethods + info->klass->mMethodIndexOnCompileTime + info->klass->mNumMethodsOnLoadTime;
-                info->klass->mMethodIndexOnCompileTime++;
-
-                if(native_ || interface) {
-                    if(*info->p == ';') {
-                        info->p++;
-                        skip_spaces_and_lf(info);
-                    }
-                }
-                else {
-                    if(*info->p == '{') {
-                        info->p++;
-                        skip_spaces_and_lf(info);
-
-                        if(!compile_method(method, params, num_params, info, cinfo)) {
-                            return FALSE;
-                        }
-                    }
-                    else {
-                        parser_err_msg(info, "The next character is required {");
-                        info->err_num++;
-                    }
-                }
-            }
-            /// variable ///
-            else {
-                BOOL private_ = FALSE;
-                BOOL protected_ = FALSE;
-                BOOL static_ = FALSE;
-                sNodeType* result_type = NULL;
-
-                expect_next_character_with_one_forward(":", info);
-
-                if(!parse_field_attributes_and_type(&private_, &protected_, &static_, &result_type, info, cinfo)) {
-                    return FALSE;
-                }
-
-                if(*info->p == ';') {
-                    info->p++;
-                    skip_spaces_and_lf(info);
-                }
             }
 
             if(*info->p == '\0') {
@@ -674,6 +779,75 @@ static BOOL parse_class(sParserInfo* info, sCompileInfo* cinfo, BOOL interface)
     return TRUE;
 }
 
+static BOOL parse_module(sParserInfo* info, sCompileInfo* cinfo)
+{
+    char module_name[CLASS_NAME_MAX];
+    if(!parse_word(module_name, CLASS_NAME_MAX, info, TRUE)) {
+        return FALSE;
+    }
+
+    if(info->parse_phase == PARSE_PHASE_ALLOC_CLASSES) {
+        if(*info->p == '{') {
+            info->p++;
+            //skip_spaces_and_lf(info);  for module format
+        }
+        else {
+            parser_err_msg(info, "expected that next character is {, but it is %c(%d)", *info->p, *info->p);
+            info->err_num++;
+            info->p++;
+            skip_spaces_and_lf(info);
+        }
+
+        sCLModule* module = create_module(module_name);
+        
+        if(module == NULL) {
+            parser_err_msg(info, "overflow the module table or the same name module exists(%s)", module_name);
+            return FALSE;
+        }
+
+        this_module_is_modified(module);
+
+        int block_num = 0;
+
+        while(*info->p) {
+            if(*info->p == '{') {
+                block_num++;
+                append_character_to_module(module, *info->p);
+                info->p++;
+            }
+            else if(*info->p == '}') {
+                if(block_num == 0) {
+                    info->p++;
+                    skip_spaces_and_lf(info);
+                    break;
+                }
+                else {
+                    block_num--;
+                    append_character_to_module(module, *info->p);
+                    info->p++;
+                }
+            }
+            else if(*info->p == '\n') {
+                append_character_to_module(module, *info->p);
+                info->p++;
+                info->sline++;
+            }
+            else {
+                append_character_to_module(module, *info->p);
+                info->p++;
+            }
+        }
+    }
+    else {
+        if(!skip_block(info)) {
+            return FALSE;
+        }
+        skip_spaces_and_lf(info);
+    }
+
+    return TRUE;
+}
+
 static BOOL parse_class_source(sParserInfo* info, sCompileInfo* cinfo)
 {
     skip_spaces_and_lf(info);
@@ -692,6 +866,11 @@ static BOOL parse_class_source(sParserInfo* info, sCompileInfo* cinfo)
         }
         else if(strcmp(buf, "interface") == 0) {
             if(!parse_class(info, cinfo, TRUE)) {
+                return FALSE;
+            }
+        }
+        else if(strcmp(buf, "module") == 0) {
+            if(!parse_module(info, cinfo)) {
                 return FALSE;
             }
         }
