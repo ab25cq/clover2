@@ -1,8 +1,0 @@
-class TestA {
-    def initialize(): static {
-        a:pointer = System.malloc(1);
-    }
-    def finalize():static {
-        2 + 2
-    }
-}

@@ -119,58 +119,6 @@ class SystemException
 interface Object {
 }
 
-class Integer {
-    value:int;
-
-    def initialize() {
-        self.value = 0;
-    }
-
-    def initialize(value:int) {
-        self.value = value;
-    }
-
-    def getValue(): int {
-        return self.value;
-    }
-
-    def setValue(value:int) {
-        self.value = value;
-    }
-
-    def toUInteger():UInteger {
-        return self.value.toUInteger;
-    }
-}
-
-class UInteger {
-    value: uint;
-
-    def initialize() {
-        self.value = 0.to_uint;
-    }
-
-    def initialize(value:uint) {
-        self.value = value;
-    }
-
-    def initialize(value:int) {
-        self.value = value.to_uint;
-    }
-
-    def getValue(): uint {
-        return self.value;
-    }
-
-    def setValue(value:uint) {
-        self.value = value;
-    }
-
-    def toInteger():Integer {
-        return self.value.toInteger;
-    }
-}
-
 class Byte {
     value:byte;
 
@@ -226,3 +174,56 @@ class UByte {
         return self.value.toByte;
     }
 }
+
+class Integer {
+    value:int;
+
+    def initialize() {
+        self.value = 0;
+    }
+
+    def initialize(value:int) {
+        self.value = value;
+    }
+
+    def getValue(): int {
+        return self.value;
+    }
+
+    def setValue(value:int) {
+        self.value = value;
+    }
+
+    def toUInteger():UInteger {
+        return self.value.toUInteger;
+    }
+}
+
+class UInteger {
+    value: uint;
+
+    def initialize() {
+        self.value = 0.to_uint;
+    }
+
+    def initialize(value:uint) {
+        self.value = value;
+    }
+
+    def initialize(value:int) {
+        self.value = value.to_uint;
+    }
+
+    def getValue(): uint {
+        return self.value;
+    }
+
+    def setValue(value:uint) {
+        self.value = value;
+    }
+
+    def toInteger():Integer {
+        return self.value.toInteger;
+    }
+}
+

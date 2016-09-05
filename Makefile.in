@@ -70,10 +70,38 @@ libclover2.dylib: libclover2.$(SO_VERSION).dylib
 $(OBJ): src/*.h Makefile configure
 
 #########################################################
+# install
+#########################################################
+install:
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -class Fundamental.clc
+	mkdir -p ~/.clover2
+	$(INSTALL) -m 644 System.clcl ~/.clover2
+	$(INSTALL) -m 644 Clover.clcl ~/.clover2
+	$(INSTALL) -m 644 String.clcl ~/.clover2
+	$(INSTALL) -m 644 Exception.clcl ~/.clover2
+	$(INSTALL) -m 644 SystemException.clcl ~/.clover2
+	$(INSTALL) -m 644 Object.clcl ~/.clover2
+	$(INSTALL) -m 644 Byte.clcl ~/.clover2
+	$(INSTALL) -m 644 UByte.clcl ~/.clover2
+	$(INSTALL) -m 644 Integer.clcl ~/.clover2
+	$(INSTALL) -m 644 UInteger.clcl ~/.clover2
+	mkdir -p "$(libdir)"
+	$(INSTALL) -m 755 clover2 "$(bindir)"
+	$(INSTALL) -m 755 cclover2 "$(bindir)"
+	$(INSTALL) -m 755 libclover2.so "$(libdir)"
+	$(INSTALL) -m 755 libclover2.so.1 "$(libdir)"
+	$(INSTALL) -m 755 libclover2.so.1.0.0 "$(libdir)"
+
+#########################################################
 # uninstall
 #########################################################
 uninstall:
 	rm -Rf ~/.clover2
+	rm -f "$(bindir)"/clover2
+	rm -f "$(bindir)"/cclover2
+	rm -f "$(libdir)"/libclover2.so
+	rm -f "$(libdir)"/libclover2.so.1
+	rm -f "$(libdir)"/libclover2.so.1.0.0
 
 #########################################################
 # permission
@@ -83,6 +111,7 @@ permission:
 	chmod 755 .git man src configure
 	chmod 644 src/*.c
 	chmod 644 src/*.h
+	chmod 755 update_clover.sh
 
 ########################################################
 # clean
@@ -98,24 +127,24 @@ distclean: clean
 ########################################################
 test:
 	@echo "Compile to test code..."
-	./cclover2 code/block_var_test.cl && ./clover2 code/block_var_test.clo
-	./cclover2 -class code/user_object.clc code/user_object.cl && ./clover2 code/user_object.clo
-	./cclover2 code/pointer.cl && ./clover2 code/pointer.clo
-	./cclover2 -class code/increment.clc && ./cclover2 code/increment.cl && ./clover2 code/increment.clo
-	./cclover2 -class code/initialize_test.clc && ./cclover2 code/initialize_test.cl && ./clover2 code/initialize_test.clo
-	./cclover2 -class code/stack.clc && ./cclover2 code/stack.cl && ./clover2 code/stack.clo
-	./cclover2 code/array.cl && ./clover2 code/array.clo
-	./cclover2 code/char.cl && ./clover2 code/char.clo
-	./cclover2 code/hello_world.cl && ./clover2 code/hello_world.clo
-	./cclover2 code/cast.cl && ./clover2 code/cast.clo
-	./cclover2 code/string.cl && ./clover2 code/string.clo
-	./cclover2 -class code/try.clc code/try.cl && ./clover2 code/try.clo
-	./cclover2 -class code/interface.clc code/interface.cl && ./clover2 code/interface.clo
-	./cclover2 code/null.cl && ./clover2 code/null.clo
-	./cclover2 code/special_field.cl && ./clover2 code/special_field.clo
-	./cclover2 -class code/self_class.clc code/self_class.cl && ./clover2 code/self_class.clo
-	./cclover2 -class code/module.clc code/module.cl && ./clover2 code/module.clo
-	./cclover2 -class code/generics.clc code/generics.cl && ./clover2 code/generics.clo
-	./cclover2 code/integer.cl && ./clover2 code/integer.clo
-#	./cclover2 code/hash.cl && ./clover2 code/hash.clo
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/block_var_test.cl && ./clover2 code/block_var_test.clo
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -class code/user_object.clc code/user_object.cl && ./clover2 code/user_object.clo
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/pointer.cl && ./clover2 code/pointer.clo
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -class code/increment.clc && ./cclover2 code/increment.cl && ./clover2 code/increment.clo
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -class code/initialize_test.clc && ./cclover2 code/initialize_test.cl && ./clover2 code/initialize_test.clo
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -class code/stack.clc && ./cclover2 code/stack.cl && ./clover2 code/stack.clo
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/array.cl && ./clover2 code/array.clo
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); export LANG="ja_JP.utf8"; export LC_ALL="ja_JP.utf8"; ./cclover2 code/char.cl && ./clover2 code/char.clo
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/hello_world.cl && ./clover2 code/hello_world.clo
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/cast.cl && ./clover2 code/cast.clo
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/string.cl && ./clover2 code/string.clo
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -class code/try.clc code/try.cl && ./clover2 code/try.clo
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -class code/interface.clc code/interface.cl && ./clover2 code/interface.clo
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/null.cl && ./clover2 code/null.clo
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/special_field.cl && ./clover2 code/special_field.clo
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -class code/self_class.clc code/self_class.cl && ./clover2 code/self_class.clo
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -class code/module.clc code/module.cl && ./clover2 code/module.clo
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -class code/generics.clc code/generics.cl && ./clover2 code/generics.clo
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/integer.cl && ./clover2 code/integer.clo
+#	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/hash.cl && ./clover2 code/hash.clo
 

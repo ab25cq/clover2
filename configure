@@ -686,7 +686,6 @@ enable_option_checking
 with_debug
 with_log
 with_optimize
-with_onig_dir
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1306,7 +1305,6 @@ Optional Packages:
   --with-debug              include debug info
   --with-log                create log
   --with-optimize           with optimize(-O in CFLAGS)
-  --with-onig-dir=DIR       set install prefix of oniguruma which located at non standerd directory and installed by user
 
 Some influential environment variables:
   CC          C compiler command
@@ -3602,14 +3600,6 @@ else
 fi
 
 
-# Check whether --with-onig-dir was given.
-if test "${with_onig_dir+set}" = set; then :
-  withval=$with_onig_dir;  ONIG_DIR="$withval";
-else
-   ONIG_DIR=;
-fi
-
-
 #####################################################################
 # check cpu type
 #####################################################################
@@ -3776,16 +3766,6 @@ then
     CFLAGS="$CFLAGS -L /opt/local/lib"
 fi
 
-if test -n "$ONIG_DIR"
-then
-    if test -e "$ONIG_DIR/include/oniguruma.h" && test -e "$ONIG_DIR/lib/libonig.a"
-    then
-         CFLAGS="$CFLAGS -I$ONIG_DIR/include -L $ONIG_DIR/lib"
-    else
-        echo "can't found oniguruma.h in $ONIG_DIR/include or libonig.a in $ONIG_DIR/lib"
-    fi
-fi
-
 if test $ENABLE_OPTIMIZE = 1
 then
     CFLAGS="$CFLAGS -O3"
@@ -3812,145 +3792,10 @@ fi
 CC=gcc
 INSTALL="/usr/bin/install -c"
 
-ac_fn_c_check_header_mongrel "$LINENO" "oniguruma.h" "ac_cv_header_oniguruma_h" "$ac_includes_default"
-if test "x$ac_cv_header_oniguruma_h" = xyes; then :
-  $as_echo "#define HAVE_ONIGURUMA_H 1" >>confdefs.h
-
-else
-   exit
-fi
-
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lonig" >&5
-$as_echo_n "checking for main in -lonig... " >&6; }
-if ${ac_cv_lib_onig_main+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lonig  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-
-int
-main ()
-{
-return main ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_onig_main=yes
-else
-  ac_cv_lib_onig_main=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_onig_main" >&5
-$as_echo "$ac_cv_lib_onig_main" >&6; }
-if test "x$ac_cv_lib_onig_main" = xyes; then :
-   LIBS="$LIBS -lonig";
-else
-   exit
-fi
-ac_cv_lib_onig=ac_cv_lib_onig_main
-
-
-ac_fn_c_check_header_mongrel "$LINENO" "pthread.h" "ac_cv_header_pthread_h" "$ac_includes_default"
-if test "x$ac_cv_header_pthread_h" = xyes; then :
-  $as_echo "#define HAVE_PTHREAD_H 1" >>confdefs.h
-
-else
-   exit
-fi
-
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lpthread" >&5
-$as_echo_n "checking for main in -lpthread... " >&6; }
-if ${ac_cv_lib_pthread_main+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lpthread  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-
-int
-main ()
-{
-return main ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_pthread_main=yes
-else
-  ac_cv_lib_pthread_main=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_pthread_main" >&5
-$as_echo "$ac_cv_lib_pthread_main" >&6; }
-if test "x$ac_cv_lib_pthread_main" = xyes; then :
-   LIBS="$LIBS -lpthread";
-else
-   exit
-fi
-ac_cv_lib_pthread=ac_cv_lib_pthread_main
-
-ac_fn_c_check_header_mongrel "$LINENO" "readline/readline.h" "ac_cv_header_readline_readline_h" "$ac_includes_default"
-if test "x$ac_cv_header_readline_readline_h" = xyes; then :
-  $as_echo "#define HAVE_READLINE_H 1" >>confdefs.h
-
-else
-   exit
-fi
-
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lreadline" >&5
-$as_echo_n "checking for main in -lreadline... " >&6; }
-if ${ac_cv_lib_readline_main+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lreadline  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-
-int
-main ()
-{
-return main ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_readline_main=yes
-else
-  ac_cv_lib_readline_main=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_readline_main" >&5
-$as_echo "$ac_cv_lib_readline_main" >&6; }
-if test "x$ac_cv_lib_readline_main" = xyes; then :
-   LIBS="$LIBS -lreadline";
-else
-   exit
-fi
-ac_cv_lib_readline=ac_cv_lib_readline_main
-
+#AC_CHECK_HEADER(pthread.h, [AC_DEFINE(HAVE_PTHREAD_H, 1)], [ exit ])
+#AC_HAVE_LIBRARY(pthread, [ LIBS="$LIBS -lpthread"; ], [ exit ])
+#AC_CHECK_HEADER(readline/readline.h, [AC_DEFINE(HAVE_READLINE_H, 1)], [ exit ])
+#AC_HAVE_LIBRARY(readline, [ LIBS="$LIBS -lreadline"; ], [ exit ])
 if test "$OS" != FREEBSD
 then
     { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -ldl" >&5

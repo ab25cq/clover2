@@ -22,7 +22,6 @@ LOGGING=0
 AC_ARG_WITH(debug,              [  --with-debug              include debug info ], [ DEBUGGING=1; ], [])
 AC_ARG_WITH(log,                [  --with-log                create log ], [ LOGGING=1; ], [])
 AC_ARG_WITH(optimize,           [  --with-optimize           with optimize(-O in CFLAGS) ], [ ENABLE_OPTIMIZE=1 ], [ ENABLE_OPTIMIZE=0 ])
-AC_ARG_WITH(onig-dir,           [  --with-onig-dir=DIR       set install prefix of oniguruma which located at non standerd directory and installed by user ], [ ONIG_DIR="$withval"; ], [ ONIG_DIR=; ])
 
 #####################################################################
 # check cpu type
@@ -147,16 +146,6 @@ then
     CFLAGS="$CFLAGS -L /opt/local/lib"
 fi
 
-if test -n "$ONIG_DIR"
-then
-    if test -e "$ONIG_DIR/include/oniguruma.h" && test -e "$ONIG_DIR/lib/libonig.a"
-    then
-         CFLAGS="$CFLAGS -I$ONIG_DIR/include -L $ONIG_DIR/lib"
-    else
-        echo "can't found oniguruma.h in $ONIG_DIR/include or libonig.a in $ONIG_DIR/lib"
-    fi
-fi
-
 if test $ENABLE_OPTIMIZE = 1
 then
     CFLAGS="$CFLAGS -O3"
@@ -183,13 +172,10 @@ AC_SUBST(LIBSO2NAME)
 CC=gcc
 INSTALL="/usr/bin/install -c"
 
-AC_CHECK_HEADER(oniguruma.h, [AC_DEFINE(HAVE_ONIGURUMA_H, 1)], [ exit ])
-AC_HAVE_LIBRARY(onig, [ LIBS="$LIBS -lonig"; ], [ exit ])
-
-AC_CHECK_HEADER(pthread.h, [AC_DEFINE(HAVE_PTHREAD_H, 1)], [ exit ])
-AC_HAVE_LIBRARY(pthread, [ LIBS="$LIBS -lpthread"; ], [ exit ])
-AC_CHECK_HEADER(readline/readline.h, [AC_DEFINE(HAVE_READLINE_H, 1)], [ exit ])
-AC_HAVE_LIBRARY(readline, [ LIBS="$LIBS -lreadline"; ], [ exit ])
+#AC_CHECK_HEADER(pthread.h, [AC_DEFINE(HAVE_PTHREAD_H, 1)], [ exit ])
+#AC_HAVE_LIBRARY(pthread, [ LIBS="$LIBS -lpthread"; ], [ exit ])
+#AC_CHECK_HEADER(readline/readline.h, [AC_DEFINE(HAVE_READLINE_H, 1)], [ exit ])
+#AC_HAVE_LIBRARY(readline, [ LIBS="$LIBS -lreadline"; ], [ exit ])
 if test "$OS" != FREEBSD
 then
     AC_HAVE_LIBRARY(dl, [ LIBS="$LIBS -ldl"; ], [])
