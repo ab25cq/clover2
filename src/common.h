@@ -877,6 +877,48 @@ BOOL compile_script(char* fname, char* source);
 #define OP_POINTER_TO_STRING_CAST 7331
 #define OP_CHAR_TO_STRING_CAST 7332
 
+#define OP_BYTE_TO_INTEGER_CAST 7400
+#define OP_UBYTE_TO_INTEGER_CAST 7401
+#define OP_SHORT_TO_INTEGER_CAST 7402
+#define OP_USHORT_TO_INTEGER_CAST 7403
+#define OP_INT_TO_INTEGER_CAST 7404
+#define OP_UINT_TO_INTEGER_CAST 7405
+#define OP_LONG_TO_INTEGER_CAST 7406
+#define OP_ULONG_TO_INTEGER_CAST 7407
+#define OP_FLOAT_TO_INTEGER_CAST 7408
+#define OP_DOUBLE_TO_INTEGER_CAST 7409
+#define OP_CHAR_TO_INTEGER_CAST 7410
+#define OP_POINTER_TO_INTEGER_CAST 7411
+#define OP_BOOL_TO_INTEGER_CAST 7412
+
+#define OP_BYTE_TO_UINTEGER_CAST 7420
+#define OP_UBYTE_TO_UINTEGER_CAST 7421
+#define OP_SHORT_TO_UINTEGER_CAST 7422
+#define OP_USHORT_TO_UINTEGER_CAST 7423
+#define OP_INT_TO_UINTEGER_CAST 7424
+#define OP_UINT_TO_UINTEGER_CAST 7425
+#define OP_LONG_TO_UINTEGER_CAST 7426
+#define OP_ULONG_TO_UINTEGER_CAST 7427
+#define OP_FLOAT_TO_UINTEGER_CAST 7428
+#define OP_DOUBLE_TO_UINTEGER_CAST 7429
+#define OP_CHAR_TO_UINTEGER_CAST 7430
+#define OP_POINTER_TO_UINTEGER_CAST 7431
+#define OP_BOOL_TO_UINTEGER_CAST 7432
+
+#define OP_BYTE_TO_CBYTE_CAST 7440
+#define OP_UBYTE_TO_CBYTE_CAST 7441
+#define OP_SHORT_TO_CBYTE_CAST 7442
+#define OP_USHORT_TO_CBYTE_CAST 7443
+#define OP_INT_TO_CBYTE_CAST 7444
+#define OP_UINT_TO_CBYTE_CAST 7445
+#define OP_LONG_TO_CBYTE_CAST 7446
+#define OP_ULONG_TO_CBYTE_CAST 7447
+#define OP_FLOAT_TO_CBYTE_CAST 7448
+#define OP_DOUBLE_TO_CBYTE_CAST 7449
+#define OP_CHAR_TO_CBYTE_CAST 7450
+#define OP_POINTER_TO_CBYTE_CAST 7451
+#define OP_BOOL_TO_CBYTE_CAST 7452
+
 #define OP_GET_ARRAY_LENGTH 8000
 
 #define OP_CREATE_STRING 9000
@@ -1029,6 +1071,14 @@ CLObject create_string_object(char* str);
 CLObject create_string_from_two_strings(CLObject left, CLObject right);
 int get_length_from_string_object(CLObject str);
 CLVALUE* get_str_array_from_string_object(CLObject str);
+
+/// integer.c ///
+CLObject create_integer(int value);
+CLObject create_uinteger(unsigned int value);
+
+/// byte.c ///
+CLObject create_byte(char value);
+CLObject create_ubyte(unsigned char value);
 
 /// class_system.c ///
 BOOL System_exit(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);

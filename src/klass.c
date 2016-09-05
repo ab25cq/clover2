@@ -706,7 +706,7 @@ static void free_class(sCLClass* klass)
 
         free_cl_type(method->mResultType);
 
-        if(!(method->mFlags & METHOD_FLAGS_NATIVE) && !(klass->mFlags & CLASS_FLAGS_INTERFACE)) {
+        if(!(method->mFlags & METHOD_FLAGS_NATIVE) && !(klass->mFlags & CLASS_FLAGS_INTERFACE) && method->uCode.mByteCodes.mCodes) {
             sByteCode_free(&method->uCode.mByteCodes);
         }
     }
@@ -750,6 +750,9 @@ static void load_fundamental_classes()
     (void)load_class("System");
     (void)load_class("Clover");
     (void)load_class("String");
+    (void)load_class("Integer");
+    (void)load_class("UInteger");
+    (void)load_class("Byte");
     (void)load_class("Exception");
     (void)load_class("SystemException");
 }

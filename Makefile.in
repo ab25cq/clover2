@@ -116,4 +116,6 @@ test:
 	./cclover2 -class code/self_class.clc code/self_class.cl && ./clover2 code/self_class.clo
 	./cclover2 -class code/module.clc code/module.cl && ./clover2 code/module.clo
 	./cclover2 -class code/generics.clc code/generics.cl && ./clover2 code/generics.clo
+	./cclover2 code/integer.cl && ./clover2 code/integer.clo
+#	./cclover2 code/hash.cl && ./clover2 code/hash.clo
 

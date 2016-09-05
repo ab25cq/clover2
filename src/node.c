@@ -186,27 +186,27 @@ static void cast_right_type_to_byte(sNodeType** right_type, sCompileInfo* info)
 
         *right_type = create_node_type_with_class_name("byte");
     }
-    else if(type_identify_with_class_name(info->type, "float"))
+    else if(type_identify_with_class_name(*right_type, "float"))
     {
         append_opecode_to_code(info->code, OP_FLOAT_TO_BYTE_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("byte");
     }
-    else if(type_identify_with_class_name(info->type, "double"))
+    else if(type_identify_with_class_name(*right_type, "double"))
     {
         append_opecode_to_code(info->code, OP_DOUBLE_TO_BYTE_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("byte");
     }
-    else if(type_identify_with_class_name(info->type, "pointer"))
+    else if(type_identify_with_class_name(*right_type, "pointer"))
     {
         append_opecode_to_code(info->code, OP_POINTER_TO_BYTE_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("byte");
     }
-    else if(type_identify_with_class_name(info->type, "char"))
+    else if(type_identify_with_class_name(*right_type, "char"))
     {
         append_opecode_to_code(info->code, OP_CHAR_TO_BYTE_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("byte");
     }
-    else if(type_identify_with_class_name(info->type, "bool"))
+    else if(type_identify_with_class_name(*right_type, "bool"))
     {
         append_opecode_to_code(info->code, OP_INT_TO_BYTE_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("byte");
@@ -257,27 +257,27 @@ static void cast_right_type_to_short(sNodeType** right_type, sCompileInfo* info)
 
         *right_type = create_node_type_with_class_name("short");
     }
-    else if(type_identify_with_class_name(info->type, "float"))
+    else if(type_identify_with_class_name(*right_type, "float"))
     {
         append_opecode_to_code(info->code, OP_FLOAT_TO_SHORT_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("short");
     }
-    else if(type_identify_with_class_name(info->type, "double"))
+    else if(type_identify_with_class_name(*right_type, "double"))
     {
         append_opecode_to_code(info->code, OP_DOUBLE_TO_SHORT_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("short");
     }
-    else if(type_identify_with_class_name(info->type, "pointer"))
+    else if(type_identify_with_class_name(*right_type, "pointer"))
     {
         append_opecode_to_code(info->code, OP_POINTER_TO_SHORT_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("short");
     }
-    else if(type_identify_with_class_name(info->type, "char"))
+    else if(type_identify_with_class_name(*right_type, "char"))
     {
         append_opecode_to_code(info->code, OP_CHAR_TO_SHORT_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("short");
     }
-    else if(type_identify_with_class_name(info->type, "bool"))
+    else if(type_identify_with_class_name(*right_type, "bool"))
     {
         append_opecode_to_code(info->code, OP_INT_TO_SHORT_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("short");
@@ -328,27 +328,27 @@ static void cast_right_type_to_int(sNodeType** right_type, sCompileInfo* info)
 
         *right_type = create_node_type_with_class_name("int");
     }
-    else if(type_identify_with_class_name(info->type, "float"))
+    else if(type_identify_with_class_name(*right_type, "float"))
     {
         append_opecode_to_code(info->code, OP_FLOAT_TO_INT_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("int");
     }
-    else if(type_identify_with_class_name(info->type, "double"))
+    else if(type_identify_with_class_name(*right_type, "double"))
     {
         append_opecode_to_code(info->code, OP_DOUBLE_TO_INT_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("int");
     }
-    else if(type_identify_with_class_name(info->type, "pointer"))
+    else if(type_identify_with_class_name(*right_type, "pointer"))
     {
         append_opecode_to_code(info->code, OP_POINTER_TO_INT_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("int");
     }
-    else if(type_identify_with_class_name(info->type, "char"))
+    else if(type_identify_with_class_name(*right_type, "char"))
     {
         append_opecode_to_code(info->code, OP_CHAR_TO_INT_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("int");
     }
-    else if(type_identify_with_class_name(info->type, "bool"))
+    else if(type_identify_with_class_name(*right_type, "bool"))
     {
         *right_type = create_node_type_with_class_name("int");
     }
@@ -398,27 +398,27 @@ static void cast_right_type_to_long(sNodeType** right_type, sCompileInfo* info)
 
         *right_type = create_node_type_with_class_name("long");
     }
-    else if(type_identify_with_class_name(info->type, "float"))
+    else if(type_identify_with_class_name(*right_type, "float"))
     {
         append_opecode_to_code(info->code, OP_FLOAT_TO_LONG_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("long");
     }
-    else if(type_identify_with_class_name(info->type, "double"))
+    else if(type_identify_with_class_name(*right_type, "double"))
     {
         append_opecode_to_code(info->code, OP_DOUBLE_TO_LONG_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("long");
     }
-    else if(type_identify_with_class_name(info->type, "pointer"))
+    else if(type_identify_with_class_name(*right_type, "pointer"))
     {
         append_opecode_to_code(info->code, OP_POINTER_TO_LONG_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("long");
     }
-    else if(type_identify_with_class_name(info->type, "char"))
+    else if(type_identify_with_class_name(*right_type, "char"))
     {
         append_opecode_to_code(info->code, OP_CHAR_TO_LONG_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("long");
     }
-    else if(type_identify_with_class_name(info->type, "bool"))
+    else if(type_identify_with_class_name(*right_type, "bool"))
     {
         append_opecode_to_code(info->code, OP_INT_TO_LONG_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("long");
@@ -470,27 +470,27 @@ static void cast_right_type_to_ubyte(sNodeType** right_type, sCompileInfo* info)
 
         *right_type = create_node_type_with_class_name("ubyte");
     }
-    else if(type_identify_with_class_name(info->type, "float"))
+    else if(type_identify_with_class_name(*right_type, "float"))
     {
         append_opecode_to_code(info->code, OP_FLOAT_TO_UBYTE_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("ubyte");
     }
-    else if(type_identify_with_class_name(info->type, "double"))
+    else if(type_identify_with_class_name(*right_type, "double"))
     {
         append_opecode_to_code(info->code, OP_DOUBLE_TO_UBYTE_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("ubyte");
     }
-    else if(type_identify_with_class_name(info->type, "pointer"))
+    else if(type_identify_with_class_name(*right_type, "pointer"))
     {
         append_opecode_to_code(info->code, OP_POINTER_TO_UBYTE_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("ubyte");
     }
-    else if(type_identify_with_class_name(info->type, "char"))
+    else if(type_identify_with_class_name(*right_type, "char"))
     {
         append_opecode_to_code(info->code, OP_CHAR_TO_UBYTE_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("ubyte");
     }
-    else if(type_identify_with_class_name(info->type, "bool"))
+    else if(type_identify_with_class_name(*right_type, "bool"))
     {
         append_opecode_to_code(info->code, OP_INT_TO_UBYTE_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("ubyte");
@@ -541,27 +541,27 @@ static void cast_right_type_to_ushort(sNodeType** right_type, sCompileInfo* info
 
         *right_type = create_node_type_with_class_name("ushort");
     }
-    else if(type_identify_with_class_name(info->type, "float"))
+    else if(type_identify_with_class_name(*right_type, "float"))
     {
         append_opecode_to_code(info->code, OP_FLOAT_TO_USHORT_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("ushort");
     }
-    else if(type_identify_with_class_name(info->type, "double"))
+    else if(type_identify_with_class_name(*right_type, "double"))
     {
         append_opecode_to_code(info->code, OP_DOUBLE_TO_USHORT_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("ushort");
     }
-    else if(type_identify_with_class_name(info->type, "pointer"))
+    else if(type_identify_with_class_name(*right_type, "pointer"))
     {
         append_opecode_to_code(info->code, OP_POINTER_TO_USHORT_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("ushort");
     }
-    else if(type_identify_with_class_name(info->type, "char"))
+    else if(type_identify_with_class_name(*right_type, "char"))
     {
         append_opecode_to_code(info->code, OP_CHAR_TO_USHORT_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("ushort");
     }
-    else if(type_identify_with_class_name(info->type, "bool"))
+    else if(type_identify_with_class_name(*right_type, "bool"))
     {
         append_opecode_to_code(info->code, OP_INT_TO_USHORT_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("ushort");
@@ -612,27 +612,27 @@ static void cast_right_type_to_uint(sNodeType** right_type, sCompileInfo* info)
 
         *right_type = create_node_type_with_class_name("uint");
     }
-    else if(type_identify_with_class_name(info->type, "float"))
+    else if(type_identify_with_class_name(*right_type, "float"))
     {
         append_opecode_to_code(info->code, OP_FLOAT_TO_UINT_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("uint");
     }
-    else if(type_identify_with_class_name(info->type, "double"))
+    else if(type_identify_with_class_name(*right_type, "double"))
     {
         append_opecode_to_code(info->code, OP_DOUBLE_TO_UINT_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("uint");
     }
-    else if(type_identify_with_class_name(info->type, "pointer"))
+    else if(type_identify_with_class_name(*right_type, "pointer"))
     {
         append_opecode_to_code(info->code, OP_POINTER_TO_UINT_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("uint");
     }
-    else if(type_identify_with_class_name(info->type, "char"))
+    else if(type_identify_with_class_name(*right_type, "char"))
     {
         append_opecode_to_code(info->code, OP_CHAR_TO_UINT_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("uint");
     }
-    else if(type_identify_with_class_name(info->type, "bool"))
+    else if(type_identify_with_class_name(*right_type, "bool"))
     {
         *right_type = create_node_type_with_class_name("uint");
     }
@@ -682,27 +682,27 @@ static void cast_right_type_to_ulong(sNodeType** right_type, sCompileInfo* info)
 
         *right_type = create_node_type_with_class_name("ulong");
     }
-    else if(type_identify_with_class_name(info->type, "float"))
+    else if(type_identify_with_class_name(*right_type, "float"))
     {
         append_opecode_to_code(info->code, OP_FLOAT_TO_ULONG_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("ulong");
     }
-    else if(type_identify_with_class_name(info->type, "double"))
+    else if(type_identify_with_class_name(*right_type, "double"))
     {
         append_opecode_to_code(info->code, OP_DOUBLE_TO_ULONG_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("ulong");
     }
-    else if(type_identify_with_class_name(info->type, "pointer"))
+    else if(type_identify_with_class_name(*right_type, "pointer"))
     {
         append_opecode_to_code(info->code, OP_POINTER_TO_ULONG_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("ulong");
     }
-    else if(type_identify_with_class_name(info->type, "char"))
+    else if(type_identify_with_class_name(*right_type, "char"))
     {
         append_opecode_to_code(info->code, OP_CHAR_TO_ULONG_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("ulong");
     }
-    else if(type_identify_with_class_name(info->type, "bool"))
+    else if(type_identify_with_class_name(*right_type, "bool"))
     {
         append_opecode_to_code(info->code, OP_INT_TO_ULONG_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("ulong");
@@ -759,17 +759,17 @@ void cast_right_type_to_float(sNodeType** right_type, sCompileInfo* info)
 
         *right_type = create_node_type_with_class_name("float");
     }
-    else if(type_identify_with_class_name(info->type, "double"))
+    else if(type_identify_with_class_name(*right_type, "double"))
     {
         append_opecode_to_code(info->code, OP_DOUBLE_TO_FLOAT_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("float");
     }
-    else if(type_identify_with_class_name(info->type, "char"))
+    else if(type_identify_with_class_name(*right_type, "char"))
     {
         append_opecode_to_code(info->code, OP_CHAR_TO_FLOAT_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("float");
     }
-    else if(type_identify_with_class_name(info->type, "bool"))
+    else if(type_identify_with_class_name(*right_type, "bool"))
     {
         append_opecode_to_code(info->code, OP_INT_TO_FLOAT_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("float");
@@ -826,17 +826,17 @@ void cast_right_type_to_double(sNodeType** right_type, sCompileInfo* info)
 
         *right_type = create_node_type_with_class_name("double");
     }
-    else if(type_identify_with_class_name(info->type, "float"))
+    else if(type_identify_with_class_name(*right_type, "float"))
     {
         append_opecode_to_code(info->code, OP_FLOAT_TO_DOUBLE_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("double");
     }
-    else if(type_identify_with_class_name(info->type, "char"))
+    else if(type_identify_with_class_name(*right_type, "char"))
     {
         append_opecode_to_code(info->code, OP_CHAR_TO_DOUBLE_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("double");
     }
-    else if(type_identify_with_class_name(info->type, "bool"))
+    else if(type_identify_with_class_name(*right_type, "bool"))
     {
         append_opecode_to_code(info->code, OP_INT_TO_DOUBLE_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("double");
@@ -893,22 +893,22 @@ void cast_right_type_to_char(sNodeType** right_type, sCompileInfo* info)
 
         *right_type = create_node_type_with_class_name("char");
     }
-    else if(type_identify_with_class_name(info->type, "float"))
+    else if(type_identify_with_class_name(*right_type, "float"))
     {
         append_opecode_to_code(info->code, OP_FLOAT_TO_CHAR_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("char");
     }
-    else if(type_identify_with_class_name(info->type, "double"))
+    else if(type_identify_with_class_name(*right_type, "double"))
     {
         append_opecode_to_code(info->code, OP_DOUBLE_TO_CHAR_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("char");
     }
-    else if(type_identify_with_class_name(info->type, "pointer"))
+    else if(type_identify_with_class_name(*right_type, "pointer"))
     {
         append_opecode_to_code(info->code, OP_POINTER_TO_CHAR_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("char");
     }
-    else if(type_identify_with_class_name(info->type, "bool"))
+    else if(type_identify_with_class_name(*right_type, "bool"))
     {
         append_opecode_to_code(info->code, OP_INT_TO_CHAR_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("char");
@@ -965,12 +965,12 @@ void cast_right_type_to_pointer(sNodeType** right_type, sCompileInfo* info)
 
         *right_type = create_node_type_with_class_name("pointer");
     }
-    else if(type_identify_with_class_name(info->type, "char"))
+    else if(type_identify_with_class_name(*right_type, "char"))
     {
         append_opecode_to_code(info->code, OP_CHAR_TO_POINTER_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("pointer");
     }
-    else if(type_identify_with_class_name(info->type, "bool"))
+    else if(type_identify_with_class_name(*right_type, "bool"))
     {
         append_opecode_to_code(info->code, OP_INT_TO_POINTER_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("pointer");
@@ -1025,22 +1025,22 @@ static void cast_right_type_to_bool(sNodeType** right_type, sCompileInfo* info)
 
         *right_type = create_node_type_with_class_name("bool");
     }
-    else if(type_identify_with_class_name(info->type, "float"))
+    else if(type_identify_with_class_name(*right_type, "float"))
     {
         append_opecode_to_code(info->code, OP_FLOAT_TO_INT_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("bool");
     }
-    else if(type_identify_with_class_name(info->type, "double"))
+    else if(type_identify_with_class_name(*right_type, "double"))
     {
         append_opecode_to_code(info->code, OP_DOUBLE_TO_INT_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("bool");
     }
-    else if(type_identify_with_class_name(info->type, "pointer"))
+    else if(type_identify_with_class_name(*right_type, "pointer"))
     {
         append_opecode_to_code(info->code, OP_POINTER_TO_INT_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("bool");
     }
-    else if(type_identify_with_class_name(info->type, "char"))
+    else if(type_identify_with_class_name(*right_type, "char"))
     {
         append_opecode_to_code(info->code, OP_CHAR_TO_INT_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("bool");
@@ -1100,25 +1100,256 @@ static void cast_right_type_to_String(sNodeType** right_type, sCompileInfo* info
         append_opecode_to_code(info->code, OP_FLOAT_TO_STRING_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("String");
     }
-    else if(type_identify_with_class_name(info->type, "double"))
+    else if(type_identify_with_class_name(*right_type, "double"))
     {
         append_opecode_to_code(info->code, OP_DOUBLE_TO_STRING_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("String");
     }
-    else if(type_identify_with_class_name(info->type, "char"))
+    else if(type_identify_with_class_name(*right_type, "char"))
     {
         append_opecode_to_code(info->code, OP_CHAR_TO_STRING_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("String");
     }
-    else if(type_identify_with_class_name(info->type, "pointer"))
+    else if(type_identify_with_class_name(*right_type, "pointer"))
     {
         append_opecode_to_code(info->code, OP_POINTER_TO_STRING_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("String");
     }
-    else if(type_identify_with_class_name(info->type, "bool"))
+    else if(type_identify_with_class_name(*right_type, "bool"))
     {
         append_opecode_to_code(info->code, OP_BOOL_TO_STRING_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("String");
+    }
+}
+
+static void cast_right_type_to_Byte(sNodeType** right_type, sCompileInfo* info)
+{
+    if(type_identify_with_class_name(*right_type, "byte")) {
+        append_opecode_to_code(info->code, OP_BYTE_TO_CBYTE_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("Byte");
+    }
+    else if(type_identify_with_class_name(*right_type, "ubyte")) {
+        append_opecode_to_code(info->code, OP_UBYTE_TO_CBYTE_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("Byte");
+    }
+    else if(type_identify_with_class_name(*right_type, "short")) 
+    {
+        append_opecode_to_code(info->code, OP_SHORT_TO_CBYTE_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("Byte");
+    }
+    else if(type_identify_with_class_name(*right_type, "ushort")) 
+    {
+        append_opecode_to_code(info->code, OP_USHORT_TO_CBYTE_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("Byte");
+    }
+    else if(type_identify_with_class_name(*right_type, "int"))
+    {
+        append_opecode_to_code(info->code, OP_INT_TO_CBYTE_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("Byte");
+    }
+    else if(type_identify_with_class_name(*right_type, "uint")) 
+    {
+        append_opecode_to_code(info->code, OP_UINT_TO_CBYTE_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("Byte");
+    }
+    else if(type_identify_with_class_name(*right_type, "long"))
+    {
+        append_opecode_to_code(info->code, OP_LONG_TO_CBYTE_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("Byte");
+    }
+    else if(type_identify_with_class_name(*right_type, "ulong")) 
+    {
+        append_opecode_to_code(info->code, OP_ULONG_TO_CBYTE_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("Byte");
+    }
+    else if(type_identify_with_class_name(*right_type, "float"))
+    {
+        append_opecode_to_code(info->code, OP_FLOAT_TO_CBYTE_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("Byte");
+    }
+    else if(type_identify_with_class_name(*right_type, "double"))
+    {
+        append_opecode_to_code(info->code, OP_DOUBLE_TO_CBYTE_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("Byte");
+    }
+    else if(type_identify_with_class_name(*right_type, "char"))
+    {
+        append_opecode_to_code(info->code, OP_CHAR_TO_CBYTE_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("Byte");
+    }
+    else if(type_identify_with_class_name(*right_type, "pointer"))
+    {
+        append_opecode_to_code(info->code, OP_POINTER_TO_CBYTE_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("Byte");
+    }
+    else if(type_identify_with_class_name(*right_type, "bool"))
+    {
+        append_opecode_to_code(info->code, OP_BOOL_TO_CBYTE_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("Byte");
+    }
+}
+
+static void cast_right_type_to_Integer(sNodeType** right_type, sCompileInfo* info)
+{
+    if(type_identify_with_class_name(*right_type, "byte")) {
+        append_opecode_to_code(info->code, OP_BYTE_TO_INTEGER_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("Integer");
+    }
+    else if(type_identify_with_class_name(*right_type, "ubyte")) {
+        append_opecode_to_code(info->code, OP_UBYTE_TO_INTEGER_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("Integer");
+    }
+    else if(type_identify_with_class_name(*right_type, "short")) 
+    {
+        append_opecode_to_code(info->code, OP_SHORT_TO_INTEGER_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("Integer");
+    }
+    else if(type_identify_with_class_name(*right_type, "ushort")) 
+    {
+        append_opecode_to_code(info->code, OP_USHORT_TO_INTEGER_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("Integer");
+    }
+    else if(type_identify_with_class_name(*right_type, "int"))
+    {
+        append_opecode_to_code(info->code, OP_INT_TO_INTEGER_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("Integer");
+    }
+    else if(type_identify_with_class_name(*right_type, "uint")) 
+    {
+        append_opecode_to_code(info->code, OP_UINT_TO_INTEGER_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("Integer");
+    }
+    else if(type_identify_with_class_name(*right_type, "long"))
+    {
+        append_opecode_to_code(info->code, OP_LONG_TO_INTEGER_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("Integer");
+    }
+    else if(type_identify_with_class_name(*right_type, "ulong")) 
+    {
+        append_opecode_to_code(info->code, OP_ULONG_TO_INTEGER_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("Integer");
+    }
+    else if(type_identify_with_class_name(*right_type, "float"))
+    {
+        append_opecode_to_code(info->code, OP_FLOAT_TO_INTEGER_CAST, info->no_output);
+        *right_type = create_node_type_with_class_name("Integer");
+    }
+    else if(type_identify_with_class_name(*right_type, "double"))
+    {
+        append_opecode_to_code(info->code, OP_DOUBLE_TO_INTEGER_CAST, info->no_output);
+        *right_type = create_node_type_with_class_name("Integer");
+    }
+    else if(type_identify_with_class_name(*right_type, "char"))
+    {
+        append_opecode_to_code(info->code, OP_CHAR_TO_INTEGER_CAST, info->no_output);
+        *right_type = create_node_type_with_class_name("Integer");
+    }
+    else if(type_identify_with_class_name(*right_type, "pointer"))
+    {
+        append_opecode_to_code(info->code, OP_POINTER_TO_INTEGER_CAST, info->no_output);
+        *right_type = create_node_type_with_class_name("Integer");
+    }
+    else if(type_identify_with_class_name(*right_type, "bool"))
+    {
+        append_opecode_to_code(info->code, OP_BOOL_TO_INTEGER_CAST, info->no_output);
+        *right_type = create_node_type_with_class_name("Integer");
+    }
+}
+
+
+static void cast_right_type_to_UInteger(sNodeType** right_type, sCompileInfo* info)
+{
+    if(type_identify_with_class_name(*right_type, "byte")) {
+        append_opecode_to_code(info->code, OP_BYTE_TO_UINTEGER_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("UInteger");
+    }
+    else if(type_identify_with_class_name(*right_type, "ubyte")) {
+        append_opecode_to_code(info->code, OP_UBYTE_TO_UINTEGER_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("UInteger");
+    }
+    else if(type_identify_with_class_name(*right_type, "short")) 
+    {
+        append_opecode_to_code(info->code, OP_SHORT_TO_UINTEGER_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("UInteger");
+    }
+    else if(type_identify_with_class_name(*right_type, "ushort")) 
+    {
+        append_opecode_to_code(info->code, OP_USHORT_TO_UINTEGER_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("UInteger");
+    }
+    else if(type_identify_with_class_name(*right_type, "int"))
+    {
+        append_opecode_to_code(info->code, OP_INT_TO_UINTEGER_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("UInteger");
+    }
+    else if(type_identify_with_class_name(*right_type, "uint")) 
+    {
+        append_opecode_to_code(info->code, OP_UINT_TO_UINTEGER_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("UInteger");
+    }
+    else if(type_identify_with_class_name(*right_type, "long"))
+    {
+        append_opecode_to_code(info->code, OP_LONG_TO_UINTEGER_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("UInteger");
+    }
+    else if(type_identify_with_class_name(*right_type, "ulong")) 
+    {
+        append_opecode_to_code(info->code, OP_ULONG_TO_UINTEGER_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("UInteger");
+    }
+    else if(type_identify_with_class_name(*right_type, "float"))
+    {
+        append_opecode_to_code(info->code, OP_FLOAT_TO_UINTEGER_CAST, info->no_output);
+        *right_type = create_node_type_with_class_name("UInteger");
+    }
+    else if(type_identify_with_class_name(*right_type, "double"))
+    {
+        append_opecode_to_code(info->code, OP_DOUBLE_TO_UINTEGER_CAST, info->no_output);
+        *right_type = create_node_type_with_class_name("UInteger");
+    }
+    else if(type_identify_with_class_name(*right_type, "char"))
+    {
+        append_opecode_to_code(info->code, OP_CHAR_TO_UINTEGER_CAST, info->no_output);
+        *right_type = create_node_type_with_class_name("UInteger");
+    }
+    else if(type_identify_with_class_name(*right_type, "pointer"))
+    {
+        append_opecode_to_code(info->code, OP_POINTER_TO_UINTEGER_CAST, info->no_output);
+        *right_type = create_node_type_with_class_name("UInteger");
+    }
+    else if(type_identify_with_class_name(*right_type, "bool"))
+    {
+        append_opecode_to_code(info->code, OP_BOOL_TO_UINTEGER_CAST, info->no_output);
+        *right_type = create_node_type_with_class_name("UInteger");
     }
 }
 
@@ -1147,7 +1378,7 @@ static void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right
         }
         else if(type_identify_with_class_name(left_type, "uint"))
         {
-            cast_right_type_to_int(right_type, info);
+            cast_right_type_to_uint(right_type, info);
         }
         else if(type_identify_with_class_name(left_type, "long"))
         {
@@ -1180,6 +1411,18 @@ static void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right
         else if(type_identify_with_class_name(left_type, "String"))
         {
             cast_right_type_to_String(right_type, info);
+        }
+        else if(type_identify_with_class_name(left_type, "Integer"))
+        {
+            cast_right_type_to_Integer(right_type, info);
+        }
+        else if(type_identify_with_class_name(left_type, "Byte"))
+        {
+            cast_right_type_to_Byte(right_type, info);
+        }
+        else if(type_identify_with_class_name(left_type, "UInteger"))
+        {
+            cast_right_type_to_UInteger(right_type, info);
         }
     }
 }
@@ -2814,6 +3057,15 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
     }
     else if(strcmp(field_name, "toString") == 0) {
         cast_right_type_to_String(&info->type, info);
+    }
+    else if(strcmp(field_name, "toByte") == 0) {
+        cast_right_type_to_Byte(&info->type, info);
+    }
+    else if(strcmp(field_name, "toInteger") == 0) {
+        cast_right_type_to_Integer(&info->type, info);
+    }
+    else if(strcmp(field_name, "toUInteger") == 0) {
+        cast_right_type_to_UInteger(&info->type, info);
     }
     else if(strcmp(field_name, "to_byte") == 0)
     {
