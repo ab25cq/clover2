@@ -194,9 +194,35 @@ class Byte {
         self.value = value;
     }
 
-/*
     def toUByte():UByte {
         return self.value.toUByte;
     }
-*/
+}
+
+class UByte {
+    value:ubyte;
+
+    def initialize() {
+        self.value = 0.to_ubyte;
+    }
+
+    def initialize(value:ubyte) {
+        self.value = value;
+    }
+
+    def initialize(value:int) {
+        self.value = value.to_ubyte;
+    }
+
+    def getValue(): ubyte {
+        return self.value;
+    }
+
+    def setValue(value:ubyte) {
+        self.value = value;
+    }
+
+    def toByte():Byte {
+        return self.value.toByte;
+    }
 }

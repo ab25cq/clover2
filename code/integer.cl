@@ -19,3 +19,8 @@ e:Byte = new Byte(123);
 
 Clover.test("Byte test", e.getValue() == 123);
 
+f:UByte = new UByte(255);
+
+Clover.test("Byte test2", f.getValue() == 255);
+Clover.test("Byte test3", f.toByte().getValue() == -1);
+

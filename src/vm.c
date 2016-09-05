@@ -5788,6 +5788,189 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     vm_mutex_off();
                 }
                 break;
+
+            case OP_BYTE_TO_CUBYTE_CAST:
+                {
+                    vm_mutex_on();
+
+                    char value = (stack_ptr-1)->mByteValue;
+
+                    CLObject obj = create_ubyte((unsigned char)value);
+
+                    (stack_ptr-1)->mObjectValue = obj;
+
+                    vm_mutex_off();
+                }
+                break;
+                
+            case OP_UBYTE_TO_CUBYTE_CAST:
+                {
+                    vm_mutex_on();
+
+                    unsigned char value = (stack_ptr-1)->mUByteValue;
+
+                    CLObject obj = create_ubyte((unsigned char)value);
+
+                    (stack_ptr-1)->mObjectValue = obj;
+
+                    vm_mutex_off();
+                }
+                break;
+                
+            case OP_SHORT_TO_CUBYTE_CAST:
+                {
+                    vm_mutex_on();
+
+                    short value = (stack_ptr-1)->mShortValue;
+
+                    CLObject obj = create_ubyte((unsigned char)value);
+
+                    (stack_ptr-1)->mObjectValue = obj;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_USHORT_TO_CUBYTE_CAST:
+                {
+                    vm_mutex_on();
+
+                    unsigned short value = (stack_ptr-1)->mUShortValue;
+
+                    CLObject obj = create_ubyte((unsigned char)value);
+
+                    (stack_ptr-1)->mObjectValue = obj;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_INT_TO_CUBYTE_CAST:
+                {
+                    vm_mutex_on();
+
+                    int value = (stack_ptr-1)->mIntValue;
+
+                    CLObject obj = create_ubyte((unsigned char)value);
+
+                    (stack_ptr-1)->mObjectValue = obj;
+
+                    vm_mutex_off();
+                }
+                break;
+                
+            case OP_UINT_TO_CUBYTE_CAST:
+                {
+                    vm_mutex_on();
+
+                    unsigned int value = (stack_ptr-1)->mUIntValue;
+
+                    CLObject obj = create_ubyte((unsigned char)value);
+
+                    (stack_ptr-1)->mObjectValue = obj;
+
+                    vm_mutex_off();
+                }
+                break;
+                
+            case OP_LONG_TO_CUBYTE_CAST:
+                {
+                    vm_mutex_on();
+
+                    long value = (stack_ptr-1)->mLongValue;
+
+                    CLObject obj = create_ubyte((unsigned char)value);
+
+                    (stack_ptr-1)->mObjectValue = obj;
+
+                    vm_mutex_off();
+                }
+                break;
+                
+            case OP_ULONG_TO_CUBYTE_CAST:
+                {
+                    vm_mutex_on();
+
+                    unsigned long value = (stack_ptr-1)->mULongValue;
+
+                    CLObject obj = create_ubyte((unsigned char)value);
+
+                    (stack_ptr-1)->mObjectValue = obj;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_FLOAT_TO_CUBYTE_CAST:
+                {
+                    vm_mutex_on();
+
+                    float value = (stack_ptr-1)->mFloatValue;
+
+                    CLObject obj = create_ubyte((unsigned char)value);
+
+                    (stack_ptr-1)->mObjectValue = obj;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_DOUBLE_TO_CUBYTE_CAST:
+                {
+                    vm_mutex_on();
+
+                    double value = (stack_ptr-1)->mDoubleValue;
+
+                    CLObject obj = create_ubyte((unsigned char)value);
+
+                    (stack_ptr-1)->mObjectValue = obj;
+
+                    vm_mutex_off();
+                }
+                break;
+                
+            case OP_CHAR_TO_CUBYTE_CAST:
+                {
+                    vm_mutex_on();
+
+                    wchar_t value = (stack_ptr-1)->mCharValue;
+
+                    CLObject obj = create_ubyte((unsigned char)value);
+
+                    (stack_ptr-1)->mObjectValue = obj;
+
+                    vm_mutex_off();
+                }
+                break;
+                
+            case OP_POINTER_TO_CUBYTE_CAST:
+                {
+                    vm_mutex_on();
+
+                    char* value = (stack_ptr-1)->mPointerValue;
+
+                    CLObject obj = create_ubyte((unsigned char)value);
+
+                    (stack_ptr-1)->mObjectValue = obj;
+
+                    vm_mutex_off();
+                }
+                break;
+                
+            case OP_BOOL_TO_CUBYTE_CAST:
+                {
+                    vm_mutex_on();
+
+                    BOOL value = (stack_ptr-1)->mBoolValue;
+
+                    CLObject obj = create_ubyte((unsigned char)value);
+
+                    (stack_ptr-1)->mObjectValue = obj;
+
+                    vm_mutex_off();
+                }
+                break;
+                
                 
             case OP_GET_ARRAY_LENGTH:
                 {

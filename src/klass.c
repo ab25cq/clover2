@@ -753,6 +753,7 @@ static void load_fundamental_classes()
     (void)load_class("Integer");
     (void)load_class("UInteger");
     (void)load_class("Byte");
+    (void)load_class("UByte");
     (void)load_class("Exception");
     (void)load_class("SystemException");
 }

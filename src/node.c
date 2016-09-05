@@ -1202,6 +1202,86 @@ static void cast_right_type_to_Byte(sNodeType** right_type, sCompileInfo* info)
     }
 }
 
+static void cast_right_type_to_UByte(sNodeType** right_type, sCompileInfo* info)
+{
+    if(type_identify_with_class_name(*right_type, "byte")) {
+        append_opecode_to_code(info->code, OP_BYTE_TO_CUBYTE_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("UByte");
+    }
+    else if(type_identify_with_class_name(*right_type, "ubyte")) {
+        append_opecode_to_code(info->code, OP_UBYTE_TO_CUBYTE_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("UByte");
+    }
+    else if(type_identify_with_class_name(*right_type, "short")) 
+    {
+        append_opecode_to_code(info->code, OP_SHORT_TO_CUBYTE_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("UByte");
+    }
+    else if(type_identify_with_class_name(*right_type, "ushort")) 
+    {
+        append_opecode_to_code(info->code, OP_USHORT_TO_CUBYTE_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("UByte");
+    }
+    else if(type_identify_with_class_name(*right_type, "int"))
+    {
+        append_opecode_to_code(info->code, OP_INT_TO_CUBYTE_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("UByte");
+    }
+    else if(type_identify_with_class_name(*right_type, "uint")) 
+    {
+        append_opecode_to_code(info->code, OP_UINT_TO_CUBYTE_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("UByte");
+    }
+    else if(type_identify_with_class_name(*right_type, "long"))
+    {
+        append_opecode_to_code(info->code, OP_LONG_TO_CUBYTE_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("UByte");
+    }
+    else if(type_identify_with_class_name(*right_type, "ulong")) 
+    {
+        append_opecode_to_code(info->code, OP_ULONG_TO_CUBYTE_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("UByte");
+    }
+    else if(type_identify_with_class_name(*right_type, "float"))
+    {
+        append_opecode_to_code(info->code, OP_FLOAT_TO_CUBYTE_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("UByte");
+    }
+    else if(type_identify_with_class_name(*right_type, "double"))
+    {
+        append_opecode_to_code(info->code, OP_DOUBLE_TO_CUBYTE_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("UByte");
+    }
+    else if(type_identify_with_class_name(*right_type, "char"))
+    {
+        append_opecode_to_code(info->code, OP_CHAR_TO_CUBYTE_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("UByte");
+    }
+    else if(type_identify_with_class_name(*right_type, "pointer"))
+    {
+        append_opecode_to_code(info->code, OP_POINTER_TO_CUBYTE_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("UByte");
+    }
+    else if(type_identify_with_class_name(*right_type, "bool"))
+    {
+        append_opecode_to_code(info->code, OP_BOOL_TO_CUBYTE_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("UByte");
+    }
+}
+
 static void cast_right_type_to_Integer(sNodeType** right_type, sCompileInfo* info)
 {
     if(type_identify_with_class_name(*right_type, "byte")) {
@@ -1412,13 +1492,17 @@ static void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right
         {
             cast_right_type_to_String(right_type, info);
         }
-        else if(type_identify_with_class_name(left_type, "Integer"))
-        {
-            cast_right_type_to_Integer(right_type, info);
-        }
         else if(type_identify_with_class_name(left_type, "Byte"))
         {
             cast_right_type_to_Byte(right_type, info);
+        }
+        else if(type_identify_with_class_name(left_type, "UByte"))
+        {
+            cast_right_type_to_UByte(right_type, info);
+        }
+        else if(type_identify_with_class_name(left_type, "Integer"))
+        {
+            cast_right_type_to_Integer(right_type, info);
         }
         else if(type_identify_with_class_name(left_type, "UInteger"))
         {
@@ -3060,6 +3144,9 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
     }
     else if(strcmp(field_name, "toByte") == 0) {
         cast_right_type_to_Byte(&info->type, info);
+    }
+    else if(strcmp(field_name, "toUByte") == 0) {
+        cast_right_type_to_UByte(&info->type, info);
     }
     else if(strcmp(field_name, "toInteger") == 0) {
         cast_right_type_to_Integer(&info->type, info);
