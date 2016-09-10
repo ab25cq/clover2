@@ -604,7 +604,58 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
 
     int generics_num = 0;
 
-    if(*info->p == '<') {
+    if(type_identify_with_class_name(*result_type, "block")) {
+        sNodeBlockObject* node_block_object = alloc_node_block_object();
+
+        if(*info->p == '(') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            while(1) {
+                sNodeType* node_type = NULL;
+                if(!parse_type(&node_type, info)) {
+                    return FALSE;
+                }
+
+                node_block_object->mParams[node_block_object->mNumParams] = node_type;
+                node_block_object->mNumParams++;
+
+                if(node_block_object->mNumParams >= PARAMS_MAX) {
+                    parser_err_msg(info, "oveflow block object type params");
+                    return FALSE;
+                }
+
+                if(*info->p == ')') {
+                    info->p++;
+                    skip_spaces_and_lf(info);
+                    break;
+                }
+                else if(*info->p == ',') {
+                    info->p++;
+                    skip_spaces_and_lf(info);
+                }
+                else {
+                    parser_err_msg(info, "invalid character in block type name(%c)", *info->p);
+                    break;
+                }
+            }
+        }
+
+        if(*info->p == ':') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            sNodeType* node_type = NULL;
+            if(!parse_type(&node_type, info)) {
+                return FALSE;
+            }
+
+            node_block_object->mResultType = node_type;
+        }
+
+        (*result_type)->mBlock = node_block_object;
+    }
+    else if(*info->p == '<') {
         info->p++;
         skip_spaces_and_lf(info);
 
@@ -941,6 +992,38 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
+static BOOL parse_block_object(unsigned int* node, sParserInfo* info)
+{
+    expect_next_character_with_one_forward("(", info);
+
+    sParserParam params[PARAMS_MAX];
+    int num_params = 0;
+
+    /// parse_params ///
+    if(!parse_params(params, &num_params, info)) {
+        return FALSE;
+    }
+
+    sNodeType* result_type = NULL;
+    if(*info->p == ':') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        if(!parse_type(&result_type, info)) {
+            return FALSE;
+        }
+    }
+
+    sNodeBlock* block_object_code = NULL;
+    if(!parse_normal_block(ALLOC &block_object_code, info, NULL)) {
+        return FALSE;
+    }
+
+    *node = sNodeTree_create_block_object(params, num_params, result_type, MANAGED block_object_code);
+
+    return TRUE;
+}
+
 static BOOL expression_node(unsigned int* node, sParserInfo* info)
 {
     if((*info->p == '-' && *(info->p+1) != '=' && *(info->p+1) != '-' && *(info->p+1) != '>') || (*info->p == '+' && *(info->p+1) != '=' && *(info->p+1) != '+')) 
@@ -1174,6 +1257,11 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         }
         else if(strcmp(buf, "new") == 0) {
             if(!new_expression(node, info)) {
+                return FALSE;
+            }
+        }
+        else if(strcmp(buf, "block") == 0) {
+            if(!parse_block_object(node, info)) {
                 return FALSE;
             }
         }

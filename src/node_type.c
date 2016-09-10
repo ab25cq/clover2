@@ -30,6 +30,9 @@ void free_node_types()
     if(gSizePageNodeTypes > 0) {
         int i;
         for(i=0; i<gSizePageNodeTypes; i++) {
+            if(gNodeTypes[i]->mBlock) {
+                free_node_block_object(gNodeTypes[i]->mBlock);
+            }
             MFREE(gNodeTypes[i]);
         }
         MFREE(gNodeTypes);
@@ -79,6 +82,13 @@ sNodeType* clone_node_type(sNodeType* node_type)
 
     node_type2->mArray = node_type->mArray;
 
+    if(node_type->mBlock) {
+        node_type2->mBlock = clone_node_block_object(node_type->mBlock);
+    }
+    else {
+        node_type2->mBlock = NULL;
+    }
+
     return node_type2;
 }
 
@@ -89,6 +99,7 @@ sNodeType* create_node_type_with_class_pointer(sCLClass* klass)
     node_type->mClass = klass;
     node_type->mNumGenericsTypes = 0;
     node_type->mArray = FALSE;
+    node_type->mBlock = NULL;
 
     return node_type;
 }
@@ -106,6 +117,7 @@ sNodeType* create_node_type_with_class_name(char* class_name)
     node_type->mNumGenericsTypes = 0;
 
     node_type->mArray = FALSE;
+    node_type->mBlock = NULL;
 
     return node_type;
 }
@@ -149,6 +161,22 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right)
     }
     else if(type_identify_with_class_name(right, "Null") && !(left_class->mFlags & CLASS_FLAGS_PRIMITIVE)) {
         return TRUE;
+    }
+    else if(type_identify_with_class_name(left, "block")) {
+        if(type_identify_with_class_name(right, "block")) {
+            sNodeBlockObject* left_block = left->mBlock;
+            sNodeBlockObject* right_block = right->mBlock;
+
+            if(left_block && right_block) {
+                return substitution_posibility_for_node_block_object(left_block, right_block);
+            }
+            else {
+                return FALSE;
+            }
+        }
+        else {
+            return FALSE;
+        }
     }
     else {
         if(left->mClass == right->mClass && left->mArray == right->mArray && left->mNumGenericsTypes == right->mNumGenericsTypes) {
@@ -240,4 +268,3 @@ BOOL is_exception_type(sNodeType* exception_type)
 {
     return substitution_posibility_with_class_name(exception_type, "SystemException") || substitution_posibility_with_class_name(exception_type, "Exception");
 }
-

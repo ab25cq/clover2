@@ -168,6 +168,7 @@ static BOOL search_for_class_file_with_version(char* class_name, char* class_fil
         }
     }
 
+/*
     /// default search path ///
     if(class_version == 1) {
         snprintf(class_file_name, class_file_name_size, "%s/%s.clo", DATAROOTDIR, class_name);
@@ -179,6 +180,7 @@ static BOOL search_for_class_file_with_version(char* class_name, char* class_fil
     if(access(class_file_name, F_OK) == 0) {
         return TRUE;
     }
+*/
 
     return FALSE;
 }
@@ -776,6 +778,7 @@ void class_init()
     alloc_class("char", TRUE, -1, 0, NULL, FALSE);
     alloc_class("bool", TRUE, -1, 0, NULL, FALSE);
     alloc_class("Null", TRUE, -1, 0, NULL, FALSE);
+    alloc_class("block", TRUE, -1, 0, NULL, FALSE);
 
     alloc_class("GenericsParametorClass0", TRUE, 0, 0, NULL, FALSE);
     alloc_class("GenericsParametorClass1", TRUE, 1, 0, NULL, FALSE);

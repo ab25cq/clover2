@@ -65,6 +65,12 @@ void free_nodes()
                     MFREE(gNodes[i].uValue.mString);
                     break;
 
+                case kNodeTypeBlockObject:
+                    if(gNodes[i].uValue.sBlockObject.mBlockObjectCode) {
+                        sNodeBlock_free(gNodes[i].uValue.sBlockObject.mBlockObjectCode);
+                    }
+                    break;
+
                 default:
                     break;
             }
@@ -5138,6 +5144,62 @@ BOOL compile_string_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_block_object(sParserParam* params, int num_params, sNodeType* result_type, MANAGED sNodeBlock* block_object_code)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeBlockObject;
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    gNodes[node].mType = NULL;
+
+    int i;
+    for(i=0; i<num_params; i++) {
+        gNodes[node].uValue.sBlockObject.mParams[i] = params[i]; // copy struct
+    }
+
+    gNodes[node].uValue.sBlockObject.mNumParams = num_params;
+    gNodes[node].uValue.sBlockObject.mResultType = result_type;
+    gNodes[node].uValue.sBlockObject.mBlockObjectCode = MANAGED block_object_code;
+
+    return node;
+}
+
+BOOL compile_block_object(unsigned int node, sCompileInfo* info)
+{
+    /// rename variables ///
+    int num_params = gNodes[node].uValue.sBlockObject.mNumParams;
+    sParserParam* params[PARAMS_MAX];
+
+    int i;
+    for(i=0; i<num_params; i++) {
+        params[i] = gNodes[node].uValue.sBlockObject.mParams + i;
+    }
+
+    sNodeType* result_type = gNodes[node].uValue.sBlockObject.mResultType;
+    sNodeBlock* block_object_code = gNodes[node].uValue.sBlockObject.mBlockObjectCode;
+
+    /// make block object ///
+
+    /// make info->type ///
+    info->type = create_node_type_with_class_name("block");
+
+    sNodeBlockObject* node_block_object = alloc_node_block_object();
+
+    node_block_object->mNumParams = num_params;
+    node_block_object->mResultType = result_type;
+    for(i=0; i<num_params; i++) {
+        node_block_object->mParams[i] = params[i]->mType;
+    }
+
+    info->type->mBlock = node_block_object;
+
+    return TRUE;
+}
+
 void show_node(unsigned int node)
 {
     if(node == 0) {
@@ -5303,6 +5365,10 @@ void show_node(unsigned int node)
 
         case kNodeTypeTry:
             puts("try");
+            break;
+
+        case kNodeTypeBlockObject:
+            puts("block");
             break;
 
         case kNodeTypeLoadArrayElement:
@@ -5554,6 +5620,12 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeTry:
             if(!compile_try_expression(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeBlockObject:
+            if(!compile_block_object(node, info)) {
                 return FALSE;
             }
             break;

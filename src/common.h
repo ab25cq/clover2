@@ -240,6 +240,23 @@ sClassTable* gHeadClassTable;
 typedef fNativeMethod (*fGetNativeMethod)(char* path);
 extern fGetNativeMethod gGetNativeMethod;
 
+/// node_block_object.c ///
+struct sNodeTypeStruct;
+
+struct sNodeBlockObjectStruct {
+    struct sNodeTypeStruct* mParams[PARAMS_MAX];
+    int mNumParams;
+
+    struct sNodeTypeStruct* mResultType;
+};
+
+typedef struct sNodeBlockObjectStruct sNodeBlockObject;
+
+sNodeBlockObject* alloc_node_block_object();
+void free_node_block_object(sNodeBlockObject* block);
+sNodeBlockObject* clone_node_block_object(sNodeBlockObject* block);
+BOOL substitution_posibility_for_node_block_object(sNodeBlockObject* left, sNodeBlockObject* right);
+
 /// node_type.c ///
 struct sNodeTypeStruct {
     sCLClass* mClass;
@@ -248,6 +265,7 @@ struct sNodeTypeStruct {
     int mNumGenericsTypes;
 
     BOOL mArray;
+    MANAGED sNodeBlockObject* mBlock;
 };
 
 typedef struct sNodeTypeStruct sNodeType;
@@ -350,7 +368,7 @@ BOOL parse_word(char* buf, int buf_size, sParserInfo* info, BOOL print_out_err_m
 BOOL parse_type(sNodeType** result_type, sParserInfo* info);
 BOOL parse_class_type(sCLClass** klass, sParserInfo* info);
 
-/// node_block ///
+/// node_block.c ///
 struct sNodeBlockStruct
 {
     unsigned int* mNodes;
@@ -368,9 +386,17 @@ struct sCompileInfoStruct;
 BOOL compile_normal_block(sNodeBlock* block, struct sCompileInfoStruct* info);
 
 /// node.c ///
-enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeUByteValue, kNodeTypeShortValue, kNodeTypeUShortValue, kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand, kNodeTypeIncrementWithValueOperand, kNodeTypeDecrementWithValueOperand, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand, kNodeTypeLoadArrayElement, kNodeTypeStoreArrayElement, kNodeTypeChar, kNodeTypeString, kNodeTypeThrow, kNodeTypeTry };
+enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeUByteValue, kNodeTypeShortValue, kNodeTypeUShortValue, kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand, kNodeTypeIncrementWithValueOperand, kNodeTypeDecrementWithValueOperand, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand, kNodeTypeLoadArrayElement, kNodeTypeStoreArrayElement, kNodeTypeChar, kNodeTypeString, kNodeTypeThrow, kNodeTypeTry, kNodeTypeBlockObject };
 
 enum eOperand { kOpAdd, kOpSub , kOpComplement, kOpLogicalDenial, kOpMult, kOpDiv, kOpMod, kOpLeftShift, kOpRightShift, kOpComparisonEqual, kOpComparisonNotEqual,kOpComparisonGreaterEqual, kOpComparisonLesserEqual, kOpComparisonGreater, kOpComparisonLesser, kOpAnd, kOpXor, kOpOr, kOpAndAnd, kOpOrOr, kOpConditional };
+
+struct sParserParamStruct 
+{
+    char mName[VAR_NAME_MAX];
+    sNodeType* mType;
+};
+
+typedef struct sParserParamStruct sParserParam;
 
 struct sNodeTreeStruct 
 {
@@ -444,6 +470,13 @@ struct sNodeTreeStruct
 
         wchar_t mCharacter;
         char* mString;
+
+        struct {
+            sParserParam mParams[PARAMS_MAX];
+            int mNumParams;
+            sNodeType* mResultType;
+            sNodeBlock* mBlockObjectCode;
+        } sBlockObject;
     } uValue;
 
     sNodeType* mType;
@@ -518,6 +551,8 @@ unsigned int sNodeTree_create_store_array_element(unsigned int array, unsigned i
 unsigned int sNodeTree_create_character_value(wchar_t c);
 unsigned int sNodeTree_create_string_value(MANAGED char* value);
 unsigned int sNodeTree_try_expression(MANAGED sNodeBlock* try_node_block, MANAGED sNodeBlock* catch_node_block, char* exception_var_name);
+
+unsigned int sNodeTree_create_block_object(sParserParam* params, int num_params, sNodeType* result_type, MANAGED sNodeBlock* block_object_code);
 
 /// script.c ///
 BOOL compile_script(char* fname, char* source);
@@ -953,14 +988,6 @@ BOOL call_finalize_method_on_free_object(sCLClass* klass, CLObject self);
 #define PARSE_PHASE_COMPILE_PARAM_INITIALIZER 6
 #define PARSE_PHASE_DO_COMPILE_CODE 7
 #define PARSE_PHASE_MAX 8
-
-struct sParserParamStruct 
-{
-    char mName[VAR_NAME_MAX];
-    sNodeType* mType;
-};
-
-typedef struct sParserParamStruct sParserParam;
 
 BOOL compile_class_source(char* fname, char* source);
 

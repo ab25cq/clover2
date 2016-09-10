@@ -116,10 +116,12 @@ class SystemException
     }
 }
 
-interface Object {
+interface Object 
+{
 }
 
-class Byte {
+class Byte 
+{
     value:byte;
 
     def initialize() {
@@ -147,7 +149,8 @@ class Byte {
     }
 }
 
-class UByte {
+class UByte 
+{
     value:ubyte;
 
     def initialize() {
@@ -175,7 +178,39 @@ class UByte {
     }
 }
 
-class Integer {
+class Short 
+{
+    value:short;
+
+    def initialize() {
+        self.value = 0.to_short;
+    }
+
+    def initialize(value:short) {
+        self.value = value;
+    }
+
+    def initialize(value:int) {
+        self.value = value.to_short;
+    }
+
+    def getValue(): short {
+        return self.value;
+    }
+
+    def setValue(value:short) {
+        self.value = value;
+    }
+
+/*
+    def toUShort():UShort {
+        return self.value.toUShort;
+    }
+*/
+}
+
+class Integer 
+{
     value:int;
 
     def initialize() {
@@ -199,7 +234,8 @@ class Integer {
     }
 }
 
-class UInteger {
+class UInteger 
+{
     value: uint;
 
     def initialize() {
@@ -226,4 +262,5 @@ class UInteger {
         return self.value.toInteger;
     }
 }
+
 
