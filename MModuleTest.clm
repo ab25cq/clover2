@@ -1,7 +1,0 @@
-
-    def method(): int {
-        return 123;
-    }
-    def method2():int {
-        return self.field;
-    }

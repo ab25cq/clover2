@@ -1,4 +1,3 @@
-
 class System: final
 {
     def exit(num:int): native static;
