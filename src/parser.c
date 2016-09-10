@@ -605,7 +605,7 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
     int generics_num = 0;
 
     if(type_identify_with_class_name(*result_type, "block")) {
-        sNodeBlockObject* node_block_object = alloc_node_block_object();
+        sNodeBlockType* node_block_type = alloc_node_block_type();
 
         if(*info->p == '(') {
             info->p++;
@@ -617,10 +617,10 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
                     return FALSE;
                 }
 
-                node_block_object->mParams[node_block_object->mNumParams] = node_type;
-                node_block_object->mNumParams++;
+                node_block_type->mParams[node_block_type->mNumParams] = node_type;
+                node_block_type->mNumParams++;
 
-                if(node_block_object->mNumParams >= PARAMS_MAX) {
+                if(node_block_type->mNumParams >= PARAMS_MAX) {
                     parser_err_msg(info, "oveflow block object type params");
                     return FALSE;
                 }
@@ -650,10 +650,10 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
                 return FALSE;
             }
 
-            node_block_object->mResultType = node_type;
+            node_block_type->mResultType = node_type;
         }
 
-        (*result_type)->mBlock = node_block_object;
+        (*result_type)->mBlockType = node_block_type;
     }
     else if(*info->p == '<') {
         info->p++;

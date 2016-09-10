@@ -1,19 +1,19 @@
 #include "common.h"
 
-sNodeBlockObject* alloc_node_block_object()
+sNodeBlockType* alloc_node_block_type()
 {
-    sNodeBlockObject* block = MCALLOC(1, sizeof(sNodeBlockObject));
+    sNodeBlockType* block = MCALLOC(1, sizeof(sNodeBlockType));
     return block;
 }
 
-void free_node_block_object(sNodeBlockObject* block)
+void free_node_block_type(sNodeBlockType* block)
 {
     MFREE(block);
 }
 
-sNodeBlockObject* clone_node_block_object(sNodeBlockObject* block)
+sNodeBlockType* clone_node_block_type(sNodeBlockType* block)
 {
-    sNodeBlockObject* self = alloc_node_block_object();
+    sNodeBlockType* self = alloc_node_block_type();
 
     self->mNumParams = block->mNumParams;
 
@@ -27,7 +27,7 @@ sNodeBlockObject* clone_node_block_object(sNodeBlockObject* block)
     return self;
 }
 
-BOOL substitution_posibility_for_node_block_object(sNodeBlockObject* left_block, sNodeBlockObject* right_block)
+BOOL substitution_posibility_for_node_block_type(sNodeBlockType* left_block, sNodeBlockType* right_block)
 {
     if(type_identify(left_block->mResultType, right_block->mResultType)) {
         if(left_block->mNumParams == right_block->mNumParams) {

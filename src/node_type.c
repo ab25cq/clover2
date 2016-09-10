@@ -30,8 +30,8 @@ void free_node_types()
     if(gSizePageNodeTypes > 0) {
         int i;
         for(i=0; i<gSizePageNodeTypes; i++) {
-            if(gNodeTypes[i]->mBlock) {
-                free_node_block_object(gNodeTypes[i]->mBlock);
+            if(gNodeTypes[i]->mBlockType) {
+                free_node_block_type(gNodeTypes[i]->mBlockType);
             }
             MFREE(gNodeTypes[i]);
         }
@@ -82,11 +82,11 @@ sNodeType* clone_node_type(sNodeType* node_type)
 
     node_type2->mArray = node_type->mArray;
 
-    if(node_type->mBlock) {
-        node_type2->mBlock = clone_node_block_object(node_type->mBlock);
+    if(node_type->mBlockType) {
+        node_type2->mBlockType = clone_node_block_type(node_type->mBlockType);
     }
     else {
-        node_type2->mBlock = NULL;
+        node_type2->mBlockType = NULL;
     }
 
     return node_type2;
@@ -99,7 +99,7 @@ sNodeType* create_node_type_with_class_pointer(sCLClass* klass)
     node_type->mClass = klass;
     node_type->mNumGenericsTypes = 0;
     node_type->mArray = FALSE;
-    node_type->mBlock = NULL;
+    node_type->mBlockType = NULL;
 
     return node_type;
 }
@@ -117,7 +117,7 @@ sNodeType* create_node_type_with_class_name(char* class_name)
     node_type->mNumGenericsTypes = 0;
 
     node_type->mArray = FALSE;
-    node_type->mBlock = NULL;
+    node_type->mBlockType = NULL;
 
     return node_type;
 }
@@ -164,11 +164,11 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right)
     }
     else if(type_identify_with_class_name(left, "block")) {
         if(type_identify_with_class_name(right, "block")) {
-            sNodeBlockObject* left_block = left->mBlock;
-            sNodeBlockObject* right_block = right->mBlock;
+            sNodeBlockType* left_block_type = left->mBlockType;
+            sNodeBlockType* right_block_type = right->mBlockType;
 
-            if(left_block && right_block) {
-                return substitution_posibility_for_node_block_object(left_block, right_block);
+            if(left_block_type && right_block_type) {
+                return substitution_posibility_for_node_block_type(left_block_type, right_block_type);
             }
             else {
                 return FALSE;

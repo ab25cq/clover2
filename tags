@@ -31,7 +31,7 @@ CLVALUEUnion	src/common.h	/^union CLVALUEUnion {$/;"	u
 CL_MODULE_HASH_SIZE	src/common.h	38;"	d
 CL_MODULE_NAME_MAX	src/common.h	39;"	d
 COMMON_H	src/common.h	2;"	d
-COMPILER_OBJS	Makefile	/^COMPILER_OBJS=src\/compiler.o src\/parser.o src\/node_type.o src\/node.o src\/vtable.o src\/script.o src\/node_block.o src\/node_block_object.o src\/class_compiler.o src\/klass_compile_time.o src\/method_compiler.o src\/module.o$/;"	m
+COMPILER_OBJS	Makefile	/^COMPILER_OBJS=src\/compiler.o src\/parser.o src\/node_type.o src\/node.o src\/vtable.o src\/script.o src\/node_block.o src\/node_block_type.o src\/class_compiler.o src\/klass_compile_time.o src\/method_compiler.o src\/module.o$/;"	m
 CONS_str	src/common.h	90;"	d
 CreateProcess	ltmain.sh	/^   CreateProcess().  We must quote the arguments since Win32 CreateProcess()$/;"	f
 DEBUG_H	src/debug.h	2;"	d
@@ -504,7 +504,7 @@ add_variable_to_table	src/vtable.c	/^BOOL add_variable_to_table(sVarTable* table
 alloc_class	src/klass.c	/^sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_class_num, int generics_number, sCLClass** type_of_generics_params, BOOL interface)$/;"	f
 alloc_heap_mem	src/heap.c	/^CLObject alloc_heap_mem(int size, sCLClass* klass, int array_num)$/;"	f
 alloc_node	src/node.c	/^static unsigned int alloc_node()$/;"	f	file:
-alloc_node_block_object	src/node_block_object.c	/^sNodeBlockObject* alloc_node_block_object()$/;"	f
+alloc_node_block_type	src/node_block_type.c	/^sNodeBlockType* alloc_node_block_type()$/;"	f
 alloc_node_type	src/node_type.c	/^sNodeType* alloc_node_type()$/;"	f
 append_byte_codes_to_buffer	src/klass_compile_time.c	/^static void append_byte_codes_to_buffer(sBuf* buf, sByteCode* code)$/;"	f	file:
 append_character_to_module	src/module.c	/^void append_character_to_module(sCLModule* self, char c)$/;"	f
@@ -575,7 +575,7 @@ class_compiler	src/compiler.c	/^static BOOL class_compiler(char* fname)$/;"	f	fi
 class_final	src/klass.c	/^void class_final()$/;"	f
 class_final_on_runtime	src/vm.c	/^void class_final_on_runtime()$/;"	f
 class_init	src/klass.c	/^void class_init()$/;"	f
-clone_node_block_object	src/node_block_object.c	/^sNodeBlockObject* clone_node_block_object(sNodeBlockObject* block)$/;"	f
+clone_node_block_type	src/node_block_type.c	/^sNodeBlockType* clone_node_block_type(sNodeBlockType* block)$/;"	f
 clone_node_type	src/node_type.c	/^sNodeType* clone_node_type(sNodeType* node_type)$/;"	f
 clover2_final	src/main.c	/^static void clover2_final()$/;"	f	file:
 clover2_init	src/main.c	/^static void clover2_init()$/;"	f	file:
@@ -695,7 +695,7 @@ for_expression	src/parser.c	/^static BOOL for_expression(unsigned int* node, sPa
 free_cl_type	src/klass.c	/^void free_cl_type(sCLType* cl_type)$/;"	f
 free_class	src/klass.c	/^static void free_class(sCLClass* klass)$/;"	f	file:
 free_module	src/module.c	/^static void free_module(sCLModule* self)$/;"	f	file:
-free_node_block_object	src/node_block_object.c	/^void free_node_block_object(sNodeBlockObject* block)$/;"	f
+free_node_block_type	src/node_block_type.c	/^void free_node_block_type(sNodeBlockType* block)$/;"	f
 free_node_types	src/node_type.c	/^void free_node_types()$/;"	f
 free_nodes	src/node.c	/^void free_nodes()$/;"	f
 free_object	src/object.c	/^BOOL free_object(CLObject self)$/;"	f
@@ -929,10 +929,10 @@ mArray	src/common.h	/^    BOOL mArray;$/;"	m	struct:sNodeTypeStruct
 mArrayNum	src/common.h	/^            unsigned int mArrayNum;$/;"	m	struct:sNodeTreeStruct::__anon2::__anon10
 mArrayNum	src/common.h	/^        int mArrayNum;$/;"	m	union:sCLObjectStruct::__anon13
 mArrayNum	src/common.h	/^    int mArrayNum;$/;"	m	struct:sCLHeapMemStruct
-mBlock	src/common.h	/^    MANAGED sNodeBlockObject* mBlock;$/;"	m	struct:sNodeTypeStruct
 mBlockLevel	src/common.h	/^    int mBlockLevel;$/;"	m	struct:sVarStruct
 mBlockLevel	src/common.h	/^    int mBlockLevel;$/;"	m	struct:sVarTableStruct
 mBlockObjectCode	src/common.h	/^            sNodeBlock* mBlockObjectCode;$/;"	m	struct:sNodeTreeStruct::__anon2::__anon12
+mBlockType	src/common.h	/^    MANAGED struct sNodeBlockTypeStruct* mBlockType;$/;"	m	struct:sNodeTypeStruct	typeref:struct:sNodeTypeStruct::sNodeBlockTypeStruct
 mBody	src/common.h	/^    sBuf mBody;$/;"	m	struct:sCLModuleStruct
 mBoolValue	src/common.h	/^    BOOL mBoolValue;$/;"	m	union:CLVALUEUnion
 mBuf	src/buffer.h	/^    char* mBuf;$/;"	m	struct:sBufStruct
@@ -1046,7 +1046,7 @@ mNumParams	src/common.h	/^            int mNumParams;$/;"	m	struct:sNodeTreeStru
 mNumParams	src/common.h	/^            int mNumParams;$/;"	m	struct:sNodeTreeStruct::__anon2::__anon9
 mNumParams	src/common.h	/^    int mNumParams;$/;"	m	struct:sCLMethodStruct
 mNumParams	src/common.h	/^    int mNumParams;$/;"	m	struct:sGenericsParamInfoStruct
-mNumParams	src/common.h	/^    int mNumParams;$/;"	m	struct:sNodeBlockObjectStruct
+mNumParams	src/common.h	/^    int mNumParams;$/;"	m	struct:sNodeBlockTypeStruct
 mObjectValue	src/common.h	/^    CLObject mObjectValue;$/;"	m	union:CLVALUEUnion
 mOffset	src/heap.c	/^    int mOffset;                 \/\/ -1 for FreeHandle$/;"	m	struct:sHandle_	file:
 mOperand	src/common.h	/^        enum eOperand mOperand;$/;"	m	union:sNodeTreeStruct::__anon2	typeref:enum:sNodeTreeStruct::__anon2::eOperand
@@ -1056,7 +1056,7 @@ mParams	src/common.h	/^            unsigned int mParams[PARAMS_MAX];$/;"	m	struc
 mParams	src/common.h	/^            unsigned int mParams[PARAMS_MAX];$/;"	m	struct:sNodeTreeStruct::__anon2::__anon8
 mParams	src/common.h	/^            unsigned int mParams[PARAMS_MAX];$/;"	m	struct:sNodeTreeStruct::__anon2::__anon9
 mParams	src/common.h	/^    sCLParam mParams[PARAMS_MAX]; \/\/ +1 --> self$/;"	m	struct:sCLMethodStruct
-mParams	src/common.h	/^    struct sNodeTypeStruct* mParams[PARAMS_MAX];$/;"	m	struct:sNodeBlockObjectStruct	typeref:struct:sNodeBlockObjectStruct::sNodeTypeStruct
+mParams	src/common.h	/^    sNodeType* mParams[PARAMS_MAX];$/;"	m	struct:sNodeBlockTypeStruct
 mParent	src/common.h	/^    struct sVarTableStruct* mParent;            \/\/ make linked list$/;"	m	struct:sVarTableStruct	typeref:struct:sVarTableStruct::sVarTableStruct
 mPath	src/native_method.c	/^    char* mPath;$/;"	m	struct:sNativeMethodHashItem	file:
 mPath	src/native_method.c	/^    const char* mPath;$/;"	m	struct:sNativeMethodStruct	file:
@@ -1065,7 +1065,7 @@ mPointerValue	src/common.h	/^    char* mPointerValue;$/;"	m	union:CLVALUEUnion
 mResultType	src/common.h	/^            sNodeType* mResultType;$/;"	m	struct:sNodeTreeStruct::__anon2::__anon12
 mResultType	src/common.h	/^    sCLType* mResultType;$/;"	m	struct:sCLFieldStruct
 mResultType	src/common.h	/^    sCLType* mResultType;$/;"	m	struct:sCLMethodStruct
-mResultType	src/common.h	/^    struct sNodeTypeStruct* mResultType;$/;"	m	struct:sNodeBlockObjectStruct	typeref:struct:sNodeBlockObjectStruct::sNodeTypeStruct
+mResultType	src/common.h	/^    struct sNodeTypeStruct* mResultType;$/;"	m	struct:sNodeBlockTypeStruct	typeref:struct:sNodeBlockTypeStruct::sNodeTypeStruct
 mRight	src/common.h	/^    unsigned int mRight;$/;"	m	struct:sNodeTreeStruct
 mShortValue	src/common.h	/^        short mShortValue;$/;"	m	union:sNodeTreeStruct::__anon2
 mShortValue	src/common.h	/^    short mShortValue;$/;"	m	union:CLVALUEUnion
@@ -1235,9 +1235,9 @@ sNativeMethodHashItem	src/native_method.c	/^struct sNativeMethodHashItem {$/;"	s
 sNativeMethodStruct	src/native_method.c	/^struct sNativeMethodStruct {$/;"	s	file:
 sNewOperator	src/common.h	/^        } sNewOperator;$/;"	m	union:sNodeTreeStruct::__anon2	typeref:struct:sNodeTreeStruct::__anon2::__anon10
 sNodeBlock	src/common.h	/^typedef struct sNodeBlockStruct sNodeBlock;$/;"	t	typeref:struct:sNodeBlockStruct
-sNodeBlockObject	src/common.h	/^typedef struct sNodeBlockObjectStruct sNodeBlockObject;$/;"	t	typeref:struct:sNodeBlockObjectStruct
-sNodeBlockObjectStruct	src/common.h	/^struct sNodeBlockObjectStruct {$/;"	s
 sNodeBlockStruct	src/common.h	/^struct sNodeBlockStruct$/;"	s
+sNodeBlockType	src/common.h	/^typedef struct sNodeBlockTypeStruct sNodeBlockType;$/;"	t	typeref:struct:sNodeBlockTypeStruct
+sNodeBlockTypeStruct	src/common.h	/^struct sNodeBlockTypeStruct {$/;"	s
 sNodeBlock_alloc	src/node_block.c	/^static sNodeBlock* sNodeBlock_alloc()$/;"	f	file:
 sNodeBlock_free	src/node_block.c	/^void sNodeBlock_free(sNodeBlock* block)$/;"	f
 sNodeTree	src/common.h	/^typedef struct sNodeTreeStruct sNodeTree;$/;"	t	typeref:struct:sNodeTreeStruct
@@ -1322,7 +1322,7 @@ stack_final	src/stack.c	/^void stack_final()$/;"	f
 stack_init	src/stack.c	/^void stack_init()$/;"	f
 stack_num	src/common.h	/^    int stack_num;$/;"	m	struct:sCompileInfoStruct
 substitution_posibility	src/node_type.c	/^BOOL substitution_posibility(sNodeType* left, sNodeType* right)$/;"	f
-substitution_posibility_for_node_block_object	src/node_block_object.c	/^BOOL substitution_posibility_for_node_block_object(sNodeBlockObject* left_block, sNodeBlockObject* right_block)$/;"	f
+substitution_posibility_for_node_block_type	src/node_block_type.c	/^BOOL substitution_posibility_for_node_block_type(sNodeBlockType* left_block, sNodeBlockType* right_block)$/;"	f
 substitution_posibility_with_class_name	src/node_type.c	/^BOOL substitution_posibility_with_class_name(sNodeType* left, char* right_class_name)$/;"	f
 sysconfdir	Makefile	/^sysconfdir=${prefix}\/etc\/clover2$/;"	m
 t_malloc_entry	src/debug.c	/^typedef struct _t_malloc_entry t_malloc_entry;$/;"	t	typeref:struct:_t_malloc_entry	file:

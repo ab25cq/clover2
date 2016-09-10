@@ -5187,15 +5187,15 @@ BOOL compile_block_object(unsigned int node, sCompileInfo* info)
     /// make info->type ///
     info->type = create_node_type_with_class_name("block");
 
-    sNodeBlockObject* node_block_object = alloc_node_block_object();
+    sNodeBlockType* node_block_type = alloc_node_block_type();
 
-    node_block_object->mNumParams = num_params;
-    node_block_object->mResultType = result_type;
+    node_block_type->mNumParams = num_params;
+    node_block_type->mResultType = result_type;
     for(i=0; i<num_params; i++) {
-        node_block_object->mParams[i] = params[i]->mType;
+        node_block_type->mParams[i] = params[i]->mType;
     }
 
-    info->type->mBlock = node_block_object;
+    info->type->mBlockType = node_block_type;
 
     return TRUE;
 }

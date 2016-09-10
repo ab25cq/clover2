@@ -240,24 +240,9 @@ sClassTable* gHeadClassTable;
 typedef fNativeMethod (*fGetNativeMethod)(char* path);
 extern fGetNativeMethod gGetNativeMethod;
 
-/// node_block_object.c ///
-struct sNodeTypeStruct;
-
-struct sNodeBlockObjectStruct {
-    struct sNodeTypeStruct* mParams[PARAMS_MAX];
-    int mNumParams;
-
-    struct sNodeTypeStruct* mResultType;
-};
-
-typedef struct sNodeBlockObjectStruct sNodeBlockObject;
-
-sNodeBlockObject* alloc_node_block_object();
-void free_node_block_object(sNodeBlockObject* block);
-sNodeBlockObject* clone_node_block_object(sNodeBlockObject* block);
-BOOL substitution_posibility_for_node_block_object(sNodeBlockObject* left, sNodeBlockObject* right);
-
 /// node_type.c ///
+struct sNodeBlockTypeStruct;
+
 struct sNodeTypeStruct {
     sCLClass* mClass;
 
@@ -265,7 +250,7 @@ struct sNodeTypeStruct {
     int mNumGenericsTypes;
 
     BOOL mArray;
-    MANAGED sNodeBlockObject* mBlock;
+    MANAGED struct sNodeBlockTypeStruct* mBlockType;
 };
 
 typedef struct sNodeTypeStruct sNodeType;
@@ -287,6 +272,21 @@ BOOL operand_posibility(sNodeType* left, sNodeType* right, char* op_string);
 BOOL solve_generics_types_for_node_type(sNodeType* node_type, ALLOC sNodeType** result, sNodeType* type_);
 BOOL type_identify_with_class_name(sNodeType* left, char* right_class_name);
 BOOL type_identify(sNodeType* left, sNodeType* right);
+
+/// node_block_object.c ///
+struct sNodeBlockTypeStruct {
+    sNodeType* mParams[PARAMS_MAX];
+    int mNumParams;
+
+    struct sNodeTypeStruct* mResultType;
+};
+
+typedef struct sNodeBlockTypeStruct sNodeBlockType;
+
+sNodeBlockType* alloc_node_block_type();
+void free_node_block_type(sNodeBlockType* block);
+sNodeBlockType* clone_node_block_type(sNodeBlockType* block);
+BOOL substitution_posibility_for_node_block_type(sNodeBlockType* left, sNodeBlockType* right);
 
 /// vtable.c ///
 struct sVarStruct {
