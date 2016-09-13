@@ -2218,7 +2218,7 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
     append_int_value_to_code(info->code, 0, info->no_output);
 
     sNodeBlock* if_block = gNodes[node].uValue.sIf.mIfNodeBlock;
-    if(!compile_normal_block(if_block, info)) {
+    if(!compile_block(if_block, info)) {
         return FALSE;
     }
 
@@ -2260,7 +2260,7 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
             append_int_value_to_code(info->code, 0, info->no_output);
 
             sNodeBlock* elif_block = gNodes[node].uValue.sIf.mElifNodeBlocks[j];
-            if(!compile_normal_block(elif_block, info)) {
+            if(!compile_block(elif_block, info)) {
                 return FALSE;
             }
 
@@ -2278,7 +2278,7 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
     /// else block ///
     sNodeBlock* else_node_block = gNodes[node].uValue.sIf.mElseNodeBlock;
     if(else_node_block) {
-        if(!compile_normal_block(else_node_block, info)) {
+        if(!compile_block(else_node_block, info)) {
             return FALSE;
         }
     }
@@ -2354,7 +2354,7 @@ static BOOL compile_while_expression(unsigned int node, sCompileInfo* info)
     info->break_points = break_points;
 
     sNodeBlock* while_block = gNodes[node].uValue.sWhile.mWhileNodeBlock;
-    if(!compile_normal_block(while_block, info)) {
+    if(!compile_block(while_block, info)) {
         return FALSE;
     }
 
@@ -2448,7 +2448,7 @@ static BOOL compile_for_expression(unsigned int node, sCompileInfo* info)
     info->break_points = break_points;
 
     sNodeBlock* for_block = gNodes[node].uValue.sFor.mForNodeBlock;
-    if(!compile_normal_block(for_block, info)) {
+    if(!compile_block(for_block, info)) {
         return FALSE;
     }
 
@@ -2899,8 +2899,8 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
         }
     }
 
-    if(info->method == NULL) {
-        parser_err_msg(info->pinfo, "Return expressioin should be in a method definition");
+    if(info->method == NULL && info->block_result_type == NULL) {
+        parser_err_msg(info->pinfo, "Return expression should be in a method definition or in a block object");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -2908,7 +2908,13 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
-    sNodeType* result_type = create_node_type_from_cl_type(info->method->mResultType, info->pinfo->klass);
+    sNodeType* result_type = NULL;
+    if(info->method) {
+        result_type = create_node_type_from_cl_type(info->method->mResultType, info->pinfo->klass);
+    }
+    else {
+        result_type = info->block_result_type;
+    }
 
     if((!type_identify_with_class_name(result_type, "Null") && expression_node == 0)
         || (type_identify_with_class_name(result_type, "Null") && expression_node != 0))
@@ -3048,7 +3054,7 @@ static BOOL compile_try_expression(unsigned int node, sCompileInfo* info)
     append_int_value_to_code(info->code, 0, info->no_output);
 
     sNodeBlock* try_node_block = gNodes[node].uValue.sTry.mTryNodeBlock;
-    if(!compile_normal_block(try_node_block, info)) {
+    if(!compile_block(try_node_block, info)) {
         return FALSE;
     }
 
@@ -3072,7 +3078,7 @@ static BOOL compile_try_expression(unsigned int node, sCompileInfo* info)
 
     append_opecode_to_code(info->code, OP_POP, info->no_output);
 
-    if(!compile_normal_block(catch_node_block, info)) {
+    if(!compile_block(catch_node_block, info)) {
         return FALSE;
     }
 
@@ -5144,7 +5150,7 @@ BOOL compile_string_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_block_object(sParserParam* params, int num_params, sNodeType* result_type, MANAGED sNodeBlock* block_object_code)
+unsigned int sNodeTree_create_block_object(sParserParam* params, int num_params, sNodeType* result_type, MANAGED sNodeBlock* node_block)
 {
     unsigned int node = alloc_node();
 
@@ -5163,7 +5169,7 @@ unsigned int sNodeTree_create_block_object(sParserParam* params, int num_params,
 
     gNodes[node].uValue.sBlockObject.mNumParams = num_params;
     gNodes[node].uValue.sBlockObject.mResultType = result_type;
-    gNodes[node].uValue.sBlockObject.mBlockObjectCode = MANAGED block_object_code;
+    gNodes[node].uValue.sBlockObject.mBlockObjectCode = MANAGED node_block;
 
     return node;
 }
@@ -5180,9 +5186,50 @@ BOOL compile_block_object(unsigned int node, sCompileInfo* info)
     }
 
     sNodeType* result_type = gNodes[node].uValue.sBlockObject.mResultType;
-    sNodeBlock* block_object_code = gNodes[node].uValue.sBlockObject.mBlockObjectCode;
+    sNodeBlock* node_block = gNodes[node].uValue.sBlockObject.mBlockObjectCode;
+
+    /// compile block ///
+    sByteCode codes;
+    sConst constant;
+
+    sByteCode_init(&codes);
+    sConst_init(&constant);
+
+    sByteCode* codes_before = info->code;
+    sConst* constant_before = info->constant;
+
+    info->code = &codes;
+    info->constant = &constant;
+
+    sNodeType* block_result_type_before = info->block_result_type;
+    info->block_result_type = result_type;
+
+    if(!compile_block(node_block, info)) {
+        info->code = codes_before;
+        info->constant = constant_before;
+        info->block_result_type = block_result_type_before;
+        return FALSE;
+    }
+
+    info->code = codes_before;
+    info->constant = constant_before;
+    info->block_result_type = block_result_type_before;
 
     /// make block object ///
+    append_opecode_to_code(info->code, OP_CREATE_BLOCK_OBJECT, info->no_output);
+
+    int offset = sConst_append(info->constant, codes.mCodes, codes.mLen, info->no_output);
+    append_int_value_to_code(info->code, offset, info->no_output);
+    append_int_value_to_code(info->code, codes.mLen, info->no_output);
+
+    int offset2 = sConst_append(info->constant, constant.mConst, constant.mLen, info->no_output);
+    append_int_value_to_code(info->code, offset2, info->no_output);
+    append_int_value_to_code(info->code, constant.mLen, info->no_output);
+
+    int var_num = get_var_num(node_block->mLVTable);
+    append_int_value_to_code(info->code, var_num, info->no_output);
+
+    info->stack_num++;
 
     /// make info->type ///
     info->type = create_node_type_with_class_name("block");
@@ -5196,6 +5243,111 @@ BOOL compile_block_object(unsigned int node, sCompileInfo* info)
     }
 
     info->type->mBlockType = node_block_type;
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_block_call(char* block_name, int num_params, unsigned int params[])
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeBlockCall;
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    gNodes[node].mType = NULL;
+
+    xstrncpy(gNodes[node].uValue.sBlockCall.mVarName, block_name, VAR_NAME_MAX);
+
+    gNodes[node].uValue.sBlockCall.mNumParams = num_params;
+
+    int i;
+    for(i=0; i<gNodes[node].uValue.sBlockCall.mNumParams; i++) {
+        gNodes[node].uValue.sBlockCall.mParams[i] = params[i];
+    }
+
+    return node;
+}
+
+BOOL compile_block_call(unsigned int node, sCompileInfo* info)
+{
+    char* block_name = gNodes[node].uValue.sBlockCall.mVarName;
+
+    sVar* var = get_variable_from_table(info->lv_table, block_name);
+
+    if(var == NULL) {
+        parser_err_msg(info->pinfo, "undeclared variable %s", block_name);
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+        return TRUE;
+    }
+
+    int var_index = get_variable_index(info->lv_table, block_name);
+
+    MASSERT(var_index != -1);
+
+    append_opecode_to_code(info->code, OP_LOAD, info->no_output);
+    append_int_value_to_code(info->code, var_index, info->no_output);
+
+    info->stack_num++;
+
+    sNodeType* var_type = var->mType;
+
+    if(var_type == NULL) {
+        parser_err_msg(info->pinfo, "null type %s", block_name);
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+        return TRUE;
+    }
+
+    if(!type_identify_with_class_name(var_type, "block")) {
+        parser_err_msg(info->pinfo, "No block type, clover2 can call block object only");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+        return TRUE;
+    }
+
+    /// compile params ///
+    sNodeType* param_types[PARAMS_MAX];
+
+    int num_params = gNodes[node].uValue.sBlockCall.mNumParams;
+
+    int i;
+    for(i=0; i<num_params; i++) {
+        unsigned int node2 = gNodes[node].uValue.sBlockCall.mParams[i];
+        if(!compile(node2, info)) {
+            return FALSE;
+        }
+
+        param_types[i] = info->type;
+    }
+
+    /// type check compile params ///
+    for(i=0; i<num_params; i++) {
+        sNodeType* left_type = var_type->mBlockType->mParams[i];
+        sNodeType* right_type = param_types[i];
+
+        if(!substitution_posibility(left_type, right_type)) {
+            parser_err_msg(info->pinfo, "Type error for block call");
+            info->err_num++;
+        }
+    }
+
+    /// invoke block ///
+    sNodeBlockType* block_type = var_type->mBlockType;
+
+    append_opecode_to_code(info->code, OP_INVOKE_BLOCK, info->no_output);
+    append_int_value_to_code(info->code, num_params, info->no_output);
+
+    info->stack_num-=(num_params+1);
+    info->stack_num++;
+
+    info->type = block_type->mResultType;
 
     return TRUE;
 }
@@ -5373,6 +5525,10 @@ void show_node(unsigned int node)
 
         case kNodeTypeLoadArrayElement:
             puts("load element");
+            break;
+
+        case kNodeTypeBlockCall:
+            puts("block call");
             break;
     }
 }
@@ -5629,6 +5785,12 @@ BOOL compile(unsigned int node, sCompileInfo* info)
                 return FALSE;
             }
             break;
+
+        case kNodeTypeBlockCall:
+            if(!compile_block_call(node,info)) {
+                return FALSE;
+            }
+            break;
     }
 
     return TRUE;
@@ -5637,7 +5799,7 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 void arrange_stack(sCompileInfo* cinfo)
 {
     if(cinfo->stack_num < 0) {
-        parser_err_msg(cinfo->pinfo, "Unexpected error. Stack pointer is invalid");
+        parser_err_msg(cinfo->pinfo, "Unexpected error. Stack pointer is invalid(stack number is %d)", cinfo->stack_num);
         cinfo->err_num++;
     }
     else if(cinfo->stack_num == 0) {

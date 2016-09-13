@@ -30,7 +30,7 @@ static void append_node_to_node_block(sNodeBlock* node_block, unsigned int node)
     node_block->mNumNodes++;
 }
 
-BOOL parse_normal_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* new_table)
+BOOL parse_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* new_table, BOOL block_object)
 {
     expect_next_character_with_one_forward("{", info);
 
@@ -88,14 +88,16 @@ BOOL parse_normal_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTa
         }
     }
 
-    set_max_block_var_num(info->lv_table, old_vtable);
+    if(!block_object) {
+        set_max_block_var_num(info->lv_table, old_vtable);
+    }
     (*node_block)->mLVTable = info->lv_table;
     info->lv_table = old_vtable;
 
     return TRUE;
 }
 
-BOOL compile_normal_block(sNodeBlock* block, sCompileInfo* info)
+BOOL compile_block(sNodeBlock* block, sCompileInfo* info)
 {
     sVarTable* old_table = info->lv_table;
     info->lv_table = block->mLVTable;

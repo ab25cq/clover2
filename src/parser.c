@@ -272,7 +272,7 @@ static BOOL if_expression(unsigned int* node, sParserInfo* info)
     expect_next_character_with_one_forward(")", info);
 
     sNodeBlock* if_node_block = NULL;
-    if(!parse_normal_block(ALLOC &if_node_block, info, NULL)) {
+    if(!parse_block(ALLOC &if_node_block, info, NULL, FALSE)) {
         return FALSE;
     }
 
@@ -301,7 +301,7 @@ static BOOL if_expression(unsigned int* node, sParserInfo* info)
         }
 
         if(strcmp(buf, "else") == 0) {
-            if(!parse_normal_block(ALLOC &else_node_block, info, NULL)) {
+            if(!parse_block(ALLOC &else_node_block, info, NULL, FALSE)) {
                 return FALSE;
             }
             break;
@@ -322,7 +322,7 @@ static BOOL if_expression(unsigned int* node, sParserInfo* info)
 
             expect_next_character_with_one_forward(")", info);
 
-            if(!parse_normal_block(ALLOC &elif_node_blocks[elif_num], info, NULL)) {
+            if(!parse_block(ALLOC &elif_node_blocks[elif_num], info, NULL, FALSE)) {
                 return FALSE;
             }
 
@@ -364,7 +364,7 @@ static BOOL while_expression(unsigned int* node, sParserInfo* info)
     expect_next_character_with_one_forward(")", info);
 
     sNodeBlock* while_node_block = NULL;
-    if(!parse_normal_block(ALLOC &while_node_block, info, NULL)) {
+    if(!parse_block(ALLOC &while_node_block, info, NULL, FALSE)) {
         return FALSE;
     }
 
@@ -420,7 +420,7 @@ static BOOL for_expression(unsigned int* node, sParserInfo* info)
     expect_next_character_with_one_forward(")", info);
 
     sNodeBlock* for_node_block = NULL;
-    if(!parse_normal_block(ALLOC &for_node_block, info, NULL)) {
+    if(!parse_block(ALLOC &for_node_block, info, NULL, FALSE)) {
         return FALSE;
     }
 
@@ -502,11 +502,99 @@ static BOOL expect_next_word(char* word, sParserInfo* info)
     return TRUE;
 }
 
+static BOOL parse_param(sParserParam* param, sParserInfo* info)
+{
+    /// variable name ///
+    if(!parse_word(param->mName, VAR_NAME_MAX, info, TRUE)) {
+        return FALSE;
+    }
+
+    expect_next_character_with_one_forward(":", info);
+
+    if(!parse_type(&param->mType, info)) {
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL parse_params(sParserParam* params, int* num_params, sParserInfo* info)
+{
+    if(*info->p == ')') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        *num_params = 0;
+
+        return TRUE;
+    }
+
+    while(1) {
+        if(!parse_param(params + *num_params, info)) {
+            return FALSE;
+        }
+
+        (*num_params)++;
+
+        if(*num_params > PARAMS_MAX) {
+            parser_err_msg(info, "overflow params number");
+            return FALSE;
+        }
+
+        if(*info->p == ',') {
+            info->p++;
+            skip_spaces_and_lf(info);
+        }
+        else if(*info->p == ')') {
+            info->p++;
+            skip_spaces_and_lf(info);
+            break;
+        }
+        else if(*info->p == '\0') {
+            parser_err_msg(info, "It is required to ',' or ')' before the source end");
+            info->err_num++;
+            break;
+        }
+        else {
+            parser_err_msg(info, "Unexpected character(%c). It is required to ',' or ')' character", *info->p);
+            if(*info->p == '\n') {
+                info->sline++;
+            }
+            info->p++;
+
+            info->err_num++;
+        }
+    }
+
+    return TRUE;
+}
+
+BOOL parse_params_and_entry_to_lvtable(sParserParam* params, int* num_params, sParserInfo* info, sVarTable** new_table)
+{
+    if(!parse_params(params, num_params, info)) {
+        return FALSE;
+    }
+
+    *new_table = init_block_vtable(info->lv_table);
+
+    int i;
+    for(i=0; i<*num_params; i++) {
+        sParserParam* param = params + i;
+
+        if(!add_variable_to_table(*new_table, param->mName, param->mType)) {
+            return FALSE;
+        }
+    }
+
+
+    return TRUE;
+}
+
 static BOOL try_expression(unsigned int* node, sParserInfo* info)
 {
     /// try ///
     sNodeBlock* try_node_block = NULL;
-    if(!parse_normal_block(ALLOC &try_node_block, info, NULL)) {
+    if(!parse_block(ALLOC &try_node_block, info, NULL, FALSE)) {
         return FALSE;
     }
 
@@ -519,7 +607,9 @@ static BOOL try_expression(unsigned int* node, sParserInfo* info)
     int num_params = 0;
 
     /// parse_params ///
-    if(!parse_params(params, &num_params, info)) {
+    sVarTable* new_table = NULL;
+
+    if(!parse_params_and_entry_to_lvtable(params, &num_params, info, &new_table)) {
         return FALSE;
     }
 
@@ -528,19 +618,8 @@ static BOOL try_expression(unsigned int* node, sParserInfo* info)
         info->err_num++;
     }
 
-    sVarTable* new_table = init_block_vtable(info->lv_table);
-
-    int i;
-    for(i=0; i<num_params; i++) {
-        sParserParam* param = params + i;
-
-        if(!add_variable_to_table(new_table, param->mName, param->mType)) {
-            return FALSE;
-        }
-    }
-
     sNodeBlock* catch_node_block = NULL;
-    if(!parse_normal_block(ALLOC &catch_node_block, info, new_table)) {
+    if(!parse_block(ALLOC &catch_node_block, info, new_table, FALSE)) {
         return FALSE;
     }
 
@@ -1000,7 +1079,9 @@ static BOOL parse_block_object(unsigned int* node, sParserInfo* info)
     int num_params = 0;
 
     /// parse_params ///
-    if(!parse_params(params, &num_params, info)) {
+    sVarTable* new_table = NULL;
+
+    if(!parse_params_and_entry_to_lvtable(params, &num_params, info, &new_table)) {
         return FALSE;
     }
 
@@ -1014,12 +1095,12 @@ static BOOL parse_block_object(unsigned int* node, sParserInfo* info)
         }
     }
 
-    sNodeBlock* block_object_code = NULL;
-    if(!parse_normal_block(ALLOC &block_object_code, info, NULL)) {
+    sNodeBlock* node_block = NULL;
+    if(!parse_block(ALLOC &node_block, info, new_table, TRUE)) {
         return FALSE;
     }
 
-    *node = sNodeTree_create_block_object(params, num_params, result_type, MANAGED block_object_code);
+    *node = sNodeTree_create_block_object(params, num_params, result_type, MANAGED node_block);
 
     return TRUE;
 }
@@ -1402,9 +1483,22 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 else {
                 }
             }
-            /// load variable ///
             else {
-                *node = sNodeTree_create_load_variable(buf);
+                /// call block object ///
+                if(*info->p == '(') {
+                    unsigned int params[PARAMS_MAX];
+                    int num_params = 0;
+
+                    if(!parse_method_params(&num_params, params, info)) {
+                        return FALSE;
+                    }
+
+                    *node = sNodeTree_create_block_call(buf, num_params, params);
+                }
+                /// load variable ///
+                else {
+                    *node = sNodeTree_create_load_variable(buf);
+                }
             }
         }
     }
@@ -1435,6 +1529,9 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 info->p++;
             }
         }
+        skip_spaces_and_lf(info);
+
+        *node = expression(node, info);
     }
     /// comment2 ///
     else if(*info->p == '#') {
@@ -1450,6 +1547,9 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 info->p++;
             }
         }
+        skip_spaces_and_lf(info);
+
+        *node = expression(node, info);
     }
     else if(*info->p == '(') {
         info->p++;

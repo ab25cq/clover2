@@ -381,12 +381,12 @@ struct sNodeBlockStruct
 typedef struct sNodeBlockStruct sNodeBlock;
 
 void sNodeBlock_free(sNodeBlock* block);
-BOOL parse_normal_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* new_table);
+BOOL parse_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* new_table, BOOL block_object);
 struct sCompileInfoStruct;
-BOOL compile_normal_block(sNodeBlock* block, struct sCompileInfoStruct* info);
+BOOL compile_block(sNodeBlock* block, struct sCompileInfoStruct* info);
 
 /// node.c ///
-enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeUByteValue, kNodeTypeShortValue, kNodeTypeUShortValue, kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand, kNodeTypeIncrementWithValueOperand, kNodeTypeDecrementWithValueOperand, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand, kNodeTypeLoadArrayElement, kNodeTypeStoreArrayElement, kNodeTypeChar, kNodeTypeString, kNodeTypeThrow, kNodeTypeTry, kNodeTypeBlockObject };
+enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeUByteValue, kNodeTypeShortValue, kNodeTypeUShortValue, kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand, kNodeTypeIncrementWithValueOperand, kNodeTypeDecrementWithValueOperand, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand, kNodeTypeLoadArrayElement, kNodeTypeStoreArrayElement, kNodeTypeChar, kNodeTypeString, kNodeTypeThrow, kNodeTypeTry, kNodeTypeBlockObject, kNodeTypeBlockCall };
 
 enum eOperand { kOpAdd, kOpSub , kOpComplement, kOpLogicalDenial, kOpMult, kOpDiv, kOpMod, kOpLeftShift, kOpRightShift, kOpComparisonEqual, kOpComparisonNotEqual,kOpComparisonGreaterEqual, kOpComparisonLesserEqual, kOpComparisonGreater, kOpComparisonLesser, kOpAnd, kOpXor, kOpOr, kOpAndAnd, kOpOrOr, kOpConditional };
 
@@ -477,6 +477,12 @@ struct sNodeTreeStruct
             sNodeType* mResultType;
             sNodeBlock* mBlockObjectCode;
         } sBlockObject;
+
+        struct {
+            char mVarName[VAR_NAME_MAX];
+            unsigned int mParams[PARAMS_MAX];
+            int mNumParams;
+        } sBlockCall;
     } uValue;
 
     sNodeType* mType;
@@ -497,6 +503,7 @@ struct sCompileInfoStruct
     int* num_break_points;
     int* break_points;
     sCLMethod* method;
+    sNodeType* block_result_type;
 };
 
 typedef struct sCompileInfoStruct sCompileInfo;
@@ -552,7 +559,8 @@ unsigned int sNodeTree_create_character_value(wchar_t c);
 unsigned int sNodeTree_create_string_value(MANAGED char* value);
 unsigned int sNodeTree_try_expression(MANAGED sNodeBlock* try_node_block, MANAGED sNodeBlock* catch_node_block, char* exception_var_name);
 
-unsigned int sNodeTree_create_block_object(sParserParam* params, int num_params, sNodeType* result_type, MANAGED sNodeBlock* block_object_code);
+unsigned int sNodeTree_create_block_object(sParserParam* params, int num_params, sNodeType* result_type, MANAGED sNodeBlock* node_block);
+unsigned int sNodeTree_create_block_call(char* block_name, int num_params, unsigned int params[]);
 
 /// script.c ///
 BOOL compile_script(char* fname, char* source);
@@ -731,6 +739,7 @@ BOOL compile_script(char* fname, char* source);
 
 #define OP_INVOKE_METHOD 3000
 #define OP_INVOKE_VIRTUAL_METHOD 3001
+#define OP_INVOKE_BLOCK 3002
 
 #define OP_NEW 4000
 #define OP_LOAD_FIELD 4001
@@ -971,6 +980,7 @@ BOOL compile_script(char* fname, char* source);
 #define OP_GET_ARRAY_LENGTH 8000
 
 #define OP_CREATE_STRING 9000
+#define OP_CREATE_BLOCK_OBJECT 9001
 
 BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sVMInfo* info);
 void vm_mutex_on();
@@ -1106,6 +1116,25 @@ void object_mark_fun(CLObject self, unsigned char* mark_flg);
 /// array.c ///
 CLObject create_array_object(sCLClass* klass, int array_num);
 void array_mark_fun(CLObject self, unsigned char* mark_flg);
+
+/// block.c ///
+struct sBlockObjectStruct
+{
+    int mSize;
+    sCLClass* mClass;       // NULL --> no class only memory
+    int mArrayNum;
+    sByteCode mCodes;
+    sConst mConstant;
+    CLVALUE* mParentStack;
+    int mParentVarNum;
+    int mBlockVarNum;
+};
+
+typedef struct sBlockObjectStruct sBlockObject;
+
+#define CLBLOCK(obj) (sBlockObject*)(get_object_pointer((obj)))
+
+CLObject create_block_object(sByteCode* codes, sConst* constant, CLVALUE* parent_stack, int parent_var_num, int block_var_num);
 
 /// string.c ///
 CLObject create_string_object(char* str);

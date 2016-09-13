@@ -1,120 +1,35 @@
 #include "common.h"
 
-static sNodeBlock* sNodeBlock_alloc()
+static unsigned int object_size()
 {
-    sNodeBlock* block = MCALLOC(1, sizeof(sNodeBlock));
+    unsigned int size;
 
-    block->mSizeNodes = 32;
-    block->mNumNodes = 0;
-    block->mNodes = MCALLOC(1, sizeof(unsigned int)*block->mSizeNodes);
-    block->mLVTable = NULL;
+    size = sizeof(sBlockObject);
 
-    return block;
+    /// align to 4 byte boundry
+    size = (size + 3) & ~3;
+
+    return size;
 }
 
-void sNodeBlock_free(sNodeBlock* block)
+CLObject create_block_object(sByteCode* codes, sConst* constant, CLVALUE* parent_stack, int parent_var_num, int block_var_num)
 {
-    if(block->mNodes) MFREE(block->mNodes);
-    MFREE(block);
+    int size = object_size();
+
+    sCLClass* klass = get_class("block");
+
+    MASSERT(klass != NULL);
+
+    CLObject obj = alloc_heap_mem(size, klass, -1);
+
+    sBlockObject* object_data = CLBLOCK(obj);
+
+    object_data->mCodes = *codes; // copy struct
+    object_data->mConstant = *constant; // copy struct
+    object_data->mParentStack = parent_stack;
+    object_data->mParentVarNum = parent_var_num;
+    object_data->mBlockVarNum = block_var_num;
+
+    return obj;
 }
-
-static void append_node_to_node_block(sNodeBlock* node_block, unsigned int node)
-{
-    if(node_block->mSizeNodes <= node_block->mNumNodes) {
-        int new_size = node_block->mSizeNodes * 2;
-        node_block->mNodes = MREALLOC(node_block->mNodes, sizeof(unsigned int)*new_size);
-        memset(node_block->mNodes + node_block->mSizeNodes, 0, sizeof(unsigned int)*(new_size-node_block->mSizeNodes));
-    }
-
-    node_block->mNodes[node_block->mNumNodes] = node;
-    node_block->mNumNodes++;
-}
-
-BOOL parse_normal_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* new_table)
-{
-    expect_next_character_with_one_forward("{", info);
-
-    *node_block = sNodeBlock_alloc();
-
-    if(*info->p == '}') {
-        info->p++;
-        skip_spaces_and_lf(info);
-
-        return TRUE;
-    }
-
-    sVarTable* old_vtable = info->lv_table;
-    if(new_table) {
-        info->lv_table = new_table;
-    }
-    else {
-        info->lv_table = init_block_vtable(old_vtable);
-    }
-
-    while(1) {
-        unsigned int node = 0;
-
-        if(!expression(&node, info)) {
-            sNodeBlock_free(*node_block);
-
-            info->lv_table = old_vtable;
-            return FALSE;
-        }
-
-        if(node == 0) {
-            parser_err_msg(info, "require an expression");
-            info->err_num++;
-            break;
-        }
-
-        append_node_to_node_block(*node_block, node);
-
-        if(*info->p == ';') {
-            info->p++;
-            skip_spaces_and_lf(info);
-        }
-
-        if(*info->p == '}') {
-            info->p++;
-            skip_spaces_and_lf(info);
-            break;
-        }
-        else if(*info->p == '\0') {
-            parser_err_msg(info, "require } before the source end");
-            info->err_num++;
-
-            info->lv_table = old_vtable;
-            return TRUE;
-        }
-    }
-
-    set_max_block_var_num(info->lv_table, old_vtable);
-    (*node_block)->mLVTable = info->lv_table;
-    info->lv_table = old_vtable;
-
-    return TRUE;
-}
-
-BOOL compile_normal_block(sNodeBlock* block, sCompileInfo* info)
-{
-    sVarTable* old_table = info->lv_table;
-    info->lv_table = block->mLVTable;
-
-    int i;
-    for(i=0; i<block->mNumNodes; i++) {
-        unsigned int node = block->mNodes[i];
-
-        if(!compile(node, info)) {
-            info->lv_table = old_table;
-            return FALSE;
-        }
-
-        arrange_stack(info);
-    }
-
-    info->lv_table = old_table;
-
-    return TRUE;
-}
-
 

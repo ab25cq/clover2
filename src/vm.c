@@ -226,6 +226,10 @@ static void show_inst(unsigned inst)
             puts("OP_INVOKE_VIRTUAL_METHOD");
             break;
 
+        case OP_INVOKE_BLOCK:
+            puts("OP_INVOKE_BLOCK");
+            break;
+
         case OP_NEW :
             puts("OP_NEW");
             break;
@@ -284,6 +288,10 @@ static void show_inst(unsigned inst)
 
         case OP_CREATE_STRING:
             puts("OP_CREATE_STRING");
+            break;
+
+        case OP_CREATE_BLOCK_OBJECT:
+            puts("OP_CREATE_BLOCK_OBJECT");
             break;
 
         default:
@@ -353,6 +361,37 @@ static BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, CL
         (*stack_ptr)++;
     }
 
+    return TRUE;
+}
+
+static BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_params, CLVALUE** stack_ptr, sVMInfo* info)
+{
+    sBlockObject* object_data = CLBLOCK(block_object);
+
+    sByteCode* code = &object_data->mCodes;
+    sConst* constant = &object_data->mConstant;
+    CLVALUE* new_stack = *stack_ptr;
+    int new_var_num = object_data->mBlockVarNum + object_data->mParentVarNum;
+
+    sCLClass* klass = NULL;
+
+    /// check variable existance ///
+
+    /// copy variables ///
+    memcpy(new_stack, object_data->mParentStack, sizeof(CLVALUE)*object_data->mParentVarNum);
+    memcpy(new_stack + object_data->mParentVarNum, (*stack_ptr)-num_params, sizeof(CLVALUE)*num_params);
+
+    if(!vm(code, constant, new_stack, new_var_num, klass, info)) {
+        **stack_ptr = *new_stack;
+        (*stack_ptr)++;
+        return FALSE;
+    }
+
+    /// copy back variables to parent ///
+
+    **stack_ptr = *new_stack;
+    (*stack_ptr)++;
+    
     return TRUE;
 }
 
@@ -2969,6 +3008,35 @@ show_stack(stack, stack_ptr, lvar, var_num);
                             return FALSE;
                         }
                     }
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_INVOKE_BLOCK:
+                {
+                    vm_mutex_on();
+
+                    int num_params = *(int*)pc;
+                    pc += sizeof(int);
+
+                    CLObject block_object = (stack_ptr-num_params-1)->mObjectValue;
+
+                    if(!invoke_block(block_object, stack, var_num, num_params, &stack_ptr, info)) 
+                    {
+                        *stack = *(stack_ptr-1);
+
+                        vm_mutex_off();
+                        remove_stack_to_stack_list(stack);
+                        return FALSE;
+                    }
+
+                    CLVALUE result = *(stack_ptr-1);
+
+                    stack_ptr -= num_params+1+1;
+
+                    *stack_ptr = result;
+                    stack_ptr++;
 
                     vm_mutex_off();
                 }
@@ -5999,6 +6067,47 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     CLObject string_object = create_string_object(str);
 
                     stack_ptr->mObjectValue = string_object;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CREATE_BLOCK_OBJECT:
+                {
+                    vm_mutex_on();
+
+                    int code_offset = *(int*)pc;
+                    pc += sizeof(int);
+
+                    int code_len = *(int*)pc;
+                    pc += sizeof(int);
+
+                    sByteCode codes2;
+
+                    codes2.mCodes = CONS_str(constant, code_offset);
+                    codes2.mLen = code_len;
+
+                    int constant_offset = *(int*)pc;
+                    pc += sizeof(int);
+
+                    int constant_len = *(int*)pc;
+                    pc += sizeof(int);
+
+                    sConst constant2;
+
+                    constant2.mConst = CONS_str(constant, constant_offset);
+                    constant2.mLen = constant_len;
+
+                    int block_var_num = *(int*)pc;
+                    pc += sizeof(int);
+
+                    CLVALUE* parent_stack = stack;
+                    int parent_var_num = var_num;
+
+                    CLObject block_object = create_block_object(&codes2, &constant2, parent_stack, parent_var_num, block_var_num);
+
+                    stack_ptr->mObjectValue = block_object;
                     stack_ptr++;
 
                     vm_mutex_off();
