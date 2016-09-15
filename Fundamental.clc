@@ -201,11 +201,38 @@ class Short
         self.value = value;
     }
 
-/*
     def toUShort():UShort {
         return self.value.toUShort;
     }
-*/
+}
+
+class UShort 
+{
+    value:ushort;
+
+    def initialize() {
+        self.value = 0.to_ushort;
+    }
+
+    def initialize(value:ushort) {
+        self.value = value;
+    }
+
+    def initialize(value:int) {
+        self.value = value.to_ushort;
+    }
+
+    def getValue(): ushort {
+        return self.value;
+    }
+
+    def setValue(value:ushort) {
+        self.value = value;
+    }
+
+    def toShort():Short {
+        return self.value.toShort;
+    }
 }
 
 class Integer 
@@ -259,6 +286,60 @@ class UInteger
 
     def toInteger():Integer {
         return self.value.toInteger;
+    }
+}
+
+class Long 
+{
+    value:long;
+
+    def initialize() {
+        self.value = 0.to_long;
+    }
+
+    def initialize(value:long) {
+        self.value = value;
+    }
+
+    def getValue(): long {
+        return self.value;
+    }
+
+    def setValue(value:long) {
+        self.value = value;
+    }
+
+    def toULong():ULong {
+        return self.value.toULong;
+    }
+}
+
+class ULong 
+{
+    value: ulong;
+
+    def initialize() {
+        self.value = 0.to_ulong;
+    }
+
+    def initialize(value:long) {
+        self.value = value;
+    }
+
+    def initialize(value:int) {
+        self.value = value.to_long;
+    }
+
+    def getValue(): long {
+        return self.value;
+    }
+
+    def setValue(value:long) {
+        self.value = value;
+    }
+
+    def toLong():Long {
+        return self.value.toLong;
     }
 }
 

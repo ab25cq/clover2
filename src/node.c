@@ -1288,6 +1288,166 @@ static void cast_right_type_to_UByte(sNodeType** right_type, sCompileInfo* info)
     }
 }
 
+static void cast_right_type_to_Short(sNodeType** right_type, sCompileInfo* info)
+{
+    if(type_identify_with_class_name(*right_type, "byte")) {
+        append_opecode_to_code(info->code, OP_BYTE_TO_CSHORT_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("Short");
+    }
+    else if(type_identify_with_class_name(*right_type, "ubyte")) {
+        append_opecode_to_code(info->code, OP_UBYTE_TO_CSHORT_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("Short");
+    }
+    else if(type_identify_with_class_name(*right_type, "short")) 
+    {
+        append_opecode_to_code(info->code, OP_SHORT_TO_CSHORT_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("Short");
+    }
+    else if(type_identify_with_class_name(*right_type, "ushort")) 
+    {
+        append_opecode_to_code(info->code, OP_USHORT_TO_CSHORT_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("Short");
+    }
+    else if(type_identify_with_class_name(*right_type, "int"))
+    {
+        append_opecode_to_code(info->code, OP_INT_TO_CSHORT_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("Short");
+    }
+    else if(type_identify_with_class_name(*right_type, "uint")) 
+    {
+        append_opecode_to_code(info->code, OP_UINT_TO_CSHORT_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("Short");
+    }
+    else if(type_identify_with_class_name(*right_type, "long"))
+    {
+        append_opecode_to_code(info->code, OP_LONG_TO_CSHORT_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("Short");
+    }
+    else if(type_identify_with_class_name(*right_type, "ulong")) 
+    {
+        append_opecode_to_code(info->code, OP_ULONG_TO_CSHORT_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("Short");
+    }
+    else if(type_identify_with_class_name(*right_type, "float"))
+    {
+        append_opecode_to_code(info->code, OP_FLOAT_TO_CSHORT_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("Short");
+    }
+    else if(type_identify_with_class_name(*right_type, "double"))
+    {
+        append_opecode_to_code(info->code, OP_DOUBLE_TO_CSHORT_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("Short");
+    }
+    else if(type_identify_with_class_name(*right_type, "char"))
+    {
+        append_opecode_to_code(info->code, OP_CHAR_TO_CSHORT_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("Short");
+    }
+    else if(type_identify_with_class_name(*right_type, "pointer"))
+    {
+        append_opecode_to_code(info->code, OP_POINTER_TO_CSHORT_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("Short");
+    }
+    else if(type_identify_with_class_name(*right_type, "bool"))
+    {
+        append_opecode_to_code(info->code, OP_BOOL_TO_CSHORT_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("Short");
+    }
+}
+
+static void cast_right_type_to_UShort(sNodeType** right_type, sCompileInfo* info)
+{
+    if(type_identify_with_class_name(*right_type, "byte")) {
+        append_opecode_to_code(info->code, OP_BYTE_TO_CUSHORT_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("UShort");
+    }
+    else if(type_identify_with_class_name(*right_type, "ubyte")) {
+        append_opecode_to_code(info->code, OP_UBYTE_TO_CUSHORT_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("UShort");
+    }
+    else if(type_identify_with_class_name(*right_type, "short")) 
+    {
+        append_opecode_to_code(info->code, OP_SHORT_TO_CUSHORT_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("UShort");
+    }
+    else if(type_identify_with_class_name(*right_type, "ushort")) 
+    {
+        append_opecode_to_code(info->code, OP_USHORT_TO_CUSHORT_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("Short");
+    }
+    else if(type_identify_with_class_name(*right_type, "int"))
+    {
+        append_opecode_to_code(info->code, OP_INT_TO_CUSHORT_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("UShort");
+    }
+    else if(type_identify_with_class_name(*right_type, "uint")) 
+    {
+        append_opecode_to_code(info->code, OP_UINT_TO_CUSHORT_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("UShort");
+    }
+    else if(type_identify_with_class_name(*right_type, "long"))
+    {
+        append_opecode_to_code(info->code, OP_LONG_TO_CUSHORT_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("UShort");
+    }
+    else if(type_identify_with_class_name(*right_type, "ulong")) 
+    {
+        append_opecode_to_code(info->code, OP_ULONG_TO_CUSHORT_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("UShort");
+    }
+    else if(type_identify_with_class_name(*right_type, "float"))
+    {
+        append_opecode_to_code(info->code, OP_FLOAT_TO_CUSHORT_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("UShort");
+    }
+    else if(type_identify_with_class_name(*right_type, "double"))
+    {
+        append_opecode_to_code(info->code, OP_DOUBLE_TO_CUSHORT_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("UShort");
+    }
+    else if(type_identify_with_class_name(*right_type, "char"))
+    {
+        append_opecode_to_code(info->code, OP_CHAR_TO_CUSHORT_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("UShort");
+    }
+    else if(type_identify_with_class_name(*right_type, "pointer"))
+    {
+        append_opecode_to_code(info->code, OP_POINTER_TO_CUSHORT_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("UShort");
+    }
+    else if(type_identify_with_class_name(*right_type, "bool"))
+    {
+        append_opecode_to_code(info->code, OP_BOOL_TO_CUSHORT_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("UShort");
+    }
+}
+
 static void cast_right_type_to_Integer(sNodeType** right_type, sCompileInfo* info)
 {
     if(type_identify_with_class_name(*right_type, "byte")) {
@@ -1362,7 +1522,6 @@ static void cast_right_type_to_Integer(sNodeType** right_type, sCompileInfo* inf
         *right_type = create_node_type_with_class_name("Integer");
     }
 }
-
 
 static void cast_right_type_to_UInteger(sNodeType** right_type, sCompileInfo* info)
 {
@@ -1439,6 +1598,157 @@ static void cast_right_type_to_UInteger(sNodeType** right_type, sCompileInfo* in
     }
 }
 
+static void cast_right_type_to_Long(sNodeType** right_type, sCompileInfo* info)
+{
+    if(type_identify_with_class_name(*right_type, "byte")) {
+        append_opecode_to_code(info->code, OP_BYTE_TO_CLONG_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("Long");
+    }
+    else if(type_identify_with_class_name(*right_type, "ubyte")) {
+        append_opecode_to_code(info->code, OP_UBYTE_TO_CLONG_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("Long");
+    }
+    else if(type_identify_with_class_name(*right_type, "short")) 
+    {
+        append_opecode_to_code(info->code, OP_SHORT_TO_CLONG_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("Long");
+    }
+    else if(type_identify_with_class_name(*right_type, "ushort")) 
+    {
+        append_opecode_to_code(info->code, OP_USHORT_TO_CLONG_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("Long");
+    }
+    else if(type_identify_with_class_name(*right_type, "int"))
+    {
+        append_opecode_to_code(info->code, OP_INT_TO_CLONG_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("Long");
+    }
+    else if(type_identify_with_class_name(*right_type, "uint")) 
+    {
+        append_opecode_to_code(info->code, OP_UINT_TO_CLONG_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("Long");
+    }
+    else if(type_identify_with_class_name(*right_type, "long"))
+    {
+        append_opecode_to_code(info->code, OP_LONG_TO_CLONG_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("Long");
+    }
+    else if(type_identify_with_class_name(*right_type, "ulong")) 
+    {
+        append_opecode_to_code(info->code, OP_ULONG_TO_CLONG_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("Long");
+    }
+    else if(type_identify_with_class_name(*right_type, "float"))
+    {
+        append_opecode_to_code(info->code, OP_FLOAT_TO_CLONG_CAST, info->no_output);
+        *right_type = create_node_type_with_class_name("Long");
+    }
+    else if(type_identify_with_class_name(*right_type, "double"))
+    {
+        append_opecode_to_code(info->code, OP_DOUBLE_TO_CLONG_CAST, info->no_output);
+        *right_type = create_node_type_with_class_name("Long");
+    }
+    else if(type_identify_with_class_name(*right_type, "char"))
+    {
+        append_opecode_to_code(info->code, OP_CHAR_TO_CLONG_CAST, info->no_output);
+        *right_type = create_node_type_with_class_name("Long");
+    }
+    else if(type_identify_with_class_name(*right_type, "pointer"))
+    {
+        append_opecode_to_code(info->code, OP_POINTER_TO_CLONG_CAST, info->no_output);
+        *right_type = create_node_type_with_class_name("Long");
+    }
+    else if(type_identify_with_class_name(*right_type, "bool"))
+    {
+        append_opecode_to_code(info->code, OP_BOOL_TO_CLONG_CAST, info->no_output);
+        *right_type = create_node_type_with_class_name("Long");
+    }
+}
+
+static void cast_right_type_to_ULong(sNodeType** right_type, sCompileInfo* info)
+{
+    if(type_identify_with_class_name(*right_type, "byte")) {
+        append_opecode_to_code(info->code, OP_BYTE_TO_CULONG_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("ULong");
+    }
+    else if(type_identify_with_class_name(*right_type, "ubyte")) {
+        append_opecode_to_code(info->code, OP_UBYTE_TO_CULONG_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("ULong");
+    }
+    else if(type_identify_with_class_name(*right_type, "short")) 
+    {
+        append_opecode_to_code(info->code, OP_SHORT_TO_CULONG_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("ULong");
+    }
+    else if(type_identify_with_class_name(*right_type, "ushort")) 
+    {
+        append_opecode_to_code(info->code, OP_USHORT_TO_CULONG_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("ULong");
+    }
+    else if(type_identify_with_class_name(*right_type, "int"))
+    {
+        append_opecode_to_code(info->code, OP_INT_TO_CULONG_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("ULong");
+    }
+    else if(type_identify_with_class_name(*right_type, "uint")) 
+    {
+        append_opecode_to_code(info->code, OP_UINT_TO_CULONG_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("ULong");
+    }
+    else if(type_identify_with_class_name(*right_type, "long"))
+    {
+        append_opecode_to_code(info->code, OP_LONG_TO_CULONG_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("ULong");
+    }
+    else if(type_identify_with_class_name(*right_type, "ulong")) 
+    {
+        append_opecode_to_code(info->code, OP_ULONG_TO_CULONG_CAST, info->no_output);
+
+        *right_type = create_node_type_with_class_name("ULong");
+    }
+    else if(type_identify_with_class_name(*right_type, "float"))
+    {
+        append_opecode_to_code(info->code, OP_FLOAT_TO_CULONG_CAST, info->no_output);
+        *right_type = create_node_type_with_class_name("ULong");
+    }
+    else if(type_identify_with_class_name(*right_type, "double"))
+    {
+        append_opecode_to_code(info->code, OP_DOUBLE_TO_CULONG_CAST, info->no_output);
+        *right_type = create_node_type_with_class_name("ULong");
+    }
+    else if(type_identify_with_class_name(*right_type, "char"))
+    {
+        append_opecode_to_code(info->code, OP_CHAR_TO_CULONG_CAST, info->no_output);
+        *right_type = create_node_type_with_class_name("ULong");
+    }
+    else if(type_identify_with_class_name(*right_type, "pointer"))
+    {
+        append_opecode_to_code(info->code, OP_POINTER_TO_CULONG_CAST, info->no_output);
+        *right_type = create_node_type_with_class_name("ULong");
+    }
+    else if(type_identify_with_class_name(*right_type, "bool"))
+    {
+        append_opecode_to_code(info->code, OP_BOOL_TO_CULONG_CAST, info->no_output);
+        *right_type = create_node_type_with_class_name("ULong");
+    }
+}
+
+
 static void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, sCompileInfo* info)
 {
     if(!left_type->mArray && !(*right_type)->mArray) {
@@ -1506,6 +1816,14 @@ static void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right
         {
             cast_right_type_to_UByte(right_type, info);
         }
+        else if(type_identify_with_class_name(left_type, "Short"))
+        {
+            cast_right_type_to_Short(right_type, info);
+        }
+        else if(type_identify_with_class_name(left_type, "UShort"))
+        {
+            cast_right_type_to_Short(right_type, info);
+        }
         else if(type_identify_with_class_name(left_type, "Integer"))
         {
             cast_right_type_to_Integer(right_type, info);
@@ -1513,6 +1831,14 @@ static void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right
         else if(type_identify_with_class_name(left_type, "UInteger"))
         {
             cast_right_type_to_UInteger(right_type, info);
+        }
+        else if(type_identify_with_class_name(left_type, "Long"))
+        {
+            cast_right_type_to_Long(right_type, info);
+        }
+        else if(type_identify_with_class_name(left_type, "ULong"))
+        {
+            cast_right_type_to_ULong(right_type, info);
         }
     }
 }
@@ -3160,11 +3486,23 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
     else if(strcmp(field_name, "toUByte") == 0) {
         cast_right_type_to_UByte(&info->type, info);
     }
+    else if(strcmp(field_name, "toShort") == 0) {
+        cast_right_type_to_Short(&info->type, info);
+    }
+    else if(strcmp(field_name, "toUShort") == 0) {
+        cast_right_type_to_UShort(&info->type, info);
+    }
     else if(strcmp(field_name, "toInteger") == 0) {
         cast_right_type_to_Integer(&info->type, info);
     }
     else if(strcmp(field_name, "toUInteger") == 0) {
         cast_right_type_to_UInteger(&info->type, info);
+    }
+    else if(strcmp(field_name, "toLong") == 0) {
+        cast_right_type_to_Long(&info->type, info);
+    }
+    else if(strcmp(field_name, "toULong") == 0) {
+        cast_right_type_to_ULong(&info->type, info);
     }
     else if(strcmp(field_name, "to_byte") == 0)
     {
