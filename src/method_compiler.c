@@ -28,6 +28,8 @@ BOOL compile_method(sCLMethod* method, sParserParam* params, int num_params, sPa
 
     sCompileInfo cinfo2;
 
+    memset(&cinfo2, 0, sizeof(sCompileInfo));
+
     sByteCode code;
     sByteCode_init(&code);
 

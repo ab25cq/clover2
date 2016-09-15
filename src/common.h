@@ -106,7 +106,16 @@ void append_str_to_constant_pool_and_code(sConst* constant, sByteCode* code, cha
 #define CLASS_FLAGS_INTERFACE 0x02
 #define CLASS_FLAGS_MODIFIED 0x04
 
-struct sCLClassStruct;
+struct sCLTypeStruct;
+
+struct sCLBlockTypeStruct {
+    struct sCLTypeStruct* mParams[PARAMS_MAX];
+    int mNumParams;
+
+    struct sCLTypeStruct* mResultType;
+};
+
+typedef struct sCLBlockTypeStruct sCLBlockType;
 
 struct sCLTypeStruct {
     int mClassNameOffset;
@@ -115,6 +124,8 @@ struct sCLTypeStruct {
     struct sCLTypeStruct* mGenericsTypes[GENERICS_TYPES_MAX];
 
     BOOL mArray;
+
+    sCLBlockType* mBlockType;
 };
 
 typedef struct sCLTypeStruct sCLType;
@@ -479,7 +490,6 @@ struct sNodeTreeStruct
         } sBlockObject;
 
         struct {
-            char mVarName[VAR_NAME_MAX];
             unsigned int mParams[PARAMS_MAX];
             int mNumParams;
         } sBlockCall;
@@ -560,7 +570,7 @@ unsigned int sNodeTree_create_string_value(MANAGED char* value);
 unsigned int sNodeTree_try_expression(MANAGED sNodeBlock* try_node_block, MANAGED sNodeBlock* catch_node_block, char* exception_var_name);
 
 unsigned int sNodeTree_create_block_object(sParserParam* params, int num_params, sNodeType* result_type, MANAGED sNodeBlock* node_block);
-unsigned int sNodeTree_create_block_call(char* block_name, int num_params, unsigned int params[]);
+unsigned int sNodeTree_create_block_call(unsigned int block, int num_params, unsigned int params[]);
 
 /// script.c ///
 BOOL compile_script(char* fname, char* source);
@@ -1046,6 +1056,7 @@ void stack_final();
 
 void append_stack_to_stack_list(CLVALUE* stack, CLVALUE** stack_ptr);
 BOOL remove_stack_to_stack_list(CLVALUE* stack);
+BOOL check_variables_existance_on_stack(CLVALUE* stack_top, int var_num);
 
 sCLStack* gHeadStack;
 CLVALUE* gGlobalStack;

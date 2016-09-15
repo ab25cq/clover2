@@ -1,4 +1,7 @@
-make distclean
+if [ -e Makefile ]
+then
+    make distclean
+fi
 if [ ! -e Makefile ]
 then
     git add .

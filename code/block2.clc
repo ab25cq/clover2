@@ -1,0 +1,16 @@
+
+class BlockTestClass {
+    block_object: block(int, int):int;
+
+    def initialize() {
+        b:int = 1;
+
+        self.block_object = block(v:int, v2:int):int {
+            return v + v2 + b;
+        }
+    }
+    def method(a:int, b:int):int {
+        bl := self.block_object;
+        return bl(a,b);
+    }
+}

@@ -1000,6 +1000,16 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info)
                 *node = sNodeTree_create_load_value_from_pointer(*node, node_type);
             }
         }
+        else if(*info->p == '(') {
+            unsigned int params[PARAMS_MAX];
+            int num_params = 0;
+
+            if(!parse_method_params(&num_params, params, info)) {
+                return FALSE;
+            }
+
+            *node = sNodeTree_create_block_call(*node, num_params, params);
+        }
 /*
         /// indexing ///
         else if(**info->p == '[') {
@@ -1484,21 +1494,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 }
             }
             else {
-                /// call block object ///
-                if(*info->p == '(') {
-                    unsigned int params[PARAMS_MAX];
-                    int num_params = 0;
-
-                    if(!parse_method_params(&num_params, params, info)) {
-                        return FALSE;
-                    }
-
-                    *node = sNodeTree_create_block_call(buf, num_params, params);
-                }
-                /// load variable ///
-                else {
-                    *node = sNodeTree_create_load_variable(buf);
-                }
+                *node = sNodeTree_create_load_variable(buf);
             }
         }
     }

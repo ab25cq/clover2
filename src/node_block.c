@@ -102,17 +102,23 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info)
     sVarTable* old_table = info->lv_table;
     info->lv_table = block->mLVTable;
 
+    int stack_num_before = info->stack_num;
+    info->stack_num = 0;
+
     int i;
     for(i=0; i<block->mNumNodes; i++) {
         unsigned int node = block->mNodes[i];
 
         if(!compile(node, info)) {
             info->lv_table = old_table;
+            info->stack_num = stack_num_before;
             return FALSE;
         }
 
         arrange_stack(info);
     }
+
+    info->stack_num = stack_num_before;
 
     info->lv_table = old_table;
 

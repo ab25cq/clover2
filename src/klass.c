@@ -242,6 +242,31 @@ static BOOL read_const_from_file(int fd, sConst* constant)
     return TRUE;
 }
 
+static BOOL read_cl_type_from_file(int fd, sCLType** cl_type);
+
+static BOOL read_cl_block_type_from_file(int fd, sCLBlockType** cl_block_type)
+{
+    int num_params;
+    if(!read_int_from_file(fd, &num_params)) {
+        return FALSE;
+    }
+
+    (*cl_block_type)->mNumParams = num_params;
+
+    int i;
+    for(i=0; i<num_params; i++) {
+        if(!read_cl_type_from_file(fd, &(*cl_block_type)->mParams[i])) {
+            return FALSE;
+        }
+    }
+
+    if(!read_cl_type_from_file(fd, &(*cl_block_type)->mResultType)) {
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
 static BOOL read_cl_type_from_file(int fd, sCLType** cl_type)
 {
     *cl_type = MCALLOC(1, sizeof(sCLType));
@@ -271,6 +296,17 @@ static BOOL read_cl_type_from_file(int fd, sCLType** cl_type)
     }
 
     (*cl_type)->mArray = n;
+
+    if(!read_int_from_file(fd, &n)) {
+        return FALSE;
+    }
+
+    if(n) {
+        (*cl_type)->mBlockType = MCALLOC(1, sizeof(sCLBlockType));
+        if(!read_cl_block_type_from_file(fd, &(*cl_type)->mBlockType)) {
+            return FALSE;
+        }
+    }
 
     return TRUE;
 }
@@ -738,11 +774,25 @@ ALLOC sCLType* create_cl_type(sCLClass* klass, sCLClass* klass2)
     return cl_type;
 }
 
+static void free_cl_block_type(sCLBlockType* block_type)
+{
+    int i;
+    for(i=0; i<block_type->mNumParams; i++) {
+        free_cl_type(block_type->mParams[i]);
+    }
+    free_cl_type(block_type->mResultType);
+
+    MFREE(block_type);
+}
+
 void free_cl_type(sCLType* cl_type)
 {
     int i;
     for(i=0; i<cl_type->mNumGenericsTypes; i++) {
         free_cl_type(cl_type->mGenericsTypes[i]);
+    }
+    if(cl_type->mBlockType) {
+        free_cl_block_type(cl_type->mBlockType);
     }
     MFREE(cl_type);
 }

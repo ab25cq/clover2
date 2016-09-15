@@ -12,6 +12,19 @@ static void node_type_to_cl_type(sNodeType* node_type, ALLOC sCLType** cl_type, 
     }
 
     (*cl_type)->mArray = node_type->mArray;
+
+    if(node_type->mBlockType) {
+        (*cl_type)->mBlockType = MCALLOC(1, sizeof(sCLBlockType));
+        (*cl_type)->mBlockType->mNumParams = node_type->mBlockType->mNumParams;
+        int i;
+        for(i=0; i<node_type->mBlockType->mNumParams; i++) {
+             node_type_to_cl_type(node_type->mBlockType->mParams[i], ALLOC &(*cl_type)->mBlockType->mParams[i], klass);
+        }
+        node_type_to_cl_type(node_type->mBlockType->mResultType, ALLOC &(*cl_type)->mBlockType->mResultType, klass);
+    }
+    else {
+        (*cl_type)->mBlockType = NULL;
+    }
 }
 
 static void parser_param_to_cl_param(sParserParam* param, sCLParam* type, sCLClass* klass)
@@ -333,6 +346,19 @@ static void append_const_to_buffer(sBuf* buf, sConst* constant)
     sBuf_append(buf, constant->mConst, sizeof(char)*constant->mLen);
 }
 
+static void append_cl_type_to_buffer(sBuf* buf, sCLType* cl_type);
+
+static void append_cl_block_type(sBuf* buf, sCLBlockType* cl_block_type)
+{
+    sBuf_append_int(buf, cl_block_type->mNumParams);
+    int i;
+    for(i=0; i<cl_block_type->mNumParams; i++) {
+        append_cl_type_to_buffer(buf, cl_block_type->mParams[i]);
+    }
+
+    append_cl_type_to_buffer(buf, cl_block_type->mResultType);
+}
+
 static void append_cl_type_to_buffer(sBuf* buf, sCLType* cl_type)
 {
     sBuf_append_int(buf, cl_type->mClassNameOffset);
@@ -343,6 +369,14 @@ static void append_cl_type_to_buffer(sBuf* buf, sCLType* cl_type)
     }
 
     sBuf_append_int(buf, cl_type->mArray);
+
+    if(cl_type->mBlockType) {
+        sBuf_append_int(buf, 1);
+        append_cl_block_type(buf, cl_type->mBlockType);
+    }
+    else {
+        sBuf_append_int(buf, 0);
+    }
 }
 
 static void append_byte_codes_to_buffer(sBuf* buf, sByteCode* code)

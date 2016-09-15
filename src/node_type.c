@@ -148,6 +148,21 @@ sNodeType* create_node_type_from_cl_type(sCLType* cl_type, sCLClass* klass)
 
     node_type->mArray = cl_type->mArray;
 
+    if(cl_type->mBlockType) {
+        node_type->mBlockType = alloc_node_block_type();
+        node_type->mBlockType->mNumParams = cl_type->mBlockType->mNumParams;
+
+        int i;
+        for(i=0; i<cl_type->mBlockType->mNumParams; i++) {
+            node_type->mBlockType->mParams[i] = create_node_type_from_cl_type(cl_type->mBlockType->mParams[i], klass);
+        }
+
+        node_type->mBlockType->mResultType = create_node_type_from_cl_type(cl_type->mBlockType->mResultType, klass);
+    }
+    else {
+        node_type->mBlockType = NULL;
+    }
+
     return node_type;
 }
 
