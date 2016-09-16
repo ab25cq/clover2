@@ -2390,6 +2390,10 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
             break;
             
         case kOpMod:
+            if(!binary_operator(left_type, right_type, OP_BMOD, OP_UBMOD, OP_SMOD, OP_USMOD, OP_IMOD, OP_UIMOD, OP_LMOD, OP_ULMOD, -1, -1, -1, -1, -1, -1, "%", info))
+            {
+                return FALSE;
+            }
             break;
             
         case kOpLeftShift:

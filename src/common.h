@@ -604,41 +604,49 @@ BOOL compile_script(char* fname, char* source);
 #define OP_BSUB 41
 #define OP_BMULT 42
 #define OP_BDIV 43
+#define OP_BMOD 44
 
 #define OP_UBADD 80
 #define OP_UBSUB 81
 #define OP_UBMULT 82
 #define OP_UBDIV 83
+#define OP_UBMOD 84
 
 #define OP_SADD 100
 #define OP_SSUB 101
 #define OP_SMULT 102
 #define OP_SDIV 103
+#define OP_SMOD 104
 
 #define OP_USADD 150
 #define OP_USSUB 151
 #define OP_USMULT 152
 #define OP_USDIV 153
+#define OP_USMOD 154
 
 #define OP_IADD 200
 #define OP_ISUB 201
 #define OP_IMULT 202
 #define OP_IDIV 203
+#define OP_IMOD 204
 
 #define OP_UISUB 250
 #define OP_UIADD 251
 #define OP_UIMULT 252
 #define OP_UIDIV 253
+#define OP_UIMOD 254
 
 #define OP_LADD 300
 #define OP_LSUB 301
 #define OP_LMULT 302
 #define OP_LDIV 303
+#define OP_LMOD 304
 
 #define OP_ULADD 400
 #define OP_ULSUB 401
 #define OP_ULMULT 402
 #define OP_ULDIV 403
+#define OP_ULMOD 404
 
 #define OP_FADD 450
 #define OP_FSUB 451

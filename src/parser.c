@@ -776,6 +776,22 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
 
     (*result_type)->mNumGenericsTypes = generics_num;
 
+    /// check generics type ///
+    sCLClass* klass = (*result_type)->mClass;
+
+    for(i=0; i<generics_num; i++) {
+        int generics_paramType_offset = klass->mGenericsParamTypeOffsets[i];
+        sCLClass* left_generics_type = get_class_with_load(CONS_str(&klass->mConst, generics_paramType_offset));
+        sCLClass* right_generics_type = (*result_type)->mGenericsTypes[i]->mClass;
+
+        if(right_generics_type->mGenericsParamClassNum != i) {
+            if(!check_implemented_methods_for_interface(left_generics_type, right_generics_type)) {
+                parser_err_msg(info, "%s is not implemented %s interface" , CLASS_NAME(right_generics_type), CLASS_NAME(left_generics_type));
+                info->err_num++;
+            }
+        }
+    }
+
     return TRUE;
 }
 
@@ -1758,7 +1774,7 @@ static BOOL expression_mult_div(unsigned int* node, sParserInfo* info)
                 info->err_num++;
             }
 
-            *node = sNodeTree_create_operand(kOpXor, *node, right, 0);
+            *node = sNodeTree_create_operand(kOpMod, *node, right, 0);
         }
         else {
             break;

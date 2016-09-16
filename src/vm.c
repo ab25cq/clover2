@@ -869,6 +869,30 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 }
                 break;
 
+            case OP_BMOD:
+                {
+                    vm_mutex_on();
+
+                    char left = (stack_ptr-2)->mByteValue;
+                    char right = (stack_ptr-1)->mByteValue;
+
+                    if(right == 0) {
+                        vm_mutex_off();
+                        entry_exception_object_with_class_name(stack, "Exception", "division by zero");
+                        remove_stack_to_stack_list(stack);
+                        return FALSE;
+                    }
+
+                    char result = left % right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mByteValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
             case OP_UBADD:
                 {
                     vm_mutex_on();
@@ -935,6 +959,30 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     }
 
                     unsigned char result = left / right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mUByteValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_UBMOD:
+                {
+                    vm_mutex_on();
+
+                    unsigned char left = (stack_ptr-2)->mByteValue;
+                    unsigned char right = (stack_ptr-1)->mByteValue;
+
+                    if(right == 0) {
+                        vm_mutex_off();
+                        entry_exception_object_with_class_name(stack, "Exception", "division by zero");
+                        remove_stack_to_stack_list(stack);
+                        return FALSE;
+                    }
+
+                    unsigned char result = left % right;
 
                     stack_ptr-=2;
                     stack_ptr->mUByteValue = result;
@@ -1019,6 +1067,30 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 }
                 break;
 
+            case OP_SMOD:
+                {
+                    vm_mutex_on();
+
+                    short left = (stack_ptr-2)->mShortValue;
+                    short right = (stack_ptr-1)->mShortValue;
+
+                    if(right == 0) {
+                        vm_mutex_off();
+                        entry_exception_object_with_class_name(stack, "Exception", "division by zero");
+                        remove_stack_to_stack_list(stack);
+                        return FALSE;
+                    }
+
+                    short result = left % right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mShortValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
             case OP_USADD:
                 {
                     vm_mutex_on();
@@ -1085,6 +1157,30 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     }
 
                     unsigned short result = left / right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mUShortValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_USMOD:
+                {
+                    vm_mutex_on();
+
+                    unsigned short left = (stack_ptr-2)->mUShortValue;
+                    unsigned short right = (stack_ptr-1)->mUShortValue;
+
+                    if(right == 0) {
+                        vm_mutex_off();
+                        entry_exception_object_with_class_name(stack, "Exception", "division by zero");
+                        remove_stack_to_stack_list(stack);
+                        return FALSE;
+                    }
+
+                    unsigned short result = left % right;
 
                     stack_ptr-=2;
                     stack_ptr->mUShortValue = result;
@@ -1169,6 +1265,30 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 }
                 break;
 
+            case OP_IMOD: 
+                {
+                    vm_mutex_on();
+
+                    int left = (stack_ptr-2)->mIntValue;
+                    int right = (stack_ptr-1)->mIntValue;
+
+                    if(right == 0) {
+                        vm_mutex_off();
+                        entry_exception_object_with_class_name(stack, "Exception", "division by zero");
+                        remove_stack_to_stack_list(stack);
+                        return FALSE;
+                    }
+
+                    int result = left % right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mIntValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
             case OP_UIADD: 
                 {
                     vm_mutex_on();
@@ -1235,6 +1355,30 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     }
 
                     unsigned int result = left / right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mUIntValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_UIMOD: 
+                {
+                    vm_mutex_on();
+
+                    unsigned int left = (stack_ptr-2)->mUIntValue;
+                    unsigned int right = (stack_ptr-1)->mUIntValue;
+
+                    if(right == 0) {
+                        vm_mutex_off();
+                        entry_exception_object_with_class_name(stack, "Exception", "division by zero");
+                        remove_stack_to_stack_list(stack);
+                        return FALSE;
+                    }
+
+                    unsigned int result = left % right;
 
                     stack_ptr-=2;
                     stack_ptr->mUIntValue = result;
@@ -1319,6 +1463,30 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 }
                 break;
 
+            case OP_LMOD: 
+                {
+                    vm_mutex_on();
+
+                    long left = (stack_ptr-2)->mLongValue;
+                    long right = (stack_ptr-1)->mLongValue;
+
+                    if(right == 0) {
+                        vm_mutex_off();
+                        entry_exception_object_with_class_name(stack, "Exception", "division by zero");
+                        remove_stack_to_stack_list(stack);
+                        return FALSE;
+                    }
+
+                    long result = left % right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mLongValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
             case OP_ULADD: 
                 {
                     vm_mutex_on();
@@ -1385,6 +1553,30 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     }
 
                     unsigned long result = left / right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mULongValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_ULMOD: 
+                {
+                    vm_mutex_on();
+
+                    unsigned long left = (stack_ptr-2)->mULongValue;
+                    unsigned long right = (stack_ptr-1)->mULongValue;
+
+                    if(right == 0) {
+                        vm_mutex_off();
+                        entry_exception_object_with_class_name(stack, "Exception", "division by zero");
+                        remove_stack_to_stack_list(stack);
+                        return FALSE;
+                    }
+
+                    unsigned long result = left % right;
 
                     stack_ptr-=2;
                     stack_ptr->mULongValue = result;

@@ -1,4 +1,4 @@
-class System: final
+class System
 {
     def exit(num:int): native static;
     def assert(exp:bool): native static throws Exception;
@@ -20,7 +20,7 @@ class System: final
 #    def mbstowcs(dest:pointer, src:pointer, size:int):native int;
 }
 
-class Clover: final
+class Clover
 {
     def test(msg: String, expression:bool):static {
         System.printToError(msg.append("..."));
@@ -29,7 +29,7 @@ class Clover: final
     }
 }
 
-class String: final
+class String
 {
     buffer: char[];
 
@@ -94,6 +94,15 @@ class String: final
         else {
             return false;
         }
+    }
+
+    def getHashKey(): uint {
+        key:uint = 0;
+        for(i:int =1; i<self.buffer.length-1; i++) {
+            key += self.buffer[i].to_uint;
+        }
+
+        return key;
     }
 }
 
@@ -492,18 +501,51 @@ class HashItem <T:HashKey, T2:Object>
 class Hash <T:HashKey, T2:Object>
 {
     table: HashItem<T,T2>[];
-    hashSize: static int;
+    hashSizeDefault: static int;
+    itemNumber: uint;
+    tableSize: uint;
 
     def initialize():static {
-        Hash.hashSize = 128;
+        Hash.hashSizeDefault = 128;
     }
 
     def initialize() {
-        self.table = new HashItem<T,T2>[Hash.hashSize];
+        self.table = new HashItem<T,T2>[Hash.hashSizeDefault];
+        self.tableSize = Hash.hashSizeDefault;
+        self.itemNumber = 0;
     }
 
     def add(key:T, item:T2) {
-        hash_key:uint = key.getHashKey();
+        hash_key:uint = key.getHashKey() % self.tableSize;
+
+        if(self.itemNumber * 2 > self.tableSize) {
+            self.rehash();
+        }
+
+        n:uint = hash_key;
+
+        while(true) {
+            if(self.table[n].isNull) {
+                self.table[n] = new HashItem<T, T2>(key,item);
+                self.itemNumber++;
+                break;
+            }
+            else {
+                n++;
+
+                if(n == self.tableSize) {
+                    n = 0;
+                }
+                elif(n == hash_key) {
+                    self.rehash();
+                    self.add(key, item);
+                    break;
+                }
+            }
+        }
+    }
+
+    def rehash() {
     }
 }
 
