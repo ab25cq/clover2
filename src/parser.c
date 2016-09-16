@@ -766,7 +766,8 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
             }
         }
     }
-    else if(*info->p == '[' && *(info->p+1) == ']') {
+
+    if(*info->p == '[' && *(info->p+1) == ']') {
         info->p+=2;
         skip_spaces_and_lf(info);
 
@@ -829,7 +830,8 @@ BOOL parse_type_for_new(sNodeType** result_type, unsigned int* array_num, sParse
             }
         }
     }
-    else if(*info->p == '[') {
+
+    if(*info->p == '[') {
         info->p++;
         skip_spaces_and_lf(info);
 
@@ -843,6 +845,23 @@ BOOL parse_type_for_new(sNodeType** result_type, unsigned int* array_num, sParse
     }
 
     (*result_type)->mNumGenericsTypes = generics_num;
+
+    /// check generics type ///
+    sCLClass* klass = (*result_type)->mClass;
+
+    int i;
+    for(i=0; i<generics_num; i++) {
+        int generics_paramType_offset = klass->mGenericsParamTypeOffsets[i];
+        sCLClass* left_generics_type = get_class_with_load(CONS_str(&klass->mConst, generics_paramType_offset));
+        sCLClass* right_generics_type = (*result_type)->mGenericsTypes[i]->mClass;
+
+        if(right_generics_type->mGenericsParamClassNum != i) {
+            if(!check_implemented_methods_for_interface(left_generics_type, right_generics_type)) {
+                parser_err_msg(info, "%s is not implemented %s interface" , CLASS_NAME(right_generics_type), CLASS_NAME(left_generics_type));
+                info->err_num++;
+            }
+        }
+    }
 
     return TRUE;
 }

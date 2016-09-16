@@ -346,18 +346,18 @@ static BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, CL
 
         sByteCode* code = &method->uCode.mByteCodes;
         sConst* constant = &klass->mConst;
-        CLVALUE* stack = lvar;
-        int var_num = method->mVarNum;
+        CLVALUE* new_stack = lvar;
+        int new_var_num = method->mVarNum;
 
-        if(!vm(code, constant, stack, var_num, klass, info)) {
+        if(!vm(code, constant, new_stack, new_var_num, klass, info)) {
             *stack_ptr = lvar;
-            **stack_ptr = *stack;
+            **stack_ptr = *new_stack;
             (*stack_ptr)++;
             return FALSE;
         }
         
         *stack_ptr = lvar;      // see OP_RETURN
-        **stack_ptr = *stack;
+        **stack_ptr = *new_stack;
         (*stack_ptr)++;
     }
 
@@ -2949,7 +2949,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(method_index < 0 || method_index >= klass->mNumMethods) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack, "Exception", "Method not found");
+                        entry_exception_object_with_class_name(stack, "Exception", "OP_INVOKE_METHOD: method not found");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -2997,7 +2997,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(method == NULL) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack, "Exception", "method not found");
+                        entry_exception_object_with_class_name(stack, "Exception", "OP_INVOKE_VIRTUAL_METHOD: Method not found");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }

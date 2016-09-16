@@ -467,3 +467,43 @@ class Bool
         self.value = value;
     }
 }
+
+interface HashKey
+{
+    def getHashKey(): uint;
+}
+
+class HashItem <T:HashKey, T2:Object>
+{
+    key:T;
+    item:T2;
+
+    def initialize() {
+        self.key = null;
+        self.item = null;
+    }
+
+    def initialize(key:T, item:T2) {
+        self.key = key;
+        self.item = item;
+    }
+}
+
+class Hash <T:HashKey, T2:Object>
+{
+    table: HashItem<T,T2>[];
+    hashSize: static int;
+
+    def initialize():static {
+        Hash.hashSize = 128;
+    }
+
+    def initialize() {
+        self.table = new HashItem<T,T2>[Hash.hashSize];
+    }
+
+    def add(key:T, item:T2) {
+        hash_key:uint = key.getHashKey();
+    }
+}
+

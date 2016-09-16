@@ -31,3 +31,30 @@ void entry_exception_object_with_class_name(CLVALUE* stack, char* class_name, ch
     vm_mutex_off();
 }
 
+void show_exception_message(CLObject exception)
+{
+    vm_mutex_on();
+
+    sCLObject* object_data = CLOBJECT(exception);
+    CLObject string_object = object_data->mFields[0].mObjectValue;
+
+    sCLObject* object_data2 = CLOBJECT(string_object);
+
+    CLObject wchar_array = object_data2->mFields[0].mObjectValue;
+
+    sCLObject* object_data3 = CLOBJECT(wchar_array);
+
+    wchar_t* wstr = MCALLOC(1, sizeof(wchar_t)*(object_data3->mArrayNum+1));
+
+    int i;
+    for(i=0; i<object_data3->mArrayNum; i++) {
+        wstr[i] = object_data3->mFields[i].mCharValue;
+    }
+    wstr[i] = '\0';
+
+    fprintf(stderr, "%s: %ls\n", CLASS_NAME(object_data->mClass), wstr);
+
+    MFREE(wstr);
+
+    vm_mutex_off();
+}

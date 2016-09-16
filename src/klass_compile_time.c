@@ -311,7 +311,7 @@ static BOOL check_same_interface_of_two_methods(sCLMethod* method1, sCLClass* kl
     return TRUE;
 }
 
-BOOL check_implemeted_methods_for_interface(sCLClass* left_class, sCLClass* right_class)
+BOOL check_implemented_methods_for_interface(sCLClass* left_class, sCLClass* right_class)
 {
     int i;
     for(i=0; i<left_class->mNumMethods; i++) {
@@ -435,6 +435,10 @@ static void write_class_to_buffer(sCLClass* klass, sBuf* buf)
 {
     sBuf_append_int(buf, klass->mVersion);
     sBuf_append_int(buf, klass->mNumGenerics);
+    int i;
+    for(i=0; i<klass->mNumGenerics; i++ ) {
+        sBuf_append_int(buf, klass->mGenericsParamTypeOffsets[i]);
+    }
     sBuf_append_int(buf, klass->mGenericsParamClassNum);
     sBuf_append_long(buf, klass->mFlags);
     append_const_to_buffer(buf, &klass->mConst);

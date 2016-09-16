@@ -4020,8 +4020,7 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
 
     sNodeType* right_type = info->type;
 
-    if(right_type == NULL 
-        || type_identify_with_class_name(right_type, "Null"))
+    if(right_type == NULL)
     {
         parser_err_msg(info->pinfo, "no type for right object type");
         info->err_num++;
@@ -4147,8 +4146,7 @@ static BOOL compile_store_class_field(unsigned int node, sCompileInfo* info)
 
     sNodeType* right_type = info->type;
 
-    if(right_type == NULL 
-        || type_identify_with_class_name(right_type, "Null"))
+    if(right_type == NULL)
     {
         parser_err_msg(info->pinfo, "no type for right object type");
         info->err_num++;
@@ -5780,8 +5778,7 @@ BOOL compile_store_array_element(unsigned int node, sCompileInfo* info)
 
     sNodeType* right_type = info->type;
 
-    if(right_type == NULL 
-        || type_identify_with_class_name(right_type, "Null"))
+    if(right_type == NULL)
     {
         parser_err_msg(info->pinfo, "no type for right object type");
         info->err_num++;

@@ -215,7 +215,7 @@ struct sCLClassStruct {
     int mNumMethodsOnLoadTime; // This requires from the compile time
     int mMethodIndexOnCompileTime; // This require from the compile time
 
-    sCLMethod* mVirtualMethodTable[METHOD_NUM_MAX];
+    sCLMethod* mVirtualMethodTable[METHOD_NUM_MAX]; // This requires from the run time
 };
 
 typedef struct sCLClassStruct sCLClass;
@@ -1145,7 +1145,7 @@ int search_for_class_field(sCLClass* klass, char* field_name);
 void add_dependences_with_node_type(sCLClass* klass, sNodeType* node_type);
 sCLClass* get_class_with_load(char* class_name);
 BOOL parse_params(sParserParam* params, int* num_params, sParserInfo* info);
-BOOL check_implemeted_methods_for_interface(sCLClass* left_class, sCLClass* right_class);
+BOOL check_implemented_methods_for_interface(sCLClass* left_class, sCLClass* right_class);
 
 /// native_method.c ///
 void native_method_init();
@@ -1155,6 +1155,7 @@ fNativeMethod get_native_method(char* path);
 
 /// exception.c ///
 void entry_exception_object_with_class_name(CLVALUE* stack, char* class_name, char* msg, ...);
+void show_exception_message(CLObject exception);
 
 /// method_compiler.c ///
 BOOL compile_method(sCLMethod* method, sParserParam* params, int num_params, sParserInfo* info, sCompileInfo* cinfo);

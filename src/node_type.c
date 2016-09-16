@@ -172,7 +172,7 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right)
     sCLClass* right_class = right->mClass;
 
     if(left_class->mFlags & CLASS_FLAGS_INTERFACE) {
-        return check_implemeted_methods_for_interface(left_class, right_class);
+        return check_implemented_methods_for_interface(left_class, right_class);
     }
     else if(type_identify_with_class_name(right, "Null") && !(left_class->mFlags & CLASS_FLAGS_PRIMITIVE)) {
         return TRUE;
