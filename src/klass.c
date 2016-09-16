@@ -801,7 +801,7 @@ static void load_fundamental_classes()
 {
     (void)load_class("System");
     (void)load_class("Clover");
-    (void)load_class("String");
+
     (void)load_class("Byte");
     (void)load_class("UByte");
     (void)load_class("Short");
@@ -810,6 +810,14 @@ static void load_fundamental_classes()
     (void)load_class("UInteger");
     (void)load_class("Long");
     (void)load_class("ULong");
+    (void)load_class("Float");
+    (void)load_class("Double");
+    (void)load_class("Pointer");
+    (void)load_class("Char");
+    (void)load_class("Bool");
+
+    (void)load_class("String");
+
     (void)load_class("Exception");
     (void)load_class("SystemException");
 }

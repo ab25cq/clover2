@@ -24,3 +24,11 @@ f:UByte = new UByte(255);
 Clover.test("Byte test2", f.getValue() == 255);
 Clover.test("Byte test3", f.toByte().getValue() == -1);
 
+g:Float = new Float(100);
+
+Clover.test("Float test1", g.getValue() == 100);
+
+h:Bool = new Bool(true);
+
+Clover.test("Bool test1", h.getValue() == true);
+

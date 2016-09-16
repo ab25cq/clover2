@@ -23,9 +23,9 @@ CLASS_NAME	src/common.h	223;"	d
 CLASS_NAME_MAX	src/common.h	28;"	d
 CLASS_NUM_MAX	src/klass.c	9;"	d	file:
 CLASS_VERSION_MAX	src/common.h	35;"	d
-CLBLOCK	src/common.h	1202;"	d
-CLHEAPMEM	src/common.h	1131;"	d
-CLOBJECT	src/common.h	1177;"	d
+CLBLOCK	src/common.h	1268;"	d
+CLHEAPMEM	src/common.h	1197;"	d
+CLOBJECT	src/common.h	1243;"	d
 CLObject	src/common.h	/^typedef unsigned int CLObject;$/;"	t
 CLVALUE	src/common.h	/^typedef union CLVALUEUnion CLVALUE;$/;"	t	typeref:union:CLVALUEUnion
 CLVALUEUnion	src/common.h	/^union CLVALUEUnion {$/;"	u
@@ -37,7 +37,7 @@ CONS_str	src/common.h	90;"	d
 CreateProcess	ltmain.sh	/^   CreateProcess().  We must quote the arguments since Win32 CreateProcess()$/;"	f
 DEBUG_H	src/debug.h	2;"	d
 DESTDIR	Makefile	/^DESTDIR=$/;"	m
-DUMMY_ARRAY_SIZE	src/common.h	1163;"	d
+DUMMY_ARRAY_SIZE	src/common.h	1229;"	d
 ELIF_NUM_MAX	src/common.h	31;"	d
 FALSE	src/macros.h	13;"	d
 FIELD_FLAGS_PRIVATE	src/common.h	172;"	d
@@ -100,7 +100,7 @@ NAME_SIZE	src/debug.c	83;"	d	file:
 NATIVE_METHOD_HASH_SIZE	src/native_method.c	3;"	d	file:
 NODE_TYPE_PAGE_SIZE	src/node_type.c	8;"	d	file:
 NULLABLE	src/macros.h	25;"	d
-OBJS	Makefile	/^OBJS=src\/main.o src\/vm.o src\/object.o src\/array.o src\/string.o src\/block.o src\/integer.o src\/byte.o src\/short.o src\/long.o src\/type.o src\/stack.o src\/heap.o src\/exception.o src\/native_method.o src\/class_system.o src\/class_clover.o$/;"	m
+OBJS	Makefile	/^OBJS=src\/main.o src\/vm.o src\/object.o src\/array.o src\/string.o src\/block.o src\/integer.o src\/byte.o src\/short.o src\/long.o src\/float.o src\/pointer.o src\/char.o src\/bool.o src\/type.o src\/stack.o src\/heap.o src\/exception.o src\/native_method.o src\/class_system.o src\/class_clover.o$/;"	m
 OP_ANDAND	src/common.h	746;"	d
 OP_BADD	src/common.h	603;"	d
 OP_BDIV	src/common.h	606;"	d
@@ -111,8 +111,13 @@ OP_BLE	src/common.h	662;"	d
 OP_BLEEQ	src/common.h	664;"	d
 OP_BMULT	src/common.h	605;"	d
 OP_BNOTEQ	src/common.h	660;"	d
+OP_BOOL_TO_CBOOL_CAST	src/common.h	1110;"	d
 OP_BOOL_TO_CBYTE_CAST	src/common.h	974;"	d
+OP_BOOL_TO_CCHAR_CAST	src/common.h	1096;"	d
+OP_BOOL_TO_CDOUBLE_CAST	src/common.h	1070;"	d
+OP_BOOL_TO_CFLOAT_CAST	src/common.h	1057;"	d
 OP_BOOL_TO_CLONG_CAST	src/common.h	1030;"	d
+OP_BOOL_TO_CPOINTER_CAST	src/common.h	1082;"	d
 OP_BOOL_TO_CSHORT_CAST	src/common.h	1002;"	d
 OP_BOOL_TO_CUBYTE_CAST	src/common.h	988;"	d
 OP_BOOL_TO_CULONG_CAST	src/common.h	1044;"	d
@@ -121,9 +126,14 @@ OP_BOOL_TO_INTEGER_CAST	src/common.h	946;"	d
 OP_BOOL_TO_STRING_CAST	src/common.h	930;"	d
 OP_BOOL_TO_UINTEGER_CAST	src/common.h	960;"	d
 OP_BSUB	src/common.h	604;"	d
+OP_BYTE_TO_CBOOL_CAST	src/common.h	1098;"	d
 OP_BYTE_TO_CBYTE_CAST	src/common.h	962;"	d
+OP_BYTE_TO_CCHAR_CAST	src/common.h	1084;"	d
+OP_BYTE_TO_CDOUBLE_CAST	src/common.h	1059;"	d
+OP_BYTE_TO_CFLOAT_CAST	src/common.h	1046;"	d
 OP_BYTE_TO_CHAR_CAST	src/common.h	908;"	d
 OP_BYTE_TO_CLONG_CAST	src/common.h	1018;"	d
+OP_BYTE_TO_CPOINTER_CAST	src/common.h	1072;"	d
 OP_BYTE_TO_CSHORT_CAST	src/common.h	990;"	d
 OP_BYTE_TO_CUBYTE_CAST	src/common.h	976;"	d
 OP_BYTE_TO_CULONG_CAST	src/common.h	1032;"	d
@@ -146,8 +156,13 @@ OP_CEQ	src/common.h	736;"	d
 OP_CGT	src/common.h	738;"	d
 OP_CGTEQ	src/common.h	740;"	d
 OP_CHAR_TO_BYTE_CAST	src/common.h	790;"	d
+OP_CHAR_TO_CBOOL_CAST	src/common.h	1108;"	d
 OP_CHAR_TO_CBYTE_CAST	src/common.h	972;"	d
+OP_CHAR_TO_CCHAR_CAST	src/common.h	1094;"	d
+OP_CHAR_TO_CDOUBLE_CAST	src/common.h	1069;"	d
+OP_CHAR_TO_CFLOAT_CAST	src/common.h	1056;"	d
 OP_CHAR_TO_CLONG_CAST	src/common.h	1028;"	d
+OP_CHAR_TO_CPOINTER_CAST	src/common.h	1080;"	d
 OP_CHAR_TO_CSHORT_CAST	src/common.h	1000;"	d
 OP_CHAR_TO_CUBYTE_CAST	src/common.h	986;"	d
 OP_CHAR_TO_CULONG_CAST	src/common.h	1042;"	d
@@ -170,8 +185,8 @@ OP_CLE	src/common.h	739;"	d
 OP_CLEEQ	src/common.h	741;"	d
 OP_CNOTEQ	src/common.h	737;"	d
 OP_COND_JUMP	src/common.h	583;"	d
-OP_CREATE_BLOCK_OBJECT	src/common.h	1049;"	d
-OP_CREATE_STRING	src/common.h	1048;"	d
+OP_CREATE_BLOCK_OBJECT	src/common.h	1115;"	d
+OP_CREATE_STRING	src/common.h	1114;"	d
 OP_CSUB	src/common.h	657;"	d
 OP_DADD	src/common.h	648;"	d
 OP_DDIV	src/common.h	651;"	d
@@ -183,7 +198,11 @@ OP_DLEEQ	src/common.h	727;"	d
 OP_DMULT	src/common.h	650;"	d
 OP_DNOTEQ	src/common.h	723;"	d
 OP_DOUBLE_TO_BYTE_CAST	src/common.h	788;"	d
+OP_DOUBLE_TO_CBOOL_CAST	src/common.h	1107;"	d
 OP_DOUBLE_TO_CBYTE_CAST	src/common.h	971;"	d
+OP_DOUBLE_TO_CCHAR_CAST	src/common.h	1093;"	d
+OP_DOUBLE_TO_CDOUBLE_CAST	src/common.h	1068;"	d
+OP_DOUBLE_TO_CFLOAT_CAST	src/common.h	1055;"	d
 OP_DOUBLE_TO_CHAR_CAST	src/common.h	917;"	d
 OP_DOUBLE_TO_CLONG_CAST	src/common.h	1027;"	d
 OP_DOUBLE_TO_CSHORT_CAST	src/common.h	999;"	d
@@ -210,7 +229,11 @@ OP_FGTEQ	src/common.h	719;"	d
 OP_FLE	src/common.h	718;"	d
 OP_FLEEQ	src/common.h	720;"	d
 OP_FLOAT_TO_BYTE_CAST	src/common.h	787;"	d
+OP_FLOAT_TO_CBOOL_CAST	src/common.h	1106;"	d
 OP_FLOAT_TO_CBYTE_CAST	src/common.h	970;"	d
+OP_FLOAT_TO_CCHAR_CAST	src/common.h	1092;"	d
+OP_FLOAT_TO_CDOUBLE_CAST	src/common.h	1067;"	d
+OP_FLOAT_TO_CFLOAT_CAST	src/common.h	1054;"	d
 OP_FLOAT_TO_CHAR_CAST	src/common.h	916;"	d
 OP_FLOAT_TO_CLONG_CAST	src/common.h	1026;"	d
 OP_FLOAT_TO_CSHORT_CAST	src/common.h	998;"	d
@@ -231,7 +254,7 @@ OP_FLOAT_TO_USHORT_CAST	src/common.h	847;"	d
 OP_FMULT	src/common.h	645;"	d
 OP_FNOTEQ	src/common.h	716;"	d
 OP_FSUB	src/common.h	644;"	d
-OP_GET_ARRAY_LENGTH	src/common.h	1046;"	d
+OP_GET_ARRAY_LENGTH	src/common.h	1112;"	d
 OP_GOTO	src/common.h	584;"	d
 OP_IADD	src/common.h	623;"	d
 OP_IDIV	src/common.h	626;"	d
@@ -243,9 +266,14 @@ OP_ILEEQ	src/common.h	692;"	d
 OP_IMULT	src/common.h	625;"	d
 OP_INOTEQ	src/common.h	688;"	d
 OP_INT_TO_BYTE_CAST	src/common.h	783;"	d
+OP_INT_TO_CBOOL_CAST	src/common.h	1102;"	d
 OP_INT_TO_CBYTE_CAST	src/common.h	966;"	d
+OP_INT_TO_CCHAR_CAST	src/common.h	1088;"	d
+OP_INT_TO_CDOUBLE_CAST	src/common.h	1063;"	d
+OP_INT_TO_CFLOAT_CAST	src/common.h	1050;"	d
 OP_INT_TO_CHAR_CAST	src/common.h	912;"	d
 OP_INT_TO_CLONG_CAST	src/common.h	1022;"	d
+OP_INT_TO_CPOINTER_CAST	src/common.h	1076;"	d
 OP_INT_TO_CSHORT_CAST	src/common.h	994;"	d
 OP_INT_TO_CUBYTE_CAST	src/common.h	980;"	d
 OP_INT_TO_CULONG_CAST	src/common.h	1036;"	d
@@ -299,9 +327,14 @@ OP_LOAD_VALUE_FROM_ULONG_ADDRESS	src/common.h	778;"	d
 OP_LOAD_VALUE_FROM_USHORT_ADDRESS	src/common.h	776;"	d
 OP_LOGICAL_DENIAL	src/common.h	748;"	d
 OP_LONG_TO_BYTE_CAST	src/common.h	785;"	d
+OP_LONG_TO_CBOOL_CAST	src/common.h	1104;"	d
 OP_LONG_TO_CBYTE_CAST	src/common.h	968;"	d
+OP_LONG_TO_CCHAR_CAST	src/common.h	1090;"	d
+OP_LONG_TO_CDOUBLE_CAST	src/common.h	1065;"	d
+OP_LONG_TO_CFLOAT_CAST	src/common.h	1052;"	d
 OP_LONG_TO_CHAR_CAST	src/common.h	914;"	d
 OP_LONG_TO_CLONG_CAST	src/common.h	1024;"	d
+OP_LONG_TO_CPOINTER_CAST	src/common.h	1078;"	d
 OP_LONG_TO_CSHORT_CAST	src/common.h	996;"	d
 OP_LONG_TO_CUBYTE_CAST	src/common.h	982;"	d
 OP_LONG_TO_CULONG_CAST	src/common.h	1038;"	d
@@ -330,9 +363,12 @@ OP_PLE	src/common.h	732;"	d
 OP_PLEEQ	src/common.h	734;"	d
 OP_PNOTEQ	src/common.h	730;"	d
 OP_POINTER_TO_BYTE_CAST	src/common.h	789;"	d
+OP_POINTER_TO_CBOOL_CAST	src/common.h	1109;"	d
 OP_POINTER_TO_CBYTE_CAST	src/common.h	973;"	d
+OP_POINTER_TO_CCHAR_CAST	src/common.h	1095;"	d
 OP_POINTER_TO_CHAR_CAST	src/common.h	918;"	d
 OP_POINTER_TO_CLONG_CAST	src/common.h	1029;"	d
+OP_POINTER_TO_CPOINTER_CAST	src/common.h	1081;"	d
 OP_POINTER_TO_CSHORT_CAST	src/common.h	1001;"	d
 OP_POINTER_TO_CUBYTE_CAST	src/common.h	987;"	d
 OP_POINTER_TO_CULONG_CAST	src/common.h	1043;"	d
@@ -358,9 +394,14 @@ OP_SEQ	src/common.h	673;"	d
 OP_SGT	src/common.h	675;"	d
 OP_SGTEQ	src/common.h	677;"	d
 OP_SHORT_TO_BYTE_CAST	src/common.h	781;"	d
+OP_SHORT_TO_CBOOL_CAST	src/common.h	1100;"	d
 OP_SHORT_TO_CBYTE_CAST	src/common.h	964;"	d
+OP_SHORT_TO_CCHAR_CAST	src/common.h	1086;"	d
+OP_SHORT_TO_CDOUBLE_CAST	src/common.h	1061;"	d
+OP_SHORT_TO_CFLOAT_CAST	src/common.h	1048;"	d
 OP_SHORT_TO_CHAR_CAST	src/common.h	910;"	d
 OP_SHORT_TO_CLONG_CAST	src/common.h	1020;"	d
+OP_SHORT_TO_CPOINTER_CAST	src/common.h	1074;"	d
 OP_SHORT_TO_CSHORT_CAST	src/common.h	992;"	d
 OP_SHORT_TO_CUBYTE_CAST	src/common.h	978;"	d
 OP_SHORT_TO_CULONG_CAST	src/common.h	1034;"	d
@@ -407,9 +448,14 @@ OP_UBMULT	src/common.h	610;"	d
 OP_UBNOTEQ	src/common.h	667;"	d
 OP_UBSUB	src/common.h	609;"	d
 OP_UBYTE_TO_BYTE_CAST	src/common.h	780;"	d
+OP_UBYTE_TO_CBOOL_CAST	src/common.h	1099;"	d
 OP_UBYTE_TO_CBYTE_CAST	src/common.h	963;"	d
+OP_UBYTE_TO_CCHAR_CAST	src/common.h	1085;"	d
+OP_UBYTE_TO_CDOUBLE_CAST	src/common.h	1060;"	d
+OP_UBYTE_TO_CFLOAT_CAST	src/common.h	1047;"	d
 OP_UBYTE_TO_CHAR_CAST	src/common.h	909;"	d
 OP_UBYTE_TO_CLONG_CAST	src/common.h	1019;"	d
+OP_UBYTE_TO_CPOINTER_CAST	src/common.h	1073;"	d
 OP_UBYTE_TO_CSHORT_CAST	src/common.h	991;"	d
 OP_UBYTE_TO_CUBYTE_CAST	src/common.h	977;"	d
 OP_UBYTE_TO_CULONG_CAST	src/common.h	1033;"	d
@@ -436,9 +482,14 @@ OP_UILEEQ	src/common.h	699;"	d
 OP_UIMULT	src/common.h	630;"	d
 OP_UINOTEQ	src/common.h	695;"	d
 OP_UINT_TO_BYTE_CAST	src/common.h	784;"	d
+OP_UINT_TO_CBOOL_CAST	src/common.h	1103;"	d
 OP_UINT_TO_CBYTE_CAST	src/common.h	967;"	d
+OP_UINT_TO_CCHAR_CAST	src/common.h	1089;"	d
+OP_UINT_TO_CDOUBLE_CAST	src/common.h	1064;"	d
+OP_UINT_TO_CFLOAT_CAST	src/common.h	1051;"	d
 OP_UINT_TO_CHAR_CAST	src/common.h	913;"	d
 OP_UINT_TO_CLONG_CAST	src/common.h	1023;"	d
+OP_UINT_TO_CPOINTER_CAST	src/common.h	1077;"	d
 OP_UINT_TO_CSHORT_CAST	src/common.h	995;"	d
 OP_UINT_TO_CUBYTE_CAST	src/common.h	981;"	d
 OP_UINT_TO_CULONG_CAST	src/common.h	1037;"	d
@@ -466,9 +517,14 @@ OP_ULLEEQ	src/common.h	713;"	d
 OP_ULMULT	src/common.h	640;"	d
 OP_ULNOTEQ	src/common.h	709;"	d
 OP_ULONG_TO_BYTE_CAST	src/common.h	786;"	d
+OP_ULONG_TO_CBOOL_CAST	src/common.h	1105;"	d
 OP_ULONG_TO_CBYTE_CAST	src/common.h	969;"	d
+OP_ULONG_TO_CCHAR_CAST	src/common.h	1091;"	d
+OP_ULONG_TO_CDOUBLE_CAST	src/common.h	1066;"	d
+OP_ULONG_TO_CFLOAT_CAST	src/common.h	1053;"	d
 OP_ULONG_TO_CHAR_CAST	src/common.h	915;"	d
 OP_ULONG_TO_CLONG_CAST	src/common.h	1025;"	d
+OP_ULONG_TO_CPOINTER_CAST	src/common.h	1079;"	d
 OP_ULONG_TO_CSHORT_CAST	src/common.h	997;"	d
 OP_ULONG_TO_CUBYTE_CAST	src/common.h	983;"	d
 OP_ULONG_TO_CULONG_CAST	src/common.h	1039;"	d
@@ -492,9 +548,14 @@ OP_USEQ	src/common.h	680;"	d
 OP_USGT	src/common.h	682;"	d
 OP_USGTEQ	src/common.h	684;"	d
 OP_USHORT_TO_BYTE_CAST	src/common.h	782;"	d
+OP_USHORT_TO_CBOOL_CAST	src/common.h	1101;"	d
 OP_USHORT_TO_CBYTE_CAST	src/common.h	965;"	d
+OP_USHORT_TO_CCHAR_CAST	src/common.h	1087;"	d
+OP_USHORT_TO_CDOUBLE_CAST	src/common.h	1062;"	d
+OP_USHORT_TO_CFLOAT_CAST	src/common.h	1049;"	d
 OP_USHORT_TO_CHAR_CAST	src/common.h	911;"	d
 OP_USHORT_TO_CLONG_CAST	src/common.h	1021;"	d
+OP_USHORT_TO_CPOINTER_CAST	src/common.h	1075;"	d
 OP_USHORT_TO_CSHORT_CAST	src/common.h	993;"	d
 OP_USHORT_TO_CUBYTE_CAST	src/common.h	979;"	d
 OP_USHORT_TO_CULONG_CAST	src/common.h	1035;"	d
@@ -518,14 +579,14 @@ OP_USNOTEQ	src/common.h	681;"	d
 OP_USSUB	src/common.h	619;"	d
 OS	Makefile	/^OS=LINUX$/;"	m
 PARAMS_MAX	src/common.h	33;"	d
-PARSE_PHASE_ADD_GENERICS_TYPES	src/common.h	1062;"	d
-PARSE_PHASE_ADD_METHODS_AND_FIELDS	src/common.h	1063;"	d
-PARSE_PHASE_ADD_SUPER_CLASSES	src/common.h	1060;"	d
-PARSE_PHASE_ALLOC_CLASSES	src/common.h	1059;"	d
-PARSE_PHASE_CALCULATE_SUPER_CLASSES	src/common.h	1061;"	d
-PARSE_PHASE_COMPILE_PARAM_INITIALIZER	src/common.h	1064;"	d
-PARSE_PHASE_DO_COMPILE_CODE	src/common.h	1065;"	d
-PARSE_PHASE_MAX	src/common.h	1066;"	d
+PARSE_PHASE_ADD_GENERICS_TYPES	src/common.h	1128;"	d
+PARSE_PHASE_ADD_METHODS_AND_FIELDS	src/common.h	1129;"	d
+PARSE_PHASE_ADD_SUPER_CLASSES	src/common.h	1126;"	d
+PARSE_PHASE_ALLOC_CLASSES	src/common.h	1125;"	d
+PARSE_PHASE_CALCULATE_SUPER_CLASSES	src/common.h	1127;"	d
+PARSE_PHASE_COMPILE_PARAM_INITIALIZER	src/common.h	1130;"	d
+PARSE_PHASE_DO_COMPILE_CODE	src/common.h	1131;"	d
+PARSE_PHASE_MAX	src/common.h	1132;"	d
 SO_VERSION	Makefile	/^SO_VERSION=1.0.0$/;"	m
 System_assert	src/class_system.c	/^BOOL System_assert(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_calloc	src/class_system.c	/^BOOL System_calloc(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
@@ -588,25 +649,17 @@ arrange_alignment	src/code.c	/^static void arrange_alignment(sByteCode* code)$/;
 arrange_alignment	src/constant.c	/^static void arrange_alignment(sConst* self)$/;"	f	file:
 arrange_stack	src/node.c	/^void arrange_stack(sCompileInfo* cinfo)$/;"	f
 array_mark_fun	src/array.c	/^void array_mark_fun(CLObject self, unsigned char* mark_flg)$/;"	f
-as_fn_append	config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	configure	/^  as_fn_append ()$/;"	f
-as_fn_arith	config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	configure	/^  as_fn_arith ()$/;"	f
-as_fn_error	config.status	/^as_fn_error ()$/;"	f
 as_fn_error	configure	/^as_fn_error ()$/;"	f
-as_fn_executable_p	config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	configure	/^as_fn_executable_p ()$/;"	f
-as_fn_exit	config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	configure	/^as_fn_exit ()$/;"	f
 as_fn_failure	configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
-as_fn_mkdir_p	config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	configure	/^as_fn_mkdir_p ()$/;"	f
 as_fn_ret_failure	configure	/^as_fn_ret_failure () { return 1; }$/;"	f
 as_fn_ret_success	configure	/^as_fn_ret_success () { return 0; }$/;"	f
-as_fn_set_status	config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	configure	/^as_fn_set_status ()$/;"	f
 as_fn_success	configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
-as_fn_unset	config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	configure	/^as_fn_unset ()$/;"	f
 binary_operator	src/node.c	/^static BOOL binary_operator(sNodeType* left_type, sNodeType* right_type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, int float_operand, int double_operand, int pointer_operand, int null_operand, int char_operand, int bool_operand, char* op_string, sCompileInfo* info)$/;"	f	file:
 binary_operator_for_bool	src/node.c	/^static BOOL binary_operator_for_bool(sNodeType* type, int bool_operand, sCompileInfo* info)$/;"	f	file:
@@ -614,9 +667,14 @@ bindir	Makefile	/^bindir=${exec_prefix}\/bin$/;"	m
 block_result_type	src/common.h	/^    sNodeType* block_result_type;$/;"	m	struct:sCompileInfoStruct
 break_points	src/common.h	/^    int* break_points;$/;"	m	struct:sCompileInfoStruct
 call_finalize_method_on_free_object	src/vm.c	/^BOOL call_finalize_method_on_free_object(sCLClass* klass, CLObject self)$/;"	f
+cast_right_type_to_Bool	src/node.c	/^static void cast_right_type_to_Bool(sNodeType** right_type, sCompileInfo* info)$/;"	f	file:
 cast_right_type_to_Byte	src/node.c	/^static void cast_right_type_to_Byte(sNodeType** right_type, sCompileInfo* info)$/;"	f	file:
+cast_right_type_to_Char	src/node.c	/^static void cast_right_type_to_Char(sNodeType** right_type, sCompileInfo* info)$/;"	f	file:
+cast_right_type_to_Double	src/node.c	/^static void cast_right_type_to_Double(sNodeType** right_type, sCompileInfo* info)$/;"	f	file:
+cast_right_type_to_Float	src/node.c	/^static void cast_right_type_to_Float(sNodeType** right_type, sCompileInfo* info)$/;"	f	file:
 cast_right_type_to_Integer	src/node.c	/^static void cast_right_type_to_Integer(sNodeType** right_type, sCompileInfo* info)$/;"	f	file:
 cast_right_type_to_Long	src/node.c	/^static void cast_right_type_to_Long(sNodeType** right_type, sCompileInfo* info)$/;"	f	file:
+cast_right_type_to_Pointer	src/node.c	/^static void cast_right_type_to_Pointer(sNodeType** right_type, sCompileInfo* info)$/;"	f	file:
 cast_right_type_to_Short	src/node.c	/^static void cast_right_type_to_Short(sNodeType** right_type, sCompileInfo* info)$/;"	f	file:
 cast_right_type_to_String	src/node.c	/^static void cast_right_type_to_String(sNodeType** right_type, sCompileInfo* info)$/;"	f	file:
 cast_right_type_to_UByte	src/node.c	/^static void cast_right_type_to_UByte(sNodeType** right_type, sCompileInfo* info)$/;"	f	file:
@@ -706,8 +764,12 @@ compiler_init	src/compiler.c	/^static void compiler_init()$/;"	f	file:
 constant	src/common.h	/^    sConst* constant;$/;"	m	struct:sCompileInfoStruct
 create_array_object	src/array.c	/^CLObject create_array_object(sCLClass* klass, int array_num)$/;"	f
 create_block_object	src/block.c	/^CLObject create_block_object(sByteCode* codes, sConst* constant, CLVALUE* parent_stack, int parent_var_num, int block_var_num)$/;"	f
+create_bool	src/bool.c	/^CLObject create_bool(BOOL value)$/;"	f
 create_byte	src/byte.c	/^CLObject create_byte(char value)$/;"	f
+create_char	src/char.c	/^CLObject create_char(wchar_t value)$/;"	f
 create_cl_type	src/klass.c	/^ALLOC sCLType* create_cl_type(sCLClass* klass, sCLClass* klass2)$/;"	f
+create_double	src/float.c	/^CLObject create_double(double value)$/;"	f
+create_float	src/float.c	/^CLObject create_float(float value)$/;"	f
 create_global_stack_and_append_it_to_stack_list	src/stack.c	/^static void create_global_stack_and_append_it_to_stack_list()$/;"	f	file:
 create_integer	src/integer.c	/^CLObject create_integer(int value)$/;"	f
 create_long	src/long.c	/^CLObject create_long(long value)$/;"	f
@@ -719,6 +781,7 @@ create_node_type_with_class_name	src/node_type.c	/^sNodeType* create_node_type_w
 create_node_type_with_class_pointer	src/node_type.c	/^sNodeType* create_node_type_with_class_pointer(sCLClass* klass)$/;"	f
 create_node_type_with_generics_number	src/node_type.c	/^sNodeType* create_node_type_with_generics_number(int generics_num)$/;"	f
 create_object	src/object.c	/^CLObject create_object(sCLClass* klass)$/;"	f
+create_pointer	src/pointer.c	/^CLObject create_pointer(char* value)$/;"	f
 create_short	src/short.c	/^CLObject create_short(short value)$/;"	f
 create_string_object	src/string.c	/^CLObject create_string_object(char* str)$/;"	f
 create_ubyte	src/byte.c	/^CLObject create_ubyte(unsigned char value)$/;"	f

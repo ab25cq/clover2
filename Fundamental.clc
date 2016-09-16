@@ -343,4 +343,127 @@ class ULong
     }
 }
 
+class Float 
+{
+    value: float;
 
+    def initialize() {
+        self.value = 0.to_float;
+    }
+
+    def initialize(value:float) {
+        self.value = value;
+    }
+
+    def initialize(value:int) {
+        self.value = value.to_float;
+    }
+
+    def getValue(): float {
+        return self.value;
+    }
+
+    def setValue(value:float) {
+        self.value = value;
+    }
+}
+
+class Double
+{
+    value: double;
+
+    def initialize() {
+        self.value = 0.to_double;
+    }
+
+    def initialize(value:double) {
+        self.value = value;
+    }
+
+    def initialize(value:int) {
+        self.value = value.to_double;
+    }
+
+    def getValue(): double {
+        return self.value;
+    }
+
+    def setValue(value:double) {
+        self.value = value;
+    }
+}
+
+class Pointer
+{
+    value: pointer;
+
+    def initialize() {
+        self.value = 0.to_pointer;
+    }
+
+    def initialize(value:pointer) {
+        self.value = value;
+    }
+
+    def initialize(value:int) {
+        self.value = value.to_pointer;
+    }
+
+    def getValue(): pointer {
+        return self.value;
+    }
+
+    def setValue(value:pointer) {
+        self.value = value;
+    }
+}
+
+class Char
+{
+    value: char;
+
+    def initialize() {
+        self.value = 0.to_char;
+    }
+
+    def initialize(value:char) {
+        self.value = value;
+    }
+
+    def initialize(value:int) {
+        self.value = value.to_char;
+    }
+
+    def getValue(): char {
+        return self.value;
+    }
+
+    def setValue(value:char) {
+        self.value = value;
+    }
+}
+
+class Bool
+{
+    value: bool;
+
+    def initialize() {
+        self.value = 0.to_bool;
+    }
+
+    def initialize(value:bool) {
+        self.value = value;
+    }
+
+    def initialize(value:int) {
+        self.value = value.to_bool;
+    }
+
+    def getValue(): bool {
+        return self.value;
+    }
+
+    def setValue(value:bool) {
+        self.value = value;
+    }
+}
