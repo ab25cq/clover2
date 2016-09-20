@@ -20,3 +20,4 @@ Clover.test("String test7", c.equals("GHI111"));
 Clover.test("String test8", "ABC".append("123").equals("ABC123"));
 
 
+Clover.test("String test9", !"AAAA".equals("BBBBBBBBBBBBBBBBB"));

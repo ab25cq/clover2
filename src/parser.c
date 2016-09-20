@@ -1152,6 +1152,58 @@ static BOOL parse_block_object(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
+static BOOL parse_normal_block(unsigned int* node, sParserInfo* info)
+{
+    sNodeBlock* node_block = NULL;
+    if(!parse_block(ALLOC &node_block, info, NULL, FALSE)) {
+        return FALSE;
+    }
+
+    *node = sNodeTree_create_normal_block(MANAGED node_block);
+
+    return TRUE;
+}
+static BOOL parse_array_value(unsigned int* node, sParserInfo* info) 
+{
+    int num_elements = 0;
+
+    unsigned int array_elements[ARRAY_VALUE_ELEMENT_MAX];
+    memset(array_elements, 0, sizeof(unsigned int)*ARRAY_VALUE_ELEMENT_MAX);
+
+    if(*info->p == '}') {
+        info->p++;
+        skip_spaces_and_lf(info);
+    }
+    else {
+        while(1) {
+            if(!expression(array_elements + num_elements, info)) {
+                return FALSE;
+            }
+
+            num_elements++;
+
+            if(num_elements >= ARRAY_VALUE_ELEMENT_MAX) {
+                parser_err_msg(info, "overflow array value elements");
+                return FALSE;
+            }
+
+            if(*info->p == ',') {
+                info->p++;
+                skip_spaces_and_lf(info);
+            }
+            else if(*info->p == '}') {
+                info->p++;
+                skip_spaces_and_lf(info);
+                break;
+            }
+        }
+    }
+
+    *node = sNodeTree_create_array_value(num_elements, array_elements);
+
+    return TRUE;
+}
+
 static BOOL expression_node(unsigned int* node, sParserInfo* info)
 {
     if((*info->p == '-' && *(info->p+1) != '=' && *(info->p+1) != '-' && *(info->p+1) != '>') || (*info->p == '+' && *(info->p+1) != '=' && *(info->p+1) != '+')) 
@@ -1331,6 +1383,14 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         }
 
     }
+    else if(*info->p == '{') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        if(!parse_array_value(node, info)) {
+            return FALSE;
+        }
+    }
     else if(isalpha(*info->p)) {
         char buf[VAR_NAME_MAX];
 
@@ -1390,6 +1450,11 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         }
         else if(strcmp(buf, "lambda") == 0) {
             if(!parse_block_object(node, info)) {
+                return FALSE;
+            }
+        }
+        else if(strcmp(buf, "block") == 0) {
+            if(!parse_normal_block(node, info)) {
                 return FALSE;
             }
         }

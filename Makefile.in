@@ -138,7 +138,6 @@ test:
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/hello_world.cl && ./clover2 code/hello_world.clo
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/cast.cl && ./clover2 code/cast.clo
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/string.cl && ./clover2 code/string.clo
-	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -class code/try.clc code/try.cl && ./clover2 code/try.clo
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -class code/interface.clc code/interface.cl && ./clover2 code/interface.clo
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/null.cl && ./clover2 code/null.clo
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/special_field.cl && ./clover2 code/special_field.clo
@@ -150,6 +149,9 @@ test:
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -class code/block2.clc code/block2.cl && ./clover2 code/block2.clo
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -class code/void_result.clc code/void_result.cl && ./clover2 code/void_result.clo
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/integer.cl && ./clover2 code/integer.clo
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/normal_block.cl && ./clover2 code/normal_block.clo
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/operator.cl && ./clover2 code/operator.clo
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -class code/try.clc code/try.cl && ./clover2 code/try.clo
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/array2.cl && ./clover2 code/array2.clo
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/hash.cl && ./clover2 code/hash.clo
 

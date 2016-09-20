@@ -37,6 +37,7 @@
 #define METHOD_NUM_MAX 128
 #define CL_MODULE_HASH_SIZE 256
 #define CL_MODULE_NAME_MAX CLASS_NAME_MAX
+#define ARRAY_VALUE_ELEMENT_MAX 256
 
 /// CLVALUE ///
 typedef unsigned int CLObject;
@@ -397,7 +398,7 @@ struct sCompileInfoStruct;
 BOOL compile_block(sNodeBlock* block, struct sCompileInfoStruct* info);
 
 /// node.c ///
-enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeUByteValue, kNodeTypeShortValue, kNodeTypeUShortValue, kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand, kNodeTypeIncrementWithValueOperand, kNodeTypeDecrementWithValueOperand, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand, kNodeTypeLoadArrayElement, kNodeTypeStoreArrayElement, kNodeTypeChar, kNodeTypeString, kNodeTypeThrow, kNodeTypeTry, kNodeTypeBlockObject, kNodeTypeBlockCall, kNodeTypeConditional };
+enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeUByteValue, kNodeTypeShortValue, kNodeTypeUShortValue, kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand, kNodeTypeIncrementWithValueOperand, kNodeTypeDecrementWithValueOperand, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand, kNodeTypeLoadArrayElement, kNodeTypeStoreArrayElement, kNodeTypeChar, kNodeTypeString, kNodeTypeThrow, kNodeTypeTry, kNodeTypeBlockObject, kNodeTypeBlockCall, kNodeTypeConditional, kNodeTypeNormalBlock, kNodeTypeArrayValue };
 
 enum eOperand { kOpAdd, kOpSub , kOpComplement, kOpLogicalDenial, kOpMult, kOpDiv, kOpMod, kOpLeftShift, kOpRightShift, kOpComparisonEqual, kOpComparisonNotEqual,kOpComparisonGreaterEqual, kOpComparisonLesserEqual, kOpComparisonGreater, kOpComparisonLesser, kOpAnd, kOpXor, kOpOr, kOpAndAnd, kOpOrOr };
 
@@ -493,6 +494,13 @@ struct sNodeTreeStruct
             unsigned int mParams[PARAMS_MAX];
             int mNumParams;
         } sBlockCall;
+
+        sNodeBlock* mBlock;
+
+        struct {
+            unsigned int mArrayElements[ARRAY_VALUE_ELEMENT_MAX];
+            int mNumArrayElements;
+        } sArrayValue;
     } uValue;
 
     sNodeType* mType;
@@ -572,6 +580,8 @@ unsigned int sNodeTree_try_expression(MANAGED sNodeBlock* try_node_block, MANAGE
 unsigned int sNodeTree_create_block_object(sParserParam* params, int num_params, sNodeType* result_type, MANAGED sNodeBlock* node_block);
 unsigned int sNodeTree_create_block_call(unsigned int block, int num_params, unsigned int params[]);
 unsigned int sNodeTree_conditional_expression(unsigned int expression_node, unsigned int true_expression_node, unsigned int false_expression_node);
+unsigned int sNodeTree_create_normal_block(MANAGED sNodeBlock* node_block);
+unsigned int sNodeTree_create_array_value(int num_elements, unsigned int array_elements[]);
 
 /// script.c ///
 BOOL compile_script(char* fname, char* source);
@@ -1170,7 +1180,8 @@ BOOL compile_script(char* fname, char* source);
 #define OP_GET_ARRAY_LENGTH 8000
 
 #define OP_CREATE_STRING 9000
-#define OP_CREATE_BLOCK_OBJECT 9001
+#define OP_CREATE_ARRAY 9001
+#define OP_CREATE_BLOCK_OBJECT 9002
 
 BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sVMInfo* info);
 void vm_mutex_on();

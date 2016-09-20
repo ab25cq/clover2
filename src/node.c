@@ -71,6 +71,12 @@ void free_nodes()
                     }
                     break;
 
+                case kNodeTypeNormalBlock:
+                    if(gNodes[i].uValue.mBlock) {
+                        sNodeBlock_free(gNodes[i].uValue.mBlock);
+                    }
+                    break;
+
                 default:
                     break;
             }
@@ -3760,8 +3766,7 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
     }
 
     if(type_identify_with_class_name(result_type, "Null")) {
-        append_opecode_to_code(info->code, OP_LDCINT, info->no_output);
-        append_int_value_to_code(info->code, 0, info->no_output);
+        append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
 
         info->stack_num++;
     }
@@ -6001,6 +6006,73 @@ BOOL compile_string_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_array_value(int num_elements, unsigned int array_elements[])
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeArrayValue;
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    gNodes[node].mType = NULL;
+
+    memcpy(gNodes[node].uValue.sArrayValue.mArrayElements, array_elements, sizeof(unsigned int)*ARRAY_VALUE_ELEMENT_MAX);
+    gNodes[node].uValue.sArrayValue.mNumArrayElements = num_elements;
+
+    return node;
+}
+
+BOOL compile_array_value(unsigned int node, sCompileInfo* info)
+{
+    unsigned int* elements = gNodes[node].uValue.sArrayValue.mArrayElements;
+    int num_elements = gNodes[node].uValue.sArrayValue.mNumArrayElements;
+
+    if(num_elements == 0) {
+        parser_err_msg(info->pinfo, "require element in array");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    unsigned int first_element_node = elements[0];
+
+    if(!compile(first_element_node, info)) {
+        return FALSE;
+    }
+
+    sNodeType* element_type = info->type;
+
+    int i;
+    for(i=1; i<num_elements; i++) {
+        unsigned int element_node = elements[i];
+
+        if(!compile(element_node, info)) {
+            return FALSE;
+        }
+
+        if(!type_identify(info->type, element_type)) {
+            parser_err_msg(info->pinfo, "Invalid element type. Left type is %s. Right type is %s", CLASS_NAME(info->type->mClass), CLASS_NAME(element_type->mClass));
+            info->err_num++;
+        }
+    }
+
+    append_opecode_to_code(info->code, OP_CREATE_ARRAY, info->no_output);
+    append_int_value_to_code(info->code, num_elements, info->no_output);
+    append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(element_type->mClass), info->no_output);
+
+    info->stack_num-= num_elements;
+    info->stack_num++;
+
+    info->type = element_type;
+    info->type->mArray = TRUE;
+
+    return TRUE;
+}
+
 unsigned int sNodeTree_create_block_object(sParserParam* params, int num_params, sNodeType* result_type, MANAGED sNodeBlock* node_block)
 {
     unsigned int node = alloc_node();
@@ -6098,6 +6170,41 @@ BOOL compile_block_object(unsigned int node, sCompileInfo* info)
     }
 
     info->type->mBlockType = node_block_type;
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_normal_block(MANAGED sNodeBlock* node_block)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeNormalBlock;
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    gNodes[node].mType = NULL;
+
+    gNodes[node].uValue.mBlock = MANAGED node_block;
+
+    return node;
+}
+
+static BOOL compile_normal_block(unsigned int node, sCompileInfo* info)
+{
+    /// rename variables ///
+    sNodeBlock* node_block = gNodes[node].uValue.mBlock;
+
+    /// compile block ///
+    if(!compile_block(node_block, info)) {
+        return FALSE;
+    }
+
+    append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
+    info->stack_num++;
+
+    info->type = create_node_type_with_class_name("Null");
 
     return TRUE;
 }
@@ -6361,11 +6468,19 @@ void show_node(unsigned int node)
             puts("string");
             break;
 
+        case kNodeTypeArrayValue:
+            puts("array value");
+            break;
+
         case kNodeTypeTry:
             puts("try");
             break;
 
         case kNodeTypeBlockObject:
+            puts("lambda");
+            break;
+
+        case kNodeTypeNormalBlock:
             puts("block");
             break;
 
@@ -6626,6 +6741,12 @@ BOOL compile(unsigned int node, sCompileInfo* info)
             }
             break;
 
+        case kNodeTypeArrayValue:
+            if(!compile_array_value(node, info)) {
+                return FALSE;
+            }
+            break;
+
         case kNodeTypeTry:
             if(!compile_try_expression(node, info)) {
                 return FALSE;
@@ -6634,6 +6755,12 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeBlockObject:
             if(!compile_block_object(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeNormalBlock:
+            if(!compile_normal_block(node, info)) {
                 return FALSE;
             }
             break;

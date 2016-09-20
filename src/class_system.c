@@ -15,6 +15,7 @@ BOOL System_assert(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     if(!exp->mBoolValue) {
         entry_exception_object_with_class_name(*stack_ptr, "Exception", "System.assert failed");
+        (*stack_ptr)++;
         return FALSE;
     }
 
