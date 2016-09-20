@@ -2230,7 +2230,7 @@ static BOOL expression_conditional_operator(unsigned int* node, sParserInfo* inf
                 info->err_num++;
             }
 
-            *node = sNodeTree_create_operand(kOpConditional, *node, right, middle);
+            *node = sNodeTree_conditional_expression(*node, middle, right);
         }
         else {
             break;

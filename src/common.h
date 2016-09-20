@@ -397,9 +397,9 @@ struct sCompileInfoStruct;
 BOOL compile_block(sNodeBlock* block, struct sCompileInfoStruct* info);
 
 /// node.c ///
-enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeUByteValue, kNodeTypeShortValue, kNodeTypeUShortValue, kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand, kNodeTypeIncrementWithValueOperand, kNodeTypeDecrementWithValueOperand, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand, kNodeTypeLoadArrayElement, kNodeTypeStoreArrayElement, kNodeTypeChar, kNodeTypeString, kNodeTypeThrow, kNodeTypeTry, kNodeTypeBlockObject, kNodeTypeBlockCall };
+enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeUByteValue, kNodeTypeShortValue, kNodeTypeUShortValue, kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand, kNodeTypeIncrementWithValueOperand, kNodeTypeDecrementWithValueOperand, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand, kNodeTypeLoadArrayElement, kNodeTypeStoreArrayElement, kNodeTypeChar, kNodeTypeString, kNodeTypeThrow, kNodeTypeTry, kNodeTypeBlockObject, kNodeTypeBlockCall, kNodeTypeConditional };
 
-enum eOperand { kOpAdd, kOpSub , kOpComplement, kOpLogicalDenial, kOpMult, kOpDiv, kOpMod, kOpLeftShift, kOpRightShift, kOpComparisonEqual, kOpComparisonNotEqual,kOpComparisonGreaterEqual, kOpComparisonLesserEqual, kOpComparisonGreater, kOpComparisonLesser, kOpAnd, kOpXor, kOpOr, kOpAndAnd, kOpOrOr, kOpConditional };
+enum eOperand { kOpAdd, kOpSub , kOpComplement, kOpLogicalDenial, kOpMult, kOpDiv, kOpMod, kOpLeftShift, kOpRightShift, kOpComparisonEqual, kOpComparisonNotEqual,kOpComparisonGreaterEqual, kOpComparisonLesserEqual, kOpComparisonGreater, kOpComparisonLesser, kOpAnd, kOpXor, kOpOr, kOpAndAnd, kOpOrOr };
 
 struct sParserParamStruct 
 {
@@ -571,6 +571,7 @@ unsigned int sNodeTree_try_expression(MANAGED sNodeBlock* try_node_block, MANAGE
 
 unsigned int sNodeTree_create_block_object(sParserParam* params, int num_params, sNodeType* result_type, MANAGED sNodeBlock* node_block);
 unsigned int sNodeTree_create_block_call(unsigned int block, int num_params, unsigned int params[]);
+unsigned int sNodeTree_conditional_expression(unsigned int expression_node, unsigned int true_expression_node, unsigned int false_expression_node);
 
 /// script.c ///
 BOOL compile_script(char* fname, char* source);
@@ -605,48 +606,97 @@ BOOL compile_script(char* fname, char* source);
 #define OP_BMULT 42
 #define OP_BDIV 43
 #define OP_BMOD 44
+#define OP_BLSHIFT 45
+#define OP_BRSHIFT 46
+#define OP_BAND 47
+#define OP_BXOR 48
+#define OP_BOR 49
 
 #define OP_UBADD 80
 #define OP_UBSUB 81
 #define OP_UBMULT 82
 #define OP_UBDIV 83
 #define OP_UBMOD 84
+#define OP_UBLSHIFT 85
+#define OP_UBRSHIFT 86
+#define OP_UBAND 87
+#define OP_UBXOR 88
+#define OP_UBOR 89
 
 #define OP_SADD 100
 #define OP_SSUB 101
 #define OP_SMULT 102
 #define OP_SDIV 103
 #define OP_SMOD 104
+#define OP_SLSHIFT 105
+#define OP_SRSHIFT 106
+#define OP_SAND 107
+#define OP_SXOR 108
+#define OP_SOR 109
 
 #define OP_USADD 150
 #define OP_USSUB 151
 #define OP_USMULT 152
 #define OP_USDIV 153
 #define OP_USMOD 154
+#define OP_USLSHIFT 155
+#define OP_USRSHIFT 156
+#define OP_USAND 157
+#define OP_USXOR 158
+#define OP_USOR 159
 
 #define OP_IADD 200
 #define OP_ISUB 201
 #define OP_IMULT 202
 #define OP_IDIV 203
 #define OP_IMOD 204
+#define OP_ILSHIFT 205
+#define OP_IRSHIFT 206
+#define OP_IAND 207
+#define OP_IXOR 208
+#define OP_IOR 209
 
 #define OP_UISUB 250
 #define OP_UIADD 251
 #define OP_UIMULT 252
 #define OP_UIDIV 253
 #define OP_UIMOD 254
+#define OP_UILSHIFT 255
+#define OP_UIRSHIFT 256
+#define OP_UIAND 257
+#define OP_UIXOR 258
+#define OP_UIOR 259
 
 #define OP_LADD 300
 #define OP_LSUB 301
 #define OP_LMULT 302
 #define OP_LDIV 303
 #define OP_LMOD 304
+#define OP_LLSHIFT 305
+#define OP_LRSHIFT 306
+#define OP_LAND 307
+#define OP_LXOR 308
+#define OP_LOR 309
 
 #define OP_ULADD 400
 #define OP_ULSUB 401
 #define OP_ULMULT 402
 #define OP_ULDIV 403
 #define OP_ULMOD 404
+#define OP_ULLSHIFT 405
+#define OP_ULRSHIFT 406
+#define OP_ULAND 407
+#define OP_ULXOR 408
+#define OP_ULOR 409
+
+#define OP_BCOMPLEMENT 420
+#define OP_UBCOMPLEMENT 421
+#define OP_SCOMPLEMENT 422
+#define OP_USCOMPLEMENT 423
+#define OP_ICOMPLEMENT 424
+#define OP_UICOMPLEMENT 425
+#define OP_LCOMPLEMENT 426
+#define OP_ULCOMPLEMENT 427
 
 #define OP_FADD 450
 #define OP_FSUB 451

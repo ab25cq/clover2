@@ -122,27 +122,47 @@ unsigned int sNodeTree_create_operand(enum eOperand operand, unsigned int left, 
     return node;
 }
 
-static BOOL single_operator(sNodeType* type, int byte_operand, int short_operand, int int_operand, int long_operand, sCompileInfo* info)
+static BOOL single_operator(sNodeType* type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, sCompileInfo* info)
 {
     if(type_identify_with_class_name(type, "byte")) {
         append_opecode_to_code(info->code, byte_operand, info->no_output);
 
         info->type = create_node_type_with_class_name("byte");
     }
+    else if(type_identify_with_class_name(type, "ubyte")) {
+        append_opecode_to_code(info->code, ubyte_operand, info->no_output);
+
+        info->type = create_node_type_with_class_name("ubyte");
+    }
     else if(type_identify_with_class_name(type, "short")) {
         append_opecode_to_code(info->code, short_operand, info->no_output);
 
         info->type = create_node_type_with_class_name("short");
+    }
+    else if(type_identify_with_class_name(type, "ushort")) {
+        append_opecode_to_code(info->code, ushort_operand, info->no_output);
+
+        info->type = create_node_type_with_class_name("ushort");
     }
     else if(type_identify_with_class_name(type, "int")) {
         append_opecode_to_code(info->code, int_operand, info->no_output);
 
         info->type = create_node_type_with_class_name("int");
     }
+    else if(type_identify_with_class_name(type, "uint")) {
+        append_opecode_to_code(info->code, uint_operand, info->no_output);
+
+        info->type = create_node_type_with_class_name("uint");
+    }
     else if(type_identify_with_class_name(type, "long")) {
         append_opecode_to_code(info->code, long_operand, info->no_output);
 
         info->type = create_node_type_with_class_name("long");
+    }
+    else if(type_identify_with_class_name(type, "ulong")) {
+        append_opecode_to_code(info->code, ulong_operand, info->no_output);
+
+        info->type = create_node_type_with_class_name("ulong");
     }
 
     return TRUE;
@@ -2397,9 +2417,17 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
             break;
             
         case kOpLeftShift:
+            if(!binary_operator(left_type, right_type, OP_BLSHIFT, OP_UBLSHIFT, OP_SLSHIFT, OP_USLSHIFT, OP_ILSHIFT, OP_UILSHIFT, OP_LLSHIFT, OP_ULLSHIFT, -1, -1, -1, -1, -1, -1, "<<", info))
+            {
+                return FALSE;
+            }
             break;
             
         case kOpRightShift:
+            if(!binary_operator(left_type, right_type, OP_BRSHIFT, OP_UBRSHIFT, OP_SRSHIFT, OP_USRSHIFT, OP_IRSHIFT, OP_UIRSHIFT, OP_LRSHIFT, OP_ULRSHIFT, -1, -1, -1, -1, -1, -1, ">>", info))
+            {
+                return FALSE;
+            }
             break;
             
         case kOpComparisonEqual:
@@ -2457,12 +2485,24 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
             break;
             
         case kOpAnd:
+            if(!binary_operator(left_type, right_type, OP_BAND, OP_UBAND, OP_SAND, OP_USAND, OP_IAND, OP_UIAND, OP_LAND, OP_ULAND, -1, -1, -1, -1, -1, -1, "&", info))
+            {
+                return FALSE;
+            }
             break;
             
         case kOpXor:
+            if(!binary_operator(left_type, right_type, OP_BXOR, OP_UBXOR, OP_SXOR, OP_USXOR, OP_IXOR, OP_UIXOR, OP_LXOR, OP_ULXOR, -1, -1, -1, -1, -1, -1, "^", info))
+            {
+                return FALSE;
+            }
             break;
             
         case kOpOr:
+            if(!binary_operator(left_type, right_type, OP_BOR, OP_UBOR, OP_SOR, OP_USOR, OP_IOR, OP_UIOR, OP_LOR, OP_ULOR, -1, -1, -1, -1, -1, -1, "|", info))
+            {
+                return FALSE;
+            }
             break;
             
         case kOpAndAnd:
@@ -2478,17 +2518,12 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
                 return FALSE;
             }
             break;
-            
-        case kOpConditional:
-            break;
 
         case kOpComplement:
-/*
-            if(!single_operator(node_type, OP_BCOMPLEMENT, OP_SHCOMPLEMENT, OP_ICOMPLEMENT, OP_LCOMPLEMENT, info))
+            if(!single_operator(node_type, OP_BCOMPLEMENT, OP_UBCOMPLEMENT, OP_SCOMPLEMENT, OP_USCOMPLEMENT, OP_ICOMPLEMENT, OP_UICOMPLEMENT, OP_LCOMPLEMENT, OP_ULCOMPLEMENT, info))
             {
                 return FALSE;
             }
-*/
             break;
 
         case kOpLogicalDenial:
@@ -2504,6 +2539,94 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
             break;
     }
 
+    return TRUE;
+}
+
+unsigned int sNodeTree_conditional_expression(unsigned int expression_node, unsigned int true_expression_node, unsigned int false_expression_node)
+{
+    unsigned node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeConditional;
+
+    gNodes[node].mLeft = true_expression_node;
+    gNodes[node].mRight = false_expression_node;
+    gNodes[node].mMiddle = expression_node;
+
+    gNodes[node].mType = NULL;
+
+    return node;
+}
+
+static BOOL compile_conditional_operator(unsigned int node, sCompileInfo* info)
+{
+    /// compile expression ///
+    unsigned int expression_node = gNodes[node].mMiddle;
+
+    if(!compile(expression_node, info)) {
+        return FALSE;
+    }
+
+    if(!type_identify_with_class_name(info->type, "bool")) {
+        parser_err_msg(info->pinfo, "This conditional expression type is not bool");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    append_opecode_to_code(info->code, OP_COND_JUMP, info->no_output);
+    append_int_value_to_code(info->code, sizeof(int)*2, info->no_output);
+    info->stack_num--;
+
+    /// if expression ///
+    append_opecode_to_code(info->code, OP_GOTO, info->no_output); // if the conditional expression is false, jump to the end of if block
+    int goto_point = info->code->mLen;
+    append_int_value_to_code(info->code, 0, info->no_output);
+
+    /// compile true expression ///
+    unsigned int true_expression_node = gNodes[node].mLeft;
+
+    if(!compile(true_expression_node, info)) {
+        return FALSE;
+    }
+
+    info->stack_num--;
+
+    sNodeType* true_expression_type = info->type;
+
+    append_opecode_to_code(info->code, OP_GOTO, info->no_output);
+    int end_point = info->code->mLen;
+    append_int_value_to_code(info->code, 0, info->no_output);
+
+    *(int*)(info->code->mCodes + goto_point) = info->code->mLen;
+
+    /// compile false expression ///
+    unsigned int false_expression_node = gNodes[node].mRight;
+
+    if(!compile(false_expression_node, info)) {
+        return FALSE;
+    }
+
+    info->stack_num--;
+
+    sNodeType* false_expression_type = info->type;
+
+    *(int*)(info->code->mCodes + end_point) = info->code->mLen;
+
+    /// check result ///
+    if(!type_identify(true_expression_type, false_expression_type)) {
+        parser_err_msg(info->pinfo, "True expression type and false expression type are different");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    info->type = true_expression_type;
+    info->stack_num++;
+    
     return TRUE;
 }
 
@@ -6086,6 +6209,10 @@ void show_node(unsigned int node)
             show_node(gNodes[node].mRight);
             break;
 
+        case kNodeTypeConditional:
+            puts("conditional operator");
+            break;
+
         case kNodeTypeByteValue:
             printf("byte value %d\n", gNodes[node].uValue.mByteValue);
             break;
@@ -6261,6 +6388,12 @@ BOOL compile(unsigned int node, sCompileInfo* info)
     switch(gNodes[node].mNodeType) {
         case kNodeTypeOperand:
             if(!compile_operand(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeConditional:
+            if(!compile_conditional_operator(node, info)) {
                 return FALSE;
             }
             break;
