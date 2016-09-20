@@ -725,6 +725,13 @@ sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_clas
     klass->mSizeClassFields = 4;
     klass->mNumClassFields = 0;
 
+    klass->mClassInitializeMethodIndex = -1;
+    klass->mClassFinalizeMethodIndex = -1;
+    klass->mFinalizeMethodIndex = -1;
+
+    klass->mNumMethodsOnLoadTime = 0;
+    klass->mMethodIndexOnCompileTime = 0;
+
     int i;
     for(i=0; i<generics_number; i++) {
         if(type_of_generics_params[i]) {

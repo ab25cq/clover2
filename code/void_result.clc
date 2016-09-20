@@ -1,0 +1,15 @@
+class VoidResultClass
+{
+    def initialize() {
+    }
+    def method() {
+        if(true) {
+            return;
+        }
+        else {
+            return;
+        }
+    }
+    def method2() {
+    }
+}

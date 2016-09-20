@@ -5,7 +5,7 @@ class BlockTestClass {
     def initialize() {
         b:int = 1;
 
-        self.block_object = block(v:int, v2:int):int {
+        self.block_object = lambda(v:int, v2:int):int {
             return v + v2 + b;
         }
     }

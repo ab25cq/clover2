@@ -3720,10 +3720,15 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
     /// compile expression ///
     unsigned int expression_node = gNodes[node].mLeft;
 
+    sNodeType* result_value_type;
     if(expression_node != 0) {
         if(!compile(expression_node, info)) {
             return FALSE;
         }
+        result_value_type = info->type;
+    }
+    else {
+        result_value_type = NULL;
     }
 
     if(info->method == NULL && info->block_result_type == NULL) {
@@ -3739,7 +3744,7 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
     if(info->block_result_type) {
         result_type = info->block_result_type;
     }
-    else {
+    else { // info->method != NULL
         result_type = create_node_type_from_cl_type(info->method->mResultType, info->pinfo->klass);
     }
 
@@ -3754,37 +3759,32 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
-    sNodeType* value_type = info->type;
-    cast_right_type_to_left_type(result_type, &value_type, info);
+    if(type_identify_with_class_name(result_type, "Null")) {
+        append_opecode_to_code(info->code, OP_LDCINT, info->no_output);
+        append_int_value_to_code(info->code, 0, info->no_output);
 
-    if(!substitution_posibility(result_type, value_type)) {
-        parser_err_msg(info->pinfo, "Invalid type of return value(2)");
+        info->stack_num++;
+    }
+    else {
+        cast_right_type_to_left_type(result_type, &result_value_type, info);
+
+        if(!substitution_posibility(result_type, result_value_type)) {
+            parser_err_msg(info->pinfo, "Invalid type of return value(2)");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+    }
+
+    if(info->stack_num != 1) {
+        parser_err_msg(info->pinfo, "Invalid type of return value(4)");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
 
         return TRUE;
-    }
-
-    if(type_identify_with_class_name(result_type, "Null")) {
-        if(info->stack_num != 0) {
-            parser_err_msg(info->pinfo, "Invalid type of return value(3)");
-            info->err_num++;
-
-            info->type = create_node_type_with_class_name("int"); // dummy
-
-            return TRUE;
-        }
-    }
-    else {
-        if(info->stack_num != 1) {
-            parser_err_msg(info->pinfo, "Invalid type of return value(4)");
-            info->err_num++;
-
-            info->type = create_node_type_with_class_name("int"); // dummy
-
-            return TRUE;
-        }
     }
 
     append_opecode_to_code(info->code, OP_RETURN, info->no_output);

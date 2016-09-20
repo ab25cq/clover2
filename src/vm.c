@@ -355,7 +355,7 @@ static BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, CL
             (*stack_ptr)++;
             return FALSE;
         }
-        
+
         *stack_ptr = lvar;      // see OP_RETURN
         **stack_ptr = *new_stack;
         (*stack_ptr)++;
@@ -434,6 +434,8 @@ static BOOL finalize_class(sCLClass* klass)
 
         sVMInfo info;
         memset(&info, 0, sizeof(sVMInfo));
+
+printf("klass %s\n", CLASS_NAME(klass));
 
         if(!invoke_method(klass, finalize_method, stack, &stack_ptr, &info)) {
             MFREE(stack);

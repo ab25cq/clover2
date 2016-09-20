@@ -436,10 +436,12 @@ static BOOL return_expression(unsigned int* node, sParserInfo* info)
         skip_spaces_and_lf(info);
     }
 
-    /// expression ///
     unsigned int expression_node = 0;
-    if(!expression(&expression_node, info)) {
-        return FALSE;
+    if(*info->p != ';') {
+        /// expression ///
+        if(!expression(&expression_node, info)) {
+            return FALSE;
+        }
     }
 
     if(*info->p == ')') {
@@ -1386,7 +1388,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
         }
-        else if(strcmp(buf, "block") == 0) {
+        else if(strcmp(buf, "lambda") == 0) {
             if(!parse_block_object(node, info)) {
                 return FALSE;
             }
