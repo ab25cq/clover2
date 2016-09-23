@@ -171,11 +171,16 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right)
     sCLClass* left_class = left->mClass;
     sCLClass* right_class = right->mClass;
 
-    if(left_class->mFlags & CLASS_FLAGS_INTERFACE) {
-        return check_implemented_methods_for_interface(left_class, right_class);
-    }
-    else if(type_identify_with_class_name(right, "Null") && !(left_class->mFlags & CLASS_FLAGS_PRIMITIVE)) {
+    if(type_identify_with_class_name(right, "Null") && !(left_class->mFlags & CLASS_FLAGS_PRIMITIVE)) {
         return TRUE;
+    }
+    else if(left_class->mFlags & CLASS_FLAGS_INTERFACE) {
+        if(right_class->mFlags & CLASS_FLAGS_INTERFACE) {
+            return type_identify(left, right);
+        }
+        else {
+            return check_implemented_methods_for_interface(left_class, right_class);
+        }
     }
     else if(type_identify_with_class_name(left, "block")) {
         if(type_identify_with_class_name(right, "block")) {
@@ -271,6 +276,9 @@ BOOL solve_generics_types_for_node_type(sNodeType* node_type, ALLOC sNodeType** 
 
             // if it can not be solved generics, no solve the generics type
         }
+
+        (*result)->mBlockType = node_type->mBlockType;
+        (*result)->mArray = node_type->mArray;
     }
     else {
         *result = clone_node_type(node_type); // no solve
@@ -279,7 +287,78 @@ BOOL solve_generics_types_for_node_type(sNodeType* node_type, ALLOC sNodeType** 
     return TRUE;
 }
 
+void solve_generics_types_for_class(sCLClass* klass, sCLClass** result, sCLClass* generics_class)
+{
+    int generics_param_number = klass->mGenericsParamClassNum;
+
+    *result = klass;
+
+    if(generics_param_number != -1) {
+        if(generics_param_number < generics_class->mNumGenerics) {
+            int offset = generics_class->mGenericsParamTypeOffsets[generics_param_number];
+            sCLClass* interface = get_class_with_load(CONS_str(&generics_class->mConst, offset));
+
+            MASSERT(klass != NULL);
+
+            *result = interface;
+        }
+    }
+}
+
+void solve_generics_for_variable(sNodeType* generics_type, sNodeType** generics_type2, sCLClass* generics_class)
+{
+    *generics_type2 = alloc_node_type();
+
+    sCLClass* klass = generics_type->mClass;
+
+    int generics_param_number = klass->mGenericsParamClassNum;
+
+    if(generics_param_number != -1) {
+        if(generics_param_number < generics_class->mNumGenerics) {
+            int offset = generics_class->mGenericsParamTypeOffsets[generics_param_number];
+            sCLClass* interface = get_class_with_load(CONS_str(&generics_class->mConst, offset));
+
+            MASSERT(interface != NULL);
+
+            klass = interface;
+        }
+    }
+
+    (*generics_type2)->mClass = klass;
+
+    int i;
+    for(i=0; i<generics_type->mNumGenericsTypes; i++) {
+        solve_generics_for_variable(generics_type->mGenericsTypes[i], &(*generics_type2)->mGenericsTypes[i], generics_class);
+    }
+
+    (*generics_type2)->mNumGenericsTypes = generics_type->mNumGenericsTypes;
+    (*generics_type2)->mArray = generics_type->mArray;
+    (*generics_type2)->mBlockType = generics_type->mBlockType;
+}
+
 BOOL is_exception_type(sNodeType* exception_type)
 {
     return substitution_posibility_with_class_name(exception_type, "SystemException") || substitution_posibility_with_class_name(exception_type, "Exception");
+}
+
+void print_node_type(sNodeType* node_type)
+{
+    if(node_type->mNumGenericsTypes == 0) {
+        printf("%s", CLASS_NAME(node_type->mClass));
+    }
+    else {
+        printf("%s<", CLASS_NAME(node_type->mClass));
+
+        int i;
+        for(i=0; i<node_type->mNumGenericsTypes; i++) {
+            print_node_type(node_type->mGenericsTypes[i]);
+            if(i != node_type->mNumGenericsTypes-1) printf(",");
+        }
+
+        printf(">");
+    }
+
+    if(node_type->mArray) {
+        printf("[]");
+    }
 }

@@ -480,6 +480,7 @@ class Bool
 interface HashKey
 {
     def getHashKey(): uint;
+    def equals(key:HashKey): bool;
 }
 
 class HashItem <T:HashKey, T2:Object>
@@ -516,12 +517,11 @@ class Hash <T:HashKey, T2:Object>
     }
 
     def add(key:T, item:T2) {
-        hash_key:uint = key.getHashKey() % self.tableSize;
-
         if(self.itemNumber * 2 > self.tableSize) {
             self.rehash();
         }
 
+        hash_key:uint = key.getHashKey() % self.tableSize;
         n:uint = hash_key;
 
         while(true) {
@@ -538,7 +538,7 @@ class Hash <T:HashKey, T2:Object>
                 }
                 elif(n == hash_key) {
                     self.rehash();
-                    self.add(key, item);
+                    #self.add(key, item);
                     break;
                 }
             }
@@ -546,6 +546,29 @@ class Hash <T:HashKey, T2:Object>
     }
 
     def rehash() {
+    }
+
+    def get(key:T): T2 {
+        hash_key:uint = key.getHashKey() % self.tableSize;
+
+        n:uint = hash_key;
+
+        while(true) {
+            if(!self.table[n].isNull) {
+                if(self.table[n].key.equals(key)) {
+                    return self.table[n].item;
+                }
+            }
+
+            n++;
+
+            if(n == self.tableSize) {
+                n = 0;
+            }
+            elif(n == hash_key) {
+                return null;
+            }
+        }
     }
 }
 

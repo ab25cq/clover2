@@ -281,9 +281,12 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right);
 BOOL substitution_posibility_with_class_name(sNodeType* left, char* right_class_name);
 BOOL operand_posibility_with_class_name(sNodeType* left, char* right_class_name, char* op_string);
 BOOL operand_posibility(sNodeType* left, sNodeType* right, char* op_string);
-BOOL solve_generics_types_for_node_type(sNodeType* node_type, ALLOC sNodeType** result, sNodeType* type_);
+void solve_generics_types_for_class(sCLClass* klass, sCLClass** result, sCLClass* generics_class);
+BOOL solve_generics_types_for_node_type(sNodeType* node_type, ALLOC sNodeType** result, sNodeType* generics_type);
+void solve_generics_for_variable(sNodeType* generics_type, sNodeType** generics_type2, sCLClass* generics_class);
 BOOL type_identify_with_class_name(sNodeType* left, char* right_class_name);
 BOOL type_identify(sNodeType* left, sNodeType* right);
+void print_node_type(sNodeType* node_type);
 
 /// node_block_object.c ///
 struct sNodeBlockTypeStruct {

@@ -782,15 +782,15 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
     sCLClass* klass = (*result_type)->mClass;
 
     for(i=0; i<generics_num; i++) {
-        int generics_paramType_offset = klass->mGenericsParamTypeOffsets[i];
-        sCLClass* left_generics_type = get_class_with_load(CONS_str(&klass->mConst, generics_paramType_offset));
-        sCLClass* right_generics_type = (*result_type)->mGenericsTypes[i]->mClass;
+        sCLClass* left_type = get_class_with_load(CONS_str(&klass->mConst, klass->mGenericsParamTypeOffsets[i]));
 
-        if(right_generics_type->mGenericsParamClassNum != i) {
-            if(!check_implemented_methods_for_interface(left_generics_type, right_generics_type)) {
-                parser_err_msg(info, "%s is not implemented %s interface" , CLASS_NAME(right_generics_type), CLASS_NAME(left_generics_type));
-                info->err_num++;
-            }
+        sCLClass* right_type = (*result_type)->mGenericsTypes[i]->mClass;
+        sCLClass* right_type2;
+        solve_generics_types_for_class(right_type, &right_type2, info->klass);
+
+        if(!check_implemented_methods_for_interface(left_type, right_type2)) {
+            parser_err_msg(info, "%s is not implemented %s interface" , CLASS_NAME(right_type2), CLASS_NAME(left_type));
+            info->err_num++;
         }
     }
 
@@ -870,14 +870,15 @@ BOOL parse_type_for_new(sNodeType** result_type, unsigned int* array_num, sParse
     int i;
     for(i=0; i<generics_num; i++) {
         int generics_paramType_offset = klass->mGenericsParamTypeOffsets[i];
-        sCLClass* left_generics_type = get_class_with_load(CONS_str(&klass->mConst, generics_paramType_offset));
-        sCLClass* right_generics_type = (*result_type)->mGenericsTypes[i]->mClass;
+        sCLClass* left_type = get_class_with_load(CONS_str(&klass->mConst, generics_paramType_offset));
 
-        if(right_generics_type->mGenericsParamClassNum != i) {
-            if(!check_implemented_methods_for_interface(left_generics_type, right_generics_type)) {
-                parser_err_msg(info, "%s is not implemented %s interface" , CLASS_NAME(right_generics_type), CLASS_NAME(left_generics_type));
-                info->err_num++;
-            }
+        sCLClass* right_type = (*result_type)->mGenericsTypes[i]->mClass;
+        sCLClass* right_type2;
+        solve_generics_types_for_class(right_type, &right_type2, info->klass);
+
+        if(!check_implemented_methods_for_interface(left_type, right_type2)) {
+            parser_err_msg(info, "%s is not implemented %s interface" , CLASS_NAME(right_type2), CLASS_NAME(left_type));
+            info->err_num++;
         }
     }
 

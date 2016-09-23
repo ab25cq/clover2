@@ -435,8 +435,6 @@ static BOOL finalize_class(sCLClass* klass)
         sVMInfo info;
         memset(&info, 0, sizeof(sVMInfo));
 
-printf("klass %s\n", CLASS_NAME(klass));
-
         if(!invoke_method(klass, finalize_method, stack, 0, &stack_ptr, &info)) {
             MFREE(stack);
             return FALSE;

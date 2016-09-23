@@ -2913,7 +2913,6 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
     }
 
     sNodeType* left_type = var->mType;
-
     if(gNodes[node].mType->mClass == NULL || left_type == NULL || right_type == NULL || left_type->mClass == NULL || right_type->mClass == NULL) 
     {
         parser_err_msg(info->pinfo, "invalid type");
@@ -2924,9 +2923,12 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
-    cast_right_type_to_left_type(left_type, &right_type, info);
+    sNodeType* left_type2;
+    solve_generics_for_variable(left_type, &left_type2, info->pinfo->klass);
 
-    if(!substitution_posibility(left_type, right_type)) {
+    cast_right_type_to_left_type(left_type2, &right_type, info);
+
+    if(!substitution_posibility(left_type2, right_type)) {
         parser_err_msg(info->pinfo, "The different type between left type and right type(1)");
         info->err_num++;
 
@@ -2943,7 +2945,7 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
     append_opecode_to_code(info->code, OP_STORE, info->no_output);
     append_int_value_to_code(info->code, var_index, info->no_output);
 
-    info->type = gNodes[node].mType;
+    info->type = left_type2;
 
     return TRUE;
 }
@@ -2988,15 +2990,21 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
 
     info->stack_num++;
 
-    info->type = gNodes[node].mType;
+    /// solve generics types ///
+    sNodeType* result_type = var->mType;
 
-    if(info->type == NULL) {
+    if(result_type == NULL) {
         parser_err_msg(info->pinfo, "null type %s", gNodes[node].uValue.mVarName);
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
         return TRUE;
     }
+
+    sNodeType* result_type2;
+    solve_generics_for_variable(result_type, &result_type2, info->pinfo->klass);
+
+    info->type = result_type2;
 
     return TRUE;
 }
@@ -3539,18 +3547,8 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
     }
 
     sNodeType* generics_types = info->type;
-    sCLClass* klass = info->type->mClass;
 
-    if(klass->mGenericsParamClassNum != -1) {
-        sGenericsParamInfo* generics_info = &info->pinfo->generics_info;
-        if(klass->mGenericsParamClassNum < generics_info->mNumParams) {
-            klass = generics_info->mInterface[klass->mGenericsParamClassNum];
-        }
-        else {
-            parser_err_msg(info->pinfo, "invalid generics interface method call");
-            info->err_num++;
-        }
-    }
+    sCLClass* klass = generics_types->mClass;
 
     sNodeType* param_types[PARAMS_MAX];
 
@@ -3629,7 +3627,10 @@ static BOOL compile_new_operator(unsigned int node, sCompileInfo* info)
 {
     sNodeType* generics_types = gNodes[node].uValue.sNewOperator.mType;
 
-    sCLClass* klass = generics_types->mClass;
+    sNodeType* generics_types2;
+    solve_generics_for_variable(generics_types, &generics_types2, info->pinfo->klass);
+
+    sCLClass* klass = generics_types2->mClass;
     unsigned int array_num = gNodes[node].uValue.sNewOperator.mArrayNum;
 
     if(array_num > 0) {
@@ -3657,7 +3658,7 @@ static BOOL compile_new_operator(unsigned int node, sCompileInfo* info)
 
         }
 
-        info->type = gNodes[node].uValue.sNewOperator.mType;
+        info->type = generics_types2;
         info->type->mArray = TRUE;
 
         info->stack_num--;
@@ -3680,7 +3681,7 @@ static BOOL compile_new_operator(unsigned int node, sCompileInfo* info)
         char* method_name = "initialize";
 
         sNodeType* result_type;
-        int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types, &result_type);
+        int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, &result_type);
 
         if(method_index == -1) {
             parser_err_msg(info->pinfo, "method not found(3)");
@@ -3700,7 +3701,7 @@ static BOOL compile_new_operator(unsigned int node, sCompileInfo* info)
         info->stack_num-=num_params+1;
         info->stack_num++;
 
-        info->type = gNodes[node].uValue.sNewOperator.mType;
+        info->type = generics_types2;
     }
 
     return TRUE;
@@ -3754,8 +3755,11 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
         result_type = create_node_type_from_cl_type(info->method->mResultType, info->pinfo->klass);
     }
 
-    if((!type_identify_with_class_name(result_type, "Null") && expression_node == 0)
-        || (type_identify_with_class_name(result_type, "Null") && expression_node != 0))
+    sNodeType* result_type2 = NULL;
+    solve_generics_for_variable(result_type, &result_type2, info->pinfo->klass);
+
+    if((!type_identify_with_class_name(result_type2, "Null") && expression_node == 0)
+        || (type_identify_with_class_name(result_type2, "Null") && expression_node != 0))
     {
         parser_err_msg(info->pinfo, "Invalid type of return value(1)");
         info->err_num++;
@@ -3765,15 +3769,15 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
-    if(type_identify_with_class_name(result_type, "Null")) {
+    if(type_identify_with_class_name(result_type2, "Null")) {
         append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
 
         info->stack_num++;
     }
     else {
-        cast_right_type_to_left_type(result_type, &result_value_type, info);
+        cast_right_type_to_left_type(result_type2, &result_value_type, info);
 
-        if(!substitution_posibility(result_type, result_value_type)) {
+        if(!substitution_posibility(result_type2, result_value_type)) {
             parser_err_msg(info->pinfo, "Invalid type of return value(2)");
             info->err_num++;
 
@@ -3964,6 +3968,18 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
     sCLClass* klass = info->type->mClass;
     char* field_name = gNodes[node].uValue.mVarName;
     BOOL array = info->type->mArray;
+    sNodeType* generics_types = info->type;
+
+    if(klass->mGenericsParamClassNum != -1) {
+        sGenericsParamInfo* generics_info = &info->pinfo->generics_info;
+        if(klass->mGenericsParamClassNum < generics_info->mNumParams) {
+            klass = generics_info->mInterface[klass->mGenericsParamClassNum];
+        }
+        else {
+            parser_err_msg(info->pinfo, "invalid generics interface method call");
+            info->err_num++;
+        }
+    }
 
     if(array && strcmp(field_name, "length") == 0) {
         append_opecode_to_code(info->code, OP_GET_ARRAY_LENGTH, info->no_output);
@@ -4092,13 +4108,21 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
         sCLField* field = klass->mFields + field_index;
         sNodeType* field_type = create_node_type_from_cl_type(field->mResultType, klass);
 
+        /// solve generics ///
+        sNodeType* solved_field_type;
+        if(!solve_generics_types_for_node_type(field_type, ALLOC &solved_field_type, generics_types)) 
+        {
+            return FALSE;
+        }
+
+        /// generate code ///
         append_opecode_to_code(info->code, OP_LOAD_FIELD, info->no_output);
         append_int_value_to_code(info->code, field_index, info->no_output);
 
         info->stack_num--;
         info->stack_num++;
 
-        info->type = field_type;
+        info->type = solved_field_type;
     }
 
     return TRUE;
@@ -4131,6 +4155,7 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
     }
 
     sNodeType* left_type = info->type;
+    sNodeType* generics_types = left_type;
 
     if(left_type == NULL 
         || type_identify_with_class_name(left_type, "Null"))
@@ -4179,10 +4204,17 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
     sCLField* field = klass->mFields + field_index;
     sNodeType* field_type = create_node_type_from_cl_type(field->mResultType, klass);
 
-    cast_right_type_to_left_type(field_type, &right_type, info);
+    /// solve generics ///
+    sNodeType* solved_field_type;
+    if(!solve_generics_types_for_node_type(field_type, ALLOC &solved_field_type, generics_types)) 
+    {
+        return FALSE;
+    }
 
-    if(!substitution_posibility(field_type, right_type)) {
-        parser_err_msg(info->pinfo, "The different type between left type and right type(2)");
+    cast_right_type_to_left_type(solved_field_type, &right_type, info);
+
+    if(!substitution_posibility(solved_field_type, right_type)) {
+        parser_err_msg(info->pinfo, "The different type between left type and right type(2). %s and %s", CLASS_NAME(solved_field_type->mClass), CLASS_NAME(right_type->mClass));
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -4196,7 +4228,7 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
 
     info->stack_num--;
 
-    info->type = field_type;
+    info->type = solved_field_type;
 
     return TRUE;
 }
@@ -5926,7 +5958,7 @@ BOOL compile_store_array_element(unsigned int node, sCompileInfo* info)
     cast_right_type_to_left_type(left_type2, &right_type, info);
 
     if(!substitution_posibility(left_type2, right_type)) {
-        parser_err_msg(info->pinfo, "The different type between left type and right type(7)");
+        parser_err_msg(info->pinfo, "The different type between left type and right type(7). %s and %s", CLASS_NAME(left_type2->mClass), CLASS_NAME(right_type->mClass));
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy

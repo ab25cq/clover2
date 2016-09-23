@@ -8,7 +8,15 @@ BOOL compile_method(sCLMethod* method, sParserParam* params, int num_params, sPa
     if(!(method->mFlags & METHOD_FLAGS_CLASS_METHOD)) {
         sNodeType* node_type = alloc_node_type();
         node_type->mClass = info->klass;
-        node_type->mNumGenericsTypes = 0;
+        node_type->mNumGenericsTypes = info->generics_info.mNumParams;
+
+        int i;
+        for(i=0; i<info->generics_info.mNumParams; i++) {
+            char class_name[CLASS_NAME_MAX+1];
+            snprintf(class_name, CLASS_NAME_MAX, "GenericsParametorClass%d", i);
+
+            node_type->mGenericsTypes[i] = create_node_type_with_class_name(class_name);
+        }
 
         if(!add_variable_to_table(info->lv_table, "self", node_type)) {
             parser_err_msg(info, "overflow the table or a variable which has the same name exists");
