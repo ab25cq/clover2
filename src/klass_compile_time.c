@@ -70,7 +70,8 @@ static void create_method_path(char* result, int result_size, sCLMethod* method,
     }
 */
 }
-static void create_method_name_and_params(char* result, int size_result, char* method_name, sParserParam* params, int num_params)
+
+static void create_method_name_and_params(char* result, int size_result, sCLClass* klass, char* method_name, sParserParam* params, int num_params)
 {
     *result = 0;
 
@@ -80,9 +81,15 @@ static void create_method_name_and_params(char* result, int size_result, char* m
     int i;
     for(i=0; i<num_params; i++) {
         sParserParam* param = params + i;
-        sCLClass* klass = param->mType->mClass;
+        sCLClass* klass2 = param->mType->mClass;
 
-        xstrncat(result, CLASS_NAME(klass), size_result);
+        if(klass2 == klass) {
+            xstrncat(result, "SELF", size_result);
+        }
+        else {
+            xstrncat(result, CLASS_NAME(klass2), size_result);
+        }
+
         if(i == num_params-1) {
             xstrncat(result, ")", size_result);
         }
@@ -124,7 +131,7 @@ BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* param
 
     int size_method_name_and_params = METHOD_NAME_MAX + PARAMS_MAX * CLASS_NAME_MAX + 256;
     char method_name_and_params[size_method_name_and_params];
-    create_method_name_and_params(method_name_and_params, size_method_name_and_params, method_name, params, num_params);
+    create_method_name_and_params(method_name_and_params, size_method_name_and_params, klass, method_name, params, num_params);
 
     klass->mMethods[num_methods].mMethodNameAndParamsOffset = append_str_to_constant_pool(&klass->mConst, method_name_and_params, FALSE);
 

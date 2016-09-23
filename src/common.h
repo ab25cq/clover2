@@ -143,6 +143,7 @@ typedef struct sCLParamStruct sCLParam;
 #define METHOD_FLAGS_CLASS_METHOD 0x02
 
 struct sVMInfoStruct {
+    CLObject exception;
 };
 
 typedef struct sVMInfoStruct sVMInfo;
@@ -534,6 +535,7 @@ extern sNodeTree* gNodes;
 void init_nodes();
 void free_nodes();
 void show_node(unsigned int node);
+unsigned int clone_node(unsigned int node);
 
 BOOL compile(unsigned int node, sCompileInfo* info);
 void arrange_stack(sCompileInfo* cinfo);
@@ -1226,7 +1228,7 @@ void native_method_final();
 fNativeMethod get_native_method(char* path);
 
 /// exception.c ///
-void entry_exception_object_with_class_name(CLVALUE* stack, char* class_name, char* msg, ...);
+void entry_exception_object_with_class_name(CLVALUE* stack, sVMInfo* info, char* class_name, char* msg, ...);
 void show_exception_message(CLObject exception);
 
 /// method_compiler.c ///

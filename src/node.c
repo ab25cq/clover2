@@ -103,6 +103,15 @@ static unsigned int alloc_node()
     return gUsedNodes++;
 }
 
+unsigned int clone_node(unsigned int node)
+{
+    unsigned int result = alloc_node();
+
+    memcpy(gNodes + result, gNodes + node, sizeof(sNodeTree));
+
+    return result;
+}
+
 static void err_msg_for_method_not_found(sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL class_method, sCompileInfo* info)
 {
     parser_err_msg(info->pinfo, "%s.%s(%d prametors) is not found", CLASS_NAME(klass), method_name, num_params);

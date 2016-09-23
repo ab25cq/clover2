@@ -1,6 +1,6 @@
 #include "common.h"
 
-void entry_exception_object_with_class_name(CLVALUE* stack, char* class_name, char* msg, ...)
+void entry_exception_object_with_class_name(CLVALUE* stack, sVMInfo* info, char* class_name, char* msg, ...)
 {
     vm_mutex_on();
 
@@ -13,7 +13,7 @@ void entry_exception_object_with_class_name(CLVALUE* stack, char* class_name, ch
 
     CLObject object = create_object(klass);
 
-    stack->mObjectValue = object;
+    info->exception = stack->mObjectValue = object;
 
     char msg2[1024];
 

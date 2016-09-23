@@ -316,7 +316,7 @@ static BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, in
         CLVALUE* lvar = *stack_ptr - method->mNumParams;
 
         if(method->uCode.mNativeMethod == NULL) {
-            entry_exception_object_with_class_name(stack + var_num, "Exception", "method not found");
+            entry_exception_object_with_class_name(stack + var_num, info, "Exception", "method not found");
             return FALSE;
         }
 
@@ -377,7 +377,7 @@ static BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int
 
     /// check variable existance ///
     if(!check_variables_existance_on_stack(object_data->mParentStack, object_data->mParentVarNum)) {
-        entry_exception_object_with_class_name(stack + var_num, "Exception", "Parent variables doesn't exist");
+        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "Parent variables doesn't exist");
         return FALSE;
     }
 
@@ -854,7 +854,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(right == 0) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, "Exception", "division by zero");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "division by zero");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -878,7 +878,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(right == 0) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, "Exception", "division by zero");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "division by zero");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -1038,7 +1038,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(right == 0) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, "Exception", "division by zero");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "division by zero");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -1062,7 +1062,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(right == 0) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, "Exception", "division by zero");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "division by zero");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -1222,7 +1222,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(right == 0) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, "Exception", "division by zero");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "division by zero");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -1246,7 +1246,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(right == 0) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, "Exception", "division by zero");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "division by zero");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -1406,7 +1406,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(right == 0) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, "Exception", "division by zero");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "division by zero");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -1430,7 +1430,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(right == 0) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, "Exception", "division by zero");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "division by zero");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -1590,7 +1590,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(right == 0) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, "Exception", "division by zero");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "division by zero");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -1614,7 +1614,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(right == 0) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, "Exception", "division by zero");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "division by zero");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -1774,7 +1774,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(right == 0) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, "Exception", "division by zero");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "division by zero");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -1798,7 +1798,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(right == 0) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, "Exception", "division by zero");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "division by zero");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -1958,7 +1958,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(right == 0) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, "Exception", "division by zero");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "division by zero");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -1982,7 +1982,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(right == 0) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, "Exception", "division by zero");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "division by zero");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -2142,7 +2142,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(right == 0) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, "Exception", "division by zero");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "division by zero");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -2166,7 +2166,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(right == 0) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, "Exception", "division by zero");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "division by zero");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -2438,7 +2438,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(right == 0.0f) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, "Exception", "division by zero");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "division by zero");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -2513,7 +2513,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(right == 0.0) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, "Exception", "division by zero");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "division by zero");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -3844,7 +3844,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(left == 0) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, "Exception", "Null pointer exception");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "Null pointer exception");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -3926,14 +3926,14 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(klass == NULL) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, "Exception", "class not found");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
 
                     if(method_index < 0 || method_index >= klass->mNumMethods) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, "Exception", "OP_INVOKE_METHOD: method not found");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "OP_INVOKE_METHOD: method not found");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -3981,7 +3981,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(method == NULL) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, "Exception", "OP_INVOKE_VIRTUAL_METHOD: Method not found");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "OP_INVOKE_VIRTUAL_METHOD: Method not found");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -4045,7 +4045,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(klass == NULL) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, "Exception", "class not found");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -4083,14 +4083,14 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(klass == NULL) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, "Exception", "class not found");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
 
                     if(field_index < 0 || field_index >= klass->mNumFields) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, "Exception", "field index is invalid");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "field index is invalid");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -4118,14 +4118,14 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(klass == NULL) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, "Exception", "class not found");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
 
                     if(field_index < 0 || field_index >= klass->mNumFields) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, "Exception", "field index is invalid");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "field index is invalid");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -4155,14 +4155,14 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(klass == NULL) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, "Exception", "class not found");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
 
                     if(field_index < 0 || field_index >= klass->mNumClassFields) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, "Exception", "field index is invalid");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "field index is invalid");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -4192,14 +4192,14 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(klass == NULL) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, "Exception", "class not found");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
 
                     if(field_index < 0 || field_index >= klass->mNumClassFields) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, "Exception", "field index is invalid");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "field index is invalid");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -4225,7 +4225,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(element_num < 0 || element_num >= object_pointer->mArrayNum) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, "Exception", "element index is invalid");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "element index is invalid");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -4250,7 +4250,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(element_num < 0 || element_num >= object_pointer->mArrayNum) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, "Exception", "element index is invalid");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "element index is invalid");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -8658,7 +8658,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(klass == NULL) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, "Exception", "class not found");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }

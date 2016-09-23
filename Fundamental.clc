@@ -501,14 +501,15 @@ class HashItem <T:HashKey, T2:Object>
 
 class Hash <T:HashKey, T2:Object>
 {
-    table: HashItem<T,T2>[];
     hashSizeDefault: static int;
-    itemNumber: uint;
-    tableSize: uint;
 
     def initialize():static {
         Hash.hashSizeDefault = 128;
     }
+
+    table: HashItem<T,T2>[];
+    itemNumber: uint;
+    tableSize: uint;
 
     def initialize() {
         self.table = new HashItem<T,T2>[Hash.hashSizeDefault];
@@ -517,7 +518,7 @@ class Hash <T:HashKey, T2:Object>
     }
 
     def add(key:T, item:T2) {
-        if(self.itemNumber * 2 > self.tableSize) {
+        if(self.itemNumber * 2 >= self.tableSize) {
             self.rehash();
         }
 
@@ -538,7 +539,7 @@ class Hash <T:HashKey, T2:Object>
                 }
                 elif(n == hash_key) {
                     self.rehash();
-                    #self.add(key, item);
+                    self.add(key, item);
                     break;
                 }
             }
@@ -546,6 +547,18 @@ class Hash <T:HashKey, T2:Object>
     }
 
     def rehash() {
+        table := self.table;
+        itemNumber := self.itemNumber;
+
+        self.tableSize *= 2;
+        self.table = new HashItem<T,T2>[self.tableSize];
+        self.itemNumber = 0;
+
+        for(i:=0; i<itemNumber; i++) {
+            if(!table[i].isNull) {
+                self.add(table[i].key, table[i].item);
+            }
+        }
     }
 
     def get(key:T): T2 {

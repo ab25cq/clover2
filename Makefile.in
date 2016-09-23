@@ -152,7 +152,7 @@ test:
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -class code/void_result.clc code/void_result.cl && ./clover2 code/void_result.clo
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/integer.cl && ./clover2 code/integer.clo
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/normal_block.cl && ./clover2 code/normal_block.clo
-	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/operator.cl && ./clover2 code/operator.clo
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -class code/operator.clc code/operator.cl && ./clover2 code/operator.clo
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -class code/try.clc code/try.cl && ./clover2 code/try.clo
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/array2.cl && ./clover2 code/array2.clo
 

@@ -885,6 +885,186 @@ BOOL parse_type_for_new(sNodeType** result_type, unsigned int* array_num, sParse
     return TRUE;
 }
 
+static BOOL is_assign_operator(sParserInfo* info) 
+{
+    return (*info->p == '+' && *(info->p+1) == '=')
+        || (*info->p == '-' && *(info->p+1) == '=')
+        || (*info->p == '*' && *(info->p+1) == '=')
+        || (*info->p == '/' && *(info->p+1) == '=')
+        || (*info->p == '%' && *(info->p+1) == '=')
+        || (*info->p == '<' && *(info->p+1) == '<' && *(info->p+2) == '=')
+        || (*info->p == '>' && *(info->p+1) == '>' && *(info->p+2) == '=')
+        || (*info->p == '&' && *(info->p+1) == '=')
+        || (*info->p == '^' && *(info->p+1) == '=')
+        || (*info->p == '|' && *(info->p+1) == '=');
+}
+
+static BOOL assign_operator(unsigned int* node, sParserInfo* info)
+{
+    if(*info->p == '+' && *(info->p+1) == '=') {
+        info->p += 2;
+        skip_spaces_and_lf(info);
+
+        unsigned int right = 0;
+        if(!expression(&right, info)) {
+            return FALSE;
+        }
+
+        if(right == 0) {
+            parser_err_msg(info, "require right value for operator +=");
+            info->err_num++;
+        }
+
+        *node = sNodeTree_create_operand(kOpAdd, *node, right, 0);
+    }
+    else if(*info->p == '-' && *(info->p+1) == '=') {
+        info->p += 2;
+        skip_spaces_and_lf(info);
+
+        unsigned int right = 0;
+        if(!expression(&right, info)) {
+            return FALSE;
+        }
+
+        if(right == 0) {
+            parser_err_msg(info, "require right value for operator +=");
+            info->err_num++;
+        }
+
+        *node = sNodeTree_create_operand(kOpSub, *node, right, 0);
+    }
+    else if(*info->p == '*' && *(info->p+1) == '=') {
+        info->p += 2;
+        skip_spaces_and_lf(info);
+
+        unsigned int right = 0;
+        if(!expression(&right, info)) {
+            return FALSE;
+        }
+
+        if(right == 0) {
+            parser_err_msg(info, "require right value for operator +=");
+            info->err_num++;
+        }
+
+        *node = sNodeTree_create_operand(kOpMult, *node, right, 0);
+    }
+    else if(*info->p == '/' && *(info->p+1) == '=') {
+        info->p += 2;
+        skip_spaces_and_lf(info);
+
+        unsigned int right = 0;
+        if(!expression(&right, info)) {
+            return FALSE;
+        }
+
+        if(right == 0) {
+            parser_err_msg(info, "require right value for operator +=");
+            info->err_num++;
+        }
+
+        *node = sNodeTree_create_operand(kOpDiv, *node, right, 0);
+    }
+    else if(*info->p == '%' && *(info->p+1) == '=') {
+        info->p += 2;
+        skip_spaces_and_lf(info);
+
+        unsigned int right = 0;
+        if(!expression(&right, info)) {
+            return FALSE;
+        }
+
+        if(right == 0) {
+            parser_err_msg(info, "require right value for operator +=");
+            info->err_num++;
+        }
+
+        *node = sNodeTree_create_operand(kOpMod, *node, right, 0);
+    }
+    else if(*info->p == '<' && *(info->p+1) == '<' && *(info->p+2) == '=') {
+        info->p += 3;
+        skip_spaces_and_lf(info);
+
+        unsigned int right = 0;
+        if(!expression(&right, info)) {
+            return FALSE;
+        }
+
+        if(right == 0) {
+            parser_err_msg(info, "require right value for operator +=");
+            info->err_num++;
+        }
+
+        *node = sNodeTree_create_operand(kOpLeftShift, *node, right, 0);
+    }
+    else if(*info->p == '>' && *(info->p+1) == '>' && *(info->p+2) == '=') {
+        info->p += 3;
+        skip_spaces_and_lf(info);
+
+        unsigned int right = 0;
+        if(!expression(&right, info)) {
+            return FALSE;
+        }
+
+        if(right == 0) {
+            parser_err_msg(info, "require right value for operator +=");
+            info->err_num++;
+        }
+
+        *node = sNodeTree_create_operand(kOpRightShift, *node, right, 0);
+    }
+    else if(*info->p == '&' && *(info->p+1) == '=') {
+        info->p+=2;
+        skip_spaces_and_lf(info);
+
+        unsigned int right = 0;
+        if(!expression(&right, info)) {
+            return FALSE;
+        }
+
+        if(right == 0) {
+            parser_err_msg(info, "require right value for operator +=");
+            info->err_num++;
+        }
+
+        *node = sNodeTree_create_operand(kOpAnd, *node, right, 0);
+    }
+    else if(*info->p == '^' && *(info->p+1) == '=') {
+        info->p+=2;
+        skip_spaces_and_lf(info);
+
+        unsigned int right = 0;
+        if(!expression(&right, info)) {
+            return FALSE;
+        }
+
+        if(right == 0) {
+            parser_err_msg(info, "require right value for operator +=");
+            info->err_num++;
+        }
+
+        *node = sNodeTree_create_operand(kOpXor, *node, right, 0);
+    }
+    else if(*info->p == '|' && *(info->p+1) == '=') {
+        info->p+=2;
+        skip_spaces_and_lf(info);
+
+        unsigned int right = 0;
+        if(!expression(&right, info)) {
+            return FALSE;
+        }
+
+        if(right == 0) {
+            parser_err_msg(info, "require right value for operator +=");
+            info->err_num++;
+        }
+
+        *node = sNodeTree_create_operand(kOpOr, *node, right, 0);
+    }
+
+    return TRUE;
+}
+
 static BOOL postposition_operator(unsigned int* node, sParserInfo* info)
 {
     if(*node == 0) {
@@ -918,7 +1098,21 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info)
                 }
                 /// access fields ///
                 else {
-                    if(*info->p == '=' && *(info->p +1) != '=') {
+                    if(is_assign_operator(info)) {
+                        unsigned int node2 = clone_node(*node);
+                        unsigned int node3 = clone_node(*node);
+
+                        /// load field ///
+                        *node = sNodeTree_create_fields(buf, node2);
+
+                        /// go 
+                        if(!assign_operator(node, info)) {
+                            return FALSE;
+                        }
+
+                        *node = sNodeTree_create_assign_field(buf, node3, *node);
+                    }
+                    else if(*info->p == '=' && *(info->p +1) != '=') {
                         info->p++;
                         skip_spaces_and_lf(info);
 
@@ -970,7 +1164,21 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info)
             else {
                 expect_next_character_with_one_forward("]", info);
 
-                if(*info->p == '=' && *(info->p+1) != '=') {
+                if(is_assign_operator(info)) {
+                    unsigned int node2 = clone_node(*node);
+                    unsigned int index_node2 = clone_node(index_node);
+
+                    /// load field ///
+                    *node = sNodeTree_create_load_array_element(*node, index_node);
+
+                    /// go 
+                    if(!assign_operator(node, info)) {
+                        return FALSE;
+                    }
+
+                    *node = sNodeTree_create_store_array_element(node2, index_node2, *node);
+                }
+                else if(*info->p == '=' && *(info->p+1) != '=') {
                     info->p++;
                     skip_spaces_and_lf(info);
 
@@ -1081,6 +1289,7 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info)
 
             *node = sNodeTree_create_increment_operand(*node);
         }
+/*
         else if(*info->p == '+' && *(info->p+1) == '=') {
             info->p+=2;
             skip_spaces_and_lf(info);
@@ -1093,12 +1302,14 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info)
 
             *node = sNodeTree_create_increment_operand_with_value(*node, value);
         }
+*/
         else if(*info->p == '-' && *(info->p+1) == '-') {
             info->p+=2;
             skip_spaces_and_lf(info);
 
             *node = sNodeTree_create_decrement_operand(*node);
         }
+/*
         else if(*info->p == '-' && *(info->p+1) == '=') {
             info->p+=2;
             skip_spaces_and_lf(info);
@@ -1111,6 +1322,7 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info)
 
             *node = sNodeTree_create_decrement_operand_with_value(*node, value);
         }
+*/
         else {
             break;
         }
@@ -1533,6 +1745,16 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 *node = sNodeTree_create_store_variable(buf, NULL, right_node, info->klass);
             }
         }
+        else if(is_assign_operator(info)) {
+            *node = sNodeTree_create_load_variable(buf);
+
+            /// go ///
+            if(!assign_operator(node, info)) {
+                return FALSE;
+            }
+
+            *node = sNodeTree_create_store_variable(buf, NULL, *node, info->klass);
+        }
         else {
             sCLClass* klass = get_class(buf);
 
@@ -1567,7 +1789,18 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     }
                     /// class field ///
                     else {
-                        if(*info->p == '=' && *(info->p +1) != '=') {
+                        if(is_assign_operator(info)) {
+                            /// load field ///
+                            *node = sNodeTree_create_class_fields(klass, buf);
+
+                            /// go 
+                            if(!assign_operator(node, info)) {
+                                return FALSE;
+                            }
+
+                            *node = sNodeTree_create_assign_class_field(klass, buf, *node);
+                        }
+                        else if(*info->p == '=' && *(info->p +1) != '=') {
                             info->p++;
                             skip_spaces_and_lf(info);
 
@@ -1594,6 +1827,8 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 }
                 /// class name ///
                 else {
+                    parser_err_msg(info, "require . operator");
+                    info->err_num++;
                 }
             }
             else {

@@ -1,0 +1,8 @@
+class OpClass {
+    value:int;
+    value2: static int;
+
+    def initialize(value:int) {
+        self.value = value;
+    }
+}
