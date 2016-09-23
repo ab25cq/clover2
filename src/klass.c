@@ -859,6 +859,7 @@ void class_init()
     alloc_class("Null", TRUE, -1, 0, NULL, FALSE);
     alloc_class("block", TRUE, -1, 0, NULL, FALSE);
 
+    alloc_class("SELF", FALSE, -1, 0, NULL, FALSE);
     alloc_class("GenericsParametorClass0", FALSE, 0, 0, NULL, FALSE);
     alloc_class("GenericsParametorClass1", FALSE, 1, 0, NULL, FALSE);
     alloc_class("GenericsParametorClass2", FALSE, 2, 0, NULL, FALSE);

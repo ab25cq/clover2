@@ -66,6 +66,7 @@ LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclov
 LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 code\/block.cl && .\/clover2 code\/block.clo$/;"	m
 LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 code\/block_var_test.cl && .\/clover2 code\/block_var_test.clo$/;"	m
 LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 code\/cast.cl && .\/clover2 code\/cast.clo$/;"	m
+LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 code\/hash.cl && .\/clover2 code\/hash.clo$/;"	m
 LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 code\/hello_world.cl && .\/clover2 code\/hello_world.clo$/;"	m
 LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 code\/integer.cl && .\/clover2 code\/integer.clo$/;"	m
 LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 code\/normal_block.cl && .\/clover2 code\/normal_block.clo$/;"	m

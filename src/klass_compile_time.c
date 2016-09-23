@@ -204,6 +204,7 @@ static BOOL check_method_params(sCLMethod* method, sCLClass* klass, char* method
                     {
                         return FALSE;
                     }
+
                     if(!substitution_posibility(solved_param, param_types[j])) {
                         return FALSE;
                     }
@@ -302,6 +303,10 @@ static BOOL check_same_interface_of_two_methods(sCLMethod* method1, sCLClass* kl
         sNodeType* param1_type = create_node_type_from_cl_type(param1->mType, klass1);
         sNodeType* param2_type = create_node_type_from_cl_type(param2->mType, klass2);
 
+        if(type_identify_with_class_name(param1_type, "SELF")) {
+            param1_type = create_node_type_with_class_pointer(klass2);
+        }
+
         if(!type_identify(param1_type, param2_type)) {
             return FALSE;
         }
@@ -313,23 +318,25 @@ static BOOL check_same_interface_of_two_methods(sCLMethod* method1, sCLClass* kl
 
 BOOL check_implemented_methods_for_interface(sCLClass* left_class, sCLClass* right_class)
 {
-    int i;
-    for(i=0; i<left_class->mNumMethods; i++) {
-        sCLMethod* method = left_class->mMethods + i;
+    if(left_class != right_class) {
+        int i;
+        for(i=0; i<left_class->mNumMethods; i++) {
+            sCLMethod* method = left_class->mMethods + i;
 
-        BOOL found = FALSE;
+            BOOL found = FALSE;
 
-        int j;
-        for(j=0; j<right_class->mNumMethods; j++) {
-            sCLMethod* method2 = right_class->mMethods + j;
+            int j;
+            for(j=0; j<right_class->mNumMethods; j++) {
+                sCLMethod* method2 = right_class->mMethods + j;
 
-            if(check_same_interface_of_two_methods(method, left_class, method2, right_class)) {
-                found = TRUE;
+                if(check_same_interface_of_two_methods(method, left_class, method2, right_class)) {
+                    found = TRUE;
+                }
             }
-        }
 
-        if(!found) {
-            return FALSE;
+            if(!found) {
+                return FALSE;
+            }
         }
     }
 

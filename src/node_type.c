@@ -252,7 +252,22 @@ BOOL solve_generics_types_for_node_type(sNodeType* node_type, ALLOC sNodeType** 
     int i;
     int j;
 
-    if(generics_type && generics_type->mNumGenericsTypes > 0) {
+    if(type_identify_with_class_name(node_type, "SELF")) {
+        *result = alloc_node_type();
+        (*result)->mClass = generics_type->mClass;
+
+        (*result)->mNumGenericsTypes = node_type->mNumGenericsTypes;
+
+        for(j=0; j<node_type->mNumGenericsTypes; j++) {
+            (void)solve_generics_types_for_node_type(node_type->mGenericsTypes[j], &(*result)->mGenericsTypes[j], generics_type);
+
+            // if it can not be solved generics, no solve the generics type
+        }
+
+        (*result)->mBlockType = node_type->mBlockType;
+        (*result)->mArray = node_type->mArray;
+    }
+    else if(generics_type && generics_type->mNumGenericsTypes > 0) {
         for(i=0; i<GENERICS_TYPES_MAX; i++) {
             if(node_type->mClass->mGenericsParamClassNum == i) {
                 if(i < generics_type->mNumGenericsTypes) {

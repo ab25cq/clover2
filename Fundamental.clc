@@ -480,7 +480,7 @@ class Bool
 interface HashKey
 {
     def getHashKey(): uint;
-    def equals(key:HashKey): bool;
+    def equals(key:SELF): bool;
 }
 
 class HashItem <T:HashKey, T2:Object>
