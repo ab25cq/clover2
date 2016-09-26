@@ -1,11 +1,11 @@
 
 class BlockTestClass {
-    block_object: block(int, int):int;
+    block_object: lambda(int, int):int;
 
     def initialize() {
         b:int = 1;
 
-        self.block_object = lambda(v:int, v2:int):int {
+        self.block_object = closure(v:int, v2:int):int {
             return v + v2 + b;
         }
     }

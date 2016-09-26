@@ -571,13 +571,13 @@ BOOL parse_params(sParserParam* params, int* num_params, sParserInfo* info)
     return TRUE;
 }
 
-BOOL parse_params_and_entry_to_lvtable(sParserParam* params, int* num_params, sParserInfo* info, sVarTable** new_table)
+static BOOL parse_params_and_entry_to_lvtable(sParserParam* params, int* num_params, sParserInfo* info, sVarTable** new_table, sVarTable* parent_lv_table)
 {
     if(!parse_params(params, num_params, info)) {
         return FALSE;
     }
 
-    *new_table = init_block_vtable(info->lv_table);
+    *new_table = init_block_vtable(parent_lv_table);
 
     int i;
     for(i=0; i<*num_params; i++) {
@@ -611,7 +611,7 @@ static BOOL try_expression(unsigned int* node, sParserInfo* info)
     /// parse_params ///
     sVarTable* new_table = NULL;
 
-    if(!parse_params_and_entry_to_lvtable(params, &num_params, info, &new_table)) {
+    if(!parse_params_and_entry_to_lvtable(params, &num_params, info, &new_table, info->lv_table)) {
         return FALSE;
     }
 
@@ -685,7 +685,7 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
 
     int generics_num = 0;
 
-    if(type_identify_with_class_name(*result_type, "block")) {
+    if(type_identify_with_class_name(*result_type, "lambda")) {
         sNodeBlockType* node_block_type = alloc_node_block_type();
 
         if(*info->p == '(') {
@@ -786,7 +786,7 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
 
         sCLClass* right_type = (*result_type)->mGenericsTypes[i]->mClass;
         sCLClass* right_type2;
-        solve_generics_types_for_class(right_type, &right_type2, info->klass);
+        solve_generics_for_variable_to_class(right_type, &right_type2, info->klass);
 
         if(!check_implemented_methods_for_interface(left_type, right_type2)) {
             parser_err_msg(info, "%s is not implemented %s interface" , CLASS_NAME(right_type2), CLASS_NAME(left_type));
@@ -874,7 +874,7 @@ BOOL parse_type_for_new(sNodeType** result_type, unsigned int* array_num, sParse
 
         sCLClass* right_type = (*result_type)->mGenericsTypes[i]->mClass;
         sCLClass* right_type2;
-        solve_generics_types_for_class(right_type, &right_type2, info->klass);
+        solve_generics_for_variable_to_class(right_type, &right_type2, info->klass);
 
         if(!check_implemented_methods_for_interface(left_type, right_type2)) {
             parser_err_msg(info, "%s is not implemented %s interface" , CLASS_NAME(right_type2), CLASS_NAME(left_type));
@@ -1331,7 +1331,7 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
-static BOOL parse_block_object(unsigned int* node, sParserInfo* info)
+static BOOL parse_block_object(unsigned int* node, sParserInfo* info, BOOL lambda)
 {
     expect_next_character_with_one_forward("(", info);
 
@@ -1341,8 +1341,15 @@ static BOOL parse_block_object(unsigned int* node, sParserInfo* info)
     /// parse_params ///
     sVarTable* new_table = NULL;
 
-    if(!parse_params_and_entry_to_lvtable(params, &num_params, info, &new_table)) {
-        return FALSE;
+    if(lambda) {
+        if(!parse_params_and_entry_to_lvtable(params, &num_params, info, &new_table, NULL)) {
+            return FALSE;
+        }
+    }
+    else {
+        if(!parse_params_and_entry_to_lvtable(params, &num_params, info, &new_table, info->lv_table)) {
+            return FALSE;
+        }
     }
 
     sNodeType* result_type = NULL;
@@ -1360,7 +1367,7 @@ static BOOL parse_block_object(unsigned int* node, sParserInfo* info)
         return FALSE;
     }
 
-    *node = sNodeTree_create_block_object(params, num_params, result_type, MANAGED node_block);
+    *node = sNodeTree_create_block_object(params, num_params, result_type, MANAGED node_block, lambda);
 
     return TRUE;
 }
@@ -1661,8 +1668,13 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
         }
+        else if(strcmp(buf, "closure") == 0) {
+            if(!parse_block_object(node, info, FALSE)) {
+                return FALSE;
+            }
+        }
         else if(strcmp(buf, "lambda") == 0) {
-            if(!parse_block_object(node, info)) {
+            if(!parse_block_object(node, info, TRUE)) {
                 return FALSE;
             }
         }

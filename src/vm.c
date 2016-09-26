@@ -372,27 +372,40 @@ static BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int
     sConst* constant = &object_data->mConstant;
     CLVALUE* new_stack = *stack_ptr;
     int new_var_num = object_data->mBlockVarNum + object_data->mParentVarNum;
+    BOOL lambda = object_data->mLambda;
 
     sCLClass* klass = NULL;
 
-    /// check variable existance ///
-    if(!check_variables_existance_on_stack(object_data->mParentStack, object_data->mParentVarNum)) {
-        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "Parent variables doesn't exist");
-        return FALSE;
+    if(lambda) {
+        memcpy(new_stack, (*stack_ptr)-num_params, sizeof(CLVALUE)*num_params);
+
+        if(!vm(code, constant, new_stack, new_var_num, klass, info)) {
+            **stack_ptr = *new_stack;
+            (*stack_ptr)++;
+            return FALSE;
+        }
     }
+    else {
+        /// check variable existance ///
+        if(!check_variables_existance_on_stack(object_data->mStackID))
+        {
+            entry_exception_object_with_class_name(stack + var_num, info, "Exception", "Parent variables doesn't exist");
+            return FALSE;
+        }
 
-    /// copy variables ///
-    memcpy(new_stack, object_data->mParentStack, sizeof(CLVALUE)*object_data->mParentVarNum);
-    memcpy(new_stack + object_data->mParentVarNum, (*stack_ptr)-num_params, sizeof(CLVALUE)*num_params);
+        /// copy variables ///
+        memcpy(new_stack, object_data->mParentStack, sizeof(CLVALUE)*object_data->mParentVarNum);
+        memcpy(new_stack + object_data->mParentVarNum, (*stack_ptr)-num_params, sizeof(CLVALUE)*num_params);
 
-    if(!vm(code, constant, new_stack, new_var_num, klass, info)) {
-        **stack_ptr = *new_stack;
-        (*stack_ptr)++;
-        return FALSE;
+        if(!vm(code, constant, new_stack, new_var_num, klass, info)) {
+            **stack_ptr = *new_stack;
+            (*stack_ptr)++;
+            return FALSE;
+        }
+
+        /// copy back variables to parent ///
+        memcpy(object_data->mParentStack, new_stack, sizeof(CLVALUE)*object_data->mParentVarNum);
     }
-
-    /// copy back variables to parent ///
-    memcpy(object_data->mParentStack, new_stack, sizeof(CLVALUE)*object_data->mParentVarNum);
 
     **stack_ptr = *new_stack;
     (*stack_ptr)++;
@@ -511,7 +524,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
     int try_offset_before = 0;
     int try_offset = 0;
 
-    append_stack_to_stack_list(stack, &stack_ptr);
+    long stack_id = append_stack_to_stack_list(stack, &stack_ptr);
 
     while(pc - code->mCodes < code->mLen) {
         unsigned int inst = *(unsigned int*)pc;
@@ -8716,9 +8729,12 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     int parent_var_num = *(int*)pc;
                     pc += sizeof(int);
 
+                    int lambda = *(int*)pc;
+                    pc += sizeof(int);
+
                     CLVALUE* parent_stack = stack;
 
-                    CLObject block_object = create_block_object(&codes2, &constant2, parent_stack, parent_var_num, block_var_num);
+                    CLObject block_object = create_block_object(&codes2, &constant2, parent_stack, parent_var_num, block_var_num, stack_id, lambda);
 
                     stack_ptr->mObjectValue = block_object;
                     stack_ptr++;

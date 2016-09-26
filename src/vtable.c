@@ -191,11 +191,15 @@ sVarTable* init_block_vtable(sVarTable* lv_table)
 {
     sVarTable* new_table;
 
-    MASSERT(lv_table != NULL);
-
     new_table = init_var_table();
-    new_table->mBlockLevel = lv_table->mBlockLevel + 1;
-    new_table->mParent = lv_table;
+    if(lv_table) {
+        new_table->mBlockLevel = lv_table->mBlockLevel + 1;
+        new_table->mParent = lv_table;
+    }
+    else {
+        new_table->mBlockLevel = 0;
+        new_table->mParent = NULL;
+    }
 
     return new_table;
 }

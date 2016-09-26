@@ -182,8 +182,8 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right)
             return check_implemented_methods_for_interface(left_class, right_class);
         }
     }
-    else if(type_identify_with_class_name(left, "block")) {
-        if(type_identify_with_class_name(right, "block")) {
+    else if(type_identify_with_class_name(left, "lambda")) {
+        if(type_identify_with_class_name(right, "lambda")) {
             sNodeBlockType* left_block_type = left->mBlockType;
             sNodeBlockType* right_block_type = right->mBlockType;
 
@@ -302,7 +302,7 @@ BOOL solve_generics_types_for_node_type(sNodeType* node_type, ALLOC sNodeType** 
     return TRUE;
 }
 
-void solve_generics_types_for_class(sCLClass* klass, sCLClass** result, sCLClass* generics_class)
+void solve_generics_for_variable_to_class(sCLClass* klass, sCLClass** result, sCLClass* generics_class)
 {
     int generics_param_number = klass->mGenericsParamClassNum;
 

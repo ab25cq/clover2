@@ -857,7 +857,7 @@ void class_init()
     alloc_class("char", TRUE, -1, 0, NULL, FALSE);
     alloc_class("bool", TRUE, -1, 0, NULL, FALSE);
     alloc_class("Null", TRUE, -1, 0, NULL, FALSE);
-    alloc_class("block", TRUE, -1, 0, NULL, FALSE);
+    alloc_class("lambda", TRUE, -1, 0, NULL, FALSE);
 
     alloc_class("SELF", FALSE, -1, 0, NULL, FALSE);
     alloc_class("GenericsParametorClass0", FALSE, 0, 0, NULL, FALSE);

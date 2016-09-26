@@ -12,11 +12,11 @@ static unsigned int object_size()
     return size;
 }
 
-CLObject create_block_object(sByteCode* codes, sConst* constant, CLVALUE* parent_stack, int parent_var_num, int block_var_num)
+CLObject create_block_object(sByteCode* codes, sConst* constant, CLVALUE* parent_stack, int parent_var_num, int block_var_num, long stack_id, BOOL lambda)
 {
     int size = object_size();
 
-    sCLClass* klass = get_class("block");
+    sCLClass* klass = get_class("lambda");
 
     MASSERT(klass != NULL);
 
@@ -29,6 +29,8 @@ CLObject create_block_object(sByteCode* codes, sConst* constant, CLVALUE* parent
     object_data->mParentStack = parent_stack;
     object_data->mParentVarNum = parent_var_num;
     object_data->mBlockVarNum = block_var_num;
+    object_data->mStackID = stack_id;
+    object_data->mLambda = lambda;
 
     return obj;
 }

@@ -6114,7 +6114,7 @@ BOOL compile_array_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_block_object(sParserParam* params, int num_params, sNodeType* result_type, MANAGED sNodeBlock* node_block)
+unsigned int sNodeTree_create_block_object(sParserParam* params, int num_params, sNodeType* result_type, MANAGED sNodeBlock* node_block, BOOL lambda)
 {
     unsigned int node = alloc_node();
 
@@ -6134,6 +6134,7 @@ unsigned int sNodeTree_create_block_object(sParserParam* params, int num_params,
     gNodes[node].uValue.sBlockObject.mNumParams = num_params;
     gNodes[node].uValue.sBlockObject.mResultType = result_type;
     gNodes[node].uValue.sBlockObject.mBlockObjectCode = MANAGED node_block;
+    gNodes[node].uValue.sBlockObject.mLambda = lambda;
 
     return node;
 }
@@ -6151,6 +6152,7 @@ BOOL compile_block_object(unsigned int node, sCompileInfo* info)
 
     sNodeType* result_type = gNodes[node].uValue.sBlockObject.mResultType;
     sNodeBlock* node_block = gNodes[node].uValue.sBlockObject.mBlockObjectCode;
+    BOOL lambda = gNodes[node].uValue.sBlockObject.mLambda;
 
     /// compile block ///
     sByteCode codes;
@@ -6193,14 +6195,21 @@ BOOL compile_block_object(unsigned int node, sCompileInfo* info)
     int var_num = get_var_num(node_block->mLVTable);
     append_int_value_to_code(info->code, var_num, info->no_output);
 
-    MASSERT(node_block->mLVTable->mParent);
-    int parent_var_num = get_var_num(node_block->mLVTable->mParent);
-    append_int_value_to_code(info->code, parent_var_num, info->no_output);
+    if(lambda) {
+        int parent_var_num = 0;
+        append_int_value_to_code(info->code, parent_var_num, info->no_output);
+        append_int_value_to_code(info->code, TRUE, info->no_output);
+    }
+    else {
+        int parent_var_num = get_var_num(node_block->mLVTable->mParent);
+        append_int_value_to_code(info->code, parent_var_num, info->no_output);
+        append_int_value_to_code(info->code, FALSE, info->no_output);
+    }
 
     info->stack_num++;
 
     /// make info->type ///
-    info->type = create_node_type_with_class_name("block");
+    info->type = create_node_type_with_class_name("lambda");
 
     sNodeBlockType* node_block_type = alloc_node_block_type();
 
@@ -6294,7 +6303,7 @@ BOOL compile_block_call(unsigned int node, sCompileInfo* info)
 
     sNodeType* var_type = info->type;
 
-    if(!type_identify_with_class_name(var_type, "block")) {
+    if(!type_identify_with_class_name(var_type, "lambda")) {
         parser_err_msg(info->pinfo, "No block type, clover2 can call block object only");
         info->err_num++;
 

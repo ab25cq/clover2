@@ -1,0 +1,14 @@
+class LabmdaTest {
+    value: lambda(int, int):int;
+
+    def initialize() {
+        self.value = lambda(a:int, b:int):int {
+            return a + b;
+        }
+    }
+
+    def run(a:int, b:int):int {
+        value := self.value;
+        return value(a, b);
+    }
+}

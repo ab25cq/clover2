@@ -282,7 +282,7 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right);
 BOOL substitution_posibility_with_class_name(sNodeType* left, char* right_class_name);
 BOOL operand_posibility_with_class_name(sNodeType* left, char* right_class_name, char* op_string);
 BOOL operand_posibility(sNodeType* left, sNodeType* right, char* op_string);
-void solve_generics_types_for_class(sCLClass* klass, sCLClass** result, sCLClass* generics_class);
+void solve_generics_for_variable_to_class(sCLClass* klass, sCLClass** result, sCLClass* generics_class);
 BOOL solve_generics_types_for_node_type(sNodeType* node_type, ALLOC sNodeType** result, sNodeType* generics_type);
 void solve_generics_for_variable(sNodeType* generics_type, sNodeType** generics_type2, sCLClass* generics_class);
 BOOL type_identify_with_class_name(sNodeType* left, char* right_class_name);
@@ -492,6 +492,7 @@ struct sNodeTreeStruct
             int mNumParams;
             sNodeType* mResultType;
             sNodeBlock* mBlockObjectCode;
+            BOOL mLambda;
         } sBlockObject;
 
         struct {
@@ -582,7 +583,7 @@ unsigned int sNodeTree_create_character_value(wchar_t c);
 unsigned int sNodeTree_create_string_value(MANAGED char* value);
 unsigned int sNodeTree_try_expression(MANAGED sNodeBlock* try_node_block, MANAGED sNodeBlock* catch_node_block, char* exception_var_name);
 
-unsigned int sNodeTree_create_block_object(sParserParam* params, int num_params, sNodeType* result_type, MANAGED sNodeBlock* node_block);
+unsigned int sNodeTree_create_block_object(sParserParam* params, int num_params, sNodeType* result_type, MANAGED sNodeBlock* node_block, BOOL lambda);
 unsigned int sNodeTree_create_block_call(unsigned int block, int num_params, unsigned int params[]);
 unsigned int sNodeTree_conditional_expression(unsigned int expression_node, unsigned int true_expression_node, unsigned int false_expression_node);
 unsigned int sNodeTree_create_normal_block(MANAGED sNodeBlock* node_block);
@@ -1243,6 +1244,8 @@ struct sCLStackStruct {
     CLVALUE* mStack;
     CLVALUE** mStackPtr;
 
+    int mStackID;
+
     struct sCLStackStruct* mNextStack;
 };
 
@@ -1251,9 +1254,9 @@ typedef struct sCLStackStruct sCLStack;
 void stack_init();
 void stack_final();
 
-void append_stack_to_stack_list(CLVALUE* stack, CLVALUE** stack_ptr);
+long append_stack_to_stack_list(CLVALUE* stack, CLVALUE** stack_ptr);
 BOOL remove_stack_to_stack_list(CLVALUE* stack);
-BOOL check_variables_existance_on_stack(CLVALUE* stack_top, int var_num);
+BOOL check_variables_existance_on_stack(long stack_id);
 
 sCLStack* gHeadStack;
 CLVALUE* gGlobalStack;
@@ -1336,13 +1339,15 @@ struct sBlockObjectStruct
     CLVALUE* mParentStack;
     int mParentVarNum;
     int mBlockVarNum;
+    int mStackID;
+    BOOL mLambda;
 };
 
 typedef struct sBlockObjectStruct sBlockObject;
 
 #define CLBLOCK(obj) (sBlockObject*)(get_object_pointer((obj)))
 
-CLObject create_block_object(sByteCode* codes, sConst* constant, CLVALUE* parent_stack, int parent_var_num, int block_var_num);
+CLObject create_block_object(sByteCode* codes, sConst* constant, CLVALUE* parent_stack, int parent_var_num, int block_var_num, long stack_id, BOOL lambda);
 
 /// string.c ///
 CLObject create_string_object(char* str);
