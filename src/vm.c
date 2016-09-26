@@ -38,8 +38,16 @@ static void show_inst(unsigned inst)
             puts("OP_REVERSE");
             break;
 
+        case OP_DUPE:
+            puts("OP_DUPE");
+            break;
+
         case OP_COND_JUMP :
             puts("OP_COND_JUMP");
+            break;
+
+        case OP_COND_NOT_JUMP :
+            puts("OP_COND_NOT_JUMP");
             break;
 
         case OP_GOTO :
@@ -556,10 +564,26 @@ show_inst(inst);
                 break;
 
             case OP_REVERSE: {
+                vm_mutex_on();
+
                 CLVALUE value = *(stack_ptr-2);
 
                 *(stack_ptr -2) = *(stack_ptr -1);
                 *(stack_ptr -1) = value;
+
+                vm_mutex_off();
+                }
+                break;
+
+            case OP_DUPE: {
+                vm_mutex_on();
+
+                CLVALUE value = *(stack_ptr-1);
+
+                *stack_ptr = value;
+                stack_ptr++;
+
+                vm_mutex_off();
                 }
                 break;
 
@@ -574,6 +598,24 @@ show_inst(inst);
                     stack_ptr--;
 
                     if(conditinal_value) {
+                        pc += jump_value;
+                    }
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_COND_NOT_JUMP:
+                {
+                    vm_mutex_on();
+
+                    int jump_value = *(int*)pc;
+                    pc += sizeof(int);
+
+                    BOOL conditinal_value = (stack_ptr-1)->mBoolValue;
+                    stack_ptr--;
+
+                    if(!conditinal_value) {
                         pc += jump_value;
                     }
 

@@ -2465,7 +2465,7 @@ static BOOL expression_and_and(unsigned int* node, sParserInfo* info)
                 info->err_num++;
             }
 
-            *node = sNodeTree_create_operand(kOpAndAnd, *node, right, 0);
+            *node = sNodeTree_create_and_and(*node, right);
         }
         else {
             break;
@@ -2499,7 +2499,7 @@ static BOOL expression_or_or(unsigned int* node, sParserInfo* info)
                 info->err_num++;
             }
 
-            *node = sNodeTree_create_operand(kOpOrOr, *node, right, 0);
+            *node = sNodeTree_create_or_or(*node, right);
         }
         else {
             break;

@@ -1069,21 +1069,25 @@ static void cast_right_type_to_bool(sNodeType** right_type, sCompileInfo* info)
     else if(type_identify_with_class_name(*right_type, "float"))
     {
         append_opecode_to_code(info->code, OP_FLOAT_TO_INT_CAST, info->no_output);
+
         *right_type = create_node_type_with_class_name("bool");
     }
     else if(type_identify_with_class_name(*right_type, "double"))
     {
         append_opecode_to_code(info->code, OP_DOUBLE_TO_INT_CAST, info->no_output);
+
         *right_type = create_node_type_with_class_name("bool");
     }
     else if(type_identify_with_class_name(*right_type, "pointer"))
     {
         append_opecode_to_code(info->code, OP_POINTER_TO_INT_CAST, info->no_output);
+
         *right_type = create_node_type_with_class_name("bool");
     }
     else if(type_identify_with_class_name(*right_type, "char"))
     {
         append_opecode_to_code(info->code, OP_CHAR_TO_INT_CAST, info->no_output);
+
         *right_type = create_node_type_with_class_name("bool");
     }
 }
@@ -2519,20 +2523,6 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
                 return FALSE;
             }
             break;
-            
-        case kOpAndAnd:
-            if(!binary_operator_for_bool(left_type, OP_ANDAND, info))
-            {
-                return FALSE;
-            }
-            break;
-            
-        case kOpOrOr:
-            if(!binary_operator_for_bool(left_type, OP_OROR, info))
-            {
-                return FALSE;
-            }
-            break;
 
         case kOpComplement:
             if(!single_operator(node_type, OP_BCOMPLEMENT, OP_UBCOMPLEMENT, OP_SCOMPLEMENT, OP_USCOMPLEMENT, OP_ICOMPLEMENT, OP_UICOMPLEMENT, OP_LCOMPLEMENT, OP_ULCOMPLEMENT, info))
@@ -2554,6 +2544,148 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
             break;
     }
 
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_and_and(unsigned int left_node, unsigned int right_node)
+{
+    unsigned node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeAndAnd;
+
+    gNodes[node].mLeft = left_node;
+    gNodes[node].mRight = right_node;
+    gNodes[node].mMiddle = 0;
+
+    gNodes[node].mType = NULL;
+
+    return node;
+}
+
+static BOOL compile_and_and(unsigned int node, sCompileInfo* info)
+{
+    /// compile expression ///
+    unsigned int left_node = gNodes[node].mLeft;
+
+    if(!compile(left_node, info)) {
+        return FALSE;
+    }
+
+    if(!type_identify_with_class_name(info->type, "bool")) {
+        parser_err_msg(info->pinfo, "Left expression is not bool type");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    append_opecode_to_code(info->code, OP_DUPE, info->no_output);
+    info->stack_num++;
+
+    append_opecode_to_code(info->code, OP_COND_JUMP, info->no_output);
+    append_int_value_to_code(info->code, sizeof(int)*2, info->no_output);
+    info->stack_num--;
+
+    /// goto end point ///
+    append_opecode_to_code(info->code, OP_GOTO, info->no_output); // if the left expression is false, jump to the end of and and expression
+    int goto_point = info->code->mLen;
+    append_int_value_to_code(info->code, 0, info->no_output);
+
+    /// compile right expression ///
+    unsigned int right_node = gNodes[node].mRight;
+
+    if(!compile(right_node, info)) {
+        return FALSE;
+    }
+
+    if(!type_identify_with_class_name(info->type, "bool")) {
+        parser_err_msg(info->pinfo, "Right expression is not bool type");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    append_opecode_to_code(info->code, OP_ANDAND, info->no_output);
+    info->stack_num--;
+
+    *(int*)(info->code->mCodes + goto_point) = info->code->mLen;
+
+    info->type = create_node_type_with_class_name("bool");
+    
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_or_or(unsigned int left_node, unsigned int right_node)
+{
+    unsigned node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeOrOr;
+
+    gNodes[node].mLeft = left_node;
+    gNodes[node].mRight = right_node;
+    gNodes[node].mMiddle = 0;
+
+    gNodes[node].mType = NULL;
+
+    return node;
+}
+
+static BOOL compile_or_or(unsigned int node, sCompileInfo* info)
+{
+    /// compile expression ///
+    unsigned int left_node = gNodes[node].mLeft;
+
+    if(!compile(left_node, info)) {
+        return FALSE;
+    }
+
+    if(!type_identify_with_class_name(info->type, "bool")) {
+        parser_err_msg(info->pinfo, "Left expression is not bool type");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    append_opecode_to_code(info->code, OP_DUPE, info->no_output);
+    info->stack_num++;
+
+    append_opecode_to_code(info->code, OP_COND_NOT_JUMP, info->no_output);
+    append_int_value_to_code(info->code, sizeof(int)*2, info->no_output);
+    info->stack_num--;
+
+    /// goto end point ///
+    append_opecode_to_code(info->code, OP_GOTO, info->no_output); // if the left expression is true, jump to the end of || expression
+    int goto_point = info->code->mLen;
+    append_int_value_to_code(info->code, 0, info->no_output);
+
+    /// compile right expression ///
+    unsigned int right_node = gNodes[node].mRight;
+
+    if(!compile(right_node, info)) {
+        return FALSE;
+    }
+
+    if(!type_identify_with_class_name(info->type, "bool")) {
+        parser_err_msg(info->pinfo, "Right expression is not bool type");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    append_opecode_to_code(info->code, OP_OROR, info->no_output);
+    info->stack_num--;
+
+    *(int*)(info->code->mCodes + goto_point) = info->code->mLen;
+
+    info->type = create_node_type_with_class_name("bool");
+    
     return TRUE;
 }
 
@@ -4100,7 +4232,7 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
     }
     else if(strcmp(field_name, "to_bool") == 0) 
     {
-        cast_right_type_to_int(&info->type, info);
+        cast_right_type_to_bool(&info->type, info);
     }
     else {
         int field_index = search_for_field(klass, field_name);
@@ -6370,6 +6502,14 @@ void show_node(unsigned int node)
             puts("conditional operator");
             break;
 
+        case kNodeTypeAndAnd:
+            puts("and and operator");
+            break;
+
+        case kNodeTypeOrOr:
+            puts("or or operator");
+            break;
+
         case kNodeTypeByteValue:
             printf("byte value %d\n", gNodes[node].uValue.mByteValue);
             break;
@@ -6559,6 +6699,18 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeConditional:
             if(!compile_conditional_operator(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeAndAnd:
+            if(!compile_and_and(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeOrOr:
+            if(!compile_or_or(node, info)) {
                 return FALSE;
             }
             break;

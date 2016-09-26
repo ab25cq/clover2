@@ -127,6 +127,7 @@ distclean: clean
 ########################################################
 test:
 	@echo "Compile to test code..."
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -class code/operator.clc code/operator.cl && ./clover2 code/operator.clo
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/hash.cl && ./clover2 code/hash.clo
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -class code/generics2.clc code/generics2.cl && ./clover2 code/generics2.clo
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/block_var_test.cl && ./clover2 code/block_var_test.clo
@@ -153,7 +154,6 @@ test:
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -class code/void_result.clc code/void_result.cl && ./clover2 code/void_result.clo
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/integer.cl && ./clover2 code/integer.clo
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/normal_block.cl && ./clover2 code/normal_block.clo
-	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -class code/operator.clc code/operator.cl && ./clover2 code/operator.clo
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -class code/try.clc code/try.cl && ./clover2 code/try.clo
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/array2.cl && ./clover2 code/array2.clo
 

@@ -30,4 +30,23 @@ OpClass.value2 = 2;
 OpClass.value2 *= 3;
 Clover.test("*= operator test3", OpClass.value2 == 6);
 
+c := 111;
+
+true || (c = 222).to_bool;
+
+Clover.test("|| operator test1", c == 111);
+
+false || (c = 333).to_bool;
+
+Clover.test("|| operator test2", c == 333);
+
+d :int = 111;
+
+true && (d = 222).to_bool;
+
+Clover.test("&& operator test1", d == 222);
+
+false && (d = 333).to_bool;
+
+Clover.test("&& operator test2", d == 222);
 
