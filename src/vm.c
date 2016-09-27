@@ -318,7 +318,7 @@ void vm_mutex_off()
 {
 }
 
-static BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info)
+BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info)
 {
     if(method->mFlags & METHOD_FLAGS_NATIVE) {
         CLVALUE* lvar = *stack_ptr - method->mNumParams;
@@ -8779,6 +8779,75 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     CLObject block_object = create_block_object(&codes2, &constant2, parent_stack, parent_var_num, block_var_num, stack_id, lambda);
 
                     stack_ptr->mObjectValue = block_object;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CREATE_HASH:
+                {
+                    vm_mutex_on();
+
+                    int num_elements = *(int*)pc;
+                    pc += sizeof(int);
+
+                    int offset = *(int*)pc;
+                    pc += sizeof(int);
+
+                    char* class_name = CONS_str(constant, offset);
+
+                    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+
+                    if(klass == NULL) {
+                        vm_mutex_off();
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found");
+                        remove_stack_to_stack_list(stack);
+                        return FALSE;
+                    }
+
+                    int offset2 = *(int*)pc;
+                    pc += sizeof(int);
+
+                    char* class_name2 = CONS_str(constant, offset2);
+
+                    sCLClass* klass2 = get_class_with_load_and_initialize(class_name2);
+
+                    if(klass2 == NULL) {
+                        vm_mutex_off();
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found");
+                        remove_stack_to_stack_list(stack);
+                        return FALSE;
+                    }
+
+                    CLObject keys[HASH_VALUE_ELEMENT_MAX];
+
+                    int i;
+                    for(i=0; i<num_elements; i++) {
+                        keys[i] = (stack_ptr - num_elements * 2 + i * 2)->mObjectValue;
+                    }
+
+                    CLObject items[HASH_VALUE_ELEMENT_MAX];
+
+                    for(i=0; i<num_elements; i++) {
+                        items[i] = (stack_ptr - num_elements * 2 + i * 2 + 1)->mObjectValue;
+                    }
+
+                    CLObject hash_object = create_hash_object();
+                    stack_ptr->mObjectValue = hash_object; // push object
+                    stack_ptr++;
+
+                    if(!initialize_hash_object(hash_object, num_elements, keys, items, stack, var_num, &stack_ptr, info, klass, klass2))
+                    {
+                        vm_mutex_off();
+                        remove_stack_to_stack_list(stack);
+                        return FALSE;
+                    }
+
+                    stack_ptr--; // pop_object
+
+                    stack_ptr-=num_elements*2;
+                    stack_ptr->mObjectValue = hash_object;
                     stack_ptr++;
 
                     vm_mutex_off();

@@ -1383,6 +1383,7 @@ static BOOL parse_normal_block(unsigned int* node, sParserInfo* info)
 
     return TRUE;
 }
+
 static BOOL parse_array_value(unsigned int* node, sParserInfo* info) 
 {
     int num_elements = 0;
@@ -1420,6 +1421,56 @@ static BOOL parse_array_value(unsigned int* node, sParserInfo* info)
     }
 
     *node = sNodeTree_create_array_value(num_elements, array_elements);
+
+    return TRUE;
+}
+
+static BOOL parse_hash_value(unsigned int* node, sParserInfo* info) 
+{
+    int num_elements = 0;
+
+    unsigned int hash_keys[HASH_VALUE_ELEMENT_MAX+1];
+    unsigned int hash_items[HASH_VALUE_ELEMENT_MAX+1];
+
+    memset(hash_keys, 0, sizeof(unsigned int)*HASH_VALUE_ELEMENT_MAX);
+    memset(hash_items, 0, sizeof(unsigned int)*HASH_VALUE_ELEMENT_MAX);
+
+    if(*info->p == ']') {
+        info->p++;
+        skip_spaces_and_lf(info);
+    }
+    else {
+        while(1) {
+            if(!expression(hash_keys + num_elements, info)) {
+                return FALSE;
+            }
+
+            expect_next_character_with_one_forward(":", info);
+
+            if(!expression(hash_items + num_elements, info)) {
+                return FALSE;
+            }
+
+            num_elements++;
+
+            if(num_elements >= HASH_VALUE_ELEMENT_MAX) {
+                parser_err_msg(info, "overflow hash value elements");
+                return FALSE;
+            }
+
+            if(*info->p == ',') {
+                info->p++;
+                skip_spaces_and_lf(info);
+            }
+            else if(*info->p == ']') {
+                info->p++;
+                skip_spaces_and_lf(info);
+                break;
+            }
+        }
+    }
+
+    *node = sNodeTree_create_hash_value(num_elements, hash_keys, hash_items);
 
     return TRUE;
 }
@@ -1608,6 +1659,14 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         skip_spaces_and_lf(info);
 
         if(!parse_array_value(node, info)) {
+            return FALSE;
+        }
+    }
+    else if(*info->p == '[') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        if(!parse_hash_value(node, info)) {
             return FALSE;
         }
     }

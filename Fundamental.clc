@@ -517,6 +517,18 @@ class Hash <T:HashKey, T2:Object>
         self.itemNumber = 0;
     }
 
+    def initialize(keys: T[], items:T2[], num_elements:uint) {
+        hash_size:uint = num_elements * 2;
+
+        self.table = new HashItem<T,T2>[hash_size];
+        self.tableSize = hash_size;
+        self.itemNumber = num_elements;
+
+        for(i:=0; i<num_elements; i++) {
+            self.put(keys[i], items[i]);
+        }
+    }
+
     def put(key:T, item:T2) {
         if(self.itemNumber * 2 >= self.tableSize) {
             self.rehash();

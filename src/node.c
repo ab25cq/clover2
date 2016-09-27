@@ -6203,7 +6203,7 @@ BOOL compile_array_value(unsigned int node, sCompileInfo* info)
     int num_elements = gNodes[node].uValue.sArrayValue.mNumArrayElements;
 
     if(num_elements == 0) {
-        parser_err_msg(info->pinfo, "require element in array");
+        parser_err_msg(info->pinfo, "require element in array value");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -6227,8 +6227,8 @@ BOOL compile_array_value(unsigned int node, sCompileInfo* info)
             return FALSE;
         }
 
-        if(!type_identify(info->type, element_type)) {
-            parser_err_msg(info->pinfo, "Invalid element type. Left type is %s. Right type is %s", CLASS_NAME(info->type->mClass), CLASS_NAME(element_type->mClass));
+        if(!type_identify(element_type, info->type)) {
+            parser_err_msg(info->pinfo, "Invalid element type. Left type is %s. Right type is %s", CLASS_NAME(element_type->mClass), CLASS_NAME(info->type->mClass));
             info->err_num++;
         }
     }
@@ -6242,6 +6242,97 @@ BOOL compile_array_value(unsigned int node, sCompileInfo* info)
 
     info->type = element_type;
     info->type->mArray = TRUE;
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_hash_value(int num_elements, unsigned int hash_keys[], unsigned int hash_items[])
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeHashValue;
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    gNodes[node].mType = NULL;
+
+    memcpy(gNodes[node].uValue.sHashValue.mHashKeys, hash_keys, sizeof(unsigned int)*HASH_VALUE_ELEMENT_MAX);
+    memcpy(gNodes[node].uValue.sHashValue.mHashItems, hash_items, sizeof(unsigned int)*HASH_VALUE_ELEMENT_MAX);
+    gNodes[node].uValue.sHashValue.mNumHashElements = num_elements;
+
+    return node;
+}
+
+BOOL compile_hash_value(unsigned int node, sCompileInfo* info)
+{
+    unsigned int* keys = gNodes[node].uValue.sHashValue.mHashKeys;
+    unsigned int* items = gNodes[node].uValue.sHashValue.mHashItems;
+    int num_elements = gNodes[node].uValue.sHashValue.mNumHashElements;
+
+    if(num_elements == 0) {
+        parser_err_msg(info->pinfo, "require element in hash value");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    unsigned int first_key_node = keys[0];
+
+    if(!compile(first_key_node, info)) {
+        return FALSE;
+    }
+
+    sNodeType* key_type = info->type;
+
+    unsigned int first_item_node = items[0];
+
+    if(!compile(first_item_node, info)) {
+        return FALSE;
+    }
+
+    sNodeType* item_type = info->type;
+
+    int i;
+    for(i=1; i<num_elements; i++) {
+        unsigned int key = keys[i];
+
+        if(!compile(key, info)) {
+            return FALSE;
+        }
+
+        if(!type_identify(key_type, info->type)) {
+            parser_err_msg(info->pinfo, "Invalid key type. Left type is %s. Right type is %s", CLASS_NAME(key_type->mClass), CLASS_NAME(info->type->mClass));
+            info->err_num++;
+        }
+
+        unsigned int item = items[i];
+
+        if(!compile(item, info)) {
+            return FALSE;
+        }
+
+        if(!type_identify(item_type, info->type)) {
+            parser_err_msg(info->pinfo, "Invalid key type. Left type is %s. Right type is %s", CLASS_NAME(item_type->mClass), CLASS_NAME(info->type->mClass));
+            info->err_num++;
+        }
+    }
+
+    append_opecode_to_code(info->code, OP_CREATE_HASH, info->no_output);
+    append_int_value_to_code(info->code, num_elements, info->no_output);
+    append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(key_type->mClass), info->no_output);
+    append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(item_type->mClass), info->no_output);
+
+    info->stack_num-= num_elements * 2;
+    info->stack_num++;
+
+    info->type = create_node_type_with_class_name("Hash");
+    info->type->mNumGenericsTypes = 2;
+    info->type->mGenericsTypes[0] = key_type;
+    info->type->mGenericsTypes[1] = item_type;
 
     return TRUE;
 }
@@ -6662,6 +6753,10 @@ void show_node(unsigned int node)
             puts("array value");
             break;
 
+        case kNodeTypeHashValue:
+            puts("hash value");
+            break;
+
         case kNodeTypeTry:
             puts("try");
             break;
@@ -6945,6 +7040,12 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeArrayValue:
             if(!compile_array_value(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeHashValue:
+            if(!compile_hash_value(node, info)) {
                 return FALSE;
             }
             break;

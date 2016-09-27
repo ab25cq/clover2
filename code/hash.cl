@@ -10,5 +10,8 @@ a.put("ABC", 3.toInteger);
 
 Clover.test("hash test3", a.get("ABC").getValue() == 3);
 
-#Hash<String, Integer> b = { "ABC":1.toInteger, "DEF":2.toInteger };
+b:Hash<String, Integer> = [ "ABC":123.toInteger, "DEF":234.toInteger ];
+
+Clover.test("hash test4", b.get("ABC").getValue() == 123);
+Clover.test("hash test5", b.get("DEF").getValue() == 234);
 

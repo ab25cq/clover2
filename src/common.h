@@ -38,6 +38,7 @@
 #define CL_MODULE_HASH_SIZE 256
 #define CL_MODULE_NAME_MAX CLASS_NAME_MAX
 #define ARRAY_VALUE_ELEMENT_MAX 256
+#define HASH_VALUE_ELEMENT_MAX 256
 
 /// CLVALUE ///
 typedef unsigned int CLObject;
@@ -402,7 +403,7 @@ struct sCompileInfoStruct;
 BOOL compile_block(sNodeBlock* block, struct sCompileInfoStruct* info);
 
 /// node.c ///
-enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeUByteValue, kNodeTypeShortValue, kNodeTypeUShortValue, kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand, kNodeTypeIncrementWithValueOperand, kNodeTypeDecrementWithValueOperand, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand, kNodeTypeLoadArrayElement, kNodeTypeStoreArrayElement, kNodeTypeChar, kNodeTypeString, kNodeTypeThrow, kNodeTypeTry, kNodeTypeBlockObject, kNodeTypeBlockCall, kNodeTypeConditional, kNodeTypeNormalBlock, kNodeTypeArrayValue, kNodeTypeAndAnd, kNodeTypeOrOr };
+enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeUByteValue, kNodeTypeShortValue, kNodeTypeUShortValue, kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand, kNodeTypeIncrementWithValueOperand, kNodeTypeDecrementWithValueOperand, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand, kNodeTypeLoadArrayElement, kNodeTypeStoreArrayElement, kNodeTypeChar, kNodeTypeString, kNodeTypeThrow, kNodeTypeTry, kNodeTypeBlockObject, kNodeTypeBlockCall, kNodeTypeConditional, kNodeTypeNormalBlock, kNodeTypeArrayValue, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeHashValue };
 
 enum eOperand { kOpAdd, kOpSub , kOpComplement, kOpLogicalDenial, kOpMult, kOpDiv, kOpMod, kOpLeftShift, kOpRightShift, kOpComparisonEqual, kOpComparisonNotEqual,kOpComparisonGreaterEqual, kOpComparisonLesserEqual, kOpComparisonGreater, kOpComparisonLesser, kOpAnd, kOpXor, kOpOr };
 
@@ -506,6 +507,11 @@ struct sNodeTreeStruct
             unsigned int mArrayElements[ARRAY_VALUE_ELEMENT_MAX];
             int mNumArrayElements;
         } sArrayValue;
+        struct {
+            unsigned int mHashKeys[HASH_VALUE_ELEMENT_MAX];
+            unsigned int mHashItems[HASH_VALUE_ELEMENT_MAX];
+            int mNumHashElements;
+        } sHashValue;
     } uValue;
 
     sNodeType* mType;
@@ -590,6 +596,7 @@ unsigned int sNodeTree_create_normal_block(MANAGED sNodeBlock* node_block);
 unsigned int sNodeTree_create_array_value(int num_elements, unsigned int array_elements[]);
 unsigned int sNodeTree_create_or_or(unsigned int left_node, unsigned int right_node);
 unsigned int sNodeTree_create_and_and(unsigned int left_node, unsigned int right_node);
+unsigned int sNodeTree_create_hash_value(int num_elements, unsigned int hash_keys[], unsigned int hash_items[]);
 
 /// script.c ///
 BOOL compile_script(char* fname, char* source);
@@ -1192,6 +1199,7 @@ BOOL compile_script(char* fname, char* source);
 #define OP_CREATE_STRING 9000
 #define OP_CREATE_ARRAY 9001
 #define OP_CREATE_BLOCK_OBJECT 9002
+#define OP_CREATE_HASH 9003
 
 BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sVMInfo* info);
 void vm_mutex_on();
@@ -1199,6 +1207,7 @@ void vm_mutex_off();
 sCLClass* get_class_with_load_and_initialize(char* class_name);
 void class_final_on_runtime();
 BOOL call_finalize_method_on_free_object(sCLClass* klass, CLObject self);
+BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info);
 
 /// class_compiler.c ///
 #define PARSE_PHASE_ALLOC_CLASSES 1
@@ -1331,6 +1340,10 @@ void object_mark_fun(CLObject self, unsigned char* mark_flg);
 /// array.c ///
 CLObject create_array_object(sCLClass* klass, int array_num);
 void array_mark_fun(CLObject self, unsigned char* mark_flg);
+
+/// hash.c ///
+CLObject create_hash_object();
+BOOL initialize_hash_object(CLObject hash_object, int num_elements, CLObject* keys, CLObject* items, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sCLClass* class_keys, sCLClass* class_items);
 
 /// block.c ///
 struct sBlockObjectStruct
