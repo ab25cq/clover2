@@ -4723,6 +4723,215 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 }
                 break;
 
+            case OP_CBYTE_TO_BYTE_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    char value = (char)obj_data->mFields[0].mByteValue;
+
+                    (stack_ptr-1)->mByteValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CUBYTE_TO_BYTE_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    char value = (char)obj_data->mFields[0].mUByteValue;
+
+                    (stack_ptr-1)->mByteValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CSHORT_TO_BYTE_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    char value = (char)obj_data->mFields[0].mShortValue;
+
+                    (stack_ptr-1)->mByteValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CUSHORT_TO_BYTE_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    char value = (char)obj_data->mFields[0].mUShortValue;
+
+                    (stack_ptr-1)->mByteValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_INTEGER_TO_BYTE_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    char value = (char)obj_data->mFields[0].mIntValue;
+
+                    (stack_ptr-1)->mByteValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_UINTEGER_TO_BYTE_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    char value = (char)obj_data->mFields[0].mUIntValue;
+
+                    (stack_ptr-1)->mByteValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CLONG_TO_BYTE_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    char value = (char)obj_data->mFields[0].mLongValue;
+
+                    (stack_ptr-1)->mByteValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CULONG_TO_BYTE_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    char value = (char)obj_data->mFields[0].mULongValue;
+
+                    (stack_ptr-1)->mByteValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CFLOAT_TO_BYTE_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    char value = (char)obj_data->mFields[0].mFloatValue;
+
+                    (stack_ptr-1)->mByteValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CDOUBLE_TO_BYTE_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    char value = (char)obj_data->mFields[0].mDoubleValue;
+
+                    (stack_ptr-1)->mByteValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CPOINTER_TO_BYTE_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    char value = (char)obj_data->mFields[0].mPointerValue;
+
+                    (stack_ptr-1)->mByteValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CCHAR_TO_BYTE_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    char value = (char)obj_data->mFields[0].mCharValue;
+
+                    (stack_ptr-1)->mByteValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CBOOL_TO_BYTE_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    char value = (char)obj_data->mFields[0].mBoolValue;
+
+                    (stack_ptr-1)->mByteValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+
             case OP_BYTE_TO_SHORT_CAST:
                 {
                     vm_mutex_on();
@@ -4848,6 +5057,215 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     vm_mutex_on();
 
                     short value = (short)(stack_ptr-1)->mCharValue;
+
+                    (stack_ptr-1)->mShortValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+
+            case OP_CBYTE_TO_SHORT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    short value = (short)obj_data->mFields[0].mByteValue;
+
+                    (stack_ptr-1)->mShortValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CUBYTE_TO_SHORT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    short value = (short)obj_data->mFields[0].mUByteValue;
+
+                    (stack_ptr-1)->mShortValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CSHORT_TO_SHORT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    short value = (short)obj_data->mFields[0].mShortValue;
+
+                    (stack_ptr-1)->mShortValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CUSHORT_TO_SHORT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    short value = (short)obj_data->mFields[0].mUShortValue;
+
+                    (stack_ptr-1)->mShortValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_INTEGER_TO_SHORT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    short value = (short)obj_data->mFields[0].mIntValue;
+
+                    (stack_ptr-1)->mShortValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_UINTEGER_TO_SHORT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    short value = (short)obj_data->mFields[0].mUIntValue;
+
+                    (stack_ptr-1)->mShortValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CLONG_TO_SHORT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    short value = (short)obj_data->mFields[0].mLongValue;
+
+                    (stack_ptr-1)->mShortValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CULONG_TO_SHORT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    short value = (short)obj_data->mFields[0].mULongValue;
+
+                    (stack_ptr-1)->mShortValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CFLOAT_TO_SHORT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    short value = (short)obj_data->mFields[0].mFloatValue;
+
+                    (stack_ptr-1)->mShortValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CDOUBLE_TO_SHORT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    short value = (short)obj_data->mFields[0].mDoubleValue;
+
+                    (stack_ptr-1)->mShortValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CPOINTER_TO_SHORT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    short value = (short)obj_data->mFields[0].mPointerValue;
+
+                    (stack_ptr-1)->mShortValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CCHAR_TO_SHORT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    short value = (short)obj_data->mFields[0].mCharValue;
+
+                    (stack_ptr-1)->mShortValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CBOOL_TO_SHORT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    short value = (short)obj_data->mFields[0].mBoolValue;
 
                     (stack_ptr-1)->mShortValue = value;
 
@@ -4987,6 +5405,215 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 }
                 break;
 
+
+            case OP_CBYTE_TO_INT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    int value = (int)obj_data->mFields[0].mByteValue;
+
+                    (stack_ptr-1)->mIntValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CUBYTE_TO_INT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    int value = (int)obj_data->mFields[0].mUByteValue;
+
+                    (stack_ptr-1)->mIntValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CSHORT_TO_INT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    int value = (int)obj_data->mFields[0].mShortValue;
+
+                    (stack_ptr-1)->mIntValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CUSHORT_TO_INT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    int value = (int)obj_data->mFields[0].mUShortValue;
+
+                    (stack_ptr-1)->mIntValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_INTEGER_TO_INT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    int value = (int)obj_data->mFields[0].mIntValue;
+
+                    (stack_ptr-1)->mIntValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_UINTEGER_TO_INT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    int value = (int)obj_data->mFields[0].mUIntValue;
+
+                    (stack_ptr-1)->mIntValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CLONG_TO_INT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    int value = (int)obj_data->mFields[0].mLongValue;
+
+                    (stack_ptr-1)->mIntValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CULONG_TO_INT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    int value = (int)obj_data->mFields[0].mULongValue;
+
+                    (stack_ptr-1)->mIntValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CFLOAT_TO_INT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    int value = (int)obj_data->mFields[0].mFloatValue;
+
+                    (stack_ptr-1)->mIntValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CDOUBLE_TO_INT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    int value = (int)obj_data->mFields[0].mDoubleValue;
+
+                    (stack_ptr-1)->mIntValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CPOINTER_TO_INT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    int value = (int)obj_data->mFields[0].mPointerValue;
+
+                    (stack_ptr-1)->mIntValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CCHAR_TO_INT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    int value = (int)obj_data->mFields[0].mCharValue;
+
+                    (stack_ptr-1)->mIntValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CBOOL_TO_INT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    int value = (int)obj_data->mFields[0].mBoolValue;
+
+                    (stack_ptr-1)->mIntValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
             case OP_BYTE_TO_LONG_CAST:
                 {
                     vm_mutex_on();
@@ -5119,6 +5746,214 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 }
                 break;
 
+            case OP_CBYTE_TO_LONG_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    long value = (long)obj_data->mFields[0].mByteValue;
+
+                    (stack_ptr-1)->mLongValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CUBYTE_TO_LONG_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    long value = (long)obj_data->mFields[0].mUByteValue;
+
+                    (stack_ptr-1)->mLongValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CSHORT_TO_LONG_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    long value = (long)obj_data->mFields[0].mShortValue;
+
+                    (stack_ptr-1)->mLongValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CUSHORT_TO_LONG_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    long value = (long)obj_data->mFields[0].mUShortValue;
+
+                    (stack_ptr-1)->mLongValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_INTEGER_TO_LONG_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    long value = (long)obj_data->mFields[0].mIntValue;
+
+                    (stack_ptr-1)->mLongValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_UINTEGER_TO_LONG_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    long value = (long)obj_data->mFields[0].mUIntValue;
+
+                    (stack_ptr-1)->mLongValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CLONG_TO_LONG_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    long value = (long)obj_data->mFields[0].mLongValue;
+
+                    (stack_ptr-1)->mLongValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CULONG_TO_LONG_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    long value = (long)obj_data->mFields[0].mULongValue;
+
+                    (stack_ptr-1)->mLongValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CFLOAT_TO_LONG_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    long value = (long)obj_data->mFields[0].mFloatValue;
+
+                    (stack_ptr-1)->mLongValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CDOUBLE_TO_LONG_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    long value = (long)obj_data->mFields[0].mDoubleValue;
+
+                    (stack_ptr-1)->mLongValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CPOINTER_TO_LONG_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    long value = (long)obj_data->mFields[0].mPointerValue;
+
+                    (stack_ptr-1)->mLongValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CCHAR_TO_LONG_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    long value = (long)obj_data->mFields[0].mCharValue;
+
+                    (stack_ptr-1)->mLongValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CBOOL_TO_LONG_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    long value = (long)obj_data->mFields[0].mBoolValue;
+
+                    (stack_ptr-1)->mLongValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
             case OP_BYTE_TO_UBYTE_CAST:
                 {
                     vm_mutex_on();
@@ -5243,6 +6078,214 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     vm_mutex_on();
 
                     unsigned char value = (unsigned char)(stack_ptr-1)->mCharValue;
+
+                    (stack_ptr-1)->mUByteValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CBYTE_TO_UBYTE_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned char value = (unsigned char)obj_data->mFields[0].mByteValue;
+
+                    (stack_ptr-1)->mUByteValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CUBYTE_TO_UBYTE_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned char value = (unsigned char)obj_data->mFields[0].mUByteValue;
+
+                    (stack_ptr-1)->mUByteValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CSHORT_TO_UBYTE_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned char value = (unsigned char)obj_data->mFields[0].mShortValue;
+
+                    (stack_ptr-1)->mUByteValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CUSHORT_TO_UBYTE_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned char value = (unsigned char)obj_data->mFields[0].mUShortValue;
+
+                    (stack_ptr-1)->mUByteValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_INTEGER_TO_UBYTE_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned char value = (unsigned char)obj_data->mFields[0].mIntValue;
+
+                    (stack_ptr-1)->mUByteValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_UINTEGER_TO_UBYTE_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned char value = (unsigned char)obj_data->mFields[0].mUIntValue;
+
+                    (stack_ptr-1)->mUByteValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CLONG_TO_UBYTE_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned char value = (unsigned char)obj_data->mFields[0].mLongValue;
+
+                    (stack_ptr-1)->mUByteValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CULONG_TO_UBYTE_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned char value = (unsigned char)obj_data->mFields[0].mULongValue;
+
+                    (stack_ptr-1)->mUByteValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CFLOAT_TO_UBYTE_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned char value = (unsigned char)obj_data->mFields[0].mFloatValue;
+
+                    (stack_ptr-1)->mUByteValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CDOUBLE_TO_UBYTE_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned char value = (unsigned char)obj_data->mFields[0].mDoubleValue;
+
+                    (stack_ptr-1)->mUByteValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CPOINTER_TO_UBYTE_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned char value = (unsigned char)obj_data->mFields[0].mPointerValue;
+
+                    (stack_ptr-1)->mUByteValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CCHAR_TO_UBYTE_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned char value = (unsigned char)obj_data->mFields[0].mCharValue;
+
+                    (stack_ptr-1)->mUByteValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CBOOL_TO_UBYTE_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned char value = (unsigned char)obj_data->mFields[0].mBoolValue;
 
                     (stack_ptr-1)->mUByteValue = value;
 
@@ -5382,6 +6425,215 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 }
                 break;
 
+            case OP_CBYTE_TO_USHORT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned short value = (unsigned short)obj_data->mFields[0].mByteValue;
+
+                    (stack_ptr-1)->mUShortValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CUBYTE_TO_USHORT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned short value = (unsigned short)obj_data->mFields[0].mUByteValue;
+
+                    (stack_ptr-1)->mUShortValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CSHORT_TO_USHORT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned short value = (unsigned short)obj_data->mFields[0].mShortValue;
+
+                    (stack_ptr-1)->mUShortValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CUSHORT_TO_USHORT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned short value = (unsigned short)obj_data->mFields[0].mUShortValue;
+
+                    (stack_ptr-1)->mUShortValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_INTEGER_TO_USHORT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned short value = (unsigned short)obj_data->mFields[0].mIntValue;
+
+                    (stack_ptr-1)->mUShortValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_UINTEGER_TO_USHORT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned short value = (unsigned short)obj_data->mFields[0].mUIntValue;
+
+                    (stack_ptr-1)->mUShortValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CLONG_TO_USHORT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned short value = (unsigned short)obj_data->mFields[0].mLongValue;
+
+                    (stack_ptr-1)->mUShortValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CULONG_TO_USHORT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned short value = (unsigned short)obj_data->mFields[0].mULongValue;
+
+                    (stack_ptr-1)->mUShortValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CFLOAT_TO_USHORT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned short value = (unsigned short)obj_data->mFields[0].mFloatValue;
+
+                    (stack_ptr-1)->mUShortValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CDOUBLE_TO_USHORT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned short value = (unsigned short)obj_data->mFields[0].mDoubleValue;
+
+                    (stack_ptr-1)->mUShortValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CPOINTER_TO_USHORT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned short value = (unsigned short)obj_data->mFields[0].mPointerValue;
+
+                    (stack_ptr-1)->mUShortValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CCHAR_TO_USHORT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned short value = (unsigned short)obj_data->mFields[0].mCharValue;
+
+                    (stack_ptr-1)->mUShortValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CBOOL_TO_USHORT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned short value = (unsigned short)obj_data->mFields[0].mBoolValue;
+
+                    (stack_ptr-1)->mUShortValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+
             case OP_BYTE_TO_UINT_CAST:
                 {
                     vm_mutex_on();
@@ -5515,6 +6767,216 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 }
                 break;
 
+            case OP_CBYTE_TO_UINT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned int value = (unsigned int)obj_data->mFields[0].mByteValue;
+
+                    (stack_ptr-1)->mUIntValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CUBYTE_TO_UINT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned int value = (unsigned int)obj_data->mFields[0].mUByteValue;
+
+                    (stack_ptr-1)->mUIntValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CSHORT_TO_UINT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned int value = (unsigned int)obj_data->mFields[0].mShortValue;
+
+                    (stack_ptr-1)->mUIntValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CUSHORT_TO_UINT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned int value = (unsigned int)obj_data->mFields[0].mUShortValue;
+
+                    (stack_ptr-1)->mUIntValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_INTEGER_TO_UINT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned int value = (unsigned int)obj_data->mFields[0].mIntValue;
+
+                    (stack_ptr-1)->mUIntValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_UINTEGER_TO_UINT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned int value = (unsigned int)obj_data->mFields[0].mUIntValue;
+
+                    (stack_ptr-1)->mUIntValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CLONG_TO_UINT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned int value = (unsigned int)obj_data->mFields[0].mLongValue;
+
+                    (stack_ptr-1)->mUIntValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CULONG_TO_UINT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned int value = (unsigned int)obj_data->mFields[0].mULongValue;
+
+                    (stack_ptr-1)->mUIntValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CFLOAT_TO_UINT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned int value = (unsigned int)obj_data->mFields[0].mFloatValue;
+
+                    (stack_ptr-1)->mUIntValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CDOUBLE_TO_UINT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned int value = (unsigned int)obj_data->mFields[0].mDoubleValue;
+
+                    (stack_ptr-1)->mUIntValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CPOINTER_TO_UINT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned int value = (unsigned int)obj_data->mFields[0].mPointerValue;
+
+                    (stack_ptr-1)->mUIntValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CCHAR_TO_UINT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned int value = (unsigned int)obj_data->mFields[0].mCharValue;
+
+                    (stack_ptr-1)->mUIntValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CBOOL_TO_UINT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned int value = (unsigned int)obj_data->mFields[0].mBoolValue;
+
+                    (stack_ptr-1)->mUIntValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+
+
             case OP_BYTE_TO_ULONG_CAST:
                 {
                     vm_mutex_on();
@@ -5647,6 +7109,216 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 }
                 break;
 
+
+            case OP_CBYTE_TO_ULONG_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned long value = (unsigned long)obj_data->mFields[0].mByteValue;
+
+                    (stack_ptr-1)->mULongValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CUBYTE_TO_ULONG_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned long value = (unsigned long)obj_data->mFields[0].mUByteValue;
+
+                    (stack_ptr-1)->mULongValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CSHORT_TO_ULONG_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned long value = (unsigned long)obj_data->mFields[0].mShortValue;
+
+                    (stack_ptr-1)->mULongValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CUSHORT_TO_ULONG_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned long value = (unsigned long)obj_data->mFields[0].mUShortValue;
+
+                    (stack_ptr-1)->mULongValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_INTEGER_TO_ULONG_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned long value = (unsigned long)obj_data->mFields[0].mIntValue;
+
+                    (stack_ptr-1)->mULongValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_UINTEGER_TO_ULONG_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned long value = (unsigned long)obj_data->mFields[0].mUIntValue;
+
+                    (stack_ptr-1)->mULongValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CLONG_TO_ULONG_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned long value = (unsigned long)obj_data->mFields[0].mLongValue;
+
+                    (stack_ptr-1)->mULongValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CULONG_TO_ULONG_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned long value = (unsigned long)obj_data->mFields[0].mULongValue;
+
+                    (stack_ptr-1)->mULongValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CFLOAT_TO_ULONG_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned long value = (unsigned long)obj_data->mFields[0].mFloatValue;
+
+                    (stack_ptr-1)->mULongValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CDOUBLE_TO_ULONG_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned long value = (unsigned long)obj_data->mFields[0].mDoubleValue;
+
+                    (stack_ptr-1)->mULongValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CPOINTER_TO_ULONG_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned long value = (unsigned long)obj_data->mFields[0].mPointerValue;
+
+                    (stack_ptr-1)->mULongValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CCHAR_TO_ULONG_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned long value = (unsigned long)obj_data->mFields[0].mCharValue;
+
+                    (stack_ptr-1)->mULongValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CBOOL_TO_ULONG_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    unsigned long value = (unsigned long)obj_data->mFields[0].mBoolValue;
+
+                    (stack_ptr-1)->mULongValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+
             case OP_BYTE_TO_FLOAT_CAST:
                 {
                     vm_mutex_on();
@@ -5767,6 +7439,202 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 }
                 break;
 
+
+            case OP_CBYTE_TO_FLOAT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    float value = (float)obj_data->mFields[0].mByteValue;
+
+                    (stack_ptr-1)->mFloatValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CUBYTE_TO_FLOAT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    float value = (float)obj_data->mFields[0].mUByteValue;
+
+                    (stack_ptr-1)->mFloatValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CSHORT_TO_FLOAT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    float value = (float)obj_data->mFields[0].mShortValue;
+
+                    (stack_ptr-1)->mFloatValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CUSHORT_TO_FLOAT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    float value = (float)obj_data->mFields[0].mUShortValue;
+
+                    (stack_ptr-1)->mFloatValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_INTEGER_TO_FLOAT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    float value = (float)obj_data->mFields[0].mIntValue;
+
+                    (stack_ptr-1)->mFloatValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_UINTEGER_TO_FLOAT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    float value = (float)obj_data->mFields[0].mUIntValue;
+
+                    (stack_ptr-1)->mFloatValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CLONG_TO_FLOAT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    float value = (float)obj_data->mFields[0].mLongValue;
+
+                    (stack_ptr-1)->mFloatValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CULONG_TO_FLOAT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    float value = (float)obj_data->mFields[0].mULongValue;
+
+                    (stack_ptr-1)->mFloatValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CFLOAT_TO_FLOAT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    float value = (float)obj_data->mFields[0].mFloatValue;
+
+                    (stack_ptr-1)->mFloatValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CDOUBLE_TO_FLOAT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    float value = (float)obj_data->mFields[0].mDoubleValue;
+
+                    (stack_ptr-1)->mFloatValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+
+            case OP_CCHAR_TO_FLOAT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    float value = (float)obj_data->mFields[0].mCharValue;
+
+                    (stack_ptr-1)->mFloatValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CBOOL_TO_FLOAT_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    float value = (float)obj_data->mFields[0].mBoolValue;
+
+                    (stack_ptr-1)->mFloatValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+
+
             case OP_BYTE_TO_DOUBLE_CAST:
                 {
                     vm_mutex_on();
@@ -5875,12 +7743,204 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 }
                 break;
                 
-                
             case OP_CHAR_TO_DOUBLE_CAST:
                 {
                     vm_mutex_on();
 
                     double value = (double)(stack_ptr-1)->mCharValue;
+
+                    (stack_ptr-1)->mDoubleValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+
+            case OP_CBYTE_TO_DOUBLE_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    double value = (double)obj_data->mFields[0].mByteValue;
+
+                    (stack_ptr-1)->mDoubleValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CUBYTE_TO_DOUBLE_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    double value = (double)obj_data->mFields[0].mUByteValue;
+
+                    (stack_ptr-1)->mDoubleValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CSHORT_TO_DOUBLE_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    double value = (double)obj_data->mFields[0].mShortValue;
+
+                    (stack_ptr-1)->mDoubleValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CUSHORT_TO_DOUBLE_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    double value = (double)obj_data->mFields[0].mUShortValue;
+
+                    (stack_ptr-1)->mDoubleValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_INTEGER_TO_DOUBLE_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    double value = (double)obj_data->mFields[0].mIntValue;
+
+                    (stack_ptr-1)->mDoubleValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_UINTEGER_TO_DOUBLE_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    double value = (double)obj_data->mFields[0].mUIntValue;
+
+                    (stack_ptr-1)->mDoubleValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CLONG_TO_DOUBLE_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    double value = (double)obj_data->mFields[0].mLongValue;
+
+                    (stack_ptr-1)->mDoubleValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CULONG_TO_DOUBLE_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    double value = (double)obj_data->mFields[0].mULongValue;
+
+                    (stack_ptr-1)->mDoubleValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CFLOAT_TO_DOUBLE_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    double value = (double)obj_data->mFields[0].mFloatValue;
+
+                    (stack_ptr-1)->mDoubleValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CDOUBLE_TO_DOUBLE_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    double value = (double)obj_data->mFields[0].mDoubleValue;
+
+                    (stack_ptr-1)->mDoubleValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CCHAR_TO_DOUBLE_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    double value = (double)obj_data->mFields[0].mCharValue;
+
+                    (stack_ptr-1)->mDoubleValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CBOOL_TO_DOUBLE_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    double value = (double)obj_data->mFields[0].mBoolValue;
 
                     (stack_ptr-1)->mDoubleValue = value;
 
@@ -5983,8 +8043,6 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     vm_mutex_off();
                 }
                 break;
-
-
                 
             case OP_CHAR_TO_POINTER_CAST:
                 {
@@ -6125,6 +8183,214 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     vm_mutex_on();
 
                     wchar_t value = (wchar_t)(stack_ptr-1)->mPointerValue;
+
+                    (stack_ptr-1)->mCharValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CBYTE_TO_CHAR_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    wchar_t value = (wchar_t)obj_data->mFields[0].mByteValue;
+
+                    (stack_ptr-1)->mCharValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CUBYTE_TO_CHAR_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    wchar_t value = (wchar_t)obj_data->mFields[0].mUByteValue;
+
+                    (stack_ptr-1)->mCharValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CSHORT_TO_CHAR_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    wchar_t value = (wchar_t)obj_data->mFields[0].mShortValue;
+
+                    (stack_ptr-1)->mCharValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CUSHORT_TO_CHAR_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    wchar_t value = (wchar_t)obj_data->mFields[0].mUShortValue;
+
+                    (stack_ptr-1)->mCharValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_INTEGER_TO_CHAR_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    wchar_t value = (wchar_t)obj_data->mFields[0].mIntValue;
+
+                    (stack_ptr-1)->mCharValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_UINTEGER_TO_CHAR_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    wchar_t value = (wchar_t)obj_data->mFields[0].mUIntValue;
+
+                    (stack_ptr-1)->mCharValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CLONG_TO_CHAR_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    wchar_t value = (wchar_t)obj_data->mFields[0].mLongValue;
+
+                    (stack_ptr-1)->mCharValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CULONG_TO_CHAR_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    wchar_t value = (wchar_t)obj_data->mFields[0].mULongValue;
+
+                    (stack_ptr-1)->mCharValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CFLOAT_TO_CHAR_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    wchar_t value = (wchar_t)obj_data->mFields[0].mFloatValue;
+
+                    (stack_ptr-1)->mCharValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CDOUBLE_TO_CHAR_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    wchar_t value = (wchar_t)obj_data->mFields[0].mDoubleValue;
+
+                    (stack_ptr-1)->mCharValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CPOINTER_TO_CHAR_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    wchar_t value = (wchar_t)obj_data->mFields[0].mPointerValue;
+
+                    (stack_ptr-1)->mCharValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CCHAR_TO_CHAR_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    wchar_t value = (wchar_t)obj_data->mFields[0].mCharValue;
+
+                    (stack_ptr-1)->mCharValue = value;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CBOOL_TO_CHAR_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    sCLObject* obj_data = CLOBJECT(obj);
+
+                    wchar_t value = (wchar_t)obj_data->mFields[0].mBoolValue;
 
                     (stack_ptr-1)->mCharValue = value;
 

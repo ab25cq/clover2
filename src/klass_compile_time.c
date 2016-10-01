@@ -82,6 +82,7 @@ static void create_method_name_and_params(char* result, int size_result, sCLClas
     for(i=0; i<num_params; i++) {
         sParserParam* param = params + i;
         sCLClass* klass2 = param->mType->mClass;
+        BOOL array = param->mType->mArray;
 
         if(klass2 == klass) {
             xstrncat(result, "SELF", size_result);
@@ -90,13 +91,16 @@ static void create_method_name_and_params(char* result, int size_result, sCLClas
             xstrncat(result, CLASS_NAME(klass2), size_result);
         }
 
-        if(i == num_params-1) {
-            xstrncat(result, ")", size_result);
+        if(array) {
+            xstrncat(result, "[]", size_result);
         }
-        else {
+
+        if(i != num_params-1) {
             xstrncat(result, ",", size_result);
         }
     }
+
+    xstrncat(result, ")", size_result);
 }
 
 BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_)
@@ -252,6 +256,32 @@ int search_for_method(sCLClass* klass, char* method_name, sNodeType** param_type
     }
 
     return -1;
+}
+
+BOOL search_for_methods_from_method_name(int method_indexes[], int size_method_indexes, int* num_methods, sCLClass* klass, char* method_name, int start_point)
+{
+    int i;
+
+    *num_methods = 0;
+
+    if(start_point < klass->mNumMethods) {
+        for(i=start_point; i>=0; i--) {           // search for the method in reverse order because we want to get last defined method
+            sCLMethod* method;
+            
+            method = klass->mMethods + i;
+
+            if(strcmp(METHOD_NAME2(klass, method), method_name) == 0) {
+                method_indexes[*num_methods] = i;
+                (*num_methods)++;
+
+                if(*num_methods >= size_method_indexes) {
+                    return FALSE;
+                }
+            }
+        }
+    }
+
+    return TRUE;
 }
 
 int search_for_field(sCLClass* klass, char* field_name)

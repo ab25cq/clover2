@@ -15,3 +15,13 @@ b:Hash<String, Integer> = [ "ABC":123.toInteger, "DEF":234.toInteger ];
 Clover.test("hash test4", b.get("ABC").getValue() == 123);
 Clover.test("hash test5", b.get("DEF").getValue() == 234);
 
+c:Hash<String, Integer> = new Hash<String, Integer>();
+
+c.put("ABC", 1);
+
+Clover.test("hash test6", c.get("ABC").getValue() == 1);
+
+d:Hash<String, Integer> = [ "ABC":123, "DEF":234 ];
+
+Clover.test("hash test7", d.get("ABC").getValue() == 123);
+

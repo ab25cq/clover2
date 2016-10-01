@@ -377,3 +377,17 @@ void print_node_type(sNodeType* node_type)
         printf("[]");
     }
 }
+
+BOOL boxing_posibility(sNodeType* left_type, sNodeType* right_type)
+{
+    if(left_type->mNumGenericsTypes == 0 && right_type->mNumGenericsTypes == 0) {
+        sCLClass* left_class = left_type->mClass;
+        sCLClass* right_class = right_type->mClass;
+
+        if(right_class->mBoxingClass == left_class) {
+            return TRUE;
+        }
+    }
+
+    return FALSE;
+}

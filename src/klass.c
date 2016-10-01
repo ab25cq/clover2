@@ -654,6 +654,9 @@ static sCLClass* load_class_from_class_file(char* class_name, char* class_file_n
 
     put_class_to_table(class_name, klass);
 
+    klass->mBoxingClass = NULL;
+    klass->mUnboxingClass = NULL;
+
     return klass;
 }
 
@@ -743,6 +746,9 @@ sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_clas
     }
 
     put_class_to_table(class_name, klass);
+
+    klass->mBoxingClass = NULL;
+    klass->mUnboxingClass = NULL;
 
     return klass;
 }
@@ -839,6 +845,37 @@ static void load_fundamental_classes()
     (void)load_class("SystemException");
 }
 
+static void set_boxing_and_unboxing_class(char* primitive_class_name, char* lapper_class_name)
+{
+    sCLClass* klass = get_class(primitive_class_name);
+
+    MASSERT(klass != NULL || klass == NULL);            // when compiling Fundamental.clc, klass is NULL
+
+    sCLClass* klass2 = get_class(lapper_class_name);
+
+    MASSERT(klass2 != NULL || klass == NULL);
+
+    klass->mBoxingClass = klass2;
+    klass2->mUnboxingClass = klass;
+}
+
+static void set_boxing_and_unboxing_classes()
+{
+    set_boxing_and_unboxing_class("int", "Integer");
+    set_boxing_and_unboxing_class("uint", "UInteger");
+    set_boxing_and_unboxing_class("byte", "Byte");
+    set_boxing_and_unboxing_class("ubyte", "UByte");
+    set_boxing_and_unboxing_class("short", "Short");
+    set_boxing_and_unboxing_class("ushort", "UShort");
+    set_boxing_and_unboxing_class("long", "Long");
+    set_boxing_and_unboxing_class("ulong", "ULong");
+    set_boxing_and_unboxing_class("float", "Float");
+    set_boxing_and_unboxing_class("double", "Double");
+    set_boxing_and_unboxing_class("pointer", "Pointer");
+    set_boxing_and_unboxing_class("char", "Char");
+    set_boxing_and_unboxing_class("bool", "Bool");
+}
+
 void class_init()
 {
     memset(gClassTable, 0, sizeof(sClassTable)*CLASS_NUM_MAX);
@@ -894,6 +931,7 @@ void class_init()
     alloc_class("GenericsParametorClass31", FALSE, 31, 0, NULL, FALSE);
 
     load_fundamental_classes();
+    set_boxing_and_unboxing_classes();
 }
 
 void class_final()

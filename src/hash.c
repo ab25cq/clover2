@@ -13,7 +13,8 @@ BOOL initialize_hash_object(CLObject hash_object, int num_elements, CLObject* ke
 {
     sCLClass* klass = get_class("Hash");
 
-    sCLMethod* method = klass->mMethods + 2;   // initialize method
+    char* method_name_and_params = "initialize(GenericsParametorClass0[],GenericsParametorClass1[],uint)";
+    sCLMethod* method = search_for_method_from_virtual_method_table(klass, method_name_and_params);
 
     (*stack_ptr)->mObjectValue = hash_object;  // self
     (*stack_ptr)++;
