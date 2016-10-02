@@ -136,6 +136,22 @@ sCLClass* get_class(char* class_name)
 
 static BOOL search_for_class_file_with_version(char* class_name, char* class_file_name, size_t class_file_name_size, int class_version)
 {
+    char* home = getenv("HOME");
+
+    /// .clover directory ///
+    if(home) {
+        if(class_version == 1) {
+            snprintf(class_file_name, class_file_name_size, "%s/.clover2/%s.clcl", home, class_name);
+        }
+        else {
+            snprintf(class_file_name, class_file_name_size, "%s/.clover2/%s@%d.clcl", home, class_name, class_version);
+        }
+
+        if(access(class_file_name, F_OK) == 0) {
+            return TRUE;
+        }
+    }
+
     char* cwd = getenv("PWD");
 
     /// current working directory ///
@@ -145,22 +161,6 @@ static BOOL search_for_class_file_with_version(char* class_name, char* class_fil
         }
         else {
             snprintf(class_file_name, class_file_name_size, "%s/%s@%d.clcl", cwd, class_name, class_version);
-        }
-
-        if(access(class_file_name, F_OK) == 0) {
-            return TRUE;
-        }
-    }
-
-    char* home = getenv("HOME");
-
-    /// .clover directory ///
-    if(home) {
-        if(class_version == 1) {
-            snprintf(class_file_name, class_file_name_size, "%s/%s.clcl", home, class_name);
-        }
-        else {
-            snprintf(class_file_name, class_file_name_size, "%s/%s@%d.clcl", home, class_name, class_version);
         }
 
         if(access(class_file_name, F_OK) == 0) {
@@ -767,7 +767,7 @@ static void free_class(sCLClass* klass)
 
         free_cl_type(method->mResultType);
 
-        if(!(method->mFlags & METHOD_FLAGS_NATIVE) && !(klass->mFlags & CLASS_FLAGS_INTERFACE) && method->uCode.mByteCodes.mCodes) {
+        if(!(method->mFlags & METHOD_FLAGS_NATIVE) && method->uCode.mByteCodes.mCodes) {
             sByteCode_free(&method->uCode.mByteCodes);
         }
     }
@@ -820,31 +820,6 @@ void free_cl_type(sCLType* cl_type)
     MFREE(cl_type);
 }
 
-static void load_fundamental_classes()
-{
-    (void)load_class("System");
-    (void)load_class("Clover");
-
-    (void)load_class("Byte");
-    (void)load_class("UByte");
-    (void)load_class("Short");
-    (void)load_class("UShort");
-    (void)load_class("Integer");
-    (void)load_class("UInteger");
-    (void)load_class("Long");
-    (void)load_class("ULong");
-    (void)load_class("Float");
-    (void)load_class("Double");
-    (void)load_class("Pointer");
-    (void)load_class("Char");
-    (void)load_class("Bool");
-
-    (void)load_class("String");
-
-    (void)load_class("Exception");
-    (void)load_class("SystemException");
-}
-
 static void set_boxing_and_unboxing_class(char* primitive_class_name, char* lapper_class_name)
 {
     sCLClass* klass = get_class(primitive_class_name);
@@ -859,7 +834,7 @@ static void set_boxing_and_unboxing_class(char* primitive_class_name, char* lapp
     if(klass2) { klass2->mUnboxingClass = klass; }
 }
 
-static void set_boxing_and_unboxing_classes()
+void set_boxing_and_unboxing_classes()
 {
     set_boxing_and_unboxing_class("int", "Integer");
     set_boxing_and_unboxing_class("uint", "UInteger");
@@ -874,6 +849,50 @@ static void set_boxing_and_unboxing_classes()
     set_boxing_and_unboxing_class("pointer", "Pointer");
     set_boxing_and_unboxing_class("char", "Char");
     set_boxing_and_unboxing_class("bool", "Bool");
+}
+
+static void load_fundamental_classes_on_compile_time()
+{
+    load_class("System");
+    load_class("Clover");
+
+    load_class("String");
+
+    load_class("Exception");
+    load_class("SystemException");
+
+    load_class("Object");
+
+    load_class("Byte");
+    load_class("UByte");
+    load_class("Short");
+    load_class("UShort");
+    load_class("Integer");
+    load_class("UInteger");
+    load_class("Long");
+    load_class("ULong");
+
+    load_class("Float");
+    load_class("Double");
+
+    load_class("Pointer");
+    load_class("Char");
+    load_class("Bool");
+
+    load_class("HashKey");
+    load_class("HashItem");
+
+    load_class("Hash");
+
+    load_class("ListItem");
+
+    load_class("List");
+}
+
+void class_init_on_compile_time()
+{
+    load_fundamental_classes_on_compile_time();
+    set_boxing_and_unboxing_classes();
 }
 
 void class_init()
@@ -929,9 +948,6 @@ void class_init()
     alloc_class("GenericsParametorClass29", FALSE, 29, 0, NULL, FALSE);
     alloc_class("GenericsParametorClass30", FALSE, 30, 0, NULL, FALSE);
     alloc_class("GenericsParametorClass31", FALSE, 31, 0, NULL, FALSE);
-
-    load_fundamental_classes();
-    set_boxing_and_unboxing_classes();
 }
 
 void class_final()

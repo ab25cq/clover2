@@ -602,3 +602,51 @@ class Hash <T:HashKey, T2:Object>
     }
 }
 
+
+class ListItem <T:Object>
+{
+    item: T;
+    next: ListItem<T>;
+    prev: ListItem<T>;
+
+    def initialize() {
+        self.item = null;
+        self.next = null;
+        self.prev = null;
+    }
+
+    def initialize(item:T, prev:ListItem<T>, next:ListItem<T>) {
+        self.item = item;
+        self.prev = prev;
+        self.next = next;
+    }
+}
+
+class List<T:Object>
+{
+    head: ListItem<T>;
+    tail: ListItem<T>;
+    number: uint;
+
+    def initialize() {
+        self.head = null;
+        self.tail = null;
+        self.number = 0;
+    }
+
+    def add(item:T) {
+        if(self.head.isNull) {
+            self.head = new ListItem<T>(item, null, null);
+            self.tail = self.head;
+        }
+        else {
+            new_item:ListItem<T> = new ListItem<T>(item, self.tail, null);
+
+            self.tail.next = new_item;
+            self.tail = new_item;
+        }
+    }
+
+    def each(block_:lambda(T)) {
+    }
+}

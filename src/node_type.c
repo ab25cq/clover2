@@ -359,10 +359,26 @@ BOOL is_exception_type(sNodeType* exception_type)
 void print_node_type(sNodeType* node_type)
 {
     if(node_type->mNumGenericsTypes == 0) {
-        printf("%s", CLASS_NAME(node_type->mClass));
+        if(node_type == NULL) {
+            printf("type is NULL\n");
+        }
+        else if(node_type->mClass == NULL) {
+            printf("class of node type is NULL\n");
+        }
+        else {
+            printf("%s", CLASS_NAME(node_type->mClass));
+        }
     }
     else {
-        printf("%s<", CLASS_NAME(node_type->mClass));
+        if(node_type == NULL) {
+            printf("type is NULL\n");
+        }
+        else if(node_type->mClass == NULL) {
+            printf("class of node type is NULL\n");
+        }
+        else {
+            printf("%s<", CLASS_NAME(node_type->mClass));
+        }
 
         int i;
         for(i=0; i<node_type->mNumGenericsTypes; i++) {
@@ -390,4 +406,9 @@ BOOL boxing_posibility(sNodeType* left_type, sNodeType* right_type)
     }
 
     return FALSE;
+}
+
+BOOL unboxig_posibility(sCLClass* klass)
+{
+    return !(klass->mFlags & CLASS_FLAGS_PRIMITIVE) && klass->mUnboxingClass != NULL;
 }

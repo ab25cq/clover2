@@ -3153,6 +3153,15 @@ static BOOL binary_operator_for_bool(sNodeType* type, int bool_operand, sCompile
     return TRUE;
 }
 
+static BOOL unboxing_to_primitive_type(sNodeType** left_type, sCompileInfo* info)
+{
+    sCLClass* primitive_class = (*left_type)->mClass->mUnboxingClass;
+    sNodeType* primitive_type = create_node_type_with_class_pointer(primitive_class);
+    cast_right_type_to_left_type(primitive_type, left_type, info);
+
+    return TRUE;
+}
+
 static BOOL compile_operand(unsigned int node, sCompileInfo* info)
 {
     int left_node = gNodes[node].mLeft;
@@ -3160,6 +3169,12 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
         return FALSE;
     }
     sNodeType* left_type = info->type;
+
+    if(unboxig_posibility(left_type->mClass)) {
+        if(!unboxing_to_primitive_type(&left_type, info)) {
+            return FALSE;
+        }
+    }
 
     int right_node = gNodes[node].mRight;
     if(!compile(right_node, info)) {
@@ -3341,7 +3356,15 @@ static BOOL compile_and_and(unsigned int node, sCompileInfo* info)
         return FALSE;
     }
 
-    if(!type_identify_with_class_name(info->type, "bool")) {
+    sNodeType* left_type = info->type;
+
+    if(unboxig_posibility(left_type->mClass)) {
+        if(!unboxing_to_primitive_type(&left_type, info)) {
+            return FALSE;
+        }
+    }
+
+    if(!type_identify_with_class_name(left_type, "bool")) {
         parser_err_msg(info->pinfo, "Left expression is not bool type");
         info->err_num++;
 
@@ -3369,7 +3392,15 @@ static BOOL compile_and_and(unsigned int node, sCompileInfo* info)
         return FALSE;
     }
 
-    if(!type_identify_with_class_name(info->type, "bool")) {
+    sNodeType* right_type = info->type;
+
+    if(unboxig_posibility(right_type->mClass)) {
+        if(!unboxing_to_primitive_type(&right_type, info)) {
+            return FALSE;
+        }
+    }
+
+    if(!type_identify_with_class_name(right_type, "bool")) {
         parser_err_msg(info->pinfo, "Right expression is not bool type");
         info->err_num++;
 
@@ -3412,7 +3443,15 @@ static BOOL compile_or_or(unsigned int node, sCompileInfo* info)
         return FALSE;
     }
 
-    if(!type_identify_with_class_name(info->type, "bool")) {
+    sNodeType* left_type = info->type;
+
+    if(unboxig_posibility(left_type->mClass)) {
+        if(!unboxing_to_primitive_type(&left_type, info)) {
+            return FALSE;
+        }
+    }
+
+    if(!type_identify_with_class_name(left_type, "bool")) {
         parser_err_msg(info->pinfo, "Left expression is not bool type");
         info->err_num++;
 
@@ -3440,7 +3479,15 @@ static BOOL compile_or_or(unsigned int node, sCompileInfo* info)
         return FALSE;
     }
 
-    if(!type_identify_with_class_name(info->type, "bool")) {
+    sNodeType* right_type = info->type;
+
+    if(unboxig_posibility(right_type->mClass)) {
+        if(!unboxing_to_primitive_type(&right_type, info)) {
+            return FALSE;
+        }
+    }
+
+    if(!type_identify_with_class_name(right_type, "bool")) {
         parser_err_msg(info->pinfo, "Right expression is not bool type");
         info->err_num++;
 
@@ -3482,6 +3529,9 @@ static BOOL compile_conditional_operator(unsigned int node, sCompileInfo* info)
     if(!compile(expression_node, info)) {
         return FALSE;
     }
+
+    sNodeType* bool_type = create_node_type_with_class_name("bool");
+    cast_right_type_to_left_type(bool_type, &info->type, info);
 
     if(!type_identify_with_class_name(info->type, "bool")) {
         parser_err_msg(info->pinfo, "This conditional expression type is not bool");
@@ -4475,6 +4525,10 @@ static BOOL compile_params(sCLClass* klass, char* method_name, int num_params, u
 
                 if(boxing_posibility(solved_param, param_types[i])) {
                     cast_right_type_to_left_type(solved_param, &param_types[i], info);
+                }
+
+                if(type_identify_with_class_name(param_types[i], "Null")) {
+                    param_types[i] = solved_param;
                 }
             }
         }
@@ -7076,7 +7130,7 @@ unsigned int sNodeTree_create_hash_value(int num_elements, unsigned int hash_key
     return node;
 }
 
-void boxing_to_primitive_class(sNodeType** type_, sCompileInfo* info)
+void boxing_to_lapper_class(sNodeType** type_, sCompileInfo* info)
 {
     sCLClass* klass = (*type_)->mClass;
 
@@ -7116,7 +7170,7 @@ BOOL compile_hash_value(unsigned int node, sCompileInfo* info)
 
     sNodeType* key_type = info->type;
 
-    boxing_to_primitive_class(&key_type, info);
+    boxing_to_lapper_class(&key_type, info);
 
     unsigned int first_item_node = items[0];
 
@@ -7126,7 +7180,7 @@ BOOL compile_hash_value(unsigned int node, sCompileInfo* info)
 
     sNodeType* item_type = info->type;
 
-    boxing_to_primitive_class(&item_type, info);
+    boxing_to_lapper_class(&item_type, info);
 
     int i;
     for(i=1; i<num_elements; i++) {
@@ -7136,7 +7190,7 @@ BOOL compile_hash_value(unsigned int node, sCompileInfo* info)
             return FALSE;
         }
 
-        boxing_to_primitive_class(&info->type, info);
+        boxing_to_lapper_class(&info->type, info);
 
         if(!type_identify(key_type, info->type)) {
             parser_err_msg(info->pinfo, "Invalid key type. Left type is %s. Right type is %s", CLASS_NAME(key_type->mClass), CLASS_NAME(info->type->mClass));
@@ -7149,7 +7203,7 @@ BOOL compile_hash_value(unsigned int node, sCompileInfo* info)
             return FALSE;
         }
 
-        boxing_to_primitive_class(&info->type, info);
+        boxing_to_lapper_class(&info->type, info);
 
         if(!type_identify(item_type, info->type)) {
             parser_err_msg(info->pinfo, "Invalid item type. Left type is %s. Right type is %s", CLASS_NAME(item_type->mClass), CLASS_NAME(info->type->mClass));

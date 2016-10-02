@@ -46,7 +46,6 @@ BOOL initialize_hash_object(CLObject hash_object, int num_elements, CLObject* ke
     (*stack_ptr)++;
 
     if(!invoke_method(klass, method, stack, var_num, stack_ptr, info)) {
-puts("AAA");
         return FALSE;
     }
 

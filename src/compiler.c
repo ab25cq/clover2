@@ -5,6 +5,7 @@ static void compiler_init()
     init_nodes();
     init_node_types();
     class_init();
+    class_init_on_compile_time();
     init_vtable();
     module_init();
 }

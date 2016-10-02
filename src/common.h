@@ -231,6 +231,8 @@ typedef struct sCLClassStruct sCLClass;
 #define METHOD_NAME_AND_PARAMS(klass, method) (CONS_str((&(klass)->mConst), (method)->mMethodNameAndParamsOffset))
 
 void class_init();
+void class_init_on_compile_time();
+void set_boxing_and_unboxing_classes();
 void class_final();
 
 sCLClass* get_class(char* name);
@@ -293,6 +295,7 @@ BOOL type_identify_with_class_name(sNodeType* left, char* right_class_name);
 BOOL type_identify(sNodeType* left, sNodeType* right);
 void print_node_type(sNodeType* node_type);
 BOOL boxing_posibility(sNodeType* left_type, sNodeType* right_type);
+BOOL unboxig_posibility(sCLClass* klass);
 
 /// node_block_object.c ///
 struct sNodeBlockTypeStruct {
@@ -1364,6 +1367,7 @@ sCLClass* get_class_with_load_and_initialize(char* class_name);
 void class_final_on_runtime();
 BOOL call_finalize_method_on_free_object(sCLClass* klass, CLObject self);
 BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info);
+BOOL class_init_on_runtime();
 
 /// class_compiler.c ///
 #define PARSE_PHASE_ALLOC_CLASSES 1

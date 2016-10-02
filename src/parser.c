@@ -733,6 +733,9 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
 
             node_block_type->mResultType = node_type;
         }
+        else {
+            node_block_type->mResultType = create_node_type_with_class_name("Null");
+        }
 
         (*result_type)->mBlockType = node_block_type;
     }
@@ -1360,6 +1363,9 @@ static BOOL parse_block_object(unsigned int* node, sParserInfo* info, BOOL lambd
         if(!parse_type(&result_type, info)) {
             return FALSE;
         }
+    }
+    else {
+        result_type = create_node_type_with_class_name("Null");
     }
 
     sNodeBlock* node_block = NULL;

@@ -444,6 +444,69 @@ static BOOL initialize_class(sCLClass* klass)
     return TRUE;
 }
 
+static BOOL load_class_with_initialize(char* class_name)
+{
+    sCLClass* klass = load_class(class_name);
+
+    if(klass) {
+        if(!initialize_class(klass)) {
+            return FALSE;
+        }
+    }
+
+    return TRUE;
+}
+
+static BOOL load_fundamental_classes_on_runtime()
+{
+    if(!load_class_with_initialize("System")) { return FALSE; }
+    if(!load_class_with_initialize("Clover")) { return FALSE; }
+
+    if(!load_class_with_initialize("String")) { return FALSE; }
+
+    if(!load_class_with_initialize("Exception")) { return FALSE; }
+    if(!load_class_with_initialize("SystemException")) { return FALSE; }
+
+    if(!load_class_with_initialize("Object")) { return FALSE; }
+
+    if(!load_class_with_initialize("Byte")) { return FALSE; }
+    if(!load_class_with_initialize("UByte")) { return FALSE; }
+    if(!load_class_with_initialize("Short")) { return FALSE; }
+    if(!load_class_with_initialize("UShort")) { return FALSE; }
+    if(!load_class_with_initialize("Integer")) { return FALSE; }
+    if(!load_class_with_initialize("UInteger")) { return FALSE; }
+    if(!load_class_with_initialize("Long")) { return FALSE; }
+    if(!load_class_with_initialize("ULong")) { return FALSE; }
+
+    if(!load_class_with_initialize("Float")) { return FALSE; }
+    if(!load_class_with_initialize("Double")) { return FALSE; }
+
+    if(!load_class_with_initialize("Pointer")) { return FALSE; }
+    if(!load_class_with_initialize("Char")) { return FALSE; }
+    if(!load_class_with_initialize("Bool")) { return FALSE; }
+
+    if(!load_class_with_initialize("HashKey")) { return FALSE; }
+    if(!load_class_with_initialize("HashItem")) { return FALSE; }
+
+    if(!load_class_with_initialize("Hash")) { return FALSE; }
+
+    if(!load_class_with_initialize("ListItem")) { return FALSE; }
+
+    if(!load_class_with_initialize("List")) { return FALSE; }
+
+    return TRUE;
+}
+
+BOOL class_init_on_runtime()
+{
+    if(!load_fundamental_classes_on_runtime()) {
+        return FALSE;
+    }
+    set_boxing_and_unboxing_classes();
+
+    return TRUE;
+}
+
 static BOOL finalize_class(sCLClass* klass)
 {
     if(klass->mClassFinalizeMethodIndex != -1) {
@@ -11136,3 +11199,4 @@ if(stack_ptr != lvar + var_num) {
 
     return TRUE;
 }
+

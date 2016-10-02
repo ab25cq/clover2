@@ -23,5 +23,5 @@ Clover.test("hash test6", c.get("ABC").getValue() == 1);
 
 d:Hash<String, Integer> = [ "ABC":123, "DEF":234 ];
 
-Clover.test("hash test7", d.get("ABC").getValue() == 123);
+Clover.test("hash test7", d.get("ABC") == 123 && d.get("DEF") == 234);
 

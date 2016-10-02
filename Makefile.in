@@ -83,8 +83,22 @@ install:
 	$(INSTALL) -m 644 Object.clcl ~/.clover2
 	$(INSTALL) -m 644 Byte.clcl ~/.clover2
 	$(INSTALL) -m 644 UByte.clcl ~/.clover2
+	$(INSTALL) -m 644 Short.clcl ~/.clover2
+	$(INSTALL) -m 644 UShort.clcl ~/.clover2
 	$(INSTALL) -m 644 Integer.clcl ~/.clover2
 	$(INSTALL) -m 644 UInteger.clcl ~/.clover2
+	$(INSTALL) -m 644 Long.clcl ~/.clover2
+	$(INSTALL) -m 644 ULong.clcl ~/.clover2
+	$(INSTALL) -m 644 Float.clcl ~/.clover2
+	$(INSTALL) -m 644 Double.clcl ~/.clover2
+	$(INSTALL) -m 644 Pointer.clcl ~/.clover2
+	$(INSTALL) -m 644 Char.clcl ~/.clover2
+	$(INSTALL) -m 644 Bool.clcl ~/.clover2
+	$(INSTALL) -m 644 HashKey.clcl ~/.clover2
+	$(INSTALL) -m 644 HashItem.clcl ~/.clover2
+	$(INSTALL) -m 644 Hash.clcl ~/.clover2
+	$(INSTALL) -m 644 ListItem.clcl ~/.clover2
+	$(INSTALL) -m 644 List.clcl ~/.clover2
 	mkdir -p "$(libdir)"
 	$(INSTALL) -m 755 clover2 "$(bindir)"
 	$(INSTALL) -m 755 cclover2 "$(bindir)"
@@ -156,4 +170,3 @@ test:
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/normal_block.cl && ./clover2 code/normal_block.clo
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -class code/try.clc code/try.cl && ./clover2 code/try.clo
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/array2.cl && ./clover2 code/array2.clo
-
