@@ -853,10 +853,10 @@ static void set_boxing_and_unboxing_class(char* primitive_class_name, char* lapp
 
     sCLClass* klass2 = get_class(lapper_class_name);
 
-    MASSERT(klass2 != NULL || klass == NULL);
+    MASSERT(klass2 != NULL || klass2 == NULL);
 
-    klass->mBoxingClass = klass2;
-    klass2->mUnboxingClass = klass;
+    if(klass) { klass->mBoxingClass = klass2; }
+    if(klass2) { klass2->mUnboxingClass = klass; }
 }
 
 static void set_boxing_and_unboxing_classes()
