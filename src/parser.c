@@ -808,7 +808,22 @@ BOOL parse_type_for_new(sNodeType** result_type, unsigned int* array_num, sParse
         return FALSE;
     }
 
-    *result_type = create_node_type_with_class_name(type_name);
+    int i;
+    for(i=0; i<info->generics_info.mNumParams; i++) {
+        if(strcmp(type_name, info->generics_info.mParamNames[i]) == 0) {
+            *result_type = create_node_type_with_generics_number(i);
+            break;
+        }
+    }
+
+    if(i == info->generics_info.mNumParams) {
+        if(strcmp(type_name, "Self") == 0) {
+            *result_type = create_node_type_with_class_pointer(info->klass);
+        }
+        else {
+            *result_type = create_node_type_with_class_name(type_name);
+        }
+    }
 
     if(*result_type == NULL || (*result_type)->mClass == NULL) {
         parser_err_msg(info, "%s is not defined class", type_name);
@@ -870,7 +885,6 @@ BOOL parse_type_for_new(sNodeType** result_type, unsigned int* array_num, sParse
     /// check generics type ///
     sCLClass* klass = (*result_type)->mClass;
 
-    int i;
     for(i=0; i<generics_num; i++) {
         int generics_paramType_offset = klass->mGenericsParamTypeOffsets[i];
         sCLClass* left_type = get_class_with_load(CONS_str(&klass->mConst, generics_paramType_offset));

@@ -477,6 +477,21 @@ class Bool
     }
 }
 
+class Array<T:Object>
+{
+    items:T[];
+
+    def initialize(items:T[]) {
+        self.items = items;
+    }
+
+    def each(block_:lambda(T)) {
+        for(i:int = 0; i<self.items.length; i++) {
+            block_(self.items[i]);
+        }
+    }
+}
+
 interface HashKey
 {
     def getHashKey(): uint;
@@ -648,5 +663,11 @@ class List<T:Object>
     }
 
     def each(block_:lambda(T)) {
+        it:ListItem<T> = self.head;
+
+        while(!it.isNull) {
+            block_(it.item);
+            it = it.next;
+        }
     }
 }

@@ -27,13 +27,28 @@ sNodeBlockType* clone_node_block_type(sNodeBlockType* block)
     return self;
 }
 
-BOOL substitution_posibility_for_node_block_type(sNodeBlockType* left_block, sNodeBlockType* right_block)
+BOOL substitution_posibility_for_node_block_type(sNodeBlockType* left_block, sNodeBlockType* right_block, sNodeType* generics_types)
 {
     if(type_identify(left_block->mResultType, right_block->mResultType)) {
         if(left_block->mNumParams == right_block->mNumParams) {
             int i;
             for(i=0; i<left_block->mNumParams; i++) {
-                if(!type_identify(left_block->mParams[i], right_block->mParams[i]))
+                sNodeType* param;
+                sNodeType* solved_param;
+
+                if(generics_types) {
+                    param = left_block->mParams[i];
+
+                    if(!solve_generics_types_for_node_type(param, ALLOC &solved_param, generics_types)) 
+                    {
+                        return FALSE;
+                    }
+                }
+                else {
+                    solved_param = left_block->mParams[i];
+                }
+
+                if(!type_identify(solved_param, right_block->mParams[i]))
                 {
                     return FALSE;
                 }

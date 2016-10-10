@@ -879,13 +879,13 @@ static void load_fundamental_classes_on_compile_time()
     load_class("Char");
     load_class("Bool");
 
+    load_class("Array");
+
     load_class("HashKey");
     load_class("HashItem");
-
     load_class("Hash");
 
     load_class("ListItem");
-
     load_class("List");
 }
 

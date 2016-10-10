@@ -284,7 +284,7 @@ sNodeType* create_node_type_from_cl_type(sCLType* cl_type, sCLClass* klass);
 sNodeType* create_node_type_with_class_pointer(sCLClass* klass);
 BOOL is_exception_type(sNodeType* exception_type);
 
-BOOL substitution_posibility(sNodeType* left, sNodeType* right);
+BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* generics_types);
 BOOL substitution_posibility_with_class_name(sNodeType* left, char* right_class_name);
 BOOL operand_posibility_with_class_name(sNodeType* left, char* right_class_name, char* op_string);
 BOOL operand_posibility(sNodeType* left, sNodeType* right, char* op_string);
@@ -296,6 +296,10 @@ BOOL type_identify(sNodeType* left, sNodeType* right);
 void print_node_type(sNodeType* node_type);
 BOOL boxing_posibility(sNodeType* left_type, sNodeType* right_type);
 BOOL unboxig_posibility(sCLClass* klass);
+sNodeType* create_generics_types_from_generics_params(sCLClass* klass);
+struct sCompileInfoStruct;
+void boxing_to_lapper_class(sNodeType** type_, struct sCompileInfoStruct* info);
+BOOL unboxing_to_primitive_type(sNodeType** left_type, struct sCompileInfoStruct* info);
 
 /// node_block_object.c ///
 struct sNodeBlockTypeStruct {
@@ -310,7 +314,7 @@ typedef struct sNodeBlockTypeStruct sNodeBlockType;
 sNodeBlockType* alloc_node_block_type();
 void free_node_block_type(sNodeBlockType* block);
 sNodeBlockType* clone_node_block_type(sNodeBlockType* block);
-BOOL substitution_posibility_for_node_block_type(sNodeBlockType* left, sNodeBlockType* right);
+BOOL substitution_posibility_for_node_block_type(sNodeBlockType* left_block, sNodeBlockType* right_block, sNodeType* generics_types);
 
 /// vtable.c ///
 struct sVarStruct {
@@ -406,7 +410,6 @@ typedef struct sNodeBlockStruct sNodeBlock;
 
 void sNodeBlock_free(sNodeBlock* block);
 BOOL parse_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* new_table, BOOL block_object);
-struct sCompileInfoStruct;
 BOOL compile_block(sNodeBlock* block, struct sCompileInfoStruct* info);
 
 /// node.c ///
@@ -607,6 +610,37 @@ unsigned int sNodeTree_create_hash_value(int num_elements, unsigned int hash_key
 
 /// script.c ///
 BOOL compile_script(char* fname, char* source);
+
+/// cast.c ///
+void cast_right_type_to_byte(sNodeType** right_type, sCompileInfo* info);
+void cast_right_type_to_short(sNodeType** right_type, sCompileInfo* info);
+void cast_right_type_to_int(sNodeType** right_type, sCompileInfo* info);
+void cast_right_type_to_long(sNodeType** right_type, sCompileInfo* info);
+void cast_right_type_to_ubyte(sNodeType** right_type, sCompileInfo* info);
+void cast_right_type_to_ushort(sNodeType** right_type, sCompileInfo* info);
+void cast_right_type_to_uint(sNodeType** right_type, sCompileInfo* info);
+void cast_right_type_to_ulong(sNodeType** right_type, sCompileInfo* info);
+void cast_right_type_to_float(sNodeType** right_type, sCompileInfo* info);
+void cast_right_type_to_double(sNodeType** right_type, sCompileInfo* info);
+void cast_right_type_to_char(sNodeType** right_type, sCompileInfo* info);
+void cast_right_type_to_pointer(sNodeType** right_type, sCompileInfo* info);
+void cast_right_type_to_bool(sNodeType** right_type, sCompileInfo* info);
+void cast_right_type_to_String(sNodeType** right_type, sCompileInfo* info);
+void cast_right_type_to_Byte(sNodeType** right_type, sCompileInfo* info);
+void cast_right_type_to_UByte(sNodeType** right_type, sCompileInfo* info);
+void cast_right_type_to_Short(sNodeType** right_type, sCompileInfo* info);
+void cast_right_type_to_UShort(sNodeType** right_type, sCompileInfo* info);
+void cast_right_type_to_Integer(sNodeType** right_type, sCompileInfo* info);
+void cast_right_type_to_UInteger(sNodeType** right_type, sCompileInfo* info);
+void cast_right_type_to_Long(sNodeType** right_type, sCompileInfo* info);
+void cast_right_type_to_ULong(sNodeType** right_type, sCompileInfo* info);
+void cast_right_type_to_Float(sNodeType** right_type, sCompileInfo* info);
+void cast_right_type_to_Double(sNodeType** right_type, sCompileInfo* info);
+void cast_right_type_to_Pointer(sNodeType** right_type, sCompileInfo* info);
+void cast_right_type_to_Char(sNodeType** right_type, sCompileInfo* info);
+void cast_right_type_to_Bool(sNodeType** right_type, sCompileInfo* info);
+void cast_right_type_to_Array(sNodeType** right_type, sCompileInfo* info);
+void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, sCompileInfo* info);
 
 /// vm.c ///
 
@@ -1352,6 +1386,8 @@ BOOL compile_script(char* fname, char* source);
 #define OP_CHAR_TO_CBOOL_CAST 7650
 #define OP_POINTER_TO_CBOOL_CAST 7651
 #define OP_BOOL_TO_CBOOL_CAST 7652
+
+#define OP_ARRAY_TO_CARRAY_CAST 7700
 
 #define OP_GET_ARRAY_LENGTH 8000
 

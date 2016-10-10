@@ -1,0 +1,13 @@
+
+class ArrayTest4 {
+    value: int[];
+    value2: int;
+
+    def initialize() {
+        self.value = new int[3]();
+        for(i:=0; i<3; i++) {
+            self.value[i] = i;
+        }
+        self.value2 = 2;
+    }
+}

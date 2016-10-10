@@ -46,30 +46,6 @@ static BOOL read_source(char* fname, sBuf* source)
     return TRUE;
 }
 
-static BOOL compiler(char* fname)
-{
-    if(access(fname, F_OK) != 0) {
-        fprintf(stderr, "%s doesn't exist\n", fname);
-        return FALSE;
-    }
-
-    sBuf source;
-    sBuf_init(&source);
-    if(!read_source(fname, &source)) {
-        MFREE(source.mBuf);
-        return FALSE;
-    }
-
-    if(!compile_script(fname, source.mBuf)) {
-        MFREE(source.mBuf);
-        return FALSE;
-    }
-
-    MFREE(source.mBuf);
-
-    return TRUE;
-}
-
 static BOOL delete_comment(sBuf* source, sBuf* source2)
 {
     char* p;
@@ -145,6 +121,42 @@ static BOOL delete_comment(sBuf* source, sBuf* source2)
 
     return TRUE;
 }
+
+static BOOL compiler(char* fname)
+{
+    if(access(fname, F_OK) != 0) {
+        fprintf(stderr, "%s doesn't exist\n", fname);
+        return FALSE;
+    }
+
+    sBuf source;
+    sBuf_init(&source);
+    if(!read_source(fname, &source)) {
+        MFREE(source.mBuf);
+        return FALSE;
+    }
+
+    sBuf source2;
+    sBuf_init(&source2);
+
+    if(!delete_comment(&source, &source2)) {
+        MFREE(source.mBuf);
+        MFREE(source2.mBuf);
+        return FALSE;
+    }
+
+    if(!compile_script(fname, source2.mBuf)) {
+        MFREE(source.mBuf);
+        MFREE(source2.mBuf);
+        return FALSE;
+    }
+
+    MFREE(source.mBuf);
+    MFREE(source2.mBuf);
+
+    return TRUE;
+}
+
 
 static BOOL class_compiler(char* fname)
 {

@@ -1,3 +1,7 @@
 a:int[] = { 1,2,3 };
 
 Clover.test("array test1", a[0] == 1 && a[1] == 2 && a[2] == 3);
+
+a[0] = 4;
+
+Clover.test("array test2", a[0] == 4 && a[1] == 2 && a[2] == 3);

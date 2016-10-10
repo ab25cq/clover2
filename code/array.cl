@@ -18,3 +18,4 @@ x:=100;
 d:int[] = new int[x]();
 
 System.assert(d.length == 100);
+

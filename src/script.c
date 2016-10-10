@@ -90,7 +90,7 @@ BOOL compile_script(char* fname, char* source)
     //show_node(node);
 #endif
 
-        if(info.err_num == 0) {
+        if(info.err_num == 0 && node != 0) {
             if(!compile(node, &cinfo)) {
                 sByteCode_free(&code);
                 sConst_free(&constant);

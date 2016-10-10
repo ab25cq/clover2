@@ -206,17 +206,9 @@ static BOOL check_method_params(sCLMethod* method, sCLClass* klass, char* method
                 int j, k;
 
                 for(j=0; j<num_params; j++ ) {
-                    sNodeType* param;
-                    sNodeType* solved_param;
+                    sNodeType* param = create_node_type_from_cl_type(method->mParams[j].mType, klass);
 
-                    param = create_node_type_from_cl_type(method->mParams[j].mType, klass);
-
-                    if(!solve_generics_types_for_node_type(param, ALLOC &solved_param, generics_type)) 
-                    {
-                        return FALSE;
-                    }
-
-                    if(!substitution_posibility(solved_param, param_types[j])) {
+                    if(!substitution_posibility(param, param_types[j], generics_type)) {
                         return FALSE;
                     }
                 }

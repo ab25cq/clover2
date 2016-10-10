@@ -25,6 +25,7 @@ static void show_stack(CLVALUE* stack, CLVALUE* stack_ptr, CLVALUE* lvar, int va
 
 static void show_inst(unsigned inst)
 {
+printf("inst %d\n", inst);
     switch(inst) {
         case OP_POP :
             puts("OP_POP");
@@ -485,13 +486,13 @@ static BOOL load_fundamental_classes_on_runtime()
     if(!load_class_with_initialize("Char")) { return FALSE; }
     if(!load_class_with_initialize("Bool")) { return FALSE; }
 
+    if(!load_class_with_initialize("Array")) { return FALSE; }
+
     if(!load_class_with_initialize("HashKey")) { return FALSE; }
     if(!load_class_with_initialize("HashItem")) { return FALSE; }
-
     if(!load_class_with_initialize("Hash")) { return FALSE; }
 
     if(!load_class_with_initialize("ListItem")) { return FALSE; }
-
     if(!load_class_with_initialize("List")) { return FALSE; }
 
     return TRUE;
@@ -701,9 +702,6 @@ show_inst(inst);
             case OP_RETURN:
                 *stack = *(stack_ptr-1);
                 remove_stack_to_stack_list(stack);
-#ifdef VM_DEBUG
-show_stack(stack, stack_ptr, lvar, var_num);
-#endif
                 return TRUE;
 
             case OP_THROW:
@@ -10990,6 +10988,10 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
+                }
+                break;
+
+            case OP_ARRAY_TO_CARRAY_CAST: {
                 }
                 break;
                 
