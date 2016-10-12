@@ -300,6 +300,7 @@ sNodeType* create_generics_types_from_generics_params(sCLClass* klass);
 struct sCompileInfoStruct;
 void boxing_to_lapper_class(sNodeType** type_, struct sCompileInfoStruct* info);
 BOOL unboxing_to_primitive_type(sNodeType** left_type, struct sCompileInfoStruct* info);
+void make_boxing_type(sNodeType* type, sNodeType** result);
 
 /// node_block_object.c ///
 struct sNodeBlockTypeStruct {
@@ -1448,6 +1449,7 @@ BOOL compile_method(sCLMethod* method, sParserParam* params, int num_params, sPa
 /// type.c ///
 BOOL is_void_type(sCLType* cl_type, sCLClass* klass);
 sCLClass* get_class_from_cl_type(sCLType* cl_type, sCLClass* klass);
+BOOL is_this_class_with_class_name(sCLClass* klass, char* class_name);
 
 /// stack.c ///
 struct sCLStackStruct {

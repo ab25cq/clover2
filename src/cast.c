@@ -2737,13 +2737,8 @@ void cast_right_type_to_Array(sNodeType** right_type, sCompileInfo* info)
         append_opecode_to_code(info->code, OP_ARRAY_TO_CARRAY_CAST, info->no_output);
         append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(klass), info->no_output);
 
-        if(klass->mFlags & CLASS_FLAGS_PRIMITIVE) {
-            klass = klass->mBoxingClass;
-        }
-
-        *right_type = create_node_type_with_class_name("Array");
-        (*right_type)->mGenericsTypes[0] = create_node_type_with_class_pointer(klass);
-        (*right_type)->mNumGenericsTypes = 1;
+        sNodeType* node_type = clone_node_type(*right_type);
+        make_boxing_type(node_type, right_type);
     }
 }
 

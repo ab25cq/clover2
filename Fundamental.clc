@@ -267,6 +267,10 @@ class Integer
     def toUInteger():UInteger {
         return self.value.toUInteger;
     }
+
+    def toString():String {
+        return self.value.toString;
+    }
 }
 
 class UInteger 
@@ -483,6 +487,14 @@ class Array<T:Object>
 
     def initialize(items:T[]) {
         self.items = items;
+    }
+
+    def length():int {
+        return self.items.length;
+    }
+
+    def items(index:int):T throws Exception {
+        return self.items[index];
     }
 
     def each(block_:lambda(T)) {

@@ -1706,8 +1706,12 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
-    sNodeType* generics_types = info->type;
+    /// boxing if the class is primitive ///
+    if(info->type->mClass->mFlags & CLASS_FLAGS_PRIMITIVE) {
+        boxing_to_lapper_class(&info->type, info);
+    }
 
+    sNodeType* generics_types = info->type;
     sCLClass* klass = generics_types->mClass;
 
     sNodeType* param_types[PARAMS_MAX];

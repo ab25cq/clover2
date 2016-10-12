@@ -449,7 +449,13 @@ void boxing_to_lapper_class(sNodeType** type_, struct sCompileInfoStruct* info)
 {
     sCLClass* klass = (*type_)->mClass;
 
-    if(klass->mFlags & CLASS_FLAGS_PRIMITIVE) {
+    if((*type_)->mArray) {
+        sNodeType* rapper_type;
+        make_boxing_type((*type_), &rapper_type);
+
+        cast_right_type_to_left_type(rapper_type, type_, info);
+    }
+    else if(klass->mFlags & CLASS_FLAGS_PRIMITIVE) {
         if(klass->mBoxingClass != NULL) {
             sNodeType* boxing_type = create_node_type_with_class_pointer(klass->mBoxingClass);
 
@@ -469,4 +475,42 @@ BOOL unboxing_to_primitive_type(sNodeType** left_type, struct sCompileInfoStruct
     cast_right_type_to_left_type(primitive_type, left_type, info);
 
     return TRUE;
+}
+
+void make_boxing_type(sNodeType* type, sNodeType** result)
+{
+    (*result) = alloc_node_type();
+
+    sCLClass* klass = type->mClass;
+
+    if(klass->mFlags & CLASS_FLAGS_PRIMITIVE) {
+        if(type->mArray) {
+            (*result)->mClass = get_class("Array");
+        }
+        else if(klass->mBoxingClass) {
+            (*result)->mClass = klass->mBoxingClass;
+        }
+        else {
+            (*result)->mClass = klass;
+        }
+    }
+    else {
+        (*result)->mClass = klass;
+    }
+
+    if(type->mArray) {
+        (*result)->mNumGenericsTypes = 1;
+
+        sNodeType* node_type = create_node_type_with_class_pointer(klass);
+
+        make_boxing_type(node_type, &(*result)->mGenericsTypes[0]);
+    }
+    else {
+        (*result)->mNumGenericsTypes = type->mNumGenericsTypes;
+
+        int i;
+        for(i=0; i<type->mNumGenericsTypes; i++) {
+            make_boxing_type(type->mGenericsTypes[i], &(*result)->mGenericsTypes[i]);
+        }
+    }
 }

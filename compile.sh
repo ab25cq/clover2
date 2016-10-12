@@ -1,1 +1,1 @@
-export LD_LIBRARY_PATH=.; ./clover2 code/array4.clo
+export LD_LIBRARY_PATH=.; ./clover2 code/array3.clo

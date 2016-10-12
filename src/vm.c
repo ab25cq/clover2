@@ -25,7 +25,6 @@ static void show_stack(CLVALUE* stack, CLVALUE* stack_ptr, CLVALUE* lvar, int va
 
 static void show_inst(unsigned inst)
 {
-printf("inst %d\n", inst);
     switch(inst) {
         case OP_POP :
             puts("OP_POP");
@@ -585,6 +584,80 @@ sCLClass* get_class_with_load_and_initialize(char* class_name)
 }
 
 #pragma clang diagnostic ignored "-Wint-to-pointer-cast"
+
+void boxing_primitive_value_to_object(CLVALUE object, CLVALUE* result, sCLClass* klass)
+{
+    if(klass->mFlags & CLASS_FLAGS_PRIMITIVE) {
+        if(is_this_class_with_class_name(klass, "byte")) {
+            char value = object.mByteValue;
+            CLObject obj = create_byte((char)value);
+            result->mObjectValue = obj;
+        }
+        else if(is_this_class_with_class_name(klass, "ubyte")) {
+            unsigned char value = object.mUByteValue;
+            CLObject obj = create_ubyte((unsigned char)value);
+            result->mObjectValue = obj;
+        }
+        else if(is_this_class_with_class_name(klass, "short")) {
+            short value = object.mShortValue;
+            CLObject obj = create_short((short)value);
+            result->mObjectValue = obj;
+        }
+        else if(is_this_class_with_class_name(klass, "ushort")) {
+            unsigned short value = object.mUShortValue;
+            CLObject obj = create_ushort((unsigned short)value);
+            result->mObjectValue = obj;
+        }
+        else if(is_this_class_with_class_name(klass, "int")) {
+            int value = object.mIntValue;
+            CLObject obj = create_integer((int)value);
+            result->mObjectValue = obj;
+        }
+        else if(is_this_class_with_class_name(klass, "uint")) {
+            unsigned int value = object.mUIntValue;
+            CLObject obj = create_uinteger(value);
+            result->mObjectValue = obj;
+        }
+        else if(is_this_class_with_class_name(klass, "long")) {
+            long value = object.mLongValue;
+            CLObject obj = create_long((long)value);
+            result->mObjectValue = obj;
+        }
+        else if(is_this_class_with_class_name(klass, "ulong")) {
+            unsigned long value = object.mULongValue;
+            CLObject obj = create_ulong((unsigned long)value);
+            result->mObjectValue = obj;
+        }
+        else if(is_this_class_with_class_name(klass, "float")) {
+            float value = object.mFloatValue;
+            CLObject obj = create_float((float)value);
+            result->mObjectValue = obj;
+        }
+        else if(is_this_class_with_class_name(klass, "double")) {
+            double value = object.mDoubleValue;
+            CLObject obj = create_double((double)value);
+            result->mObjectValue = obj;
+        }
+        else if(is_this_class_with_class_name(klass, "pointer")) {
+            char* value = object.mPointerValue;
+            CLObject obj = create_pointer((char*)value);
+            result->mObjectValue = obj;
+        }
+        else if(is_this_class_with_class_name(klass, "char")) {
+            wchar_t value = object.mCharValue;
+            CLObject obj = create_char((wchar_t)value);
+            result->mObjectValue = obj;
+        }
+        else if(is_this_class_with_class_name(klass, "bool")) {
+            BOOL value = object.mBoolValue;
+            CLObject obj = create_bool((BOOL)value);
+            result->mObjectValue = obj;
+        }
+    }
+    else {
+        *result = object;
+    }
+}
 
 BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sVMInfo* info)
 {
@@ -10992,6 +11065,63 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 break;
 
             case OP_ARRAY_TO_CARRAY_CAST: {
+                vm_mutex_on();
+
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+
+                char* class_name = CONS_str(constant, offset);
+
+                sCLClass* klass = get_class_with_load_and_initialize(class_name);
+
+                if(klass == NULL) {
+                    vm_mutex_off();
+                    entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found");
+                    remove_stack_to_stack_list(stack);
+                    return FALSE;
+                }
+
+                CLObject array = (stack_ptr-1)->mObjectValue;
+                sCLObject* array_data = CLOBJECT(array);
+                int array_num = array_data->mArrayNum;
+
+                sCLClass* klass2 = get_class("Array");
+                MASSERT(klass2 != NULL);
+
+                CLObject new_array = create_object(klass2);
+
+                stack_ptr->mObjectValue = new_array;   // push object
+                stack_ptr++;
+
+                CLObject new_primitive_array;
+                if(klass->mFlags & CLASS_FLAGS_PRIMITIVE) {
+                    new_primitive_array = create_array_object(klass->mBoxingClass, array_num);
+                }
+                else {
+                    new_primitive_array = create_array_object(klass, array_num);
+                }
+
+                sCLObject* new_array_data = CLOBJECT(new_array);
+
+                new_array_data->mFields[0].mObjectValue = new_primitive_array;
+
+                /// boxing element ///
+                int i;
+                for(i=0; i<array_num; i++ ) {
+                    array_data = CLOBJECT(array);           // reget for GC
+
+                    CLVALUE element;
+                    boxing_primitive_value_to_object(array_data->mFields[i], &element, klass);
+
+                    sCLObject* new_primitive_array_data = CLOBJECT(new_primitive_array);
+                    new_primitive_array_data->mFields[i] = element;
+                }
+
+                stack_ptr-=2;
+                stack_ptr->mObjectValue = new_array;
+                stack_ptr++;
+
+                vm_mutex_off();
                 }
                 break;
                 

@@ -13,3 +13,10 @@ BOOL is_void_type(sCLType* cl_type, sCLClass* klass)
 
     return klass2 == get_class("Null");
 }
+
+BOOL is_this_class_with_class_name(sCLClass* klass, char* class_name)
+{
+    sCLClass* klass2 = get_class_with_load_and_initialize(class_name);
+    MASSERT(klass2 != NULL);
+    return klass == klass2;
+}
