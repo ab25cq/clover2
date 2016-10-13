@@ -13,7 +13,7 @@ void entry_exception_object_with_class_name(CLVALUE* stack, sVMInfo* info, char*
 
     CLObject object = create_object(klass);
 
-    info->exception = stack->mObjectValue = object;
+    stack->mObjectValue = object;
 
     char msg2[1024];
 
@@ -28,11 +28,16 @@ void entry_exception_object_with_class_name(CLVALUE* stack, sVMInfo* info, char*
 
     object_data->mFields[0].mObjectValue = str;
 
+    xstrncpy(info->exception_message, msg2, EXCEPTION_MESSAGE_MAX); // for show_exception_message 
+
     vm_mutex_off();
 }
 
-void show_exception_message(CLObject exception)
+void show_exception_message(char* message)
 {
+    fprintf(stderr, "%s\n", message);
+
+/*
     vm_mutex_on();
 
     sCLObject* object_data = CLOBJECT(exception);
@@ -57,4 +62,5 @@ void show_exception_message(CLObject exception)
     MFREE(wstr);
 
     vm_mutex_off();
+*/
 }

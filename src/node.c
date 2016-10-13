@@ -77,6 +77,10 @@ void free_nodes()
                     }
                     break;
 
+                case kNodeTypeRegex:
+                    MFREE(gNodes[i].uValue.sRegex.mRegexStr);
+                    break;
+
                 default:
                     break;
             }
@@ -4615,6 +4619,43 @@ BOOL compile_block_call(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_regex(MANAGED char* regex_str, BOOL global, BOOL ignore_case)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeRegex;
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    gNodes[node].mType = NULL;
+
+    gNodes[node].uValue.sRegex.mRegexStr = MANAGED regex_str;
+    gNodes[node].uValue.sRegex.mGlobal = global;
+    gNodes[node].uValue.sRegex.mIgnoreCase = ignore_case;
+
+    return node;
+}
+
+static BOOL compile_regex(unsigned int node, sCompileInfo* info)
+{
+    char* str = gNodes[node].uValue.sRegex.mRegexStr;
+    BOOL global = gNodes[node].uValue.sRegex.mGlobal;
+    BOOL ignore_case = gNodes[node].uValue.sRegex.mIgnoreCase;
+
+    append_opecode_to_code(info->code, OP_CREATE_REGEX, info->no_output);
+    append_str_to_constant_pool_and_code(info->constant, info->code, str, info->no_output);
+    append_int_value_to_code(info->code, global, info->no_output);
+    append_int_value_to_code(info->code, ignore_case, info->no_output);
+
+    info->stack_num++;
+
+    info->type = create_node_type_with_class_name("regex");
+
+    return TRUE;
+}
+
 void show_node(unsigned int node)
 {
     if(node == 0) {
@@ -4819,6 +4860,10 @@ void show_node(unsigned int node)
 
         case kNodeTypeBlockCall:
             puts("block call");
+            break;
+
+        case kNodeTypeRegex:
+            puts("regex");
             break;
     }
 }
@@ -5114,6 +5159,12 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeBlockCall:
             if(!compile_block_call(node,info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeRegex:
+            if(!compile_regex(node,info)) {
                 return FALSE;
             }
             break;

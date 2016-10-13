@@ -93,9 +93,7 @@ static BOOL eval_file(char* fname, int stack_size)
     memset(&info, 0, sizeof(sVMInfo));
 
     if(!vm(&code, &constant, stack, var_num, NULL, &info)) {
-        CLObject exception = info.exception;
-        sCLObject* object_data = CLOBJECT(exception);
-        show_exception_message(exception);
+        show_exception_message(info.exception_message);
         fclose(f);
         MFREE(stack);
         MFREE(code_contents);

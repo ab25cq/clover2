@@ -12,6 +12,7 @@
 #include <ctype.h>
 #include <stdarg.h>
 #include <locale.h>
+#include <pcre.h>
 
 #include "macros.h"
 
@@ -142,9 +143,10 @@ typedef struct sCLParamStruct sCLParam;
 
 #define METHOD_FLAGS_NATIVE 0x01
 #define METHOD_FLAGS_CLASS_METHOD 0x02
+#define EXCEPTION_MESSAGE_MAX 256
 
 struct sVMInfoStruct {
-    CLObject exception;
+    char exception_message[EXCEPTION_MESSAGE_MAX];
 };
 
 typedef struct sVMInfoStruct sVMInfo;
@@ -184,6 +186,7 @@ struct sCLFieldStruct {
 };
 
 typedef struct sCLFieldStruct sCLField;
+typedef void (*fFreeFun)(CLObject self);
 
 struct sCLClassStruct {
     long mFlags;
@@ -222,6 +225,8 @@ struct sCLClassStruct {
 
     struct sCLClassStruct* mBoxingClass; // This requires on the run time 
     struct sCLClassStruct* mUnboxingClass; // This requires on the run time
+
+    fFreeFun mFreeFun;
 };
 
 typedef struct sCLClassStruct sCLClass;
@@ -414,7 +419,7 @@ BOOL parse_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* ne
 BOOL compile_block(sNodeBlock* block, struct sCompileInfoStruct* info);
 
 /// node.c ///
-enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeUByteValue, kNodeTypeShortValue, kNodeTypeUShortValue, kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand, kNodeTypeIncrementWithValueOperand, kNodeTypeDecrementWithValueOperand, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand, kNodeTypeLoadArrayElement, kNodeTypeStoreArrayElement, kNodeTypeChar, kNodeTypeString, kNodeTypeThrow, kNodeTypeTry, kNodeTypeBlockObject, kNodeTypeBlockCall, kNodeTypeConditional, kNodeTypeNormalBlock, kNodeTypeArrayValue, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeHashValue };
+enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeUByteValue, kNodeTypeShortValue, kNodeTypeUShortValue, kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand, kNodeTypeIncrementWithValueOperand, kNodeTypeDecrementWithValueOperand, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand, kNodeTypeLoadArrayElement, kNodeTypeStoreArrayElement, kNodeTypeChar, kNodeTypeString, kNodeTypeThrow, kNodeTypeTry, kNodeTypeBlockObject, kNodeTypeBlockCall, kNodeTypeConditional, kNodeTypeNormalBlock, kNodeTypeArrayValue, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeHashValue, kNodeTypeRegex };
 
 enum eOperand { kOpAdd, kOpSub , kOpComplement, kOpLogicalDenial, kOpMult, kOpDiv, kOpMod, kOpLeftShift, kOpRightShift, kOpComparisonEqual, kOpComparisonNotEqual,kOpComparisonGreaterEqual, kOpComparisonLesserEqual, kOpComparisonGreater, kOpComparisonLesser, kOpAnd, kOpXor, kOpOr };
 
@@ -523,6 +528,11 @@ struct sNodeTreeStruct
             unsigned int mHashItems[HASH_VALUE_ELEMENT_MAX];
             int mNumHashElements;
         } sHashValue;
+        struct {
+            char* mRegexStr;
+            BOOL mGlobal;
+            BOOL mIgnoreCase;
+        } sRegex;
     } uValue;
 
     sNodeType* mType;
@@ -608,6 +618,7 @@ unsigned int sNodeTree_create_array_value(int num_elements, unsigned int array_e
 unsigned int sNodeTree_create_or_or(unsigned int left_node, unsigned int right_node);
 unsigned int sNodeTree_create_and_and(unsigned int left_node, unsigned int right_node);
 unsigned int sNodeTree_create_hash_value(int num_elements, unsigned int hash_keys[], unsigned int hash_items[]);
+unsigned int sNodeTree_create_regex(MANAGED char* regex_str, BOOL global, BOOL ignore_case);
 
 /// script.c ///
 BOOL compile_script(char* fname, char* source);
@@ -1396,6 +1407,7 @@ void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
 #define OP_CREATE_ARRAY 9001
 #define OP_CREATE_BLOCK_OBJECT 9002
 #define OP_CREATE_HASH 9003
+#define OP_CREATE_REGEX 9004
 
 BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sVMInfo* info);
 void vm_mutex_on();
@@ -1441,7 +1453,7 @@ fNativeMethod get_native_method(char* path);
 
 /// exception.c ///
 void entry_exception_object_with_class_name(CLVALUE* stack, sVMInfo* info, char* class_name, char* msg, ...);
-void show_exception_message(CLObject exception);
+void show_exception_message(char* message);
 
 /// method_compiler.c ///
 BOOL compile_method(sCLMethod* method, sParserParam* params, int num_params, sParserInfo* info, sCompileInfo* cinfo);
@@ -1565,6 +1577,24 @@ typedef struct sBlockObjectStruct sBlockObject;
 
 CLObject create_block_object(sByteCode* codes, sConst* constant, CLVALUE* parent_stack, int parent_var_num, int block_var_num, long stack_id, BOOL lambda);
 
+/// regex.c ///
+struct sRegexObjectStruct
+{
+    int mSize;
+    sCLClass* mClass;       // NULL --> no class only memory
+    int mArrayNum;
+    pcre* mRegex;
+    BOOL mGlobal;
+    BOOL mIgnoreCase;
+};
+
+typedef struct sRegexObjectStruct sRegexObject;
+
+#define CLREGEX(obj) (sRegexObject*)(get_object_pointer((obj)))
+
+CLObject create_regex_object(char* regex, BOOL global, BOOL ignore_case);
+void regex_free_fun(CLObject obj);
+
 /// string.c ///
 CLObject create_string_object(char* str);
 CLObject create_string_from_two_strings(CLObject left, CLObject right);
@@ -1615,6 +1645,7 @@ BOOL System_println(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_printlnToError(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_printToError(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_sleep(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_pcre_exec(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 #endif
 

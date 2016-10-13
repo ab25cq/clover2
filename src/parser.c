@@ -1927,54 +1927,48 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             }
         }
     }
-    /// comment ///
-    else if(*info->p == '/' && *(info->p+1) == '*') {
-        info->p+=2;
-        int nest = 0;
-
-        while(*info->p) {
-            if(*info->p == '*' && *(info->p+1) == '/') {
-                info->p+=2;
-
-                if(nest == 0) {
-                    break;
-                }
-
-                nest--;
-            }
-            else if(*info->p == '/' && *(info->p+1) == '*') {
-                info->p+=2;
-                nest++;
-            }
-            else if(*info->p == '\n') {
-                info->p++;
-                info->sline++;
-            }
-            else {
-                info->p++;
-            }
-        }
+    /// regex ///
+    else if(*info->p == '/') {
+        info->p++;
         skip_spaces_and_lf(info);
 
-        *node = expression(node, info);
-    }
-    /// comment2 ///
-    else if(*info->p == '#') {
-        info->p++;
+        sBuf regex;
+        sBuf_init(&regex);
 
-        while(*info->p) {
-            if(*info->p == '\n') {
+        while(1) {
+            if(*info->p == '/') {
                 info->p++;
-                info->sline++;
+                skip_spaces_and_lf(info);
+                break;
+            }
+            else if(*info->p == '\0') {
+                parser_err_msg(info, "Require / to close regex");
+                info->err_num++;
                 break;
             }
             else {
+                sBuf_append_char(&regex, *info->p);
                 info->p++;
             }
         }
-        skip_spaces_and_lf(info);
 
-        *node = expression(node, info);
+        BOOL global = FALSE;
+        BOOL ignore_case = FALSE;
+        while(1) {
+            if(*info->p == 'g') {
+                info->p++;
+                global = TRUE;
+            }
+            else if(*info->p == 'i') {
+                info->p++;
+                ignore_case = TRUE;
+            }
+            else {
+                break;
+            }
+        }
+
+        *node = sNodeTree_create_regex(MANAGED regex.mBuf, global, ignore_case);
     }
     else if(*info->p == '(') {
         info->p++;

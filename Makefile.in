@@ -173,3 +173,4 @@ test:
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/list.cl && ./clover2 code/list.clo
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -class code/array4.clc code/array4.cl && ./clover2 code/array4.clo
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/array3.cl && ./clover2 code/array3.clo
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/regex.cl && ./clover2 code/regex.clo

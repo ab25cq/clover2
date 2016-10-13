@@ -657,6 +657,8 @@ static sCLClass* load_class_from_class_file(char* class_name, char* class_file_n
     klass->mBoxingClass = NULL;
     klass->mUnboxingClass = NULL;
 
+    klass->mFreeFun = NULL;
+
     return klass;
 }
 
@@ -749,6 +751,8 @@ sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_clas
 
     klass->mBoxingClass = NULL;
     klass->mUnboxingClass = NULL;
+
+    klass->mFreeFun = NULL;
 
     return klass;
 }
@@ -914,6 +918,7 @@ void class_init()
     alloc_class("bool", TRUE, -1, 0, NULL, FALSE);
     alloc_class("Null", TRUE, -1, 0, NULL, FALSE);
     alloc_class("lambda", TRUE, -1, 0, NULL, FALSE);
+    alloc_class("regex", TRUE, -1, 0, NULL, FALSE);
 
     alloc_class("SELF", FALSE, -1, 0, NULL, FALSE);
     alloc_class("GenericsParametorClass0", FALSE, 0, 0, NULL, FALSE);

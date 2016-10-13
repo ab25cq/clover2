@@ -497,12 +497,21 @@ static BOOL load_fundamental_classes_on_runtime()
     return TRUE;
 }
 
+static void set_free_fun_to_classes()
+{
+    sCLClass* klass;
+
+    klass = get_class("regex");
+    klass->mFreeFun = regex_free_fun;
+}
+
 BOOL class_init_on_runtime()
 {
     if(!load_fundamental_classes_on_runtime()) {
         return FALSE;
     }
     set_boxing_and_unboxing_classes();
+    set_free_fun_to_classes();
 
     return TRUE;
 }
@@ -11309,6 +11318,30 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     stack_ptr-=num_elements*2;
                     stack_ptr->mObjectValue = hash_object;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CREATE_REGEX:
+                {
+                    vm_mutex_on();
+
+                    int offset = *(int*)pc;
+                    pc += sizeof(int);
+
+                    BOOL global = *(int*)pc;
+                    pc += sizeof(int);
+
+                    BOOL ignore_case = *(int*)pc;
+                    pc += sizeof(int);
+
+                    char* str = CONS_str(constant, offset);
+
+                    CLObject regex_object = create_regex_object(str, global, ignore_case);
+
+                    stack_ptr->mObjectValue = regex_object;
                     stack_ptr++;
 
                     vm_mutex_off();
