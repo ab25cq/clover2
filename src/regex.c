@@ -4,10 +4,10 @@ static unsigned int object_size()
 {
     unsigned int size;
 
-    size = sizeof(sRegexObject) + 64;
+    size = sizeof(sRegexObject);
 
     /// align to 4 byte boundry
-    size = (size + 3) & ~3;
+    alignment(&size);
 
     return size;
 }

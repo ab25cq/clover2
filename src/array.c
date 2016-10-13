@@ -26,7 +26,7 @@ static unsigned int object_size(sCLClass* klass, int array_num)
     size += (unsigned int)sizeof(CLVALUE) * array_num;
 
     /// align to 4 byte boundry
-    size = (size + 3) & ~3;
+    alignment(&size);
 
     return size;
 }

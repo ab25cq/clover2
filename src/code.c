@@ -23,7 +23,7 @@ void sByteCode_free(sByteCode* code)
 
 static void arrange_alignment(sByteCode* code)
 {
-    code->mLen = (code->mLen + 3) & ~3;
+    alignment(&code->mLen);
 }
 
 void append_value_to_code(sByteCode* code, void* data, size_t size, BOOL no_output)

@@ -30,8 +30,7 @@ static unsigned int object_size(sCLClass* klass)
     size = sizeof(sCLObject) - sizeof(CLVALUE) * DUMMY_ARRAY_SIZE;
     size += (unsigned int)sizeof(CLVALUE) * klass->mNumFields;
 
-    /// align to 4 byte boundry
-    size = (size + 3) & ~3;
+    alignment(&size);
 
     return size;
 }

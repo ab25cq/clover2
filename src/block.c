@@ -6,8 +6,7 @@ static unsigned int object_size()
 
     size = sizeof(sBlockObject);
 
-    /// align to 4 byte boundry
-    size = (size + 3) & ~3;
+    alignment(&size);
 
     return size;
 }

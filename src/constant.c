@@ -24,7 +24,7 @@ void sConst_free(sConst* self)
 
 static void arrange_alignment(sConst* self)
 {
-    self->mLen = (self->mLen + 3) & ~3;
+    alignment((unsigned int*)&self->mLen);
 }
 
 int sConst_append(sConst* self, void* data, size_t size, BOOL no_output)
