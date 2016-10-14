@@ -15,3 +15,7 @@ pcre_ovec3: PcreOVec = new PcreOVec(3);
 
 Clover.test("regex test3", System.pcre_exec(/^[a-z]/i, "ABC", 3, pcre_ovec3) >= 0);
 Clover.test("regex test3", pcre_ovec3.start[0] == 0 && pcre_ovec3.end[0] == 1);
+
+b:regex = /^A/g;
+
+Clover.test("regex test4", b.global && !b.ignoreCase && !b.multiline && !b.extended && !b.dotAll && !b.anchored && !b.dollarEndOnly && !b.ungreedy);

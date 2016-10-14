@@ -2144,6 +2144,8 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
         }
     }
 
+    sCLClass* regex_class = get_class("regex");
+
     if(array && strcmp(field_name, "length") == 0) {
         append_opecode_to_code(info->code, OP_GET_ARRAY_LENGTH, info->no_output);
 
@@ -2161,6 +2163,46 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
         append_opecode_to_code(info->code, OP_CLASSNAME, info->no_output);
 
         info->type = create_node_type_with_class_name("String");
+    }
+    else if(klass == regex_class && strcmp(field_name, "global") == 0) {
+        append_opecode_to_code(info->code, OP_GET_REGEX_GLOBAL, info->no_output);
+
+        info->type = create_node_type_with_class_name("bool");
+    }
+    else if(klass == regex_class && strcmp(field_name, "ignoreCase") == 0) {
+        append_opecode_to_code(info->code, OP_GET_REGEX_IGNORE_CASE, info->no_output);
+
+        info->type = create_node_type_with_class_name("bool");
+    }
+    else if(klass == regex_class && strcmp(field_name, "multiline") == 0) {
+        append_opecode_to_code(info->code, OP_GET_REGEX_MULTILINE, info->no_output);
+
+        info->type = create_node_type_with_class_name("bool");
+    }
+    else if(klass == regex_class && strcmp(field_name, "extended") == 0) {
+        append_opecode_to_code(info->code, OP_GET_REGEX_EXTENDED, info->no_output);
+
+        info->type = create_node_type_with_class_name("bool");
+    }
+    else if(klass == regex_class && strcmp(field_name, "dotAll") == 0) {
+        append_opecode_to_code(info->code, OP_GET_REGEX_DOTALL, info->no_output);
+
+        info->type = create_node_type_with_class_name("bool");
+    }
+    else if(klass == regex_class && strcmp(field_name, "anchored") == 0) {
+        append_opecode_to_code(info->code, OP_GET_REGEX_ANCHORED, info->no_output);
+
+        info->type = create_node_type_with_class_name("bool");
+    }
+    else if(klass == regex_class && strcmp(field_name, "dollarEndOnly") == 0) {
+        append_opecode_to_code(info->code, OP_GET_REGEX_DOLLAR_ENDONLY, info->no_output);
+
+        info->type = create_node_type_with_class_name("bool");
+    }
+    else if(klass == regex_class && strcmp(field_name, "ungreedy") == 0) {
+        append_opecode_to_code(info->code, OP_GET_REGEX_UNGREEDY, info->no_output);
+
+        info->type = create_node_type_with_class_name("bool");
     }
     else if(strcmp(field_name, "toString") == 0) {
         cast_right_type_to_String(&info->type, info);

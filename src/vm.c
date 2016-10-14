@@ -11148,6 +11148,127 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 }
                 break;
 
+            case OP_GET_REGEX_GLOBAL :
+                {
+                    vm_mutex_on();
+
+                    CLObject regex = (stack_ptr-1)->mObjectValue;
+                    sRegexObject* regex_object = CLREGEX(regex);
+                    stack_ptr--;
+
+                    stack_ptr->mBoolValue = regex_object->mGlobal;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_GET_REGEX_IGNORE_CASE :
+                {
+                    vm_mutex_on();
+
+                    CLObject regex = (stack_ptr-1)->mObjectValue;
+                    sRegexObject* regex_object = CLREGEX(regex);
+                    stack_ptr--;
+
+                    stack_ptr->mBoolValue = regex_object->mIgnoreCase;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_GET_REGEX_MULTILINE :
+                {
+                    vm_mutex_on();
+
+                    CLObject regex = (stack_ptr-1)->mObjectValue;
+                    sRegexObject* regex_object = CLREGEX(regex);
+                    stack_ptr--;
+
+                    stack_ptr->mBoolValue = regex_object->mMultiline;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_GET_REGEX_EXTENDED :
+                {
+                    vm_mutex_on();
+
+                    CLObject regex = (stack_ptr-1)->mObjectValue;
+                    sRegexObject* regex_object = CLREGEX(regex);
+                    stack_ptr--;
+
+                    stack_ptr->mBoolValue = regex_object->mExtended;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_GET_REGEX_DOTALL :
+                {
+                    vm_mutex_on();
+
+                    CLObject regex = (stack_ptr-1)->mObjectValue;
+                    sRegexObject* regex_object = CLREGEX(regex);
+                    stack_ptr--;
+
+                    stack_ptr->mBoolValue = regex_object->mDotAll;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_GET_REGEX_ANCHORED :
+                {
+                    vm_mutex_on();
+
+                    CLObject regex = (stack_ptr-1)->mObjectValue;
+                    sRegexObject* regex_object = CLREGEX(regex);
+                    stack_ptr--;
+
+                    stack_ptr->mBoolValue = regex_object->mAnchored;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_GET_REGEX_DOLLAR_ENDONLY :
+                {
+                    vm_mutex_on();
+
+                    CLObject regex = (stack_ptr-1)->mObjectValue;
+                    sRegexObject* regex_object = CLREGEX(regex);
+                    stack_ptr--;
+
+                    stack_ptr->mBoolValue = regex_object->mDollarEndOnly;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_GET_REGEX_UNGREEDY :
+                {
+                    vm_mutex_on();
+
+                    CLObject regex = (stack_ptr-1)->mObjectValue;
+                    sRegexObject* regex_object = CLREGEX(regex);
+                    stack_ptr--;
+
+                    stack_ptr->mBoolValue = regex_object->mUngreedy;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+
             case OP_CREATE_STRING:
                 {
                     vm_mutex_on();
