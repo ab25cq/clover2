@@ -104,7 +104,7 @@ static sNativeMethod gNativeMethods[] = {
     { "System.printToError(String)", System_printToError },
     { "System.printlnToError(String)", System_printlnToError },
     { "System.sleep(int)", System_sleep },
-    { "System.pcre_exec(regex,String)", System_pcre_exec },
+    { "System.pcre_exec(regex,String,int,PcreOVec)", System_pcre_exec },
 
     { "", 0 }  // sentinel
 };

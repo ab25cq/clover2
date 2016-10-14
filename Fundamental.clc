@@ -1,3 +1,15 @@
+
+class PcreOVec
+{
+    start:int[];
+    end:int[];
+
+    def initialize(max:int) {
+        self.start = new int[max]();
+        self.end = new int[max]();
+    }
+}
+
 class System
 {
     def exit(num:int): native static;
@@ -16,7 +28,7 @@ class System
     def strncpy(str1:pointer, str2:pointer, size:int): native static pointer;
     def strdup(str:pointer): native static pointer;
 
-    def pcre_exec(regex:regex, str:String): native static int;
+    def pcre_exec(regex:regex, str:String, ovec_max:int, ovec:PcreOVec): native static int;
 
 #    def wcstombs(dest:pointer, src:pointer, size:int): native int;
 #    def mbstowcs(dest:pointer, src:pointer, size:int):native int;

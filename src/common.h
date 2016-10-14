@@ -1650,5 +1650,9 @@ BOOL System_pcre_exec(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 /// alignment.c ///
 void alignment(unsigned int* size);
 
+/// clove_to_clang ///
+ALLOC wchar_t* string_object_to_wchar_array(CLObject string_object);
+NULLABLE CLVALUE* get_element_from_array(CLObject array, int index);
+
 #endif
 

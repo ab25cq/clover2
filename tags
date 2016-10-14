@@ -116,7 +116,7 @@ NAME_SIZE	src/debug.c	83;"	d	file:
 NATIVE_METHOD_HASH_SIZE	src/native_method.c	3;"	d	file:
 NODE_TYPE_PAGE_SIZE	src/node_type.c	8;"	d	file:
 NULLABLE	src/macros.h	25;"	d
-OBJS	Makefile	/^OBJS=src\/main.o src\/vm.o src\/object.o src\/array.o src\/string.o src\/block.o src\/regex.o src\/integer.o src\/byte.o src\/short.o src\/long.o src\/float.o src\/pointer.o src\/char.o src\/bool.o src\/hash.o src\/type.o src\/stack.o src\/heap.o src\/exception.o src\/native_method.o src\/class_system.o src\/class_clover.o$/;"	m
+OBJS	Makefile	/^OBJS=src\/main.o src\/vm.o src\/object.o src\/array.o src\/string.o src\/block.o src\/regex.o src\/integer.o src\/byte.o src\/short.o src\/long.o src\/float.o src\/pointer.o src\/char.o src\/bool.o src\/hash.o src\/type.o src\/stack.o src\/heap.o src\/exception.o src\/native_method.o src\/class_system.o src\/class_clover.o src\/clover_to_clang.o$/;"	m
 OP_ANDAND	src/common.h	884;"	d
 OP_ARRAY_TO_CARRAY_CAST	src/common.h	1402;"	d
 OP_BADD	src/common.h	684;"	d
@@ -797,7 +797,6 @@ OP_USRSHIFT	src/common.h	723;"	d
 OP_USSUB	src/common.h	718;"	d
 OP_USXOR	src/common.h	725;"	d
 OS	Makefile	/^OS=LINUX$/;"	m
-OVECCOUNT	src/class_system.c	223;"	d	file:
 PARAMS_MAX	src/common.h	34;"	d
 PARSE_PHASE_ADD_GENERICS_TYPES	src/common.h	1425;"	d
 PARSE_PHASE_ADD_METHODS_AND_FIELDS	src/common.h	1426;"	d
@@ -1219,6 +1218,7 @@ get_class	src/klass.c	/^sCLClass* get_class(char* class_name)$/;"	f
 get_class_from_cl_type	src/type.c	/^sCLClass* get_class_from_cl_type(sCLType* cl_type, sCLClass* klass)$/;"	f
 get_class_with_load	src/klass.c	/^sCLClass* get_class_with_load(char* class_name)$/;"	f
 get_class_with_load_and_initialize	src/vm.c	/^sCLClass* get_class_with_load_and_initialize(char* class_name)$/;"	f
+get_element_from_array	src/clover_to_clang.c	/^NULLABLE CLVALUE* get_element_from_array(CLObject array, int index)$/;"	f
 get_hash_key	src/klass.c	/^unsigned int get_hash_key(char* name, unsigned int max)$/;"	f
 get_hash_key_for_native_method	src/native_method.c	/^static unsigned int get_hash_key_for_native_method(char* path)$/;"	f	file:
 get_module	src/module.c	/^sCLModule* get_module(char* module_name)$/;"	f
@@ -1798,6 +1798,7 @@ solve_generics_types_for_node_type	src/node_type.c	/^BOOL solve_generics_types_f
 stack_final	src/stack.c	/^void stack_final()$/;"	f
 stack_init	src/stack.c	/^void stack_init()$/;"	f
 stack_num	src/common.h	/^    int stack_num;$/;"	m	struct:sCompileInfoStruct
+string_object_to_wchar_array	src/clover_to_clang.c	/^ALLOC wchar_t* string_object_to_wchar_array(CLObject string_object)$/;"	f
 substitution_posibility	src/node_type.c	/^BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* generics_types)$/;"	f
 substitution_posibility_for_node_block_type	src/node_block_type.c	/^BOOL substitution_posibility_for_node_block_type(sNodeBlockType* left_block, sNodeBlockType* right_block, sNodeType* generics_types)$/;"	f
 substitution_posibility_with_class_name	src/node_type.c	/^BOOL substitution_posibility_with_class_name(sNodeType* left, char* right_class_name)$/;"	f

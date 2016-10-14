@@ -45,6 +45,9 @@ static void create_method_path(char* result, int result_size, sCLMethod* method,
 
     for(i=0; i<method->mNumParams; i++) {
         xstrncat(result, CONS_str(&klass->mConst, method->mParams[i].mType->mClassNameOffset), result_size);
+        if(method->mParams[i].mType->mArray) {
+            xstrncat(result, "[]", result_size);
+        }
 
         if(i != method->mNumParams-1) xstrncat(result, ",", result_size);
     }

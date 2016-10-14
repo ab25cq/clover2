@@ -1,4 +1,5 @@
 #include "common.h"
+#include <wchar.h>
 
 BOOL System_exit(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
@@ -220,13 +221,12 @@ BOOL System_sleep(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     return TRUE;
 }
 
-#define OVECCOUNT (10*3)
-
 BOOL System_pcre_exec(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* regex = lvar;
-
     CLVALUE* str = (lvar+1);
+    CLVALUE* ovec_max = (lvar+2);
+    CLVALUE* pcre_ovec = (lvar+3);
 
     /// convert Clover value to C value ///
     sRegexObject* regex_object_data = CLREGEX(regex->mObjectValue);
@@ -235,32 +235,45 @@ BOOL System_pcre_exec(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     BOOL global_value = regex_object_data->mGlobal;
     BOOL ignore_case_value = regex_object_data->mIgnoreCase;
 
-    sCLObject* str_object_data = CLOBJECT(str->mObjectValue);
-    CLObject wstr_array = str_object_data->mFields[0].mObjectValue;
-    sCLObject* wstr_array_data = CLOBJECT(wstr_array);
+    wchar_t* wstr = ALLOC string_object_to_wchar_array(str->mObjectValue);
 
-    int len = wstr_array_data->mArrayNum;
-
-    wchar_t* wstr = MCALLOC(1, sizeof(wchar_t)*(len+1));
-
-    int i;
-    for(i=0; i<len; i++) {
-        wstr[i] = wstr_array_data->mFields[i].mCharValue;
-    }
-    wstr[i] = '\0';
+    int len = wcslen(wstr);
     
     char* str_value = ALLOC xwcstombs(wstr, len);
 
     MFREE(wstr);
 
-    /// go ///
-    int Ovector[OVECCOUNT];
-    int result = pcre_exec(regex_value, NULL, str_value, len, 0, 0, Ovector, OVECCOUNT);
+    int ovec_max_value = ovec_max->mIntValue;
+    int* ovec_value = MCALLOC(1, sizeof(int)*ovec_max_value * 3);
 
-    MFREE(str_value);
+    /// go ///
+    int result = pcre_exec(regex_value, NULL, str_value, len, 0, 0, ovec_value, ovec_max_value*3);
+
+    /// set result data on ovec object ///
+    CLObject pcre_ovec_object = pcre_ovec->mObjectValue;
+    sCLObject* pcre_ovec_object_data = CLOBJECT(pcre_ovec_object);
+
+    CLObject pcre_ovec_start_array = pcre_ovec_object_data->mFields[0].mObjectValue;
+    CLObject pcre_ovec_end_array = pcre_ovec_object_data->mFields[1].mObjectValue;
+
+    sCLObject* pcre_ovec_start_array_data = CLOBJECT(pcre_ovec_start_array);
+    sCLObject* pcre_ovec_end_array_data = CLOBJECT(pcre_ovec_end_array);
+
+    int i;
+    for(i=0; i<ovec_max_value; i++) {
+        if(i < pcre_ovec_start_array_data->mArrayNum) {
+            pcre_ovec_start_array_data->mFields[i].mIntValue = ovec_value[i*2];
+        }
+        if(i < pcre_ovec_end_array_data->mArrayNum) {
+            pcre_ovec_end_array_data->mFields[i].mIntValue = ovec_value[i*2+1];
+        }
+    }
 
     (*stack_ptr)->mIntValue = result;
     (*stack_ptr)++;
+
+    MFREE(str_value);
+    MFREE(ovec_value);
 
     return TRUE;
 }
