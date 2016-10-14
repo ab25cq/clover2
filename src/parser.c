@@ -1954,6 +1954,12 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
         BOOL global = FALSE;
         BOOL ignore_case = FALSE;
+        BOOL multiline = FALSE;
+        BOOL extended = FALSE;
+        BOOL dotall = FALSE;
+        BOOL anchored = FALSE;
+        BOOL dollar_endonly = FALSE;
+        BOOL ungreedy = FALSE;
         while(1) {
             if(*info->p == 'g') {
                 info->p++;
@@ -1963,12 +1969,36 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 info->p++;
                 ignore_case = TRUE;
             }
+            else if(*info->p == 's') {
+                info->p++;
+                dotall = TRUE;
+            }
+            else if(*info->p == 'm') {
+                info->p++;
+                multiline = TRUE;
+            }
+            else if(*info->p == 'A') {
+                info->p++;
+                anchored = TRUE;
+            }
+            else if(*info->p == 'D') {
+                info->p++;
+                dollar_endonly = TRUE;
+            }
+            else if(*info->p == 'U') {
+                info->p++;
+                ungreedy = TRUE;
+            }
+            else if(*info->p == 'x') {
+                info->p++;
+                extended = TRUE;
+            }
             else {
                 break;
             }
         }
 
-        *node = sNodeTree_create_regex(MANAGED regex.mBuf, global, ignore_case);
+        *node = sNodeTree_create_regex(MANAGED regex.mBuf, global, ignore_case, multiline, extended, dotall, anchored, dollar_endonly, ungreedy);
     }
     else if(*info->p == '(') {
         info->p++;

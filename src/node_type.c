@@ -385,7 +385,7 @@ void solve_generics_for_variable(sNodeType* generics_type, sNodeType** generics_
 
 BOOL is_exception_type(sNodeType* exception_type)
 {
-    return substitution_posibility_with_class_name(exception_type, "SystemException") || substitution_posibility_with_class_name(exception_type, "Exception");
+    return substitution_posibility_with_class_name(exception_type, "Exception");
 }
 
 void print_node_type(sNodeType* node_type)

@@ -52,6 +52,10 @@ class String
         self.buffer[0] = '\0';
     }
 
+    def initialize(size:int) {
+        self.buffer = new char[size+1]();
+    }
+
     def initialize(buffer:char[]) {
         self.buffer = buffer;
     }
@@ -118,18 +122,21 @@ class String
 
         return key;
     }
-}
 
-class Exception
-{
-    message:String;
+    def subString(start:int, end:int): String {
+        result: String = new String(end-start);
 
-    def initialize(message:String) {
-        self.message = message;
+        for(i:int = 0; i<end-start; i++) {
+            result.buffer[i] = self.chars(i+start);
+        }
+
+        result.buffer[i] = '\0';
+
+        return result;
     }
 }
 
-class SystemException
+class Exception
 {
     message:String;
 

@@ -863,7 +863,6 @@ static void load_fundamental_classes_on_compile_time()
     load_class("String");
 
     load_class("Exception");
-    load_class("SystemException");
 
     load_class("Object");
 

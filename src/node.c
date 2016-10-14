@@ -4619,7 +4619,7 @@ BOOL compile_block_call(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_regex(MANAGED char* regex_str, BOOL global, BOOL ignore_case)
+unsigned int sNodeTree_create_regex(MANAGED char* regex_str, BOOL global, BOOL ignore_case, BOOL multiline, BOOL extended, BOOL dotall, BOOL anchored, BOOL dollar_endonly, BOOL ungreedy)
 {
     unsigned int node = alloc_node();
 
@@ -4634,6 +4634,12 @@ unsigned int sNodeTree_create_regex(MANAGED char* regex_str, BOOL global, BOOL i
     gNodes[node].uValue.sRegex.mRegexStr = MANAGED regex_str;
     gNodes[node].uValue.sRegex.mGlobal = global;
     gNodes[node].uValue.sRegex.mIgnoreCase = ignore_case;
+    gNodes[node].uValue.sRegex.mMultiline = multiline;
+    gNodes[node].uValue.sRegex.mExtended = extended;
+    gNodes[node].uValue.sRegex.mDotAll = dotall;
+    gNodes[node].uValue.sRegex.mAnchored = anchored;
+    gNodes[node].uValue.sRegex.mDollarEndOnly = dollar_endonly;
+    gNodes[node].uValue.sRegex.mUngreedy = ungreedy;
 
     return node;
 }
@@ -4643,11 +4649,23 @@ static BOOL compile_regex(unsigned int node, sCompileInfo* info)
     char* str = gNodes[node].uValue.sRegex.mRegexStr;
     BOOL global = gNodes[node].uValue.sRegex.mGlobal;
     BOOL ignore_case = gNodes[node].uValue.sRegex.mIgnoreCase;
+    BOOL multiline = gNodes[node].uValue.sRegex.mMultiline;
+    BOOL extended = gNodes[node].uValue.sRegex.mExtended;
+    BOOL dotall = gNodes[node].uValue.sRegex.mDotAll;
+    BOOL anchored = gNodes[node].uValue.sRegex.mAnchored;
+    BOOL dollar_endonly = gNodes[node].uValue.sRegex.mDollarEndOnly;
+    BOOL ungreedy = gNodes[node].uValue.sRegex.mUngreedy;
 
     append_opecode_to_code(info->code, OP_CREATE_REGEX, info->no_output);
     append_str_to_constant_pool_and_code(info->constant, info->code, str, info->no_output);
     append_int_value_to_code(info->code, global, info->no_output);
     append_int_value_to_code(info->code, ignore_case, info->no_output);
+    append_int_value_to_code(info->code, multiline, info->no_output);
+    append_int_value_to_code(info->code, extended, info->no_output);
+    append_int_value_to_code(info->code, dotall, info->no_output);
+    append_int_value_to_code(info->code, anchored, info->no_output);
+    append_int_value_to_code(info->code, dollar_endonly, info->no_output);
+    append_int_value_to_code(info->code, ungreedy, info->no_output);
 
     info->stack_num++;
 

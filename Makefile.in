@@ -79,7 +79,6 @@ install:
 	$(INSTALL) -m 644 Clover.clcl ~/.clover2
 	$(INSTALL) -m 644 String.clcl ~/.clover2
 	$(INSTALL) -m 644 Exception.clcl ~/.clover2
-	$(INSTALL) -m 644 SystemException.clcl ~/.clover2
 	$(INSTALL) -m 644 Object.clcl ~/.clover2
 	$(INSTALL) -m 644 Byte.clcl ~/.clover2
 	$(INSTALL) -m 644 UByte.clcl ~/.clover2

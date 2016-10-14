@@ -532,6 +532,12 @@ struct sNodeTreeStruct
             char* mRegexStr;
             BOOL mGlobal;
             BOOL mIgnoreCase;
+            BOOL mMultiline;
+            BOOL mExtended;
+            BOOL mDotAll;
+            BOOL mAnchored;
+            BOOL mDollarEndOnly;
+            BOOL mUngreedy;
         } sRegex;
     } uValue;
 
@@ -618,7 +624,7 @@ unsigned int sNodeTree_create_array_value(int num_elements, unsigned int array_e
 unsigned int sNodeTree_create_or_or(unsigned int left_node, unsigned int right_node);
 unsigned int sNodeTree_create_and_and(unsigned int left_node, unsigned int right_node);
 unsigned int sNodeTree_create_hash_value(int num_elements, unsigned int hash_keys[], unsigned int hash_items[]);
-unsigned int sNodeTree_create_regex(MANAGED char* regex_str, BOOL global, BOOL ignore_case);
+unsigned int sNodeTree_create_regex(MANAGED char* regex_str, BOOL global, BOOL ignore_case, BOOL multiline, BOOL extended, BOOL dotall, BOOL anchored, BOOL dollar_endonly, BOOL ungreedy);
 
 /// script.c ///
 BOOL compile_script(char* fname, char* source);
@@ -1586,13 +1592,19 @@ struct sRegexObjectStruct
     pcre* mRegex;
     BOOL mGlobal;
     BOOL mIgnoreCase;
+    BOOL mMultiline;
+    BOOL mExtended;
+    BOOL mDotAll;
+    BOOL mAnchored;
+    BOOL mDollarEndOnly;
+    BOOL mUngreedy;
 };
 
 typedef struct sRegexObjectStruct sRegexObject;
 
 #define CLREGEX(obj) (sRegexObject*)(get_object_pointer((obj)))
 
-CLObject create_regex_object(char* regex, BOOL global, BOOL ignore_case);
+CLObject create_regex_object(char* regex, BOOL global, BOOL ignore_case, BOOL multiline, BOOL extended, BOOL dotall, BOOL anchored, BOOL dollar_endonly, BOOL ungreedy);
 void regex_free_fun(CLObject obj);
 
 /// string.c ///

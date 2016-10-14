@@ -232,8 +232,6 @@ BOOL System_pcre_exec(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     sRegexObject* regex_object_data = CLREGEX(regex->mObjectValue);
 
     pcre* regex_value = regex_object_data->mRegex;
-    BOOL global_value = regex_object_data->mGlobal;
-    BOOL ignore_case_value = regex_object_data->mIgnoreCase;
 
     wchar_t* wstr = ALLOC string_object_to_wchar_array(str->mObjectValue);
 
@@ -247,7 +245,9 @@ BOOL System_pcre_exec(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int* ovec_value = MCALLOC(1, sizeof(int)*ovec_max_value * 3);
 
     /// go ///
-    int result = pcre_exec(regex_value, NULL, str_value, len, 0, 0, ovec_value, ovec_max_value*3);
+    int options = PCRE_NEWLINE_LF;
+    int offset = 0;
+    int result = pcre_exec(regex_value, 0, str_value, len, offset, options, ovec_value, ovec_max_value*3);
 
     /// set result data on ovec object ///
     CLObject pcre_ovec_object = pcre_ovec->mObjectValue;

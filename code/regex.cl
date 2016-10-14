@@ -4,22 +4,14 @@ a:regex = /^A/;
 pcre_ovec: PcreOVec = new PcreOVec(3);
 
 Clover.test("regex test", System.pcre_exec(a, "ABC", 3, pcre_ovec) >= 0);
-
-for(i:=0; i<pcre_ovec.start.length; i++) 
-{
-    System.println("pcre_ovec.start[".append(i.toString).append("] -->").append(pcre_ovec.start[i].toString));
-    System.println("pcre_ovec.end[".append(i.toString).append("] -->").append(pcre_ovec.end[i].toString));
-}
+Clover.test("regex test", pcre_ovec.start[0] == 0 && pcre_ovec.end[0] == 1);
 
 pcre_ovec2: PcreOVec = new PcreOVec(3);
 
 Clover.test("regex test2", System.pcre_exec(/bc$/, "abc", 3, pcre_ovec2) >= 0);
+Clover.test("regex test2", pcre_ovec2.start[0] == 1 && pcre_ovec2.end[0] == 3);
 
-for(i=0; i<pcre_ovec2.start.length; i++) 
-{
-    System.println("pcre_ovec2.start[".append(i.toString).append("] -->").append(pcre_ovec2.start[i].toString));
-    System.println("pcre_ovec2.end[".append(i.toString).append("] -->").append(pcre_ovec2.end[i].toString));
-}
+pcre_ovec3: PcreOVec = new PcreOVec(3);
 
-
-
+Clover.test("regex test3", System.pcre_exec(/^[a-z]/i, "ABC", 3, pcre_ovec3) >= 0);
+Clover.test("regex test3", pcre_ovec3.start[0] == 0 && pcre_ovec3.end[0] == 1);

@@ -465,7 +465,6 @@ static BOOL load_fundamental_classes_on_runtime()
     if(!load_class_with_initialize("String")) { return FALSE; }
 
     if(!load_class_with_initialize("Exception")) { return FALSE; }
-    if(!load_class_with_initialize("SystemException")) { return FALSE; }
 
     if(!load_class_with_initialize("Object")) { return FALSE; }
 
@@ -11337,9 +11336,27 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     BOOL ignore_case = *(int*)pc;
                     pc += sizeof(int);
 
+                    BOOL multiline = *(int*)pc;
+                    pc += sizeof(int);
+
+                    BOOL extended = *(int*)pc;
+                    pc += sizeof(int);
+
+                    BOOL dotall = *(int*)pc;
+                    pc += sizeof(int);
+
+                    BOOL anchored = *(int*)pc;
+                    pc += sizeof(int);
+
+                    BOOL dollar_endonly = *(int*)pc;
+                    pc += sizeof(int);
+
+                    BOOL ungreedy = *(int*)pc;
+                    pc += sizeof(int);
+
                     char* str = CONS_str(constant, offset);
 
-                    CLObject regex_object = create_regex_object(str, global, ignore_case);
+                    CLObject regex_object = create_regex_object(str, global, ignore_case, multiline, extended, dotall, anchored, dollar_endonly, ungreedy);
 
                     stack_ptr->mObjectValue = regex_object;
                     stack_ptr++;
