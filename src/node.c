@@ -4332,6 +4332,77 @@ unsigned int sNodeTree_create_hash_value(int num_elements, unsigned int hash_key
     return node;
 }
 
+unsigned int sNodeTree_create_list_value(int num_elements, unsigned int list_elements[])
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeListValue;
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    gNodes[node].mType = NULL;
+
+    memcpy(gNodes[node].uValue.sListValue.mListElements, list_elements, sizeof(unsigned int)*LIST_VALUE_ELEMENT_MAX);
+    gNodes[node].uValue.sListValue.mNumListElements = num_elements;
+
+    return node;
+}
+
+BOOL compile_list_value(unsigned int node, sCompileInfo* info)
+{
+    unsigned int* elements = gNodes[node].uValue.sListValue.mListElements;
+    int num_elements = gNodes[node].uValue.sListValue.mNumListElements;
+
+    if(num_elements == 0) {
+        parser_err_msg(info->pinfo, "require element in list value");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    unsigned int first_element_node = elements[0];
+
+    if(!compile(first_element_node, info)) {
+        return FALSE;
+    }
+
+    boxing_to_lapper_class(&info->type, info);
+
+    sNodeType* element_type = info->type;
+
+    int i;
+    for(i=1; i<num_elements; i++) {
+        unsigned int element_node = elements[i];
+
+        if(!compile(element_node, info)) {
+            return FALSE;
+        }
+
+        boxing_to_lapper_class(&info->type, info);
+
+        if(!type_identify(element_type, info->type)) {
+            parser_err_msg(info->pinfo, "Invalid element type. Left type is %s. Right type is %s", CLASS_NAME(element_type->mClass), CLASS_NAME(info->type->mClass));
+            info->err_num++;
+        }
+    }
+
+    append_opecode_to_code(info->code, OP_CREATE_LIST, info->no_output);
+    append_int_value_to_code(info->code, num_elements, info->no_output);
+    append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(element_type->mClass), info->no_output);
+
+    info->stack_num-= num_elements;
+    info->stack_num++;
+
+    info->type = create_node_type_with_class_name("List");
+    info->type->mNumGenericsTypes = 1;
+    info->type->mGenericsTypes[0] = element_type;
+
+    return TRUE;
+}
 
 BOOL compile_hash_value(unsigned int node, sCompileInfo* info)
 {
@@ -4902,6 +4973,10 @@ void show_node(unsigned int node)
             puts("hash value");
             break;
 
+        case kNodeTypeListValue:
+            puts("hash value");
+            break;
+
         case kNodeTypeTry:
             puts("try");
             break;
@@ -5189,6 +5264,12 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeArrayValue:
             if(!compile_array_value(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeListValue:
+            if(!compile_list_value(node, info)) {
                 return FALSE;
             }
             break;

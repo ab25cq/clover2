@@ -11329,46 +11329,50 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 }
                 break;
 
-            case OP_CREATE_BLOCK_OBJECT:
+            case OP_CREATE_LIST:
                 {
                     vm_mutex_on();
 
-                    int code_offset = *(int*)pc;
+                    int num_elements = *(int*)pc;
                     pc += sizeof(int);
 
-                    int code_len = *(int*)pc;
+                    int offset = *(int*)pc;
                     pc += sizeof(int);
 
-                    sByteCode codes2;
+                    char* class_name = CONS_str(constant, offset);
 
-                    codes2.mCodes = CONS_str(constant, code_offset);
-                    codes2.mLen = code_len;
+                    sCLClass* klass = get_class_with_load_and_initialize(class_name);
 
-                    int constant_offset = *(int*)pc;
-                    pc += sizeof(int);
+                    if(klass == NULL) {
+                        vm_mutex_off();
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found");
+                        remove_stack_to_stack_list(stack);
+                        return FALSE;
+                    }
 
-                    int constant_len = *(int*)pc;
-                    pc += sizeof(int);
+                    CLObject list_object = create_list_object();
+                    stack_ptr->mObjectValue = list_object; // push object
+                    stack_ptr++;
 
-                    sConst constant2;
+                    CLObject items[LIST_VALUE_ELEMENT_MAX];
 
-                    constant2.mConst = CONS_str(constant, constant_offset);
-                    constant2.mLen = constant_len;
+                    int i;
+                    for(i=0; i<num_elements; i++) {
+                        CLVALUE element = *(stack_ptr-1-num_elements+i);
+                        items[i] = (*(stack_ptr-1-num_elements+i)).mObjectValue;
+                    }
 
-                    int block_var_num = *(int*)pc;
-                    pc += sizeof(int);
+                    if(!initialize_list_object(list_object, num_elements, items, stack, var_num, &stack_ptr, info, klass))
+                    {
+                        vm_mutex_off();
+                        remove_stack_to_stack_list(stack);
+                        return FALSE;
+                    }
 
-                    int parent_var_num = *(int*)pc;
-                    pc += sizeof(int);
+                    stack_ptr--; // pop_object
 
-                    int lambda = *(int*)pc;
-                    pc += sizeof(int);
-
-                    CLVALUE* parent_stack = stack;
-
-                    CLObject block_object = create_block_object(&codes2, &constant2, parent_stack, parent_var_num, block_var_num, stack_id, lambda);
-
-                    stack_ptr->mObjectValue = block_object;
+                    stack_ptr-=num_elements;
+                    stack_ptr->mObjectValue = list_object;
                     stack_ptr++;
 
                     vm_mutex_off();
@@ -11438,6 +11442,52 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     stack_ptr-=num_elements*2;
                     stack_ptr->mObjectValue = hash_object;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CREATE_BLOCK_OBJECT:
+                {
+                    vm_mutex_on();
+
+                    int code_offset = *(int*)pc;
+                    pc += sizeof(int);
+
+                    int code_len = *(int*)pc;
+                    pc += sizeof(int);
+
+                    sByteCode codes2;
+
+                    codes2.mCodes = CONS_str(constant, code_offset);
+                    codes2.mLen = code_len;
+
+                    int constant_offset = *(int*)pc;
+                    pc += sizeof(int);
+
+                    int constant_len = *(int*)pc;
+                    pc += sizeof(int);
+
+                    sConst constant2;
+
+                    constant2.mConst = CONS_str(constant, constant_offset);
+                    constant2.mLen = constant_len;
+
+                    int block_var_num = *(int*)pc;
+                    pc += sizeof(int);
+
+                    int parent_var_num = *(int*)pc;
+                    pc += sizeof(int);
+
+                    int lambda = *(int*)pc;
+                    pc += sizeof(int);
+
+                    CLVALUE* parent_stack = stack;
+
+                    CLObject block_object = create_block_object(&codes2, &constant2, parent_stack, parent_var_num, block_var_num, stack_id, lambda);
+
+                    stack_ptr->mObjectValue = block_object;
                     stack_ptr++;
 
                     vm_mutex_off();

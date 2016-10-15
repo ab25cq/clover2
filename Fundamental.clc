@@ -682,6 +682,16 @@ class List<T:Object>
         self.number = 0;
     }
 
+    def initialize(items:T[], num_elements:uint) {
+        self.head = null;
+        self.tail = null;
+        self.number = 0;
+
+        for(i:int = 0; i<num_elements; i++) {
+            self.add(items[i]);
+        }
+    }
+
     def add(item:T) {
         if(self.head.isNull) {
             self.head = new ListItem<T>(item, null, null);
@@ -693,6 +703,12 @@ class List<T:Object>
             self.tail.next = new_item;
             self.tail = new_item;
         }
+
+        self.number++;
+    }
+
+    def length():uint {
+        return self.number;
     }
 
     def each(block_:lambda(T)) {

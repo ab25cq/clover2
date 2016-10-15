@@ -39,7 +39,8 @@
 #define CL_MODULE_HASH_SIZE 256
 #define CL_MODULE_NAME_MAX CLASS_NAME_MAX
 #define ARRAY_VALUE_ELEMENT_MAX 256
-#define HASH_VALUE_ELEMENT_MAX 256
+#define LIST_VALUE_ELEMENT_MAX ARRAY_VALUE_ELEMENT_MAX
+#define HASH_VALUE_ELEMENT_MAX ARRAY_VALUE_ELEMENT_MAX
 
 /// CLVALUE ///
 typedef unsigned int CLObject;
@@ -419,7 +420,7 @@ BOOL parse_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* ne
 BOOL compile_block(sNodeBlock* block, struct sCompileInfoStruct* info);
 
 /// node.c ///
-enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeUByteValue, kNodeTypeShortValue, kNodeTypeUShortValue, kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand, kNodeTypeIncrementWithValueOperand, kNodeTypeDecrementWithValueOperand, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand, kNodeTypeLoadArrayElement, kNodeTypeStoreArrayElement, kNodeTypeChar, kNodeTypeString, kNodeTypeThrow, kNodeTypeTry, kNodeTypeBlockObject, kNodeTypeBlockCall, kNodeTypeConditional, kNodeTypeNormalBlock, kNodeTypeArrayValue, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeHashValue, kNodeTypeRegex };
+enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeUByteValue, kNodeTypeShortValue, kNodeTypeUShortValue, kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand, kNodeTypeIncrementWithValueOperand, kNodeTypeDecrementWithValueOperand, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand, kNodeTypeLoadArrayElement, kNodeTypeStoreArrayElement, kNodeTypeChar, kNodeTypeString, kNodeTypeThrow, kNodeTypeTry, kNodeTypeBlockObject, kNodeTypeBlockCall, kNodeTypeConditional, kNodeTypeNormalBlock, kNodeTypeArrayValue, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeHashValue, kNodeTypeRegex, kNodeTypeListValue };
 
 enum eOperand { kOpAdd, kOpSub , kOpComplement, kOpLogicalDenial, kOpMult, kOpDiv, kOpMod, kOpLeftShift, kOpRightShift, kOpComparisonEqual, kOpComparisonNotEqual,kOpComparisonGreaterEqual, kOpComparisonLesserEqual, kOpComparisonGreater, kOpComparisonLesser, kOpAnd, kOpXor, kOpOr };
 
@@ -524,6 +525,10 @@ struct sNodeTreeStruct
             int mNumArrayElements;
         } sArrayValue;
         struct {
+            unsigned int mListElements[LIST_VALUE_ELEMENT_MAX];
+            int mNumListElements;
+        } sListValue;
+        struct {
             unsigned int mHashKeys[HASH_VALUE_ELEMENT_MAX];
             unsigned int mHashItems[HASH_VALUE_ELEMENT_MAX];
             int mNumHashElements;
@@ -621,6 +626,7 @@ unsigned int sNodeTree_create_block_call(unsigned int block, int num_params, uns
 unsigned int sNodeTree_conditional_expression(unsigned int expression_node, unsigned int true_expression_node, unsigned int false_expression_node);
 unsigned int sNodeTree_create_normal_block(MANAGED sNodeBlock* node_block);
 unsigned int sNodeTree_create_array_value(int num_elements, unsigned int array_elements[]);
+unsigned int sNodeTree_create_list_value(int num_elements, unsigned int list_elements[]);
 unsigned int sNodeTree_create_or_or(unsigned int left_node, unsigned int right_node);
 unsigned int sNodeTree_create_and_and(unsigned int left_node, unsigned int right_node);
 unsigned int sNodeTree_create_hash_value(int num_elements, unsigned int hash_keys[], unsigned int hash_items[]);
@@ -1420,9 +1426,10 @@ void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
 
 #define OP_CREATE_STRING 9000
 #define OP_CREATE_ARRAY 9001
-#define OP_CREATE_BLOCK_OBJECT 9002
+#define OP_CREATE_LIST 9002
 #define OP_CREATE_HASH 9003
-#define OP_CREATE_REGEX 9004
+#define OP_CREATE_BLOCK_OBJECT 9004
+#define OP_CREATE_REGEX 9005
 
 BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sVMInfo* info);
 void vm_mutex_on();
@@ -1674,6 +1681,10 @@ void alignment(unsigned int* size);
 /// clove_to_clang ///
 ALLOC wchar_t* string_object_to_wchar_array(CLObject string_object);
 NULLABLE CLVALUE* get_element_from_array(CLObject array, int index);
+
+/// list.c ///
+CLObject create_list_object();
+BOOL initialize_list_object(CLObject list_object, int num_elements, CLObject* items, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sCLClass* class_items);
 
 #endif
 
