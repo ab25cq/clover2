@@ -536,7 +536,7 @@ OP_LRSHIFT	src/common.h	768;"	d
 OP_LSUB	src/common.h	763;"	d
 OP_LXOR	src/common.h	770;"	d
 OP_NEW	src/common.h	904;"	d
-OP_OBISNULL	src/common.h	893;"	d
+OP_OBJ_IDENTIFY	src/common.h	893;"	d
 OP_OROR	src/common.h	897;"	d
 OP_PADD	src/common.h	803;"	d
 OP_PEQ	src/common.h	879;"	d

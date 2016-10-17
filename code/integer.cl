@@ -34,3 +34,6 @@ Clover.test("Bool test1", h.getValue() == true);
 
 Clover.test("Integer test1", 123 + 123.toInteger == 246);
 
+i:int = new Integer(123);
+
+Clover.test("Integer test2", i == 123);

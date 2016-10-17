@@ -4017,15 +4017,16 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 }
                 break;
 
-            case OP_OBISNULL:
+            case OP_OBJ_IDENTIFY:
                 {
                     vm_mutex_on();
 
-                    CLObject left = (stack_ptr-1)->mObjectValue;
+                    CLObject left = (stack_ptr-2)->mObjectValue;
+                    CLObject right = (stack_ptr-1)->mObjectValue;
 
-                    BOOL result = left == 0;
+                    BOOL result = left == right;
 
-                    stack_ptr--;
+                    stack_ptr-=2;
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 

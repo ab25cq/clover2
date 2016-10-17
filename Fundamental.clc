@@ -586,7 +586,7 @@ class Hash <T:HashKey, T2:Object>
         n:uint = hash_key;
 
         while(true) {
-            if(self.table[n].isNull) {
+            if(self.table[n].identifyWith(null)) {
                 self.table[n] = new HashItem<T, T2>(key,item);
                 self.itemNumber++;
                 break;
@@ -620,7 +620,7 @@ class Hash <T:HashKey, T2:Object>
         self.itemNumber = 0;
 
         for(i:=0; i<itemNumber; i++) {
-            if(!table[i].isNull) {
+            if(!table[i].identifyWith(null)) {
                 self.put(table[i].key, table[i].item);
             }
         }
@@ -632,7 +632,7 @@ class Hash <T:HashKey, T2:Object>
         n:uint = hash_key;
 
         while(true) {
-            if(!self.table[n].isNull) {
+            if(!self.table[n].identifyWith(null)) {
                 if(self.table[n].key.equals(key)) {
                     return self.table[n].item;
                 }
@@ -649,7 +649,6 @@ class Hash <T:HashKey, T2:Object>
         }
     }
 }
-
 
 class ListItem <T:Object>
 {
@@ -693,7 +692,7 @@ class List<T:Object>
     }
 
     def add(item:T) {
-        if(self.head.isNull) {
+        if(self.head.identifyWith(null)) {
             self.head = new ListItem<T>(item, null, null);
             self.tail = self.head;
         }
@@ -707,6 +706,35 @@ class List<T:Object>
         self.number++;
     }
 
+    def delete(item:T) {
+        it:ListItem<T> = self.head;
+        it2:ListItem<T> = self.head;
+
+        while(!it.identifyWith(null)) {
+            if(it.item.identifyWith(item)) {
+                if(it.identifyWith(self.head)) {
+                    self.head = null;
+                    self.tail = null;
+                    break;
+                }
+                elif(it.identifyWith(self.tail)) {
+                    it2.next = null;
+                    self.tail = it2;
+                }
+                else {
+                    it2.next = it.next;
+                    it.next.prev = it2;
+                    break;
+                }
+            }
+            
+            it2 = it;
+            it = it.next;
+        }
+
+        self.number--;
+    }
+
     def length():uint {
         return self.number;
     }
@@ -714,9 +742,26 @@ class List<T:Object>
     def each(block_:lambda(T)) {
         it:ListItem<T> = self.head;
 
-        while(!it.isNull) {
+        while(!it.identifyWith(null)) {
             block_(it.item);
             it = it.next;
         }
+    }
+
+    def items(index:int):T {
+        it:ListItem<T> = self.head;
+
+        count:int = 0;
+
+        while(!it.identifyWith(null)) {
+            if(count == index) {
+                return it.item
+            }
+            count++;
+
+            it = it.next;
+        }
+
+        return null;
     }
 }

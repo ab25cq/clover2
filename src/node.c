@@ -1715,6 +1715,15 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
         boxing_to_lapper_class(&info->type, info);
     }
 
+    if(info->type->mClass->mFlags & CLASS_FLAGS_PRIMITIVE) {
+        parser_err_msg(info->pinfo, "primitive class can't be called to method");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
     sNodeType* generics_types = info->type;
     sCLClass* klass = generics_types->mClass;
 
@@ -1730,39 +1739,255 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
         return FALSE;
     }
 
-    sNodeType* result_type;
-    int method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types, &result_type);
+    /// special methods ///
+    if(strcmp(method_name, "identifyWith") == 0) {
+        if(num_params != 1) {
+            parser_err_msg(info->pinfo, "identify method require one none primitive class param");
+            info->err_num++;
 
-    if(method_index2 == -1) {
-        parser_err_msg(info->pinfo, "method not found(2)");
-        info->err_num++;
+            info->type = create_node_type_with_class_name("int"); // dummy
 
-        err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
+            return TRUE;
+        }
+        sCLClass* param_class = param_types[0]->mClass;
+        if((param_class->mFlags & CLASS_FLAGS_PRIMITIVE) && !type_identify_with_class_name(param_types[0], "Null")) {
+            parser_err_msg(info->pinfo, "identify method require one none primitive class param");
+            info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int"); // dummy
 
-        return TRUE;
+            return TRUE;
+        }
+
+        append_opecode_to_code(info->code, OP_OBJ_IDENTIFY, info->no_output);
+
+        info->stack_num-=num_params + 1;
+        info->stack_num++;
+
+        info->type = create_node_type_with_class_name("bool");
     }
+    else if(strcmp(method_name, "className") == 0) {
+        if(num_params != 0) {
+            parser_err_msg(info->pinfo, "className method doesn't require params");
+            info->err_num++;
 
-    sCLMethod* method = klass->mMethods + method_index2;
+            info->type = create_node_type_with_class_name("int"); // dummy
 
-    if(klass->mFlags & CLASS_FLAGS_INTERFACE || klass == info->pinfo->klass) { // Interface and the inner method is called virtually for mixin
-        int num_real_params = method->mNumParams + 1;
+            return TRUE;
+        }
 
-        append_opecode_to_code(info->code, OP_INVOKE_VIRTUAL_METHOD, info->no_output);
-        append_int_value_to_code(info->code, num_real_params, info->no_output);
-        append_str_to_constant_pool_and_code(info->constant, info->code, METHOD_NAME_AND_PARAMS(klass, method), info->no_output);
+        append_opecode_to_code(info->code, OP_CLASSNAME, info->no_output);
+
+        info->stack_num-=num_params + 1;
+        info->stack_num++;
+
+        info->type = create_node_type_with_class_name("String");
     }
+    else if(strcmp(method_name, "to_byte") == 0) {
+        if(num_params != 0) {
+            parser_err_msg(info->pinfo, "cast method doesn't require params");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        info->type = generics_types;
+        cast_right_type_to_byte(&info->type, info);
+    }
+    else if(strcmp(method_name, "to_ubyte") == 0) {
+        if(num_params != 0) {
+            parser_err_msg(info->pinfo, "cast method doesn't require params");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        info->type = generics_types;
+        cast_right_type_to_ubyte(&info->type, info);
+    }
+    else if(strcmp(method_name, "to_short") == 0) {
+        if(num_params != 0) {
+            parser_err_msg(info->pinfo, "cast method doesn't require params");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        info->type = generics_types;
+        cast_right_type_to_short(&info->type, info);
+    }
+    else if(strcmp(method_name, "to_ushort") == 0) {
+        if(num_params != 0) {
+            parser_err_msg(info->pinfo, "cast method doesn't require params");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        info->type = generics_types;
+        cast_right_type_to_ushort(&info->type, info);
+    }
+    else if(strcmp(method_name, "to_int") == 0) {
+        if(num_params != 0) {
+            parser_err_msg(info->pinfo, "cast method doesn't require params");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        info->type = generics_types;
+        cast_right_type_to_int(&info->type, info);
+    }
+    else if(strcmp(method_name, "to_uint") == 0) {
+        if(num_params != 0) {
+            parser_err_msg(info->pinfo, "cast method doesn't require params");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        info->type = generics_types;
+        cast_right_type_to_uint(&info->type, info);
+    }
+    else if(strcmp(method_name, "to_long") == 0) {
+        if(num_params != 0) {
+            parser_err_msg(info->pinfo, "cast method doesn't require params");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        info->type = generics_types;
+        cast_right_type_to_long(&info->type, info);
+    }
+    else if(strcmp(method_name, "to_ulong") == 0) {
+        if(num_params != 0) {
+            parser_err_msg(info->pinfo, "cast method doesn't require params");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        info->type = generics_types;
+        cast_right_type_to_ulong(&info->type, info);
+    }
+    else if(strcmp(method_name, "to_float") == 0) {
+        if(num_params != 0) {
+            parser_err_msg(info->pinfo, "cast method doesn't require params");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        info->type = generics_types;
+        cast_right_type_to_float(&info->type, info);
+    }
+    else if(strcmp(method_name, "to_double") == 0) {
+        if(num_params != 0) {
+            parser_err_msg(info->pinfo, "cast method doesn't require params");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        info->type = generics_types;
+        cast_right_type_to_double(&info->type, info);
+    }
+    else if(strcmp(method_name, "to_char") == 0) {
+        if(num_params != 0) {
+            parser_err_msg(info->pinfo, "cast method doesn't require params");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        info->type = generics_types;
+        cast_right_type_to_char(&info->type, info);
+    }
+    else if(strcmp(method_name, "to_pointer") == 0) {
+        if(num_params != 0) {
+            parser_err_msg(info->pinfo, "cast method doesn't require params");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        info->type = generics_types;
+        cast_right_type_to_pointer(&info->type, info);
+    }
+    else if(strcmp(method_name, "to_bool") == 0) {
+        if(num_params != 0) {
+            parser_err_msg(info->pinfo, "cast method doesn't require params");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        info->type = generics_types;
+        cast_right_type_to_bool(&info->type, info);
+    }
+    /// normal methods ///
     else {
-        append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
-        append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(klass), info->no_output);
-        append_int_value_to_code(info->code, method_index2, info->no_output);
+        sNodeType* result_type;
+        int method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types, &result_type);
+
+        if(method_index2 == -1) {
+            parser_err_msg(info->pinfo, "method not found(2)");
+            info->err_num++;
+
+            err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        sCLMethod* method = klass->mMethods + method_index2;
+
+        if(klass->mFlags & CLASS_FLAGS_INTERFACE || klass == info->pinfo->klass) { // Interface is called virtually and the inner method is called virtually for mixin
+            int num_real_params = method->mNumParams + 1;
+
+            append_opecode_to_code(info->code, OP_INVOKE_VIRTUAL_METHOD, info->no_output);
+            append_int_value_to_code(info->code, num_real_params, info->no_output);
+            append_str_to_constant_pool_and_code(info->constant, info->code, METHOD_NAME_AND_PARAMS(klass, method), info->no_output);
+        }
+        else {
+            append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
+            append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(klass), info->no_output);
+            append_int_value_to_code(info->code, method_index2, info->no_output);
+        }
+
+        info->stack_num-=num_params + 1;
+        info->stack_num++;
+
+        info->type = result_type;
     }
-
-    info->stack_num-=num_params + 1;
-    info->stack_num++;
-
-    info->type = result_type;
     
     return TRUE;
 }
@@ -2146,6 +2371,7 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
 
     sCLClass* regex_class = get_class("regex");
 
+    /// special field ///
     if(array && strcmp(field_name, "length") == 0) {
         append_opecode_to_code(info->code, OP_GET_ARRAY_LENGTH, info->no_output);
 
@@ -2153,16 +2379,6 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
         info->stack_num++;
 
         info->type = create_node_type_with_class_name("int");
-    }
-    else if(!(klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "isNull") == 0) {
-        append_opecode_to_code(info->code, OP_OBISNULL, info->no_output);
-
-        info->type = create_node_type_with_class_name("bool");
-    }
-    else if(!(klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "className") == 0) {
-        append_opecode_to_code(info->code, OP_CLASSNAME, info->no_output);
-
-        info->type = create_node_type_with_class_name("String");
     }
     else if(klass == regex_class && strcmp(field_name, "global") == 0) {
         append_opecode_to_code(info->code, OP_GET_REGEX_GLOBAL, info->no_output);
@@ -2204,100 +2420,100 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
 
         info->type = create_node_type_with_class_name("bool");
     }
-    else if(strcmp(field_name, "toString") == 0) {
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "toString") == 0) {
         cast_right_type_to_String(&info->type, info);
     }
-    else if(strcmp(field_name, "toByte") == 0) {
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "toByte") == 0) {
         cast_right_type_to_Byte(&info->type, info);
     }
-    else if(strcmp(field_name, "toUByte") == 0) {
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "toUByte") == 0) {
         cast_right_type_to_UByte(&info->type, info);
     }
-    else if(strcmp(field_name, "toShort") == 0) {
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "toShort") == 0) {
         cast_right_type_to_Short(&info->type, info);
     }
-    else if(strcmp(field_name, "toUShort") == 0) {
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "toUShort") == 0) {
         cast_right_type_to_UShort(&info->type, info);
     }
-    else if(strcmp(field_name, "toInteger") == 0) {
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "toInteger") == 0) {
         cast_right_type_to_Integer(&info->type, info);
     }
-    else if(strcmp(field_name, "toUInteger") == 0) {
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "toUInteger") == 0) {
         cast_right_type_to_UInteger(&info->type, info);
     }
-    else if(strcmp(field_name, "toLong") == 0) {
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "toLong") == 0) {
         cast_right_type_to_Long(&info->type, info);
     }
-    else if(strcmp(field_name, "toULong") == 0) {
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "toULong") == 0) {
         cast_right_type_to_ULong(&info->type, info);
     }
-    else if(strcmp(field_name, "toFloat") == 0) {
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "toFloat") == 0) {
         cast_right_type_to_Float(&info->type, info);
     }
-    else if(strcmp(field_name, "toDouble") == 0) {
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "toDouble") == 0) {
         cast_right_type_to_Double(&info->type, info);
     }
-    else if(strcmp(field_name, "toPointer") == 0) {
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "toPointer") == 0) {
         cast_right_type_to_Pointer(&info->type, info);
     }
-    else if(strcmp(field_name, "toChar") == 0) {
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "toChar") == 0) {
         cast_right_type_to_Char(&info->type, info);
     }
-    else if(strcmp(field_name, "toBool") == 0) {
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "toBool") == 0) {
         cast_right_type_to_Bool(&info->type, info);
     }
-    else if(strcmp(field_name, "toArray") == 0) {
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "toArray") == 0) {
         cast_right_type_to_Array(&info->type, info);
     }
-    else if(strcmp(field_name, "to_byte") == 0)
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "to_byte") == 0)
     {
         cast_right_type_to_byte(&info->type, info);
     }
-    else if(strcmp(field_name, "to_ubyte") == 0)
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "to_ubyte") == 0)
     {
         cast_right_type_to_ubyte(&info->type, info);
     }
-    else if(strcmp(field_name, "to_short") == 0)
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "to_short") == 0)
     {
         cast_right_type_to_short(&info->type, info);
     }
-    else if(strcmp(field_name, "to_ushort") == 0)
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "to_ushort") == 0)
     {
         cast_right_type_to_ushort(&info->type, info);
     }
-    else if(strcmp(field_name, "to_int") == 0)
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "to_int") == 0)
     {
         cast_right_type_to_int(&info->type, info);
     }
-    else if(strcmp(field_name, "to_uint") == 0)
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "to_uint") == 0)
     {
         cast_right_type_to_uint(&info->type, info);
     }
-    else if(strcmp(field_name, "to_long") == 0)
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "to_long") == 0)
     {
         cast_right_type_to_long(&info->type, info);
     }
-    else if(strcmp(field_name, "to_ulong") == 0) 
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "to_ulong") == 0) 
     {
         cast_right_type_to_ulong(&info->type, info);
     }
-    else if(strcmp(field_name, "to_float") == 0) 
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "to_float") == 0) 
     {
         cast_right_type_to_float(&info->type, info);
     }
-    else if(strcmp(field_name, "to_double") == 0) 
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "to_double") == 0) 
     {
         cast_right_type_to_double(&info->type, info);
     }
-    else if(strcmp(field_name, "to_char") == 0) 
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "to_char") == 0) 
     {
         cast_right_type_to_char(&info->type, info);
     }
-    else if(strcmp(field_name, "to_pointer") == 0) 
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "to_pointer") == 0) 
     {
         cast_right_type_to_pointer(&info->type, info);
     }
-    else if(strcmp(field_name, "to_bool") == 0) 
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "to_bool") == 0) 
     {
         cast_right_type_to_bool(&info->type, info);
     }
@@ -4974,7 +5190,7 @@ void show_node(unsigned int node)
             break;
 
         case kNodeTypeListValue:
-            puts("hash value");
+            puts("list value");
             break;
 
         case kNodeTypeTry:

@@ -10,5 +10,6 @@ FEATURES
 2. Generics
 3. Primitive class and user class
 4. Regex object
-5. No inheritance, only interface and class
+5. No inheritance, only interfaces and classes
 6. Able to mixin layers style coding
+7. boxing and unboxing

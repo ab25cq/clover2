@@ -7,6 +7,6 @@ c:GenericsTest1<GenericsTestClass, GenericsTestClass2> = new GenericsTest1<Gener
 Clover.test("generics test1", c.method(123) == 123);
 Clover.test("generics test2", c.method2(a) == 123);
 Clover.test("generics test3", c.getField().method(123) == 123);
-Clover.test("generics test3", !c.getField2().isNull);
+Clover.test("generics test3", !c.getField2().identifyWith(null));
 
 

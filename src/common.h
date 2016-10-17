@@ -890,7 +890,7 @@ void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
 #define OP_CGTEQ 1204
 #define OP_CLEEQ 1205
 
-#define OP_OBISNULL 1300
+#define OP_OBJ_IDENTIFY 1300
 #define OP_CLASSNAME 1301
 
 #define OP_ANDAND 2000
