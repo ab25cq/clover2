@@ -2166,7 +2166,7 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
         cast_right_type_to_left_type(result_type2, &result_value_type, info);
 
         if(!substitution_posibility(result_type2, result_value_type, NULL)) {
-            parser_err_msg(info->pinfo, "Invalid type of return value(2)");
+            parser_err_msg(info->pinfo, "Invalid type of return value(2). Left type is %s. Right type is %s.", CLASS_NAME(result_type2->mClass), CLASS_NAME(result_value_type->mClass));
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy

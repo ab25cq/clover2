@@ -381,6 +381,8 @@ struct sGenericsParamInfoStruct
 
 typedef struct sGenericsParamInfoStruct sGenericsParamInfo;
 
+struct sCompileInfoStruct;
+
 struct sParserInfoStruct
 {
     char* p;
@@ -391,6 +393,7 @@ struct sParserInfoStruct
     int parse_phase;
     sCLClass* klass;
     sGenericsParamInfo generics_info;
+    struct sCompileInfoStruct* cinfo;
 };
 
 typedef struct sParserInfoStruct sParserInfo;

@@ -379,6 +379,8 @@ static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOO
             char* p_saved = info->p;
             int sline_saved = info->sline;
             char* sname_saved = info->sname;
+            int err_num_saved = info->err_num;
+            int cinfo_err_num_saved = info->cinfo->err_num;
 
             info->p = body;
             info->sline = 1;
@@ -395,6 +397,10 @@ static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOO
             info->p = p_saved;
             info->sline = sline_saved;
             info->sname = sname_saved;
+
+            if(info->err_num > err_num_saved || info->cinfo->err_num > cinfo_err_num_saved) {
+                parser_err_msg(info, "at including Module %s", module_name);
+            }
         }
 
         if(*info->p == ';') {
@@ -539,6 +545,8 @@ BOOL parse_methods_and_fields_on_compile_time(sParserInfo* info, sCompileInfo* c
             char* p_saved = info->p;
             int sline_saved = info->sline;
             char* sname_saved = info->sname;
+            int err_num_saved = info->err_num;
+            int cinfo_err_num_saved = info->cinfo->err_num;
 
             info->p = body;
             info->sline = 1;
@@ -555,6 +563,10 @@ BOOL parse_methods_and_fields_on_compile_time(sParserInfo* info, sCompileInfo* c
             info->p = p_saved;
             info->sline = sline_saved;
             info->sname = sname_saved;
+
+            if(info->err_num > err_num_saved || info->cinfo->err_num > cinfo_err_num_saved) {
+                parser_err_msg(info, "at including Module %s", module_name);
+            }
         }
 
         if(*info->p == ';') {
@@ -848,6 +860,8 @@ BOOL compile_class_source(char* fname, char* source)
     cinfo.lv_table = NULL;
     cinfo.no_output = FALSE;
     cinfo.pinfo = &info;
+
+    info.cinfo = &cinfo;
 
     int i;
     for(i=PARSE_PHASE_ALLOC_CLASSES; i<PARSE_PHASE_MAX; i++) {

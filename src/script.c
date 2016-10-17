@@ -80,6 +80,8 @@ BOOL compile_script(char* fname, char* source)
     cinfo.no_output = FALSE;
     cinfo.pinfo = &info;
 
+    info.cinfo = &cinfo;
+
     while(*info.p) {
         unsigned int node = 0;
         if(!expression(&node, &info)) {

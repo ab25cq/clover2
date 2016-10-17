@@ -149,8 +149,57 @@ interface Object
 {
 }
 
+module MRapperClassConvert 
+{
+    def toByte():Byte {
+        return self.value.toByte;
+    }
+
+    def toUByte():UByte {
+        return self.value.toUByte;
+    }
+
+    def toShort():Short {
+        return self.value.toShort;
+    }
+
+    def toUShort():UShort {
+        return self.value.toUShort;
+    }
+
+    def toInteger():Integer {
+        return self.value.toInteger;
+    }
+
+    def toUInteger():UInteger {
+        return self.value.toUInteger;
+    }
+
+    def toLong():Long {
+        return self.value.toLong;
+    }
+
+    def toULong():ULong {
+        return self.value.toULong;
+    }
+
+    def toChar():Char {
+        return self.value.toChar;
+    }
+
+    def toBool():Bool {
+        return self.value.toBool;
+    }
+
+    def toString():String {
+        return self.value.toString;
+    }
+}
+
 class Byte 
 {
+    include MRapperClassConvert;
+
     value:byte;
 
     def initialize() {
@@ -173,13 +222,23 @@ class Byte
         self.value = value;
     }
 
-    def toUByte():UByte {
-        return self.value.toUByte;
+    def toFloat():Float {
+        return self.value.toFloat;
+    }
+
+    def toDouble():Double {
+        return self.value.toDouble
+    }
+
+    def toPointer():Pointer {
+        return self.value.toPointer;
     }
 }
 
 class UByte 
 {
+    include MRapperClassConvert;
+
     value:ubyte;
 
     def initialize() {
@@ -202,13 +261,23 @@ class UByte
         self.value = value;
     }
 
-    def toByte():Byte {
-        return self.value.toByte;
+    def toFloat():Float {
+        return self.value.toFloat;
+    }
+
+    def toDouble():Double {
+        return self.value.toDouble
+    }
+
+    def toPointer():Pointer {
+        return self.value.toPointer;
     }
 }
 
 class Short 
 {
+    include MRapperClassConvert;
+
     value:short;
 
     def initialize() {
@@ -231,13 +300,23 @@ class Short
         self.value = value;
     }
 
-    def toUShort():UShort {
-        return self.value.toUShort;
+    def toFloat():Float {
+        return self.value.toFloat;
+    }
+
+    def toDouble():Double {
+        return self.value.toDouble
+    }
+
+    def toPointer():Pointer {
+        return self.value.toPointer;
     }
 }
 
 class UShort 
 {
+    include MRapperClassConvert;
+
     value:ushort;
 
     def initialize() {
@@ -260,13 +339,23 @@ class UShort
         self.value = value;
     }
 
-    def toShort():Short {
-        return self.value.toShort;
+    def toFloat():Float {
+        return self.value.toFloat;
+    }
+
+    def toDouble():Double {
+        return self.value.toDouble
+    }
+
+    def toPointer():Pointer {
+        return self.value.toPointer;
     }
 }
 
 class Integer 
 {
+    include MRapperClassConvert;
+
     value:int;
 
     def initialize() {
@@ -285,17 +374,23 @@ class Integer
         self.value = value;
     }
 
-    def toUInteger():UInteger {
-        return self.value.toUInteger;
+    def toFloat():Float {
+        return self.value.toFloat;
     }
 
-    def toString():String {
-        return self.value.toString;
+    def toDouble():Double {
+        return self.value.toDouble
+    }
+
+    def toPointer():Pointer {
+        return self.value.toPointer;
     }
 }
 
 class UInteger 
 {
+    include MRapperClassConvert;
+
     value: uint;
 
     def initialize() {
@@ -318,13 +413,23 @@ class UInteger
         self.value = value;
     }
 
-    def toInteger():Integer {
-        return self.value.toInteger;
+    def toFloat():Float {
+        return self.value.toFloat;
+    }
+
+    def toDouble():Double {
+        return self.value.toDouble
+    }
+
+    def toPointer():Pointer {
+        return self.value.toPointer;
     }
 }
 
 class Long 
 {
+    include MRapperClassConvert;
+
     value:long;
 
     def initialize() {
@@ -343,13 +448,23 @@ class Long
         self.value = value;
     }
 
-    def toULong():ULong {
-        return self.value.toULong;
+    def toFloat():Float {
+        return self.value.toFloat;
+    }
+
+    def toDouble():Double {
+        return self.value.toDouble
+    }
+
+    def toPointer():Pointer {
+        return self.value.toPointer;
     }
 }
 
 class ULong 
 {
+    include MRapperClassConvert;
+
     value: ulong;
 
     def initialize() {
@@ -372,13 +487,23 @@ class ULong
         self.value = value;
     }
 
-    def toLong():Long {
-        return self.value.toLong;
+    def toFloat():Float {
+        return self.value.toFloat;
+    }
+
+    def toDouble():Double {
+        return self.value.toDouble
+    }
+
+    def toPointer():Pointer {
+        return self.value.toPointer;
     }
 }
 
 class Float 
 {
+    include MRapperClassConvert;
+
     value: float;
 
     def initialize() {
@@ -400,10 +525,20 @@ class Float
     def setValue(value:float) {
         self.value = value;
     }
+
+    def toFloat():Float {
+        return self.value.toFloat;
+    }
+
+    def toDouble():Double {
+        return self.value.toDouble
+    }
 }
 
 class Double
 {
+    include MRapperClassConvert;
+
     value: double;
 
     def initialize() {
@@ -425,10 +560,20 @@ class Double
     def setValue(value:double) {
         self.value = value;
     }
+
+    def toFloat():Float {
+        return self.value.toFloat;
+    }
+
+    def toDouble():Double {
+        return self.value.toDouble
+    }
 }
 
 class Pointer
 {
+    include MRapperClassConvert;
+
     value: pointer;
 
     def initialize() {
@@ -450,10 +595,16 @@ class Pointer
     def setValue(value:pointer) {
         self.value = value;
     }
+
+    def toPointer():Pointer {
+        return self.value.toPointer;
+    }
 }
 
 class Char
 {
+    include MRapperClassConvert;
+
     value: char;
 
     def initialize() {
@@ -475,10 +626,24 @@ class Char
     def setValue(value:char) {
         self.value = value;
     }
+
+    def toFloat():Float {
+        return self.value.toFloat;
+    }
+
+    def toDouble():Double {
+        return self.value.toDouble
+    }
+
+    def toPointer():Pointer {
+        return self.value.toPointer;
+    }
 }
 
 class Bool
 {
+    include MRapperClassConvert;
+
     value: bool;
 
     def initialize() {
@@ -499,6 +664,18 @@ class Bool
 
     def setValue(value:bool) {
         self.value = value;
+    }
+
+    def toFloat():Float {
+        return self.value.toFloat;
+    }
+
+    def toDouble():Double {
+        return self.value.toDouble
+    }
+
+    def toPointer():Pointer {
+        return self.value.toPointer;
     }
 }
 
