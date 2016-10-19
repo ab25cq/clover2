@@ -145,11 +145,11 @@ class Exception
     }
 }
 
-interface Object 
+interface IObject 
 {
 }
 
-module MRapperClassConvert 
+module MWrapperClassConvert 
 {
     def toByte():Byte {
         return self.value.toByte;
@@ -196,9 +196,16 @@ module MRapperClassConvert
     }
 }
 
+module MWrapperClassEquals {
+    def equals(right:Self):bool {
+        return self.value == right.value;
+    }
+}
+
 class Byte 
 {
-    include MRapperClassConvert;
+    include MWrapperClassConvert;
+    include MWrapperClassEquals;
 
     value:byte;
 
@@ -237,7 +244,8 @@ class Byte
 
 class UByte 
 {
-    include MRapperClassConvert;
+    include MWrapperClassConvert;
+    include MWrapperClassEquals;
 
     value:ubyte;
 
@@ -276,7 +284,8 @@ class UByte
 
 class Short 
 {
-    include MRapperClassConvert;
+    include MWrapperClassConvert;
+    include MWrapperClassEquals;
 
     value:short;
 
@@ -315,7 +324,8 @@ class Short
 
 class UShort 
 {
-    include MRapperClassConvert;
+    include MWrapperClassConvert;
+    include MWrapperClassEquals;
 
     value:ushort;
 
@@ -354,7 +364,8 @@ class UShort
 
 class Integer 
 {
-    include MRapperClassConvert;
+    include MWrapperClassConvert;
+    include MWrapperClassEquals;
 
     value:int;
 
@@ -389,7 +400,8 @@ class Integer
 
 class UInteger 
 {
-    include MRapperClassConvert;
+    include MWrapperClassConvert;
+    include MWrapperClassEquals;
 
     value: uint;
 
@@ -428,7 +440,8 @@ class UInteger
 
 class Long 
 {
-    include MRapperClassConvert;
+    include MWrapperClassConvert;
+    include MWrapperClassEquals;
 
     value:long;
 
@@ -463,7 +476,8 @@ class Long
 
 class ULong 
 {
-    include MRapperClassConvert;
+    include MWrapperClassConvert;
+    include MWrapperClassEquals;
 
     value: ulong;
 
@@ -502,7 +516,8 @@ class ULong
 
 class Float 
 {
-    include MRapperClassConvert;
+    include MWrapperClassConvert;
+    include MWrapperClassEquals;
 
     value: float;
 
@@ -537,7 +552,8 @@ class Float
 
 class Double
 {
-    include MRapperClassConvert;
+    include MWrapperClassConvert;
+    include MWrapperClassEquals;
 
     value: double;
 
@@ -572,7 +588,8 @@ class Double
 
 class Pointer
 {
-    include MRapperClassConvert;
+    include MWrapperClassConvert;
+    include MWrapperClassEquals;
 
     value: pointer;
 
@@ -603,7 +620,8 @@ class Pointer
 
 class Char
 {
-    include MRapperClassConvert;
+    include MWrapperClassConvert;
+    include MWrapperClassEquals;
 
     value: char;
 
@@ -642,7 +660,8 @@ class Char
 
 class Bool
 {
-    include MRapperClassConvert;
+    include MWrapperClassConvert;
+    include MWrapperClassEquals;
 
     value: bool;
 
@@ -679,7 +698,7 @@ class Bool
     }
 }
 
-class Array<T:Object>
+class Array<T:IObject>
 {
     items:T[];
 
@@ -702,13 +721,18 @@ class Array<T:Object>
     }
 }
 
-interface HashKey
+interface IHashKey
 {
     def getHashKey(): uint;
     def equals(key:SELF): bool;
 }
 
-class HashItem <T:HashKey, T2:Object>
+interface IEqualable
+{
+    def equals(key:SELF): bool;
+}
+
+class HashItem <T:IHashKey, T2:IEqualable>
 {
     key:T;
     item:T2;
@@ -724,7 +748,7 @@ class HashItem <T:HashKey, T2:Object>
     }
 }
 
-class Hash <T:HashKey, T2:Object>
+class Hash <T:IHashKey, T2:IEqualable>
 {
     hashSizeDefault: static int;
 
@@ -754,7 +778,38 @@ class Hash <T:HashKey, T2:Object>
         }
     }
 
-    def put(key:T, item:T2) {
+    def containes(key:T, item:T2):bool {
+        return self.get(key).equals(item);
+    }
+
+    def equals(right:Hash<T,T2>):bool {
+        if(self.itemNumber != right.itemNumber) {
+            return false;
+        }
+        result:bool = true;
+        self.each(closure(key:T, item:T2) {
+            if(!self.containes(key, item)) {
+                result = false;
+                return;
+            }
+        });
+
+        return result;
+    }
+
+    def length(): int {
+        return self.itemNumber;
+    }
+    
+    def clear(): Hash<T,T2> {
+        self.table = new HashItem<T,T2>[Hash.hashSizeDefault];
+        self.tableSize = Hash.hashSizeDefault;
+        self.itemNumber = 0;
+
+        return self;
+    }
+
+    def put(key:T, item:T2):Hash<T,T2> {
         if(self.itemNumber * 2 >= self.tableSize) {
             self.rehash();
         }
@@ -786,6 +841,8 @@ class Hash <T:HashKey, T2:Object>
                 break;
             }
         }
+
+        return self;
     }
 
     def rehash() {
@@ -825,9 +882,19 @@ class Hash <T:HashKey, T2:Object>
             }
         }
     }
+
+    def each(block_:lambda(T,T2)):Hash<T,T2> {
+        for(i:uint =0; i<self.tableSize; i++) {
+            if(!self.table[i].identifyWith(null)) {
+                block_(self.table[i].key, self.table[i].item);
+            }
+        }
+
+        return self;
+    }
 }
 
-class ListItem <T:Object>
+class ListItem <T:IObject>
 {
     item: T;
     next: ListItem<T>;
@@ -846,7 +913,7 @@ class ListItem <T:Object>
     }
 }
 
-class List<T:Object>
+class List<T:IEqualable>
 {
     head: ListItem<T>;
     tail: ListItem<T>;
@@ -868,61 +935,21 @@ class List<T:Object>
         }
     }
 
-    def add(item:T) {
-        if(self.head.identifyWith(null)) {
-            self.head = new ListItem<T>(item, null, null);
-            self.tail = self.head;
+    def equals(right:List<T>):bool {
+        if(self.number != right.number) {
+            return false;
         }
-        else {
-            new_item:ListItem<T> = new ListItem<T>(item, self.tail, null);
-
-            self.tail.next = new_item;
-            self.tail = new_item;
-        }
-
-        self.number++;
-    }
-
-    def delete(item:T) {
-        it:ListItem<T> = self.head;
-        it2:ListItem<T> = self.head;
-
-        while(!it.identifyWith(null)) {
-            if(it.item.identifyWith(item)) {
-                if(it.identifyWith(self.head)) {
-                    self.head = null;
-                    self.tail = null;
-                    break;
-                }
-                elif(it.identifyWith(self.tail)) {
-                    it2.next = null;
-                    self.tail = it2;
-                }
-                else {
-                    it2.next = it.next;
-                    it.next.prev = it2;
-                    break;
-                }
+        for(i:=0; i<self.number; i++) {
+            if(!self.items(i).equals(right.items(i))) {
+                return false;
             }
-            
-            it2 = it;
-            it = it.next;
         }
 
-        self.number--;
+        return true;
     }
 
     def length():uint {
         return self.number;
-    }
-
-    def each(block_:lambda(T)) {
-        it:ListItem<T> = self.head;
-
-        while(!it.identifyWith(null)) {
-            block_(it.item);
-            it = it.next;
-        }
     }
 
     def items(index:int):T {
@@ -940,5 +967,99 @@ class List<T:Object>
         }
 
         return null;
+    }
+    
+    def clear(): List<T> {
+        self.head = null;
+        self.tail = null;
+        self.number = 0;
+
+        return self;
+    }
+
+    def add(item:T):List<T> {
+        if(self.head.identifyWith(null)) {
+            self.head = new ListItem<T>(item, null, null);
+            self.tail = self.head;
+        }
+        else {
+            new_item:ListItem<T> = new ListItem<T>(item, self.tail, null);
+
+            self.tail.next = new_item;
+            self.tail = new_item;
+        }
+
+        self.number++;
+
+        return self;
+    }
+
+    def delete(item:T):List<T> {
+        it:ListItem<T> = self.head;
+        it2:ListItem<T> = self.head;
+
+        while(!it.identifyWith(null)) {
+            if(it.item.equals(item)) {
+                # one item is contained in list
+                if(it.identifyWith(self.head) && it.identifyWith(self.tail)) {
+                    self.head = null;
+                    self.tail = null;
+                    self.number = 0;
+                }
+                # two item is contained in list
+                elif(it2.identifyWith(self.head) && it.identifyWith(self.tail)) {
+                    self.head = it2;
+                    self.tail = it2;
+                    it2.prev = null;
+                    it2.next = null;
+                    self.number = 1;
+                }
+                # other
+                else {
+                    if(it.identifyWith(self.head)) {
+                        self.head = self.head.next;
+                        self.head.prev = null;
+                        self.number--;
+                    }
+                    elif(it.identifyWith(self.tail)) {
+                        self.tail = self.tail.prev;
+                        self.tail.next = null;
+                        self.number--;
+                    }
+                    else {
+                        it2.next = it.next;
+                        it.next.prev = it2;
+                        self.number--;
+                    }
+                }
+                break;
+            }
+            
+            it2 = it;
+            it = it.next;
+        }
+
+        return self;
+    }
+    def each(block_:lambda(T)):List<T> {
+        it:ListItem<T> = self.head;
+
+        while(!it.identifyWith(null)) {
+            block_(it.item);
+            it = it.next;
+        }
+
+        return self;
+    }
+
+    def eachReverse(block_:lambda(T)):List<T> {
+        it:ListItem<T> = self.tail;
+
+        while(!it.identifyWith(null)) {
+            block_(it.item);
+            it = it.prev;
+        }
+
+        return self;
     }
 }

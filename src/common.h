@@ -290,7 +290,7 @@ sNodeType* create_node_type_from_cl_type(sCLType* cl_type, sCLClass* klass);
 sNodeType* create_node_type_with_class_pointer(sCLClass* klass);
 BOOL is_exception_type(sNodeType* exception_type);
 
-BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* generics_types);
+BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_generics_types, sNodeType* right_generics_types);
 BOOL substitution_posibility_with_class_name(sNodeType* left, char* right_class_name);
 BOOL operand_posibility_with_class_name(sNodeType* left, char* right_class_name, char* op_string);
 BOOL operand_posibility(sNodeType* left, sNodeType* right, char* op_string);
@@ -321,7 +321,7 @@ typedef struct sNodeBlockTypeStruct sNodeBlockType;
 sNodeBlockType* alloc_node_block_type();
 void free_node_block_type(sNodeBlockType* block);
 sNodeBlockType* clone_node_block_type(sNodeBlockType* block);
-BOOL substitution_posibility_for_node_block_type(sNodeBlockType* left_block, sNodeBlockType* right_block, sNodeType* generics_types);
+BOOL substitution_posibility_for_node_block_type(sNodeBlockType* left_block, sNodeBlockType* right_block, sNodeType* left_generics_types, sNodeType* right_generics_types);
 
 /// vtable.c ///
 struct sVarStruct {
@@ -1461,7 +1461,7 @@ BOOL add_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protect
 BOOL add_class_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type);
 void add_code_to_method(sCLMethod* method, sByteCode* code, int var_num);
 BOOL write_all_modified_classes();
-int search_for_method(sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, int start_point, sNodeType* generics_type, sNodeType** result_type);
+int search_for_method(sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, int start_point, sNodeType* left_generics_type, sNodeType* right_generics_type, sNodeType** result_type);
 BOOL search_for_methods_from_method_name(int method_indexes[], int size_method_indexes, int* num_methods, sCLClass* klass, char* method_name, int start_point);
 int search_for_field(sCLClass* klass, char* field_name);
 int search_for_class_field(sCLClass* klass, char* field_name);

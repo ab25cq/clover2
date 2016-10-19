@@ -28,3 +28,16 @@ c.each(closure(item:Integer) {
 })
 
 Clover.test("list test3", c.items(1) == 2 && count == 3);
+
+d:List<Integer> = list { 1,2,3 };
+
+d.delete(3);
+
+Clover.test("list test4", d.equals(list { 1,2 }));
+Clover.test("list test5", list { 1 }.delete(1).length() == 0);
+Clover.test("list test6", list { 1,2 }.delete(1).equals(list {2}));
+Clover.test("list test7", list { 1,2 }.delete(2).equals(list {1}));
+Clover.test("list test8", list { 1,2,3 }.delete(1).equals(list {2,3}));
+Clover.test("list test8", list { 1,2,3 }.delete(2).equals(list {1,3}));
+Clover.test("list test8", list { 1,2,3 }.delete(3).equals(list {1,2}));
+

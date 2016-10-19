@@ -166,11 +166,11 @@ sNodeType* create_node_type_from_cl_type(sCLType* cl_type, sCLClass* klass)
     return node_type;
 }
 
-BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* generics_types)
+BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_generics_types, sNodeType* right_generics_types)
 {
     sNodeType* left2;
-    if(generics_types) {
-        if(!solve_generics_types_for_node_type(left, ALLOC &left2, generics_types)) 
+    if(left_generics_types) {
+        if(!solve_generics_types_for_node_type(left, ALLOC &left2, left_generics_types)) 
         {
             return FALSE;
         }
@@ -178,28 +178,38 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* gener
     else {
         left2 = left;
     }
+    sNodeType* right2;
+    if(right_generics_types) {
+        if(!solve_generics_types_for_node_type(right, ALLOC &right2, right_generics_types)) 
+        {
+            return FALSE;
+        }
+    }
+    else {
+        right2 = right;
+    }
 
     sCLClass* left_class = left2->mClass;
-    sCLClass* right_class = right->mClass;
+    sCLClass* right_class = right2->mClass;
 
-    if(type_identify_with_class_name(right, "Null") && !(left_class->mFlags & CLASS_FLAGS_PRIMITIVE)) {
+    if(type_identify_with_class_name(right2, "Null") && !(left_class->mFlags & CLASS_FLAGS_PRIMITIVE)) {
         return TRUE;
     }
     else if(left_class->mFlags & CLASS_FLAGS_INTERFACE) {
         if(right_class->mFlags & CLASS_FLAGS_INTERFACE) {
-            return type_identify(left2, right);
+            return type_identify(left2, right2);
         }
         else {
             return check_implemented_methods_for_interface(left_class, right_class);
         }
     }
     else if(type_identify_with_class_name(left2, "lambda")) {
-        if(type_identify_with_class_name(right, "lambda")) {
+        if(type_identify_with_class_name(right2, "lambda")) {
             sNodeBlockType* left_block_type = left2->mBlockType;
-            sNodeBlockType* right_block_type = right->mBlockType;
+            sNodeBlockType* right_block_type = right2->mBlockType;
 
             if(left_block_type && right_block_type) {
-                return substitution_posibility_for_node_block_type(left_block_type, right_block_type, generics_types);
+                return substitution_posibility_for_node_block_type(left_block_type, right_block_type, left_generics_types, right_generics_types);
             }
             else {
                 return FALSE;
@@ -210,10 +220,10 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* gener
         }
     }
     else {
-        if(left2->mClass == right->mClass && left2->mArray == right->mArray && left2->mNumGenericsTypes == right->mNumGenericsTypes) {
+        if(left2->mClass == right2->mClass && left2->mArray == right2->mArray && left2->mNumGenericsTypes == right2->mNumGenericsTypes) {
             int i;
             for(i=0; i<left2->mNumGenericsTypes; i++) {
-                if(!type_identify(left2->mGenericsTypes[i], right->mGenericsTypes[i])) {
+                if(!type_identify(left2->mGenericsTypes[i], right2->mGenericsTypes[i])) {
                     return FALSE;
                 }
             }
@@ -228,7 +238,7 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* gener
 
 BOOL substitution_posibility_with_class_name(sNodeType* left, char* right_class_name)
 {
-    return substitution_posibility(left, create_node_type_with_class_name(right_class_name), NULL);
+    return substitution_posibility(left, create_node_type_with_class_name(right_class_name), NULL , NULL);
 }
 
 BOOL operand_posibility(sNodeType* left, sNodeType* right, char* op_string)

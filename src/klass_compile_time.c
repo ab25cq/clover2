@@ -199,7 +199,7 @@ void add_code_to_method(sCLMethod* method, sByteCode* code, int var_num)
     method->mVarNum = var_num;
 }
 
-static BOOL check_method_params(sCLMethod* method, sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, sNodeType* generics_type)
+static BOOL check_method_params(sCLMethod* method, sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, sNodeType* left_generics_type, sNodeType* right_generics_type)
 {
     if(strcmp(METHOD_NAME2(klass, method), method_name) == 0) 
     {
@@ -211,7 +211,7 @@ static BOOL check_method_params(sCLMethod* method, sCLClass* klass, char* method
                 for(j=0; j<num_params; j++ ) {
                     sNodeType* param = create_node_type_from_cl_type(method->mParams[j].mType, klass);
 
-                    if(!substitution_posibility(param, param_types[j], generics_type)) {
+                    if(!substitution_posibility(param, param_types[j], left_generics_type, right_generics_type)) {
                         return FALSE;
                     }
                 }
@@ -224,7 +224,7 @@ static BOOL check_method_params(sCLMethod* method, sCLClass* klass, char* method
     return FALSE;
 }
 
-int search_for_method(sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, int start_point, sNodeType* generics_type, sNodeType** result_type)
+int search_for_method(sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, int start_point, sNodeType* left_generics_type, sNodeType* right_generics_type, sNodeType** result_type)
 {
     int i;
 
@@ -234,13 +234,13 @@ int search_for_method(sCLClass* klass, char* method_name, sNodeType** param_type
             
             method = klass->mMethods + i;
 
-            if(check_method_params(method, klass, method_name, param_types, num_params, search_for_class_method, generics_type))
+            if(check_method_params(method, klass, method_name, param_types, num_params, search_for_class_method, left_generics_type, right_generics_type))
             {
                 sNodeType* result_type2;
                 
                 result_type2 = ALLOC create_node_type_from_cl_type(method->mResultType, klass);
 
-                if(!solve_generics_types_for_node_type(result_type2, result_type, generics_type))
+                if(!solve_generics_types_for_node_type(result_type2, result_type, left_generics_type))
                 {
                     return -1;
                 }

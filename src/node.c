@@ -1042,8 +1042,8 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
 
     cast_right_type_to_left_type(left_type2, &right_type, info);
 
-    if(!substitution_posibility(left_type2, right_type, NULL)) {
-        parser_err_msg(info->pinfo, "The different type between left type and right type(1)");
+    if(!substitution_posibility(left_type2, right_type, NULL, NULL)) {
+        parser_err_msg(info->pinfo, "The different type between left type and right type(1). Left type is %s. Right type is %s.", CLASS_NAME(left_type2->mClass), CLASS_NAME(right_type->mClass));
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -1593,7 +1593,7 @@ static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)
     }
 
     sNodeType* result_type;
-    int method_index = search_for_method(klass, method_name, param_types, num_params, TRUE, klass->mNumMethods-1, NULL, &result_type);
+    int method_index = search_for_method(klass, method_name, param_types, num_params, TRUE, klass->mNumMethods-1, NULL, NULL, &result_type);
 
     if(method_index == -1) {
         parser_err_msg(info->pinfo, "method not found(1)");
@@ -1955,7 +1955,7 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
     /// normal methods ///
     else {
         sNodeType* result_type;
-        int method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types, &result_type);
+        int method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types, generics_types, &result_type);
 
         if(method_index2 == -1) {
             parser_err_msg(info->pinfo, "method not found(2)");
@@ -2069,7 +2069,7 @@ static BOOL compile_new_operator(unsigned int node, sCompileInfo* info)
         }
 
         sNodeType* result_type;
-        int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, &result_type);
+        int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, &result_type);
 
         if(method_index == -1) {
             parser_err_msg(info->pinfo, "method not found(3)");
@@ -2165,7 +2165,7 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
     else {
         cast_right_type_to_left_type(result_type2, &result_value_type, info);
 
-        if(!substitution_posibility(result_type2, result_value_type, NULL)) {
+        if(!substitution_posibility(result_type2, result_value_type, NULL, NULL)) {
             parser_err_msg(info->pinfo, "Invalid type of return value(2). Left type is %s. Right type is %s.", CLASS_NAME(result_type2->mClass), CLASS_NAME(result_value_type->mClass));
             info->err_num++;
 
@@ -2637,7 +2637,7 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
 
     cast_right_type_to_left_type(solved_field_type, &right_type, info);
 
-    if(!substitution_posibility(solved_field_type, right_type, generics_types)) {
+    if(!substitution_posibility(solved_field_type, right_type, generics_types, NULL)) {
         parser_err_msg(info->pinfo, "The different type between left type and right type(2). %s and %s", CLASS_NAME(solved_field_type->mClass), CLASS_NAME(right_type->mClass));
         info->err_num++;
 
@@ -2763,8 +2763,8 @@ static BOOL compile_store_class_field(unsigned int node, sCompileInfo* info)
 
     cast_right_type_to_left_type(field_type, &right_type, info);
 
-    if(!substitution_posibility(field_type, right_type, NULL)) {
-        parser_err_msg(info->pinfo, "The different type between left type and right type(3)");
+    if(!substitution_posibility(field_type, right_type, NULL, NULL)) {
+        parser_err_msg(info->pinfo, "The different type between left type and right type(3). Left type is %s. Right type is %s.", CLASS_NAME(field_type->mClass), CLASS_NAME(right_type->mClass));
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -2831,7 +2831,7 @@ BOOL compile_store_value_to_pointer(unsigned int node, sCompileInfo* info)
     sNodeType* right_type = info->type;
 
     if(right_type == NULL 
-        || !substitution_posibility(node_type, right_type, NULL))
+        || !substitution_posibility(node_type, right_type, NULL, NULL))
     {
         parser_err_msg(info->pinfo, "The different type between left type and right type(4)");
         info->err_num++;
@@ -3450,8 +3450,8 @@ BOOL compile_increment_operand_with_value(unsigned int node, sCompileInfo* info)
 
     cast_right_type_to_left_type(left_type, &right_type, info);
 
-    if(!substitution_posibility(left_type, right_type, NULL)) {
-        parser_err_msg(info->pinfo, "The different type between left type and right type(5)");
+    if(!substitution_posibility(left_type, right_type, NULL, NULL)) {
+        parser_err_msg(info->pinfo, "The different type between left type and right type(5). Left type is %s. Right type is %s.", CLASS_NAME(left_type->mClass), CLASS_NAME(right_type->mClass));
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -4053,8 +4053,8 @@ BOOL compile_decrement_operand_with_value(unsigned int node, sCompileInfo* info)
 
     cast_right_type_to_left_type(left_type, &right_type, info);
 
-    if(!substitution_posibility(left_type, right_type, NULL)) {
-        parser_err_msg(info->pinfo, "The different type between left type and right type(6)");
+    if(!substitution_posibility(left_type, right_type, NULL, NULL)) {
+        parser_err_msg(info->pinfo, "The different type between left type and right type(6). Left type is %s. Right type is %s.", CLASS_NAME(left_type->mClass), CLASS_NAME(right_type->mClass));
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -4381,7 +4381,7 @@ BOOL compile_store_array_element(unsigned int node, sCompileInfo* info)
 
     cast_right_type_to_left_type(left_type2, &right_type, info);
 
-    if(!substitution_posibility(left_type2, right_type, NULL)) {
+    if(!substitution_posibility(left_type2, right_type, NULL, NULL)) {
         parser_err_msg(info->pinfo, "The different type between left type and right type(7). %s and %s", CLASS_NAME(left_type2->mClass), CLASS_NAME(right_type->mClass));
         info->err_num++;
 
@@ -4778,7 +4778,14 @@ BOOL compile_block_object(unsigned int node, sCompileInfo* info)
     append_int_value_to_code(info->code, offset2, info->no_output);
     append_int_value_to_code(info->code, constant.mLen, info->no_output);
 
-    int var_num = get_var_num(node_block->mLVTable);
+    int var_num;
+    if(node_block->mLVTable) {
+        var_num = get_var_num(node_block->mLVTable);
+    }
+    else {
+        var_num = 0;
+    }
+
     append_int_value_to_code(info->code, var_num, info->no_output);
 
     if(lambda) {
@@ -4912,6 +4919,14 @@ BOOL compile_block_call(unsigned int node, sCompileInfo* info)
         param_types[i] = info->type;
     }
 
+    if(num_params != var_type->mBlockType->mNumParams) {
+        parser_err_msg(info->pinfo, "Type error for block call");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+        return TRUE;
+    }
+
     /// type check compile params ///
     for(i=0; i<num_params; i++) {
         sNodeType* left_type = var_type->mBlockType->mParams[i];
@@ -4921,13 +4936,13 @@ BOOL compile_block_call(unsigned int node, sCompileInfo* info)
         if(klass) {
             sNodeType* generics_types = create_generics_types_from_generics_params(klass);
 
-            if(!substitution_posibility(left_type, right_type, generics_types)) {
+            if(!substitution_posibility(left_type, right_type, generics_types, NULL)) {
                 parser_err_msg(info->pinfo, "Type error for block call");
                 info->err_num++;
             }
         }
         else {
-            if(!substitution_posibility(left_type, right_type, NULL)) {
+            if(!substitution_posibility(left_type, right_type, NULL, NULL)) {
                 parser_err_msg(info->pinfo, "Type error for block call");
                 info->err_num++;
             }

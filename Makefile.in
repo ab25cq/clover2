@@ -79,7 +79,7 @@ install:
 	$(INSTALL) -m 644 Clover.clcl ~/.clover2
 	$(INSTALL) -m 644 String.clcl ~/.clover2
 	$(INSTALL) -m 644 Exception.clcl ~/.clover2
-	$(INSTALL) -m 644 Object.clcl ~/.clover2
+	$(INSTALL) -m 644 IObject.clcl ~/.clover2
 	$(INSTALL) -m 644 Byte.clcl ~/.clover2
 	$(INSTALL) -m 644 UByte.clcl ~/.clover2
 	$(INSTALL) -m 644 Short.clcl ~/.clover2
@@ -93,10 +93,11 @@ install:
 	$(INSTALL) -m 644 Pointer.clcl ~/.clover2
 	$(INSTALL) -m 644 Char.clcl ~/.clover2
 	$(INSTALL) -m 644 Bool.clcl ~/.clover2
-	$(INSTALL) -m 644 HashKey.clcl ~/.clover2
+	$(INSTALL) -m 644 IHashKey.clcl ~/.clover2
 	$(INSTALL) -m 644 HashItem.clcl ~/.clover2
 	$(INSTALL) -m 644 Hash.clcl ~/.clover2
 	$(INSTALL) -m 644 ListItem.clcl ~/.clover2
+	$(INSTALL) -m 644 IEqualable.clcl ~/.clover2
 	$(INSTALL) -m 644 List.clcl ~/.clover2
 	mkdir -p "$(libdir)"
 	$(INSTALL) -m 755 clover2 "$(bindir)"
