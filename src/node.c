@@ -2380,6 +2380,9 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
 
         info->type = create_node_type_with_class_name("int");
     }
+    else if(array && strcmp(field_name, "toArray") == 0) {
+        cast_right_type_to_Array(&info->type, info);
+    }
     else if(klass == regex_class && strcmp(field_name, "global") == 0) {
         append_opecode_to_code(info->code, OP_GET_REGEX_GLOBAL, info->no_output);
 
@@ -2461,9 +2464,6 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
     }
     else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "toBool") == 0) {
         cast_right_type_to_Bool(&info->type, info);
-    }
-    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "toArray") == 0) {
-        cast_right_type_to_Array(&info->type, info);
     }
     else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "to_byte") == 0)
     {

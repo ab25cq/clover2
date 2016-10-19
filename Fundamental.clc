@@ -196,7 +196,8 @@ module MWrapperClassConvert
     }
 }
 
-module MWrapperClassEquals {
+module MWrapperClassEquals 
+{
     def equals(right:Self):bool {
         return self.value == right.value;
     }
@@ -698,7 +699,7 @@ class Bool
     }
 }
 
-class Array<T:IObject>
+class Array<T:IEqualable>
 {
     items:T[];
 
@@ -718,6 +719,24 @@ class Array<T:IObject>
         for(i:int = 0; i<self.items.length; i++) {
             block_(self.items[i]);
         }
+    }
+
+    def equals(right:T[]): bool {
+        return self.equals(right.toArray);
+    }
+
+    def equals(right:Array<T>):bool {
+        if(self.items.length != right.items.length) {
+            return false;
+        }
+
+        for(i:= 0; i<self.items.length; i++) {
+            if(!self.items[i].equals(right.items[i])) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
 
@@ -780,6 +799,18 @@ class Hash <T:IHashKey, T2:IEqualable>
 
     def containes(key:T, item:T2):bool {
         return self.get(key).equals(item);
+    }
+
+    def getKey(item:T2):T {
+        for(i:uint =0; i<self.tableSize; i++) {
+            if(!self.table[i].identifyWith(null)) {
+                if(self.table[i].item.equals(item)) {
+                    return self.table[i].key;
+                }
+            }
+        }
+
+        return null;
     }
 
     def equals(right:Hash<T,T2>):bool {

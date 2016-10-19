@@ -493,29 +493,28 @@ void make_boxing_type(sNodeType* type, sNodeType** result)
 
     sCLClass* klass = type->mClass;
 
-    if(klass->mFlags & CLASS_FLAGS_PRIMITIVE) {
-        if(type->mArray) {
-            (*result)->mClass = get_class("Array");
-        }
-        else if(klass->mBoxingClass) {
-            (*result)->mClass = klass->mBoxingClass;
-        }
-        else {
-            (*result)->mClass = klass;
-        }
-    }
-    else {
-        (*result)->mClass = klass;
-    }
-
     if(type->mArray) {
+        (*result)->mClass = get_class("Array");
+
         (*result)->mNumGenericsTypes = 1;
 
         sNodeType* node_type = create_node_type_with_class_pointer(klass);
 
         make_boxing_type(node_type, &(*result)->mGenericsTypes[0]);
     }
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && klass->mBoxingClass) {
+        (*result)->mClass = klass->mBoxingClass;
+
+        (*result)->mNumGenericsTypes = type->mNumGenericsTypes;
+
+        int i;
+        for(i=0; i<type->mNumGenericsTypes; i++) {
+            make_boxing_type(type->mGenericsTypes[i], &(*result)->mGenericsTypes[i]);
+        }
+    }
     else {
+        (*result)->mClass = klass;
+
         (*result)->mNumGenericsTypes = type->mNumGenericsTypes;
 
         int i;

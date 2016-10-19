@@ -26,3 +26,5 @@ d:Hash<String, Integer> = [ "ABC":123, "DEF":234 ];
 Clover.test("hash test7", d.get("ABC") == 123 && d.get("DEF") == 234);
 
 Clover.test("hash test8", ["ABC":1, "DEF":2].equals(["DEF":2, "ABC":1]));
+
+Clover.test("hash test9", ["ABC":1, "DEF":2].getKey(2).equals("DEF"));

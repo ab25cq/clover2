@@ -14,3 +14,5 @@ a:ArrayTest4 = new ArrayTest4();
 a.value[2] = 4;
 
 Clover.test("array test4-2", a.value[0] == 0 && a.value[1] == 1 && a.value[2] == 4);
+
+
