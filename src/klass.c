@@ -890,6 +890,14 @@ static void load_fundamental_classes_on_compile_time()
 
     load_class("ListItem");
     load_class("List");
+
+    load_class("Tuple1");
+    load_class("Tuple2");
+    load_class("Tuple3");
+    load_class("Tuple4");
+    load_class("Tuple5");
+    load_class("Tuple6");
+    load_class("Tuple7");
 }
 
 void class_init_on_compile_time()

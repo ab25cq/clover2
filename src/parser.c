@@ -782,18 +782,20 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
     (*result_type)->mNumGenericsTypes = generics_num;
 
     /// check generics type ///
-    sCLClass* klass = (*result_type)->mClass;
+    if(info->err_num == 0) {
+        sCLClass* klass = (*result_type)->mClass;
 
-    for(i=0; i<generics_num; i++) {
-        sCLClass* left_type = get_class_with_load(CONS_str(&klass->mConst, klass->mGenericsParamTypeOffsets[i]));
+        for(i=0; i<generics_num; i++) {
+            sCLClass* left_type = get_class_with_load(CONS_str(&klass->mConst, klass->mGenericsParamTypeOffsets[i]));
 
-        sCLClass* right_type = (*result_type)->mGenericsTypes[i]->mClass;
-        sCLClass* right_type2;
-        solve_generics_for_variable_to_class(right_type, &right_type2, info->klass);
+            sCLClass* right_type = (*result_type)->mGenericsTypes[i]->mClass;
+            sCLClass* right_type2;
+            solve_generics_for_variable_to_class(right_type, &right_type2, info->klass);
 
-        if(!check_implemented_methods_for_interface(left_type, right_type2)) {
-            parser_err_msg(info, "%s is not implemented %s interface" , CLASS_NAME(right_type2), CLASS_NAME(left_type));
-            info->err_num++;
+            if(!check_implemented_methods_for_interface(left_type, right_type2)) {
+                parser_err_msg(info, "%s is not implemented %s interface" , CLASS_NAME(right_type2), CLASS_NAME(left_type));
+                info->err_num++;
+            }
         }
     }
 
@@ -1350,8 +1352,6 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info)
 
 static BOOL parse_block_object(unsigned int* node, sParserInfo* info, BOOL lambda)
 {
-    expect_next_character_with_one_forward("(", info);
-
     sParserParam params[PARAMS_MAX];
     int num_params = 0;
 
@@ -1455,7 +1455,7 @@ static BOOL parse_hash_value(unsigned int* node, sParserInfo* info)
     memset(hash_keys, 0, sizeof(unsigned int)*HASH_VALUE_ELEMENT_MAX);
     memset(hash_items, 0, sizeof(unsigned int)*HASH_VALUE_ELEMENT_MAX);
 
-    if(*info->p == ']') {
+    if(*info->p == '}') {
         info->p++;
         skip_spaces_and_lf(info);
     }
@@ -1482,7 +1482,7 @@ static BOOL parse_hash_value(unsigned int* node, sParserInfo* info)
                 info->p++;
                 skip_spaces_and_lf(info);
             }
-            else if(*info->p == ']') {
+            else if(*info->p == '}') {
                 info->p++;
                 skip_spaces_and_lf(info);
                 break;
@@ -1532,6 +1532,47 @@ static BOOL parse_list_value(unsigned int* node, sParserInfo* info)
     }
 
     *node = sNodeTree_create_list_value(num_elements, list_elements);
+
+    return TRUE;
+}
+
+static BOOL parse_tuple_value(unsigned int* node, sParserInfo* info) 
+{
+    int num_elements = 0;
+
+    unsigned int tuple_element[LIST_VALUE_ELEMENT_MAX];
+    memset(tuple_element, 0, sizeof(unsigned int)*TUPLE_VALUE_ELEMENT_MAX);
+
+    if(*info->p == '}') {
+        info->p++;
+        skip_spaces_and_lf(info);
+    }
+    else {
+        while(1) {
+            if(!expression(tuple_element + num_elements, info)) {
+                return FALSE;
+            }
+
+            num_elements++;
+
+            if(num_elements >= TUPLE_VALUE_ELEMENT_MAX) {
+                parser_err_msg(info, "overflow array value elements");
+                return FALSE;
+            }
+
+            if(*info->p == ',') {
+                info->p++;
+                skip_spaces_and_lf(info);
+            }
+            else if(*info->p == '}') {
+                info->p++;
+                skip_spaces_and_lf(info);
+                break;
+            }
+        }
+    }
+
+    *node = sNodeTree_create_tuple_value(num_elements, tuple_element);
 
     return TRUE;
 }
@@ -1723,14 +1764,6 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             return FALSE;
         }
     }
-    else if(*info->p == '[') {
-        info->p++;
-        skip_spaces_and_lf(info);
-
-        if(!parse_hash_value(node, info)) {
-            return FALSE;
-        }
-    }
     else if(isalpha(*info->p)) {
         char buf[VAR_NAME_MAX];
 
@@ -1788,25 +1821,43 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
         }
-        else if(strcmp(buf, "closure") == 0) {
+        else if(strcmp(buf, "closure") == 0 && *info->p == '(') {
+            expect_next_character_with_one_forward("(", info);
+
             if(!parse_block_object(node, info, FALSE)) {
                 return FALSE;
             }
         }
-        else if(strcmp(buf, "lambda") == 0) {
+        else if(strcmp(buf, "lambda") == 0 && *info->p == '(') {
+            expect_next_character_with_one_forward("(", info);
+
             if(!parse_block_object(node, info, TRUE)) {
                 return FALSE;
             }
         }
-        else if(strcmp(buf, "block") == 0) {
+        else if(strcmp(buf, "block") == 0 && *info->p == '{') {
             if(!parse_normal_block(node, info)) {
                 return FALSE;
             }
         }
-        else if(strcmp(buf, "list") == 0) {
+        else if(strcmp(buf, "list") == 0 && *info->p == '{') {
             expect_next_character_with_one_forward("{", info);
 
             if(!parse_list_value(node, info)) {
+                return FALSE;
+            }
+        }
+        else if(strcmp(buf, "tuple") == 0 && *info->p == '{') {
+            expect_next_character_with_one_forward("{", info);
+
+            if(!parse_tuple_value(node, info)) {
+                return FALSE;
+            }
+        }
+        else if(strcmp(buf, "hash") == 0 && *info->p == '{') {
+            expect_next_character_with_one_forward("{", info);
+
+            if(!parse_hash_value(node, info)) {
                 return FALSE;
             }
         }

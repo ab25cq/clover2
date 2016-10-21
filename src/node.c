@@ -4620,6 +4620,72 @@ BOOL compile_list_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_tuple_value(int num_elements, unsigned int tuple_elements[])
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeTupleValue;
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    gNodes[node].mType = NULL;
+
+    memcpy(gNodes[node].uValue.sTupleValue.mTupleElements, tuple_elements, sizeof(unsigned int)*TUPLE_VALUE_ELEMENT_MAX);
+    gNodes[node].uValue.sTupleValue.mNumTupleElements = num_elements;
+
+    return node;
+}
+
+static BOOL compile_tuple_value(unsigned int node, sCompileInfo* info)
+{
+    unsigned int* elements = gNodes[node].uValue.sTupleValue.mTupleElements;
+    int num_elements = gNodes[node].uValue.sTupleValue.mNumTupleElements;
+
+    if(num_elements == 0) {
+        parser_err_msg(info->pinfo, "require element in tuple value");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    sNodeType* element_types[TUPLE_VALUE_ELEMENT_MAX];
+
+    int i;
+    for(i=0; i<num_elements; i++) {
+        unsigned int element_node = elements[i];
+
+        if(!compile(element_node, info)) {
+            return FALSE;
+        }
+
+        boxing_to_lapper_class(&info->type, info);
+
+        element_types[i] = info->type;
+    }
+
+    append_opecode_to_code(info->code, OP_CREATE_TUPLE, info->no_output);
+    append_int_value_to_code(info->code, num_elements, info->no_output);
+
+    info->stack_num-= num_elements;
+    info->stack_num++;
+
+    char class_name[CLASS_NAME_MAX+1];
+
+    snprintf(class_name, CLASS_NAME_MAX, "Tuple%d", num_elements);
+
+    info->type = create_node_type_with_class_name(class_name);
+    info->type->mNumGenericsTypes = num_elements;
+    for(i=0; i<num_elements; i++) {
+        info->type->mGenericsTypes[i] = element_types[i];
+    }
+
+    return TRUE;
+}
+
 BOOL compile_hash_value(unsigned int node, sCompileInfo* info)
 {
     unsigned int* keys = gNodes[node].uValue.sHashValue.mHashKeys;
@@ -5208,6 +5274,10 @@ void show_node(unsigned int node)
             puts("list value");
             break;
 
+        case kNodeTypeTupleValue:
+            puts("tuple value");
+            break;
+
         case kNodeTypeTry:
             puts("try");
             break;
@@ -5501,6 +5571,12 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeListValue:
             if(!compile_list_value(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeTupleValue:
+            if(!compile_tuple_value(node, info)) {
                 return FALSE;
             }
             break;

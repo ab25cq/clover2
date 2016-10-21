@@ -1094,3 +1094,137 @@ class List<T:IEqualable>
         return self;
     }
 }
+
+class Tuple1 <T:IEqualable>
+{
+    value1: T;
+
+    def initialize(value1:T) {
+        self.value1 = value1;
+    }
+
+    def equals(right:Tuple1<T>):bool {
+        return self.value1.equals(right.value1);
+    }
+}
+
+class Tuple2 <T:IEqualable, T2:IEqualable>
+{
+    value1: T;
+    value2: T2;
+
+    def initialize(value1:T, value2:T2) {
+        self.value1 = value1;
+        self.value2 = value2;
+    }
+
+    def equals(right:Tuple2<T,T2>):bool {
+        return self.value1.equals(right.value1) && self.value2.equals(right.value2);
+    }
+}
+
+class Tuple3 <T:IEqualable, T2:IEqualable, T3:IEqualable>
+{
+    value1: T;
+    value2: T2;
+    value3: T3;
+
+    def initialize(value1:T, value2:T2, value3:T3) {
+        self.value1 = value1;
+        self.value2 = value2;
+        self.value3 = value3;
+    }
+
+    def equals(right:Tuple3<T,T2,T3>):bool {
+        return self.value1.equals(right.value1) && self.value2.equals(right.value2) && self.value3.equals(right.value3);
+    }
+}
+
+class Tuple4 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable>
+{
+    value1: T;
+    value2: T2;
+    value3: T3;
+    value4: T4;
+
+    def initialize(value1:T, value2:T2, value3:T3, value4:T4) {
+        self.value1 = value1;
+        self.value2 = value2;
+        self.value3 = value3;
+        self.value4 = value4;
+    }
+
+    def equals(right:Tuple4<T,T2,T3,T4>):bool {
+        return self.value1.equals(right.value1) && self.value2.equals(right.value2) && self.value3.equals(right.value3) && self.value4.equals(right.value4);
+    }
+}
+
+class Tuple5 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqualable>
+{
+    value1: T;
+    value2: T2;
+    value3: T3;
+    value4: T4;
+    value5: T5;
+
+    def initialize(value1:T, value2:T2, value3:T3, value4:T4, value5:T5) {
+        self.value1 = value1;
+        self.value2 = value2;
+        self.value3 = value3;
+        self.value4 = value4;
+        self.value5 = value5;
+    }
+
+    def equals(right:Tuple5<T,T2,T3,T4,T5>):bool {
+        return self.value1.equals(right.value1) && self.value2.equals(right.value2) && self.value3.equals(right.value3) && self.value4.equals(right.value4) && self.value5.equals(right.value5);
+    }
+}
+
+class Tuple6 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqualable, T6:IEqualable>
+{
+    value1: T;
+    value2: T2;
+    value3: T3;
+    value4: T4;
+    value5: T5;
+    value6: T6;
+
+    def initialize(value1:T, value2:T2, value3:T3, value4:T4, value5:T5, value6:T6) {
+        self.value1 = value1;
+        self.value2 = value2;
+        self.value3 = value3;
+        self.value4 = value4;
+        self.value5 = value5;
+        self.value6 = value6;
+    }
+
+    def equals(right:Tuple6<T,T2,T3,T4,T5,T6>):bool {
+        return self.value1.equals(right.value1) && self.value2.equals(right.value2) && self.value3.equals(right.value3) && self.value4.equals(right.value4) && self.value5.equals(right.value5) && self.value6.equals(right.value6);
+    }
+}
+
+class Tuple7 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqualable, T6:IEqualable, T7:IEqualable>
+{
+    value1: T;
+    value2: T2;
+    value3: T3;
+    value4: T4;
+    value5: T5;
+    value6: T6;
+    value7: T7;
+
+    def initialize(value1:T, value2:T2, value3:T3, value4:T4, value5:T5, value6:T6, value7:T7) {
+        self.value1 = value1;
+        self.value2 = value2;
+        self.value3 = value3;
+        self.value4 = value4;
+        self.value5 = value5;
+        self.value6 = value6;
+        self.value7 = value7;
+    }
+
+    def equals(right:Tuple7<T,T2,T3,T4,T5,T6,T7>):bool {
+        return self.value1.equals(right.value1) && self.value2.equals(right.value2) && self.value3.equals(right.value3) && self.value4.equals(right.value4) && self.value5.equals(right.value5) && self.value6.equals(right.value6) && self.value7.equals(right.value7);
+    }
+}
+

@@ -99,6 +99,13 @@ install:
 	$(INSTALL) -m 644 ListItem.clcl ~/.clover2
 	$(INSTALL) -m 644 IEqualable.clcl ~/.clover2
 	$(INSTALL) -m 644 List.clcl ~/.clover2
+	$(INSTALL) -m 644 Tuple1.clcl ~/.clover2
+	$(INSTALL) -m 644 Tuple2.clcl ~/.clover2
+	$(INSTALL) -m 644 Tuple3.clcl ~/.clover2
+	$(INSTALL) -m 644 Tuple4.clcl ~/.clover2
+	$(INSTALL) -m 644 Tuple5.clcl ~/.clover2
+	$(INSTALL) -m 644 Tuple6.clcl ~/.clover2
+	$(INSTALL) -m 644 Tuple7.clcl ~/.clover2
 	mkdir -p "$(libdir)"
 	$(INSTALL) -m 755 clover2 "$(bindir)"
 	$(INSTALL) -m 755 cclover2 "$(bindir)"
@@ -175,3 +182,4 @@ test:
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/list.cl && ./clover2 code/list.clo
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/list.cl && ./clover2 code/list.clo
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/array5.cl && ./clover2 code/array5.clo
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/tuple.cl && ./clover2 code/tuple.clo

@@ -493,6 +493,14 @@ static BOOL load_fundamental_classes_on_runtime()
     if(!load_class_with_initialize("ListItem")) { return FALSE; }
     if(!load_class_with_initialize("List")) { return FALSE; }
 
+    if(!load_class_with_initialize("Tuple1")) { return FALSE; }
+    if(!load_class_with_initialize("Tuple2")) { return FALSE; }
+    if(!load_class_with_initialize("Tuple3")) { return FALSE; }
+    if(!load_class_with_initialize("Tuple4")) { return FALSE; }
+    if(!load_class_with_initialize("Tuple5")) { return FALSE; }
+    if(!load_class_with_initialize("Tuple6")) { return FALSE; }
+    if(!load_class_with_initialize("Tuple7")) { return FALSE; }
+
     return TRUE;
 }
 
@@ -11374,6 +11382,42 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     stack_ptr-=num_elements;
                     stack_ptr->mObjectValue = list_object;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CREATE_TUPLE:
+                {
+                    vm_mutex_on();
+
+                    int num_elements = *(int*)pc;
+                    pc += sizeof(int);
+
+                    CLObject tuple_object = create_tuple_object(num_elements);
+                    stack_ptr->mObjectValue = tuple_object; // push object
+                    stack_ptr++;
+
+                    CLObject items[TUPLE_VALUE_ELEMENT_MAX];
+
+                    int i;
+                    for(i=0; i<num_elements; i++) {
+                        CLVALUE element = *(stack_ptr-1-num_elements+i);
+                        items[i] = (*(stack_ptr-1-num_elements+i)).mObjectValue;
+                    }
+
+                    if(!initialize_tuple_object(tuple_object, num_elements, items, stack, var_num, &stack_ptr, info))
+                    {
+                        vm_mutex_off();
+                        remove_stack_to_stack_list(stack);
+                        return FALSE;
+                    }
+
+                    stack_ptr--; // pop_object
+
+                    stack_ptr-=num_elements;
+                    stack_ptr->mObjectValue = tuple_object;
                     stack_ptr++;
 
                     vm_mutex_off();
