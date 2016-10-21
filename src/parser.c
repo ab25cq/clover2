@@ -1445,6 +1445,47 @@ static BOOL parse_array_value(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
+static BOOL parse_carray_value(unsigned int* node, sParserInfo* info) 
+{
+    int num_elements = 0;
+
+    unsigned int array_elements[ARRAY_VALUE_ELEMENT_MAX];
+    memset(array_elements, 0, sizeof(unsigned int)*ARRAY_VALUE_ELEMENT_MAX);
+
+    if(*info->p == '}') {
+        info->p++;
+        skip_spaces_and_lf(info);
+    }
+    else {
+        while(1) {
+            if(!expression(array_elements + num_elements, info)) {
+                return FALSE;
+            }
+
+            num_elements++;
+
+            if(num_elements >= ARRAY_VALUE_ELEMENT_MAX) {
+                parser_err_msg(info, "overflow array value elements");
+                return FALSE;
+            }
+
+            if(*info->p == ',') {
+                info->p++;
+                skip_spaces_and_lf(info);
+            }
+            else if(*info->p == '}') {
+                info->p++;
+                skip_spaces_and_lf(info);
+                break;
+            }
+        }
+    }
+
+    *node = sNodeTree_create_carray_value(num_elements, array_elements);
+
+    return TRUE;
+}
+
 static BOOL parse_hash_value(unsigned int* node, sParserInfo* info) 
 {
     int num_elements = 0;
@@ -1858,6 +1899,13 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             expect_next_character_with_one_forward("{", info);
 
             if(!parse_hash_value(node, info)) {
+                return FALSE;
+            }
+        }
+        else if(strcmp(buf, "array") == 0 && *info->p == '{') {
+            expect_next_character_with_one_forward("{", info);
+
+            if(!parse_carray_value(node, info)) {
                 return FALSE;
             }
         }

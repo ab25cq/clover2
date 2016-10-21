@@ -4529,6 +4529,78 @@ BOOL compile_array_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_carray_value(int num_elements, unsigned int array_elements[])
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeCArrayValue;
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    gNodes[node].mType = NULL;
+
+    memcpy(gNodes[node].uValue.sArrayValue.mArrayElements, array_elements, sizeof(unsigned int)*ARRAY_VALUE_ELEMENT_MAX);
+    gNodes[node].uValue.sArrayValue.mNumArrayElements = num_elements;
+
+    return node;
+}
+
+static BOOL compile_carray_value(unsigned int node, sCompileInfo* info)
+{
+    unsigned int* elements = gNodes[node].uValue.sArrayValue.mArrayElements;
+    int num_elements = gNodes[node].uValue.sArrayValue.mNumArrayElements;
+
+    if(num_elements == 0) {
+        parser_err_msg(info->pinfo, "require element in array value");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    unsigned int first_element_node = elements[0];
+
+    if(!compile(first_element_node, info)) {
+        return FALSE;
+    }
+
+    boxing_to_lapper_class(&info->type, info);
+
+    sNodeType* element_type = info->type;
+
+    int i;
+    for(i=1; i<num_elements; i++) {
+        unsigned int element_node = elements[i];
+
+        if(!compile(element_node, info)) {
+            return FALSE;
+        }
+
+        boxing_to_lapper_class(&info->type, info);
+
+        if(!type_identify(element_type, info->type)) {
+            parser_err_msg(info->pinfo, "Invalid element type. Left type is %s. Right type is %s", CLASS_NAME(element_type->mClass), CLASS_NAME(info->type->mClass));
+            info->err_num++;
+        }
+    }
+
+    append_opecode_to_code(info->code, OP_CREATE_CARRAY, info->no_output);
+    append_int_value_to_code(info->code, num_elements, info->no_output);
+    append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(element_type->mClass), info->no_output);
+
+    info->stack_num-= num_elements;
+    info->stack_num++;
+
+    info->type = create_node_type_with_class_name("Array");
+    info->type->mNumGenericsTypes = 1;
+    info->type->mGenericsTypes[0] = element_type;
+
+    return TRUE;
+}
+
 unsigned int sNodeTree_create_hash_value(int num_elements, unsigned int hash_keys[], unsigned int hash_items[])
 {
     unsigned int node = alloc_node();
@@ -5266,6 +5338,10 @@ void show_node(unsigned int node)
             puts("array value");
             break;
 
+        case kNodeTypeCArrayValue:
+            puts("carray value");
+            break;
+
         case kNodeTypeHashValue:
             puts("hash value");
             break;
@@ -5565,6 +5641,12 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeArrayValue:
             if(!compile_array_value(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeCArrayValue:
+            if(!compile_carray_value(node, info)) {
                 return FALSE;
             }
             break;

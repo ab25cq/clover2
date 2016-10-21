@@ -204,7 +204,7 @@ CFLAGS="$CFLAGS -Qunused-arguments"
 
 AC_SUBST(CFLAGS)
 
-OBJS="src/main.o src/vm.o src/object.o src/array.o src/string.o src/block.o src/regex.o src/integer.o src/byte.o src/short.o src/long.o src/float.o src/pointer.o src/char.o src/bool.o src/hash.o src/list.o src/tuple.o src/type.o src/stack.o src/heap.o src/exception.o src/native_method.o src/class_system.o src/class_clover.o src/clover_to_clang.o"
+OBJS="src/main.o src/vm.o src/object.o src/array.o src/string.o src/block.o src/regex.o src/integer.o src/byte.o src/short.o src/long.o src/float.o src/pointer.o src/char.o src/bool.o src/hash.o src/list.o src/tuple.o src/carray.o src/type.o src/stack.o src/heap.o src/exception.o src/native_method.o src/class_system.o src/class_clover.o src/clover_to_clang.o"
 COMPILER_OBJS="src/compiler.o src/parser.o src/node_type.o src/node.o src/cast.o src/vtable.o src/script.o src/node_block.o src/node_block_type.o src/class_compiler.o src/klass_compile_time.o src/method_compiler.o src/module.o"
 LIB_OBJS="src/buffer.o src/debug.o src/xfunc.o src/klass.o src/constant.o src/code.o src/alignment.o"
 
