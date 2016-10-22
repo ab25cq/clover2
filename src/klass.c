@@ -860,6 +860,7 @@ static void load_fundamental_classes_on_compile_time()
     load_class("PcreOVec");
     load_class("System");
     load_class("Clover");
+    load_class("Global");
 
     load_class("String");
 

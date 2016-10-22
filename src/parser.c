@@ -1275,73 +1275,18 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info)
 
             *node = sNodeTree_create_block_call(*node, num_params, params);
         }
-/*
-        /// indexing ///
-        else if(**info->p == '[') {
-            unsigned int param_node;
-            unsigned int block_object;
-            unsigned int block_node;
-
-            if(quote) {
-                parser_err_msg_format(info->sname, sline_top, "can't quote [ operand");
-                (*info->err_num)++;
-                *node = 0;
-                return TRUE;
-            }
-            
-            param_node = 0;
-            if(!get_params(info, &param_node, '[', ']', lv_table, &block_object, &block_node, FALSE)) {
-                return FALSE;
-            }
-
-            if(block_object != 0 || block_node != 0) {
-                parser_err_msg_format(info->sname, *info->sline, "Clover can't get block with indexing operator");
-                (*info->err_num)++;
-            }
-
-            *node = sNodeTree_create_operand(kOpIndexing, *node, param_node, 0, quote);
-        }
-*/
         else if(*info->p == '+' && *(info->p+1) == '+') {
             info->p+=2;
             skip_spaces_and_lf(info);
 
             *node = sNodeTree_create_increment_operand(*node);
         }
-/*
-        else if(*info->p == '+' && *(info->p+1) == '=') {
-            info->p+=2;
-            skip_spaces_and_lf(info);
-
-            unsigned int value = 0;
-
-            if(!expression(&value, info)) {
-                return FALSE;
-            }
-
-            *node = sNodeTree_create_increment_operand_with_value(*node, value);
-        }
-*/
         else if(*info->p == '-' && *(info->p+1) == '-') {
             info->p+=2;
             skip_spaces_and_lf(info);
 
             *node = sNodeTree_create_decrement_operand(*node);
         }
-/*
-        else if(*info->p == '-' && *(info->p+1) == '=') {
-            info->p+=2;
-            skip_spaces_and_lf(info);
-
-            unsigned int value = 0;
-
-            if(!expression(&value, info)) {
-                return FALSE;
-            }
-
-            *node = sNodeTree_create_decrement_operand_with_value(*node, value);
-        }
-*/
         else {
             break;
         }
@@ -2000,6 +1945,8 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 klass = load_class(buf);
             }
 
+            sCLClass* global_klass = get_class("Global");
+
             /// class name ///
             if(klass) {
                 /// class field or class method ///
@@ -2068,6 +2015,17 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     parser_err_msg(info, "require . operator");
                     info->err_num++;
                 }
+            }
+            else if(method_name_existance(global_klass, buf))
+            {
+                unsigned int params[PARAMS_MAX];
+                int num_params = 0;
+
+                if(!parse_method_params(&num_params, params, info)) {
+                    return FALSE;
+                }
+
+                *node = sNodeTree_create_class_method_call(global_klass, buf, params, num_params);
             }
             else {
                 *node = sNodeTree_create_load_variable(buf);

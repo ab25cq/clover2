@@ -24,11 +24,11 @@ CLASS_NAME	src/common.h	238;"	d
 CLASS_NAME_MAX	src/common.h	31;"	d
 CLASS_NUM_MAX	src/klass.c	9;"	d	file:
 CLASS_VERSION_MAX	src/common.h	38;"	d
-CLBLOCK	src/common.h	1612;"	d
-CLHEAPMEM	src/common.h	1535;"	d
-CLOBJECT	src/common.h	1581;"	d
+CLBLOCK	src/common.h	1613;"	d
+CLHEAPMEM	src/common.h	1536;"	d
+CLOBJECT	src/common.h	1582;"	d
 CLObject	src/common.h	/^typedef unsigned int CLObject;$/;"	t
-CLREGEX	src/common.h	1635;"	d
+CLREGEX	src/common.h	1636;"	d
 CLVALUE	src/common.h	/^typedef union CLVALUEUnion CLVALUE;$/;"	t	typeref:union:CLVALUEUnion
 CLVALUEUnion	src/common.h	/^union CLVALUEUnion {$/;"	u
 CL_MODULE_HASH_SIZE	src/common.h	41;"	d
@@ -39,7 +39,7 @@ CONS_str	src/common.h	97;"	d
 CreateProcess	ltmain.sh	/^   CreateProcess().  We must quote the arguments since Win32 CreateProcess()$/;"	f
 DEBUG_H	src/debug.h	2;"	d
 DESTDIR	Makefile	/^DESTDIR=$/;"	m
-DUMMY_ARRAY_SIZE	src/common.h	1567;"	d
+DUMMY_ARRAY_SIZE	src/common.h	1568;"	d
 ELIF_NUM_MAX	src/common.h	34;"	d
 EXCEPTION_MESSAGE_MAX	src/common.h	150;"	d
 FALSE	src/macros.h	13;"	d
@@ -53,7 +53,41 @@ HAVE_ICONV_H	config.h	5;"	d
 HAVE_MATH_H	config.h	2;"	d
 HAVE_PCRE_H	config.h	6;"	d
 INSTALL	Makefile	/^INSTALL=\/usr\/bin\/install -c$/;"	m
+LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 -class code\/array4.clc code\/array4.cl && .\/clover2 code\/array4.clo$/;"	m
+LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 -class code\/block2.clc code\/block2.cl && .\/clover2 code\/block2.clo$/;"	m
+LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 -class code\/block3.clc code\/block3.cl && .\/clover2 code\/block3.clo$/;"	m
+LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 -class code\/generics.clc code\/generics.cl && .\/clover2 code\/generics.clo$/;"	m
+LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 -class code\/generics2.clc code\/generics2.cl && .\/clover2 code\/generics2.clo$/;"	m
+LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 -class code\/increment.clc && .\/cclover2 code\/increment.cl && .\/clover2 code\/increment.clo$/;"	m
+LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 -class code\/initialize_test.clc && .\/cclover2 code\/initialize_test.cl && .\/clover2 code\/initialize_test.clo$/;"	m
+LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 -class code\/interface.clc code\/interface.cl && .\/clover2 code\/interface.clo$/;"	m
+LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 -class code\/module.clc code\/module.cl && .\/clover2 code\/module.clo$/;"	m
+LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 -class code\/operator.clc code\/operator.cl && .\/clover2 code\/operator.clo$/;"	m
+LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 -class code\/self_class.clc code\/self_class.cl && .\/clover2 code\/self_class.clo$/;"	m
+LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 -class code\/stack.clc && .\/cclover2 code\/stack.cl && .\/clover2 code\/stack.clo$/;"	m
+LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 -class code\/try.clc code\/try.cl && .\/clover2 code\/try.clo$/;"	m
+LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 -class code\/user_object.clc code\/user_object.cl && .\/clover2 code\/user_object.clo$/;"	m
+LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 -class code\/void_result.clc code\/void_result.cl && .\/clover2 code\/void_result.clo$/;"	m
+LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 code\/array.cl && .\/clover2 code\/array.clo$/;"	m
+LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 code\/array2.cl && .\/clover2 code\/array2.clo$/;"	m
+LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 code\/array5.cl && .\/clover2 code\/array5.clo$/;"	m
+LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 code\/block.cl && .\/clover2 code\/block.clo$/;"	m
+LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 code\/block_var_test.cl && .\/clover2 code\/block_var_test.clo$/;"	m
+LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 code\/cast.cl && .\/clover2 code\/cast.clo$/;"	m
+LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 code\/hash.cl && .\/clover2 code\/hash.clo$/;"	m
+LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 code\/hello_world.cl && .\/clover2 code\/hello_world.clo$/;"	m
+LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 code\/integer.cl && .\/clover2 code\/integer.clo$/;"	m
+LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 code\/list.cl && .\/clover2 code\/list.clo$/;"	m
+LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 code\/normal_block.cl && .\/clover2 code\/normal_block.clo$/;"	m
+LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 code\/null.cl && .\/clover2 code\/null.clo$/;"	m
+LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 code\/pointer.cl && .\/clover2 code\/pointer.clo$/;"	m
 LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 code\/printf.cl && .\/clover2 code\/printf.clo$/;"	m
+LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 code\/regex.cl && .\/clover2 code\/regex.clo$/;"	m
+LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 code\/special_field.cl && .\/clover2 code\/special_field.clo$/;"	m
+LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 code\/string.cl && .\/clover2 code\/string.clo$/;"	m
+LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 code\/tuple.cl && .\/clover2 code\/tuple.clo$/;"	m
+LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 code\/variables.cl && .\/clover2 code\/variables.clo$/;"	m
+LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); export LANG="ja_JP.utf8"; export LC_ALL="ja_JP.utf8"; .\/cclover2 code\/char.cl && .\/clover2 code\/char.clo$/;"	m
 LIBS	Makefile	/^LIBS= -lutil -ldl -lm -lpcre$/;"	m
 LIBSO2NAME	Makefile	/^LIBSO2NAME=libclover2.so.1.0.0$/;"	m
 LIBSONAME	Makefile	/^LIBSONAME=libclover2.so$/;"	m
@@ -853,17 +887,25 @@ arrange_alignment	src/code.c	/^static void arrange_alignment(sByteCode* code)$/;
 arrange_alignment	src/constant.c	/^static void arrange_alignment(sConst* self)$/;"	f	file:
 arrange_stack	src/node.c	/^void arrange_stack(sCompileInfo* cinfo)$/;"	f
 array_mark_fun	src/array.c	/^void array_mark_fun(CLObject self, unsigned char* mark_flg)$/;"	f
+as_fn_append	config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	configure	/^  as_fn_append ()$/;"	f
+as_fn_arith	config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	configure	/^  as_fn_arith ()$/;"	f
+as_fn_error	config.status	/^as_fn_error ()$/;"	f
 as_fn_error	configure	/^as_fn_error ()$/;"	f
+as_fn_executable_p	config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	configure	/^as_fn_executable_p ()$/;"	f
+as_fn_exit	config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	configure	/^as_fn_exit ()$/;"	f
 as_fn_failure	configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
+as_fn_mkdir_p	config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	configure	/^as_fn_mkdir_p ()$/;"	f
 as_fn_ret_failure	configure	/^as_fn_ret_failure () { return 1; }$/;"	f
 as_fn_ret_success	configure	/^as_fn_ret_success () { return 0; }$/;"	f
+as_fn_set_status	config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	configure	/^as_fn_set_status ()$/;"	f
 as_fn_success	configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
+as_fn_unset	config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	configure	/^as_fn_unset ()$/;"	f
 assign_operator	src/parser.c	/^static BOOL assign_operator(unsigned int* node, sParserInfo* info)$/;"	f	file:
 binary_operator	src/node.c	/^static BOOL binary_operator(sNodeType* left_type, sNodeType* right_type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, int float_operand, int double_operand, int pointer_operand, int null_operand, int char_operand, int bool_operand, char* op_string, sCompileInfo* info)$/;"	f	file:
@@ -1576,6 +1618,7 @@ mark	src/heap.c	/^static void mark(unsigned char* mark_flg)$/;"	f	file:
 mark_all_class_fields	src/heap.c	/^static void mark_all_class_fields(unsigned char* mark_flg)$/;"	f	file:
 mark_object	src/heap.c	/^void mark_object(CLObject obj, unsigned char* mark_flg)$/;"	f
 method	src/common.h	/^    sCLMethod* method;$/;"	m	struct:sCompileInfoStruct
+method_name_existance	src/klass_compile_time.c	/^BOOL method_name_existance(sCLClass* klass, char* method_name)$/;"	f
 module_final	src/module.c	/^void module_final()$/;"	f
 module_init	src/module.c	/^void module_init()$/;"	f
 native_method_final	src/native_method.c	/^void native_method_final()$/;"	f

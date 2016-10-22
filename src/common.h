@@ -1480,6 +1480,7 @@ void add_dependences_with_node_type(sCLClass* klass, sNodeType* node_type);
 sCLClass* get_class_with_load(char* class_name);
 BOOL parse_params(sParserParam* params, int* num_params, sParserInfo* info);
 BOOL check_implemented_methods_for_interface(sCLClass* left_class, sCLClass* right_class);
+BOOL method_name_existance(sCLClass* klass, char* method_name);
 
 /// native_method.c ///
 void native_method_init();

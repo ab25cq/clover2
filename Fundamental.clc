@@ -45,6 +45,20 @@ class Clover
     }
 }
 
+class Global
+{
+    def print(str:String):static {
+        System.print(str);
+    }
+    def println(str:String):static {
+        System.println(str);
+    }
+    def printf(str:String, params:Array<IEqualable>): static {
+        str2: String = System.sprintf(str, params);
+        System.print(str2);
+    }
+}
+
 class String
 {
     buffer: char[];

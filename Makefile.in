@@ -78,6 +78,7 @@ install:
 	$(INSTALL) -m 644 PcreOVec.clcl ~/.clover2
 	$(INSTALL) -m 644 System.clcl ~/.clover2
 	$(INSTALL) -m 644 Clover.clcl ~/.clover2
+	$(INSTALL) -m 644 Global.clcl ~/.clover2
 	$(INSTALL) -m 644 String.clcl ~/.clover2
 	$(INSTALL) -m 644 Exception.clcl ~/.clover2
 	$(INSTALL) -m 644 IObject.clcl ~/.clover2
