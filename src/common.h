@@ -1,6 +1,8 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#define _GNU_SOURCE
+
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -1686,13 +1688,31 @@ BOOL System_printlnToError(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_printToError(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_sleep(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_pcre_exec(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_sprintf(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 /// alignment.c ///
 void alignment(unsigned int* size);
 
 /// clove_to_clang ///
 ALLOC wchar_t* string_object_to_wchar_array(CLObject string_object);
+ALLOC char* string_object_to_char_array(CLObject string_object);
 NULLABLE CLVALUE* get_element_from_array(CLObject array, int index);
+NULLABLE CLVALUE* get_element_from_Array(CLObject array, int index);
+int get_element_number_from_Array(CLObject array);
+char get_value_from_Byte(CLObject object);
+unsigned char get_value_from_UByte(CLObject object);
+short get_value_from_Short(CLObject object);
+unsigned short get_value_from_UShort(CLObject object);
+int get_value_from_Integer(CLObject object);
+unsigned int get_value_from_UInteger(CLObject object);
+long get_value_from_Long(CLObject object);
+unsigned long get_value_from_ULong(CLObject object);
+wchar_t get_value_from_Char(CLObject object);
+float get_value_from_Float(CLObject object);
+double get_value_from_Double(CLObject object);
+BOOL get_value_from_Bool(CLObject object);
+char* get_value_from_Pointer(CLObject object);
+sCLClass* get_class_from_object(CLObject object);
 
 /// list.c ///
 CLObject create_list_object();

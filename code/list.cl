@@ -38,6 +38,9 @@ Clover.test("list test5", list { 1 }.delete(1).length() == 0);
 Clover.test("list test6", list { 1,2 }.delete(1).equals(list {2}));
 Clover.test("list test7", list { 1,2 }.delete(2).equals(list {1}));
 Clover.test("list test8", list { 1,2,3 }.delete(1).equals(list {2,3}));
-Clover.test("list test8", list { 1,2,3 }.delete(2).equals(list {1,3}));
-Clover.test("list test8", list { 1,2,3 }.delete(3).equals(list {1,2}));
+Clover.test("list test9", list { 1,2,3 }.delete(2).equals(list {1,3}));
+Clover.test("list test10", list { 1,2,3 }.delete(3).equals(list {1,2}));
+#Clover.test("list test11", list { 1,2,3 }.insert(1, 7).equals(list { 1,7,2,3}));
+#Clover.test("list test12", list { 1,2,3 }.insert(0, 7).equals(list { 7,1,2,3}));
+#Clover.test("list test13", list { 1,2,3 }.insert(3, 7).equals(list { 1,2,3,7}));
 

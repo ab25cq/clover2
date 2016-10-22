@@ -75,6 +75,7 @@ $(OBJ): src/*.h Makefile configure
 install:
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -class Fundamental.clc
 	mkdir -p ~/.clover2
+	$(INSTALL) -m 644 PcreOVec.clcl ~/.clover2
 	$(INSTALL) -m 644 System.clcl ~/.clover2
 	$(INSTALL) -m 644 Clover.clcl ~/.clover2
 	$(INSTALL) -m 644 String.clcl ~/.clover2
@@ -93,11 +94,12 @@ install:
 	$(INSTALL) -m 644 Pointer.clcl ~/.clover2
 	$(INSTALL) -m 644 Char.clcl ~/.clover2
 	$(INSTALL) -m 644 Bool.clcl ~/.clover2
+	$(INSTALL) -m 644 Array.clcl ~/.clover2
 	$(INSTALL) -m 644 IHashKey.clcl ~/.clover2
+	$(INSTALL) -m 644 IEqualable.clcl ~/.clover2
 	$(INSTALL) -m 644 HashItem.clcl ~/.clover2
 	$(INSTALL) -m 644 Hash.clcl ~/.clover2
 	$(INSTALL) -m 644 ListItem.clcl ~/.clover2
-	$(INSTALL) -m 644 IEqualable.clcl ~/.clover2
 	$(INSTALL) -m 644 List.clcl ~/.clover2
 	$(INSTALL) -m 644 Tuple1.clcl ~/.clover2
 	$(INSTALL) -m 644 Tuple2.clcl ~/.clover2
@@ -106,6 +108,9 @@ install:
 	$(INSTALL) -m 644 Tuple5.clcl ~/.clover2
 	$(INSTALL) -m 644 Tuple6.clcl ~/.clover2
 	$(INSTALL) -m 644 Tuple7.clcl ~/.clover2
+	$(INSTALL) -m 644 Tuple8.clcl ~/.clover2
+	$(INSTALL) -m 644 Tuple9.clcl ~/.clover2
+	$(INSTALL) -m 644 Tuple10.clcl ~/.clover2
 	mkdir -p "$(libdir)"
 	$(INSTALL) -m 755 clover2 "$(bindir)"
 	$(INSTALL) -m 755 cclover2 "$(bindir)"
@@ -180,6 +185,6 @@ test:
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -class code/array4.clc code/array4.cl && ./clover2 code/array4.clo
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/regex.cl && ./clover2 code/regex.clo
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/list.cl && ./clover2 code/list.clo
-	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/list.cl && ./clover2 code/list.clo
-	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/array5.cl && ./clover2 code/array5.clo
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/tuple.cl && ./clover2 code/tuple.clo
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/array5.cl && ./clover2 code/array5.clo
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/printf.cl && ./clover2 code/printf.clo

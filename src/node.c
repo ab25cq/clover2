@@ -4571,6 +4571,8 @@ static BOOL compile_carray_value(unsigned int node, sCompileInfo* info)
 
     sNodeType* element_type = info->type;
 
+    BOOL generics_type_is_iequalable = FALSE;
+
     int i;
     for(i=1; i<num_elements; i++) {
         unsigned int element_node = elements[i];
@@ -4582,8 +4584,7 @@ static BOOL compile_carray_value(unsigned int node, sCompileInfo* info)
         boxing_to_lapper_class(&info->type, info);
 
         if(!type_identify(element_type, info->type)) {
-            parser_err_msg(info->pinfo, "Invalid element type. Left type is %s. Right type is %s", CLASS_NAME(element_type->mClass), CLASS_NAME(info->type->mClass));
-            info->err_num++;
+            generics_type_is_iequalable = TRUE;
         }
     }
 
@@ -4596,7 +4597,12 @@ static BOOL compile_carray_value(unsigned int node, sCompileInfo* info)
 
     info->type = create_node_type_with_class_name("Array");
     info->type->mNumGenericsTypes = 1;
-    info->type->mGenericsTypes[0] = element_type;
+    if(generics_type_is_iequalable) {
+        info->type->mGenericsTypes[0] = create_node_type_with_class_name("IEqualable");
+    }
+    else {
+        info->type->mGenericsTypes[0] = element_type;
+    }
 
     return TRUE;
 }

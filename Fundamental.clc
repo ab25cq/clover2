@@ -28,6 +28,8 @@ class System
     def strncpy(str1:pointer, str2:pointer, size:int): native static pointer;
     def strdup(str:pointer): native static pointer;
 
+    def sprintf(format:String, prams:Array<IEqualable>): native static String throws Exception;
+
     def pcre_exec(regex:regex, str:String, ovec_max:int, ovec:PcreOVec): native static int;
 
 #    def wcstombs(dest:pointer, src:pointer, size:int): native int;
@@ -797,22 +799,6 @@ class Hash <T:IHashKey, T2:IEqualable>
         }
     }
 
-    def containes(key:T, item:T2):bool {
-        return self.get(key).equals(item);
-    }
-
-    def getKey(item:T2):T {
-        for(i:uint =0; i<self.tableSize; i++) {
-            if(!self.table[i].identifyWith(null)) {
-                if(self.table[i].item.equals(item)) {
-                    return self.table[i].key;
-                }
-            }
-        }
-
-        return null;
-    }
-
     def equals(right:Hash<T,T2>):bool {
         if(self.itemNumber != right.itemNumber) {
             return false;
@@ -912,6 +898,22 @@ class Hash <T:IHashKey, T2:IEqualable>
                 return null;
             }
         }
+    }
+
+    def getKey(item:T2):T {
+        for(i:uint =0; i<self.tableSize; i++) {
+            if(!self.table[i].identifyWith(null)) {
+                if(self.table[i].item.equals(item)) {
+                    return self.table[i].key;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    def containes(key:T, item:T2):bool {
+        return self.get(key).equals(item);
     }
 
     def each(block_:lambda(T,T2)):Hash<T,T2> {
@@ -1021,6 +1023,40 @@ class List<T:IEqualable>
         }
 
         self.number++;
+
+        return self;
+    }
+
+    def insert(index:int, item:T):List<T> {
+        if(self.number == 0 || index == self.number) {
+            self.add(item);
+            return self;
+        }
+
+        if(index == 0) {
+            new_item:ListItem<T> = new ListItem<T>(item, null, self.head);
+            self.head.prev = new_item;
+            self.head = new_item;
+        }
+        else {
+            it:ListItem<T> = self.head;
+
+            i:= 0;
+
+            while(!it.identifyWith(null)) {
+                if(i == index-1) {
+                    new_item:ListItem<T> = new ListItem<T>(item, it, it.next);
+                    if(!it.next.identifyWith(null)) {
+                        it.next.prev = new_item;
+                    }
+                    it.next = new_item;
+                    break;
+                }
+
+                it = it.next;
+                i++;
+            }
+        }
 
         return self;
     }
@@ -1227,4 +1263,92 @@ class Tuple7 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqu
         return self.value1.equals(right.value1) && self.value2.equals(right.value2) && self.value3.equals(right.value3) && self.value4.equals(right.value4) && self.value5.equals(right.value5) && self.value6.equals(right.value6) && self.value7.equals(right.value7);
     }
 }
+
+class Tuple8 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqualable, T6:IEqualable, T7:IEqualable, T8:IEqualable>
+{
+    value1: T;
+    value2: T2;
+    value3: T3;
+    value4: T4;
+    value5: T5;
+    value6: T6;
+    value7: T7;
+    value8: T8;
+
+    def initialize(value1:T, value2:T2, value3:T3, value4:T4, value5:T5, value6:T6, value7:T7, value8:T8) {
+        self.value1 = value1;
+        self.value2 = value2;
+        self.value3 = value3;
+        self.value4 = value4;
+        self.value5 = value5;
+        self.value6 = value6;
+        self.value7 = value7;
+        self.value8 = value8;
+    }
+
+    def equals(right:Tuple8<T,T2,T3,T4,T5,T6,T7,T8>):bool {
+        return self.value1.equals(right.value1) && self.value2.equals(right.value2) && self.value3.equals(right.value3) && self.value4.equals(right.value4) && self.value5.equals(right.value5) && self.value6.equals(right.value6) && self.value7.equals(right.value7) && self.value8.equals(right.value8);
+    }
+}
+
+class Tuple9 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqualable, T6:IEqualable, T7:IEqualable, T8:IEqualable, T9:IEqualable>
+{
+    value1: T;
+    value2: T2;
+    value3: T3;
+    value4: T4;
+    value5: T5;
+    value6: T6;
+    value7: T7;
+    value8: T8;
+    value9: T9;
+
+    def initialize(value1:T, value2:T2, value3:T3, value4:T4, value5:T5, value6:T6, value7:T7, value8:T8, value9:T9) {
+        self.value1 = value1;
+        self.value2 = value2;
+        self.value3 = value3;
+        self.value4 = value4;
+        self.value5 = value5;
+        self.value6 = value6;
+        self.value7 = value7;
+        self.value8 = value8;
+        self.value9 = value9;
+    }
+
+    def equals(right:Tuple9<T,T2,T3,T4,T5,T6,T7,T8,T9>):bool {
+        return self.value1.equals(right.value1) && self.value2.equals(right.value2) && self.value3.equals(right.value3) && self.value4.equals(right.value4) && self.value5.equals(right.value5) && self.value6.equals(right.value6) && self.value7.equals(right.value7) && self.value8.equals(right.value8) && self.value9.equals(right.value9);
+    }
+}
+
+class Tuple10 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqualable, T6:IEqualable, T7:IEqualable, T8:IEqualable, T9:IEqualable, T10:IEqualable>
+{
+    value1: T;
+    value2: T2;
+    value3: T3;
+    value4: T4;
+    value5: T5;
+    value6: T6;
+    value7: T7;
+    value8: T8;
+    value9: T9;
+    value10: T10;
+
+    def initialize(value1:T, value2:T2, value3:T3, value4:T4, value5:T5, value6:T6, value7:T7, value8:T8, value9:T9, value10:T10) {
+        self.value1 = value1;
+        self.value2 = value2;
+        self.value3 = value3;
+        self.value4 = value4;
+        self.value5 = value5;
+        self.value6 = value6;
+        self.value7 = value7;
+        self.value8 = value8;
+        self.value9 = value9;
+        self.value10 = value10;
+    }
+
+    def equals(right:Tuple10<T,T2,T3,T4,T5,T6,T7,T8,T9,T10>):bool {
+        return self.value1.equals(right.value1) && self.value2.equals(right.value2) && self.value3.equals(right.value3) && self.value4.equals(right.value4) && self.value5.equals(right.value5) && self.value6.equals(right.value6) && self.value7.equals(right.value7) && self.value8.equals(right.value8) && self.value9.equals(right.value9) && self.value10.equals(right.value10);
+    }
+}
+
 

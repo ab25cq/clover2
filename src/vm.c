@@ -459,6 +459,7 @@ static BOOL load_class_with_initialize(char* class_name)
 
 static BOOL load_fundamental_classes_on_runtime()
 {
+    if(!load_class_with_initialize("PcreOVec")) { return FALSE; }
     if(!load_class_with_initialize("System")) { return FALSE; }
     if(!load_class_with_initialize("Clover")) { return FALSE; }
 
@@ -466,7 +467,7 @@ static BOOL load_fundamental_classes_on_runtime()
 
     if(!load_class_with_initialize("Exception")) { return FALSE; }
 
-    if(!load_class_with_initialize("Object")) { return FALSE; }
+    if(!load_class_with_initialize("IObject")) { return FALSE; }
 
     if(!load_class_with_initialize("Byte")) { return FALSE; }
     if(!load_class_with_initialize("UByte")) { return FALSE; }
@@ -486,6 +487,9 @@ static BOOL load_fundamental_classes_on_runtime()
 
     if(!load_class_with_initialize("Array")) { return FALSE; }
 
+    if(!load_class_with_initialize("IHashKey")) { return FALSE; }
+    if(!load_class_with_initialize("IEqualable")) { return FALSE; }
+
     if(!load_class_with_initialize("HashKey")) { return FALSE; }
     if(!load_class_with_initialize("HashItem")) { return FALSE; }
     if(!load_class_with_initialize("Hash")) { return FALSE; }
@@ -500,6 +504,9 @@ static BOOL load_fundamental_classes_on_runtime()
     if(!load_class_with_initialize("Tuple5")) { return FALSE; }
     if(!load_class_with_initialize("Tuple6")) { return FALSE; }
     if(!load_class_with_initialize("Tuple7")) { return FALSE; }
+    if(!load_class_with_initialize("Tuple8")) { return FALSE; }
+    if(!load_class_with_initialize("Tuple9")) { return FALSE; }
+    if(!load_class_with_initialize("Tuple10")) { return FALSE; }
 
     return TRUE;
 }

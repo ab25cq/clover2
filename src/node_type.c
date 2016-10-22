@@ -223,7 +223,8 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_
         if(left2->mClass == right2->mClass && left2->mArray == right2->mArray && left2->mNumGenericsTypes == right2->mNumGenericsTypes) {
             int i;
             for(i=0; i<left2->mNumGenericsTypes; i++) {
-                if(!type_identify(left2->mGenericsTypes[i], right2->mGenericsTypes[i])) {
+                if(!substitution_posibility(left2->mGenericsTypes[i], right2->mGenericsTypes[i], left_generics_types, right_generics_types))
+                {
                     return FALSE;
                 }
             }

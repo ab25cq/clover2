@@ -857,6 +857,7 @@ void set_boxing_and_unboxing_classes()
 
 static void load_fundamental_classes_on_compile_time()
 {
+    load_class("PcreOVec");
     load_class("System");
     load_class("Clover");
 
@@ -864,7 +865,7 @@ static void load_fundamental_classes_on_compile_time()
 
     load_class("Exception");
 
-    load_class("Object");
+    load_class("IObject");
 
     load_class("Byte");
     load_class("UByte");
@@ -884,6 +885,9 @@ static void load_fundamental_classes_on_compile_time()
 
     load_class("Array");
 
+    load_class("IHashKey");
+    load_class("IEqualable");
+
     load_class("HashKey");
     load_class("HashItem");
     load_class("Hash");
@@ -898,6 +902,9 @@ static void load_fundamental_classes_on_compile_time()
     load_class("Tuple5");
     load_class("Tuple6");
     load_class("Tuple7");
+    load_class("Tuple8");
+    load_class("Tuple9");
+    load_class("Tuple10");
 }
 
 void class_init_on_compile_time()

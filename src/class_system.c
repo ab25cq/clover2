@@ -278,3 +278,250 @@ BOOL System_pcre_exec(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     return TRUE;
 }
 
+BOOL System_sprintf(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* format = lvar;
+    CLVALUE* params = lvar+1;
+
+    char* format_string = ALLOC string_object_to_char_array(format->mObjectValue);
+
+    char* p = format_string;
+
+    sBuf buf;
+    sBuf_init(&buf);
+
+    int param_num = 0;
+    int param_max = get_element_number_from_Array(params->mObjectValue);
+
+    while(*p) {
+        if(*p == '%') {
+            p++;
+
+            BOOL no_conversion = FALSE;
+
+            char format2[128+1];
+            char* p2 = format2;
+
+            *p2++ = '%';
+
+            /// flag characters ///
+            while(1) {
+                if(*p == '#' || *p == '0' || *p == '-' || *p == ' ' || *p == '+' || *p == '\'') {
+                    *p2++ = *p++;
+
+                    if(p2 - format2 >= 128) {
+                        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "invalid format string");
+                        MFREE(buf.mBuf);
+                        MFREE(format_string);
+                        return FALSE;
+                    }
+                }
+                else {
+                    break;
+                }
+            }
+
+            /// field width ///
+            while(1) {
+                if(isdigit(*p)) {
+                    *p2++ = *p++;
+
+                    if(p2 - format2 >= 128) {
+                        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "invalid format string");
+                        MFREE(buf.mBuf);
+                        MFREE(format_string);
+                        return FALSE;
+                    }
+                }
+                else {
+                    break;
+                }
+            }
+
+            /// precision ///
+            if(*p == '.') {
+                *p2++ = *p++;
+
+                if(p2 - format2 >= 128) {
+                    entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "invalid format string");
+                    MFREE(buf.mBuf);
+                    MFREE(format_string);
+                    return FALSE;
+                }
+
+                while(1) {
+                    if(isdigit(*p) || *p == '*' || *p == '$') {
+                        *p2++ = *p++;
+
+                        if(p2 - format2 >= 128) {
+                            entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "invalid format string");
+                            MFREE(buf.mBuf);
+                            MFREE(format_string);
+                            return FALSE;
+                        }
+                    }
+                    else {
+                        break;
+                    }
+                }
+            }
+
+            /// length modifiers ///
+            while(1) {
+                if((*p == 'h' && *(p+1) == 'h') || (*p == 'l' && *(p+1) == 'l')) {
+                    *p2++ = *p++;
+                    *p2++ = *p++;
+
+                    if(p2 - format2 >= 128) {
+                        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "invalid format string");
+                        MFREE(buf.mBuf);
+                        MFREE(format_string);
+                        return FALSE;
+                    }
+                }
+                else if(*p == 'h' || *p == 'l' || *p == 'L' || *p == 'j' || *p == 'z' || *p == 't') 
+                {
+                    *p2++ = *p++;
+
+                    if(p2 - format2 >= 128) {
+                        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "invalid format string");
+                        MFREE(buf.mBuf);
+                        MFREE(format_string);
+                        return FALSE;
+                    }
+                }
+                else {
+                    break;
+                }
+            }
+
+            /// convertion specifier ///
+            if(*p == 'd' || *p == 'i' || *p == 'o' || *p == 'u' || *p == 'x' || *p == 'X' || *p == 'e' || *p == 'E'|| *p == 'f' || *p == 'F' || *p == 'g' || *p == 'G' || *p == 'a' || *p == 'A' || *p == 'c' || *p == 's' || *p == 'p' || *p == 'n' || *p == 'm') 
+            {
+                *p2++ = *p++;
+
+                if(p2 - format2 >= 128) {
+                    entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "invalid format string");
+                    MFREE(buf.mBuf);
+                    MFREE(format_string);
+                    return FALSE;
+                }
+            }
+            else if(*p == '%') {
+                *p2++ = *p++;
+
+                no_conversion = TRUE;
+
+                if(p2 - format2 >= 128) {
+                    entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "invalid format string");
+                    MFREE(buf.mBuf);
+                    MFREE(format_string);
+                    return FALSE;
+                }
+            }
+            else {
+                entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "invalid format string");
+                MFREE(buf.mBuf);
+                MFREE(format_string);
+                return FALSE;
+            }
+
+            *p2++ = 0;
+
+            if(p2 - format2 >= 128) {
+                entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "invalid format string");
+                MFREE(buf.mBuf);
+                MFREE(format_string);
+                return FALSE;
+            }
+
+            if(no_conversion) {
+                sBuf_append_char(&buf, '%');
+            }
+            else if(param_num < param_max) {
+                char* str = NULL;
+
+                CLObject param = get_element_from_Array(params->mObjectValue, param_num)->mObjectValue;
+                sCLClass* klass = get_class_from_object(param);
+
+                if(is_this_class_with_class_name(klass, "Byte")) {
+                    asprintf(ALLOC &str, format2, get_value_from_Byte(param));
+                }
+                else if(is_this_class_with_class_name(klass, "UByte")) {
+                    asprintf(ALLOC &str, format2, get_value_from_UByte(param));
+                }
+                else if(is_this_class_with_class_name(klass, "Short")) {
+                    asprintf(ALLOC &str, format2, get_value_from_Short(param));
+                }
+                else if(is_this_class_with_class_name(klass, "UShort")) {
+                    asprintf(ALLOC &str, format2, get_value_from_UShort(param));
+                }
+                else if(is_this_class_with_class_name(klass, "Integer")) {
+                    asprintf(ALLOC &str, format2, get_value_from_Integer(param));
+                }
+                else if(is_this_class_with_class_name(klass, "UInteger")) {
+                    asprintf(ALLOC &str, format2, get_value_from_UInteger(param));
+                }
+                else if(is_this_class_with_class_name(klass, "Long")) {
+                    asprintf(ALLOC &str, format2, get_value_from_Long(param));
+                }
+                else if(is_this_class_with_class_name(klass, "ULong")) {
+                    asprintf(ALLOC &str, format2, get_value_from_ULong(param));
+                }
+                else if(is_this_class_with_class_name(klass, "Char")) {
+                    asprintf(ALLOC &str, format2, get_value_from_Char(param));
+                }
+                else if(is_this_class_with_class_name(klass, "Float")) {
+                    asprintf(ALLOC &str, format2, get_value_from_Float(param));
+                }
+                else if(is_this_class_with_class_name(klass, "Double")) {
+                    asprintf(ALLOC &str, format2, get_value_from_Double(param));
+                }
+                else if(is_this_class_with_class_name(klass, "Bool")) {
+                    asprintf(ALLOC &str, format2, get_value_from_Bool(param));
+                }
+                else if(is_this_class_with_class_name(klass, "Pointer")) {
+                    asprintf(ALLOC &str, format2, get_value_from_Pointer(param));
+                }
+                else if(is_this_class_with_class_name(klass, "String")) {
+                    char* str2 = ALLOC string_object_to_char_array(param);
+                    asprintf(ALLOC &str, format2, str2);
+                    MFREE(str2);
+                }
+                else {
+                    entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "invalid format string");
+                    MFREE(buf.mBuf);
+                    MFREE(format_string);
+                    return FALSE;
+                }
+
+                sBuf_append_str(&buf, str);
+
+                free(str);
+
+                param_num++;
+            }
+            else {
+                entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "invalid format string");
+                MFREE(buf.mBuf);
+                MFREE(format_string);
+                return FALSE;
+            }
+        }
+        else {
+            sBuf_append_char(&buf, *p);
+            p++;
+        }
+    }
+
+    CLObject result = create_string_object(buf.mBuf);
+
+    MFREE(format_string);
+    MFREE(buf.mBuf);
+
+    (*stack_ptr)->mObjectValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
