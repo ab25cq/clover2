@@ -47,6 +47,19 @@ BOOL System_calloc(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     return TRUE;
 }
 
+BOOL System_realloc(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* ptr = lvar;
+    CLVALUE* size = lvar + 1;
+
+    char* memory = MREALLOC(ptr->mPointerValue, size->mIntValue);
+
+    (*stack_ptr)->mPointerValue = memory;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
 BOOL System_free(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* pointer = lvar;
@@ -72,6 +85,20 @@ BOOL System_strcpy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* str2 = lvar + 1;
 
     strcpy(str1->mPointerValue, str2->mPointerValue);
+
+    (*stack_ptr)->mPointerValue = str2->mPointerValue;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_memcpy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* str1 = lvar;
+    CLVALUE* str2 = lvar + 1;
+    CLVALUE* len = lvar + 2;
+
+    memcpy(str1->mPointerValue, str2->mPointerValue, len->mIntValue);
 
     (*stack_ptr)->mPointerValue = str2->mPointerValue;
     (*stack_ptr)++;
@@ -525,3 +552,16 @@ BOOL System_sprintf(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     return TRUE;
 }
 
+BOOL System_mbstowcs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* dest = lvar;
+    CLVALUE* src = lvar+1;
+    CLVALUE* size = lvar+2;
+
+    int memory = mbstowcs((wchar_t*)dest->mPointerValue, src->mPointerValue, size->mIntValue);
+
+    (*stack_ptr)->mIntValue = memory;
+    (*stack_ptr)++;
+
+    return TRUE;
+}

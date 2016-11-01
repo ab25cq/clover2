@@ -65,6 +65,10 @@ void free_nodes()
                     MFREE(gNodes[i].uValue.mString);
                     break;
 
+                case kNodeTypeBuffer:
+                    MFREE(gNodes[i].uValue.mString);
+                    break;
+
                 case kNodeTypeBlockObject:
                     if(gNodes[i].uValue.sBlockObject.mBlockObjectCode) {
                         sNodeBlock_free(gNodes[i].uValue.sBlockObject.mBlockObjectCode);
@@ -1783,6 +1787,18 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
 
         info->type = create_node_type_with_class_name("String");
     }
+    else if(strcmp(method_name, "toAnonymous") == 0) {
+        if(num_params != 0) {
+            parser_err_msg(info->pinfo, "toAnonymous method doesn't require params");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        info->type = create_node_type_with_class_name("Anonymous");
+    }
     else if(strcmp(method_name, "to_byte") == 0) {
         if(num_params != 0) {
             parser_err_msg(info->pinfo, "cast method doesn't require params");
@@ -2353,7 +2369,7 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
-    sCLClass* klass = info->type->mClass;
+    sCLClass* klass = info->type->mClass;;
     char* field_name = gNodes[node].uValue.mVarName;
     BOOL array = info->type->mArray;
     sNodeType* generics_types = info->type;
@@ -2842,16 +2858,10 @@ BOOL compile_store_value_to_pointer(unsigned int node, sCompileInfo* info)
     }
 
     /// check node_type ///
-    if(node_type && !(node_type->mClass->mFlags & CLASS_FLAGS_PRIMITIVE)) {
-        parser_err_msg(info->pinfo, "Pointer class can't cast for none primitive class");
-        info->err_num++;
-
-        info->type = create_node_type_with_class_name("int"); // dummy
-
-        return TRUE;
+    if(node_type->mArray) {
+        append_opecode_to_code(info->code, OP_STORE_VALUE_TO_OBJECT_ADDRESS, info->no_output);
     }
-
-    if(type_identify_with_class_name(node_type, "int")) {
+    else if(type_identify_with_class_name(node_type, "int")) {
         append_opecode_to_code(info->code, OP_STORE_VALUE_TO_INT_ADDRESS, info->no_output);
     }
     else if(type_identify_with_class_name(node_type, "uint")) {
@@ -2875,13 +2885,23 @@ BOOL compile_store_value_to_pointer(unsigned int node, sCompileInfo* info)
     else if(type_identify_with_class_name(node_type, "ulong")) {
         append_opecode_to_code(info->code, OP_STORE_VALUE_TO_ULONG_ADDRESS, info->no_output);
     }
+    else if(type_identify_with_class_name(node_type, "float")) {
+        append_opecode_to_code(info->code, OP_STORE_VALUE_TO_FLOAT_ADDRESS, info->no_output);
+    }
+    else if(type_identify_with_class_name(node_type, "double")) {
+        append_opecode_to_code(info->code, OP_STORE_VALUE_TO_DOUBLE_ADDRESS, info->no_output);
+    }
+    else if(type_identify_with_class_name(node_type, "pointer")) {
+        append_opecode_to_code(info->code, OP_STORE_VALUE_TO_POINTER_ADDRESS, info->no_output);
+    }
+    else if(type_identify_with_class_name(node_type, "char")) {
+        append_opecode_to_code(info->code, OP_STORE_VALUE_TO_CHAR_ADDRESS, info->no_output);
+    }
+    else if(type_identify_with_class_name(node_type, "bool")) {
+        append_opecode_to_code(info->code, OP_STORE_VALUE_TO_BOOL_ADDRESS, info->no_output);
+    }
     else {
-        parser_err_msg(info->pinfo, "Invalid type for pointer cast");
-        info->err_num++;
-
-        info->type = create_node_type_with_class_name("int"); // dummy
-
-        return TRUE;
+        append_opecode_to_code(info->code, OP_STORE_VALUE_TO_OBJECT_ADDRESS, info->no_output);
     }
 
     info->stack_num--;
@@ -2931,16 +2951,10 @@ BOOL compile_load_value_from_pointer(unsigned int node, sCompileInfo* info)
     }
 
     /// check node_type ///
-    if(node_type && !(node_type->mClass->mFlags & CLASS_FLAGS_PRIMITIVE)) {
-        parser_err_msg(info->pinfo, "Pointer class can't cast for none primitive class");
-        info->err_num++;
-
-        info->type = create_node_type_with_class_name("int"); // dummy
-
-        return TRUE;
+    if(node_type->mArray) {
+        append_opecode_to_code(info->code, OP_LOAD_VALUE_FROM_OBJECT_ADDRESS, info->no_output);
     }
-
-    if(type_identify_with_class_name(node_type, "int")) {
+    else if(type_identify_with_class_name(node_type, "int")) {
         append_opecode_to_code(info->code, OP_LOAD_VALUE_FROM_INT_ADDRESS, info->no_output);
     }
     else if(type_identify_with_class_name(node_type, "uint")) {
@@ -2964,13 +2978,23 @@ BOOL compile_load_value_from_pointer(unsigned int node, sCompileInfo* info)
     else if(type_identify_with_class_name(node_type, "ulong")) {
         append_opecode_to_code(info->code, OP_LOAD_VALUE_FROM_ULONG_ADDRESS, info->no_output);
     }
+    else if(type_identify_with_class_name(node_type, "float")) {
+        append_opecode_to_code(info->code, OP_LOAD_VALUE_FROM_FLOAT_ADDRESS, info->no_output);
+    }
+    else if(type_identify_with_class_name(node_type, "double")) {
+        append_opecode_to_code(info->code, OP_LOAD_VALUE_FROM_DOUBLE_ADDRESS, info->no_output);
+    }
+    else if(type_identify_with_class_name(node_type, "pointer")) {
+        append_opecode_to_code(info->code, OP_LOAD_VALUE_FROM_POINTER_ADDRESS, info->no_output);
+    }
+    else if(type_identify_with_class_name(node_type, "char")) {
+        append_opecode_to_code(info->code, OP_LOAD_VALUE_FROM_CHAR_ADDRESS, info->no_output);
+    }
+    else if(type_identify_with_class_name(node_type, "bool")) {
+        append_opecode_to_code(info->code, OP_LOAD_VALUE_FROM_BOOL_ADDRESS, info->no_output);
+    }
     else {
-        parser_err_msg(info->pinfo, "Invalid type for pointer cast");
-        info->err_num++;
-
-        info->type = create_node_type_with_class_name("int"); // dummy
-
-        return TRUE;
+        append_opecode_to_code(info->code, OP_LOAD_VALUE_FROM_OBJECT_ADDRESS, info->no_output);
     }
 
     info->type = node_type;
@@ -4462,6 +4486,154 @@ BOOL compile_string_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_buffer_value(MANAGED char* value)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeBuffer;
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    gNodes[node].mType = NULL;
+
+    gNodes[node].uValue.mString = MANAGED value;
+
+    return node;
+}
+
+BOOL compile_buffer_value(unsigned int node, sCompileInfo* info)
+{
+    char* str = gNodes[node].uValue.mString;
+
+    append_opecode_to_code(info->code, OP_CREATE_BUFFER, info->no_output);
+    append_str_to_constant_pool_and_code(info->constant, info->code, str, info->no_output);
+
+    info->stack_num++;
+
+    info->type = create_node_type_with_class_name("Buffer");
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_get_address(unsigned int rnode)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeGetAddress;
+
+    gNodes[node].mLeft = rnode;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    gNodes[node].mType = NULL;
+
+    return node;
+}
+
+BOOL compile_get_address(unsigned int node, sCompileInfo* info)
+{
+    unsigned int lnode = gNodes[node].mLeft;
+
+    if(gNodes[lnode].mNodeType == kNodeTypeLoadVariable) {
+        sVar* var = get_variable_from_table(info->lv_table, gNodes[lnode].uValue.mVarName);
+
+        if(var == NULL) {
+            parser_err_msg(info->pinfo, "undeclared variable %s", gNodes[lnode].uValue.mVarName);
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+            return TRUE;
+        }
+
+        int var_index = get_variable_index(info->lv_table, gNodes[lnode].uValue.mVarName);
+
+        MASSERT(var_index != -1);
+
+        append_opecode_to_code(info->code, OP_LOAD_ADDRESS, info->no_output);
+        append_int_value_to_code(info->code, var_index, info->no_output);
+
+        info->stack_num++;
+
+        info->type = create_node_type_with_class_name("pointer");
+    }
+    else if(gNodes[lnode].mNodeType == kNodeTypeLoadField) {
+        unsigned int llnode = gNodes[lnode].mLeft;
+
+        if(!compile(llnode, info)) {
+            return FALSE;
+        }
+
+        if(info->type == NULL 
+            || type_identify_with_class_name(info->type, "Null"))
+        {
+            parser_err_msg(info->pinfo, "no type for loading field address");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        sCLClass* klass = info->type->mClass;
+        char* field_name = gNodes[lnode].uValue.mVarName;
+
+        int field_index = search_for_field(klass, field_name);
+
+        if(field_index == -1) {
+            parser_err_msg(info->pinfo, "There is no field(%s) in this class(%s)", field_name, CLASS_NAME(klass));
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        /// generate code ///
+        append_opecode_to_code(info->code, OP_LOAD_FIELD_ADDRESS, info->no_output);
+        append_int_value_to_code(info->code, field_index, info->no_output);
+
+        info->stack_num--;
+        info->stack_num++;
+
+        info->type = create_node_type_with_class_name("pointer");
+    }
+    else if(gNodes[lnode].mNodeType == kNodeTypeLoadClassField) {
+        sCLClass* klass = gNodes[lnode].uValue.sClassField.mClass;
+        char* field_name = gNodes[lnode].uValue.sClassField.mVarName;
+
+        int field_index = search_for_class_field(klass, field_name);
+
+        if(field_index == -1) {
+            parser_err_msg(info->pinfo, "There is no field(%s) in this class(%s)", field_name, CLASS_NAME(klass));
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        sCLField* field = klass->mClassFields + field_index;
+
+        append_opecode_to_code(info->code, OP_LOAD_CLASS_FIELD_ADDRESS, info->no_output);
+        append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(klass), info->no_output);
+        append_int_value_to_code(info->code, field_index, info->no_output);
+
+        info->stack_num++;
+
+        info->type = create_node_type_with_class_name("pointer");
+    }
+    else {
+        parser_err_msg(info->pinfo, "Require variable name for getting address");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+    }
+
+    return TRUE;
+}
+
 unsigned int sNodeTree_create_array_value(int num_elements, unsigned int array_elements[])
 {
     unsigned int node = alloc_node();
@@ -4571,7 +4743,7 @@ static BOOL compile_carray_value(unsigned int node, sCompileInfo* info)
 
     sNodeType* element_type = info->type;
 
-    BOOL generics_type_is_iequalable = FALSE;
+    BOOL generics_type_is_object = FALSE;
 
     int i;
     for(i=1; i<num_elements; i++) {
@@ -4584,7 +4756,7 @@ static BOOL compile_carray_value(unsigned int node, sCompileInfo* info)
         boxing_to_lapper_class(&info->type, info);
 
         if(!type_identify(element_type, info->type)) {
-            generics_type_is_iequalable = TRUE;
+            generics_type_is_object = TRUE;
         }
     }
 
@@ -4597,8 +4769,8 @@ static BOOL compile_carray_value(unsigned int node, sCompileInfo* info)
 
     info->type = create_node_type_with_class_name("Array");
     info->type->mNumGenericsTypes = 1;
-    if(generics_type_is_iequalable) {
-        info->type->mGenericsTypes[0] = create_node_type_with_class_name("IEqualable");
+    if(generics_type_is_object) {
+        info->type->mGenericsTypes[0] = create_node_type_with_class_name("Object");
     }
     else {
         info->type->mGenericsTypes[0] = element_type;
@@ -5162,6 +5334,67 @@ static BOOL compile_regex(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_implements(unsigned int lnode, char* interface_name)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeImplements;
+
+    gNodes[node].mLeft = lnode;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    gNodes[node].mType = NULL;
+
+    xstrncpy(gNodes[node].uValue.mVarName, interface_name, VAR_NAME_MAX);
+
+    return node;
+}
+
+static BOOL compile_implements(unsigned int node, sCompileInfo* info)
+{
+    char* interface_name = gNodes[node].uValue.mVarName;
+
+    /// compile left node ///
+    unsigned int lnode = gNodes[node].mLeft;
+
+    if(!compile(lnode, info)) {
+        return FALSE;
+    }
+
+    if(info->type == NULL 
+        || type_identify_with_class_name(info->type, "Null"))
+    {
+        parser_err_msg(info->pinfo, "no type for implements");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    sCLClass* klass = info->type->mClass;
+
+    if(klass->mFlags & CLASS_FLAGS_PRIMITIVE) {
+        parser_err_msg(info->pinfo, "Primitive value doesn't have class info");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    info->stack_num--;
+
+    append_opecode_to_code(info->code, OP_IMPLMENTS, info->no_output);
+    append_str_to_constant_pool_and_code(info->constant, info->code, interface_name, info->no_output);
+
+    info->type = create_node_type_with_class_name("bool");
+    info->stack_num++;
+
+    return TRUE;
+}
+
 void show_node(unsigned int node)
 {
     if(node == 0) {
@@ -5340,6 +5573,14 @@ void show_node(unsigned int node)
             puts("string");
             break;
 
+        case kNodeTypeBuffer:
+            puts("buffer");
+            break;
+
+        case kNodeTypeGetAddress:
+            puts("get address");
+            break;
+
         case kNodeTypeArrayValue:
             puts("array value");
             break;
@@ -5382,6 +5623,10 @@ void show_node(unsigned int node)
 
         case kNodeTypeRegex:
             puts("regex");
+            break;
+
+        case kNodeTypeImplements:
+            puts("implements");
             break;
     }
 }
@@ -5645,6 +5890,18 @@ BOOL compile(unsigned int node, sCompileInfo* info)
             }
             break;
 
+        case kNodeTypeBuffer:
+            if(!compile_buffer_value(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeGetAddress:
+            if(!compile_get_address(node, info)) {
+                return FALSE;
+            }
+            break;
+
         case kNodeTypeArrayValue:
             if(!compile_array_value(node, info)) {
                 return FALSE;
@@ -5701,6 +5958,12 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeRegex:
             if(!compile_regex(node,info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeImplements:
+            if(!compile_implements(node,info)) {
                 return FALSE;
             }
             break;

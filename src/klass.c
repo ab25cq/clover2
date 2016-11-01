@@ -863,10 +863,11 @@ static void load_fundamental_classes_on_compile_time()
     load_class("Global");
 
     load_class("String");
+    load_class("Buffer");
 
     load_class("Exception");
 
-    load_class("IObject");
+    load_class("Object");
 
     load_class("Byte");
     load_class("UByte");
@@ -885,6 +886,7 @@ static void load_fundamental_classes_on_compile_time()
     load_class("Bool");
 
     load_class("Array");
+    load_class("EqualableArray");
 
     load_class("IHashKey");
     load_class("IEqualable");
@@ -932,6 +934,7 @@ void class_init()
     alloc_class("char", TRUE, -1, 0, NULL, FALSE);
     alloc_class("bool", TRUE, -1, 0, NULL, FALSE);
     alloc_class("Null", TRUE, -1, 0, NULL, FALSE);
+    alloc_class("Anonymous", TRUE, -1, 0, NULL, FALSE);
     alloc_class("lambda", TRUE, -1, 0, NULL, FALSE);
     alloc_class("regex", TRUE, -1, 0, NULL, FALSE);
 
@@ -982,4 +985,18 @@ void class_final()
 
     gHeadClassTable = NULL;
     memset(gClassTable, 0, sizeof(sClassTable)*CLASS_NUM_MAX);
+}
+
+BOOL is_valid_class(sCLClass* klass)
+{
+    sClassTable* p = gHeadClassTable;
+
+    while(p) {
+        if(klass == p->mItem) {
+            return TRUE;
+        }
+        p = p->mNextClass;
+    }
+
+    return FALSE;
 }

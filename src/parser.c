@@ -1650,6 +1650,67 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
         *node = sNodeTree_create_string_value(MANAGED value.mBuf);
     }
+    else if((*info->p == 'B' || *info->p == 'b') && *(info->p+1) == '"') {
+        info->p+=2;
+
+        sBuf value;
+        sBuf_init(&value);
+
+        while(1) {
+            if(*info->p == '"') {
+                info->p++;
+                break;
+            }
+            else if(*info->p == '\\') {
+                info->p++;
+                switch(*info->p) {
+                    case 'n':
+                        sBuf_append_char(&value, '\n');
+                        info->p++;
+                        break;
+
+                    case 't':
+                        sBuf_append_char(&value, '\t');
+                        info->p++;
+                        break;
+
+                    case 'r':
+                        sBuf_append_char(&value, '\r');
+                        info->p++;
+                        break;
+
+                    case 'a':
+                        sBuf_append_char(&value, '\a');
+                        info->p++;
+                        break;
+
+                    case '\\':
+                        sBuf_append_char(&value, '\\');
+                        info->p++;
+                        break;
+
+                    default:
+                        sBuf_append_char(&value, *info->p);
+                        info->p++;
+                        break;
+                }
+            }
+            else if(*info->p == '\0') {
+                parser_err_msg(info, "close \" to make string buffer value");
+                return FALSE;
+            }
+            else {
+                if(*info->p == '\n') info->sline++;
+
+                sBuf_append_char(&value, *info->p);
+                info->p++;
+            }
+        }
+
+        skip_spaces_and_lf(info);
+
+        *node = sNodeTree_create_buffer_value(MANAGED value.mBuf);
+    }
     else if(*info->p == '\'') {
         info->p++;
 
@@ -2125,6 +2186,17 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             info->err_num++;
         }
     }
+    else if(*info->p == '&') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        if(!expression(node, info)) {
+            return FALSE;
+        }
+        skip_spaces_and_lf(info);
+
+        *node = sNodeTree_create_get_address(*node);
+    }
     else if(*info->p == 0) {
         *node = 0;
         return TRUE;
@@ -2240,10 +2312,41 @@ static BOOL expression_monadic_operator(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
+static BOOL expression_implements(unsigned int* node, sParserInfo* info)
+{
+    if(!expression_monadic_operator(node, info)) {
+        return FALSE;
+    }
+    if(*node == 0) {
+        return TRUE;
+    }
+
+    while(*info->p) {
+        if(memcmp(info->p, "implements", 10) == 0) {
+            info->p+=10;
+            skip_spaces_and_lf(info);
+
+            char buf[VAR_NAME_MAX+1];
+
+            /// name ///
+            if(!parse_word(buf, VAR_NAME_MAX, info, TRUE)) {
+                return FALSE;
+            }
+
+            *node = sNodeTree_create_implements(*node, buf);
+        }
+        else {
+            break;
+        }
+    }
+
+    return TRUE;
+}
+
 // from left to right order
 static BOOL expression_mult_div(unsigned int* node, sParserInfo* info)
 {
-    if(!expression_monadic_operator(node, info)) {
+    if(!expression_implements(node, info)) {
         return FALSE;
     }
     if(*node == 0) {
@@ -2256,7 +2359,7 @@ static BOOL expression_mult_div(unsigned int* node, sParserInfo* info)
             skip_spaces_and_lf(info);
 
             unsigned int right = 0;
-            if(!expression_monadic_operator(&right, info)) {
+            if(!expression_implements(&right, info)) {
                 return FALSE;
             }
 
@@ -2272,7 +2375,7 @@ static BOOL expression_mult_div(unsigned int* node, sParserInfo* info)
             skip_spaces_and_lf(info);
 
             unsigned int right = 0;
-            if(!expression_monadic_operator(&right, info)) {
+            if(!expression_implements(&right, info)) {
                 return FALSE;
             }
 
@@ -2288,7 +2391,7 @@ static BOOL expression_mult_div(unsigned int* node, sParserInfo* info)
             skip_spaces_and_lf(info);
 
             unsigned int right = 0;
-            if(!expression_monadic_operator(&right, info)) {
+            if(!expression_implements(&right, info)) {
                 return FALSE;
             }
 

@@ -1,0 +1,27 @@
+class PointerClassB
+{
+    var:int;
+
+    def initialize(var:int) {
+        self.var = var;
+    }
+}
+
+class PointerClassA
+{
+    classVar: static int;
+    var:int;
+
+    def initialize(): static {
+        PointerClassA.classVar = 123;
+    }
+
+    def initialize() {
+        self.var = 123;
+    }
+
+    def input_var(object:pointer):static {
+        object->PointerClassB = new PointerClassB(234);
+    }
+}
+

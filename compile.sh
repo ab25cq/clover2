@@ -1,1 +1,1 @@
-export LD_LIBRARY_PATH=.; ./cclover2 a.cl
+export LD_LIBRARY_PATH=.; ./clover2 code/equalable_array.clo

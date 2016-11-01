@@ -43,3 +43,23 @@ CLObject create_string_object(char* str)
 
     return obj;
 }
+
+CLObject create_buffer_object(char* str)
+{
+    /// create object ///
+    sCLClass* buffer_class = get_class("Buffer");
+    MASSERT(buffer_class != NULL);
+
+    CLObject obj = create_object(buffer_class);
+
+    sCLObject* object_data = CLOBJECT(obj);
+
+    int len = strlen(str);
+
+    object_data->mFields[0].mPointerValue = MSTRDUP(str);       // buffer
+    object_data->mFields[1].mIntValue = len;                   // len
+    object_data->mFields[2].mIntValue = len+1;                 // size
+
+    return obj;
+}
+

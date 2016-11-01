@@ -21,10 +21,3 @@ c:pointer = a + 8;
 System.assert(c->int == 345);
 
 System.free(a);
-
-/*
-(a.addres + 4)->int = 234;
-System.assert(a.address->int == 123);
-System.assert((a.address + 4)-> int == 234);
-*/
-

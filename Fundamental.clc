@@ -22,18 +22,20 @@ class System
 
     def malloc(size:int): native static pointer;
     def calloc(number: int, size: int): native static pointer;
+    def realloc(ptr:pointer, size: int): native static pointer;
     def free(ptr:pointer): native static;
     def strlen(ptr:pointer): native static int;
     def strcpy(str1:pointer, str2:pointer): native static pointer;
     def strncpy(str1:pointer, str2:pointer, size:int): native static pointer;
     def strdup(str:pointer): native static pointer;
+    def memcpy(str1:pointer, str2:pointer, size:int): native static pointer;
 
-    def sprintf(format:String, prams:Array<IEqualable>): native static String throws Exception;
+    def sprintf(format:String, prams:Array<Object>): native static String throws Exception;
 
     def pcre_exec(regex:regex, str:String, ovec_max:int, ovec:PcreOVec): native static int;
 
 #    def wcstombs(dest:pointer, src:pointer, size:int): native int;
-#    def mbstowcs(dest:pointer, src:pointer, size:int):native int;
+#     def mbstowcs(dest:char[], src:pointer): static native int;
 }
 
 class Clover
@@ -50,12 +52,80 @@ class Global
     def print(str:String):static {
         System.print(str);
     }
+    def printToError(str:String):static {
+        System.printToError(str);
+    }
     def println(str:String):static {
         System.println(str);
     }
-    def printf(str:String, params:Array<IEqualable>): static {
+    def printlnToError(str:String):static {
+        System.printlnToError(str);
+    }
+    def printf(str:String, params:Array<Object>): static {
         str2: String = System.sprintf(str, params);
         System.print(str2);
+    }
+    def printfToError(str:String, params:Array<Object>): static {
+        str2: String = System.sprintf(str, params);
+        System.printToError(str2);
+    }
+}
+
+class Buffer
+{
+    buffer:pointer;
+    len:int;
+    size:int;
+
+    def initialize() {
+        self.size = 64;
+        self.buffer = System.malloc(self.size);
+        self.len = 0;
+    }
+    def initialize(str:pointer) {
+        len:int = System.strlen(str);
+
+        self.size = len + 1;
+        self.buffer = System.strdup(str);
+        self.len = len;
+    }
+    def finalize() {
+        System.free(self.buffer);
+    }
+    def append(str:Buffer) {
+        len: int = str.len;
+
+        if(self.len + len +1 >= self.size) {
+            new_size:int = (self.size+len) * 2 + 1;
+            self.buffer = System.realloc(self.buffer, new_size);
+            self.size = new_size;
+        }
+
+        System.memcpy(self.buffer + self.len, str.buffer, len);
+        self.len += len;
+        (self.buffer + self.len)->byte = 0.to_byte;
+    }
+
+    def chars(index:int):byte {
+        return((self.buffer + index)->byte);
+    }
+
+    def equals(str:Buffer):bool {
+        if(self.len != str.len) {
+            return false;
+        }
+
+        for(i:int = 0; i<self.len; i++) {
+            if(self.chars(i) != str.chars(i)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    def toString():String throws Exception {
+        #System.mbstowcs
     }
 }
 
@@ -150,6 +220,17 @@ class String
 
         return result;
     }
+
+    def sub(regex:regex): String {
+        result:Buffer = new Buffer();
+
+        ovec:PcreOVec = new PcreOVec(32);
+
+        while(true) {
+        }
+
+        return result.toString();
+    }
 }
 
 class Exception
@@ -161,7 +242,7 @@ class Exception
     }
 }
 
-interface IObject 
+interface Object 
 {
 }
 
@@ -715,7 +796,47 @@ class Bool
     }
 }
 
-class Array<T:IEqualable>
+interface IEqualable
+{
+    def equals(key:SELF): bool;
+}
+
+class Array<T:Object>
+{
+    items:T[];
+
+    def initialize(items:T[]) {
+        self.items = items;
+    }
+
+    def length():int {
+        return self.items.length;
+    }
+
+    def items(index:int):T throws Exception {
+        return self.items[index];
+    }
+
+    def each(block_:lambda(T)) {
+        for(i:int = 0; i<self.items.length; i++) {
+            block_(self.items[i]);
+        }
+    }
+
+    def toEqualableArray():EqualableArray<IEqualable> throws Exception {
+        result:EqualableArray<IEqualable>  = new EqualableArray<IEqualable>(self.items.toAnonymous());
+
+        for(i:int = 0; i<result.items.length; i++) {
+            if(!(result.items[i] implements IEqualable)) {
+                throw new Exception("An elements doesn't implement IEqualable");
+            }
+        }
+
+        return result;
+    }
+}
+
+class EqualableArray <T:IEqualable>
 {
     items:T[];
 
@@ -754,16 +875,29 @@ class Array<T:IEqualable>
 
         return true;
     }
+
+    def equals(right:EqualableArray<T>):bool {
+        if(self.items.length != right.items.length) {
+            return false;
+        }
+
+        for(i:= 0; i<self.items.length; i++) {
+            if(!self.items[i].equals(right.items[i])) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    def toArray():Array<T> {
+        return new Array<T>(self.items.toAnonymous());
+    }
 }
 
 interface IHashKey
 {
     def getHashKey(): uint;
-    def equals(key:SELF): bool;
-}
-
-interface IEqualable
-{
     def equals(key:SELF): bool;
 }
 
@@ -941,7 +1075,7 @@ class Hash <T:IHashKey, T2:IEqualable>
     }
 }
 
-class ListItem <T:IObject>
+class ListItem <T:Object>
 {
     item: T;
     next: ListItem<T>;

@@ -67,7 +67,7 @@ sCLHeapMem* get_object_pointer(CLObject obj)
     return result;
 }
 
-static BOOL is_valid_object(CLObject obj)
+BOOL is_valid_object(CLObject obj)
 {
     BOOL result;
 

@@ -248,10 +248,6 @@ static void show_inst(unsigned inst)
             puts("OP_LOAD_FIELD");
             break;
 
-        case OP_LOAD_FIELD_ADDRESS:
-            puts("OP_LOAD_FIELD_ADDRESS");
-            break;
-
         case OP_STORE_FIELD:
             puts("OP_STORE_FIELD");
             break;
@@ -862,20 +858,6 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     pc += sizeof(int);
 
                     *stack_ptr = lvar[index];
-                    stack_ptr++;
-
-                    vm_mutex_off();
-                }
-                break;
-
-            case OP_LOAD_ADDRESS:
-                {
-                    vm_mutex_on();
-
-                    int index = *(int*)pc;
-                    pc += sizeof(int);
-
-                    stack_ptr->mPointerValue = (char*)&lvar[index];
                     stack_ptr++;
 
                     vm_mutex_off();
@@ -4390,41 +4372,6 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 }
                 break;
 
-            case OP_LOAD_FIELD_ADDRESS:
-                {
-                    vm_mutex_on();
-
-                    int field_index = *(int*)pc;
-                    pc += sizeof(int);
-
-                    CLObject obj = (stack_ptr -1)->mObjectValue;
-                    stack_ptr--;
-
-                    sCLObject* object_pointer = CLOBJECT(obj);
-                    sCLClass* klass = object_pointer->mClass;
-
-                    if(klass == NULL) {
-                        vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found");
-                        remove_stack_to_stack_list(stack);
-                        return FALSE;
-                    }
-
-                    if(field_index < 0 || field_index >= klass->mNumFields) {
-                        vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "field index is invalid");
-                        remove_stack_to_stack_list(stack);
-                        return FALSE;
-                    }
-
-                    char* value = (char*)&object_pointer->mFields[field_index];
-                    stack_ptr->mPointerValue = value;
-                    stack_ptr++;
-
-                    vm_mutex_off();
-                }
-                break;
-
             case OP_STORE_FIELD:
                 {
                     vm_mutex_on();
@@ -4492,44 +4439,6 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     sCLField* field = klass->mClassFields + field_index;
 
                     *stack_ptr = field->mValue;
-                    stack_ptr++;
-
-                    vm_mutex_off();
-                }
-                break;
-
-            case OP_LOAD_CLASS_FIELD_ADDRESS:
-                {
-                    vm_mutex_on();
-
-                    int offset = *(int*)pc;
-                    pc += sizeof(int);
-
-                    int field_index = *(int*)pc;
-                    pc += sizeof(int);
-
-                    char* class_name = CONS_str(constant, offset);
-
-                    sCLClass* klass = get_class_with_load_and_initialize(class_name);
-
-                    if(klass == NULL) {
-                        vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found");
-                        remove_stack_to_stack_list(stack);
-                        return FALSE;
-                    }
-
-                    if(field_index < 0 || field_index >= klass->mNumClassFields) {
-                        vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "field index is invalid");
-                        remove_stack_to_stack_list(stack);
-                        return FALSE;
-                    }
-
-                    sCLField* field = klass->mClassFields + field_index;
-                    char* value = (char*)&field->mValue;
-
-                    stack_ptr->mPointerValue = value;
                     stack_ptr++;
 
                     vm_mutex_off();
@@ -4634,6 +4543,10 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     CLVALUE* pointer = (CLVALUE*)address.mPointerValue;
 
                     pointer->mIntValue = value.mIntValue;
+
+printf("OP_STORE_VALUE_TO_INT_ADDRESS %p\n", address.mPointerValue);
+printf("value.mIntValue %d\n", value.mIntValue);
+printf("pointer->mIntValue %d\n", pointer->mIntValue);
 
                     stack_ptr-=2;
 
@@ -4770,114 +4683,6 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 }
                 break;
 
-            case OP_STORE_VALUE_TO_FLOAT_ADDRESS: 
-                {
-                    vm_mutex_on();
-
-                    CLVALUE address = *(stack_ptr-2);
-                    CLVALUE value = *(stack_ptr-1);
-
-                    *(float*)address.mPointerValue = value.mFloatValue;
-
-                    stack_ptr-=2;
-
-                    *stack_ptr = value;
-                    stack_ptr++;
-
-                    vm_mutex_off();
-                }
-                break;
-
-            case OP_STORE_VALUE_TO_DOUBLE_ADDRESS:
-                {
-                    vm_mutex_on();
-
-                    CLVALUE address = *(stack_ptr-2);
-                    CLVALUE value = *(stack_ptr-1);
-
-                    *(double*)address.mPointerValue = value.mDoubleValue;
-
-                    stack_ptr-=2;
-
-                    *stack_ptr = value;
-                    stack_ptr++;
-
-                    vm_mutex_off();
-                }
-                break;
-
-            case OP_STORE_VALUE_TO_POINTER_ADDRESS:
-                {
-                    vm_mutex_on();
-
-                    CLVALUE address = *(stack_ptr-2);
-                    CLVALUE value = *(stack_ptr-1);
-
-                    *(char**)address.mPointerValue = value.mPointerValue;
-
-                    stack_ptr-=2;
-
-                    *stack_ptr = value;
-                    stack_ptr++;
-
-                    vm_mutex_off();
-                }
-                break;
-
-            case OP_STORE_VALUE_TO_CHAR_ADDRESS:
-                {
-                    vm_mutex_on();
-
-                    CLVALUE address = *(stack_ptr-2);
-                    CLVALUE value = *(stack_ptr-1);
-
-                    *(wchar_t*)address.mPointerValue = value.mCharValue;
-
-                    stack_ptr-=2;
-
-                    *stack_ptr = value;
-                    stack_ptr++;
-
-                    vm_mutex_off();
-                }
-                break;
-
-            case OP_STORE_VALUE_TO_BOOL_ADDRESS:
-                {
-                    vm_mutex_on();
-
-                    CLVALUE address = *(stack_ptr-2);
-                    CLVALUE value = *(stack_ptr-1);
-
-                    *(BOOL*)address.mPointerValue = value.mBoolValue;
-
-                    stack_ptr-=2;
-
-                    *stack_ptr = value;
-                    stack_ptr++;
-
-                    vm_mutex_off();
-                }
-                break;
-
-            case OP_STORE_VALUE_TO_OBJECT_ADDRESS:
-                {
-                    vm_mutex_on();
-
-                    CLVALUE address = *(stack_ptr-2);
-                    CLVALUE value = *(stack_ptr-1);
-
-                    *(CLObject*)address.mPointerValue = value.mObjectValue;
-
-                    stack_ptr-=2;
-
-                    *stack_ptr = value;
-                    stack_ptr++;
-
-                    vm_mutex_off();
-                }
-                break;
-
             case OP_LOAD_VALUE_FROM_INT_ADDRESS:
                 {
                     vm_mutex_on();
@@ -5000,102 +4805,6 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     unsigned long value = *(unsigned long*)address.mPointerValue;
 
                     stack_ptr->mULongValue = value;
-                    stack_ptr++;
-
-                    vm_mutex_off();
-                }
-                break;
-
-            case OP_LOAD_VALUE_FROM_FLOAT_ADDRESS:
-                {
-                    vm_mutex_on();
-
-                    CLVALUE address = *(stack_ptr-1);
-                    stack_ptr--;
-
-                    float value = *(float*)address.mPointerValue;
-
-                    stack_ptr->mFloatValue = value;
-                    stack_ptr++;
-
-                    vm_mutex_off();
-                }
-                break;
-
-            case OP_LOAD_VALUE_FROM_DOUBLE_ADDRESS:
-                {
-                    vm_mutex_on();
-
-                    CLVALUE address = *(stack_ptr-1);
-                    stack_ptr--;
-
-                    double value = *(double*)address.mPointerValue;
-
-                    stack_ptr->mDoubleValue = value;
-                    stack_ptr++;
-
-                    vm_mutex_off();
-                }
-                break;
-
-            case OP_LOAD_VALUE_FROM_POINTER_ADDRESS:
-                {
-                    vm_mutex_on();
-
-                    CLVALUE address = *(stack_ptr-1);
-                    stack_ptr--;
-
-                    char* value = *(char**)address.mPointerValue;
-
-                    stack_ptr->mPointerValue = value;
-                    stack_ptr++;
-
-                    vm_mutex_off();
-                }
-                break;
-
-            case OP_LOAD_VALUE_FROM_CHAR_ADDRESS:
-                {
-                    vm_mutex_on();
-
-                    CLVALUE address = *(stack_ptr-1);
-                    stack_ptr--;
-
-                    wchar_t value = *(wchar_t*)address.mPointerValue;
-
-                    stack_ptr->mCharValue = value;
-                    stack_ptr++;
-
-                    vm_mutex_off();
-                }
-                break;
-
-            case OP_LOAD_VALUE_FROM_BOOL_ADDRESS:
-                {
-                    vm_mutex_on();
-
-                    CLVALUE address = *(stack_ptr-1);
-                    stack_ptr--;
-
-                    BOOL value = *(BOOL*)address.mPointerValue;
-
-                    stack_ptr->mBoolValue = value;
-                    stack_ptr++;
-
-                    vm_mutex_off();
-                }
-                break;
-
-            case OP_LOAD_VALUE_FROM_OBJECT_ADDRESS:
-                {
-                    vm_mutex_on();
-
-                    CLVALUE address = *(stack_ptr-1);
-                    stack_ptr--;
-
-                    CLObject value = *(CLObject*)address.mPointerValue;
-
-                    stack_ptr->mObjectValue = value;
                     stack_ptr++;
 
                     vm_mutex_off();
@@ -8463,7 +8172,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    char* value = (char*)(stack_ptr-1)->mByteValue;
+                    char* value = (char*)&(stack_ptr-1)->mByteValue;
 
                     (stack_ptr-1)->mPointerValue = value;
 
@@ -8475,7 +8184,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    char* value = (char*)(stack_ptr-1)->mUByteValue;
+                    char* value = (char*)&(stack_ptr-1)->mUByteValue;
 
                     (stack_ptr-1)->mPointerValue = value;
 
@@ -8487,7 +8196,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    char* value = (char*)(stack_ptr-1)->mShortValue;
+                    char* value = (char*)&(stack_ptr-1)->mShortValue;
 
                     (stack_ptr-1)->mPointerValue = value;
 
@@ -8499,7 +8208,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    char* value = (char*)(stack_ptr-1)->mUShortValue;
+                    char* value = (char*)&(stack_ptr-1)->mUShortValue;
 
                     (stack_ptr-1)->mPointerValue = value;
 
@@ -8511,7 +8220,10 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    char* value = (char*)(stack_ptr-1)->mIntValue;
+                    char* value = (char*)stack_ptr-1;
+
+printf("OP_INT_TO_POINTER_CAST %p\n", value);
+printf("int %d\n", (stack_ptr-1)->mIntValue);
 
                     (stack_ptr-1)->mPointerValue = value;
 
@@ -8523,7 +8235,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    char* value = (char*)(stack_ptr-1)->mUIntValue;
+                    char* value = (char*)&(stack_ptr-1)->mUIntValue;
 
                     (stack_ptr-1)->mPointerValue = value;
 
@@ -8535,7 +8247,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    char* value = (char*)(stack_ptr-1)->mLongValue;
+                    char* value = (char*)&(stack_ptr-1)->mLongValue;
 
                     (stack_ptr-1)->mPointerValue = value;
 
@@ -8547,7 +8259,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    char* value = (char*)(stack_ptr-1)->mULongValue;
+                    char* value = (char*)&(stack_ptr-1)->mULongValue;
 
                     (stack_ptr-1)->mPointerValue = value;
 
@@ -8559,7 +8271,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    char* value = (char*)(stack_ptr-1)->mCharValue;
+                    char* value = (char*)&(stack_ptr-1)->mCharValue;
 
                     (stack_ptr-1)->mPointerValue = value;
 
