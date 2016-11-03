@@ -120,13 +120,23 @@ static BOOL parse_class_name_and_attributes(char* class_name, int class_name_siz
     }
 
     if(strcmp(buf, "version") == 0) {
-        *class_version = 0;
-        while(isdigit(*info->p)) {
+        if(isdigit(*info->p)) {
+            *class_version = *info->p - '0';
             info->p++;
-            *class_version = *class_version * 10 + *info->p - '0';
+
+            while(isdigit(*info->p)) {
+                *class_version = *class_version * 10 + *info->p - '0';
+                info->p++;
+            }
+            skip_spaces_and_lf(info);
+        }
+        else {
+            parser_err_msg(info, "require digit");
+            info->err_num++;
         }
     }
     else {
+        *class_version = 1;
         info->p = p_saved;
         info->sline = sline_saved;
     }
@@ -142,16 +152,6 @@ static BOOL parse_class_name_and_attributes(char* class_name, int class_name_siz
             if(!parse_word(buf, VAR_NAME_MAX, info, TRUE)) {
                 return FALSE;
             }
-
-/*
-            if(strcmp(buf, "final") == 0) {
-                *final_ = TRUE;
-            }
-            else {
-                parser_err_msg(info, "%s is not class attribute", buf);
-                info->err_num++;
-            }
-*/
 
             if(*info->p == '\0') {
                 parser_err_msg(info, "It is the source end. Close class definition");
@@ -181,6 +181,7 @@ static BOOL parse_class_on_alloc_classes_phase(sParserInfo* info, sCompileInfo* 
         info->klass = load_class_with_version(class_name, class_version-1);
         info->klass->mFlags |= CLASS_FLAGS_MODIFIED;
         info->klass->mNumMethodsOnLoadTime = info->klass->mNumMethods;
+        info->klass->mVersion = class_version;
     }
     else {
         info->klass = alloc_class(class_name, FALSE, -1, info->generics_info.mNumParams, info->generics_info.mInterface, interface);

@@ -168,20 +168,6 @@ static BOOL search_for_class_file_with_version(char* class_name, char* class_fil
         }
     }
 
-/*
-    /// default search path ///
-    if(class_version == 1) {
-        snprintf(class_file_name, class_file_name_size, "%s/%s.clo", DATAROOTDIR, class_name);
-    }
-    else {
-        snprintf(class_file_name, class_file_name_size, "%s/%s@%d.clo", DATAROOTDIR, class_name, class_version);
-    }
-
-    if(access(class_file_name, F_OK) == 0) {
-        return TRUE;
-    }
-*/
-
     return FALSE;
 }
 
@@ -206,7 +192,7 @@ static BOOL read_from_file(int fd, void* buf, size_t size)
     if(size2 < size) {
         return FALSE;
     }
-
+;
     return TRUE;
 }
 
@@ -669,8 +655,8 @@ sCLClass* load_class_with_version(char* class_name, int class_version)
         remove_class(class_name);
     }
 
-    char class_file_name[CLASS_NAME_MAX+1];
-    if(!search_for_class_file_with_version(class_name, class_file_name, CLASS_NAME_MAX, class_version))
+    char class_file_name[PATH_MAX+1];
+    if(!search_for_class_file_with_version(class_name, class_file_name, PATH_MAX, class_version))
     {
         return NULL;
     }

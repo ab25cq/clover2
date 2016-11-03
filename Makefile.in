@@ -74,12 +74,15 @@ $(OBJ): src/*.h Makefile configure
 #########################################################
 install:
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -class Fundamental.clc
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -class ExtendedString.clc
 	mkdir -p ~/.clover2
 	$(INSTALL) -m 644 PcreOVec.clcl ~/.clover2
 	$(INSTALL) -m 644 System.clcl ~/.clover2
+	$(INSTALL) -m 644 System@2.clcl ~/.clover2
 	$(INSTALL) -m 644 Clover.clcl ~/.clover2
 	$(INSTALL) -m 644 Global.clcl ~/.clover2
 	$(INSTALL) -m 644 String.clcl ~/.clover2
+	$(INSTALL) -m 644 String@2.clcl ~/.clover2
 	$(INSTALL) -m 644 Buffer.clcl ~/.clover2
 	$(INSTALL) -m 644 Exception.clcl ~/.clover2
 	$(INSTALL) -m 644 Object.clcl ~/.clover2

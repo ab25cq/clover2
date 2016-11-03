@@ -1,0 +1,33 @@
+
+class PcreOVec
+{
+    start:int[];
+    end:int[];
+
+    def initialize(max:int) {
+        self.start = new int[max]();
+        self.end = new int[max]();
+    }
+}
+
+class System version 2
+{
+    def pcre_exec(regex:regex, str:String, ovec_max:int, ovec:PcreOVec): native static int;
+
+#    def wcstombs(dest:pointer, src:pointer, size:int): native int;
+#     def mbstowcs(dest:char[], src:pointer): static native int;
+}
+
+class String version 2
+{
+    def sub(regex:regex): String {
+        result:Buffer = new Buffer();
+
+        ovec:PcreOVec = new PcreOVec(32);
+
+        while(true) {
+        }
+
+        return result.toString();
+    }
+}

@@ -1,15 +1,4 @@
 
-class PcreOVec
-{
-    start:int[];
-    end:int[];
-
-    def initialize(max:int) {
-        self.start = new int[max]();
-        self.end = new int[max]();
-    }
-}
-
 class System
 {
     def exit(num:int): native static;
@@ -31,11 +20,6 @@ class System
     def memcpy(str1:pointer, str2:pointer, size:int): native static pointer;
 
     def sprintf(format:String, prams:Array<Object>): native static String throws Exception;
-
-    def pcre_exec(regex:regex, str:String, ovec_max:int, ovec:PcreOVec): native static int;
-
-#    def wcstombs(dest:pointer, src:pointer, size:int): native int;
-#     def mbstowcs(dest:char[], src:pointer): static native int;
 }
 
 class Clover
@@ -219,17 +203,6 @@ class String
         result.buffer[i] = '\0';
 
         return result;
-    }
-
-    def sub(regex:regex): String {
-        result:Buffer = new Buffer();
-
-        ovec:PcreOVec = new PcreOVec(32);
-
-        while(true) {
-        }
-
-        return result.toString();
     }
 }
 

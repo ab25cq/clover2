@@ -11,9 +11,9 @@ void sByteCode_init(sByteCode* code)
 
 void sByteCode_init_with_size(sByteCode* code, int size)
 {
-    code->mCodes = MCALLOC(1, sizeof(char)*size);
+    code->mSize = size * 2;
+    code->mCodes = MCALLOC(1, sizeof(char)*code->mSize);
     code->mLen = 0;
-    code->mSize = size;
 }
 
 void sByteCode_free(sByteCode* code)

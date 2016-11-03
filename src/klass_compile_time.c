@@ -438,7 +438,7 @@ static void append_byte_codes_to_buffer(sBuf* buf, sByteCode* code)
     sBuf_append(buf, code->mCodes, code->mLen);
 }
 
-static void append_methods_to_buffer(sBuf* buf, sCLMethod* methods, int num_methods)
+static void append_methods_to_buffer(sBuf* buf, sCLMethod* methods, sCLClass* klass, int num_methods)
 {
     sBuf_append_int(buf, num_methods);
     int i;
@@ -496,7 +496,7 @@ static void write_class_to_buffer(sCLClass* klass, sBuf* buf)
     sBuf_append_long(buf, klass->mFlags);
     append_const_to_buffer(buf, &klass->mConst);
     sBuf_append_int(buf, klass->mClassNameOffset);
-    append_methods_to_buffer(buf, klass->mMethods, klass->mNumMethods);
+    append_methods_to_buffer(buf, klass->mMethods, klass, klass->mNumMethods);
     append_fields_to_buffer(buf, klass->mFields, klass->mNumFields);
     append_fields_to_buffer(buf, klass->mClassFields, klass->mNumClassFields);
     sBuf_append_int(buf, klass->mClassInitializeMethodIndex);

@@ -17,20 +17,15 @@ void sBuf_init(sBuf* self)
 
 void sBuf_append(sBuf* self, void* str, size_t size)
 {
-    void* str2 = (char*)MCALLOC(1, size);        // prevent deleting from bellow MREALLOC
-    memcpy(str2, str, size);
-
     if(self->mSize <= self->mLen + size + 1) {
         self->mSize = (self->mSize + size + 1) * 2;
         self->mBuf = (char*)MREALLOC(self->mBuf, sizeof(char)*self->mSize);
     }
 
-    memcpy(self->mBuf + self->mLen, str2, size);
+    memcpy(self->mBuf + self->mLen, str, size);
 
     self->mLen += size;
     self->mBuf[self->mLen] = 0;
-
-    MFREE(str2);
 }
 
 void sBuf_append_char(sBuf* self, char c)
