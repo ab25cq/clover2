@@ -1986,7 +1986,8 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
 
         sCLMethod* method = klass->mMethods + method_index2;
 
-        if(klass->mFlags & CLASS_FLAGS_INTERFACE || klass == info->pinfo->klass) { // Interface is called virtually and the inner method is called virtually for mixin
+        if(klass->mFlags & CLASS_FLAGS_INTERFACE)
+        {
             int num_real_params = method->mNumParams + 1;
 
             append_opecode_to_code(info->code, OP_INVOKE_VIRTUAL_METHOD, info->no_output);
