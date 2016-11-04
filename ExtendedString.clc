@@ -1,3 +1,4 @@
+include "Fundamental.clc"
 
 class PcreOVec
 {
@@ -10,24 +11,38 @@ class PcreOVec
     }
 }
 
-class System version 2
+class System
 {
     def pcre_exec(regex:regex, str:String, ovec_max:int, ovec:PcreOVec): native static int;
-
-#    def wcstombs(dest:pointer, src:pointer, size:int): native int;
-#     def mbstowcs(dest:char[], src:pointer): static native int;
 }
 
-class String version 2
+class String
 {
-    def sub(regex:regex): String {
+    def sub(regex:regex, replace:String): String {
+        return null;
+/*
         result:Buffer = new Buffer();
 
         ovec:PcreOVec = new PcreOVec(32);
 
         while(true) {
+            ovec:PcreOVec = new PcreOVec(32);
+
+            matched:int = pcre_exec(regex, self, 32, ovec);
+            if(matched < 0) {
+                result.
+                break;
+            }
+
+            if(regex.global) {
+            }
+            else {
+                head:String = self.subString(0, result.start);
+                break;
+            }
         }
 
         return result.toString();
+*/
     }
 }

@@ -79,6 +79,37 @@ BOOL System_strlen(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     return TRUE;
 }
 
+BOOL System_strlen2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* str = lvar;
+
+    /// clover params to c params ///
+    CLObject array = str->mObjectValue;
+    sCLObject* object_data = CLOBJECT(array);
+    int len = object_data->mArrayNum;
+    
+    /// go ///
+    int result = -1;
+
+    int i;
+    for(i=0; i<len; i++) {
+        if(object_data->mFields[i].mByteValue == '\0') {
+            result = i;
+            break;
+        }
+    }
+
+    if(result == -1) {
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "invalid byte array");
+        return FALSE;
+    }
+
+    (*stack_ptr)->mIntValue = i;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
 BOOL System_strcpy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* str1 = lvar;
@@ -101,6 +132,20 @@ BOOL System_memcpy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     memcpy(str1->mPointerValue, str2->mPointerValue, len->mIntValue);
 
     (*stack_ptr)->mPointerValue = str2->mPointerValue;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_memcmp(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* str1 = lvar;
+    CLVALUE* str2 = lvar + 1;
+    CLVALUE* size = lvar + 2;
+
+    int result = memcmp(str1->mPointerValue, str2->mPointerValue, size->mIntValue);
+
+    (*stack_ptr)->mIntValue = result;
     (*stack_ptr)++;
 
     return TRUE;
@@ -556,11 +601,95 @@ BOOL System_mbstowcs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* dest = lvar;
     CLVALUE* src = lvar+1;
-    CLVALUE* size = lvar+2;
 
-    int memory = mbstowcs((wchar_t*)dest->mPointerValue, src->mPointerValue, size->mIntValue);
+    /// clover variable to c variable ///
+    char* src_value = src->mPointerValue;
+    int len = strlen(src_value);
+    wchar_t* wcs = MCALLOC(1, sizeof(wchar_t)*(len+1));
+    CLVALUE* dest_value = (CLVALUE*)dest->mPointerValue;
+
+    /// go ///
+    int memory = mbstowcs(wcs, src_value, len+1);
+
+    if(memory < 0) {
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "invalid multi byte string");
+        MFREE(wcs);
+        return FALSE;
+    }
+
+    /// make result ///
+    sCLClass* klass = get_class("char");
+
+    MASSERT(klass != NULL);
+
+    CLObject object = create_array_object(klass, len+1);
+    sCLObject* object_data = CLOBJECT(object);
+
+    int i;
+    for(i=0; i<len; i++) {
+        object_data->mFields[i].mCharValue = wcs[i];
+    }
+    object_data->mFields[i].mCharValue = '\0';
+
+    dest_value->mObjectValue = object;
+
+    MFREE(wcs);
 
     (*stack_ptr)->mIntValue = memory;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_wcstombs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* dest = lvar;
+    CLVALUE* src = lvar+1;
+
+    /// clover variable to c variable ///
+    CLVALUE* dest_value = (CLVALUE*)dest->mPointerValue;
+    CLObject src_value = src->mObjectValue;
+    sCLObject* object_data = CLOBJECT(src_value);
+    int len = object_data->mArrayNum;
+
+    wchar_t* wcs = MCALLOC(1, sizeof(wchar_t)*(len+1));
+    int size = sizeof(char)*MB_LEN_MAX*(len+1);
+    char* mbs = MCALLOC(1, size);
+
+    int i;
+    for(i=0; i<len; i++) {
+        wcs[i] = object_data->mFields[i].mCharValue;
+    }
+    wcs[i] = '\0';
+
+    /// go ///
+    int num = wcstombs(mbs, wcs, size);
+
+    if(num < 0) {
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "wcstombs returns -1");
+        MFREE(wcs);
+        MFREE(mbs);
+        return FALSE;
+    }
+
+    /// make result ///
+    sCLClass* klass = get_class("byte");
+
+    MASSERT(klass != NULL);
+
+    CLObject object = create_array_object(klass, size);
+    sCLObject* object_data2 = CLOBJECT(object);
+
+    for(i=0; i<size; i++) {
+        object_data2->mFields[i].mByteValue = mbs[i];
+    }
+
+    dest_value->mObjectValue = object;
+
+    MFREE(wcs);
+    MFREE(mbs);
+
+    (*stack_ptr)->mIntValue = num;
     (*stack_ptr)++;
 
     return TRUE;

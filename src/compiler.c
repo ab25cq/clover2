@@ -19,7 +19,7 @@ static void compiler_final()
     final_vtable();
 }
 
-static BOOL read_source(char* fname, sBuf* source)
+BOOL read_source(char* fname, sBuf* source)
 {
     int f = open(fname, O_RDONLY);
 

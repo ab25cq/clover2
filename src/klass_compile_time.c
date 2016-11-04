@@ -486,7 +486,6 @@ static void append_fields_to_buffer(sBuf* buf, sCLField* fields, int num_fields)
 
 static void write_class_to_buffer(sCLClass* klass, sBuf* buf)
 {
-    sBuf_append_int(buf, klass->mVersion);
     sBuf_append_int(buf, klass->mNumGenerics);
     int i;
     for(i=0; i<klass->mNumGenerics; i++ ) {
@@ -524,12 +523,7 @@ BOOL write_class_to_class_file(sCLClass* klass)
 
     /// write ///
     char file_name[PATH_MAX];
-    if(klass->mVersion == 1) {
-        snprintf(file_name, PATH_MAX, "%s.clcl", CLASS_NAME(klass));
-    }
-    else {
-        snprintf(file_name, PATH_MAX, "%s@%d.clcl", CLASS_NAME(klass), klass->mVersion);
-    }
+    snprintf(file_name, PATH_MAX, "%s.clcl", CLASS_NAME(klass));
 
     int f = open(file_name, O_WRONLY|O_TRUNC|O_CREAT, 0644);
     int total_size = 0;

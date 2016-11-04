@@ -96,7 +96,7 @@ static BOOL parse_generics_params(sParserInfo* info, sCompileInfo* cinfo)
     return TRUE;
 }
 
-static BOOL parse_class_name_and_attributes(char* class_name, int class_name_size, int* class_version, sParserInfo* info, sCompileInfo* cinfo)
+static BOOL parse_class_name_and_attributes(char* class_name, int class_name_size, sParserInfo* info, sCompileInfo* cinfo)
 {
     /// class name ///
     if(!parse_word(class_name, VAR_NAME_MAX, info, TRUE)) {
@@ -107,38 +107,6 @@ static BOOL parse_class_name_and_attributes(char* class_name, int class_name_siz
     if(!parse_generics_params(info, cinfo)) 
     {
         return FALSE;
-    }
-
-    /// version ///
-    char* p_saved = info->p;
-    int sline_saved = info->sline;
-
-    char buf[128];
-
-    if(!parse_word(buf, 128, info, FALSE)) {
-        return FALSE;
-    }
-
-    if(strcmp(buf, "version") == 0) {
-        if(isdigit(*info->p)) {
-            *class_version = *info->p - '0';
-            info->p++;
-
-            while(isdigit(*info->p)) {
-                *class_version = *class_version * 10 + *info->p - '0';
-                info->p++;
-            }
-            skip_spaces_and_lf(info);
-        }
-        else {
-            parser_err_msg(info, "require digit");
-            info->err_num++;
-        }
-    }
-    else {
-        *class_version = 1;
-        info->p = p_saved;
-        info->sline = sline_saved;
     }
 
     /// class attribute ///
@@ -170,23 +138,27 @@ static BOOL parse_class_name_and_attributes(char* class_name, int class_name_siz
 static BOOL parse_class_on_alloc_classes_phase(sParserInfo* info, sCompileInfo* cinfo, BOOL interface)
 {
     char class_name[VAR_NAME_MAX];
-    int class_version = 1;
 
-    if(!parse_class_name_and_attributes(class_name, VAR_NAME_MAX, &class_version, info, cinfo))
+    if(!parse_class_name_and_attributes(class_name, VAR_NAME_MAX, info, cinfo))
     {
         return FALSE;
     }
 
-    if(class_version > 1) {
-        info->klass = load_class_with_version(class_name, class_version-1);
-        info->klass->mFlags |= CLASS_FLAGS_MODIFIED;
-        info->klass->mNumMethodsOnLoadTime = info->klass->mNumMethods;
-        info->klass->mVersion = class_version;
+    if(info->included_source) {
+        info->klass = load_class(class_name);
+
+        if(info->klass) {
+printf("(%s)\n", class_name);
+            info->klass->mFlags |= CLASS_FLAGS_LOADED;
+        }
+        else {
+            info->klass = alloc_class(class_name, FALSE, -1, info->generics_info.mNumParams, info->generics_info.mInterface, interface);
+            info->klass->mFlags |= CLASS_FLAGS_MODIFIED;
+        }
     }
     else {
         info->klass = alloc_class(class_name, FALSE, -1, info->generics_info.mNumParams, info->generics_info.mInterface, interface);
         info->klass->mFlags |= CLASS_FLAGS_MODIFIED;
-        info->klass->mNumMethodsOnLoadTime = 0;
     }
 
     if(!skip_block(info)) {
@@ -424,7 +396,7 @@ static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOO
             return FALSE;
         }
 
-        if(info->err_num == 0) {
+        if(info->err_num == 0 && !(info->klass->mFlags & CLASS_FLAGS_LOADED)) {
             if(!add_method_to_class(info->klass, method_name, params, num_params, result_type, native_, static_)) {
                 fprintf(stderr, "overflow method number\n");
                 return FALSE;
@@ -456,7 +428,7 @@ static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOO
             return FALSE;
         }
 
-        if(info->err_num == 0) {
+        if(info->err_num == 0 && !(info->klass->mFlags & CLASS_FLAGS_LOADED)) {
             if(static_) {
                 if(!add_class_field_to_class(info->klass, buf, private_, protected_, result_type)) {
                     return FALSE;
@@ -481,9 +453,8 @@ static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOO
 static BOOL parse_class_on_add_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOOL interface)
 {
     char class_name[VAR_NAME_MAX];
-    int class_version = 1;
 
-    if(!parse_class_name_and_attributes(class_name, VAR_NAME_MAX, &class_version, info, cinfo))
+    if(!parse_class_name_and_attributes(class_name, VAR_NAME_MAX, info, cinfo))
     {
         return FALSE;
     }
@@ -590,27 +561,42 @@ BOOL parse_methods_and_fields_on_compile_time(sParserInfo* info, sCompileInfo* c
             return FALSE;
         }
 
-        sCLMethod* method = info->klass->mMethods + info->klass->mMethodIndexOnCompileTime + info->klass->mNumMethodsOnLoadTime;
+        sCLMethod* method = info->klass->mMethods + info->klass->mMethodIndexOnCompileTime;
         info->klass->mMethodIndexOnCompileTime++;
 
-        if(native_ || interface) {
-            if(*info->p == ';') {
-                info->p++;
-                skip_spaces_and_lf(info);
-            }
-        }
-        else {
-            if(*info->p == '{') {
-                info->p++;
-                skip_spaces_and_lf(info);
-
-                if(!compile_method(method, params, num_params, info, cinfo)) {
-                    return FALSE;
+        if(info->klass->mFlags & CLASS_FLAGS_LOADED) {
+            if(native_ || interface) {
+                if(*info->p == ';') {
+                    info->p++;
+                    skip_spaces_and_lf(info);
                 }
             }
             else {
-                parser_err_msg(info, "The next character is required {");
-                info->err_num++;
+                if(!skip_block(info)) {
+                    return FALSE;
+                }
+            }
+        }
+        else {
+            if(native_ || interface) {
+                if(*info->p == ';') {
+                    info->p++;
+                    skip_spaces_and_lf(info);
+                }
+            }
+            else {
+                if(*info->p == '{') {
+                    info->p++;
+                    skip_spaces_and_lf(info);
+
+                    if(!compile_method(method, params, num_params, info, cinfo)) {
+                        return FALSE;
+                    }
+                }
+                else {
+                    parser_err_msg(info, "The next character is required {");
+                    info->err_num++;
+                }
             }
         }
     }
@@ -639,9 +625,8 @@ BOOL parse_methods_and_fields_on_compile_time(sParserInfo* info, sCompileInfo* c
 static BOOL parse_class_on_compile_code(sParserInfo* info, sCompileInfo* cinfo, BOOL interface)
 {
     char class_name[VAR_NAME_MAX];
-    int class_version = 1;
 
-    if(!parse_class_name_and_attributes(class_name, VAR_NAME_MAX, &class_version, info, cinfo))
+    if(!parse_class_name_and_attributes(class_name, VAR_NAME_MAX, info, cinfo))
     {
         return FALSE;
     }
@@ -794,6 +779,81 @@ static BOOL parse_module(sParserInfo* info, sCompileInfo* cinfo)
     return TRUE;
 }
 
+static BOOL parse_class_source(sParserInfo* info, sCompileInfo* cinfo);
+
+static BOOL include_file(sParserInfo* info, sCompileInfo* cinfo)
+{
+    /// get file name ///
+    char file_name[PATH_MAX+1];
+
+    expect_next_character_with_one_forward("\"", info);
+
+    char* p = file_name;
+
+    while(1) {
+        if(*info->p == '"') {
+            info->p++;
+            skip_spaces_and_lf(info);
+            break;
+        }
+        else if(*info->p == '\0') {
+            parser_err_msg(info, "requires to close \" for including file name");
+            return FALSE;
+        }
+        else {
+            *p++ = *info->p++;
+
+            if(p - file_name >= PATH_MAX) {
+                parser_err_msg(info, "overflow file name");
+                return FALSE;
+            }
+        }
+    }
+    *p = '\0';
+
+    /// load source file ///
+    sBuf source;
+    sBuf_init(&source);
+
+    if(!read_source(file_name, &source)) {
+        MFREE(source.mBuf);
+        return FALSE;
+    }
+
+    sParserInfo info2;
+
+    memset(&info2, 0, sizeof(sParserInfo));
+
+    info2.p = source.mBuf;
+    info2.sname = file_name;
+    info2.sline = 1;
+    info2.lv_table = info->lv_table;
+    info2.parse_phase = info->parse_phase;
+    info2.included_source = TRUE;
+
+    sCompileInfo cinfo2;
+    
+    memset(&cinfo2, 0, sizeof(sCompileInfo));
+
+    cinfo2.code = cinfo->code;
+    cinfo2.constant = cinfo->constant;
+
+    cinfo2.lv_table = cinfo->lv_table;
+    cinfo2.no_output = cinfo->no_output;
+    cinfo2.pinfo = &info2;
+
+    info2.cinfo = &cinfo2;
+
+    if(!parse_class_source(&info2, &cinfo2)) {
+        MFREE(source.mBuf);
+        return FALSE;
+    }
+
+    MFREE(source.mBuf);
+
+    return TRUE;
+}
+
 static BOOL parse_class_source(sParserInfo* info, sCompileInfo* cinfo)
 {
     skip_spaces_and_lf(info);
@@ -817,6 +877,11 @@ static BOOL parse_class_source(sParserInfo* info, sCompileInfo* cinfo)
         }
         else if(strcmp(buf, "module") == 0) {
             if(!parse_module(info, cinfo)) {
+                return FALSE;
+            }
+        }
+        else if(strcmp(buf, "include") == 0) {
+            if(!include_file(info, cinfo)) {
                 return FALSE;
             }
         }
@@ -850,6 +915,7 @@ BOOL compile_class_source(char* fname, char* source)
     info.sline = 1;
     info.lv_table = NULL;
     info.parse_phase = 0;
+    info.included_source = FALSE;
 
     sCompileInfo cinfo;
     

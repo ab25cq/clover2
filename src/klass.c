@@ -134,18 +134,13 @@ sCLClass* get_class(char* class_name)
     return NULL;
 }
 
-static BOOL search_for_class_file_with_version(char* class_name, char* class_file_name, size_t class_file_name_size, int class_version)
+static BOOL search_for_class_file(char* class_name, char* class_file_name, size_t class_file_name_size)
 {
     char* home = getenv("HOME");
 
     /// .clover directory ///
     if(home) {
-        if(class_version == 1) {
-            snprintf(class_file_name, class_file_name_size, "%s/.clover2/%s.clcl", home, class_name);
-        }
-        else {
-            snprintf(class_file_name, class_file_name_size, "%s/.clover2/%s@%d.clcl", home, class_name, class_version);
-        }
+        snprintf(class_file_name, class_file_name_size, "%s/.clover2/%s.clcl", home, class_name);
 
         if(access(class_file_name, F_OK) == 0) {
             return TRUE;
@@ -156,26 +151,9 @@ static BOOL search_for_class_file_with_version(char* class_name, char* class_fil
 
     /// current working directory ///
     if(cwd) {
-        if(class_version == 1) {
-            snprintf(class_file_name, class_file_name_size, "%s/%s.clcl", cwd, class_name);
-        }
-        else {
-            snprintf(class_file_name, class_file_name_size, "%s/%s@%d.clcl", cwd, class_name, class_version);
-        }
+        snprintf(class_file_name, class_file_name_size, "%s/%s.clcl", cwd, class_name);
 
         if(access(class_file_name, F_OK) == 0) {
-            return TRUE;
-        }
-    }
-
-    return FALSE;
-}
-
-static BOOL search_for_class_file(char* class_name, char* class_file_name, size_t class_file_name_size)
-{
-    int i;
-    for(i=CLASS_VERSION_MAX-1; i>=1; i--) {
-        if(search_for_class_file_with_version(class_name, class_file_name, class_file_name_size, i)) {
             return TRUE;
         }
     }
@@ -453,12 +431,6 @@ static sCLClass* read_class_from_file(int fd)
         MFREE(klass);
         return NULL;
     }
-    klass->mVersion = n;
-
-    if(!read_int_from_file(fd, &n)) {
-        MFREE(klass);
-        return NULL;
-    }
     klass->mNumGenerics = n;
 
     int i;
@@ -648,22 +620,6 @@ static sCLClass* load_class_from_class_file(char* class_name, char* class_file_n
     return klass;
 }
 
-sCLClass* load_class_with_version(char* class_name, int class_version)
-{
-    sCLClass* klass = get_class(class_name);
-    if(klass != NULL) {
-        remove_class(class_name);
-    }
-
-    char class_file_name[PATH_MAX+1];
-    if(!search_for_class_file_with_version(class_name, class_file_name, PATH_MAX, class_version))
-    {
-        return NULL;
-    }
-
-    return load_class_from_class_file(class_name, class_file_name);
-}
-
 sCLClass* get_class_with_load(char* class_name)
 {
     sCLClass* result = get_class(class_name);
@@ -695,7 +651,6 @@ sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_clas
     sCLClass* klass = MCALLOC(1, sizeof(sCLClass));
 
     klass->mFlags |= (primitive_ ? CLASS_FLAGS_PRIMITIVE:0) | (interface ? CLASS_FLAGS_INTERFACE:0);
-    klass->mVersion = 1;
     klass->mGenericsParamClassNum = generics_param_class_num;
 
     klass->mNumGenerics = generics_number;
@@ -720,7 +675,6 @@ sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_clas
     klass->mClassFinalizeMethodIndex = -1;
     klass->mFinalizeMethodIndex = -1;
 
-    klass->mNumMethodsOnLoadTime = 0;
     klass->mMethodIndexOnCompileTime = 0;
 
     int i;

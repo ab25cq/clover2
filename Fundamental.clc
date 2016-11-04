@@ -9,17 +9,23 @@ class System
     def printlnToError(str:String): native static;
     def sleep(time:int): native static uint;
 
-    def malloc(size:int): native static pointer;
-    def calloc(number: int, size: int): native static pointer;
-    def realloc(ptr:pointer, size: int): native static pointer;
+    def malloc(size:int): native static pointer@alloc;
+    def calloc(number: int, size: int): native static pointer@alloc;
+    def realloc(ptr:pointer, size: int): native static pointer@alloc;
+    def strdup(str:pointer): native static pointer@alloc;
     def free(ptr:pointer): native static;
+
     def strlen(ptr:pointer): native static int;
+    def strlen(array:byte[]): native static int;
     def strcpy(str1:pointer, str2:pointer): native static pointer;
     def strncpy(str1:pointer, str2:pointer, size:int): native static pointer;
-    def strdup(str:pointer): native static pointer;
     def memcpy(str1:pointer, str2:pointer, size:int): native static pointer;
+    def memcmp(str1:pointer, str2:pointer, size:int): native static int;
 
     def sprintf(format:String, prams:Array<Object>): native static String throws Exception;
+
+    def mbstowcs(dest:pointer@of_wchar[], src:pointer@utf8-string-memory): static native int throws Exception;
+    def wcstombs(dest:pointer@of_byte[], src:char[]): static native int throws Exception;
 }
 
 class Clover
@@ -109,7 +115,9 @@ class Buffer
     }
 
     def toString():String throws Exception {
-        #System.mbstowcs
+        wcs:char[] = null;
+        System.mbstowcs(&wcs, self.buffer);
+        return new String(wcs);
     }
 }
 

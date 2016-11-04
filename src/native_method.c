@@ -97,7 +97,9 @@ static sNativeMethod gNativeMethods[] = {
     { "System.calloc(int,int)", System_calloc },
     { "System.free(pointer)", System_free },
     { "System.memcpy(pointer,pointer,int)", System_memcpy },
+    { "System.memcmp(pointer,pointer,int)", System_memcmp },
     { "System.strlen(pointer)", System_strlen },
+    { "System.strlen(byte[])", System_strlen2 },
     { "System.strcpy(pointer,pointer)", System_strcpy },
     { "System.strncpy(pointer,pointer,int)", System_strncpy },
     { "System.strdup(pointer)", System_strdup },
@@ -108,6 +110,8 @@ static sNativeMethod gNativeMethods[] = {
     { "System.sleep(int)", System_sleep },
     { "System.pcre_exec(regex,String,int,PcreOVec)", System_pcre_exec },
     { "System.sprintf(String,Array)", System_sprintf },
+    { "System.mbstowcs(pointer,pointer)", System_mbstowcs },
+    { "System.wcstombs(pointer,char[])", System_wcstombs },
 
     { "", 0 }  // sentinel
 };

@@ -781,6 +781,22 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
 
     (*result_type)->mNumGenericsTypes = generics_num;
 
+    /// anotation ///
+    if(*info->p == '@') {
+        info->p++;
+
+        if(isalpha(*info->p)) {
+            while(isalnum(*info->p) || *info->p == '-' || *info->p == '_' || *info->p == '[' || *info->p == ']') {
+                info->p++;
+            }
+            skip_spaces_and_lf(info);
+        }
+        else {
+            parser_err_msg(info, "require alphabets for anotation");
+            info->err_num++;
+        }
+    }
+
     /// check generics type ///
     if(info->err_num == 0) {
         sCLClass* klass = (*result_type)->mClass;

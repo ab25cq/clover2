@@ -112,6 +112,7 @@ void append_str_to_constant_pool_and_code(sConst* constant, sByteCode* code, cha
 #define CLASS_FLAGS_PRIMITIVE 0x01
 #define CLASS_FLAGS_INTERFACE 0x02
 #define CLASS_FLAGS_MODIFIED 0x04
+#define CLASS_FLAGS_LOADED 0x08
 
 struct sCLTypeStruct;
 
@@ -195,8 +196,6 @@ typedef void (*fFreeFun)(CLObject self);
 struct sCLClassStruct {
     long mFlags;
 
-    int mVersion;
-
     int mGenericsParamClassNum;   // -1 is none generics param 
     int mNumGenerics;
 
@@ -222,9 +221,7 @@ struct sCLClassStruct {
     int mClassFinalizeMethodIndex;
     int mFinalizeMethodIndex;
 
-    int mNumMethodsOnLoadTime; // This requires on the compile time
-    int mMethodIndexOnCompileTime; // This require on the compile time
-
+    int mMethodIndexOnCompileTime;                  // This requires on the compile time
     sCLMethod* mVirtualMethodTable[METHOD_NUM_MAX]; // This requires on the run time
 
     struct sCLClassStruct* mBoxingClass; // This requires on the run time 
@@ -249,7 +246,6 @@ unsigned int get_hash_key(char* name, unsigned int max);
 sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_class_num, int generics_number, sCLClass** type_of_generics_params, BOOL interface);
 ALLOC sCLType* create_cl_type(sCLClass* klass, sCLClass* klass2);
 void free_cl_type(sCLType* cl_type);
-sCLClass* load_class_with_version(char* class_name, int class_version);
 sCLClass* load_class(char* class_name);
 sCLMethod* search_for_method_from_virtual_method_table(sCLClass* klass, char* method_name_and_params);
 BOOL is_valid_class(sCLClass* klass);
@@ -398,6 +394,7 @@ struct sParserInfoStruct
     sCLClass* klass;
     sGenericsParamInfo generics_info;
     struct sCompileInfoStruct* cinfo;
+    BOOL included_source;
 };
 
 typedef struct sParserInfoStruct sParserInfo;
@@ -1707,6 +1704,7 @@ BOOL System_realloc(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_calloc(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_free(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_strlen(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_strlen2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_strcpy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_strncpy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_strdup(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
@@ -1718,6 +1716,9 @@ BOOL System_sleep(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_pcre_exec(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_sprintf(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_memcpy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_memcmp(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_mbstowcs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_wcstombs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 /// alignment.c ///
 void alignment(unsigned int* size);
@@ -1754,6 +1755,9 @@ BOOL initialize_tuple_object(CLObject tuple_object, int num_elements, CLObject* 
 /// carray.c ///
 CLObject create_carray_object();
 BOOL initialize_carray_object(CLObject array_object, int num_elements, CLObject* items, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sCLClass* class_items);
+
+/// compiler.c ///
+BOOL read_source(char* fname, sBuf* source);
 
 #endif
 

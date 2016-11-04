@@ -6,11 +6,11 @@ Simple compiler and a Virtual Machine.
 
 FEATURES
 
-1. Lambda and closure object
+1. Lambda and closure, regex are primitive type
 2. Generics
 3. Primitive class and user class
 4. Regex object
 5. No inheritance, only interfaces and classes
 6. Able to mixin layers style coding
-7. boxing and unboxing
-8. pointer class can get a variable address
+7. Boxing and unboxing
+8. Pointer class and pointer operators

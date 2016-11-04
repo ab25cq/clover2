@@ -78,11 +78,9 @@ install:
 	mkdir -p ~/.clover2
 	$(INSTALL) -m 644 PcreOVec.clcl ~/.clover2
 	$(INSTALL) -m 644 System.clcl ~/.clover2
-	$(INSTALL) -m 644 System@2.clcl ~/.clover2
 	$(INSTALL) -m 644 Clover.clcl ~/.clover2
 	$(INSTALL) -m 644 Global.clcl ~/.clover2
 	$(INSTALL) -m 644 String.clcl ~/.clover2
-	$(INSTALL) -m 644 String@2.clcl ~/.clover2
 	$(INSTALL) -m 644 Buffer.clcl ~/.clover2
 	$(INSTALL) -m 644 Exception.clcl ~/.clover2
 	$(INSTALL) -m 644 Object.clcl ~/.clover2
@@ -196,4 +194,6 @@ test:
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/array5.cl && ./clover2 code/array5.clo
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -class code/equalable_array.clc code/equalable_array.cl && ./clover2 code/equalable_array.clo
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/buffer.cl && ./clover2 code/buffer.clo
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/system_test.cl && ./clover2 code/system_test.clo
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/string2.cl && ./clover2 code/string2.clo
 
