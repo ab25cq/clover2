@@ -393,7 +393,7 @@ BOOL check_implemented_methods_for_interface(sCLClass* left_class, sCLClass* rig
 /// write class to a class file 
 ////////////////////////////////////////////////////////////////////////////////
 
-static void append_const_to_buffer(sBuf* buf, sConst* constant)
+static void append_const_to_buffer(sBuf* buf, sConst* constant, sCLClass* klass)
 {
     sBuf_append_int(buf, constant->mLen);
     sBuf_append(buf, constant->mConst, sizeof(char)*constant->mLen);
@@ -493,7 +493,7 @@ static void write_class_to_buffer(sCLClass* klass, sBuf* buf)
     }
     sBuf_append_int(buf, klass->mGenericsParamClassNum);
     sBuf_append_long(buf, klass->mFlags);
-    append_const_to_buffer(buf, &klass->mConst);
+    append_const_to_buffer(buf, &klass->mConst,klass);
     sBuf_append_int(buf, klass->mClassNameOffset);
     append_methods_to_buffer(buf, klass->mMethods, klass, klass->mNumMethods);
     append_fields_to_buffer(buf, klass->mFields, klass->mNumFields);

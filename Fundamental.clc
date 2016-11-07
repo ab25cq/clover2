@@ -163,7 +163,9 @@ class String
     }
 
     def append(str: String): String {
+    /*
         new_buffer:char[] = new char[self.buffer.length + str.length()]();
+
         for(i:int = 0; i<self.buffer.length-1; i++) {
             new_buffer[i] = self.buffer[i];
         }
@@ -173,7 +175,7 @@ class String
         new_buffer[self.buffer.length-1 + str.length()] = '\0';
 
         self.setValue(new_buffer);
-
+*/
         return self;
     }
 

@@ -54,7 +54,6 @@ HAVE_ICONV_H	config.h	5;"	d
 HAVE_MATH_H	config.h	2;"	d
 HAVE_PCRE_H	config.h	6;"	d
 INSTALL	Makefile	/^INSTALL=\/usr\/bin\/install -c$/;"	m
-LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 -class ExtendedString.clc$/;"	m
 LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 -class code\/array4.clc code\/array4.cl && .\/clover2 code\/array4.clo$/;"	m
 LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 -class code\/block2.clc code\/block2.cl && .\/clover2 code\/block2.clo$/;"	m
 LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 -class code\/block3.clc code\/block3.cl && .\/clover2 code\/block3.clo$/;"	m
@@ -72,6 +71,7 @@ LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclov
 LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 -class code\/try.clc code\/try.cl && .\/clover2 code\/try.clo$/;"	m
 LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 -class code\/user_object.clc code\/user_object.cl && .\/clover2 code\/user_object.clo$/;"	m
 LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 -class code\/void_result.clc code\/void_result.cl && .\/clover2 code\/void_result.clo$/;"	m
+LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 -no-load-fudamental-classes -class ExtendedString.clc$/;"	m
 LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 code\/array.cl && .\/clover2 code\/array.clo$/;"	m
 LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 code\/array2.cl && .\/clover2 code\/array2.clo$/;"	m
 LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 code\/array5.cl && .\/clover2 code\/array5.clo$/;"	m
@@ -896,7 +896,7 @@ append_byte_codes_to_buffer	src/klass_compile_time.c	/^static void append_byte_c
 append_character_to_module	src/module.c	/^void append_character_to_module(sCLModule* self, char c)$/;"	f
 append_cl_block_type	src/klass_compile_time.c	/^static void append_cl_block_type(sBuf* buf, sCLBlockType* cl_block_type)$/;"	f	file:
 append_cl_type_to_buffer	src/klass_compile_time.c	/^static void append_cl_type_to_buffer(sBuf* buf, sCLType* cl_type)$/;"	f	file:
-append_const_to_buffer	src/klass_compile_time.c	/^static void append_const_to_buffer(sBuf* buf, sConst* constant)$/;"	f	file:
+append_const_to_buffer	src/klass_compile_time.c	/^static void append_const_to_buffer(sBuf* buf, sConst* constant, sCLClass* klass)$/;"	f	file:
 append_double_value_to_constant_pool	src/constant.c	/^int append_double_value_to_constant_pool(sConst* constant, double n, BOOL no_output)$/;"	f
 append_fields_to_buffer	src/klass_compile_time.c	/^static void append_fields_to_buffer(sBuf* buf, sCLField* fields, int num_fields)$/;"	f	file:
 append_float_value_to_constant_pool	src/constant.c	/^int append_float_value_to_constant_pool(sConst* constant, float n, BOOL no_output)$/;"	f
@@ -1061,7 +1061,7 @@ compile_ushort_value	src/node.c	/^static BOOL compile_ushort_value(unsigned int 
 compile_while_expression	src/node.c	/^static BOOL compile_while_expression(unsigned int node, sCompileInfo* info)$/;"	f	file:
 compiler	src/compiler.c	/^static BOOL compiler(char* fname)$/;"	f	file:
 compiler_final	src/compiler.c	/^static void compiler_final()$/;"	f	file:
-compiler_init	src/compiler.c	/^static void compiler_init()$/;"	f	file:
+compiler_init	src/compiler.c	/^static void compiler_init(BOOL no_load_fudamental_classes)$/;"	f	file:
 constant	src/common.h	/^    sConst* constant;$/;"	m	struct:sCompileInfoStruct
 create_array_object	src/array.c	/^CLObject create_array_object(sCLClass* klass, int array_num)$/;"	f
 create_block_object	src/block.c	/^CLObject create_block_object(sByteCode* codes, sConst* constant, CLVALUE* parent_stack, int parent_var_num, int block_var_num, long stack_id, BOOL lambda)$/;"	f
@@ -1109,7 +1109,7 @@ debug_strdup	src/debug.c	/^ALLOC char* debug_strdup(char* str, const char* file_
 decrement_operand_core	src/node.c	/^static void decrement_operand_core(unsigned int node, sCompileInfo* info, unsigned int lnode, int add_operand, int sub_operand, int ldc_operand, BOOL monadic, BOOL with_value)$/;"	f	file:
 decrement_operand_core_for_field	src/node.c	/^static BOOL decrement_operand_core_for_field(unsigned int node, sCompileInfo* info, unsigned int lnode, int add_operand, int sub_operand, int ldc_operand, BOOL monadic, BOOL with_value)$/;"	f	file:
 delete_all_object	src/heap.c	/^static void delete_all_object()$/;"	f	file:
-delete_comment	src/compiler.c	/^static BOOL delete_comment(sBuf* source, sBuf* source2)$/;"	f	file:
+delete_comment	src/compiler.c	/^BOOL delete_comment(sBuf* source, sBuf* source2)$/;"	f
 docdir	Makefile	/^docdir=${datarootdir}\/doc$/;"	m
 eNodeType	src/common.h	/^enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeUByteValue, kNodeTypeShortValue, kNodeTypeUShortValue, kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand, kNodeTypeIncrementWithValueOperand, kNodeTypeDecrementWithValueOperand, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand, kNodeTypeLoadArrayElement, kNodeTypeStoreArrayElement, kNodeTypeChar, kNodeTypeString, kNodeTypeBuffer, kNodeTypeThrow, kNodeTypeTry, kNodeTypeBlockObject, kNodeTypeBlockCall, kNodeTypeConditional, kNodeTypeNormalBlock, kNodeTypeArrayValue, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeHashValue, kNodeTypeRegex, kNodeTypeListValue, kNodeTypeTupleValue, kNodeTypeCArrayValue, kNodeTypeImplements, kNodeTypeGetAddress };$/;"	g
 eOperand	src/common.h	/^enum eOperand { kOpAdd, kOpSub , kOpComplement, kOpLogicalDenial, kOpMult, kOpDiv, kOpMod, kOpLeftShift, kOpRightShift, kOpComparisonEqual, kOpComparisonNotEqual,kOpComparisonGreaterEqual, kOpComparisonLesserEqual, kOpComparisonGreater, kOpComparisonLesser, kOpAnd, kOpXor, kOpOr };$/;"	g
@@ -1720,9 +1720,9 @@ put_fun_to_hash_for_native_method	src/native_method.c	/^static void put_fun_to_h
 read_char_from_file	src/klass.c	/^static BOOL read_char_from_file(int fd, char* c)$/;"	f	file:
 read_cl_block_type_from_file	src/klass.c	/^static BOOL read_cl_block_type_from_file(int fd, sCLBlockType** cl_block_type)$/;"	f	file:
 read_cl_type_from_file	src/klass.c	/^static BOOL read_cl_type_from_file(int fd, sCLType** cl_type)$/;"	f	file:
-read_class_from_file	src/klass.c	/^static sCLClass* read_class_from_file(int fd)$/;"	f	file:
+read_class_from_file	src/klass.c	/^static sCLClass* read_class_from_file(char* class_name, int fd)$/;"	f	file:
 read_code_from_file	src/klass.c	/^static BOOL read_code_from_file(int fd, sByteCode* code)$/;"	f	file:
-read_const_from_file	src/klass.c	/^static BOOL read_const_from_file(int fd, sConst* constant)$/;"	f	file:
+read_const_from_file	src/klass.c	/^static BOOL read_const_from_file(int fd, sConst* constant, char* class_name)$/;"	f	file:
 read_fields_from_file	src/klass.c	/^static BOOL read_fields_from_file(int fd, sCLField** fields, int* num_fields, int* size_fields, sCLClass* klass)$/;"	f	file:
 read_from_file	src/klass.c	/^static BOOL read_from_file(int fd, void* buf, size_t size)$/;"	f	file:
 read_int_from_file	src/klass.c	/^static BOOL read_int_from_file(int fd, int* n)$/;"	f	file:

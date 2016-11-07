@@ -12,7 +12,7 @@ void sConst_init(sConst* self)
 
 void sConst_init_with_size(sConst* self, int size)
 {
-    self->mSize = size * 2;
+    self->mSize = size;
     self->mLen = 0;
     self->mConst = MCALLOC(1, sizeof(char)*self->mSize);
 }

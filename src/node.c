@@ -1973,6 +1973,8 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
         sNodeType* result_type;
         int method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types, generics_types, &result_type);
 
+printf("method_name %s\n", method_name);
+
         if(method_index2 == -1) {
             parser_err_msg(info->pinfo, "method not found(2)");
             info->err_num++;
@@ -1996,6 +1998,7 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
         }
         else {
             append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
+printf("CLASS_NAME %s\n", CLASS_NAME(klass));
             append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(klass), info->no_output);
             append_int_value_to_code(info->code, method_index2, info->no_output);
         }

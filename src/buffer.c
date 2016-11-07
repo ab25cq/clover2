@@ -17,6 +17,27 @@ void sBuf_init(sBuf* self)
 
 void sBuf_append(sBuf* self, void* str, size_t size)
 {
+    void* str2;
+
+    str2 = MCALLOC(1, size);        // prevent deleting from bellow REALLOC
+    memcpy(str2, str, size);
+
+    if(self->mSize <= self->mLen + size + 1) {
+        self->mSize = (self->mSize + size + 1) * 2;
+        self->mBuf = MREALLOC(self->mBuf, sizeof(char)*self->mSize);
+    }
+
+    memcpy(self->mBuf + self->mLen, str2, size);
+
+    self->mLen += size;
+    self->mBuf[self->mLen] = 0;
+
+    MFREE(str2);
+}
+
+/*
+void sBuf_append(sBuf* self, void* str, size_t size)
+{
     if(self->mSize <= self->mLen + size + 1) {
         self->mSize = (self->mSize + size + 1) * 2;
         self->mBuf = (char*)MREALLOC(self->mBuf, sizeof(char)*self->mSize);
@@ -27,6 +48,7 @@ void sBuf_append(sBuf* self, void* str, size_t size)
     self->mLen += size;
     self->mBuf[self->mLen] = 0;
 }
+*/
 
 void sBuf_append_char(sBuf* self, char c)
 {

@@ -2110,7 +2110,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         }
     }
     /// regex ///
-    else if(*info->p == '/') {
+    else if(*info->p == '/' && *(info->p+1) != '*') {
         info->p++;
         skip_spaces_and_lf(info);
 
@@ -2386,7 +2386,7 @@ static BOOL expression_mult_div(unsigned int* node, sParserInfo* info)
 
             *node = sNodeTree_create_operand(kOpMult, *node, right, 0);
         }
-        else if(*info->p == '/' && *(info->p+1) != '=') {
+        else if(*info->p == '/' && *(info->p+1) != '=' && *(info->p+1) != '*') {
             info->p++;
             skip_spaces_and_lf(info);
 

@@ -189,7 +189,7 @@ static BOOL read_long_from_file(int fd, long* n)
     return read_from_file(fd, n, sizeof(long long));
 }
 
-static BOOL read_const_from_file(int fd, sConst* constant)
+static BOOL read_const_from_file(int fd, sConst* constant, char* class_name)
 {
     int len;
     if(!read_int_from_file(fd, &len)) {
@@ -422,7 +422,7 @@ static BOOL read_fields_from_file(int fd, sCLField** fields, int* num_fields, in
     return TRUE;
 }
 
-static sCLClass* read_class_from_file(int fd)
+static sCLClass* read_class_from_file(char* class_name, int fd)
 {
     sCLClass* klass = MCALLOC(1, sizeof(sCLClass));
 
@@ -457,7 +457,7 @@ static sCLClass* read_class_from_file(int fd)
     klass->mFlags = l;
     klass->mFlags &= ~CLASS_FLAGS_MODIFIED;
 
-    if(!read_const_from_file(fd, &klass->mConst)) {
+    if(!read_const_from_file(fd, &klass->mConst, class_name)) {
         MFREE(klass);
         return NULL;
     }
@@ -595,7 +595,7 @@ static sCLClass* load_class_from_class_file(char* class_name, char* class_file_n
     if(!read_from_file(fd, &c, 1) || c != 'E') { close(fd); return NULL; }
     if(!read_from_file(fd, &c, 1) || c != 'R') { close(fd); return NULL; }
 
-    sCLClass* klass = read_class_from_file(fd);
+    sCLClass* klass = read_class_from_file(class_name, fd);
     close(fd);
 
     if(klass == NULL) {

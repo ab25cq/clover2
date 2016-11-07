@@ -613,10 +613,13 @@ void class_final_on_runtime()
 sCLClass* get_class_with_load_and_initialize(char* class_name)
 {
     sCLClass* result = get_class(class_name);
-    
+
     if(result == NULL) {
         result = load_class(class_name);
 
+        if(result == NULL) {
+            fprintf(stderr, "Clover2 can't load %s\n", class_name);
+        }
         if(!initialize_class(result)) {
             return NULL;
         }

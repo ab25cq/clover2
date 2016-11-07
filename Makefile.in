@@ -73,8 +73,8 @@ $(OBJ): src/*.h Makefile configure
 # install
 #########################################################
 install:
-	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -class Fundamental.clc
-	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -class ExtendedString.clc
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -no-load-fudamental-classes -class Fundamental.clc
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -no-load-fudamental-classes -class ExtendedString.clc
 	mkdir -p ~/.clover2
 	$(INSTALL) -m 644 PcreOVec.clcl ~/.clover2
 	$(INSTALL) -m 644 System.clcl ~/.clover2

@@ -148,12 +148,11 @@ static BOOL parse_class_on_alloc_classes_phase(sParserInfo* info, sCompileInfo* 
         info->klass = load_class(class_name);
 
         if(info->klass) {
-printf("(%s)\n", class_name);
             info->klass->mFlags |= CLASS_FLAGS_LOADED;
         }
         else {
             info->klass = alloc_class(class_name, FALSE, -1, info->generics_info.mNumParams, info->generics_info.mInterface, interface);
-            info->klass->mFlags |= CLASS_FLAGS_MODIFIED;
+            info->klass->mFlags |= CLASS_FLAGS_LOADED;
         }
     }
     else {
@@ -820,36 +819,43 @@ static BOOL include_file(sParserInfo* info, sCompileInfo* cinfo)
         return FALSE;
     }
 
-    sParserInfo info2;
+    sBuf source2;
+    sBuf_init(&source2);
 
-    memset(&info2, 0, sizeof(sParserInfo));
+    if(!delete_comment(&source, &source2)) {
+        MFREE(source.mBuf);
+        MFREE(source2.mBuf);
+        return FALSE;
+    }
 
-    info2.p = source.mBuf;
-    info2.sname = file_name;
-    info2.sline = 1;
-    info2.lv_table = info->lv_table;
-    info2.parse_phase = info->parse_phase;
-    info2.included_source = TRUE;
+    char* info_p_before = info->p;
+    info->p = source2.mBuf;
 
-    sCompileInfo cinfo2;
-    
-    memset(&cinfo2, 0, sizeof(sCompileInfo));
+    char* info_sname_before = info->sname;
+    info->sname = file_name;
 
-    cinfo2.code = cinfo->code;
-    cinfo2.constant = cinfo->constant;
+    int info_sline_before = info->sline;
+    info->sline = 1;
 
-    cinfo2.lv_table = cinfo->lv_table;
-    cinfo2.no_output = cinfo->no_output;
-    cinfo2.pinfo = &info2;
+    BOOL info_included_source_before = info->included_source;
+    info->included_source = TRUE;
 
-    info2.cinfo = &cinfo2;
-
-    if(!parse_class_source(&info2, &cinfo2)) {
+    if(!parse_class_source(info, cinfo)) {
+        info->p = info_p_before;
+        info->sname = info_sname_before;
+        info->sline = info_sline_before;
+        info->included_source = info_included_source_before;
         MFREE(source.mBuf);
         return FALSE;
     }
 
+    info->p = info_p_before;
+    info->sname = info_sname_before;
+    info->sline = info_sline_before;
+    info->included_source = info_included_source_before;
+
     MFREE(source.mBuf);
+    MFREE(source2.mBuf);
 
     return TRUE;
 }

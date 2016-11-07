@@ -1,11 +1,11 @@
 #include "common.h"
 
-static void compiler_init()
+static void compiler_init(BOOL no_load_fudamental_classes)
 {
     init_nodes();
     init_node_types();
     class_init();
-    class_init_on_compile_time();
+    if(!no_load_fudamental_classes) class_init_on_compile_time();
     init_vtable();
     module_init();
 }
@@ -46,7 +46,7 @@ BOOL read_source(char* fname, sBuf* source)
     return TRUE;
 }
 
-static BOOL delete_comment(sBuf* source, sBuf* source2)
+BOOL delete_comment(sBuf* source, sBuf* source2)
 {
     char* p;
     BOOL in_string;
@@ -207,9 +207,18 @@ int main(int argc, char** argv)
     
     setlocale(LC_ALL, "");
 
+    BOOL no_load_fudamental_classes = FALSE;
     for(i=1; i<argc; i++) {
-        compiler_init();
-        if(strcmp(argv[i], "-class") == 0) {
+        if(strcmp(argv[i], "-no-load-fudamental-classes") == 0) {
+            no_load_fudamental_classes = TRUE;
+        }
+    }
+
+    for(i=1; i<argc; i++) {
+        compiler_init(no_load_fudamental_classes);
+        if(strcmp(argv[i], "-no-load-fudamental-classes") == 0) {
+        }
+        else if(strcmp(argv[i], "-class") == 0) {
             if(i+1 < argc) {
                 if(!class_compiler(argv[i+1])) {
                     fprintf(stderr, "cclover2 can't compile %s\n", argv[i+1]);

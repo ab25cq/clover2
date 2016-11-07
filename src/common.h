@@ -1758,6 +1758,7 @@ BOOL initialize_carray_object(CLObject array_object, int num_elements, CLObject*
 
 /// compiler.c ///
 BOOL read_source(char* fname, sBuf* source);
+BOOL delete_comment(sBuf* source, sBuf* source2);
 
 #endif
 

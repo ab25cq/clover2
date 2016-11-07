@@ -1,6 +1,7 @@
 
 
 Clover.test("% operator test", 1 % 5 == 1);
+/*
 Clover.test("% operator test2", 6 % 5 == 1);
 
 Clover.test("<< operator test", 1 << 1 == 2);
@@ -49,4 +50,4 @@ Clover.test("&& operator test1", d == 222);
 false && (d = 333).to_bool;
 
 Clover.test("&& operator test2", d == 222);
-
+*/
