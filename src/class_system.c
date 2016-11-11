@@ -211,7 +211,7 @@ BOOL System_println(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLObject wstr_array_object = str_data->mFields[0].mObjectValue;
     sCLObject* wstr_array_object_data = CLOBJECT(wstr_array_object);
 
-    int len = wstr_array_object_data->mArrayNum;
+    int len = str_data->mFields[2].mIntValue;
     CLVALUE* wchar_t_array = wstr_array_object_data->mFields;
 
     wchar_t* wstr = MMALLOC(sizeof(wchar_t)*(len+1));

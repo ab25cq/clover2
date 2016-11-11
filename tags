@@ -17,8 +17,8 @@ CHECKML_BEGIN	src/debug.h	11;"	d
 CHECKML_BEGIN	src/debug.h	38;"	d
 CHECKML_END	src/debug.h	12;"	d
 CHECKML_END	src/debug.h	39;"	d
+CLASS_FLAGS_ALLOCATED	src/common.h	115;"	d
 CLASS_FLAGS_INTERFACE	src/common.h	113;"	d
-CLASS_FLAGS_LOADED	src/common.h	115;"	d
 CLASS_FLAGS_MODIFIED	src/common.h	114;"	d
 CLASS_FLAGS_PRIMITIVE	src/common.h	112;"	d
 CLASS_NAME	src/common.h	235;"	d

@@ -56,8 +56,8 @@ BOOL remove_stack_to_stack_list(CLVALUE* stack)
     while(it) {
         if(it->mStack == stack) {
             if(it_before == gHeadStack) {
-                MFREE(it);
                 gHeadStack = it->mNextStack;
+                MFREE(it);
             }
             else {
                 it_before->mNextStack = it->mNextStack;

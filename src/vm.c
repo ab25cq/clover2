@@ -312,6 +312,58 @@ static void show_inst(unsigned inst)
             puts("OP_CREATE_BLOCK_OBJECT");
             break;
 
+        case OP_BYTE_TO_STRING_CAST:
+            puts("OP_BYTE_TO_STRING_CAST");
+            break;
+
+        case OP_SHORT_TO_STRING_CAST:
+            puts("OP_SHORT_TO_STRING_CAST");
+            break;
+
+        case OP_INT_TO_STRING_CAST:
+            puts("OP_INT_TO_STRING_CAST");
+            break;
+
+        case OP_LONG_TO_STRING_CAST:
+            puts("OP_LONG_TO_STRING_CAST");
+            break;
+
+        case OP_UBYTE_TO_STRING_CAST:
+            puts("OP_UBYTE_TO_STRING_CAST");
+            break;
+
+        case OP_USHORT_TO_STRING_CAST:
+            puts("OP_USHORT_TO_STRING_CAST");
+            break;
+
+        case OP_UINT_TO_STRING_CAST:
+            puts("OP_UINT_TO_STRING_CAST");
+            break;
+
+        case OP_ULONG_TO_STRING_CAST:
+            puts("OP_ULONG_TO_STRING_CAST");
+            break;
+
+        case OP_FLOAT_TO_STRING_CAST:
+            puts("OP_FLOAT_TO_STRING_CAST");
+            break;
+
+        case OP_DOUBLE_TO_STRING_CAST:
+            puts("OP_DOUBLE_TO_STRING_CAST");
+            break;
+
+        case OP_BOOL_TO_STRING_CAST:
+            puts("OP_BOOL_TO_STRING_CAST");
+            break;
+
+        case OP_POINTER_TO_STRING_CAST:
+            puts("OP_POINTER_TO_STRING_CAST");
+            break;
+
+        case OP_CHAR_TO_STRING_CAST:
+            puts("OP_CHAR_TO_STRING_CAST");
+            break;
+
         default:
             printf("inst %d\n", inst);
             break;
@@ -389,8 +441,8 @@ static BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int
 {
     sBlockObject* object_data = CLBLOCK(block_object);
 
-    sByteCode* code = &object_data->mCodes;
-    sConst* constant = &object_data->mConstant;
+    sByteCode code = object_data->mCodes;               // struct copy
+    sConst constant = object_data->mConstant;           // struct copy
     CLVALUE* new_stack = *stack_ptr;
     int new_var_num = object_data->mBlockVarNum + object_data->mParentVarNum;
     BOOL lambda = object_data->mLambda;
@@ -403,7 +455,7 @@ static BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int
     if(lambda) {
         memcpy(new_stack, (*stack_ptr)-num_params, sizeof(CLVALUE)*num_params);
 
-        if(!vm(code, constant, new_stack, new_var_num, klass, info)) {
+        if(!vm(&code, &constant, new_stack, new_var_num, klass, info)) {
             **stack_ptr = *new_stack;
             (*stack_ptr)++;
             return FALSE;
@@ -421,7 +473,7 @@ static BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int
         memcpy(new_stack, object_data->mParentStack, sizeof(CLVALUE)*object_data->mParentVarNum);
         memcpy(new_stack + object_data->mParentVarNum, (*stack_ptr)-num_params, sizeof(CLVALUE)*num_params);
 
-        if(!vm(code, constant, new_stack, new_var_num, klass, info)) {
+        if(!vm(&code, &constant, new_stack, new_var_num, klass, info)) {
             **stack_ptr = *new_stack;
             (*stack_ptr)++;
             return FALSE;
@@ -429,11 +481,10 @@ static BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int
 
         /// copy back variables to parent ///
         memcpy(object_data->mParentStack, new_stack, sizeof(CLVALUE)*object_data->mParentVarNum);
-    }
-
+    } 
     **stack_ptr = *new_stack;
     (*stack_ptr)++;
-    
+
     return TRUE;
 }
 
@@ -619,6 +670,7 @@ sCLClass* get_class_with_load_and_initialize(char* class_name)
 
         if(result == NULL) {
             fprintf(stderr, "Clover2 can't load %s\n", class_name);
+            return NULL;
         }
         if(!initialize_class(result)) {
             return NULL;
@@ -829,9 +881,6 @@ show_inst(inst);
                 CLObject exception = stack->mObjectValue;
 
                 entry_exception_object(exception, info);
-#ifdef VM_DEBUG
-show_stack(stack, stack_ptr, lvar, var_num);
-#endif
                 return FALSE;
 
             case OP_TRY:
@@ -4230,6 +4279,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLMethod* method = klass->mMethods + method_index;
 
+
                     if(!invoke_method(klass, method, stack, var_num, &stack_ptr, info)) {
                         if(try_offset != 0) {
                             pc = code->mCodes + try_offset;
@@ -4243,6 +4293,10 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     }
 
                     vm_mutex_off();
+
+#ifdef VM_DEBUG
+show_stack(stack, stack_ptr, lvar, var_num);
+#endif
                 }
                 break;
 
@@ -12019,12 +12073,14 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
     remove_stack_to_stack_list(stack);
 
+/*
 #ifdef VM_DEBUG
 if(stack_ptr != lvar + var_num) {
     fprintf(stderr, "invalid stack\n");
     exit(3);
 }
 #endif
+*/
 
     return TRUE;
 }

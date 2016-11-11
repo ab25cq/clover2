@@ -20,29 +20,5 @@ class String
 {
     def sub(regex:regex, replace:String): String {
         return null;
-/*
-        result:Buffer = new Buffer();
-
-        ovec:PcreOVec = new PcreOVec(32);
-
-        while(true) {
-            ovec:PcreOVec = new PcreOVec(32);
-
-            matched:int = pcre_exec(regex, self, 32, ovec);
-            if(matched < 0) {
-                result.
-                break;
-            }
-
-            if(regex.global) {
-            }
-            else {
-                head:String = self.subString(0, result.start);
-                break;
-            }
-        }
-
-        return result.toString();
-*/
     }
 }

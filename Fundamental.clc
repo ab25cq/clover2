@@ -124,30 +124,41 @@ class Buffer
 class String
 {
     buffer: char[];
+    size:int;
+    len:int;
 
     def initialize() {
-        self.buffer = new char[1]();
+        self.buffer = new char[128]();
         self.buffer[0] = '\0';
+
+        self.size = 128;
+        self.len = 0;
     }
 
     def initialize(size:int) {
         self.buffer = new char[size+1]();
+        self.buffer[0] = '\0';
+
+        self.size = size + 1;
+        self.len = 0;
     }
 
     def initialize(buffer:char[]) {
         self.buffer = buffer;
+
+        self.size = buffer.length;
+        self.len = buffer.length-1;
     }
 
     def initialize(str:String) {
-        self.setValue(str);
-    }
+        self.buffer = new char[str.length()+1]();
+        for(i:int = 0; i<str.length(); i++) {
+            self.buffer[i] = str.chars(i);
+        }
+        self.buffer[i] = '\0';
 
-    def chars(index:int):char {
-        return self.buffer[index];
-    }
-
-    def length():int {
-        return self.buffer.length-1;
+        self.len = str.length();
+        self.size = str.length()+1;
     }
 
     def setValue(str: String) {
@@ -156,32 +167,49 @@ class String
             self.buffer[i] = str.chars(i);
         }
         self.buffer[str.length()] = '\0';
+
+        self.len = str.length();
+        self.size = str.length()+1;
     }
 
     def setValue(buffer:char[]) {
         self.buffer = buffer;
+        self.len = buffer.length-1;
+        self.size = buffer.length;
+    }
+
+    def chars(index:int):char {
+        if(index < self.len) {
+            return self.buffer[index];
+        }
+        else {
+            return '\0';
+        }
+    }
+
+    def length():int {
+        return self.len;
     }
 
     def append(str: String): String {
-    /*
-        new_buffer:char[] = new char[self.buffer.length + str.length()]();
+        new_buffer:char[] = new char[self.len + str.length() + 1];
 
-        for(i:int = 0; i<self.buffer.length-1; i++) {
+        for(i:int = 0; i<self.len; i++) {
             new_buffer[i] = self.buffer[i];
         }
-        for(i = 0; i<str.length(); i++) {
-            new_buffer[i+self.buffer.length-1] = str.chars(i);
+        for(i=self.len; i<self.len + str.length(); i++) {
+            new_buffer[i] = str.chars(i-self.len);
         }
-        new_buffer[self.buffer.length-1 + str.length()] = '\0';
+        new_buffer[i] = '\0';
 
         self.setValue(new_buffer);
-*/
+
         return self;
     }
 
     def equals(str: String):bool {
-        if(self.buffer.length-1 == str.length()) {
-            for(i:int = 0; i<self.buffer.length-1; i++) {
+        if(self.len == str.length()) {
+            for(i:int = 0; i<self.len; i++) {
                 if(self.buffer[i] != str.chars(i)) {
                     return false;
                 }
@@ -196,7 +224,7 @@ class String
 
     def getHashKey(): uint {
         key:uint = 0;
-        for(i:int =1; i<self.buffer.length-1; i++) {
+        for(i:int =1; i<self.len; i++) {
             key += self.buffer[i].to_uint;
         }
 
@@ -204,13 +232,15 @@ class String
     }
 
     def subString(start:int, end:int): String {
-        result: String = new String(end-start);
+        result: String = new String(end-start+1);
 
         for(i:int = 0; i<end-start; i++) {
             result.buffer[i] = self.chars(i+start);
         }
-
         result.buffer[i] = '\0';
+
+        result.len = end-start;
+        result.size = end-start+1;
 
         return result;
     }

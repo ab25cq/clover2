@@ -112,7 +112,7 @@ void append_str_to_constant_pool_and_code(sConst* constant, sByteCode* code, cha
 #define CLASS_FLAGS_PRIMITIVE 0x01
 #define CLASS_FLAGS_INTERFACE 0x02
 #define CLASS_FLAGS_MODIFIED 0x04
-#define CLASS_FLAGS_LOADED 0x08
+#define CLASS_FLAGS_ALLOCATED 0x08
 
 struct sCLTypeStruct;
 

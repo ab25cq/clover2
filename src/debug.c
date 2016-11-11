@@ -229,6 +229,7 @@ ALLOC void* debug_calloc(size_t count, size_t size, const char* file_name, int l
 //////////////////////////////////////////////////////////////////////
 // realloc for memory leak checking
 //////////////////////////////////////////////////////////////////////
+#include "common.h"
 ALLOC void* debug_realloc(void* memory, size_t size, const char* file_name, int line, const char* func_name)
 {
     t_malloc_entry* entry;

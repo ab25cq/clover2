@@ -144,19 +144,14 @@ static BOOL parse_class_on_alloc_classes_phase(sParserInfo* info, sCompileInfo* 
         return FALSE;
     }
 
-    if(info->included_source) {
-        info->klass = load_class(class_name);
+    info->klass = get_class(class_name);
 
-        if(info->klass) {
-            info->klass->mFlags |= CLASS_FLAGS_LOADED;
-        }
-        else {
-            info->klass = alloc_class(class_name, FALSE, -1, info->generics_info.mNumParams, info->generics_info.mInterface, interface);
-            info->klass->mFlags |= CLASS_FLAGS_LOADED;
-        }
-    }
-    else {
+    if(info->klass == NULL) {
         info->klass = alloc_class(class_name, FALSE, -1, info->generics_info.mNumParams, info->generics_info.mInterface, interface);
+        info->klass->mFlags |= CLASS_FLAGS_ALLOCATED;
+    }
+
+    if(!info->included_source) {
         info->klass->mFlags |= CLASS_FLAGS_MODIFIED;
     }
 
@@ -395,7 +390,7 @@ static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOO
             return FALSE;
         }
 
-        if(info->err_num == 0 && !(info->klass->mFlags & CLASS_FLAGS_LOADED)) {
+        if(info->err_num == 0 && (info->klass->mFlags & CLASS_FLAGS_ALLOCATED)) {
             if(!add_method_to_class(info->klass, method_name, params, num_params, result_type, native_, static_)) {
                 fprintf(stderr, "overflow method number\n");
                 return FALSE;
@@ -427,7 +422,7 @@ static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOO
             return FALSE;
         }
 
-        if(info->err_num == 0 && !(info->klass->mFlags & CLASS_FLAGS_LOADED)) {
+        if(info->err_num == 0 && (info->klass->mFlags & CLASS_FLAGS_ALLOCATED)) {
             if(static_) {
                 if(!add_class_field_to_class(info->klass, buf, private_, protected_, result_type)) {
                     return FALSE;
@@ -563,20 +558,7 @@ BOOL parse_methods_and_fields_on_compile_time(sParserInfo* info, sCompileInfo* c
         sCLMethod* method = info->klass->mMethods + info->klass->mMethodIndexOnCompileTime;
         info->klass->mMethodIndexOnCompileTime++;
 
-        if(info->klass->mFlags & CLASS_FLAGS_LOADED) {
-            if(native_ || interface) {
-                if(*info->p == ';') {
-                    info->p++;
-                    skip_spaces_and_lf(info);
-                }
-            }
-            else {
-                if(!skip_block(info)) {
-                    return FALSE;
-                }
-            }
-        }
-        else {
+        if(info->klass->mFlags & CLASS_FLAGS_ALLOCATED) {
             if(native_ || interface) {
                 if(*info->p == ';') {
                     info->p++;
@@ -595,6 +577,19 @@ BOOL parse_methods_and_fields_on_compile_time(sParserInfo* info, sCompileInfo* c
                 else {
                     parser_err_msg(info, "The next character is required {");
                     info->err_num++;
+                }
+            }
+        }
+        else {
+            if(native_ || interface) {
+                if(*info->p == ';') {
+                    info->p++;
+                    skip_spaces_and_lf(info);
+                }
+            }
+            else {
+                if(!skip_block(info)) {
+                    return FALSE;
                 }
             }
         }

@@ -25,6 +25,7 @@ CLObject create_block_object(sByteCode* codes, sConst* constant, CLVALUE* parent
 
     object_data->mCodes = *codes; // copy struct
     object_data->mConstant = *constant; // copy struct
+
     object_data->mParentStack = parent_stack;
     object_data->mParentVarNum = parent_var_num;
     object_data->mBlockVarNum = block_var_num;

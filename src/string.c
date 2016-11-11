@@ -35,6 +35,8 @@ CLObject create_string_object(char* str)
     /// entry char array to object ///
     sCLObject* obj_data = CLOBJECT(obj);
     obj_data->mFields[0].mObjectValue = buffer;
+    obj_data->mFields[1].mIntValue = len + 1;
+    obj_data->mFields[2].mIntValue = len;
 
     /// pop object ///
     gGlobalStackPtr--;

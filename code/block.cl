@@ -1,12 +1,13 @@
 
-a:lambda(int,int):int = closure(a:int, b:int): int {
-System.println("a -->".append(a.toString));
-System.println("b -->".append(b.toString));
-    return a + b;
+a:lambda(int,int):int = lambda(value1:int, value2:int): int {
+System.println(value1.toString);
+System.println(value2.toString);
+    return value1 + value2;
 }
 
 Clover.test("lambda test1", a(123,234) == 357);
 
+/*
 c:int = 1;
 
 b:lambda(int,int):int = closure(value1:int, value2:int):int {
@@ -27,4 +28,4 @@ e:lambda(int,int):int = lambda(value1:int, value2:int):int {
 }
 
 Clover.test("lambda test4", e(1, 2) == 3);
-
+*/
