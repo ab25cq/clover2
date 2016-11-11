@@ -1579,6 +1579,20 @@ static BOOL parse_tuple_value(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
+BOOL parse_iniherit(unsigned int* node, sParserInfo* info)
+{
+    unsigned int params[PARAMS_MAX];
+    int num_params = 0;
+
+    if(!parse_method_params(&num_params, params, info)) {
+        return FALSE;
+    }
+
+    *node = sNodeTree_create_inherit_call(num_params, params, info->klass->mMethodIndexOnCompileTime-1);
+
+    return TRUE;
+}
+
 static BOOL expression_node(unsigned int* node, sParserInfo* info)
 {
     if((*info->p == '-' && *(info->p+1) != '=' && *(info->p+1) != '-' && *(info->p+1) != '>') || (*info->p == '+' && *(info->p+1) != '=' && *(info->p+1) != '+')) 
@@ -1900,6 +1914,11 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         }
         else if(strcmp(buf, "block") == 0 && *info->p == '{') {
             if(!parse_normal_block(node, info)) {
+                return FALSE;
+            }
+        }
+        else if(strcmp(buf, "inherit") == 0) {
+            if(!parse_iniherit(node, info)) {
                 return FALSE;
             }
         }

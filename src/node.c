@@ -5408,6 +5408,95 @@ static BOOL compile_implements(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_inherit_call(int num_params, unsigned int params[], int method_index)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeInheritCall;
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    gNodes[node].mType = NULL;
+
+    gNodes[node].uValue.sInheritCall.mNumParams = num_params;
+
+    int i;
+    for(i=0; i<gNodes[node].uValue.sInheritCall.mNumParams; i++) {
+        gNodes[node].uValue.sInheritCall.mParams[i] = params[i];
+    }
+
+    gNodes[node].uValue.sInheritCall.mMethodIndex = method_index;
+
+    return node;
+}
+
+static BOOL compile_inherit_call(unsigned int node, sCompileInfo* info)
+{
+    sCLClass* klass = info->pinfo->klass;
+    sCLMethod* method = info->method;
+    char* method_name = METHOD_NAME2(klass, method);
+
+    if(method == NULL) {
+        parser_err_msg(info->pinfo, "inherit call must be in method");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    int method_index = gNodes[node].uValue.sInheritCall.mMethodIndex;
+    BOOL class_method = method->mFlags & METHOD_FLAGS_CLASS_METHOD;
+
+    /// load self if the method is none class method ///
+    if(!class_method) {
+        append_opecode_to_code(info->code, OP_LOAD, info->no_output);
+        append_int_value_to_code(info->code, 0, info->no_output);     // self
+    }
+
+    /// compile params ///
+    sNodeType* param_types[PARAMS_MAX];
+    int num_params = gNodes[node].uValue.sInheritCall.mNumParams;
+
+    int i;
+    for(i=0; i<num_params; i++) {
+        int node2 = gNodes[node].uValue.sInheritCall.mParams[i];
+        if(!compile(node2, info)) {
+            return FALSE;
+        }
+
+        param_types[i] = info->type;
+    }
+
+    /// search for the method ///
+    sNodeType* result_type;
+    int method_index2 = search_for_method(klass, method_name, param_types, num_params, class_method, method_index-1, NULL, NULL, &result_type);
+
+    if(method_index2 == -1) {
+        parser_err_msg(info->pinfo, "method not found(1)");
+        info->err_num++;
+
+        err_msg_for_method_not_found(klass, method_name, param_types, num_params, TRUE, info);
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
+    append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(klass), info->no_output);
+    append_int_value_to_code(info->code, method_index2, info->no_output);
+
+    info->stack_num-=num_params;
+    info->stack_num++;
+
+    info->type = result_type;
+    
+    return TRUE;
+}
+
 void show_node(unsigned int node)
 {
     if(node == 0) {
@@ -5640,6 +5729,10 @@ void show_node(unsigned int node)
 
         case kNodeTypeImplements:
             puts("implements");
+            break;
+
+        case kNodeTypeInheritCall:
+            puts("inherit");
             break;
     }
 }
@@ -5977,6 +6070,12 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeImplements:
             if(!compile_implements(node,info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeInheritCall:
+            if(!compile_inherit_call(node,info)) {
                 return FALSE;
             }
             break;

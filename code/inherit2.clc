@@ -1,0 +1,8 @@
+include "code/inherit.clc"
+
+class InheritClassA
+{
+    def method(value:int):int {
+        return inherit(value);
+    }
+}

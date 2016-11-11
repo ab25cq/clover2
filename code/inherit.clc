@@ -1,0 +1,12 @@
+class InheritClassA
+{
+    value: int;
+
+    def initialize(value:int) {
+        self.value = value;
+    }
+
+    def method(value:int):int {
+        return self.value + value;
+    }
+}

@@ -277,7 +277,10 @@ BOOL solve_generics_types_for_node_type(sNodeType* node_type, ALLOC sNodeType** 
     int i;
     int j;
 
-    if(type_identify_with_class_name(node_type, "SELF")) {
+    if(generics_type == NULL) {
+        *result = clone_node_type(node_type); // no solve
+    }
+    else if(type_identify_with_class_name(node_type, "SELF")) {
         *result = alloc_node_type();
         (*result)->mClass = generics_type->mClass;
 
