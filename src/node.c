@@ -5454,6 +5454,8 @@ static BOOL compile_inherit_call(unsigned int node, sCompileInfo* info)
     if(!class_method) {
         append_opecode_to_code(info->code, OP_LOAD, info->no_output);
         append_int_value_to_code(info->code, 0, info->no_output);     // self
+
+        info->stack_num++;
     }
 
     /// compile params ///
@@ -5489,7 +5491,13 @@ static BOOL compile_inherit_call(unsigned int node, sCompileInfo* info)
     append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(klass), info->no_output);
     append_int_value_to_code(info->code, method_index2, info->no_output);
 
-    info->stack_num-=num_params;
+    if(!class_method) {
+        info->stack_num-=num_params+1;
+    }
+    else {
+        info->stack_num-=num_params;
+    }
+
     info->stack_num++;
 
     info->type = result_type;
