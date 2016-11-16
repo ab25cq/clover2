@@ -39,6 +39,14 @@ ALLOC void* xrealloc(void* ptr, size_t size)
 {
     void* buf;
 
+    buf = CALLOC(1, size);
+    memcpy(buf, ptr, size);
+    free(ptr);
+
+    return buf;
+/*
+    void* buf;
+
     buf = realloc(ptr, size);
 
     if(buf == NULL) {
@@ -47,6 +55,7 @@ ALLOC void* xrealloc(void* ptr, size_t size)
     }
 
     return buf;
+*/
 }
 
 ALLOC void* xcalloc(size_t count, size_t size)

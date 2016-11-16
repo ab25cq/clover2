@@ -4176,7 +4176,7 @@ show_inst(inst);
 
                     if(klass == NULL) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found(1)");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -4265,7 +4265,7 @@ show_inst(inst);
 
                     if(klass == NULL) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found(2)");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -4389,7 +4389,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(klass == NULL) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found(3)");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -4422,12 +4422,19 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     CLObject obj = (stack_ptr -1)->mObjectValue;
                     stack_ptr--;
 
+                    if(obj == 0) {
+                        vm_mutex_off();
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "Null pointer exception");
+                        remove_stack_to_stack_list(stack);
+                        return FALSE;
+                    }
+
                     sCLObject* object_pointer = CLOBJECT(obj);
                     sCLClass* klass = object_pointer->mClass;
 
                     if(klass == NULL) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found(4)");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -4457,12 +4464,19 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     CLObject obj = (stack_ptr -1)->mObjectValue;
                     stack_ptr--;
 
+                    if(obj == 0) {
+                        vm_mutex_off();
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "Null pointer exception");
+                        remove_stack_to_stack_list(stack);
+                        return FALSE;
+                    }
+
                     sCLObject* object_pointer = CLOBJECT(obj);
                     sCLClass* klass = object_pointer->mClass;
 
                     if(klass == NULL) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found(5)");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -4492,12 +4506,19 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     CLObject obj = (stack_ptr -2)->mObjectValue;
                     CLVALUE value = *(stack_ptr-1);
 
+                    if(obj == 0) {
+                        vm_mutex_off();
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "Null pointer exception");
+                        remove_stack_to_stack_list(stack);
+                        return FALSE;
+                    }
+
                     sCLObject* object_pointer = CLOBJECT(obj);
                     sCLClass* klass = object_pointer->mClass;
 
                     if(klass == NULL) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found(6)");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -4534,7 +4555,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(klass == NULL) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found(7)");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -4571,7 +4592,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(klass == NULL) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found(8)");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -4609,7 +4630,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(klass == NULL) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found(9)");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -4638,6 +4659,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     int element_num = (stack_ptr -1)->mIntValue;
                     stack_ptr-=2;
 
+                    if(array == 0) {
+                        vm_mutex_off();
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "Null pointer exception");
+                        remove_stack_to_stack_list(stack);
+                        return FALSE;
+                    }
+
                     sCLObject* object_pointer = CLOBJECT(array);
 
                     if(element_num < 0 || element_num >= object_pointer->mArrayNum) {
@@ -4662,6 +4690,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     CLObject array = (stack_ptr -3)->mObjectValue;
                     int element_num = (stack_ptr -2)->mIntValue;
                     CLVALUE value = *(stack_ptr-1);
+
+                    if(array == 0) {
+                        vm_mutex_off();
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "Null pointer exception");
+                        remove_stack_to_stack_list(stack);
+                        return FALSE;
+                    }
 
                     sCLObject* object_pointer = CLOBJECT(array);
 
@@ -11510,7 +11545,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                 if(klass == NULL) {
                     vm_mutex_off();
-                    entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found");
+                    entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found(10)");
                     remove_stack_to_stack_list(stack);
                     return FALSE;
                 }
@@ -11747,7 +11782,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(klass == NULL) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found(11)");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -11789,7 +11824,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(klass == NULL) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found(12)");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -11839,7 +11874,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(klass == NULL) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found(13)");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -11925,7 +11960,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(klass == NULL) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found(14)");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -11939,7 +11974,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(klass2 == NULL) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found(15)");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }

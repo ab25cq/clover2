@@ -88,10 +88,12 @@ void mark_object(CLObject obj, unsigned char* mark_flg)
             int array_num = object->mArrayNum;
 
             /// mark objects which is contained in ///
-            if(klass && !(klass->mFlags & CLASS_FLAGS_PRIMITIVE) && array_num == -1) {
-                object_mark_fun(obj, mark_flg);
+            if(array_num == -1) {
+                if(klass && !(klass->mFlags & CLASS_FLAGS_PRIMITIVE)) {
+                    object_mark_fun(obj, mark_flg);
+                }
             }
-            else if(array_num != -1) {
+            else {
                 array_mark_fun(obj, mark_flg);
             }
         }

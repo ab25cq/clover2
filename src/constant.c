@@ -34,9 +34,12 @@ int sConst_append(sConst* self, void* data, size_t size, BOOL no_output)
 
         if(self->mSize <= self->mLen + size + 1) {
             int new_size = (self->mSize + 1 + size) * 2;
-            self->mConst = MREALLOC(self->mConst, sizeof(char)*new_size);
+            char* new_constant = MCALLOC(1, new_size);
 
-            memset(self->mConst + self->mLen, 0, sizeof(char)*(new_size-self->mSize));
+            memcpy(new_constant, self->mConst, new_size);
+            MFREE(self->mConst);
+
+            self->mConst = new_constant;
             self->mSize = new_size;
         }
 

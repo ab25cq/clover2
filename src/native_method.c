@@ -108,7 +108,7 @@ static sNativeMethod gNativeMethods[] = {
     { "System.printToError(String)", System_printToError },
     { "System.printlnToError(String)", System_printlnToError },
     { "System.sleep(int)", System_sleep },
-    { "System.pcre_exec(regex,String,int,PcreOVec)", System_pcre_exec },
+    { "System.pcre_exec(regex,String,int,int,PcreOVec)", System_pcre_exec },
     { "System.sprintf(String,Array)", System_sprintf },
     { "System.mbstowcs(pointer,pointer)", System_mbstowcs },
     { "System.wcstombs(pointer,char[])", System_wcstombs },

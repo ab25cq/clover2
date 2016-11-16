@@ -31,11 +31,14 @@ void append_value_to_code(sByteCode* code, void* data, size_t size, BOOL no_outp
     if(!no_output) {
         arrange_alignment(code);
 
-        if(code->mSize <= code->mLen + size) {
+        if(code->mLen + size + 1>= code->mSize) {
             size_t new_size = (code->mSize + size) * 2;
-            code->mCodes = MREALLOC(code->mCodes, new_size);
-            memset(code->mCodes + code->mSize, 0, sizeof(char)*(new_size - code->mSize));
+            char* new_code = MCALLOC(1, new_size);
 
+            memcpy(new_code, code->mCodes, code->mLen);
+            MFREE(code->mCodes);
+
+            code->mCodes = new_code;
             code->mSize = new_size;
         }
 

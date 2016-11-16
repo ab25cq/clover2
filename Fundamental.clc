@@ -144,32 +144,26 @@ class String
     }
 
     def initialize(buffer:char[]) {
-        self.buffer = buffer;
-
-        self.size = buffer.length;
-        self.len = buffer.length-1;
+        self.setValue(buffer);
     }
 
     def initialize(str:String) {
-        self.buffer = new char[str.length()+1]();
-        for(i:int = 0; i<str.length(); i++) {
-            self.buffer[i] = str.chars(i);
-        }
-        self.buffer[i] = '\0';
-
-        self.len = str.length();
-        self.size = str.length()+1;
+        self.setValue(str);
     }
 
     def setValue(str: String) {
-        self.buffer = new char[str.length()+1]();
-        for(i:int = 0; i<str.length(); i++) {
-            self.buffer[i] = str.chars(i);
-        }
-        self.buffer[str.length()] = '\0';
+        len:int = str.length();
+        size:int = len * 2 + 1;
 
-        self.len = str.length();
-        self.size = str.length()+1;
+        self.buffer = new char[size]();
+
+        for(i:int = 0; i<len; i++) {
+            self.buffer[i] = str.buffer[i];
+        }
+        self.buffer[i] = '\0';
+
+        self.len = len;
+        self.size = size;
     }
 
     def setValue(buffer:char[]) {
@@ -179,7 +173,7 @@ class String
     }
 
     def chars(index:int):char {
-        if(index < self.len) {
+        if(index>= 0 && index < self.len) {
             return self.buffer[index];
         }
         else {
@@ -192,17 +186,32 @@ class String
     }
 
     def append(str: String): String {
-        new_buffer:char[] = new char[self.len + str.length() + 1];
+        len:int = str.length();
 
-        for(i:int = 0; i<self.len; i++) {
-            new_buffer[i] = self.buffer[i];
-        }
-        for(i=self.len; i<self.len + str.length(); i++) {
-            new_buffer[i] = str.chars(i-self.len);
-        }
-        new_buffer[i] = '\0';
+        if(self.len+len+1 < self.size) {
+            for(i:int=self.len; i<self.len + len; i++) {
+                self.buffer[i] = str.chars(i-self.len);
+            }
+            self.buffer[i] = '\0';
 
-        self.setValue(new_buffer);
+            self.len += len;
+        }
+        else {
+            new_size:int = (self.len + len) * 2 + 1;
+            new_buffer:char[] = new char[new_size];
+
+            for(i:int = 0; i<self.len; i++) {
+                new_buffer[i] = self.chars(i);
+            }
+            for(i=self.len; i<self.len + len; i++) {
+                new_buffer[i] = str.chars(i-self.len);
+            }
+            new_buffer[i] = '\0';
+
+            self.buffer = new_buffer;
+            self.len += len;
+            self.size = new_size;
+        }
 
         return self;
     }
@@ -229,20 +238,6 @@ class String
         }
 
         return key;
-    }
-
-    def subString(start:int, end:int): String {
-        result: String = new String(end-start+1);
-
-        for(i:int = 0; i<end-start; i++) {
-            result.buffer[i] = self.chars(i+start);
-        }
-        result.buffer[i] = '\0';
-
-        result.len = end-start;
-        result.size = end-start+1;
-
-        return result;
     }
 }
 

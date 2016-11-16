@@ -74,7 +74,7 @@ $(OBJ): src/*.h Makefile configure
 #########################################################
 install:
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -no-load-fudamental-classes -class Fundamental.clc
-	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -no-load-fudamental-classes -class ExtendedString.clc
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -no-load-fudamental-classes -class StringBase.clc
 	mkdir -p ~/.clover2
 	$(INSTALL) -m 644 PcreOVec.clcl ~/.clover2
 	$(INSTALL) -m 644 System.clcl ~/.clover2
@@ -195,6 +195,6 @@ test:
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -class code/equalable_array.clc code/equalable_array.cl && ./clover2 code/equalable_array.clo
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/buffer.cl && ./clover2 code/buffer.clo
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/system_test.cl && ./clover2 code/system_test.clo
-	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/string2.cl && ./clover2 code/string2.clo
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -class code/inherit.clc -class code/inherit2.clc code/inherit.cl && ./clover2 code/inherit.clo
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/string2.cl && ./clover2 code/string2.clo
 

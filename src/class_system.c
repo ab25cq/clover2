@@ -297,8 +297,9 @@ BOOL System_pcre_exec(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* regex = lvar;
     CLVALUE* str = (lvar+1);
-    CLVALUE* ovec_max = (lvar+2);
-    CLVALUE* pcre_ovec = (lvar+3);
+    CLVALUE* offset = (lvar+2);
+    CLVALUE* ovec_max = (lvar+3);
+    CLVALUE* pcre_ovec = (lvar+4);
 
     /// convert Clover value to C value ///
     sRegexObject* regex_object_data = CLREGEX(regex->mObjectValue);
@@ -316,10 +317,11 @@ BOOL System_pcre_exec(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int ovec_max_value = ovec_max->mIntValue;
     int* ovec_value = MCALLOC(1, sizeof(int)*ovec_max_value * 3);
 
+    int offset_value = offset->mIntValue;
+
     /// go ///
     int options = PCRE_NEWLINE_LF;
-    int offset = 0;
-    int result = pcre_exec(regex_value, 0, str_value, len, offset, options, ovec_value, ovec_max_value*3);
+    int result = pcre_exec(regex_value, 0, str_value, len, offset_value, options, ovec_value, ovec_max_value*3);
 
     /// set result data on ovec object ///
     CLObject pcre_ovec_object = pcre_ovec->mObjectValue;

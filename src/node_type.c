@@ -178,6 +178,7 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_
     else {
         left2 = left;
     }
+
     sNodeType* right2;
     if(right_generics_types) {
         if(!solve_generics_types_for_node_type(right, ALLOC &right2, right_generics_types)) 
@@ -192,7 +193,8 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_
     sCLClass* left_class = left2->mClass;
     sCLClass* right_class = right2->mClass;
 
-    if(type_identify_with_class_name(right2, "Null") && (!(left_class->mFlags & CLASS_FLAGS_PRIMITIVE) || left2->mArray)) {
+    if(type_identify_with_class_name(right2, "Null") && (!(left_class->mFlags & CLASS_FLAGS_PRIMITIVE) || left2->mArray)) 
+    {
         return TRUE;
     }
     else if(type_identify_with_class_name(right2, "Anonymous") && !(left_class->mFlags & CLASS_FLAGS_PRIMITIVE)) {

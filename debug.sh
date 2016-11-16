@@ -1,2 +1,2 @@
-export LD_LIBRARY_PATH=.; valgrind ./clover2 code/inherit.clo
+export LD_LIBRARY_PATH=.; gdb ./clover2 code/string2.clo
 
