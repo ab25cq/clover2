@@ -33,3 +33,12 @@ strings:List<String> = "ABC".scan(/./
 
 Clover.test("string2 test13", strings.equals(list { "A1", "B1", "C1" }));
 
+Clover.test("string2 test14", "ABCABCABC".scan(/B/).length() == 3);
+
+Clover.test("string2 test15", "ABC\nABC\nABC\n".split(/\n/).equals(list { "ABC", "ABC", "ABC" }));
+
+Clover.test("string2 test16", "ABC\r\nABC\r\nABC\r\n".split(/\r\n/).equals(list { "ABC", "ABC", "ABC" }));
+
+Clover.test("string2 test17", "ABC".reverse().equals("CBA"));
+
+

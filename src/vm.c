@@ -872,6 +872,12 @@ show_inst(inst);
             case OP_RETURN:
                 *stack = *(stack_ptr-1);
                 remove_stack_to_stack_list(stack);
+#ifdef MDEBUG
+if(stack_ptr != lvar + var_num + 1) {
+    fprintf(stderr, "invalid stack\n");
+    exit(3);
+}
+#endif
                 return TRUE;
 
             case OP_THROW:
@@ -881,6 +887,12 @@ show_inst(inst);
                 CLObject exception = stack->mObjectValue;
 
                 entry_exception_object(exception, info);
+#ifdef MDEBUG
+if(stack_ptr != lvar + var_num + 1) {
+    fprintf(stderr, "invalid stack\n");
+    exit(3);
+}
+#endif
                 return FALSE;
 
             case OP_TRY:
@@ -12108,14 +12120,12 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
     remove_stack_to_stack_list(stack);
 
-/*
-#ifdef VM_DEBUG
+#ifdef MDEBUG
 if(stack_ptr != lvar + var_num) {
     fprintf(stderr, "invalid stack\n");
     exit(3);
 }
 #endif
-*/
 
     return TRUE;
 }

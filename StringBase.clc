@@ -18,6 +18,10 @@ class System
 
 class String
 {
+    def printf(format:String) {
+        printf(format, array { self });
+    }
+
     def subString(start:int, end:int): String {
         if(start < 0) {
             start += self.length();
@@ -43,12 +47,41 @@ class String
         return result;
     }
 
-    def println() {
-        println(self);
+    def match(regex_:regex):bool {
+        ovec_max:int = 16;
+        ovec:PcreOVec = new PcreOVec(ovec_max);
+
+        offset:int = 0;
+        regex_result:int = System.pcre_exec(regex_, self, offset, ovec_max, ovec);
+
+        return regex_result > 0;
     }
 
-    def printf(format:String) {
-        printf(format, array { self });
+    def match(regex_:regex, group_strings:List<String>): bool {
+        ovec_max:int = 16;
+        ovec:PcreOVec = new PcreOVec(ovec_max);
+
+        offset:int = 0;
+        regex_result:int = System.pcre_exec(regex_, self, offset, ovec_max, ovec);
+
+        ### match and no group strings ###
+        if(regex_result == 1 || group_strings.identifyWith(null) && regex_result > 0) {
+            return true;
+        }
+        ### group strings ###
+        elif(regex_result > 1) {
+            group_strings.clear();
+            for(i:int = 1; i<regex_result; i++) {
+                match_string:String = self.subString(ovec.start[i], ovec.end[i]);
+                group_strings.add(match_string);
+            }
+
+            return true;
+        }
+        ### no match ###
+        else {
+            return false;
+        }
     }
 
     def sub(regex_:regex, replace:String, group_strings:List<String>): String {
@@ -121,7 +154,8 @@ class String
         return self.sub(regex_, replace, null);
     }
 
-    def sub(regex_:regex, replace:lambda(String,List<String>):String, group_strings:List<String>): String {
+    def sub(regex_:regex, replace:lambda(String,List<String>):String, group_strings:List<String>): String 
+    {
         result: String = new String();
         offset:int = 0;
 
@@ -191,43 +225,6 @@ class String
     def sub(regex_:regex, replace:lambda(String,List<String>):String): String {
         group_strings:List<String> = new List<String>();
         return self.sub(regex_, replace, group_strings);
-    }
-
-    def match(regex_:regex):bool {
-        ovec_max:int = 16;
-        ovec:PcreOVec = new PcreOVec(ovec_max);
-
-        offset:int = 0;
-        regex_result:int = System.pcre_exec(regex_, self, offset, ovec_max, ovec);
-
-        return regex_result > 0;
-    }
-
-    def match(regex_:regex, group_strings:List<String>): bool {
-        ovec_max:int = 16;
-        ovec:PcreOVec = new PcreOVec(ovec_max);
-
-        offset:int = 0;
-        regex_result:int = System.pcre_exec(regex_, self, offset, ovec_max, ovec);
-
-        ### match and no group strings ###
-        if(regex_result == 1 || group_strings.identifyWith(null) && regex_result > 0) {
-            return true;
-        }
-        ### group strings ###
-        elif(regex_result > 1) {
-            group_strings.clear();
-            for(i:int = 1; i<regex_result; i++) {
-                match_string:String = self.subString(ovec.start[i], ovec.end[i]);
-                group_strings.add(match_string);
-            }
-
-            return true;
-        }
-        ### no match ###
-        else {
-            return false;
-        }
     }
 
     def scan(regex_:regex): List<String> {
@@ -325,6 +322,126 @@ class String
                 break;
             }
         }
+
+        return result;
+    }
+
+    def each(block_:lambda(char)):String {
+        for(i:int = 0; i<self.len; i++) {
+            block_(self.buffer[i]);
+        }
+
+        return self;
+    }
+
+    def split(separator:regex):List<String> {
+        result:List<String> = new List<String>();
+        offset:int = 0;
+
+        while(true) {
+            ovec_max:int = 16;
+            ovec:PcreOVec = new PcreOVec(ovec_max);
+
+            regex_result:int = System.pcre_exec(separator, self, offset, ovec_max, ovec);
+
+            ### match and no group strings ###
+            if(regex_result == 1) {
+                str:String = self.subString(offset, ovec.start[0]);
+                result.add(str);
+
+                if(offset == ovec.end[0]) {
+                    offset++;
+                }
+                else {
+                    offset = ovec.end[0];
+                }
+            }
+            ### group strings ###
+            elif(regex_result > 1) {
+                str:String = self.subString(offset, ovec.start[0]);
+                result.add(str);
+
+                if(offset == ovec.end[0]) {
+                    offset++;
+                }
+                else {
+                    offset = ovec.end[0];
+                }
+
+                for(i:int = 1; i<regex_result; i++) {
+                    str:String = self.subString(ovec.start[i], ovec.end[i]);
+                    result.add(str);
+                }
+            }
+            ### no match ###
+            else {
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    def split(separator:regex, block_:lambda(String,List<String>):String):List<String> {
+        result:List<String> = new List<String>();
+        offset:int = 0;
+
+        while(true) {
+            ovec_max:int = 16;
+            ovec:PcreOVec = new PcreOVec(ovec_max);
+
+            regex_result:int = System.pcre_exec(separator, self, offset, ovec_max, ovec);
+
+            ### match and no group strings ###
+            if(regex_result == 1) {
+                str:String = self.subString(offset, ovec.start[0]);
+                group_strings:List<String> = new List<String>();
+                result.add(block_(str, group_strings));
+
+                if(offset == ovec.end[0]) {
+                    offset++;
+                }
+                else {
+                    offset = ovec.end[0];
+                }
+            }
+            ### group strings ###
+            elif(regex_result > 1) {
+                str:String = self.subString(offset, ovec.start[0]);
+
+                if(offset == ovec.end[0]) {
+                    offset++;
+                }
+                else {
+                    offset = ovec.end[0];
+                }
+
+                group_strings:List<String> = new List<String>();
+                for(i:int = 1; i<regex_result; i++) {
+                    str:String = self.subString(ovec.start[i], ovec.end[i]);
+                    group_strings.add(str);
+                }
+
+                result.add(block_(str, group_strings));
+            }
+            ### no match ###
+            else {
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    def reverse():String {
+        result:String = new String(self.size);
+
+        for(i:int = 0; i<self.len; i++) {
+            result.buffer[i] = self.buffer[self.len-i-1];
+        }
+        result.buffer[i] = '\0';
+
+        result.len = self.len;
 
         return result;
     }
