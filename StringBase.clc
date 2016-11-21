@@ -445,4 +445,20 @@ class String
 
         return result;
     }
+
+    def upperCase():String {
+        for(i:int = 0; i<self.len; i++) {
+            self.buffer[i] = self.buffer[i].to_upper;
+        }
+
+        return self;
+    }
+
+    def lowerCase():String {
+        for(i:int = 0; i<self.len; i++) {
+            self.buffer[i] = self.buffer[i].to_lower;
+        }
+
+        return self;
+    }
 }

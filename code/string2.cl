@@ -40,5 +40,11 @@ Clover.test("string2 test15", "ABC\nABC\nABC\n".split(/\n/).equals(list { "ABC",
 Clover.test("string2 test16", "ABC\r\nABC\r\nABC\r\n".split(/\r\n/).equals(list { "ABC", "ABC", "ABC" }));
 
 Clover.test("string2 test17", "ABC".reverse().equals("CBA"));
+Clover.test("string2 test18", "ABC".lowerCase().equals("abc"));
+Clover.test("string2 test19", "Abc".lowerCase().equals("abc"));
+Clover.test("string2 test20", "Abc".upperCase().equals("ABC"));
+Clover.test("string2 test21", "abc".upperCase().equals("ABC"));
 
+Clover.test("string2 test22", "123".to_int() == 123);
+Clover.test("string2 test23", "123.4".to_float() == 123.4f);
 

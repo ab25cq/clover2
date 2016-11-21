@@ -11741,6 +11741,39 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 }
                 break;
 
+            case OP_CHAR_UPPERCASE:
+                {
+                    vm_mutex_on();
+
+                    wchar_t c = (stack_ptr-1)->mCharValue;
+
+                    wchar_t result = c;
+                    if(c >= 'a' && c <= 'z') {
+                        result = c - 'a' + 'A';
+                    }
+
+                    (stack_ptr-1)->mCharValue = result;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CHAR_LOWERCASE:
+                {
+                    vm_mutex_on();
+
+                    wchar_t c = (stack_ptr-1)->mCharValue;
+
+                    wchar_t result = c;
+                    if(c >= 'A' && c <= 'Z') {
+                        result = c - 'A' + 'a';
+                    }
+
+                    (stack_ptr-1)->mCharValue = result;
+
+                    vm_mutex_off();
+                }
+                break;
 
             case OP_CREATE_STRING:
                 {

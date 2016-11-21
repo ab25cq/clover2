@@ -1461,6 +1461,9 @@ void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
 #define OP_GET_REGEX_DOLLAR_ENDONLY 8106
 #define OP_GET_REGEX_UNGREEDY 8107
 
+#define OP_CHAR_UPPERCASE 8150
+#define OP_CHAR_LOWERCASE 8151
+
 #define OP_CREATE_STRING 9000
 #define OP_CREATE_BUFFER 9001
 #define OP_CREATE_ARRAY 9002

@@ -25,11 +25,11 @@ CLASS_NAME	src/common.h	235;"	d
 CLASS_NAME_MAX	src/common.h	31;"	d
 CLASS_NUM_MAX	src/klass.c	9;"	d	file:
 CLASS_VERSION_MAX	src/common.h	38;"	d
-CLBLOCK	src/common.h	1642;"	d
-CLHEAPMEM	src/common.h	1563;"	d
-CLOBJECT	src/common.h	1610;"	d
+CLBLOCK	src/common.h	1645;"	d
+CLHEAPMEM	src/common.h	1566;"	d
+CLOBJECT	src/common.h	1613;"	d
 CLObject	src/common.h	/^typedef unsigned int CLObject;$/;"	t
-CLREGEX	src/common.h	1665;"	d
+CLREGEX	src/common.h	1668;"	d
 CLVALUE	src/common.h	/^typedef union CLVALUEUnion CLVALUE;$/;"	t	typeref:union:CLVALUEUnion
 CLVALUEUnion	src/common.h	/^union CLVALUEUnion {$/;"	u
 CL_MODULE_HASH_SIZE	src/common.h	41;"	d
@@ -40,7 +40,7 @@ CONS_str	src/common.h	97;"	d
 CreateProcess	ltmain.sh	/^   CreateProcess().  We must quote the arguments since Win32 CreateProcess()$/;"	f
 DEBUG_H	src/debug.h	2;"	d
 DESTDIR	Makefile	/^DESTDIR=$/;"	m
-DUMMY_ARRAY_SIZE	src/common.h	1596;"	d
+DUMMY_ARRAY_SIZE	src/common.h	1599;"	d
 ELIF_NUM_MAX	src/common.h	34;"	d
 EXCEPTION_MESSAGE_MAX	src/common.h	151;"	d
 FALSE	src/macros.h	13;"	d
@@ -245,6 +245,7 @@ OP_CFLOAT_TO_ULONG_CAST	src/common.h	1169;"	d
 OP_CFLOAT_TO_USHORT_CAST	src/common.h	1117;"	d
 OP_CGT	src/common.h	910;"	d
 OP_CGTEQ	src/common.h	912;"	d
+OP_CHAR_LOWERCASE	src/common.h	1465;"	d
 OP_CHAR_TO_BYTE_CAST	src/common.h	977;"	d
 OP_CHAR_TO_CBOOL_CAST	src/common.h	1447;"	d
 OP_CHAR_TO_CBYTE_CAST	src/common.h	1311;"	d
@@ -270,6 +271,7 @@ OP_CHAR_TO_UINTEGER_CAST	src/common.h	1297;"	d
 OP_CHAR_TO_UINT_CAST	src/common.h	1133;"	d
 OP_CHAR_TO_ULONG_CAST	src/common.h	1159;"	d
 OP_CHAR_TO_USHORT_CAST	src/common.h	1107;"	d
+OP_CHAR_UPPERCASE	src/common.h	1464;"	d
 OP_CLASSNAME	src/common.h	916;"	d
 OP_CLE	src/common.h	911;"	d
 OP_CLEEQ	src/common.h	913;"	d
@@ -296,15 +298,15 @@ OP_CPOINTER_TO_UBYTE_CAST	src/common.h	1093;"	d
 OP_CPOINTER_TO_UINT_CAST	src/common.h	1145;"	d
 OP_CPOINTER_TO_ULONG_CAST	src/common.h	1171;"	d
 OP_CPOINTER_TO_USHORT_CAST	src/common.h	1119;"	d
-OP_CREATE_ARRAY	src/common.h	1466;"	d
-OP_CREATE_BLOCK_OBJECT	src/common.h	1471;"	d
-OP_CREATE_BUFFER	src/common.h	1465;"	d
-OP_CREATE_CARRAY	src/common.h	1467;"	d
-OP_CREATE_HASH	src/common.h	1470;"	d
-OP_CREATE_LIST	src/common.h	1468;"	d
-OP_CREATE_REGEX	src/common.h	1472;"	d
-OP_CREATE_STRING	src/common.h	1464;"	d
-OP_CREATE_TUPLE	src/common.h	1469;"	d
+OP_CREATE_ARRAY	src/common.h	1469;"	d
+OP_CREATE_BLOCK_OBJECT	src/common.h	1474;"	d
+OP_CREATE_BUFFER	src/common.h	1468;"	d
+OP_CREATE_CARRAY	src/common.h	1470;"	d
+OP_CREATE_HASH	src/common.h	1473;"	d
+OP_CREATE_LIST	src/common.h	1471;"	d
+OP_CREATE_REGEX	src/common.h	1475;"	d
+OP_CREATE_STRING	src/common.h	1467;"	d
+OP_CREATE_TUPLE	src/common.h	1472;"	d
 OP_CSHORT_TO_BYTE_CAST	src/common.h	981;"	d
 OP_CSHORT_TO_CHAR_CAST	src/common.h	1247;"	d
 OP_CSHORT_TO_DOUBLE_CAST	src/common.h	1212;"	d
@@ -837,14 +839,14 @@ OP_USSUB	src/common.h	752;"	d
 OP_USXOR	src/common.h	759;"	d
 OS	Makefile	/^OS=LINUX$/;"	m
 PARAMS_MAX	src/common.h	36;"	d
-PARSE_PHASE_ADD_GENERICS_TYPES	src/common.h	1487;"	d
-PARSE_PHASE_ADD_METHODS_AND_FIELDS	src/common.h	1488;"	d
-PARSE_PHASE_ADD_SUPER_CLASSES	src/common.h	1485;"	d
-PARSE_PHASE_ALLOC_CLASSES	src/common.h	1484;"	d
-PARSE_PHASE_CALCULATE_SUPER_CLASSES	src/common.h	1486;"	d
-PARSE_PHASE_COMPILE_PARAM_INITIALIZER	src/common.h	1489;"	d
-PARSE_PHASE_DO_COMPILE_CODE	src/common.h	1490;"	d
-PARSE_PHASE_MAX	src/common.h	1491;"	d
+PARSE_PHASE_ADD_GENERICS_TYPES	src/common.h	1490;"	d
+PARSE_PHASE_ADD_METHODS_AND_FIELDS	src/common.h	1491;"	d
+PARSE_PHASE_ADD_SUPER_CLASSES	src/common.h	1488;"	d
+PARSE_PHASE_ALLOC_CLASSES	src/common.h	1487;"	d
+PARSE_PHASE_CALCULATE_SUPER_CLASSES	src/common.h	1489;"	d
+PARSE_PHASE_COMPILE_PARAM_INITIALIZER	src/common.h	1492;"	d
+PARSE_PHASE_DO_COMPILE_CODE	src/common.h	1493;"	d
+PARSE_PHASE_MAX	src/common.h	1494;"	d
 SO_VERSION	Makefile	/^SO_VERSION=1.0.0$/;"	m
 System_assert	src/class_system.c	/^BOOL System_assert(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_calloc	src/class_system.c	/^BOOL System_calloc(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f

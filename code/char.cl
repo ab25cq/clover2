@@ -21,3 +21,8 @@ y:char = 'あ';
 
 System.assert(y == 'あ');
 
+
+Clover.test("char test1", 'a'.to_upper == 'A');
+Clover.test("char test2", 'A'.to_upper == 'A');
+Clover.test("char test3", 'A'.to_lower == 'a');
+Clover.test("char test4", 'a'.to_lower == 'a');

@@ -2399,6 +2399,7 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
     }
 
     sCLClass* regex_class = get_class("regex");
+    sCLClass* char_class = get_class("char");
 
     /// special field ///
     if(array && strcmp(field_name, "length") == 0) {
@@ -2416,6 +2417,16 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
         append_opecode_to_code(info->code, OP_GET_REGEX_GLOBAL, info->no_output);
 
         info->type = create_node_type_with_class_name("bool");
+    }
+    else if(klass == char_class && strcmp(field_name, "to_upper") == 0) {
+        append_opecode_to_code(info->code, OP_CHAR_UPPERCASE, info->no_output);
+
+        info->type = create_node_type_with_class_name("char");
+    }
+    else if(klass == char_class && strcmp(field_name, "to_lower") == 0) {
+        append_opecode_to_code(info->code, OP_CHAR_LOWERCASE, info->no_output);
+
+        info->type = create_node_type_with_class_name("char");
     }
     else if(klass == regex_class && strcmp(field_name, "ignoreCase") == 0) {
         append_opecode_to_code(info->code, OP_GET_REGEX_IGNORE_CASE, info->no_output);
