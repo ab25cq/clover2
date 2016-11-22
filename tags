@@ -875,6 +875,7 @@ System_strdup	src/class_system.c	/^BOOL System_strdup(CLVALUE** stack_ptr, CLVAL
 System_strlen	src/class_system.c	/^BOOL System_strlen(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_strlen2	src/class_system.c	/^BOOL System_strlen2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_strncpy	src/class_system.c	/^BOOL System_strncpy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
+System_strtod	src/class_system.c	/^BOOL System_strtod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_wcstombs	src/class_system.c	/^BOOL System_wcstombs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 TRUE	src/macros.h	9;"	d
 TUPLE_VALUE_ELEMENT_MAX	src/common.h	45;"	d

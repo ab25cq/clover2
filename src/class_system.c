@@ -735,4 +735,23 @@ BOOL System_atof(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     return TRUE;
 }
 
+BOOL System_strtod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* str = lvar;
+
+    /// Clover to c value ///
+    CLObject str_object = str->mObjectValue;
+    char* str_value = ALLOC string_object_to_char_array(str_object);
+
+    /// go ///
+    double result = strtod(str_value, NULL);
+
+    (*stack_ptr)->mDoubleValue = result;
+    (*stack_ptr)++;
+
+    MFREE(str_value);
+
+    return TRUE;
+}
+
 

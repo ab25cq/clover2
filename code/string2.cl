@@ -47,4 +47,5 @@ Clover.test("string2 test21", "abc".upperCase().equals("ABC"));
 
 Clover.test("string2 test22", "123".to_int() == 123);
 Clover.test("string2 test23", "123.123".to_float() == 123.123f);
+Clover.test("string2 test24", "123.123".to_double() == 123.123);
 

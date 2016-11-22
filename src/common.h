@@ -1740,6 +1740,7 @@ BOOL System_mbstowcs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_wcstombs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_atof(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_atoi(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_strtod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 /// alignment.c ///
 void alignment(unsigned int* size);
