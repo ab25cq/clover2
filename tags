@@ -1676,6 +1676,7 @@ mVarNum	src/common.h	/^    int mVarNum;$/;"	m	struct:sCLMethodStruct
 mVarNum	src/common.h	/^    int mVarNum;$/;"	m	struct:sVarTableStruct
 mVirtualMethodTable	src/common.h	/^    sCLMethod* mVirtualMethodTable[METHOD_NUM_MAX]; \/\/ This requires on the run time$/;"	m	struct:sCLClassStruct
 mWhileNodeBlock	src/common.h	/^            MANAGED sNodeBlock* mWhileNodeBlock;$/;"	m	struct:sNodeTreeStruct::__anon2::__anon5
+main	a.c	/^int main() $/;"	f
 main	src/compiler.c	/^int main(int argc, char** argv)$/;"	f
 main	src/main.c	/^int main(int argc, char** argv)$/;"	f
 make_boxing_type	src/node_type.c	/^void make_boxing_type(sNodeType* type, sNodeType** result)$/;"	f

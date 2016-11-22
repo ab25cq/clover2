@@ -229,6 +229,12 @@ static BOOL get_number(BOOL minus, unsigned int* node, sParserInfo* info)
 
         if(*info->p == '.' && isdigit(*(info->p+1))) {
             info->p++;
+            *p2++ = '.';
+
+            if(p2 - buf >= buf_size) {
+                parser_err_msg(info, "overflow node of number");
+                return FALSE;
+            }
 
             while(isdigit(*info->p)) {
                 *p2++ = *info->p;
@@ -240,9 +246,8 @@ static BOOL get_number(BOOL minus, unsigned int* node, sParserInfo* info)
                 }
             }
             *p2 = 0;
-            skip_spaces_and_lf(info);
 
-            if(*info->p == 'f') {
+            if(*info->p == 'f' || *info->p == 'F') {
                 info->p++;
                 skip_spaces_and_lf(info);
 
@@ -251,9 +256,10 @@ static BOOL get_number(BOOL minus, unsigned int* node, sParserInfo* info)
             else {
                 *node = sNodeTree_create_double_value(strtod(buf, NULL), 0, 0, 0);
             }
-        }
 
-        if(*info->p == 'b') {
+            skip_spaces_and_lf(info);
+        }
+        else if(*info->p == 'b') {
             info->p++;
             skip_spaces_and_lf(info);
 
