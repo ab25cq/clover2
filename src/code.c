@@ -57,6 +57,11 @@ void append_int_value_to_code(sByteCode* code, int value, BOOL no_output)
     append_value_to_code(code, &value, sizeof(int), no_output);
 }
 
+void append_float_value_to_code(sByteCode* code, float value, BOOL no_output)
+{
+    append_value_to_code(code, &value, sizeof(float), no_output);
+}
+
 void append_long_value_to_code(sByteCode* code, long value, BOOL no_output)
 {
     int n1, n2;
@@ -67,3 +72,15 @@ void append_long_value_to_code(sByteCode* code, long value, BOOL no_output)
     append_value_to_code(code, &n1, sizeof(int), no_output);
     append_value_to_code(code, &n2, sizeof(int), no_output);
 }
+
+void append_double_value_to_code(sByteCode* code, double value, BOOL no_output)
+{
+    int n1, n2;
+
+    memcpy(&n1, &value, sizeof(int));
+    memcpy(&n2, (char*)&value + sizeof(int), sizeof(int));
+
+    append_value_to_code(code, &n1, sizeof(int), no_output);
+    append_value_to_code(code, &n2, sizeof(int), no_output);
+}
+

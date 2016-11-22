@@ -783,6 +783,60 @@ static BOOL compile_byte_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_float_value(float value, unsigned int left, unsigned int right, unsigned int middle)
+{
+    unsigned node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeFloatValue;
+
+    gNodes[node].uValue.mFloatValue = value;
+
+    gNodes[node].mLeft = left;
+    gNodes[node].mRight = right;
+    gNodes[node].mMiddle = middle;
+
+    return node;
+}
+
+static BOOL compile_float_value(unsigned int node, sCompileInfo* info)
+{
+    append_opecode_to_code(info->code, OP_LDCFLOAT, info->no_output);
+    append_float_value_to_code(info->code, gNodes[node].uValue.mFloatValue, info->no_output);
+
+    info->stack_num++;
+
+    info->type = create_node_type_with_class_name("float");
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_double_value(double value, unsigned int left, unsigned int right, unsigned int middle)
+{
+    unsigned node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeDoubleValue;
+
+    gNodes[node].uValue.mDoubleValue = value;
+
+    gNodes[node].mLeft = left;
+    gNodes[node].mRight = right;
+    gNodes[node].mMiddle = middle;
+
+    return node;
+}
+
+static BOOL compile_double_value(unsigned int node, sCompileInfo* info)
+{
+    append_opecode_to_code(info->code, OP_LDCDOUBLE, info->no_output);
+    append_double_value_to_code(info->code, gNodes[node].uValue.mDoubleValue, info->no_output);
+
+    info->stack_num++;
+
+    info->type = create_node_type_with_class_name("double");
+
+    return TRUE;
+}
+
 unsigned int sNodeTree_create_ubyte_value(unsigned char value, unsigned int left, unsigned int right, unsigned int middle)
 {
     unsigned node = alloc_node();
@@ -1694,6 +1748,46 @@ static BOOL compile_params(sCLClass* klass, char* method_name, int num_params, u
     return TRUE;
 }
 
+static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType* generics_types, sCLClass* klass, sNodeType* param_types[PARAMS_MAX], int num_params, char* method_name, unsigned int params[PARAMS_MAX])
+{
+    sNodeType* result_type;
+    int method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types, generics_types, &result_type);
+
+    if(method_index2 == -1) {
+        parser_err_msg(info->pinfo, "method not found(2)");
+        info->err_num++;
+
+        err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    sCLMethod* method = klass->mMethods + method_index2;
+
+    if(klass->mFlags & CLASS_FLAGS_INTERFACE)
+    {
+        int num_real_params = method->mNumParams + 1;
+
+        append_opecode_to_code(info->code, OP_INVOKE_VIRTUAL_METHOD, info->no_output);
+        append_int_value_to_code(info->code, num_real_params, info->no_output);
+        append_str_to_constant_pool_and_code(info->constant, info->code, METHOD_NAME_AND_PARAMS(klass, method), info->no_output);
+    }
+    else {
+        append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
+        append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(klass), info->no_output);
+        append_int_value_to_code(info->code, method_index2, info->no_output);
+    }
+
+    info->stack_num-=num_params + 1;
+    info->stack_num++;
+
+    info->type = result_type;
+
+    return TRUE;
+}
+
 static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
 {
     /// compile left node ///
@@ -1811,6 +1905,13 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
 
         info->type = generics_types;
         cast_right_type_to_byte(&info->type, info);
+
+        if(!type_identify_with_class_name(info->type, "byte")) {
+            if(!call_normal_method(node, info, generics_types, klass, param_types, num_params, method_name, params))
+            {
+                return FALSE;;
+            }
+        }
     }
     else if(strcmp(method_name, "to_ubyte") == 0) {
         if(num_params != 0) {
@@ -1824,6 +1925,13 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
 
         info->type = generics_types;
         cast_right_type_to_ubyte(&info->type, info);
+
+        if(!type_identify_with_class_name(info->type, "ubyte")) {
+            if(!call_normal_method(node, info, generics_types, klass, param_types, num_params, method_name, params))
+            {
+                return FALSE;;
+            }
+        }
     }
     else if(strcmp(method_name, "to_short") == 0) {
         if(num_params != 0) {
@@ -1837,6 +1945,13 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
 
         info->type = generics_types;
         cast_right_type_to_short(&info->type, info);
+
+        if(!type_identify_with_class_name(info->type, "short")) {
+            if(!call_normal_method(node, info, generics_types, klass, param_types, num_params, method_name, params))
+            {
+                return FALSE;;
+            }
+        }
     }
     else if(strcmp(method_name, "to_ushort") == 0) {
         if(num_params != 0) {
@@ -1850,6 +1965,13 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
 
         info->type = generics_types;
         cast_right_type_to_ushort(&info->type, info);
+
+        if(!type_identify_with_class_name(info->type, "ushort")) {
+            if(!call_normal_method(node, info, generics_types, klass, param_types, num_params, method_name, params))
+            {
+                return FALSE;;
+            }
+        }
     }
     else if(strcmp(method_name, "to_int") == 0) {
         if(num_params != 0) {
@@ -1863,6 +1985,13 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
 
         info->type = generics_types;
         cast_right_type_to_int(&info->type, info);
+
+        if(!type_identify_with_class_name(info->type, "int")) {
+            if(!call_normal_method(node, info, generics_types, klass, param_types, num_params, method_name, params))
+            {
+                return FALSE;;
+            }
+        }
     }
     else if(strcmp(method_name, "to_uint") == 0) {
         if(num_params != 0) {
@@ -1876,6 +2005,13 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
 
         info->type = generics_types;
         cast_right_type_to_uint(&info->type, info);
+
+        if(!type_identify_with_class_name(info->type, "uint")) {
+            if(!call_normal_method(node, info, generics_types, klass, param_types, num_params, method_name, params))
+            {
+                return FALSE;;
+            }
+        }
     }
     else if(strcmp(method_name, "to_long") == 0) {
         if(num_params != 0) {
@@ -1889,6 +2025,13 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
 
         info->type = generics_types;
         cast_right_type_to_long(&info->type, info);
+
+        if(!type_identify_with_class_name(info->type, "long")) {
+            if(!call_normal_method(node, info, generics_types, klass, param_types, num_params, method_name, params))
+            {
+                return FALSE;;
+            }
+        }
     }
     else if(strcmp(method_name, "to_ulong") == 0) {
         if(num_params != 0) {
@@ -1902,6 +2045,13 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
 
         info->type = generics_types;
         cast_right_type_to_ulong(&info->type, info);
+
+        if(!type_identify_with_class_name(info->type, "ulong")) {
+            if(!call_normal_method(node, info, generics_types, klass, param_types, num_params, method_name, params))
+            {
+                return FALSE;;
+            }
+        }
     }
     else if(strcmp(method_name, "to_float") == 0) {
         if(num_params != 0) {
@@ -1915,6 +2065,13 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
 
         info->type = generics_types;
         cast_right_type_to_float(&info->type, info);
+
+        if(!type_identify_with_class_name(info->type, "float")) {
+            if(!call_normal_method(node, info, generics_types, klass, param_types, num_params, method_name, params))
+            {
+                return FALSE;;
+            }
+        }
     }
     else if(strcmp(method_name, "to_double") == 0) {
         if(num_params != 0) {
@@ -1928,6 +2085,13 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
 
         info->type = generics_types;
         cast_right_type_to_double(&info->type, info);
+
+        if(!type_identify_with_class_name(info->type, "double")) {
+            if(!call_normal_method(node, info, generics_types, klass, param_types, num_params, method_name, params))
+            {
+                return FALSE;;
+            }
+        }
     }
     else if(strcmp(method_name, "to_char") == 0) {
         if(num_params != 0) {
@@ -1941,6 +2105,13 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
 
         info->type = generics_types;
         cast_right_type_to_char(&info->type, info);
+
+        if(!type_identify_with_class_name(info->type, "char")) {
+            if(!call_normal_method(node, info, generics_types, klass, param_types, num_params, method_name, params))
+            {
+                return FALSE;;
+            }
+        }
     }
     else if(strcmp(method_name, "to_pointer") == 0) {
         if(num_params != 0) {
@@ -1954,6 +2125,13 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
 
         info->type = generics_types;
         cast_right_type_to_pointer(&info->type, info);
+
+        if(!type_identify_with_class_name(info->type, "pointer")) {
+            if(!call_normal_method(node, info, generics_types, klass, param_types, num_params, method_name, params))
+            {
+                return FALSE;;
+            }
+        }
     }
     else if(strcmp(method_name, "to_bool") == 0) {
         if(num_params != 0) {
@@ -1967,43 +2145,20 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
 
         info->type = generics_types;
         cast_right_type_to_bool(&info->type, info);
+
+        if(!type_identify_with_class_name(info->type, "bool")) {
+            if(!call_normal_method(node, info, generics_types, klass, param_types, num_params, method_name, params))
+            {
+                return FALSE;;
+            }
+        }
     }
     /// normal methods ///
     else {
-        sNodeType* result_type;
-        int method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types, generics_types, &result_type);
-
-        if(method_index2 == -1) {
-            parser_err_msg(info->pinfo, "method not found(2)");
-            info->err_num++;
-
-            err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
-
-            info->type = create_node_type_with_class_name("int"); // dummy
-
-            return TRUE;
-        }
-
-        sCLMethod* method = klass->mMethods + method_index2;
-
-        if(klass->mFlags & CLASS_FLAGS_INTERFACE)
+        if(!call_normal_method(node, info, generics_types, klass, param_types, num_params, method_name, params))
         {
-            int num_real_params = method->mNumParams + 1;
-
-            append_opecode_to_code(info->code, OP_INVOKE_VIRTUAL_METHOD, info->no_output);
-            append_int_value_to_code(info->code, num_real_params, info->no_output);
-            append_str_to_constant_pool_and_code(info->constant, info->code, METHOD_NAME_AND_PARAMS(klass, method), info->no_output);
+            return FALSE;;
         }
-        else {
-            append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
-            append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(klass), info->no_output);
-            append_int_value_to_code(info->code, method_index2, info->no_output);
-        }
-
-        info->stack_num-=num_params + 1;
-        info->stack_num++;
-
-        info->type = result_type;
     }
     
     return TRUE;
@@ -5575,6 +5730,14 @@ void show_node(unsigned int node)
             printf("long value %lu\n", gNodes[node].uValue.mULongValue);
             break;
 
+        case kNodeTypeFloatValue:
+            printf("float value %f\n", gNodes[node].uValue.mFloatValue);
+            break;
+
+        case kNodeTypeDoubleValue:
+            printf("double value %lf\n", gNodes[node].uValue.mDoubleValue);
+            break;
+
         case kNodeTypeAssignVariable:
             printf("var name %s\n", gNodes[node].uValue.mVarName);
             break;
@@ -5795,6 +5958,18 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeUByteValue:
             if(!compile_ubyte_value(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeFloatValue:
+            if(!compile_float_value(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeDoubleValue:
+            if(!compile_double_value(node, info)) {
                 return FALSE;
             }
             break;

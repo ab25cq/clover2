@@ -112,6 +112,14 @@ static void show_inst(unsigned inst)
             puts("OP_LDCPOINTER");
             break;
 
+        case OP_LDCFLOAT:
+            puts("OP_LDCFLOAT");
+            break;
+
+        case OP_LDCDOUBLE:
+            puts("OP_LDCDOUBLE");
+            break;
+
         case OP_BADD :
             puts("OP_BADD");
             break;
@@ -1101,6 +1109,42 @@ if(stack_ptr != lvar + var_num + 1) {
                     memcpy((char*)&lvalue + sizeof(int), &value2, sizeof(int));
 
                     stack_ptr->mPointerValue = lvalue;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_LDCFLOAT: 
+                {
+                    vm_mutex_on();
+
+                    float value1 = *(float*)pc;
+                    pc += sizeof(float);
+
+                    stack_ptr->mFloatValue = value1;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_LDCDOUBLE: 
+                {
+                    vm_mutex_on();
+
+                    int value1 = *(int*)pc;
+                    pc += sizeof(int);
+
+                    int value2 = *(int*)pc;
+                    pc += sizeof(int);
+
+                    double lvalue;
+
+                    memcpy(&lvalue, &value1, sizeof(int));
+                    memcpy((char*)&lvalue + sizeof(int), &value2, sizeof(int));
+
+                    stack_ptr->mDoubleValue = lvalue;
                     stack_ptr++;
 
                     vm_mutex_off();

@@ -696,3 +696,43 @@ BOOL System_wcstombs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     return TRUE;
 }
+
+BOOL System_atoi(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* str = lvar;
+
+    /// Clover to c value ///
+    CLObject str_object = str->mObjectValue;
+    char* str_value = ALLOC string_object_to_char_array(str_object);
+
+    /// go ///
+    int result = atoi(str_value);
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    MFREE(str_value);
+
+    return TRUE;
+}
+
+BOOL System_atof(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* str = lvar;
+
+    /// Clover to c value ///
+    CLObject str_object = str->mObjectValue;
+    char* str_value = ALLOC string_object_to_char_array(str_object);
+
+    /// go ///
+    float result = atof(str_value);
+
+    (*stack_ptr)->mFloatValue = result;
+    (*stack_ptr)++;
+
+    MFREE(str_value);
+
+    return TRUE;
+}
+
+

@@ -112,6 +112,8 @@ static sNativeMethod gNativeMethods[] = {
     { "System.sprintf(String,Array)", System_sprintf },
     { "System.mbstowcs(pointer,pointer)", System_mbstowcs },
     { "System.wcstombs(pointer,char[])", System_wcstombs },
+    { "System.atoi(String)", System_atoi },
+    { "System.atof(String)", System_atof },
 
     { "", 0 }  // sentinel
 };

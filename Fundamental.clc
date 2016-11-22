@@ -127,6 +127,8 @@ class String
     size:int;
     len:int;
 
+    include MPrintf;
+
     def initialize() {
         self.buffer = new char[128]();
         self.buffer[0] = '\0';
@@ -254,6 +256,13 @@ interface Object
 {
 }
 
+module MPrintf
+{
+    def printf(format:String) {
+        printf(format, array { self });
+    }
+}
+
 module MWrapperClassConvert 
 {
     def toByte():Byte {
@@ -312,6 +321,7 @@ class Byte
 {
     include MWrapperClassConvert;
     include MWrapperClassEquals;
+    include MPrintf;
 
     value:byte;
 
@@ -352,6 +362,7 @@ class UByte
 {
     include MWrapperClassConvert;
     include MWrapperClassEquals;
+    include MPrintf;
 
     value:ubyte;
 
@@ -392,6 +403,7 @@ class Short
 {
     include MWrapperClassConvert;
     include MWrapperClassEquals;
+    include MPrintf;
 
     value:short;
 
@@ -432,6 +444,7 @@ class UShort
 {
     include MWrapperClassConvert;
     include MWrapperClassEquals;
+    include MPrintf;
 
     value:ushort;
 
@@ -472,6 +485,7 @@ class Integer
 {
     include MWrapperClassConvert;
     include MWrapperClassEquals;
+    include MPrintf;
 
     value:int;
 
@@ -508,6 +522,7 @@ class UInteger
 {
     include MWrapperClassConvert;
     include MWrapperClassEquals;
+    include MPrintf;
 
     value: uint;
 
@@ -548,6 +563,7 @@ class Long
 {
     include MWrapperClassConvert;
     include MWrapperClassEquals;
+    include MPrintf;
 
     value:long;
 
@@ -584,6 +600,7 @@ class ULong
 {
     include MWrapperClassConvert;
     include MWrapperClassEquals;
+    include MPrintf;
 
     value: ulong;
 
@@ -624,6 +641,7 @@ class Float
 {
     include MWrapperClassConvert;
     include MWrapperClassEquals;
+    include MPrintf;
 
     value: float;
 
@@ -660,6 +678,7 @@ class Double
 {
     include MWrapperClassConvert;
     include MWrapperClassEquals;
+    include MPrintf;
 
     value: double;
 
@@ -696,6 +715,7 @@ class Pointer
 {
     include MWrapperClassConvert;
     include MWrapperClassEquals;
+    include MPrintf;
 
     value: pointer;
 
@@ -728,6 +748,7 @@ class Char
 {
     include MWrapperClassConvert;
     include MWrapperClassEquals;
+    include MPrintf;
 
     value: char;
 
@@ -768,6 +789,7 @@ class Bool
 {
     include MWrapperClassConvert;
     include MWrapperClassEquals;
+    include MPrintf;
 
     value: bool;
 

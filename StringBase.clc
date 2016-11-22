@@ -14,6 +14,8 @@ class PcreOVec
 class System
 {
     def pcre_exec(regex:regex, str:String, offset:int, ovec_max:int, ovec:PcreOVec): native static int;
+    def atoi(str:String):native static int;
+    def atof(str:String):native static float;
 }
 
 class String
@@ -460,5 +462,13 @@ class String
         }
 
         return self;
+    }
+
+    def to_int(): int {
+        return System.atoi(self);
+    }
+
+    def to_float(): float {
+        return System.atof(self);
     }
 }

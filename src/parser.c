@@ -227,6 +227,32 @@ static BOOL get_number(BOOL minus, unsigned int* node, sParserInfo* info)
         *p2 = 0;
         skip_spaces_and_lf(info);
 
+        if(*info->p == '.' && isdigit(*(info->p+1))) {
+            info->p++;
+
+            while(isdigit(*info->p)) {
+                *p2++ = *info->p;
+                info->p++;
+
+                if(p2 - buf >= buf_size) {
+                    parser_err_msg(info, "overflow node of number");
+                    return FALSE;
+                }
+            }
+            *p2 = 0;
+            skip_spaces_and_lf(info);
+
+            if(*info->p == 'f') {
+                info->p++;
+                skip_spaces_and_lf(info);
+
+                *node = sNodeTree_create_float_value(atof(buf), 0, 0, 0);
+            }
+            else {
+                *node = sNodeTree_create_double_value(strtod(buf, NULL), 0, 0, 0);
+            }
+        }
+
         if(*info->p == 'b') {
             info->p++;
             skip_spaces_and_lf(info);
@@ -249,6 +275,61 @@ static BOOL get_number(BOOL minus, unsigned int* node, sParserInfo* info)
 
         *node = 0;
     }
+
+    return TRUE;
+}
+
+static BOOL get_hex_number(unsigned int* node, sParserInfo* info)
+{
+    int buf_size = 128;
+    char buf[128];
+    char* p = buf;
+
+    *p++ = '0';
+    *p++ = 'x';
+
+    while((*info->p >= '0' && *info->p <= '9') || (*info->p >= 'a' && *info->p <= 'f') || (*info->p >= 'A' && *info->p <= 'F')) 
+    {
+        *p++ = *info->p;
+        info->p++;
+
+        if(p - buf >= buf_size-1) {
+            parser_err_msg(info, "overflow node of number");
+            return FALSE;
+        }
+    }
+    *p = 0;
+    skip_spaces_and_lf(info);
+
+    unsigned long value = strtol(buf, NULL, 0);
+
+    *node = sNodeTree_create_int_value((int)value, 0, 0, 0);
+
+    return TRUE;
+}
+
+static BOOL get_oct_number(unsigned int* node, sParserInfo* info)
+{
+    int buf_size = 128;
+    char buf[128];
+    char* p = buf;
+
+    *p++ = '0';
+
+    while(*info->p >= '0' && *info->p <= '7') {
+        *p++ = *info->p++;
+
+        if(p - buf >= buf_size-1) {
+            parser_err_msg(info, "overflow node of number");
+            return FALSE;
+        }
+    }
+    *p = 0;
+    skip_spaces_and_lf(info);
+
+    unsigned long value = strtoul(buf, NULL, 0);
+
+    *node = sNodeTree_create_int_value((int)value, 0, 0, 0);
 
     return TRUE;
 }
@@ -1612,6 +1693,20 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             if(!get_number(FALSE, node, info)) {
                 return FALSE;
             }
+        }
+    }
+    else if(*info->p == '0' && *(info->p+1) == 'x') {
+        info->p += 2;
+
+        if(!get_hex_number(node, info)) {
+            return FALSE;
+        }
+    }
+    else if(*info->p == '0') {
+        info->p++;
+
+        if(!get_oct_number(node, info)) {
+            return FALSE;
         }
     }
     else if(isdigit(*info->p)) {
