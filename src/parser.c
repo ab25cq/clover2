@@ -206,7 +206,7 @@ static BOOL parse_method_params(int* num_params, unsigned int* params, sParserIn
 static BOOL get_number(BOOL minus, unsigned int* node, sParserInfo* info)
 {
     const int buf_size = 128;
-    char buf[128];
+    char buf[128+1];
     char* p2 = buf;
 
     if(minus) {
@@ -282,7 +282,7 @@ static BOOL get_number(BOOL minus, unsigned int* node, sParserInfo* info)
 static BOOL get_hex_number(unsigned int* node, sParserInfo* info)
 {
     int buf_size = 128;
-    char buf[128];
+    char buf[128+1];
     char* p = buf;
 
     *p++ = '0';
@@ -311,7 +311,7 @@ static BOOL get_hex_number(unsigned int* node, sParserInfo* info)
 static BOOL get_oct_number(unsigned int* node, sParserInfo* info)
 {
     int buf_size = 128;
-    char buf[128];
+    char buf[128+1];
     char* p = buf;
 
     *p++ = '0';
