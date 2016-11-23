@@ -306,18 +306,14 @@ BOOL System_pcre_exec(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     pcre* regex_value = regex_object_data->mRegex;
 
-    wchar_t* wstr = ALLOC string_object_to_wchar_array(str->mObjectValue);
+    char* str_value = string_object_to_char_array(str->mObjectValue);
 
-    int len = wcslen(wstr);
-    
-    char* str_value = ALLOC xwcstombs(wstr, len);
-
-    MFREE(wstr);
+    int len = strlen(str_value);
 
     int ovec_max_value = ovec_max->mIntValue;
     int* ovec_value = MCALLOC(1, sizeof(int)*ovec_max_value * 3);
 
-    int offset_value = offset->mIntValue;
+    int offset_value = utf32_index_to_utf8_index(str_value, offset->mIntValue);
 
     /// go ///
     int options = PCRE_NEWLINE_LF;
@@ -336,10 +332,12 @@ BOOL System_pcre_exec(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int i;
     for(i=0; i<ovec_max_value; i++) {
         if(i < pcre_ovec_start_array_data->mArrayNum) {
-            pcre_ovec_start_array_data->mFields[i].mIntValue = ovec_value[i*2];
+            int utf32index = utf8_index_to_utf32_index(str_value, ovec_value[i*2]);
+            pcre_ovec_start_array_data->mFields[i].mIntValue = utf32index;
         }
         if(i < pcre_ovec_end_array_data->mArrayNum) {
-            pcre_ovec_end_array_data->mFields[i].mIntValue = ovec_value[i*2+1];
+            int utf32index = utf8_index_to_utf32_index(str_value, ovec_value[i*2+1]);
+            pcre_ovec_end_array_data->mFields[i].mIntValue = utf32index;
         }
     }
 

@@ -4,6 +4,8 @@ a:regex = /^A/;
 pcre_ovec: PcreOVec = new PcreOVec(3);
 
 Clover.test("regex test", System.pcre_exec(a, "ABC", 0, 3, pcre_ovec) >= 0);
+
+printf("ovec.start[0] %d ovec.end[0] %d\n", array { pcre_ovec.start[0].toInteger, pcre_ovec.end[0].toInteger } );
 Clover.test("regex test", pcre_ovec.start[0] == 0 && pcre_ovec.end[0] == 1);
 
 pcre_ovec2: PcreOVec = new PcreOVec(3);

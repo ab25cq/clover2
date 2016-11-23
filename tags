@@ -101,7 +101,7 @@ LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); export L
 LIBS	Makefile	/^LIBS= -lutil -ldl -lm -lpcre$/;"	m
 LIBSO2NAME	Makefile	/^LIBSO2NAME=libclover2.so.1.0.0$/;"	m
 LIBSONAME	Makefile	/^LIBSONAME=libclover2.so$/;"	m
-LIB_OBJS	Makefile	/^LIB_OBJS=src\/buffer.o src\/debug.o src\/xfunc.o src\/klass.o src\/constant.o src\/code.o src\/alignment.o$/;"	m
+LIB_OBJS	Makefile	/^LIB_OBJS=src\/buffer.o src\/debug.o src\/xfunc.o src\/klass.o src\/constant.o src\/code.o src\/alignment.o src\/utf.o$/;"	m
 LIST_VALUE_ELEMENT_MAX	src/common.h	44;"	d
 LOCAL_VARIABLE_MAX	src/common.h	339;"	d
 MACROS_H	src/macros.h	2;"	d
@@ -1966,6 +1966,8 @@ uValue	src/common.h	/^    } uValue;$/;"	m	struct:sNodeTreeStruct	typeref:union:s
 unboxig_posibility	src/node_type.c	/^BOOL unboxig_posibility(sCLClass* klass)$/;"	f
 unboxing_to_primitive_type	src/node_type.c	/^BOOL unboxing_to_primitive_type(sNodeType** left_type, struct sCompileInfoStruct* info)$/;"	f
 unload_module	src/module.c	/^void unload_module(char* module_name)$/;"	f
+utf32_index_to_utf8_index	src/utf.c	/^int utf32_index_to_utf8_index(char* str, int utf32_index)$/;"	f
+utf8_index_to_utf32_index	src/utf.c	/^int utf8_index_to_utf32_index(char* str, int utf8_index)$/;"	f
 vm	src/vm.c	/^BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sVMInfo* info)$/;"	f
 vm_mutex_off	src/vm.c	/^void vm_mutex_off()$/;"	f
 vm_mutex_on	src/vm.c	/^void vm_mutex_on()$/;"	f

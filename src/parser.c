@@ -1932,7 +1932,6 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
             *node = sNodeTree_create_character_value(c);
         }
-
     }
     else if(*info->p == '{') {
         info->p++;

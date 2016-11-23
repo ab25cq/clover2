@@ -1,4 +1,5 @@
 #include "common.h"
+#include <wchar.h>
 
 CLObject create_string_object(char* str)
 {
@@ -8,6 +9,8 @@ CLObject create_string_object(char* str)
     wchar_t* wstr = MCALLOC(1, sizeof(wchar_t)*(len+1));
 
     (void)mbstowcs(wstr, str, len+1);
+
+    int wlen = wcslen(wstr);
 
     /// create object ///
     sCLClass* string_class = get_class("String");
@@ -23,11 +26,11 @@ CLObject create_string_object(char* str)
     sCLClass* char_class = get_class("char");
     MASSERT(char_class != NULL);
 
-    CLObject buffer = create_array_object(char_class, len+1);
+    CLObject buffer = create_array_object(char_class, wlen+1);
     sCLObject* buffer_data = CLOBJECT(buffer);
 
     int i;
-    for(i=0; i<len; i++) {
+    for(i=0; i<wlen; i++) {
         buffer_data->mFields[i].mCharValue = wstr[i];
     }
     buffer_data->mFields[i].mCharValue = '\0';
@@ -35,8 +38,8 @@ CLObject create_string_object(char* str)
     /// entry char array to object ///
     sCLObject* obj_data = CLOBJECT(obj);
     obj_data->mFields[0].mObjectValue = buffer;
-    obj_data->mFields[1].mIntValue = len + 1;
-    obj_data->mFields[2].mIntValue = len;
+    obj_data->mFields[1].mIntValue = wlen + 1;
+    obj_data->mFields[2].mIntValue = wlen;
 
     /// pop object ///
     gGlobalStackPtr--;

@@ -1786,5 +1786,9 @@ BOOL initialize_carray_object(CLObject array_object, int num_elements, CLObject*
 BOOL read_source(char* fname, sBuf* source);
 BOOL delete_comment(sBuf* source, sBuf* source2);
 
+/// utf.c ///
+int utf8_index_to_utf32_index(char* str, int utf8index);
+int utf32_index_to_utf8_index(char* str, int utf32index);
+
 #endif
 

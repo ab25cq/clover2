@@ -55,6 +55,9 @@ class Global
         str2: String = System.sprintf(str, params);
         System.print(str2);
     }
+    def printf(str:String): static {
+        System.print(str);
+    }
     def printfToError(str:String, params:Array<Object>): static {
         str2: String = System.sprintf(str, params);
         System.printToError(str2);
