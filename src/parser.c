@@ -2300,6 +2300,8 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             }
         }
 
+        skip_spaces_and_lf(info);
+
         *node = sNodeTree_create_regex(MANAGED regex.mBuf, global, ignore_case, multiline, extended, dotall, anchored, dollar_endonly, ungreedy);
     }
     else if(*info->p == '(') {

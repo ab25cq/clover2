@@ -48,4 +48,14 @@ Clover.test("string2 test21", "abc".upperCase().equals("ABC"));
 Clover.test("string2 test22", "123".to_int() == 123);
 Clover.test("string2 test23", "123.123".to_float() == 123.123f);
 Clover.test("string2 test24", "123.123".to_double() == 123.123);
+Clover.test("string2 test25", "ABC".multiply(3).equals("ABCABCABC"));
+
+Clover.test("string2 test26", "ABC".compare("DEF") < 0);
+Clover.test("string2 test27", "ABC".compare("ABC") == 0);
+Clover.test("string2 test28", "DEF".compare("ABC") > 0);
+Clover.test("string2 test29", "abc".compareWithIgnoreCase("ABC") == 0);
+Clover.test("string2 test30", "0xFF".hex() == 255);
+Clover.test("string2 test31", "010".oct() == 8);
+
+Clover.test("string2 test32", "あいう".match(/い/));
 

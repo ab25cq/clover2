@@ -754,4 +754,94 @@ BOOL System_strtod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     return TRUE;
 }
 
+BOOL System_strcmp(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* str = lvar;
+    CLVALUE* str2 = (lvar+1);
 
+    /// Clover to c value ///
+    CLObject str_object = str->mObjectValue;
+    char* str_value = ALLOC string_object_to_char_array(str_object);
+
+    CLObject str_object2 = str2->mObjectValue;
+    char* str_value2 = ALLOC string_object_to_char_array(str_object2);
+
+    /// go ///
+    int result = strcmp(str_value, str_value2);
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    MFREE(str_value);
+    MFREE(str_value2);
+
+    return TRUE;
+}
+
+BOOL System_strcasecmp(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* str = lvar;
+    CLVALUE* str2 = (lvar+1);
+
+    /// Clover to c value ///
+    CLObject str_object = str->mObjectValue;
+    char* str_value = ALLOC string_object_to_char_array(str_object);
+
+    CLObject str_object2 = str2->mObjectValue;
+    char* str_value2 = ALLOC string_object_to_char_array(str_object2);
+
+    /// go ///
+    int result = strcasecmp(str_value, str_value2);
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    MFREE(str_value);
+    MFREE(str_value2);
+
+    return TRUE;
+}
+
+BOOL System_strtol(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* str = lvar;
+    CLVALUE* base = (lvar+1);
+
+    /// Clover to c value ///
+    CLObject str_object = str->mObjectValue;
+    char* str_value = ALLOC string_object_to_char_array(str_object);
+
+    int base_value = base->mIntValue;
+
+    /// go ///
+    long result = strtol(str_value, NULL, base_value);
+
+    (*stack_ptr)->mLongValue = result;
+    (*stack_ptr)++;
+
+    MFREE(str_value);
+
+    return TRUE;
+}
+
+BOOL System_strtoul(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* str = lvar;
+    CLVALUE* base = (lvar+1);
+
+    /// Clover to c value ///
+    CLObject str_object = str->mObjectValue;
+    char* str_value = ALLOC string_object_to_char_array(str_object);
+
+    int base_value = base->mIntValue;
+
+    /// go ///
+    unsigned long result = strtol(str_value, NULL, base_value);
+
+    (*stack_ptr)->mULongValue = result;
+    (*stack_ptr)++;
+
+    MFREE(str_value);
+
+    return TRUE;
+}

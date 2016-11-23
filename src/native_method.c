@@ -115,6 +115,10 @@ static sNativeMethod gNativeMethods[] = {
     { "System.atoi(String)", System_atoi },
     { "System.atof(String)", System_atof },
     { "System.strtod(String)", System_strtod },
+    { "System.strcmp(String,String)", System_strcmp },
+    { "System.strcasecmp(String,String)", System_strcasecmp },
+    { "System.strtol(String,int)", System_strtol },
+    { "System.strtoul(String,int)", System_strtoul },
 
     { "", 0 }  // sentinel
 };

@@ -36,8 +36,8 @@ CLObject create_regex_object(char* regex, BOOL global, BOOL ignore_case, BOOL mu
     const char* err;
     int erro_ofs;
 
-    int options = (ignore_case ? PCRE_CASELESS:0) | (multiline ? PCRE_MULTILINE : 0) | (extended ? PCRE_EXTENDED :0) | (dotall ? PCRE_DOTALL :0) | (dollar_endonly ? PCRE_DOLLAR_ENDONLY:0) | (ungreedy ? PCRE_UNGREEDY:0);
-    //int options = (ignore_case ? PCRE_CASELESS:0) | (multiline ? PCRE_MULTILINE : 0) | (extended ? PCRE_EXTENDED :0) | (dotall ? PCRE_DOTALL :0) | (anchored ? PCRE_ANCHORED : 0) | (dollar_endonly ? PCRE_DOLLAR_ENDONLY) | (ungreedy ? PCRE_UNGREEDY);
+    int options = PCRE_UTF8 | (ignore_case ? PCRE_CASELESS:0) | (multiline ? PCRE_MULTILINE : 0) | (extended ? PCRE_EXTENDED :0) | (dotall ? PCRE_DOTALL :0) | (dollar_endonly ? PCRE_DOLLAR_ENDONLY:0) | (ungreedy ? PCRE_UNGREEDY:0);
+    //int options = PCRE_UTF8 | (ignore_case ? PCRE_CASELESS:0) | (multiline ? PCRE_MULTILINE : 0) | (extended ? PCRE_EXTENDED :0) | (dotall ? PCRE_DOTALL :0) | (anchored ? PCRE_ANCHORED : 0) | (dollar_endonly ? PCRE_DOLLAR_ENDONLY) | (ungreedy ? PCRE_UNGREEDY);
 
     object_data->mRegex = pcre_compile(regex, options,&err, &erro_ofs, NULL);
     object_data->mGlobal = global;

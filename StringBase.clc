@@ -17,6 +17,10 @@ class System
     def atoi(str:String):native static int;
     def atof(str:String):native static float;
     def strtod(str:String): native static double;
+    def strcmp(str1:String, str2:String): native static int;
+    def strcasecmp(str1:String, str2:String): native static int;
+    def strtol(str:String, base:int): native static long;
+    def strtoul(str:String, base:int): native static ulong;
 }
 
 class String
@@ -436,6 +440,49 @@ class String
         return result;
     }
 
+    def index(regex_:regex, count:int):int {
+        result:int = -1;
+        offset:int = 0;
+        count2:int = 0;
+
+        while(true) {
+            ovec_max:int = 16;
+            ovec:PcreOVec = new PcreOVec(ovec_max);
+
+            regex_result:int = System.pcre_exec(regex_, self, offset, ovec_max, ovec);
+
+            ### match ###
+            if(regex_result > 0) {
+                count2++;
+                if(count2 == count) {
+                    result = ovec.start[0];
+                    break;
+                }
+
+                if(offset == ovec.end[0]) {
+                    offset++;
+                }
+                else {
+                    offset = ovec.end[0];
+                }
+            }
+            ### no match ###
+            else {
+                break;
+            }
+        }
+
+        return result;
+    }
+    def index(regex_:regex):int {
+        return self.index(regex_, 1);
+    }
+    def rindex(regex_:regex, count:int):int {
+    }
+    def rindex(regex_:regex):int {
+        return self.rindex(regex_, 1);
+    }
+
     def reverse():String {
         result:String = new String(self.size);
 
@@ -475,5 +522,33 @@ class String
 
     def to_double(): double {
         return System.strtod(self);
+    }
+
+    def multiply(value:int): String {
+        result:String = new String();
+
+        for(i:int = 0; i<value; i++) {
+            result.append(self);
+        }
+
+        return result;
+    }
+
+    # same: 0, self > str: > 0, self < str: < 0
+    def compare(str:String): int {
+        return System.strcmp(self, str);
+    }
+
+    # same: 0, self > str: > 0, self < str: < 0
+    def compareWithIgnoreCase(str:String): int {
+        return System.strcasecmp(self, str);
+    }
+
+    def hex(): int {
+        return System.strtol(self, 0).to_int;
+    }
+
+    def oct(): int {
+        return System.strtol(self, 0).to_int;
     }
 }

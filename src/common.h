@@ -1741,6 +1741,10 @@ BOOL System_wcstombs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_atof(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_atoi(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_strtod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_strcmp(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_strcasecmp(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_strtol(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_strtoul(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 /// alignment.c ///
 void alignment(unsigned int* size);
