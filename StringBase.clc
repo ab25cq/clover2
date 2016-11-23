@@ -478,6 +478,8 @@ class String
         return self.index(regex_, 1);
     }
     def rindex(regex_:regex, count:int):int {
+        inr result = -1;
+        return result;
     }
     def rindex(regex_:regex):int {
         return self.rindex(regex_, 1);
