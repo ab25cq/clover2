@@ -440,7 +440,7 @@ class String
         return result;
     }
 
-    def index(regex_:regex, count:int):int {
+    def indexOf(regex_:regex, count:int):int {
         result:int = -1;
         offset:int = 0;
         count2:int = 0;
@@ -474,15 +474,8 @@ class String
 
         return result;
     }
-    def index(regex_:regex):int {
-        return self.index(regex_, 1);
-    }
-    def rindex(regex_:regex, count:int):int {
-        result:int = -1;
-        return result;
-    }
-    def rindex(regex_:regex):int {
-        return self.rindex(regex_, 1);
+    def indexOf(regex_:regex):int {
+        return self.indexOf(regex_, 1);
     }
 
     def reverse():String {
@@ -547,10 +540,10 @@ class String
     }
 
     def hex(): int {
-        return System.strtol(self, 0).to_int;
+        return System.strtol(self, 16).to_int;
     }
 
     def oct(): int {
-        return System.strtol(self, 0).to_int;
+        return System.strtol(self, 8).to_int;
     }
 }

@@ -59,8 +59,6 @@ Clover.test("string2 test31", "010".oct() == 8);
 
 Clover.test("string2 test32", "あいう".scan(/./).equals(list {"あ", "い", "う"}));
 
-Clover.test("string2 test33", "abcabc".index(/c/) == 2);
-Clover.test("string2 test34", "abcabc".index(/c/, 2) == 5);
-
-Clover.test("string2 test35", "abcabc".rindex(/c/) == 5);
+Clover.test("string2 test33", "abcabc".indexOf(/c/) == 2);
+Clover.test("string2 test34", "abcabc".indexOf(/c/, 2) == 5);
 
