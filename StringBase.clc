@@ -529,6 +529,12 @@ class String
         return result;
     }
 
+    def replace(index:int, c:char) {
+        if(index >= 0 && index < self.len) {
+            self.buffer[index] = c;
+        }
+    }
+
     # same: 0, self > str: > 0, self < str: < 0
     def compare(str:String): int {
         return System.strcmp(self, str);

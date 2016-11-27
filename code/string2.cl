@@ -62,3 +62,4 @@ Clover.test("string2 test32", "あいう".scan(/./).equals(list {"あ", "い", "
 Clover.test("string2 test33", "abcabc".indexOf(/c/) == 2);
 Clover.test("string2 test34", "abcabc".indexOf(/c/, 2) == 5);
 
+Clover.test("String2 test35", "abc".insert(1,"A").equals("aAbc"));
