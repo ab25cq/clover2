@@ -115,6 +115,7 @@ void append_str_to_constant_pool_and_code(sConst* constant, sByteCode* code, cha
 #define CLASS_FLAGS_INTERFACE 0x02
 #define CLASS_FLAGS_MODIFIED 0x04
 #define CLASS_FLAGS_ALLOCATED 0x08
+#define CLASS_FLAGS_DYNAMIC 0x10
 
 struct sCLTypeStruct;
 
@@ -245,7 +246,7 @@ void class_final();
 
 sCLClass* get_class(char* name);
 unsigned int get_hash_key(char* name, unsigned int max);
-sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_class_num, int generics_number, sCLClass** type_of_generics_params, BOOL interface);
+sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_class_num, int generics_number, sCLClass** type_of_generics_params, BOOL interface, BOOL dynamic_inteface);
 ALLOC sCLType* create_cl_type(sCLClass* klass, sCLClass* klass2);
 void free_cl_type(sCLType* cl_type);
 sCLClass* load_class(char* class_name);
@@ -1519,6 +1520,7 @@ sCLClass* get_class_with_load(char* class_name);
 BOOL parse_params(sParserParam* params, int* num_params, sParserInfo* info);
 BOOL check_implemented_methods_for_interface(sCLClass* left_class, sCLClass* right_class);
 BOOL method_name_existance(sCLClass* klass, char* method_name);
+void create_method_name_and_params2(char* result, int size_result, sCLClass* klass, char* method_name, sNodeType* param_types[PARAMS_MAX], int num_params);
 
 /// native_method.c ///
 void native_method_init();
@@ -1745,6 +1747,9 @@ BOOL System_strcmp(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_strcasecmp(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_strtol(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_strtoul(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_srand(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_rand(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_time(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 /// alignment.c ///
 void alignment(unsigned int* size);

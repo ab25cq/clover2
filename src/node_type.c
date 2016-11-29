@@ -197,7 +197,12 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_
     {
         return TRUE;
     }
-    else if(type_identify_with_class_name(right2, "Anonymous") && !(left_class->mFlags & CLASS_FLAGS_PRIMITIVE)) {
+    else if(type_identify_with_class_name(right2, "Anonymous") && !(left_class->mFlags & CLASS_FLAGS_PRIMITIVE)) 
+    {
+        return TRUE;
+    }
+    else if(type_identify_with_class_name(left2, "Anonymous") && !(right_class->mFlags & CLASS_FLAGS_PRIMITIVE)) 
+    {
         return TRUE;
     }
     else if(left_class->mFlags & CLASS_FLAGS_INTERFACE) {

@@ -40,7 +40,14 @@ Clover.test("list test7", list { 1,2 }.delete(2).equals(list {1}));
 Clover.test("list test8", list { 1,2,3 }.delete(1).equals(list {2,3}));
 Clover.test("list test9", list { 1,2,3 }.delete(2).equals(list {1,3}));
 Clover.test("list test10", list { 1,2,3 }.delete(3).equals(list {1,2}));
-#Clover.test("list test11", list { 1,2,3 }.insert(1, 7).equals(list { 1,7,2,3}));
-#Clover.test("list test12", list { 1,2,3 }.insert(0, 7).equals(list { 7,1,2,3}));
-#Clover.test("list test13", list { 1,2,3 }.insert(3, 7).equals(list { 1,2,3,7}));
+Clover.test("list test11", list { 1,2,3 }.insert(1, 7).equals(list { 1,7,2,3}));
+Clover.test("list test12", list { 1,2,3 }.insert(0, 7).equals(list { 7,1,2,3}));
+Clover.test("list test13", list { 1,2,3 }.insert(3, 7).equals(list { 1,2,3,7}));
+Clover.test("list test14", list { 1,2,3 }.insert(-1, 7).equals(list { 1,2,3,7}));
+Clover.test("list test15", list { 1,2,3 }.insert(-2, 7).equals(list { 1,2,7,3}));
+Clover.test("list test16", list { 1,2,3 }.insert(-10, 7).equals(list { 7,1,2,3}));
+Clover.test("list test17", list { 1,2,3 }.replace(-1, 10).equals(list { 1,2,10 }));
+Clover.test("list test18", list { 1,2,3 }.replace(-2, 10).equals(list { 1,10,3 }));
+Clover.test("list test19", list { 1,2,3 }.replace(10, 10).equals(list { 1,2,10 }));
+Clover.test("list test20", list { 1,2,3 }.replace(-10, 10).equals(list { 10,2,3 }));
 

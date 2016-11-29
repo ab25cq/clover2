@@ -1750,40 +1750,58 @@ static BOOL compile_params(sCLClass* klass, char* method_name, int num_params, u
 
 static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType* generics_types, sCLClass* klass, sNodeType* param_types[PARAMS_MAX], int num_params, char* method_name, unsigned int params[PARAMS_MAX])
 {
-    sNodeType* result_type;
-    int method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types, generics_types, &result_type);
+    if(klass->mFlags & CLASS_FLAGS_DYNAMIC) {
+        int num_real_params = num_params + 1;
+        int size_method_name_and_params = METHOD_NAME_MAX + PARAMS_MAX * CLASS_NAME_MAX + 256;
+        char method_name_and_params[size_method_name_and_params];
 
-    if(method_index2 == -1) {
-        parser_err_msg(info->pinfo, "method not found(2)");
-        info->err_num++;
-
-        err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
-
-        info->type = create_node_type_with_class_name("int"); // dummy
-
-        return TRUE;
-    }
-
-    sCLMethod* method = klass->mMethods + method_index2;
-
-    if(klass->mFlags & CLASS_FLAGS_INTERFACE)
-    {
-        int num_real_params = method->mNumParams + 1;
+        create_method_name_and_params2(method_name_and_params, size_method_name_and_params, klass, method_name, param_types, num_params);
 
         append_opecode_to_code(info->code, OP_INVOKE_VIRTUAL_METHOD, info->no_output);
         append_int_value_to_code(info->code, num_real_params, info->no_output);
-        append_str_to_constant_pool_and_code(info->constant, info->code, METHOD_NAME_AND_PARAMS(klass, method), info->no_output);
+        append_str_to_constant_pool_and_code(info->constant, info->code, method_name_and_params, info->no_output);
+
+        info->stack_num-=num_params + 1;
+        info->stack_num++;
+
+        info->type = create_node_type_with_class_name("Anonymous");
     }
     else {
-        append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
-        append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(klass), info->no_output);
-        append_int_value_to_code(info->code, method_index2, info->no_output);
+        sNodeType* result_type;
+        int method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types, generics_types, &result_type);
+
+        if(method_index2 == -1) {
+            parser_err_msg(info->pinfo, "method not found(2)");
+            info->err_num++;
+
+            err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        sCLMethod* method = klass->mMethods + method_index2;
+
+        if(klass->mFlags & CLASS_FLAGS_INTERFACE)
+        {
+            int num_real_params = method->mNumParams + 1;
+
+            append_opecode_to_code(info->code, OP_INVOKE_VIRTUAL_METHOD, info->no_output);
+            append_int_value_to_code(info->code, num_real_params, info->no_output);
+            append_str_to_constant_pool_and_code(info->constant, info->code, METHOD_NAME_AND_PARAMS(klass, method), info->no_output);
+        }
+        else {
+            append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
+            append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(klass), info->no_output);
+            append_int_value_to_code(info->code, method_index2, info->no_output);
+        }
+
+        info->stack_num-=num_params + 1;
+        info->stack_num++;
+
+        info->type = result_type;
     }
-
-    info->stack_num-=num_params + 1;
-    info->stack_num++;
-
-    info->type = result_type;
 
     return TRUE;
 }

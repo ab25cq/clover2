@@ -26,6 +26,10 @@ class System
 
     def mbstowcs(dest:pointer@of_wchar[], src:pointer@utf8-string-memory): static native int throws Exception;
     def wcstombs(dest:pointer@of_byte[], src:char[]): static native int throws Exception;
+
+    def srand(value:uint): static native;
+    def rand(): static native int;
+    def time(): static native ulong;
 }
 
 class Clover
@@ -34,6 +38,10 @@ class Clover
         System.printToError(msg.append("..."));
         System.assert(expression);
         System.printlnToError("OK");
+    }
+
+    def initialize():static {
+        System.srand(System.time().to_uint);
     }
 }
 
@@ -268,6 +276,46 @@ class String
         return self;
     }
 
+    def replace(index:int, c:char) {
+        if(index < 0) {
+            index += self.len;
+        }
+
+        if(index < 0) {
+            index = 0;
+        }
+        if(index >= self.len) {
+            index = self.len -1;
+        }
+
+        self.buffer[index] = c;
+    }
+
+    def subString(start:int, end:int): String {
+        if(start < 0) {
+            start += self.length();
+        }
+        if(end < 0) {
+            end += self.length() + 1;
+        }
+
+        if(start < 0 || end < 0 || start >= end) {
+            return "";
+        }
+
+        result: String = new String(end-start+1);
+
+        for(i:int = 0; i<end-start; i++) {
+            result.buffer[i] = self.chars(i+start);
+        }
+        result.buffer[i] = '\0';
+
+        result.len = end-start;
+        result.size = end-start+1;
+
+        return result;
+    }
+
     def equals(str: String):bool {
         if(self.len == str.length()) {
             for(i:int = 0; i<self.len; i++) {
@@ -291,6 +339,10 @@ class String
 
         return key;
     }
+
+    def toString(): String {
+        return self;
+    }
 }
 
 class Exception
@@ -310,6 +362,13 @@ module MPrintf
 {
     def printf(format:String) {
         printf(format, array { self });
+    }
+}
+
+module MInclude
+{
+    def include(list:List<Self>):bool {
+        return list.indexOf(self) != -1;
     }
 }
 
@@ -372,6 +431,7 @@ class Byte
     include MWrapperClassConvert;
     include MWrapperClassEquals;
     include MPrintf;
+    include MInclude;
 
     value:byte;
 
@@ -413,6 +473,7 @@ class UByte
     include MWrapperClassConvert;
     include MWrapperClassEquals;
     include MPrintf;
+    include MInclude;
 
     value:ubyte;
 
@@ -454,6 +515,7 @@ class Short
     include MWrapperClassConvert;
     include MWrapperClassEquals;
     include MPrintf;
+    include MInclude;
 
     value:short;
 
@@ -495,6 +557,7 @@ class UShort
     include MWrapperClassConvert;
     include MWrapperClassEquals;
     include MPrintf;
+    include MInclude;
 
     value:ushort;
 
@@ -536,6 +599,7 @@ class Integer
     include MWrapperClassConvert;
     include MWrapperClassEquals;
     include MPrintf;
+    include MInclude;
 
     value:int;
 
@@ -573,6 +637,7 @@ class UInteger
     include MWrapperClassConvert;
     include MWrapperClassEquals;
     include MPrintf;
+    include MInclude;
 
     value: uint;
 
@@ -614,6 +679,7 @@ class Long
     include MWrapperClassConvert;
     include MWrapperClassEquals;
     include MPrintf;
+    include MInclude;
 
     value:long;
 
@@ -651,6 +717,7 @@ class ULong
     include MWrapperClassConvert;
     include MWrapperClassEquals;
     include MPrintf;
+    include MInclude;
 
     value: ulong;
 
@@ -692,6 +759,7 @@ class Float
     include MWrapperClassConvert;
     include MWrapperClassEquals;
     include MPrintf;
+    include MInclude;
 
     value: float;
 
@@ -729,6 +797,7 @@ class Double
     include MWrapperClassConvert;
     include MWrapperClassEquals;
     include MPrintf;
+    include MInclude;
 
     value: double;
 
@@ -766,6 +835,7 @@ class Pointer
     include MWrapperClassConvert;
     include MWrapperClassEquals;
     include MPrintf;
+    include MInclude;
 
     value: pointer;
 
@@ -799,6 +869,7 @@ class Char
     include MWrapperClassConvert;
     include MWrapperClassEquals;
     include MPrintf;
+    include MInclude;
 
     value: char;
 
@@ -840,6 +911,7 @@ class Bool
     include MWrapperClassConvert;
     include MWrapperClassEquals;
     include MPrintf;
+    include MInclude;
 
     value: bool;
 
@@ -879,6 +951,7 @@ class Bool
 interface IEqualable
 {
     def equals(key:SELF): bool;
+    def toString(): String;
 }
 
 class Array<T:Object>
@@ -981,12 +1054,30 @@ class EqualableArray <T:IEqualable>
     def toArray():Array<T> {
         return new Array<T>(self.items.toAnonymous());
     }
+
+    def toString():String {
+        if(self.items.length == 0) {
+            return "array {}";
+        }
+
+        result:String = "array {";
+
+        for(i:= 0; i<self.items.length; i++) {
+            result.append(self.items[i].toString());
+            result.append(",");
+        }
+
+        result.replace(-1, '}');
+
+        return result;
+    }
 }
 
 interface IHashKey
 {
     def getHashKey(): uint;
     def equals(key:SELF): bool;
+    def toString(): String;
 }
 
 class HashItem <T:IHashKey, T2:IEqualable>
@@ -1161,6 +1252,27 @@ class Hash <T:IHashKey, T2:IEqualable>
 
         return self;
     }
+
+    def toString():String {
+        if(self.itemNumber == 0) {
+            return "hash {}";
+        }
+
+        result:String = "hash {";
+
+        for(i:uint =0; i<self.tableSize; i++) {
+            if(!self.table[i].identifyWith(null)) {
+                result.append(self.table[i].key.toString());
+                result.append(":");
+                result.append(self.table[i].item.toString());
+                result.append(",");
+            }
+        }
+
+        result.replace(-1, '}');
+
+        return result;
+    }
 }
 
 class ListItem <T:Object>
@@ -1269,7 +1381,13 @@ class List<T:IEqualable>
 
     def insert(index:int, item:T):List<T> {
         if(index < 0) {
-            index += self.number;
+            index += self.number + 1;
+        }
+        if(index < 0) {
+            index = 0;
+        }
+        if(index > self.number) {
+            index = self.number;
         }
 
         if(self.number == 0 || index == self.number) {
@@ -1281,6 +1399,8 @@ class List<T:IEqualable>
             new_item:ListItem<T> = new ListItem<T>(item, null, self.head);
             self.head.prev = new_item;
             self.head = new_item;
+
+            self.number++;
         }
         else {
             it:ListItem<T> = self.head;
@@ -1294,6 +1414,8 @@ class List<T:IEqualable>
                         it.next.prev = new_item;
                     }
                     it.next = new_item;
+
+                    self.number++;
                     break;
                 }
 
@@ -1352,6 +1474,7 @@ class List<T:IEqualable>
 
         return self;
     }
+
     def each(block_:lambda(T)):List<T> {
         it:ListItem<T> = self.head;
 
@@ -1373,6 +1496,71 @@ class List<T:IEqualable>
 
         return self;
     }
+
+    def replace(index:int, item:T):List<T> {
+        if(index < 0) {
+            index += self.number;
+        }
+        if(index < 0) {
+            index = 0;
+        }
+        if(index >= self.number) {
+            index = self.number-1;
+        }
+
+        it:ListItem<T> = self.head;
+
+        count:int = 0;
+
+        while(!it.identifyWith(null)) {
+            if(count == index) {
+                it.item = item;
+                break;
+            }
+            count++;
+
+            it = it.next;
+        }
+
+        return self;
+    }
+
+    def toString():String {
+        if(self.number == 0) {
+            return "list {}";
+        }
+
+        result:String = "list {";
+
+        it:ListItem<T> = self.head;
+
+        while(!it.identifyWith(null)) {
+            result.append(it.item.toString());
+            result.append(",");
+
+            it = it.next;
+        }
+
+        result.replace(-1, '}');
+
+        return result;
+    }
+    def indexOf(item:T):int {
+        result:int = 0;
+
+        it:ListItem<T> = self.head;
+        while(!it.identifyWith(null)) {
+            if(it.item.equals(item)) {
+                return result;
+            }
+
+            result++;
+
+            it = it.next;
+        }
+
+        return -1;
+    }
 }
 
 class Tuple1 <T:IEqualable>
@@ -1385,6 +1573,10 @@ class Tuple1 <T:IEqualable>
 
     def equals(right:Tuple1<T>):bool {
         return self.value1.equals(right.value1);
+    }
+
+    def toString():String {
+        return "tuple {".append(self.value1.toString()).append("}");
     }
 }
 
@@ -1400,6 +1592,10 @@ class Tuple2 <T:IEqualable, T2:IEqualable>
 
     def equals(right:Tuple2<T,T2>):bool {
         return self.value1.equals(right.value1) && self.value2.equals(right.value2);
+    }
+
+    def toString():String {
+        return "tuple {".append(self.value1.toString()).append(",").append(self.value2.toString()).append("}");
     }
 }
 
@@ -1417,6 +1613,10 @@ class Tuple3 <T:IEqualable, T2:IEqualable, T3:IEqualable>
 
     def equals(right:Tuple3<T,T2,T3>):bool {
         return self.value1.equals(right.value1) && self.value2.equals(right.value2) && self.value3.equals(right.value3);
+    }
+
+    def toString():String {
+        return "tuple {".append(self.value1.toString()).append(",").append(self.value2.toString()).append(",").append(self.value3.toString()).append("}");
     }
 }
 
@@ -1436,6 +1636,9 @@ class Tuple4 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable>
 
     def equals(right:Tuple4<T,T2,T3,T4>):bool {
         return self.value1.equals(right.value1) && self.value2.equals(right.value2) && self.value3.equals(right.value3) && self.value4.equals(right.value4);
+    }
+    def toString():String {
+        return "tuple {".append(self.value1.toString()).append(",").append(self.value2.toString()).append(",").append(self.value3.toString()).append(",").append(self.value4.toString()).append("}");
     }
 }
 
@@ -1457,6 +1660,9 @@ class Tuple5 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqu
 
     def equals(right:Tuple5<T,T2,T3,T4,T5>):bool {
         return self.value1.equals(right.value1) && self.value2.equals(right.value2) && self.value3.equals(right.value3) && self.value4.equals(right.value4) && self.value5.equals(right.value5);
+    }
+    def toString():String {
+        return "tuple {".append(self.value1.toString()).append(",").append(self.value2.toString()).append(",").append(self.value3.toString()).append(",").append(self.value4.toString()).append(",").append(self.value5.toString()).append("}");
     }
 }
 
@@ -1480,6 +1686,9 @@ class Tuple6 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqu
 
     def equals(right:Tuple6<T,T2,T3,T4,T5,T6>):bool {
         return self.value1.equals(right.value1) && self.value2.equals(right.value2) && self.value3.equals(right.value3) && self.value4.equals(right.value4) && self.value5.equals(right.value5) && self.value6.equals(right.value6);
+    }
+    def toString():String {
+        return "tuple {".append(self.value1.toString()).append(",").append(self.value2.toString()).append(",").append(self.value3.toString()).append(",").append(self.value4.toString()).append(",").append(self.value5.toString()).append(",").append(self.value6.toString()).append("}");
     }
 }
 
@@ -1505,6 +1714,9 @@ class Tuple7 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqu
 
     def equals(right:Tuple7<T,T2,T3,T4,T5,T6,T7>):bool {
         return self.value1.equals(right.value1) && self.value2.equals(right.value2) && self.value3.equals(right.value3) && self.value4.equals(right.value4) && self.value5.equals(right.value5) && self.value6.equals(right.value6) && self.value7.equals(right.value7);
+    }
+    def toString():String {
+        return "tuple {".append(self.value1.toString()).append(",").append(self.value2.toString()).append(",").append(self.value3.toString()).append(",").append(self.value4.toString()).append(",").append(self.value5.toString()).append(",").append(self.value6.toString()).append(",").append(self.value7.toString()).append("}");
     }
 }
 
@@ -1532,6 +1744,9 @@ class Tuple8 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqu
 
     def equals(right:Tuple8<T,T2,T3,T4,T5,T6,T7,T8>):bool {
         return self.value1.equals(right.value1) && self.value2.equals(right.value2) && self.value3.equals(right.value3) && self.value4.equals(right.value4) && self.value5.equals(right.value5) && self.value6.equals(right.value6) && self.value7.equals(right.value7) && self.value8.equals(right.value8);
+    }
+    def toString():String {
+        return "tuple {".append(self.value1.toString()).append(",").append(self.value2.toString()).append(",").append(self.value3.toString()).append(",").append(self.value4.toString()).append(",").append(self.value5.toString()).append(",").append(self.value6.toString()).append(",").append(self.value7.toString()).append(",").append(self.value8.toString()).append("}");
     }
 }
 
@@ -1561,6 +1776,9 @@ class Tuple9 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqu
 
     def equals(right:Tuple9<T,T2,T3,T4,T5,T6,T7,T8,T9>):bool {
         return self.value1.equals(right.value1) && self.value2.equals(right.value2) && self.value3.equals(right.value3) && self.value4.equals(right.value4) && self.value5.equals(right.value5) && self.value6.equals(right.value6) && self.value7.equals(right.value7) && self.value8.equals(right.value8) && self.value9.equals(right.value9);
+    }
+    def toString():String {
+        return "tuple {".append(self.value1.toString()).append(",").append(self.value2.toString()).append(",").append(self.value3.toString()).append(",").append(self.value4.toString()).append(",").append(self.value5.toString()).append(",").append(self.value6.toString()).append(",").append(self.value7.toString()).append(",").append(self.value8.toString()).append(",").append(self.value9.toString()).append("}");
     }
 }
 
@@ -1592,6 +1810,9 @@ class Tuple10 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEq
 
     def equals(right:Tuple10<T,T2,T3,T4,T5,T6,T7,T8,T9,T10>):bool {
         return self.value1.equals(right.value1) && self.value2.equals(right.value2) && self.value3.equals(right.value3) && self.value4.equals(right.value4) && self.value5.equals(right.value5) && self.value6.equals(right.value6) && self.value7.equals(right.value7) && self.value8.equals(right.value8) && self.value9.equals(right.value9) && self.value10.equals(right.value10);
+    }
+    def toString():String {
+        return "tuple {".append(self.value1.toString()).append(",").append(self.value2.toString()).append(",").append(self.value3.toString()).append(",").append(self.value4.toString()).append(",").append(self.value5.toString()).append(",").append(self.value6.toString()).append(",").append(self.value7.toString()).append(",").append(self.value8.toString()).append(",").append(self.value9.toString()).append(",").append(self.value10.toString()).append("}");
     }
 }
 

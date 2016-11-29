@@ -135,7 +135,7 @@ static BOOL parse_class_name_and_attributes(char* class_name, int class_name_siz
     return TRUE;
 }
 
-static BOOL parse_class_on_alloc_classes_phase(sParserInfo* info, sCompileInfo* cinfo, BOOL interface)
+static BOOL parse_class_on_alloc_classes_phase(sParserInfo* info, sCompileInfo* cinfo, BOOL interface, BOOL dynamic)
 {
     char class_name[VAR_NAME_MAX];
 
@@ -147,7 +147,7 @@ static BOOL parse_class_on_alloc_classes_phase(sParserInfo* info, sCompileInfo* 
     info->klass = get_class(class_name);
 
     if(info->klass == NULL) {
-        info->klass = alloc_class(class_name, FALSE, -1, info->generics_info.mNumParams, info->generics_info.mInterface, interface);
+        info->klass = alloc_class(class_name, FALSE, -1, info->generics_info.mNumParams, info->generics_info.mInterface, interface, dynamic);
         info->klass->mFlags |= CLASS_FLAGS_ALLOCATED;
     }
 
@@ -655,11 +655,11 @@ static BOOL parse_class_on_compile_code(sParserInfo* info, sCompileInfo* cinfo, 
     return TRUE;
 }
 
-static BOOL parse_class(sParserInfo* info, sCompileInfo* cinfo, BOOL interface)
+static BOOL parse_class(sParserInfo* info, sCompileInfo* cinfo, BOOL interface, BOOL dynamic)
 {
     switch(info->parse_phase) {
         case PARSE_PHASE_ALLOC_CLASSES:
-            if(!parse_class_on_alloc_classes_phase(info, cinfo, interface)) {
+            if(!parse_class_on_alloc_classes_phase(info, cinfo, interface, dynamic)) {
                 return FALSE;
             }
             break;
@@ -867,12 +867,17 @@ static BOOL parse_class_source(sParserInfo* info, sCompileInfo* cinfo)
         }
 
         if(strcmp(buf, "class") == 0) {
-            if(!parse_class(info, cinfo, FALSE)) {
+            if(!parse_class(info, cinfo, FALSE, FALSE)) {
                 return FALSE;
             }
         }
         else if(strcmp(buf, "interface") == 0) {
-            if(!parse_class(info, cinfo, TRUE)) {
+            if(!parse_class(info, cinfo, TRUE, FALSE)) {
+                return FALSE;
+            }
+        }
+        else if(strcmp(buf, "dynamic_interface") == 0) {
+            if(!parse_class(info, cinfo, FALSE, TRUE)) {
                 return FALSE;
             }
         }

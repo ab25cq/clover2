@@ -1,5 +1,6 @@
 #include "common.h"
 #include <wchar.h>
+#include <time.h>
 
 BOOL System_exit(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
@@ -844,6 +845,41 @@ BOOL System_strtoul(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     (*stack_ptr)++;
 
     MFREE(str_value);
+
+    return TRUE;
+}
+
+BOOL System_srand(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* value = lvar;
+
+    /// Clover to c value ///
+    unsigned int value_value = value->mUIntValue;
+
+    /// go ///
+    srand(value_value);
+
+    return TRUE;
+}
+
+BOOL System_rand(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    /// go ///
+    int result = rand();
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_time(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    /// go ///
+    unsigned long result = time(NULL);
+
+    (*stack_ptr)->mULongValue = result;
+    (*stack_ptr)++;
 
     return TRUE;
 }

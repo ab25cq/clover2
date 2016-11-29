@@ -1,0 +1,22 @@
+include "Fundamental.clc"
+
+class List<T:IEqualable>
+{
+    def choice():T {
+        return self.items(System.rand() % self.number);
+    }
+
+    def map(block_:lambda(T):Anonymous): List<Anonymous> {
+        result:List<Anonymous> = new List<Anonymous>();
+
+        it:ListItem<T> = self.head;
+
+        while(!it.identifyWith(null)) {
+            result.add(block_(it.item));
+
+            it = it.next;
+        }
+
+        return result;
+    }
+}

@@ -119,6 +119,9 @@ static sNativeMethod gNativeMethods[] = {
     { "System.strcasecmp(String,String)", System_strcasecmp },
     { "System.strtol(String,int)", System_strtol },
     { "System.strtoul(String,int)", System_strtoul },
+    { "System.srand(uint)", System_srand },
+    { "System.rand()", System_rand },
+    { "System.time()", System_time },
 
     { "", 0 }  // sentinel
 };

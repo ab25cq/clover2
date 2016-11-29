@@ -106,6 +106,38 @@ static void create_method_name_and_params(char* result, int size_result, sCLClas
     xstrncat(result, ")", size_result);
 }
 
+void create_method_name_and_params2(char* result, int size_result, sCLClass* klass, char* method_name, sNodeType* param_types[PARAMS_MAX], int num_params)
+{
+    *result = 0;
+
+    xstrncpy(result, method_name, size_result);
+    xstrncat(result, "(", size_result);
+
+    int i;
+    for(i=0; i<num_params; i++) {
+        sNodeType* param_type = param_types[i];
+        sCLClass* klass2 = param_type->mClass;
+        BOOL array = param_type->mArray;
+
+        if(klass2 == klass) {
+            xstrncat(result, "SELF", size_result);
+        }
+        else {
+            xstrncat(result, CLASS_NAME(klass2), size_result);
+        }
+
+        if(array) {
+            xstrncat(result, "[]", size_result);
+        }
+
+        if(i != num_params-1) {
+            xstrncat(result, ",", size_result);
+        }
+    }
+
+    xstrncat(result, ")", size_result);
+}
+
 BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_)
 {
     if(klass->mNumMethods == klass->mSizeMethods) {
@@ -364,7 +396,11 @@ static BOOL check_same_interface_of_two_methods(sCLMethod* method1, sCLClass* kl
 
 BOOL check_implemented_methods_for_interface(sCLClass* left_class, sCLClass* right_class)
 {
-    if(left_class != right_class) {
+    sCLClass* anonymous_class = get_class("Anonymous");
+    if(right_class == anonymous_class) {
+        return TRUE;
+    }
+    else if(left_class != right_class) {
         int i;
         for(i=0; i<left_class->mNumMethods; i++) {
             sCLMethod* method = left_class->mMethods + i;

@@ -29,31 +29,6 @@ class String
         printf(format, array { self });
     }
 
-    def subString(start:int, end:int): String {
-        if(start < 0) {
-            start += self.length();
-        }
-        if(end < 0) {
-            end += self.length() + 1;
-        }
-
-        if(start < 0 || end < 0 || start >= end) {
-            return "";
-        }
-
-        result: String = new String(end-start+1);
-
-        for(i:int = 0; i<end-start; i++) {
-            result.buffer[i] = self.chars(i+start);
-        }
-        result.buffer[i] = '\0';
-
-        result.len = end-start;
-        result.size = end-start+1;
-
-        return result;
-    }
-
     def match(regex_:regex):bool {
         ovec_max:int = 16;
         ovec:PcreOVec = new PcreOVec(ovec_max);
@@ -527,21 +502,6 @@ class String
         }
 
         return result;
-    }
-
-    def replace(index:int, c:char) {
-        if(index < 0) {
-            index += self.len;
-        }
-
-        if(index < 0) {
-            index = 0;
-        }
-        if(index >= self.len) {
-            index = self.len -1;
-        }
-
-        self.buffer[index] = c;
     }
 
     # same: 0, self > str: > 0, self < str: < 0
