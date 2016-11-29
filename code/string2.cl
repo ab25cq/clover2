@@ -2,7 +2,6 @@ Clover.test("string2 test1", "ABC".sub(/A/, "B").equals("BBC"));
 Clover.test("string2 test2", "AAA".sub(/A/g, "B").equals("BBB"));
 Clover.test("string2 test3", "AAA".sub(/^A/g, "B").equals("BAA"));
 Clover.test("string2 test4", "ABC".subString(-2, -1).equals("BC"));
-
 group_strings:List<String> = new List<String>();
 str:String = "ABCD".sub(/(.)(.)$/, "XX", group_strings);
 
@@ -61,5 +60,7 @@ Clover.test("string2 test32", "あいう".scan(/./).equals(list {"あ", "い", "
 
 Clover.test("string2 test33", "abcabc".indexOf(/c/) == 2);
 Clover.test("string2 test34", "abcabc".indexOf(/c/, 2) == 5);
-
 Clover.test("String2 test35", "abc".insert(1,"A").equals("aAbc"));
+Clover.test("String2 test36", "abc".subString(-1,-1).equals("c"));
+Clover.test("String2 test37", "ABC".subString(-2, -1).equals("BC"));
+

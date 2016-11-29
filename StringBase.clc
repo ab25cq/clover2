@@ -530,9 +530,18 @@ class String
     }
 
     def replace(index:int, c:char) {
-        if(index >= 0 && index < self.len) {
-            self.buffer[index] = c;
+        if(index < 0) {
+            index += self.len;
         }
+
+        if(index < 0) {
+            index = 0;
+        }
+        if(index >= self.len) {
+            index = self.len -1;
+        }
+
+        self.buffer[index] = c;
     }
 
     # same: 0, self > str: > 0, self < str: < 0

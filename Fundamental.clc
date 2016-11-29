@@ -195,7 +195,7 @@ class String
 
         if(self.len+len+1 < self.size) {
             for(i:int=self.len; i<self.len + len; i++) {
-                self.buffer[i] = str.chars(i-self.len);
+                self.buffer[i] = str.buffer[i-self.len];
             }
             self.buffer[i] = '\0';
 
@@ -206,10 +206,10 @@ class String
             new_buffer:char[] = new char[new_size];
 
             for(i:int = 0; i<self.len; i++) {
-                new_buffer[i] = self.chars(i);
+                new_buffer[i] = self.buffer[i];
             }
             for(i=self.len; i<self.len + len; i++) {
-                new_buffer[i] = str.chars(i-self.len);
+                new_buffer[i] = str.buffer[i-self.len];
             }
             new_buffer[i] = '\0';
 
@@ -221,10 +221,20 @@ class String
         return self;
     }
     def insert(index:int, str:String): String {
+        if(index < 0) {
+            index += self.len + 1;
+        }
+        if(index < 0) {
+            index = 0;
+        }
+        if(index > self.len) {
+            index = self.len;
+        }
+
         len:int = str.length();
 
         if(self.len+len + 1 < self.size) {
-            for(i:int = index; i<self.length(); i++) {
+            for(i:int = index; i<self.len; i++) {
                 self.buffer[i+len] = self.buffer[i];
             }
             self.buffer[i] = '\0';
@@ -261,7 +271,7 @@ class String
     def equals(str: String):bool {
         if(self.len == str.length()) {
             for(i:int = 0; i<self.len; i++) {
-                if(self.buffer[i] != str.chars(i)) {
+                if(self.buffer[i] != str.buffer[i]) {
                     return false;
                 }
             }
@@ -884,6 +894,10 @@ class Array<T:Object>
     }
 
     def items(index:int):T throws Exception {
+        if(index < 0) {
+            index += self.items.length;
+        }
+
         return self.items[index];
     }
 
@@ -919,6 +933,10 @@ class EqualableArray <T:IEqualable>
     }
 
     def items(index:int):T throws Exception {
+        if(index < 0) {
+            index += self.items.length;
+        }
+
         return self.items[index];
     }
 
@@ -1204,6 +1222,10 @@ class List<T:IEqualable>
     }
 
     def items(index:int):T {
+        if(index < 0) {
+            index += self.number;
+        }
+
         it:ListItem<T> = self.head;
 
         count:int = 0;
@@ -1246,6 +1268,10 @@ class List<T:IEqualable>
     }
 
     def insert(index:int, item:T):List<T> {
+        if(index < 0) {
+            index += self.number;
+        }
+
         if(self.number == 0 || index == self.number) {
             self.add(item);
             return self;

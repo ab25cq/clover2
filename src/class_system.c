@@ -197,6 +197,7 @@ BOOL System_print(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     wstr[i] = '\0';
 
     printf("%ls", wstr);
+    fflush(stdout);
 
     MFREE(wstr);
 
@@ -223,6 +224,7 @@ BOOL System_println(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     wstr[i] = '\0';
 
     printf("%ls\n", wstr);
+    fflush(stdout);
 
     MFREE(wstr);
 
@@ -249,6 +251,7 @@ BOOL System_printToError(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     wstr[i] = '\0';
 
     fprintf(stderr, "%ls", wstr);
+    fflush(stderr);
 
     MFREE(wstr);
 
@@ -275,6 +278,7 @@ BOOL System_printlnToError(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     wstr[i] = '\0';
 
     fprintf(stderr, "%ls\n", wstr);
+    fflush(stderr);
 
     MFREE(wstr);
 
