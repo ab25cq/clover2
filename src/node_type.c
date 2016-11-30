@@ -279,6 +279,15 @@ BOOL type_identify_with_class_name(sNodeType* left, char* right_class_name)
     return type_identify(left, create_node_type_with_class_name(right_class_name));
 }
 
+BOOL class_identify_with_class_name(sCLClass* klass, char* class_name)
+{
+    sCLClass* klass2 = get_class(class_name);
+
+    MASSERT(klass2 != NULL);
+
+    return klass == klass2;
+}
+
 BOOL solve_generics_types_for_node_type(sNodeType* node_type, ALLOC sNodeType** result, sNodeType* generics_type)
 {
     int i;
@@ -457,6 +466,10 @@ BOOL boxing_posibility(sNodeType* left_type, sNodeType* right_type)
         sCLClass* right_class = right_type->mClass;
 
         if(right_class->mBoxingClass == left_class) {
+            return TRUE;
+        }
+
+        if(class_identify_with_class_name(left_class, "Anonymous")) {
             return TRUE;
         }
     }

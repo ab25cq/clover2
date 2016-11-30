@@ -1755,7 +1755,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
         int size_method_name_and_params = METHOD_NAME_MAX + PARAMS_MAX * CLASS_NAME_MAX + 256;
         char method_name_and_params[size_method_name_and_params];
 
-        create_method_name_and_params2(method_name_and_params, size_method_name_and_params, klass, method_name, param_types, num_params);
+        create_method_name_and_params(method_name_and_params, size_method_name_and_params, klass, method_name, param_types, num_params);
 
         append_opecode_to_code(info->code, OP_INVOKE_VIRTUAL_METHOD, info->no_output);
         append_int_value_to_code(info->code, num_real_params, info->no_output);
@@ -1764,7 +1764,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
         info->stack_num-=num_params + 1;
         info->stack_num++;
 
-        info->type = create_node_type_with_class_name("Anonymous");
+        info->type = create_node_type_with_class_pointer(klass);
     }
     else {
         sNodeType* result_type;

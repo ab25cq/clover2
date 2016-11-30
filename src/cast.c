@@ -2900,5 +2900,9 @@ void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
         {
             cast_right_type_to_Bool(right_type, info);
         }
+        else if(type_identify_with_class_name(left_type, "Anonymous") && ((*right_type)->mClass->mFlags & CLASS_FLAGS_PRIMITIVE)) 
+        {
+            boxing_to_lapper_class(right_type, info);
+        }
     }
 }

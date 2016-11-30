@@ -74,39 +74,7 @@ static void create_method_path(char* result, int result_size, sCLMethod* method,
 */
 }
 
-static void create_method_name_and_params(char* result, int size_result, sCLClass* klass, char* method_name, sParserParam* params, int num_params)
-{
-    *result = 0;
-
-    xstrncpy(result, method_name, size_result);
-    xstrncat(result, "(", size_result);
-
-    int i;
-    for(i=0; i<num_params; i++) {
-        sParserParam* param = params + i;
-        sCLClass* klass2 = param->mType->mClass;
-        BOOL array = param->mType->mArray;
-
-        if(klass2 == klass) {
-            xstrncat(result, "SELF", size_result);
-        }
-        else {
-            xstrncat(result, CLASS_NAME(klass2), size_result);
-        }
-
-        if(array) {
-            xstrncat(result, "[]", size_result);
-        }
-
-        if(i != num_params-1) {
-            xstrncat(result, ",", size_result);
-        }
-    }
-
-    xstrncat(result, ")", size_result);
-}
-
-void create_method_name_and_params2(char* result, int size_result, sCLClass* klass, char* method_name, sNodeType* param_types[PARAMS_MAX], int num_params)
+void create_method_name_and_params(char* result, int size_result, sCLClass* klass, char* method_name, sNodeType* param_types[PARAMS_MAX], int num_params)
 {
     *result = 0;
 
@@ -170,7 +138,12 @@ BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* param
 
     int size_method_name_and_params = METHOD_NAME_MAX + PARAMS_MAX * CLASS_NAME_MAX + 256;
     char method_name_and_params[size_method_name_and_params];
-    create_method_name_and_params(method_name_and_params, size_method_name_and_params, klass, method_name, params, num_params);
+
+    sNodeType* param_types[PARAMS_MAX];
+    for(i=0; i<num_params; i++) {
+        param_types[i] = params[i].mType;
+    }
+    create_method_name_and_params(method_name_and_params, size_method_name_and_params, klass, method_name, param_types, num_params);
 
     klass->mMethods[num_methods].mMethodNameAndParamsOffset = append_str_to_constant_pool(&klass->mConst, method_name_and_params, FALSE);
 

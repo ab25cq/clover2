@@ -302,6 +302,7 @@ BOOL solve_generics_types_for_node_type(sNodeType* node_type, ALLOC sNodeType** 
 void solve_generics_for_variable(sNodeType* generics_type, sNodeType** generics_type2, sCLClass* generics_class);
 BOOL type_identify_with_class_name(sNodeType* left, char* right_class_name);
 BOOL type_identify(sNodeType* left, sNodeType* right);
+BOOL class_identify_with_class_name(sCLClass* klass, char* class_name);
 void print_node_type(sNodeType* node_type);
 BOOL boxing_posibility(sNodeType* left_type, sNodeType* right_type);
 BOOL unboxig_posibility(sCLClass* klass);
@@ -1520,7 +1521,7 @@ sCLClass* get_class_with_load(char* class_name);
 BOOL parse_params(sParserParam* params, int* num_params, sParserInfo* info);
 BOOL check_implemented_methods_for_interface(sCLClass* left_class, sCLClass* right_class);
 BOOL method_name_existance(sCLClass* klass, char* method_name);
-void create_method_name_and_params2(char* result, int size_result, sCLClass* klass, char* method_name, sNodeType* param_types[PARAMS_MAX], int num_params);
+void create_method_name_and_params(char* result, int size_result, sCLClass* klass, char* method_name, sNodeType* param_types[PARAMS_MAX], int num_params);
 
 /// native_method.c ///
 void native_method_init();

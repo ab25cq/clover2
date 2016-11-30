@@ -19,4 +19,12 @@ class List<T:IEqualable>
 
         return result;
     }
+
+    def append(list:List<T>):List<T> {
+        list.each(closure(item:T) {
+            self.add(item);
+        });
+
+        return self;
+    }
 }
