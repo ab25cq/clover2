@@ -4316,7 +4316,6 @@ if(stack_ptr != lvar + var_num + 1) {
                     pc += sizeof(int);
 
                     char* class_name = CONS_str(constant, offset);
-
                     sCLClass* klass = get_class_with_load_and_initialize(class_name);
 
                     if(klass == NULL) {
@@ -12114,6 +12113,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sByteCode codes2;
 
+//sByteCode_init_with_size(&codes2, code_len);
+//append_value_to_code(&codes2, CONS_str(constant, code_offset), code_len, FALSE);
+
                     codes2.mCodes = CONS_str(constant, code_offset);
                     codes2.mLen = code_len;
 
@@ -12124,6 +12126,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     pc += sizeof(int);
 
                     sConst constant2;
+
+//sConst_init_with_size(&constant2, constant_len);
+//sConst_append(&constant2, CONS_str(constant, constant_offset), constant_len, FALSE);
 
                     constant2.mConst = CONS_str(constant, constant_offset);
                     constant2.mLen = constant_len;

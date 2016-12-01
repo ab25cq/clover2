@@ -2,7 +2,7 @@ include "Fundamental.clc"
 
 class List<T:IEqualable>
 {
-    def choice():T {
+    def sample():T {
         return self.items(System.rand() % self.number);
     }
 
@@ -26,5 +26,229 @@ class List<T:IEqualable>
         });
 
         return self;
+    }
+
+    def multiply(n:int):List<T> {
+        result:List<T> = new List<T>();
+
+        for(i:int = 0; i<n; i++) {
+            result.append(self);
+        }
+
+        return result;
+    }
+
+    def count(item:T):int {
+        result:int = 0;
+
+        it := self.head;
+
+        while(!it.identifyWith(null)) {
+            if(it.item.equals(item)) {
+                result++;
+            }
+
+            it = it.next;
+        }
+
+        return result;
+    }
+
+    def select(block_:lambda(T):bool):List<T> {
+        new_list: List<T> = new List<T>();
+
+        it := self.head;
+
+        while(!it.identifyWith(null)) {
+            if(block_(it.item)) {
+                new_list.add(it.item);
+            }
+            it = it.next;
+        }
+
+        return new_list;
+    }
+
+    def clone():List<T> {
+        result:List<T> = new List<T>();
+        it := self.head;
+        while(!it.identifyWith(null)) {
+            result.add(it.item);
+            it = it.next;
+        }
+        return result;
+    }
+
+    def subList(start:int, end:int):List<T> {
+        if(start < 0) {
+            start += self.number;
+        }
+        if(end < 0) {
+            end += self.number + 1;
+        }
+        if(start < 0) {
+            start = 0;
+        }
+        if(end > self.number) {
+            end = self.number;
+        }
+
+        if(start >= end || start >= self.number || end < 0) {
+            return new List<T>();
+        }
+
+        new_list: List<T> = new List<T>();
+
+        it := self.head;
+        count:int = 0;
+
+        while(!it.identifyWith(null)) {
+            if(count >= start && count < end) {
+                new_list.add(it.item);
+            }
+            count++;
+            it = it.next;
+        }
+
+        return new_list;
+    }
+
+    def deleteWithRange(start:int, end:int):List<T> {
+        if(start < 0) {
+            start += self.number;
+        }
+        if(end < 0) {
+            end += self.number + 1;
+        }
+        if(start < 0) {
+            start = 0;
+        }
+        if(end > self.number) {
+            end = self.number;
+        }
+
+        if(start >= end || start >= self.number || end < 0) {
+            return new List<T>();
+        }
+
+        new_list: List<T> = new List<T>();
+
+        it := self.head;
+        count:int = 0;
+
+        while(!it.identifyWith(null)) {
+            if(count < start || count >= end) {
+                new_list.add(it.item);
+            }
+            count++;
+            it = it.next;
+        }
+
+        return new_list;
+    }
+
+    def fill(start:int, end:int, item:T):List<T> {
+        if(start < 0) {
+            start += self.number;
+        }
+        if(end < 0) {
+            end += self.number + 1;
+        }
+        if(start < 0) {
+            start = 0;
+        }
+        if(end > self.number) {
+            end = self.number;
+        }
+
+        if(start >= end || start >= self.number || end < 0) {
+            return new List<T>();
+        }
+
+        new_list: List<T> = new List<T>();
+
+        it := self.head;
+        count:int = 0;
+
+        while(!it.identifyWith(null)) {
+            if(count < start || count >= end) {
+                new_list.add(it.item);
+            }
+            else {
+                new_list.add(item);
+            }
+            count++;
+            it = it.next;
+        }
+
+        return new_list;
+    }
+    def fill(item:T):List<T> {
+        return self.fill(0,-1,item);
+    }
+
+    def indexOf(item:T):int {
+        result:int = 0;
+        it := self.head;
+
+        while(!it.identifyWith(null)) {
+            if(it.item.equals(item)) {
+                return result;
+            }
+            result++;
+            it = it.next;
+        }
+
+        return -1;
+    }
+
+    def join(separator:String):String {
+        result:String = new String("");
+        it := self.head;
+
+        while(!it.identifyWith(null)) {
+            result.append(it.item.toString());
+            it = it.next;
+
+            if(!it.identifyWith(null)) {
+                result.append(separator);
+            }
+        }
+
+        return result;
+    }
+
+    def join():String {
+        return self.join("");
+    }
+
+    def reverse():List<T> {
+        result:List<T> = new List<T>();
+
+        it := self.tail;
+
+        while(!it.identifyWith(null)) {
+            result.add(it.item);
+            it = it.prev;
+        }
+
+        return result;
+    }
+
+    def shuffle():List<T> {
+        result := self.clone();
+
+        for(i:=0; i<50; i++) {
+            n := System.rand() % self.number;
+            m := System.rand() % self.number;
+
+            item := result.items(n);
+            item2 := result.items(m);
+
+            result.replace(m, item);
+            result.replace(n, item2);
+        }
+
+        return result;
     }
 }

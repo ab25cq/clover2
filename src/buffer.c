@@ -23,7 +23,7 @@ void sBuf_append(sBuf* self, void* str, size_t size)
     memcpy(str2, str, size);
 
     if(self->mSize <= self->mLen + size + 1) {
-        self->mSize = (self->mSize + size + 1) * 2;
+        self->mSize = (self->mLen + size + 1) * 2;
         self->mBuf = MREALLOC(self->mBuf, sizeof(char)*self->mSize);
     }
 
@@ -39,7 +39,7 @@ void sBuf_append(sBuf* self, void* str, size_t size)
 void sBuf_append(sBuf* self, void* str, size_t size)
 {
     if(self->mSize <= self->mLen + size + 1) {
-        self->mSize = (self->mSize + size + 1) * 2;
+        self->mSize = (self->mLen + size + 1) * 2;
         self->mBuf = (char*)MREALLOC(self->mBuf, sizeof(char)*self->mSize);
     }
 
@@ -53,7 +53,7 @@ void sBuf_append(sBuf* self, void* str, size_t size)
 void sBuf_append_char(sBuf* self, char c)
 {
     if(self->mSize <= self->mLen + 1 + 1) {
-        self->mSize = (self->mSize + 1 + 1) * 2;
+        self->mSize = (self->mLen + 1 + 1) * 2;
         self->mBuf = (char*)MREALLOC(self->mBuf, sizeof(char)*self->mSize);
     }
 

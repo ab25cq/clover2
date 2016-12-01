@@ -246,7 +246,7 @@ CLObject alloc_heap_mem(int size, sCLClass* klass, int array_num)
         if(gCLHeap.mMemLen + size >= gCLHeap.mMemSize) {
             BOOL current_is_mem_a = gCLHeap.mMem == gCLHeap.mCurrentMem;
 
-            int new_heap_size = (gCLHeap.mMemSize + size) * 2;
+            int new_heap_size = (gCLHeap.mMemLen + size + 1) * 2;
 
 
             gCLHeap.mMem = MREALLOC(gCLHeap.mMem, new_heap_size);

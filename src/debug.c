@@ -37,6 +37,7 @@ ALLOC char* xstrdup(char* str)
 
 ALLOC void* xrealloc(void* ptr, size_t size)
 {
+/*
     void* buf;
 
     buf = CALLOC(1, size);
@@ -44,7 +45,7 @@ ALLOC void* xrealloc(void* ptr, size_t size)
     free(ptr);
 
     return buf;
-/*
+*/
     void* buf;
 
     buf = realloc(ptr, size);
@@ -55,7 +56,6 @@ ALLOC void* xrealloc(void* ptr, size_t size)
     }
 
     return buf;
-*/
 }
 
 ALLOC void* xcalloc(size_t count, size_t size)

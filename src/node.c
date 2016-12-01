@@ -1723,7 +1723,7 @@ static BOOL compile_params(sCLClass* klass, char* method_name, int num_params, u
         for(j=0; j<num_methods; j++) {
             sCLMethod* method = klass->mMethods + method_indexes[j];
 
-            if(i < method->mNumParams) {
+            if(num_params == method->mNumParams && i < method->mNumParams) {
                 sNodeType* param;
                 sNodeType* solved_param;
 

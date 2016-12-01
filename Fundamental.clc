@@ -97,7 +97,7 @@ class Buffer
         len: int = str.len;
 
         if(self.len + len +1 >= self.size) {
-            new_size:int = (self.size+len) * 2 + 1;
+            new_size:int = (self.len+len + 1) * 2;
             self.buffer = System.realloc(self.buffer, new_size);
             self.size = new_size;
         }
@@ -210,7 +210,7 @@ class String
             self.len += len;
         }
         else {
-            new_size:int = (self.len + len) * 2 + 1;
+            new_size:int = (self.len + len + 1) * 2;
             new_buffer:char[] = new char[new_size];
 
             for(i:int = 0; i<self.len; i++) {
@@ -293,13 +293,20 @@ class String
 
     def subString(start:int, end:int): String {
         if(start < 0) {
-            start += self.length();
+            start += self.len;
         }
         if(end < 0) {
-            end += self.length() + 1;
+            end += self.len + 1;
         }
 
-        if(start < 0 || end < 0 || start >= end) {
+        if(start < 0) {
+            start = 0;
+        }
+        if(end > self.len) {
+            end = self.len;
+        }
+
+        if(start >= end || start >= self.len || end < 0) {
             return "";
         }
 
@@ -1329,6 +1336,12 @@ class List<T:IEqualable>
         return true;
     }
 
+    def setValue(list:List<T>) {
+        self.head = list.head;
+        self.tail = list.tail;
+        self.number = list.number;
+    }
+
     def length():uint {
         return self.number;
     }
@@ -1377,6 +1390,62 @@ class List<T:IEqualable>
         self.number++;
 
         return self;
+    }
+
+    def push(item:T):List<T> {
+        return self.add(item);
+    }
+
+    def pop():T {
+        if(self.head.identifyWith(null)) {
+            return null;
+        }
+        else {
+            new_tail := self.tail.prev;
+            item := self.tail.item;
+
+            if(new_tail.identifyWith(null)) {
+                self.head = null;
+                self.tail = null;
+                self.number = 0;
+
+                return item;
+            }
+            else {
+                new_tail.next = null;
+                self.tail = new_tail;
+
+                self.number--;
+
+                return item;
+            }
+        }
+    }
+
+    def shift():T {
+        if(self.head.identifyWith(null)) {
+            return null;
+        }
+        else {
+            new_head := self.head.next;
+            item := self.head.item;
+
+            if(new_head.identifyWith(null)) {
+                self.head = null;
+                self.tail = null;
+                self.number = 0;
+
+                return item;
+            }
+            else {
+                new_head.prev = null;
+                self.head = new_head;
+
+                self.number--;
+
+                return item;
+            }
+        }
     }
 
     def insert(index:int, item:T):List<T> {
@@ -1467,6 +1536,58 @@ class List<T:IEqualable>
                 }
                 break;
             }
+            
+            it2 = it;
+            it = it.next;
+        }
+
+        return self;
+    }
+
+    def deleteAt(index:int):List<T> {
+        it:ListItem<T> = self.head;
+        it2:ListItem<T> = self.head;
+
+        count:int = 0;
+
+        while(!it.identifyWith(null)) {
+            if(count == index) {
+                # one item is contained in list
+                if(it.identifyWith(self.head) && it.identifyWith(self.tail)) {
+                    self.head = null;
+                    self.tail = null;
+                    self.number = 0;
+                }
+                # two item is contained in list
+                elif(it2.identifyWith(self.head) && it.identifyWith(self.tail)) {
+                    self.head = it2;
+                    self.tail = it2;
+                    it2.prev = null;
+                    it2.next = null;
+                    self.number = 1;
+                }
+                # other
+                else {
+                    if(it.identifyWith(self.head)) {
+                        self.head = self.head.next;
+                        self.head.prev = null;
+                        self.number--;
+                    }
+                    elif(it.identifyWith(self.tail)) {
+                        self.tail = self.tail.prev;
+                        self.tail.next = null;
+                        self.number--;
+                    }
+                    else {
+                        it2.next = it.next;
+                        it.next.prev = it2;
+                        self.number--;
+                    }
+                }
+                break;
+            }
+
+            count++;
             
             it2 = it;
             it = it.next;

@@ -33,10 +33,10 @@ int sConst_append(sConst* self, void* data, size_t size, BOOL no_output)
         arrange_alignment(self);
 
         if(self->mSize <= self->mLen + size + 1) {
-            int new_size = (self->mSize + 1 + size) * 2;
+            int new_size = (self->mLen + size + 1) * 2;
             char* new_constant = MCALLOC(1, new_size);
 
-            memcpy(new_constant, self->mConst, new_size);
+            memcpy(new_constant, self->mConst, self->mLen);
             MFREE(self->mConst);
 
             self->mConst = new_constant;
