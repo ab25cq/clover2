@@ -296,7 +296,7 @@ BOOL solve_generics_types_for_node_type(sNodeType* node_type, ALLOC sNodeType** 
     if(generics_type == NULL) {
         *result = clone_node_type(node_type); // no solve
     }
-    else if(type_identify_with_class_name(node_type, "SELF")) {
+    else if(type_identify_with_class_name(node_type, "Self")) {
         *result = alloc_node_type();
         (*result)->mClass = generics_type->mClass;
 

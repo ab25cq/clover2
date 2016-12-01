@@ -77,7 +77,7 @@ static BOOL check_same_interface_of_two_methods(sCLMethod* method1, sCLClass* kl
         char* param1_type = get_class_name_from_cl_type(param1->mType, klass1);
         char* param2_type = get_class_name_from_cl_type(param2->mType, klass2);
 
-        if(strcmp(param1_type, "SELF") == 0) {
+        if(strcmp(param1_type, "Self") == 0) {
             param1_type = CLASS_NAME(klass2);
         }
 

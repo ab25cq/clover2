@@ -7,7 +7,7 @@ class SelfTest {
         self.value2 = value2;
     }
 
-    def getSelf():Self {
+    def getSelf():SELF {
         return self;
     }
 }

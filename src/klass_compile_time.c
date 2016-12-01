@@ -88,7 +88,7 @@ void create_method_name_and_params(char* result, int size_result, sCLClass* klas
         BOOL array = param_type->mArray;
 
         if(klass2 == klass) {
-            xstrncat(result, "SELF", size_result);
+            xstrncat(result, "Self", size_result);
         }
         else {
             xstrncat(result, CLASS_NAME(klass2), size_result);
@@ -354,7 +354,7 @@ static BOOL check_same_interface_of_two_methods(sCLMethod* method1, sCLClass* kl
         sNodeType* param1_type = create_node_type_from_cl_type(param1->mType, klass1);
         sNodeType* param2_type = create_node_type_from_cl_type(param2->mType, klass2);
 
-        if(type_identify_with_class_name(param1_type, "SELF")) {
+        if(type_identify_with_class_name(param1_type, "Self")) {
             param1_type = create_node_type_with_class_pointer(klass2);
         }
 

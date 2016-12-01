@@ -7,7 +7,7 @@ Yet another compiler and a Virtual Machine.
 FEATURES
 
 1. primitive class and none primitive class with boxing and unboxing
-2. Lambda and closure, regex are class
+2. Lambda and closure, regex are first-class object
 3. Generics
 4. No inheritance, only interfaces and classes
 5. open class

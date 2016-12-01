@@ -374,7 +374,7 @@ module MPrintf
 
 module MInclude
 {
-    def include(list:List<Self>):bool {
+    def include(list:List<SELF>):bool {
         return list.indexOf(self) != -1;
     }
 }
@@ -428,7 +428,7 @@ module MWrapperClassConvert
 
 module MWrapperClassEquals 
 {
-    def equals(right:Self):bool {
+    def equals(right:SELF):bool {
         return self.value == right.value;
     }
 }
@@ -957,7 +957,7 @@ class Bool
 
 interface IEqualable
 {
-    def equals(key:SELF): bool;
+    def equals(key:Self): bool;
     def toString(): String;
 }
 
@@ -1083,7 +1083,7 @@ class EqualableArray <T:IEqualable>
 interface IHashKey
 {
     def getHashKey(): uint;
-    def equals(key:SELF): bool;
+    def equals(key:Self): bool;
     def toString(): String;
 }
 

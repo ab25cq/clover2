@@ -725,7 +725,7 @@ BOOL parse_class_type(sCLClass** klass, sParserInfo* info)
         return FALSE;
     }
 
-    if(strcmp(class_name, "Self") == 0) {
+    if(strcmp(class_name, "SELF") == 0) {
         *klass = info->klass;
     }
     else {
@@ -757,7 +757,7 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
     }
 
     if(i == info->generics_info.mNumParams) {
-        if(strcmp(type_name, "Self") == 0) {
+        if(strcmp(type_name, "SELF") == 0) {
             *result_type = create_node_type_with_class_pointer(info->klass);
         }
         else {
@@ -922,7 +922,7 @@ BOOL parse_type_for_new(sNodeType** result_type, unsigned int* array_num, sParse
     }
 
     if(i == info->generics_info.mNumParams) {
-        if(strcmp(type_name, "Self") == 0) {
+        if(strcmp(type_name, "SELF") == 0) {
             *result_type = create_node_type_with_class_pointer(info->klass);
         }
         else {
