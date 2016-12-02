@@ -1301,11 +1301,11 @@ class ListItem <T:Object>
     }
 }
 
-class List<T:IEqualable>
+module MListImplementation
 {
     head: ListItem<T>;
     tail: ListItem<T>;
-    number: uint;
+    number: int;
 
     def initialize() {
         self.head = null;
@@ -1323,7 +1323,7 @@ class List<T:IEqualable>
         }
     }
 
-    def equals(right:List<T>):bool {
+    def equals(right:SELF<T>):bool {
         if(self.number != right.number) {
             return false;
         }
@@ -1336,13 +1336,13 @@ class List<T:IEqualable>
         return true;
     }
 
-    def setValue(list:List<T>) {
+    def setValue(list:SELF<T>) {
         self.head = list.head;
         self.tail = list.tail;
         self.number = list.number;
     }
 
-    def length():uint {
+    def length():int {
         return self.number;
     }
 
@@ -1367,7 +1367,7 @@ class List<T:IEqualable>
         return null;
     }
     
-    def clear(): List<T> {
+    def clear(): SELF<T> {
         self.head = null;
         self.tail = null;
         self.number = 0;
@@ -1375,7 +1375,7 @@ class List<T:IEqualable>
         return self;
     }
 
-    def add(item:T):List<T> {
+    def add(item:T):SELF<T> {
         if(self.head.identifyWith(null)) {
             self.head = new ListItem<T>(item, null, null);
             self.tail = self.head;
@@ -1392,7 +1392,7 @@ class List<T:IEqualable>
         return self;
     }
 
-    def push(item:T):List<T> {
+    def push(item:T):SELF<T> {
         return self.add(item);
     }
 
@@ -1448,7 +1448,7 @@ class List<T:IEqualable>
         }
     }
 
-    def insert(index:int, item:T):List<T> {
+    def insert(index:int, item:T):SELF<T> {
         if(index < 0) {
             index += self.number + 1;
         }
@@ -1496,7 +1496,7 @@ class List<T:IEqualable>
         return self;
     }
 
-    def delete(item:T):List<T> {
+    def delete(item:T):SELF<T> {
         it:ListItem<T> = self.head;
         it2:ListItem<T> = self.head;
 
@@ -1544,7 +1544,7 @@ class List<T:IEqualable>
         return self;
     }
 
-    def deleteAt(index:int):List<T> {
+    def deleteAt(index:int):SELF<T> {
         it:ListItem<T> = self.head;
         it2:ListItem<T> = self.head;
 
@@ -1596,7 +1596,7 @@ class List<T:IEqualable>
         return self;
     }
 
-    def each(block_:lambda(T)):List<T> {
+    def each(block_:lambda(T)):SELF<T> {
         it:ListItem<T> = self.head;
 
         while(!it.identifyWith(null)) {
@@ -1607,7 +1607,7 @@ class List<T:IEqualable>
         return self;
     }
 
-    def eachReverse(block_:lambda(T)):List<T> {
+    def eachReverse(block_:lambda(T)):SELF<T> {
         it:ListItem<T> = self.tail;
 
         while(!it.identifyWith(null)) {
@@ -1618,7 +1618,7 @@ class List<T:IEqualable>
         return self;
     }
 
-    def replace(index:int, item:T):List<T> {
+    def replace(index:int, item:T):SELF<T> {
         if(index < 0) {
             index += self.number;
         }
@@ -1682,6 +1682,11 @@ class List<T:IEqualable>
 
         return -1;
     }
+}
+
+class List<T:IEqualable>
+{
+    include MListImplementation;
 }
 
 class Tuple1 <T:IEqualable>

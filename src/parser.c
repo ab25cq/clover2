@@ -1625,6 +1625,47 @@ static BOOL parse_list_value(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
+static BOOL parse_sortable_list_value(unsigned int* node, sParserInfo* info) 
+{
+    int num_elements = 0;
+
+    unsigned int list_elements[LIST_VALUE_ELEMENT_MAX];
+    memset(list_elements, 0, sizeof(unsigned int)*LIST_VALUE_ELEMENT_MAX);
+
+    if(*info->p == '}') {
+        info->p++;
+        skip_spaces_and_lf(info);
+    }
+    else {
+        while(1) {
+            if(!expression(list_elements + num_elements, info)) {
+                return FALSE;
+            }
+
+            num_elements++;
+
+            if(num_elements >= LIST_VALUE_ELEMENT_MAX) {
+                parser_err_msg(info, "overflow array value elements");
+                return FALSE;
+            }
+
+            if(*info->p == ',') {
+                info->p++;
+                skip_spaces_and_lf(info);
+            }
+            else if(*info->p == '}') {
+                info->p++;
+                skip_spaces_and_lf(info);
+                break;
+            }
+        }
+    }
+
+    *node = sNodeTree_create_sortable_list_value(num_elements, list_elements);
+
+    return TRUE;
+}
+
 static BOOL parse_tuple_value(unsigned int* node, sParserInfo* info) 
 {
     int num_elements = 0;
@@ -2026,6 +2067,13 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             expect_next_character_with_one_forward("{", info);
 
             if(!parse_list_value(node, info)) {
+                return FALSE;
+            }
+        }
+        else if(strcmp(buf, "sortable_list") == 0 && *info->p == '{') {
+            expect_next_character_with_one_forward("{", info);
+
+            if(!parse_sortable_list_value(node, info)) {
                 return FALSE;
             }
         }

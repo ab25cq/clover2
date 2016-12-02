@@ -830,6 +830,7 @@ static void load_fundamental_classes_on_compile_time()
 
     load_class("IHashKey");
     load_class("IEqualable");
+    load_class("ISortable");
 
     load_class("HashKey");
     load_class("HashItem");
@@ -837,6 +838,7 @@ static void load_fundamental_classes_on_compile_time()
 
     load_class("ListItem");
     load_class("List");
+    load_class("SortableList");
 
     load_class("Tuple1");
     load_class("Tuple2");

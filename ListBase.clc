@@ -1,13 +1,13 @@
 include "Fundamental.clc"
 
-class List<T:IEqualable>
+module MExtendedListImplementation
 {
     def sample():T {
         return self.items(System.rand() % self.number);
     }
 
-    def map(block_:lambda(T):Anonymous): List<Anonymous> {
-        result:List<Anonymous> = new List<Anonymous>();
+    def map(block_:lambda(T):Anonymous): SELF<Anonymous> {
+        result:SELF<Anonymous> = new SELF<Anonymous>();
 
         it:ListItem<T> = self.head;
 
@@ -20,7 +20,7 @@ class List<T:IEqualable>
         return result;
     }
 
-    def append(list:List<T>):List<T> {
+    def append(list:SELF<T>):SELF<T> {
         list.each(closure(item:T) {
             self.add(item);
         });
@@ -28,8 +28,8 @@ class List<T:IEqualable>
         return self;
     }
 
-    def multiply(n:int):List<T> {
-        result:List<T> = new List<T>();
+    def multiply(n:int):SELF<T> {
+        result:SELF<T> = new SELF<T>();
 
         for(i:int = 0; i<n; i++) {
             result.append(self);
@@ -54,8 +54,8 @@ class List<T:IEqualable>
         return result;
     }
 
-    def select(block_:lambda(T):bool):List<T> {
-        new_list: List<T> = new List<T>();
+    def select(block_:lambda(T):bool):SELF<T> {
+        new_list: SELF<T> = new SELF<T>();
 
         it := self.head;
 
@@ -69,8 +69,8 @@ class List<T:IEqualable>
         return new_list;
     }
 
-    def clone():List<T> {
-        result:List<T> = new List<T>();
+    def clone():SELF<T> {
+        result:SELF<T> = new SELF<T>();
         it := self.head;
         while(!it.identifyWith(null)) {
             result.add(it.item);
@@ -79,7 +79,7 @@ class List<T:IEqualable>
         return result;
     }
 
-    def subList(start:int, end:int):List<T> {
+    def subList(start:int, end:int):SELF<T> {
         if(start < 0) {
             start += self.number;
         }
@@ -94,10 +94,10 @@ class List<T:IEqualable>
         }
 
         if(start >= end || start >= self.number || end < 0) {
-            return new List<T>();
+            return new SELF<T>();
         }
 
-        new_list: List<T> = new List<T>();
+        new_list: SELF<T> = new SELF<T>();
 
         it := self.head;
         count:int = 0;
@@ -113,7 +113,7 @@ class List<T:IEqualable>
         return new_list;
     }
 
-    def deleteWithRange(start:int, end:int):List<T> {
+    def deleteWithRange(start:int, end:int):SELF<T> {
         if(start < 0) {
             start += self.number;
         }
@@ -128,10 +128,10 @@ class List<T:IEqualable>
         }
 
         if(start >= end || start >= self.number || end < 0) {
-            return new List<T>();
+            return new SELF<T>();
         }
 
-        new_list: List<T> = new List<T>();
+        new_list: SELF<T> = new SELF<T>();
 
         it := self.head;
         count:int = 0;
@@ -147,7 +147,7 @@ class List<T:IEqualable>
         return new_list;
     }
 
-    def fill(start:int, end:int, item:T):List<T> {
+    def fill(start:int, end:int, item:T):SELF<T> {
         if(start < 0) {
             start += self.number;
         }
@@ -162,10 +162,10 @@ class List<T:IEqualable>
         }
 
         if(start >= end || start >= self.number || end < 0) {
-            return new List<T>();
+            return new SELF<T>();
         }
 
-        new_list: List<T> = new List<T>();
+        new_list: SELF<T> = new SELF<T>();
 
         it := self.head;
         count:int = 0;
@@ -183,7 +183,7 @@ class List<T:IEqualable>
 
         return new_list;
     }
-    def fill(item:T):List<T> {
+    def fill(item:T):SELF<T> {
         return self.fill(0,-1,item);
     }
 
@@ -222,8 +222,8 @@ class List<T:IEqualable>
         return self.join("");
     }
 
-    def reverse():List<T> {
-        result:List<T> = new List<T>();
+    def reverse():SELF<T> {
+        result:SELF<T> = new SELF<T>();
 
         it := self.tail;
 
@@ -235,7 +235,7 @@ class List<T:IEqualable>
         return result;
     }
 
-    def shuffle():List<T> {
+    def shuffle():SELF<T> {
         result := self.clone();
 
         for(i:=0; i<50; i++) {
@@ -250,5 +250,89 @@ class List<T:IEqualable>
         }
 
         return result;
+    }
+}
+
+class List<T:IEqualable>
+{
+    include MExtendedListImplementation;
+
+    def toSortableList():SortableList<ISortable> throws Exception {
+        result:SortableList<ISortable>  = new SortableList<ISortable>();
+
+        it := result.head;
+
+        while(!it.identifyWith(null)) {
+            item := it.item;
+
+            if(item implements ISortable) {
+                result.add(item);
+            }
+
+            it = it.next;
+        }
+
+        return result;
+    }
+}
+
+interface ISortable
+{
+    def equals(key:Self): bool;
+    def toString(): String;
+    def compare(item:Self): int;
+}
+
+class SortableList<T:ISortable>
+{
+    include MListImplementation;
+    include MExtendedListImplementation;
+
+    def quickSort(list:SortableList<T>, left:int, right:int) {
+        l_hold:int = left;
+        r_hold:int = right;
+
+        pivot:T = list.items(left);
+        pivot_num:int = left;
+
+        while(left < right) {
+            while((list.items(right).compare(pivot) >= 0) && (left < right)) {
+                right--;
+            }
+
+            if(left != right) {
+                list.replace(left, list.items(right));
+                left++;
+            }
+
+            while((list.items(left).compare(pivot) <= 0) && (left < right)) {
+                left++;
+            }
+
+            if(left != right) {
+                list.replace(right, list.items(left));
+                right--;
+            }
+        }
+
+        list.replace(left, pivot);
+
+        pivot_num = left;
+
+        left = l_hold;
+        right = r_hold;
+        if(left < pivot_num) {
+            self.quickSort(list, left, pivot_num-1);
+        }
+
+        if(right > pivot_num) {
+            self.quickSort(list, pivot_num+1, right);
+        }
+    }
+
+    def sort(): SortableList<T> {
+        list:SortableList<T> = self.clone();
+        list.quickSort(list, 0, self.length()-1);
+        return list;
     }
 }

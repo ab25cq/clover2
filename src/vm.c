@@ -567,6 +567,7 @@ static BOOL load_fundamental_classes_on_runtime()
 
     if(!load_class_with_initialize("IHashKey")) { return FALSE; }
     if(!load_class_with_initialize("IEqualable")) { return FALSE; }
+    if(!load_class_with_initialize("ISortable")) { return FALSE; }
 
     if(!load_class_with_initialize("HashKey")) { return FALSE; }
     if(!load_class_with_initialize("HashItem")) { return FALSE; }
@@ -574,6 +575,7 @@ static BOOL load_fundamental_classes_on_runtime()
 
     if(!load_class_with_initialize("ListItem")) { return FALSE; }
     if(!load_class_with_initialize("List")) { return FALSE; }
+    if(!load_class_with_initialize("SortableList")) { return FALSE; }
 
     if(!load_class_with_initialize("Tuple1")) { return FALSE; }
     if(!load_class_with_initialize("Tuple2")) { return FALSE; }
@@ -11980,6 +11982,56 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     }
 
                     if(!initialize_list_object(list_object, num_elements, items, stack, var_num, &stack_ptr, info, klass))
+                    {
+                        vm_mutex_off();
+                        remove_stack_to_stack_list(stack);
+                        return FALSE;
+                    }
+
+                    stack_ptr--; // pop_object
+
+                    stack_ptr-=num_elements;
+                    stack_ptr->mObjectValue = list_object;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CREATE_SORTALBE_LIST:
+                {
+                    vm_mutex_on();
+
+                    int num_elements = *(int*)pc;
+                    pc += sizeof(int);
+
+                    int offset = *(int*)pc;
+                    pc += sizeof(int);
+
+                    char* class_name = CONS_str(constant, offset);
+
+                    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+
+                    if(klass == NULL) {
+                        vm_mutex_off();
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found(13)");
+                        remove_stack_to_stack_list(stack);
+                        return FALSE;
+                    }
+
+                    CLObject list_object = create_sortable_list_object();
+                    stack_ptr->mObjectValue = list_object; // push object
+                    stack_ptr++;
+
+                    CLObject items[LIST_VALUE_ELEMENT_MAX];
+
+                    int i;
+                    for(i=0; i<num_elements; i++) {
+                        CLVALUE element = *(stack_ptr-1-num_elements+i);
+                        items[i] = (*(stack_ptr-1-num_elements+i)).mObjectValue;
+                    }
+
+                    if(!initialize_sortable_list_object(list_object, num_elements, items, stack, var_num, &stack_ptr, info, klass))
                     {
                         vm_mutex_off();
                         remove_stack_to_stack_list(stack);
