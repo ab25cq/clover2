@@ -330,9 +330,82 @@ class SortableList<T:ISortable>
         }
     }
 
-    def sort(): SortableList<T> {
-        list:SortableList<T> = self.clone();
-        list.quickSort(list, 0, self.length()-1);
+    def mergeList(left:SortableList<T>, right:SortableList<T>):static SortableList<T> {
+        list: SortableList<T> = new SortableList<T>();
+
+        it:ListItem<T> = left.head;
+        it2:ListItem<T> = right.head;
+
+        while(true) {
+            if(it.item.compare(it2.item) <= 0) {
+                list.add(it.item);
+
+                it = it.next;
+            }
+            else {
+                list.add(it2.item);
+
+                it2 = it2.next;
+            }
+
+            if(it.identifyWith(null)) {
+                if(!it2.identifyWith(null)) {
+                    while(!it2.identifyWith(null)) {
+                        list.add(it2.item);
+
+                        it2 = it2.next;
+                    }
+                }
+                break;
+            }
+            elif(it2.identifyWith(null)) {
+                if(!it.identifyWith(null)) {
+                    while(!it.identifyWith(null)) {
+                        list.add(it.item);
+
+                        it = it.next;
+                    }
+                }
+                break;
+            }
+        }
+
         return list;
+    }
+
+    def mergeSort():SortableList<T> {
+        if(self.head.identifyWith(null)) {
+            return self;
+        }
+        if(self.head.next.identifyWith(null)) {
+            return self;
+        }
+
+        list1:SortableList<T> = new SortableList<T>();
+        list2:SortableList<T> = new SortableList<T>();
+
+        it:ListItem<T> = self.head;
+
+        while(true) {
+            list1.add(it.item);
+            list2.add(it.next.item);
+
+            if(it.next.next.identifyWith(null)) {
+                break;
+            }
+
+            it = it.next.next;
+
+            if(it.next.identifyWith(null)) {
+                list1.add(it.item);
+                break;
+            }
+        }
+
+        return SortableList.mergeList(list1.mergeSort(), list2.mergeSort());
+    }
+
+    def sort(): SortableList<T> {
+        return self.mergeSort();
     }
 }

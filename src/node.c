@@ -1632,6 +1632,24 @@ unsigned int sNodeTree_create_class_method_call(sCLClass* klass, char* method_na
     return node;
 }
 
+static sNodeType* get_generics_type_of_inner_class(sParserInfo* pinfo)
+{
+    sNodeType* result = NULL;
+    if(pinfo->generics_info.mNumParams != 0) {
+        sGenericsParamInfo* generics_param = &pinfo->generics_info;
+
+        result = alloc_node_type();
+        result->mNumGenericsTypes = generics_param->mNumParams;
+
+        int i;
+        for(i=0;i<generics_param->mNumParams; i++) {
+            result->mGenericsTypes[i] = create_node_type_with_class_pointer(generics_param->mInterface[i]);
+        }
+    }
+
+    return result;
+}
+
 static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)
 {
     sNodeType* param_types[PARAMS_MAX];
@@ -1650,8 +1668,16 @@ static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)
         param_types[i] = info->type;
     }
 
+    sNodeType* generics_types;
+    if(info->pinfo->klass) {
+        generics_types = get_generics_type_of_inner_class(info->pinfo);
+    }
+    else {
+        generics_types = NULL;
+    }
+
     sNodeType* result_type;
-    int method_index = search_for_method(klass, method_name, param_types, num_params, TRUE, klass->mNumMethods-1, NULL, NULL, &result_type);
+    int method_index = search_for_method(klass, method_name, param_types, num_params, TRUE, klass->mNumMethods-1, generics_types, NULL, &result_type);
 
     if(method_index == -1) {
         parser_err_msg(info->pinfo, "method not found(1)");

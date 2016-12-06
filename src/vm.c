@@ -4204,7 +4204,7 @@ if(stack_ptr != lvar + var_num + 1) {
 
                     if(left == 0) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "Null pointer exception");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "Null pointer exception(1)");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -4243,7 +4243,7 @@ if(stack_ptr != lvar + var_num + 1) {
 
                     if(left == 0) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "Null pointer exception");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "Null pointer exception(2)");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -4481,7 +4481,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(obj == 0) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "Null pointer exception");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "Null pointer exception(3)");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -4523,7 +4523,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(obj == 0) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "Null pointer exception");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "Null pointer exception(4)");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -4565,7 +4565,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(obj == 0) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "Null pointer exception");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "Null pointer exception(5)");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -4718,7 +4718,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(array == 0) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "Null pointer exception");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "Null pointer exception(7)");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }
@@ -4750,7 +4750,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(array == 0) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "Null pointer exception");
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "Null pointer exception(8)");
                         remove_stack_to_stack_list(stack);
                         return FALSE;
                     }

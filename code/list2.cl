@@ -40,4 +40,5 @@ c.shuffle().toString().printf("%s\n");
 c.shuffle().toString().printf("%s\n");
 
 Clover.test("List test26", sortable_list { "BBB", "CCC", "AAA"}.sort().equals(sortable_list { "AAA", "BBB", "CCC" }));
+Clover.test("List test27", sortable_list { "B", "D", "E", "A", "Z", "C", "Y", "X"}.sort().equals(sortable_list { "A", "B", "C", "D", "E", "X", "Y", "Z" }));
 
