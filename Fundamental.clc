@@ -24,7 +24,7 @@ class System
 
     def sprintf(format:String, prams:Array<Object>): native static String throws Exception;
 
-    def mbstowcs(dest:pointer@of_wchar[], src:pointer@utf8-string-memory): static native int throws Exception;
+    def mbstowcs(dest:pointer@of_wchar[], src:pointer@utf8-string-memory, size:int): static native int throws Exception;
     def wcstombs(dest:pointer@of_byte[], src:char[]): static native int throws Exception;
 
     def srand(value:uint): static native;
@@ -83,41 +83,49 @@ class Buffer
         self.buffer = System.malloc(self.size);
         self.len = 0;
     }
-    def initialize(str:pointer) {
-        len:int = System.strlen(str);
-
-        self.size = len + 1;
-        self.buffer = System.strdup(str);
-        self.len = len;
+    def initialize(buf:pointer, size:int) {
+        self.size = size;
+        self.buffer = System.malloc(self.size);
+        System.memcpy(self.buffer, buf, size);
+        self.len = self.size;
+    }
+    def initialize(size:int) {
+        self.size = size;
+        self.buffer = System.malloc(self.size);
+        self.len = 0;
     }
     def finalize() {
         System.free(self.buffer);
     }
-    def append(str:Buffer) {
-        len: int = str.len;
+    def append(buf:Buffer) {
+        len: int = buf.len;
 
-        if(self.len + len +1 >= self.size) {
-            new_size:int = (self.len+len + 1) * 2;
+        if(self.len + len >= self.size) {
+            new_size:int = (self.len+len+1) * 2;
             self.buffer = System.realloc(self.buffer, new_size);
             self.size = new_size;
         }
 
-        System.memcpy(self.buffer + self.len, str.buffer, len);
+        System.memcpy(self.buffer + self.len, buf.buffer, len);
         self.len += len;
-        (self.buffer + self.len)->byte = 0.to_byte;
     }
 
-    def chars(index:int):byte {
-        return((self.buffer + index)->byte);
+    def chars(index:int):byte throws Exception {
+        if(index >= 0 && index < self.len) {
+            return((self.buffer + index)->byte);
+        }
+        else {
+            throw new Exception("Invalid range on Buffer.char");
+        }
     }
 
-    def equals(str:Buffer):bool {
-        if(self.len != str.len) {
+    def equals(buf:Buffer):bool {
+        if(self.len != buf.len) {
             return false;
         }
 
         for(i:int = 0; i<self.len; i++) {
-            if(self.chars(i) != str.chars(i)) {
+            if(self.chars(i) != buf.chars(i)) {
                 return false;
             }
         }
@@ -126,8 +134,10 @@ class Buffer
     }
 
     def toString():String throws Exception {
+        self.append(b"\0");
+
         wcs:char[] = null;
-        System.mbstowcs(&wcs, self.buffer);
+        System.mbstowcs(&wcs, self.buffer, self.len);
         return new String(wcs);
     }
 }

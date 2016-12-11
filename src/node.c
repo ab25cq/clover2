@@ -66,7 +66,7 @@ void free_nodes()
                     break;
 
                 case kNodeTypeBuffer:
-                    MFREE(gNodes[i].uValue.mString);
+                    MFREE(gNodes[i].uValue.sBuffer.mBuffer);
                     break;
 
                 case kNodeTypeBlockObject:
@@ -4709,7 +4709,7 @@ BOOL compile_string_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_buffer_value(MANAGED char* value)
+unsigned int sNodeTree_create_buffer_value(MANAGED char* value, int len)
 {
     unsigned int node = alloc_node();
 
@@ -4721,17 +4721,21 @@ unsigned int sNodeTree_create_buffer_value(MANAGED char* value)
 
     gNodes[node].mType = NULL;
 
-    gNodes[node].uValue.mString = MANAGED value;
+    gNodes[node].uValue.sBuffer.mBuffer = MANAGED value;
+    gNodes[node].uValue.sBuffer.mLen = len;
 
     return node;
 }
 
 BOOL compile_buffer_value(unsigned int node, sCompileInfo* info)
 {
-    char* str = gNodes[node].uValue.mString;
+    char* buf = gNodes[node].uValue.sBuffer.mBuffer;
+
+    int size = gNodes[node].uValue.sBuffer.mLen;
 
     append_opecode_to_code(info->code, OP_CREATE_BUFFER, info->no_output);
-    append_str_to_constant_pool_and_code(info->constant, info->code, str, info->no_output);
+    append_buffer_to_constant_pool_and_code(info->constant, info->code, buf, size, info->no_output);
+    append_int_value_to_code(info->code, size, info->no_output);
 
     info->stack_num++;
 

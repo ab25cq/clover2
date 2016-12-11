@@ -107,6 +107,7 @@ int append_int_value_to_constant_pool(sConst* constant, int n, BOOL no_output);
 int append_float_value_to_constant_pool(sConst* constant, float n, BOOL no_output);
 int append_double_value_to_constant_pool(sConst* constant, double n, BOOL no_output);
 int append_str_to_constant_pool(sConst* constant, char* str, BOOL no_output);
+void append_buffer_to_constant_pool_and_code(sConst* constant, sByteCode* code, char* buf, int size, BOOL no_output);
 int append_wstr_to_constant_pool(sConst* constant, char* str, BOOL no_output);
 void append_str_to_constant_pool_and_code(sConst* constant, sByteCode* code, char* str, BOOL no_output);
 
@@ -514,6 +515,11 @@ struct sNodeTreeStruct
         char* mString;
 
         struct {
+            char* mBuffer;
+            int mLen;
+        } sBuffer;
+
+        struct {
             sParserParam mParams[PARAMS_MAX];
             int mNumParams;
             sNodeType* mResultType;
@@ -640,7 +646,7 @@ unsigned int sNodeTree_create_load_array_element(unsigned int array, unsigned in
 unsigned int sNodeTree_create_store_array_element(unsigned int array, unsigned int index_ndoe, unsigned int right_node);
 unsigned int sNodeTree_create_character_value(wchar_t c);
 unsigned int sNodeTree_create_string_value(MANAGED char* value);
-unsigned int sNodeTree_create_buffer_value(MANAGED char* value);
+unsigned int sNodeTree_create_buffer_value(MANAGED char* value, int len);
 unsigned int sNodeTree_try_expression(MANAGED sNodeBlock* try_node_block, MANAGED sNodeBlock* catch_node_block, char* exception_var_name);
 
 unsigned int sNodeTree_create_block_object(sParserParam* params, int num_params, sNodeType* result_type, MANAGED sNodeBlock* node_block, BOOL lambda);
@@ -1686,7 +1692,7 @@ void regex_free_fun(CLObject obj);
 
 /// string.c ///
 CLObject create_string_object(char* str);
-CLObject create_buffer_object(char* str);
+CLObject create_buffer_object(char* buffer, int size);
 CLObject create_string_from_two_strings(CLObject left, CLObject right);
 int get_length_from_string_object(CLObject str);
 CLVALUE* get_str_array_from_string_object(CLObject str);
@@ -1752,12 +1758,17 @@ BOOL System_strtol(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_strtoul(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_srand(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_rand(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_open(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_close(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_initialize(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_read(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_time(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_localtime(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 /// alignment.c ///
 void alignment(unsigned int* size);
 
-/// clove_to_clang ///
+/// clover_to_clang ///
 ALLOC wchar_t* string_object_to_wchar_array(CLObject string_object);
 ALLOC char* string_object_to_char_array(CLObject string_object);
 NULLABLE CLVALUE* get_element_from_array(CLObject array, int index);
@@ -1777,6 +1788,8 @@ double get_value_from_Double(CLObject object);
 BOOL get_value_from_Bool(CLObject object);
 char* get_value_from_Pointer(CLObject object);
 sCLClass* get_class_from_object(CLObject object);
+void* get_pointer_from_buffer_object(CLObject buffer);
+int get_size_from_buffer_object(CLObject buffer);
 
 /// list.c ///
 CLObject create_list_object();

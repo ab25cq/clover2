@@ -110,7 +110,7 @@ static sNativeMethod gNativeMethods[] = {
     { "System.sleep(int)", System_sleep },
     { "System.pcre_exec(regex,String,int,int,PcreOVec)", System_pcre_exec },
     { "System.sprintf(String,Array)", System_sprintf },
-    { "System.mbstowcs(pointer,pointer)", System_mbstowcs },
+    { "System.mbstowcs(pointer,pointer,int)", System_mbstowcs },
     { "System.wcstombs(pointer,char[])", System_wcstombs },
     { "System.atoi(String)", System_atoi },
     { "System.atof(String)", System_atof },
@@ -122,6 +122,11 @@ static sNativeMethod gNativeMethods[] = {
     { "System.srand(uint)", System_srand },
     { "System.rand()", System_rand },
     { "System.time()", System_time },
+    { "System.open(String,int,int)", System_open },
+    { "System.close(int)", System_close },
+    { "System.initialize()", System_initialize },
+    { "System.read(int,Buffer,int)", System_read },
+    { "System.localtime(ulong,pointer,pointer,pointer,pointer,pointer,pointer,pointer,pointer,pointer)", System_localtime },
 
     { "", 0 }  // sentinel
 };

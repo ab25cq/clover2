@@ -1,6 +1,10 @@
 #include "common.h"
 #include <wchar.h>
+#include <errno.h>
 #include <time.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 BOOL System_exit(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
@@ -606,15 +610,16 @@ BOOL System_mbstowcs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* dest = lvar;
     CLVALUE* src = lvar+1;
+    CLVALUE* len = lvar+2;
 
     /// clover variable to c variable ///
     char* src_value = src->mPointerValue;
-    int len = strlen(src_value);
-    wchar_t* wcs = MCALLOC(1, sizeof(wchar_t)*(len+1));
+    int len_value = len->mIntValue;
+    wchar_t* wcs = MCALLOC(1, sizeof(wchar_t)*(len_value));
     CLVALUE* dest_value = (CLVALUE*)dest->mPointerValue;
 
     /// go ///
-    int memory = mbstowcs(wcs, src_value, len+1);
+    int memory = mbstowcs(wcs, src_value, len_value);
 
     if(memory < 0) {
         entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "invalid multi byte string");
@@ -627,14 +632,13 @@ BOOL System_mbstowcs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     MASSERT(klass != NULL);
 
-    CLObject object = create_array_object(klass, len+1);
+    CLObject object = create_array_object(klass, len_value);
     sCLObject* object_data = CLOBJECT(object);
 
     int i;
-    for(i=0; i<len; i++) {
+    for(i=0; i<len_value; i++) {
         object_data->mFields[i].mCharValue = wcs[i];
     }
-    object_data->mFields[i].mCharValue = '\0';
 
     dest_value->mObjectValue = object;
 
@@ -883,3 +887,196 @@ BOOL System_time(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     return TRUE;
 }
+
+BOOL System_open(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* file_name = lvar;
+    CLVALUE* flags = (lvar+1);
+    CLVALUE* mode = (lvar+2);
+
+    /// Clover to c value ///
+    char* file_name_value = ALLOC string_object_to_char_array(file_name->mObjectValue);
+
+    int flags_value = flags->mIntValue;
+
+    int mode_value = mode->mIntValue;
+
+    /// go ///
+    int result = open(file_name_value, flags_value, mode_value);
+
+    if(result < 0) {
+        MFREE(file_name_value);
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "open(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    MFREE(file_name_value);
+
+    return TRUE;
+}
+
+BOOL System_close(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* fd = lvar;
+
+    /// Clover to c value ///
+    int fd_value = fd->mIntValue;
+
+    /// go ///
+    int result = close(fd_value);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "close(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_initialize(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    sCLClass* system = get_class("System");
+
+    system->mClassFields[0].mValue.mIntValue = S_IFMT;
+    system->mClassFields[1].mValue.mIntValue = S_IFMT;
+    system->mClassFields[2].mValue.mIntValue = S_IFDIR;
+    system->mClassFields[3].mValue.mIntValue = S_IFCHR;
+    system->mClassFields[4].mValue.mIntValue = S_IFBLK;
+    system->mClassFields[5].mValue.mIntValue = S_IFREG;
+    system->mClassFields[6].mValue.mIntValue = S_IFIFO;
+    system->mClassFields[7].mValue.mIntValue = S_IFLNK;
+    system->mClassFields[8].mValue.mIntValue = S_IFSOCK;
+    system->mClassFields[9].mValue.mIntValue = S_ISUID;
+    system->mClassFields[10].mValue.mIntValue = S_ISGID;
+    system->mClassFields[11].mValue.mIntValue = S_ISVTX;
+    system->mClassFields[12].mValue.mIntValue = S_IRUSR;
+    system->mClassFields[13].mValue.mIntValue = S_IWUSR;
+    system->mClassFields[14].mValue.mIntValue = S_IXUSR;
+    system->mClassFields[15].mValue.mIntValue = S_IRWXU;
+    system->mClassFields[16].mValue.mIntValue = S_IRGRP;
+    system->mClassFields[17].mValue.mIntValue = S_IWGRP;
+    system->mClassFields[18].mValue.mIntValue = S_IXGRP;
+    system->mClassFields[19].mValue.mIntValue = S_IRWXG;
+    system->mClassFields[20].mValue.mIntValue = S_IROTH;
+    system->mClassFields[21].mValue.mIntValue = S_IWOTH;
+    system->mClassFields[22].mValue.mIntValue = S_IXOTH;
+    system->mClassFields[23].mValue.mIntValue = S_IRWXO;
+    system->mClassFields[24].mValue.mIntValue = R_OK;
+    system->mClassFields[25].mValue.mIntValue = W_OK;
+    system->mClassFields[26].mValue.mIntValue = X_OK;
+    system->mClassFields[27].mValue.mIntValue = F_OK;
+    system->mClassFields[28].mValue.mIntValue = O_APPEND;
+    system->mClassFields[29].mValue.mIntValue = O_ASYNC;
+    system->mClassFields[30].mValue.mIntValue = O_RDONLY;
+    system->mClassFields[31].mValue.mIntValue = O_WRONLY;
+    system->mClassFields[32].mValue.mIntValue = O_RDWR;
+    system->mClassFields[33].mValue.mIntValue = O_CREAT;
+    system->mClassFields[34].mValue.mIntValue = O_DIRECTORY;
+    system->mClassFields[35].mValue.mIntValue = O_EXCL;
+    system->mClassFields[36].mValue.mIntValue = O_NOCTTY;
+    system->mClassFields[37].mValue.mIntValue = O_NOFOLLOW;
+#ifdef O_TMPFILE
+    system->mClassFields[38].mValue.mIntValue = O_TMPFILE;
+#endif
+    system->mClassFields[39].mValue.mIntValue = O_TRUNC;
+#ifdef O_TTY_INIT
+    system->mClassFields[40].mValue.mIntValue = O_TTY_INIT;
+#endif
+    system->mClassFields[41].mValue.mIntValue = O_CLOEXEC;
+    system->mClassFields[42].mValue.mIntValue = O_DIRECT;
+    system->mClassFields[43].mValue.mIntValue = O_DSYNC;
+    system->mClassFields[44].mValue.mIntValue = O_LARGEFILE;
+    system->mClassFields[45].mValue.mIntValue = O_NOATIME;
+    system->mClassFields[46].mValue.mIntValue = O_NONBLOCK;
+#ifdef O_PATH
+    system->mClassFields[47].mValue.mIntValue = O_PATH;
+#endif
+    system->mClassFields[48].mValue.mIntValue = O_SYNC;
+
+    return TRUE;
+}
+
+BOOL System_read(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* fd = lvar;
+    CLVALUE* buf = lvar+1;
+    CLVALUE* size = lvar + 2;
+
+    /// Clover to c value ///
+    int fd_value = fd->mIntValue;
+    void* buf_value = get_pointer_from_buffer_object(buf->mObjectValue);
+    size_t size_value = (size_t)size->mIntValue;
+
+    int buffer_size = get_size_from_buffer_object(buf->mObjectValue);
+
+    /// check size ///
+    if(size_value > buffer_size) {
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "Buffer size is smaller than the size value of argument");
+        return FALSE;
+    }
+
+    /// go ///
+    int result = read(fd_value, buf_value, size_value);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "read(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    sCLObject* obj_data = CLOBJECT(buf->mObjectValue);
+    obj_data->mFields[1].mIntValue = result;                // len
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_localtime(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* time = lvar;
+    CLVALUE* tm_sec = lvar + 1;
+    CLVALUE* tm_min = lvar + 2;
+    CLVALUE* tm_hour = lvar + 3;
+    CLVALUE* tm_mday = lvar + 4;
+    CLVALUE* tm_mon = lvar + 5;
+    CLVALUE* tm_year = lvar + 6;
+    CLVALUE* tm_wday = lvar + 7;
+    CLVALUE* tm_yday = lvar + 8;
+    CLVALUE* tm_isdst = lvar + 9;
+
+    /// Clover to c value ///
+    time_t time_value = (time_t)time->mULongValue;
+
+    /// go ///
+    struct tm* tm_struct = localtime(&time_value);
+
+    if(tm_struct == NULL) {
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "localtime(3) is faield");
+        return FALSE;
+    }
+
+    *(int*)tm_sec->mPointerValue = tm_struct->tm_sec;
+    *(int*)tm_min->mPointerValue = tm_struct->tm_min;
+    *(int*)tm_hour->mPointerValue = tm_struct->tm_hour;
+    *(int*)tm_mday->mPointerValue = tm_struct->tm_mday;
+    *(int*)tm_mon->mPointerValue = tm_struct->tm_mon;
+    *(int*)tm_year->mPointerValue = tm_struct->tm_year;
+    *(int*)tm_wday->mPointerValue = tm_struct->tm_wday;
+    *(int*)tm_yday->mPointerValue = tm_struct->tm_yday;
+    *(BOOL*)tm_isdst->mPointerValue = tm_struct->tm_isdst;
+
+    return TRUE;
+}
+
+/*
+    def mktime(time:tm): ulong;
+    def lstat(path:String, stat_:stat): static native int throws Exception;
+    def stat(path:String, stat_:stat): static native int throws Exception;
+*/

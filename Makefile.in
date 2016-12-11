@@ -76,6 +76,7 @@ install:
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -no-load-fudamental-classes -class Fundamental.clc
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -no-load-fudamental-classes -class StringBase.clc
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -no-load-fudamental-classes -class ListBase.clc
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -no-load-fudamental-classes -class FileBase.clc
 	mkdir -p ~/.clover2
 	$(INSTALL) -m 644 PcreOVec.clcl ~/.clover2
 	$(INSTALL) -m 644 System.clcl ~/.clover2
@@ -115,6 +116,7 @@ install:
 	$(INSTALL) -m 644 Tuple8.clcl ~/.clover2
 	$(INSTALL) -m 644 Tuple9.clcl ~/.clover2
 	$(INSTALL) -m 644 Tuple10.clcl ~/.clover2
+	$(INSTALL) -m 644 File.clcl ~/.clover2
 	mkdir -p "$(libdir)"
 	$(INSTALL) -m 755 clover2 "$(bindir)"
 	$(INSTALL) -m 755 cclover2 "$(bindir)"
@@ -202,4 +204,6 @@ test:
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/string2.cl && ./clover2 code/string2.clo
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/carray.cl && ./clover2 code/carray.clo
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/list2.cl && ./clover2 code/list2.clo
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/file.cl && ./clover2 code/file.clo
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/time.cl && ./clover2 code/time.clo
 

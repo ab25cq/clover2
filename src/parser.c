@@ -518,10 +518,12 @@ static BOOL for_expression(unsigned int* node, sParserInfo* info)
 
 static BOOL return_expression(unsigned int* node, sParserInfo* info)
 {
+/*
     if(*info->p == '(') {
         info->p++;
         skip_spaces_and_lf(info);
     }
+*/
 
     unsigned int expression_node = 0;
     if(*info->p != ';') {
@@ -531,10 +533,12 @@ static BOOL return_expression(unsigned int* node, sParserInfo* info)
         }
     }
 
+/*
     if(*info->p == ')') {
         info->p++;
         skip_spaces_and_lf(info);
     }
+*/
 
     *node = sNodeTree_create_return_expression(expression_node);
 
@@ -1861,6 +1865,11 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                         info->p++;
                         break;
 
+                    case '0':
+                        sBuf_append_char(&value, '\0');
+                        info->p++;
+                        break;
+
                     default:
                         sBuf_append_char(&value, *info->p);
                         info->p++;
@@ -1881,7 +1890,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
         skip_spaces_and_lf(info);
 
-        *node = sNodeTree_create_buffer_value(MANAGED value.mBuf);
+        *node = sNodeTree_create_buffer_value(MANAGED value.mBuf, value.mLen);
     }
     else if(*info->p == '\'') {
         info->p++;

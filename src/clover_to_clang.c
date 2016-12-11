@@ -162,3 +162,17 @@ sCLClass* get_class_from_object(CLObject object)
     sCLObject* object_data = CLOBJECT(object);
     return object_data->mClass;
 }
+
+void* get_pointer_from_buffer_object(CLObject buffer)
+{
+    sCLObject* obj_data = CLOBJECT(buffer);
+
+    return obj_data->mFields[0].mPointerValue;
+}
+
+int get_size_from_buffer_object(CLObject buffer)
+{
+    sCLObject* obj_data = CLOBJECT(buffer);
+
+    return obj_data->mFields[2].mIntValue;
+}

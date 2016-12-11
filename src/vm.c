@@ -588,6 +588,8 @@ static BOOL load_fundamental_classes_on_runtime()
     if(!load_class_with_initialize("Tuple9")) { return FALSE; }
     if(!load_class_with_initialize("Tuple10")) { return FALSE; }
 
+    if(!load_class_with_initialize("File")) { return FALSE; }
+
     return TRUE;
 }
 
@@ -11845,9 +11847,12 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     int offset = *(int*)pc;
                     pc += sizeof(int);
 
-                    char* str = CONS_str(constant, offset);
+                    int size = *(int*)pc;
+                    pc += sizeof(int);
 
-                    CLObject buffer_object = create_buffer_object(str);
+                    char* buf = CONS_str(constant, offset);
+
+                    CLObject buffer_object = create_buffer_object(buf, size);
 
                     stack_ptr->mObjectValue = buffer_object;
                     stack_ptr++;

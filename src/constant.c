@@ -100,3 +100,10 @@ void append_str_to_constant_pool_and_code(sConst* constant, sByteCode* code, cha
     int offset = append_str_to_constant_pool(constant, str, no_output);
     append_int_value_to_code(code, offset, no_output);
 }
+
+void append_buffer_to_constant_pool_and_code(sConst* constant, sByteCode* code, char* buf, int size, BOOL no_output)
+{
+    int offset = sConst_append(constant, buf, size, no_output);
+    append_int_value_to_code(code, offset, no_output);
+}
+

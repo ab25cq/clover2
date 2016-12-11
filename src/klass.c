@@ -850,6 +850,8 @@ static void load_fundamental_classes_on_compile_time()
     load_class("Tuple8");
     load_class("Tuple9");
     load_class("Tuple10");
+
+    load_class("File");
 }
 
 void class_init_on_compile_time()

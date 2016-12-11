@@ -1,0 +1,283 @@
+include "StringBase.clc"
+
+class System
+{
+    S_IFMT: static int;
+    S_IFDIR: static int;
+    S_IFCHR: static int;
+    S_IFBLK: static int;
+    S_IFREG: static int;
+    S_IFIFO: static int;
+    S_IFLNK: static int;
+    S_IFSOCK: static int;
+    S_ISUID: static int;
+    S_ISGID: static int;
+    S_ISVTX: static int;
+    S_IRUSR: static int;
+    S_IWUSR: static int;
+    S_IXUSR: static int;
+    S_IRWXU: static int;
+    S_IRGRP: static int;
+    S_IWGRP: static int;
+    S_IXGRP: static int;
+    S_IRWXG: static int;
+    S_IROTH: static int;
+    S_IWOTH: static int;
+    S_IXOTH: static int;
+    S_IRWXO: static int;
+    R_OK: static int;
+    W_OK: static int;
+    X_OK: static int;
+    F_OK: static int;
+    O_APPEND: static int;
+    O_ASYNC: static int;
+    O_RDONLY: static int;
+    O_WRONLY: static int;
+    O_RDWR: static int;
+    O_CREAT: static int;
+    O_DIRECTORY: static int;
+    O_EXCL: static int;
+    O_NOCTTY: static int;
+    O_NOFOLLOW: static int;
+    O_TMPFILE: static int;
+    O_TRUNC: static int;
+    O_TTY_INIT: static int;
+    O_CLOEXEC: static int;
+    O_DIRECT: static int;
+    O_DSYNC: static int;
+    O_LARGEFILE: static int;
+    O_NOATIME: static int;
+    O_NONBLOCK: static int;
+    O_PATH: static int;
+    O_SYNC : static int;
+
+    def initialize(): static native;
+    def open(file_name:String, flags:int, mode:int):static native int throws Exception;
+    def close(fd:int): static native int throws Exception;
+    def read(fd:int, buf:Buffer, size:int): static native int throws Exception;
+
+    def time(): static native ulong;
+    def localtime(time:ulong, tm_sec:pointer@of_int, tm_min:pointer@of_int, tm_hour:pointer@of_int, tm_mday:pointer@of_int, tm_mon:pointer@of_int, tm_year:pointer@of_int, tm_wday:pointer@of_int, tm_yday:pointer@of_int, tm_isdst:pointer@of_bool): static native throws Exception;
+    #def mktime(time:tm): static native ulong;
+    #def lstat(path:String, stat_:stat): static native int throws Exception;
+    #def stat(path:String, stat_:stat): static native int throws Exception;
+}
+
+class tm
+{
+    tm_sec:int;
+    tm_min:int;
+    tm_hour:int;
+    tm_mday:int;
+    tm_mon:int;
+    tm_year:int;
+    tm_wday:int;
+    tm_yday:int;
+    tm_isdst:bool;
+
+    def initialize(time:ulong)
+    {
+        System.localtime(time, &self.tm_sec, &self.tm_min, &self.tm_hour, &self.tm_mday, &self.tm_mon, &self.tm_year, &self.tm_wday, &self.tm_yday, &self.tm_isdst);
+    }
+
+    def initialize(year:int, month:int, day_of_month:int, hour:int, minuts:int, sec:int, day_of_week:int, day_of_year:int, isdst:bool)
+    {
+        self.setYear(year);
+        self.setMonth(month);
+        self.setDayOfMonth(day_of_month);
+        self.setHour(hour);
+        self.setMinuts(minuts);
+        self.setSecond(sec);
+        self.setDayOfWeek(day_of_week);
+        self.setDayOfYear(day_of_year);
+        self.setDaylightSavingTime(isdst);
+    }
+
+    def second():int {
+        return self.tm_sec;
+    }
+    def setSecond(value:int) {
+        self.tm_sec = value;
+    }
+    def minuts():int {
+        return self.tm_min;
+    }
+    def setMinuts(value:int) {
+        self.tm_min = value;
+    }
+    def hour():int {
+        return self.tm_hour;
+    }
+    def setHour(value:int) {
+        self.tm_hour = value;
+    }
+    def dayOfMonth():int {
+        return self.tm_mday;
+    }
+    def setDayOfMonth(value:int) {
+        self.tm_mday = value;
+    }
+    def month():int {
+        return self.tm_mon + 1;
+    }
+    def setMonth(value:int) {
+        self.tm_mon = value -1;
+    }
+    def year():int {
+        return self.tm_year + 1900;
+    }
+    def setYear(value:int) {
+        self.tm_year = value - 1900;
+    }
+    def dayOfWeek():int {
+        return self.tm_wday;
+    }
+    def setDayOfWeek(value:int) {
+        self.tm_wday = value;
+    }
+    def dayOfYear():int {
+        return self.tm_yday;
+    }
+    def setDayOfYear(value:int) {
+        self.tm_yday = value;
+    }
+    def isDaylightSavingTime():bool {
+        return self.tm_isdst;
+    }
+    def setDaylightSavingTime(value:bool) {
+        self.tm_isdst = value;
+    }
+
+    def toString():String {
+        return System.sprintf("%d-%02d-%02d %02d:%02d", array { self.year().toInteger, self.month().toInteger, self.dayOfMonth().toInteger, self.hour().toInteger, self.minuts().toInteger });
+    }
+
+/*
+    def to_time_t():ulong throws Exception {
+        return System.mktime(self);
+    }
+*/
+}
+
+class stat
+{
+    st_dev:ulong;
+    st_mode:int;
+    st_uid:int;
+    st_gid:int;
+    st_rdev:ulong;
+    st_size: ulong;
+
+    st_atime:ulong;
+    st_mtime:ulong;
+    st_ctime:ulong;
+
+    def initialize(path:String, lstat:bool) throws Exception {
+/*
+        if(lstat) {
+            System.lstat(path, self);
+        }
+        else {
+            System.stat(path, self);
+        }
+*/
+    }
+    def initialize(path:String) throws Exception {
+        self.initialize(path, false);
+    }
+    def S_ISDIR():bool {
+        return (self.st_mode & System.S_IFMT) == System.S_IFDIR;
+    }
+    def S_ISCHR():bool {
+        return (self.st_mode & System.S_IFMT) == System.S_IFCHR;
+    }
+    def S_ISBLK():bool {
+        return (self.st_mode & System.S_IFMT) == System.S_IFBLK;
+    }
+    def S_ISREG():bool {
+        return (self.st_mode & System.S_IFMT) == System.S_IFREG;
+    }
+    def S_ISFIFO():bool {
+        return (self.st_mode & System.S_IFMT) == System.S_IFIFO;
+    }
+    def S_ISLNK():bool {
+        return (self.st_mode & System.S_IFMT) == System.S_IFLNK;
+    }
+    def S_ISSOCK():bool {
+        return (self.st_mode & System.S_IFMT) == System.S_IFSOCK;
+    }
+    def to_permission():int {
+        return self.st_mode & (System.S_ISUID|System.S_ISGID|System.S_ISVTX|System.S_IRWXU|System.S_IRWXG|System.S_IRWXO);
+    }
+    def S_IXUGO():int {
+        return ((self.st_mode & System.S_IXUSR) == System.S_IXUSR) && ((self.st_mode & System.S_IXGRP) == System.S_IXGRP) && ((self.st_mode & System.S_IXOTH) == System.S_IXOTH);
+    }
+    def atime():tm {
+        return new tm(self.st_atime);
+    }
+    def ctime():tm {
+        return new tm(self.st_ctime);
+    }
+    def mtime():tm {
+        return new tm(self.st_mtime);
+    }
+    def size():ulong {
+        return self.st_size;
+    }
+}
+
+class File
+{
+    fd:int;
+
+    def initialize() {
+        self.fd = -1;
+    }
+
+    def initialize(file_name:String, flags:int, mode:int) throws Exception {
+        self.fd = System.open(file_name, flags, mode);
+    }
+
+    def initialize(file_name:String) throws Exception {
+        self.fd = System.open(file_name, System.O_RDONLY, 0);
+    }
+
+    def finalize() {
+        if(self.fd != -1) {
+            System.close(self.fd);
+        }
+    }
+
+    def close() {
+        if(self.fd != -1) {
+            System.close(self.fd);
+
+            self.fd = -1;
+        }
+    }
+
+    def read(size:int): Buffer throws Exception {
+        if(self.fd == -1) {
+            throw new Exception("File is not opened");
+        }
+
+        result:Buffer = new Buffer(size);
+        System.read(self.fd, result, size);
+        return result;
+    }
+
+    def size(): ulong {
+    }
+
+    def read(): Buffer throws Exception {
+        if(self.fd == -1) {
+            throw new Exception("File is not opened");
+        }
+
+        size:ulong = self.size();
+
+        result:Buffer = new Buffer(size.to_int);
+        System.read(self.fd, result, size.to_int);
+        return result;
+    }
+}
