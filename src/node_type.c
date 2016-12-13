@@ -108,7 +108,7 @@ sNodeType* create_node_type_with_class_name(char* class_name)
 {
     sNodeType* node_type = alloc_node_type();
 
-    node_type->mClass = get_class(class_name);
+    node_type->mClass = get_class_with_load(class_name);
 
     if(node_type->mClass == NULL) {
         node_type->mClass = load_class(class_name);
@@ -135,7 +135,7 @@ sNodeType* create_node_type_from_cl_type(sCLType* cl_type, sCLClass* klass)
 {
     sNodeType* node_type = alloc_node_type();
 
-    node_type->mClass = get_class(CONS_str(&klass->mConst, cl_type->mClassNameOffset));
+    node_type->mClass = get_class_with_load(CONS_str(&klass->mConst, cl_type->mClassNameOffset));
 
     MASSERT(node_type->mClass != NULL);
 
@@ -281,7 +281,7 @@ BOOL type_identify_with_class_name(sNodeType* left, char* right_class_name)
 
 BOOL class_identify_with_class_name(sCLClass* klass, char* class_name)
 {
-    sCLClass* klass2 = get_class(class_name);
+    sCLClass* klass2 = get_class_with_load(class_name);
 
     MASSERT(klass2 != NULL);
 
@@ -357,7 +357,7 @@ sNodeType* create_generics_types_from_generics_params(sCLClass* klass)
     int i;
     for(i=0; i<klass->mNumGenerics; i++) {
         int offset = klass->mGenericsParamTypeOffsets[i];
-        sCLClass* interface = get_class(CONS_str(&klass->mConst, offset));
+        sCLClass* interface = get_class_with_load(CONS_str(&klass->mConst, offset));
 
         MASSERT(interface != NULL);
 

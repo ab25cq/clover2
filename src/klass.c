@@ -852,6 +852,7 @@ static void load_fundamental_classes_on_compile_time()
     load_class("Tuple10");
 
     load_class("File");
+    load_class("Path");
 }
 
 void class_init_on_compile_time()

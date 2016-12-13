@@ -1892,6 +1892,72 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
         *node = sNodeTree_create_buffer_value(MANAGED value.mBuf, value.mLen);
     }
+    else if((*info->p == 'P' || *info->p == 'p') && *(info->p+1) == '"') {
+        info->p+=2;
+
+        sBuf value;
+        sBuf_init(&value);
+
+        while(1) {
+            if(*info->p == '"') {
+                info->p++;
+                break;
+            }
+            else if(*info->p == '\\') {
+                info->p++;
+                switch(*info->p) {
+                    case 'n':
+                        sBuf_append_char(&value, '\n');
+                        info->p++;
+                        break;
+
+                    case 't':
+                        sBuf_append_char(&value, '\t');
+                        info->p++;
+                        break;
+
+                    case 'r':
+                        sBuf_append_char(&value, '\r');
+                        info->p++;
+                        break;
+
+                    case 'a':
+                        sBuf_append_char(&value, '\a');
+                        info->p++;
+                        break;
+
+                    case '\\':
+                        sBuf_append_char(&value, '\\');
+                        info->p++;
+                        break;
+
+                    case '0':
+                        sBuf_append_char(&value, '\0');
+                        info->p++;
+                        break;
+
+                    default:
+                        sBuf_append_char(&value, *info->p);
+                        info->p++;
+                        break;
+                }
+            }
+            else if(*info->p == '\0') {
+                parser_err_msg(info, "close \" to make string buffer value");
+                return FALSE;
+            }
+            else {
+                if(*info->p == '\n') info->sline++;
+
+                sBuf_append_char(&value, *info->p);
+                info->p++;
+            }
+        }
+
+        skip_spaces_and_lf(info);
+
+        *node = sNodeTree_create_path_value(MANAGED value.mBuf, value.mLen);
+    }
     else if(*info->p == '\'') {
         info->p++;
 

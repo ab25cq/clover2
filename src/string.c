@@ -68,3 +68,25 @@ CLObject create_buffer_object(char* buffer, int size)
     return obj;
 }
 
+CLObject create_path_object(char* path)
+{
+    /// create object ///
+    sCLClass* path_class = get_class("Path");
+    MASSERT(path_class != NULL);
+
+    CLObject str_object = create_string_object(path);
+
+    gGlobalStackPtr->mObjectValue = str_object;
+    gGlobalStackPtr++;
+
+    CLObject obj = create_object(path_class);
+
+    sCLObject* object_data = CLOBJECT(obj);
+
+    object_data->mFields[0].mObjectValue = str_object;
+
+    gGlobalStackPtr--;
+
+    return obj;
+}
+

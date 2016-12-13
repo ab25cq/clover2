@@ -429,7 +429,7 @@ BOOL parse_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* ne
 BOOL compile_block(sNodeBlock* block, struct sCompileInfoStruct* info);
 
 /// node.c ///
-enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeUByteValue, kNodeTypeShortValue, kNodeTypeUShortValue, kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand, kNodeTypeIncrementWithValueOperand, kNodeTypeDecrementWithValueOperand, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand, kNodeTypeLoadArrayElement, kNodeTypeStoreArrayElement, kNodeTypeChar, kNodeTypeString, kNodeTypeBuffer, kNodeTypeThrow, kNodeTypeTry, kNodeTypeBlockObject, kNodeTypeBlockCall, kNodeTypeConditional, kNodeTypeNormalBlock, kNodeTypeArrayValue, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeHashValue, kNodeTypeRegex, kNodeTypeListValue, kNodeTypeSortableListValue,kNodeTypeTupleValue, kNodeTypeCArrayValue, kNodeTypeImplements, kNodeTypeGetAddress, kNodeTypeInheritCall, kNodeTypeFloatValue, kNodeTypeDoubleValue };
+enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeUByteValue, kNodeTypeShortValue, kNodeTypeUShortValue, kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand, kNodeTypeIncrementWithValueOperand, kNodeTypeDecrementWithValueOperand, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand, kNodeTypeLoadArrayElement, kNodeTypeStoreArrayElement, kNodeTypeChar, kNodeTypeString, kNodeTypeBuffer, kNodeTypeThrow, kNodeTypeTry, kNodeTypeBlockObject, kNodeTypeBlockCall, kNodeTypeConditional, kNodeTypeNormalBlock, kNodeTypeArrayValue, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeHashValue, kNodeTypeRegex, kNodeTypeListValue, kNodeTypeSortableListValue,kNodeTypeTupleValue, kNodeTypeCArrayValue, kNodeTypeImplements, kNodeTypeGetAddress, kNodeTypeInheritCall, kNodeTypeFloatValue, kNodeTypeDoubleValue, kNodeTypePath };
 
 enum eOperand { kOpAdd, kOpSub , kOpComplement, kOpLogicalDenial, kOpMult, kOpDiv, kOpMod, kOpLeftShift, kOpRightShift, kOpComparisonEqual, kOpComparisonNotEqual,kOpComparisonGreaterEqual, kOpComparisonLesserEqual, kOpComparisonGreater, kOpComparisonLesser, kOpAnd, kOpXor, kOpOr };
 
@@ -667,6 +667,7 @@ unsigned int sNodeTree_create_get_address(unsigned int node);
 unsigned int sNodeTree_create_inherit_call(int num_params, unsigned int params[], int method_index);
 unsigned int sNodeTree_create_float_value(float value, unsigned int left, unsigned int right, unsigned int middle);
 unsigned int sNodeTree_create_double_value(double value, unsigned int left, unsigned int right, unsigned int middle);
+unsigned int sNodeTree_create_path_value(MANAGED char* value, int len);
 
 /// script.c ///
 BOOL compile_script(char* fname, char* source);
@@ -1484,14 +1485,15 @@ void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
 
 #define OP_CREATE_STRING 9000
 #define OP_CREATE_BUFFER 9001
-#define OP_CREATE_ARRAY 9002
-#define OP_CREATE_CARRAY 9003
-#define OP_CREATE_LIST 9004
-#define OP_CREATE_SORTALBE_LIST 9005
-#define OP_CREATE_TUPLE 9006
-#define OP_CREATE_HASH 9007
-#define OP_CREATE_BLOCK_OBJECT 9008
-#define OP_CREATE_REGEX 9009
+#define OP_CREATE_PATH 9002
+#define OP_CREATE_ARRAY 9003
+#define OP_CREATE_CARRAY 9004
+#define OP_CREATE_LIST 9005
+#define OP_CREATE_SORTALBE_LIST 9006
+#define OP_CREATE_TUPLE 9007
+#define OP_CREATE_HASH 9008
+#define OP_CREATE_BLOCK_OBJECT 9009
+#define OP_CREATE_REGEX 9010
 
 BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sVMInfo* info);
 void vm_mutex_on();
@@ -1693,6 +1695,7 @@ void regex_free_fun(CLObject obj);
 /// string.c ///
 CLObject create_string_object(char* str);
 CLObject create_buffer_object(char* buffer, int size);
+CLObject create_path_object(char* path);
 CLObject create_string_from_two_strings(CLObject left, CLObject right);
 int get_length_from_string_object(CLObject str);
 CLVALUE* get_str_array_from_string_object(CLObject str);
@@ -1764,6 +1767,9 @@ BOOL System_initialize(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_read(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_time(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_localtime(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_mktime(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_stat(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_lstat(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 /// alignment.c ///
 void alignment(unsigned int* size);

@@ -1075,8 +1075,109 @@ BOOL System_localtime(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     return TRUE;
 }
 
-/*
-    def mktime(time:tm): ulong;
-    def lstat(path:String, stat_:stat): static native int throws Exception;
-    def stat(path:String, stat_:stat): static native int throws Exception;
-*/
+BOOL System_mktime(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* time = lvar;
+
+    /// Clover to c value ///
+    sCLObject* object_data = CLOBJECT(time->mObjectValue);
+
+    struct tm tm;
+
+    tm.tm_sec = object_data->mFields[0].mIntValue;
+    tm.tm_min = object_data->mFields[1].mIntValue;
+    tm.tm_hour = object_data->mFields[2].mIntValue;
+    tm.tm_mday = object_data->mFields[3].mIntValue;
+    tm.tm_mon = object_data->mFields[4].mIntValue;
+    tm.tm_year = object_data->mFields[5].mIntValue;
+    tm.tm_wday = object_data->mFields[6].mIntValue;
+    tm.tm_yday = object_data->mFields[7].mIntValue;
+    tm.tm_isdst = object_data->mFields[8].mBoolValue;
+
+    /// go ///
+    time_t result = mktime(&tm);
+
+    if(result == -1) {
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "mktime(3) is faield");
+        return FALSE;
+    }
+
+    (*stack_ptr)->mULongValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_stat(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* path = lvar;
+    CLVALUE* stat_ = lvar + 1;
+
+    /// Clover to c value ///
+    char* path_value = ALLOC string_object_to_char_array(path->mObjectValue);
+
+    /// go ///
+    struct stat stat_struct;
+    int result = stat(path_value, &stat_struct);
+
+    if(result < 0) {
+        MFREE(path_value);
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "stat(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+    sCLObject* object_data = CLOBJECT(stat_->mObjectValue);
+
+    object_data->mFields[0].mULongValue = stat_struct.st_dev;
+    object_data->mFields[1].mIntValue = stat_struct.st_mode;
+    object_data->mFields[2].mIntValue = stat_struct.st_uid;
+    object_data->mFields[3].mIntValue = stat_struct.st_gid;
+    object_data->mFields[4].mULongValue = stat_struct.st_rdev;
+    object_data->mFields[5].mULongValue = stat_struct.st_size;
+    object_data->mFields[6].mULongValue = stat_struct.st_atime;
+    object_data->mFields[7].mULongValue = stat_struct.st_mtime;
+    object_data->mFields[8].mULongValue = stat_struct.st_ctime;
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    MFREE(path_value);
+
+    return TRUE;
+}
+
+BOOL System_lstat(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* path = lvar;
+    CLVALUE* stat_ = lvar + 1;
+
+    /// Clover to c value ///
+    char* path_value = ALLOC string_object_to_char_array(path->mObjectValue);
+
+    /// go ///
+    struct stat stat_struct;
+    int result = lstat(path_value, &stat_struct);
+
+    if(result < 0) {
+        MFREE(path_value);
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "lstat(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+    sCLObject* object_data = CLOBJECT(stat_->mObjectValue);
+
+    object_data->mFields[0].mULongValue = stat_struct.st_dev;
+    object_data->mFields[1].mIntValue = stat_struct.st_mode;
+    object_data->mFields[2].mIntValue = stat_struct.st_uid;
+    object_data->mFields[3].mIntValue = stat_struct.st_gid;
+    object_data->mFields[4].mULongValue = stat_struct.st_rdev;
+    object_data->mFields[5].mULongValue = stat_struct.st_size;
+    object_data->mFields[6].mULongValue = stat_struct.st_atime;
+    object_data->mFields[7].mULongValue = stat_struct.st_mtime;
+    object_data->mFields[8].mULongValue = stat_struct.st_ctime;
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    MFREE(path_value);
+
+    return TRUE;
+}

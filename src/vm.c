@@ -316,6 +316,10 @@ static void show_inst(unsigned inst)
             puts("OP_CREATE_BUFFER");
             break;
 
+        case OP_CREATE_PATH:
+            puts("OP_CREATE_PATH");
+            break;
+
         case OP_CREATE_BLOCK_OBJECT:
             puts("OP_CREATE_BLOCK_OBJECT");
             break;
@@ -589,6 +593,7 @@ static BOOL load_fundamental_classes_on_runtime()
     if(!load_class_with_initialize("Tuple10")) { return FALSE; }
 
     if(!load_class_with_initialize("File")) { return FALSE; }
+    if(!load_class_with_initialize("Path")) { return FALSE; }
 
     return TRUE;
 }
@@ -11855,6 +11860,24 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     CLObject buffer_object = create_buffer_object(buf, size);
 
                     stack_ptr->mObjectValue = buffer_object;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CREATE_PATH:
+                {
+                    vm_mutex_on();
+
+                    int offset = *(int*)pc;
+                    pc += sizeof(int);
+
+                    char* buf = CONS_str(constant, offset);
+
+                    CLObject path_object = create_path_object(buf);
+
+                    stack_ptr->mObjectValue = path_object;
                     stack_ptr++;
 
                     vm_mutex_off();

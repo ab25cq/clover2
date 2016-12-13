@@ -65,6 +65,10 @@ void free_nodes()
                     MFREE(gNodes[i].uValue.mString);
                     break;
 
+                case kNodeTypePath:
+                    MFREE(gNodes[i].uValue.mString);
+                    break;
+
                 case kNodeTypeBuffer:
                     MFREE(gNodes[i].uValue.sBuffer.mBuffer);
                     break;
@@ -4744,6 +4748,37 @@ BOOL compile_buffer_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_path_value(MANAGED char* value, int len)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypePath;
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    gNodes[node].mType = NULL;
+
+    gNodes[node].uValue.mString = MANAGED value;
+
+    return node;
+}
+
+BOOL compile_path_value(unsigned int node, sCompileInfo* info)
+{
+    char* buf = gNodes[node].uValue.mString;
+
+    append_opecode_to_code(info->code, OP_CREATE_PATH, info->no_output);
+    append_str_to_constant_pool_and_code(info->constant, info->code, buf, info->no_output);
+
+    info->stack_num++;
+
+    info->type = create_node_type_with_class_name("Path");
+
+    return TRUE;
+}
+
 unsigned int sNodeTree_create_get_address(unsigned int rnode)
 {
     unsigned int node = alloc_node();
@@ -5995,6 +6030,10 @@ void show_node(unsigned int node)
             puts("buffer");
             break;
 
+        case kNodeTypePath:
+            puts("path");
+            break;
+
         case kNodeTypeGetAddress:
             puts("get address");
             break;
@@ -6330,6 +6369,12 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeBuffer:
             if(!compile_buffer_value(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypePath:
+            if(!compile_path_value(node, info)) {
                 return FALSE;
             }
             break;

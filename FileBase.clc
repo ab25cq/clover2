@@ -58,9 +58,9 @@ class System
 
     def time(): static native ulong;
     def localtime(time:ulong, tm_sec:pointer@of_int, tm_min:pointer@of_int, tm_hour:pointer@of_int, tm_mday:pointer@of_int, tm_mon:pointer@of_int, tm_year:pointer@of_int, tm_wday:pointer@of_int, tm_yday:pointer@of_int, tm_isdst:pointer@of_bool): static native throws Exception;
-    #def mktime(time:tm): static native ulong;
-    #def lstat(path:String, stat_:stat): static native int throws Exception;
-    #def stat(path:String, stat_:stat): static native int throws Exception;
+    def mktime(time:tm): static native ulong throws Exception;
+    def lstat(path:String, stat_:stat): static native int throws Exception;
+    def stat(path:String, stat_:stat): static native int throws Exception;
 }
 
 class tm
@@ -74,13 +74,16 @@ class tm
     tm_wday:int;
     tm_yday:int;
     tm_isdst:bool;
+    
+    def initialize() {
+        self.initialize(System.time());
+    }
 
-    def initialize(time:ulong)
-    {
+    def initialize(time:ulong) {
         System.localtime(time, &self.tm_sec, &self.tm_min, &self.tm_hour, &self.tm_mday, &self.tm_mon, &self.tm_year, &self.tm_wday, &self.tm_yday, &self.tm_isdst);
     }
 
-    def initialize(year:int, month:int, day_of_month:int, hour:int, minuts:int, sec:int, day_of_week:int, day_of_year:int, isdst:bool)
+    def initialize(year:int, month:int, day_of_month:int, hour:int, minuts:int, sec:int, day_of_week:int, day_of_year:int, isdst:bool) 
     {
         self.setYear(year);
         self.setMonth(month);
@@ -173,14 +176,12 @@ class stat
     st_ctime:ulong;
 
     def initialize(path:String, lstat:bool) throws Exception {
-/*
         if(lstat) {
             System.lstat(path, self);
         }
         else {
             System.stat(path, self);
         }
-*/
     }
     def initialize(path:String) throws Exception {
         self.initialize(path, false);
@@ -229,17 +230,20 @@ class stat
 class File
 {
     fd:int;
+    fileName:String;
 
     def initialize() {
         self.fd = -1;
+        self.fileName = null;
     }
 
     def initialize(file_name:String, flags:int, mode:int) throws Exception {
         self.fd = System.open(file_name, flags, mode);
+        self.fileName = file_name;
     }
 
     def initialize(file_name:String) throws Exception {
-        self.fd = System.open(file_name, System.O_RDONLY, 0);
+        self.initialize(file_name, System.O_RDONLY, 0);
     }
 
     def finalize() {
@@ -253,6 +257,7 @@ class File
             System.close(self.fd);
 
             self.fd = -1;
+            self.fileName = null;
         }
     }
 
@@ -266,7 +271,20 @@ class File
         return result;
     }
 
-    def size(): ulong {
+    def to_stat(): stat throws Exception {
+        if(self.fileName.identifyWith(null)) {
+            throw new Exception("File is not opened");
+        }
+
+        return new stat(self.fileName);
+    }
+
+    def read(file_name:String): static Buffer throws Exception {
+        f:File = new File(file_name);
+        result: Buffer = f.read();
+        f.close();
+
+        return result;
     }
 
     def read(): Buffer throws Exception {
@@ -274,10 +292,26 @@ class File
             throw new Exception("File is not opened");
         }
 
-        size:ulong = self.size();
+        size:ulong = self.to_stat().size();
 
         result:Buffer = new Buffer(size.to_int);
         System.read(self.fd, result, size.to_int);
         return result;
+    }
+}
+
+class Path {
+    path: String;
+
+    def initialize(path:String) {
+        self.path = path;
+    }
+
+    def to_stat():stat {
+        return new stat(self.path);
+    }
+
+    def toString(): String {
+        return self.path;
     }
 }

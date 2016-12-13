@@ -127,6 +127,9 @@ static sNativeMethod gNativeMethods[] = {
     { "System.initialize()", System_initialize },
     { "System.read(int,Buffer,int)", System_read },
     { "System.localtime(ulong,pointer,pointer,pointer,pointer,pointer,pointer,pointer,pointer,pointer)", System_localtime },
+    { "System.mktime(tm)", System_mktime },
+    { "System.lstat(String,stat)", System_lstat },
+    { "System.stat(String,stat)", System_stat },
 
     { "", 0 }  // sentinel
 };
