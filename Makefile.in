@@ -73,6 +73,7 @@ $(OBJ): src/*.h Makefile configure
 # install
 #########################################################
 install:
+	rm -f *.clcl
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -no-load-fudamental-classes -class Fundamental.clc
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -no-load-fudamental-classes -class StringBase.clc
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -no-load-fudamental-classes -class ListBase.clc
