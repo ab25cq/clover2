@@ -5,6 +5,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <libgen.h>
 
 BOOL System_exit(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
@@ -31,7 +32,7 @@ BOOL System_malloc(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* size = lvar;
 
-    char* memory = MMALLOC(size->mIntValue);
+    char* memory = MMALLOC(size->mULongValue);
 
     (*stack_ptr)->mPointerValue = memory;
     (*stack_ptr)++;
@@ -44,7 +45,7 @@ BOOL System_calloc(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* number = lvar;
     CLVALUE* size = lvar + 1;
 
-    char* memory = MCALLOC(number->mIntValue, size->mIntValue);
+    char* memory = MCALLOC(number->mIntValue, size->mULongValue);
 
     (*stack_ptr)->mPointerValue = memory;
     (*stack_ptr)++;
@@ -57,7 +58,7 @@ BOOL System_realloc(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* ptr = lvar;
     CLVALUE* size = lvar + 1;
 
-    char* memory = MREALLOC(ptr->mPointerValue, size->mIntValue);
+    char* memory = MREALLOC(ptr->mPointerValue, size->mULongValue);
 
     (*stack_ptr)->mPointerValue = memory;
     (*stack_ptr)++;
@@ -134,7 +135,7 @@ BOOL System_memcpy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* str2 = lvar + 1;
     CLVALUE* len = lvar + 2;
 
-    memcpy(str1->mPointerValue, str2->mPointerValue, len->mIntValue);
+    memcpy(str1->mPointerValue, str2->mPointerValue, len->mULongValue);
 
     (*stack_ptr)->mPointerValue = str2->mPointerValue;
     (*stack_ptr)++;
@@ -148,7 +149,7 @@ BOOL System_memcmp(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* str2 = lvar + 1;
     CLVALUE* size = lvar + 2;
 
-    int result = memcmp(str1->mPointerValue, str2->mPointerValue, size->mIntValue);
+    int result = memcmp(str1->mPointerValue, str2->mPointerValue, size->mULongValue);
 
     (*stack_ptr)->mIntValue = result;
     (*stack_ptr)++;
@@ -162,7 +163,7 @@ BOOL System_strncpy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* str2 = lvar + 1;
     CLVALUE* size = lvar + 2;
 
-    xstrncpy(str1->mPointerValue, str2->mPointerValue, size->mIntValue);
+    xstrncpy(str1->mPointerValue, str2->mPointerValue, size->mULongValue);
 
     (*stack_ptr)->mPointerValue = str2->mPointerValue;
     (*stack_ptr)++;
@@ -610,16 +611,16 @@ BOOL System_mbstowcs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* dest = lvar;
     CLVALUE* src = lvar+1;
-    CLVALUE* len = lvar+2;
+    CLVALUE* size = lvar+2;
 
     /// clover variable to c variable ///
     char* src_value = src->mPointerValue;
-    int len_value = len->mIntValue;
-    wchar_t* wcs = MCALLOC(1, sizeof(wchar_t)*(len_value));
+    size_t size_value = size->mULongValue;
+    wchar_t* wcs = MCALLOC(1, sizeof(wchar_t)*(size_value));
     CLVALUE* dest_value = (CLVALUE*)dest->mPointerValue;
 
     /// go ///
-    int memory = mbstowcs(wcs, src_value, len_value);
+    int memory = mbstowcs(wcs, src_value, size_value);
 
     if(memory < 0) {
         entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "invalid multi byte string");
@@ -632,11 +633,11 @@ BOOL System_mbstowcs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     MASSERT(klass != NULL);
 
-    CLObject object = create_array_object(klass, len_value);
+    CLObject object = create_array_object(klass, size_value);
     sCLObject* object_data = CLOBJECT(object);
 
     int i;
-    for(i=0; i<len_value; i++) {
+    for(i=0; i<size_value; i++) {
         object_data->mFields[i].mCharValue = wcs[i];
     }
 
@@ -662,7 +663,7 @@ BOOL System_wcstombs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int len = object_data->mArrayNum;
 
     wchar_t* wcs = MCALLOC(1, sizeof(wchar_t)*(len+1));
-    int size = sizeof(char)*MB_LEN_MAX*(len+1);
+    size_t size = sizeof(char)*MB_LEN_MAX*(len+1);
     char* mbs = MCALLOC(1, size);
 
     int i;
@@ -1011,7 +1012,7 @@ BOOL System_read(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     /// Clover to c value ///
     int fd_value = fd->mIntValue;
     void* buf_value = get_pointer_from_buffer_object(buf->mObjectValue);
-    size_t size_value = (size_t)size->mIntValue;
+    size_t size_value = (size_t)size->mULongValue;
 
     int buffer_size = get_size_from_buffer_object(buf->mObjectValue);
 
@@ -1030,7 +1031,7 @@ BOOL System_read(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     }
 
     sCLObject* obj_data = CLOBJECT(buf->mObjectValue);
-    obj_data->mFields[1].mIntValue = result;                // len
+    obj_data->mFields[1].mULongValue = result;                // len
 
     (*stack_ptr)->mIntValue = result;
     (*stack_ptr)++;
@@ -1181,3 +1182,75 @@ BOOL System_lstat(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     return TRUE;
 }
+
+BOOL System_realpath(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* path = lvar;
+
+    /// Clover to c value ///
+    char* path_value = ALLOC string_object_to_char_array(path->mObjectValue);
+
+    /// go ///
+    char result_path[PATH_MAX];
+
+    char* result = realpath(path_value, result_path);
+
+    if(result == NULL) {
+        MFREE(path_value);
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "realpath(3) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    /// result ///
+    CLObject result_object = create_string_object(result_path);
+
+    (*stack_ptr)->mObjectValue = result_object;
+    (*stack_ptr)++;
+
+    MFREE(path_value);
+
+    return TRUE;
+}
+
+BOOL System_dirname(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* path = lvar;
+
+    /// Clover to c value ///
+    char* path_value = ALLOC string_object_to_char_array(path->mObjectValue);
+
+    /// go ///
+    char* result_path = dirname(path_value);
+
+    /// result ///
+    CLObject result_object = create_string_object(result_path);
+
+    (*stack_ptr)->mObjectValue = result_object;
+    (*stack_ptr)++;
+
+    MFREE(path_value);
+
+    return TRUE;
+}
+
+BOOL System_basename(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* path = lvar;
+
+    /// Clover to c value ///
+    char* path_value = ALLOC string_object_to_char_array(path->mObjectValue);
+
+    /// go ///
+    char* result_path = basename(path_value);
+
+    /// result ///
+    CLObject result_object = create_string_object(result_path);
+
+    (*stack_ptr)->mObjectValue = result_object;
+    (*stack_ptr)++;
+
+    MFREE(path_value);
+
+    return TRUE;
+}
+

@@ -74,10 +74,10 @@ $(OBJ): src/*.h Makefile configure
 #########################################################
 install:
 	rm -f *.clcl
-	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -no-load-fudamental-classes -class Fundamental.clc
-	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -no-load-fudamental-classes -class StringBase.clc
-	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -no-load-fudamental-classes -class ListBase.clc
-	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -no-load-fudamental-classes -class FileBase.clc
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -no-load-fundamental-classes -class Fundamental.clc
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -no-load-fundamental-classes -class StringBase.clc
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -no-load-fundamental-classes -class ListBase.clc
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -no-load-fundamental-classes -class FileBase.clc
 	mkdir -p ~/.clover2
 	$(INSTALL) -m 644 PcreOVec.clcl ~/.clover2
 	$(INSTALL) -m 644 System.clcl ~/.clover2

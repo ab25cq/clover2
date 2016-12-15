@@ -2,6 +2,11 @@ include "StringBase.clc"
 
 class System
 {
+    typedef mode_t int;
+    typedef dev_t ulong;
+    typedef uid_t int;
+    typedef gid_t int;
+
     S_IFMT: static int;
     S_IFDIR: static int;
     S_IFCHR: static int;
@@ -52,15 +57,19 @@ class System
     O_SYNC : static int;
 
     def initialize(): static native;
-    def open(file_name:String, flags:int, mode:int):static native int throws Exception;
+    def open(file_name:String, flags:int, mode:mode_t):static native int throws Exception;
     def close(fd:int): static native int throws Exception;
-    def read(fd:int, buf:Buffer, size:int): static native int throws Exception;
+    def read(fd:int, buf:Buffer, size:size_t): static native int throws Exception;
+    #def write(fd:int, buf:Buffer, size:size_t): static native int throws Exception;
 
-    def time(): static native ulong;
-    def localtime(time:ulong, tm_sec:pointer@of_int, tm_min:pointer@of_int, tm_hour:pointer@of_int, tm_mday:pointer@of_int, tm_mon:pointer@of_int, tm_year:pointer@of_int, tm_wday:pointer@of_int, tm_yday:pointer@of_int, tm_isdst:pointer@of_bool): static native throws Exception;
-    def mktime(time:tm): static native ulong throws Exception;
+    def time(): static native time_t;
+    def localtime(time:time_t, tm_sec:pointer@of_int, tm_min:pointer@of_int, tm_hour:pointer@of_int, tm_mday:pointer@of_int, tm_mon:pointer@of_int, tm_year:pointer@of_int, tm_wday:pointer@of_int, tm_yday:pointer@of_int, tm_isdst:pointer@of_bool): static native throws Exception;
+    def mktime(time:tm): static native time_t throws Exception;
     def lstat(path:String, stat_:stat): static native int throws Exception;
     def stat(path:String, stat_:stat): static native int throws Exception;
+    def realpath(path:String): static native String throws Exception;
+    def dirname(path:String): static native String;
+    def basename(path:String): static native String;
 }
 
 class tm
@@ -79,7 +88,7 @@ class tm
         self.initialize(System.time());
     }
 
-    def initialize(time:ulong) {
+    def initialize(time:time_t) {
         System.localtime(time, &self.tm_sec, &self.tm_min, &self.tm_hour, &self.tm_mday, &self.tm_mon, &self.tm_year, &self.tm_wday, &self.tm_yday, &self.tm_isdst);
     }
 
@@ -155,25 +164,23 @@ class tm
         return System.sprintf("%d-%02d-%02d %02d:%02d", array { self.year().toInteger, self.month().toInteger, self.dayOfMonth().toInteger, self.hour().toInteger, self.minuts().toInteger });
     }
 
-/*
-    def to_time_t():ulong throws Exception {
+    def to_time_t():time_t throws Exception {
         return System.mktime(self);
     }
-*/
 }
 
 class stat
 {
-    st_dev:ulong;
-    st_mode:int;
-    st_uid:int;
-    st_gid:int;
-    st_rdev:ulong;
-    st_size: ulong;
+    st_dev:dev_t;
+    st_mode:mode_t;
+    st_uid:uid_t;
+    st_gid:gid_t;
+    st_rdev:dev_t;
+    st_size: size_t;
 
-    st_atime:ulong;
-    st_mtime:ulong;
-    st_ctime:ulong;
+    st_atime:time_t;
+    st_mtime:time_t;
+    st_ctime:time_t;
 
     def initialize(path:String, lstat:bool) throws Exception {
         if(lstat) {
@@ -222,8 +229,21 @@ class stat
     def mtime():tm {
         return new tm(self.st_mtime);
     }
-    def size():ulong {
+    def size():size_t {
         return self.st_size;
+    }
+    def uid():uid_t {
+        return self.st_uid;
+    }
+    def gid():gid_t {
+        return self.st_gid;
+    }
+}
+
+class String 
+{
+    def toPath(): Path {
+        return new Path(self);
     }
 }
 
@@ -237,7 +257,7 @@ class File
         self.fileName = null;
     }
 
-    def initialize(file_name:String, flags:int, mode:int) throws Exception {
+    def initialize(file_name:String, flags:int, mode:mode_t) throws Exception {
         self.fd = System.open(file_name, flags, mode);
         self.fileName = file_name;
     }
@@ -261,7 +281,7 @@ class File
         }
     }
 
-    def read(size:int): Buffer throws Exception {
+    def read(size:size_t): Buffer throws Exception {
         if(self.fd == -1) {
             throw new Exception("File is not opened");
         }
@@ -292,12 +312,22 @@ class File
             throw new Exception("File is not opened");
         }
 
-        size:ulong = self.to_stat().size();
+        size:size_t = self.to_stat().size();
 
-        result:Buffer = new Buffer(size.to_int);
-        System.read(self.fd, result, size.to_int);
+        result:Buffer = new Buffer(size);
+        System.read(self.fd, result, size);
         return result;
     }
+
+/*
+    def write(buf:Buffer):int throws Exception {
+        if(self.fd == -1) {
+            throw new Exception("File is not opened");
+        }
+
+        return System.write(self.fd, buf, buf.len);
+    }
+*/
 }
 
 class Path {
@@ -313,5 +343,70 @@ class Path {
 
     def toString(): String {
         return self.path;
+    }
+
+    def read(): Buffer {
+        return File.read(self.path);
+    }
+
+    def userName():String {
+        result:String = "";
+
+        stat_value:stat = new stat(self.path);
+
+        p"/etc/passwd".read().toString().split(/\n/).each(closure(line:String) {
+            fields:List<String> = line.chomp().split(/:/);
+            
+            if(fields.items(2).to_int() == stat_value.st_uid) {
+                result = fields.items(0);
+            }
+        });
+
+        return result;
+    }
+
+    def groupName():String {
+        result:String = "";
+
+        stat_value:stat = new stat(self.path);
+
+        p"/etc/group".read().toString().split(/\n/).each(closure(line:String) {
+            fields:List<String> = line.chomp().split(/:/);
+            
+            if(fields.items(2).to_int() == stat_value.st_gid) {
+                result = fields.items(0);
+            }
+        });
+
+        return result;
+    }
+    def realpath():Path throws Exception {
+        return System.realpath(self.path).toPath();
+    }
+    def dirname(): Path {
+        return System.dirname(self.path).toPath();
+    }
+    def basename():Path {
+        return System.basename(self.path).toPath();
+    }
+
+    def extname(): Path {
+        index:int = -1;
+        for(i:int =self.path.len-1; i>=0; i--) {
+            if(self.path.chars(i) == '.') {
+                index = i;
+                break;
+            }
+        }
+        dirname:Path = self.dirname();
+
+        if(index == -1 || index == 0 || self.path.chars(index-1) == '/' 
+            || index < dirname.path.length()) 
+        {
+            return p"";
+        }
+        else {
+            return self.path.subString(index, -1).toPath();
+        }
     }
 }

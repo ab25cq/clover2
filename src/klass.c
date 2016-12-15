@@ -74,7 +74,7 @@ static void remove_class(char* class_name)
     }
 }
 
-static BOOL put_class_to_table(char* class_name, sCLClass* klass)
+BOOL put_class_to_table(char* class_name, sCLClass* klass)
 {
     remove_class(class_name);
 
@@ -501,6 +501,28 @@ static sCLClass* read_class_from_file(char* class_name, int fd)
     }
     klass->mFinalizeMethodIndex = n;
 
+    if(!read_int_from_file(fd, &n)) {
+        MFREE(klass);
+        return NULL;
+    }
+    klass->mNumTypedef = n;
+
+    for(i=0; i<klass->mNumTypedef; i++) {
+        if(!read_int_from_file(fd, &n)) {
+            MFREE(klass);
+            return NULL;
+        }
+
+        klass->mTypedefClassName1Offsets[i] = n;
+
+        if(!read_int_from_file(fd, &n)) {
+            MFREE(klass);
+            return NULL;
+        }
+
+        klass->mTypedefClassName2Offsets[i] = n;
+    }
+
     return klass;
 }
 
@@ -572,6 +594,26 @@ sCLMethod* search_for_method_from_virtual_method_table(sCLClass* klass, char* me
     return NULL;
 }
 
+static BOOL ready_for_typedef(sCLClass* klass)
+{
+    int i;
+    for(i=0; i<klass->mNumTypedef; i++) {
+        char* class_name1 = CONS_str(&klass->mConst, klass->mTypedefClassName1Offsets[i]);
+        char* class_name2 = CONS_str(&klass->mConst, klass->mTypedefClassName2Offsets[i]);
+
+        sCLClass* klass = get_class_with_load(class_name2);
+
+        if(klass) {
+            put_class_to_table(class_name1, klass);
+        }
+        else {
+            return FALSE;
+        }
+    }
+
+    return TRUE;
+}
+
 static sCLClass* load_class_from_class_file(char* class_name, char* class_file_name)
 {
     /// check the existance of the load class ///
@@ -606,6 +648,11 @@ static sCLClass* load_class_from_class_file(char* class_name, char* class_file_n
     memset(klass->mVirtualMethodTable, 0, sizeof(sCLMethod*)*METHOD_NUM_MAX);
 
     if(!create_virtual_method_table(klass)) {
+        free_class(klass);
+        return NULL;
+    }
+
+    if(!ready_for_typedef(klass)) {
         free_class(klass);
         return NULL;
     }
@@ -693,6 +740,9 @@ sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_clas
     klass->mUnboxingClass = NULL;
 
     klass->mFreeFun = NULL;
+    klass->mNumTypedef = 0;
+    memset(klass->mTypedefClassName1Offsets, 0, sizeof(int)*TYPEDEF_MAX);
+    memset(klass->mTypedefClassName2Offsets, 0, sizeof(int)*TYPEDEF_MAX);
 
     return klass;
 }
@@ -925,8 +975,20 @@ void class_final()
     sClassTable* p = gHeadClassTable;
 
     while(p) {
-        free_class(p->mItem);
-        MFREE(p->mName);
+        if(p->mFreed == FALSE) {
+            sClassTable* p2 = gHeadClassTable;
+            while(p2) {
+                if(p->mItem == p2->mItem) {   // typedef class
+                    p2->mFreed = TRUE;
+                }
+                p2 = p2->mNextClass;
+            }
+            free_class(p->mItem);
+            MFREE(p->mName);
+        }
+        else {
+            MFREE(p->mName);
+        }
         p = p->mNextClass;
     }
 

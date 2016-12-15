@@ -195,14 +195,9 @@ static BOOL single_operator(sNodeType* type, int byte_operand, int ubyte_operand
     return TRUE;
 }
 
-static BOOL no_cast_types(sNodeType* left_type, sNodeType* right_type)
-{
-    return type_identify_with_class_name(left_type, "pointer") && type_identify_with_class_name(right_type, "int");
-}
-
 static BOOL binary_operator(sNodeType* left_type, sNodeType* right_type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, int float_operand, int double_operand, int pointer_operand, int null_operand, int char_operand, int bool_operand, char* op_string, sCompileInfo* info)
 {
-    if(!no_cast_types(left_type, right_type))
+    if(!no_cast_types_for_binary_operator(left_type, right_type))
     {
         cast_right_type_to_left_type(left_type, &right_type, info);
     }

@@ -1,6 +1,9 @@
 
 class System
 {
+    typedef size_t ulong;
+    typedef time_t ulong;
+
     def exit(num:int): native static;
     def assert(exp:bool): native static throws Exception;
     def print(str:String): native static;
@@ -9,27 +12,27 @@ class System
     def printlnToError(str:String): native static;
     def sleep(time:int): native static uint;
 
-    def malloc(size:int): native static pointer@alloc;
-    def calloc(number: int, size: int): native static pointer@alloc;
-    def realloc(ptr:pointer, size: int): native static pointer@alloc;
+    def malloc(size:size_t): native static pointer@alloc;
+    def calloc(number: int, size: size_t): native static pointer@alloc;
+    def realloc(ptr:pointer, size: size_t): native static pointer@alloc;
     def strdup(str:pointer): native static pointer@alloc;
     def free(ptr:pointer): native static;
 
     def strlen(ptr:pointer): native static int;
     def strlen(array:byte[]): native static int;
     def strcpy(str1:pointer, str2:pointer): native static pointer;
-    def strncpy(str1:pointer, str2:pointer, size:int): native static pointer;
-    def memcpy(str1:pointer, str2:pointer, size:int): native static pointer;
-    def memcmp(str1:pointer, str2:pointer, size:int): native static int;
+    def strncpy(str1:pointer, str2:pointer, size:size_t): native static pointer;
+    def memcpy(str1:pointer, str2:pointer, size:size_t): native static pointer;
+    def memcmp(str1:pointer, str2:pointer, size:size_t): native static int;
 
     def sprintf(format:String, prams:Array<Object>): native static String throws Exception;
 
-    def mbstowcs(dest:pointer@of_wchar[], src:pointer@utf8-string-memory, size:int): static native int throws Exception;
+    def mbstowcs(dest:pointer@of_wchar[], src:pointer@utf8-string-memory, size:size_t): static native int throws Exception;
     def wcstombs(dest:pointer@of_byte[], src:char[]): static native int throws Exception;
 
     def srand(value:uint): static native;
     def rand(): static native int;
-    def time(): static native ulong;
+    def time(): static native time_t;
 }
 
 class Clover
@@ -75,21 +78,21 @@ class Global
 class Buffer
 {
     buffer:pointer;
-    len:int;
-    size:int;
+    len:size_t;
+    size:size_t;
 
     def initialize() {
         self.size = 64;
         self.buffer = System.malloc(self.size);
         self.len = 0;
     }
-    def initialize(buf:pointer, size:int) {
+    def initialize(buf:pointer, size:size_t) {
         self.size = size;
         self.buffer = System.malloc(self.size);
         System.memcpy(self.buffer, buf, size);
         self.len = self.size;
     }
-    def initialize(size:int) {
+    def initialize(size:size_t) {
         self.size = size;
         self.buffer = System.malloc(self.size);
         self.len = 0;
@@ -98,10 +101,10 @@ class Buffer
         System.free(self.buffer);
     }
     def append(buf:Buffer) {
-        len: int = buf.len;
+        len: size_t = buf.len;
 
         if(self.len + len >= self.size) {
-            new_size:int = (self.len+len+1) * 2;
+            new_size:size_t = (self.len+len+1) * 2;
             self.buffer = System.realloc(self.buffer, new_size);
             self.size = new_size;
         }
@@ -110,7 +113,7 @@ class Buffer
         self.len += len;
     }
 
-    def chars(index:int):byte throws Exception {
+    def chars(index:size_t):byte throws Exception {
         if(index >= 0 && index < self.len) {
             return((self.buffer + index)->byte);
         }
@@ -124,7 +127,7 @@ class Buffer
             return false;
         }
 
-        for(i:int = 0; i<self.len; i++) {
+        for(i:size_t = 0; i<self.len; i++) {
             if(self.chars(i) != buf.chars(i)) {
                 return false;
             }

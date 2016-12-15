@@ -521,4 +521,31 @@ class String
     def oct(): int {
         return System.strtol(self, 8).to_int;
     }
+
+    def chomp(): String {
+        result:String = "";
+
+        if(self.length() >= 2) {
+            if(self.chars(-2) == '\r' && self.chars(-1) == '\n') {
+                result = self.subString(0,-3);
+            }
+            elif(self.chars(-1) == '\r' || self.chars(-1) == '\n') {
+                result = self.subString(0,-2);
+            }
+            else {
+                result = self;
+            }
+        }
+        elif(self.length() >= 1) {
+            if(self.chars(-1) == '\r' || self.chars(-1) == '\n') {
+                result = self.subString(0,-2);
+            }
+            else {
+                result = self;
+            }
+        }
+
+        return result;
+
+    }
 }

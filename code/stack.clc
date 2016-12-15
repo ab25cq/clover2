@@ -7,7 +7,7 @@ class StackTest {
     b:pointer;
 
     def initialize() {
-        self.b = System.malloc(1);
+        self.b = System.malloc(1.to_ulong);
     }
 
     def finalize() {

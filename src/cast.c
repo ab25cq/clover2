@@ -2832,10 +2832,12 @@ void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
         {
             cast_right_type_to_double(right_type, info);
         }
+/*
         else if(type_identify_with_class_name(left_type, "pointer"))
         {
             cast_right_type_to_pointer(right_type, info);
         }
+*/
         else if(type_identify_with_class_name(left_type, "char"))
         {
             cast_right_type_to_char(right_type, info);

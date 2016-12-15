@@ -3,7 +3,7 @@
 
 int main()
 {
-    printf("(%d)\n", sizeof(time_t));
+    printf("(%d)\n", sizeof(size_t));
 
     exit(0);
 }

@@ -209,14 +209,14 @@ int main(int argc, char** argv)
 
     BOOL no_load_fudamental_classes = FALSE;
     for(i=1; i<argc; i++) {
-        if(strcmp(argv[i], "-no-load-fudamental-classes") == 0) {
+        if(strcmp(argv[i], "-no-load-fundamental-classes") == 0) {
             no_load_fudamental_classes = TRUE;
         }
     }
 
     for(i=1; i<argc; i++) {
         compiler_init(no_load_fudamental_classes);
-        if(strcmp(argv[i], "-no-load-fudamental-classes") == 0) {
+        if(strcmp(argv[i], "-no-load-fundamental-classes") == 0) {
         }
         else if(strcmp(argv[i], "-class") == 0) {
             if(i+1 < argc) {

@@ -252,12 +252,17 @@ BOOL substitution_posibility_with_class_name(sNodeType* left, char* right_class_
     return substitution_posibility(left, create_node_type_with_class_name(right_class_name), NULL , NULL);
 }
 
+BOOL no_cast_types_for_binary_operator(sNodeType* left_type, sNodeType* right_type)
+{
+    return type_identify_with_class_name(left_type, "pointer") && type_identify_with_class_name(right_type, "ulong");
+}
+
 BOOL operand_posibility(sNodeType* left, sNodeType* right, char* op_string)
 {
     if(type_identify_with_class_name(left, "pointer") 
         && (strcmp(op_string, "+") == 0 || strcmp(op_string, "-") == 0))
     {
-        return type_identify_with_class_name(right, "int");
+        return type_identify_with_class_name(right, "ulong");
     }
     else {
         return left->mClass == right->mClass;

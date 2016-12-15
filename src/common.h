@@ -44,6 +44,7 @@
 #define LIST_VALUE_ELEMENT_MAX ARRAY_VALUE_ELEMENT_MAX
 #define TUPLE_VALUE_ELEMENT_MAX ARRAY_VALUE_ELEMENT_MAX
 #define HASH_VALUE_ELEMENT_MAX ARRAY_VALUE_ELEMENT_MAX
+#define TYPEDEF_MAX 64
 
 /// CLVALUE ///
 typedef unsigned int CLObject;
@@ -232,6 +233,10 @@ struct sCLClassStruct {
     struct sCLClassStruct* mUnboxingClass; // This requires on the run time
 
     fFreeFun mFreeFun;
+
+    int mTypedefClassName1Offsets[TYPEDEF_MAX];
+    int mTypedefClassName2Offsets[TYPEDEF_MAX];
+    int mNumTypedef;
 };
 
 typedef struct sCLClassStruct sCLClass;
@@ -253,11 +258,13 @@ void free_cl_type(sCLType* cl_type);
 sCLClass* load_class(char* class_name);
 sCLMethod* search_for_method_from_virtual_method_table(sCLClass* klass, char* method_name_and_params);
 BOOL is_valid_class(sCLClass* klass);
+BOOL put_class_to_table(char* class_name, sCLClass* klass);
 
 struct sClassTableStruct
 {
     char* mName;
     sCLClass* mItem;
+    BOOL mFreed;
 
     struct sClassTableStruct* mNextClass;
 };
@@ -312,6 +319,8 @@ struct sCompileInfoStruct;
 void boxing_to_lapper_class(sNodeType** type_, struct sCompileInfoStruct* info);
 BOOL unboxing_to_primitive_type(sNodeType** left_type, struct sCompileInfoStruct* info);
 void make_boxing_type(sNodeType* type, sNodeType** result);
+BOOL no_cast_types_for_binary_operator(sNodeType* left_type, sNodeType* right_type);
+
 
 /// node_block_object.c ///
 struct sNodeBlockTypeStruct {
@@ -684,8 +693,8 @@ void cast_right_type_to_ulong(sNodeType** right_type, sCompileInfo* info);
 void cast_right_type_to_float(sNodeType** right_type, sCompileInfo* info);
 void cast_right_type_to_double(sNodeType** right_type, sCompileInfo* info);
 void cast_right_type_to_char(sNodeType** right_type, sCompileInfo* info);
-void cast_right_type_to_pointer(sNodeType** right_type, sCompileInfo* info);
 void cast_right_type_to_bool(sNodeType** right_type, sCompileInfo* info);
+void cast_right_type_to_pointer(sNodeType** right_type, sCompileInfo* info);
 void cast_right_type_to_String(sNodeType** right_type, sCompileInfo* info);
 void cast_right_type_to_Byte(sNodeType** right_type, sCompileInfo* info);
 void cast_right_type_to_UByte(sNodeType** right_type, sCompileInfo* info);
@@ -1519,6 +1528,7 @@ BOOL compile_class_source(char* fname, char* source);
 /// klass_compile_time.c ///
 BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_);
 BOOL add_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type);
+BOOL add_typedef_to_class(sCLClass* klass, char* class_name1, char* class_name2);
 BOOL add_class_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type);
 void add_code_to_method(sCLMethod* method, sByteCode* code, int var_num);
 BOOL write_all_modified_classes();
@@ -1694,7 +1704,7 @@ void regex_free_fun(CLObject obj);
 
 /// string.c ///
 CLObject create_string_object(char* str);
-CLObject create_buffer_object(char* buffer, int size);
+CLObject create_buffer_object(char* buffer, size_t size);
 CLObject create_path_object(char* path);
 CLObject create_string_from_two_strings(CLObject left, CLObject right);
 int get_length_from_string_object(CLObject str);
@@ -1770,6 +1780,9 @@ BOOL System_localtime(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_mktime(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_stat(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_lstat(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_basename(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_dirname(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_realpath(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 /// alignment.c ///
 void alignment(unsigned int* size);

@@ -156,6 +156,28 @@ BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* param
     return TRUE;
 }
 
+BOOL add_typedef_to_class(sCLClass* klass, char* class_name1, char* class_name2)
+{
+    klass->mTypedefClassName1Offsets[klass->mNumTypedef] = append_str_to_constant_pool(&klass->mConst, class_name1, FALSE);
+    klass->mTypedefClassName2Offsets[klass->mNumTypedef] = append_str_to_constant_pool(&klass->mConst, class_name2, FALSE);
+    klass->mNumTypedef++;
+
+    if(klass->mNumTypedef >= TYPEDEF_MAX) {
+        return FALSE;
+    }
+
+    sCLClass* klass2 = get_class_with_load(class_name2);
+
+    if(klass2) {
+        put_class_to_table(class_name1, klass2);
+    }
+    else {
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
 BOOL add_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type)
 {
     if(klass->mNumFields == klass->mSizeFields) {
@@ -510,6 +532,12 @@ static void write_class_to_buffer(sCLClass* klass, sBuf* buf)
     sBuf_append_int(buf, klass->mClassInitializeMethodIndex);
     sBuf_append_int(buf, klass->mClassFinalizeMethodIndex);
     sBuf_append_int(buf, klass->mFinalizeMethodIndex);
+
+    sBuf_append_int(buf, klass->mNumTypedef);
+    for(i=0; i<klass->mNumTypedef; i++) {
+        sBuf_append_int(buf, klass->mTypedefClassName1Offsets[i]);
+        sBuf_append_int(buf, klass->mTypedefClassName2Offsets[i]);
+    }
 }
 
 BOOL write_class_to_class_file(sCLClass* klass)

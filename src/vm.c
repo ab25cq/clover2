@@ -2899,7 +2899,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     vm_mutex_on();
 
                     char* left = (stack_ptr-2)->mPointerValue;
-                    int right = (stack_ptr-1)->mIntValue;
+                    unsigned long right = (stack_ptr-1)->mULongValue;
 
                     char* result = left + right;
 
@@ -2916,7 +2916,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     vm_mutex_on();
 
                     char* left = (stack_ptr-2)->mPointerValue;
-                    int right = (stack_ptr-1)->mIntValue;
+                    unsigned long right = (stack_ptr-1)->mULongValue;
 
                     char* result = left - right;
 

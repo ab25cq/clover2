@@ -409,6 +409,33 @@ static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOO
             }
         }
     }
+    else if(strcmp(buf, "typedef") == 0) {
+        char class_name1[CLASS_NAME_MAX+1];
+        char class_name2[CLASS_NAME_MAX+1];
+
+        if(!parse_word(class_name1, CLASS_NAME_MAX, info, TRUE)) {
+            return FALSE;
+        }
+        skip_spaces_and_lf(info);
+
+        if(!parse_word(class_name2, CLASS_NAME_MAX, info, TRUE)) {
+            return FALSE;
+        }
+        skip_spaces_and_lf(info);
+
+        if(*info->p == ';') {
+            info->p++;
+            skip_spaces_and_lf(info);
+        }
+
+        if(info->err_num == 0) {
+            if(!add_typedef_to_class(info->klass, class_name1, class_name2)) {
+                parser_err_msg(info, "overflow typedef number or invalid class name");
+                info->err_num++;
+                return FALSE;
+            }
+        }
+    }
     /// variable ///
     else {
         BOOL private_ = FALSE;
@@ -592,6 +619,25 @@ BOOL parse_methods_and_fields_on_compile_time(sParserInfo* info, sCompileInfo* c
                     return FALSE;
                 }
             }
+        }
+    }
+    else if(strcmp(buf, "typedef") == 0) {
+        char class_name1[CLASS_NAME_MAX+1];
+        char class_name2[CLASS_NAME_MAX+1];
+
+        if(!parse_word(class_name1, CLASS_NAME_MAX, info, TRUE)) {
+            return FALSE;
+        }
+        skip_spaces_and_lf(info);
+
+        if(!parse_word(class_name2, CLASS_NAME_MAX, info, TRUE)) {
+            return FALSE;
+        }
+        skip_spaces_and_lf(info);
+
+        if(*info->p == ';') {
+            info->p++;
+            skip_spaces_and_lf(info);
         }
     }
     /// variable ///

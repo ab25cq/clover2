@@ -191,7 +191,7 @@ then
 fi
 
 AC_CHECK_HEADER(pcre.h, [AC_DEFINE(HAVE_PCRE_H,1)], [])
-AC_HAVE_LIBRARY(m, [ LIBS="$LIBS -lpcre"; ], [])
+AC_HAVE_LIBRARY(pcre, [ LIBS="$LIBS -lpcre"; ], [])
 
 AC_SUBST(LIBS)
 
