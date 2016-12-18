@@ -60,7 +60,7 @@ class System
     def open(file_name:String, flags:int, mode:mode_t):static native int throws Exception;
     def close(fd:int): static native int throws Exception;
     def read(fd:int, buf:Buffer, size:size_t): static native int throws Exception;
-    #def write(fd:int, buf:Buffer, size:size_t): static native int throws Exception;
+    def write(fd:int, buf:Buffer, size:size_t): static native int throws Exception;
 
     def time(): static native time_t;
     def localtime(time:time_t, tm_sec:pointer@of_int, tm_min:pointer@of_int, tm_hour:pointer@of_int, tm_mday:pointer@of_int, tm_mon:pointer@of_int, tm_year:pointer@of_int, tm_wday:pointer@of_int, tm_yday:pointer@of_int, tm_isdst:pointer@of_bool): static native throws Exception;
@@ -214,7 +214,7 @@ class stat
     def S_ISSOCK():bool {
         return (self.st_mode & System.S_IFMT) == System.S_IFSOCK;
     }
-    def to_permission():int {
+    def permission():int {
         return self.st_mode & (System.S_ISUID|System.S_ISGID|System.S_ISVTX|System.S_IRWXU|System.S_IRWXG|System.S_IRWXO);
     }
     def S_IXUGO():int {
@@ -237,6 +237,34 @@ class stat
     }
     def gid():gid_t {
         return self.st_gid;
+    }
+
+    def userName():String {
+        result:String = "";
+
+        p"/etc/passwd".read().toString().split(/\n/).each(closure(line:String) {
+            fields:List<String> = line.chomp().split(/:/);
+            
+            if(fields.items(2).to_int() == self.st_uid) {
+                result = fields.items(0);
+            }
+        });
+
+        return result;
+    }
+
+    def groupName():String {
+        result:String = "";
+
+        p"/etc/group".read().toString().split(/\n/).each(closure(line:String) {
+            fields:List<String> = line.chomp().split(/:/);
+            
+            if(fields.items(2).to_int() == self.st_gid) {
+                result = fields.items(0);
+            }
+        });
+
+        return result;
     }
 }
 
@@ -298,6 +326,13 @@ class File
 
         return new stat(self.fileName);
     }
+    def to_lstat(): stat throws Exception {
+        if(self.fileName.identifyWith(null)) {
+            throw new Exception("File is not opened");
+        }
+
+        return new stat(self.fileName, true);
+    }
 
     def read(file_name:String): static Buffer throws Exception {
         f:File = new File(file_name);
@@ -319,18 +354,32 @@ class File
         return result;
     }
 
-/*
-    def write(buf:Buffer):int throws Exception {
+    def write(buf:Buffer, size:size_t):int throws Exception {
         if(self.fd == -1) {
             throw new Exception("File is not opened");
         }
 
-        return System.write(self.fd, buf, buf.len);
+        return System.write(self.fd, buf, size);
     }
-*/
+
+    def write(buf:Buffer):int throws Exception {
+        return self.write(buf, buf.len);
+    }
+
+    def write(file_name:String, buf:Buffer, mode:mode_t): static int throws Exception {
+        f:File = new File(file_name, System.O_CREAT|System.O_TRUNC|System.O_WRONLY, mode);
+        result:int = f.write(buf);
+        f.close();
+
+        return result;
+    }
+    def write(file_name:String, buf:Buffer): static int throws Exception {
+        return File.write(file_name, buf, 0644);
+    }
 }
 
-class Path {
+class Path 
+{
     path: String;
 
     def initialize(path:String) {
@@ -340,46 +389,18 @@ class Path {
     def to_stat():stat {
         return new stat(self.path);
     }
+    def to_lstat():stat {
+        return new stat(self.path,true);
+    }
 
     def toString(): String {
         return self.path;
     }
 
-    def read(): Buffer {
-        return File.read(self.path);
+    def equals(path:Path):bool {
+        return self.path.equals(path.path)
     }
 
-    def userName():String {
-        result:String = "";
-
-        stat_value:stat = new stat(self.path);
-
-        p"/etc/passwd".read().toString().split(/\n/).each(closure(line:String) {
-            fields:List<String> = line.chomp().split(/:/);
-            
-            if(fields.items(2).to_int() == stat_value.st_uid) {
-                result = fields.items(0);
-            }
-        });
-
-        return result;
-    }
-
-    def groupName():String {
-        result:String = "";
-
-        stat_value:stat = new stat(self.path);
-
-        p"/etc/group".read().toString().split(/\n/).each(closure(line:String) {
-            fields:List<String> = line.chomp().split(/:/);
-            
-            if(fields.items(2).to_int() == stat_value.st_gid) {
-                result = fields.items(0);
-            }
-        });
-
-        return result;
-    }
     def realpath():Path throws Exception {
         return System.realpath(self.path).toPath();
     }
@@ -406,7 +427,175 @@ class Path {
             return p"";
         }
         else {
-            return self.path.subString(index, -1).toPath();
+            return self.path.subString(index+1, -1).toPath();
         }
     }
+    def read(): Buffer {
+        return File.read(self.path);
+    }
+    def write(buf:Buffer):int {
+        return File.write(self.path, buf);
+    }
+
+/*
+    void chmod(mode_t mode) throws SystemException {
+        System.chmod(self, mode);
+    }
+    void lchmod(mode_t mode) throws SystemException {
+        System.lchmod(self, mode);
+    }
+    void chown(uid_t owner=-1l.to_uid_t(), gid_t group=-1l.to_gid_t()) throws SystemException 
+    {
+        System.chown(self, owner, group);
+    }
+    void lchown(uid_t owner=-1l.to_uid_t(), gid_t group=-1l.to_gid_t()) throws SystemException 
+    {
+        System.lchown(self, owner, group);
+    }
+    void unlink() throws SystemException {
+        System.unlink(self);
+    }
+    int access(AccessMode mode=AccessMode.F_OK) {
+        return System.access(self, mode).get1();
+    }
+    bool existance() {
+        return self.access(AccessMode.F_OK) == 0;
+    }
+    void utime(time_t actime, time_t modtime) {
+        System.utime(self, new utimbuf(actime, modtime));
+    }
+
+    bool fnmatch(String pattern, FnmatchFlags flags=0.toFnmatchFlags()) {
+        return System.fnmatch(pattern, self, flags);
+    }
+
+    bool isIdentical(Path path2) {
+        return self.absolutePath() == path2.absolutePath();
+    }
+
+    Path absolutePath() {
+        String result = self.clone();
+
+        /// add current path to head ///
+        if(result[0] != '/') {
+            result = System.getcwd() + "/" + result;
+        }
+
+        /// delete ./ ///
+        result = result.sub(/(\/\.)($|\/)/g) {
+            |Array<String> group_strings, String prematch, String match, String postmatch|
+            if(group_strings.length() == 2) {
+                if(group_strings[1] == "/") {
+                    return "/";
+                }
+            }
+
+            return "";
+        };
+
+        /// delete .. ///
+        result = result.sub(/^(\/\.\.)+($|\/)/) {
+            |Array<String> group_strings, String prematch, String match, String postmatch|
+            if(group_strings.length() == 2) {
+                if(group_strings[1] == "/") {
+                    return "/";
+                }
+            }
+
+            return "";
+        }
+
+        result = result.sub(/(\/[^\/]+)(\/\.\.)($|\/)/g) {
+            |Array<String> group_strings, String prematch, String match, String postmatch|
+
+            if(group_strings.length() == 3) {
+                if(group_strings[2] == "/") {
+                    return "/";
+                }
+            }
+            
+            return "";
+        }
+
+        /// Is this path directory? If that is true, append / to the tail. If that is false, remove '/' at the tail  ///
+        bool is_directory = false;
+        try {
+            is_directory = result.toPath().to_stat().S_ISDIR();
+        }
+        catch(SystemException e) {
+            if(result[-1] == '/') {
+                try {
+                    is_directory = result[0..-1].toPath().to_stat().S_ISDIR();
+                }
+                catch(SystemException e) {
+                    is_directory = false;
+                }
+            }
+        }
+
+        if(is_directory) {
+            if(result[-1] != '/') {
+                result += "/";
+            }
+        }
+        else {
+            if(result[-1] == '/') {
+                result = result[0..-1];
+            }
+        }
+
+        if(result == "") {
+            result = "/";
+        }
+        
+        return result.toPath();
+    }
+
+    Path realpath() throws SystemException {
+        return System.realpath(self);
+    }
+
+    void link(Path newpath) throws SystemException {
+        System.link(self, newpath);
+    }
+
+    void symlink(Path newpath) throws SystemException {
+        System.symlink(self, newpath);
+    }
+
+    Path readlink() throws SystemException {
+        return System.readlink(self);
+    }
+
+    void rename(Path path) throws SystemException {
+        System.rename(self, path);
+    }
+
+    void truncate(off_t length) throws SystemException {
+        System.truncate(self, length);
+    }
+
+    Array<Path> entries() throws SystemException {
+        return Directory.entries(self);
+    }
+
+    Array<Path> glob(String pattern, FnmatchFlags flags=0.toFnmatchFlags()) throws SystemException
+    {
+        return Directory.glob(self, pattern, flags);
+    }
+
+    void chdir() throws SystemException {
+        System.chdir(self);
+    }
+
+    void rmdir() throws SystemException {
+        System.rmdir(self);
+    }
+
+    void mkdir(mode_t mode=0777l.to_mode_t()) {
+        System.mkdir(self, mode);
+    }
+*/
+
+
 }

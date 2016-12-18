@@ -945,60 +945,59 @@ BOOL System_initialize(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     sCLClass* system = get_class("System");
 
     system->mClassFields[0].mValue.mIntValue = S_IFMT;
-    system->mClassFields[1].mValue.mIntValue = S_IFMT;
-    system->mClassFields[2].mValue.mIntValue = S_IFDIR;
-    system->mClassFields[3].mValue.mIntValue = S_IFCHR;
-    system->mClassFields[4].mValue.mIntValue = S_IFBLK;
-    system->mClassFields[5].mValue.mIntValue = S_IFREG;
-    system->mClassFields[6].mValue.mIntValue = S_IFIFO;
-    system->mClassFields[7].mValue.mIntValue = S_IFLNK;
-    system->mClassFields[8].mValue.mIntValue = S_IFSOCK;
-    system->mClassFields[9].mValue.mIntValue = S_ISUID;
-    system->mClassFields[10].mValue.mIntValue = S_ISGID;
-    system->mClassFields[11].mValue.mIntValue = S_ISVTX;
-    system->mClassFields[12].mValue.mIntValue = S_IRUSR;
-    system->mClassFields[13].mValue.mIntValue = S_IWUSR;
-    system->mClassFields[14].mValue.mIntValue = S_IXUSR;
-    system->mClassFields[15].mValue.mIntValue = S_IRWXU;
-    system->mClassFields[16].mValue.mIntValue = S_IRGRP;
-    system->mClassFields[17].mValue.mIntValue = S_IWGRP;
-    system->mClassFields[18].mValue.mIntValue = S_IXGRP;
-    system->mClassFields[19].mValue.mIntValue = S_IRWXG;
-    system->mClassFields[20].mValue.mIntValue = S_IROTH;
-    system->mClassFields[21].mValue.mIntValue = S_IWOTH;
-    system->mClassFields[22].mValue.mIntValue = S_IXOTH;
-    system->mClassFields[23].mValue.mIntValue = S_IRWXO;
-    system->mClassFields[24].mValue.mIntValue = R_OK;
-    system->mClassFields[25].mValue.mIntValue = W_OK;
-    system->mClassFields[26].mValue.mIntValue = X_OK;
-    system->mClassFields[27].mValue.mIntValue = F_OK;
-    system->mClassFields[28].mValue.mIntValue = O_APPEND;
-    system->mClassFields[29].mValue.mIntValue = O_ASYNC;
-    system->mClassFields[30].mValue.mIntValue = O_RDONLY;
-    system->mClassFields[31].mValue.mIntValue = O_WRONLY;
-    system->mClassFields[32].mValue.mIntValue = O_RDWR;
-    system->mClassFields[33].mValue.mIntValue = O_CREAT;
-    system->mClassFields[34].mValue.mIntValue = O_DIRECTORY;
-    system->mClassFields[35].mValue.mIntValue = O_EXCL;
-    system->mClassFields[36].mValue.mIntValue = O_NOCTTY;
-    system->mClassFields[37].mValue.mIntValue = O_NOFOLLOW;
+    system->mClassFields[1].mValue.mIntValue = S_IFDIR;
+    system->mClassFields[2].mValue.mIntValue = S_IFCHR;
+    system->mClassFields[3].mValue.mIntValue = S_IFBLK;
+    system->mClassFields[4].mValue.mIntValue = S_IFREG;
+    system->mClassFields[5].mValue.mIntValue = S_IFIFO;
+    system->mClassFields[6].mValue.mIntValue = S_IFLNK;
+    system->mClassFields[7].mValue.mIntValue = S_IFSOCK;
+    system->mClassFields[8].mValue.mIntValue = S_ISUID;
+    system->mClassFields[9].mValue.mIntValue = S_ISGID;
+    system->mClassFields[10].mValue.mIntValue = S_ISVTX;
+    system->mClassFields[11].mValue.mIntValue = S_IRUSR;
+    system->mClassFields[12].mValue.mIntValue = S_IWUSR;
+    system->mClassFields[13].mValue.mIntValue = S_IXUSR;
+    system->mClassFields[14].mValue.mIntValue = S_IRWXU;
+    system->mClassFields[15].mValue.mIntValue = S_IRGRP;
+    system->mClassFields[16].mValue.mIntValue = S_IWGRP;
+    system->mClassFields[17].mValue.mIntValue = S_IXGRP;
+    system->mClassFields[18].mValue.mIntValue = S_IRWXG;
+    system->mClassFields[19].mValue.mIntValue = S_IROTH;
+    system->mClassFields[20].mValue.mIntValue = S_IWOTH;
+    system->mClassFields[21].mValue.mIntValue = S_IXOTH;
+    system->mClassFields[22].mValue.mIntValue = S_IRWXO;
+    system->mClassFields[23].mValue.mIntValue = R_OK;
+    system->mClassFields[24].mValue.mIntValue = W_OK;
+    system->mClassFields[25].mValue.mIntValue = X_OK;
+    system->mClassFields[26].mValue.mIntValue = F_OK;
+    system->mClassFields[27].mValue.mIntValue = O_APPEND;
+    system->mClassFields[28].mValue.mIntValue = O_ASYNC;
+    system->mClassFields[29].mValue.mIntValue = O_RDONLY;
+    system->mClassFields[30].mValue.mIntValue = O_WRONLY;
+    system->mClassFields[31].mValue.mIntValue = O_RDWR;
+    system->mClassFields[32].mValue.mIntValue = O_CREAT;
+    system->mClassFields[33].mValue.mIntValue = O_DIRECTORY;
+    system->mClassFields[34].mValue.mIntValue = O_EXCL;
+    system->mClassFields[35].mValue.mIntValue = O_NOCTTY;
+    system->mClassFields[36].mValue.mIntValue = O_NOFOLLOW;
 #ifdef O_TMPFILE
-    system->mClassFields[38].mValue.mIntValue = O_TMPFILE;
+    system->mClassFields[37].mValue.mIntValue = O_TMPFILE;
 #endif
-    system->mClassFields[39].mValue.mIntValue = O_TRUNC;
+    system->mClassFields[38].mValue.mIntValue = O_TRUNC;
 #ifdef O_TTY_INIT
-    system->mClassFields[40].mValue.mIntValue = O_TTY_INIT;
+    system->mClassFields[39].mValue.mIntValue = O_TTY_INIT;
 #endif
-    system->mClassFields[41].mValue.mIntValue = O_CLOEXEC;
-    system->mClassFields[42].mValue.mIntValue = O_DIRECT;
-    system->mClassFields[43].mValue.mIntValue = O_DSYNC;
-    system->mClassFields[44].mValue.mIntValue = O_LARGEFILE;
-    system->mClassFields[45].mValue.mIntValue = O_NOATIME;
-    system->mClassFields[46].mValue.mIntValue = O_NONBLOCK;
+    system->mClassFields[40].mValue.mIntValue = O_CLOEXEC;
+    system->mClassFields[41].mValue.mIntValue = O_DIRECT;
+    system->mClassFields[42].mValue.mIntValue = O_DSYNC;
+    system->mClassFields[43].mValue.mIntValue = O_LARGEFILE;
+    system->mClassFields[44].mValue.mIntValue = O_NOATIME;
+    system->mClassFields[45].mValue.mIntValue = O_NONBLOCK;
 #ifdef O_PATH
-    system->mClassFields[47].mValue.mIntValue = O_PATH;
+    system->mClassFields[46].mValue.mIntValue = O_PATH;
 #endif
-    system->mClassFields[48].mValue.mIntValue = O_SYNC;
+    system->mClassFields[47].mValue.mIntValue = O_SYNC;
 
     return TRUE;
 }
@@ -1032,6 +1031,39 @@ BOOL System_read(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     sCLObject* obj_data = CLOBJECT(buf->mObjectValue);
     obj_data->mFields[1].mULongValue = result;                // len
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_write(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* fd = lvar;
+    CLVALUE* buf = lvar+1;
+    CLVALUE* size = lvar + 2;
+
+    /// Clover to c value ///
+    int fd_value = fd->mIntValue;
+    void* buf_value = get_pointer_from_buffer_object(buf->mObjectValue);
+    size_t size_value = (size_t)size->mULongValue;
+
+    int buffer_size = get_size_from_buffer_object(buf->mObjectValue);
+
+    /// check size ///
+    if(size_value > buffer_size) {
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "Buffer size is smaller than the size value of argument");
+        return FALSE;
+    }
+
+    /// go ///
+    int result = write(fd_value, buf_value, size_value);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "write(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
 
     (*stack_ptr)->mIntValue = result;
     (*stack_ptr)++;

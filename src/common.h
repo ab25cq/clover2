@@ -1775,6 +1775,7 @@ BOOL System_open(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_close(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_initialize(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_read(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_write(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_time(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_localtime(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_mktime(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
