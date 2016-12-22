@@ -23,6 +23,11 @@ BOOL read_source(char* fname, sBuf* source)
 {
     int f = open(fname, O_RDONLY);
 
+    if(f < 0) {
+        fprintf(stderr, "%s doesn't exist\n", fname);
+        return FALSE;
+    }
+
     while(1) {
         char buf[BUFSIZ];
         int size = read(f, buf, BUFSIZ);

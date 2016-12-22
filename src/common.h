@@ -225,6 +225,8 @@ struct sCLClassStruct {
     int mClassInitializeMethodIndex;
     int mClassFinalizeMethodIndex;
     int mFinalizeMethodIndex;
+    int mCallingMethodIndex;
+    int mCallingClassMethodIndex;
 
     int mMethodIndexOnCompileTime;                  // This requires on the compile time
     sCLMethod* mVirtualMethodTable[METHOD_NUM_MAX]; // This requires on the run time
@@ -252,7 +254,7 @@ void class_final();
 
 sCLClass* get_class(char* name);
 unsigned int get_hash_key(char* name, unsigned int max);
-sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_class_num, int generics_number, sCLClass** type_of_generics_params, BOOL interface, BOOL dynamic_inteface);
+sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_class_num, int generics_number, sCLClass** type_of_generics_params, BOOL interface, BOOL dynamic);
 ALLOC sCLType* create_cl_type(sCLClass* klass, sCLClass* klass2);
 void free_cl_type(sCLType* cl_type);
 sCLClass* load_class(char* class_name);
@@ -950,7 +952,8 @@ void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
 
 #define OP_INVOKE_METHOD 3000
 #define OP_INVOKE_VIRTUAL_METHOD 3001
-#define OP_INVOKE_BLOCK 3002
+#define OP_INVOKE_DYNAMIC_METHOD 3002
+#define OP_INVOKE_BLOCK 3003
 
 #define OP_NEW 4000
 #define OP_LOAD_FIELD 4001
@@ -1784,6 +1787,9 @@ BOOL System_lstat(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_basename(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_dirname(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_realpath(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_opendir(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_readdir(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_closedir(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 /// alignment.c ///
 void alignment(unsigned int* size);
@@ -1823,6 +1829,7 @@ BOOL initialize_tuple_object(CLObject tuple_object, int num_elements, CLObject* 
 
 /// carray.c ///
 CLObject create_carray_object();
+CLObject create_carray_object_with_elements(int num_elements, CLObject* elements);
 BOOL initialize_carray_object(CLObject array_object, int num_elements, CLObject* items, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sCLClass* class_items);
 
 /// compiler.c ///

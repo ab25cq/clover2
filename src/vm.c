@@ -244,6 +244,10 @@ static void show_inst(unsigned inst)
             puts("OP_INVOKE_VIRTUAL_METHOD");
             break;
 
+        case OP_INVOKE_DYNAMIC_METHOD:
+            puts("OP_INVOKE_VIRTUAL_METHOD");
+            break;
+
         case OP_INVOKE_BLOCK:
             puts("OP_INVOKE_BLOCK");
             break;
@@ -4403,6 +4407,142 @@ show_stack(stack, stack_ptr, lvar, var_num);
                             vm_mutex_off();
                             remove_stack_to_stack_list(stack);
                             return FALSE;
+                        }
+                    }
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_INVOKE_DYNAMIC_METHOD:
+                {
+                    vm_mutex_on();
+
+                    int offset = *(int*)pc;
+                    pc += sizeof(int);
+
+                    int offset2 = *(int*)pc;
+                    pc += sizeof(int);
+
+                    int num_params = *(int*)pc;
+                    pc += sizeof(int);
+
+                    BOOL static_ = *(int*)pc;
+                    pc += sizeof(int);
+
+                    /// none static method ////
+                    if(static_ == 0) {
+                        int num_real_params = num_params + 1;
+                        char* method_name = CONS_str(constant, offset2);
+
+                        CLObject object = (stack_ptr-num_real_params)->mObjectValue;
+
+                        sCLObject* object_data = CLOBJECT(object);
+
+                        sCLClass* klass = object_data->mClass;
+
+                        MASSERT(klass != NULL);
+
+                        if(klass->mCallingMethodIndex == -1) {
+                            vm_mutex_off();
+                            entry_exception_object_with_class_name(stack + var_num, info, "Exception", "OP_INVOKE_DYNAMIC_METHOD: Method not found");
+                            remove_stack_to_stack_list(stack);
+                            return FALSE;
+                        }
+
+                        sCLMethod* method = klass->mMethods + klass->mCallingMethodIndex;
+
+                        CLObject elements[ARRAY_VALUE_ELEMENT_MAX];
+
+                        int i;
+                        for(i=0; i<num_params; i++) {
+                            CLObject object = (stack_ptr-num_params + i)->mObjectValue;
+
+                            elements[i] = object;
+                        }
+
+                        CLObject carray = create_carray_object_with_elements(num_params, elements);
+
+                        gGlobalStackPtr->mObjectValue = carray;
+                        gGlobalStackPtr++;
+
+                        stack_ptr-=num_params;
+
+                        stack_ptr->mObjectValue = create_string_object(method_name);
+                        stack_ptr++;
+                        stack_ptr->mObjectValue = carray;
+                        stack_ptr++;
+
+                        gGlobalStackPtr--;
+
+                        if(!invoke_method(klass, method, stack, var_num, &stack_ptr, info)) {
+                            if(try_offset != 0) {
+                                pc = code->mCodes + try_offset;
+                                try_offset = try_offset_before;
+                            }
+                            else {
+                                vm_mutex_off();
+                                remove_stack_to_stack_list(stack);
+                                return FALSE;
+                            }
+                        }
+                    }
+                    /// static method ///
+                    else {
+                        char* class_name = CONS_str(constant, offset);
+                        char* method_name = CONS_str(constant, offset2);
+
+                        sCLClass* klass = get_class_with_load_and_initialize(class_name);
+
+                        if(klass == NULL) {
+                            vm_mutex_off();
+                            entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found(3)");
+                            remove_stack_to_stack_list(stack);
+                            return FALSE;
+                        }
+
+                        if(klass->mCallingClassMethodIndex == -1) {
+                            vm_mutex_off();
+                            entry_exception_object_with_class_name(stack + var_num, info, "Exception", "OP_INVOKE_DYNAMIC_METHOD: Method not found");
+                            remove_stack_to_stack_list(stack);
+                            return FALSE;
+                        }
+
+                        sCLMethod* method = klass->mMethods + klass->mCallingClassMethodIndex;
+
+                        CLObject elements[ARRAY_VALUE_ELEMENT_MAX];
+
+                        int i;
+                        for(i=0; i<num_params; i++) {
+                            CLObject object = (stack_ptr-num_params + i)->mObjectValue;
+
+                            elements[i] = object;
+                        }
+
+                        CLObject carray = create_carray_object_with_elements(num_params, elements);
+
+                        gGlobalStackPtr->mObjectValue = carray;
+                        gGlobalStackPtr++;
+
+                        stack_ptr-=num_params;
+
+                        stack_ptr->mObjectValue = create_string_object(method_name);
+                        stack_ptr++;
+                        stack_ptr->mObjectValue = carray;
+                        stack_ptr++;
+
+                        gGlobalStackPtr--;
+
+                        if(!invoke_method(klass, method, stack, var_num, &stack_ptr, info)) {
+                            if(try_offset != 0) {
+                                pc = code->mCodes + try_offset;
+                                try_offset = try_offset_before;
+                            }
+                            else {
+                                vm_mutex_off();
+                                remove_stack_to_stack_list(stack);
+                                return FALSE;
+                            }
                         }
                     }
 

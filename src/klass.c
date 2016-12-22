@@ -505,6 +505,18 @@ static sCLClass* read_class_from_file(char* class_name, int fd)
         MFREE(klass);
         return NULL;
     }
+    klass->mCallingClassMethodIndex = n;
+
+    if(!read_int_from_file(fd, &n)) {
+        MFREE(klass);
+        return NULL;
+    }
+    klass->mCallingMethodIndex = n;
+
+    if(!read_int_from_file(fd, &n)) {
+        MFREE(klass);
+        return NULL;
+    }
     klass->mNumTypedef = n;
 
     for(i=0; i<klass->mNumTypedef; i++) {
@@ -693,11 +705,11 @@ sCLClass* load_class(char* class_name)
     return load_class_from_class_file(class_name, class_file_name);
 }
 
-sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_class_num, int generics_number, sCLClass** type_of_generics_params, BOOL interface, BOOL dynamic_interface)
+sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_class_num, int generics_number, sCLClass** type_of_generics_params, BOOL interface, BOOL dynamic)
 {
     sCLClass* klass = MCALLOC(1, sizeof(sCLClass));
 
-    klass->mFlags |= (primitive_ ? CLASS_FLAGS_PRIMITIVE:0) | (interface ? CLASS_FLAGS_INTERFACE:0) | (dynamic_interface ? CLASS_FLAGS_DYNAMIC:0);
+    klass->mFlags |= (primitive_ ? CLASS_FLAGS_PRIMITIVE:0) | (interface ? CLASS_FLAGS_INTERFACE:0) | (dynamic ? CLASS_FLAGS_DYNAMIC:0);
     klass->mGenericsParamClassNum = generics_param_class_num;
 
     klass->mNumGenerics = generics_number;
@@ -721,6 +733,8 @@ sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_clas
     klass->mClassInitializeMethodIndex = -1;
     klass->mClassFinalizeMethodIndex = -1;
     klass->mFinalizeMethodIndex = -1;
+    klass->mCallingMethodIndex = -1;
+    klass->mCallingClassMethodIndex = -1;
 
     klass->mMethodIndexOnCompileTime = 0;
 

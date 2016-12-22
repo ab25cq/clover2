@@ -532,6 +532,8 @@ static void write_class_to_buffer(sCLClass* klass, sBuf* buf)
     sBuf_append_int(buf, klass->mClassInitializeMethodIndex);
     sBuf_append_int(buf, klass->mClassFinalizeMethodIndex);
     sBuf_append_int(buf, klass->mFinalizeMethodIndex);
+    sBuf_append_int(buf, klass->mCallingClassMethodIndex);
+    sBuf_append_int(buf, klass->mCallingMethodIndex);
 
     sBuf_append_int(buf, klass->mNumTypedef);
     for(i=0; i<klass->mNumTypedef; i++) {
@@ -628,6 +630,50 @@ void set_method_index_to_class(sCLClass* klass)
             && method->mNumParams == 0)
         {
             klass->mFinalizeMethodIndex = i;
+        }
+    }
+
+    klass->mCallingClassMethodIndex = -1;
+
+    for(i=klass->mNumMethods-1; i>=0; i--) {
+        sCLMethod* method = klass->mMethods + i;
+
+        if((method->mFlags & METHOD_FLAGS_CLASS_METHOD) 
+            && strcmp(CONS_str(&klass->mConst, method->mNameOffset), "callingMethod") == 0
+            && method->mNumParams == 2)
+        {
+            /// check params ///
+            sNodeType* param1 = create_node_type_from_cl_type(method->mParams[0].mType, klass);
+            sNodeType* param2 = create_node_type_from_cl_type(method->mParams[1].mType, klass);
+
+            sNodeType* result_type = create_node_type_from_cl_type(method->mResultType, klass);
+
+            if(type_identify_with_class_name(result_type, CLASS_NAME(klass)) && type_identify_with_class_name(param1, "String") && type_identify_with_class_name(param2, "Array"))
+            {
+                klass->mCallingClassMethodIndex = i;
+            }
+        }
+    }
+
+    klass->mCallingMethodIndex = -1;
+
+    for(i=klass->mNumMethods-1; i>=0; i--) {
+        sCLMethod* method = klass->mMethods + i;
+
+        if(!(method->mFlags & METHOD_FLAGS_CLASS_METHOD) 
+            && strcmp(CONS_str(&klass->mConst, method->mNameOffset), "callingMethod") == 0
+            && method->mNumParams == 2)
+        {
+            /// check params ///
+            sNodeType* param1 = create_node_type_from_cl_type(method->mParams[0].mType, klass);
+            sNodeType* param2 = create_node_type_from_cl_type(method->mParams[1].mType, klass);
+
+            sNodeType* result_type = create_node_type_from_cl_type(method->mResultType, klass);
+
+            if(type_identify_with_class_name(result_type, CLASS_NAME(klass)) && type_identify_with_class_name(param1, "String") && type_identify_with_class_name(param2, "Array"))
+            {
+                klass->mCallingMethodIndex = i;
+            }
         }
     }
 }

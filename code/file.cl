@@ -13,7 +13,7 @@ Clover.test("file test8", p"/home/ab25cq/repo/clover/a.txt".extname().equals(p"t
 Clover.test("file test9", p"/bin".to_stat().groupName().equals("root"));
 Clover.test("file test10", p"/bin".to_stat().userName().equals("root"));
 Clover.test("file test11", p"a.txt".to_stat().S_ISREG());
-Clover.test("file test12", p"a.txt".to_stat().mtime().dayOfMonth() == 11 && p"a.txt".to_stat().mtime().month() == 12);
+Clover.test("file test12", p"a.txt".to_stat().mtime().dayOfMonth() == 21 && p"a.txt".to_stat().mtime().month() == 12);
 Clover.test("file test13", p"a.txt".read().equals(b"ABCDEFGHI\n"));
 
 f2 := new File("b.txt", System.O_CREAT|System.O_TRUNC|System.O_WRONLY, 0644);

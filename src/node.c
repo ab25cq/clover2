@@ -1665,6 +1665,15 @@ static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)
         }
 
         param_types[i] = info->type;
+
+        if(klass->mFlags & CLASS_FLAGS_DYNAMIC) {
+            /// boxing if the class is primitive ///
+            if(info->type->mClass->mFlags & CLASS_FLAGS_PRIMITIVE) {
+                boxing_to_lapper_class(&info->type, info);
+            }
+
+            param_types[i] = info->type;
+        }
     }
 
     sNodeType* generics_types;
@@ -1675,28 +1684,56 @@ static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)
         generics_types = NULL;
     }
 
-    sNodeType* result_type;
-    int method_index = search_for_method(klass, method_name, param_types, num_params, TRUE, klass->mNumMethods-1, generics_types, NULL, &result_type);
+    if(klass->mFlags & CLASS_FLAGS_DYNAMIC) {
+        if(klass->mCallingClassMethodIndex == -1) {
+            parser_err_msg(info->pinfo, "require calllingClasMethod class method for dynamic class");
+            info->err_num++;
 
-    if(method_index == -1) {
-        parser_err_msg(info->pinfo, "method not found(1)");
-        info->err_num++;
+            info->type = create_node_type_with_class_name("int"); // dummy
 
-        err_msg_for_method_not_found(klass, method_name, param_types, num_params, TRUE, info);
+            return TRUE;
+        }
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        if(num_params >= ARRAY_VALUE_ELEMENT_MAX) {
+            parser_err_msg(info->pinfo, "overflow parametor number");
+            return FALSE;
+        }
 
-        return TRUE;
+        append_opecode_to_code(info->code, OP_INVOKE_DYNAMIC_METHOD, info->no_output);
+        append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(klass), info->no_output);
+        append_str_to_constant_pool_and_code(info->constant, info->code, method_name, info->no_output);
+        append_int_value_to_code(info->code, num_params, info->no_output);
+        append_int_value_to_code(info->code, 1, info->no_output);
+
+        info->stack_num -= num_params;
+        info->stack_num++;
+
+        info->type = create_node_type_with_class_pointer(klass);
     }
+    else {
+        sNodeType* result_type;
+        int method_index = search_for_method(klass, method_name, param_types, num_params, TRUE, klass->mNumMethods-1, generics_types, NULL, &result_type);
 
-    append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
-    append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(klass), info->no_output);
-    append_int_value_to_code(info->code, method_index, info->no_output);
+        if(method_index == -1) {
+            parser_err_msg(info->pinfo, "method not found(1)");
+            info->err_num++;
 
-    info->stack_num-=num_params;
-    info->stack_num++;
+            err_msg_for_method_not_found(klass, method_name, param_types, num_params, TRUE, info);
 
-    info->type = result_type;
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
+        append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(klass), info->no_output);
+        append_int_value_to_code(info->code, method_index, info->no_output);
+
+        info->stack_num-=num_params;
+        info->stack_num++;
+
+        info->type = result_type;
+    }
     
     return TRUE;
 }
@@ -1743,28 +1780,39 @@ static BOOL compile_params(sCLClass* klass, char* method_name, int num_params, u
 
         param_types[i] = info->type;
 
+        /// boxing params for the method call of dynamic class ///
+        if((klass->mFlags & CLASS_FLAGS_DYNAMIC) && klass->mCallingMethodIndex != -1) {
+            /// boxing if the class is primitive ///
+            if(info->type->mClass->mFlags & CLASS_FLAGS_PRIMITIVE) {
+                boxing_to_lapper_class(&info->type, info);
+            }
+
+            param_types[i] = info->type;
+        }
         /// cast params for the method if it is requires ///
-        int j;
-        for(j=0; j<num_methods; j++) {
-            sCLMethod* method = klass->mMethods + method_indexes[j];
+        else {
+            int j;
+            for(j=0; j<num_methods; j++) {
+                sCLMethod* method = klass->mMethods + method_indexes[j];
 
-            if(num_params == method->mNumParams && i < method->mNumParams) {
-                sNodeType* param;
-                sNodeType* solved_param;
+                if(num_params == method->mNumParams && i < method->mNumParams) {
+                    sNodeType* param;
+                    sNodeType* solved_param;
 
-                param = create_node_type_from_cl_type(method->mParams[i].mType, klass);
+                    param = create_node_type_from_cl_type(method->mParams[i].mType, klass);
 
-                if(!solve_generics_types_for_node_type(param, ALLOC &solved_param, generics_types)) 
-                {
-                    return FALSE;
-                }
+                    if(!solve_generics_types_for_node_type(param, ALLOC &solved_param, generics_types)) 
+                    {
+                        return FALSE;
+                    }
 
-                if(boxing_posibility(solved_param, param_types[i])) {
-                    cast_right_type_to_left_type(solved_param, &param_types[i], info);
-                }
+                    if(boxing_posibility(solved_param, param_types[i])) {
+                        cast_right_type_to_left_type(solved_param, &param_types[i], info);
+                    }
 
-                if(type_identify_with_class_name(param_types[i], "Null")) {
-                    param_types[i] = solved_param;
+                    if(type_identify_with_class_name(param_types[i], "Null")) {
+                        param_types[i] = solved_param;
+                    }
                 }
             }
         }
@@ -1776,20 +1824,41 @@ static BOOL compile_params(sCLClass* klass, char* method_name, int num_params, u
 static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType* generics_types, sCLClass* klass, sNodeType* param_types[PARAMS_MAX], int num_params, char* method_name, unsigned int params[PARAMS_MAX])
 {
     if(klass->mFlags & CLASS_FLAGS_DYNAMIC) {
-        int num_real_params = num_params + 1;
-        int size_method_name_and_params = METHOD_NAME_MAX + PARAMS_MAX * CLASS_NAME_MAX + 256;
-        char method_name_and_params[size_method_name_and_params];
+        if(klass->mCallingMethodIndex == -1) {
+            int num_real_params = num_params + 1;
+            int size_method_name_and_params = METHOD_NAME_MAX + PARAMS_MAX * CLASS_NAME_MAX + 256;
+            char method_name_and_params[size_method_name_and_params];
 
-        create_method_name_and_params(method_name_and_params, size_method_name_and_params, klass, method_name, param_types, num_params);
+            create_method_name_and_params(method_name_and_params, size_method_name_and_params, klass, method_name, param_types, num_params);
 
-        append_opecode_to_code(info->code, OP_INVOKE_VIRTUAL_METHOD, info->no_output);
-        append_int_value_to_code(info->code, num_real_params, info->no_output);
-        append_str_to_constant_pool_and_code(info->constant, info->code, method_name_and_params, info->no_output);
+            append_opecode_to_code(info->code, OP_INVOKE_VIRTUAL_METHOD, info->no_output);
+            append_int_value_to_code(info->code, num_real_params, info->no_output);
+            append_str_to_constant_pool_and_code(info->constant, info->code, method_name_and_params, info->no_output);
 
-        info->stack_num-=num_params + 1;
-        info->stack_num++;
+            info->stack_num-=num_params + 1;
+            info->stack_num++;
 
-        info->type = create_node_type_with_class_pointer(klass);
+            info->type = create_node_type_with_class_pointer(klass);
+        }
+        else {
+            int num_real_params = num_params + 1;
+
+            if(num_params >= ARRAY_VALUE_ELEMENT_MAX) {
+                parser_err_msg(info->pinfo, "overflow parametor number");
+                return FALSE;
+            }
+
+            append_opecode_to_code(info->code, OP_INVOKE_DYNAMIC_METHOD, info->no_output);
+            append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(klass), info->no_output);
+            append_str_to_constant_pool_and_code(info->constant, info->code, method_name, info->no_output);
+            append_int_value_to_code(info->code, num_params, info->no_output);
+            append_int_value_to_code(info->code, 0, info->no_output);
+
+            info->stack_num -= num_real_params;
+            info->stack_num++;
+
+            info->type = create_node_type_with_class_pointer(klass);
+        }
     }
     else {
         sNodeType* result_type;

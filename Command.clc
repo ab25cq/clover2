@@ -1,0 +1,244 @@
+include "File.clc"
+
+
+dynamic_class Command
+{
+    def initialize() {
+    }
+    def callingMethod(method_name:String, params:Array<Object>) : static Command {
+        str:String = params.items(0).toAnonymous();
+        printf("class method method_name %s param1 %s\n", array { method_name, str });
+
+        return new Command();
+    }
+    def callingMethod(method_name:String, params:Array<Object>) : Command {
+        str:String = params.items(0).toAnonymous();
+        printf("normal method method_name %s param1 %s\n", array { method_name, str });
+
+        return new Command();
+    }
+}
+
+/*
+dynamic_typing final class Command implements IInspectable 
+{
+    protected String data;
+    protected int resultCode;
+
+    static Array<String> controllingTerminalPrograms = { "vim", "less", "top", "lv", "htop", "emacs", "nano", "vi", "fd", "mc" };
+
+    Command() {
+        self.data = "";
+        self.resultCode = 0;
+    }
+
+    Command(Command value) {
+        self.setValue(value);
+    }
+
+    Command(String data, int result_code) {
+        self.data = data;
+        self.resultCode = result_code;
+    }
+
+    int resultCode() {
+        return self.resultCode;
+    }
+
+    virtual String toString() {
+        return self.data;
+    }
+
+    Command write(Path path, int permission=0666) throws SystemException, Exception {
+        File f = new File(path, "w", permission);
+        f.write(self.data.toBytes());
+        f.close();
+
+        return self;
+    }
+
+    static Command excuteCommandWithControllingTerminalByPipe(String method_name, Array<anonymous> params, Block method_block, String pipe_data)
+    {
+        int parent2child_write_fd = 0;
+        int parent2child_read_fd = 0;
+
+        System.pipe(parent2child_read_fd, parent2child_write_fd);
+
+        pid_t pid = System.fork() {
+            System.close(parent2child_write_fd);
+
+            pid_t pid = System.getpid();
+
+            System.setpgid(0.to_pid_t(), 0.to_pid_t());
+            System.tcsetpgrp(0, pid);
+
+            System.dup2(parent2child_read_fd, 0);
+            System.close(parent2child_read_fd);
+
+            try {
+                System.execvp(method_name, params.select() {|anonymous param| return String->substitutionPosibility(param.type()); } );
+            } catch(SystemException e) {
+                System.write(2, (e.getMessage() + "\n").toBytes());
+                System.exit(2);
+            }
+        }
+
+        System.setpgid(pid, pid);
+        System.tcsetpgrp(0, pid);
+
+        System.close(parent2child_read_fd);
+
+        if(pipe_data != null) {
+            System.write(parent2child_write_fd, pipe_data.toBytes());
+        }
+        System.close(parent2child_write_fd);
+
+        pid_t pid2, WaitStatus status = System.waitpid(pid, WaitOption.WUNTRACED);
+
+        if(status.WIFSTOPPED()) {
+            int rcode = status.WSTOPSIG() +128;
+            String title = method_name;
+
+            termios terminfo = new termios();
+            System.tcgetattr(0, terminfo);
+
+            Job job = new Job(title, pid, terminfo);
+
+            Clover.jobs.add(job);
+
+            System.tcsetpgrp(0, System.getpid());
+
+            return new Command("", rcode);
+        }
+        else {
+            System.tcsetpgrp(0, System.getpid());
+
+            return new Command("", status.WEXITSTATUS());
+        }
+    }
+
+    static Command excuteCommandWithControllingTerminal(String method_name, Array<anonymous> params, Block method_block)
+    {
+        pid_t pid = System.fork() {
+            pid_t pid = System.getpid();
+
+            System.setpgid(0.to_pid_t(), 0.to_pid_t());
+            System.tcsetpgrp(0, pid);
+
+            try {
+                System.execvp(method_name, params.select() {|anonymous param| return String->substitutionPosibility(param.type()); } );
+            } catch(SystemException e) {
+                System.write(2, (e.getMessage() + "\n").toBytes());
+                System.exit(2);
+            }
+        }
+
+        System.setpgid(pid, pid);
+        System.tcsetpgrp(0, pid);
+
+        pid_t pid2, WaitStatus status = System.waitpid(pid, WaitOption.WUNTRACED);
+
+        System.tcsetpgrp(0, System.getpid());
+
+        if(status.WIFSTOPPED()) {
+            int rcode = status.WSTOPSIG() +128;
+            String title = method_name;
+
+            termios terminfo = new termios();
+            System.tcgetattr(0, terminfo);
+
+            Job job = new Job(title, pid, terminfo);
+
+            Clover.jobs.add(job);
+
+            System.tcsetpgrp(0, System.getpid());
+
+            return new Command("", rcode);
+        }
+        else {
+            System.tcsetpgrp(0, System.getpid());
+
+            return new Command("", status.WEXITSTATUS());
+        }
+
+        return new Command("", status.WEXITSTATUS());
+    }
+
+    static Command executeCommand(String method_name, Array<anonymous> params, Block method_block, String pipe_data) 
+    {
+        int child2parent_write_fd = 0;
+        int child2parent_read_fd = 0;
+        int parent2child_write_fd = 0;
+        int parent2child_read_fd = 0;
+
+        System.pipe(child2parent_read_fd, child2parent_write_fd);
+        System.pipe(parent2child_read_fd, parent2child_write_fd);
+
+        pid_t pid = System.fork() {
+            System.close(parent2child_write_fd);
+            System.close(child2parent_read_fd);
+
+            System.dup2(parent2child_read_fd, 0);
+            System.dup2(child2parent_write_fd, 1);
+
+            System.close(parent2child_read_fd);
+            System.close(child2parent_write_fd);
+
+            try {
+                System.execvp(method_name, params.select() {|anonymous param| return String->substitutionPosibility(param.type()); } );
+            } catch(SystemException e) {
+                System.write(2, (e.getMessage() + "\n").toBytes());
+                System.exit(2);
+            }
+        }
+
+        System.close(parent2child_read_fd);
+        System.close(child2parent_write_fd);
+
+        if(pipe_data != null) {
+            System.write(parent2child_write_fd, pipe_data.toBytes());
+        }
+        System.close(parent2child_write_fd);
+
+        Bytes child_output = B"";
+        
+        while(true) {
+            Bytes pipe_data = B"";
+
+            int readed_byte = System.read(child2parent_read_fd, pipe_data, 10);
+
+            if(readed_byte == 0) {
+                break;
+            }
+
+            child_output += pipe_data;
+        }
+
+        System.close(child2parent_read_fd);
+
+        pid_t pid2, WaitStatus status = System.waitpid(pid, WaitOption.WUNTRACED);
+
+        return new Command(child_output.toString(), status.WEXITSTATUS());
+    }
+
+    static Command methodMissing(String method_name, Array<anonymous> params, Block method_block) 
+    {
+        if(Command.controllingTerminalPrograms.include(method_name)) {
+            return Command.excuteCommandWithControllingTerminal(method_name, params, method_block);
+        }
+        else {
+            return Command.executeCommand(method_name, params, method_block, null);
+        }
+    }
+
+    Command methodMissing(String method_name, Array<anonymous> params, Block method_block)
+    {
+        if(Command.controllingTerminalPrograms.include(method_name)) {
+            return Command.excuteCommandWithControllingTerminalByPipe(method_name, params, method_block, self.data);
+        }
+        else {
+            return Command.executeCommand(method_name, params, method_block, self.data);
+        }
+    }
+}
+*/

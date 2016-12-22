@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <libgen.h>
+#include <dirent.h>
 
 BOOL System_exit(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
@@ -1285,4 +1286,74 @@ BOOL System_basename(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     return TRUE;
 }
+
+BOOL System_opendir(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* path = lvar;
+
+    /// Clover to c value ///
+    char* path_value = ALLOC string_object_to_char_array(path->mObjectValue);
+
+    /// go ///
+    DIR* result = opendir(path_value);
+
+    if(result == NULL) {
+        MFREE(path_value);
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "opendir(3) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    /// result ///
+    (*stack_ptr)->mPointerValue = (char*)result;
+    (*stack_ptr)++;
+
+    MFREE(path_value);
+
+    return TRUE;
+}
+
+BOOL System_readdir(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* dir = lvar;
+
+    /// Clover to c value ///
+    DIR* dir_value = (DIR*)dir->mPointerValue;
+
+    /// go ///
+    struct dirent* entry = readdir(dir_value);
+
+    /// result ///
+    if(entry == NULL) {
+        (*stack_ptr)->mObjectValue = 0;
+        (*stack_ptr)++;
+    }
+    else {
+        (*stack_ptr)->mObjectValue = create_string_object(entry->d_name);
+        (*stack_ptr)++;
+    }
+
+    return TRUE;
+}
+
+BOOL System_closedir(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* dir = lvar;
+
+    /// Clover to c value ///
+    DIR* dir_value = (DIR*)dir->mPointerValue;
+
+    /// go ///
+    int result = closedir(dir_value);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "closedir(3) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
 

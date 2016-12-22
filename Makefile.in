@@ -75,9 +75,10 @@ $(OBJ): src/*.h Makefile configure
 install:
 	rm -f *.clcl
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -no-load-fundamental-classes -class Fundamental.clc
-	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -no-load-fundamental-classes -class StringBase.clc
-	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -no-load-fundamental-classes -class ListBase.clc
-	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -no-load-fundamental-classes -class FileBase.clc
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -no-load-fundamental-classes -class String.clc
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -no-load-fundamental-classes -class List.clc
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -no-load-fundamental-classes -class File.clc
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -no-load-fundamental-classes -class Command.clc
 	mkdir -p ~/.clover2
 	$(INSTALL) -m 644 PcreOVec.clcl ~/.clover2
 	$(INSTALL) -m 644 System.clcl ~/.clover2
@@ -118,6 +119,8 @@ install:
 	$(INSTALL) -m 644 Tuple9.clcl ~/.clover2
 	$(INSTALL) -m 644 Tuple10.clcl ~/.clover2
 	$(INSTALL) -m 644 File.clcl ~/.clover2
+	$(INSTALL) -m 644 Directory.clcl ~/.clover2
+	$(INSTALL) -m 644 Command.clcl ~/.clover2
 	$(INSTALL) -m 644 tm.clcl ~/.clover2
 	$(INSTALL) -m 644 stat.clcl ~/.clover2
 	mkdir -p "$(libdir)"
@@ -152,7 +155,7 @@ permission:
 # clean
 ########################################################
 clean:
-	rm -fR clover2 clover2.dSYM cclover2 cclover2.dSYM src/*.o libclover* config.log config.status *.stackdump autom4te.cache .DS_Store core.* a.out *.clcl *.clo code/*.clo *.clm a.txt b.txt c.txt d.txt a.c
+	rm -fR clover2 clover2.dSYM cclover2 cclover2.dSYM src/*.o libclover* config.log config.status *.stackdump autom4te.cache .DS_Store core.* a.out *.clcl *.clo code/*.clo *.clm a.c
 
 distclean: clean
 	rm -fR  config.h Makefile autom4te.cache
@@ -209,4 +212,6 @@ test:
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/list2.cl && ./clover2 code/list2.clo
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/time.cl && ./clover2 code/time.clo
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/file.cl && ./clover2 code/file.clo
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/dir.cl && ./clover2 code/dir.clo
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/command.cl && ./clover2 code/command.clo
 

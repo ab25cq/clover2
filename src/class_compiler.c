@@ -922,7 +922,7 @@ static BOOL parse_class_source(sParserInfo* info, sCompileInfo* cinfo)
                 return FALSE;
             }
         }
-        else if(strcmp(buf, "dynamic_interface") == 0) {
+        else if(strcmp(buf, "dynamic_class") == 0) {
             if(!parse_class(info, cinfo, FALSE, TRUE)) {
                 return FALSE;
             }

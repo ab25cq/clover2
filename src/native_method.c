@@ -134,6 +134,9 @@ static sNativeMethod gNativeMethods[] = {
     { "System.realpath(String)", System_realpath },
     { "System.dirname(String)", System_dirname },
     { "System.basename(String)", System_basename },
+    { "System.opendir(String)", System_opendir },
+    { "System.readdir(pointer)", System_readdir },
+    { "System.closedir(pointer)", System_closedir },
 
     { "", 0 }  // sentinel
 };

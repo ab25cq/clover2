@@ -1,4 +1,4 @@
-include "StringBase.clc"
+include "String.clc"
 
 class System
 {
@@ -6,6 +6,7 @@ class System
     typedef dev_t ulong;
     typedef uid_t int;
     typedef gid_t int;
+    typedef DIR pointer;
 
     S_IFMT: static int;
     S_IFDIR: static int;
@@ -70,6 +71,9 @@ class System
     def realpath(path:String): static native String throws Exception;
     def dirname(path:String): static native String;
     def basename(path:String): static native String;
+    def opendir(path:String): static native DIR throws Exception;
+    def readdir(dir:DIR): static native String@Nullable;
+    def closedir(dir:DIR): static native int throws Exception;
 }
 
 class tm
@@ -596,6 +600,37 @@ class Path
         System.mkdir(self, mode);
     }
 */
-
-
 }
+
+class Directory 
+{
+    path:String;
+    dir:DIR;
+
+    def initialize(path:String) throws Exception {
+        self.path = path;
+        self.dir = System.opendir(path);
+    }
+
+    def finalize() {
+        if(self.dir != 0.to_pointer) {
+            System.closedir(self.dir);
+        }
+    }
+    
+    def readdir(): String@Nullable throws Exception {
+        if(self.dir == 0.to_pointer) {
+            throw new Exception("This directory is not opened");
+        }
+
+        return System.readdir(self.dir);
+    }
+
+    def closedir() {
+        if(self.dir != 0.to_pointer) {
+            System.closedir(self.dir);
+            self.dir = 0.to_pointer;
+        }
+    }
+}
+

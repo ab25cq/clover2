@@ -406,6 +406,8 @@ class SortableList<T:ISortable>
     }
 
     def sort(): SortableList<T> {
-        return self.mergeSort();
+        list:SortableList<T> = self.mergeSort();
+        self.setValue(list);
+        return self;
     }
 }
