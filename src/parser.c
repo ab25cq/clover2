@@ -679,7 +679,6 @@ static BOOL parse_params_and_entry_to_lvtable(sParserParam* params, int* num_par
         }
     }
 
-
     return TRUE;
 }
 
@@ -783,32 +782,38 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
             info->p++;
             skip_spaces_and_lf(info);
 
-            while(1) {
-                sNodeType* node_type = NULL;
-                if(!parse_type(&node_type, info)) {
-                    return FALSE;
-                }
+            if(*info->p == ')') {
+                info->p++;
+                skip_spaces_and_lf(info);
+            }
+            else {
+                while(1) {
+                    sNodeType* node_type = NULL;
+                    if(!parse_type(&node_type, info)) {
+                        return FALSE;
+                    }
 
-                node_block_type->mParams[node_block_type->mNumParams] = node_type;
-                node_block_type->mNumParams++;
+                    node_block_type->mParams[node_block_type->mNumParams] = node_type;
+                    node_block_type->mNumParams++;
 
-                if(node_block_type->mNumParams >= PARAMS_MAX) {
-                    parser_err_msg(info, "oveflow block object type params");
-                    return FALSE;
-                }
+                    if(node_block_type->mNumParams >= PARAMS_MAX) {
+                        parser_err_msg(info, "oveflow block object type params");
+                        return FALSE;
+                    }
 
-                if(*info->p == ')') {
-                    info->p++;
-                    skip_spaces_and_lf(info);
-                    break;
-                }
-                else if(*info->p == ',') {
-                    info->p++;
-                    skip_spaces_and_lf(info);
-                }
-                else {
-                    parser_err_msg(info, "invalid character in block type name(%c)", *info->p);
-                    break;
+                    if(*info->p == ')') {
+                        info->p++;
+                        skip_spaces_and_lf(info);
+                        break;
+                    }
+                    else if(*info->p == ',') {
+                        info->p++;
+                        skip_spaces_and_lf(info);
+                    }
+                    else {
+                        parser_err_msg(info, "invalid character in block type name(%c)", *info->p);
+                        break;
+                    }
                 }
             }
         }
@@ -1204,9 +1209,9 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info)
             skip_spaces_and_lf(info);
 
             if(isalpha(*info->p)) {
-                char buf[VAR_NAME_MAX];
+                char buf[METHOD_NAME_MAX];
 
-                if(!parse_word(buf, VAR_NAME_MAX, info, TRUE)) {
+                if(!parse_word(buf, METHOD_NAME_MAX, info, TRUE)) {
                     return FALSE;
                 }
                 skip_spaces_and_lf(info);
@@ -1371,16 +1376,6 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info)
             else {
                 *node = sNodeTree_create_load_value_from_pointer(*node, node_type);
             }
-        }
-        else if(*info->p == '(') {
-            unsigned int params[PARAMS_MAX];
-            int num_params = 0;
-
-            if(!parse_method_params(&num_params, params, info)) {
-                return FALSE;
-            }
-
-            *node = sNodeTree_create_block_call(*node, num_params, params);
         }
         else if(*info->p == '+' && *(info->p+1) == '+') {
             info->p+=2;
@@ -1625,6 +1620,47 @@ static BOOL parse_list_value(unsigned int* node, sParserInfo* info)
     }
 
     *node = sNodeTree_create_list_value(num_elements, list_elements);
+
+    return TRUE;
+}
+
+static BOOL parse_equalable_list_value(unsigned int* node, sParserInfo* info) 
+{
+    int num_elements = 0;
+
+    unsigned int list_elements[LIST_VALUE_ELEMENT_MAX];
+    memset(list_elements, 0, sizeof(unsigned int)*LIST_VALUE_ELEMENT_MAX);
+
+    if(*info->p == '}') {
+        info->p++;
+        skip_spaces_and_lf(info);
+    }
+    else {
+        while(1) {
+            if(!expression(list_elements + num_elements, info)) {
+                return FALSE;
+            }
+
+            num_elements++;
+
+            if(num_elements >= LIST_VALUE_ELEMENT_MAX) {
+                parser_err_msg(info, "overflow array value elements");
+                return FALSE;
+            }
+
+            if(*info->p == ',') {
+                info->p++;
+                skip_spaces_and_lf(info);
+            }
+            else if(*info->p == '}') {
+                info->p++;
+                skip_spaces_and_lf(info);
+                break;
+            }
+        }
+    }
+
+    *node = sNodeTree_create_equalable_list_value(num_elements, list_elements);
 
     return TRUE;
 }
@@ -2145,6 +2181,13 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
         }
+        else if(strcmp(buf, "equalable_list") == 0 && *info->p == '{') {
+            expect_next_character_with_one_forward("{", info);
+
+            if(!parse_equalable_list_value(node, info)) {
+                return FALSE;
+            }
+        }
         else if(strcmp(buf, "sortable_list") == 0 && *info->p == '{') {
             expect_next_character_with_one_forward("{", info);
 
@@ -2273,10 +2316,10 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     info->p++;
                     skip_spaces_and_lf(info);
 
-                    char buf[VAR_NAME_MAX];
+                    char buf[METHOD_NAME_MAX];
 
                     /// name ///
-                    if(!parse_word(buf, VAR_NAME_MAX, info, TRUE)) {
+                    if(!parse_word(buf, METHOD_NAME_MAX, info, TRUE)) {
                         return FALSE;
                     }
 
@@ -2348,6 +2391,18 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             }
             else {
                 *node = sNodeTree_create_load_variable(buf);
+
+                /// lamda call ///
+                if(*info->p == '(') {
+                    unsigned int params[PARAMS_MAX];
+                    int num_params = 0;
+
+                    if(!parse_method_params(&num_params, params, info)) {
+                        return FALSE;
+                    }
+
+                    *node = sNodeTree_create_block_call(*node, num_params, params);
+                }
             }
         }
     }

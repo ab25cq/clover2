@@ -29,6 +29,14 @@ class String
         printf(format, array { self });
     }
 
+    def print() {
+        print(self);
+    }
+
+    def println() {
+        println(self);
+    }
+
     def match(regex_:regex):bool {
         ovec_max:int = 16;
         ovec:PcreOVec = new PcreOVec(ovec_max);
@@ -39,7 +47,7 @@ class String
         return regex_result > 0;
     }
 
-    def match(regex_:regex, group_strings:List<String>): bool {
+    def match(regex_:regex, group_strings:EqualableList<String>): bool {
         ovec_max:int = 16;
         ovec:PcreOVec = new PcreOVec(ovec_max);
 
@@ -66,7 +74,7 @@ class String
         }
     }
 
-    def sub(regex_:regex, replace:String, group_strings:List<String>): String {
+    def sub(regex_:regex, replace:String, group_strings:EqualableList<String>): String {
         result: String = new String();
         offset:int = 0;
 
@@ -136,7 +144,7 @@ class String
         return self.sub(regex_, replace, null);
     }
 
-    def sub(regex_:regex, replace:lambda(String,List<String>):String, group_strings:List<String>): String 
+    def sub(regex_:regex, replace:lambda(String,EqualableList<String>):String, group_strings:EqualableList<String>): String 
     {
         result: String = new String();
         offset:int = 0;
@@ -151,7 +159,7 @@ class String
             if(regex_result == 1 || group_strings.identifyWith(null) && regex_result > 0) {
                 match_string:String = self.subString(ovec.start[0], ovec.end[0]);
                 result.append(self.subString(offset, ovec.start[0]));
-                replace_string:String = replace(match_string, new List<String>());
+                replace_string:String = replace(match_string, new EqualableList<String>());
                 result.append(replace_string);
 
                 if(offset == ovec.end[0]) {
@@ -204,13 +212,13 @@ class String
 
         return result;
     }
-    def sub(regex_:regex, replace:lambda(String,List<String>):String): String {
-        group_strings:List<String> = new List<String>();
+    def sub(regex_:regex, replace:lambda(String,EqualableList<String>):String): String {
+        group_strings:EqualableList<String> = new EqualableList<String>();
         return self.sub(regex_, replace, group_strings);
     }
 
-    def scan(regex_:regex): List<String> {
-        result: List<String> = new List<String>();
+    def scan(regex_:regex): EqualableList<String> {
+        result: EqualableList<String> = new EqualableList<String>();
         offset:int = 0;
 
         while(true) {
@@ -256,8 +264,8 @@ class String
 
         return result;
     }
-    def scan(regex_:regex, block_:lambda(String,List<String>):String): List<String> {
-        result: List<String> = new List<String>();
+    def scan(regex_:regex, block_:lambda(String,EqualableList<String>):String): EqualableList<String> {
+        result: EqualableList<String> = new EqualableList<String>();
         offset:int = 0;
 
         while(true) {
@@ -270,7 +278,7 @@ class String
             if(regex_result == 1) {
                 match_string:String = self.subString(ovec.start[0], ovec.end[0]);
 
-                group_strings: List<String> = new List<String>();
+                group_strings: EqualableList<String> = new EqualableList<String>();
                 result.add(block_(match_string, group_strings));
 
                 if(offset == ovec.end[0]) {
@@ -291,7 +299,7 @@ class String
                     offset = ovec.end[0];
                 }
 
-                group_strings: List<String> = new List<String>();
+                group_strings: EqualableList<String> = new EqualableList<String>();
                 for(i:int = 1; i<regex_result; i++) {
                     match_string:String = self.subString(ovec.start[i], ovec.end[i]);
                     group_strings.add(match_string);
@@ -316,8 +324,8 @@ class String
         return self;
     }
 
-    def split(separator:regex):List<String> {
-        result:List<String> = new List<String>();
+    def split(separator:regex):EqualableList<String> {
+        result:EqualableList<String> = new EqualableList<String>();
         offset:int = 0;
 
         while(true) {
@@ -364,8 +372,8 @@ class String
         return result;
     }
 
-    def split(separator:regex, block_:lambda(String,List<String>):String):List<String> {
-        result:List<String> = new List<String>();
+    def split(separator:regex, block_:lambda(String,EqualableList<String>):String):EqualableList<String> {
+        result:EqualableList<String> = new EqualableList<String>();
         offset:int = 0;
 
         while(true) {
@@ -377,7 +385,7 @@ class String
             ### match and no group strings ###
             if(regex_result == 1) {
                 str:String = self.subString(offset, ovec.start[0]);
-                group_strings:List<String> = new List<String>();
+                group_strings:EqualableList<String> = new EqualableList<String>();
                 result.add(block_(str, group_strings));
 
                 if(offset == ovec.end[0]) {
@@ -398,7 +406,7 @@ class String
                     offset = ovec.end[0];
                 }
 
-                group_strings:List<String> = new List<String>();
+                group_strings:EqualableList<String> = new EqualableList<String>();
                 for(i:int = 1; i<regex_result; i++) {
                     str:String = self.subString(ovec.start[i], ovec.end[i]);
                     group_strings.add(str);
@@ -547,5 +555,17 @@ class String
 
         return result;
 
+    }
+
+    def toBuffer(): Buffer throws Exception {
+        array_:byte[] = null;
+        System.wcstombs(&array_, self.buffer);
+
+        result:Buffer = new Buffer(array_.length.to_ulong);
+        for(i:int = 0; i<array_.length; i++) {
+            result.append(array_[i]);
+        }
+
+        return result;
     }
 }

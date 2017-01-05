@@ -137,6 +137,23 @@ static sNativeMethod gNativeMethods[] = {
     { "System.opendir(String)", System_opendir },
     { "System.readdir(pointer)", System_readdir },
     { "System.closedir(pointer)", System_closedir },
+    { "System.initialize_command_system()", System_initialize_command_system },
+    { "System.pipe(pointer,pointer)", System_pipe },
+    { "System.fork(lambda)", System_fork },
+    { "System.dup2(int,int)", System_dup2 },
+    { "System.execvp(String,List)", System_execvp },
+    { "System.waitpid(int,pointer,int)", System_waitpid },
+    { "System.WIFEXITED(int)", System_WIFEXITED },
+    { "System.WEXITSTATUS(int)", System_WEXITSTATUS },
+    { "System.WIFSIGNALED(int)", System_WIFSIGNALED },
+    { "System.WTERMSIG(int)", System_WTERMSIG },
+    { "System.WCOREDUMP(int)", System_WCOREDUMP },
+    { "System.WIFSTOPPED(int)", System_WIFSTOPPED },
+    { "System.WSTOPSIG(int)", System_WSTOPSIG },
+    { "System.WIFCONTINUED(int)", System_WIFCONTINUED },
+    { "System.getpid()", System_getpid },
+    { "System.setpgid(int,int)", System_setpgid },
+    { "System.tcsetpgrp(int,int)", System_tcsetpgrp },
 
     { "", 0 }  // sentinel
 };

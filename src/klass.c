@@ -705,11 +705,11 @@ sCLClass* load_class(char* class_name)
     return load_class_from_class_file(class_name, class_file_name);
 }
 
-sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_class_num, int generics_number, sCLClass** type_of_generics_params, BOOL interface, BOOL dynamic)
+sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_class_num, int generics_number, sCLClass** type_of_generics_params, BOOL interface, BOOL dynamic_class)
 {
     sCLClass* klass = MCALLOC(1, sizeof(sCLClass));
 
-    klass->mFlags |= (primitive_ ? CLASS_FLAGS_PRIMITIVE:0) | (interface ? CLASS_FLAGS_INTERFACE:0) | (dynamic ? CLASS_FLAGS_DYNAMIC:0);
+    klass->mFlags |= (primitive_ ? CLASS_FLAGS_PRIMITIVE:0) | (interface ? CLASS_FLAGS_INTERFACE:0) | (dynamic_class ? CLASS_FLAGS_DYNAMIC_CLASS:0);
     klass->mGenericsParamClassNum = generics_param_class_num;
 
     klass->mNumGenerics = generics_number;
@@ -903,6 +903,7 @@ static void load_fundamental_classes_on_compile_time()
     load_class("ListItem");
     load_class("List");
     load_class("SortableList");
+    load_class("EqualableList");
 
     load_class("Tuple1");
     load_class("Tuple2");

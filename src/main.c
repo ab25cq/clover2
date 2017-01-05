@@ -1,4 +1,5 @@
 #include "common.h"
+#include <signal.h>
 
 static void clover2_init()
 {
@@ -113,12 +114,25 @@ static BOOL eval_file(char* fname, int stack_size)
     return TRUE;
 }
 
+static void set_signal()
+{
+    struct sigaction sa;
+    sigset_t signal_set;
+
+    sigemptyset(&signal_set);
+    sigaddset(&signal_set, SIGTTOU);
+
+    sigprocmask(SIG_BLOCK, &signal_set, NULL);
+}
+
 int main(int argc, char** argv)
 {
     int i;
 
     CHECKML_BEGIN;
     setlocale(LC_ALL, "");
+
+    set_signal();
 
     for(i=1; i<argc; i++) {
         clover2_init();

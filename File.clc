@@ -1,4 +1,4 @@
-include "String.clc"
+include "List.clc"
 
 class System
 {
@@ -247,7 +247,7 @@ class stat
         result:String = "";
 
         p"/etc/passwd".read().toString().split(/\n/).each(closure(line:String) {
-            fields:List<String> = line.chomp().split(/:/);
+            fields:EqualableList<String> = line.chomp().split(/:/);
             
             if(fields.items(2).to_int() == self.st_uid) {
                 result = fields.items(0);
@@ -261,7 +261,7 @@ class stat
         result:String = "";
 
         p"/etc/group".read().toString().split(/\n/).each(closure(line:String) {
-            fields:List<String> = line.chomp().split(/:/);
+            fields:EqualableList<String> = line.chomp().split(/:/);
             
             if(fields.items(2).to_int() == self.st_gid) {
                 result = fields.items(0);

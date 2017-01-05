@@ -1,2 +1,2 @@
 
-Command.ls("-al").less("-q");
+Command.ls("-al").grep("clcl").less();

@@ -106,6 +106,89 @@ void create_method_name_and_params(char* result, int size_result, sCLClass* klas
     xstrncat(result, ")", size_result);
 }
 
+void set_method_index_to_class(sCLClass* klass)
+{
+    klass->mClassInitializeMethodIndex = -1;
+
+    int i;
+    for(i=klass->mNumMethods-1; i>=0; i--) {
+        sCLMethod* method = klass->mMethods + i;
+
+        if((method->mFlags & METHOD_FLAGS_CLASS_METHOD) 
+            && strcmp(CONS_str(&klass->mConst, method->mNameOffset), "initialize") == 0
+            && method->mNumParams == 0)
+        {
+            klass->mClassInitializeMethodIndex = i;
+        }
+    }
+
+    klass->mClassFinalizeMethodIndex = -1;
+
+    for(i=klass->mNumMethods-1; i>=0; i--) {
+        sCLMethod* method = klass->mMethods + i;
+
+        if((method->mFlags & METHOD_FLAGS_CLASS_METHOD) 
+            && strcmp(CONS_str(&klass->mConst, method->mNameOffset), "finalize") == 0
+            && method->mNumParams == 0)
+        {
+            klass->mClassFinalizeMethodIndex = i;
+        }
+    }
+
+    klass->mFinalizeMethodIndex = -1;
+
+    for(i=klass->mNumMethods-1; i>=0; i--) {
+        sCLMethod* method = klass->mMethods + i;
+
+        if(!(method->mFlags & METHOD_FLAGS_CLASS_METHOD) 
+            && strcmp(CONS_str(&klass->mConst, method->mNameOffset), "finalize") == 0
+            && method->mNumParams == 0)
+        {
+            klass->mFinalizeMethodIndex = i;
+        }
+    }
+
+    klass->mCallingClassMethodIndex = -1;
+
+    for(i=klass->mNumMethods-1; i>=0; i--) {
+        sCLMethod* method = klass->mMethods + i;
+
+        if((method->mFlags & METHOD_FLAGS_CLASS_METHOD) 
+            && strcmp(CONS_str(&klass->mConst, method->mNameOffset), "callingMethod") == 0
+            && method->mNumParams == 2)
+        {
+            /// check params ///
+            sNodeType* param1 = create_node_type_from_cl_type(method->mParams[0].mType, klass);
+            sNodeType* param2 = create_node_type_from_cl_type(method->mParams[1].mType, klass);
+
+            if(type_identify_with_class_name(param1, "String") && type_identify_with_class_name(param2, "Array"))
+            {
+                klass->mCallingClassMethodIndex = i;
+            }
+        }
+    }
+
+    klass->mCallingMethodIndex = -1;
+
+    for(i=klass->mNumMethods-1; i>=0; i--) {
+        sCLMethod* method = klass->mMethods + i;
+
+        if(!(method->mFlags & METHOD_FLAGS_CLASS_METHOD) 
+            && strcmp(CONS_str(&klass->mConst, method->mNameOffset), "callingMethod") == 0
+            && method->mNumParams == 2)
+        {
+            /// check params ///
+            sNodeType* param1 = create_node_type_from_cl_type(method->mParams[0].mType, klass);
+            sNodeType* param2 = create_node_type_from_cl_type(method->mParams[1].mType, klass);
+
+            if(type_identify_with_class_name(param1, "String") && type_identify_with_class_name(param2, "Array"))
+            {
+                klass->mCallingMethodIndex = i;
+            }
+        }
+    }
+}
+
 BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_)
 {
     if(klass->mNumMethods == klass->mSizeMethods) {
@@ -152,6 +235,8 @@ BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* param
     if(klass->mNumMethods >= METHOD_NUM_MAX) {
         return FALSE;
     }
+
+    set_method_index_to_class(klass);
     
     return TRUE;
 }
@@ -591,93 +676,6 @@ BOOL write_class_to_class_file(sCLClass* klass)
     return TRUE;
 }
 
-void set_method_index_to_class(sCLClass* klass)
-{
-    klass->mClassInitializeMethodIndex = -1;
-
-    int i;
-    for(i=klass->mNumMethods-1; i>=0; i--) {
-        sCLMethod* method = klass->mMethods + i;
-
-        if((method->mFlags & METHOD_FLAGS_CLASS_METHOD) 
-            && strcmp(CONS_str(&klass->mConst, method->mNameOffset), "initialize") == 0
-            && method->mNumParams == 0)
-        {
-            klass->mClassInitializeMethodIndex = i;
-        }
-    }
-
-    klass->mClassFinalizeMethodIndex = -1;
-
-    for(i=klass->mNumMethods-1; i>=0; i--) {
-        sCLMethod* method = klass->mMethods + i;
-
-        if((method->mFlags & METHOD_FLAGS_CLASS_METHOD) 
-            && strcmp(CONS_str(&klass->mConst, method->mNameOffset), "finalize") == 0
-            && method->mNumParams == 0)
-        {
-            klass->mClassFinalizeMethodIndex = i;
-        }
-    }
-
-    klass->mFinalizeMethodIndex = -1;
-
-    for(i=klass->mNumMethods-1; i>=0; i--) {
-        sCLMethod* method = klass->mMethods + i;
-
-        if(!(method->mFlags & METHOD_FLAGS_CLASS_METHOD) 
-            && strcmp(CONS_str(&klass->mConst, method->mNameOffset), "finalize") == 0
-            && method->mNumParams == 0)
-        {
-            klass->mFinalizeMethodIndex = i;
-        }
-    }
-
-    klass->mCallingClassMethodIndex = -1;
-
-    for(i=klass->mNumMethods-1; i>=0; i--) {
-        sCLMethod* method = klass->mMethods + i;
-
-        if((method->mFlags & METHOD_FLAGS_CLASS_METHOD) 
-            && strcmp(CONS_str(&klass->mConst, method->mNameOffset), "callingMethod") == 0
-            && method->mNumParams == 2)
-        {
-            /// check params ///
-            sNodeType* param1 = create_node_type_from_cl_type(method->mParams[0].mType, klass);
-            sNodeType* param2 = create_node_type_from_cl_type(method->mParams[1].mType, klass);
-
-            sNodeType* result_type = create_node_type_from_cl_type(method->mResultType, klass);
-
-            if(type_identify_with_class_name(result_type, CLASS_NAME(klass)) && type_identify_with_class_name(param1, "String") && type_identify_with_class_name(param2, "Array"))
-            {
-                klass->mCallingClassMethodIndex = i;
-            }
-        }
-    }
-
-    klass->mCallingMethodIndex = -1;
-
-    for(i=klass->mNumMethods-1; i>=0; i--) {
-        sCLMethod* method = klass->mMethods + i;
-
-        if(!(method->mFlags & METHOD_FLAGS_CLASS_METHOD) 
-            && strcmp(CONS_str(&klass->mConst, method->mNameOffset), "callingMethod") == 0
-            && method->mNumParams == 2)
-        {
-            /// check params ///
-            sNodeType* param1 = create_node_type_from_cl_type(method->mParams[0].mType, klass);
-            sNodeType* param2 = create_node_type_from_cl_type(method->mParams[1].mType, klass);
-
-            sNodeType* result_type = create_node_type_from_cl_type(method->mResultType, klass);
-
-            if(type_identify_with_class_name(result_type, CLASS_NAME(klass)) && type_identify_with_class_name(param1, "String") && type_identify_with_class_name(param2, "Array"))
-            {
-                klass->mCallingMethodIndex = i;
-            }
-        }
-    }
-}
-
 BOOL write_all_modified_classes()
 {
     sClassTable* p = gHeadClassTable;
@@ -686,7 +684,6 @@ BOOL write_all_modified_classes()
         sCLClass* klass = p->mItem;
 
         if(klass->mFlags & CLASS_FLAGS_MODIFIED) {
-            set_method_index_to_class(klass);
             if(!write_class_to_class_file(klass)) {
                 fprintf(stderr, "Clover failed to write class file(%s)\n", CLASS_NAME(klass));
                 return FALSE;

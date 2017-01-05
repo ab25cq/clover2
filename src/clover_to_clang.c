@@ -176,3 +176,27 @@ int get_size_from_buffer_object(CLObject buffer)
 
     return obj_data->mFields[2].mIntValue;
 }
+
+ALLOC CLObject* list_to_array(CLObject list, int* num_elements)
+{
+    sCLObject* object_data = CLOBJECT(list);
+
+    *num_elements = object_data->mFields[2].mIntValue;          // number
+
+    CLObject* result = MCALLOC(1, sizeof(CLObject)*(*num_elements));
+
+    int n = 0;
+    CLObject it = object_data->mFields[0].mObjectValue;         // head
+
+    while(it) {
+        sCLObject* object_data = CLOBJECT(it);
+
+        result[n] = object_data->mFields[0].mObjectValue;   // item
+        n++;
+
+        it = object_data->mFields[1].mObjectValue;          // next
+    }
+
+    return result;
+}
+

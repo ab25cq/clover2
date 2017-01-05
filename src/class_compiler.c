@@ -135,7 +135,7 @@ static BOOL parse_class_name_and_attributes(char* class_name, int class_name_siz
     return TRUE;
 }
 
-static BOOL parse_class_on_alloc_classes_phase(sParserInfo* info, sCompileInfo* cinfo, BOOL interface, BOOL dynamic)
+static BOOL parse_class_on_alloc_classes_phase(sParserInfo* info, sCompileInfo* cinfo, BOOL interface, BOOL dynamic_class)
 {
     char class_name[VAR_NAME_MAX];
 
@@ -147,7 +147,7 @@ static BOOL parse_class_on_alloc_classes_phase(sParserInfo* info, sCompileInfo* 
     info->klass = get_class(class_name);
 
     if(info->klass == NULL) {
-        info->klass = alloc_class(class_name, FALSE, -1, info->generics_info.mNumParams, info->generics_info.mInterface, interface, dynamic);
+        info->klass = alloc_class(class_name, FALSE, -1, info->generics_info.mNumParams, info->generics_info.mInterface, interface, dynamic_class);
         info->klass->mFlags |= CLASS_FLAGS_ALLOCATED;
     }
 
@@ -378,14 +378,14 @@ static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOO
 
     /// function ///
     else if(strcmp(buf, "def") == 0) {
-        char method_name[VAR_NAME_MAX];
+        char method_name[METHOD_NAME_MAX];
         sParserParam params[PARAMS_MAX];
         int num_params = 0;
         sNodeType* result_type = NULL;
         BOOL native_ = FALSE;
         BOOL static_ = FALSE;
 
-        if(!parse_method_name_and_params(method_name, VAR_NAME_MAX, params, &num_params, &result_type, &native_, &static_, info, cinfo)) 
+        if(!parse_method_name_and_params(method_name, METHOD_NAME_MAX, params, &num_params, &result_type, &native_, &static_, info, cinfo)) 
         {
             return FALSE;
         }
@@ -570,14 +570,14 @@ BOOL parse_methods_and_fields_on_compile_time(sParserInfo* info, sCompileInfo* c
 
     /// function ///
     else if(strcmp(buf, "def") == 0) {
-        char method_name[VAR_NAME_MAX];
+        char method_name[METHOD_NAME_MAX];
         sParserParam params[PARAMS_MAX];
         int num_params = 0;
         sNodeType* result_type = NULL;
         BOOL native_ = FALSE;
         BOOL static_ = FALSE;
 
-        if(!parse_method_name_and_params(method_name, VAR_NAME_MAX, params, &num_params, &result_type, &native_, &static_, info, cinfo)) 
+        if(!parse_method_name_and_params(method_name, METHOD_NAME_MAX, params, &num_params, &result_type, &native_, &static_, info, cinfo)) 
         {
             return FALSE;
         }
@@ -701,11 +701,11 @@ static BOOL parse_class_on_compile_code(sParserInfo* info, sCompileInfo* cinfo, 
     return TRUE;
 }
 
-static BOOL parse_class(sParserInfo* info, sCompileInfo* cinfo, BOOL interface, BOOL dynamic)
+static BOOL parse_class(sParserInfo* info, sCompileInfo* cinfo, BOOL interface, BOOL dynamic_class)
 {
     switch(info->parse_phase) {
         case PARSE_PHASE_ALLOC_CLASSES:
-            if(!parse_class_on_alloc_classes_phase(info, cinfo, interface, dynamic)) {
+            if(!parse_class_on_alloc_classes_phase(info, cinfo, interface, dynamic_class)) {
                 return FALSE;
             }
             break;
@@ -917,13 +917,13 @@ static BOOL parse_class_source(sParserInfo* info, sCompileInfo* cinfo)
                 return FALSE;
             }
         }
-        else if(strcmp(buf, "interface") == 0) {
-            if(!parse_class(info, cinfo, TRUE, FALSE)) {
+        else if(strcmp(buf, "dynamic_class") == 0) {
+            if(!parse_class(info, cinfo, FALSE, TRUE)) {
                 return FALSE;
             }
         }
-        else if(strcmp(buf, "dynamic_class") == 0) {
-            if(!parse_class(info, cinfo, FALSE, TRUE)) {
+        else if(strcmp(buf, "interface") == 0) {
+            if(!parse_class(info, cinfo, TRUE, FALSE)) {
                 return FALSE;
             }
         }

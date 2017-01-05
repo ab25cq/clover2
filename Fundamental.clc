@@ -27,8 +27,8 @@ class System
 
     def sprintf(format:String, prams:Array<Object>): native static String throws Exception;
 
-    def mbstowcs(dest:pointer@of_wchar[], src:pointer@utf8-string-memory, size:size_t): static native int throws Exception;
-    def wcstombs(dest:pointer@of_byte[], src:char[]): static native int throws Exception;
+    def mbstowcs(dest:pointer@wchar[], src:pointer@utf8-string-memory, size:size_t): static native int throws Exception;
+    def wcstombs(dest:pointer@byte[], src:char[]): static native int throws Exception;
 
     def srand(value:uint): static native;
     def rand(): static native int;
@@ -110,6 +110,19 @@ class Buffer
         }
 
         System.memcpy(self.buffer + self.len, buf.buffer, len);
+        self.len += len;
+    }
+
+    def append(data:byte) {
+        len: size_t = 1.to_ulong;
+
+        if(self.len + len >= self.size) {
+            new_size:size_t = (self.len+len+1) * 2;
+            self.buffer = System.realloc(self.buffer, new_size);
+            self.size = new_size;
+        }
+
+        (self.buffer + self.len)->byte = data;
         self.len += len;
     }
 
@@ -387,7 +400,7 @@ module MPrintf
 
 module MInclude
 {
-    def include(list:List<SELF>):bool {
+    def include(list:EqualableList<SELF>):bool {
         return list.indexOf(self) != -1;
     }
 }
@@ -1011,6 +1024,16 @@ class Array<T:Object>
 
         return result;
     }
+
+    def toList(): List<Object> {
+        result:List<Object> = new List<Object>();
+
+        for(i:int = 0; i<self.items.length; i++) {
+            result.add(self.items[i]);
+        }
+
+        return result;
+    }
 }
 
 class EqualableArray <T:IEqualable>
@@ -1336,19 +1359,6 @@ module MListImplementation
         }
     }
 
-    def equals(right:SELF<T>):bool {
-        if(self.number != right.number) {
-            return false;
-        }
-        for(i:=0; i<self.number; i++) {
-            if(!self.items(i).equals(right.items(i))) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
     def setValue(list:SELF<T>) {
         self.head = list.head;
         self.tail = list.tail;
@@ -1509,54 +1519,6 @@ module MListImplementation
         return self;
     }
 
-    def delete(item:T):SELF<T> {
-        it:ListItem<T> = self.head;
-        it2:ListItem<T> = self.head;
-
-        while(!it.identifyWith(null)) {
-            if(it.item.equals(item)) {
-                # one item is contained in list
-                if(it.identifyWith(self.head) && it.identifyWith(self.tail)) {
-                    self.head = null;
-                    self.tail = null;
-                    self.number = 0;
-                }
-                # two item is contained in list
-                elif(it2.identifyWith(self.head) && it.identifyWith(self.tail)) {
-                    self.head = it2;
-                    self.tail = it2;
-                    it2.prev = null;
-                    it2.next = null;
-                    self.number = 1;
-                }
-                # other
-                else {
-                    if(it.identifyWith(self.head)) {
-                        self.head = self.head.next;
-                        self.head.prev = null;
-                        self.number--;
-                    }
-                    elif(it.identifyWith(self.tail)) {
-                        self.tail = self.tail.prev;
-                        self.tail.next = null;
-                        self.number--;
-                    }
-                    else {
-                        it2.next = it.next;
-                        it.next.prev = it2;
-                        self.number--;
-                    }
-                }
-                break;
-            }
-            
-            it2 = it;
-            it = it.next;
-        }
-
-        return self;
-    }
-
     def deleteAt(index:int):SELF<T> {
         it:ListItem<T> = self.head;
         it2:ListItem<T> = self.head;
@@ -1659,6 +1621,87 @@ module MListImplementation
         return self;
     }
 
+}
+
+module MEqualableListImplementation
+{
+    def equals(right:SELF<T>):bool {
+        if(self.number != right.number) {
+            return false;
+        }
+        for(i:=0; i<self.number; i++) {
+            if(!self.items(i).equals(right.items(i))) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    def delete(item:T):SELF<T> {
+        it:ListItem<T> = self.head;
+        it2:ListItem<T> = self.head;
+
+        while(!it.identifyWith(null)) {
+            if(it.item.equals(item)) {
+                # one item is contained in list
+                if(it.identifyWith(self.head) && it.identifyWith(self.tail)) {
+                    self.head = null;
+                    self.tail = null;
+                    self.number = 0;
+                }
+                # two item is contained in list
+                elif(it2.identifyWith(self.head) && it.identifyWith(self.tail)) {
+                    self.head = it2;
+                    self.tail = it2;
+                    it2.prev = null;
+                    it2.next = null;
+                    self.number = 1;
+                }
+                # other
+                else {
+                    if(it.identifyWith(self.head)) {
+                        self.head = self.head.next;
+                        self.head.prev = null;
+                        self.number--;
+                    }
+                    elif(it.identifyWith(self.tail)) {
+                        self.tail = self.tail.prev;
+                        self.tail.next = null;
+                        self.number--;
+                    }
+                    else {
+                        it2.next = it.next;
+                        it.next.prev = it2;
+                        self.number--;
+                    }
+                }
+                break;
+            }
+            
+            it2 = it;
+            it = it.next;
+        }
+
+        return self;
+    }
+
+    def indexOf(item:T):int {
+        result:int = 0;
+
+        it:ListItem<T> = self.head;
+        while(!it.identifyWith(null)) {
+            if(it.item.equals(item)) {
+                return result;
+            }
+
+            result++;
+
+            it = it.next;
+        }
+
+        return -1;
+    }
     def toString():String {
         if(self.number == 0) {
             return "list {}";
@@ -1679,27 +1722,17 @@ module MListImplementation
 
         return result;
     }
-    def indexOf(item:T):int {
-        result:int = 0;
-
-        it:ListItem<T> = self.head;
-        while(!it.identifyWith(null)) {
-            if(it.item.equals(item)) {
-                return result;
-            }
-
-            result++;
-
-            it = it.next;
-        }
-
-        return -1;
-    }
 }
 
-class List<T:IEqualable>
+class List<T:Object>
 {
     include MListImplementation;
+}
+
+class EqualableList<T:IEqualable>
+{
+    include MListImplementation;
+    include MEqualableListImplementation;
 }
 
 class Tuple1 <T:IEqualable>

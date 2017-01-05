@@ -1,4 +1,4 @@
-include "Fundamental.clc"
+include "String.clc"
 
 module MExtendedListImplementation
 {
@@ -33,22 +33,6 @@ module MExtendedListImplementation
 
         for(i:int = 0; i<n; i++) {
             result.append(self);
-        }
-
-        return result;
-    }
-
-    def count(item:T):int {
-        result:int = 0;
-
-        it := self.head;
-
-        while(!it.identifyWith(null)) {
-            if(it.item.equals(item)) {
-                result++;
-            }
-
-            it = it.next;
         }
 
         return result;
@@ -187,41 +171,6 @@ module MExtendedListImplementation
         return self.fill(0,-1,item);
     }
 
-    def indexOf(item:T):int {
-        result:int = 0;
-        it := self.head;
-
-        while(!it.identifyWith(null)) {
-            if(it.item.equals(item)) {
-                return result;
-            }
-            result++;
-            it = it.next;
-        }
-
-        return -1;
-    }
-
-    def join(separator:String):String {
-        result:String = new String("");
-        it := self.head;
-
-        while(!it.identifyWith(null)) {
-            result.append(it.item.toString());
-            it = it.next;
-
-            if(!it.identifyWith(null)) {
-                result.append(separator);
-            }
-        }
-
-        return result;
-    }
-
-    def join():String {
-        return self.join("");
-    }
-
     def reverse():SELF<T> {
         result:SELF<T> = new SELF<T>();
 
@@ -253,9 +202,106 @@ module MExtendedListImplementation
     }
 }
 
-class List<T:IEqualable>
+module MExtendedEqualableListImplementation
+{
+    def join(separator:String):String {
+        result:String = new String("");
+        it := self.head;
+
+        while(!it.identifyWith(null)) {
+            result.append(it.item.toString());
+            it = it.next;
+
+            if(!it.identifyWith(null)) {
+                result.append(separator);
+            }
+        }
+
+        return result;
+    }
+
+    def join():String {
+        return self.join("");
+    }
+
+    def count(item:T):int {
+        result:int = 0;
+
+        it := self.head;
+
+        while(!it.identifyWith(null)) {
+            if(it.item.equals(item)) {
+                result++;
+            }
+
+            it = it.next;
+        }
+
+        return result;
+    }
+
+    def indexOf(item:T):int {
+        result:int = 0;
+        it := self.head;
+
+        while(!it.identifyWith(null)) {
+            if(it.item.equals(item)) {
+                return result;
+            }
+            result++;
+            it = it.next;
+        }
+
+        return -1;
+    }
+}
+
+class List <T:Object>
 {
     include MExtendedListImplementation;
+
+/*
+    def toArray(): Array<T> {
+        result:Array<T> = new Array<T>();
+
+        it := result.head;
+
+        while(!it.identifyWith(null)) {
+            item := it.item;
+
+            result.add(item);
+
+            it = it.next;
+        }
+
+        return result;
+
+    }
+*/
+
+    def toSortableList():SortableList<ISortable> throws Exception {
+        result:SortableList<ISortable>  = new SortableList<ISortable>();
+
+        it := result.head;
+
+        while(!it.identifyWith(null)) {
+            item := it.item;
+
+            if(item implements ISortable) {
+                result.add(item);
+            }
+
+            it = it.next;
+        }
+
+        return result;
+    }
+}
+
+class EqualableList<T:IEqualable>
+{
+    include MExtendedListImplementation;
+    include MExtendedEqualableListImplementation;
 
     def toSortableList():SortableList<ISortable> throws Exception {
         result:SortableList<ISortable>  = new SortableList<ISortable>();
@@ -287,6 +333,8 @@ class SortableList<T:ISortable>
 {
     include MListImplementation;
     include MExtendedListImplementation;
+    include MEqualableListImplementation;
+    include MExtendedEqualableListImplementation;
 
     def quickSort(list:SortableList<T>, left:int, right:int) {
         l_hold:int = left;

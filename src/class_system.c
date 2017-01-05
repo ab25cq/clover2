@@ -3,6 +3,7 @@
 #include <errno.h>
 #include <time.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <libgen.h>
@@ -688,10 +689,10 @@ BOOL System_wcstombs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     MASSERT(klass != NULL);
 
-    CLObject object = create_array_object(klass, size);
+    CLObject object = create_array_object(klass, num);
     sCLObject* object_data2 = CLOBJECT(object);
 
-    for(i=0; i<size; i++) {
+    for(i=0; i<num; i++) {
         object_data2->mFields[i].mByteValue = mbs[i];
     }
 
@@ -1356,4 +1357,331 @@ BOOL System_closedir(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     return TRUE;
 }
 
+BOOL System_initialize_command_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    sCLClass* system = get_class("System");
 
+    system->mClassFields[48].mValue.mIntValue = WNOHANG;
+    system->mClassFields[49].mValue.mIntValue = WUNTRACED;
+    system->mClassFields[50].mValue.mIntValue = WCONTINUED;
+
+    return TRUE;
+}
+
+BOOL System_pipe(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* read_fd = lvar;
+    CLVALUE* write_fd = lvar+1;
+
+    /// Clover to c value ///
+    int* read_fd_value = (int*)read_fd->mPointerValue;
+    int* write_fd_value = (int*)write_fd->mPointerValue;
+
+    /// go ///
+    int pipefd[2];
+    int result = pipe(pipefd);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "pipe(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    *read_fd_value = pipefd[0];
+    *write_fd_value = pipefd[1];
+
+    return TRUE;
+}
+
+BOOL System_fork(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* block_ = lvar;
+
+    /// Clover to c value ///
+    CLObject block_value = block_->mObjectValue;
+
+    /// go ///
+    pid_t result = fork();
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "fork(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    /// child process
+    if(result == 0) {
+        vm_mutex_on();
+        new_vm_mutex();         // avoid to dead lock
+        vm_mutex_off();
+
+        int num_params = 0;
+
+        if(!invoke_block(block_value, info->current_stack, info->current_var_num, num_params, stack_ptr, info)) {
+            return FALSE;
+        }
+
+        exit(0);
+    }
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_dup2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* fd1 = lvar;
+    CLVALUE* fd2 = lvar+1;
+
+    /// Clover to c value ///
+    int fd1_value = fd1->mIntValue;
+    int fd2_value = fd2->mIntValue;
+
+    /// go ///
+    int result = dup2(fd1_value, fd2_value);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "dup2(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_execvp(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* method_name = lvar;
+    CLVALUE* params = lvar+1;
+
+    /// Clover to c value ///
+    char* method_name_value = ALLOC string_object_to_char_array(method_name->mObjectValue);
+    int num_elements = 0;
+    CLObject* params_objects = ALLOC list_to_array(params->mObjectValue, &num_elements);
+    char** params_value = ALLOC MCALLOC(1, sizeof(char*)*(num_elements+2));
+    int i;
+    params_value[0] = method_name_value;
+    for(i=0; i<num_elements; i++) {
+        CLObject string_object = params_objects[i];
+        params_value[i+1] = ALLOC string_object_to_char_array(string_object);
+    }
+    params_value[i+1] = NULL;
+    MFREE(params_objects);
+
+    /// go ///
+    int result = execvp(method_name_value, params_value);
+
+    if(result < 0) {
+        MFREE(method_name_value);
+        int i;
+        for(i=0; i<num_elements; i++) {
+            MFREE(params_value[i]);
+        }
+        MFREE(params_value);
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "execvp(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    MFREE(method_name_value);
+    for(i=0; i<num_elements; i++) {
+        MFREE(params_value[i]);
+    }
+    MFREE(params_value);
+
+    return TRUE;
+}
+
+BOOL System_waitpid(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* pid = lvar;
+    CLVALUE* status = lvar + 1;
+    CLVALUE* option = lvar + 2;
+
+    /// Clover to C value ///
+    pid_t pid_value = pid->mIntValue;
+    int* status_value = (int*)status->mPointerValue;
+    int option_value = option->mIntValue;
+
+    pid_t result = waitpid(pid_value, status_value, option_value);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "waitpid(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_WIFEXITED(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* status = lvar;
+
+    /// Clover to C value ///
+    int status_value = status->mIntValue;
+
+    BOOL result = WIFEXITED(status_value);
+
+    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_WEXITSTATUS(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* status = lvar;
+
+    /// Clover to C value ///
+    int status_value = status->mIntValue;
+
+    int result = WEXITSTATUS(status_value);
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_WIFSIGNALED(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* status = lvar;
+
+    /// Clover to C value ///
+    int status_value = status->mIntValue;
+
+    BOOL result = WIFSIGNALED(status_value);
+
+    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_WTERMSIG(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* status = lvar;
+
+    /// Clover to C value ///
+    int status_value = status->mIntValue;
+
+    int result = WTERMSIG(status_value);
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_WCOREDUMP(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* status = lvar;
+
+    /// Clover to C value ///
+    int status_value = status->mIntValue;
+
+    int result = WCOREDUMP(status_value);
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_WIFSTOPPED(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* status = lvar;
+
+    /// Clover to C value ///
+    int status_value = status->mIntValue;
+
+    BOOL result = WIFSTOPPED(status_value);
+
+    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_WSTOPSIG(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* status = lvar;
+
+    /// Clover to C value ///
+    int status_value = status->mIntValue;
+
+    int result = WSTOPSIG(status_value);
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_WIFCONTINUED(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* status = lvar;
+
+    /// Clover to C value ///
+    int status_value = status->mIntValue;
+
+    BOOL result = WIFCONTINUED(status_value);
+
+    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_getpid(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    /// Clover to C value ///
+    pid_t result = getpid();
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_setpgid(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* pid = lvar;
+    CLVALUE* pgid = lvar + 1;
+
+    /// Clover to C value ///
+    pid_t pid_value = pid->mIntValue;
+    pid_t pgid_value = pgid->mIntValue;
+
+    int result = setpgid(pid_value, pgid_value);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "setpgid(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_tcsetpgrp(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* fd = lvar;
+    CLVALUE* pid = lvar + 1;
+
+    /// Clover to C value ///
+    int fd_value = fd->mIntValue;
+    pid_t pid_value = pid->mIntValue;
+
+    int result = tcsetpgrp(fd_value, pid_value);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "tcsetpgrp(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}

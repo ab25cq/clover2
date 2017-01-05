@@ -28,8 +28,8 @@
 #include "xfunc.h"
 
 /// limits ///
-#define CLASS_NAME_MAX 32
-#define VAR_NAME_MAX 32
+#define CLASS_NAME_MAX 64
+#define VAR_NAME_MAX 64
 #define METHOD_NAME_MAX VAR_NAME_MAX
 #define ELIF_NUM_MAX 32
 #define BREAK_NUM_MAX 32
@@ -117,7 +117,7 @@ void append_str_to_constant_pool_and_code(sConst* constant, sByteCode* code, cha
 #define CLASS_FLAGS_INTERFACE 0x02
 #define CLASS_FLAGS_MODIFIED 0x04
 #define CLASS_FLAGS_ALLOCATED 0x08
-#define CLASS_FLAGS_DYNAMIC 0x10
+#define CLASS_FLAGS_DYNAMIC_CLASS 0x10
 
 struct sCLTypeStruct;
 
@@ -157,6 +157,8 @@ typedef struct sCLParamStruct sCLParam;
 
 struct sVMInfoStruct {
     char exception_message[EXCEPTION_MESSAGE_MAX];
+    CLVALUE* current_stack;
+    int current_var_num;
 };
 
 typedef struct sVMInfoStruct sVMInfo;
@@ -254,7 +256,7 @@ void class_final();
 
 sCLClass* get_class(char* name);
 unsigned int get_hash_key(char* name, unsigned int max);
-sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_class_num, int generics_number, sCLClass** type_of_generics_params, BOOL interface, BOOL dynamic);
+sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_class_num, int generics_number, sCLClass** type_of_generics_params, BOOL interface, BOOL dynamic_class);
 ALLOC sCLType* create_cl_type(sCLClass* klass, sCLClass* klass2);
 void free_cl_type(sCLType* cl_type);
 sCLClass* load_class(char* class_name);
@@ -440,7 +442,7 @@ BOOL parse_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* ne
 BOOL compile_block(sNodeBlock* block, struct sCompileInfoStruct* info);
 
 /// node.c ///
-enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeUByteValue, kNodeTypeShortValue, kNodeTypeUShortValue, kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand, kNodeTypeIncrementWithValueOperand, kNodeTypeDecrementWithValueOperand, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand, kNodeTypeLoadArrayElement, kNodeTypeStoreArrayElement, kNodeTypeChar, kNodeTypeString, kNodeTypeBuffer, kNodeTypeThrow, kNodeTypeTry, kNodeTypeBlockObject, kNodeTypeBlockCall, kNodeTypeConditional, kNodeTypeNormalBlock, kNodeTypeArrayValue, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeHashValue, kNodeTypeRegex, kNodeTypeListValue, kNodeTypeSortableListValue,kNodeTypeTupleValue, kNodeTypeCArrayValue, kNodeTypeImplements, kNodeTypeGetAddress, kNodeTypeInheritCall, kNodeTypeFloatValue, kNodeTypeDoubleValue, kNodeTypePath };
+enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeUByteValue, kNodeTypeShortValue, kNodeTypeUShortValue, kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand, kNodeTypeIncrementWithValueOperand, kNodeTypeDecrementWithValueOperand, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand, kNodeTypeLoadArrayElement, kNodeTypeStoreArrayElement, kNodeTypeChar, kNodeTypeString, kNodeTypeBuffer, kNodeTypeThrow, kNodeTypeTry, kNodeTypeBlockObject, kNodeTypeBlockCall, kNodeTypeConditional, kNodeTypeNormalBlock, kNodeTypeArrayValue, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeHashValue, kNodeTypeRegex, kNodeTypeListValue, kNodeTypeSortableListValue, kNodeTypeEqualableListValue, kNodeTypeTupleValue, kNodeTypeCArrayValue, kNodeTypeImplements, kNodeTypeGetAddress, kNodeTypeInheritCall, kNodeTypeFloatValue, kNodeTypeDoubleValue, kNodeTypePath };
 
 enum eOperand { kOpAdd, kOpSub , kOpComplement, kOpLogicalDenial, kOpMult, kOpDiv, kOpMod, kOpLeftShift, kOpRightShift, kOpComparisonEqual, kOpComparisonNotEqual,kOpComparisonGreaterEqual, kOpComparisonLesserEqual, kOpComparisonGreater, kOpComparisonLesser, kOpAnd, kOpXor, kOpOr };
 
@@ -666,6 +668,7 @@ unsigned int sNodeTree_conditional_expression(unsigned int expression_node, unsi
 unsigned int sNodeTree_create_normal_block(MANAGED sNodeBlock* node_block);
 unsigned int sNodeTree_create_array_value(int num_elements, unsigned int array_elements[]);
 unsigned int sNodeTree_create_list_value(int num_elements, unsigned int list_elements[]);
+unsigned int sNodeTree_create_equalable_list_value(int num_elements, unsigned int list_elements[]);
 unsigned int sNodeTree_create_sortable_list_value(int num_elements, unsigned int list_elements[]);
 unsigned int sNodeTree_create_tuple_value(int num_elements, unsigned int tuple_elements[]);
 unsigned int sNodeTree_create_or_or(unsigned int left_node, unsigned int right_node);
@@ -1502,18 +1505,21 @@ void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
 #define OP_CREATE_CARRAY 9004
 #define OP_CREATE_LIST 9005
 #define OP_CREATE_SORTALBE_LIST 9006
-#define OP_CREATE_TUPLE 9007
-#define OP_CREATE_HASH 9008
-#define OP_CREATE_BLOCK_OBJECT 9009
-#define OP_CREATE_REGEX 9010
+#define OP_CREATE_EQUALABLE_LIST 9007
+#define OP_CREATE_TUPLE 9008
+#define OP_CREATE_HASH 9009
+#define OP_CREATE_BLOCK_OBJECT 9010
+#define OP_CREATE_REGEX 9011
 
 BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sVMInfo* info);
 void vm_mutex_on();
 void vm_mutex_off();
+void new_vm_mutex();
 sCLClass* get_class_with_load_and_initialize(char* class_name);
 void class_final_on_runtime();
 BOOL call_finalize_method_on_free_object(sCLClass* klass, CLObject self);
 BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info);
+BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_params, CLVALUE** stack_ptr, sVMInfo* info);
 BOOL class_init_on_runtime();
 
 /// class_compiler.c ///
@@ -1790,6 +1796,23 @@ BOOL System_realpath(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_opendir(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_readdir(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_closedir(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_initialize_command_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_pipe(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_fork(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_dup2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_execvp(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_waitpid(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_WIFEXITED(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_WEXITSTATUS(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_WIFSIGNALED(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_WTERMSIG(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_WCOREDUMP(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_WIFSTOPPED(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_WSTOPSIG(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_WIFCONTINUED(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_getpid(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_setpgid(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_tcsetpgrp(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 /// alignment.c ///
 void alignment(unsigned int* size);
@@ -1816,12 +1839,15 @@ char* get_value_from_Pointer(CLObject object);
 sCLClass* get_class_from_object(CLObject object);
 void* get_pointer_from_buffer_object(CLObject buffer);
 int get_size_from_buffer_object(CLObject buffer);
+ALLOC CLObject* list_to_array(CLObject list, int* num_elements);
 
 /// list.c ///
 CLObject create_list_object();
 BOOL initialize_list_object(CLObject list_object, int num_elements, CLObject* items, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sCLClass* class_items);
 CLObject create_sortable_list_object();
 BOOL initialize_sortable_list_object(CLObject list_object, int num_elements, CLObject* items, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sCLClass* class_items);
+CLObject create_equalable_list_object();
+BOOL initialize_equalable_list_object(CLObject list_object, int num_elements, CLObject* items, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sCLClass* class_items);
 
 /// tuple.c ///
 CLObject create_tuple_object(int num_elements);
