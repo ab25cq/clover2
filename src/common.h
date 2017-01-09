@@ -1813,6 +1813,9 @@ BOOL System_WIFCONTINUED(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_getpid(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_setpgid(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_tcsetpgrp(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_tcgetattr(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_tcsetattr(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_kill(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 /// alignment.c ///
 void alignment(unsigned int* size);

@@ -863,11 +863,11 @@ static void load_fundamental_classes_on_compile_time()
 {
     load_class("PcreOVec");
     load_class("System");
-    load_class("Clover");
     load_class("Global");
 
-    load_class("String");
     load_class("Buffer");
+    load_class("String");
+
 
     load_class("Exception");
 
@@ -918,6 +918,8 @@ static void load_fundamental_classes_on_compile_time()
 
     load_class("File");
     load_class("Path");
+
+    load_class("Clover");
 }
 
 void class_init_on_compile_time()

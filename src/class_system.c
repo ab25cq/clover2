@@ -8,6 +8,7 @@
 #include <fcntl.h>
 #include <libgen.h>
 #include <dirent.h>
+#include <termios.h>
 
 BOOL System_exit(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
@@ -664,15 +665,18 @@ BOOL System_wcstombs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     sCLObject* object_data = CLOBJECT(src_value);
     int len = object_data->mArrayNum;
 
-    wchar_t* wcs = MCALLOC(1, sizeof(wchar_t)*(len+1));
-    size_t size = sizeof(char)*MB_LEN_MAX*(len+1);
+    wchar_t* wcs = MCALLOC(1, sizeof(wchar_t)*(len));
+    size_t size = sizeof(char)*MB_LEN_MAX*(len);
     char* mbs = MCALLOC(1, size);
 
     int i;
     for(i=0; i<len; i++) {
         wcs[i] = object_data->mFields[i].mCharValue;
     }
-    wcs[i] = '\0';
+    BOOL null_teminated = FALSE;
+    if(wcs[len-1] == '\0') {
+        null_teminated = TRUE;
+    }
 
     /// go ///
     int num = wcstombs(mbs, wcs, size);
@@ -689,11 +693,23 @@ BOOL System_wcstombs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     MASSERT(klass != NULL);
 
-    CLObject object = create_array_object(klass, num);
-    sCLObject* object_data2 = CLOBJECT(object);
+    CLObject object;
+    if(null_teminated) {
+        object = create_array_object(klass, num+1);
+        sCLObject* object_data2 = CLOBJECT(object);
 
-    for(i=0; i<num; i++) {
-        object_data2->mFields[i].mByteValue = mbs[i];
+        for(i=0; i<num; i++) {
+            object_data2->mFields[i].mByteValue = mbs[i];
+        }
+        object_data2->mFields[i].mByteValue = '\0';
+    }
+    else {
+        object = create_array_object(klass, num);
+        sCLObject* object_data2 = CLOBJECT(object);
+
+        for(i=0; i<num; i++) {
+            object_data2->mFields[i].mByteValue = mbs[i];
+        }
     }
 
     dest_value->mObjectValue = object;
@@ -1365,6 +1381,30 @@ BOOL System_initialize_command_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInf
     system->mClassFields[49].mValue.mIntValue = WUNTRACED;
     system->mClassFields[50].mValue.mIntValue = WCONTINUED;
 
+    system->mClassFields[51].mValue.mIntValue = SIGHUP;
+    system->mClassFields[52].mValue.mIntValue = SIGINT;
+    system->mClassFields[53].mValue.mIntValue = SIGQUIT;
+    system->mClassFields[54].mValue.mIntValue = SIGILL;
+    system->mClassFields[55].mValue.mIntValue = SIGABRT;
+    system->mClassFields[56].mValue.mIntValue = SIGFPE;
+    system->mClassFields[57].mValue.mIntValue = SIGKILL;
+    system->mClassFields[58].mValue.mIntValue = SIGSEGV;
+    system->mClassFields[59].mValue.mIntValue = SIGPIPE;
+    system->mClassFields[60].mValue.mIntValue = SIGALRM;
+    system->mClassFields[61].mValue.mIntValue = SIGTERM;
+    system->mClassFields[62].mValue.mIntValue = SIGUSR1;
+    system->mClassFields[63].mValue.mIntValue = SIGUSR2;
+    system->mClassFields[64].mValue.mIntValue = SIGCHLD;
+    system->mClassFields[65].mValue.mIntValue = SIGCONT;
+    system->mClassFields[66].mValue.mIntValue = SIGSTOP;
+    system->mClassFields[67].mValue.mIntValue = SIGTSTP;
+    system->mClassFields[68].mValue.mIntValue = SIGTTIN;
+    system->mClassFields[69].mValue.mIntValue = SIGTTOU;
+
+    system->mClassFields[70].mValue.mIntValue = TCSANOW;
+    system->mClassFields[71].mValue.mIntValue = TCSADRAIN;
+    system->mClassFields[72].mValue.mIntValue = TCSAFLUSH;
+
     return TRUE;
 }
 
@@ -1682,6 +1722,102 @@ BOOL System_tcsetpgrp(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     (*stack_ptr)->mIntValue = result;
     (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_tcgetattr(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* fd = lvar;
+    CLVALUE* terminfo = lvar + 1;
+
+    /// Clover to C value ///
+    int fd_value = fd->mIntValue;
+    CLObject terminfo_object = terminfo->mObjectValue;
+
+    /// go ///
+    struct termios terminfo_value;
+    int result = tcgetattr(fd_value, &terminfo_value);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "tcgetattr(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    /// C to Clover object ///
+    sCLObject* object_data = CLOBJECT(terminfo_object);
+    object_data->mFields[0].mIntValue = terminfo_value.c_iflag;
+    object_data->mFields[1].mIntValue = terminfo_value.c_oflag;
+    object_data->mFields[2].mIntValue = terminfo_value.c_cflag;
+    object_data->mFields[3].mIntValue = terminfo_value.c_lflag;
+
+    CLObject array = object_data->mFields[4].mObjectValue;
+
+    sCLObject* object_data2 = CLOBJECT(array);
+
+    int i;
+    for(i=0; i<32; i++) {
+        object_data2->mFields[i].mByteValue = terminfo_value.c_cc[i];
+    }
+
+    return TRUE;
+}
+
+BOOL System_tcsetattr(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* fd = lvar;
+    CLVALUE* optional_actions = lvar + 1;
+    CLVALUE* terminfo = lvar + 2;
+
+    /// Clover to C value ///
+    int fd_value = fd->mIntValue;
+    int optional_actions_value = optional_actions->mIntValue;
+    CLObject terminfo_object = terminfo->mObjectValue;
+    sCLObject* object_data = CLOBJECT(terminfo_object);
+
+    struct termios terminfo_value;
+
+    terminfo_value.c_iflag = object_data->mFields[0].mIntValue;
+    terminfo_value.c_oflag = object_data->mFields[1].mIntValue;
+    terminfo_value.c_cflag = object_data->mFields[2].mIntValue;
+    terminfo_value.c_lflag = object_data->mFields[3].mIntValue;
+
+    CLObject array = object_data->mFields[4].mObjectValue;
+
+    sCLObject* object_data2 = CLOBJECT(array);
+
+    int i;
+    for(i=0; i<32; i++) {
+        terminfo_value.c_cc[i] = object_data2->mFields[i].mByteValue;
+    }
+
+    /// go ///
+    int result = tcsetattr(fd_value, optional_actions_value, &terminfo_value);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "tcsetattr(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_kill(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* pid = lvar;
+    CLVALUE* sig = lvar + 1;
+
+    /// Clover to C value ///
+    int pid_value = pid->mIntValue;
+    int sig_value = sig->mIntValue;
+
+    /// go ///
+    int result = kill(pid_value, sig_value);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "kill(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
 
     return TRUE;
 }

@@ -551,7 +551,6 @@ static BOOL load_fundamental_classes_on_runtime()
 {
     if(!load_class_with_initialize("PcreOVec")) { return FALSE; }
     if(!load_class_with_initialize("System")) { return FALSE; }
-    if(!load_class_with_initialize("Clover")) { return FALSE; }
     if(!load_class_with_initialize("Global")) { return FALSE; }
 
     if(!load_class_with_initialize("String")) { return FALSE; }
@@ -606,6 +605,8 @@ static BOOL load_fundamental_classes_on_runtime()
 
     if(!load_class_with_initialize("File")) { return FALSE; }
     if(!load_class_with_initialize("Path")) { return FALSE; }
+
+    if(!load_class_with_initialize("Clover")) { return FALSE; }
 
     return TRUE;
 }

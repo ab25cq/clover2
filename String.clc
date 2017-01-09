@@ -562,7 +562,7 @@ class String
         System.wcstombs(&array_, self.buffer);
 
         result:Buffer = new Buffer(array_.length.to_ulong);
-        for(i:int = 0; i<array_.length; i++) {
+        for(i:int = 0; i<array_.length-1; i++) {       # -1 --> delete null-terminated
             result.append(array_[i]);
         }
 

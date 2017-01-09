@@ -119,6 +119,7 @@ void set_method_index_to_class(sCLClass* klass)
             && method->mNumParams == 0)
         {
             klass->mClassInitializeMethodIndex = i;
+            break;
         }
     }
 
@@ -132,6 +133,7 @@ void set_method_index_to_class(sCLClass* klass)
             && method->mNumParams == 0)
         {
             klass->mClassFinalizeMethodIndex = i;
+            break;
         }
     }
 
@@ -145,6 +147,7 @@ void set_method_index_to_class(sCLClass* klass)
             && method->mNumParams == 0)
         {
             klass->mFinalizeMethodIndex = i;
+            break;
         }
     }
 
@@ -164,6 +167,7 @@ void set_method_index_to_class(sCLClass* klass)
             if(type_identify_with_class_name(param1, "String") && type_identify_with_class_name(param2, "Array"))
             {
                 klass->mCallingClassMethodIndex = i;
+                break;
             }
         }
     }
@@ -184,6 +188,7 @@ void set_method_index_to_class(sCLClass* klass)
             if(type_identify_with_class_name(param1, "String") && type_identify_with_class_name(param2, "Array"))
             {
                 klass->mCallingMethodIndex = i;
+                break;
             }
         }
     }

@@ -5,10 +5,36 @@ class System
     typedef pid_t int;
     typedef wait_status int;
     typedef wait_option int;
+    typedef tcflag_t int;
+    typedef cc_t byte;
 
     WNOHANG:static wait_option;
     WUNTRACED:static wait_option;
     WCONTINUED:static wait_option;
+
+    SIGHUP: static int;
+    SIGINT: static int;
+    SIGQUIT: static int;
+    SIGILL: static int;
+    SIGABRT: static int;
+    SIGFPE: static int;
+    SIGKILL: static int;
+    SIGSEGV: static int;
+    SIGPIPE: static int;
+    SIGALRM: static int;
+    SIGTERM: static int;
+    SIGUSR1: static int;
+    SIGUSR2: static int;
+    SIGCHLD: static int;
+    SIGCONT: static int;
+    SIGSTOP: static int;
+    SIGTSTP: static int;
+    SIGTTIN: static int;
+    SIGTTOU: static int;
+
+    TCSANOW: static int;
+    TCSADRAIN: static int;
+    TCSAFLUSH: static int;
 
     def initialize_command_system():static native;
 
@@ -35,10 +61,95 @@ class System
     def getpid():static native pid_t;
     def setpgid(pid:pid_t, pgid:pid_t): static native throws Exception;
     def tcsetpgrp(fd:int, pid:pid_t): static native int throws Exception;
+    def tcgetattr(fd:int, terminfo:termios): static native throws Exception;
+    def tcsetattr(fd:int, optional_actions:int, terminfo:termios): static native throws Exception;
+    def kill(pid:pid_t, sig:int): static native throws Exception;
 }
 
 class termios
 {
+    c_iflag:tcflag_t;
+    c_oflag:tcflag_t;
+    c_cflag:tcflag_t;
+    c_lflag:tcflag_t;
+    c_cc:cc_t[];
+
+    def initialize() {
+        self.c_iflag = 0;
+        self.c_oflag = 0;
+        self.c_cflag = 0;
+        self.c_lflag = 0;
+        self.c_cc = new cc_t[32];
+    }
+}
+
+class Job
+{
+    title:String;
+    pgrp:pid_t;
+    terminfo:termios;
+
+    def initialize(title:String, pgrp:pid_t, terminfo:termios) {
+        self.title = title;
+        self.pgrp = pgrp;
+        self.terminfo = terminfo;
+    }
+
+    def toString():String {
+        return self.title;
+    }
+    def equals(job:Job): bool {
+        return self.pgrp == job.pgrp;
+    }
+    def forground() {
+        terminfo:termios = new termios();
+        System.tcgetattr(0, terminfo);
+
+        System.tcsetattr(0, System.TCSANOW, self.terminfo);
+        System.tcsetpgrp(0, self.pgrp);
+
+        System.kill(self.pgrp, System.SIGCONT);
+
+        status:wait_status = 0;
+        pid2:pid_t = System.waitpid(self.pgrp, &status, System.WUNTRACED);
+
+        if(System.WIFSTOPPED(status)) {
+            rcode:int = System.WSTOPSIG(status) +128;
+
+            terminfo2:termios = new termios();
+            System.tcgetattr(0, terminfo2);
+
+            self.terminfo = terminfo2;
+
+            System.tcsetattr(0, System.TCSANOW, terminfo);
+            System.tcsetpgrp(0, System.getpid());
+        }
+        elif(System.WIFSIGNALED(status)) {
+            printf("Job<%s> is done.\n", array { self.title });
+
+            Clover.jobs.delete(self);
+
+            System.tcsetattr(0, System.TCSANOW, terminfo);
+            System.tcsetpgrp(0, System.getpid());
+        }
+        else {
+            Clover.jobs.delete(self);
+
+            System.tcsetattr(0, System.TCSANOW, terminfo);
+            System.tcsetpgrp(0, System.getpid());
+        }
+    }
+}
+
+class Clover 
+{
+    jobs: static EqualableList<Job>;
+
+    def initialize(): static {
+        inherit();
+
+        Clover.jobs = new EqualableList<Job>();
+    }
 }
 
 dynamic_class Command
@@ -215,46 +326,13 @@ dynamic_class Command
         pid2:pid_t = System.waitpid(pid, &status, System.WUNTRACED);
 
         if(System.WIFSTOPPED(status)) {
-            throw new Exception("No support for job controlling");
-        }
-        else {
-            System.tcsetpgrp(0, System.getpid());
+            rcode:int = System.WSTOPSIG(status) +128;
+            title:String = method_name;
 
-            return new Command("", System.WEXITSTATUS(status));
-        }
-    }
-/*
-    static Command excuteCommandWithControllingTerminal(String method_name, Array<anonymous> params, Block method_block)
-    {
-        pid_t pid = System.fork() {
-            pid_t pid = System.getpid();
-
-            System.setpgid(0.to_pid_t(), 0.to_pid_t());
-            System.tcsetpgrp(0, pid);
-
-            try {
-                System.execvp(method_name, params.select() {|anonymous param| return String->substitutionPosibility(param.type()); } );
-            } catch(SystemException e) {
-                System.write(2, (e.getMessage() + "\n").toBytes());
-                System.exit(2);
-            }
-        }
-
-        System.setpgid(pid, pid);
-        System.tcsetpgrp(0, pid);
-
-        pid_t pid2, WaitStatus status = System.waitpid(pid, WaitOption.WUNTRACED);
-
-        System.tcsetpgrp(0, System.getpid());
-
-        if(status.WIFSTOPPED()) {
-            int rcode = status.WSTOPSIG() +128;
-            String title = method_name;
-
-            termios terminfo = new termios();
+            terminfo:termios = new termios();
             System.tcgetattr(0, terminfo);
 
-            Job job = new Job(title, pid, terminfo);
+            job:Job = new Job(title, pid, terminfo);
 
             Clover.jobs.add(job);
 
@@ -265,11 +343,8 @@ dynamic_class Command
         else {
             System.tcsetpgrp(0, System.getpid());
 
-            return new Command("", status.WEXITSTATUS());
+            return new Command("", System.WEXITSTATUS(status));
         }
-
-        return new Command("", status.WEXITSTATUS());
     }
-*/
 }
 

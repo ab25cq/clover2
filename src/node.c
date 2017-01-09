@@ -1839,7 +1839,29 @@ static BOOL compile_params(sCLClass* klass, char* method_name, int num_params, u
     return TRUE;
 }
 
-static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType* generics_types, sCLClass* klass, sNodeType* param_types[PARAMS_MAX], int num_params, char* method_name, unsigned int params[PARAMS_MAX])
+struct sCastMethods {
+    char* method_name;
+    char* type_;
+};
+
+struct sCastMethods gCastMethods[] = {
+    { "to_byte", "byte" },
+    { "to_ubyte", "ubyte" },
+    { "to_short", "short" },
+    { "to_ushort", "ushort" },
+    { "to_int", "int" },
+    { "to_uint", "uint" },
+    { "to_long", "long" },
+    { "to_ulong", "ulong" },
+    { "to_float", "float" },
+    { "to_double", "double" },
+    { "to_char", "char" },
+    { "to_pointer", "pointer" },
+    { "to_bool", "bool" },
+    { NULL, NULL },
+};
+
+static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType* object_type, sNodeType* generics_types, sCLClass* klass, sNodeType* param_types[PARAMS_MAX], int num_params, char* method_name, unsigned int params[PARAMS_MAX])
 {
     if(klass->mFlags & CLASS_FLAGS_DYNAMIC_CLASS) {
         /// get type of params without generating code ///
@@ -1974,14 +1996,49 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
         int method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types, generics_types, &result_type);
 
         if(method_index2 == -1) {
-            parser_err_msg(info->pinfo, "method not found(2)");
-            info->err_num++;
+            /// Is cast method ? ////
+            int cast_method_index = -1;
+            int i;
+            for(i=0; gCastMethods[i].method_name != NULL; i++) {
+                if(strcmp(method_name, gCastMethods[i].method_name) == 0) {
+                    cast_method_index = i;
+                    break;
+                }
+            }
 
-            err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
+            /// cast methods ///
+            if(cast_method_index != -1) {
+                /// check ///
+                if(num_params != 0) {
+                    parser_err_msg(info->pinfo, "A cast method doesn't require params");
+                    info->err_num++;
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+                    info->type = create_node_type_with_class_name("int"); // dummy
 
-            return TRUE;
+                    return TRUE;
+                }
+
+                /// go ///
+                char* cast_type_name = gCastMethods[cast_method_index].type_;
+
+                sNodeType* left_type = object_type;
+                sNodeType* right_type = create_node_type_with_class_name(cast_type_name);
+
+                cast_right_type_to_left_type(left_type, &right_type, info);
+                info->type = right_type;
+
+                return TRUE;
+            }
+            else {
+                parser_err_msg(info->pinfo, "method not found(2)");
+                info->err_num++;
+
+                err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
         }
 
         sCLMethod* method = klass->mMethods + method_index2;
@@ -1998,28 +2055,6 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
 
     return TRUE;
 }
-
-struct sCastMethods {
-    char* method_name;
-    char* type_;
-};
-
-struct sCastMethods gCastMethods[] = {
-    { "to_byte", "byte" },
-    { "to_ubyte", "ubyte" },
-    { "to_short", "short" },
-    { "to_ushort", "ushort" },
-    { "to_int", "int" },
-    { "to_uint", "uint" },
-    { "to_long", "long" },
-    { "to_ulong", "ulong" },
-    { "to_float", "float" },
-    { "to_double", "double" },
-    { "to_char", "char" },
-    { "to_pointer", "pointer" },
-    { "to_bool", "bool" },
-    { NULL, NULL },
-};
 
 static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
 {
@@ -2066,16 +2101,6 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
     unsigned int params[PARAMS_MAX];
 
     memcpy(params, gNodes[node].uValue.sMethodCall.mParams, sizeof(unsigned int)*PARAMS_MAX);
-
-    /// Is cast method ? ////
-    int cast_method_index = -1;
-    int i;
-    for(i=0; gCastMethods[i].method_name != NULL; i++) {
-        if(strcmp(method_name, gCastMethods[i].method_name) == 0) {
-            cast_method_index = i;
-            break;
-        }
-    }
 
     /// special methods ///
     if(strcmp(method_name, "identifyWith") == 0) {
@@ -2141,38 +2166,9 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
 
         info->type = create_node_type_with_class_name("Anonymous");
     }
-    /// cast methods ///
-    else if(cast_method_index != -1) {
-        //// go ///
-        if(num_params != 0) {
-            parser_err_msg(info->pinfo, "A cast method doesn't require params");
-            info->err_num++;
-
-            info->type = create_node_type_with_class_name("int"); // dummy
-
-            return TRUE;
-        }
-
-        char* cast_type_name = gCastMethods[cast_method_index].type_;
-
-        sNodeType* left_type = object_type;
-        sNodeType* right_type = create_node_type_with_class_name(cast_type_name);
-
-        cast_right_type_to_left_type(left_type, &right_type, info);
-
-        if(!type_identify_with_class_name(right_type, cast_type_name)) {
-            if(!call_normal_method(node, info, generics_types, klass, param_types, num_params, method_name, params))
-            {
-                return FALSE;;
-            }
-        }
-        else {
-            info->type = right_type;
-        }
-    }
     /// normal methods ///
     else {
-        if(!call_normal_method(node, info, generics_types, klass, param_types, num_params, method_name, params))
+        if(!call_normal_method(node, info, object_type, generics_types, klass, param_types, num_params, method_name, params))
         {
             return FALSE;;
         }

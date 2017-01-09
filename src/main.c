@@ -5,9 +5,9 @@ static void clover2_init()
 {
     native_method_init();
     class_init();
-    (void)class_init_on_runtime();
     heap_init(128, 128);
     stack_init();
+    (void)class_init_on_runtime();
 }
 
 static void clover2_final()

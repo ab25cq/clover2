@@ -154,6 +154,9 @@ static sNativeMethod gNativeMethods[] = {
     { "System.getpid()", System_getpid },
     { "System.setpgid(int,int)", System_setpgid },
     { "System.tcsetpgrp(int,int)", System_tcsetpgrp },
+    { "System.tcgetattr(int,termios)", System_tcgetattr },
+    { "System.tcsetattr(int,int,termios)", System_tcsetattr },
+    { "System.kill(int,int)", System_kill },
 
     { "", 0 }  // sentinel
 };
