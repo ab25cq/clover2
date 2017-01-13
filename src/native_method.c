@@ -153,10 +153,20 @@ static sNativeMethod gNativeMethods[] = {
     { "System.WIFCONTINUED(int)", System_WIFCONTINUED },
     { "System.getpid()", System_getpid },
     { "System.setpgid(int,int)", System_setpgid },
+    { "System.kill(int,int)", System_kill },
     { "System.tcsetpgrp(int,int)", System_tcsetpgrp },
     { "System.tcgetattr(int,termios)", System_tcgetattr },
     { "System.tcsetattr(int,int,termios)", System_tcsetattr },
-    { "System.kill(int,int)", System_kill },
+    { "System.tcflow(int,int)", System_tcflow },
+    { "System.tcflush(int,int)", System_tcflush },
+    { "System.tcsendbreak(int,int)", System_tcsendbreak },
+    { "System.tcdrain(int)", System_tcdrain },
+    { "System.cfmakeraw(termios)", System_cfmakeraw },
+    { "System.cfgetispeed(termios)", System_cfgetispeed },
+    { "System.cfgetospeed(termios)", System_cfgetospeed },
+    { "System.cfsetispeed(termios,int)", System_cfsetispeed },
+    { "System.cfsetospeed(termios,int)", System_cfsetospeed },
+    { "System.cfsetspeed(termios,int)", System_cfsetspeed },
 
     { "", 0 }  // sentinel
 };

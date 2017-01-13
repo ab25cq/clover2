@@ -15,6 +15,16 @@
 #include <stdarg.h>
 #include <locale.h>
 #include <pcre.h>
+#ifndef __USE_XOPEN
+#define __USE_XOPEN
+#endif
+#ifndef _USE_MISC
+#define _USE_MISC
+#endif
+#ifndef __USE_BSD
+#define __USE_BSD
+#endif
+#include <termios.h>
 
 #include "macros.h"
 
@@ -1812,10 +1822,20 @@ BOOL System_WSTOPSIG(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_WIFCONTINUED(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_getpid(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_setpgid(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_kill(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_tcsetpgrp(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_tcgetattr(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_tcsetattr(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
-BOOL System_kill(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_tcsendbreak(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_tcdrain(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_tcflush(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_tcflow(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_cfmakeraw(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_cfgetispeed(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_cfgetospeed(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_cfsetispeed(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_cfsetospeed(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_cfsetspeed(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 /// alignment.c ///
 void alignment(unsigned int* size);
@@ -1843,6 +1863,8 @@ sCLClass* get_class_from_object(CLObject object);
 void* get_pointer_from_buffer_object(CLObject buffer);
 int get_size_from_buffer_object(CLObject buffer);
 ALLOC CLObject* list_to_array(CLObject list, int* num_elements);
+void clover_termios_to_c_termios(CLObject terminfo_object, struct termios* terminfo_value);
+void c_termios_to_clover_termios(struct termios* terminfo_value, CLObject terminfo_object);
 
 /// list.c ///
 CLObject create_list_object();

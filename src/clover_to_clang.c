@@ -200,3 +200,40 @@ ALLOC CLObject* list_to_array(CLObject list, int* num_elements)
     return result;
 }
 
+void clover_termios_to_c_termios(CLObject terminfo_object, struct termios* terminfo_value)
+{
+    sCLObject* object_data = CLOBJECT(terminfo_object);
+
+    terminfo_value->c_iflag = object_data->mFields[0].mIntValue;
+    terminfo_value->c_oflag = object_data->mFields[1].mIntValue;
+    terminfo_value->c_cflag = object_data->mFields[2].mIntValue;
+    terminfo_value->c_lflag = object_data->mFields[3].mIntValue;
+
+    CLObject array = object_data->mFields[4].mObjectValue;
+
+    sCLObject* object_data2 = CLOBJECT(array);
+
+    int i;
+    for(i=0; i<32; i++) {
+        terminfo_value->c_cc[i] = object_data2->mFields[i].mByteValue;
+    }
+}
+
+void c_termios_to_clover_termios(struct termios* terminfo_value, CLObject terminfo_object)
+{
+    /// C to Clover object ///
+    sCLObject* object_data = CLOBJECT(terminfo_object);
+    object_data->mFields[0].mIntValue = terminfo_value->c_iflag;
+    object_data->mFields[1].mIntValue = terminfo_value->c_oflag;
+    object_data->mFields[2].mIntValue = terminfo_value->c_cflag;
+    object_data->mFields[3].mIntValue = terminfo_value->c_lflag;
+
+    CLObject array = object_data->mFields[4].mObjectValue;
+
+    sCLObject* object_data2 = CLOBJECT(array);
+
+    int i;
+    for(i=0; i<32; i++) {
+        object_data2->mFields[i].mByteValue = terminfo_value->c_cc[i];
+    }
+}

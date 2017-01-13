@@ -7,6 +7,7 @@ class System
     typedef wait_option int;
     typedef tcflag_t int;
     typedef cc_t byte;
+    typedef speed_t int;
 
     WNOHANG:static wait_option;
     WUNTRACED:static wait_option;
@@ -31,10 +32,162 @@ class System
     SIGTSTP: static int;
     SIGTTIN: static int;
     SIGTTOU: static int;
+    
+    # c_iflag bits
+    IGNBRK: static int;
+    BRKINT: static int;
+    IGNPAR: static int;
+    PARMRK: static int;
+    INPCK: static int;
+    ISTRIP: static int;
+    INLCR: static int;
+    IGNCR: static int;
+    ICRNL: static int;
+    IUCLC: static int;
+    IXON: static int;
+    IXANY: static int;
+    IXOFF: static int;
+    IMAXBEL: static int;
+    IUTF8: static int;
 
+    # c_oflag bits
+    OPOST: static int;
+    OLCUC: static int;
+    ONLCR: static int;
+    OCRNL: static int;
+    ONOCR: static int;
+    ONLRET: static int;
+    OFILL: static int;
+    OFDEL: static int;
+    NLDLY: static int;
+    NL0: static int;
+    NL1: static int;
+    CRDLY: static int;
+    CR0: static int;
+    CR1: static int;
+    CR2: static int;
+    CR3: static int;
+    TABDLY: static int;
+    TAB0: static int;
+    TAB1: static int;
+    TAB2: static int;
+    TAB3: static int;
+    BSDLY: static int;
+    BS0: static int;
+    BS1: static int;
+    FFDLY: static int;
+    FF0: static int;
+    FF1: static int;
+
+    VTDLY: static int;
+    VT0: static int;
+    VT1: static int;
+
+    XTABS: static int;
+
+    # c_cflag bit meaning 
+    CBAUD: static int;
+    B0: static int;
+    B50: static int;
+    B75: static int;
+    B110: static int;
+    B134: static int;
+    B150: static int;
+    B200: static int;
+    B300: static int;
+    B600: static int;
+    B1200: static int;
+    B1800: static int;
+    B2400: static int;
+    B4800: static int;
+    B9600: static int;
+    B19200: static int;
+    B38400: static int;
+    EXTA: static int;
+    EXTB: static int;
+    CSIZE: static int;
+    CS5: static int;
+    CS6: static int;
+    CS7: static int;
+    CS8: static int;
+    CSTOPB: static int;
+    CREAD: static int;
+    PARENB: static int;
+    PARODD: static int;
+    HUPCL: static int;
+    CLOCAL: static int;
+    CBAUDEX: static int;
+    B57600: static int;
+    B115200: static int;
+    B230400: static int;
+    B460800: static int;
+    B500000: static int;
+    B576000: static int;
+    B921600: static int;
+    B1000000: static int;
+    B1152000: static int;
+    B1500000: static int;
+    B2000000: static int;
+    B2500000: static int;
+    B3000000: static int;
+    B3500000: static int;
+    B4000000: static int;
+    CIBAUD: static int;
+    CMSPAR: static int;
+    CRTSCTS: static int;
+
+    # c_lflag bits
+    ISIG: static int;
+    ICANON: static int;
+    XCASE: static int;
+    ECHO: static int;
+    ECHOE: static int;
+    ECHOK: static int;
+    ECHONL: static int;
+    NOFLSH: static int;
+    TOSTOP: static int;
+    ECHOCTL: static int;
+    ECHOPRT: static int;
+    ECHOKE: static int;
+    FLUSHO: static int;
+    PENDIN: static int;
+    IEXTEN: static int;
+    EXTPROC: static int;
+
+    # tcflow() and TCXONC use these */
+    TCOOFF: static int;
+    TCOON: static int;
+    TCIOFF: static int;
+    TCION: static int;
+
+    # tcflush() and TCFLSH use these */
+    TCIFLUSH: static int;
+    TCOFLUSH: static int;
+    TCIOFLUSH: static int;
+
+    # tcsetattr uses these
     TCSANOW: static int;
     TCSADRAIN: static int;
     TCSAFLUSH: static int;
+
+    # c_cc characters
+    VINTR: static int;
+    VQUIT: static int;
+    VERASE: static int;
+    VKILL: static int;
+    VEOF: static int;
+    VTIME: static int;
+    VMIN: static int;
+    VSWTC: static int;
+    VSTART: static int;
+    VSTOP: static int;
+    VSUSP: static int;
+    VEOL: static int;
+    VREPRINT: static int;
+    VDISCARD: static int;
+    VWERASE: static int;
+    VLNEXT: static int;
+    VEOL2: static int;
 
     def initialize_command_system():static native;
 
@@ -60,10 +213,22 @@ class System
 
     def getpid():static native pid_t;
     def setpgid(pid:pid_t, pgid:pid_t): static native throws Exception;
+    def kill(pid:pid_t, sig:int): static native throws Exception;
+
     def tcsetpgrp(fd:int, pid:pid_t): static native int throws Exception;
+
     def tcgetattr(fd:int, terminfo:termios): static native throws Exception;
     def tcsetattr(fd:int, optional_actions:int, terminfo:termios): static native throws Exception;
-    def kill(pid:pid_t, sig:int): static native throws Exception;
+    def tcsendbreak(fd:int, duration:int): static native throws Exception;
+    def tcdrain(fd:int): static native throws Exception;
+    def tcflush(fd:int, queue_selector:int): static native throws Exception;
+    def tcflow(fd:int, action:int): static native throws Exception;
+    def cfmakeraw(terminfo:termios): static native;
+    def cfgetispeed(terminfo:termios): static native speed_t;
+    def cfgetospeed(terminfo:termios): static native speed_t;
+    def cfsetispeed(terminfo:termios, speed:speed_t): static native throws Exception;
+    def cfsetospeed(terminfo:termios, speed:speed_t): static native throws Exception;
+    def cfsetspeed(terminfo:termios, speed:speed_t): static native throws Exception;
 }
 
 class termios
