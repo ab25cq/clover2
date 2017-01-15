@@ -987,7 +987,7 @@ interface IEqualable
     def toString(): String;
 }
 
-class Array<T:Object>
+module MArrayImplement
 {
     items:T[];
 
@@ -1012,6 +1012,11 @@ class Array<T:Object>
             block_(self.items[i]);
         }
     }
+}
+
+class Array<T:Object>
+{
+    include MArrayImplement;
 
     def toEqualableArray():EqualableArray<IEqualable> throws Exception {
         result:EqualableArray<IEqualable>  = new EqualableArray<IEqualable>(self.items.toAnonymous());
@@ -1025,8 +1030,8 @@ class Array<T:Object>
         return result;
     }
 
-    def toList(): List<Object> {
-        result:List<Object> = new List<Object>();
+    def toList(): List<T> {
+        result:List<T> = new List<T>();
 
         for(i:int = 0; i<self.items.length; i++) {
             result.add(self.items[i]);
@@ -1038,28 +1043,23 @@ class Array<T:Object>
 
 class EqualableArray <T:IEqualable>
 {
-    items:T[];
+    include MArrayImplement;
 
-    def initialize(items:T[]) {
-        self.items = items;
-    }
-
-    def length():int {
-        return self.items.length;
-    }
-
-    def items(index:int):T throws Exception {
-        if(index < 0) {
-            index += self.items.length;
+    def toString():String {
+        if(self.items.length == 0) {
+            return "array {}";
         }
 
-        return self.items[index];
-    }
+        result:String = "array {";
 
-    def each(block_:lambda(T)) {
-        for(i:int = 0; i<self.items.length; i++) {
-            block_(self.items[i]);
+        for(i:= 0; i<self.items.length; i++) {
+            result.append(self.items[i].toString());
+            result.append(",");
         }
+
+        result.replace(-1, '}');
+
+        return result;
     }
 
     def equals(right:T[]): bool {
@@ -1098,19 +1098,12 @@ class EqualableArray <T:IEqualable>
         return new Array<T>(self.items.toAnonymous());
     }
 
-    def toString():String {
-        if(self.items.length == 0) {
-            return "array {}";
+    def toEqualableList(): EqualableList<T> {
+        result:EqualableList<T> = new EqualableList<T>();
+
+        for(i:int = 0; i<self.items.length; i++) {
+            result.add(self.items[i]);
         }
-
-        result:String = "array {";
-
-        for(i:= 0; i<self.items.length; i++) {
-            result.append(self.items[i].toString());
-            result.append(",");
-        }
-
-        result.replace(-1, '}');
 
         return result;
     }

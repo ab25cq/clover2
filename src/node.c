@@ -1608,7 +1608,7 @@ static BOOL compile_null_expression(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_class_method_call(sCLClass* klass, char* method_name, unsigned int* params, int num_params)
+unsigned int sNodeTree_create_class_method_call(sNodeType* klass, char* method_name, unsigned int* params, int num_params)
 {
     unsigned int node = alloc_node();
 
@@ -1653,7 +1653,8 @@ static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)
 {
     sNodeType* param_types[PARAMS_MAX];
 
-    sCLClass* klass = gNodes[node].uValue.sClassMethodCall.mClass;
+    sNodeType* klass_type = gNodes[node].uValue.sClassMethodCall.mClass;
+    sCLClass* klass = klass_type->mClass;
     int num_params = gNodes[node].uValue.sClassMethodCall.mNumParams;
     char* method_name = gNodes[node].uValue.sClassMethodCall.mMethodName;
 
@@ -1679,7 +1680,7 @@ static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)
         generics_types = get_generics_type_of_inner_class(info->pinfo);
     }
     else {
-        generics_types = NULL;
+        generics_types = klass_type;
     }
 
     sNodeType* result_type;

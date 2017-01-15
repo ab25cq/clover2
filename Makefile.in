@@ -167,6 +167,7 @@ test:
 	@echo "Compile to test code..."
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -class code/operator.clc code/operator.cl && ./clover2 code/operator.clo
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -class code/generics2.clc code/generics2.cl && ./clover2 code/generics2.clo
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -class code/generics3.clc code/generics3.cl && ./clover2 code/generics3.clo
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/block_var_test.cl && ./clover2 code/block_var_test.clo
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -class code/user_object.clc code/user_object.cl && ./clover2 code/user_object.clo
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 code/pointer.cl && ./clover2 code/pointer.clo

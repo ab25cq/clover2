@@ -61,6 +61,7 @@ LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclov
 LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 -class code\/equalable_array.clc code\/equalable_array.cl && .\/clover2 code\/equalable_array.clo$/;"	m
 LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 -class code\/generics.clc code\/generics.cl && .\/clover2 code\/generics.clo$/;"	m
 LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 -class code\/generics2.clc code\/generics2.cl && .\/clover2 code\/generics2.clo$/;"	m
+LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 -class code\/generics3.clc code\/generics3.cl && .\/clover2 code\/generics3.clo$/;"	m
 LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 -class code\/increment.clc && .\/cclover2 code\/increment.cl && .\/clover2 code\/increment.clo$/;"	m
 LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 -class code\/inherit.clc -class code\/inherit2.clc code\/inherit.cl && .\/clover2 code\/inherit.clo$/;"	m
 LD_LIBRARY_PATH	Makefile	/^	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); .\/cclover2 -class code\/initialize_test.clc && .\/cclover2 code\/initialize_test.cl && .\/clover2 code\/initialize_test.clo$/;"	m
@@ -1567,7 +1568,7 @@ mCharValue	src/common.h	/^    wchar_t mCharValue;$/;"	m	union:CLVALUEUnion
 mCharacter	src/common.h	/^        wchar_t mCharacter;$/;"	m	union:sNodeTreeStruct::__anon2
 mClass	src/common.h	/^            sCLClass* mClass;$/;"	m	struct:sNodeTreeStruct::__anon2::__anon11
 mClass	src/common.h	/^            sCLClass* mClass;$/;"	m	struct:sNodeTreeStruct::__anon2::__anon3
-mClass	src/common.h	/^            sCLClass* mClass;$/;"	m	struct:sNodeTreeStruct::__anon2::__anon8
+mClass	src/common.h	/^            sNodeType* mClass;$/;"	m	struct:sNodeTreeStruct::__anon2::__anon8
 mClass	src/common.h	/^    sCLClass* mClass;       \/\/ NULL --> no class only memory$/;"	m	struct:sBlockObjectStruct
 mClass	src/common.h	/^    sCLClass* mClass;       \/\/ NULL --> no class only memory$/;"	m	struct:sCLHeapMemStruct
 mClass	src/common.h	/^    sCLClass* mClass;       \/\/ NULL --> no class only memory$/;"	m	struct:sRegexObjectStruct
@@ -1961,7 +1962,7 @@ sNodeTree_create_byte_value	src/node.c	/^unsigned int sNodeTree_create_byte_valu
 sNodeTree_create_carray_value	src/node.c	/^unsigned int sNodeTree_create_carray_value(int num_elements, unsigned int array_elements[])$/;"	f
 sNodeTree_create_character_value	src/node.c	/^unsigned int sNodeTree_create_character_value(wchar_t c)$/;"	f
 sNodeTree_create_class_fields	src/node.c	/^unsigned int sNodeTree_create_class_fields(sCLClass* klass, char* name)$/;"	f
-sNodeTree_create_class_method_call	src/node.c	/^unsigned int sNodeTree_create_class_method_call(sCLClass* klass, char* method_name, unsigned int* params, int num_params)$/;"	f
+sNodeTree_create_class_method_call	src/node.c	/^unsigned int sNodeTree_create_class_method_call(sNodeType* klass, char* method_name, unsigned int* params, int num_params)$/;"	f
 sNodeTree_create_decrement_operand	src/node.c	/^BOOL sNodeTree_create_decrement_operand(unsigned int left_node)$/;"	f
 sNodeTree_create_decrement_operand_with_value	src/node.c	/^BOOL sNodeTree_create_decrement_operand_with_value(unsigned int left_node, unsigned int value)$/;"	f
 sNodeTree_create_double_value	src/node.c	/^unsigned int sNodeTree_create_double_value(double value, unsigned int left, unsigned int right, unsigned int middle)$/;"	f

@@ -450,7 +450,7 @@ class SortableList<T:ISortable>
             }
         }
 
-        return SortableList.mergeList(list1.mergeSort(), list2.mergeSort());
+        return SortableList<T>.mergeList(list1.mergeSort(), list2.mergeSort());
     }
 
     def sort(): SortableList<T> {

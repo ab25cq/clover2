@@ -513,7 +513,7 @@ struct sNodeTreeStruct
             char mExceptionVarName[VAR_NAME_MAX];
         } sTry;
         struct {
-            sCLClass* mClass;
+            sNodeType* mClass;
             char mMethodName[METHOD_NAME_MAX];
             unsigned int mParams[PARAMS_MAX];
             int mNumParams;
@@ -651,7 +651,7 @@ unsigned int sNodeTree_true_expression();
 unsigned int sNodeTree_null_expression();
 unsigned int sNodeTree_for_expression(unsigned int expression_node1, unsigned int expression_node2, unsigned int expression_node3, MANAGED sNodeBlock* for_node_block);
 BOOL check_node_is_variable(unsigned int node);
-unsigned int sNodeTree_create_class_method_call(sCLClass* klass, char* method_name, unsigned int* params, int num_params);
+unsigned int sNodeTree_create_class_method_call(sNodeType* klass, char* method_name, unsigned int* params, int num_params);
 unsigned int sNodeTree_create_method_call(unsigned int object_node, char* method_name, unsigned int* params, int num_params);
 unsigned int sNodeTree_create_new_operator(sNodeType* node_type, unsigned int* params, int num_params, unsigned int array_num);
 unsigned int sNodeTree_create_fields(char* name, unsigned int left_node);

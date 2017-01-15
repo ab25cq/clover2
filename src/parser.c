@@ -2096,6 +2096,9 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
     else if(isalpha(*info->p)) {
         char buf[VAR_NAME_MAX];
 
+        char* p_before = info->p;
+        int sline_before = info->sline;
+
         /// name ///
         if(!parse_word(buf, VAR_NAME_MAX, info, TRUE)) {
             return FALSE;
@@ -2311,6 +2314,15 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
             /// class name ///
             if(klass) {
+                info->p = p_before;
+                info->sline = sline_before;
+
+                sNodeType* klass2;
+
+                if(!parse_type(&klass2, info)) {
+                    return FALSE;
+                }
+
                 /// class field or class method ///
                 if(*info->p == '.') {
                     info->p++;
@@ -2332,7 +2344,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                             return FALSE;
                         }
 
-                        *node = sNodeTree_create_class_method_call(klass, buf, params, num_params);
+                        *node = sNodeTree_create_class_method_call(klass2, buf, params, num_params);
                     }
                     /// class field ///
                     else {
@@ -2387,7 +2399,12 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     return FALSE;
                 }
 
-                *node = sNodeTree_create_class_method_call(global_klass, buf, params, num_params);
+                sNodeType* global_klass_type = alloc_node_type();
+
+                global_klass_type->mClass = global_klass;
+                global_klass_type->mNumGenericsTypes = 0;
+
+                *node = sNodeTree_create_class_method_call(global_klass_type, buf, params, num_params);
             }
             else {
                 *node = sNodeTree_create_load_variable(buf);
