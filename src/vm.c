@@ -12126,6 +12126,106 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 }
                 break;
 
+            case OP_CREATE_EQUALABLE_CARRAY:
+                {
+                    vm_mutex_on();
+
+                    int num_elements = *(int*)pc;
+                    pc += sizeof(int);
+
+                    int offset = *(int*)pc;
+                    pc += sizeof(int);
+
+                    char* class_name = CONS_str(constant, offset);
+
+                    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+
+                    if(klass == NULL) {
+                        vm_mutex_off();
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found(12)");
+                        remove_stack_to_stack_list(stack);
+                        return FALSE;
+                    }
+
+                    CLObject array_object = create_equalable_carray_object();
+                    stack_ptr->mObjectValue = array_object; // push object
+                    stack_ptr++;
+
+                    CLObject items[ARRAY_VALUE_ELEMENT_MAX];
+
+                    int i;
+                    for(i=0; i<num_elements; i++) {
+                        CLVALUE element = *(stack_ptr-1-num_elements+i);
+                        items[i] = (*(stack_ptr-1-num_elements+i)).mObjectValue;
+                    }
+
+                    if(!initialize_equalable_carray_object(array_object, num_elements, items, stack, var_num, &stack_ptr, info, klass))
+                    {
+                        vm_mutex_off();
+                        remove_stack_to_stack_list(stack);
+                        return FALSE;
+                    }
+
+                    stack_ptr--; // pop_object
+
+                    stack_ptr-=num_elements;
+                    stack_ptr->mObjectValue = array_object;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_CREATE_SORTABLE_CARRAY:
+                {
+                    vm_mutex_on();
+
+                    int num_elements = *(int*)pc;
+                    pc += sizeof(int);
+
+                    int offset = *(int*)pc;
+                    pc += sizeof(int);
+
+                    char* class_name = CONS_str(constant, offset);
+
+                    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+
+                    if(klass == NULL) {
+                        vm_mutex_off();
+                        entry_exception_object_with_class_name(stack + var_num, info, "Exception", "class not found(12)");
+                        remove_stack_to_stack_list(stack);
+                        return FALSE;
+                    }
+
+                    CLObject array_object = create_sortable_carray_object();
+                    stack_ptr->mObjectValue = array_object; // push object
+                    stack_ptr++;
+
+                    CLObject items[ARRAY_VALUE_ELEMENT_MAX];
+
+                    int i;
+                    for(i=0; i<num_elements; i++) {
+                        CLVALUE element = *(stack_ptr-1-num_elements+i);
+                        items[i] = (*(stack_ptr-1-num_elements+i)).mObjectValue;
+                    }
+
+                    if(!initialize_sortable_carray_object(array_object, num_elements, items, stack, var_num, &stack_ptr, info, klass))
+                    {
+                        vm_mutex_off();
+                        remove_stack_to_stack_list(stack);
+                        return FALSE;
+                    }
+
+                    stack_ptr--; // pop_object
+
+                    stack_ptr-=num_elements;
+                    stack_ptr->mObjectValue = array_object;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
             case OP_CREATE_LIST:
                 {
                     vm_mutex_on();

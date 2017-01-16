@@ -75,8 +75,8 @@ $(OBJ): src/*.h Makefile configure
 install:
 	rm -f *.clcl
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -no-load-fundamental-classes -class Fundamental.clc
+	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -no-load-fundamental-classes -class Container.clc
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -no-load-fundamental-classes -class String.clc
-	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -no-load-fundamental-classes -class List.clc
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -no-load-fundamental-classes -class File.clc
 	export LD_LIBRARY_PATH=.$(LD_LIBRARY_PATH); ./cclover2 -no-load-fundamental-classes -class Command.clc
 	mkdir -p ~/.clover2

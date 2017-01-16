@@ -466,14 +466,15 @@ static BOOL check_same_interface_of_two_methods(sCLMethod* method1, sCLClass* kl
         sNodeType* param1_type = create_node_type_from_cl_type(param1->mType, klass1);
         sNodeType* param2_type = create_node_type_from_cl_type(param2->mType, klass2);
 
-        if(type_identify_with_class_name(param1_type, "Self")) {
-            param1_type = create_node_type_with_class_pointer(klass2);
+        if(!type_identify_with_class_name(param1_type, "Self") && !type_identify_with_class_name(param2_type, "Self"))
+        {
+            if(type_identify_with_class_name(param1_type, "Self")) {
+                param1_type = create_node_type_with_class_pointer(klass2);
+            }
+            if(!type_identify(param1_type, param2_type)) {
+                return FALSE;
+            }
         }
-
-        if(!type_identify(param1_type, param2_type)) {
-            return FALSE;
-        }
-
     }
 
     return TRUE;

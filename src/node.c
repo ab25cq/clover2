@@ -5007,6 +5007,176 @@ static BOOL compile_carray_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_equalable_carray_value(int num_elements, unsigned int array_elements[])
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeEqualableCArrayValue;
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    gNodes[node].mType = NULL;
+
+    memcpy(gNodes[node].uValue.sArrayValue.mArrayElements, array_elements, sizeof(unsigned int)*ARRAY_VALUE_ELEMENT_MAX);
+    gNodes[node].uValue.sArrayValue.mNumArrayElements = num_elements;
+
+    return node;
+}
+
+static BOOL compile_equalable_carray_value(unsigned int node, sCompileInfo* info)
+{
+    unsigned int* elements = gNodes[node].uValue.sArrayValue.mArrayElements;
+    int num_elements = gNodes[node].uValue.sArrayValue.mNumArrayElements;
+
+    if(num_elements == 0) {
+        parser_err_msg(info->pinfo, "require element in array value");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    unsigned int first_element_node = elements[0];
+
+    if(!compile(first_element_node, info)) {
+        return FALSE;
+    }
+
+    boxing_to_lapper_class(&info->type, info);
+
+    sNodeType* element_type = info->type;
+
+    BOOL generics_type_is_object = FALSE;
+
+    int i;
+    for(i=1; i<num_elements; i++) {
+        unsigned int element_node = elements[i];
+
+        if(!compile(element_node, info)) {
+            return FALSE;
+        }
+
+        boxing_to_lapper_class(&info->type, info);
+
+        if(!type_identify(element_type, info->type)) {
+            generics_type_is_object = TRUE;
+        }
+    }
+
+    /// check implemeted interface ///
+    sCLClass* iequalable = get_class("IEqualable");
+    if(!check_implemented_methods_for_interface(iequalable, element_type->mClass)) {
+        parser_err_msg(info->pinfo, "Require IEqualable implemented for array element type(%s).", CLASS_NAME(element_type->mClass));
+        info->err_num++;
+    }
+
+    append_opecode_to_code(info->code, OP_CREATE_EQUALABLE_CARRAY, info->no_output);
+    append_int_value_to_code(info->code, num_elements, info->no_output);
+    append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(element_type->mClass), info->no_output);
+
+    info->stack_num-= num_elements;
+    info->stack_num++;
+
+    info->type = create_node_type_with_class_name("EqualableArray");
+    info->type->mNumGenericsTypes = 1;
+    if(generics_type_is_object) {
+        info->type->mGenericsTypes[0] = create_node_type_with_class_name("Object");
+    }
+    else {
+        info->type->mGenericsTypes[0] = element_type;
+    }
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_sortable_carray_value(int num_elements, unsigned int array_elements[])
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeSortableCArrayValue;
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    gNodes[node].mType = NULL;
+
+    memcpy(gNodes[node].uValue.sArrayValue.mArrayElements, array_elements, sizeof(unsigned int)*ARRAY_VALUE_ELEMENT_MAX);
+    gNodes[node].uValue.sArrayValue.mNumArrayElements = num_elements;
+
+    return node;
+}
+
+static BOOL compile_sortable_carray_value(unsigned int node, sCompileInfo* info)
+{
+    unsigned int* elements = gNodes[node].uValue.sArrayValue.mArrayElements;
+    int num_elements = gNodes[node].uValue.sArrayValue.mNumArrayElements;
+
+    if(num_elements == 0) {
+        parser_err_msg(info->pinfo, "require element in array value");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    unsigned int first_element_node = elements[0];
+
+    if(!compile(first_element_node, info)) {
+        return FALSE;
+    }
+
+    boxing_to_lapper_class(&info->type, info);
+
+    sNodeType* element_type = info->type;
+
+    BOOL generics_type_is_object = FALSE;
+
+    int i;
+    for(i=1; i<num_elements; i++) {
+        unsigned int element_node = elements[i];
+
+        if(!compile(element_node, info)) {
+            return FALSE;
+        }
+
+        boxing_to_lapper_class(&info->type, info);
+
+        if(!type_identify(element_type, info->type)) {
+            generics_type_is_object = TRUE;
+        }
+    }
+
+    /// check implemeted interface ///
+    sCLClass* isortable = get_class("ISortable");
+    if(!check_implemented_methods_for_interface(isortable, element_type->mClass)) {
+        parser_err_msg(info->pinfo, "Require IEqualable implemented for array element type(%s).", CLASS_NAME(element_type->mClass));
+        info->err_num++;
+    }
+
+    append_opecode_to_code(info->code, OP_CREATE_SORTABLE_CARRAY, info->no_output);
+    append_int_value_to_code(info->code, num_elements, info->no_output);
+    append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(element_type->mClass), info->no_output);
+
+    info->stack_num-= num_elements;
+    info->stack_num++;
+
+    info->type = create_node_type_with_class_name("SortableArray");
+    info->type->mNumGenericsTypes = 1;
+    if(generics_type_is_object) {
+        info->type->mGenericsTypes[0] = create_node_type_with_class_name("Object");
+    }
+    else {
+        info->type->mGenericsTypes[0] = element_type;
+    }
+
+    return TRUE;
+}
+
 unsigned int sNodeTree_create_hash_value(int num_elements, unsigned int hash_keys[], unsigned int hash_items[])
 {
     unsigned int node = alloc_node();
@@ -6084,6 +6254,14 @@ void show_node(unsigned int node)
             puts("carray value");
             break;
 
+        case kNodeTypeEqualableCArrayValue:
+            puts("equalable carray value");
+            break;
+
+        case kNodeTypeSortableCArrayValue:
+            puts("sortable carray value");
+            break;
+
         case kNodeTypeHashValue:
             puts("hash value");
             break;
@@ -6435,6 +6613,18 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeCArrayValue:
             if(!compile_carray_value(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeEqualableCArrayValue:
+            if(!compile_equalable_carray_value(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeSortableCArrayValue:
+            if(!compile_sortable_carray_value(node, info)) {
                 return FALSE;
             }
             break;

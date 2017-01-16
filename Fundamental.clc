@@ -4,12 +4,8 @@ class System
     typedef size_t ulong;
     typedef time_t ulong;
 
-    def exit(num:int): native static;
     def assert(exp:bool): native static throws Exception;
-    def print(str:String): native static;
-    def println(str:String): native static;
-    def printToError(str:String): native static;
-    def printlnToError(str:String): native static;
+    def exit(num:int): native static;
     def sleep(time:int): native static uint;
 
     def malloc(size:size_t): native static pointer@alloc;
@@ -25,137 +21,13 @@ class System
     def memcpy(str1:pointer, str2:pointer, size:size_t): native static pointer;
     def memcmp(str1:pointer, str2:pointer, size:size_t): native static int;
 
-    def sprintf(format:String, prams:Array<Object>): native static String throws Exception;
-
-    def mbstowcs(dest:pointer@wchar[], src:pointer@utf8-string-memory, size:size_t): static native int throws Exception;
-    def wcstombs(dest:pointer@byte[], src:char[]): static native int throws Exception;
-
     def srand(value:uint): static native;
     def rand(): static native int;
     def time(): static native time_t;
 }
 
-class Clover
-{
-    def test(msg: String, expression:bool):static {
-        System.printToError(msg.append("..."));
-        System.assert(expression);
-        System.printlnToError("OK");
-    }
-
-    def initialize():static {
-        System.srand(System.time().to_uint);
-    }
-}
-
 class Global
 {
-    def print(str:String):static {
-        System.print(str);
-    }
-    def printToError(str:String):static {
-        System.printToError(str);
-    }
-    def println(str:String):static {
-        System.println(str);
-    }
-    def printlnToError(str:String):static {
-        System.printlnToError(str);
-    }
-    def printf(str:String, params:Array<Object>): static {
-        str2: String = System.sprintf(str, params);
-        System.print(str2);
-    }
-    def printf(str:String): static {
-        System.print(str);
-    }
-    def printfToError(str:String, params:Array<Object>): static {
-        str2: String = System.sprintf(str, params);
-        System.printToError(str2);
-    }
-}
-
-class Buffer
-{
-    buffer:pointer;
-    len:size_t;
-    size:size_t;
-
-    def initialize() {
-        self.size = 64;
-        self.buffer = System.malloc(self.size);
-        self.len = 0;
-    }
-    def initialize(buf:pointer, size:size_t) {
-        self.size = size;
-        self.buffer = System.malloc(self.size);
-        System.memcpy(self.buffer, buf, size);
-        self.len = self.size;
-    }
-    def initialize(size:size_t) {
-        self.size = size;
-        self.buffer = System.malloc(self.size);
-        self.len = 0;
-    }
-    def finalize() {
-        System.free(self.buffer);
-    }
-    def append(buf:Buffer) {
-        len: size_t = buf.len;
-
-        if(self.len + len >= self.size) {
-            new_size:size_t = (self.len+len+1) * 2;
-            self.buffer = System.realloc(self.buffer, new_size);
-            self.size = new_size;
-        }
-
-        System.memcpy(self.buffer + self.len, buf.buffer, len);
-        self.len += len;
-    }
-
-    def append(data:byte) {
-        len: size_t = 1.to_ulong;
-
-        if(self.len + len >= self.size) {
-            new_size:size_t = (self.len+len+1) * 2;
-            self.buffer = System.realloc(self.buffer, new_size);
-            self.size = new_size;
-        }
-
-        (self.buffer + self.len)->byte = data;
-        self.len += len;
-    }
-
-    def chars(index:size_t):byte throws Exception {
-        if(index >= 0 && index < self.len) {
-            return((self.buffer + index)->byte);
-        }
-        else {
-            throw new Exception("Invalid range on Buffer.char");
-        }
-    }
-
-    def equals(buf:Buffer):bool {
-        if(self.len != buf.len) {
-            return false;
-        }
-
-        for(i:size_t = 0; i<self.len; i++) {
-            if(self.chars(i) != buf.chars(i)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    def toString():String throws Exception {
-        self.append(b"\0");
-
-        wcs:char[] = null;
-        System.mbstowcs(&wcs, self.buffer, self.len);
-        return new String(wcs);
-    }
 }
 
 class String
@@ -163,8 +35,6 @@ class String
     buffer: char[];
     size:int;
     len:int;
-
-    include MPrintf;
 
     def initialize() {
         self.buffer = new char[128]();
@@ -254,53 +124,6 @@ class String
 
         return self;
     }
-    def insert(index:int, str:String): String {
-        if(index < 0) {
-            index += self.len + 1;
-        }
-        if(index < 0) {
-            index = 0;
-        }
-        if(index > self.len) {
-            index = self.len;
-        }
-
-        len:int = str.length();
-
-        if(self.len+len + 1 < self.size) {
-            for(i:int = index; i<self.len; i++) {
-                self.buffer[i+len] = self.buffer[i];
-            }
-            self.buffer[i] = '\0';
-            for(i = 0; i<len; i++) {
-                self.buffer[index+i] = str.buffer[i];
-            }
-
-            self.len += len;
-        }
-        else {
-            new_size:int = (self.len + len + 1) * 2 + 1;
-            new_buffer:char[] = new char[new_size];
-
-            for(i:int = 0; i<index; i++) {
-                new_buffer[i] = self.buffer[i];
-            }
-            for(i=0; i<len; i++) {
-                new_buffer[i+index] = str.buffer[i];
-            }
-            for(i=index; i<self.len; i++) {
-                new_buffer[i+len] = self.buffer[i];
-            }
-            new_buffer[i+len] = '\0';
-
-            self.buffer = new_buffer;
-            self.size = new_size;
-
-            self.len += len;
-        }
-
-        return self;
-    }
 
     def replace(index:int, c:char) {
         if(index < 0) {
@@ -315,66 +138,6 @@ class String
         }
 
         self.buffer[index] = c;
-    }
-
-    def subString(start:int, end:int): String {
-        if(start < 0) {
-            start += self.len;
-        }
-        if(end < 0) {
-            end += self.len + 1;
-        }
-
-        if(start < 0) {
-            start = 0;
-        }
-        if(end > self.len) {
-            end = self.len;
-        }
-
-        if(start >= end || start >= self.len || end < 0) {
-            return "";
-        }
-
-        result: String = new String(end-start+1);
-
-        for(i:int = 0; i<end-start; i++) {
-            result.buffer[i] = self.chars(i+start);
-        }
-        result.buffer[i] = '\0';
-
-        result.len = end-start;
-        result.size = end-start+1;
-
-        return result;
-    }
-
-    def equals(str: String):bool {
-        if(self.len == str.length()) {
-            for(i:int = 0; i<self.len; i++) {
-                if(self.buffer[i] != str.buffer[i]) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-
-    def getHashKey(): uint {
-        key:uint = 0;
-        for(i:int =1; i<self.len; i++) {
-            key += self.buffer[i].to_uint;
-        }
-
-        return key;
-    }
-
-    def toString(): String {
-        return self;
     }
 }
 
@@ -391,21 +154,14 @@ interface Object
 {
 }
 
-module MPrintf
+class Clover
 {
-    def printf(format:String) {
-        printf(format, array { self });
+    def initialize():static {
+        System.srand(System.time().to_uint);
     }
 }
 
-module MInclude
-{
-    def include(list:EqualableList<SELF>):bool {
-        return list.indexOf(self) != -1;
-    }
-}
-
-module MWrapperClassConvert 
+module MWrapperClassBase 
 {
     def toByte():Byte {
         return self.value.toByte;
@@ -450,21 +206,27 @@ module MWrapperClassConvert
     def toString():String {
         return self.value.toString;
     }
-}
 
-module MWrapperClassEquals 
-{
     def equals(right:SELF):bool {
         return self.value == right.value;
+    }
+
+    def compare(right:SELF): int {
+        if(self.value < right.value) {
+            return -1;
+        }
+        elif(self.value == right.value) {
+            return 0;
+        }
+        else {
+            return 1;
+        }
     }
 }
 
 class Byte 
 {
-    include MWrapperClassConvert;
-    include MWrapperClassEquals;
-    include MPrintf;
-    include MInclude;
+    include MWrapperClassBase;
 
     value:byte;
 
@@ -503,10 +265,7 @@ class Byte
 
 class UByte 
 {
-    include MWrapperClassConvert;
-    include MWrapperClassEquals;
-    include MPrintf;
-    include MInclude;
+    include MWrapperClassBase;
 
     value:ubyte;
 
@@ -545,10 +304,7 @@ class UByte
 
 class Short 
 {
-    include MWrapperClassConvert;
-    include MWrapperClassEquals;
-    include MPrintf;
-    include MInclude;
+    include MWrapperClassBase;
 
     value:short;
 
@@ -587,10 +343,7 @@ class Short
 
 class UShort 
 {
-    include MWrapperClassConvert;
-    include MWrapperClassEquals;
-    include MPrintf;
-    include MInclude;
+    include MWrapperClassBase;
 
     value:ushort;
 
@@ -629,10 +382,7 @@ class UShort
 
 class Integer 
 {
-    include MWrapperClassConvert;
-    include MWrapperClassEquals;
-    include MPrintf;
-    include MInclude;
+    include MWrapperClassBase;
 
     value:int;
 
@@ -667,10 +417,7 @@ class Integer
 
 class UInteger 
 {
-    include MWrapperClassConvert;
-    include MWrapperClassEquals;
-    include MPrintf;
-    include MInclude;
+    include MWrapperClassBase;
 
     value: uint;
 
@@ -709,10 +456,7 @@ class UInteger
 
 class Long 
 {
-    include MWrapperClassConvert;
-    include MWrapperClassEquals;
-    include MPrintf;
-    include MInclude;
+    include MWrapperClassBase;
 
     value:long;
 
@@ -747,10 +491,7 @@ class Long
 
 class ULong 
 {
-    include MWrapperClassConvert;
-    include MWrapperClassEquals;
-    include MPrintf;
-    include MInclude;
+    include MWrapperClassBase;
 
     value: ulong;
 
@@ -789,10 +530,7 @@ class ULong
 
 class Float 
 {
-    include MWrapperClassConvert;
-    include MWrapperClassEquals;
-    include MPrintf;
-    include MInclude;
+    include MWrapperClassBase;
 
     value: float;
 
@@ -827,10 +565,7 @@ class Float
 
 class Double
 {
-    include MWrapperClassConvert;
-    include MWrapperClassEquals;
-    include MPrintf;
-    include MInclude;
+    include MWrapperClassBase;
 
     value: double;
 
@@ -865,10 +600,7 @@ class Double
 
 class Pointer
 {
-    include MWrapperClassConvert;
-    include MWrapperClassEquals;
-    include MPrintf;
-    include MInclude;
+    include MWrapperClassBase;
 
     value: pointer;
 
@@ -899,10 +631,7 @@ class Pointer
 
 class Char
 {
-    include MWrapperClassConvert;
-    include MWrapperClassEquals;
-    include MPrintf;
-    include MInclude;
+    include MWrapperClassBase;
 
     value: char;
 
@@ -941,11 +670,6 @@ class Char
 
 class Bool
 {
-    include MWrapperClassConvert;
-    include MWrapperClassEquals;
-    include MPrintf;
-    include MInclude;
-
     value: bool;
 
     def initialize() {
@@ -979,1006 +703,53 @@ class Bool
     def toPointer():Pointer {
         return self.value.toPointer;
     }
-}
 
-interface IEqualable
-{
-    def equals(key:Self): bool;
-    def toString(): String;
-}
-
-module MArrayImplement
-{
-    items:T[];
-
-    def initialize(items:T[]) {
-        self.items = items;
+    def toByte():Byte {
+        return self.value.toByte;
     }
 
-    def length():int {
-        return self.items.length;
+    def toUByte():UByte {
+        return self.value.toUByte;
     }
 
-    def items(index:int):T throws Exception {
-        if(index < 0) {
-            index += self.items.length;
-        }
-
-        return self.items[index];
+    def toShort():Short {
+        return self.value.toShort;
     }
 
-    def each(block_:lambda(T)) {
-        for(i:int = 0; i<self.items.length; i++) {
-            block_(self.items[i]);
-        }
-    }
-}
-
-class Array<T:Object>
-{
-    include MArrayImplement;
-
-    def toEqualableArray():EqualableArray<IEqualable> throws Exception {
-        result:EqualableArray<IEqualable>  = new EqualableArray<IEqualable>(self.items.toAnonymous());
-
-        for(i:int = 0; i<result.items.length; i++) {
-            if(!(result.items[i] implements IEqualable)) {
-                throw new Exception("An elements doesn't implement IEqualable");
-            }
-        }
-
-        return result;
+    def toUShort():UShort {
+        return self.value.toUShort;
     }
 
-    def toList(): List<T> {
-        result:List<T> = new List<T>();
-
-        for(i:int = 0; i<self.items.length; i++) {
-            result.add(self.items[i]);
-        }
-
-        return result;
-    }
-}
-
-class EqualableArray <T:IEqualable>
-{
-    include MArrayImplement;
-
-    def toString():String {
-        if(self.items.length == 0) {
-            return "array {}";
-        }
-
-        result:String = "array {";
-
-        for(i:= 0; i<self.items.length; i++) {
-            result.append(self.items[i].toString());
-            result.append(",");
-        }
-
-        result.replace(-1, '}');
-
-        return result;
+    def toInteger():Integer {
+        return self.value.toInteger;
     }
 
-    def equals(right:T[]): bool {
-        return self.equals(right.toArray);
+    def toUInteger():UInteger {
+        return self.value.toUInteger;
     }
 
-    def equals(right:Array<T>):bool {
-        if(self.items.length != right.items.length) {
-            return false;
-        }
-
-        for(i:= 0; i<self.items.length; i++) {
-            if(!self.items[i].equals(right.items[i])) {
-                return false;
-            }
-        }
-
-        return true;
+    def toLong():Long {
+        return self.value.toLong;
     }
 
-    def equals(right:EqualableArray<T>):bool {
-        if(self.items.length != right.items.length) {
-            return false;
-        }
-
-        for(i:= 0; i<self.items.length; i++) {
-            if(!self.items[i].equals(right.items[i])) {
-                return false;
-            }
-        }
-
-        return true;
+    def toULong():ULong {
+        return self.value.toULong;
     }
 
-    def toArray():Array<T> {
-        return new Array<T>(self.items.toAnonymous());
+    def toChar():Char {
+        return self.value.toChar;
     }
 
-    def toEqualableList(): EqualableList<T> {
-        result:EqualableList<T> = new EqualableList<T>();
-
-        for(i:int = 0; i<self.items.length; i++) {
-            result.add(self.items[i]);
-        }
-
-        return result;
-    }
-}
-
-interface IHashKey
-{
-    def getHashKey(): uint;
-    def equals(key:Self): bool;
-    def toString(): String;
-}
-
-class HashItem <T:IHashKey, T2:IEqualable>
-{
-    key:T;
-    item:T2;
-
-    def initialize() {
-        self.key = null;
-        self.item = null;
-    }
-
-    def initialize(key:T, item:T2) {
-        self.key = key;
-        self.item = item;
-    }
-}
-
-class Hash <T:IHashKey, T2:IEqualable>
-{
-    hashSizeDefault: static int;
-
-    def initialize():static {
-        Hash.hashSizeDefault = 128;
-    }
-
-    table: HashItem<T,T2>[];
-    itemNumber: uint;
-    tableSize: uint;
-
-    def initialize() {
-        self.table = new HashItem<T,T2>[Hash.hashSizeDefault];
-        self.tableSize = Hash.hashSizeDefault;
-        self.itemNumber = 0;
-    }
-
-    def initialize(keys: T[], items:T2[], num_elements:uint) {
-        hash_size:uint = num_elements * 2;
-
-        self.table = new HashItem<T,T2>[hash_size];
-        self.tableSize = hash_size;
-        self.itemNumber = num_elements;
-
-        for(i:=0; i<num_elements; i++) {
-            self.put(keys[i], items[i]);
-        }
-    }
-
-    def equals(right:Hash<T,T2>):bool {
-        if(self.itemNumber != right.itemNumber) {
-            return false;
-        }
-        result:bool = true;
-        self.each(closure(key:T, item:T2) {
-            if(!self.containes(key, item)) {
-                result = false;
-                return;
-            }
-        });
-
-        return result;
-    }
-
-    def length(): int {
-        return self.itemNumber;
-    }
-    
-    def clear(): Hash<T,T2> {
-        self.table = new HashItem<T,T2>[Hash.hashSizeDefault];
-        self.tableSize = Hash.hashSizeDefault;
-        self.itemNumber = 0;
-
-        return self;
-    }
-
-    def put(key:T, item:T2):Hash<T,T2> {
-        if(self.itemNumber * 2 >= self.tableSize) {
-            self.rehash();
-        }
-
-        hash_key:uint = key.getHashKey() % self.tableSize;
-        n:uint = hash_key;
-
-        while(true) {
-            if(self.table[n].identifyWith(null)) {
-                self.table[n] = new HashItem<T, T2>(key,item);
-                self.itemNumber++;
-                break;
-            }
-            else {
-                if(self.table[n].key.equals(key)) {
-                    self.table[n].item = item;
-                    break;
-                }
-            }
-
-            n++;
-
-            if(n == self.tableSize) {
-                n = 0;
-            }
-            elif(n == hash_key) {
-                self.rehash();
-                self.put(key, item);
-                break;
-            }
-        }
-
-        return self;
-    }
-
-    def rehash() {
-        table := self.table;
-        itemNumber := self.itemNumber;
-
-        self.tableSize *= 2;
-        self.table = new HashItem<T,T2>[self.tableSize];
-        self.itemNumber = 0;
-
-        for(i:=0; i<itemNumber; i++) {
-            if(!table[i].identifyWith(null)) {
-                self.put(table[i].key, table[i].item);
-            }
-        }
-    }
-
-    def get(key:T): T2 {
-        hash_key:uint = key.getHashKey() % self.tableSize;
-
-        n:uint = hash_key;
-
-        while(true) {
-            if(!self.table[n].identifyWith(null)) {
-                if(self.table[n].key.equals(key)) {
-                    return self.table[n].item;
-                }
-            }
-
-            n++;
-
-            if(n == self.tableSize) {
-                n = 0;
-            }
-            elif(n == hash_key) {
-                return null;
-            }
-        }
-    }
-
-    def getKey(item:T2):T {
-        for(i:uint =0; i<self.tableSize; i++) {
-            if(!self.table[i].identifyWith(null)) {
-                if(self.table[i].item.equals(item)) {
-                    return self.table[i].key;
-                }
-            }
-        }
-
-        return null;
-    }
-
-    def containes(key:T, item:T2):bool {
-        return self.get(key).equals(item);
-    }
-
-    def each(block_:lambda(T,T2)):Hash<T,T2> {
-        for(i:uint =0; i<self.tableSize; i++) {
-            if(!self.table[i].identifyWith(null)) {
-                block_(self.table[i].key, self.table[i].item);
-            }
-        }
-
-        return self;
+    def toBool():Bool {
+        return self.value.toBool;
     }
 
     def toString():String {
-        if(self.itemNumber == 0) {
-            return "hash {}";
-        }
+        return self.value.toString;
+    }
 
-        result:String = "hash {";
-
-        for(i:uint =0; i<self.tableSize; i++) {
-            if(!self.table[i].identifyWith(null)) {
-                result.append(self.table[i].key.toString());
-                result.append(":");
-                result.append(self.table[i].item.toString());
-                result.append(",");
-            }
-        }
-
-        result.replace(-1, '}');
-
-        return result;
+    def equals(right:Bool):bool {
+        return self.value == right.value;
     }
 }
-
-class ListItem <T:Object>
-{
-    item: T;
-    next: ListItem<T>;
-    prev: ListItem<T>;
-
-    def initialize() {
-        self.item = null;
-        self.next = null;
-        self.prev = null;
-    }
-
-    def initialize(item:T, prev:ListItem<T>, next:ListItem<T>) {
-        self.item = item;
-        self.prev = prev;
-        self.next = next;
-    }
-}
-
-module MListImplementation
-{
-    head: ListItem<T>;
-    tail: ListItem<T>;
-    number: int;
-
-    def initialize() {
-        self.head = null;
-        self.tail = null;
-        self.number = 0;
-    }
-
-    def initialize(items:T[], num_elements:uint) {
-        self.head = null;
-        self.tail = null;
-        self.number = 0;
-
-        for(i:int = 0; i<num_elements; i++) {
-            self.add(items[i]);
-        }
-    }
-
-    def setValue(list:SELF<T>) {
-        self.head = list.head;
-        self.tail = list.tail;
-        self.number = list.number;
-    }
-
-    def length():int {
-        return self.number;
-    }
-
-    def items(index:int):T {
-        if(index < 0) {
-            index += self.number;
-        }
-
-        it:ListItem<T> = self.head;
-
-        count:int = 0;
-
-        while(!it.identifyWith(null)) {
-            if(count == index) {
-                return it.item
-            }
-            count++;
-
-            it = it.next;
-        }
-
-        return null;
-    }
-    
-    def clear(): SELF<T> {
-        self.head = null;
-        self.tail = null;
-        self.number = 0;
-
-        return self;
-    }
-
-    def add(item:T):SELF<T> {
-        if(self.head.identifyWith(null)) {
-            self.head = new ListItem<T>(item, null, null);
-            self.tail = self.head;
-        }
-        else {
-            new_item:ListItem<T> = new ListItem<T>(item, self.tail, null);
-
-            self.tail.next = new_item;
-            self.tail = new_item;
-        }
-
-        self.number++;
-
-        return self;
-    }
-
-    def push(item:T):SELF<T> {
-        return self.add(item);
-    }
-
-    def pop():T {
-        if(self.head.identifyWith(null)) {
-            return null;
-        }
-        else {
-            new_tail := self.tail.prev;
-            item := self.tail.item;
-
-            if(new_tail.identifyWith(null)) {
-                self.head = null;
-                self.tail = null;
-                self.number = 0;
-
-                return item;
-            }
-            else {
-                new_tail.next = null;
-                self.tail = new_tail;
-
-                self.number--;
-
-                return item;
-            }
-        }
-    }
-
-    def shift():T {
-        if(self.head.identifyWith(null)) {
-            return null;
-        }
-        else {
-            new_head := self.head.next;
-            item := self.head.item;
-
-            if(new_head.identifyWith(null)) {
-                self.head = null;
-                self.tail = null;
-                self.number = 0;
-
-                return item;
-            }
-            else {
-                new_head.prev = null;
-                self.head = new_head;
-
-                self.number--;
-
-                return item;
-            }
-        }
-    }
-
-    def insert(index:int, item:T):SELF<T> {
-        if(index < 0) {
-            index += self.number + 1;
-        }
-        if(index < 0) {
-            index = 0;
-        }
-        if(index > self.number) {
-            index = self.number;
-        }
-
-        if(self.number == 0 || index == self.number) {
-            self.add(item);
-            return self;
-        }
-
-        if(index == 0) {
-            new_item:ListItem<T> = new ListItem<T>(item, null, self.head);
-            self.head.prev = new_item;
-            self.head = new_item;
-
-            self.number++;
-        }
-        else {
-            it:ListItem<T> = self.head;
-
-            i:= 0;
-
-            while(!it.identifyWith(null)) {
-                if(i == index-1) {
-                    new_item:ListItem<T> = new ListItem<T>(item, it, it.next);
-                    if(!it.next.identifyWith(null)) {
-                        it.next.prev = new_item;
-                    }
-                    it.next = new_item;
-
-                    self.number++;
-                    break;
-                }
-
-                it = it.next;
-                i++;
-            }
-        }
-
-        return self;
-    }
-
-    def deleteAt(index:int):SELF<T> {
-        it:ListItem<T> = self.head;
-        it2:ListItem<T> = self.head;
-
-        count:int = 0;
-
-        while(!it.identifyWith(null)) {
-            if(count == index) {
-                # one item is contained in list
-                if(it.identifyWith(self.head) && it.identifyWith(self.tail)) {
-                    self.head = null;
-                    self.tail = null;
-                    self.number = 0;
-                }
-                # two item is contained in list
-                elif(it2.identifyWith(self.head) && it.identifyWith(self.tail)) {
-                    self.head = it2;
-                    self.tail = it2;
-                    it2.prev = null;
-                    it2.next = null;
-                    self.number = 1;
-                }
-                # other
-                else {
-                    if(it.identifyWith(self.head)) {
-                        self.head = self.head.next;
-                        self.head.prev = null;
-                        self.number--;
-                    }
-                    elif(it.identifyWith(self.tail)) {
-                        self.tail = self.tail.prev;
-                        self.tail.next = null;
-                        self.number--;
-                    }
-                    else {
-                        it2.next = it.next;
-                        it.next.prev = it2;
-                        self.number--;
-                    }
-                }
-                break;
-            }
-
-            count++;
-            
-            it2 = it;
-            it = it.next;
-        }
-
-        return self;
-    }
-
-    def each(block_:lambda(T)):SELF<T> {
-        it:ListItem<T> = self.head;
-
-        while(!it.identifyWith(null)) {
-            block_(it.item);
-            it = it.next;
-        }
-
-        return self;
-    }
-
-    def eachReverse(block_:lambda(T)):SELF<T> {
-        it:ListItem<T> = self.tail;
-
-        while(!it.identifyWith(null)) {
-            block_(it.item);
-            it = it.prev;
-        }
-
-        return self;
-    }
-
-    def replace(index:int, item:T):SELF<T> {
-        if(index < 0) {
-            index += self.number;
-        }
-        if(index < 0) {
-            index = 0;
-        }
-        if(index >= self.number) {
-            index = self.number-1;
-        }
-
-        it:ListItem<T> = self.head;
-
-        count:int = 0;
-
-        while(!it.identifyWith(null)) {
-            if(count == index) {
-                it.item = item;
-                break;
-            }
-            count++;
-
-            it = it.next;
-        }
-
-        return self;
-    }
-
-}
-
-module MEqualableListImplementation
-{
-    def equals(right:SELF<T>):bool {
-        if(self.number != right.number) {
-            return false;
-        }
-        for(i:=0; i<self.number; i++) {
-            if(!self.items(i).equals(right.items(i))) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    def delete(item:T):SELF<T> {
-        it:ListItem<T> = self.head;
-        it2:ListItem<T> = self.head;
-
-        while(!it.identifyWith(null)) {
-            if(it.item.equals(item)) {
-                # one item is contained in list
-                if(it.identifyWith(self.head) && it.identifyWith(self.tail)) {
-                    self.head = null;
-                    self.tail = null;
-                    self.number = 0;
-                }
-                # two item is contained in list
-                elif(it2.identifyWith(self.head) && it.identifyWith(self.tail)) {
-                    self.head = it2;
-                    self.tail = it2;
-                    it2.prev = null;
-                    it2.next = null;
-                    self.number = 1;
-                }
-                # other
-                else {
-                    if(it.identifyWith(self.head)) {
-                        self.head = self.head.next;
-                        self.head.prev = null;
-                        self.number--;
-                    }
-                    elif(it.identifyWith(self.tail)) {
-                        self.tail = self.tail.prev;
-                        self.tail.next = null;
-                        self.number--;
-                    }
-                    else {
-                        it2.next = it.next;
-                        it.next.prev = it2;
-                        self.number--;
-                    }
-                }
-                break;
-            }
-            
-            it2 = it;
-            it = it.next;
-        }
-
-        return self;
-    }
-
-    def indexOf(item:T):int {
-        result:int = 0;
-
-        it:ListItem<T> = self.head;
-        while(!it.identifyWith(null)) {
-            if(it.item.equals(item)) {
-                return result;
-            }
-
-            result++;
-
-            it = it.next;
-        }
-
-        return -1;
-    }
-    def toString():String {
-        if(self.number == 0) {
-            return "list {}";
-        }
-
-        result:String = "list {";
-
-        it:ListItem<T> = self.head;
-
-        while(!it.identifyWith(null)) {
-            result.append(it.item.toString());
-            result.append(",");
-
-            it = it.next;
-        }
-
-        result.replace(-1, '}');
-
-        return result;
-    }
-}
-
-class List<T:Object>
-{
-    include MListImplementation;
-}
-
-class EqualableList<T:IEqualable>
-{
-    include MListImplementation;
-    include MEqualableListImplementation;
-}
-
-class Tuple1 <T:IEqualable>
-{
-    value1: T;
-
-    def initialize(value1:T) {
-        self.value1 = value1;
-    }
-
-    def equals(right:Tuple1<T>):bool {
-        return self.value1.equals(right.value1);
-    }
-
-    def toString():String {
-        return "tuple {".append(self.value1.toString()).append("}");
-    }
-}
-
-class Tuple2 <T:IEqualable, T2:IEqualable>
-{
-    value1: T;
-    value2: T2;
-
-    def initialize(value1:T, value2:T2) {
-        self.value1 = value1;
-        self.value2 = value2;
-    }
-
-    def equals(right:Tuple2<T,T2>):bool {
-        return self.value1.equals(right.value1) && self.value2.equals(right.value2);
-    }
-
-    def toString():String {
-        return "tuple {".append(self.value1.toString()).append(",").append(self.value2.toString()).append("}");
-    }
-}
-
-class Tuple3 <T:IEqualable, T2:IEqualable, T3:IEqualable>
-{
-    value1: T;
-    value2: T2;
-    value3: T3;
-
-    def initialize(value1:T, value2:T2, value3:T3) {
-        self.value1 = value1;
-        self.value2 = value2;
-        self.value3 = value3;
-    }
-
-    def equals(right:Tuple3<T,T2,T3>):bool {
-        return self.value1.equals(right.value1) && self.value2.equals(right.value2) && self.value3.equals(right.value3);
-    }
-
-    def toString():String {
-        return "tuple {".append(self.value1.toString()).append(",").append(self.value2.toString()).append(",").append(self.value3.toString()).append("}");
-    }
-}
-
-class Tuple4 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable>
-{
-    value1: T;
-    value2: T2;
-    value3: T3;
-    value4: T4;
-
-    def initialize(value1:T, value2:T2, value3:T3, value4:T4) {
-        self.value1 = value1;
-        self.value2 = value2;
-        self.value3 = value3;
-        self.value4 = value4;
-    }
-
-    def equals(right:Tuple4<T,T2,T3,T4>):bool {
-        return self.value1.equals(right.value1) && self.value2.equals(right.value2) && self.value3.equals(right.value3) && self.value4.equals(right.value4);
-    }
-    def toString():String {
-        return "tuple {".append(self.value1.toString()).append(",").append(self.value2.toString()).append(",").append(self.value3.toString()).append(",").append(self.value4.toString()).append("}");
-    }
-}
-
-class Tuple5 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqualable>
-{
-    value1: T;
-    value2: T2;
-    value3: T3;
-    value4: T4;
-    value5: T5;
-
-    def initialize(value1:T, value2:T2, value3:T3, value4:T4, value5:T5) {
-        self.value1 = value1;
-        self.value2 = value2;
-        self.value3 = value3;
-        self.value4 = value4;
-        self.value5 = value5;
-    }
-
-    def equals(right:Tuple5<T,T2,T3,T4,T5>):bool {
-        return self.value1.equals(right.value1) && self.value2.equals(right.value2) && self.value3.equals(right.value3) && self.value4.equals(right.value4) && self.value5.equals(right.value5);
-    }
-    def toString():String {
-        return "tuple {".append(self.value1.toString()).append(",").append(self.value2.toString()).append(",").append(self.value3.toString()).append(",").append(self.value4.toString()).append(",").append(self.value5.toString()).append("}");
-    }
-}
-
-class Tuple6 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqualable, T6:IEqualable>
-{
-    value1: T;
-    value2: T2;
-    value3: T3;
-    value4: T4;
-    value5: T5;
-    value6: T6;
-
-    def initialize(value1:T, value2:T2, value3:T3, value4:T4, value5:T5, value6:T6) {
-        self.value1 = value1;
-        self.value2 = value2;
-        self.value3 = value3;
-        self.value4 = value4;
-        self.value5 = value5;
-        self.value6 = value6;
-    }
-
-    def equals(right:Tuple6<T,T2,T3,T4,T5,T6>):bool {
-        return self.value1.equals(right.value1) && self.value2.equals(right.value2) && self.value3.equals(right.value3) && self.value4.equals(right.value4) && self.value5.equals(right.value5) && self.value6.equals(right.value6);
-    }
-    def toString():String {
-        return "tuple {".append(self.value1.toString()).append(",").append(self.value2.toString()).append(",").append(self.value3.toString()).append(",").append(self.value4.toString()).append(",").append(self.value5.toString()).append(",").append(self.value6.toString()).append("}");
-    }
-}
-
-class Tuple7 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqualable, T6:IEqualable, T7:IEqualable>
-{
-    value1: T;
-    value2: T2;
-    value3: T3;
-    value4: T4;
-    value5: T5;
-    value6: T6;
-    value7: T7;
-
-    def initialize(value1:T, value2:T2, value3:T3, value4:T4, value5:T5, value6:T6, value7:T7) {
-        self.value1 = value1;
-        self.value2 = value2;
-        self.value3 = value3;
-        self.value4 = value4;
-        self.value5 = value5;
-        self.value6 = value6;
-        self.value7 = value7;
-    }
-
-    def equals(right:Tuple7<T,T2,T3,T4,T5,T6,T7>):bool {
-        return self.value1.equals(right.value1) && self.value2.equals(right.value2) && self.value3.equals(right.value3) && self.value4.equals(right.value4) && self.value5.equals(right.value5) && self.value6.equals(right.value6) && self.value7.equals(right.value7);
-    }
-    def toString():String {
-        return "tuple {".append(self.value1.toString()).append(",").append(self.value2.toString()).append(",").append(self.value3.toString()).append(",").append(self.value4.toString()).append(",").append(self.value5.toString()).append(",").append(self.value6.toString()).append(",").append(self.value7.toString()).append("}");
-    }
-}
-
-class Tuple8 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqualable, T6:IEqualable, T7:IEqualable, T8:IEqualable>
-{
-    value1: T;
-    value2: T2;
-    value3: T3;
-    value4: T4;
-    value5: T5;
-    value6: T6;
-    value7: T7;
-    value8: T8;
-
-    def initialize(value1:T, value2:T2, value3:T3, value4:T4, value5:T5, value6:T6, value7:T7, value8:T8) {
-        self.value1 = value1;
-        self.value2 = value2;
-        self.value3 = value3;
-        self.value4 = value4;
-        self.value5 = value5;
-        self.value6 = value6;
-        self.value7 = value7;
-        self.value8 = value8;
-    }
-
-    def equals(right:Tuple8<T,T2,T3,T4,T5,T6,T7,T8>):bool {
-        return self.value1.equals(right.value1) && self.value2.equals(right.value2) && self.value3.equals(right.value3) && self.value4.equals(right.value4) && self.value5.equals(right.value5) && self.value6.equals(right.value6) && self.value7.equals(right.value7) && self.value8.equals(right.value8);
-    }
-    def toString():String {
-        return "tuple {".append(self.value1.toString()).append(",").append(self.value2.toString()).append(",").append(self.value3.toString()).append(",").append(self.value4.toString()).append(",").append(self.value5.toString()).append(",").append(self.value6.toString()).append(",").append(self.value7.toString()).append(",").append(self.value8.toString()).append("}");
-    }
-}
-
-class Tuple9 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqualable, T6:IEqualable, T7:IEqualable, T8:IEqualable, T9:IEqualable>
-{
-    value1: T;
-    value2: T2;
-    value3: T3;
-    value4: T4;
-    value5: T5;
-    value6: T6;
-    value7: T7;
-    value8: T8;
-    value9: T9;
-
-    def initialize(value1:T, value2:T2, value3:T3, value4:T4, value5:T5, value6:T6, value7:T7, value8:T8, value9:T9) {
-        self.value1 = value1;
-        self.value2 = value2;
-        self.value3 = value3;
-        self.value4 = value4;
-        self.value5 = value5;
-        self.value6 = value6;
-        self.value7 = value7;
-        self.value8 = value8;
-        self.value9 = value9;
-    }
-
-    def equals(right:Tuple9<T,T2,T3,T4,T5,T6,T7,T8,T9>):bool {
-        return self.value1.equals(right.value1) && self.value2.equals(right.value2) && self.value3.equals(right.value3) && self.value4.equals(right.value4) && self.value5.equals(right.value5) && self.value6.equals(right.value6) && self.value7.equals(right.value7) && self.value8.equals(right.value8) && self.value9.equals(right.value9);
-    }
-    def toString():String {
-        return "tuple {".append(self.value1.toString()).append(",").append(self.value2.toString()).append(",").append(self.value3.toString()).append(",").append(self.value4.toString()).append(",").append(self.value5.toString()).append(",").append(self.value6.toString()).append(",").append(self.value7.toString()).append(",").append(self.value8.toString()).append(",").append(self.value9.toString()).append("}");
-    }
-}
-
-class Tuple10 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqualable, T6:IEqualable, T7:IEqualable, T8:IEqualable, T9:IEqualable, T10:IEqualable>
-{
-    value1: T;
-    value2: T2;
-    value3: T3;
-    value4: T4;
-    value5: T5;
-    value6: T6;
-    value7: T7;
-    value8: T8;
-    value9: T9;
-    value10: T10;
-
-    def initialize(value1:T, value2:T2, value3:T3, value4:T4, value5:T5, value6:T6, value7:T7, value8:T8, value9:T9, value10:T10) {
-        self.value1 = value1;
-        self.value2 = value2;
-        self.value3 = value3;
-        self.value4 = value4;
-        self.value5 = value5;
-        self.value6 = value6;
-        self.value7 = value7;
-        self.value8 = value8;
-        self.value9 = value9;
-        self.value10 = value10;
-    }
-
-    def equals(right:Tuple10<T,T2,T3,T4,T5,T6,T7,T8,T9,T10>):bool {
-        return self.value1.equals(right.value1) && self.value2.equals(right.value2) && self.value3.equals(right.value3) && self.value4.equals(right.value4) && self.value5.equals(right.value5) && self.value6.equals(right.value6) && self.value7.equals(right.value7) && self.value8.equals(right.value8) && self.value9.equals(right.value9) && self.value10.equals(right.value10);
-    }
-    def toString():String {
-        return "tuple {".append(self.value1.toString()).append(",").append(self.value2.toString()).append(",").append(self.value3.toString()).append(",").append(self.value4.toString()).append(",").append(self.value5.toString()).append(",").append(self.value6.toString()).append(",").append(self.value7.toString()).append(",").append(self.value8.toString()).append(",").append(self.value9.toString()).append(",").append(self.value10.toString()).append("}");
-    }
-}
-
 

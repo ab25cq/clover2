@@ -1,2 +1,2 @@
-export LD_LIBRARY_PATH=.; gdb ./clover2
+export LD_LIBRARY_PATH=.; gdb ./cclover2
 
