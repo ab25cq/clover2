@@ -7,6 +7,7 @@ class System
     typedef uid_t int;
     typedef gid_t int;
     typedef DIR pointer;
+    typedef off_t ulong;
 
     S_IFMT: static int;
     S_IFDIR: static int;
@@ -57,6 +58,13 @@ class System
     O_PATH: static int;
     O_SYNC : static int;
 
+    FNM_NOESCAPE: static int;
+    FNM_PATHNAME: static int;
+    FNM_PERIOD: static int;
+    FNM_FILE_NAME: static int;
+    FNM_LEADING_DIR: static int;
+    FNM_CASEFOLD: static int;
+
     def initialize(): static native;
     def open(file_name:String, flags:int, mode:mode_t):static native int throws Exception;
     def close(fd:int): static native int throws Exception;
@@ -74,6 +82,27 @@ class System
     def opendir(path:String): static native DIR throws Exception;
     def readdir(dir:DIR): static native String@Nullable;
     def closedir(dir:DIR): static native int throws Exception;
+    def chmod(path:String, mode:mode_t): static native throws Exception;
+    def lchmod(path:String, mode:mode_t): static native throws Exception;
+    def fchmod(fd:int, mode:mode_t): static native throws Exception;
+    def chown(path:String, owner:uid_t, group:gid_t): static native throws Exception;
+    def lchown(path:String, owner:uid_t, group:gid_t): static native throws Exception;
+    def fchown(fd:int, owner:uid_t, group:gid_t): static native throws Exception;
+    def unlink(path:String): static native throws Exception;
+    def access(path:String, mode:int): static native throws Exception;
+    def utime(path:String, actime:time_t, modtime:time_t): static native throws Exception;
+    def fnmatch(pattern:String, path:String, flags:int): static native bool;
+    def link(old_path:String, new_path:String): static native throws Exception;
+    def symlink(old_path:String, new_path:String): static native throws Exception;
+    def readlink(path:String): static native String throws Exception;
+    def rename(oldpath:String, newpath:String): static native throws Exception;
+    def truncate(path:String, length:off_t): static native throws Exception;
+    def ftruncate(fd:int, length:off_t): static native throws Exception;
+
+    def chdir(path:String): static native throws Exception;
+    def fchdir(fd:int): static native throws Exception;
+    def rmdir(path:String): static native throws Exception;
+    def mkdir(path:String, mode:mode_t): static native throws Exception;
 }
 
 class tm
@@ -441,165 +470,73 @@ class Path
         return File.write(self.path, buf);
     }
 
-/*
-    void chmod(mode_t mode) throws SystemException {
-        System.chmod(self, mode);
+    def chmod(mode:mode_t) throws Exception {
+        System.chmod(self.toString(), mode);
     }
-    void lchmod(mode_t mode) throws SystemException {
-        System.lchmod(self, mode);
+    def lchmod(mode:mode_t) throws Exception {
+        System.lchmod(self.toString(), mode);
     }
-    void chown(uid_t owner=-1l.to_uid_t(), gid_t group=-1l.to_gid_t()) throws SystemException 
-    {
-        System.chown(self, owner, group);
+    def chown(owner:uid_t, group:gid_t) throws Exception {
+        System.chown(self.toString(), owner, group);
     }
-    void lchown(uid_t owner=-1l.to_uid_t(), gid_t group=-1l.to_gid_t()) throws SystemException 
-    {
-        System.lchown(self, owner, group);
+    def lchown(owner:uid_t, group:gid_t) throws Exception {
+        System.lchown(self.toString(), owner, group);
     }
-    void unlink() throws SystemException {
-        System.unlink(self);
+    def unlink() throws Exception {
+        System.unlink(self.toString());
     }
-    int access(AccessMode mode=AccessMode.F_OK) {
-        return System.access(self, mode).get1();
+    def access(mode:int) throws Exception {
+        System.access(self.toString(), mode);
     }
-    bool existance() {
-        return self.access(AccessMode.F_OK) == 0;
+    def utime(actime:time_t, modtime:time_t) throws Exception {
+        System.utime(self.toString(), actime, modtime);
     }
-    void utime(time_t actime, time_t modtime) {
-        System.utime(self, new utimbuf(actime, modtime));
+    def fnmatch(pattern:String, flags:int): bool {
+        return System.fnmatch(pattern, self.toString(), flags);
     }
-
-    bool fnmatch(String pattern, FnmatchFlags flags=0.toFnmatchFlags()) {
-        return System.fnmatch(pattern, self, flags);
+    def link(new_path:String) throws Exception {
+        System.link(self.toString(), new_path);
     }
-
-    bool isIdentical(Path path2) {
-        return self.absolutePath() == path2.absolutePath();
+    def symlink(new_path:String) throws Exception {
+        System.symlink(self.toString(), new_path);
     }
-
-    Path absolutePath() {
-        String result = self.clone();
-
-        /// add current path to head ///
-        if(result[0] != '/') {
-            result = System.getcwd() + "/" + result;
-        }
-
-        /// delete ./ ///
-        result = result.sub(/(\/\.)($|\/)/g) {
-            |Array<String> group_strings, String prematch, String match, String postmatch|
-            if(group_strings.length() == 2) {
-                if(group_strings[1] == "/") {
-                    return "/";
-                }
-            }
-
-            return "";
-        };
-
-        /// delete .. ///
-        result = result.sub(/^(\/\.\.)+($|\/)/) {
-            |Array<String> group_strings, String prematch, String match, String postmatch|
-            if(group_strings.length() == 2) {
-                if(group_strings[1] == "/") {
-                    return "/";
-                }
-            }
-
-            return "";
-        }
-
-        result = result.sub(/(\/[^\/]+)(\/\.\.)($|\/)/g) {
-            |Array<String> group_strings, String prematch, String match, String postmatch|
-
-            if(group_strings.length() == 3) {
-                if(group_strings[2] == "/") {
-                    return "/";
-                }
-            }
-            
-            return "";
-        }
-
-        /// Is this path directory? If that is true, append / to the tail. If that is false, remove '/' at the tail  ///
-        bool is_directory = false;
-        try {
-            is_directory = result.toPath().to_stat().S_ISDIR();
-        }
-        catch(SystemException e) {
-            if(result[-1] == '/') {
-                try {
-                    is_directory = result[0..-1].toPath().to_stat().S_ISDIR();
-                }
-                catch(SystemException e) {
-                    is_directory = false;
-                }
-            }
-        }
-
-        if(is_directory) {
-            if(result[-1] != '/') {
-                result += "/";
-            }
-        }
-        else {
-            if(result[-1] == '/') {
-                result = result[0..-1];
-            }
-        }
-
-        if(result == "") {
-            result = "/";
-        }
-        
-        return result.toPath();
+    def readlink(): String throws Exception {
+        return System.readlink(self.toString());
+    }
+    def rename(path:String) throws Exception {
+        System.rename(self.toString(), path);
+    }
+    def truncate(length:off_t) throws Exception {
+        System.truncate(self.toString(), length);
     }
 
-    Path realpath() throws SystemException {
-        return System.realpath(self);
+    def chdir() throws Exception {
+        System.chdir(self.toString());
     }
 
-    void link(Path newpath) throws SystemException {
-        System.link(self, newpath);
+    def rmdir() throws Exception {
+        System.rmdir(self.toString());
     }
 
-    void symlink(Path newpath) throws SystemException {
-        System.symlink(self, newpath);
+    def mkdir(mode:mode_t) throws Exception {
+        System.mkdir(self.toString(), mode);
     }
 
-    Path readlink() throws SystemException {
-        return System.readlink(self);
+    def mkdir() throws Exception {
+        System.mkdir(self.toString(), 0755);
     }
 
-    void rename(Path path) throws SystemException {
-        System.rename(self, path);
+    def entries(): SortableList<String> throws Exception {
+        return Directory.entries(self.toString());
     }
 
-    void truncate(off_t length) throws SystemException {
-        System.truncate(self, length);
+    def glob(pattern:String, flags:int): SortableList<String> throws Exception {
+        return Directory.glob(self.toString(), pattern, flags);
     }
 
-    Array<Path> entries() throws SystemException {
-        return Directory.entries(self);
+    def glob(pattern:String): SortableList<String> throws Exception {
+        return Directory.glob(self.toString(), pattern, 0);
     }
-
-    Array<Path> glob(String pattern, FnmatchFlags flags=0.toFnmatchFlags()) throws SystemException
-    {
-        return Directory.glob(self, pattern, flags);
-    }
-
-    void chdir() throws SystemException {
-        System.chdir(self);
-    }
-
-    void rmdir() throws SystemException {
-        System.rmdir(self);
-    }
-
-    void mkdir(mode_t mode=0777l.to_mode_t()) {
-        System.mkdir(self, mode);
-    }
-*/
 }
 
 class Directory 
@@ -631,6 +568,58 @@ class Directory
             System.closedir(self.dir);
             self.dir = 0.to_pointer;
         }
+    }
+
+    def entries(path:String): static SortableList<String> throws Exception {
+        dir:Directory = new Directory(path);
+        result:SortableList<String> = new SortableList<String>();
+
+        while(true) {
+            entry:String = dir.readdir();
+
+            if(entry.identifyWith(null)) {
+                break;
+            }
+
+            if(!entry.equals(".") && !entry.equals("..")) {
+                result.add(entry);
+            }
+        }
+        dir.closedir();
+
+        return result;
+    }
+
+    def glob(path:String, pattern:String, flags:int): static SortableList<String> throws Exception {
+        dir:Directory = new Directory(path);
+        result:SortableList<String> = new SortableList<String>();
+
+        while(true) {
+            entry:String = dir.readdir();
+
+            if(entry.identifyWith(null)) {
+                break;
+            }
+
+            if(System.fnmatch(pattern, entry, flags)) {
+                result.add(entry);
+            }
+        }
+        dir.closedir();
+
+        return result;
+    }
+
+    def glob(path:String, pattern:String): static SortableList<String> throws Exception {
+        return Directory.glob(path, pattern, 0);
+    }
+
+    def glob(pattern:String, flags:int):static SortableList<String> throws Exception {
+        return Directory.glob(".", pattern, flags);
+    }
+
+    def glob(pattern:String):static SortableList<String> throws Exception {
+        return Directory.glob(".", pattern, 0);
     }
 }
 

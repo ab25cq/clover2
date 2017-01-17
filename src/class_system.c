@@ -8,6 +8,8 @@
 #include <fcntl.h>
 #include <libgen.h>
 #include <dirent.h>
+#include <utime.h>
+#include <fnmatch.h>
 
 BOOL System_exit(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
@@ -1016,6 +1018,13 @@ BOOL System_initialize(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 #endif
     system->mClassFields[47].mValue.mIntValue = O_SYNC;
 
+    system->mClassFields[48].mValue.mIntValue = FNM_NOESCAPE;
+    system->mClassFields[49].mValue.mIntValue = FNM_PATHNAME;
+    system->mClassFields[50].mValue.mIntValue = FNM_PERIOD;
+    system->mClassFields[51].mValue.mIntValue = FNM_FILE_NAME;
+    system->mClassFields[52].mValue.mIntValue = FNM_LEADING_DIR;
+    system->mClassFields[53].mValue.mIntValue = FNM_CASEFOLD;
+
     return TRUE;
 }
 
@@ -1376,185 +1385,185 @@ BOOL System_initialize_command_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInf
 {
     sCLClass* system = get_class("System");
 
-    system->mClassFields[48].mValue.mIntValue = WNOHANG;
-    system->mClassFields[49].mValue.mIntValue = WUNTRACED;
-    system->mClassFields[50].mValue.mIntValue = WCONTINUED;
+    system->mClassFields[54].mValue.mIntValue = WNOHANG;
+    system->mClassFields[55].mValue.mIntValue = WUNTRACED;
+    system->mClassFields[56].mValue.mIntValue = WCONTINUED;
 
-    system->mClassFields[51].mValue.mIntValue = SIGHUP;
-    system->mClassFields[52].mValue.mIntValue = SIGINT;
-    system->mClassFields[53].mValue.mIntValue = SIGQUIT;
-    system->mClassFields[54].mValue.mIntValue = SIGILL;
-    system->mClassFields[55].mValue.mIntValue = SIGABRT;
-    system->mClassFields[56].mValue.mIntValue = SIGFPE;
-    system->mClassFields[57].mValue.mIntValue = SIGKILL;
-    system->mClassFields[58].mValue.mIntValue = SIGSEGV;
-    system->mClassFields[59].mValue.mIntValue = SIGPIPE;
-    system->mClassFields[60].mValue.mIntValue = SIGALRM;
-    system->mClassFields[61].mValue.mIntValue = SIGTERM;
-    system->mClassFields[62].mValue.mIntValue = SIGUSR1;
-    system->mClassFields[63].mValue.mIntValue = SIGUSR2;
-    system->mClassFields[64].mValue.mIntValue = SIGCHLD;
-    system->mClassFields[65].mValue.mIntValue = SIGCONT;
-    system->mClassFields[66].mValue.mIntValue = SIGSTOP;
-    system->mClassFields[67].mValue.mIntValue = SIGTSTP;
-    system->mClassFields[68].mValue.mIntValue = SIGTTIN;
-    system->mClassFields[69].mValue.mIntValue = SIGTTOU;
+    system->mClassFields[57].mValue.mIntValue = SIGHUP;
+    system->mClassFields[58].mValue.mIntValue = SIGINT;
+    system->mClassFields[59].mValue.mIntValue = SIGQUIT;
+    system->mClassFields[60].mValue.mIntValue = SIGILL;
+    system->mClassFields[61].mValue.mIntValue = SIGABRT;
+    system->mClassFields[62].mValue.mIntValue = SIGFPE;
+    system->mClassFields[63].mValue.mIntValue = SIGKILL;
+    system->mClassFields[64].mValue.mIntValue = SIGSEGV;
+    system->mClassFields[65].mValue.mIntValue = SIGPIPE;
+    system->mClassFields[66].mValue.mIntValue = SIGALRM;
+    system->mClassFields[67].mValue.mIntValue = SIGTERM;
+    system->mClassFields[68].mValue.mIntValue = SIGUSR1;
+    system->mClassFields[69].mValue.mIntValue = SIGUSR2;
+    system->mClassFields[70].mValue.mIntValue = SIGCHLD;
+    system->mClassFields[71].mValue.mIntValue = SIGCONT;
+    system->mClassFields[72].mValue.mIntValue = SIGSTOP;
+    system->mClassFields[73].mValue.mIntValue = SIGTSTP;
+    system->mClassFields[74].mValue.mIntValue = SIGTTIN;
+    system->mClassFields[75].mValue.mIntValue = SIGTTOU;
 
     // c_iflag bits
-    system->mClassFields[70].mValue.mIntValue = IGNBRK;
-    system->mClassFields[71].mValue.mIntValue = BRKINT;
-    system->mClassFields[72].mValue.mIntValue = IGNPAR;
-    system->mClassFields[73].mValue.mIntValue = PARMRK;
-    system->mClassFields[74].mValue.mIntValue = INPCK;
-    system->mClassFields[75].mValue.mIntValue = ISTRIP;
-    system->mClassFields[76].mValue.mIntValue = INLCR;
-    system->mClassFields[77].mValue.mIntValue = IGNCR;
-    system->mClassFields[78].mValue.mIntValue = ICRNL;
-    system->mClassFields[79].mValue.mIntValue = IUCLC;
-    system->mClassFields[80].mValue.mIntValue = IXON;
-    system->mClassFields[81].mValue.mIntValue = IXANY;
-    system->mClassFields[82].mValue.mIntValue = IXOFF;
-    system->mClassFields[83].mValue.mIntValue = IMAXBEL;
-    system->mClassFields[84].mValue.mIntValue = IUTF8;
+    system->mClassFields[76].mValue.mIntValue = IGNBRK;
+    system->mClassFields[77].mValue.mIntValue = BRKINT;
+    system->mClassFields[78].mValue.mIntValue = IGNPAR;
+    system->mClassFields[79].mValue.mIntValue = PARMRK;
+    system->mClassFields[80].mValue.mIntValue = INPCK;
+    system->mClassFields[81].mValue.mIntValue = ISTRIP;
+    system->mClassFields[82].mValue.mIntValue = INLCR;
+    system->mClassFields[83].mValue.mIntValue = IGNCR;
+    system->mClassFields[84].mValue.mIntValue = ICRNL;
+    system->mClassFields[85].mValue.mIntValue = IUCLC;
+    system->mClassFields[86].mValue.mIntValue = IXON;
+    system->mClassFields[87].mValue.mIntValue = IXANY;
+    system->mClassFields[88].mValue.mIntValue = IXOFF;
+    system->mClassFields[89].mValue.mIntValue = IMAXBEL;
+    system->mClassFields[90].mValue.mIntValue = IUTF8;
 
     // c_oflag bits
-    system->mClassFields[85].mValue.mIntValue = OPOST;
-    system->mClassFields[86].mValue.mIntValue = OLCUC;
-    system->mClassFields[87].mValue.mIntValue = ONLCR;
-    system->mClassFields[88].mValue.mIntValue = OCRNL;
-    system->mClassFields[89].mValue.mIntValue = ONOCR;
-    system->mClassFields[90].mValue.mIntValue = ONLRET;
-    system->mClassFields[91].mValue.mIntValue = OFILL;
-    system->mClassFields[92].mValue.mIntValue = OFDEL;
-    system->mClassFields[93].mValue.mIntValue = NLDLY;
-    system->mClassFields[94].mValue.mIntValue = NL0;
-    system->mClassFields[95].mValue.mIntValue = NL1;
-    system->mClassFields[96].mValue.mIntValue = CRDLY;
-    system->mClassFields[97].mValue.mIntValue = CR0;
-    system->mClassFields[98].mValue.mIntValue = CR1;
-    system->mClassFields[99].mValue.mIntValue = CR2;
-    system->mClassFields[100].mValue.mIntValue = CR3;
-    system->mClassFields[101].mValue.mIntValue = TABDLY;
-    system->mClassFields[102].mValue.mIntValue = TAB0;
-    system->mClassFields[103].mValue.mIntValue = TAB1;
-    system->mClassFields[104].mValue.mIntValue = TAB2;
-    system->mClassFields[105].mValue.mIntValue = TAB3;
-    system->mClassFields[106].mValue.mIntValue = BSDLY;
-    system->mClassFields[107].mValue.mIntValue = BS0;
-    system->mClassFields[108].mValue.mIntValue = BS1;
-    system->mClassFields[109].mValue.mIntValue = FFDLY;
-    system->mClassFields[110].mValue.mIntValue = FF0;
-    system->mClassFields[111].mValue.mIntValue = FF1;
+    system->mClassFields[91].mValue.mIntValue = OPOST;
+    system->mClassFields[92].mValue.mIntValue = OLCUC;
+    system->mClassFields[93].mValue.mIntValue = ONLCR;
+    system->mClassFields[94].mValue.mIntValue = OCRNL;
+    system->mClassFields[95].mValue.mIntValue = ONOCR;
+    system->mClassFields[96].mValue.mIntValue = ONLRET;
+    system->mClassFields[97].mValue.mIntValue = OFILL;
+    system->mClassFields[98].mValue.mIntValue = OFDEL;
+    system->mClassFields[99].mValue.mIntValue = NLDLY;
+    system->mClassFields[100].mValue.mIntValue = NL0;
+    system->mClassFields[101].mValue.mIntValue = NL1;
+    system->mClassFields[102].mValue.mIntValue = CRDLY;
+    system->mClassFields[103].mValue.mIntValue = CR0;
+    system->mClassFields[104].mValue.mIntValue = CR1;
+    system->mClassFields[105].mValue.mIntValue = CR2;
+    system->mClassFields[106].mValue.mIntValue = CR3;
+    system->mClassFields[107].mValue.mIntValue = TABDLY;
+    system->mClassFields[108].mValue.mIntValue = TAB0;
+    system->mClassFields[109].mValue.mIntValue = TAB1;
+    system->mClassFields[110].mValue.mIntValue = TAB2;
+    system->mClassFields[111].mValue.mIntValue = TAB3;
+    system->mClassFields[112].mValue.mIntValue = BSDLY;
+    system->mClassFields[113].mValue.mIntValue = BS0;
+    system->mClassFields[114].mValue.mIntValue = BS1;
+    system->mClassFields[115].mValue.mIntValue = FFDLY;
+    system->mClassFields[116].mValue.mIntValue = FF0;
+    system->mClassFields[117].mValue.mIntValue = FF1;
 
-    system->mClassFields[112].mValue.mIntValue = VTDLY;
-    system->mClassFields[113].mValue.mIntValue = VT0;
-    system->mClassFields[114].mValue.mIntValue = VT1;
+    system->mClassFields[118].mValue.mIntValue = VTDLY;
+    system->mClassFields[119].mValue.mIntValue = VT0;
+    system->mClassFields[120].mValue.mIntValue = VT1;
 
-    system->mClassFields[115].mValue.mIntValue = XTABS;
+    system->mClassFields[121].mValue.mIntValue = XTABS;
 
     // c_cflag bit meaning 
-    system->mClassFields[116].mValue.mIntValue = CBAUD;
-    system->mClassFields[117].mValue.mIntValue = B0;
-    system->mClassFields[118].mValue.mIntValue = B50;
-    system->mClassFields[119].mValue.mIntValue = B75;
-    system->mClassFields[120].mValue.mIntValue = B110;
-    system->mClassFields[121].mValue.mIntValue = B134;
-    system->mClassFields[122].mValue.mIntValue = B150;
-    system->mClassFields[123].mValue.mIntValue = B200;
-    system->mClassFields[124].mValue.mIntValue = B300;
-    system->mClassFields[125].mValue.mIntValue = B600;
-    system->mClassFields[126].mValue.mIntValue = B1200;
-    system->mClassFields[127].mValue.mIntValue = B1800;
-    system->mClassFields[128].mValue.mIntValue = B2400;
-    system->mClassFields[129].mValue.mIntValue = B4800;
-    system->mClassFields[130].mValue.mIntValue = B9600;
-    system->mClassFields[131].mValue.mIntValue = B19200;
-    system->mClassFields[132].mValue.mIntValue = B38400;
-    system->mClassFields[133].mValue.mIntValue = EXTA;
-    system->mClassFields[134].mValue.mIntValue = EXTB;
-    system->mClassFields[135].mValue.mIntValue = CSIZE;
-    system->mClassFields[136].mValue.mIntValue = CS5;
-    system->mClassFields[137].mValue.mIntValue = CS6;
-    system->mClassFields[138].mValue.mIntValue = CS7;
-    system->mClassFields[139].mValue.mIntValue = CS8;
-    system->mClassFields[140].mValue.mIntValue = CSTOPB;
-    system->mClassFields[141].mValue.mIntValue = CREAD;
-    system->mClassFields[142].mValue.mIntValue = PARENB;
-    system->mClassFields[143].mValue.mIntValue = PARODD;
-    system->mClassFields[144].mValue.mIntValue = HUPCL;
-    system->mClassFields[145].mValue.mIntValue = CLOCAL;
-    system->mClassFields[146].mValue.mIntValue = CBAUDEX;
-    system->mClassFields[147].mValue.mIntValue = B57600;
-    system->mClassFields[148].mValue.mIntValue = B115200;
-    system->mClassFields[149].mValue.mIntValue = B230400;
-    system->mClassFields[150].mValue.mIntValue = B460800;
-    system->mClassFields[151].mValue.mIntValue = B500000;
-    system->mClassFields[152].mValue.mIntValue = B576000;
-    system->mClassFields[153].mValue.mIntValue = B921600;
-    system->mClassFields[154].mValue.mIntValue = B1000000;
-    system->mClassFields[155].mValue.mIntValue = B1152000;
-    system->mClassFields[156].mValue.mIntValue = B1500000;
-    system->mClassFields[157].mValue.mIntValue = B2000000;
-    system->mClassFields[158].mValue.mIntValue = B2500000;
-    system->mClassFields[159].mValue.mIntValue = B3000000;
-    system->mClassFields[160].mValue.mIntValue = B3500000;
-    system->mClassFields[161].mValue.mIntValue = B4000000;
-    system->mClassFields[162].mValue.mIntValue = CIBAUD;
-    system->mClassFields[163].mValue.mIntValue = CMSPAR;
-    system->mClassFields[164].mValue.mIntValue = CRTSCTS;
+    system->mClassFields[122].mValue.mIntValue = CBAUD;
+    system->mClassFields[123].mValue.mIntValue = B0;
+    system->mClassFields[124].mValue.mIntValue = B50;
+    system->mClassFields[125].mValue.mIntValue = B75;
+    system->mClassFields[126].mValue.mIntValue = B110;
+    system->mClassFields[127].mValue.mIntValue = B134;
+    system->mClassFields[128].mValue.mIntValue = B150;
+    system->mClassFields[129].mValue.mIntValue = B200;
+    system->mClassFields[130].mValue.mIntValue = B300;
+    system->mClassFields[131].mValue.mIntValue = B600;
+    system->mClassFields[132].mValue.mIntValue = B1200;
+    system->mClassFields[133].mValue.mIntValue = B1800;
+    system->mClassFields[134].mValue.mIntValue = B2400;
+    system->mClassFields[135].mValue.mIntValue = B4800;
+    system->mClassFields[136].mValue.mIntValue = B9600;
+    system->mClassFields[137].mValue.mIntValue = B19200;
+    system->mClassFields[138].mValue.mIntValue = B38400;
+    system->mClassFields[139].mValue.mIntValue = EXTA;
+    system->mClassFields[140].mValue.mIntValue = EXTB;
+    system->mClassFields[141].mValue.mIntValue = CSIZE;
+    system->mClassFields[142].mValue.mIntValue = CS5;
+    system->mClassFields[143].mValue.mIntValue = CS6;
+    system->mClassFields[144].mValue.mIntValue = CS7;
+    system->mClassFields[145].mValue.mIntValue = CS8;
+    system->mClassFields[146].mValue.mIntValue = CSTOPB;
+    system->mClassFields[147].mValue.mIntValue = CREAD;
+    system->mClassFields[148].mValue.mIntValue = PARENB;
+    system->mClassFields[149].mValue.mIntValue = PARODD;
+    system->mClassFields[150].mValue.mIntValue = HUPCL;
+    system->mClassFields[151].mValue.mIntValue = CLOCAL;
+    system->mClassFields[152].mValue.mIntValue = CBAUDEX;
+    system->mClassFields[153].mValue.mIntValue = B57600;
+    system->mClassFields[154].mValue.mIntValue = B115200;
+    system->mClassFields[155].mValue.mIntValue = B230400;
+    system->mClassFields[156].mValue.mIntValue = B460800;
+    system->mClassFields[157].mValue.mIntValue = B500000;
+    system->mClassFields[158].mValue.mIntValue = B576000;
+    system->mClassFields[159].mValue.mIntValue = B921600;
+    system->mClassFields[160].mValue.mIntValue = B1000000;
+    system->mClassFields[161].mValue.mIntValue = B1152000;
+    system->mClassFields[162].mValue.mIntValue = B1500000;
+    system->mClassFields[163].mValue.mIntValue = B2000000;
+    system->mClassFields[164].mValue.mIntValue = B2500000;
+    system->mClassFields[165].mValue.mIntValue = B3000000;
+    system->mClassFields[166].mValue.mIntValue = B3500000;
+    system->mClassFields[167].mValue.mIntValue = B4000000;
+    system->mClassFields[168].mValue.mIntValue = CIBAUD;
+    system->mClassFields[169].mValue.mIntValue = CMSPAR;
+    system->mClassFields[170].mValue.mIntValue = CRTSCTS;
 
     // c_lflag bits
-    system->mClassFields[165].mValue.mIntValue = ISIG;
-    system->mClassFields[166].mValue.mIntValue = ICANON;
-    system->mClassFields[167].mValue.mIntValue = XCASE;
-    system->mClassFields[168].mValue.mIntValue = ECHO;
-    system->mClassFields[169].mValue.mIntValue = ECHOE;
-    system->mClassFields[170].mValue.mIntValue = ECHOK;
-    system->mClassFields[171].mValue.mIntValue = ECHONL;
-    system->mClassFields[172].mValue.mIntValue = NOFLSH;
-    system->mClassFields[173].mValue.mIntValue = TOSTOP;
-    system->mClassFields[174].mValue.mIntValue = ECHOCTL;
-    system->mClassFields[175].mValue.mIntValue = ECHOPRT;
-    system->mClassFields[176].mValue.mIntValue = ECHOKE;
-    system->mClassFields[177].mValue.mIntValue = FLUSHO;
-    system->mClassFields[178].mValue.mIntValue = PENDIN;
-    system->mClassFields[179].mValue.mIntValue = IEXTEN;
-    system->mClassFields[180].mValue.mIntValue = EXTPROC;
+    system->mClassFields[171].mValue.mIntValue = ISIG;
+    system->mClassFields[172].mValue.mIntValue = ICANON;
+    system->mClassFields[173].mValue.mIntValue = XCASE;
+    system->mClassFields[174].mValue.mIntValue = ECHO;
+    system->mClassFields[175].mValue.mIntValue = ECHOE;
+    system->mClassFields[176].mValue.mIntValue = ECHOK;
+    system->mClassFields[177].mValue.mIntValue = ECHONL;
+    system->mClassFields[178].mValue.mIntValue = NOFLSH;
+    system->mClassFields[179].mValue.mIntValue = TOSTOP;
+    system->mClassFields[180].mValue.mIntValue = ECHOCTL;
+    system->mClassFields[181].mValue.mIntValue = ECHOPRT;
+    system->mClassFields[182].mValue.mIntValue = ECHOKE;
+    system->mClassFields[183].mValue.mIntValue = FLUSHO;
+    system->mClassFields[184].mValue.mIntValue = PENDIN;
+    system->mClassFields[185].mValue.mIntValue = IEXTEN;
+    system->mClassFields[186].mValue.mIntValue = EXTPROC;
 
     // tcflow() and TCXONC use these 
-    system->mClassFields[181].mValue.mIntValue = TCOOFF;
-    system->mClassFields[182].mValue.mIntValue = TCOON;
-    system->mClassFields[183].mValue.mIntValue = TCIOFF;
-    system->mClassFields[184].mValue.mIntValue = TCION;
+    system->mClassFields[187].mValue.mIntValue = TCOOFF;
+    system->mClassFields[188].mValue.mIntValue = TCOON;
+    system->mClassFields[189].mValue.mIntValue = TCIOFF;
+    system->mClassFields[190].mValue.mIntValue = TCION;
 
     // tcflush() and TCFLSH use these */
-    system->mClassFields[185].mValue.mIntValue = TCIFLUSH;
-    system->mClassFields[186].mValue.mIntValue = TCOFLUSH;
-    system->mClassFields[187].mValue.mIntValue = TCIOFLUSH;
+    system->mClassFields[191].mValue.mIntValue = TCIFLUSH;
+    system->mClassFields[192].mValue.mIntValue = TCOFLUSH;
+    system->mClassFields[193].mValue.mIntValue = TCIOFLUSH;
 
     // tcsetattr uses these
-    system->mClassFields[188].mValue.mIntValue = TCSANOW;
-    system->mClassFields[189].mValue.mIntValue = TCSADRAIN;
-    system->mClassFields[190].mValue.mIntValue = TCSAFLUSH;
+    system->mClassFields[194].mValue.mIntValue = TCSANOW;
+    system->mClassFields[195].mValue.mIntValue = TCSADRAIN;
+    system->mClassFields[196].mValue.mIntValue = TCSAFLUSH;
 
     // c_cc characters
-    system->mClassFields[191].mValue.mIntValue = VINTR;
-    system->mClassFields[192].mValue.mIntValue = VQUIT;
-    system->mClassFields[193].mValue.mIntValue = VERASE;
-    system->mClassFields[194].mValue.mIntValue = VKILL;
-    system->mClassFields[195].mValue.mIntValue = VEOF;
-    system->mClassFields[196].mValue.mIntValue = VTIME;
-    system->mClassFields[197].mValue.mIntValue = VMIN;
-    system->mClassFields[198].mValue.mIntValue = VSWTC;
-    system->mClassFields[199].mValue.mIntValue = VSTART;
-    system->mClassFields[200].mValue.mIntValue = VSTOP;
-    system->mClassFields[201].mValue.mIntValue = VSUSP;
-    system->mClassFields[202].mValue.mIntValue = VEOL;
-    system->mClassFields[203].mValue.mIntValue = VREPRINT;
-    system->mClassFields[204].mValue.mIntValue = VDISCARD;
-    system->mClassFields[205].mValue.mIntValue = VWERASE;
-    system->mClassFields[206].mValue.mIntValue = VLNEXT;
-    system->mClassFields[207].mValue.mIntValue = VEOL2;
+    system->mClassFields[197].mValue.mIntValue = VINTR;
+    system->mClassFields[198].mValue.mIntValue = VQUIT;
+    system->mClassFields[199].mValue.mIntValue = VERASE;
+    system->mClassFields[200].mValue.mIntValue = VKILL;
+    system->mClassFields[201].mValue.mIntValue = VEOF;
+    system->mClassFields[202].mValue.mIntValue = VTIME;
+    system->mClassFields[203].mValue.mIntValue = VMIN;
+    system->mClassFields[204].mValue.mIntValue = VSWTC;
+    system->mClassFields[205].mValue.mIntValue = VSTART;
+    system->mClassFields[206].mValue.mIntValue = VSTOP;
+    system->mClassFields[207].mValue.mIntValue = VSUSP;
+    system->mClassFields[208].mValue.mIntValue = VEOL;
+    system->mClassFields[209].mValue.mIntValue = VREPRINT;
+    system->mClassFields[210].mValue.mIntValue = VDISCARD;
+    system->mClassFields[211].mValue.mIntValue = VWERASE;
+    system->mClassFields[212].mValue.mIntValue = VLNEXT;
+    system->mClassFields[213].mValue.mIntValue = VEOL2;
 
     return TRUE;
 }
@@ -2144,3 +2153,462 @@ BOOL System_cfsetspeed(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     return TRUE;
 }
 
+BOOL System_chmod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* path = lvar;
+    CLVALUE* mode = lvar + 1;
+
+    /// Clover to c value ///
+    char* path_value = ALLOC string_object_to_char_array(path->mObjectValue);
+    mode_t mode_value = mode->mIntValue;
+
+    /// go ///
+    int result = chmod(path_value, mode_value);
+
+    if(result < 0) {
+        MFREE(path_value);
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "chmod(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    MFREE(path_value);
+
+    return TRUE;
+}
+
+BOOL System_lchmod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* path = lvar;
+    CLVALUE* mode = lvar + 1;
+
+    /// Clover to c value ///
+    char* path_value = ALLOC string_object_to_char_array(path->mObjectValue);
+    mode_t mode_value = mode->mIntValue;
+
+    /// go ///
+    int result = lchmod(path_value, mode_value);
+
+    if(result < 0) {
+        MFREE(path_value);
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "lchmod(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    MFREE(path_value);
+
+    return TRUE;
+}
+
+BOOL System_fchmod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* fd = lvar;
+    CLVALUE* mode = lvar + 1;
+
+    /// Clover to c value ///
+    int fd_value = fd->mIntValue;
+    mode_t mode_value = mode->mIntValue;
+
+    /// go ///
+    int result = fchmod(fd_value, mode_value);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "fchmod(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_chown(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* path = lvar;
+    CLVALUE* owner = lvar + 1;
+    CLVALUE* group = lvar + 2;
+
+    /// Clover to c value ///
+    char* path_value = ALLOC string_object_to_char_array(path->mObjectValue);
+    uid_t owner_value = owner->mIntValue;
+    gid_t group_value = group->mIntValue;
+
+    /// go ///
+    int result = chown(path_value, owner_value, group_value);
+
+    if(result < 0) {
+        MFREE(path_value);
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "chown(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    MFREE(path_value);
+
+    return TRUE;
+}
+
+BOOL System_lchown(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* path = lvar;
+    CLVALUE* owner = lvar + 1;
+    CLVALUE* group = lvar + 2;
+
+    /// Clover to c value ///
+    char* path_value = ALLOC string_object_to_char_array(path->mObjectValue);
+    uid_t owner_value = owner->mIntValue;
+    gid_t group_value = group->mIntValue;
+
+    /// go ///
+    int result = lchown(path_value, owner_value, group_value);
+
+    if(result < 0) {
+        MFREE(path_value);
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "chown(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    MFREE(path_value);
+
+    return TRUE;
+}
+
+BOOL System_fchown(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* fd = lvar;
+    CLVALUE* owner = lvar + 1;
+    CLVALUE* group = lvar + 2;
+
+    /// Clover to c value ///
+    int fd_value = fd->mIntValue;
+    uid_t owner_value = owner->mIntValue;
+    gid_t group_value = group->mIntValue;
+
+    /// go ///
+    int result = fchown(fd_value, owner_value, group_value);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "fchown(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_unlink(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* path = lvar;
+
+    /// Clover to c value ///
+    char* path_value = ALLOC string_object_to_char_array(path->mObjectValue);
+
+    /// go ///
+    int result = unlink(path_value);
+
+    if(result < 0) {
+        MFREE(path_value);
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "unlink(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    MFREE(path_value);
+
+    return TRUE;
+}
+
+BOOL System_access(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* path = lvar;
+    CLVALUE* mode = lvar + 1;
+
+    /// Clover to c value ///
+    char* path_value = ALLOC string_object_to_char_array(path->mObjectValue);
+    int mode_value = mode->mIntValue;
+
+    /// go ///
+    int result = access(path_value, mode_value);
+
+    if(result < 0) {
+        MFREE(path_value);
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "access(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    MFREE(path_value);
+
+    return TRUE;
+}
+
+BOOL System_utime(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* path = lvar;
+    CLVALUE* actime = lvar + 1;
+    CLVALUE* modtime = lvar + 2;
+
+    /// Clover to c value ///
+    char* path_value = ALLOC string_object_to_char_array(path->mObjectValue);
+    time_t actime_value = actime->mULongValue;
+    time_t modtime_value = modtime->mULongValue;
+
+    struct utimbuf utimbuf_value;
+    utimbuf_value.actime = actime_value;
+    utimbuf_value.modtime = modtime_value;
+
+    /// go ///
+    int result = utime(path_value, &utimbuf_value);
+
+    if(result < 0) {
+        MFREE(path_value);
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "utime(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    MFREE(path_value);
+
+    return TRUE;
+}
+
+BOOL System_fnmatch(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* pattern = lvar;
+    CLVALUE* path = lvar + 1;
+    CLVALUE* flags = lvar + 2;
+
+    /// Clover to c value ///
+    char* pattern_value = ALLOC string_object_to_char_array(pattern->mObjectValue);
+    char* path_value = ALLOC string_object_to_char_array(path->mObjectValue);
+    int flags_value = flags->mIntValue;
+
+    /// go ///
+    int result = fnmatch(pattern_value, path_value, flags_value);
+
+    (*stack_ptr)->mBoolValue = result == 0;
+    (*stack_ptr)++;
+
+    MFREE(pattern_value);
+    MFREE(path_value);
+
+    return TRUE;
+}
+
+BOOL System_link(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* old_path = lvar;
+    CLVALUE* new_path = lvar + 1;
+
+    /// Clover to c value ///
+    char* old_path_value = ALLOC string_object_to_char_array(old_path->mObjectValue);
+    char* new_path_value = ALLOC string_object_to_char_array(new_path->mObjectValue);
+
+    /// go ///
+    int result = link(old_path_value, new_path_value);
+
+    if(result < 0) {
+        MFREE(old_path_value);
+        MFREE(new_path_value);
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "link(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    MFREE(old_path_value);
+    MFREE(new_path_value);
+
+    return TRUE;
+}
+
+BOOL System_symlink(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* old_path = lvar;
+    CLVALUE* new_path = lvar + 1;
+
+    /// Clover to c value ///
+    char* old_path_value = ALLOC string_object_to_char_array(old_path->mObjectValue);
+    char* new_path_value = ALLOC string_object_to_char_array(new_path->mObjectValue);
+
+    /// go ///
+    int result = symlink(old_path_value, new_path_value);
+
+    if(result < 0) {
+        MFREE(old_path_value);
+        MFREE(new_path_value);
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "symlink(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    MFREE(old_path_value);
+    MFREE(new_path_value);
+
+    return TRUE;
+}
+
+BOOL System_readlink(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* path = lvar;
+
+    /// Clover to c value ///
+    char* path_value = ALLOC string_object_to_char_array(path->mObjectValue);
+
+    /// go ///
+    char result_path[PATH_MAX];
+    int result = readlink(path_value, result_path, PATH_MAX);
+
+    if(result < 0) {
+        MFREE(path_value);
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "readlink(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    (*stack_ptr)->mObjectValue = create_string_object(result_path);
+    (*stack_ptr)++;
+
+    MFREE(path_value);
+
+    return TRUE;
+}
+
+BOOL System_rename(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* old_path = lvar;
+    CLVALUE* new_path = lvar + 1;
+
+    /// Clover to c value ///
+    char* old_path_value = ALLOC string_object_to_char_array(old_path->mObjectValue);
+    char* new_path_value = ALLOC string_object_to_char_array(new_path->mObjectValue);
+
+    /// go ///
+    int result = rename(old_path_value, new_path_value);
+
+    if(result < 0) {
+        MFREE(old_path_value);
+        MFREE(new_path_value);
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "rename(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    MFREE(old_path_value);
+    MFREE(new_path_value);
+
+    return TRUE;
+}
+
+BOOL System_truncate(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* path = lvar;
+    CLVALUE* length = lvar + 1;
+
+    /// Clover to c value ///
+    char* path_value = ALLOC string_object_to_char_array(path->mObjectValue);
+    off_t length_value = length->mULongValue;
+
+    /// go ///
+    int result = truncate(path_value, length_value);
+
+    if(result < 0) {
+        MFREE(path_value);
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "truncate(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    MFREE(path_value);
+
+    return TRUE;
+}
+
+BOOL System_ftruncate(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* fd = lvar;
+    CLVALUE* length = lvar + 1;
+
+    /// Clover to c value ///
+    int fd_value = fd->mIntValue;
+    off_t length_value = length->mULongValue;
+
+    /// go ///
+    int result = ftruncate(fd_value, length_value);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "ftruncate(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_chdir(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* path = lvar;
+
+    /// Clover to c value ///
+    char* path_value = ALLOC string_object_to_char_array(path->mObjectValue);
+
+    /// go ///
+    int result = chdir(path_value);
+
+    if(result < 0) {
+        MFREE(path_value);
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "chdir(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    MFREE(path_value);
+
+    return TRUE;
+}
+
+BOOL System_fchdir(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* fd = lvar;
+
+    /// Clover to c value ///
+    int fd_value = fd->mIntValue;
+
+    /// go ///
+    int result = fchdir(fd_value);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "fchdir(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_rmdir(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* path = lvar;
+
+    /// Clover to c value ///
+    char* path_value = ALLOC string_object_to_char_array(path->mObjectValue);
+
+    /// go ///
+    int result = rmdir(path_value);
+
+    if(result < 0) {
+        MFREE(path_value);
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "rmdir(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    MFREE(path_value);
+
+    return TRUE;
+}
+
+BOOL System_mkdir(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* path = lvar;
+    CLVALUE* mode = lvar + 1;
+
+    /// Clover to c value ///
+    char* path_value = ALLOC string_object_to_char_array(path->mObjectValue);
+    mode_t mode_value = mode->mIntValue;
+
+    /// go ///
+    int result = mkdir(path_value, mode_value);
+
+    if(result < 0) {
+        MFREE(path_value);
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "mkdir(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    MFREE(path_value);
+
+    return TRUE;
+}

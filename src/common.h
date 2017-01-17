@@ -1840,6 +1840,26 @@ BOOL System_cfgetospeed(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_cfsetispeed(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_cfsetospeed(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_cfsetspeed(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_chmod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_lchmod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_fchmod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_chown(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_lchown(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_fchown(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_unlink(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_access(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_utime(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_fnmatch(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_link(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_symlink(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_readlink(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_rename(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_truncate(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_ftruncate(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_chdir(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_fchdir(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_rmdir(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_mkdir(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 /// alignment.c ///
 void alignment(unsigned int* size);
