@@ -102,12 +102,16 @@ install:
 	$(INSTALL) -m 644 Char.clcl ~/.clover2
 	$(INSTALL) -m 644 Bool.clcl ~/.clover2
 	$(INSTALL) -m 644 Array.clcl ~/.clover2
+	$(INSTALL) -m 644 EqualableArray.clcl ~/.clover2
+	$(INSTALL) -m 644 SortableArray.clcl ~/.clover2
 	$(INSTALL) -m 644 IHashKey.clcl ~/.clover2
 	$(INSTALL) -m 644 IEqualable.clcl ~/.clover2
 	$(INSTALL) -m 644 HashItem.clcl ~/.clover2
 	$(INSTALL) -m 644 Hash.clcl ~/.clover2
 	$(INSTALL) -m 644 ListItem.clcl ~/.clover2
 	$(INSTALL) -m 644 List.clcl ~/.clover2
+	$(INSTALL) -m 644 EqualableList.clcl ~/.clover2
+	$(INSTALL) -m 644 SortableList.clcl ~/.clover2
 	$(INSTALL) -m 644 Tuple1.clcl ~/.clover2
 	$(INSTALL) -m 644 Tuple2.clcl ~/.clover2
 	$(INSTALL) -m 644 Tuple3.clcl ~/.clover2

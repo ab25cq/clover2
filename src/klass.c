@@ -891,6 +891,7 @@ static void load_fundamental_classes_on_compile_time()
 
     load_class("Array");
     load_class("EqualableArray");
+    load_class("SortableArray");
 
     load_class("IHashKey");
     load_class("IEqualable");
