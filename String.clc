@@ -780,6 +780,10 @@ class Buffer
     }
 
     def chars(index:size_t):byte throws Exception {
+        if(index < 0) {
+            index += self.len;
+        }
+
         if(index >= 0 && index < self.len) {
             return((self.buffer + index)->byte);
         }

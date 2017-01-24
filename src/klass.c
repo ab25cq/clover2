@@ -868,7 +868,6 @@ static void load_fundamental_classes_on_compile_time()
     load_class("Buffer");
     load_class("String");
 
-
     load_class("Exception");
 
     load_class("Object");
@@ -897,7 +896,6 @@ static void load_fundamental_classes_on_compile_time()
     load_class("IEqualable");
     load_class("ISortable");
 
-    load_class("HashKey");
     load_class("HashItem");
     load_class("Hash");
 
@@ -919,6 +917,12 @@ static void load_fundamental_classes_on_compile_time()
 
     load_class("File");
     load_class("Path");
+    load_class("tm");
+    load_class("stat");
+    load_class("Directory");
+    load_class("termios");
+    load_class("Job");
+    load_class("Command");
 
     load_class("Clover");
 }

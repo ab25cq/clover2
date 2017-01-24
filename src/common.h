@@ -697,6 +697,8 @@ unsigned int sNodeTree_create_path_value(MANAGED char* value, int len);
 
 /// script.c ///
 BOOL compile_script(char* fname, char* source);
+BOOL read_source(char* fname, sBuf* source);
+BOOL delete_comment(sBuf* source, sBuf* source2);
 
 /// cast.c ///
 void cast_right_type_to_byte(sNodeType** right_type, sCompileInfo* info);
@@ -1912,10 +1914,6 @@ CLObject create_equalable_carray_object_with_elements(int num_elements, CLObject
 BOOL initialize_equalable_carray_object(CLObject array_object, int num_elements, CLObject* items, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sCLClass* class_items);
 CLObject create_sortable_carray_object_with_elements(int num_elements, CLObject* elements);
 BOOL initialize_sortable_carray_object(CLObject array_object, int num_elements, CLObject* items, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sCLClass* class_items);
-
-/// compiler.c ///
-BOOL read_source(char* fname, sBuf* source);
-BOOL delete_comment(sBuf* source, sBuf* source2);
 
 /// utf.c ///
 int utf8_index_to_utf32_index(char* str, int utf8index);

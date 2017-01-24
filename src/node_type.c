@@ -398,14 +398,16 @@ void solve_generics_for_variable(sNodeType* generics_type, sNodeType** generics_
 
     int generics_param_number = klass->mGenericsParamClassNum;
 
-    if(generics_param_number != -1) {
-        if(generics_param_number < generics_class->mNumGenerics) {
-            int offset = generics_class->mGenericsParamTypeOffsets[generics_param_number];
-            sCLClass* interface = get_class_with_load(CONS_str(&generics_class->mConst, offset));
+    if(generics_class != NULL) {
+        if(generics_param_number != -1) {
+            if(generics_param_number < generics_class->mNumGenerics) {
+                int offset = generics_class->mGenericsParamTypeOffsets[generics_param_number];
+                sCLClass* interface = get_class_with_load(CONS_str(&generics_class->mConst, offset));
 
-            MASSERT(interface != NULL);
+                MASSERT(interface != NULL);
 
-            klass = interface;
+                klass = interface;
+            }
         }
     }
 

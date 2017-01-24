@@ -3794,8 +3794,54 @@ INSTALL="/usr/bin/install -c"
 
 #AC_CHECK_HEADER(pthread.h, [AC_DEFINE(HAVE_PTHREAD_H, 1)], [ exit ])
 #AC_HAVE_LIBRARY(pthread, [ LIBS="$LIBS -lpthread"; ], [ exit ])
-#AC_CHECK_HEADER(readline/readline.h, [AC_DEFINE(HAVE_READLINE_H, 1)], [ exit ])
-#AC_HAVE_LIBRARY(readline, [ LIBS="$LIBS -lreadline"; ], [ exit ])
+
+ac_fn_c_check_header_mongrel "$LINENO" "readline/readline.h" "ac_cv_header_readline_readline_h" "$ac_includes_default"
+if test "x$ac_cv_header_readline_readline_h" = xyes; then :
+  $as_echo "#define HAVE_READLINE_H 1" >>confdefs.h
+
+else
+   exit
+fi
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lreadline" >&5
+$as_echo_n "checking for main in -lreadline... " >&6; }
+if ${ac_cv_lib_readline_main+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lreadline  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+
+int
+main ()
+{
+return main ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_readline_main=yes
+else
+  ac_cv_lib_readline_main=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_readline_main" >&5
+$as_echo "$ac_cv_lib_readline_main" >&6; }
+if test "x$ac_cv_lib_readline_main" = xyes; then :
+   LIBS="$LIBS -lreadline";
+else
+   exit
+fi
+ac_cv_lib_readline=ac_cv_lib_readline_main
+
+
 if test "$OS" != FREEBSD
 then
     { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -ldl" >&5
@@ -3897,13 +3943,13 @@ if test "x$ac_cv_header_pcre_h" = xyes; then :
 fi
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lm" >&5
-$as_echo_n "checking for main in -lm... " >&6; }
-if ${ac_cv_lib_m_main+:} false; then :
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lpcre" >&5
+$as_echo_n "checking for main in -lpcre... " >&6; }
+if ${ac_cv_lib_pcre_main+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-lm  $LIBS"
+LIBS="-lpcre  $LIBS"
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -3917,20 +3963,20 @@ return main ();
 }
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
-  ac_cv_lib_m_main=yes
+  ac_cv_lib_pcre_main=yes
 else
-  ac_cv_lib_m_main=no
+  ac_cv_lib_pcre_main=no
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_m_main" >&5
-$as_echo "$ac_cv_lib_m_main" >&6; }
-if test "x$ac_cv_lib_m_main" = xyes; then :
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_pcre_main" >&5
+$as_echo "$ac_cv_lib_pcre_main" >&6; }
+if test "x$ac_cv_lib_pcre_main" = xyes; then :
    LIBS="$LIBS -lpcre";
 fi
-ac_cv_lib_m=ac_cv_lib_m_main
+ac_cv_lib_pcre=ac_cv_lib_pcre_main
 
 
 
@@ -3944,8 +3990,8 @@ CFLAGS="$CFLAGS -Qunused-arguments"
 
 
 
-OBJS="src/main.o src/vm.o src/object.o src/array.o src/string.o src/block.o src/regex.o src/integer.o src/byte.o src/short.o src/long.o src/float.o src/pointer.o src/char.o src/bool.o src/hash.o src/list.o src/tuple.o src/carray.o src/type.o src/stack.o src/heap.o src/exception.o src/native_method.o src/class_system.o src/class_clover.o src/clover_to_clang.o"
-COMPILER_OBJS="src/compiler.o src/parser.o src/node_type.o src/node.o src/cast.o src/vtable.o src/script.o src/node_block.o src/node_block_type.o src/class_compiler.o src/klass_compile_time.o src/method_compiler.o src/module.o"
+OBJS="src/vm.o src/object.o src/array.o src/string.o src/block.o src/regex.o src/integer.o src/byte.o src/short.o src/long.o src/float.o src/pointer.o src/char.o src/bool.o src/hash.o src/list.o src/tuple.o src/carray.o src/type.o src/stack.o src/heap.o src/exception.o src/native_method.o src/class_system.o src/class_clover.o src/clover_to_clang.o"
+COMPILER_OBJS="src/parser.o src/node_type.o src/node.o src/cast.o src/vtable.o src/script.o src/node_block.o src/node_block_type.o src/class_compiler.o src/klass_compile_time.o src/method_compiler.o src/module.o"
 LIB_OBJS="src/buffer.o src/debug.o src/xfunc.o src/klass.o src/constant.o src/code.o src/alignment.o src/utf.o"
 
 

@@ -82,6 +82,10 @@ class String
     }
 
     def chars(index:int):char {
+        if(index < 0) {
+            index += self.len;
+        }
+
         if(index>= 0 && index < self.len) {
             return self.buffer[index];
         }

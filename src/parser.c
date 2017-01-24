@@ -2502,6 +2502,24 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
                 *node = sNodeTree_create_class_method_call(global_klass_type, buf, params, num_params);
             }
+            /// Command class method call ///
+            else if(get_variable_index(info->lv_table, buf) == -1) {
+                unsigned int params[PARAMS_MAX];
+                int num_params = 0;
+
+                if(!parse_method_params(&num_params, params, info)) {
+                    return FALSE;
+                }
+
+                sCLClass* command_klass = get_class("Command");
+
+                sNodeType* command_klass_type = alloc_node_type();
+
+                command_klass_type->mClass = command_klass;
+                command_klass_type->mNumGenericsTypes = 0;
+
+                *node = sNodeTree_create_class_method_call(command_klass_type, buf, params, num_params);
+            }
             else {
                 *node = sNodeTree_create_load_variable(buf);
 

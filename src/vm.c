@@ -584,7 +584,6 @@ static BOOL load_fundamental_classes_on_runtime()
     if(!load_class_with_initialize("IEqualable")) { return FALSE; }
     if(!load_class_with_initialize("ISortable")) { return FALSE; }
 
-    if(!load_class_with_initialize("HashKey")) { return FALSE; }
     if(!load_class_with_initialize("HashItem")) { return FALSE; }
     if(!load_class_with_initialize("Hash")) { return FALSE; }
 
@@ -606,6 +605,12 @@ static BOOL load_fundamental_classes_on_runtime()
 
     if(!load_class_with_initialize("File")) { return FALSE; }
     if(!load_class_with_initialize("Path")) { return FALSE; }
+    if(!load_class_with_initialize("tm")) { return FALSE; }
+    if(!load_class_with_initialize("stat")) { return FALSE; }
+    if(!load_class_with_initialize("Directory")) { return FALSE; }
+    if(!load_class_with_initialize("termios")) { return FALSE; }
+    if(!load_class_with_initialize("Job")) { return FALSE; }
+    if(!load_class_with_initialize("Command")) { return FALSE; }
 
     if(!load_class_with_initialize("Clover")) { return FALSE; }
 

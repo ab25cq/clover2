@@ -1,5 +1,113 @@
 #include "common.h"
 
+BOOL read_source(char* fname, sBuf* source)
+{
+    int f = open(fname, O_RDONLY);
+
+    if(f < 0) {
+        fprintf(stderr, "%s doesn't exist\n", fname);
+        return FALSE;
+    }
+
+    while(1) {
+        char buf[BUFSIZ];
+        int size = read(f, buf, BUFSIZ);
+
+        if(size < 0) {
+            fprintf(stderr, "unexpected error\n");
+            close(f);
+            return FALSE;
+        }
+
+        buf[size] = 0;
+        sBuf_append_str(source, buf);
+
+        if(size < BUFSIZ) {
+            break;
+        }
+    }
+
+    close(f);
+
+    return TRUE;
+}
+
+BOOL delete_comment(sBuf* source, sBuf* source2)
+{
+    char* p;
+    BOOL in_string;
+
+    p = source->mBuf;
+
+    in_string = FALSE;
+
+    while(*p) {
+        if(*p == '"') {
+            in_string = !in_string;
+            sBuf_append_char(source2, *p);
+            p++;
+        }
+        else if(!in_string && *p =='#')
+        {
+            p++;
+
+            while(1) {
+                if(*p == 0) {
+                    break;
+                }
+                else if(*p == '\n') {
+                    //p++;      // no delete line field for error message
+                    break;
+                }
+                else {
+                    p++;
+                }
+            }
+        }
+        else if(!in_string && *p == '/' && *(p+1) == '*') {
+            int nest;
+
+            p+=2;
+            nest = 0;
+            while(1) {
+                if(*p == '"') {
+                    p++;
+                    in_string = !in_string;
+                }
+                else if(*p == 0) {
+                    fprintf(stderr, "there is not a comment end until source end\n");
+                    return FALSE;
+                }
+                else if(!in_string && *p == '/' && *(p+1) == '*') {
+                    p+=2;
+                    nest++;
+                }
+                else if(!in_string && *p == '*' && *(p+1) == '/') {
+                    p+=2;
+                    if(nest == 0) {
+                        break;
+                    }
+
+                    nest--;
+                }
+                else if(*p == '\n') {
+                    sBuf_append_char(source2, *p);   // no delete line field for error message
+                    p++;
+                }
+                else {
+                    p++;
+                }
+            }
+        }
+        else {
+            sBuf_append_char(source2, *p);
+            p++;
+        }
+    }
+
+    return TRUE;
+}
+
 static BOOL write_code_and_constant_to_file(sByteCode* code, sConst* constant, int var_num, char* fname)
 {
     sBuf buf;

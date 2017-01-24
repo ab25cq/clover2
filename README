@@ -9,8 +9,10 @@ FEATURES
 1. primitive class and none primitive class with boxing and unboxing
 2. Lambda and closure, regex are first-class object
 3. Generics
-4. No inheritance, only interfaces and classes
+4. No inheritance, only interfaces and classes, modules
 5. open class
 
 See clover2 wiki on github (Japanese)
+
+LICENSE is GPL. see LICENSE file
 
