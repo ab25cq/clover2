@@ -383,6 +383,7 @@ void final_vtable();
 sVarTable* init_block_vtable(sVarTable* lv_table);
 
 sVarTable* init_var_table();
+sVarTable* clone_var_table(sVarTable* lv_table);
 
 void set_max_block_var_num(sVarTable* new_table, sVarTable* lv_table);
 
@@ -423,6 +424,7 @@ struct sParserInfoStruct
     sGenericsParamInfo generics_info;
     struct sCompileInfoStruct* cinfo;
     BOOL included_source;
+    BOOL get_type_for_interpreter;
 };
 
 typedef struct sParserInfoStruct sParserInfo;

@@ -34,6 +34,33 @@ sVarTable* init_var_table()
     return result;
 }
 
+sVarTable* clone_var_table(sVarTable* lv_table)
+{
+    sVarTable* result = init_var_table();
+
+    sVarTable* it = lv_table;
+
+    sVar* p = it->mLocalVariables;
+
+    while(1) {
+        if(p->mName[0] != 0) {
+            (void)add_variable_to_table(result, p->mName, p->mType);
+        }
+
+        p++;
+
+        if(p == lv_table->mLocalVariables + LOCAL_VARIABLE_MAX) {
+            break;
+        }
+    }
+
+    if(it->mParent) {
+        result->mParent = clone_var_table(it->mParent);
+    }
+
+    return result;
+}
+
 //////////////////////////////////////////////////
 // local variable table
 //////////////////////////////////////////////////

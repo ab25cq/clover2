@@ -187,8 +187,10 @@ static BOOL parse_method_params(int* num_params, unsigned int* params, sParserIn
                     break;
                 }
                 else if(*info->p == '\0') {
-                    parser_err_msg(info, "unexpected the source end");
-                    info->err_num++;
+                    if(!info->get_type_for_interpreter) {
+                        parser_err_msg(info, "unexpected the source end");
+                        info->err_num++;
+                    }
                     break;
                 }
                 else {
@@ -1208,6 +1210,10 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info)
             info->p++;
             skip_spaces_and_lf(info);
 
+            if(info->get_type_for_interpreter && *info->p == '\0') {
+                return TRUE;
+            }
+
             if(isalpha(*info->p)) {
                 char buf[METHOD_NAME_MAX];
 
@@ -1215,6 +1221,10 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info)
                     return FALSE;
                 }
                 skip_spaces_and_lf(info);
+
+                if(info->get_type_for_interpreter && *info->p == '\0') {
+                    return TRUE;
+                }
 
                 /// call methods ///
                 if(*info->p == '(') {
@@ -2486,6 +2496,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     info->err_num++;
                 }
             }
+            /// global class ///
             else if(method_name_existance(global_klass, buf))
             {
                 unsigned int params[PARAMS_MAX];

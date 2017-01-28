@@ -623,10 +623,15 @@ BOOL System_mbstowcs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     wchar_t* wcs = MCALLOC(1, sizeof(wchar_t)*(size_value));
     CLVALUE* dest_value = (CLVALUE*)dest->mPointerValue;
 
-    /// go ///
-    int memory = mbstowcs(wcs, src_value, size_value);
+    BOOL null_terminated = FALSE;
+    if(src_value[size_value-1] == '\0') {
+        null_terminated = TRUE;
+    }
 
-    if(memory < 0) {
+    /// go ///
+    int size_wcs = mbstowcs(wcs, src_value, size_value);
+
+    if(size_wcs < 0) {
         entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "invalid multi byte string");
         MFREE(wcs);
         return FALSE;
@@ -637,19 +642,33 @@ BOOL System_mbstowcs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     MASSERT(klass != NULL);
 
-    CLObject object = create_array_object(klass, size_value);
-    sCLObject* object_data = CLOBJECT(object);
+    if(null_terminated) {
+        CLObject object = create_array_object(klass, size_wcs+1);
+        sCLObject* object_data = CLOBJECT(object);
 
-    int i;
-    for(i=0; i<size_value; i++) {
-        object_data->mFields[i].mCharValue = wcs[i];
+        int i;
+        for(i=0; i<size_wcs; i++) {
+            object_data->mFields[i].mCharValue = wcs[i];
+        }
+        object_data->mFields[i].mCharValue = '\0';
+
+        dest_value->mObjectValue = object;
     }
+    else {
+        CLObject object = create_array_object(klass, size_wcs);
+        sCLObject* object_data = CLOBJECT(object);
 
-    dest_value->mObjectValue = object;
+        int i;
+        for(i=0; i<size_wcs; i++) {
+            object_data->mFields[i].mCharValue = wcs[i];
+        }
+
+        dest_value->mObjectValue = object;
+    }
 
     MFREE(wcs);
 
-    (*stack_ptr)->mIntValue = memory;
+    (*stack_ptr)->mIntValue = size_wcs;
     (*stack_ptr)++;
 
     return TRUE;
@@ -674,9 +693,9 @@ BOOL System_wcstombs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     for(i=0; i<len; i++) {
         wcs[i] = object_data->mFields[i].mCharValue;
     }
-    BOOL null_teminated = FALSE;
+    BOOL null_terminated = FALSE;
     if(wcs[len-1] == '\0') {
-        null_teminated = TRUE;
+        null_terminated = TRUE;
     }
 
     /// go ///
@@ -695,7 +714,7 @@ BOOL System_wcstombs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     MASSERT(klass != NULL);
 
     CLObject object;
-    if(null_teminated) {
+    if(null_terminated) {
         object = create_array_object(klass, num+1);
         sCLObject* object_data2 = CLOBJECT(object);
 

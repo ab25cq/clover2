@@ -86,12 +86,14 @@ class String
             index += self.len;
         }
 
-        if(index>= 0 && index < self.len) {
-            return self.buffer[index];
+        if(index < 0) {
+            index = 0;
         }
-        else {
-            return '\0';
+        if(index >= self.len) {
+            index = self.len -1;
         }
+
+        return self.buffer[index];
     }
 
     def length():int {
