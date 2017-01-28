@@ -1281,6 +1281,7 @@ expression_xor	src/parser.c	/^static BOOL expression_xor(unsigned int* node, sPa
 fFreeFun	src/common.h	/^typedef void (*fFreeFun)(CLObject self);$/;"	t
 fGetNativeMethod	src/common.h	/^typedef fNativeMethod (*fGetNativeMethod)(char* path);$/;"	t
 fNativeMethod	src/common.h	/^typedef BOOL (*fNativeMethod)(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);$/;"	t
+file_completion	src/interpreter.c	/^static void file_completion(char* line)$/;"	f	file:
 final_vtable	src/vtable.c	/^void final_vtable()$/;"	f
 finalize_class	src/vm.c	/^static BOOL finalize_class(sCLClass* klass)$/;"	f	file:
 for_expression	src/parser.c	/^static BOOL for_expression(unsigned int* node, sParserInfo* info)$/;"	f	file:
@@ -2117,7 +2118,7 @@ sig_int	src/interpreter.c	/^static void sig_int()$/;"	f	file:
 single_operator	src/node.c	/^static BOOL single_operator(sNodeType* type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, sCompileInfo* info)$/;"	f	file:
 skip_block	src/class_compiler.c	/^static BOOL skip_block(sParserInfo* info)$/;"	f	file:
 skip_curly	src/interpreter.c	/^static BOOL skip_curly(char** p) $/;"	f	file:
-skip_paren	src/interpreter.c	/^static BOOL skip_paren(char** p) $/;"	f	file:
+skip_paren	src/interpreter.c	/^static BOOL skip_paren(char** p, char** comma) $/;"	f	file:
 skip_spaces_and_lf	src/parser.c	/^void skip_spaces_and_lf(sParserInfo* info)$/;"	f
 sline	src/common.h	/^    int sline;$/;"	m	struct:sParserInfoStruct
 sname	src/common.h	/^    char* sname;$/;"	m	struct:sParserInfoStruct

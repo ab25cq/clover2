@@ -12,7 +12,9 @@ void parser_err_msg(sParserInfo* info, const char* msg, ...)
     vsnprintf(msg2, 1024, msg, args);
     va_end(args);
 
-    fprintf(stderr, "%s %d: %s\n", info->sname, info->sline, msg2);
+    if(!info->get_type_for_interpreter) {
+        fprintf(stderr, "%s %d: %s\n", info->sname, info->sline, msg2);
+    }
 }
 
 void skip_spaces_and_lf(sParserInfo* info)
@@ -187,10 +189,8 @@ static BOOL parse_method_params(int* num_params, unsigned int* params, sParserIn
                     break;
                 }
                 else if(*info->p == '\0') {
-                    if(!info->get_type_for_interpreter) {
-                        parser_err_msg(info, "unexpected the source end");
-                        info->err_num++;
-                    }
+                    parser_err_msg(info, "unexpected the source end");
+                    info->err_num++;
                     break;
                 }
                 else {
@@ -2518,18 +2518,24 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 unsigned int params[PARAMS_MAX];
                 int num_params = 0;
 
-                if(!parse_method_params(&num_params, params, info)) {
-                    return FALSE;
+                if(*info->p != '(') {
+                    parser_err_msg(info, "Require ( to call command class method");
+                    info->err_num++;
                 }
+                else {
+                    if(!parse_method_params(&num_params, params, info)) {
+                        return FALSE;
+                    }
 
-                sCLClass* command_klass = get_class("Command");
+                    sCLClass* command_klass = get_class("Command");
 
-                sNodeType* command_klass_type = alloc_node_type();
+                    sNodeType* command_klass_type = alloc_node_type();
 
-                command_klass_type->mClass = command_klass;
-                command_klass_type->mNumGenericsTypes = 0;
+                    command_klass_type->mClass = command_klass;
+                    command_klass_type->mNumGenericsTypes = 0;
 
-                *node = sNodeTree_create_class_method_call(command_klass_type, buf, params, num_params);
+                    *node = sNodeTree_create_class_method_call(command_klass_type, buf, params, num_params);
+                }
             }
             else {
                 *node = sNodeTree_create_load_variable(buf);

@@ -405,20 +405,26 @@ static BOOL get_type(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
     return TRUE;
 }
 
-static BOOL skip_paren(char** p) 
+static BOOL skip_paren(char** p, char** comma) 
 {
     while(1) {
         if(**p == '(') {
             (*p)++;
             
-            if(!skip_paren(p)) {
+            if(!skip_paren(p, comma)) {
                 return FALSE;
             }
         }
         else if(**p == ')') {
             (*p)++;
 
+            *comma = NULL;
+
             break;
+        }
+        else if(**p == ',') {
+            (*p)++;
+            *comma = *p;
         }
         else if(**p == '\0') {
             return FALSE;
@@ -469,8 +475,14 @@ static char* get_one_line(char* source)
 
             char* p2 = p;
             
-            if(!skip_paren(&p2)) {
+            char* comma = NULL;
+            if(!skip_paren(&p2, &comma)) {
                 head = p;
+            }
+
+            if(comma) {
+                head = comma;
+                break;
             }
         }
         else if(*p == '{') {
@@ -481,10 +493,6 @@ static char* get_one_line(char* source)
             if(!skip_curly(&p2)) {
                 head = p;
             }
-        }
-        else if(*p == ',') {
-            p++;
-            head = p;
         }
         else {
             p++;
@@ -504,6 +512,140 @@ BOOL gInputingClass = FALSE;
 CLVALUE* gStack = NULL;
 sVarTable* gLVTable = NULL;
 
+static void file_completion(char* line)
+{
+    DIR* result_opendir;
+    char path[PATH_MAX];
+
+    gInputingPath = TRUE;
+
+    char* p = (char*)line + strlen(line);
+    while(p >= line) {
+        if(*p == '"') {
+            break;
+        }
+        else {
+            p--;
+        }
+    }
+
+    if(*(p + 1) == 0) {
+        result_opendir = opendir(".");
+        path[0] = 0;
+    }
+    else {
+        char* text2 = MSTRDUP(p + 1);
+
+        if(text2[0] == '~') {
+            char text3[PATH_MAX];
+            char* home;
+
+            home = getenv("HOME");
+
+            if(home) {
+                if(text2[1] == '/') {
+                    snprintf(text3, PATH_MAX, "%s/%s", home, text2 + 2);
+                }
+                else {
+                    snprintf(text3, PATH_MAX, "%s/%s", home, text2 + 1);
+                }
+
+                rl_delete_text(rl_point-strlen(text2), rl_point);
+                rl_point -=strlen(text2);
+                rl_insert_text(text3);
+
+                result_opendir = opendir(text3);
+
+                xstrncpy(path, text3, PATH_MAX);
+            }
+            else {
+                result_opendir = opendir(text2);
+
+                xstrncpy(path, text2, PATH_MAX);
+            }
+        }
+
+        if(text2[strlen(text2)-1] == '/') {
+            result_opendir = opendir(text2);
+
+            xstrncpy(path, text2, PATH_MAX);
+        }
+        else {
+            char* dirname_;
+
+            dirname_ = dirname(text2);
+            result_opendir = opendir(dirname_);
+
+            if(strcmp(dirname_, ".") == 0) {
+                path[0] = 0;
+            }
+            else {
+                xstrncpy(path, dirname_, PATH_MAX);
+
+                if(dirname_[strlen(dirname_)-1] != '/' ) {
+                    xstrncat(path, "/", PATH_MAX);
+                }
+            }
+        }
+
+        MFREE(text2);
+    }
+
+    if(result_opendir) {
+        int n;
+        int size;
+
+        n = 0;
+        size = 128;
+
+        gCandidates = MCALLOC(1, sizeof(char*)*size);
+
+        while(1) {
+            struct dirent* result_readdir;
+            int len;
+            char* candidate;
+
+            result_readdir = readdir(result_opendir);
+
+            if(result_readdir == NULL) {
+                break;
+            }
+
+            if(strcmp(result_readdir->d_name, ".") != 0 && strcmp(result_readdir->d_name, "..") != 0)
+            {
+                struct stat stat_;
+                len = strlen(path) + strlen(result_readdir->d_name) + 2 + 1 + 1;
+
+                candidate = MMALLOC(len);
+
+                xstrncpy(candidate, path, len);
+                xstrncat(candidate, result_readdir->d_name, len);
+
+                if(stat(candidate, &stat_) == 0) {
+                    if(S_ISDIR(stat_.st_mode)) {
+                        xstrncat(candidate, "/", len);
+                    }
+
+                    gCandidates[n++] = MANAGED candidate;
+
+                    if(n >= size) {
+                        size *= 2;
+                        gCandidates = MREALLOC(gCandidates, sizeof(char*)*size);
+                    }
+                }
+            }
+        }
+
+        gCandidates[n] = NULL;
+
+        gNumCandidates = n;
+
+        closedir(result_opendir);
+    }
+
+    rl_completer_word_break_characters = "\t\n\"";
+}
+
 static int my_complete_internal(int count, int key)
 {
     gInputingMethod = FALSE;
@@ -512,11 +654,37 @@ static int my_complete_internal(int count, int key)
     gCandidates = NULL;
     gNumCandidates = 0;
 
+
     /// parse source ///
     char* source = ALLOC line_buffer_from_head_to_cursor_point();
     char* line = get_one_line(source);
 
-    char* p = line + strlen(line) -1;
+    /// in double quote or single quote ? ///
+    BOOL in_double_quote = FALSE;
+    BOOL in_single_quote = FALSE;
+    char* p = line;
+
+    while(*p) {
+        if(*p == '"') {
+            p++;
+            in_double_quote = !in_double_quote;
+        }
+        else if(*p == '\'') {
+            p++;
+            in_single_quote = !in_single_quote;
+        }
+        else if(*p == '\\') {
+            p++;
+            if(*p != '\0') {
+                p++;
+            }
+        }
+        else {
+            p++;
+        }
+    }
+
+    p = line + strlen(line) -1;
     while(p >= line) {
         if(isalnum(*p) || *p == '_') {
             p--;
@@ -527,7 +695,7 @@ static int my_complete_internal(int count, int key)
     }
 
     /// inputing method name ///
-    if(*p == '.') {
+    if(!in_double_quote && !in_single_quote && *p == '.') {
         /// class method ? ///
         char* p2 = p;
         p2--;
@@ -559,16 +727,18 @@ static int my_complete_internal(int count, int key)
             sNodeType* type_ = NULL;
             (void)get_type(line, "iclover2", gLVTable, gStack, &type_);
 
-            klass = type_->mClass;
+            if(type_) {
+                klass = type_->mClass;
 
-            if(klass->mFlags & CLASS_FLAGS_PRIMITIVE) {
-                klass = klass->mBoxingClass;
-            }
+                if(klass->mFlags & CLASS_FLAGS_PRIMITIVE) {
+                    klass = klass->mBoxingClass;
+                }
 
-            if(klass) {
-                int num_methods = 0;
-                gCandidates = ALLOC ALLOC get_method_names_with_arguments(klass, FALSE, &num_methods);
-                gNumCandidates = num_methods;
+                if(klass) {
+                    int num_methods = 0;
+                    gCandidates = ALLOC ALLOC get_method_names_with_arguments(klass, FALSE, &num_methods);
+                    gNumCandidates = num_methods;
+                }
             }
         }
         /// class method ///
@@ -582,185 +752,9 @@ static int my_complete_internal(int count, int key)
 
         gInputingMethod = TRUE;
     }
+    /// file completion ///
     else {
-/*
-        /// path completion ///
-        if(inputing_path) {
-            DIR* result_opendir;
-            char path[PATH_MAX];
-
-            gInputingPath = TRUE;
-
-            p = (char*)line + strlen(line);
-            while(p >= line) {
-                if(*p == '"') {
-                    break;
-                }
-                else {
-                    p--;
-                }
-            }
-
-            if(*(p + 1) == 0) {
-                result_opendir = opendir(".");
-                path[0] = 0;
-            }
-            else {
-                text2 = MSTRDUP(p + 1);
-
-                if(text2[0] == '~') {
-                    char text3[PATH_MAX];
-                    char* home;
-
-                    home = getenv("HOME");
-
-                    if(home) {
-                        if(text2[1] == '/') {
-                            snprintf(text3, PATH_MAX, "%s/%s", home, text2 + 2);
-                        }
-                        else {
-                            snprintf(text3, PATH_MAX, "%s/%s", home, text2 + 1);
-                        }
-
-                        rl_delete_text(rl_point-strlen(text2), rl_point);
-                        rl_point -=strlen(text2);
-                        rl_insert_text(text3);
-
-                        result_opendir = opendir(text3);
-
-                        xstrncpy(path, text3, PATH_MAX);
-                    }
-                    else {
-                        result_opendir = opendir(text2);
-
-                        xstrncpy(path, text2, PATH_MAX);
-                    }
-                }
-
-                if(text2[strlen(text2)-1] == '/') {
-                    result_opendir = opendir(text2);
-
-                    xstrncpy(path, text2, PATH_MAX);
-                }
-                else {
-                    char* dirname_;
-
-                    dirname_ = dirname(text2);
-                    result_opendir = opendir(dirname_);
-
-                    if(strcmp(dirname_, ".") == 0) {
-                        path[0] = 0;
-                    }
-                    else {
-                        xstrncpy(path, dirname_, PATH_MAX);
-
-                        if(dirname_[strlen(dirname_)-1] != '/' ) {
-                            xstrncat(path, "/", PATH_MAX);
-                        }
-                    }
-                }
-
-                MFREE(text2);
-            }
-
-            if(result_opendir) {
-                int n;
-                int size;
-
-                n = 0;
-                size = 128;
-
-                gCandidates = MCALLOC(1, sizeof(char*)*size);
-
-                while(1) {
-                    struct dirent* result_readdir;
-                    int len;
-                    char* candidate;
-
-                    result_readdir = readdir(result_opendir);
-
-                    if(result_readdir == NULL) {
-                        break;
-                    }
-
-                    if(strcmp(result_readdir->d_name, ".") != 0 && strcmp(result_readdir->d_name, "..") != 0)
-                    {
-                        struct stat stat_;
-                        len = strlen(path) + strlen(result_readdir->d_name) + 2 + 1 + 1;
-
-                        candidate = MMALLOC(len);
-
-                        xstrncpy(candidate, path, len);
-                        xstrncat(candidate, result_readdir->d_name, len);
-
-                        if(stat(candidate, &stat_) == 0) {
-                            if(S_ISDIR(stat_.st_mode)) {
-                                xstrncat(candidate, "/", len);
-                            }
-
-                            gCandidates[n++] = MANAGED candidate;
-
-                            if(n >= size) {
-                                size *= 2;
-                                gCandidates = MREALLOC(gCandidates, sizeof(char*)*size);
-                            }
-                        }
-                    }
-                }
-
-                gCandidates[n] = NULL;
-
-                gNumCandidates = n;
-
-                closedir(result_opendir);
-            }
-
-            rl_completer_word_break_characters = "\t\n\"";
-        }
-        /// method completion ///
-        else if(inputing_method_name) {
-        }
-        /// class completion ///
-        else {
-            char** class_names;
-            char** var_names;
-            int num_class_names;
-            int num_var_names;
-            int i;
-
-            gInputingClass = TRUE;
-            
-            class_names = ALLOC get_class_names(&num_class_names);
-
-            var_names = ALLOC ALLOC get_var_names(&num_var_names);
-
-            gCandidates = MCALLOC(1, sizeof(char*)*(num_class_names+num_var_names+1));
-
-            for(i=0; i<num_class_names; i++) {
-                gCandidates[i] = MSTRDUP(class_names[i]);
-            }
-
-            for(i=0; i<num_var_names; i++) {
-                gCandidates[i+num_class_names] = MSTRDUP(var_names[i]);
-            }
-
-            gCandidates[i+num_class_names] = NULL;
-
-            gNumCandidates = num_class_names + num_var_names;
-
-            MFREE(class_names);
-            if(var_names) {
-                for(i=0; i<num_var_names; i++) {
-                    MFREE(var_names[i]);
-                }
-                MFREE(var_names);
-            }
-
-            rl_completer_word_break_characters = " \t\n.(!\"#$%&')-=~^|\{`@[]}*+;:?/><,";
-        }
-
-        MFREE(source);
-*/
+        file_completion(line);
     }
 
     MFREE(source);
@@ -1072,6 +1066,7 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
     info.sline = 1;
     info.lv_table = lv_table;
     info.parse_phase = 0;
+    info.get_type_for_interpreter = FALSE;
 
     sCompileInfo cinfo;
     
@@ -1244,6 +1239,9 @@ int main(int argc, char** argv)
             }
 
             add_history(line);
+        }
+        else {
+            fprintf(stderr, "compile or runtime error\n");
         }
 
         free(line);

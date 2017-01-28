@@ -80,10 +80,8 @@ BOOL parse_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* ne
             break;
         }
         else if(*info->p == '\0') {
-            if(!info->get_type_for_interpreter) {
-                parser_err_msg(info, "require } before the source end");
-                info->err_num++;
-            }
+            parser_err_msg(info, "require } before the source end");
+            info->err_num++;
 
             info->lv_table = old_vtable;
             return TRUE;

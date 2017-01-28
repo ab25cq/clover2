@@ -513,3 +513,9 @@ dynamic_class Command
     }
 }
 
+class String
+{
+    def toCommand():Command {
+        return new Command(self,0);
+    }
+}
