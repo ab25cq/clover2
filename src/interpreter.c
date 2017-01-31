@@ -397,6 +397,13 @@ static BOOL get_type(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
             info.p++;
             skip_spaces_and_lf(&info);
         }
+
+        if(*info.p != '\0') {
+            fprintf(stderr, "iclover2 can't run two or more expression\n");
+            sByteCode_free(&code);
+            sConst_free(&constant);
+            return FALSE;
+        }
     }
 
     sByteCode_free(&code);
@@ -1108,6 +1115,12 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
             info.p++;
             skip_spaces_and_lf(&info);
         }
+
+        if(*info.p != '\0') {
+            fprintf(stderr, "iclover2 can't run two or more expression\n");
+            cinfo.err_num++;
+            break;
+        }
     }
 
     if(info.err_num > 0 || cinfo.err_num > 0) {
@@ -1143,15 +1156,7 @@ static void clover2_init()
     heap_init(128, 128);
     stack_init();
     (void)class_init_on_runtime();
-}
-
-static void compiler_init(BOOL no_load_fudamental_classes)
-{
-    init_nodes();
-    init_node_types();
     set_boxing_and_unboxing_classes();
-    init_vtable();
-    module_init();
 }
 
 static void clover2_final()
@@ -1162,12 +1167,20 @@ static void clover2_final()
     class_final_on_runtime();
 }
 
+static void compiler_init(BOOL no_load_fudamental_classes)
+{
+    init_nodes();
+    init_node_types();
+    init_node_block_types();
+    module_init();
+}
+
 static void compiler_final()
 {
     module_final();
-    free_nodes();
     free_node_types();
-    final_vtable();
+    free_node_block_types();
+    free_nodes();
 }
 
 int main(int argc, char** argv)
@@ -1179,11 +1192,12 @@ int main(int argc, char** argv)
 
     set_signal_for_interpreter();
 
-    compiler_init(FALSE);
-
     rl_basic_word_break_characters = "\t\n.";
     //rl_attempted_completion_function = on_complete;
     rl_completion_entry_function = on_complete;
+
+    init_vtable();
+    clover2_init();
 
     rl_bind_key('\t', my_complete_internal);
     rl_bind_key('\n', my_bind_cr);
@@ -1193,15 +1207,17 @@ int main(int argc, char** argv)
     sVarTable* lv_table = init_var_table();
     int stack_size = 512;
     CLVALUE* stack = MCALLOC(1, sizeof(CLVALUE)*stack_size);
-    clover2_init();
 
     gStack = stack;
     gLVTable = lv_table;
 
     while(1) {
+        compiler_init(FALSE);
+
         char* line = readline("> ");
 
         if(line == NULL) {
+            compiler_final();
             break;
         }
 
@@ -1244,13 +1260,14 @@ int main(int argc, char** argv)
             fprintf(stderr, "compile or runtime error\n");
         }
 
+        compiler_final();
+
         free(line);
     }
     clover2_final();
+    final_vtable();
 
     MFREE(stack);
-
-    compiler_final();
 
     CHECKML_END;
 

@@ -30,9 +30,6 @@ void free_node_types()
     if(gSizePageNodeTypes > 0) {
         int i;
         for(i=0; i<gSizePageNodeTypes; i++) {
-            if(gNodeTypes[i]->mBlockType) {
-                free_node_block_type(gNodeTypes[i]->mBlockType);
-            }
             MFREE(gNodeTypes[i]);
         }
         MFREE(gNodeTypes);

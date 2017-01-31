@@ -4,6 +4,7 @@ static void compiler_init(BOOL no_load_fudamental_classes)
 {
     init_nodes();
     init_node_types();
+    init_node_block_types();
     class_init();
     if(!no_load_fudamental_classes) class_init_on_compile_time();
     init_vtable();
@@ -14,6 +15,7 @@ static void compiler_final()
 {
     module_final();
     free_nodes();
+    free_node_block_types();
     free_node_types();
     class_final();
     final_vtable();

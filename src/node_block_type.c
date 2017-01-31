@@ -1,17 +1,71 @@
 #include "common.h"
 
+static sNodeBlockType** gNodeBlockTypes = NULL;
+static int gUsedPageNodeBlockTypes = 0;
+static int gSizePageNodeBlockTypes = 0;
+static int gUsedNodeBlockTypes = 0;
+
+#define NODE_TYPE_PAGE_SIZE 64
+
+void init_node_block_types()
+{
+    const int size_page_node_block_types = 4;
+
+    if(gSizePageNodeBlockTypes == 0) {
+        gNodeBlockTypes = MCALLOC(1, sizeof(sNodeBlockType*)*size_page_node_block_types);
+
+        int i;
+        for(i=0; i<size_page_node_block_types; i++) {
+            gNodeBlockTypes[i] = MCALLOC(1, sizeof(sNodeBlockType)*NODE_TYPE_PAGE_SIZE);
+        }
+
+        gSizePageNodeBlockTypes = size_page_node_block_types;
+        gUsedPageNodeBlockTypes = 0;
+        gUsedNodeBlockTypes = 0;
+    }
+}
+
+void free_node_block_types()
+{
+    if(gSizePageNodeBlockTypes > 0) {
+        int i;
+        for(i=0; i<gSizePageNodeBlockTypes; i++) {
+            MFREE(gNodeBlockTypes[i]);
+        }
+        MFREE(gNodeBlockTypes);
+
+        gSizePageNodeBlockTypes = 0;
+        gUsedPageNodeBlockTypes = 0;
+        gUsedNodeBlockTypes = 0;
+    }
+}
+
 sNodeBlockType* alloc_node_block_type()
 {
-    sNodeBlockType* block = MCALLOC(1, sizeof(sNodeBlockType));
-    return block;
+    MASSERT(gNodeBlockTypes != NULL && gSizePageNodeBlockTypes > 0); // Is the node block types initialized ?
+
+    if(gUsedNodeBlockTypes == NODE_TYPE_PAGE_SIZE) {
+        gUsedNodeBlockTypes = 0;
+        gUsedPageNodeBlockTypes++;
+
+        if(gUsedPageNodeBlockTypes == gSizePageNodeBlockTypes) {
+            int new_size = (gSizePageNodeBlockTypes+1) * 2;
+            gNodeBlockTypes = MREALLOC(gNodeBlockTypes, sizeof(sNodeBlockType*)*new_size);
+            memset(gNodeBlockTypes + gSizePageNodeBlockTypes, 0, sizeof(sNodeBlockType*)*(new_size - gSizePageNodeBlockTypes));
+
+            int i;
+            for(i=gSizePageNodeBlockTypes; i<new_size; i++) {
+                gNodeBlockTypes[i] = MCALLOC(1, sizeof(sNodeBlockType)*NODE_TYPE_PAGE_SIZE);
+            }
+
+            gSizePageNodeBlockTypes = new_size;
+        }
+    }
+
+    return &gNodeBlockTypes[gUsedPageNodeBlockTypes][gUsedNodeBlockTypes++];
 }
 
-void free_node_block_type(sNodeBlockType* block)
-{
-    MFREE(block);
-}
-
-sNodeBlockType* clone_node_block_type(sNodeBlockType* block)
+ALLOC sNodeBlockType* clone_node_block_type(sNodeBlockType* block)
 {
     sNodeBlockType* self = alloc_node_block_type();
 

@@ -346,8 +346,9 @@ struct sNodeBlockTypeStruct {
 
 typedef struct sNodeBlockTypeStruct sNodeBlockType;
 
+void init_node_block_types();
+void free_node_block_types();
 sNodeBlockType* alloc_node_block_type();
-void free_node_block_type(sNodeBlockType* block);
 sNodeBlockType* clone_node_block_type(sNodeBlockType* block);
 BOOL substitution_posibility_for_node_block_type(sNodeBlockType* left_block, sNodeBlockType* right_block, sNodeType* left_generics_types, sNodeType* right_generics_types);
 
