@@ -659,7 +659,6 @@ static int my_complete_internal(int count, int key)
     /// parse source ///
     char* source = ALLOC line_buffer_from_head_to_cursor_point();
     char* line = get_one_line(source);
-printf("line (%s)\n", line);
 
     /// in double quote or single quote ? ///
     BOOL in_double_quote = FALSE;
