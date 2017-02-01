@@ -412,62 +412,70 @@ static BOOL get_type(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
     return TRUE;
 }
 
-static BOOL skip_paren(char** p, char** comma) 
+static void skip_curly(char** p, char** head);
+
+static void skip_paren(char** p, char** head)
 {
-    while(1) {
-        if(**p == '(') {
+    while(**p) {
+        if(**p == '{') {
             (*p)++;
+
+            *head = *p;
             
-            if(!skip_paren(p, comma)) {
-                return FALSE;
-            }
+            skip_curly(p, head);
+        }
+        else if(**p == '(') {
+            (*p)++;
+
+            *head = *p;
+            
+            skip_paren(p, head);
         }
         else if(**p == ')') {
             (*p)++;
-
-            *comma = NULL;
-
             break;
         }
         else if(**p == ',') {
             (*p)++;
-            *comma = *p;
-        }
-        else if(**p == '\0') {
-            return FALSE;
+            *head = *p;
         }
         else {
             (*p)++;
         }
     }
-
-    return TRUE;
 }
 
-static BOOL skip_curly(char** p) 
+static void skip_curly(char** p, char** head) 
 {
-    while(1) {
+    while(**p) {
         if(**p == '{') {
             (*p)++;
+
+            *head = *p;
             
-            if(!skip_curly(p)) {
-                return FALSE;
-            }
+            skip_curly(p, head);
         }
         else if(**p == '}') {
             (*p)++;
 
             break;
         }
-        else if(**p == '\0') {
-            return FALSE;
+        else if(**p == '(') {
+            (*p)++;
+
+            *head = *p;
+            
+            skip_paren(p, head);
+        }
+        else if(**p == ',') {
+            (*p)++;
+
+            *head = *p;
         }
         else {
             (*p)++;
         }
     }
-
-    return TRUE;
 }
 
 static char* get_one_line(char* source)
@@ -480,26 +488,12 @@ static char* get_one_line(char* source)
         if(*p == '(') {
             p++;
 
-            char* p2 = p;
-            
-            char* comma = NULL;
-            if(!skip_paren(&p2, &comma)) {
-                head = p;
-            }
-
-            if(comma) {
-                head = comma;
-                break;
-            }
+            (void)skip_paren(&p, &head);
         }
         else if(*p == '{') {
             p++;
 
-            char* p2 = p;
-            
-            if(!skip_curly(&p2)) {
-                head = p;
-            }
+            (void)skip_curly(&p, &head);
         }
         else {
             p++;
@@ -665,6 +659,7 @@ static int my_complete_internal(int count, int key)
     /// parse source ///
     char* source = ALLOC line_buffer_from_head_to_cursor_point();
     char* line = get_one_line(source);
+printf("line (%s)\n", line);
 
     /// in double quote or single quote ? ///
     BOOL in_double_quote = FALSE;

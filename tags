@@ -2123,8 +2123,8 @@ show_vtable	src/vtable.c	/^void show_vtable(sVarTable* table)$/;"	f
 sig_int	src/interpreter.c	/^static void sig_int()$/;"	f	file:
 single_operator	src/node.c	/^static BOOL single_operator(sNodeType* type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, sCompileInfo* info)$/;"	f	file:
 skip_block	src/class_compiler.c	/^static BOOL skip_block(sParserInfo* info)$/;"	f	file:
-skip_curly	src/interpreter.c	/^static BOOL skip_curly(char** p) $/;"	f	file:
-skip_paren	src/interpreter.c	/^static BOOL skip_paren(char** p, char** comma) $/;"	f	file:
+skip_curly	src/interpreter.c	/^static void skip_curly(char** p, char** head) $/;"	f	file:
+skip_paren	src/interpreter.c	/^static void skip_paren(char** p, char** head)$/;"	f	file:
 skip_spaces_and_lf	src/parser.c	/^void skip_spaces_and_lf(sParserInfo* info)$/;"	f
 sline	src/common.h	/^    int sline;$/;"	m	struct:sParserInfoStruct
 sname	src/common.h	/^    char* sname;$/;"	m	struct:sParserInfoStruct
