@@ -1690,9 +1690,8 @@ BOOL System_execvp(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int result = execvp(method_name_value, params_value);
 
     if(result < 0) {
-        MFREE(method_name_value);
         int i;
-        for(i=0; i<num_elements; i++) {
+        for(i=0; i<num_elements+1; i++) {
             MFREE(params_value[i]);
         }
         MFREE(params_value);
@@ -1700,8 +1699,7 @@ BOOL System_execvp(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
         return FALSE;
     }
 
-    MFREE(method_name_value);
-    for(i=0; i<num_elements; i++) {
+    for(i=0; i<num_elements+1; i++) {
         MFREE(params_value[i]);
     }
     MFREE(params_value);

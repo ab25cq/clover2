@@ -1170,16 +1170,12 @@ static void clover2_final()
 static void compiler_init(BOOL no_load_fudamental_classes)
 {
     init_nodes();
-    init_node_types();
-    init_node_block_types();
     module_init();
 }
 
 static void compiler_final()
 {
     module_final();
-    free_node_types();
-    free_node_block_types();
     free_nodes();
 }
 
@@ -1197,6 +1193,8 @@ int main(int argc, char** argv)
     rl_completion_entry_function = on_complete;
 
     init_vtable();
+    init_node_types();
+    init_node_block_types();
     clover2_init();
 
     rl_bind_key('\t', my_complete_internal);
@@ -1266,6 +1264,8 @@ int main(int argc, char** argv)
     }
     clover2_final();
     final_vtable();
+    free_node_types();
+    free_node_block_types();
 
     MFREE(stack);
 

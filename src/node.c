@@ -1164,7 +1164,7 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
     /// solve generics types ///
     sNodeType* result_type = var->mType;
 
-    if(result_type == NULL) {
+    if(result_type == NULL || result_type->mClass == NULL) {
         parser_err_msg(info->pinfo, "null type %s", gNodes[node].uValue.mVarName);
         info->err_num++;
 

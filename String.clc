@@ -64,6 +64,9 @@ class Global
         str2: String = System.sprintf(str, params);
         System.printToError(str2);
     }
+    def sprintf(str:String, params:Array<Object>): static String {
+        return System.sprintf(str, params);
+    }
 }
 
 class String
@@ -681,11 +684,11 @@ class String
     }
 
     def hex(): int {
-        return System.strtol(self, 16).to_int;
+        return System.strtol(self, 0).to_int;
     }
 
     def oct(): int {
-        return System.strtol(self, 8).to_int;
+        return System.strtol(self, 0).to_int;
     }
 
     def chomp(): String {

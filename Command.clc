@@ -345,7 +345,7 @@ dynamic_class Command
         self.resultCode = value.resultCode;
     }
 
-    def callingMethod(method_name:String, params:Array<Object>) : static Command {
+    def callingMethod(method_name:String, params:Array<Object>) : static Command throws Exception {
         params2:List<String> = params.toList().select(lambda(item:Object):bool { return item.className().equals("String");}).toAnonymous();
 
         if(Command.controllingTerminalPrograms.indexOf(method_name) != -1) {
@@ -357,7 +357,7 @@ dynamic_class Command
         }
     }
 
-    def callingMethod(method_name:String, params:Array<Object>) : Command {
+    def callingMethod(method_name:String, params:Array<Object>) : Command throws Exception {
         params2:List<String> = params.toList().select(lambda(item:Object):bool { return item.className().equals("String");}).toAnonymous();
 
         if(Command.controllingTerminalPrograms.indexOf(method_name) != -1) {
@@ -387,7 +387,7 @@ dynamic_class Command
         return self.write(path,0644);
     }
 
-    def executeCommand(method_name:String, params:List<String>, pipe_data:String) : static Command
+    def executeCommand(method_name:String, params:List<String>, pipe_data:String) : static Command throws Exception
     {
         child2parent_write_fd:int = 0;
         child2parent_read_fd:int = 0;
@@ -412,7 +412,7 @@ dynamic_class Command
             } catch(e:Exception) {
                 buffer:Buffer = e.message.append("\n").toBuffer();
                 System.write(2, buffer, buffer.len);
-                System.exit(2);
+                System.exit(64);
             }
         });
 
@@ -445,10 +445,14 @@ dynamic_class Command
 
         pid2:pid_t = System.waitpid(pid, &status, System.WUNTRACED);
 
+        if(System.WEXITSTATUS(status) == 64) {
+            throw new Exception("Command not found");
+        }
+
         return new Command(child_output.toString(), System.WEXITSTATUS(status));
     }
 
-    def excuteCommandWithControllingTerminalByPipe(method_name:String, params:List<String>, pipe_data:String): static Command
+    def excuteCommandWithControllingTerminalByPipe(method_name:String, params:List<String>, pipe_data:String): static Command throws Exception
     {
         parent2child_write_fd:int = 0;
         parent2child_read_fd:int = 0;
@@ -471,7 +475,7 @@ dynamic_class Command
             } catch(e:Exception) {
                 buffer:Buffer = e.message.append("\n").toBuffer();
                 System.write(2, buffer, buffer.len);
-                System.exit(2);
+                System.exit(64);
             }
         });
 
@@ -489,6 +493,10 @@ dynamic_class Command
         status: wait_status = 0;
 
         pid2:pid_t = System.waitpid(pid, &status, System.WUNTRACED);
+
+        if(System.WEXITSTATUS(status) == 64) {
+            throw new Exception("Command not found");
+        }
 
         if(System.WIFSTOPPED(status)) {
             rcode:int = System.WSTOPSIG(status) +128;
