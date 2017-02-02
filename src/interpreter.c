@@ -677,6 +677,89 @@ static void file_completion(char* line)
     rl_completer_word_break_characters = "\t\n\"";
 }
 
+/// get program name from PATH environment variable ///
+void command_completion(char* line, char** candidates, int num_candidates)
+{
+    int size = 128 + num_candidates;
+    gCandidates = MCALLOC(1, sizeof(char*)*size);
+    int i;
+    for(i=0; i<num_candidates; i++) {
+        gCandidates[i] = candidates[i];
+    }
+    int n = num_candidates;
+
+    char* env = getenv("PATH");
+    char path[PATH_MAX];
+
+    char* p = path;
+    int len = strlen(env);
+
+    for(i= 0; i<len; i++) {
+        if(env[i] == ':') {
+            *p = '\0';
+
+            if(access(path, F_OK) == 0) {
+                struct stat stat_;
+
+                if(stat(path, &stat_) == 0 && S_ISDIR(stat_.st_mode)) {
+                    DIR* dir = opendir(path);
+
+                    if(dir) {
+                        while(1) {
+                            struct dirent* entry = readdir(dir);
+
+                            if(entry == NULL) {
+                                break;
+                            }
+
+                            if(strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0) 
+                            {
+                                char path2[PATH_MAX];
+                                xstrncpy(path2, path, PATH_MAX);
+
+                                if(path[strlen(path)-1] != '/') {
+                                    xstrncat(path2, "/", PATH_MAX);
+                                }
+                                xstrncat(path2, entry->d_name, PATH_MAX);
+
+                                struct stat stat_;
+                                if(stat(path2, &stat_) == 0) {
+                                    if(stat_.st_mode & S_IXUSR) {
+                                        char candidate[PATH_MAX];
+                                        snprintf(candidate, PATH_MAX, "%s(", entry->d_name);
+                                        gCandidates[n++] = MANAGED MSTRDUP(candidate);
+
+                                        if(n >= size) {
+                                            size *= 2;
+                                            gCandidates = MREALLOC(gCandidates, sizeof(char*)*size);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        closedir(dir);
+                    }
+                }
+            }
+
+            p = path;
+        }
+        else {
+            *p++ = env[i];
+
+            if(p - path >= PATH_MAX) {
+                fprintf(stderr, "The element of path in PATH environment variable is too long");
+                return;
+            }
+        }
+    }
+
+    gCandidates[n] = NULL;
+    gNumCandidates = n;
+    gInputingMethod = TRUE;
+}
+
 static int my_complete_internal(int count, int key)
 {
     gInputingMethod = FALSE;
@@ -711,6 +794,20 @@ static int my_complete_internal(int count, int key)
             }
         }
         else {
+            p++;
+        }
+    }
+
+    /// Is expression void ? ///
+    BOOL expression_is_void = TRUE;
+
+    p = line;
+    while(*p) {
+        if(*p == ' ' || *p == '\t' || *p == '\n' || isalpha(*p) || *p == '(') {
+            p++;
+        }
+        else {
+            expression_is_void = FALSE;
             p++;
         }
     }
@@ -766,9 +863,18 @@ static int my_complete_internal(int count, int key)
                 }
 
                 if(klass) {
-                    int num_methods = 0;
-                    gCandidates = ALLOC ALLOC get_method_names_with_arguments(klass, FALSE, &num_methods);
-                    gNumCandidates = num_methods;
+                    if(strcmp(CLASS_NAME(klass), "Command") == 0) {
+                        int num_methods = 0;
+                        char** candidates = ALLOC ALLOC get_method_names_with_arguments(klass, FALSE, &num_methods);
+                        command_completion(line, candidates, num_methods);
+
+                        MFREE(candidates);
+                    }
+                    else {
+                        int num_methods = 0;
+                        gCandidates = ALLOC ALLOC get_method_names_with_arguments(klass, FALSE, &num_methods);
+                        gNumCandidates = num_methods;
+                    }
                 }
             }
         }
@@ -782,6 +888,12 @@ static int my_complete_internal(int count, int key)
         rl_completer_word_break_characters = "\t\n.";
 
         gInputingMethod = TRUE;
+    }
+    /// command name completion ///
+    else if(expression_is_void) {
+        if(line[strlen(line)-1] != '(') {
+            command_completion(line, NULL, 0);
+        }
     }
     /// file completion ///
     else {

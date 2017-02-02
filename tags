@@ -1057,6 +1057,7 @@ clover2_init	src/interpreter.c	/^static void clover2_init()$/;"	f	file:
 clover2_init	src/main.c	/^static void clover2_init()$/;"	f	file:
 clover_termios_to_c_termios	src/clover_to_clang.c	/^void clover_termios_to_c_termios(CLObject terminfo_object, struct termios* terminfo_value)$/;"	f
 code	src/common.h	/^    sByteCode* code;$/;"	m	struct:sCompileInfoStruct
+command_completion	src/interpreter.c	/^void command_completion(char* line, char** candidates, int num_candidates)$/;"	f
 compaction	src/heap.c	/^static void compaction(unsigned char* mark_flg)$/;"	f	file:
 compile	src/node.c	/^BOOL compile(unsigned int node, sCompileInfo* info)$/;"	f
 compile_and_and	src/node.c	/^static BOOL compile_and_and(unsigned int node, sCompileInfo* info)$/;"	f	file:
