@@ -417,14 +417,13 @@ static void skip_curly(char** p, char** head, char** comma);
 static void skip_paren(char** p, char** head, char** comma)
 {
     char* head_before = *head;
+    *head = *p;
+    *comma = NULL;
 
     while(**p) {
         if(**p == '{') {
             (*p)++;
 
-            *head = *p;
-            *comma = NULL;
-            
             skip_curly(p, head, comma);
 
             if(*comma) {
@@ -434,9 +433,6 @@ static void skip_paren(char** p, char** head, char** comma)
         else if(**p == '(') {
             (*p)++;
 
-            *head = *p;
-            *comma = NULL;
-            
             skip_paren(p, head, comma);
 
             if(*comma) {
@@ -463,14 +459,13 @@ static void skip_paren(char** p, char** head, char** comma)
 static void skip_curly(char** p, char** head, char** comma) 
 {
     char* head_before = *head;
+    *head = *p;
+    *comma = NULL;
 
     while(**p) {
         if(**p == '{') {
             (*p)++;
 
-            *head = *p;
-            *comma = NULL;
-            
             skip_curly(p, head, comma);
 
             if(*comma) {
@@ -480,9 +475,6 @@ static void skip_curly(char** p, char** head, char** comma)
         else if(**p == '(') {
             (*p)++;
 
-            *head = *p;
-            *comma = NULL;
-            
             skip_paren(p, head, comma);
 
             if(*comma) {
@@ -492,9 +484,8 @@ static void skip_curly(char** p, char** head, char** comma)
         else if(**p == '}') {
             (*p)++;
 
-            *comma = NULL;
             *head = head_before;
-
+            *comma = NULL;
             break;
         }
         else if(**p == ',') {
@@ -519,9 +510,6 @@ static char* get_one_expression(char* source)
         if(*p == '(') {
             p++;
 
-            head = p;
-            comma = NULL;
-
             skip_paren(&p, &head, &comma);
 
             if(comma) {
@@ -530,9 +518,6 @@ static char* get_one_expression(char* source)
         }
         else if(*p == '{') {
             p++;
-
-            head = p;
-            comma = NULL;
 
             skip_curly(&p, &head, &comma);
 
