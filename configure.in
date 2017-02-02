@@ -42,11 +42,9 @@ fi
 #####################################################################
 # check operating systems
 #####################################################################
-SO_VERSION=1.0.0
-AC_SUBST(SO_VERSION)
 AC_MSG_CHECKING(Operating System)
 
-CFLAGS='-DSYSCONFDIR="\"${sysconfdir}/\"" -DDOCDIR="\"${docdir}/\"" -DDATAROOTDIR="\"${datarootdir}/\""'
+CFLAGS=""
 
 if test `uname -s` = "Darwin"; then
     echo "Darwin"
@@ -54,24 +52,6 @@ if test `uname -s` = "Darwin"; then
     OS=DARWIN
 
     AC_DEFINE(__DARWIN__, 1)
-
-    LIBSONAME=libclover2.dylib
-    LIBSO2NAME=libclover2.$SO_VERSION.dylib
-
-    if test $myprefix = /usr/local; then
-        CFLAGS="-Isrc/ -I. -L . -fPIC $CFLAGS"
-    else 
-        CFLAGS="-Isrc/ -I. -L . -I$myprefix/include -L$myprefix/lib -fPIC $CFLAGS"
-    fi
-elif test `uname -s` = "SunOS"; then
-    echo "SunOS"
-
-    OS=SUNOS
-
-    AC_DEFINE(__SUNOS__, 1)
-
-    LIBSONAME=libclover2.so
-    LIBSO2NAME=libclover2.so.$SO_VERSION
 
     if test $myprefix = /usr/local; then
         CFLAGS="-Isrc/ -I. -L . -fPIC $CFLAGS"
@@ -85,9 +65,6 @@ elif test `uname -s` = "FreeBSD"; then
 
     AC_DEFINE(__FREEBSD__, 1)
 
-    LIBSONAME=libclover2.so
-    LIBSO2NAME=libclover2.so.$SO_VERSION
-
     CFLAGS="-Isrc/ -I. -L . -I$myprefix/include -L$myprefix/lib -fPIC $CFLAGS"
 elif uname -s | grep -q CYGWIN_NT; then
     echo CYGWIN
@@ -95,9 +72,6 @@ elif uname -s | grep -q CYGWIN_NT; then
     OS=CYGWIN
 
     AC_DEFINE(__CYGWIN__, 1)
-
-    LIBSONAME=libclover2.so
-    LIBSO2NAME=libclover2.so.$SO_VERSION
 
     if test $myprefix = /usr/local; then
         CFLAGS="-Isrc/ -I. -L . $CFLAGS"
@@ -110,9 +84,6 @@ else
     OS=LINUX
 
     AC_DEFINE(__LINUX__, 1)
-
-    LIBSONAME=libclover2.so
-    LIBSO2NAME=libclover2.so.$SO_VERSION
 
     if test $myprefix = /usr/local; then
         CFLAGS="-Isrc/ -I. -L . -fPIC $CFLAGS"
@@ -162,9 +133,6 @@ then
 fi
 
 AC_SUBST(OS)
-AC_SUBST(LIBANAME)
-AC_SUBST(LIBSONAME)
-AC_SUBST(LIBSO2NAME)
 
 ##########################################################
 # Libs
@@ -208,11 +176,11 @@ AC_SUBST(CFLAGS)
 
 OBJS="src/vm.o src/object.o src/array.o src/string.o src/block.o src/regex.o src/integer.o src/byte.o src/short.o src/long.o src/float.o src/pointer.o src/char.o src/bool.o src/hash.o src/list.o src/tuple.o src/carray.o src/type.o src/stack.o src/heap.o src/exception.o src/native_method.o src/class_system.o src/class_clover.o src/clover_to_clang.o"
 COMPILER_OBJS="src/parser.o src/node_type.o src/node.o src/cast.o src/vtable.o src/script.o src/node_block.o src/node_block_type.o src/class_compiler.o src/klass_compile_time.o src/method_compiler.o src/module.o"
-LIB_OBJS="src/buffer.o src/debug.o src/xfunc.o src/klass.o src/constant.o src/code.o src/alignment.o src/utf.o"
+COMMON_OBJS="src/buffer.o src/debug.o src/xfunc.o src/klass.o src/constant.o src/code.o src/alignment.o src/utf.o"
 
 AC_SUBST(OBJS)
 AC_SUBST(COMPILER_OBJS)
-AC_SUBST(LIB_OBJS)
+AC_SUBST(COMMON_OBJS)
 
 AC_OUTPUT(Makefile)
 

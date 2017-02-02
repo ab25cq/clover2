@@ -621,14 +621,10 @@ ac_includes_default="\
 
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
-LIB_OBJS
+COMMON_OBJS
 COMPILER_OBJS
 OBJS
-LIBSO2NAME
-LIBSONAME
-LIBANAME
 OS
-SO_VERSION
 EGREP
 GREP
 CPP
@@ -3622,12 +3618,10 @@ fi
 #####################################################################
 # check operating systems
 #####################################################################
-SO_VERSION=1.0.0
-
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking Operating System" >&5
 $as_echo_n "checking Operating System... " >&6; }
 
-CFLAGS='-DSYSCONFDIR="\"${sysconfdir}/\"" -DDOCDIR="\"${docdir}/\"" -DDATAROOTDIR="\"${datarootdir}/\""'
+CFLAGS=""
 
 if test `uname -s` = "Darwin"; then
     echo "Darwin"
@@ -3636,25 +3630,6 @@ if test `uname -s` = "Darwin"; then
 
     $as_echo "#define __DARWIN__ 1" >>confdefs.h
 
-
-    LIBSONAME=libclover2.dylib
-    LIBSO2NAME=libclover2.$SO_VERSION.dylib
-
-    if test $myprefix = /usr/local; then
-        CFLAGS="-Isrc/ -I. -L . -fPIC $CFLAGS"
-    else
-        CFLAGS="-Isrc/ -I. -L . -I$myprefix/include -L$myprefix/lib -fPIC $CFLAGS"
-    fi
-elif test `uname -s` = "SunOS"; then
-    echo "SunOS"
-
-    OS=SUNOS
-
-    $as_echo "#define __SUNOS__ 1" >>confdefs.h
-
-
-    LIBSONAME=libclover2.so
-    LIBSO2NAME=libclover2.so.$SO_VERSION
 
     if test $myprefix = /usr/local; then
         CFLAGS="-Isrc/ -I. -L . -fPIC $CFLAGS"
@@ -3669,9 +3644,6 @@ elif test `uname -s` = "FreeBSD"; then
     $as_echo "#define __FREEBSD__ 1" >>confdefs.h
 
 
-    LIBSONAME=libclover2.so
-    LIBSO2NAME=libclover2.so.$SO_VERSION
-
     CFLAGS="-Isrc/ -I. -L . -I$myprefix/include -L$myprefix/lib -fPIC $CFLAGS"
 elif uname -s | grep -q CYGWIN_NT; then
     echo CYGWIN
@@ -3680,9 +3652,6 @@ elif uname -s | grep -q CYGWIN_NT; then
 
     $as_echo "#define __CYGWIN__ 1" >>confdefs.h
 
-
-    LIBSONAME=libclover2.so
-    LIBSO2NAME=libclover2.so.$SO_VERSION
 
     if test $myprefix = /usr/local; then
         CFLAGS="-Isrc/ -I. -L . $CFLAGS"
@@ -3696,9 +3665,6 @@ else
 
     $as_echo "#define __LINUX__ 1" >>confdefs.h
 
-
-    LIBSONAME=libclover2.so
-    LIBSO2NAME=libclover2.so.$SO_VERSION
 
     if test $myprefix = /usr/local; then
         CFLAGS="-Isrc/ -I. -L . -fPIC $CFLAGS"
@@ -3780,9 +3746,6 @@ if test $LOGGING = 1
 then
     CFLAGS="$CFLAGS -DVM_DEBUG"
 fi
-
-
-
 
 
 
@@ -3992,7 +3955,7 @@ CFLAGS="$CFLAGS -Qunused-arguments"
 
 OBJS="src/vm.o src/object.o src/array.o src/string.o src/block.o src/regex.o src/integer.o src/byte.o src/short.o src/long.o src/float.o src/pointer.o src/char.o src/bool.o src/hash.o src/list.o src/tuple.o src/carray.o src/type.o src/stack.o src/heap.o src/exception.o src/native_method.o src/class_system.o src/class_clover.o src/clover_to_clang.o"
 COMPILER_OBJS="src/parser.o src/node_type.o src/node.o src/cast.o src/vtable.o src/script.o src/node_block.o src/node_block_type.o src/class_compiler.o src/klass_compile_time.o src/method_compiler.o src/module.o"
-LIB_OBJS="src/buffer.o src/debug.o src/xfunc.o src/klass.o src/constant.o src/code.o src/alignment.o src/utf.o"
+COMMON_OBJS="src/buffer.o src/debug.o src/xfunc.o src/klass.o src/constant.o src/code.o src/alignment.o src/utf.o"
 
 
 
