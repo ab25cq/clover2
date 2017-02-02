@@ -412,32 +412,47 @@ static BOOL get_type(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
     return TRUE;
 }
 
-static void skip_curly(char** p, char** head);
+static void skip_curly(char** p, char** head, char** comma);
 
-static void skip_paren(char** p, char** head)
+static void skip_paren(char** p, char** head, char** comma)
 {
+    char* head_before = *head;
+
     while(**p) {
         if(**p == '{') {
             (*p)++;
 
             *head = *p;
+            *comma = NULL;
             
-            skip_curly(p, head);
+            skip_curly(p, head, comma);
+
+            if(*comma) {
+                *head = *comma;
+            }
         }
         else if(**p == '(') {
             (*p)++;
 
             *head = *p;
+            *comma = NULL;
             
-            skip_paren(p, head);
+            skip_paren(p, head, comma);
+
+            if(*comma) {
+                *head = *comma;
+            }
         }
         else if(**p == ')') {
             (*p)++;
+
+            *head = head_before;
+            *comma = NULL;
             break;
         }
         else if(**p == ',') {
             (*p)++;
-            *head = *p;
+            *comma = *p;
         }
         else {
             (*p)++;
@@ -445,32 +460,49 @@ static void skip_paren(char** p, char** head)
     }
 }
 
-static void skip_curly(char** p, char** head) 
+static void skip_curly(char** p, char** head, char** comma) 
 {
+    char* head_before = *head;
+
     while(**p) {
         if(**p == '{') {
             (*p)++;
 
             *head = *p;
+            *comma = NULL;
             
-            skip_curly(p, head);
+            skip_curly(p, head, comma);
+
+            if(*comma) {
+                *head = *comma;
+            }
+        }
+        else if(**p == '(') {
+            (*p)++;
+
+            *head = *p;
+            *comma = NULL;
+            
+            skip_paren(p, head, comma);
+
+printf("head in skip_paren (%s)\n", *head);
+
+            if(*comma) {
+                *head = *comma;
+            }
         }
         else if(**p == '}') {
             (*p)++;
 
-            break;
-        }
-        else if(**p == '(') {
-            (*p)++;
+            *comma = NULL;
+            *head = head_before;
 
-            *head = *p;
-            
-            skip_paren(p, head);
+            break;
         }
         else if(**p == ',') {
             (*p)++;
 
-            *head = *p;
+            *comma = *p;
         }
         else {
             (*p)++;
@@ -478,9 +510,10 @@ static void skip_curly(char** p, char** head)
     }
 }
 
-static char* get_one_line(char* source)
+static char* get_one_expression(char* source)
 {
     char* head = source;
+    char* comma = NULL;
 
     char* p = source;
 
@@ -488,12 +521,26 @@ static char* get_one_line(char* source)
         if(*p == '(') {
             p++;
 
-            (void)skip_paren(&p, &head);
+            head = p;
+            comma = NULL;
+
+            skip_paren(&p, &head, &comma);
+
+            if(comma) {
+                head = comma;
+            }
         }
         else if(*p == '{') {
             p++;
 
-            (void)skip_curly(&p, &head);
+            head = p;
+            comma = NULL;
+
+            skip_curly(&p, &head, &comma);
+
+            if(comma) {
+                head = comma;
+            }
         }
         else {
             p++;
@@ -658,7 +705,9 @@ static int my_complete_internal(int count, int key)
 
     /// parse source ///
     char* source = ALLOC line_buffer_from_head_to_cursor_point();
-    char* line = get_one_line(source);
+    char* line = get_one_expression(source);
+
+printf("line (%s)\n", line);
 
     /// in double quote or single quote ? ///
     BOOL in_double_quote = FALSE;
