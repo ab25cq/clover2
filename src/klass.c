@@ -6,8 +6,6 @@ void free_cl_type(sCLType* cl_type);
 
 sClassTable* gHeadClassTable = NULL;
 
-#define CLASS_NUM_MAX 512
-
 static sClassTable gClassTable[CLASS_NUM_MAX];
 
 fGetNativeMethod gGetNativeMethod = NULL;

@@ -55,6 +55,7 @@
 #define TUPLE_VALUE_ELEMENT_MAX ARRAY_VALUE_ELEMENT_MAX
 #define HASH_VALUE_ELEMENT_MAX ARRAY_VALUE_ELEMENT_MAX
 #define TYPEDEF_MAX 64
+#define CLASS_NUM_MAX 512
 
 /// CLVALUE ///
 typedef unsigned int CLObject;
@@ -257,6 +258,7 @@ typedef struct sCLClassStruct sCLClass;
 
 #define CLASS_NAME(klass) (CONS_str((&(klass)->mConst), (klass)->mClassNameOffset))
 #define METHOD_NAME2(klass, method) (CONS_str((&(klass)->mConst), (method)->mNameOffset))
+#define FIELD_NAME(klass, field) (CONS_str((&(klass)->mConst), (field)->mNameOffset))
 #define METHOD_NAME_AND_PARAMS(klass, method) (CONS_str((&(klass)->mConst), (method)->mMethodNameAndParamsOffset))
 
 void class_init();

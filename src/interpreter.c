@@ -305,28 +305,37 @@ ALLOC ALLOC char** get_method_names_with_arguments(sCLClass* klass, BOOL class_m
         }
     }
     
-/*
     /// field ///
     if(class_method) {
+        for(i=0; i<klass->mNumClassFields; i++) {
+            sCLField* field;
+
+            field = klass->mClassFields + i;
+
+            *(result+result_num) = MSTRDUP(FIELD_NAME(klass, field));
+            result_num++;
+
+            if(result_num >= result_size) {
+                result_size *= 2;
+                result = MREALLOC(result, sizeof(char*)*result_size);
+            }
+        }
+    }
+    else {
         for(i=0; i<klass->mNumFields; i++) {
             sCLField* field;
 
             field = klass->mFields + i;
 
-            if(field->mFlags & CL_STATIC_FIELD) {
-                *(result+result_num) = MSTRDUP(FIELD_NAME(klass, i));
-                result_num++;
+            *(result+result_num) = MSTRDUP(FIELD_NAME(klass, field));
+            result_num++;
 
-                if(result_num >= result_size) {
-                    result_size *= 2;
-                    result = MREALLOC(result, sizeof(char*)*result_size);
-                }
+            if(result_num >= result_size) {
+                result_size *= 2;
+                result = MREALLOC(result, sizeof(char*)*result_size);
             }
         }
     }
-    else {
-    }
-*/
 
     *num_methods = result_num;
 
@@ -412,31 +421,38 @@ static BOOL get_type(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
     return TRUE;
 }
 
-static void skip_curly(char** p, char** head, char** comma);
+static void skip_curly(char** p, char** head, char** comma, char** semi_colon);
 
-static void skip_paren(char** p, char** head, char** comma)
+static void skip_paren(char** p, char** head, char** comma, char** semi_colon)
 {
     char* head_before = *head;
     *head = *p;
     *comma = NULL;
+    *semi_colon = NULL;
 
     while(**p) {
         if(**p == '{') {
             (*p)++;
 
-            skip_curly(p, head, comma);
+            skip_curly(p, head, comma, semi_colon);
 
             if(*comma) {
                 *head = *comma;
+            }
+            else if(*semi_colon) {
+                *head = *semi_colon;
             }
         }
         else if(**p == '(') {
             (*p)++;
 
-            skip_paren(p, head, comma);
+            skip_paren(p, head, comma, semi_colon);
 
             if(*comma) {
                 *head = *comma;
+            }
+            else if(*semi_colon) {
+                *head = *semi_colon;
             }
         }
         else if(**p == ')') {
@@ -444,6 +460,7 @@ static void skip_paren(char** p, char** head, char** comma)
 
             *head = head_before;
             *comma = NULL;
+            *semi_colon = NULL;
             break;
         }
         else if(**p == ',') {
@@ -456,29 +473,36 @@ static void skip_paren(char** p, char** head, char** comma)
     }
 }
 
-static void skip_curly(char** p, char** head, char** comma) 
+static void skip_curly(char** p, char** head, char** comma, char** semi_colon) 
 {
     char* head_before = *head;
     *head = *p;
     *comma = NULL;
+    *semi_colon = NULL;
 
     while(**p) {
         if(**p == '{') {
             (*p)++;
 
-            skip_curly(p, head, comma);
+            skip_curly(p, head, comma, semi_colon);
 
             if(*comma) {
                 *head = *comma;
+            }
+            else if(*semi_colon) {
+                *head = *semi_colon;
             }
         }
         else if(**p == '(') {
             (*p)++;
 
-            skip_paren(p, head, comma);
+            skip_paren(p, head, comma, semi_colon);
 
             if(*comma) {
                 *head = *comma;
+            }
+            else if(*semi_colon) {
+                *head = *semi_colon;
             }
         }
         else if(**p == '}') {
@@ -486,12 +510,18 @@ static void skip_curly(char** p, char** head, char** comma)
 
             *head = head_before;
             *comma = NULL;
+            *semi_colon = NULL;
             break;
         }
         else if(**p == ',') {
             (*p)++;
 
             *comma = *p;
+        }
+        else if(**p == ';') {
+            (*p)++;
+
+            *semi_colon = *p;
         }
         else {
             (*p)++;
@@ -503,6 +533,7 @@ static char* get_one_expression(char* source)
 {
     char* head = source;
     char* comma = NULL;
+    char* semi_colon = NULL;
 
     char* p = source;
 
@@ -510,19 +541,25 @@ static char* get_one_expression(char* source)
         if(*p == '(') {
             p++;
 
-            skip_paren(&p, &head, &comma);
+            skip_paren(&p, &head, &comma, &semi_colon);
 
             if(comma) {
                 head = comma;
+            }
+            else if(semi_colon) {
+                head = semi_colon;
             }
         }
         else if(*p == '{') {
             p++;
 
-            skip_curly(&p, &head, &comma);
+            skip_curly(&p, &head, &comma, &semi_colon);
 
             if(comma) {
                 head = comma;
+            }
+            else if(semi_colon) {
+                head = semi_colon;
             }
         }
         else {
@@ -760,6 +797,18 @@ void command_completion(char* line, char** candidates, int num_candidates)
     gInputingMethod = TRUE;
 }
 
+void get_class_names(char** candidates, int *num_candidates)
+{
+    sClassTable* p = gHeadClassTable;
+
+    while(p) {
+        candidates[*num_candidates] = MSTRDUP(p->mName);
+        (*num_candidates)++;
+
+        p = p->mNextClass;
+    }
+}
+
 static int my_complete_internal(int count, int key)
 {
     gInputingMethod = FALSE;
@@ -803,7 +852,7 @@ static int my_complete_internal(int count, int key)
 
     p = line;
     while(*p) {
-        if(*p == ' ' || *p == '\t' || *p == '\n' || isalpha(*p) || *p == '(') {
+        if(*p == ' ' || *p == '\t' || *p == '\n' || isalpha(*p) || *p == '(' || *p == '_') {
             p++;
         }
         else {
@@ -836,6 +885,8 @@ static int my_complete_internal(int count, int key)
                 break;
             }
         }
+
+        p2++;
 
         char* class_name = MCALLOC(1, sizeof(char)*(p-p2+1));
 
@@ -892,7 +943,46 @@ static int my_complete_internal(int count, int key)
     /// command name completion ///
     else if(expression_is_void) {
         if(line[strlen(line)-1] != '(') {
-            command_completion(line, NULL, 0);
+            const int num_words = 23;
+            char* words[num_words] = {
+                "if",
+                "while",
+                "for",
+                "break",
+                "true",
+                "false",
+                "null",
+                "throw",
+                "try",
+                "return",
+                "new",
+                "closure",
+                "lambda",
+                "block",
+                "inherit",
+                "list",
+                "equalable_list",
+                "sortable_list",
+                "tuple",
+                "hash",
+                "array",
+                "equalable_array",
+                "sortable_array",
+            };
+
+            int num_candidates = 0;
+            char** candidates = MCALLOC(1, sizeof(char*)*(CLASS_NUM_MAX+128));
+
+            int i;
+            for(i=0; i<num_words; i++) {
+                candidates[i] = MANAGED MSTRDUP(words[i]);
+            }
+
+            num_candidates += num_words;
+            
+            get_class_names(candidates, &num_candidates);
+            command_completion(line, candidates, num_candidates);
+            MFREE(candidates);
         }
     }
     /// file completion ///
