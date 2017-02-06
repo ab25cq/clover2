@@ -1479,7 +1479,18 @@ int main(int argc, char** argv)
             break;
         }
 
-        /// delete last semicolon ///
+        /// delete last spaces and semicolon ///
+        char* p = line + strlen(line) -1;
+        while(p >= line) {
+            if(*p == ' ' || *p == '\t' || *p == '\n') {
+                *p = '\0';
+                p--;
+            }
+            else {
+                break;
+            }
+        }
+
         if(line[strlen(line)-1] == ';') {
             line[strlen(line)-1] = '\0';
         }
