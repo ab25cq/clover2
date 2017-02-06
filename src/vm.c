@@ -9398,7 +9398,12 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     BOOL value = (stack_ptr-1)->mBoolValue;
 
                     char buf[32];
-                    snprintf(buf, 32, "%d", value);
+                    if(value) {
+                        snprintf(buf, 32, "true");
+                    }
+                    else {
+                        snprintf(buf, 32, "false");
+                    }
 
                     CLObject str = create_string_object(buf);
 

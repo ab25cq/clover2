@@ -398,14 +398,14 @@ static BOOL get_type(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
         unsigned int node = 0;
         (void)expression(&node, &info);
 
-        (void)compile(node, &cinfo);
-
-        *type_ = cinfo.type;
-
         if(*info.p == ';') {
             info.p++;
             skip_spaces_and_lf(&info);
         }
+
+        (void)compile(node, &cinfo);
+
+        *type_ = cinfo.type;
 
         if(*info.p != '\0') {
             fprintf(stderr, "iclover2 can't run two or more expression\n");
@@ -429,9 +429,11 @@ static void skip_paren(char** p, char** head, char** comma, char** semi_colon)
     *head = *p;
     *comma = NULL;
     *semi_colon = NULL;
+    BOOL squort = FALSE;
+    BOOL dquort = FALSE;
 
     while(**p) {
-        if(**p == '{') {
+        if(!squort && !dquort && **p == '{') {
             (*p)++;
 
             skip_curly(p, head, comma, semi_colon);
@@ -443,7 +445,7 @@ static void skip_paren(char** p, char** head, char** comma, char** semi_colon)
                 *head = *semi_colon;
             }
         }
-        else if(**p == '(') {
+        else if(!squort && !dquort && **p == '(') {
             (*p)++;
 
             skip_paren(p, head, comma, semi_colon);
@@ -455,7 +457,7 @@ static void skip_paren(char** p, char** head, char** comma, char** semi_colon)
                 *head = *semi_colon;
             }
         }
-        else if(**p == ')') {
+        else if(!squort && !dquort && **p == ')') {
             (*p)++;
 
             *head = head_before;
@@ -463,9 +465,17 @@ static void skip_paren(char** p, char** head, char** comma, char** semi_colon)
             *semi_colon = NULL;
             break;
         }
-        else if(**p == ',') {
+        else if(!squort && !dquort && **p == ',') {
             (*p)++;
             *comma = *p;
+        }
+        else if(**p == '\'') {
+            p++;
+            squort = !squort;
+        }
+        else if(**p == '"') {
+            p++;
+            dquort = !dquort;
         }
         else {
             (*p)++;
@@ -479,9 +489,11 @@ static void skip_curly(char** p, char** head, char** comma, char** semi_colon)
     *head = *p;
     *comma = NULL;
     *semi_colon = NULL;
+    BOOL squort = FALSE;
+    BOOL dquort = FALSE;
 
     while(**p) {
-        if(**p == '{') {
+        if(!squort && !dquort && **p == '{') {
             (*p)++;
 
             skip_curly(p, head, comma, semi_colon);
@@ -493,7 +505,7 @@ static void skip_curly(char** p, char** head, char** comma, char** semi_colon)
                 *head = *semi_colon;
             }
         }
-        else if(**p == '(') {
+        else if(!squort && !dquort && **p == '(') {
             (*p)++;
 
             skip_paren(p, head, comma, semi_colon);
@@ -505,7 +517,7 @@ static void skip_curly(char** p, char** head, char** comma, char** semi_colon)
                 *head = *semi_colon;
             }
         }
-        else if(**p == '}') {
+        else if(!squort && !dquort && **p == '}') {
             (*p)++;
 
             *head = head_before;
@@ -513,15 +525,23 @@ static void skip_curly(char** p, char** head, char** comma, char** semi_colon)
             *semi_colon = NULL;
             break;
         }
-        else if(**p == ',') {
+        else if(!squort && !dquort && **p == ',') {
             (*p)++;
 
             *comma = *p;
         }
-        else if(**p == ';') {
+        else if(!squort && !dquort && **p == ';') {
             (*p)++;
 
             *semi_colon = *p;
+        }
+        else if(**p == '\'') {
+            p++;
+            squort = !squort;
+        }
+        else if(**p == '"') {
+            p++;
+            dquort = !dquort;
         }
         else {
             (*p)++;
@@ -534,11 +554,13 @@ static char* get_one_expression(char* source)
     char* head = source;
     char* comma = NULL;
     char* semi_colon = NULL;
+    BOOL squort = FALSE;
+    BOOL dquort = FALSE;
 
     char* p = source;
 
     while(*p) {
-        if(*p == '(') {
+        if(!squort && !dquort && *p == '(') {
             p++;
 
             skip_paren(&p, &head, &comma, &semi_colon);
@@ -550,7 +572,7 @@ static char* get_one_expression(char* source)
                 head = semi_colon;
             }
         }
-        else if(*p == '{') {
+        else if(!squort && !dquort && *p == '{') {
             p++;
 
             skip_curly(&p, &head, &comma, &semi_colon);
@@ -561,6 +583,18 @@ static char* get_one_expression(char* source)
             else if(semi_colon) {
                 head = semi_colon;
             }
+        }
+        else if(*p == '\'') {
+            p++;
+            squort = !squort;
+        }
+        else if(*p == '"') {
+            p++;
+            dquort = !dquort;
+        }
+        else if(*p == ';') {
+            *p = '\0';
+            break;
         }
         else {
             p++;
@@ -945,29 +979,29 @@ static int my_complete_internal(int count, int key)
         if(line[strlen(line)-1] != '(') {
             const int num_words = 23;
             char* words[num_words] = {
-                "if",
-                "while",
-                "for",
+                "if(",
+                "while(",
+                "for(",
                 "break",
                 "true",
                 "false",
                 "null",
                 "throw",
-                "try",
+                "try(",
                 "return",
                 "new",
-                "closure",
-                "lambda",
-                "block",
-                "inherit",
-                "list",
-                "equalable_list",
-                "sortable_list",
-                "tuple",
-                "hash",
-                "array",
-                "equalable_array",
-                "sortable_array",
+                "closure(",
+                "lambda(",
+                "block{",
+                "inherit(",
+                "list{",
+                "equalable_list{",
+                "sortable_list{",
+                "tuple{",
+                "hash{",
+                "array{",
+                "equalable_array{",
+                "sortable_array{",
             };
 
             int num_candidates = 0;
@@ -1327,6 +1361,11 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
             return FALSE;
         }
 
+        if(*info.p == ';') {
+            info.p++;
+            skip_spaces_and_lf(&info);
+        }
+
         if(info.err_num == 0 && node != 0) {
             if(!compile(node, &cinfo)) {
                 sByteCode_free(&code);
@@ -1335,11 +1374,6 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
             }
 
             arrange_stack(&cinfo);
-        }
-
-        if(*info.p == ';') {
-            info.p++;
-            skip_spaces_and_lf(&info);
         }
 
         if(*info.p != '\0') {
@@ -1443,6 +1477,11 @@ int main(int argc, char** argv)
         if(line == NULL) {
             compiler_final();
             break;
+        }
+
+        /// delete last semicolon ///
+        if(line[strlen(line)-1] == ';') {
+            line[strlen(line)-1] = '\0';
         }
 
         /// clone lv_table ///
