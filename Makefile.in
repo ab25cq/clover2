@@ -106,6 +106,7 @@ install:
 	$(INSTALL) -m 644 Job.clcl ~/.clover2
 	$(INSTALL) -m 644 Command.clcl ~/.clover2
 	$(INSTALL) -m 644 tm.clcl ~/.clover2
+	$(INSTALL) -m 644 timespec.clcl ~/.clover2
 	$(INSTALL) -m 644 stat.clcl ~/.clover2
 
 	mkdir -p "$(bindir)"
