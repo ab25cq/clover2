@@ -3986,8 +3986,6 @@ fi
 $as_echo "$ac_cv_lib_rt_main" >&6; }
 if test "x$ac_cv_lib_rt_main" = xyes; then :
    LIBS="$LIBS -lrt";
-else
-  exit
 fi
 ac_cv_lib_rt=ac_cv_lib_rt_main
 
