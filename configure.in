@@ -148,20 +148,22 @@ AC_HAVE_LIBRARY(readline, [ LIBS="$LIBS -lreadline"; ], [ exit ])
 
 if test "$OS" != FREEBSD
 then
-    AC_HAVE_LIBRARY(dl, [ LIBS="$LIBS -ldl"; ], [])
+    AC_HAVE_LIBRARY(dl, [ LIBS="$LIBS -ldl"; ], [exit])
 fi
 
-AC_CHECK_HEADER(math.h, [AC_DEFINE(HAVE_MATH_H,1)], [])
-AC_HAVE_LIBRARY(m, [ LIBS="$LIBS -lm"; ], [])
-AC_CHECK_HEADER(iconv.h, [AC_DEFINE(HAVE_ICONV_H, 1)], [])
+AC_CHECK_HEADER(math.h, [AC_DEFINE(HAVE_MATH_H,1)], [exit])
+AC_HAVE_LIBRARY(m, [ LIBS="$LIBS -lm"; ], [exit])
+AC_CHECK_HEADER(iconv.h, [AC_DEFINE(HAVE_ICONV_H, 1)], [exit])
 
 if test "$OS" = CYGWIN || test "$OS" = DARWIN || test "$OS" = FREEBSD
 then
     LIBS="$LIBS -liconv"
 fi
 
-AC_CHECK_HEADER(pcre.h, [AC_DEFINE(HAVE_PCRE_H,1)], [])
-AC_HAVE_LIBRARY(pcre, [ LIBS="$LIBS -lpcre"; ], [])
+AC_CHECK_HEADER(pcre.h, [AC_DEFINE(HAVE_PCRE_H,1)], [exit])
+AC_HAVE_LIBRARY(pcre, [ LIBS="$LIBS -lpcre"; ], [exit])
+
+AC_HAVE_LIBRARY(rt, [ LIBS="$LIBS -lrt"; ], [exit])
 
 AC_SUBST(LIBS)
 

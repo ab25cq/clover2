@@ -5629,6 +5629,8 @@ BOOL compile_block_object(unsigned int node, sCompileInfo* info)
     info->block_result_type = result_type;
 
     if(!compile_block(node_block, info)) {
+        sByteCode_free(&codes);
+        sConst_free(&constant);
         info->code = codes_before;
         info->constant = constant_before;
         info->block_result_type = block_result_type_before;
@@ -5685,6 +5687,9 @@ BOOL compile_block_object(unsigned int node, sCompileInfo* info)
     }
 
     info->type->mBlockType = node_block_type;
+
+    sByteCode_free(&codes);
+    sConst_free(&constant);
 
     return TRUE;
 }

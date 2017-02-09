@@ -8,6 +8,7 @@ class System
     typedef gid_t int;
     typedef DIR pointer;
     typedef off_t ulong;
+    typedef clockid_t int;
 
     S_IFMT: static int;
     S_IFDIR: static int;
@@ -65,6 +66,15 @@ class System
     FNM_LEADING_DIR: static int;
     FNM_CASEFOLD: static int;
 
+    CLOCK_REALTIME: static int;
+    CLOCK_REALTIME_COARSE: static int;
+    CLOCK_MONOTONIC: static int;
+    CLOCK_MONOTONIC_COARSE: static int;
+    CLOCK_MONOTONIC_RAW: static int;
+    CLOCK_BOOTTIME: static int;
+    CLOCK_PROCESS_CPUTIME_ID: static int;
+    CLOCK_THREAD_CPUTIME_ID: static int;
+
     def initialize(): static native;
     def open(file_name:String, flags:int, mode:mode_t):static native int throws Exception;
     def close(fd:int): static native int throws Exception;
@@ -103,6 +113,34 @@ class System
     def fchdir(fd:int): static native throws Exception;
     def rmdir(path:String): static native throws Exception;
     def mkdir(path:String, mode:mode_t): static native throws Exception;
+
+    def clock_getres(clk_id:clockid_t, res:timespec): static native throws Exception;
+    def clock_gettime(clk_id:clockid_t, tp:timespec): static native throws Exception;
+    def clock_settime(clk_id:clockid_t, tp:timespec): static native throws Exception;
+}
+
+class timespec
+{
+    tv_sec: time_t;
+    tv_nsec: long;
+
+    def initialize() {
+        self.tv_sec = 0;
+        self.tv_nsec = 0.to_long;
+    }
+
+    def minus(right:timespec):timespec {
+        result:timespec = new timespec();
+
+        result.tv_sec = self.tv_sec - right.tv_sec;
+        result.tv_nsec = self.tv_nsec - right.tv_nsec;
+
+        return result;
+    }
+
+    def toString():String {
+        return sprintf("%ld.%ld\n", array { self.tv_sec.toULong, self.tv_nsec.toULong });
+    }
 }
 
 class tm
@@ -623,3 +661,22 @@ class Directory
     }
 }
 
+class Clover 
+{
+    def time(block_:lambda()):static time_t {
+        time1:time_t = System.time();
+        block_();
+        time2:time_t = System.time();
+
+        return time2 - time1;
+    }
+    def realtime(block_:lambda()):static timespec {
+        ts1:timespec = new timespec();
+        System.clock_gettime(System.CLOCK_REALTIME, ts1);
+        block_();
+        ts2:timespec = new timespec();
+        System.clock_gettime(System.CLOCK_REALTIME, ts2);
+
+        return ts2.minus(ts1);
+    }
+}

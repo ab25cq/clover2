@@ -57,7 +57,7 @@ HAVE_MATH_H	config.h	2;"	d
 HAVE_PCRE_H	config.h	6;"	d
 INSTALL	Makefile	/^INSTALL=\/usr\/bin\/install -c$/;"	m
 LANG	Makefile	/^	export LANG="ja_JP.utf8"; export LC_ALL="ja_JP.utf8"; .\/cclover2 code\/char.cl && .\/clover2 code\/char.clo$/;"	m
-LIBS	Makefile	/^LIBS= -lutil -lreadline -ldl -lm -lpcre$/;"	m
+LIBS	Makefile	/^LIBS= -lutil -lreadline -ldl -lm -lpcre -lrt$/;"	m
 LIST_VALUE_ELEMENT_MAX	src/common.h	54;"	d
 LOCAL_VARIABLE_MAX	src/common.h	368;"	d
 MACROS_H	src/macros.h	2;"	d
@@ -837,6 +837,9 @@ System_cfsetspeed	src/class_system.c	/^BOOL System_cfsetspeed(CLVALUE** stack_pt
 System_chdir	src/class_system.c	/^BOOL System_chdir(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_chmod	src/class_system.c	/^BOOL System_chmod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_chown	src/class_system.c	/^BOOL System_chown(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
+System_clock_getres	src/class_system.c	/^BOOL System_clock_getres(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
+System_clock_gettime	src/class_system.c	/^BOOL System_clock_gettime(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
+System_clock_settime	src/class_system.c	/^BOOL System_clock_settime(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_close	src/class_system.c	/^BOOL System_close(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_closedir	src/class_system.c	/^BOOL System_closedir(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_dirname	src/class_system.c	/^BOOL System_dirname(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
@@ -1040,6 +1043,7 @@ check_same_interface_of_two_methods	src/klass_compile_time.c	/^static BOOL check
 check_same_interface_of_two_methods	src/object.c	/^static BOOL check_same_interface_of_two_methods(sCLMethod* method1, sCLClass* klass1, sCLMethod* method2, sCLClass* klass2)$/;"	f	file:
 check_variables_existance_on_stack	src/stack.c	/^BOOL check_variables_existance_on_stack(long stack_id)$/;"	f
 cinfo	src/common.h	/^    struct sCompileInfoStruct* cinfo;$/;"	m	struct:sParserInfoStruct	typeref:struct:sParserInfoStruct::sCompileInfoStruct
+cl_block_type_to_buffer	src/interpreter.c	/^static char* ALLOC cl_block_type_to_buffer(sCLBlockType* cl_block_type, sCLClass* klass)$/;"	f	file:
 cl_type_to_buffer	src/interpreter.c	/^static ALLOC char* cl_type_to_buffer(sCLType* cl_type, sCLClass* klass)$/;"	f	file:
 class_compiler	src/compiler.c	/^static BOOL class_compiler(char* fname)$/;"	f	file:
 class_final	src/klass.c	/^void class_final()$/;"	f

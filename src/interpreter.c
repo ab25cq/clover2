@@ -222,6 +222,48 @@ void display_candidates(char** candidates)
     puts("");
 }
 
+static ALLOC char* cl_type_to_buffer(sCLType* cl_type, sCLClass* klass);
+
+static char* ALLOC cl_block_type_to_buffer(sCLBlockType* cl_block_type, sCLClass* klass)
+{
+    sBuf buf;
+
+    sBuf_init(&buf);
+
+    sBuf_append_str(&buf, "lambda(");
+
+    int i;
+    for(i=0; i<cl_block_type->mNumParams; i++) {
+        sCLType* cl_type = cl_block_type->mParams[i];
+
+        char* cl_type_name = ALLOC cl_type_to_buffer(cl_type, klass);
+
+        sBuf_append_str(&buf, cl_type_name);
+
+        MFREE(cl_type_name);
+
+        if(i != cl_block_type->mNumParams-1) {
+            sBuf_append_str(&buf, ",");
+        }
+    }
+
+    sBuf_append_str(&buf, ")");
+
+    if(cl_block_type->mResultType) {
+        sBuf_append_str(&buf, ":");
+
+        sCLType* cl_type = cl_block_type->mResultType;
+
+        char* cl_type_name = ALLOC cl_type_to_buffer(cl_type, klass);
+
+        sBuf_append_str(&buf, cl_type_name);
+
+        MFREE(cl_type_name);
+    }
+
+    return buf.mBuf;
+}
+
 static ALLOC char* cl_type_to_buffer(sCLType* cl_type, sCLClass* klass)
 {
     int i;
@@ -233,7 +275,16 @@ static ALLOC char* cl_type_to_buffer(sCLType* cl_type, sCLClass* klass)
         sBuf_append_str(&buf, "NULL");
     }
     else if(cl_type->mNumGenericsTypes == 0) {
-        sBuf_append_str(&buf, CONS_str(&klass->mConst, cl_type->mClassNameOffset));
+        if(cl_type->mBlockType) {
+            char* block_type_str = ALLOC cl_block_type_to_buffer(cl_type->mBlockType, klass);
+
+            sBuf_append_str(&buf, block_type_str);
+            
+            MFREE(block_type_str);
+        }
+        else {
+            sBuf_append_str(&buf, CONS_str(&klass->mConst, cl_type->mClassNameOffset));
+        }
     }
     else {
         if(cl_type->mClassNameOffset == 0) {
@@ -470,11 +521,11 @@ static void skip_paren(char** p, char** head, char** comma, char** semi_colon)
             *comma = *p;
         }
         else if(**p == '\'') {
-            p++;
+            (*p)++;
             squort = !squort;
         }
         else if(**p == '"') {
-            p++;
+            (*p)++;
             dquort = !dquort;
         }
         else {
@@ -536,11 +587,11 @@ static void skip_curly(char** p, char** head, char** comma, char** semi_colon)
             *semi_colon = *p;
         }
         else if(**p == '\'') {
-            p++;
+            (*p)++;
             squort = !squort;
         }
         else if(**p == '"') {
-            p++;
+            (*p)++;
             dquort = !dquort;
         }
         else {
@@ -735,6 +786,9 @@ static void file_completion(char* line)
                         gCandidates = MREALLOC(gCandidates, sizeof(char*)*size);
                     }
                 }
+                else {
+                    MFREE(candidate);
+                }
             }
         }
 
@@ -851,7 +905,6 @@ static int my_complete_internal(int count, int key)
     gCandidates = NULL;
     gNumCandidates = 0;
 
-
     /// parse source ///
     char* source = ALLOC line_buffer_from_head_to_cursor_point();
     char* line = get_one_expression(source);
@@ -905,8 +958,53 @@ static int my_complete_internal(int count, int key)
         }
     }
 
+    /// command name completion ///
+    if(expression_is_void) {
+        if(line[strlen(line)-1] != '(') {
+            const int num_words = 23;
+            char* words[num_words] = {
+                "if(",
+                "while(",
+                "for(",
+                "break",
+                "true",
+                "false",
+                "null",
+                "throw",
+                "try(",
+                "return",
+                "new",
+                "closure(",
+                "lambda(",
+                "block{",
+                "inherit(",
+                "list{",
+                "equalable_list{",
+                "sortable_list{",
+                "tuple{",
+                "hash{",
+                "array{",
+                "equalable_array{",
+                "sortable_array{",
+            };
+
+            int num_candidates = 0;
+            char** candidates = MCALLOC(1, sizeof(char*)*(CLASS_NUM_MAX+128));
+
+            int i;
+            for(i=0; i<num_words; i++) {
+                candidates[i] = MANAGED MSTRDUP(words[i]);
+            }
+
+            num_candidates += num_words;
+            
+            get_class_names(candidates, &num_candidates);
+            command_completion(line, candidates, num_candidates);
+            MFREE(candidates);
+        }
+    }
     /// inputing method name ///
-    if(!in_double_quote && !in_single_quote && *p == '.') {
+    else if(!in_double_quote && !in_single_quote && *p == '.') {
         /// class method ? ///
         char* p2 = p;
         p2--;
@@ -973,51 +1071,6 @@ static int my_complete_internal(int count, int key)
         rl_completer_word_break_characters = "\t\n.";
 
         gInputingMethod = TRUE;
-    }
-    /// command name completion ///
-    else if(expression_is_void) {
-        if(line[strlen(line)-1] != '(') {
-            const int num_words = 23;
-            char* words[num_words] = {
-                "if(",
-                "while(",
-                "for(",
-                "break",
-                "true",
-                "false",
-                "null",
-                "throw",
-                "try(",
-                "return",
-                "new",
-                "closure(",
-                "lambda(",
-                "block{",
-                "inherit(",
-                "list{",
-                "equalable_list{",
-                "sortable_list{",
-                "tuple{",
-                "hash{",
-                "array{",
-                "equalable_array{",
-                "sortable_array{",
-            };
-
-            int num_candidates = 0;
-            char** candidates = MCALLOC(1, sizeof(char*)*(CLASS_NUM_MAX+128));
-
-            int i;
-            for(i=0; i<num_words; i++) {
-                candidates[i] = MANAGED MSTRDUP(words[i]);
-            }
-
-            num_candidates += num_words;
-            
-            get_class_names(candidates, &num_candidates);
-            command_completion(line, candidates, num_candidates);
-            MFREE(candidates);
-        }
     }
     /// file completion ///
     else {

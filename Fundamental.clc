@@ -131,6 +131,33 @@ class String
         return self;
     }
 
+    def append(c:char): String {
+        len:int = 1;
+
+        if(self.len+len+1 < self.size) {
+            self.buffer[self.len] = c;
+            self.buffer[self.len+1] = '\0';
+
+            self.len += len;
+        }
+        else {
+            new_size:int = (self.len + len + 1) * 2;
+            new_buffer:char[] = new char[new_size];
+
+            for(i:int = 0; i<self.len; i++) {
+                new_buffer[i] = self.buffer[i];
+            }
+            new_buffer[i] = c;
+            new_buffer[i+1] = '\0';
+
+            self.buffer = new_buffer;
+            self.len += len;
+            self.size = new_size;
+        }
+
+        return self;
+    }
+
     def replace(index:int, c:char) {
         if(index < 0) {
             index += self.len;
@@ -671,6 +698,34 @@ class Char
 
     def toPointer():Pointer {
         return self.value.toPointer;
+    }
+
+    def toLowerCase():Char {
+        if(self.value >= 'A' && self.value <= 'Z') {
+            return self.value - 'A' + 'a';
+        }
+        else {
+            return self.value;
+        }
+    }
+
+    def toUpperCase():Char {
+        if(self.value >= 'a' && self.value <= 'z') {
+            return self.value - 'a' + 'A';
+        }
+        else {
+            return self.value;
+        }
+    }
+
+    def multiply(n:int):String {
+        result:String = "";
+
+        for(i:=0; i<n; i++) {
+            result.append(self.value);
+        }
+        
+        return result;
     }
 }
 

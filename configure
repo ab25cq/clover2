@@ -3839,6 +3839,8 @@ fi
 $as_echo "$ac_cv_lib_dl_main" >&6; }
 if test "x$ac_cv_lib_dl_main" = xyes; then :
    LIBS="$LIBS -ldl";
+else
+  exit
 fi
 ac_cv_lib_dl=ac_cv_lib_dl_main
 
@@ -3848,6 +3850,8 @@ ac_fn_c_check_header_mongrel "$LINENO" "math.h" "ac_cv_header_math_h" "$ac_inclu
 if test "x$ac_cv_header_math_h" = xyes; then :
   $as_echo "#define HAVE_MATH_H 1" >>confdefs.h
 
+else
+  exit
 fi
 
 
@@ -3883,6 +3887,8 @@ fi
 $as_echo "$ac_cv_lib_m_main" >&6; }
 if test "x$ac_cv_lib_m_main" = xyes; then :
    LIBS="$LIBS -lm";
+else
+  exit
 fi
 ac_cv_lib_m=ac_cv_lib_m_main
 
@@ -3890,6 +3896,8 @@ ac_fn_c_check_header_mongrel "$LINENO" "iconv.h" "ac_cv_header_iconv_h" "$ac_inc
 if test "x$ac_cv_header_iconv_h" = xyes; then :
   $as_echo "#define HAVE_ICONV_H 1" >>confdefs.h
 
+else
+  exit
 fi
 
 
@@ -3903,6 +3911,8 @@ ac_fn_c_check_header_mongrel "$LINENO" "pcre.h" "ac_cv_header_pcre_h" "$ac_inclu
 if test "x$ac_cv_header_pcre_h" = xyes; then :
   $as_echo "#define HAVE_PCRE_H 1" >>confdefs.h
 
+else
+  exit
 fi
 
 
@@ -3938,8 +3948,48 @@ fi
 $as_echo "$ac_cv_lib_pcre_main" >&6; }
 if test "x$ac_cv_lib_pcre_main" = xyes; then :
    LIBS="$LIBS -lpcre";
+else
+  exit
 fi
 ac_cv_lib_pcre=ac_cv_lib_pcre_main
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lrt" >&5
+$as_echo_n "checking for main in -lrt... " >&6; }
+if ${ac_cv_lib_rt_main+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lrt  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+
+int
+main ()
+{
+return main ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_rt_main=yes
+else
+  ac_cv_lib_rt_main=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_rt_main" >&5
+$as_echo "$ac_cv_lib_rt_main" >&6; }
+if test "x$ac_cv_lib_rt_main" = xyes; then :
+   LIBS="$LIBS -lrt";
+else
+  exit
+fi
+ac_cv_lib_rt=ac_cv_lib_rt_main
 
 
 

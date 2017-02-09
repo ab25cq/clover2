@@ -187,6 +187,9 @@ static sNativeMethod gNativeMethods[] = {
     { "System.fchdir(int)", System_fchdir },
     { "System.rmdir(String)", System_rmdir },
     { "System.mkdir(String,int)", System_mkdir },
+    { "System.clock_getres(int,timespec)", System_clock_getres },
+    { "System.clock_gettime(int,timespec)", System_clock_gettime },
+    { "System.clock_settime(int,timespec)", System_clock_settime },
 
     { "", 0 }  // sentinel
 };

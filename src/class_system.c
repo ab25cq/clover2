@@ -1044,6 +1044,25 @@ BOOL System_initialize(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     system->mClassFields[52].mValue.mIntValue = FNM_LEADING_DIR;
     system->mClassFields[53].mValue.mIntValue = FNM_CASEFOLD;
 
+    system->mClassFields[54].mValue.mIntValue = CLOCK_REALTIME;
+#ifdef CLOCK_REALTIME_COARSE
+    system->mClassFields[55].mValue.mIntValue = CLOCK_REALTIME_COARSE;
+#endif
+    system->mClassFields[56].mValue.mIntValue = CLOCK_MONOTONIC;
+#ifdef CLOCK_MONOTONIC_COARSE
+    system->mClassFields[57].mValue.mIntValue = CLOCK_MONOTONIC_COARSE;
+#endif
+    system->mClassFields[58].mValue.mIntValue = CLOCK_MONOTONIC_RAW;
+#ifdef CLOCK_BOOTTIME
+    system->mClassFields[59].mValue.mIntValue = CLOCK_BOOTTIME;
+#endif
+#ifdef CLOCK_PROCESS_CPUTIME_ID
+    system->mClassFields[60].mValue.mIntValue = CLOCK_PROCESS_CPUTIME_ID;
+#endif
+#ifdef CLOCK_THREAD_CPUTIME_ID
+    system->mClassFields[61].mValue.mIntValue = CLOCK_THREAD_CPUTIME_ID;
+#endif
+
     return TRUE;
 }
 
@@ -2626,6 +2645,83 @@ BOOL System_mkdir(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     }
 
     MFREE(path_value);
+
+    return TRUE;
+}
+
+BOOL System_clock_getres(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* clk_id = lvar;
+    CLVALUE* tp = lvar + 1;
+
+    /// Clover to c value ///
+    clockid_t clk_id_value = clk_id->mIntValue;
+    CLObject tp_value = tp->mObjectValue;
+
+    /// go ///
+    struct timespec timespec_struct;
+    int result = clock_getres(clk_id_value, &timespec_struct);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "clock_getres(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+    sCLObject* object_data = CLOBJECT(tp_value);
+
+    object_data->mFields[0].mULongValue = timespec_struct.tv_sec;
+    object_data->mFields[1].mLongValue = timespec_struct.tv_nsec;
+
+    return TRUE;
+}
+
+BOOL System_clock_gettime(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* clk_id = lvar;
+    CLVALUE* tp = lvar + 1;
+
+    /// Clover to c value ///
+    clockid_t clk_id_value = clk_id->mIntValue;
+    CLObject tp_value = tp->mObjectValue;
+
+    /// go ///
+    struct timespec timespec_struct;
+    int result = clock_gettime(clk_id_value, &timespec_struct);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "clock_getres(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+    sCLObject* object_data = CLOBJECT(tp_value);
+
+    object_data->mFields[0].mULongValue = timespec_struct.tv_sec;
+    object_data->mFields[1].mLongValue = timespec_struct.tv_nsec;
+
+    return TRUE;
+}
+
+BOOL System_clock_settime(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* clk_id = lvar;
+    CLVALUE* tp = lvar + 1;
+
+    /// Clover to c value ///
+    clockid_t clk_id_value = clk_id->mIntValue;
+
+    struct timespec timespec_struct;
+
+    CLObject tp_value = tp->mObjectValue;
+    sCLObject* object_data = CLOBJECT(tp_value);
+
+    timespec_struct.tv_sec = object_data->mFields[0].mULongValue;
+    timespec_struct.tv_nsec = object_data->mFields[1].mLongValue;
+
+    /// go ///
+    int result = clock_gettime(clk_id_value, &timespec_struct);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "clock_getres(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
 
     return TRUE;
 }
