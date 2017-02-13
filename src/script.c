@@ -1,236 +1,95 @@
 #include "common.h"
 
-BOOL read_source(char* fname, sBuf* source)
+BOOL eval_file(char* fname, int stack_size)
 {
-    int f = open(fname, O_RDONLY);
+    FILE* f = fopen(fname, "r");
 
-    if(f < 0) {
+    if(f == NULL) {
         fprintf(stderr, "%s doesn't exist\n", fname);
         return FALSE;
     }
 
-    while(1) {
-        char buf[BUFSIZ];
-        int size = read(f, buf, BUFSIZ);
-
-        if(size < 0) {
-            fprintf(stderr, "unexpected error\n");
-            close(f);
-            return FALSE;
-        }
-
-        buf[size] = 0;
-        sBuf_append_str(source, buf);
-
-        if(size < BUFSIZ) {
-            break;
-        }
+    /// magic number ///
+    char buf[BUFSIZ];
+    if(fread(buf, 1, 18, f) < 18) {
+        fclose(f);
+        fprintf(stderr, "%s is not clover script file\n", fname);
+        return FALSE;
     }
-
-    close(f);
-
-    return TRUE;
-}
-
-BOOL delete_comment(sBuf* source, sBuf* source2)
-{
-    char* p;
-    BOOL in_string;
-
-    p = source->mBuf;
-
-    in_string = FALSE;
-
-    while(*p) {
-        if(*p == '"') {
-            in_string = !in_string;
-            sBuf_append_char(source2, *p);
-            p++;
-        }
-        else if(!in_string && *p =='#')
-        {
-            p++;
-
-            while(1) {
-                if(*p == 0) {
-                    break;
-                }
-                else if(*p == '\n') {
-                    //p++;      // no delete line field for error message
-                    break;
-                }
-                else {
-                    p++;
-                }
-            }
-        }
-        else if(!in_string && *p == '/' && *(p+1) == '*') {
-            int nest;
-
-            p+=2;
-            nest = 0;
-            while(1) {
-                if(*p == '"') {
-                    p++;
-                    in_string = !in_string;
-                }
-                else if(*p == 0) {
-                    fprintf(stderr, "there is not a comment end until source end\n");
-                    return FALSE;
-                }
-                else if(!in_string && *p == '/' && *(p+1) == '*') {
-                    p+=2;
-                    nest++;
-                }
-                else if(!in_string && *p == '*' && *(p+1) == '/') {
-                    p+=2;
-                    if(nest == 0) {
-                        break;
-                    }
-
-                    nest--;
-                }
-                else if(*p == '\n') {
-                    sBuf_append_char(source2, *p);   // no delete line field for error message
-                    p++;
-                }
-                else {
-                    p++;
-                }
-            }
-        }
-        else {
-            sBuf_append_char(source2, *p);
-            p++;
-        }
-    }
-
-    return TRUE;
-}
-
-static BOOL write_code_and_constant_to_file(sByteCode* code, sConst* constant, int var_num, char* fname)
-{
-    sBuf buf;
-    sBuf_init(&buf);
-
-    sBuf_append_str(&buf, "CLOVER SCRIPT FILE");
-
-    sBuf_append(&buf, &var_num, sizeof(int));
-
-    sBuf_append(&buf, &code->mLen, sizeof(int));
-    sBuf_append(&buf, code->mCodes, code->mLen);
-
-    sBuf_append(&buf, &constant->mLen, sizeof(int));
-    sBuf_append(&buf, constant->mConst, constant->mLen);
-
-    char output_fname[PATH_MAX];
-
-    char* p = fname;
-    char* p2 = output_fname;
-    while(*p) {
-        if(*p == '.') {
-            break;
-        }
-        else {
-            *p2++ = *p++;
-        }
-    }
-
-    if(p2 - output_fname > PATH_MAX-5) {
-        fprintf(stderr, "too long file name\n");
-        MFREE(buf.mBuf);
+    buf[18] = 0;
+    if(strcmp(buf, "CLOVER SCRIPT FILE") != 0) {
+        fclose(f);
+        fprintf(stderr, "%s is not clover script file\n", fname);
         return FALSE;
     }
 
-    *p2 = 0;
-
-    xstrncat(output_fname, ".clo", PATH_MAX);
-
-    FILE* f = fopen(output_fname, "w");
-    if(f == NULL) {
-        fprintf(stderr, "can't open %s\n", output_fname);
-        MFREE(buf.mBuf);
+    int var_num;
+    if(fread(&var_num, sizeof(int), 1, f) < 1) {
+        fclose(f);
+        fprintf(stderr, "Clover2 can't read variable number\n");
         return FALSE;
     }
-    fwrite(buf.mBuf, 1, buf.mLen, f);
-    fclose(f);
 
-    MFREE(buf.mBuf);
+    int code_len = 0;
+    if(fread(&code_len, sizeof(int), 1, f) < 1) {
+        fclose(f);
+        fprintf(stderr, "Clover2 can't read byte code size\n");
+        return FALSE;
+    }
 
-    return TRUE;
-}
+    char* code_contents = MMALLOC(code_len);
+    if(fread(code_contents, 1, code_len, f) < code_len) {
+        fclose(f);
+        MFREE(code_contents);
+        fprintf(stderr, "Clover2 can't read byte code\n");
+        return FALSE;
+    }
 
-BOOL compile_script(char* fname, char* source)
-{
-    sParserInfo info;
+    int code_len2 = 0;
+    if(fread(&code_len2, sizeof(int), 1, f) < 1) {
+        fclose(f);
+        MFREE(code_contents);
+        fprintf(stderr, "Clover2 can't read constant size\n");
+        return FALSE;
+    }
 
-    memset(&info, 0, sizeof(sParserInfo));
-
-    info.p = source;
-    info.sname = fname;
-    info.sline = 1;
-    info.lv_table = init_var_table();
-    info.parse_phase = 0;
-
-    sCompileInfo cinfo;
-    
-    memset(&cinfo, 0, sizeof(sCompileInfo));
+    char* code_contents2 = MMALLOC(code_len2);
+    if(fread(code_contents2, 1, code_len2, f) < code_len2) {
+        fclose(f);
+        MFREE(code_contents);
+        MFREE(code_contents2);
+        fprintf(stderr, "Clover2 can't read byte code\n");
+        return FALSE;
+    }
 
     sByteCode code;
     sByteCode_init(&code);
-    cinfo.code = &code;
+    append_value_to_code(&code, code_contents, code_len, FALSE);
 
     sConst constant;
     sConst_init(&constant);
-    cinfo.constant = &constant;
+    sConst_append(&constant, code_contents2, code_len2, FALSE);
 
-    cinfo.lv_table = info.lv_table;
-    cinfo.no_output = FALSE;
-    cinfo.pinfo = &info;
+    CLVALUE* stack = MCALLOC(1, sizeof(CLVALUE)*stack_size);
 
-    info.cinfo = &cinfo;
+    sVMInfo info;
+    memset(&info, 0, sizeof(sVMInfo));
 
-    while(*info.p) {
-        unsigned int node = 0;
-        if(!expression(&node, &info)) {
-            return FALSE;
-        }
-
-#ifdef VM_DEBUG
-    //show_node(node);
-#endif
-
-        if(info.err_num == 0 && node != 0) {
-            if(!compile(node, &cinfo)) {
-                sByteCode_free(&code);
-                sConst_free(&constant);
-                return FALSE;
-            }
-
-            arrange_stack(&cinfo);
-        }
-
-        if(*info.p == ';') {
-            info.p++;
-            skip_spaces_and_lf(&info);
-        }
-    }
-
-    if(info.err_num > 0 || cinfo.err_num > 0) {
-        fprintf(stderr, "Parser error number is %d. Compile error number is %d\n", info.err_num, cinfo.err_num);
+    if(!vm(&code, &constant, stack, var_num, NULL, &info)) {
+        show_exception_message(info.exception_message);
+        fclose(f);
+        MFREE(stack);
+        MFREE(code_contents);
+        MFREE(code_contents2);
         sByteCode_free(&code);
         sConst_free(&constant);
         return FALSE;
     }
 
-    int var_num = get_var_num(info.lv_table);
-
-    if(!write_code_and_constant_to_file(&code, &constant, var_num, fname)) {
-        sByteCode_free(&code);
-        sConst_free(&constant);
-        return FALSE;
-    }
-
+    fclose(f);
+    MFREE(code_contents);
+    MFREE(code_contents2);
+    MFREE(stack);
     sByteCode_free(&code);
     sConst_free(&constant);
 

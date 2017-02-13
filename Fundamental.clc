@@ -192,6 +192,8 @@ class Clover
     def initialize():static {
         System.srand(System.time().to_uint);
     }
+
+#    def load(file_name:String): native throws Exception;
 }
 
 module MWrapperClassBase 

@@ -1063,6 +1063,8 @@ BOOL System_initialize(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     system->mClassFields[61].mValue.mIntValue = CLOCK_THREAD_CPUTIME_ID;
 #endif
 
+#define LAST_INITIALIZE_FIELD_NUM 61
+
     return TRUE;
 }
 
@@ -1423,185 +1425,187 @@ BOOL System_initialize_command_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInf
 {
     sCLClass* system = get_class("System");
 
-    system->mClassFields[54].mValue.mIntValue = WNOHANG;
-    system->mClassFields[55].mValue.mIntValue = WUNTRACED;
-    system->mClassFields[56].mValue.mIntValue = WCONTINUED;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+1].mValue.mIntValue = WNOHANG;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+2].mValue.mIntValue = WUNTRACED;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+3].mValue.mIntValue = WCONTINUED;
 
-    system->mClassFields[57].mValue.mIntValue = SIGHUP;
-    system->mClassFields[58].mValue.mIntValue = SIGINT;
-    system->mClassFields[59].mValue.mIntValue = SIGQUIT;
-    system->mClassFields[60].mValue.mIntValue = SIGILL;
-    system->mClassFields[61].mValue.mIntValue = SIGABRT;
-    system->mClassFields[62].mValue.mIntValue = SIGFPE;
-    system->mClassFields[63].mValue.mIntValue = SIGKILL;
-    system->mClassFields[64].mValue.mIntValue = SIGSEGV;
-    system->mClassFields[65].mValue.mIntValue = SIGPIPE;
-    system->mClassFields[66].mValue.mIntValue = SIGALRM;
-    system->mClassFields[67].mValue.mIntValue = SIGTERM;
-    system->mClassFields[68].mValue.mIntValue = SIGUSR1;
-    system->mClassFields[69].mValue.mIntValue = SIGUSR2;
-    system->mClassFields[70].mValue.mIntValue = SIGCHLD;
-    system->mClassFields[71].mValue.mIntValue = SIGCONT;
-    system->mClassFields[72].mValue.mIntValue = SIGSTOP;
-    system->mClassFields[73].mValue.mIntValue = SIGTSTP;
-    system->mClassFields[74].mValue.mIntValue = SIGTTIN;
-    system->mClassFields[75].mValue.mIntValue = SIGTTOU;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+4].mValue.mIntValue = SIGHUP;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+5].mValue.mIntValue = SIGINT;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+6].mValue.mIntValue = SIGQUIT;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+7].mValue.mIntValue = SIGILL;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+8].mValue.mIntValue = SIGABRT;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+9].mValue.mIntValue = SIGFPE;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+10].mValue.mIntValue = SIGKILL;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+11].mValue.mIntValue = SIGSEGV;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+12].mValue.mIntValue = SIGPIPE;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+13].mValue.mIntValue = SIGALRM;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+14].mValue.mIntValue = SIGTERM;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+15].mValue.mIntValue = SIGUSR1;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+16].mValue.mIntValue = SIGUSR2;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+17].mValue.mIntValue = SIGCHLD;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+18].mValue.mIntValue = SIGCONT;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+19].mValue.mIntValue = SIGSTOP;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+20].mValue.mIntValue = SIGTSTP;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+21].mValue.mIntValue = SIGTTIN;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+22].mValue.mIntValue = SIGTTOU;
 
     // c_iflag bits
-    system->mClassFields[76].mValue.mIntValue = IGNBRK;
-    system->mClassFields[77].mValue.mIntValue = BRKINT;
-    system->mClassFields[78].mValue.mIntValue = IGNPAR;
-    system->mClassFields[79].mValue.mIntValue = PARMRK;
-    system->mClassFields[80].mValue.mIntValue = INPCK;
-    system->mClassFields[81].mValue.mIntValue = ISTRIP;
-    system->mClassFields[82].mValue.mIntValue = INLCR;
-    system->mClassFields[83].mValue.mIntValue = IGNCR;
-    system->mClassFields[84].mValue.mIntValue = ICRNL;
-    system->mClassFields[85].mValue.mIntValue = IUCLC;
-    system->mClassFields[86].mValue.mIntValue = IXON;
-    system->mClassFields[87].mValue.mIntValue = IXANY;
-    system->mClassFields[88].mValue.mIntValue = IXOFF;
-    system->mClassFields[89].mValue.mIntValue = IMAXBEL;
-    system->mClassFields[90].mValue.mIntValue = IUTF8;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+23].mValue.mIntValue = IGNBRK;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+24].mValue.mIntValue = BRKINT;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+25].mValue.mIntValue = IGNPAR;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+26].mValue.mIntValue = PARMRK;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+27].mValue.mIntValue = INPCK;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+28].mValue.mIntValue = ISTRIP;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+29].mValue.mIntValue = INLCR;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+30].mValue.mIntValue = IGNCR;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+31].mValue.mIntValue = ICRNL;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+32].mValue.mIntValue = IUCLC;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+33].mValue.mIntValue = IXON;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+34].mValue.mIntValue = IXANY;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+35].mValue.mIntValue = IXOFF;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+36].mValue.mIntValue = IMAXBEL;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+37].mValue.mIntValue = IUTF8;
 
     // c_oflag bits
-    system->mClassFields[91].mValue.mIntValue = OPOST;
-    system->mClassFields[92].mValue.mIntValue = OLCUC;
-    system->mClassFields[93].mValue.mIntValue = ONLCR;
-    system->mClassFields[94].mValue.mIntValue = OCRNL;
-    system->mClassFields[95].mValue.mIntValue = ONOCR;
-    system->mClassFields[96].mValue.mIntValue = ONLRET;
-    system->mClassFields[97].mValue.mIntValue = OFILL;
-    system->mClassFields[98].mValue.mIntValue = OFDEL;
-    system->mClassFields[99].mValue.mIntValue = NLDLY;
-    system->mClassFields[100].mValue.mIntValue = NL0;
-    system->mClassFields[101].mValue.mIntValue = NL1;
-    system->mClassFields[102].mValue.mIntValue = CRDLY;
-    system->mClassFields[103].mValue.mIntValue = CR0;
-    system->mClassFields[104].mValue.mIntValue = CR1;
-    system->mClassFields[105].mValue.mIntValue = CR2;
-    system->mClassFields[106].mValue.mIntValue = CR3;
-    system->mClassFields[107].mValue.mIntValue = TABDLY;
-    system->mClassFields[108].mValue.mIntValue = TAB0;
-    system->mClassFields[109].mValue.mIntValue = TAB1;
-    system->mClassFields[110].mValue.mIntValue = TAB2;
-    system->mClassFields[111].mValue.mIntValue = TAB3;
-    system->mClassFields[112].mValue.mIntValue = BSDLY;
-    system->mClassFields[113].mValue.mIntValue = BS0;
-    system->mClassFields[114].mValue.mIntValue = BS1;
-    system->mClassFields[115].mValue.mIntValue = FFDLY;
-    system->mClassFields[116].mValue.mIntValue = FF0;
-    system->mClassFields[117].mValue.mIntValue = FF1;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+38].mValue.mIntValue = OPOST;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+39].mValue.mIntValue = OLCUC;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+40].mValue.mIntValue = ONLCR;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+41].mValue.mIntValue = OCRNL;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+42].mValue.mIntValue = ONOCR;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+43].mValue.mIntValue = ONLRET;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+44].mValue.mIntValue = OFILL;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+45].mValue.mIntValue = OFDEL;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+46].mValue.mIntValue = NLDLY;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+47].mValue.mIntValue = NL0;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+48].mValue.mIntValue = NL1;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+49].mValue.mIntValue = CRDLY;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+50].mValue.mIntValue = CR0;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+51].mValue.mIntValue = CR1;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+52].mValue.mIntValue = CR2;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+53].mValue.mIntValue = CR3;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+54].mValue.mIntValue = TABDLY;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+55].mValue.mIntValue = TAB0;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+56].mValue.mIntValue = TAB1;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+57].mValue.mIntValue = TAB2;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+58].mValue.mIntValue = TAB3;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+59].mValue.mIntValue = BSDLY;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+60].mValue.mIntValue = BS0;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+61].mValue.mIntValue = BS1;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+62].mValue.mIntValue = FFDLY;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+63].mValue.mIntValue = FF0;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+64].mValue.mIntValue = FF1;
 
-    system->mClassFields[118].mValue.mIntValue = VTDLY;
-    system->mClassFields[119].mValue.mIntValue = VT0;
-    system->mClassFields[120].mValue.mIntValue = VT1;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+65].mValue.mIntValue = VTDLY;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+66].mValue.mIntValue = VT0;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+67].mValue.mIntValue = VT1;
 
-    system->mClassFields[121].mValue.mIntValue = XTABS;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+68].mValue.mIntValue = XTABS;
 
-    // c_cflag bit meaning 
-    system->mClassFields[122].mValue.mIntValue = CBAUD;
-    system->mClassFields[123].mValue.mIntValue = B0;
-    system->mClassFields[124].mValue.mIntValue = B50;
-    system->mClassFields[125].mValue.mIntValue = B75;
-    system->mClassFields[126].mValue.mIntValue = B110;
-    system->mClassFields[127].mValue.mIntValue = B134;
-    system->mClassFields[128].mValue.mIntValue = B150;
-    system->mClassFields[129].mValue.mIntValue = B200;
-    system->mClassFields[130].mValue.mIntValue = B300;
-    system->mClassFields[131].mValue.mIntValue = B600;
-    system->mClassFields[132].mValue.mIntValue = B1200;
-    system->mClassFields[133].mValue.mIntValue = B1800;
-    system->mClassFields[134].mValue.mIntValue = B2400;
-    system->mClassFields[135].mValue.mIntValue = B4800;
-    system->mClassFields[136].mValue.mIntValue = B9600;
-    system->mClassFields[137].mValue.mIntValue = B19200;
-    system->mClassFields[138].mValue.mIntValue = B38400;
-    system->mClassFields[139].mValue.mIntValue = EXTA;
-    system->mClassFields[140].mValue.mIntValue = EXTB;
-    system->mClassFields[141].mValue.mIntValue = CSIZE;
-    system->mClassFields[142].mValue.mIntValue = CS5;
-    system->mClassFields[143].mValue.mIntValue = CS6;
-    system->mClassFields[144].mValue.mIntValue = CS7;
-    system->mClassFields[145].mValue.mIntValue = CS8;
-    system->mClassFields[146].mValue.mIntValue = CSTOPB;
-    system->mClassFields[147].mValue.mIntValue = CREAD;
-    system->mClassFields[148].mValue.mIntValue = PARENB;
-    system->mClassFields[149].mValue.mIntValue = PARODD;
-    system->mClassFields[150].mValue.mIntValue = HUPCL;
-    system->mClassFields[151].mValue.mIntValue = CLOCAL;
-    system->mClassFields[152].mValue.mIntValue = CBAUDEX;
-    system->mClassFields[153].mValue.mIntValue = B57600;
-    system->mClassFields[154].mValue.mIntValue = B115200;
-    system->mClassFields[155].mValue.mIntValue = B230400;
-    system->mClassFields[156].mValue.mIntValue = B460800;
-    system->mClassFields[157].mValue.mIntValue = B500000;
-    system->mClassFields[158].mValue.mIntValue = B576000;
-    system->mClassFields[159].mValue.mIntValue = B921600;
-    system->mClassFields[160].mValue.mIntValue = B1000000;
-    system->mClassFields[161].mValue.mIntValue = B1152000;
-    system->mClassFields[162].mValue.mIntValue = B1500000;
-    system->mClassFields[163].mValue.mIntValue = B2000000;
-    system->mClassFields[164].mValue.mIntValue = B2500000;
-    system->mClassFields[165].mValue.mIntValue = B3000000;
-    system->mClassFields[166].mValue.mIntValue = B3500000;
-    system->mClassFields[167].mValue.mIntValue = B4000000;
-    system->mClassFields[168].mValue.mIntValue = CIBAUD;
-    system->mClassFields[169].mValue.mIntValue = CMSPAR;
-    system->mClassFields[170].mValue.mIntValue = CRTSCTS;
+    // c_cflag bit meaning
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+69].mValue.mIntValue = CBAUD;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+70].mValue.mIntValue = B0;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+71].mValue.mIntValue = B50;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+72].mValue.mIntValue = B75;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+73].mValue.mIntValue = B110;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+74].mValue.mIntValue = B134;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+75].mValue.mIntValue = B150;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+76].mValue.mIntValue = B200;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+77].mValue.mIntValue = B300;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+78].mValue.mIntValue = B600;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+79].mValue.mIntValue = B1200;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+80].mValue.mIntValue = B1800;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+81].mValue.mIntValue = B2400;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+82].mValue.mIntValue = B4800;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+83].mValue.mIntValue = B9600;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+84].mValue.mIntValue = B19200;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+85].mValue.mIntValue = B38400;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+86].mValue.mIntValue = EXTA;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+87].mValue.mIntValue = EXTB;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+88].mValue.mIntValue = CSIZE;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+89].mValue.mIntValue = CS5;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+90].mValue.mIntValue = CS6;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+91].mValue.mIntValue = CS7;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+92].mValue.mIntValue = CS8;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+93].mValue.mIntValue = CSTOPB;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+94].mValue.mIntValue = CREAD;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+95].mValue.mIntValue = PARENB;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+96].mValue.mIntValue = PARODD;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+97].mValue.mIntValue = HUPCL;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+98].mValue.mIntValue = CLOCAL;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+99].mValue.mIntValue = CBAUDEX;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+100].mValue.mIntValue = B57600;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+101].mValue.mIntValue = B115200;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+102].mValue.mIntValue = B230400;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+103].mValue.mIntValue = B460800;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+104].mValue.mIntValue = B500000;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+105].mValue.mIntValue = B576000;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+106].mValue.mIntValue = B921600;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+107].mValue.mIntValue = B1000000;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+108].mValue.mIntValue = B1152000;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+109].mValue.mIntValue = B1500000;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+110].mValue.mIntValue = B2000000;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+111].mValue.mIntValue = B2500000;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+112].mValue.mIntValue = B3000000;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+113].mValue.mIntValue = B3500000;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+114].mValue.mIntValue = B4000000;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+115].mValue.mIntValue = CIBAUD;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+116].mValue.mIntValue = CMSPAR;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+117].mValue.mIntValue = CRTSCTS;
 
     // c_lflag bits
-    system->mClassFields[171].mValue.mIntValue = ISIG;
-    system->mClassFields[172].mValue.mIntValue = ICANON;
-    system->mClassFields[173].mValue.mIntValue = XCASE;
-    system->mClassFields[174].mValue.mIntValue = ECHO;
-    system->mClassFields[175].mValue.mIntValue = ECHOE;
-    system->mClassFields[176].mValue.mIntValue = ECHOK;
-    system->mClassFields[177].mValue.mIntValue = ECHONL;
-    system->mClassFields[178].mValue.mIntValue = NOFLSH;
-    system->mClassFields[179].mValue.mIntValue = TOSTOP;
-    system->mClassFields[180].mValue.mIntValue = ECHOCTL;
-    system->mClassFields[181].mValue.mIntValue = ECHOPRT;
-    system->mClassFields[182].mValue.mIntValue = ECHOKE;
-    system->mClassFields[183].mValue.mIntValue = FLUSHO;
-    system->mClassFields[184].mValue.mIntValue = PENDIN;
-    system->mClassFields[185].mValue.mIntValue = IEXTEN;
-    system->mClassFields[186].mValue.mIntValue = EXTPROC;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+118].mValue.mIntValue = ISIG;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+119].mValue.mIntValue = ICANON;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+120].mValue.mIntValue = XCASE;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+121].mValue.mIntValue = ECHO;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+122].mValue.mIntValue = ECHOE;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+123].mValue.mIntValue = ECHOK;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+124].mValue.mIntValue = ECHONL;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+125].mValue.mIntValue = NOFLSH;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+126].mValue.mIntValue = TOSTOP;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+127].mValue.mIntValue = ECHOCTL;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+128].mValue.mIntValue = ECHOPRT;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+129].mValue.mIntValue = ECHOKE;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+130].mValue.mIntValue = FLUSHO;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+131].mValue.mIntValue = PENDIN;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+132].mValue.mIntValue = IEXTEN;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+133].mValue.mIntValue = EXTPROC;
 
     // tcflow() and TCXONC use these 
-    system->mClassFields[187].mValue.mIntValue = TCOOFF;
-    system->mClassFields[188].mValue.mIntValue = TCOON;
-    system->mClassFields[189].mValue.mIntValue = TCIOFF;
-    system->mClassFields[190].mValue.mIntValue = TCION;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+134].mValue.mIntValue = TCOOFF;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+135].mValue.mIntValue = TCOON;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+136].mValue.mIntValue = TCIOFF;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+137].mValue.mIntValue = TCION;
 
-    // tcflush() and TCFLSH use these */
-    system->mClassFields[191].mValue.mIntValue = TCIFLUSH;
-    system->mClassFields[192].mValue.mIntValue = TCOFLUSH;
-    system->mClassFields[193].mValue.mIntValue = TCIOFLUSH;
+    // tcflush() and TCFLSH use these
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+138].mValue.mIntValue = TCIFLUSH;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+139].mValue.mIntValue = TCOFLUSH;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+140].mValue.mIntValue = TCIOFLUSH;
 
     // tcsetattr uses these
-    system->mClassFields[194].mValue.mIntValue = TCSANOW;
-    system->mClassFields[195].mValue.mIntValue = TCSADRAIN;
-    system->mClassFields[196].mValue.mIntValue = TCSAFLUSH;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+141].mValue.mIntValue = TCSANOW;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+142].mValue.mIntValue = TCSADRAIN;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+143].mValue.mIntValue = TCSAFLUSH;
 
     // c_cc characters
-    system->mClassFields[197].mValue.mIntValue = VINTR;
-    system->mClassFields[198].mValue.mIntValue = VQUIT;
-    system->mClassFields[199].mValue.mIntValue = VERASE;
-    system->mClassFields[200].mValue.mIntValue = VKILL;
-    system->mClassFields[201].mValue.mIntValue = VEOF;
-    system->mClassFields[202].mValue.mIntValue = VTIME;
-    system->mClassFields[203].mValue.mIntValue = VMIN;
-    system->mClassFields[204].mValue.mIntValue = VSWTC;
-    system->mClassFields[205].mValue.mIntValue = VSTART;
-    system->mClassFields[206].mValue.mIntValue = VSTOP;
-    system->mClassFields[207].mValue.mIntValue = VSUSP;
-    system->mClassFields[208].mValue.mIntValue = VEOL;
-    system->mClassFields[209].mValue.mIntValue = VREPRINT;
-    system->mClassFields[210].mValue.mIntValue = VDISCARD;
-    system->mClassFields[211].mValue.mIntValue = VWERASE;
-    system->mClassFields[212].mValue.mIntValue = VLNEXT;
-    system->mClassFields[213].mValue.mIntValue = VEOL2;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+144].mValue.mIntValue = VINTR;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+145].mValue.mIntValue = VQUIT;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+146].mValue.mIntValue = VERASE;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+147].mValue.mIntValue = VKILL;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+148].mValue.mIntValue = VEOF;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+149].mValue.mIntValue = VTIME;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+150].mValue.mIntValue = VMIN;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+151].mValue.mIntValue = VSWTC;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+152].mValue.mIntValue = VSTART;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+153].mValue.mIntValue = VSTOP;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+154].mValue.mIntValue = VSUSP;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+155].mValue.mIntValue = VEOL;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+156].mValue.mIntValue = VREPRINT;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+157].mValue.mIntValue = VDISCARD;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+158].mValue.mIntValue = VWERASE;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+159].mValue.mIntValue = VLNEXT;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM+160].mValue.mIntValue = VEOL2;
+
+#define LAST_INITIALIZE_FIELD_NUM2 160
 
     return TRUE;
 }
@@ -2725,3 +2729,4 @@ BOOL System_clock_settime(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     return TRUE;
 }
+

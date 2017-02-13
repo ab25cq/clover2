@@ -349,7 +349,7 @@ dynamic_class Command
         params2:List<String> = params.toList().select(lambda(item:Object):bool { return item.className().equals("String");}).toAnonymous();
 
         if(Command.controllingTerminalPrograms.indexOf(method_name) != -1) {
-            return Command.excuteCommandWithControllingTerminal(method_name, params2);
+            return Command.executeCommandWithControllingTerminal(method_name, params2);
         }
         else {
             str:String = null;
@@ -361,7 +361,7 @@ dynamic_class Command
         params2:List<String> = params.toList().select(lambda(item:Object):bool { return item.className().equals("String");}).toAnonymous();
 
         if(Command.controllingTerminalPrograms.indexOf(method_name) != -1) {
-            return Command.excuteCommandWithControllingTerminalByPipe(method_name, params2, self.data);
+            return Command.executeCommandWithControllingTerminalByPipe(method_name, params2, self.data);
         }
         else {
             return Command.executeCommand(method_name, params2, self.data);
@@ -452,7 +452,59 @@ dynamic_class Command
         return new Command(child_output.toString(), System.WEXITSTATUS(status));
     }
 
-    def excuteCommandWithControllingTerminalByPipe(method_name:String, params:List<String>, pipe_data:String): static Command throws Exception
+    def executeCommandWithControllingTerminal(method_name:String, params:List<String>) : static Command throws Exception
+    {
+        pid:pid_t = System.fork(closure() {
+            pid:pid_t = System.getpid();
+
+            System.setpgid(0, 0);
+            System.tcsetpgrp(0, pid);
+
+            try {
+                System.execvp(method_name, params);
+            } catch(e:Exception) {
+                buffer:Buffer = e.message.append("\n").toBuffer();
+                System.write(2, buffer, buffer.len);
+                System.exit(64);
+            }
+        });
+
+        System.setpgid(pid, pid);
+        System.tcsetpgrp(0, pid);
+
+        status: wait_status = 0;
+
+        pid2:pid_t = System.waitpid(pid, &status, System.WUNTRACED);
+
+        if(System.WEXITSTATUS(status) == 64) {
+            throw new Exception("Command not found");
+        }
+
+        if(System.WIFSTOPPED(status)) {
+            rcode:int = System.WSTOPSIG(status) +128;
+            title:String = method_name;
+
+            terminfo:termios = new termios();
+            System.tcgetattr(0, terminfo);
+
+            job:Job = new Job(title, pid, terminfo);
+
+            Clover.jobs.add(job);
+
+            System.tcsetpgrp(0, System.getpid());
+
+            return new Command("", rcode);
+        }
+        else {
+            System.tcsetpgrp(0, System.getpid());
+
+            return new Command("", System.WEXITSTATUS(status));
+        }
+
+        return new Command("", System.WEXITSTATUS(status));
+    }
+
+    def executeCommandWithControllingTerminalByPipe(method_name:String, params:List<String>, pipe_data:String): static Command throws Exception
     {
         parent2child_write_fd:int = 0;
         parent2child_read_fd:int = 0;

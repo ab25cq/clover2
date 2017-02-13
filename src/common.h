@@ -56,6 +56,7 @@
 #define HASH_VALUE_ELEMENT_MAX ARRAY_VALUE_ELEMENT_MAX
 #define TYPEDEF_MAX 64
 #define CLASS_NUM_MAX 512
+#define CLOVER_STACK_SIZE 512
 
 /// CLVALUE ///
 typedef unsigned int CLObject;
@@ -700,10 +701,13 @@ unsigned int sNodeTree_create_float_value(float value, unsigned int left, unsign
 unsigned int sNodeTree_create_double_value(double value, unsigned int left, unsigned int right, unsigned int middle);
 unsigned int sNodeTree_create_path_value(MANAGED char* value, int len);
 
-/// script.c ///
+/// script_ctime.c ///
 BOOL compile_script(char* fname, char* source);
 BOOL read_source(char* fname, sBuf* source);
 BOOL delete_comment(sBuf* source, sBuf* source2);
+
+/// script.c ///
+BOOL eval_file(char* fname, int stack_size);
 
 /// cast.c ///
 void cast_right_type_to_byte(sNodeType** right_type, sCompileInfo* info);
@@ -1926,6 +1930,9 @@ BOOL initialize_sortable_carray_object(CLObject array_object, int num_elements, 
 /// utf.c ///
 int utf8_index_to_utf32_index(char* str, int utf8index);
 int utf32_index_to_utf8_index(char* str, int utf32index);
+
+/// class_clover.c ///
+BOOL Clover_load(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 #endif
 
