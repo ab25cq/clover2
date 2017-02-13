@@ -574,6 +574,11 @@ BOOL System_sprintf(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
                     asprintf(ALLOC &str, format2, str2);
                     MFREE(str2);
                 }
+                else if(is_this_class_with_class_name(klass, "Buffer")) {
+                    sCLObject* object_data = CLOBJECT(param);
+                    char* str2 = object_data->mFields[0].mPointerValue;
+                    asprintf(ALLOC &str, format2, str2);
+                }
                 else {
                     entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "invalid format string");
                     MFREE(buf.mBuf);

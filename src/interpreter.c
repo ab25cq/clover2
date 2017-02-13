@@ -1561,8 +1561,9 @@ int main(int argc, char** argv)
             sNodeType* result_type = NULL;
             int method_index = search_for_method(klass, "toString", NULL, 0, FALSE, klass->mNumMethods-1, NULL, NULL, &result_type);
 
-            /// evel ///
-            if((method_index == -1 || !type_identify_with_class_name(result_type, "String")) && !(klass->mFlags & CLASS_FLAGS_PRIMITIVE)) {
+            /// eval ///
+            if((method_index == -1 || !type_identify_with_class_name(result_type, "String")) && !(klass->mFlags & CLASS_FLAGS_PRIMITIVE))
+            {
                 if(!eval_str(line, "iclover2", lv_table, stack)) {
                     fprintf(stderr, "compile or runtime error\n");
                 }

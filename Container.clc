@@ -136,6 +136,19 @@ class Array<T:Object>
 
         return result;
     }
+
+    def toString(): String {
+        if(self.items.identifyWith(null)) {
+            return "Null array";
+        }
+        else {
+            result:String = "";
+            result.append(self.items.length.toString);
+            result.append(" length array of ");
+            result.append(self.items.className());
+            return result;
+        }
+    }
 }
 
 class EqualableArray <T:IEqualable>
