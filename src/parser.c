@@ -273,6 +273,12 @@ static BOOL get_number(BOOL minus, unsigned int* node, sParserInfo* info)
 
             *node = sNodeTree_create_ubyte_value(atoi(buf), 0, 0, 0);
         }
+        else if(*info->p == 'l' || *info->p == 'L') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            *node = sNodeTree_create_long_value(atol(buf), 0, 0, 0);
+        }
         else {
             *node = sNodeTree_create_int_value(atoi(buf), 0, 0, 0);
         }

@@ -139,7 +139,7 @@ class timespec
     }
 
     def toString():String {
-        return sprintf("%ld.%ld\n", array { self.tv_sec.toULong, self.tv_nsec.toULong });
+        return sprintf("%ld.%09ld sec\n", array { self.tv_sec.toULong, self.tv_nsec.toULong });
     }
 }
 
@@ -672,10 +672,10 @@ class Clover
     }
     def realtime(block_:lambda()):static timespec {
         ts1:timespec = new timespec();
-        System.clock_gettime(System.CLOCK_REALTIME, ts1);
+        System.clock_gettime(System.CLOCK_MONOTONIC, ts1);
         block_();
         ts2:timespec = new timespec();
-        System.clock_gettime(System.CLOCK_REALTIME, ts2);
+        System.clock_gettime(System.CLOCK_MONOTONIC, ts2);
 
         return ts2.minus(ts1);
     }

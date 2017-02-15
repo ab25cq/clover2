@@ -1,4 +1,4 @@
-ls().less();
-pwd().less();
-
-Clover.jobs.items(0).forground();
+Clover.realtime(lambda() {
+    for(i:=0; i<100000; i++) {
+    }
+}).toString().chomp().println();
