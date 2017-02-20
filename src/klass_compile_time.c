@@ -158,13 +158,15 @@ void set_method_index_to_class(sCLClass* klass)
 
         if((method->mFlags & METHOD_FLAGS_CLASS_METHOD) 
             && strcmp(CONS_str(&klass->mConst, method->mNameOffset), "callingMethod") == 0
-            && method->mNumParams == 2)
+            && method->mNumParams == 4)
         {
             /// check params ///
             sNodeType* param1 = create_node_type_from_cl_type(method->mParams[0].mType, klass);
             sNodeType* param2 = create_node_type_from_cl_type(method->mParams[1].mType, klass);
+            sNodeType* param3 = create_node_type_from_cl_type(method->mParams[2].mType, klass);
+            sNodeType* param4 = create_node_type_from_cl_type(method->mParams[3].mType, klass);
 
-            if(type_identify_with_class_name(param1, "String") && type_identify_with_class_name(param2, "Array"))
+            if(type_identify_with_class_name(param1, "String") && type_identify_with_class_name(param2, "Array") && type_identify_with_class_name(param3, "int") && type_identify_with_class_name(param4, "int"))
             {
                 klass->mCallingClassMethodIndex = i;
                 break;
@@ -179,13 +181,15 @@ void set_method_index_to_class(sCLClass* klass)
 
         if(!(method->mFlags & METHOD_FLAGS_CLASS_METHOD) 
             && strcmp(CONS_str(&klass->mConst, method->mNameOffset), "callingMethod") == 0
-            && method->mNumParams == 2)
+            && method->mNumParams == 4)
         {
             /// check params ///
             sNodeType* param1 = create_node_type_from_cl_type(method->mParams[0].mType, klass);
             sNodeType* param2 = create_node_type_from_cl_type(method->mParams[1].mType, klass);
+            sNodeType* param3 = create_node_type_from_cl_type(method->mParams[2].mType, klass);
+            sNodeType* param4 = create_node_type_from_cl_type(method->mParams[3].mType, klass);
 
-            if(type_identify_with_class_name(param1, "String") && type_identify_with_class_name(param2, "Array"))
+            if(type_identify_with_class_name(param1, "String") && type_identify_with_class_name(param2, "Array") && type_identify_with_class_name(param3, "int") && type_identify_with_class_name(param4, "int"))
             {
                 klass->mCallingMethodIndex = i;
                 break;

@@ -322,10 +322,10 @@ dynamic_class Command
     data:String;
     resultCode:int;
 
-    controllingTerminalPrograms: static EqualableList<String>;
+    controllingTerminalProgramType: static EqualableList<String>;
 
     def initialize() : static {
-        Command.controllingTerminalPrograms = equalable_list { "vim", "less", "top", "lv", "htop", "emacs", "nano", "vi", "fd", "mc" };
+        Command.controllingTerminalProgramType = equalable_list { "ls", "vim", "less", "top", "lv", "htop", "emacs", "nano", "vi", "fd", "mc" };
     }
 
     def initialize() {
@@ -345,10 +345,11 @@ dynamic_class Command
         self.resultCode = value.resultCode;
     }
 
-    def callingMethod(method_name:String, params:Array<Object>) : static Command throws Exception {
+    def callingMethod(method_name:String, params:Array<Object>, num_method_chains:int, max_method_chains:int) : static Command throws Exception 
+    {
         params2:List<String> = params.toList().select(lambda(item:Object):bool { return item.className().equals("String");}).toAnonymous();
 
-        if(Command.controllingTerminalPrograms.indexOf(method_name) != -1) {
+        if(num_method_chains == max_method_chains-1 && Command.controllingTerminalProgramType.indexOf(method_name) != -1) {
             return Command.executeCommandWithControllingTerminal(method_name, params2);
         }
         else {
@@ -357,34 +358,16 @@ dynamic_class Command
         }
     }
 
-    def callingMethod(method_name:String, params:Array<Object>) : Command throws Exception {
+    def callingMethod(method_name:String, params:Array<Object>, num_method_chains:int, max_method_chains:int) : Command throws Exception 
+    {
         params2:List<String> = params.toList().select(lambda(item:Object):bool { return item.className().equals("String");}).toAnonymous();
 
-        if(Command.controllingTerminalPrograms.indexOf(method_name) != -1) {
+        if(num_method_chains == max_method_chains-1 && Command.controllingTerminalProgramType.indexOf(method_name) != -1) {
             return Command.executeCommandWithControllingTerminalByPipe(method_name, params2, self.data);
         }
         else {
             return Command.executeCommand(method_name, params2, self.data);
         }
-    }
-
-    def toString():String {
-        return self.data;
-    }
-
-    def write(path:String, permission:mode_t): Command {
-        f:File = new File(path, System.O_CREAT|System.O_TRUNC|System.O_WRONLY, permission);
-
-        buf:Buffer = self.data.toBuffer();
-        f.write(buf, buf.len);
-
-        f.close();
-
-        return self;
-    }
-
-    def write(path:String): Command {
-        return self.write(path,0644);
     }
 
     def executeCommand(method_name:String, params:List<String>, pipe_data:String) : static Command throws Exception
@@ -570,6 +553,34 @@ dynamic_class Command
 
             return new Command("", System.WEXITSTATUS(status));
         }
+    }
+
+    def toString():String {
+        return self.data;
+    }
+
+    def toBool():bool {
+        return self.resultCode == 0;
+    }
+
+    def toBoolAndOutput(): bool {
+        self.data.print();
+        return self.resultCode == 0;
+    }
+
+    def write(path:String, permission:mode_t): Command {
+        f:File = new File(path, System.O_CREAT|System.O_TRUNC|System.O_WRONLY, permission);
+
+        buf:Buffer = self.data.toBuffer();
+        f.write(buf, buf.len);
+
+        f.close();
+
+        return self;
+    }
+
+    def write(path:String): Command {
+        return self.write(path,0644);
     }
 }
 

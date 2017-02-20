@@ -1204,7 +1204,7 @@ static BOOL assign_operator(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
-static BOOL postposition_operator(unsigned int* node, sParserInfo* info)
+static BOOL postposition_operator(unsigned int* node, sParserInfo* info, int* num_method_chains, unsigned int max_method_chains_node[METHOD_CHAIN_MAX])
 {
     if(*node == 0) {
         return TRUE;
@@ -1241,7 +1241,15 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info)
                         return FALSE;
                     }
 
-                    *node = sNodeTree_create_method_call(*node, buf, params, num_params);
+                    *node = sNodeTree_create_method_call(*node, buf, params, num_params, *num_method_chains);
+                    max_method_chains_node[*num_method_chains] = *node;
+
+                    (*num_method_chains)++;
+
+                    if(*num_method_chains >= METHOD_CHAIN_MAX) {
+                        parser_err_msg(info, "overflow method chain");
+                        return FALSE;
+                    }
                 }
                 /// access fields ///
                 else {
@@ -1861,6 +1869,9 @@ BOOL parse_iniherit(unsigned int* node, sParserInfo* info)
 
 static BOOL expression_node(unsigned int* node, sParserInfo* info)
 {
+    int num_method_chains = 0;
+    unsigned int max_method_chains_node[METHOD_CHAIN_MAX];
+
     if((*info->p == '-' && *(info->p+1) != '=' && *(info->p+1) != '-' && *(info->p+1) != '>') || (*info->p == '+' && *(info->p+1) != '=' && *(info->p+1) != '+')) 
     {
         if(*info->p == '-') {
@@ -2457,6 +2468,13 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                         }
 
                         *node = sNodeTree_create_class_method_call(klass2, buf, params, num_params);
+                        max_method_chains_node[num_method_chains] = *node;
+                        num_method_chains++;
+
+                        if(num_method_chains >= METHOD_CHAIN_MAX) {
+                            parser_err_msg(info, "overflow method chain");
+                            return FALSE;
+                        }
                     }
                     /// class field ///
                     else {
@@ -2518,6 +2536,12 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 global_klass_type->mNumGenericsTypes = 0;
 
                 *node = sNodeTree_create_class_method_call(global_klass_type, buf, params, num_params);
+                max_method_chains_node[num_method_chains] = *node;
+                num_method_chains++;
+                if(num_method_chains >= METHOD_CHAIN_MAX) {
+                    parser_err_msg(info, "overflow method chain");
+                    return FALSE;
+                }
             }
             /// Command class method call ///
             else if(get_variable_index(info->lv_table, buf) == -1) {
@@ -2541,6 +2565,13 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     command_klass_type->mNumGenericsTypes = 0;
 
                     *node = sNodeTree_create_class_method_call(command_klass_type, buf, params, num_params);
+                    max_method_chains_node[num_method_chains] = *node;
+                    num_method_chains++;
+
+                    if(num_method_chains >= METHOD_CHAIN_MAX) {
+                        parser_err_msg(info, "overflow method chain");
+                        return FALSE;
+                    }
                 }
             }
             else {
@@ -2683,9 +2714,16 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
     }
 
     /// postposition operator ///
-    if(!postposition_operator(node, info))
+    if(!postposition_operator(node, info, &num_method_chains, max_method_chains_node))
     {
         return FALSE;
+    }
+
+    gNodes[*node].mMaxMethodChains = num_method_chains;
+
+    int i;
+    for(i=0; i<num_method_chains; i++) {
+        gNodes[max_method_chains_node[i]].mMaxMethodChains = num_method_chains;
     }
 
     return TRUE;

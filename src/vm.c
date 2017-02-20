@@ -4446,6 +4446,12 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     BOOL static_ = *(int*)pc;
                     pc += sizeof(int);
 
+                    int num_method_chains = *(int*)pc;
+                    pc += sizeof(int);
+
+                    int max_method_chains = *(int*)pc;
+                    pc += sizeof(int);
+
                     /// none static method ////
                     if(static_ == 0) {
                         int num_real_params = num_params + 1;
@@ -4487,6 +4493,10 @@ show_stack(stack, stack_ptr, lvar, var_num);
                         stack_ptr->mObjectValue = create_string_object(method_name);
                         stack_ptr++;
                         stack_ptr->mObjectValue = carray;
+                        stack_ptr++;
+                        stack_ptr->mIntValue = num_method_chains;
+                        stack_ptr++;
+                        stack_ptr->mIntValue = max_method_chains;
                         stack_ptr++;
 
                         gGlobalStackPtr--;
@@ -4545,6 +4555,10 @@ show_stack(stack, stack_ptr, lvar, var_num);
                         stack_ptr->mObjectValue = create_string_object(method_name);
                         stack_ptr++;
                         stack_ptr->mObjectValue = carray;
+                        stack_ptr++;
+                        stack_ptr->mIntValue = num_method_chains;
+                        stack_ptr++;
+                        stack_ptr->mIntValue = max_method_chains;
                         stack_ptr++;
 
                         gGlobalStackPtr--;

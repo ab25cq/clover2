@@ -448,6 +448,12 @@ class Integer
     def toPointer():Pointer {
         return self.value.toPointer;
     }
+
+    def times(block_:lambda()) {
+        for(i:int = 0; i<self.value; i++) {
+            block_();
+        }
+    }
 }
 
 class UInteger 

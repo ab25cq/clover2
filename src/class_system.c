@@ -2369,11 +2369,8 @@ BOOL System_access(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     /// go ///
     int result = access(path_value, mode_value);
 
-    if(result < 0) {
-        MFREE(path_value);
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "access(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
-        return FALSE;
-    }
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
 
     MFREE(path_value);
 

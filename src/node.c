@@ -1688,6 +1688,9 @@ static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)
 
     if(method_index == -1) {
         if(klass->mFlags & CLASS_FLAGS_DYNAMIC_CLASS) {
+            int num_method_chains = 0;
+            int max_method_chains = gNodes[node].mMaxMethodChains;
+
             /// compile params ///
             int i;
             for(i=0; i<num_params; i++) {
@@ -1726,6 +1729,8 @@ static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)
             append_str_to_constant_pool_and_code(info->constant, info->code, method_name, info->no_output);
             append_int_value_to_code(info->code, num_params, info->no_output);
             append_int_value_to_code(info->code, 1, info->no_output);
+            append_int_value_to_code(info->code, num_method_chains, info->no_output);
+            append_int_value_to_code(info->code, max_method_chains, info->no_output);
 
             info->stack_num -= num_params;
             info->stack_num++;
@@ -1769,7 +1774,7 @@ static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_method_call(unsigned int object_node, char* method_name, unsigned int* params, int num_params)
+unsigned int sNodeTree_create_method_call(unsigned int object_node, char* method_name, unsigned int* params, int num_params, int num_method_chains)
 {
     unsigned int node = alloc_node();
 
@@ -1779,6 +1784,8 @@ unsigned int sNodeTree_create_method_call(unsigned int object_node, char* method
     for(i=0; i<num_params; i++) {
         gNodes[node].uValue.sMethodCall.mParams[i] = params[i];
     }
+
+    gNodes[node].uValue.sMethodCall.mNumMethodChains = num_method_chains;
 
     gNodes[node].mNodeType = kNodeTypeMethodCall;
 
@@ -1862,7 +1869,7 @@ struct sCastMethods gCastMethods[] = {
     { NULL, NULL },
 };
 
-static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType* object_type, sNodeType* generics_types, sCLClass* klass, sNodeType* param_types[PARAMS_MAX], int num_params, char* method_name, unsigned int params[PARAMS_MAX])
+static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType* object_type, sNodeType* generics_types, sCLClass* klass, sNodeType* param_types[PARAMS_MAX], int num_params, char* method_name, unsigned int params[PARAMS_MAX], int num_method_chains, int max_method_chains)
 {
     if(klass->mFlags & CLASS_FLAGS_DYNAMIC_CLASS) {
         /// get type of params without generating code ///
@@ -1936,6 +1943,8 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
             append_str_to_constant_pool_and_code(info->constant, info->code, method_name, info->no_output);
             append_int_value_to_code(info->code, num_params, info->no_output);
             append_int_value_to_code(info->code, 0, info->no_output);
+            append_int_value_to_code(info->code, num_method_chains, info->no_output);
+            append_int_value_to_code(info->code, max_method_chains, info->no_output);
 
             info->stack_num -= num_real_params;
             info->stack_num++;
@@ -2077,6 +2086,9 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
+    int num_method_chains = gNodes[node].uValue.sMethodCall.mNumMethodChains;
+    int max_method_chains = gNodes[node].mMaxMethodChains;
+
     /// Do boxing if the class of left object is primitive ///
     if(info->type->mClass->mFlags & CLASS_FLAGS_PRIMITIVE) {
         boxing_to_lapper_class(&info->type, info);
@@ -2169,7 +2181,7 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
     }
     /// normal methods ///
     else {
-        if(!call_normal_method(node, info, object_type, generics_types, klass, param_types, num_params, method_name, params))
+        if(!call_normal_method(node, info, object_type, generics_types, klass, param_types, num_params, method_name, params, num_method_chains, max_method_chains))
         {
             return FALSE;;
         }
@@ -2202,6 +2214,15 @@ unsigned int sNodeTree_create_new_operator(sNodeType* node_type, unsigned int* p
 static BOOL compile_new_operator(unsigned int node, sCompileInfo* info)
 {
     sNodeType* generics_types = gNodes[node].uValue.sNewOperator.mType;
+
+    if(generics_types->mClass == NULL) {
+        parser_err_msg(info->pinfo, "Class not found for new operator");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
 
     sNodeType* generics_types2;
     solve_generics_for_variable(generics_types, &generics_types2, info->pinfo->klass);
@@ -2582,11 +2603,6 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
     else if(array && strcmp(field_name, "toArray") == 0) {
         cast_right_type_to_Array(&info->type, info);
     }
-    else if(klass == regex_class && strcmp(field_name, "global") == 0) {
-        append_opecode_to_code(info->code, OP_GET_REGEX_GLOBAL, info->no_output);
-
-        info->type = create_node_type_with_class_name("bool");
-    }
     else if(klass == char_class && strcmp(field_name, "to_upper") == 0) {
         append_opecode_to_code(info->code, OP_CHAR_UPPERCASE, info->no_output);
 
@@ -2596,6 +2612,11 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
         append_opecode_to_code(info->code, OP_CHAR_LOWERCASE, info->no_output);
 
         info->type = create_node_type_with_class_name("char");
+    }
+    else if(klass == regex_class && strcmp(field_name, "global") == 0) {
+        append_opecode_to_code(info->code, OP_GET_REGEX_GLOBAL, info->no_output);
+
+        info->type = create_node_type_with_class_name("bool");
     }
     else if(klass == regex_class && strcmp(field_name, "ignoreCase") == 0) {
         append_opecode_to_code(info->code, OP_GET_REGEX_IGNORE_CASE, info->no_output);

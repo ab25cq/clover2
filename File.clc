@@ -99,7 +99,7 @@ class System
     def lchown(path:String, owner:uid_t, group:gid_t): static native throws Exception;
     def fchown(fd:int, owner:uid_t, group:gid_t): static native throws Exception;
     def unlink(path:String): static native throws Exception;
-    def access(path:String, mode:int): static native throws Exception;
+    def access(path:String, mode:int): static native int;
     def utime(path:String, actime:time_t, modtime:time_t): static native throws Exception;
     def fnmatch(pattern:String, path:String, flags:int): static native bool;
     def link(old_path:String, new_path:String): static native throws Exception;
@@ -523,8 +523,8 @@ class Path
     def unlink() throws Exception {
         System.unlink(self.toString());
     }
-    def access(mode:int) throws Exception {
-        System.access(self.toString(), mode);
+    def access(mode:int):int {
+        return System.access(self.toString(), mode);
     }
     def utime(actime:time_t, modtime:time_t) throws Exception {
         System.utime(self.toString(), actime, modtime);

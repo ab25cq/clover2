@@ -17,139 +17,6 @@
 #include <dirent.h>
 #include <libgen.h>
 
-/*
-static void get_class_name_or_namespace_name(char* result, char** p)
-{
-    if(isalpha(**p)) {
-        while(isalpha(**p) || **p == '_' || isdigit(**p)) {
-            *result = **p;
-            result++;
-            (*p)++;
-        }
-    }
-
-    if(**p == '$') {
-        *result = **p;
-        result++;
-        (*p)++;
-
-       while(isdigit(**p)) {
-           *result = **p;
-           result++;
-           (*p)++;
-       }
-    }
-
-    while(**p == ' ' || **p == '\t' || **p == '\n') (*p)++;
-
-    *result = 0;
-}
-
-static BOOL parse_class_name(char** p, sCLClass** klass)
-{
-    char real_class_name[CL_REAL_CLASS_NAME_MAX+1];
-
-    get_class_name_or_namespace_name(real_class_name, p);
-
-    if(**p == ':' && *(*p+1) == ':') {
-        char real_class_name2[CL_REAL_CLASS_NAME_MAX];
-
-        (*p)+=2;
-        while(**p == ' ' || **p == '\t' || **p == '\n') (*p)++;
-
-        get_class_name_or_namespace_name(real_class_name2, p);
-
-        xstrncat(real_class_name, "::", CL_REAL_CLASS_NAME_MAX);
-        xstrncat(real_class_name, real_class_name2, CL_REAL_CLASS_NAME_MAX);
-    }
-
-    *klass = cl_get_class(real_class_name);
-
-    return TRUE;
-}
-
-
-
-static char** get_var_names(int* num_var_names)
-{
-    char* source;
-    sBuf output;
-    char** var_names;
-    char* p;
-    char* head_of_line;
-    char** result;
-    int result_size;
-    
-    source = ALLOC line_buffer_from_head_to_cursor_point();
-
-    if(!run_parser("psclover --no-output get_variable_names", source, ALLOC &output)) {
-        MFREE(source);
-        *num_var_names = 0;
-        return NULL;
-    }
-
-    MFREE(source);
-
-    result_size = 128;
-    result = MMALLOC(sizeof(char*)*result_size);
-
-    p = output.mBuf;
-
-    *num_var_names = 0;
-    head_of_line = p;
-
-    while(1) {
-        if(*p == '\n') {
-            char* line;
-            int size;
-
-            size = p - head_of_line;
-
-            line = MMALLOC(size + 1);
-            memcpy(line, head_of_line, size);
-            line[size] = 0;
-
-            result[*num_var_names] = MANAGED line;
-            (*num_var_names)++;
-
-            if(*num_var_names >= result_size) {
-                result_size *= 2;
-                result = MREALLOC(result, sizeof(char*)*result_size);
-            }
-
-            p++;
-            head_of_line = p;
-        }
-        else if(*p == '\0') {
-            char* line;
-            int size;
-
-            size = p - head_of_line;
-
-            line = MMALLOC(size + 1);
-            memcpy(line, head_of_line, size);
-            line[size] = 0;
-
-            result[*num_var_names] = MANAGED line;
-            (*num_var_names)++;
-
-            if(*num_var_names >= result_size) {
-                result_size *= 2;
-                result = MREALLOC(result, sizeof(char*)*result_size);
-            }
-            break;
-        }
-        else {
-            p++;
-        }
-    }
-
-    MFREE(output.mBuf);
-
-    return result;
-}
-*/
-
 static int mgetmaxx()
 {
     struct winsize ws;
@@ -354,6 +221,31 @@ ALLOC ALLOC char** get_method_names_with_arguments(sCLClass* klass, BOOL class_m
                 result = MREALLOC(result, sizeof(char*)*result_size);
             }
         }
+    }
+
+    /// special methods ///
+    *(result+result_num) = MANAGED MSTRDUP("toAnonymous()");
+    result_num++;
+
+    if(result_num >= result_size) {
+        result_size *= 2;
+        result = MREALLOC(result, sizeof(char*)*result_size);
+    }
+
+    *(result+result_num) = MANAGED MSTRDUP("identifyWith(Object)");
+    result_num++;
+
+    if(result_num >= result_size) {
+        result_size *= 2;
+        result = MREALLOC(result, sizeof(char*)*result_size);
+    }
+
+    *(result+result_num) = MANAGED MSTRDUP("className()");
+    result_num++;
+
+    if(result_num >= result_size) {
+        result_size *= 2;
+        result = MREALLOC(result, sizeof(char*)*result_size);
     }
     
     /// field ///
@@ -635,6 +527,16 @@ static char* get_one_expression(char* source)
                 head = semi_colon;
             }
         }
+        else if(*p == '&' && *(p+1) == '&') {
+            p+=2;
+
+            head = p;
+        }
+        else if(*p == '|' && *(p+1) == '|') {
+            p+=2;
+
+            head = p;
+        }
         else if(*p == '\'') {
             p++;
             squort = !squort;
@@ -660,7 +562,6 @@ int gNumCandidates = 0;
 
 BOOL gInputingMethod = FALSE;
 BOOL gInputingPath = FALSE;
-BOOL gInputingClass = FALSE;
 
 CLVALUE* gStack = NULL;
 sVarTable* gLVTable = NULL;
@@ -897,11 +798,35 @@ void get_class_names(char** candidates, int *num_candidates)
     }
 }
 
+void get_global_method_names(char** candidates, int *num_candidates)
+{
+    sCLClass* global_class = get_class("Global");
+
+    MASSERT(global_class != NULL);
+
+    int i;
+    for(i=0; i<global_class->mNumMethods; i++) {
+        sCLMethod* method = global_class->mMethods + i;
+
+        if(method->mFlags & METHOD_FLAGS_CLASS_METHOD) {
+            char* method_name = METHOD_NAME2(global_class, method);
+            
+            int len = strlen(method_name) + 2;
+            char* candidate = MMALLOC(len);
+
+            xstrncpy(candidate, method_name, len);
+            xstrncat(candidate, "(", len);
+
+            candidates[*num_candidates] = candidate;
+            (*num_candidates)++;
+        }
+    }
+}
+
 static int my_complete_internal(int count, int key)
 {
     gInputingMethod = FALSE;
     gInputingPath = FALSE;
-    gInputingClass = FALSE;
     gCandidates = NULL;
     gNumCandidates = 0;
 
@@ -960,48 +885,49 @@ static int my_complete_internal(int count, int key)
 
     /// command name completion ///
     if(expression_is_void) {
-        if(line[strlen(line)-1] != '(') {
-            const int num_words = 23;
-            char* words[num_words] = {
-                "if(",
-                "while(",
-                "for(",
-                "break",
-                "true",
-                "false",
-                "null",
-                "throw",
-                "try(",
-                "return",
-                "new",
-                "closure(",
-                "lambda(",
-                "block{",
-                "inherit(",
-                "list{",
-                "equalable_list{",
-                "sortable_list{",
-                "tuple{",
-                "hash{",
-                "array{",
-                "equalable_array{",
-                "sortable_array{",
-            };
+        const int num_words = 23;
+        char* words[num_words] = {
+            "if(",
+            "while(",
+            "for(",
+            "break",
+            "true",
+            "false",
+            "null",
+            "throw",
+            "try(",
+            "return",
+            "new",
+            "closure(",
+            "lambda(",
+            "block{",
+            "inherit(",
+            "list{",
+            "equalable_list{",
+            "sortable_list{",
+            "tuple{",
+            "hash{",
+            "array{",
+            "equalable_array{",
+            "sortable_array{",
+        };
 
-            int num_candidates = 0;
-            char** candidates = MCALLOC(1, sizeof(char*)*(CLASS_NUM_MAX+128));
+        int num_candidates = 0;
+        char** candidates = MCALLOC(1, sizeof(char*)*(CLASS_NUM_MAX+METHOD_NUM_MAX+128));
 
-            int i;
-            for(i=0; i<num_words; i++) {
-                candidates[i] = MANAGED MSTRDUP(words[i]);
-            }
-
-            num_candidates += num_words;
-            
-            get_class_names(candidates, &num_candidates);
-            command_completion(line, candidates, num_candidates);
-            MFREE(candidates);
+        int i;
+        for(i=0; i<num_words; i++) {
+            candidates[i] = MANAGED MSTRDUP(words[i]);
         }
+
+        num_candidates += num_words;
+        
+        get_class_names(candidates, &num_candidates);
+        get_global_method_names(candidates, &num_candidates);
+        command_completion(line, candidates, num_candidates);
+        MFREE(candidates);
+
+        rl_completer_word_break_characters = "\t\n.({ ";
     }
     /// inputing method name ///
     else if(!in_double_quote && !in_single_quote && *p == '.') {
@@ -1068,7 +994,7 @@ static int my_complete_internal(int count, int key)
             gNumCandidates = num_methods;
         }
 
-        rl_completer_word_break_characters = "\t\n.";
+        rl_completer_word_break_characters = "\t\n.({";
 
         gInputingMethod = TRUE;
     }
@@ -1084,14 +1010,25 @@ static int my_complete_internal(int count, int key)
 
 char* on_complete(const char* text, int a)
 {
+    char* text2 = MSTRDUP((char*)text);
+
     if(gInputingMethod) {
         rl_completion_append_character = '(';
+
+        char* p = text2 + strlen(text2) -1;
+
+        while(p >= text2) {
+            if(*p == '(') {
+                MFREE(text2);
+                text2 = MSTRDUP(p + 1);
+                break;
+            }
+
+            p--;
+        }
     }
     else if(gInputingPath) {
         rl_completion_append_character = '"';
-    }
-    else if(gInputingClass) {
-        rl_completion_append_character = 0;
     }
 
     /// sort ///
@@ -1117,9 +1054,9 @@ char* on_complete(const char* text, int a)
             candidate = *p2;
 
             len_candidate = strlen(candidate);
-            len_text = strlen(text);
+            len_text = strlen(text2);
 
-            if(len_candidate >= len_text && strncmp(candidate, text, len_text) == 0) 
+            if(len_candidate >= len_text && strncmp(candidate, text2, len_text) == 0) 
             {
                 candidates2[num_candidates2++] = candidate;
             }
@@ -1156,7 +1093,7 @@ char* on_complete(const char* text, int a)
                 len_candidate = strlen(candidate);
             }
 
-            len_text = strlen(text);
+            len_text = strlen(text2);
 
             appended_chars = MCALLOC(1, len_candidate-len_text+2);
             memcpy(appended_chars, candidate+len_text, len_candidate-len_text);
@@ -1263,7 +1200,7 @@ char* on_complete(const char* text, int a)
                 int len_text;
 
                 len_candidate = strlen(candidate);
-                len_text = strlen(text);
+                len_text = strlen(text2);
 
                 if(same_len - len_text == 0) {
                     display_candidates(candidates2);
@@ -1292,6 +1229,8 @@ char* on_complete(const char* text, int a)
         }
         MFREE(gCandidates);
     }
+
+    MFREE(text2);
 
     return 0;
 }
@@ -1414,11 +1353,6 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
             return FALSE;
         }
 
-        if(*info.p == ';') {
-            info.p++;
-            skip_spaces_and_lf(&info);
-        }
-
         if(info.err_num == 0 && node != 0) {
             if(!compile(node, &cinfo)) {
                 sByteCode_free(&code);
@@ -1429,10 +1363,9 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
             arrange_stack(&cinfo);
         }
 
-        if(*info.p != '\0') {
-            fprintf(stderr, "iclover2 can't run two or more expression\n");
-            cinfo.err_num++;
-            break;
+        if(*info.p == ';') {
+            info.p++;
+            skip_spaces_and_lf(&info);
         }
     }
 
@@ -1501,7 +1434,7 @@ int main(int argc, char** argv)
 
     set_signal_for_interpreter();
 
-    rl_basic_word_break_characters = "\t\n.";
+    rl_basic_word_break_characters = "\t\n";
     //rl_attempted_completion_function = on_complete;
     rl_completion_entry_function = on_complete;
 
@@ -1521,6 +1454,13 @@ int main(int argc, char** argv)
 
     gStack = stack;
     gLVTable = lv_table;
+
+    /// initialize tmp_output ///
+    compiler_init(FALSE);
+    if(!eval_str("tmp_output:String = null;", "iclover2", lv_table, stack)) {
+        fprintf(stderr, "compile or runtime error\n");
+    }
+    compiler_final();
 
     while(1) {
         compiler_init(FALSE);
@@ -1568,18 +1508,24 @@ int main(int argc, char** argv)
                     fprintf(stderr, "compile or runtime error\n");
                 }
             }
+            else if(type_identify_with_class_name(type_, "Null")) {
+                if(!eval_str(line, "iclover2", lv_table, stack)) {
+                    fprintf(stderr, "compile or runtime error\n");
+                }
+
+                puts("null");
+            }
             else {
                 int len = strlen(line) + 128;
                 char* line2 = MCALLOC(1, sizeof(char)*len);
 
-                snprintf(line2, len, "(%s).toString().chomp().println()", line);
+                snprintf(line2, len, "tmp_output = (%s).toString(); if(!tmp_output.equals(\"\")) { tmp_output.chomp().println() }", line);
 
                 if(!eval_str(line2, "iclover2", lv_table, stack)) {
                     fprintf(stderr, "compile or runtime error\n");
                 }
 
                 MFREE(line2);
-
             }
 
             add_history(line);

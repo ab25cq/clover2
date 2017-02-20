@@ -2,13 +2,13 @@ include "Fundamental.clc"
 
 interface IEqualable
 {
-    def equals(key:Self): bool;
+    def equals(right:Self): bool;
     def toString(): String;
 }
 
 interface ISortable
 {
-    def equals(key:Self): bool;
+    def equals(right:Self): bool;
     def toString(): String;
     def compare(item:Self): int;
 }
@@ -16,7 +16,7 @@ interface ISortable
 interface IHashKey
 {
     def getHashKey(): uint;
-    def equals(key:Self): bool;
+    def equals(right:Self): bool;
     def toString(): String;
 }
 
@@ -319,6 +319,19 @@ module MListImplementation
 
     def length():int {
         return self.number;
+    }
+
+    def toString(): String {
+        if(self.head.identifyWith(null)) {
+            return "Null list";
+        }
+        else {
+            result:String = "";
+            result.append(self.number.toString);
+            result.append(" length list of ");
+            result.append(self.head.item.className());
+            return result;
+        }
     }
 
     def items(index:int):T {
