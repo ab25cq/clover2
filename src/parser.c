@@ -2548,11 +2548,13 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 unsigned int params[PARAMS_MAX];
                 int num_params = 0;
 
+/*
                 if(*info->p != '(') {
                     parser_err_msg(info, "Require ( to call command class method");
                     info->err_num++;
                 }
                 else {
+*/
                     if(!parse_method_params(&num_params, params, info)) {
                         return FALSE;
                     }
@@ -2572,7 +2574,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                         parser_err_msg(info, "overflow method chain");
                         return FALSE;
                     }
-                }
+                //}
             }
             else {
                 *node = sNodeTree_create_load_variable(buf);

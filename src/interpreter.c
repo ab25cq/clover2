@@ -1438,6 +1438,13 @@ int main(int argc, char** argv)
     //rl_attempted_completion_function = on_complete;
     rl_completion_entry_function = on_complete;
 
+    char history_path[PATH_MAX];
+    snprintf(history_path, PATH_MAX, "%s/.clover2/history", getenv("HOME"));
+
+    if(access(history_path, R_OK) == 0) {
+        read_history(history_path);
+    }
+
     init_vtable();
     init_node_types();
     init_node_block_types();
@@ -1544,6 +1551,8 @@ int main(int argc, char** argv)
     free_node_block_types();
 
     MFREE(stack);
+
+    write_history(history_path);
 
     CHECKML_END;
 

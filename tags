@@ -905,6 +905,7 @@ System_strtod	src/class_system.c	/^BOOL System_strtod(CLVALUE** stack_ptr, CLVAL
 System_strtol	src/class_system.c	/^BOOL System_strtol(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_strtoul	src/class_system.c	/^BOOL System_strtoul(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_symlink	src/class_system.c	/^BOOL System_symlink(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
+System_system	src/class_system.c	/^BOOL System_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_tcdrain	src/class_system.c	/^BOOL System_tcdrain(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_tcflow	src/class_system.c	/^BOOL System_tcflow(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_tcflush	src/class_system.c	/^BOOL System_tcflush(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f

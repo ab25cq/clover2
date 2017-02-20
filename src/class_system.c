@@ -2732,3 +2732,26 @@ BOOL System_clock_settime(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     return TRUE;
 }
 
+BOOL System_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* str = lvar;
+
+    /// Clover to c value ///
+    char* str_value = ALLOC string_object_to_char_array(str->mObjectValue);
+
+    /// go ///
+    int result = system(str_value);
+
+    if(result < 0) {
+        MFREE(str_value);
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "system(3) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    MFREE(str_value);
+
+    return TRUE;
+}

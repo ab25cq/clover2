@@ -195,7 +195,8 @@ class System
         inherit();
         System.initialize_command_system();
     }
-    
+
+    def system(str:String): static native int throws Exception;
     def pipe(read_fd:pointer@int, write_fd:pointer@int): static native throws Exception;
     def fork(block_:lambda()): static native pid_t throws Exception;
     def dup2(fd1:int, fd2:int): static native int throws Exception;
@@ -325,7 +326,7 @@ dynamic_class Command
     controllingTerminalProgramType: static EqualableList<String>;
 
     def initialize() : static {
-        Command.controllingTerminalProgramType = equalable_list { "ls", "vim", "less", "top", "lv", "htop", "emacs", "nano", "vi", "fd", "mc" };
+        Command.controllingTerminalProgramType = equalable_list { "make", "ls", "bash", "zsh", "vim", "less", "top", "lv", "htop", "emacs", "nano", "vi", "fd", "mc" };
     }
 
     def initialize() {
