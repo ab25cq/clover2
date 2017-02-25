@@ -214,6 +214,11 @@ int get_var_num(sVarTable* table)
     return table->mVarNum + table->mMaxBlockVarNum;
 }
 
+int get_parent_var_num_of_sum(sVarTable* table)
+{
+    return get_sum_of_parent_var_num(table);
+}
+
 sVarTable* init_block_vtable(sVarTable* lv_table)
 {
     sVarTable* new_table;

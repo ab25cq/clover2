@@ -1,8 +1,8 @@
 
-Command.ls("-al").grep("clcl").less();
-Command.pwd().less();
+#Command.ls("-al").grep("clcl").less();
+#Command.pwd().less();
 
-Clover.jobs.items(0).forground();
+#Clover.jobs.items(0).forground();
 
-Command.ls().toString().print();
+Command.pwd().print();
 

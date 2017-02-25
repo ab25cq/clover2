@@ -5689,7 +5689,7 @@ BOOL compile_block_object(unsigned int node, sCompileInfo* info)
         append_int_value_to_code(info->code, TRUE, info->no_output);
     }
     else {
-        int parent_var_num = get_var_num(node_block->mLVTable->mParent);
+        int parent_var_num = get_parent_var_num_of_sum(node_block->mLVTable);
         append_int_value_to_code(info->code, parent_var_num, info->no_output);
         append_int_value_to_code(info->code, FALSE, info->no_output);
     }

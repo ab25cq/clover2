@@ -2543,38 +2543,32 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     return FALSE;
                 }
             }
-            /// Command class method call ///
-            else if(get_variable_index(info->lv_table, buf) == -1) {
+            else if(get_variable_index(info->lv_table, buf) == -1 && *info->p == '(') {
+                /// Command class method call ///
                 unsigned int params[PARAMS_MAX];
                 int num_params = 0;
 
-/*
-                if(*info->p != '(') {
-                    parser_err_msg(info, "Require ( to call command class method");
-                    info->err_num++;
+                if(!parse_method_params(&num_params, params, info)) {
+                    return FALSE;
                 }
-                else {
-*/
-                    if(!parse_method_params(&num_params, params, info)) {
-                        return FALSE;
-                    }
 
-                    sCLClass* command_klass = get_class("Command");
+                sCLClass* command_klass = get_class("Command");
 
-                    sNodeType* command_klass_type = alloc_node_type();
+                MASSERT(command_klass != NULL);
 
-                    command_klass_type->mClass = command_klass;
-                    command_klass_type->mNumGenericsTypes = 0;
+                sNodeType* command_klass_type = alloc_node_type();
 
-                    *node = sNodeTree_create_class_method_call(command_klass_type, buf, params, num_params);
-                    max_method_chains_node[num_method_chains] = *node;
-                    num_method_chains++;
+                command_klass_type->mClass = command_klass;
+                command_klass_type->mNumGenericsTypes = 0;
 
-                    if(num_method_chains >= METHOD_CHAIN_MAX) {
-                        parser_err_msg(info, "overflow method chain");
-                        return FALSE;
-                    }
-                //}
+                *node = sNodeTree_create_class_method_call(command_klass_type, buf, params, num_params);
+                max_method_chains_node[num_method_chains] = *node;
+                num_method_chains++;
+
+                if(num_method_chains >= METHOD_CHAIN_MAX) {
+                    parser_err_msg(info, "overflow method chain");
+                    return FALSE;
+                }
             }
             else {
                 *node = sNodeTree_create_load_variable(buf);

@@ -36,13 +36,6 @@ BOOL parse_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* ne
 
     *node_block = sNodeBlock_alloc();
 
-    if(*info->p == '}') {
-        info->p++;
-        skip_spaces_and_lf(info);
-
-        return TRUE;
-    }
-
     sVarTable* old_vtable = info->lv_table;
     if(new_table) {
         info->lv_table = new_table;
@@ -52,6 +45,12 @@ BOOL parse_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* ne
     }
 
     while(1) {
+        if(*info->p == '}') {
+            info->p++;
+            skip_spaces_and_lf(info);
+            break;
+        }
+
         unsigned int node = 0;
 
         if(!expression(&node, info)) {

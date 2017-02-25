@@ -488,6 +488,10 @@ BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_pa
         /// check variable existance ///
         if(!check_variables_existance_on_stack(object_data->mStackID))
         {
+            /// copy back variables to parent ///
+            object_data = CLBLOCK(block_object);
+            memcpy(object_data->mParentStack, new_stack, sizeof(CLVALUE)*object_data->mParentVarNum);
+
             entry_exception_object_with_class_name(stack + var_num, info, "Exception", "Parent variables doesn't exist");
             return FALSE;
         }
@@ -496,15 +500,22 @@ BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_pa
         memcpy(new_stack, object_data->mParentStack, sizeof(CLVALUE)*object_data->mParentVarNum);
         memcpy(new_stack + object_data->mParentVarNum, (*stack_ptr)-num_params, sizeof(CLVALUE)*num_params);
 
+
         if(!vm(&code, &constant, new_stack, new_var_num, klass, info)) {
+            /// copy back variables to parent ///
+            object_data = CLBLOCK(block_object);
+            memcpy(object_data->mParentStack, new_stack, sizeof(CLVALUE)*object_data->mParentVarNum);
+
             **stack_ptr = *new_stack;
             (*stack_ptr)++;
             return FALSE;
         }
 
         /// copy back variables to parent ///
+        object_data = CLBLOCK(block_object);
         memcpy(object_data->mParentStack, new_stack, sizeof(CLVALUE)*object_data->mParentVarNum);
     } 
+
     **stack_ptr = *new_stack;
     (*stack_ptr)++;
 

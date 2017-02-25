@@ -405,6 +405,8 @@ sVar* get_variable_from_table(sVarTable* table, char* name);
 int get_var_num(sVarTable* table);
 void show_vtable(sVarTable* table);
 
+int get_parent_var_num_of_sum(sVarTable* table);
+
 /// parser.c ///
 struct sGenericsParamInfoStruct
 {

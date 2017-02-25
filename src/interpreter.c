@@ -619,7 +619,12 @@ static void file_completion(char* line)
             }
         }
 
-        if(text2[strlen(text2)-1] == '/') {
+        if(text2[0] == '.' && text2[1] == '/') {
+            result_opendir = opendir(".");
+
+            xstrncpy(path, "./", PATH_MAX);
+        }
+        else if(text2[strlen(text2)-1] == '/') {
             result_opendir = opendir(text2);
 
             xstrncpy(path, text2, PATH_MAX);

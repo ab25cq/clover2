@@ -54,6 +54,7 @@ install:
 	./cclover2 -no-load-fundamental-classes -class String.clc
 	./cclover2 -no-load-fundamental-classes -class File.clc
 	./cclover2 -no-load-fundamental-classes -class Command.clc
+	./cclover2 -no-load-fundamental-classes -class MyOwnLibrary.clc
 
 	mkdir -p ~/.clover2
 	$(INSTALL) -m 644 PcreOVec.clcl ~/.clover2
@@ -197,4 +198,5 @@ test:
 	./cclover2 code/file.cl && ./clover2 code/file.clo
 	./cclover2 code/dir.cl && ./clover2 code/dir.clo
 	./cclover2 code/command.cl && ./clover2 code/command.clo
+	./cclover2 code/closure.cl && ./clover2 code/closure.clo
 

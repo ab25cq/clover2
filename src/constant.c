@@ -45,6 +45,8 @@ int sConst_append(sConst* self, void* data, size_t size, BOOL no_output)
 
         int result = self->mLen;
 
+//printf("self->mSize %d self->mLen %d data (%s) size (%ld)\n", self->mSize, self->mLen, data, size);
+
         memcpy(self->mConst + self->mLen, data, size);
         self->mLen += size;
 
@@ -72,9 +74,7 @@ int append_double_value_to_constant_pool(sConst* constant, double n, BOOL no_out
 
 int append_str_to_constant_pool(sConst* constant, char* str, BOOL no_output)
 {
-    int len;
-    
-    len = strlen(str);
+    size_t len = strlen(str);
     return sConst_append(constant, str, len+1, no_output);
 }
 

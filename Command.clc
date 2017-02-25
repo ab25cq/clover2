@@ -348,7 +348,67 @@ dynamic_class Command
 
     def callingMethod(method_name:String, params:Array<Object>, num_method_chains:int, max_method_chains:int) : static Command throws Exception 
     {
-        params2:List<String> = params.toList().select(lambda(item:Object):bool { return item.className().equals("String");}).toAnonymous();
+        params2:List<String> = new List<String>();
+        
+        params.each(closure(item:Object) {
+            if(item.className().equals("String")) {
+                params2.add(item.toAnonymous());
+            }
+            elif(item.className().equals("List")) {
+                list_:List<Object> = item.toAnonymous();
+
+                list_.each(closure(item2:Object) {
+                    if(item2.className().equals("String")) {
+                        params2.add(item2.toAnonymous());
+                    }
+                });
+            }
+            elif(item.className().equals("EqualableList")) {
+                list_:EqualableList<IEqualable> = item.toAnonymous();
+
+                list_.each(closure(item2:IEqualable) {
+                    if(item2.className().equals("String")) {
+                        params2.add(item2.toAnonymous());
+                    }
+                });
+            }
+            elif(item.className().equals("SortableList")) {
+                list_:SortableList<ISortable> = item.toAnonymous();
+
+                list_.each(closure(item2:ISortable) {
+                    if(item2.className().equals("String")) {
+                        params2.add(item2.toAnonymous());
+                    }
+                });
+            }
+            elif(item.className().equals("Array")) {
+                array_:Array<Object> = item.toAnonymous();
+
+                array_.each(closure(item2:Object) {
+                    if(item2.className().equals("String")) {
+                        params2.add(item2.toAnonymous());
+                    }
+                });
+            }
+            elif(item.className().equals("EqualableArray")) {
+                array_:EqualableArray<IEqualable> = item.toAnonymous();
+
+                array_.each(closure(item2:IEqualable) {
+                    if(item2.className().equals("String")) {
+                        params2.add(item2.toAnonymous());
+                    }
+                });
+            }
+            elif(item.className().equals("SortableArray")) {
+                array_:SortableArray<ISortable> = item.toAnonymous();
+
+                array_.each(closure(item2:ISortable) {
+                    if(item2.className().equals("String")) {
+                        params2.add(item2.toAnonymous());
+                    }
+                });
+            }
+        });
 
         if(num_method_chains == max_method_chains-1 && Command.controllingTerminalProgramType.indexOf(method_name) != -1) {
             return Command.executeCommandWithControllingTerminal(method_name, params2);
@@ -361,7 +421,67 @@ dynamic_class Command
 
     def callingMethod(method_name:String, params:Array<Object>, num_method_chains:int, max_method_chains:int) : Command throws Exception 
     {
-        params2:List<String> = params.toList().select(lambda(item:Object):bool { return item.className().equals("String");}).toAnonymous();
+        params2:List<String> = new List<String>();
+        
+        params.each(closure(item:Object) {
+            if(item.className().equals("String")) {
+                params2.add(item.toAnonymous());
+            }
+            elif(item.className().equals("List")) {
+                list_:List<Object> = item.toAnonymous();
+
+                list_.each(closure(item2:Object) {
+                    if(item2.className().equals("String")) {
+                        params2.add(item2.toAnonymous());
+                    }
+                });
+            }
+            elif(item.className().equals("EqualableList")) {
+                list_:EqualableList<IEqualable> = item.toAnonymous();
+
+                list_.each(closure(item2:IEqualable) {
+                    if(item2.className().equals("String")) {
+                        params2.add(item2.toAnonymous());
+                    }
+                });
+            }
+            elif(item.className().equals("SortableList")) {
+                list_:SortableList<ISortable> = item.toAnonymous();
+
+                list_.each(closure(item2:ISortable) {
+                    if(item2.className().equals("String")) {
+                        params2.add(item2.toAnonymous());
+                    }
+                });
+            }
+            elif(item.className().equals("Array")) {
+                array_:Array<Object> = item.toAnonymous();
+
+                array_.each(closure(item2:Object) {
+                    if(item2.className().equals("String")) {
+                        params2.add(item2.toAnonymous());
+                    }
+                });
+            }
+            elif(item.className().equals("EqualableArray")) {
+                array_:EqualableArray<IEqualable> = item.toAnonymous();
+
+                array_.each(closure(item2:IEqualable) {
+                    if(item2.className().equals("String")) {
+                        params2.add(item2.toAnonymous());
+                    }
+                });
+            }
+            elif(item.className().equals("SortableArray")) {
+                array_:SortableArray<ISortable> = item.toAnonymous();
+
+                array_.each(closure(item2:ISortable) {
+                    if(item2.className().equals("String")) {
+                        params2.add(item2.toAnonymous());
+                    }
+                });
+            }
+        });
 
         if(num_method_chains == max_method_chains-1 && Command.controllingTerminalProgramType.indexOf(method_name) != -1) {
             return Command.executeCommandWithControllingTerminalByPipe(method_name, params2, self.data);

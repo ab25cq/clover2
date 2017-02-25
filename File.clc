@@ -640,7 +640,14 @@ class Directory
             }
 
             if(System.fnmatch(pattern, entry, flags)) {
-                result.add(entry);
+                if(path.chars(-1) == '/') {
+                    entry2:String = sprintf("%s%s", array { path, entry });
+                    result.add(entry2);
+                }
+                else {
+                    entry2:String = sprintf("%s/%s", array { path, entry });
+                    result.add(entry2);
+                }
             }
         }
         dir.closedir();
