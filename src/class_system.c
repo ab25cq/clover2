@@ -2755,3 +2755,75 @@ BOOL System_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     return TRUE;
 }
+
+BOOL System_getenv(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* name = lvar;
+
+    /// Clover to c value ///
+    char* name_value = ALLOC string_object_to_char_array(name->mObjectValue);
+
+    /// go ///
+    char* result = getenv(name_value);
+
+    if(result == NULL) {
+        (*stack_ptr)->mIntValue = 0;
+        (*stack_ptr)++;
+    }
+    else {
+        (*stack_ptr)->mObjectValue = create_string_object(result);
+        (*stack_ptr)++;
+    }
+
+    MFREE(name_value);
+
+    return TRUE;
+}
+
+BOOL System_setenv(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* name = lvar;
+    CLVALUE* value = lvar + 1;
+    CLVALUE* overwrite = lvar + 2;
+
+    /// Clover to c value ///
+    char* name_value = ALLOC string_object_to_char_array(name->mObjectValue);
+    char* value_value = ALLOC string_object_to_char_array(value->mObjectValue);
+    int overwrite_value = overwrite->mIntValue;
+
+    /// go ///
+    int result = setenv(name_value, value_value, overwrite_value);
+
+    if(result < 0) {
+        MFREE(name_value);
+        MFREE(value_value);
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "setenv(3) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    MFREE(name_value);
+    MFREE(value_value);
+
+    return TRUE;
+}
+
+BOOL System_unsetenv(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* name = lvar;
+
+    /// Clover to c value ///
+    char* name_value = ALLOC string_object_to_char_array(name->mObjectValue);
+
+    /// go ///
+    int result = unsetenv(name_value);
+
+    if(result < 0) {
+        MFREE(name_value);
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "unsetenv(3) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    MFREE(name_value);
+
+    return TRUE;
+}

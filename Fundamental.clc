@@ -24,6 +24,10 @@ class System
     def srand(value:uint): static native;
     def rand(): static native int;
     def time(): static native time_t;
+
+    def getenv(name:String): static native String;
+    def setenv(name:String, value:String, overwrite:int): static native throws Exception;
+    def unsetenv(name:String): static native throws Exception;
 }
 
 class Global

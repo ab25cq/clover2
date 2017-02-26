@@ -1880,6 +1880,9 @@ BOOL System_clock_getres(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_clock_gettime(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_clock_settime(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_getenv(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_setenv(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_unsetenv(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 /// alignment.c ///
 void alignment(unsigned int* size);

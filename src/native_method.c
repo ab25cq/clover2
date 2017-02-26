@@ -192,6 +192,9 @@ static sNativeMethod gNativeMethods[] = {
     { "System.clock_gettime(int,timespec)", System_clock_gettime },
     { "System.clock_settime(int,timespec)", System_clock_settime },
     { "System.system(String)", System_system },
+    { "System.getenv(String)", System_getenv },
+    { "System.setenv(String,String,int)", System_setenv },
+    { "System.unsetenv(String)", System_unsetenv },
 
     { "", 0 }  // sentinel
 };

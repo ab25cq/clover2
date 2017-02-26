@@ -211,14 +211,6 @@ static BOOL search_for_module_file_from_module_name(char* module_file, unsigned 
 
     cwd = getenv("PWD");
 
-/*
-    /// default search path ///
-    snprintf(module_file, module_file_size, "%s/%s.clm", DATAROOTDIR, module_name);
-
-    if(access(module_file, F_OK) == 0) {
-        return TRUE;
-    }
-*/
     /// current working directory ///
     if(cwd) {
         snprintf(module_file, module_file_size, "%s/%s.clm", cwd, module_name);
@@ -228,12 +220,11 @@ static BOOL search_for_module_file_from_module_name(char* module_file, unsigned 
         }
     }
 
-    /// .clover directory ////
+    /// .clover2 directory ////
     char* home = getenv("HOME");
 
-    /// .clover directory ///
     if(home) {
-        snprintf(module_file, module_file_size, "%s/%s.clm", home, module_name);
+        snprintf(module_file, module_file_size, "%s/.clover2/%s.clm", home, module_name);
 
         if(access(module_file, F_OK) == 0) {
             return TRUE;

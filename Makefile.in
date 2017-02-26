@@ -109,6 +109,13 @@ install:
 	$(INSTALL) -m 644 tm.clcl ~/.clover2
 	$(INSTALL) -m 644 timespec.clcl ~/.clover2
 	$(INSTALL) -m 644 stat.clcl ~/.clover2
+	$(INSTALL) -m 644 MArrayImplement.clm ~/.clover2
+	$(INSTALL) -m 644 MEqualableArrayImplement.clm ~/.clover2
+	$(INSTALL) -m 644 MEqualableListImplementation.clm ~/.clover2
+	$(INSTALL) -m 644 MInclude.clm ~/.clover2
+	$(INSTALL) -m 644 MListImplementation.clm ~/.clover2
+	$(INSTALL) -m 644 MPrintOutObject.clm ~/.clover2
+	$(INSTALL) -m 644 MWrapperClassBase.clm ~/.clover2
 
 	mkdir -p "$(bindir)"
 	$(INSTALL) -m 755 clover2 "$(bindir)"
