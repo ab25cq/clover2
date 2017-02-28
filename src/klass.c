@@ -953,7 +953,7 @@ void class_init()
     alloc_class("regex", FALSE, -1, 0, NULL, FALSE, FALSE);
 
     alloc_class("Null", FALSE, -1, 0, NULL, FALSE, FALSE);
-    alloc_class("Anonymous", FALSE, -1, 0, NULL, FALSE, TRUE);
+    alloc_class("Anonymous", FALSE, -1, 0, NULL, FALSE, FALSE);
     alloc_class("Self", FALSE, -1, 0, NULL, FALSE, FALSE);
 
     alloc_class("GenericsParametorClass0", FALSE, 0, 0, NULL, FALSE, FALSE);

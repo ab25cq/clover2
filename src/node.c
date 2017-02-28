@@ -1960,6 +1960,27 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
             return TRUE;
         }
     }
+    else if(class_identify_with_class_name(klass, "Anonymous")) {
+        /// compile params ///
+        if(!compile_params(klass, method_name, num_params, params, param_types, generics_types, info)) {
+            return FALSE;
+        }
+
+        int num_real_params = num_params + 1;
+
+        int size_method_name_and_params = METHOD_NAME_MAX + PARAMS_MAX * CLASS_NAME_MAX + 256;
+        char method_name_and_params[size_method_name_and_params];
+        create_method_name_and_params(method_name_and_params, size_method_name_and_params, klass, method_name, param_types, num_params);
+
+        append_opecode_to_code(info->code, OP_INVOKE_VIRTUAL_METHOD, info->no_output);
+        append_int_value_to_code(info->code, num_real_params, info->no_output);
+        append_str_to_constant_pool_and_code(info->constant, info->code, method_name_and_params, info->no_output);
+
+        info->stack_num -= num_params + 1;
+        info->stack_num++;
+
+        info->type = create_node_type_with_class_name("Anonymous");
+    }
     else if(klass->mFlags & CLASS_FLAGS_INTERFACE)
     {
         /// compile params ///

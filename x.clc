@@ -1,0 +1,33 @@
+module MEquals
+{
+    def equals(right:SELF): bool {
+        return self.field == right.field;
+    }
+}
+
+interface IEquals
+{
+    def equals(right:Self): bool;
+}
+
+class ClassA
+{
+    field:int;
+
+    def initialize(num:int) {
+        self.field = num;
+    }
+
+    include MEquals;
+}
+
+class ClassB
+{
+    field:float;
+
+    def initialize(num:float) {
+        self.field = num;
+    }
+
+    include MEquals;
+}
