@@ -1,4 +1,7 @@
-Clover.realtime(lambda() {
-    for(i:=0; i<100000; i++) {
+a: lambda(int) = lambda(num:int) {
+    for(i:=0; i<num; i++) {
+        println("HO!");
     }
-}).toString().chomp().println();
+}
+
+a(3)

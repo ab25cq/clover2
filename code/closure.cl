@@ -12,9 +12,17 @@ block_ := closure(b:int, c:int) {
         g:int = 123;
 
         Clover.test("Closure test2", a.equals("ABC") && b == 1 && c == 2 && d.equals("DEF") && e.equals("GHI") && f.equals("ABC") && g == 123);
+
+        d = "222";
     }
 
     block2("GHI");
+
+    a = "111";
+
+    Clover.test("Clover test3", d.equals("222"));
 }
 
 block_(1,2);
+
+Clover.test("Clover test4", a.equals("111"));

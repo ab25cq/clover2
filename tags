@@ -68,6 +68,7 @@ MACROS_H	src/macros.h	2;"	d
 MANAGED	src/macros.h	21;"	d
 MASSERT	src/debug.h	25;"	d
 MASSERT	src/debug.h	47;"	d
+MAX_CODES	src/interpreter.c	1322;"	d	file:
 MCALLOC	src/debug.h	22;"	d
 MCALLOC	src/debug.h	42;"	d
 METHOD_CHAIN_MAX	src/common.h	60;"	d
@@ -982,25 +983,17 @@ arrange_alignment	src/code.c	/^static void arrange_alignment(sByteCode* code)$/;
 arrange_alignment	src/constant.c	/^static void arrange_alignment(sConst* self)$/;"	f	file:
 arrange_stack	src/node.c	/^void arrange_stack(sCompileInfo* cinfo)$/;"	f
 array_mark_fun	src/array.c	/^void array_mark_fun(CLObject self, unsigned char* mark_flg)$/;"	f
-as_fn_append	config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	configure	/^  as_fn_append ()$/;"	f
-as_fn_arith	config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	configure	/^  as_fn_arith ()$/;"	f
-as_fn_error	config.status	/^as_fn_error ()$/;"	f
 as_fn_error	configure	/^as_fn_error ()$/;"	f
-as_fn_executable_p	config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	configure	/^as_fn_executable_p ()$/;"	f
-as_fn_exit	config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	configure	/^as_fn_exit ()$/;"	f
 as_fn_failure	configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
-as_fn_mkdir_p	config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	configure	/^as_fn_mkdir_p ()$/;"	f
 as_fn_ret_failure	configure	/^as_fn_ret_failure () { return 1; }$/;"	f
 as_fn_ret_success	configure	/^as_fn_ret_success () { return 0; }$/;"	f
-as_fn_set_status	config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	configure	/^as_fn_set_status ()$/;"	f
 as_fn_success	configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
-as_fn_unset	config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	configure	/^as_fn_unset ()$/;"	f
 assign_operator	src/parser.c	/^static BOOL assign_operator(unsigned int* node, sParserInfo* info)$/;"	f	file:
 binary_operator	src/node.c	/^static BOOL binary_operator(sNodeType* left_type, sNodeType* right_type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, int float_operand, int double_operand, int pointer_operand, int null_operand, int char_operand, int bool_operand, char* op_string, sCompileInfo* info)$/;"	f	file:
@@ -1352,6 +1345,8 @@ gCLHeap	src/heap.c	/^static sCLHeapManager gCLHeap;$/;"	v	file:
 gCandidates	src/interpreter.c	/^char** gCandidates = NULL;$/;"	v
 gCastMethods	src/node.c	/^struct sCastMethods gCastMethods[] = {$/;"	v	typeref:struct:sCastMethods
 gClassTable	src/klass.c	/^static sClassTable gClassTable[CLASS_NUM_MAX];$/;"	v	file:
+gCodes	src/interpreter.c	/^static sByteCode gCodes[MAX_CODES];$/;"	v	file:
+gConst	src/interpreter.c	/^static sConst gConst[MAX_CODES];$/;"	v	file:
 gGetNativeMethod	src/klass.c	/^fGetNativeMethod gGetNativeMethod = NULL;$/;"	v
 gGlobalStack	src/common.h	/^CLVALUE* gGlobalStack;$/;"	v
 gGlobalStack	src/stack.c	/^CLVALUE* gGlobalStack;$/;"	v
@@ -1373,6 +1368,7 @@ gNodeBlockTypes	src/node_block_type.c	/^static sNodeBlockType** gNodeBlockTypes 
 gNodeTypes	src/node_type.c	/^static sNodeType** gNodeTypes = NULL;$/;"	v	file:
 gNodes	src/node.c	/^sNodeTree* gNodes;$/;"	v
 gNumCandidates	src/interpreter.c	/^int gNumCandidates = 0;$/;"	v
+gNumCodes	src/interpreter.c	/^static int gNumCodes;$/;"	v	file:
 gNumStackID	src/stack.c	/^int gNumStackID;$/;"	v
 gSizeNodes	src/node.c	/^static unsigned int gSizeNodes = 0;$/;"	v	file:
 gSizePageNodeBlockTypes	src/node_block_type.c	/^static int gSizePageNodeBlockTypes = 0;$/;"	v	file:
@@ -1455,6 +1451,8 @@ initialize_sortable_carray_object	src/carray.c	/^BOOL initialize_sortable_carray
 initialize_sortable_list_object	src/list.c	/^BOOL initialize_sortable_list_object(CLObject list_object, int num_elements, CLObject* items, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sCLClass* class_items)$/;"	f
 initialize_tuple_object	src/tuple.c	/^BOOL initialize_tuple_object(CLObject tuple_object, int num_elements, CLObject* items, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info)$/;"	f
 inputing_block_or_paren	src/interpreter.c	/^static BOOL inputing_block_or_paren()$/;"	f	file:
+interpreter_final	src/interpreter.c	/^static void interpreter_final()$/;"	f	file:
+interpreter_init	src/interpreter.c	/^static void interpreter_init()$/;"	f	file:
 invoke_block	src/vm.c	/^BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_params, CLVALUE** stack_ptr, sVMInfo* info)$/;"	f
 invoke_method	src/vm.c	/^BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info)$/;"	f
 is_assign_operator	src/parser.c	/^static BOOL is_assign_operator(sParserInfo* info) $/;"	f	file:

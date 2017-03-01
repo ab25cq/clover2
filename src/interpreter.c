@@ -1319,6 +1319,29 @@ static void set_signal_for_interpreter()
     sigprocmask(SIG_BLOCK, &signal_set, NULL);
 }
 
+#define MAX_CODES 1024*4
+
+static sByteCode gCodes[MAX_CODES];
+static sConst gConst[MAX_CODES];
+static int gNumCodes;
+
+static void interpreter_init()
+{
+    memset(gCodes, 0, sizeof(sByteCode)*MAX_CODES);
+    memset(gConst, 0, sizeof(sConst)*MAX_CODES);
+
+    gNumCodes = 0;
+}
+
+static void interpreter_final()
+{
+    int i;
+    for(i=0; i<gNumCodes; i++) {
+        sByteCode_free(&gCodes[i]);
+        sConst_free(&gConst[i]);
+    }
+}
+
 static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* stack)
 {
     sParserInfo info;
@@ -1336,13 +1359,20 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
     
     memset(&cinfo, 0, sizeof(sCompileInfo));
 
-    sByteCode code;
-    sByteCode_init(&code);
-    cinfo.code = &code;
+    sByteCode* code = &gCodes[gNumCodes];
+    sByteCode_init(code);
+    cinfo.code = code;
 
-    sConst constant;
-    sConst_init(&constant);
-    cinfo.constant = &constant;
+    sConst* constant = &gConst[gNumCodes];
+    sConst_init(constant);
+    cinfo.constant = constant;
+
+    gNumCodes++;
+
+    if(gNumCodes >= MAX_CODES) {
+        fprintf(stderr, "overflow code and constant size. reset iclover2");
+        exit(1);
+    }
 
     cinfo.lv_table = lv_table;
     cinfo.no_output = FALSE;
@@ -1353,15 +1383,11 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
     while(*info.p) {
         unsigned int node = 0;
         if(!expression(&node, &info)) {
-            sByteCode_free(&code);
-            sConst_free(&constant);
             return FALSE;
         }
 
         if(info.err_num == 0 && node != 0) {
             if(!compile(node, &cinfo)) {
-                sByteCode_free(&code);
-                sConst_free(&constant);
                 return FALSE;
             }
 
@@ -1376,8 +1402,6 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
 
     if(info.err_num > 0 || cinfo.err_num > 0) {
         fprintf(stderr, "Parser error number is %d. Compile error number is %d\n", info.err_num, cinfo.err_num);
-        sByteCode_free(&code);
-        sConst_free(&constant);
         return FALSE;
     }
 
@@ -1386,16 +1410,11 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
     sVMInfo vinfo;
     memset(&vinfo, 0, sizeof(sVMInfo));
 
-    if(!vm(&code, &constant, stack, var_num, NULL, &vinfo)) {
+    if(!vm(code, constant, stack, var_num, NULL, &vinfo)) {
         show_exception_message(vinfo.exception_message);
 
-        sByteCode_free(&code);
-        sConst_free(&constant);
         return FALSE;
     }
-
-    sByteCode_free(&code);
-    sConst_free(&constant);
 
     return TRUE;
 }
@@ -1454,6 +1473,7 @@ int main(int argc, char** argv)
     init_node_types();
     init_node_block_types();
     clover2_init();
+    interpreter_init();
 
     rl_bind_key('\t', my_complete_internal);
     rl_bind_key('\n', my_bind_cr);
@@ -1550,6 +1570,7 @@ int main(int argc, char** argv)
 
         free(line);
     }
+    interpreter_final();
     clover2_final();
     final_vtable();
     free_node_types();

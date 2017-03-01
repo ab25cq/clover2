@@ -206,4 +206,5 @@ test:
 	./cclover2 code/dir.cl && ./clover2 code/dir.clo
 	./cclover2 code/command.cl && ./clover2 code/command.clo
 	./cclover2 code/closure.cl && ./clover2 code/closure.clo
+	./cclover2 code/anonymous.cl && ./clover2 code/anonymous.clo
 
