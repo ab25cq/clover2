@@ -2487,7 +2487,7 @@ BOOL System_readlink(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     char* path_value = ALLOC string_object_to_char_array(path->mObjectValue);
 
     /// go ///
-    char result_path[PATH_MAX];
+    char result_path[PATH_MAX+1];
     int result = readlink(path_value, result_path, PATH_MAX);
 
     if(result < 0) {
@@ -2495,6 +2495,8 @@ BOOL System_readlink(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
         entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "readlink(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
+
+    result_path[result] = '\0';
 
     (*stack_ptr)->mObjectValue = create_string_object(result_path);
     (*stack_ptr)++;

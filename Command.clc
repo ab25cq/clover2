@@ -326,7 +326,7 @@ dynamic_class Command
     controllingTerminalProgramType: static EqualableList<String>;
 
     def initialize() : static {
-        Command.controllingTerminalProgramType = equalable_list { "make", "ls", "bash", "zsh", "vim", "less", "top", "lv", "htop", "emacs", "nano", "vi", "fd", "mc" };
+        Command.controllingTerminalProgramType = equalable_list { "man", "make", "ls", "bash", "zsh", "vim", "less", "top", "lv", "htop", "emacs", "nano", "vi", "fd", "mc" };
     }
 
     def initialize() {

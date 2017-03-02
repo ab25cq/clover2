@@ -273,7 +273,7 @@ class String
                     offset = ovec.end[0];
                 }
 
-                group_strings.clear();
+                #group_strings.clear();
                 for(i:int = 1; i<regex_result; i++) {
                     match_string:String = self.subString(ovec.start[i], ovec.end[i]);
                     group_strings.add(match_string);
@@ -576,6 +576,9 @@ class String
             }
             ### no match ###
             else {
+                str:String = self.subString(offset, -1);
+                group_strings:EqualableList<String> = new EqualableList<String>();
+                result.add(block_(str, group_strings));
                 break;
             }
         }

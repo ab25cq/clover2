@@ -532,6 +532,9 @@ class Path
     def fnmatch(pattern:String, flags:int): bool {
         return System.fnmatch(pattern, self.toString(), flags);
     }
+    def fnmatch(pattern:String): bool {
+        return self.fnmatch(pattern, 0);
+    }
     def link(new_path:String) throws Exception {
         System.link(self.toString(), new_path);
     }
@@ -620,7 +623,14 @@ class Directory
             }
 
             if(!entry.equals(".") && !entry.equals("..")) {
-                result.add(entry);
+                if(path.chars(-1) == '/') {
+                    entry2:String = sprintf("%s%s", array { path, entry });
+                    result.add(entry2);
+                }
+                else {
+                    entry2:String = sprintf("%s/%s", array { path, entry });
+                    result.add(entry2);
+                }
             }
         }
         dir.closedir();
