@@ -18,3 +18,14 @@ class SortableList<T:ISortable>
         });
     }
 }
+
+class Command
+{
+    def initialize():static {
+        inherit();
+        Command.controllingTerminalPrograms.add("mfiler4");
+        Command.controllingTerminalPrograms.add("xyzsh");
+        Command.controllingTerminalPrograms.add("iclover");
+        Command.controllingTerminalPrograms.add("iclover2");
+    }
+}

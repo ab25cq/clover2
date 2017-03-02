@@ -323,10 +323,10 @@ dynamic_class Command
     data:String;
     resultCode:int;
 
-    controllingTerminalProgramType: static EqualableList<String>;
+    controllingTerminalPrograms: static EqualableList<String>;
 
     def initialize() : static {
-        Command.controllingTerminalProgramType = equalable_list { "git", "man", "make", "ls", "bash", "zsh", "yash", "vim", "less", "top", "htop", "lv", "htop", "emacs", "nano", "vi", "fd", "mc" };
+        Command.controllingTerminalPrograms = equalable_list { "git", "man", "make", "ls", "bash", "zsh", "yash", "vim", "less", "top", "htop", "lv", "htop", "emacs", "nano", "vi", "fd", "mc" };
     }
 
     def initialize() {
@@ -410,7 +410,7 @@ dynamic_class Command
             }
         });
 
-        if(num_method_chains == max_method_chains-1 && Command.controllingTerminalProgramType.indexOf(method_name) != -1) {
+        if(num_method_chains == max_method_chains-1 && Command.controllingTerminalPrograms.indexOf(method_name) != -1) {
             return Command.executeCommandWithControllingTerminal(method_name, params2);
         }
         else {
@@ -483,7 +483,7 @@ dynamic_class Command
             }
         });
 
-        if(num_method_chains == max_method_chains-1 && Command.controllingTerminalProgramType.indexOf(method_name) != -1) {
+        if(num_method_chains == max_method_chains-1 && Command.controllingTerminalPrograms.indexOf(method_name) != -1) {
             return Command.executeCommandWithControllingTerminalByPipe(method_name, params2, self.data);
         }
         else {
