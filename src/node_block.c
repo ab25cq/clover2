@@ -114,6 +114,8 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info)
             return FALSE;
         }
 
+        append_opecode_to_code(info->code, OP_SIGINT, info->no_output);
+
         arrange_stack(info);
     }
 

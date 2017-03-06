@@ -1,5 +1,7 @@
 #include "common.h"
 
+BOOL gInterpreter = FALSE;
+
 static BOOL expression_substitution(unsigned int* node, sParserInfo* info);
 BOOL parse_type_for_new(sNodeType** result_type, unsigned int* array_num, sParserInfo* info);
 

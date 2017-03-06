@@ -1292,6 +1292,8 @@ static int my_bind_cr(int count, int key)
 
 static void sig_int()
 {
+    gSigInt = TRUE;
+
     rl_reset_line_state();
     rl_replace_line("", 0);
     rl_point = 0;
@@ -1327,6 +1329,7 @@ static int gNumCodes;
 
 static void interpreter_init()
 {
+    gInterpreter = TRUE;
     memset(gCodes, 0, sizeof(sByteCode)*MAX_CODES);
     memset(gConst, 0, sizeof(sConst)*MAX_CODES);
 
@@ -1393,6 +1396,8 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
 
             arrange_stack(&cinfo);
         }
+
+        append_opecode_to_code(cinfo.code, OP_SIGINT, cinfo.no_output);
 
         if(*info.p == ';') {
             info.p++;
@@ -1503,6 +1508,8 @@ int main(int argc, char** argv)
             compiler_final();
             break;
         }
+
+        gSigInt = FALSE;
 
         /// delete last spaces and semicolon ///
         char* p = line + strlen(line) -1;

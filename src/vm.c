@@ -1,5 +1,7 @@
 #include "common.h"
 
+BOOL gSigInt = FALSE;
+
 static void show_stack(CLVALUE* stack, CLVALUE* stack_ptr, CLVALUE* lvar, int var_num)
 {
     if(stack_ptr == lvar+var_num) {
@@ -949,6 +951,19 @@ if(stack_ptr != lvar + var_num + 1) {
                 try_offset = *(int*)pc;
                 pc += sizeof(int);
                 
+                vm_mutex_off();
+                break;
+
+            case OP_SIGINT:
+                vm_mutex_on();
+
+                if(gSigInt) {
+                    vm_mutex_off();
+                    entry_exception_object_with_class_name(stack + var_num, info, "Exception", "Signal Interrupt");
+                    remove_stack_to_stack_list(stack);
+                    return FALSE;
+                }
+
                 vm_mutex_off();
                 break;
 

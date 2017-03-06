@@ -408,6 +408,8 @@ void show_vtable(sVarTable* table);
 int get_parent_var_num_of_sum(sVarTable* table);
 
 /// parser.c ///
+extern BOOL gInterpreter;
+
 struct sGenericsParamInfoStruct
 {
     char mParamNames[GENERICS_TYPES_MAX][VAR_NAME_MAX];
@@ -746,6 +748,7 @@ void cast_right_type_to_Array(sNodeType** right_type, sCompileInfo* info);
 void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, sCompileInfo* info);
 
 /// vm.c ///
+extern BOOL gSigInt;
 
 #define OP_POP 1
 #define OP_POP_N 2
@@ -757,6 +760,7 @@ void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
 #define OP_RETURN 8
 #define OP_THROW 9
 #define OP_TRY 10
+#define OP_SIGINT 11
 
 #define OP_STORE 15
 #define OP_LOAD 16
