@@ -68,7 +68,7 @@ MACROS_H	src/macros.h	2;"	d
 MANAGED	src/macros.h	21;"	d
 MASSERT	src/debug.h	25;"	d
 MASSERT	src/debug.h	47;"	d
-MAX_CODES	src/interpreter.c	1324;"	d	file:
+MAX_CODES	src/interpreter.c	1388;"	d	file:
 MCALLOC	src/debug.h	22;"	d
 MCALLOC	src/debug.h	42;"	d
 METHOD_CHAIN_MAX	src/common.h	60;"	d
@@ -1831,6 +1831,7 @@ module_final	src/module.c	/^void module_final()$/;"	f
 module_init	src/module.c	/^void module_init()$/;"	f
 my_bind_cr	src/interpreter.c	/^static int my_bind_cr(int count, int key) $/;"	f	file:
 my_complete_internal	src/interpreter.c	/^static int my_complete_internal(int count, int key)$/;"	f	file:
+name_sort	src/interpreter.c	/^static BOOL name_sort(char* lfname, char* rfname)$/;"	f	file:
 native_method_final	src/native_method.c	/^void native_method_final()$/;"	f
 native_method_init	src/native_method.c	/^void native_method_init()$/;"	f
 new_expression	src/parser.c	/^static BOOL new_expression(unsigned int* node, sParserInfo* info)$/;"	f	file:
@@ -1893,6 +1894,7 @@ print_node_type	src/node_type.c	/^void print_node_type(sNodeType* node_type)$/;"
 prototypes	configure	/^   function prototypes and stuff, but not '\\xHH' hex character constants.$/;"	f
 put_class_to_table	src/klass.c	/^BOOL put_class_to_table(char* class_name, sCLClass* klass)$/;"	f
 put_fun_to_hash_for_native_method	src/native_method.c	/^static void put_fun_to_hash_for_native_method(char* path, fNativeMethod fun)$/;"	f	file:
+quick_sort	src/interpreter.c	/^static BOOL quick_sort(int left, int right)$/;"	f	file:
 read_char_from_file	src/klass.c	/^static BOOL read_char_from_file(int fd, char* c)$/;"	f	file:
 read_cl_block_type_from_file	src/klass.c	/^static BOOL read_cl_block_type_from_file(int fd, sCLBlockType** cl_block_type)$/;"	f	file:
 read_cl_type_from_file	src/klass.c	/^static BOOL read_cl_type_from_file(int fd, sCLType** cl_type)$/;"	f	file:
@@ -2107,6 +2109,7 @@ sname	src/common.h	/^    char* sname;$/;"	m	struct:sVMInfoStruct
 solve_generics_for_variable	src/node_type.c	/^void solve_generics_for_variable(sNodeType* generics_type, sNodeType** generics_type2, sCLClass* generics_class)$/;"	f
 solve_generics_for_variable_to_class	src/node_type.c	/^void solve_generics_for_variable_to_class(sCLClass* klass, sCLClass** result, sCLClass* generics_class)$/;"	f
 solve_generics_types_for_node_type	src/node_type.c	/^BOOL solve_generics_types_for_node_type(sNodeType* node_type, ALLOC sNodeType** result, sNodeType* generics_type)$/;"	f
+sort_candidates	src/interpreter.c	/^void sort_candidates()$/;"	f
 stack_final	src/stack.c	/^void stack_final()$/;"	f
 stack_init	src/stack.c	/^void stack_init()$/;"	f
 stack_num	src/common.h	/^    int stack_num;$/;"	m	struct:sCompileInfoStruct

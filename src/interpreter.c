@@ -1013,6 +1013,69 @@ static int my_complete_internal(int count, int key)
     return rl_complete(0, key);
 }
 
+static BOOL name_sort(char* lfname, char* rfname)
+{
+    return strcmp(lfname, rfname) < 0;
+}
+
+static BOOL quick_sort(int left, int right)
+{
+    int i;
+    int j;
+
+    if(left < right) {
+        char* center_item = gCandidates[(left+right) / 2];
+
+        i = left;
+        j = right;
+
+        do { 
+            while(1) {
+                int ret = name_sort(gCandidates[i], center_item);
+                if(ret < 0) return FALSE;
+                if(gCandidates[i] == center_item || !ret)
+                {
+                    break;
+                }
+                i++;
+            }
+                     
+            while(1) {
+                int ret = name_sort(center_item, gCandidates[j]);
+                if(ret < 0) return FALSE;
+                if(center_item==gCandidates[j] || !ret)
+                {
+                    break;
+                }
+                j--;
+            }
+
+            if(i <= j) {
+                char* tmp = gCandidates[i];
+                gCandidates[i] = gCandidates[j];
+                gCandidates[j] = tmp;
+
+                i++;
+                j--;
+            }
+        } while(i <= j);
+
+        if(!quick_sort(left, j)) {
+            return FALSE;
+        }
+        if(!quick_sort(i, right)) {
+            return FALSE;
+        }
+    }
+
+    return TRUE;
+}
+
+void sort_candidates()
+{
+    quick_sort(0, gNumCandidates-1);
+}
+
 char* on_complete(const char* text, int a)
 {
     char* text2 = MSTRDUP((char*)text);
@@ -1037,6 +1100,7 @@ char* on_complete(const char* text, int a)
     }
 
     /// sort ///
+    sort_candidates();
 
     /// go ///
     if(gCandidates) {
