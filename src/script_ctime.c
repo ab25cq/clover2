@@ -13,7 +13,10 @@ BOOL read_source(char* fname, sBuf* source)
         char buf[BUFSIZ];
         int size = read(f, buf, BUFSIZ);
 
-        if(size < 0) {
+        if(size == 0) {
+            break;
+        }
+        else if(size < 0) {
             fprintf(stderr, "unexpected error\n");
             close(f);
             return FALSE;
@@ -34,12 +37,9 @@ BOOL read_source(char* fname, sBuf* source)
 
 BOOL delete_comment(sBuf* source, sBuf* source2)
 {
-    char* p;
-    BOOL in_string;
+    char* p = source->mBuf;
 
-    p = source->mBuf;
-
-    in_string = FALSE;
+    BOOL in_string = FALSE;
 
     while(*p) {
         if(*p == '"') {
@@ -102,6 +102,7 @@ BOOL delete_comment(sBuf* source, sBuf* source2)
         else {
             sBuf_append_char(source2, *p);
             p++;
+
         }
     }
 

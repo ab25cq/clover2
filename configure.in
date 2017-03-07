@@ -54,9 +54,9 @@ if test `uname -s` = "Darwin"; then
     AC_DEFINE(__DARWIN__, 1)
 
     if test $myprefix = /usr/local; then
-        CFLAGS="-Isrc/ -I. -L . -fPIC $CFLAGS"
+        CFLAGS="-Isrc/ -I. -L . $CFLAGS"
     else 
-        CFLAGS="-Isrc/ -I. -L . -I$myprefix/include -L$myprefix/lib -fPIC $CFLAGS"
+        CFLAGS="-Isrc/ -I. -L . -I$myprefix/include -L$myprefix/lib $CFLAGS"
     fi
 elif test `uname -s` = "FreeBSD"; then
     echo "FreeBSD"
@@ -65,7 +65,7 @@ elif test `uname -s` = "FreeBSD"; then
 
     AC_DEFINE(__FREEBSD__, 1)
 
-    CFLAGS="-Isrc/ -I. -L . -I$myprefix/include -L$myprefix/lib -fPIC $CFLAGS"
+    CFLAGS="-Isrc/ -I. -L . -I$myprefix/include -L$myprefix/lib $CFLAGS"
 elif uname -s | grep -q CYGWIN_NT; then
     echo CYGWIN
 
@@ -86,9 +86,9 @@ else
     AC_DEFINE(__LINUX__, 1)
 
     if test $myprefix = /usr/local; then
-        CFLAGS="-Isrc/ -I. -L . -fPIC $CFLAGS"
+        CFLAGS="-Isrc/ -I. -L . $CFLAGS"
     else
-        CFLAGS="-Isrc/ -I. -L . -I$myprefix/include -L$myprefix/lib -fPIC $CFLAGS"
+        CFLAGS="-Isrc/ -I. -L . -I$myprefix/include -L$myprefix/lib $CFLAGS"
     fi
 
     AC_HAVE_LIBRARY(util, [ LIBS="$LIBS -lutil"; ], [])

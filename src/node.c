@@ -124,6 +124,24 @@ unsigned int clone_node(unsigned int node)
     return result;
 }
 
+static void append_class_name_to_constant_pool_and_code(sCompileInfo* info, sCLClass* klass)
+{
+    char class_name[CLASS_NAME_MAX];
+    xstrncpy(class_name, CLASS_NAME(klass), CLASS_NAME_MAX);
+
+    append_str_to_constant_pool_and_code(info->constant, info->code, class_name, info->no_output);
+}
+
+static void append_method_name_and_params_to_constant_pool_and_code(sCompileInfo* info, sCLClass* klass, sCLMethod* method)
+{
+    int size_method_name_and_params = METHOD_NAME_MAX + PARAMS_MAX * CLASS_NAME_MAX + 256;
+    char method_name_and_params[size_method_name_and_params];
+
+    xstrncpy(method_name_and_params, METHOD_NAME_AND_PARAMS(klass, method), size_method_name_and_params);
+
+    append_str_to_constant_pool_and_code(info->constant, info->code, method_name_and_params, info->no_output);
+}
+
 static void compile_err_msg(sCompileInfo* info, const char* msg, ...)
 {
     char msg2[1024];
@@ -1811,7 +1829,7 @@ static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)
             }
 
             append_opecode_to_code(info->code, OP_INVOKE_DYNAMIC_METHOD, info->no_output);
-            append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(klass), info->no_output);
+            append_class_name_to_constant_pool_and_code(info, klass);
             append_str_to_constant_pool_and_code(info->constant, info->code, method_name, info->no_output);
             append_int_value_to_code(info->code, num_params, info->no_output);
             append_int_value_to_code(info->code, 1, info->no_output);
@@ -1848,7 +1866,7 @@ static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)
 
         /// generate code ////
         append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
-        append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(klass), info->no_output);
+        append_class_name_to_constant_pool_and_code(info, klass);
         append_int_value_to_code(info->code, method_index, info->no_output);
 
         info->stack_num-=num_params;
@@ -1958,6 +1976,7 @@ struct sCastMethods gCastMethods[] = {
     { NULL, NULL },
 };
 
+
 static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType* object_type, sNodeType* generics_types, sCLClass* klass, sNodeType* param_types[PARAMS_MAX], int num_params, char* method_name, unsigned int params[PARAMS_MAX], int num_method_chains, int max_method_chains)
 {
     if(klass->mFlags & CLASS_FLAGS_DYNAMIC_CLASS) {
@@ -1986,7 +2005,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
             sCLMethod* method = klass->mMethods + method_index2;
 
             append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
-            append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(klass), info->no_output);
+            append_class_name_to_constant_pool_and_code(info, klass);
             append_int_value_to_code(info->code, method_index2, info->no_output);
 
             info->stack_num -= num_params + 1;
@@ -2028,7 +2047,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
             }
 
             append_opecode_to_code(info->code, OP_INVOKE_DYNAMIC_METHOD, info->no_output);
-            append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(klass), info->no_output);
+            append_class_name_to_constant_pool_and_code(info, klass);
             append_str_to_constant_pool_and_code(info->constant, info->code, method_name, info->no_output);
             append_int_value_to_code(info->code, num_params, info->no_output);
             append_int_value_to_code(info->code, 0, info->no_output);
@@ -2098,7 +2117,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
 
         append_opecode_to_code(info->code, OP_INVOKE_VIRTUAL_METHOD, info->no_output);
         append_int_value_to_code(info->code, num_real_params, info->no_output);
-        append_str_to_constant_pool_and_code(info->constant, info->code, METHOD_NAME_AND_PARAMS(klass, method), info->no_output);
+        append_method_name_and_params_to_constant_pool_and_code(info, klass, method);
 
         info->stack_num -= num_params + 1;
         info->stack_num++;
@@ -2164,7 +2183,8 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
         sCLMethod* method = klass->mMethods + method_index2;
 
         append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
-        append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(klass), info->no_output);
+
+        append_class_name_to_constant_pool_and_code(info, klass);
         append_int_value_to_code(info->code, method_index2, info->no_output);
 
         info->stack_num -= num_params + 1;
@@ -2350,7 +2370,7 @@ static BOOL compile_new_operator(unsigned int node, sCompileInfo* info)
     }
 
     append_opecode_to_code(info->code, OP_NEW, info->no_output);
-    append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(klass), info->no_output);
+    append_class_name_to_constant_pool_and_code(info, klass);
     append_int_value_to_code(info->code, array_num ? 1:0, info->no_output);
 
     info->stack_num++;
@@ -2403,7 +2423,7 @@ static BOOL compile_new_operator(unsigned int node, sCompileInfo* info)
         }
 
         append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
-        append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(klass), info->no_output);
+        append_class_name_to_constant_pool_and_code(info, klass);
         append_int_value_to_code(info->code, method_index, info->no_output);
 
         info->stack_num-=num_params+1;
@@ -3056,7 +3076,7 @@ static BOOL compile_load_class_field(unsigned int node, sCompileInfo* info)
     sNodeType* field_type = create_node_type_from_cl_type(field->mResultType, klass);
 
     append_opecode_to_code(info->code, OP_LOAD_CLASS_FIELD, info->no_output);
-    append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(klass), info->no_output);
+    append_class_name_to_constant_pool_and_code(info, klass);
     append_int_value_to_code(info->code, field_index, info->no_output);
 
     info->stack_num++;
@@ -3138,7 +3158,7 @@ static BOOL compile_store_class_field(unsigned int node, sCompileInfo* info)
     }
 
     append_opecode_to_code(info->code, OP_STORE_CLASS_FIELD, info->no_output);
-    append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(klass), info->no_output);
+    append_class_name_to_constant_pool_and_code(info, klass);
     append_int_value_to_code(info->code, field_index, info->no_output);
 
     info->type = field_type;
@@ -5045,7 +5065,7 @@ BOOL compile_get_address(unsigned int node, sCompileInfo* info)
         sCLField* field = klass->mClassFields + field_index;
 
         append_opecode_to_code(info->code, OP_LOAD_CLASS_FIELD_ADDRESS, info->no_output);
-        append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(klass), info->no_output);
+        append_class_name_to_constant_pool_and_code(info, klass);
         append_int_value_to_code(info->code, field_index, info->no_output);
 
         info->stack_num++;
@@ -5121,7 +5141,7 @@ BOOL compile_array_value(unsigned int node, sCompileInfo* info)
 
     append_opecode_to_code(info->code, OP_CREATE_ARRAY, info->no_output);
     append_int_value_to_code(info->code, num_elements, info->no_output);
-    append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(element_type->mClass), info->no_output);
+    append_class_name_to_constant_pool_and_code(info, element_type->mClass);
 
     info->stack_num-= num_elements;
     info->stack_num++;
@@ -5196,7 +5216,7 @@ static BOOL compile_carray_value(unsigned int node, sCompileInfo* info)
 
     append_opecode_to_code(info->code, OP_CREATE_CARRAY, info->no_output);
     append_int_value_to_code(info->code, num_elements, info->no_output);
-    append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(element_type->mClass), info->no_output);
+    append_class_name_to_constant_pool_and_code(info, element_type->mClass);
 
     info->stack_num-= num_elements;
     info->stack_num++;
@@ -5284,7 +5304,7 @@ static BOOL compile_equalable_carray_value(unsigned int node, sCompileInfo* info
 
     append_opecode_to_code(info->code, OP_CREATE_EQUALABLE_CARRAY, info->no_output);
     append_int_value_to_code(info->code, num_elements, info->no_output);
-    append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(element_type->mClass), info->no_output);
+    append_class_name_to_constant_pool_and_code(info, element_type->mClass);
 
     info->stack_num-= num_elements;
     info->stack_num++;
@@ -5372,7 +5392,7 @@ static BOOL compile_sortable_carray_value(unsigned int node, sCompileInfo* info)
 
     append_opecode_to_code(info->code, OP_CREATE_SORTABLE_CARRAY, info->no_output);
     append_int_value_to_code(info->code, num_elements, info->no_output);
-    append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(element_type->mClass), info->no_output);
+    append_class_name_to_constant_pool_and_code(info, element_type->mClass);
 
     info->stack_num-= num_elements;
     info->stack_num++;
@@ -5474,7 +5494,7 @@ BOOL compile_list_value(unsigned int node, sCompileInfo* info)
 
     append_opecode_to_code(info->code, OP_CREATE_LIST, info->no_output);
     append_int_value_to_code(info->code, num_elements, info->no_output);
-    append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(element_type->mClass), info->no_output);
+    append_class_name_to_constant_pool_and_code(info, element_type->mClass);
 
     info->stack_num-= num_elements;
     info->stack_num++;
@@ -5556,7 +5576,7 @@ BOOL compile_sortable_list_value(unsigned int node, sCompileInfo* info)
 
     append_opecode_to_code(info->code, OP_CREATE_SORTALBE_LIST, info->no_output);
     append_int_value_to_code(info->code, num_elements, info->no_output);
-    append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(element_type->mClass), info->no_output);
+    append_class_name_to_constant_pool_and_code(info, element_type->mClass);
 
     info->stack_num-= num_elements;
     info->stack_num++;
@@ -5638,7 +5658,7 @@ BOOL compile_equalable_list_value(unsigned int node, sCompileInfo* info)
 
     append_opecode_to_code(info->code, OP_CREATE_EQUALABLE_LIST, info->no_output);
     append_int_value_to_code(info->code, num_elements, info->no_output);
-    append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(element_type->mClass), info->no_output);
+    append_class_name_to_constant_pool_and_code(info, element_type->mClass);
 
     info->stack_num-= num_elements;
     info->stack_num++;
@@ -5785,8 +5805,8 @@ BOOL compile_hash_value(unsigned int node, sCompileInfo* info)
 
     append_opecode_to_code(info->code, OP_CREATE_HASH, info->no_output);
     append_int_value_to_code(info->code, num_elements, info->no_output);
-    append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(key_type->mClass), info->no_output);
-    append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(item_type->mClass), info->no_output);
+    append_class_name_to_constant_pool_and_code(info, key_type->mClass);
+    append_class_name_to_constant_pool_and_code(info, item_type->mClass);
 
     info->stack_num-= num_elements * 2;
     info->stack_num++;
@@ -6281,7 +6301,7 @@ static BOOL compile_inherit_call(unsigned int node, sCompileInfo* info)
     }
 
     append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
-    append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(klass), info->no_output);
+    append_class_name_to_constant_pool_and_code(info, klass);
     append_int_value_to_code(info->code, method_index2, info->no_output);
 
     if(!class_method) {

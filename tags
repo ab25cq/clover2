@@ -12,7 +12,7 @@ BREAK_NUM_MAX	src/common.h	45;"	d
 BUFFER_H	src/buffer.h	2;"	d
 BYTE_CODE_INIT_SIZE	src/code.c	3;"	d	file:
 CC	Makefile	/^CC=clang$/;"	m
-CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -I\/home\/ab25cq\/include -L\/home\/ab25cq\/lib -fPIC  -I\/usr\/local\/include -L \/usr\/local\/lib -g -DMDEBUG -Werror -Qunused-arguments$/;"	m
+CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -I\/home\/ab25cq\/include -L\/home\/ab25cq\/lib  -I\/usr\/local\/include -L \/usr\/local\/lib -Qunused-arguments$/;"	m
 CHECKML_BEGIN	src/debug.h	11;"	d
 CHECKML_BEGIN	src/debug.h	38;"	d
 CHECKML_END	src/debug.h	12;"	d
@@ -961,6 +961,7 @@ append_byte_codes_to_buffer	src/klass_compile_time.c	/^static void append_byte_c
 append_character_to_module	src/module.c	/^void append_character_to_module(sCLModule* self, char c)$/;"	f
 append_cl_block_type	src/klass_compile_time.c	/^static void append_cl_block_type(sBuf* buf, sCLBlockType* cl_block_type)$/;"	f	file:
 append_cl_type_to_buffer	src/klass_compile_time.c	/^static void append_cl_type_to_buffer(sBuf* buf, sCLType* cl_type)$/;"	f	file:
+append_class_name_to_constant_pool_and_code	src/node.c	/^static void append_class_name_to_constant_pool_and_code(sCompileInfo* info, sCLClass* klass)$/;"	f	file:
 append_const_to_buffer	src/klass_compile_time.c	/^static void append_const_to_buffer(sBuf* buf, sConst* constant, sCLClass* klass)$/;"	f	file:
 append_double_value_to_code	src/code.c	/^void append_double_value_to_code(sByteCode* code, double value, BOOL no_output)$/;"	f
 append_double_value_to_constant_pool	src/constant.c	/^int append_double_value_to_constant_pool(sConst* constant, double n, BOOL no_output)$/;"	f
@@ -970,6 +971,7 @@ append_float_value_to_constant_pool	src/constant.c	/^int append_float_value_to_c
 append_int_value_to_code	src/code.c	/^void append_int_value_to_code(sByteCode* code, int value, BOOL no_output)$/;"	f
 append_int_value_to_constant_pool	src/constant.c	/^int append_int_value_to_constant_pool(sConst* constant, int n, BOOL no_output)$/;"	f
 append_long_value_to_code	src/code.c	/^void append_long_value_to_code(sByteCode* code, long value, BOOL no_output)$/;"	f
+append_method_name_and_params_to_constant_pool_and_code	src/node.c	/^static void append_method_name_and_params_to_constant_pool_and_code(sCompileInfo* info, sCLClass* klass, sCLMethod* method)$/;"	f	file:
 append_methods_to_buffer	src/klass_compile_time.c	/^static void append_methods_to_buffer(sBuf* buf, sCLMethod* methods, sCLClass* klass, int num_methods)$/;"	f	file:
 append_module_to_table	src/module.c	/^static BOOL append_module_to_table(char* name, sCLModule* module)$/;"	f	file:
 append_node_to_node_block	src/node_block.c	/^static void append_node_to_node_block(sNodeBlock* node_block, unsigned int node)$/;"	f	file:

@@ -3632,9 +3632,9 @@ if test `uname -s` = "Darwin"; then
 
 
     if test $myprefix = /usr/local; then
-        CFLAGS="-Isrc/ -I. -L . -fPIC $CFLAGS"
+        CFLAGS="-Isrc/ -I. -L . $CFLAGS"
     else
-        CFLAGS="-Isrc/ -I. -L . -I$myprefix/include -L$myprefix/lib -fPIC $CFLAGS"
+        CFLAGS="-Isrc/ -I. -L . -I$myprefix/include -L$myprefix/lib $CFLAGS"
     fi
 elif test `uname -s` = "FreeBSD"; then
     echo "FreeBSD"
@@ -3644,7 +3644,7 @@ elif test `uname -s` = "FreeBSD"; then
     $as_echo "#define __FREEBSD__ 1" >>confdefs.h
 
 
-    CFLAGS="-Isrc/ -I. -L . -I$myprefix/include -L$myprefix/lib -fPIC $CFLAGS"
+    CFLAGS="-Isrc/ -I. -L . -I$myprefix/include -L$myprefix/lib $CFLAGS"
 elif uname -s | grep -q CYGWIN_NT; then
     echo CYGWIN
 
@@ -3667,9 +3667,9 @@ else
 
 
     if test $myprefix = /usr/local; then
-        CFLAGS="-Isrc/ -I. -L . -fPIC $CFLAGS"
+        CFLAGS="-Isrc/ -I. -L . $CFLAGS"
     else
-        CFLAGS="-Isrc/ -I. -L . -I$myprefix/include -L$myprefix/lib -fPIC $CFLAGS"
+        CFLAGS="-Isrc/ -I. -L . -I$myprefix/include -L$myprefix/lib $CFLAGS"
     fi
 
     { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lutil" >&5

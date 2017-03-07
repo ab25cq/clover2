@@ -54,7 +54,7 @@ void sBuf_append_char(sBuf* self, char c)
 {
     if(self->mSize <= self->mLen + 1 + 1) {
         self->mSize = (self->mLen + 1 + 1) * 2;
-        self->mBuf = (char*)MREALLOC(self->mBuf, sizeof(char)*self->mSize);
+        self->mBuf = (char*)MREALLOC(self->mBuf, self->mSize);
     }
 
     self->mBuf[self->mLen] = c;
