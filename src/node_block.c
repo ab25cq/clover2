@@ -108,13 +108,18 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info)
     for(i=0; i<block->mNumNodes; i++) {
         unsigned int node = block->mNodes[i];
 
+        info->sname = gNodes[node].mSName;
+        info->sline = gNodes[node].mLine;
+
+        append_opecode_to_code(info->code, OP_SIGINT, info->no_output);
+        append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+        append_int_value_to_code(info->code, info->sline, info->no_output);
+
         if(!compile(node, info)) {
             info->lv_table = old_table;
             info->stack_num = stack_num_before;
             return FALSE;
         }
-
-        append_opecode_to_code(info->code, OP_SIGINT, info->no_output);
 
         arrange_stack(info);
     }

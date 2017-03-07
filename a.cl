@@ -1,1 +1,3 @@
-"AAA".sub(/./, "B")
+a:String = null;
+
+a.scan(/./)

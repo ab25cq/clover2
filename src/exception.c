@@ -22,13 +22,17 @@ void entry_exception_object_with_class_name(CLVALUE* stack, sVMInfo* info, char*
     vsnprintf(msg2, 1024, msg, args);
     va_end(args);
 
-    CLObject str = create_string_object(msg2);
+    char msg3[1024];
+
+    snprintf(msg3, 1024, "%s %d: %s", info->sname, info->sline, msg2);
+
+    CLObject str = create_string_object(msg3);
 
     sCLObject* object_data = CLOBJECT(object);
 
     object_data->mFields[0].mObjectValue = str;
 
-    xstrncpy(info->exception_message, msg2, EXCEPTION_MESSAGE_MAX); // for show_exception_message 
+    xstrncpy(info->exception_message, msg3, EXCEPTION_MESSAGE_MAX); // for show_exception_message 
 
     vm_mutex_off();
 }

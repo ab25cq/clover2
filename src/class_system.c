@@ -320,6 +320,11 @@ BOOL System_pcre_exec(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     pcre* regex_value = regex_object_data->mRegex;
 
+    if(str->mObjectValue == 0) {
+        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     char* str_value = string_object_to_char_array(str->mObjectValue);
 
     int len = strlen(str_value);

@@ -957,6 +957,17 @@ if(stack_ptr != lvar + var_num + 1) {
             case OP_SIGINT:
                 vm_mutex_on();
 
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+
+                char* sname = CONS_str(constant, offset);
+
+                int sline = *(int*)pc;
+                pc += sizeof(int);
+
+                info->sname = sname;
+                info->sline = sline;
+
                 if(gSigInt) {
                     vm_mutex_off();
                     entry_exception_object_with_class_name(stack + var_num, info, "Exception", "Signal Interrupt");

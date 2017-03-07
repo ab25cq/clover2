@@ -124,21 +124,38 @@ unsigned int clone_node(unsigned int node)
     return result;
 }
 
-static void err_msg_for_method_not_found(sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL class_method, sCompileInfo* info)
+static void compile_err_msg(sCompileInfo* info, const char* msg, ...)
 {
-    parser_err_msg(info->pinfo, "%s.%s(%d prametors) is not found", CLASS_NAME(klass), method_name, num_params);
-    int i;
-    for(i=0; i<num_params; i++) {
-        parser_err_msg(info->pinfo, "parametor#%d is %s", i, CLASS_NAME(param_types[i]->mClass));
+    char msg2[1024];
+
+    va_list args;
+    va_start(args, msg);
+    vsnprintf(msg2, 1024, msg, args);
+    va_end(args);
+
+    if(!info->pinfo->get_type_for_interpreter) {
+        fprintf(stderr, "%s %d: %s\n", info->sname, info->sline, msg2);
     }
 }
 
-unsigned int sNodeTree_create_operand(enum eOperand operand, unsigned int left, unsigned int right, unsigned int middle)
+static void err_msg_for_method_not_found(sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL class_method, sCompileInfo* info)
+{
+    compile_err_msg(info, "%s.%s(%d prametors) is not found", CLASS_NAME(klass), method_name, num_params);
+    int i;
+    for(i=0; i<num_params; i++) {
+        compile_err_msg(info, "parametor#%d is %s", i, CLASS_NAME(param_types[i]->mClass));
+    }
+}
+
+unsigned int sNodeTree_create_operand(enum eOperand operand, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)
 {
     unsigned node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeOperand;
     gNodes[node].uValue.mOperand = operand;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = left;
     gNodes[node].mRight = right;
@@ -195,7 +212,7 @@ static BOOL single_operator(sNodeType* type, int byte_operand, int ubyte_operand
     return TRUE;
 }
 
-static BOOL binary_operator(sNodeType* left_type, sNodeType* right_type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, int float_operand, int double_operand, int pointer_operand, int null_operand, int char_operand, int bool_operand, char* op_string, sCompileInfo* info)
+static BOOL binary_operator(unsigned int node, sNodeType* left_type, sNodeType* right_type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, int float_operand, int double_operand, int pointer_operand, int null_operand, int char_operand, int bool_operand, char* op_string, sCompileInfo* info)
 {
     if(!no_cast_types_for_binary_operator(left_type, right_type))
     {
@@ -204,7 +221,7 @@ static BOOL binary_operator(sNodeType* left_type, sNodeType* right_type, int byt
 
     if(!operand_posibility(left_type, right_type, op_string))
     {
-        parser_err_msg(info->pinfo, "Invalid type for operand(%s). The left type is %s. The right type is %s.", op_string,CLASS_NAME(left_type->mClass), CLASS_NAME(right_type->mClass));
+        compile_err_msg(info, "Invalid type for operand(%s). The left type is %s. The right type is %s.", op_string,CLASS_NAME(left_type->mClass), CLASS_NAME(right_type->mClass));
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -298,7 +315,7 @@ static BOOL binary_operator(sNodeType* left_type, sNodeType* right_type, int byt
         info->type = create_node_type_with_class_name("bool");
     }
     else {
-        parser_err_msg(info->pinfo, "%s.%s is not implemented", CLASS_NAME(left_type->mClass), op_string);
+        compile_err_msg(info, "%s.%s is not implemented", CLASS_NAME(left_type->mClass), op_string);
         info->err_num++;
     }
 
@@ -342,56 +359,56 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
 
     switch(gNodes[node].uValue.mOperand) {
         case kOpAdd:
-            if(!binary_operator(left_type, right_type, OP_BADD, OP_UBADD, OP_SADD, OP_USADD, OP_IADD, OP_UIADD, OP_LADD, OP_ULADD, OP_FADD, OP_DADD, OP_PADD, -1, OP_CADD, -1, "+", info))
+            if(!binary_operator(node, left_type, right_type, OP_BADD, OP_UBADD, OP_SADD, OP_USADD, OP_IADD, OP_UIADD, OP_LADD, OP_ULADD, OP_FADD, OP_DADD, OP_PADD, -1, OP_CADD, -1, "+", info))
             {
                 return FALSE;
             }
             break;
 
         case kOpSub:
-            if(!binary_operator(left_type, right_type, OP_BSUB, OP_UBSUB, OP_SSUB, OP_USSUB, OP_ISUB, OP_UISUB, OP_LSUB, OP_ULSUB, OP_FSUB, OP_DSUB, OP_PSUB, -1, OP_CSUB, -1, "-", info))
+            if(!binary_operator(node, left_type, right_type, OP_BSUB, OP_UBSUB, OP_SSUB, OP_USSUB, OP_ISUB, OP_UISUB, OP_LSUB, OP_ULSUB, OP_FSUB, OP_DSUB, OP_PSUB, -1, OP_CSUB, -1, "-", info))
             {
                 return FALSE;
             }
             break;
             
         case kOpMult:
-            if(!binary_operator(left_type, right_type, OP_BMULT, OP_UBMULT, OP_SMULT, OP_USMULT, OP_IMULT, OP_UIMULT, OP_LMULT, OP_ULMULT, OP_FMULT, OP_DMULT, -1, -1, -1, -1, "*", info))
+            if(!binary_operator(node, left_type, right_type, OP_BMULT, OP_UBMULT, OP_SMULT, OP_USMULT, OP_IMULT, OP_UIMULT, OP_LMULT, OP_ULMULT, OP_FMULT, OP_DMULT, -1, -1, -1, -1, "*", info))
             {
                 return FALSE;
             }
             break;
             
         case kOpDiv:
-            if(!binary_operator(left_type, right_type, OP_BDIV, OP_UBDIV, OP_SDIV, OP_USDIV, OP_IDIV, OP_UIDIV, OP_LDIV, OP_ULDIV, OP_FDIV, OP_DDIV, -1, -1, -1, -1, "/", info))
+            if(!binary_operator(node, left_type, right_type, OP_BDIV, OP_UBDIV, OP_SDIV, OP_USDIV, OP_IDIV, OP_UIDIV, OP_LDIV, OP_ULDIV, OP_FDIV, OP_DDIV, -1, -1, -1, -1, "/", info))
             {
                 return FALSE;
             }
             break;
             
         case kOpMod:
-            if(!binary_operator(left_type, right_type, OP_BMOD, OP_UBMOD, OP_SMOD, OP_USMOD, OP_IMOD, OP_UIMOD, OP_LMOD, OP_ULMOD, -1, -1, -1, -1, -1, -1, "%", info))
+            if(!binary_operator(node, left_type, right_type, OP_BMOD, OP_UBMOD, OP_SMOD, OP_USMOD, OP_IMOD, OP_UIMOD, OP_LMOD, OP_ULMOD, -1, -1, -1, -1, -1, -1, "%", info))
             {
                 return FALSE;
             }
             break;
             
         case kOpLeftShift:
-            if(!binary_operator(left_type, right_type, OP_BLSHIFT, OP_UBLSHIFT, OP_SLSHIFT, OP_USLSHIFT, OP_ILSHIFT, OP_UILSHIFT, OP_LLSHIFT, OP_ULLSHIFT, -1, -1, -1, -1, -1, -1, "<<", info))
+            if(!binary_operator(node, left_type, right_type, OP_BLSHIFT, OP_UBLSHIFT, OP_SLSHIFT, OP_USLSHIFT, OP_ILSHIFT, OP_UILSHIFT, OP_LLSHIFT, OP_ULLSHIFT, -1, -1, -1, -1, -1, -1, "<<", info))
             {
                 return FALSE;
             }
             break;
             
         case kOpRightShift:
-            if(!binary_operator(left_type, right_type, OP_BRSHIFT, OP_UBRSHIFT, OP_SRSHIFT, OP_USRSHIFT, OP_IRSHIFT, OP_UIRSHIFT, OP_LRSHIFT, OP_ULRSHIFT, -1, -1, -1, -1, -1, -1, ">>", info))
+            if(!binary_operator(node, left_type, right_type, OP_BRSHIFT, OP_UBRSHIFT, OP_SRSHIFT, OP_USRSHIFT, OP_IRSHIFT, OP_UIRSHIFT, OP_LRSHIFT, OP_ULRSHIFT, -1, -1, -1, -1, -1, -1, ">>", info))
             {
                 return FALSE;
             }
             break;
             
         case kOpComparisonEqual:
-            if(!binary_operator(left_type, right_type, OP_BEQ, OP_UBEQ, OP_SEQ, OP_USEQ, OP_IEQ, OP_UIEQ, OP_LEQ, OP_ULEQ, OP_FEQ, OP_DEQ, OP_PEQ, OP_IEQ, OP_CEQ, OP_IEQ, "==", info))
+            if(!binary_operator(node, left_type, right_type, OP_BEQ, OP_UBEQ, OP_SEQ, OP_USEQ, OP_IEQ, OP_UIEQ, OP_LEQ, OP_ULEQ, OP_FEQ, OP_DEQ, OP_PEQ, OP_IEQ, OP_CEQ, OP_IEQ, "==", info))
             {
                 return FALSE;
             }
@@ -400,7 +417,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
             break;
             
         case kOpComparisonNotEqual:
-            if(!binary_operator(left_type, right_type, OP_BNOTEQ, OP_UBNOTEQ, OP_SNOTEQ, OP_USNOTEQ, OP_INOTEQ, OP_UINOTEQ, OP_LNOTEQ, OP_ULNOTEQ, OP_FNOTEQ, OP_DNOTEQ, OP_PNOTEQ, OP_INOTEQ, OP_CNOTEQ, OP_INOTEQ, "!=", info))
+            if(!binary_operator(node, left_type, right_type, OP_BNOTEQ, OP_UBNOTEQ, OP_SNOTEQ, OP_USNOTEQ, OP_INOTEQ, OP_UINOTEQ, OP_LNOTEQ, OP_ULNOTEQ, OP_FNOTEQ, OP_DNOTEQ, OP_PNOTEQ, OP_INOTEQ, OP_CNOTEQ, OP_INOTEQ, "!=", info))
             {
                 return FALSE;
             }
@@ -409,7 +426,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
             break;
             
         case kOpComparisonGreaterEqual:
-            if(!binary_operator(left_type, right_type, OP_BGTEQ, OP_UBGTEQ, OP_SGTEQ, OP_USGTEQ, OP_IGTEQ, OP_UIGTEQ, OP_LGTEQ, OP_ULGTEQ, OP_FGTEQ, OP_DGTEQ, OP_PGTEQ, -1, OP_CGTEQ, -1, ">=", info))
+            if(!binary_operator(node, left_type, right_type, OP_BGTEQ, OP_UBGTEQ, OP_SGTEQ, OP_USGTEQ, OP_IGTEQ, OP_UIGTEQ, OP_LGTEQ, OP_ULGTEQ, OP_FGTEQ, OP_DGTEQ, OP_PGTEQ, -1, OP_CGTEQ, -1, ">=", info))
             {
                 return FALSE;
             }
@@ -418,7 +435,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
             break;
             
         case kOpComparisonLesserEqual:
-            if(!binary_operator(left_type, right_type, OP_BLEEQ, OP_UBLEEQ, OP_SLEEQ, OP_USLEEQ, OP_ILEEQ, OP_UILEEQ, OP_LLEEQ, OP_ULLEEQ, OP_FLEEQ, OP_DLEEQ, OP_PLEEQ, -1, OP_CLEEQ, -1, "<=", info))
+            if(!binary_operator(node, left_type, right_type, OP_BLEEQ, OP_UBLEEQ, OP_SLEEQ, OP_USLEEQ, OP_ILEEQ, OP_UILEEQ, OP_LLEEQ, OP_ULLEEQ, OP_FLEEQ, OP_DLEEQ, OP_PLEEQ, -1, OP_CLEEQ, -1, "<=", info))
             {
                 return FALSE;
             }
@@ -427,7 +444,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
             break;
             
         case kOpComparisonGreater:
-            if(!binary_operator(left_type, right_type, OP_BGT, OP_UBGT, OP_SGT, OP_USGT, OP_IGT, OP_UIGT, OP_LGT, OP_ULGT, OP_FGT, OP_DGT, OP_PGT, -1, OP_CGT, -1, ">", info))
+            if(!binary_operator(node, left_type, right_type, OP_BGT, OP_UBGT, OP_SGT, OP_USGT, OP_IGT, OP_UIGT, OP_LGT, OP_ULGT, OP_FGT, OP_DGT, OP_PGT, -1, OP_CGT, -1, ">", info))
             {
                 return FALSE;
             }
@@ -436,7 +453,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
             break;
             
         case kOpComparisonLesser:
-            if(!binary_operator(left_type, right_type, OP_BLE, OP_UBLE, OP_SLE, OP_USLE, OP_ILE, OP_UILE, OP_LLE, OP_ULLE, OP_FLE, OP_DLE, OP_PLE, -1, OP_CLE, -1, "<", info))
+            if(!binary_operator(node, left_type, right_type, OP_BLE, OP_UBLE, OP_SLE, OP_USLE, OP_ILE, OP_UILE, OP_LLE, OP_ULLE, OP_FLE, OP_DLE, OP_PLE, -1, OP_CLE, -1, "<", info))
             {
                 return FALSE;
             }
@@ -445,21 +462,21 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
             break;
             
         case kOpAnd:
-            if(!binary_operator(left_type, right_type, OP_BAND, OP_UBAND, OP_SAND, OP_USAND, OP_IAND, OP_UIAND, OP_LAND, OP_ULAND, -1, -1, -1, -1, -1, -1, "&", info))
+            if(!binary_operator(node, left_type, right_type, OP_BAND, OP_UBAND, OP_SAND, OP_USAND, OP_IAND, OP_UIAND, OP_LAND, OP_ULAND, -1, -1, -1, -1, -1, -1, "&", info))
             {
                 return FALSE;
             }
             break;
             
         case kOpXor:
-            if(!binary_operator(left_type, right_type, OP_BXOR, OP_UBXOR, OP_SXOR, OP_USXOR, OP_IXOR, OP_UIXOR, OP_LXOR, OP_ULXOR, -1, -1, -1, -1, -1, -1, "^", info))
+            if(!binary_operator(node, left_type, right_type, OP_BXOR, OP_UBXOR, OP_SXOR, OP_USXOR, OP_IXOR, OP_UIXOR, OP_LXOR, OP_ULXOR, -1, -1, -1, -1, -1, -1, "^", info))
             {
                 return FALSE;
             }
             break;
             
         case kOpOr:
-            if(!binary_operator(left_type, right_type, OP_BOR, OP_UBOR, OP_SOR, OP_USOR, OP_IOR, OP_UIOR, OP_LOR, OP_ULOR, -1, -1, -1, -1, -1, -1, "|", info))
+            if(!binary_operator(node, left_type, right_type, OP_BOR, OP_UBOR, OP_SOR, OP_USOR, OP_IOR, OP_UIOR, OP_LOR, OP_ULOR, -1, -1, -1, -1, -1, -1, "|", info))
             {
                 return FALSE;
             }
@@ -474,7 +491,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
 
         case kOpLogicalDenial:
             if(!type_identify_with_class_name(node_type, "bool")) {
-                parser_err_msg(info->pinfo, "require bool type for operator !");
+                compile_err_msg(info, "require bool type for operator !");
                 info->err_num++;
             }
             else {
@@ -488,11 +505,14 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_and_and(unsigned int left_node, unsigned int right_node)
+unsigned int sNodeTree_create_and_and(unsigned int left_node, unsigned int right_node, sParserInfo* info)
 {
     unsigned node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeAndAnd;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = left_node;
     gNodes[node].mRight = right_node;
@@ -521,7 +541,7 @@ static BOOL compile_and_and(unsigned int node, sCompileInfo* info)
     }
 
     if(!type_identify_with_class_name(left_type, "bool")) {
-        parser_err_msg(info->pinfo, "Left expression is not bool type");
+        compile_err_msg(info, "Left expression is not bool type");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -557,7 +577,7 @@ static BOOL compile_and_and(unsigned int node, sCompileInfo* info)
     }
 
     if(!type_identify_with_class_name(right_type, "bool")) {
-        parser_err_msg(info->pinfo, "Right expression is not bool type");
+        compile_err_msg(info, "Right expression is not bool type");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -575,11 +595,14 @@ static BOOL compile_and_and(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_or_or(unsigned int left_node, unsigned int right_node)
+unsigned int sNodeTree_create_or_or(unsigned int left_node, unsigned int right_node, sParserInfo* info)
 {
     unsigned node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeOrOr;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = left_node;
     gNodes[node].mRight = right_node;
@@ -608,7 +631,7 @@ static BOOL compile_or_or(unsigned int node, sCompileInfo* info)
     }
 
     if(!type_identify_with_class_name(left_type, "bool")) {
-        parser_err_msg(info->pinfo, "Left expression is not bool type");
+        compile_err_msg(info, "Left expression is not bool type");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -644,7 +667,7 @@ static BOOL compile_or_or(unsigned int node, sCompileInfo* info)
     }
 
     if(!type_identify_with_class_name(right_type, "bool")) {
-        parser_err_msg(info->pinfo, "Right expression is not bool type");
+        compile_err_msg(info, "Right expression is not bool type");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -662,11 +685,14 @@ static BOOL compile_or_or(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_conditional_expression(unsigned int expression_node, unsigned int true_expression_node, unsigned int false_expression_node)
+unsigned int sNodeTree_conditional_expression(unsigned int expression_node, unsigned int true_expression_node, unsigned int false_expression_node, sParserInfo* info)
 {
     unsigned node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeConditional;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = true_expression_node;
     gNodes[node].mRight = false_expression_node;
@@ -690,7 +716,7 @@ static BOOL compile_conditional_operator(unsigned int node, sCompileInfo* info)
     cast_right_type_to_left_type(bool_type, &info->type, info);
 
     if(!type_identify_with_class_name(info->type, "bool")) {
-        parser_err_msg(info->pinfo, "This conditional expression type is not bool");
+        compile_err_msg(info, "This conditional expression type is not bool");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -739,7 +765,7 @@ static BOOL compile_conditional_operator(unsigned int node, sCompileInfo* info)
 
     /// check result ///
     if(!type_identify(true_expression_type, false_expression_type)) {
-        parser_err_msg(info->pinfo, "True expression type and false expression type are different");
+        compile_err_msg(info, "True expression type and false expression type are different");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -753,11 +779,14 @@ static BOOL compile_conditional_operator(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_byte_value(char value, unsigned int left, unsigned int right, unsigned int middle)
+unsigned int sNodeTree_create_byte_value(char value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)
 {
     unsigned node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeByteValue;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].uValue.mByteValue = value;
 
@@ -782,11 +811,14 @@ static BOOL compile_byte_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_float_value(float value, unsigned int left, unsigned int right, unsigned int middle)
+unsigned int sNodeTree_create_float_value(float value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)
 {
     unsigned node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeFloatValue;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].uValue.mFloatValue = value;
 
@@ -809,11 +841,14 @@ static BOOL compile_float_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_double_value(double value, unsigned int left, unsigned int right, unsigned int middle)
+unsigned int sNodeTree_create_double_value(double value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)
 {
     unsigned node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeDoubleValue;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].uValue.mDoubleValue = value;
 
@@ -836,11 +871,14 @@ static BOOL compile_double_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_ubyte_value(unsigned char value, unsigned int left, unsigned int right, unsigned int middle)
+unsigned int sNodeTree_create_ubyte_value(unsigned char value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)
 {
     unsigned node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeUByteValue;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].uValue.mUByteValue = value;
 
@@ -865,11 +903,14 @@ static BOOL compile_ubyte_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_short_value(short value, unsigned int left, unsigned int right, unsigned int middle)
+unsigned int sNodeTree_create_short_value(short value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)
 {
     unsigned node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeShortValue;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].uValue.mShortValue = value;
 
@@ -894,11 +935,14 @@ static BOOL compile_short_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_ushort_value(unsigned short value, unsigned int left, unsigned int right, unsigned int middle)
+unsigned int sNodeTree_create_ushort_value(unsigned short value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)
 {
     unsigned node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeUShortValue;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].uValue.mUShortValue = value;
 
@@ -923,11 +967,14 @@ static BOOL compile_ushort_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_int_value(int value, unsigned int left, unsigned int right, unsigned int middle)
+unsigned int sNodeTree_create_int_value(int value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)
 {
     unsigned node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeIntValue;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].uValue.mIntValue = value;
 
@@ -952,11 +999,14 @@ static BOOL compile_int_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_uint_value(unsigned int value, unsigned int left, unsigned int right, unsigned int middle)
+unsigned int sNodeTree_create_uint_value(unsigned int value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)
 {
     unsigned node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeUIntValue;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].uValue.mUIntValue = value;
 
@@ -981,11 +1031,14 @@ static BOOL compile_uint_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_long_value(long value, unsigned int left, unsigned int right, unsigned int middle)
+unsigned int sNodeTree_create_long_value(long value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)
 {
     unsigned node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeLongValue;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].uValue.mLongValue = value;
 
@@ -1010,11 +1063,14 @@ static BOOL compile_long_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_ulong_value(unsigned long value, unsigned int left, unsigned int right, unsigned int middle)
+unsigned int sNodeTree_create_ulong_value(unsigned long value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)
 {
     unsigned node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeULongValue;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].uValue.mULongValue = value;
 
@@ -1039,11 +1095,14 @@ static BOOL compile_ulong_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_store_variable(char* var_name, sNodeType* node_type, int right, sCLClass* klass)
+unsigned int sNodeTree_create_store_variable(char* var_name, sNodeType* node_type, int right, sCLClass* klass, sParserInfo* info)
 {
     unsigned node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeAssignVariable;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     xstrncpy(gNodes[node].uValue.sAssignVariable.mVarName, var_name, VAR_NAME_MAX);
     gNodes[node].uValue.sAssignVariable.mClass = klass;
@@ -1062,7 +1121,7 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
     sVar* var = get_variable_from_table(info->lv_table, gNodes[node].uValue.sAssignVariable.mVarName);
 
     if(var == NULL) {
-        parser_err_msg(info->pinfo, "undeclared variable %s", gNodes[node].uValue.sAssignVariable.mVarName);
+        compile_err_msg(info, "undeclared variable %s", gNodes[node].uValue.sAssignVariable.mVarName);
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -1086,7 +1145,7 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
     sNodeType* left_type = var->mType;
     if(gNodes[node].mType->mClass == NULL || left_type == NULL || right_type == NULL || left_type->mClass == NULL || right_type->mClass == NULL) 
     {
-        parser_err_msg(info->pinfo, "invalid type");
+        compile_err_msg(info, "invalid type");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -1100,7 +1159,7 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
     cast_right_type_to_left_type(left_type2, &right_type, info);
 
     if(!substitution_posibility(left_type2, right_type, NULL, NULL)) {
-        parser_err_msg(info->pinfo, "The different type between left type and right type(1). Left type is %s. Right type is %s.", CLASS_NAME(left_type2->mClass), CLASS_NAME(right_type->mClass));
+        compile_err_msg(info, "The different type between left type and right type(1). Left type is %s. Right type is %s.", CLASS_NAME(left_type2->mClass), CLASS_NAME(right_type->mClass));
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -1121,11 +1180,14 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_load_variable(char* var_name)
+unsigned int sNodeTree_create_load_variable(char* var_name, sParserInfo* info)
 {
     unsigned node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeLoadVariable;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     xstrncpy(gNodes[node].uValue.mVarName, var_name, VAR_NAME_MAX);
 
@@ -1143,7 +1205,7 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
     sVar* var = get_variable_from_table(info->lv_table, gNodes[node].uValue.mVarName);
 
     if(var == NULL) {
-        parser_err_msg(info->pinfo, "undeclared variable %s", gNodes[node].uValue.mVarName);
+        compile_err_msg(info, "undeclared variable %s", gNodes[node].uValue.mVarName);
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -1165,7 +1227,7 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
     sNodeType* result_type = var->mType;
 
     if(result_type == NULL || result_type->mClass == NULL) {
-        parser_err_msg(info->pinfo, "null type %s", gNodes[node].uValue.mVarName);
+        compile_err_msg(info, "null type %s", gNodes[node].uValue.mVarName);
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -1180,11 +1242,14 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_if_expression(unsigned int expression_node, MANAGED sNodeBlock* if_node_block, unsigned int* elif_expression_nodes, MANAGED sNodeBlock** elif_node_blocks, int elif_num, MANAGED sNodeBlock* else_node_block)
+unsigned int sNodeTree_if_expression(unsigned int expression_node, MANAGED sNodeBlock* if_node_block, unsigned int* elif_expression_nodes, MANAGED sNodeBlock** elif_node_blocks, int elif_num, MANAGED sNodeBlock* else_node_block, sParserInfo* info)
 {
     unsigned node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeIf;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].uValue.sIf.mExpressionNode = expression_node;
     gNodes[node].uValue.sIf.mIfNodeBlock = MANAGED if_node_block;
@@ -1212,7 +1277,7 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
     }
 
     if(!type_identify_with_class_name(info->type, "bool")) {
-        parser_err_msg(info->pinfo, "This conditional type is not bool");
+        compile_err_msg(info, "This conditional type is not bool");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -1253,7 +1318,7 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
             }
 
             if(!type_identify_with_class_name(info->type, "bool")) {
-                parser_err_msg(info->pinfo, "This conditional type is not bool");
+                compile_err_msg(info, "This conditional type is not bool");
                 info->err_num++;
 
                 info->type = create_node_type_with_class_name("int"); // dummy
@@ -1308,11 +1373,14 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_while_expression(unsigned int expression_node, MANAGED sNodeBlock* while_node_block)
+unsigned int sNodeTree_while_expression(unsigned int expression_node, MANAGED sNodeBlock* while_node_block, sParserInfo* info)
 {
     unsigned node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeWhile;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].uValue.sWhile.mExpressionNode = expression_node;
     gNodes[node].uValue.sWhile.mWhileNodeBlock = MANAGED while_node_block;
@@ -1338,7 +1406,7 @@ static BOOL compile_while_expression(unsigned int node, sCompileInfo* info)
     }
 
     if(!type_identify_with_class_name(info->type, "bool")) {
-        parser_err_msg(info->pinfo, "This conditional type is not bool");
+        compile_err_msg(info, "This conditional type is not bool");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -1391,11 +1459,14 @@ static BOOL compile_while_expression(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_for_expression(unsigned int expression_node1, unsigned int expression_node2, unsigned int expression_node3, MANAGED sNodeBlock* for_node_block)
+unsigned int sNodeTree_for_expression(unsigned int expression_node1, unsigned int expression_node2, unsigned int expression_node3, MANAGED sNodeBlock* for_node_block, sParserInfo* info)
 {
     unsigned node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeFor;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].uValue.sFor.mExpressionNode = expression_node1;
     gNodes[node].uValue.sFor.mExpressionNode2 = expression_node2;
@@ -1432,7 +1503,7 @@ static BOOL compile_for_expression(unsigned int node, sCompileInfo* info)
     }
 
     if(!type_identify_with_class_name(info->type, "bool")) {
-        parser_err_msg(info->pinfo, "This conditional type is not bool");
+        compile_err_msg(info, "This conditional type is not bool");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -1494,11 +1565,14 @@ static BOOL compile_for_expression(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_break_expression()
+unsigned int sNodeTree_break_expression(sParserInfo* info)
 {
     unsigned node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeBreak;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = 0;
     gNodes[node].mRight = 0;
@@ -1516,7 +1590,7 @@ static BOOL compile_break_expression(unsigned int node, sCompileInfo* info)
     (*info->num_break_points)++;
 
     if(*info->num_break_points >= BREAK_NUM_MAX) {
-        parser_err_msg(info->pinfo, "overflow break number");
+        compile_err_msg(info, "overflow break number");
         return FALSE;
     }
 
@@ -1530,11 +1604,14 @@ static BOOL compile_break_expression(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_true_expression()
+unsigned int sNodeTree_true_expression(sParserInfo* info)
 {
     unsigned node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeTrue;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = 0;
     gNodes[node].mRight = 0;
@@ -1556,11 +1633,14 @@ static BOOL compile_true_expression(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_false_expression()
+unsigned int sNodeTree_false_expression(sParserInfo* info)
 {
     unsigned node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeFalse;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = 0;
     gNodes[node].mRight = 0;
@@ -1582,11 +1662,14 @@ static BOOL compile_false_expression(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_null_expression()
+unsigned int sNodeTree_null_expression(sParserInfo* info)
 {
     unsigned node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeNull;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = 0;
     gNodes[node].mRight = 0;
@@ -1608,7 +1691,7 @@ static BOOL compile_null_expression(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_class_method_call(sNodeType* klass, char* method_name, unsigned int* params, int num_params)
+unsigned int sNodeTree_create_class_method_call(sNodeType* klass, char* method_name, unsigned int* params, int num_params, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
@@ -1621,6 +1704,9 @@ unsigned int sNodeTree_create_class_method_call(sNodeType* klass, char* method_n
     }
 
     gNodes[node].mNodeType = kNodeTypeClassMethodCall;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = 0;
     gNodes[node].mRight = 0;
@@ -1709,7 +1795,7 @@ static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)
 
             /// generate code ////
             if(klass->mCallingClassMethodIndex == -1) {
-                parser_err_msg(info->pinfo, "require calllingClasMethod class method for dynamic class");
+                compile_err_msg(info, "require calllingClasMethod class method for dynamic class");
                 info->err_num++;
 
                 info->type = create_node_type_with_class_name("int"); // dummy
@@ -1720,7 +1806,7 @@ static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)
             sCLMethod* method = klass->mMethods + klass->mCallingClassMethodIndex;
 
             if(num_params >= ARRAY_VALUE_ELEMENT_MAX) {
-                parser_err_msg(info->pinfo, "overflow parametor number");
+                compile_err_msg(info, "overflow parametor number");
                 return FALSE;
             }
 
@@ -1738,7 +1824,7 @@ static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)
             info->type = create_node_type_from_cl_type(method->mResultType, klass);
         }
         else {
-            parser_err_msg(info->pinfo, "method not found(1)");
+            compile_err_msg(info, "method not found(1)");
             info->err_num++;
 
             err_msg_for_method_not_found(klass, method_name, param_types, num_params, TRUE, info);
@@ -1774,7 +1860,7 @@ static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_method_call(unsigned int object_node, char* method_name, unsigned int* params, int num_params, int num_method_chains)
+unsigned int sNodeTree_create_method_call(unsigned int object_node, char* method_name, unsigned int* params, int num_params, int num_method_chains, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
@@ -1789,6 +1875,9 @@ unsigned int sNodeTree_create_method_call(unsigned int object_node, char* method
 
     gNodes[node].mNodeType = kNodeTypeMethodCall;
 
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
+
     gNodes[node].mLeft = object_node;
     gNodes[node].mRight = 0;
     gNodes[node].mMiddle = 0;
@@ -1798,14 +1887,14 @@ unsigned int sNodeTree_create_method_call(unsigned int object_node, char* method
     return node;
 }
 
-static BOOL compile_params(sCLClass* klass, char* method_name, int num_params, unsigned int params[PARAMS_MAX], sNodeType* param_types[PARAMS_MAX], sNodeType* generics_types, sCompileInfo* info)
+static BOOL compile_params(sCLClass* klass, char* method_name, int num_params, unsigned int params[PARAMS_MAX], sNodeType* param_types[PARAMS_MAX], sNodeType* generics_types, sCompileInfo* info, unsigned int node)
 {
     int size_method_indexes = 128;
     int method_indexes[size_method_indexes];
     int num_methods = 0;
     if(!search_for_methods_from_method_name(method_indexes, size_method_indexes, &num_methods, klass, method_name, klass->mNumMethods-1))
     {
-        parser_err_msg(info->pinfo, "overflow number of the same name methods");
+        compile_err_msg(info, "overflow number of the same name methods");
         return FALSE;
     }
 
@@ -1877,7 +1966,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
         info->no_output = TRUE;
         int stack_num_before = info->stack_num;
 
-        if(!compile_params(klass, method_name, num_params, params, param_types, generics_types, info)) {
+        if(!compile_params(klass, method_name, num_params, params, param_types, generics_types, info, node)) {
             return FALSE;
         }
 
@@ -1890,7 +1979,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
 
         /// Searching for the method can be determined by statically ///
         if(method_index2 != -1) {
-            if(!compile_params(klass, method_name, num_params, params, param_types, generics_types, info)) {
+            if(!compile_params(klass, method_name, num_params, params, param_types, generics_types, info, node)) {
                 return FALSE;
             }
 
@@ -1927,14 +2016,14 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
             sCLMethod* method = klass->mMethods + klass->mCallingMethodIndex;
 
             if(num_params >= ARRAY_VALUE_ELEMENT_MAX) {
-                parser_err_msg(info->pinfo, "overflow parametor number");
+                compile_err_msg(info, "overflow parametor number");
                 return FALSE;
             }
 
             int num_real_params = num_params + 1;
 
             if(num_params >= ARRAY_VALUE_ELEMENT_MAX) {
-                parser_err_msg(info->pinfo, "overflow parametor number");
+                compile_err_msg(info, "overflow parametor number");
                 return FALSE;
             }
 
@@ -1952,7 +2041,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
             info->type = create_node_type_from_cl_type(method->mResultType, klass);
         }
         else {
-            parser_err_msg(info->pinfo, "Require the calllingMethod method for dynamic class");
+            compile_err_msg(info, "Require the calllingMethod method for dynamic class");
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
@@ -1962,7 +2051,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
     }
     else if(class_identify_with_class_name(klass, "Anonymous")) {
         /// compile params ///
-        if(!compile_params(klass, method_name, num_params, params, param_types, generics_types, info)) {
+        if(!compile_params(klass, method_name, num_params, params, param_types, generics_types, info, node)) {
             return FALSE;
         }
 
@@ -1984,7 +2073,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
     else if(klass->mFlags & CLASS_FLAGS_INTERFACE)
     {
         /// compile params ///
-        if(!compile_params(klass, method_name, num_params, params, param_types, generics_types, info)) {
+        if(!compile_params(klass, method_name, num_params, params, param_types, generics_types, info, node)) {
             return FALSE;
         }
 
@@ -1993,7 +2082,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
         int method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types, generics_types, &result_type);
 
         if(method_index2 == -1) {
-            parser_err_msg(info->pinfo, "method not found(2)");
+            compile_err_msg(info, "method not found(2)");
             info->err_num++;
 
             err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
@@ -2018,7 +2107,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
     }
     else {
         /// compile params ///
-        if(!compile_params(klass, method_name, num_params, params, param_types, generics_types, info)) {
+        if(!compile_params(klass, method_name, num_params, params, param_types, generics_types, info, node)) {
             return FALSE;
         }
 
@@ -2041,7 +2130,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
             if(cast_method_index != -1) {
                 /// check ///
                 if(num_params != 0) {
-                    parser_err_msg(info->pinfo, "A cast method doesn't require params");
+                    compile_err_msg(info, "A cast method doesn't require params");
                     info->err_num++;
 
                     info->type = create_node_type_with_class_name("int"); // dummy
@@ -2061,7 +2150,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                 return TRUE;
             }
             else {
-                parser_err_msg(info->pinfo, "method not found(2)");
+                compile_err_msg(info, "method not found(2)");
                 info->err_num++;
 
                 err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
@@ -2099,7 +2188,7 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
     if(info->type == NULL 
         || type_identify_with_class_name(info->type, "Null"))
     {
-        parser_err_msg(info->pinfo, "no type for method call");
+        compile_err_msg(info, "no type for method call");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -2116,7 +2205,7 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
     }
 
     if(info->type->mClass->mFlags & CLASS_FLAGS_PRIMITIVE) {
-        parser_err_msg(info->pinfo, "Primitive class can't be called to method");
+        compile_err_msg(info, "Primitive class can't be called to method");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -2139,13 +2228,13 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
     /// special methods ///
     if(strcmp(method_name, "identifyWith") == 0) {
         /// compile params ///
-        if(!compile_params(klass, method_name, num_params, params, param_types, generics_types, info)) {
+        if(!compile_params(klass, method_name, num_params, params, param_types, generics_types, info, node)) {
             return FALSE;
         }
 
         //// go ///
         if(num_params != 1) {
-            parser_err_msg(info->pinfo, "identify method require one none primitive class param");
+            compile_err_msg(info, "identify method require one none primitive class param");
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
@@ -2154,7 +2243,7 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
         }
         sCLClass* param_class = param_types[0]->mClass;
         if((param_class->mFlags & CLASS_FLAGS_PRIMITIVE) && !type_identify_with_class_name(param_types[0], "Null")) {
-            parser_err_msg(info->pinfo, "Identify method require one none primitive class param");
+            compile_err_msg(info, "Identify method require one none primitive class param");
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
@@ -2172,7 +2261,7 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
     else if(strcmp(method_name, "className") == 0) {
         //// go ///
         if(num_params != 0) {
-            parser_err_msg(info->pinfo, "className method doesn't require params");
+            compile_err_msg(info, "className method doesn't require params");
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
@@ -2190,7 +2279,7 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
     else if(strcmp(method_name, "toAnonymous") == 0) {
         //// go ///
         if(num_params != 0) {
-            parser_err_msg(info->pinfo, "toAnonymous method doesn't require params");
+            compile_err_msg(info, "toAnonymous method doesn't require params");
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
@@ -2211,7 +2300,7 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_new_operator(sNodeType* node_type, unsigned int* params, int num_params, unsigned int array_num)
+unsigned int sNodeTree_create_new_operator(sNodeType* node_type, unsigned int* params, int num_params, unsigned int array_num, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
@@ -2227,6 +2316,9 @@ unsigned int sNodeTree_create_new_operator(sNodeType* node_type, unsigned int* p
     gNodes[node].mRight = 0;
     gNodes[node].mMiddle = 0;
 
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
+
     gNodes[node].mType = NULL;
 
     return node;
@@ -2237,7 +2329,7 @@ static BOOL compile_new_operator(unsigned int node, sCompileInfo* info)
     sNodeType* generics_types = gNodes[node].uValue.sNewOperator.mType;
 
     if(generics_types->mClass == NULL) {
-        parser_err_msg(info->pinfo, "Class not found for new operator");
+        compile_err_msg(info, "Class not found for new operator");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -2267,7 +2359,7 @@ static BOOL compile_new_operator(unsigned int node, sCompileInfo* info)
         int num_params = gNodes[node].uValue.sNewOperator.mNumParams;
 
         if(num_params > 0) {
-            parser_err_msg(info->pinfo, "Array can't create with initialize method");
+            compile_err_msg(info, "Array can't create with initialize method");
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
@@ -2292,7 +2384,7 @@ static BOOL compile_new_operator(unsigned int node, sCompileInfo* info)
 
         memcpy(params, gNodes[node].uValue.sNewOperator.mParams, sizeof(unsigned int)*PARAMS_MAX);
 
-        if(!compile_params(klass, method_name, num_params, params, param_types, generics_types2, info)) {
+        if(!compile_params(klass, method_name, num_params, params, param_types, generics_types2, info, node)) {
             return FALSE;
         }
 
@@ -2300,7 +2392,7 @@ static BOOL compile_new_operator(unsigned int node, sCompileInfo* info)
         int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, &result_type);
 
         if(method_index == -1) {
-            parser_err_msg(info->pinfo, "method not found(3)");
+            compile_err_msg(info, "method not found(3)");
             info->err_num++;
 
             err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
@@ -2323,11 +2415,14 @@ static BOOL compile_new_operator(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_return_expression(unsigned int expression_node)
+unsigned int sNodeTree_create_return_expression(unsigned int expression_node, sParserInfo* info)
 {
     unsigned node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeReturn;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = expression_node;
     gNodes[node].mRight = 0;
@@ -2358,7 +2453,7 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
     sCLMethod* method = info->method;
 
     if(method == NULL && info->block_result_type == NULL) {
-        parser_err_msg(info->pinfo, "Return expression should be in a method definition or in a block object");
+        compile_err_msg(info, "Return expression should be in a method definition or in a block object");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -2368,7 +2463,7 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
 
     if(info->block_result_type == NULL && klass && (!(method->mFlags & METHOD_FLAGS_CLASS_METHOD) && strcmp(CONS_str(&klass->mConst, method->mNameOffset), "initialize") == 0)) 
     {
-        parser_err_msg(info->pinfo, "There is in the initialize method");
+        compile_err_msg(info, "There is in the initialize method");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -2390,7 +2485,7 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
     if((!type_identify_with_class_name(result_type2, "Null") && expression_node == 0)
         || (type_identify_with_class_name(result_type2, "Null") && expression_node != 0))
     {
-        parser_err_msg(info->pinfo, "Invalid type of return value(1)");
+        compile_err_msg(info, "Invalid type of return value(1)");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -2406,7 +2501,7 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
         cast_right_type_to_left_type(result_type2, &result_value_type, info);
 
         if(!substitution_posibility(result_type2, result_value_type, NULL, NULL)) {
-            parser_err_msg(info->pinfo, "Invalid type of return value(2). Left type is %s. Right type is %s.", CLASS_NAME(result_type2->mClass), CLASS_NAME(result_value_type->mClass));
+            compile_err_msg(info, "Invalid type of return value(2). Left type is %s. Right type is %s.", CLASS_NAME(result_type2->mClass), CLASS_NAME(result_value_type->mClass));
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
@@ -2416,7 +2511,7 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
     }
 
     if(info->stack_num != 1) {
-        parser_err_msg(info->pinfo, "Invalid type of return value(4)");
+        compile_err_msg(info, "Invalid type of return value(4)");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -2433,11 +2528,14 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_throw_expression(unsigned int expression_node)
+unsigned int sNodeTree_create_throw_expression(unsigned int expression_node, sParserInfo* info)
 {
     unsigned node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeThrow;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = expression_node;
     gNodes[node].mRight = 0;
@@ -2460,7 +2558,7 @@ static BOOL compile_throw_expression(unsigned int node, sCompileInfo* info)
     }
 
     if(info->method == NULL) {
-        parser_err_msg(info->pinfo, "Throw expressioin should be in a method definition");
+        compile_err_msg(info, "Throw expressioin should be in a method definition");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -2472,7 +2570,7 @@ static BOOL compile_throw_expression(unsigned int node, sCompileInfo* info)
 
     if(!is_exception_type(exception_type))
     {
-        parser_err_msg(info->pinfo, "Invalid type of exception value");
+        compile_err_msg(info, "Invalid type of exception value");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -2489,11 +2587,14 @@ static BOOL compile_throw_expression(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_try_expression(MANAGED sNodeBlock* try_node_block, MANAGED sNodeBlock* catch_node_block, char* exception_var_name)
+unsigned int sNodeTree_try_expression(MANAGED sNodeBlock* try_node_block, MANAGED sNodeBlock* catch_node_block, char* exception_var_name, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeTry;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = 0;
     gNodes[node].mRight = 0;
@@ -2556,11 +2657,14 @@ static BOOL compile_try_expression(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_fields(char* name, unsigned int left_node)
+unsigned int sNodeTree_create_fields(char* name, unsigned int left_node, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeLoadField;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     xstrncpy(gNodes[node].uValue.mVarName, name, VAR_NAME_MAX);
 
@@ -2585,7 +2689,7 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
     if(info->type == NULL 
         || type_identify_with_class_name(info->type, "Null"))
     {
-        parser_err_msg(info->pinfo, "no type for loading field");
+        compile_err_msg(info, "no type for loading field");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -2604,7 +2708,7 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
             klass = generics_info->mInterface[klass->mGenericsParamClassNum];
         }
         else {
-            parser_err_msg(info->pinfo, "invalid generics interface method call");
+            compile_err_msg(info, "invalid generics interface method call");
             info->err_num++;
         }
     }
@@ -2772,7 +2876,7 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
         int field_index = search_for_field(klass, field_name);
 
         if(field_index == -1) {
-            parser_err_msg(info->pinfo, "There is no field(%s) in this class(%s)", field_name, CLASS_NAME(klass));
+            compile_err_msg(info, "There is no field(%s) in this class(%s)", field_name, CLASS_NAME(klass));
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
@@ -2803,11 +2907,14 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_assign_field(char* var_name, unsigned int left_node, unsigned int right_node)
+unsigned int sNodeTree_create_assign_field(char* var_name, unsigned int left_node, unsigned int right_node, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeStoreField;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     xstrncpy(gNodes[node].uValue.mVarName, var_name, VAR_NAME_MAX);
 
@@ -2835,7 +2942,7 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
     if(left_type == NULL 
         || type_identify_with_class_name(left_type, "Null"))
     {
-        parser_err_msg(info->pinfo, "no type for object");
+        compile_err_msg(info, "no type for object");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -2854,7 +2961,7 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
 
     if(right_type == NULL)
     {
-        parser_err_msg(info->pinfo, "no type for right object type");
+        compile_err_msg(info, "no type for right object type");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -2868,7 +2975,7 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
     int field_index = search_for_field(klass, field_name);
 
     if(field_index == -1) {
-        parser_err_msg(info->pinfo, "There is no field(%s) in this class(%s)", field_name, CLASS_NAME(klass));
+        compile_err_msg(info, "There is no field(%s) in this class(%s)", field_name, CLASS_NAME(klass));
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -2889,7 +2996,7 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
     cast_right_type_to_left_type(solved_field_type, &right_type, info);
 
     if(!substitution_posibility(solved_field_type, right_type, generics_types, NULL)) {
-        parser_err_msg(info->pinfo, "The different type between left type and right type(2). %s and %s", CLASS_NAME(solved_field_type->mClass), CLASS_NAME(right_type->mClass));
+        compile_err_msg(info, "The different type between left type and right type(2). %s and %s", CLASS_NAME(solved_field_type->mClass), CLASS_NAME(right_type->mClass));
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -2908,11 +3015,14 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_class_fields(sCLClass* klass, char* name)
+unsigned int sNodeTree_create_class_fields(sCLClass* klass, char* name, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeLoadClassField;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     xstrncpy(gNodes[node].uValue.sClassField.mVarName, name, VAR_NAME_MAX);
     gNodes[node].uValue.sClassField.mClass = klass;
@@ -2934,7 +3044,7 @@ static BOOL compile_load_class_field(unsigned int node, sCompileInfo* info)
     int field_index = search_for_class_field(klass, field_name);
 
     if(field_index == -1) {
-        parser_err_msg(info->pinfo, "There is no field(%s) in this class(%s)", field_name, CLASS_NAME(klass));
+        compile_err_msg(info, "There is no field(%s) in this class(%s)", field_name, CLASS_NAME(klass));
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -2956,11 +3066,14 @@ static BOOL compile_load_class_field(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_assign_class_field(sCLClass* klass, char* name , unsigned int right_node)
+unsigned int sNodeTree_create_assign_class_field(sCLClass* klass, char* name , unsigned int right_node, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeStoreClassField;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     xstrncpy(gNodes[node].uValue.sClassField.mVarName, name, VAR_NAME_MAX);
     gNodes[node].uValue.sClassField.mClass = klass;
@@ -2987,7 +3100,7 @@ static BOOL compile_store_class_field(unsigned int node, sCompileInfo* info)
 
     if(right_type == NULL)
     {
-        parser_err_msg(info->pinfo, "no type for right object type");
+        compile_err_msg(info, "no type for right object type");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -3001,7 +3114,7 @@ static BOOL compile_store_class_field(unsigned int node, sCompileInfo* info)
     int field_index = search_for_class_field(klass, field_name);
 
     if(field_index == -1) {
-        parser_err_msg(info->pinfo, "There is no field(%s) in this class(%s)", field_name, CLASS_NAME(klass));
+        compile_err_msg(info, "There is no field(%s) in this class(%s)", field_name, CLASS_NAME(klass));
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -3015,7 +3128,7 @@ static BOOL compile_store_class_field(unsigned int node, sCompileInfo* info)
     cast_right_type_to_left_type(field_type, &right_type, info);
 
     if(!substitution_posibility(field_type, right_type, NULL, NULL)) {
-        parser_err_msg(info->pinfo, "The different type between left type and right type(3). Left type is %s. Right type is %s.", CLASS_NAME(field_type->mClass), CLASS_NAME(right_type->mClass));
+        compile_err_msg(info, "The different type between left type and right type(3). Left type is %s. Right type is %s.", CLASS_NAME(field_type->mClass), CLASS_NAME(right_type->mClass));
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -3033,11 +3146,14 @@ static BOOL compile_store_class_field(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_store_value_to_pointer(unsigned int left_node, sNodeType* node_type, unsigned int right_node)
+unsigned int sNodeTree_create_store_value_to_pointer(unsigned int left_node, sNodeType* node_type, unsigned int right_node, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeStoreValueToPointer;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = left_node;
     gNodes[node].mRight = right_node;
@@ -3064,7 +3180,7 @@ BOOL compile_store_value_to_pointer(unsigned int node, sCompileInfo* info)
     if(left_type == NULL 
         || !type_identify_with_class_name(left_type, "pointer"))
     {
-        parser_err_msg(info->pinfo, "Left node requires the pointer class");
+        compile_err_msg(info, "Left node requires the pointer class");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -3084,7 +3200,7 @@ BOOL compile_store_value_to_pointer(unsigned int node, sCompileInfo* info)
     if(right_type == NULL 
         || !substitution_posibility(node_type, right_type, NULL, NULL))
     {
-        parser_err_msg(info->pinfo, "The different type between left type and right type(4)");
+        compile_err_msg(info, "The different type between left type and right type(4)");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -3146,11 +3262,14 @@ BOOL compile_store_value_to_pointer(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_load_value_from_pointer(unsigned int left_node, sNodeType* node_type)
+unsigned int sNodeTree_create_load_value_from_pointer(unsigned int left_node, sNodeType* node_type, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeLoadValueFromPointer;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = left_node;
     gNodes[node].mRight = 0;
@@ -3177,7 +3296,7 @@ BOOL compile_load_value_from_pointer(unsigned int node, sCompileInfo* info)
     if(left_type == NULL 
         || !type_identify_with_class_name(left_type, "pointer"))
     {
-        parser_err_msg(info->pinfo, "Left node requires the pointer class");
+        compile_err_msg(info, "Left node requires the pointer class");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -3237,11 +3356,14 @@ BOOL compile_load_value_from_pointer(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-BOOL sNodeTree_create_increment_operand(unsigned int left_node)
+BOOL sNodeTree_create_increment_operand(unsigned int left_node, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeIncrementOperand;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = left_node;
     gNodes[node].mRight = 0;
@@ -3369,7 +3491,7 @@ BOOL compile_increment_operand(unsigned int node, sCompileInfo* info)
     }
 
     if((gNodes[lnode].mNodeType != kNodeTypeLoadVariable && gNodes[lnode].mNodeType != kNodeTypeLoadField )|| info->type == NULL) {
-        parser_err_msg(info->pinfo, "Invalid increment operand");
+        compile_err_msg(info, "Invalid increment operand");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -3421,7 +3543,7 @@ BOOL compile_increment_operand(unsigned int node, sCompileInfo* info)
             info->type = create_node_type_with_class_name("char");
         }
         else {
-            parser_err_msg(info->pinfo, "Invalid type for increment operand");
+            compile_err_msg(info, "Invalid type for increment operand");
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
@@ -3491,7 +3613,7 @@ BOOL compile_increment_operand(unsigned int node, sCompileInfo* info)
             info->type = create_node_type_with_class_name("char");
         }
         else {
-            parser_err_msg(info->pinfo, "Invalid type for increment operand");
+            compile_err_msg(info, "Invalid type for increment operand");
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
@@ -3503,11 +3625,14 @@ BOOL compile_increment_operand(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-BOOL sNodeTree_create_monadic_increment_operand(unsigned int right_node)
+BOOL sNodeTree_create_monadic_increment_operand(unsigned int right_node, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeMonadicIncrementOperand;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = 0;
     gNodes[node].mRight = right_node;
@@ -3529,7 +3654,7 @@ static BOOL compile_monadic_increment_operand(unsigned int node, sCompileInfo* i
 
     if((gNodes[rnode].mNodeType != kNodeTypeLoadVariable && gNodes[rnode].mNodeType != kNodeTypeLoadField )|| info->type == NULL) 
     {
-        parser_err_msg(info->pinfo, "Invalid monadic increment operand");
+        compile_err_msg(info, "Invalid monadic increment operand");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -3581,7 +3706,7 @@ static BOOL compile_monadic_increment_operand(unsigned int node, sCompileInfo* i
             info->type = create_node_type_with_class_name("char");
         }
         else {
-            parser_err_msg(info->pinfo, "Invalid type for increment operand");
+            compile_err_msg(info, "Invalid type for increment operand");
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
@@ -3651,7 +3776,7 @@ static BOOL compile_monadic_increment_operand(unsigned int node, sCompileInfo* i
             info->type = create_node_type_with_class_name("char");
         }
         else {
-            parser_err_msg(info->pinfo, "Invalid type for increment operand");
+            compile_err_msg(info, "Invalid type for increment operand");
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
@@ -3663,11 +3788,14 @@ static BOOL compile_monadic_increment_operand(unsigned int node, sCompileInfo* i
     return TRUE;
 }
 
-BOOL sNodeTree_create_increment_operand_with_value(unsigned int left_node, unsigned int value)
+BOOL sNodeTree_create_increment_operand_with_value(unsigned int left_node, unsigned int value, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeIncrementWithValueOperand;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = left_node;
     gNodes[node].mRight = value;
@@ -3688,7 +3816,7 @@ BOOL compile_increment_operand_with_value(unsigned int node, sCompileInfo* info)
     }
 
     if((gNodes[lnode].mNodeType != kNodeTypeLoadVariable && gNodes[lnode].mNodeType != kNodeTypeLoadField )|| info->type == NULL) {
-        parser_err_msg(info->pinfo, "Invalid increment operand");
+        compile_err_msg(info, "Invalid increment operand");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -3710,7 +3838,7 @@ BOOL compile_increment_operand_with_value(unsigned int node, sCompileInfo* info)
     cast_right_type_to_left_type(left_type, &right_type, info);
 
     if(!substitution_posibility(left_type, right_type, NULL, NULL)) {
-        parser_err_msg(info->pinfo, "The different type between left type and right type(5). Left type is %s. Right type is %s.", CLASS_NAME(left_type->mClass), CLASS_NAME(right_type->mClass));
+        compile_err_msg(info, "The different type between left type and right type(5). Left type is %s. Right type is %s.", CLASS_NAME(left_type->mClass), CLASS_NAME(right_type->mClass));
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -3760,7 +3888,7 @@ BOOL compile_increment_operand_with_value(unsigned int node, sCompileInfo* info)
             info->type = create_node_type_with_class_name("char");
         }
         else {
-            parser_err_msg(info->pinfo, "Invalid type for increment operand");
+            compile_err_msg(info, "Invalid type for increment operand");
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
@@ -3830,7 +3958,7 @@ BOOL compile_increment_operand_with_value(unsigned int node, sCompileInfo* info)
             info->type = create_node_type_with_class_name("char");
         }
         else {
-            parser_err_msg(info->pinfo, "Invalid type for increment operand");
+            compile_err_msg(info, "Invalid type for increment operand");
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
@@ -3948,11 +4076,14 @@ static BOOL decrement_operand_core_for_field(unsigned int node, sCompileInfo* in
     return TRUE;
 }
 
-BOOL sNodeTree_create_decrement_operand(unsigned int left_node)
+BOOL sNodeTree_create_decrement_operand(unsigned int left_node, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeDecrementOperand;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = left_node;
     gNodes[node].mRight = 0;
@@ -3973,7 +4104,7 @@ BOOL compile_decrement_operand(unsigned int node, sCompileInfo* info)
     }
 
     if((gNodes[lnode].mNodeType != kNodeTypeLoadVariable && gNodes[lnode].mNodeType != kNodeTypeLoadField )|| info->type == NULL) {
-        parser_err_msg(info->pinfo, "Invalid increment operand");
+        compile_err_msg(info, "Invalid increment operand");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -4025,7 +4156,7 @@ BOOL compile_decrement_operand(unsigned int node, sCompileInfo* info)
             info->type = create_node_type_with_class_name("char");
         }
         else {
-            parser_err_msg(info->pinfo, "Invalid type for increment operand");
+            compile_err_msg(info, "Invalid type for increment operand");
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
@@ -4095,7 +4226,7 @@ BOOL compile_decrement_operand(unsigned int node, sCompileInfo* info)
             info->type = create_node_type_with_class_name("char");
         }
         else {
-            parser_err_msg(info->pinfo, "Invalid type for increment operand");
+            compile_err_msg(info, "Invalid type for increment operand");
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
@@ -4107,11 +4238,14 @@ BOOL compile_decrement_operand(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-BOOL sNodeTree_create_monadic_decrement_operand(unsigned int right_node)
+BOOL sNodeTree_create_monadic_decrement_operand(unsigned int right_node, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeMonadicDecrementOperand;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = 0;
     gNodes[node].mRight = right_node;
@@ -4132,7 +4266,7 @@ static BOOL compile_monadic_decrement_operand(unsigned int node, sCompileInfo* i
     }
 
     if((gNodes[rnode].mNodeType != kNodeTypeLoadVariable && gNodes[rnode].mNodeType != kNodeTypeLoadField )|| info->type == NULL) {
-        parser_err_msg(info->pinfo, "Invalid increment operand");
+        compile_err_msg(info, "Invalid increment operand");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -4184,7 +4318,7 @@ static BOOL compile_monadic_decrement_operand(unsigned int node, sCompileInfo* i
             info->type = create_node_type_with_class_name("char");
         }
         else {
-            parser_err_msg(info->pinfo, "Invalid type for increment operand");
+            compile_err_msg(info, "Invalid type for increment operand");
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
@@ -4254,7 +4388,7 @@ static BOOL compile_monadic_decrement_operand(unsigned int node, sCompileInfo* i
             info->type = create_node_type_with_class_name("char");
         }
         else {
-            parser_err_msg(info->pinfo, "Invalid type for increment operand");
+            compile_err_msg(info, "Invalid type for increment operand");
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
@@ -4266,11 +4400,14 @@ static BOOL compile_monadic_decrement_operand(unsigned int node, sCompileInfo* i
     return TRUE;
 }
 
-BOOL sNodeTree_create_decrement_operand_with_value(unsigned int left_node, unsigned int value)
+BOOL sNodeTree_create_decrement_operand_with_value(unsigned int left_node, unsigned int value, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeDecrementWithValueOperand;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = left_node;
     gNodes[node].mRight = value;
@@ -4291,7 +4428,7 @@ BOOL compile_decrement_operand_with_value(unsigned int node, sCompileInfo* info)
     }
 
     if((gNodes[lnode].mNodeType != kNodeTypeLoadVariable && gNodes[lnode].mNodeType != kNodeTypeLoadField )|| info->type == NULL) {
-        parser_err_msg(info->pinfo, "Invalid increment operand");
+        compile_err_msg(info, "Invalid increment operand");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -4313,7 +4450,7 @@ BOOL compile_decrement_operand_with_value(unsigned int node, sCompileInfo* info)
     cast_right_type_to_left_type(left_type, &right_type, info);
 
     if(!substitution_posibility(left_type, right_type, NULL, NULL)) {
-        parser_err_msg(info->pinfo, "The different type between left type and right type(6). Left type is %s. Right type is %s.", CLASS_NAME(left_type->mClass), CLASS_NAME(right_type->mClass));
+        compile_err_msg(info, "The different type between left type and right type(6). Left type is %s. Right type is %s.", CLASS_NAME(left_type->mClass), CLASS_NAME(right_type->mClass));
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -4363,7 +4500,7 @@ BOOL compile_decrement_operand_with_value(unsigned int node, sCompileInfo* info)
             info->type = create_node_type_with_class_name("char");
         }
         else {
-            parser_err_msg(info->pinfo, "Invalid type for increment operand");
+            compile_err_msg(info, "Invalid type for increment operand");
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
@@ -4433,7 +4570,7 @@ BOOL compile_decrement_operand_with_value(unsigned int node, sCompileInfo* info)
             info->type = create_node_type_with_class_name("char");
         }
         else {
-            parser_err_msg(info->pinfo, "Invalid type for increment operand");
+            compile_err_msg(info, "Invalid type for increment operand");
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
@@ -4445,11 +4582,14 @@ BOOL compile_decrement_operand_with_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_load_array_element(unsigned int array, unsigned int index_node)
+unsigned int sNodeTree_create_load_array_element(unsigned int array, unsigned int index_node, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeLoadArrayElement;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = array;
     gNodes[node].mRight = 0;
@@ -4474,7 +4614,7 @@ BOOL compile_load_array_element(unsigned int node, sCompileInfo* info)
     if(left_type == NULL 
         || type_identify_with_class_name(left_type, "Null"))
     {
-        parser_err_msg(info->pinfo, "no type for loading element");
+        compile_err_msg(info, "no type for loading element");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -4483,7 +4623,7 @@ BOOL compile_load_array_element(unsigned int node, sCompileInfo* info)
     }
 
     if(left_type->mArray == FALSE) {
-        parser_err_msg(info->pinfo, "Clover2 can't get an element from this type.");
+        compile_err_msg(info, "Clover2 can't get an element from this type.");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -4504,7 +4644,7 @@ BOOL compile_load_array_element(unsigned int node, sCompileInfo* info)
     if(middle_type == NULL 
         || type_identify_with_class_name(middle_type, "Null"))
     {
-        parser_err_msg(info->pinfo, "no type for element index");
+        compile_err_msg(info, "no type for element index");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -4517,7 +4657,7 @@ BOOL compile_load_array_element(unsigned int node, sCompileInfo* info)
     cast_right_type_to_left_type(int_type, &middle_type, info);
 
     if(!substitution_posibility_with_class_name(middle_type, "int")) {
-        parser_err_msg(info->pinfo, "Type of index should be number");
+        compile_err_msg(info, "Type of index should be number");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -4537,11 +4677,14 @@ BOOL compile_load_array_element(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_store_array_element(unsigned int array, unsigned int index_node, unsigned int right_node)
+unsigned int sNodeTree_create_store_array_element(unsigned int array, unsigned int index_node, unsigned int right_node, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeStoreArrayElement;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = array;
     gNodes[node].mRight = right_node;
@@ -4566,7 +4709,7 @@ BOOL compile_store_array_element(unsigned int node, sCompileInfo* info)
     if(left_type == NULL 
         || type_identify_with_class_name(left_type, "Null"))
     {
-        parser_err_msg(info->pinfo, "no type for object");
+        compile_err_msg(info, "no type for object");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -4575,7 +4718,7 @@ BOOL compile_store_array_element(unsigned int node, sCompileInfo* info)
     }
 
     if(left_type->mArray == FALSE) {
-        parser_err_msg(info->pinfo, "Clover2 can't get an element from this type.");
+        compile_err_msg(info, "Clover2 can't get an element from this type.");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -4595,7 +4738,7 @@ BOOL compile_store_array_element(unsigned int node, sCompileInfo* info)
     if(middle_type == NULL 
         || type_identify_with_class_name(middle_type, "Null"))
     {
-        parser_err_msg(info->pinfo, "no type for element index");
+        compile_err_msg(info, "no type for element index");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -4608,7 +4751,7 @@ BOOL compile_store_array_element(unsigned int node, sCompileInfo* info)
     cast_right_type_to_left_type(int_type, &middle_type, info);
 
     if(!substitution_posibility_with_class_name(middle_type, "int")) {
-        parser_err_msg(info->pinfo, "Type of index should be number");
+        compile_err_msg(info, "Type of index should be number");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -4627,7 +4770,7 @@ BOOL compile_store_array_element(unsigned int node, sCompileInfo* info)
 
     if(right_type == NULL)
     {
-        parser_err_msg(info->pinfo, "no type for right object type");
+        compile_err_msg(info, "no type for right object type");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -4641,7 +4784,7 @@ BOOL compile_store_array_element(unsigned int node, sCompileInfo* info)
     cast_right_type_to_left_type(left_type2, &right_type, info);
 
     if(!substitution_posibility(left_type2, right_type, NULL, NULL)) {
-        parser_err_msg(info->pinfo, "The different type between left type and right type(7). %s and %s", CLASS_NAME(left_type2->mClass), CLASS_NAME(right_type->mClass));
+        compile_err_msg(info, "The different type between left type and right type(7). %s and %s", CLASS_NAME(left_type2->mClass), CLASS_NAME(right_type->mClass));
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -4659,11 +4802,14 @@ BOOL compile_store_array_element(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_character_value(wchar_t c)
+unsigned int sNodeTree_create_character_value(wchar_t c, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeChar;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = 0;
     gNodes[node].mRight = 0;
@@ -4690,11 +4836,14 @@ BOOL compile_char_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_string_value(MANAGED char* value)
+unsigned int sNodeTree_create_string_value(MANAGED char* value, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeString;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = 0;
     gNodes[node].mRight = 0;
@@ -4721,11 +4870,14 @@ BOOL compile_string_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_buffer_value(MANAGED char* value, int len)
+unsigned int sNodeTree_create_buffer_value(MANAGED char* value, int len, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeBuffer;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = 0;
     gNodes[node].mRight = 0;
@@ -4756,11 +4908,14 @@ BOOL compile_buffer_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_path_value(MANAGED char* value, int len)
+unsigned int sNodeTree_create_path_value(MANAGED char* value, int len, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypePath;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = 0;
     gNodes[node].mRight = 0;
@@ -4787,11 +4942,14 @@ BOOL compile_path_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_get_address(unsigned int rnode)
+unsigned int sNodeTree_create_get_address(unsigned int rnode, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeGetAddress;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = rnode;
     gNodes[node].mRight = 0;
@@ -4810,7 +4968,7 @@ BOOL compile_get_address(unsigned int node, sCompileInfo* info)
         sVar* var = get_variable_from_table(info->lv_table, gNodes[lnode].uValue.mVarName);
 
         if(var == NULL) {
-            parser_err_msg(info->pinfo, "undeclared variable %s", gNodes[lnode].uValue.mVarName);
+            compile_err_msg(info, "undeclared variable %s", gNodes[lnode].uValue.mVarName);
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
@@ -4838,7 +4996,7 @@ BOOL compile_get_address(unsigned int node, sCompileInfo* info)
         if(info->type == NULL 
             || type_identify_with_class_name(info->type, "Null"))
         {
-            parser_err_msg(info->pinfo, "no type for loading field address");
+            compile_err_msg(info, "no type for loading field address");
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
@@ -4852,7 +5010,7 @@ BOOL compile_get_address(unsigned int node, sCompileInfo* info)
         int field_index = search_for_field(klass, field_name);
 
         if(field_index == -1) {
-            parser_err_msg(info->pinfo, "There is no field(%s) in this class(%s)", field_name, CLASS_NAME(klass));
+            compile_err_msg(info, "There is no field(%s) in this class(%s)", field_name, CLASS_NAME(klass));
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
@@ -4876,7 +5034,7 @@ BOOL compile_get_address(unsigned int node, sCompileInfo* info)
         int field_index = search_for_class_field(klass, field_name);
 
         if(field_index == -1) {
-            parser_err_msg(info->pinfo, "There is no field(%s) in this class(%s)", field_name, CLASS_NAME(klass));
+            compile_err_msg(info, "There is no field(%s) in this class(%s)", field_name, CLASS_NAME(klass));
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
@@ -4895,7 +5053,7 @@ BOOL compile_get_address(unsigned int node, sCompileInfo* info)
         info->type = create_node_type_with_class_name("pointer");
     }
     else {
-        parser_err_msg(info->pinfo, "Require variable name for getting address");
+        compile_err_msg(info, "Require variable name for getting address");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -4904,11 +5062,14 @@ BOOL compile_get_address(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_array_value(int num_elements, unsigned int array_elements[])
+unsigned int sNodeTree_create_array_value(int num_elements, unsigned int array_elements[], sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeArrayValue;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = 0;
     gNodes[node].mRight = 0;
@@ -4928,7 +5089,7 @@ BOOL compile_array_value(unsigned int node, sCompileInfo* info)
     int num_elements = gNodes[node].uValue.sArrayValue.mNumArrayElements;
 
     if(num_elements == 0) {
-        parser_err_msg(info->pinfo, "require element in array value");
+        compile_err_msg(info, "require element in array value");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -4953,7 +5114,7 @@ BOOL compile_array_value(unsigned int node, sCompileInfo* info)
         }
 
         if(!type_identify(element_type, info->type)) {
-            parser_err_msg(info->pinfo, "Invalid element type. Left type is %s. Right type is %s", CLASS_NAME(element_type->mClass), CLASS_NAME(info->type->mClass));
+            compile_err_msg(info, "Invalid element type. Left type is %s. Right type is %s", CLASS_NAME(element_type->mClass), CLASS_NAME(info->type->mClass));
             info->err_num++;
         }
     }
@@ -4971,11 +5132,14 @@ BOOL compile_array_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_carray_value(int num_elements, unsigned int array_elements[])
+unsigned int sNodeTree_create_carray_value(int num_elements, unsigned int array_elements[], sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeCArrayValue;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = 0;
     gNodes[node].mRight = 0;
@@ -4995,7 +5159,7 @@ static BOOL compile_carray_value(unsigned int node, sCompileInfo* info)
     int num_elements = gNodes[node].uValue.sArrayValue.mNumArrayElements;
 
     if(num_elements == 0) {
-        parser_err_msg(info->pinfo, "require element in array value");
+        compile_err_msg(info, "require element in array value");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -5049,11 +5213,14 @@ static BOOL compile_carray_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_equalable_carray_value(int num_elements, unsigned int array_elements[])
+unsigned int sNodeTree_create_equalable_carray_value(int num_elements, unsigned int array_elements[], sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeEqualableCArrayValue;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = 0;
     gNodes[node].mRight = 0;
@@ -5073,7 +5240,7 @@ static BOOL compile_equalable_carray_value(unsigned int node, sCompileInfo* info
     int num_elements = gNodes[node].uValue.sArrayValue.mNumArrayElements;
 
     if(num_elements == 0) {
-        parser_err_msg(info->pinfo, "require element in array value");
+        compile_err_msg(info, "require element in array value");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -5111,7 +5278,7 @@ static BOOL compile_equalable_carray_value(unsigned int node, sCompileInfo* info
     /// check implemeted interface ///
     sCLClass* iequalable = get_class("IEqualable");
     if(!check_implemented_methods_for_interface(iequalable, element_type->mClass)) {
-        parser_err_msg(info->pinfo, "Require IEqualable implemented for array element type(%s).", CLASS_NAME(element_type->mClass));
+        compile_err_msg(info, "Require IEqualable implemented for array element type(%s).", CLASS_NAME(element_type->mClass));
         info->err_num++;
     }
 
@@ -5134,11 +5301,14 @@ static BOOL compile_equalable_carray_value(unsigned int node, sCompileInfo* info
     return TRUE;
 }
 
-unsigned int sNodeTree_create_sortable_carray_value(int num_elements, unsigned int array_elements[])
+unsigned int sNodeTree_create_sortable_carray_value(int num_elements, unsigned int array_elements[], sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeSortableCArrayValue;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = 0;
     gNodes[node].mRight = 0;
@@ -5158,7 +5328,7 @@ static BOOL compile_sortable_carray_value(unsigned int node, sCompileInfo* info)
     int num_elements = gNodes[node].uValue.sArrayValue.mNumArrayElements;
 
     if(num_elements == 0) {
-        parser_err_msg(info->pinfo, "require element in array value");
+        compile_err_msg(info, "require element in array value");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -5196,7 +5366,7 @@ static BOOL compile_sortable_carray_value(unsigned int node, sCompileInfo* info)
     /// check implemeted interface ///
     sCLClass* isortable = get_class("ISortable");
     if(!check_implemented_methods_for_interface(isortable, element_type->mClass)) {
-        parser_err_msg(info->pinfo, "Require IEqualable implemented for array element type(%s).", CLASS_NAME(element_type->mClass));
+        compile_err_msg(info, "Require IEqualable implemented for array element type(%s).", CLASS_NAME(element_type->mClass));
         info->err_num++;
     }
 
@@ -5219,11 +5389,14 @@ static BOOL compile_sortable_carray_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_hash_value(int num_elements, unsigned int hash_keys[], unsigned int hash_items[])
+unsigned int sNodeTree_create_hash_value(int num_elements, unsigned int hash_keys[], unsigned int hash_items[], sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeHashValue;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = 0;
     gNodes[node].mRight = 0;
@@ -5238,11 +5411,14 @@ unsigned int sNodeTree_create_hash_value(int num_elements, unsigned int hash_key
     return node;
 }
 
-unsigned int sNodeTree_create_list_value(int num_elements, unsigned int list_elements[])
+unsigned int sNodeTree_create_list_value(int num_elements, unsigned int list_elements[], sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeListValue;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = 0;
     gNodes[node].mRight = 0;
@@ -5262,7 +5438,7 @@ BOOL compile_list_value(unsigned int node, sCompileInfo* info)
     int num_elements = gNodes[node].uValue.sListValue.mNumListElements;
 
     if(num_elements == 0) {
-        parser_err_msg(info->pinfo, "require element in list value");
+        compile_err_msg(info, "require element in list value");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -5291,7 +5467,7 @@ BOOL compile_list_value(unsigned int node, sCompileInfo* info)
         boxing_to_lapper_class(&info->type, info);
 
         if(!type_identify(element_type, info->type)) {
-            parser_err_msg(info->pinfo, "Invalid element type. Left type is %s. Right type is %s", CLASS_NAME(element_type->mClass), CLASS_NAME(info->type->mClass));
+            compile_err_msg(info, "Invalid element type. Left type is %s. Right type is %s", CLASS_NAME(element_type->mClass), CLASS_NAME(info->type->mClass));
             info->err_num++;
         }
     }
@@ -5310,11 +5486,14 @@ BOOL compile_list_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_sortable_list_value(int num_elements, unsigned int list_elements[])
+unsigned int sNodeTree_create_sortable_list_value(int num_elements, unsigned int list_elements[], sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeSortableListValue;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = 0;
     gNodes[node].mRight = 0;
@@ -5334,7 +5513,7 @@ BOOL compile_sortable_list_value(unsigned int node, sCompileInfo* info)
     int num_elements = gNodes[node].uValue.sListValue.mNumListElements;
 
     if(num_elements == 0) {
-        parser_err_msg(info->pinfo, "require element in list value");
+        compile_err_msg(info, "require element in list value");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -5363,7 +5542,7 @@ BOOL compile_sortable_list_value(unsigned int node, sCompileInfo* info)
         boxing_to_lapper_class(&info->type, info);
 
         if(!type_identify(element_type, info->type)) {
-            parser_err_msg(info->pinfo, "Invalid element type. Left type is %s. Right type is %s", CLASS_NAME(element_type->mClass), CLASS_NAME(info->type->mClass));
+            compile_err_msg(info, "Invalid element type. Left type is %s. Right type is %s", CLASS_NAME(element_type->mClass), CLASS_NAME(info->type->mClass));
             info->err_num++;
         }
     }
@@ -5371,7 +5550,7 @@ BOOL compile_sortable_list_value(unsigned int node, sCompileInfo* info)
     /// check implemeted interface ///
     sCLClass* isortable = get_class("ISortable");
     if(!check_implemented_methods_for_interface(isortable, element_type->mClass)) {
-        parser_err_msg(info->pinfo, "Require ISortable implemented for list element type(%s).", CLASS_NAME(element_type->mClass));
+        compile_err_msg(info, "Require ISortable implemented for list element type(%s).", CLASS_NAME(element_type->mClass));
         info->err_num++;
     }
 
@@ -5389,11 +5568,14 @@ BOOL compile_sortable_list_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_equalable_list_value(int num_elements, unsigned int list_elements[])
+unsigned int sNodeTree_create_equalable_list_value(int num_elements, unsigned int list_elements[], sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeEqualableListValue;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = 0;
     gNodes[node].mRight = 0;
@@ -5413,7 +5595,7 @@ BOOL compile_equalable_list_value(unsigned int node, sCompileInfo* info)
     int num_elements = gNodes[node].uValue.sListValue.mNumListElements;
 
     if(num_elements == 0) {
-        parser_err_msg(info->pinfo, "require element in list value");
+        compile_err_msg(info, "require element in list value");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -5442,7 +5624,7 @@ BOOL compile_equalable_list_value(unsigned int node, sCompileInfo* info)
         boxing_to_lapper_class(&info->type, info);
 
         if(!type_identify(element_type, info->type)) {
-            parser_err_msg(info->pinfo, "Invalid element type. Left type is %s. Right type is %s", CLASS_NAME(element_type->mClass), CLASS_NAME(info->type->mClass));
+            compile_err_msg(info, "Invalid element type. Left type is %s. Right type is %s", CLASS_NAME(element_type->mClass), CLASS_NAME(info->type->mClass));
             info->err_num++;
         }
     }
@@ -5450,7 +5632,7 @@ BOOL compile_equalable_list_value(unsigned int node, sCompileInfo* info)
     /// check implemeted interface ///
     sCLClass* iequalable = get_class("IEqualable");
     if(!check_implemented_methods_for_interface(iequalable, element_type->mClass)) {
-        parser_err_msg(info->pinfo, "Require ISortable implemented for list element type(%s).", CLASS_NAME(element_type->mClass));
+        compile_err_msg(info, "Require ISortable implemented for list element type(%s).", CLASS_NAME(element_type->mClass));
         info->err_num++;
     }
 
@@ -5468,11 +5650,14 @@ BOOL compile_equalable_list_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_tuple_value(int num_elements, unsigned int tuple_elements[])
+unsigned int sNodeTree_create_tuple_value(int num_elements, unsigned int tuple_elements[], sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeTupleValue;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = 0;
     gNodes[node].mRight = 0;
@@ -5492,7 +5677,7 @@ static BOOL compile_tuple_value(unsigned int node, sCompileInfo* info)
     int num_elements = gNodes[node].uValue.sTupleValue.mNumTupleElements;
 
     if(num_elements == 0) {
-        parser_err_msg(info->pinfo, "require element in tuple value");
+        compile_err_msg(info, "require element in tuple value");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -5541,7 +5726,7 @@ BOOL compile_hash_value(unsigned int node, sCompileInfo* info)
     int num_elements = gNodes[node].uValue.sHashValue.mNumHashElements;
 
     if(num_elements == 0) {
-        parser_err_msg(info->pinfo, "require element in hash value");
+        compile_err_msg(info, "require element in hash value");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -5580,7 +5765,7 @@ BOOL compile_hash_value(unsigned int node, sCompileInfo* info)
         boxing_to_lapper_class(&info->type, info);
 
         if(!type_identify(key_type, info->type)) {
-            parser_err_msg(info->pinfo, "Invalid key type. Left type is %s. Right type is %s", CLASS_NAME(key_type->mClass), CLASS_NAME(info->type->mClass));
+            compile_err_msg(info, "Invalid key type. Left type is %s. Right type is %s", CLASS_NAME(key_type->mClass), CLASS_NAME(info->type->mClass));
             info->err_num++;
         }
 
@@ -5593,7 +5778,7 @@ BOOL compile_hash_value(unsigned int node, sCompileInfo* info)
         boxing_to_lapper_class(&info->type, info);
 
         if(!type_identify(item_type, info->type)) {
-            parser_err_msg(info->pinfo, "Invalid item type. Left type is %s. Right type is %s", CLASS_NAME(item_type->mClass), CLASS_NAME(info->type->mClass));
+            compile_err_msg(info, "Invalid item type. Left type is %s. Right type is %s", CLASS_NAME(item_type->mClass), CLASS_NAME(info->type->mClass));
             info->err_num++;
         }
     }
@@ -5614,11 +5799,14 @@ BOOL compile_hash_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_block_object(sParserParam* params, int num_params, sNodeType* result_type, MANAGED sNodeBlock* node_block, BOOL lambda)
+unsigned int sNodeTree_create_block_object(sParserParam* params, int num_params, sNodeType* result_type, MANAGED sNodeBlock* node_block, BOOL lambda, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeBlockObject;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = 0;
     gNodes[node].mRight = 0;
@@ -5736,11 +5924,14 @@ BOOL compile_block_object(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_normal_block(MANAGED sNodeBlock* node_block)
+unsigned int sNodeTree_create_normal_block(MANAGED sNodeBlock* node_block, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeNormalBlock;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = 0;
     gNodes[node].mRight = 0;
@@ -5771,11 +5962,14 @@ static BOOL compile_normal_block(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_block_call(unsigned int block, int num_params, unsigned int params[])
+unsigned int sNodeTree_create_block_call(unsigned int block, int num_params, unsigned int params[], sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeBlockCall;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = block;
     gNodes[node].mRight = 0;
@@ -5805,7 +5999,7 @@ BOOL compile_block_call(unsigned int node, sCompileInfo* info)
     if(info->type == NULL 
         || type_identify_with_class_name(info->type, "Null"))
     {
-        parser_err_msg(info->pinfo, "no type for block call");
+        compile_err_msg(info, "no type for block call");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -5816,7 +6010,7 @@ BOOL compile_block_call(unsigned int node, sCompileInfo* info)
     sNodeType* var_type = info->type;
 
     if(!type_identify_with_class_name(var_type, "lambda")) {
-        parser_err_msg(info->pinfo, "No block type, clover2 can call block object only");
+        compile_err_msg(info, "No block type, clover2 can call block object only");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -5839,7 +6033,7 @@ BOOL compile_block_call(unsigned int node, sCompileInfo* info)
     }
 
     if(num_params != var_type->mBlockType->mNumParams) {
-        parser_err_msg(info->pinfo, "Type error for block call");
+        compile_err_msg(info, "Type error for block call");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -5856,13 +6050,13 @@ BOOL compile_block_call(unsigned int node, sCompileInfo* info)
             sNodeType* generics_types = create_generics_types_from_generics_params(klass);
 
             if(!substitution_posibility(left_type, right_type, generics_types, NULL)) {
-                parser_err_msg(info->pinfo, "Type error for block call");
+                compile_err_msg(info, "Type error for block call");
                 info->err_num++;
             }
         }
         else {
             if(!substitution_posibility(left_type, right_type, NULL, NULL)) {
-                parser_err_msg(info->pinfo, "Type error for block call");
+                compile_err_msg(info, "Type error for block call");
                 info->err_num++;
             }
         }
@@ -5882,11 +6076,14 @@ BOOL compile_block_call(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_regex(MANAGED char* regex_str, BOOL global, BOOL ignore_case, BOOL multiline, BOOL extended, BOOL dotall, BOOL anchored, BOOL dollar_endonly, BOOL ungreedy)
+unsigned int sNodeTree_create_regex(MANAGED char* regex_str, BOOL global, BOOL ignore_case, BOOL multiline, BOOL extended, BOOL dotall, BOOL anchored, BOOL dollar_endonly, BOOL ungreedy, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeRegex;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = 0;
     gNodes[node].mRight = 0;
@@ -5937,11 +6134,14 @@ static BOOL compile_regex(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_implements(unsigned int lnode, char* interface_name)
+unsigned int sNodeTree_create_implements(unsigned int lnode, char* interface_name, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeImplements;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = lnode;
     gNodes[node].mRight = 0;
@@ -5968,7 +6168,7 @@ static BOOL compile_implements(unsigned int node, sCompileInfo* info)
     if(info->type == NULL 
         || type_identify_with_class_name(info->type, "Null"))
     {
-        parser_err_msg(info->pinfo, "no type for implements");
+        compile_err_msg(info, "no type for implements");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -5979,7 +6179,7 @@ static BOOL compile_implements(unsigned int node, sCompileInfo* info)
     sCLClass* klass = info->type->mClass;
 
     if(klass->mFlags & CLASS_FLAGS_PRIMITIVE) {
-        parser_err_msg(info->pinfo, "Primitive value doesn't have class info");
+        compile_err_msg(info, "Primitive value doesn't have class info");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -5998,11 +6198,14 @@ static BOOL compile_implements(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_inherit_call(int num_params, unsigned int params[], int method_index)
+unsigned int sNodeTree_create_inherit_call(int num_params, unsigned int params[], int method_index, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeInheritCall;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
 
     gNodes[node].mLeft = 0;
     gNodes[node].mRight = 0;
@@ -6029,7 +6232,7 @@ static BOOL compile_inherit_call(unsigned int node, sCompileInfo* info)
     char* method_name = METHOD_NAME2(klass, method);
 
     if(method == NULL) {
-        parser_err_msg(info->pinfo, "inherit call must be in method");
+        compile_err_msg(info, "inherit call must be in method");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -6067,7 +6270,7 @@ static BOOL compile_inherit_call(unsigned int node, sCompileInfo* info)
     int method_index2 = search_for_method(klass, method_name, param_types, num_params, class_method, method_index-1, NULL, NULL, &result_type);
 
     if(method_index2 == -1) {
-        parser_err_msg(info->pinfo, "method not found(1)");
+        compile_err_msg(info, "method not found(1)");
         info->err_num++;
 
         err_msg_for_method_not_found(klass, method_name, param_types, num_params, TRUE, info);
@@ -6368,6 +6571,9 @@ BOOL compile(unsigned int node, sCompileInfo* info)
     if(node == 0) {
         return TRUE;
     }
+
+    info->sname = gNodes[node].mSName;
+    info->sline = gNodes[node].mLine;
 
     switch(gNodes[node].mNodeType) {
         case kNodeTypeOperand:
@@ -6755,7 +6961,7 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 void arrange_stack(sCompileInfo* cinfo)
 {
     if(cinfo->stack_num < 0) {
-        parser_err_msg(cinfo->pinfo, "Unexpected error. Stack pointer is invalid(stack number is %d)", cinfo->stack_num);
+        compile_err_msg(cinfo, "Unexpected error. Stack pointer is invalid(stack number is %d)", cinfo->stack_num);
         cinfo->err_num++;
     }
     else if(cinfo->stack_num == 0) {
