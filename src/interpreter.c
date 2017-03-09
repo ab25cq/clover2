@@ -1456,16 +1456,18 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
         cinfo.sname = gNodes[node].mSName;
         cinfo.sline = gNodes[node].mLine;
 
-        append_opecode_to_code(cinfo.code, OP_SIGINT, cinfo.no_output);
-        append_str_to_constant_pool_and_code(cinfo.constant, cinfo.code, cinfo.sname, cinfo.no_output);
-        append_int_value_to_code(cinfo.code, cinfo.sline, cinfo.no_output);
-
         if(info.err_num == 0 && node != 0) {
+            append_opecode_to_code(cinfo.code, OP_HEAD_OF_EXPRESSION, cinfo.no_output);
+            append_str_to_constant_pool_and_code(cinfo.constant, cinfo.code, cinfo.sname, cinfo.no_output);
+            append_int_value_to_code(cinfo.code, cinfo.sline, cinfo.no_output);
+
             if(!compile(node, &cinfo)) {
                 return FALSE;
             }
 
             arrange_stack(&cinfo);
+
+            append_opecode_to_code(cinfo.code, OP_SIGINT, cinfo.no_output);
         }
 
         if(*info.p == ';') {
@@ -1530,6 +1532,8 @@ int main(int argc, char** argv)
     setlocale(LC_ALL, "");
     srandom((unsigned)time(NULL));
 
+    setsid();
+
     set_signal_for_interpreter();
 
     rl_basic_word_break_characters = "\t\n";
@@ -1577,8 +1581,6 @@ int main(int argc, char** argv)
             compiler_final();
             break;
         }
-
-        gSigInt = FALSE;
 
         /// delete last spaces and semicolon ///
         char* p = line + strlen(line) -1;

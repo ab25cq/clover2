@@ -767,7 +767,8 @@ extern BOOL gSigInt;
 #define OP_RETURN 8
 #define OP_THROW 9
 #define OP_TRY 10
-#define OP_SIGINT 11
+#define OP_HEAD_OF_EXPRESSION 11
+#define OP_SIGINT 12
 
 #define OP_STORE 15
 #define OP_LOAD 16
@@ -1600,7 +1601,7 @@ void native_method_final();
 fNativeMethod get_native_method(char* path);
 
 /// exception.c ///
-void entry_exception_object_with_class_name(CLVALUE* stack, sVMInfo* info, char* class_name, char* msg, ...);
+void entry_exception_object_with_class_name(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, char* class_name, char* msg, ...);
 void entry_exception_object(CLObject exception, sVMInfo* info);
 void show_exception_message(char* message);
 

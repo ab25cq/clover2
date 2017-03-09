@@ -204,11 +204,11 @@ BOOL compile_script(char* fname, char* source)
         cinfo.sname = gNodes[node].mSName;
         cinfo.sline = gNodes[node].mLine;
 
-        append_opecode_to_code(cinfo.code, OP_SIGINT, cinfo.no_output);
-        append_str_to_constant_pool_and_code(cinfo.constant, cinfo.code, cinfo.sname, cinfo.no_output);
-        append_int_value_to_code(cinfo.code, cinfo.sline, cinfo.no_output);
-
         if(info.err_num == 0 && node != 0) {
+            append_opecode_to_code(cinfo.code, OP_HEAD_OF_EXPRESSION, cinfo.no_output);
+            append_str_to_constant_pool_and_code(cinfo.constant, cinfo.code, cinfo.sname, cinfo.no_output);
+            append_int_value_to_code(cinfo.code, cinfo.sline, cinfo.no_output);
+
             if(!compile(node, &cinfo)) {
                 sByteCode_free(&code);
                 sConst_free(&constant);
@@ -216,6 +216,8 @@ BOOL compile_script(char* fname, char* source)
             }
 
             arrange_stack(&cinfo);
+
+            append_opecode_to_code(cinfo.code, OP_SIGINT, cinfo.no_output);
         }
 
         if(*info.p == ';') {

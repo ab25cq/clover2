@@ -25,7 +25,7 @@ BOOL System_assert(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* exp = lvar;
 
     if(!exp->mBoolValue) {
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "System.assert failed");
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "System.assert failed");
         return FALSE;
     }
 
@@ -110,7 +110,7 @@ BOOL System_strlen2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     }
 
     if(result == -1) {
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "invalid byte array");
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "invalid byte array");
         return FALSE;
     }
 
@@ -321,7 +321,7 @@ BOOL System_pcre_exec(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     pcre* regex_value = regex_object_data->mRegex;
 
     if(str->mObjectValue == 0) {
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "Null pointer exception");
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
         return FALSE;
     }
 
@@ -401,7 +401,7 @@ BOOL System_sprintf(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
                     *p2++ = *p++;
 
                     if(p2 - format2 >= 128) {
-                        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "invalid format string");
+                        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "invalid format string");
                         MFREE(buf.mBuf);
                         MFREE(format_string);
                         return FALSE;
@@ -418,7 +418,7 @@ BOOL System_sprintf(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
                     *p2++ = *p++;
 
                     if(p2 - format2 >= 128) {
-                        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "invalid format string");
+                        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "invalid format string");
                         MFREE(buf.mBuf);
                         MFREE(format_string);
                         return FALSE;
@@ -434,7 +434,7 @@ BOOL System_sprintf(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
                 *p2++ = *p++;
 
                 if(p2 - format2 >= 128) {
-                    entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "invalid format string");
+                    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "invalid format string");
                     MFREE(buf.mBuf);
                     MFREE(format_string);
                     return FALSE;
@@ -445,7 +445,7 @@ BOOL System_sprintf(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
                         *p2++ = *p++;
 
                         if(p2 - format2 >= 128) {
-                            entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "invalid format string");
+                            entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "invalid format string");
                             MFREE(buf.mBuf);
                             MFREE(format_string);
                             return FALSE;
@@ -464,7 +464,7 @@ BOOL System_sprintf(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
                     *p2++ = *p++;
 
                     if(p2 - format2 >= 128) {
-                        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "invalid format string");
+                        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "invalid format string");
                         MFREE(buf.mBuf);
                         MFREE(format_string);
                         return FALSE;
@@ -475,7 +475,7 @@ BOOL System_sprintf(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
                     *p2++ = *p++;
 
                     if(p2 - format2 >= 128) {
-                        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "invalid format string");
+                        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "invalid format string");
                         MFREE(buf.mBuf);
                         MFREE(format_string);
                         return FALSE;
@@ -492,7 +492,7 @@ BOOL System_sprintf(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
                 *p2++ = *p++;
 
                 if(p2 - format2 >= 128) {
-                    entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "invalid format string");
+                    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "invalid format string");
                     MFREE(buf.mBuf);
                     MFREE(format_string);
                     return FALSE;
@@ -504,14 +504,14 @@ BOOL System_sprintf(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
                 no_conversion = TRUE;
 
                 if(p2 - format2 >= 128) {
-                    entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "invalid format string");
+                    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "invalid format string");
                     MFREE(buf.mBuf);
                     MFREE(format_string);
                     return FALSE;
                 }
             }
             else {
-                entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "invalid format string");
+                entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "invalid format string");
                 MFREE(buf.mBuf);
                 MFREE(format_string);
                 return FALSE;
@@ -520,7 +520,7 @@ BOOL System_sprintf(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
             *p2++ = 0;
 
             if(p2 - format2 >= 128) {
-                entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "invalid format string");
+                entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "invalid format string");
                 MFREE(buf.mBuf);
                 MFREE(format_string);
                 return FALSE;
@@ -585,7 +585,7 @@ BOOL System_sprintf(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
                     asprintf(ALLOC &str, format2, str2);
                 }
                 else {
-                    entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "invalid format string");
+                    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "invalid format string");
                     MFREE(buf.mBuf);
                     MFREE(format_string);
                     return FALSE;
@@ -598,7 +598,7 @@ BOOL System_sprintf(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
                 param_num++;
             }
             else {
-                entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "invalid format string");
+                entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "invalid format string");
                 MFREE(buf.mBuf);
                 MFREE(format_string);
                 return FALSE;
@@ -642,7 +642,7 @@ BOOL System_mbstowcs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int size_wcs = mbstowcs(wcs, src_value, size_value);
 
     if(size_wcs < 0) {
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "invalid multi byte string");
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "invalid multi byte string");
         MFREE(wcs);
         return FALSE;
     }
@@ -712,7 +712,7 @@ BOOL System_wcstombs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int num = wcstombs(mbs, wcs, size);
 
     if(num < 0) {
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "wcstombs returns -1");
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "wcstombs returns -1");
         MFREE(wcs);
         MFREE(mbs);
         return FALSE;
@@ -955,7 +955,7 @@ BOOL System_open(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     if(result < 0) {
         MFREE(file_name_value);
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "open(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "open(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -978,7 +978,7 @@ BOOL System_close(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int result = close(fd_value);
 
     if(result < 0) {
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "close(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "close(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -1093,7 +1093,7 @@ BOOL System_read(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     /// check size ///
     if(size_value > buffer_size) {
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "Buffer size is smaller than the size value of argument");
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Buffer size is smaller than the size value of argument");
         return FALSE;
     }
 
@@ -1101,7 +1101,7 @@ BOOL System_read(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int result = read(fd_value, buf_value, size_value);
 
     if(result < 0) {
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "read(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "read(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -1129,7 +1129,7 @@ BOOL System_write(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     /// check size ///
     if(size_value > buffer_size) {
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "Buffer size is smaller than the size value of argument");
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Buffer size is smaller than the size value of argument");
         return FALSE;
     }
 
@@ -1137,7 +1137,7 @@ BOOL System_write(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int result = write(fd_value, buf_value, size_value);
 
     if(result < 0) {
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "write(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "write(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -1167,7 +1167,7 @@ BOOL System_localtime(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     struct tm* tm_struct = localtime(&time_value);
 
     if(tm_struct == NULL) {
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "localtime(3) is faield");
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "localtime(3) is faield");
         return FALSE;
     }
 
@@ -1207,7 +1207,7 @@ BOOL System_mktime(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     time_t result = mktime(&tm);
 
     if(result == -1) {
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "mktime(3) is faield");
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "mktime(3) is faield");
         return FALSE;
     }
 
@@ -1231,7 +1231,7 @@ BOOL System_stat(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     if(result < 0) {
         MFREE(path_value);
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "stat(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "stat(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
     sCLObject* object_data = CLOBJECT(stat_->mObjectValue);
@@ -1268,7 +1268,7 @@ BOOL System_lstat(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     if(result < 0) {
         MFREE(path_value);
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "lstat(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "lstat(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
     sCLObject* object_data = CLOBJECT(stat_->mObjectValue);
@@ -1305,7 +1305,7 @@ BOOL System_realpath(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     if(result == NULL) {
         MFREE(path_value);
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "realpath(3) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "realpath(3) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -1374,7 +1374,7 @@ BOOL System_opendir(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     if(result == NULL) {
         MFREE(path_value);
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "opendir(3) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "opendir(3) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -1421,7 +1421,7 @@ BOOL System_closedir(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int result = closedir(dir_value);
 
     if(result < 0) {
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "closedir(3) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "closedir(3) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -1634,7 +1634,7 @@ BOOL System_pipe(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int result = pipe(pipefd);
 
     if(result < 0) {
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "pipe(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "pipe(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -1655,7 +1655,7 @@ BOOL System_fork(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     pid_t result = fork();
 
     if(result < 0) {
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "fork(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "fork(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -1693,7 +1693,7 @@ BOOL System_dup2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int result = dup2(fd1_value, fd2_value);
 
     if(result < 0) {
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "dup2(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "dup2(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -1728,7 +1728,7 @@ BOOL System_execvp(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
             MFREE(params_value[i]);
         }
         MFREE(params_value);
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "execvp(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "execvp(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -1754,7 +1754,7 @@ BOOL System_waitpid(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     pid_t result = waitpid(pid_value, status_value, option_value);
 
     if(result < 0) {
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "waitpid(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "waitpid(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -1907,7 +1907,7 @@ BOOL System_setpgid(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int result = setpgid(pid_value, pgid_value);
 
     if(result < 0) {
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "setpgid(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "setpgid(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -1927,7 +1927,7 @@ BOOL System_kill(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int result = kill(pid_value, sig_value);
 
     if(result < 0) {
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "kill(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "kill(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -1946,7 +1946,7 @@ BOOL System_tcsetpgrp(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int result = tcsetpgrp(fd_value, pid_value);
 
     if(result < 0) {
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "tcsetpgrp(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "tcsetpgrp(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -1970,7 +1970,7 @@ BOOL System_tcgetattr(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int result = tcgetattr(fd_value, &terminfo_value);
 
     if(result < 0) {
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "tcgetattr(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "tcgetattr(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -1998,7 +1998,7 @@ BOOL System_tcsetattr(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int result = tcsetattr(fd_value, optional_actions_value, &terminfo_value);
 
     if(result < 0) {
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "tcsetattr(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "tcsetattr(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -2018,7 +2018,7 @@ BOOL System_tcsendbreak(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int result = tcsendbreak(fd_value, duration_value);
 
     if(result < 0) {
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "tcsendbreak(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "tcsendbreak(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -2036,7 +2036,7 @@ BOOL System_tcdrain(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int result = tcdrain(fd_value);
 
     if(result < 0) {
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "tcdrain(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "tcdrain(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -2056,7 +2056,7 @@ BOOL System_tcflush(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int result = tcflush(fd_value, queue_selector_value);
 
     if(result < 0) {
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "tcflush(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "tcflush(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -2076,7 +2076,7 @@ BOOL System_tcflow(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int result = tcflow(fd_value, action_value);
 
     if(result < 0) {
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "tcflow(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "tcflow(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -2150,7 +2150,7 @@ BOOL System_cfsetispeed(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int result = cfsetispeed(&terminfo_value, speed_value);
 
     if(result < 0) {
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "cfsetispeed(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "cfsetispeed(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -2173,7 +2173,7 @@ BOOL System_cfsetospeed(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int result = cfsetospeed(&terminfo_value, speed_value);
 
     if(result < 0) {
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "cfsetospeed(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "cfsetospeed(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -2196,7 +2196,7 @@ BOOL System_cfsetspeed(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int result = cfsetspeed(&terminfo_value, speed_value);
 
     if(result < 0) {
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "cfsetspeed(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "cfsetspeed(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -2217,7 +2217,7 @@ BOOL System_chmod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     if(result < 0) {
         MFREE(path_value);
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "chmod(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "chmod(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -2240,7 +2240,7 @@ BOOL System_lchmod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     if(result < 0) {
         MFREE(path_value);
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "lchmod(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "lchmod(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -2262,7 +2262,7 @@ BOOL System_fchmod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int result = fchmod(fd_value, mode_value);
 
     if(result < 0) {
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "fchmod(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "fchmod(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -2285,7 +2285,7 @@ BOOL System_chown(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     if(result < 0) {
         MFREE(path_value);
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "chown(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "chown(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -2310,7 +2310,7 @@ BOOL System_lchown(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     if(result < 0) {
         MFREE(path_value);
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "chown(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "chown(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -2334,7 +2334,7 @@ BOOL System_fchown(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int result = fchown(fd_value, owner_value, group_value);
 
     if(result < 0) {
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "fchown(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "fchown(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -2353,7 +2353,7 @@ BOOL System_unlink(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     if(result < 0) {
         MFREE(path_value);
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "unlink(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "unlink(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -2402,7 +2402,7 @@ BOOL System_utime(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     if(result < 0) {
         MFREE(path_value);
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "utime(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "utime(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -2449,7 +2449,7 @@ BOOL System_link(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     if(result < 0) {
         MFREE(old_path_value);
         MFREE(new_path_value);
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "link(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "link(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -2474,7 +2474,7 @@ BOOL System_symlink(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     if(result < 0) {
         MFREE(old_path_value);
         MFREE(new_path_value);
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "symlink(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "symlink(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -2497,7 +2497,7 @@ BOOL System_readlink(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     if(result < 0) {
         MFREE(path_value);
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "readlink(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "readlink(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -2526,7 +2526,7 @@ BOOL System_rename(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     if(result < 0) {
         MFREE(old_path_value);
         MFREE(new_path_value);
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "rename(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "rename(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -2550,7 +2550,7 @@ BOOL System_truncate(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     if(result < 0) {
         MFREE(path_value);
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "truncate(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "truncate(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -2572,7 +2572,7 @@ BOOL System_ftruncate(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int result = ftruncate(fd_value, length_value);
 
     if(result < 0) {
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "ftruncate(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "ftruncate(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -2591,7 +2591,7 @@ BOOL System_chdir(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     if(result < 0) {
         MFREE(path_value);
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "chdir(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "chdir(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -2611,7 +2611,7 @@ BOOL System_fchdir(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int result = fchdir(fd_value);
 
     if(result < 0) {
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "fchdir(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "fchdir(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -2630,7 +2630,7 @@ BOOL System_rmdir(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     if(result < 0) {
         MFREE(path_value);
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "rmdir(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "rmdir(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -2653,7 +2653,7 @@ BOOL System_mkdir(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     if(result < 0) {
         MFREE(path_value);
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "mkdir(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "mkdir(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -2676,7 +2676,7 @@ BOOL System_clock_getres(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int result = clock_getres(clk_id_value, &timespec_struct);
 
     if(result < 0) {
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "clock_getres(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "clock_getres(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
     sCLObject* object_data = CLOBJECT(tp_value);
@@ -2701,7 +2701,7 @@ BOOL System_clock_gettime(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int result = clock_gettime(clk_id_value, &timespec_struct);
 
     if(result < 0) {
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "clock_getres(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "clock_getres(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
     sCLObject* object_data = CLOBJECT(tp_value);
@@ -2732,7 +2732,7 @@ BOOL System_clock_settime(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int result = clock_gettime(clk_id_value, &timespec_struct);
 
     if(result < 0) {
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "clock_getres(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "clock_getres(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -2751,7 +2751,7 @@ BOOL System_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     if(result < 0) {
         MFREE(str_value);
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "system(3) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "system(3) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -2804,7 +2804,7 @@ BOOL System_setenv(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     if(result < 0) {
         MFREE(name_value);
         MFREE(value_value);
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "setenv(3) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "setenv(3) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -2826,7 +2826,7 @@ BOOL System_unsetenv(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     if(result < 0) {
         MFREE(name_value);
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "unsetenv(3) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "unsetenv(3) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 

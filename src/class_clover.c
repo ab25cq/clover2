@@ -12,7 +12,7 @@ BOOL Clover_load(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     if(!result) {
         MFREE(file_name_value);
-        entry_exception_object_with_class_name(*stack_ptr, info, "Exception", "Clover.load is faield");
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Clover.load is faield");
         return FALSE;
     }
 

@@ -1,8 +1,17 @@
 #include "common.h"
 
-void entry_exception_object_with_class_name(CLVALUE* stack, sVMInfo* info, char* class_name, char* msg, ...)
+void entry_exception_object_with_class_name(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, char* class_name, char* msg, ...)
 {
+    char msg2[1024];
+
+    va_list args;
+    va_start(args, msg);
+    vsnprintf(msg2, 1024, msg, args);
+    va_end(args);
+
     vm_mutex_on();
+
+    xstrncpy(info->exception_message, msg2, EXCEPTION_MESSAGE_MAX); // for show_exception_message 
 
     sCLClass* klass = get_class(class_name);
 
@@ -12,27 +21,14 @@ void entry_exception_object_with_class_name(CLVALUE* stack, sVMInfo* info, char*
     }
 
     CLObject object = create_object(klass);
+    (*stack_ptr) = stack + var_num;
+    (*stack_ptr)->mObjectValue = object;
+    (*stack_ptr)++;
 
-    stack->mObjectValue = object;
-
-    char msg2[1024];
-
-    va_list args;
-    va_start(args, msg);
-    vsnprintf(msg2, 1024, msg, args);
-    va_end(args);
-
-    char msg3[1024];
-
-    snprintf(msg3, 1024, "%s %d: %s", info->sname, info->sline, msg2);
-
-    CLObject str = create_string_object(msg3);
+    CLObject str = create_string_object(info->exception_message);
 
     sCLObject* object_data = CLOBJECT(object);
-
     object_data->mFields[0].mObjectValue = str;
-
-    xstrncpy(info->exception_message, msg3, EXCEPTION_MESSAGE_MAX); // for show_exception_message 
 
     vm_mutex_off();
 }
