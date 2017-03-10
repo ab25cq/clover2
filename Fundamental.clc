@@ -32,6 +32,9 @@ class System
 
 class Global
 {
+    def getenv(name:String): static String {
+        return System.getenv(name);
+    }
 }
 
 class String

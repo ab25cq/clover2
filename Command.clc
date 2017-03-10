@@ -350,12 +350,16 @@ dynamic_class Command
     {
         params2:List<String> = new List<String>();
         controlling_terminal_flag:bool = false;
+        getting_stderr_flag:bool = false;
         
         params.each(closure(item:Object) {
             if(item.className().equals("String")) {
                 str:String = item.toAnonymous();
                 if(str.equals("--controlling-terminal")) {
                     controlling_terminal_flag = true;
+                }
+                elif(str.equals("--getting-stderr")) {
+                    getting_stderr_flag = true;
                 }
                 else {
                     params2.add(str);
@@ -417,7 +421,11 @@ dynamic_class Command
             }
         });
 
-        if(controlling_terminal_flag || (num_method_chains == max_method_chains-1 && Command.controllingTerminalPrograms.indexOf(method_name) != -1)) 
+        if(getting_stderr_flag) {
+            str:String = null;
+            return Command.executeCommandWithGettingStderr(method_name, params2, str);
+        }
+        elif(controlling_terminal_flag || (num_method_chains == max_method_chains-1 && Command.controllingTerminalPrograms.indexOf(method_name) != -1)) 
         {
             return Command.executeCommandWithControllingTerminal(method_name, params2);
         }
@@ -431,12 +439,16 @@ dynamic_class Command
     {
         params2:List<String> = new List<String>();
         controlling_terminal_flag:bool = false;
+        getting_stderr_flag:bool = false;
         
         params.each(closure(item:Object) {
             if(item.className().equals("String")) {
                 str:String = item.toAnonymous();
                 if(str.equals("--controlling-terminal")) {
                     controlling_terminal_flag = true;
+                }
+                elif(str.equals("--getting-stderr")) {
+                    getting_stderr_flag = true;
                 }
                 else {
                     params2.add(str);
@@ -498,13 +510,95 @@ dynamic_class Command
             }
         });
 
-        if(controlling_terminal_flag || (num_method_chains == max_method_chains-1 && Command.controllingTerminalPrograms.indexOf(method_name) != -1)) 
+        if(getting_stderr_flag) {
+            return Command.executeCommandWithGettingStderr(method_name, params2, self.data);
+        }
+        elif(controlling_terminal_flag || (num_method_chains == max_method_chains-1 && Command.controllingTerminalPrograms.indexOf(method_name) != -1)) 
         {
             return Command.executeCommandWithControllingTerminalByPipe(method_name, params2, self.data);
         }
         else {
             return Command.executeCommand(method_name, params2, self.data);
         }
+    }
+
+    def executeCommandWithGettingStderr(method_name:String, params:List<String>, pipe_data:String) : static Command throws Exception
+    {
+        child2parent_write_fd:int = 0;
+        child2parent_read_fd:int = 0;
+        parent2child_write_fd:int = 0;
+        parent2child_read_fd:int = 0;
+        child2parent_read_fd_err:int = 0;
+        child2parent_write_fd_err:int = 0;
+
+        System.pipe(&parent2child_read_fd, &parent2child_write_fd);
+        System.pipe(&child2parent_read_fd, &child2parent_write_fd);
+        System.pipe(&child2parent_read_fd_err, &child2parent_write_fd_err);
+
+        pid:pid_t = System.fork(closure() {
+            System.close(parent2child_write_fd);
+            System.close(child2parent_read_fd);
+            System.close(child2parent_read_fd_err);
+
+            System.dup2(parent2child_read_fd, 0);
+            System.dup2(child2parent_write_fd, 1);
+            System.dup2(child2parent_write_fd_err, 2);
+
+            System.close(parent2child_read_fd);
+            System.close(child2parent_write_fd);
+            System.close(child2parent_write_fd_err);
+
+            try {
+                System.execvp(method_name, params);
+            } catch(e:Exception) {
+                buffer:Buffer = e.message.append("\n").toBuffer();
+                System.write(2, buffer, buffer.len);
+                System.exit(64);
+            }
+        });
+
+        System.close(parent2child_read_fd);
+        System.close(child2parent_write_fd);
+        System.close(child2parent_write_fd_err);
+
+        if(!pipe_data.identifyWith(null)) {
+            buffer:Buffer = pipe_data.toBuffer();
+            System.write(parent2child_write_fd, buffer, buffer.len);
+        }
+        System.close(parent2child_write_fd);
+
+        child_output:Buffer = B"";
+        
+        while(true) {
+            pipe_data:Buffer = new Buffer(128.to_ulong);
+
+            readed_byte:int = System.read(child2parent_read_fd, pipe_data, 128.to_ulong);
+
+            child_output.append(pipe_data);
+
+            pipe_data_err:Buffer = new Buffer(128.to_ulong);
+
+            readed_byte_err:int = System.read(child2parent_read_fd_err, pipe_data_err, 128.to_ulong);
+
+            child_output.append(pipe_data_err);
+
+            if(readed_byte == 0 && readed_byte_err == 0) {
+                break;
+            }
+        }
+
+        System.close(child2parent_read_fd);
+        System.close(child2parent_read_fd_err);
+
+        status: wait_status = 0;
+
+        pid2:pid_t = System.waitpid(pid, &status, System.WUNTRACED);
+
+        if(System.WEXITSTATUS(status) == 64) {
+            throw new Exception("Command not found");
+        }
+
+        return new Command(child_output.toString(), System.WEXITSTATUS(status));
     }
 
     def executeCommand(method_name:String, params:List<String>, pipe_data:String) : static Command throws Exception

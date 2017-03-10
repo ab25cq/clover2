@@ -337,26 +337,17 @@ static BOOL get_type(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
 
     info.cinfo = &cinfo;
 
-    while(*info.p) {
-        unsigned int node = 0;
-        (void)expression(&node, &info);
+    unsigned int node = 0;
+    (void)expression(&node, &info);
 
-        if(*info.p == ';') {
-            info.p++;
-            skip_spaces_and_lf(&info);
-        }
-
-        (void)compile(node, &cinfo);
-
-        *type_ = cinfo.type;
-
-        if(*info.p != '\0') {
-            fprintf(stderr, "iclover2 can't run two or more expression\n");
-            sByteCode_free(&code);
-            sConst_free(&constant);
-            return FALSE;
-        }
+    if(*info.p == ';') {
+        info.p++;
+        skip_spaces_and_lf(&info);
     }
+
+    (void)compile(node, &cinfo);
+
+    *type_ = cinfo.type;
 
     sByteCode_free(&code);
     sConst_free(&constant);
@@ -965,9 +956,12 @@ static int my_complete_internal(int count, int key)
 
         /// normal method ///
         if(klass == NULL) {
+            /// get one expression ///
+            char* line2 = get_one_expression(line);
+
             /// get type ///
             sNodeType* type_ = NULL;
-            (void)get_type(line, "iclover2", gLVTable, gStack, &type_);
+            (void)get_type(line2, "iclover2", gLVTable, gStack, &type_);
 
             if(type_) {
                 klass = type_->mClass;
