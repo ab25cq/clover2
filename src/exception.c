@@ -11,7 +11,11 @@ void entry_exception_object_with_class_name(CLVALUE** stack_ptr, CLVALUE* stack,
 
     vm_mutex_on();
 
-    xstrncpy(info->exception_message, msg2, EXCEPTION_MESSAGE_MAX); // for show_exception_message 
+    char msg3[1024];
+
+    snprintf(msg3, 1024, "%s %d: %s", info->sname, info->sline, msg2);
+
+    xstrncpy(info->exception_message, msg3, EXCEPTION_MESSAGE_MAX); // for show_exception_message 
 
     sCLClass* klass = get_class(class_name);
 
