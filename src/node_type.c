@@ -259,7 +259,12 @@ BOOL operand_posibility(sNodeType* left, sNodeType* right, char* op_string)
     if(type_identify_with_class_name(left, "pointer") 
         && (strcmp(op_string, "+") == 0 || strcmp(op_string, "-") == 0))
     {
-        return type_identify_with_class_name(right, "ulong");
+        if(strcmp(op_string, "+") == 0) {
+            return type_identify_with_class_name(right, "ulong");
+        }
+        else { // strcmp(op_string, "-") == 0
+            return type_identify_with_class_name(right, "ulong") || type_identify_with_class_name(right, "pointer");
+        }
     }
     else {
         return left->mClass == right->mClass;

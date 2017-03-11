@@ -2993,6 +2993,23 @@ if(stack_ptr != lvar + var_num + 1) {
                 }
                 break;
 
+            case OP_PPSUB: 
+                {
+                    vm_mutex_on();
+
+                    char* left = (stack_ptr-2)->mPointerValue;
+                    char* right = (stack_ptr-1)->mPointerValue;
+
+                    unsigned long result = left - right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mULongValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
             case OP_CADD: 
                 {
                     vm_mutex_on();

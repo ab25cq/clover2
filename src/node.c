@@ -314,12 +314,6 @@ static BOOL binary_operator(unsigned int node, sNodeType* left_type, sNodeType* 
 
         info->type = create_node_type_with_class_name("null");
     }
-    else if(type_identify_with_class_name(left_type, "pointer") && pointer_operand != -1) {
-        append_opecode_to_code(info->code, pointer_operand, info->no_output);
-        info->stack_num--;
-
-        info->type = create_node_type_with_class_name("pointer");
-    }
     else if(type_identify_with_class_name(left_type, "char") && char_operand != -1) {
         append_opecode_to_code(info->code, char_operand, info->no_output);
         info->stack_num--;
@@ -331,6 +325,28 @@ static BOOL binary_operator(unsigned int node, sNodeType* left_type, sNodeType* 
         info->stack_num--;
 
         info->type = create_node_type_with_class_name("bool");
+    }
+    else if(type_identify_with_class_name(left_type, "pointer") && pointer_operand != -1) {
+        if(strcmp(op_string, "-") == 0) {
+            if(type_identify_with_class_name(right_type, "pointer")) {
+                append_opecode_to_code(info->code, OP_PPSUB, info->no_output);
+                info->stack_num--;
+
+                info->type = create_node_type_with_class_name("ulong");
+            }
+            else { // type_identify_with_class_name(right_type, "ulong"); see operand_posibility()
+                append_opecode_to_code(info->code, pointer_operand, info->no_output);
+                info->stack_num--;
+
+                info->type = create_node_type_with_class_name("pointer");
+            }
+        }
+        else {
+            append_opecode_to_code(info->code, pointer_operand, info->no_output);
+            info->stack_num--;
+
+            info->type = create_node_type_with_class_name("pointer");
+        }
     }
     else {
         compile_err_msg(info, "%s.%s is not implemented", CLASS_NAME(left_type->mClass), op_string);

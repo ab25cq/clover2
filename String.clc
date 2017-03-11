@@ -18,7 +18,7 @@ class System
     def println(str:String): native static;
     def printToError(str:String): native static;
     def printlnToError(str:String): native static;
-    def pcre_exec(regex:regex, str:String, offset:int, ovec_max:int, ovec:PcreOVec): native static int;
+    def pcre_exec(regex:regex, str:Buffer, offset:int, ovec_max:int, ovec:PcreOVec): native static int;
     def atoi(str:String):native static int;
     def atof(str:String):native static float;
     def strtod(str:String): native static double;
@@ -28,6 +28,14 @@ class System
     def strtoul(str:String, base:int): native static ulong;
     def mbstowcs(dest:pointer@wchar[], src:pointer@utf8-string-memory, size:size_t): static native int throws Exception;
     def wcstombs(dest:pointer@byte[], src:char[]): static native int throws Exception;
+
+    MB_LEN_MAX:static int;
+
+    def initialize_string_system(): static native;
+
+    def initialize(): static {
+        System.initialize_string_system();
+    }
 }
 
 class Clover
@@ -199,8 +207,10 @@ class String
         ovec_max:int = 16;
         ovec:PcreOVec = new PcreOVec(ovec_max);
 
+        buffer:Buffer = self.toBuffer();
+
         offset:int = 0;
-        regex_result:int = System.pcre_exec(regex_, self, offset, ovec_max, ovec);
+        regex_result:int = System.pcre_exec(regex_, buffer, offset, ovec_max, ovec);
 
         return regex_result > 0;
     }
@@ -209,8 +219,10 @@ class String
         ovec_max:int = 16;
         ovec:PcreOVec = new PcreOVec(ovec_max);
 
+        buffer:Buffer = self.toBuffer();
+
         offset:int = 0;
-        regex_result:int = System.pcre_exec(regex_, self, offset, ovec_max, ovec);
+        regex_result:int = System.pcre_exec(regex_, buffer, offset, ovec_max, ovec);
 
         ### match and no group strings ###
         if(regex_result == 1 || group_strings.identifyWith(null) && regex_result > 0) {
@@ -218,9 +230,8 @@ class String
         }
         ### group strings ###
         elif(regex_result > 1) {
-            group_strings.clear();
             for(i:int = 1; i<regex_result; i++) {
-                match_string:String = self.subString(ovec.start[i], ovec.end[i]);
+                match_string:String = buffer.subBuffer(ovec.start[i], ovec.end[i]).toString();
                 group_strings.add(match_string);
             }
 
@@ -236,16 +247,18 @@ class String
         result: String = new String();
         offset:int = 0;
 
+        buffer:Buffer = self.toBuffer();
+
         while(true) {
             ovec_max:int = 16;
             ovec:PcreOVec = new PcreOVec(ovec_max);
 
-            regex_result:int = System.pcre_exec(regex_, self, offset, ovec_max, ovec);
+            regex_result:int = System.pcre_exec(regex_, buffer, offset, ovec_max, ovec);
 
             ### match and no group strings ###
             if(regex_result == 1 || group_strings.identifyWith(null) && regex_result > 0) {
-                match_string:String = self.subString(ovec.start[0], ovec.end[0]);
-                result.append(self.subString(offset, ovec.start[0]));
+                str:String = buffer.subBuffer(offset, ovec.start[0]).toString();
+                result.append(str);
                 result.append(replace);
 
                 if(offset == ovec.end[0]) {
@@ -256,15 +269,16 @@ class String
                 }
 
                 if(!regex_.global) {
-                    str:String = self.subString(offset, -1);
+                    str:String = buffer.subBuffer(offset, -1).toString();
                     result.append(str);
                     break;
                 }
             }
             ### group strings ###
             elif(regex_result > 1) {
-                match_string:String = self.subString(ovec.start[0], ovec.end[0]);
-                result.append(self.subString(offset, ovec.start[0]));
+                str:String = buffer.subBuffer(offset, ovec.start[0]).toString();
+                result.append(str);
+                result.append(replace);
 
                 if(offset == ovec.end[0]) {
                     offset++;
@@ -273,23 +287,20 @@ class String
                     offset = ovec.end[0];
                 }
 
-                #group_strings.clear();
                 for(i:int = 1; i<regex_result; i++) {
-                    match_string:String = self.subString(ovec.start[i], ovec.end[i]);
+                    match_string:String = buffer.subBuffer(ovec.start[i], ovec.end[i]).toString();
                     group_strings.add(match_string);
                 }
 
-                result.append(replace);
-
                 if(!regex_.global) {
-                    str:String = self.subString(offset, -1);
+                    str:String = buffer.subBuffer(offset, -1).toString();
                     result.append(str);
                     break;
                 }
             }
             ### no match ###
             else {
-                str:String = self.subString(offset, -1);
+                str:String = buffer.subBuffer(offset, -1).toString();
                 result.append(str);
                 break;
             }
@@ -307,16 +318,21 @@ class String
         result: String = new String();
         offset:int = 0;
 
+        buffer:Buffer = self.toBuffer();
+
         while(true) {
             ovec_max:int = 16;
             ovec:PcreOVec = new PcreOVec(ovec_max);
 
-            regex_result:int = System.pcre_exec(regex_, self, offset, ovec_max, ovec);
+            regex_result:int = System.pcre_exec(regex_, buffer, offset, ovec_max, ovec);
 
             ### match and no group strings ###
             if(regex_result == 1 || group_strings.identifyWith(null) && regex_result > 0) {
-                match_string:String = self.subString(ovec.start[0], ovec.end[0]);
-                result.append(self.subString(offset, ovec.start[0]));
+                str:String = buffer.subBuffer(offset, ovec.start[0]).toString();
+                result.append(str);
+
+                match_string:String = buffer.subBuffer(ovec.start[0], ovec.end[0]).toString();
+
                 replace_string:String = replace(match_string, new EqualableList<String>());
                 result.append(replace_string);
 
@@ -328,15 +344,26 @@ class String
                 }
 
                 if(!regex_.global) {
-                    str:String = self.subString(offset, -1);
+                    str:String = buffer.subBuffer(offset, -1).toString();
                     result.append(str);
                     break;
                 }
             }
             ### group strings ###
             elif(regex_result > 1) {
-                match_string:String = self.subString(ovec.start[0], ovec.end[0]);
-                result.append(self.subString(offset, ovec.start[0]));
+                str:String = buffer.subBuffer(offset, ovec.start[0]).toString();
+                result.append(str);
+
+                match_string:String = buffer.subBuffer(ovec.start[0], ovec.end[0]).toString();
+
+                group_strings.clear();
+                for(i:int = 1; i<regex_result; i++) {
+                    match_string:String = buffer.subBuffer(ovec.start[i], ovec.end[i]).toString();
+                    group_strings.add(match_string);
+                }
+
+                replace_string:String = replace(match_string, group_strings);
+                result.append(replace_string);
 
                 if(offset == ovec.end[0]) {
                     offset++;
@@ -345,24 +372,15 @@ class String
                     offset = ovec.end[0];
                 }
 
-                group_strings.clear();
-                for(i:int = 1; i<regex_result; i++) {
-                    match_string:String = self.subString(ovec.start[i], ovec.end[i]);
-                    group_strings.add(match_string);
-                }
-
-                replace_string:String = replace(match_string, group_strings);
-                result.append(replace_string);
-
                 if(!regex_.global) {
-                    str:String = self.subString(offset, -1);
+                    str:String = buffer.subBuffer(offset, -1).toString();
                     result.append(str);
                     break;
                 }
             }
             ### no match ###
             else {
-                str:String = self.subString(offset, -1);
+                str:String = buffer.subBuffer(offset, -1).toString();
                 result.append(str);
                 break;
             }
@@ -380,15 +398,17 @@ class String
         result: EqualableList<String> = new EqualableList<String>();
         offset:int = 0;
 
+        buffer:Buffer = self.toBuffer();
+
         while(true) {
             ovec_max:int = 16;
             ovec:PcreOVec = new PcreOVec(ovec_max);
 
-            regex_result:int = System.pcre_exec(regex_, self, offset, ovec_max, ovec);
+            regex_result:int = System.pcre_exec(regex_, buffer, offset, ovec_max, ovec);
 
             ### match and no group strings ###
             if(regex_result == 1) {
-                match_string:String = self.subString(ovec.start[0], ovec.end[0]);
+                match_string:String = buffer.subBuffer(ovec.start[0], ovec.end[0]).toString();
                 result.add(match_string);
 
                 if(offset == ovec.end[0]) {
@@ -400,7 +420,7 @@ class String
             }
             ### group strings ###
             elif(regex_result > 1) {
-                match_string:String = self.subString(ovec.start[0], ovec.end[0]);
+                match_string:String = buffer.subBuffer(ovec.start[0], ovec.end[0]).toString();
                 result.add(match_string);
 
                 if(offset == ovec.end[0]) {
@@ -411,7 +431,7 @@ class String
                 }
 
                 for(i:int = 1; i<regex_result; i++) {
-                    match_string:String = self.subString(ovec.start[i], ovec.end[i]);
+                    match_string:String = buffer.subBuffer(ovec.start[i], ovec.end[i]).toString();
                     result.add(match_string);
                 }
             }
@@ -428,15 +448,17 @@ class String
         result: EqualableList<String> = new EqualableList<String>();
         offset:int = 0;
 
+        buffer:Buffer = self.toBuffer();
+
         while(true) {
             ovec_max:int = 16;
             ovec:PcreOVec = new PcreOVec(ovec_max);
 
-            regex_result:int = System.pcre_exec(regex_, self, offset, ovec_max, ovec);
+            regex_result:int = System.pcre_exec(regex_, buffer, offset, ovec_max, ovec);
 
             ### match and no group strings ###
             if(regex_result == 1) {
-                match_string:String = self.subString(ovec.start[0], ovec.end[0]);
+                match_string:String = buffer.subBuffer(ovec.start[0], ovec.end[0]).toString();
 
                 group_strings: EqualableList<String> = new EqualableList<String>();
                 result.add(block_(match_string, group_strings));
@@ -450,19 +472,19 @@ class String
             }
             ### group strings ###
             elif(regex_result > 1) {
-                match_string:String = self.subString(ovec.start[0], ovec.end[0]);
+                match_string:String = buffer.subBuffer(ovec.start[0], ovec.end[0]).toString();
+
+                group_strings: EqualableList<String> = new EqualableList<String>();
+                for(i:int = 1; i<regex_result; i++) {
+                    match_string:String = buffer.subBuffer(ovec.start[i], ovec.end[i]).toString();
+                    group_strings.add(match_string);
+                }
 
                 if(offset == ovec.end[0]) {
                     offset++;
                 }
                 else {
                     offset = ovec.end[0];
-                }
-
-                group_strings: EqualableList<String> = new EqualableList<String>();
-                for(i:int = 1; i<regex_result; i++) {
-                    match_string:String = self.subString(ovec.start[i], ovec.end[i]);
-                    group_strings.add(match_string);
                 }
 
                 result.add(block_(match_string, group_strings));
@@ -488,15 +510,17 @@ class String
         result:EqualableList<String> = new EqualableList<String>();
         offset:int = 0;
 
+        buffer:Buffer = self.toBuffer();
+
         while(true) {
             ovec_max:int = 16;
             ovec:PcreOVec = new PcreOVec(ovec_max);
 
-            regex_result:int = System.pcre_exec(separator, self, offset, ovec_max, ovec);
+            regex_result:int = System.pcre_exec(separator, buffer, offset, ovec_max, ovec);
 
             ### match and no group strings ###
             if(regex_result == 1) {
-                str:String = self.subString(offset, ovec.start[0]);
+                str:String = buffer.subBuffer(offset, ovec.start[0]).toString();
                 result.add(str);
 
                 if(offset == ovec.end[0]) {
@@ -508,7 +532,7 @@ class String
             }
             ### group strings ###
             elif(regex_result > 1) {
-                str:String = self.subString(offset, ovec.start[0]);
+                str:String = buffer.subBuffer(offset, ovec.start[0]).toString();
                 result.add(str);
 
                 if(offset == ovec.end[0]) {
@@ -519,7 +543,7 @@ class String
                 }
 
                 for(i:int = 1; i<regex_result; i++) {
-                    str:String = self.subString(ovec.start[i], ovec.end[i]);
+                    str:String = buffer.subBuffer(ovec.start[i], ovec.end[i]).toString();
                     result.add(str);
                 }
             }
@@ -536,15 +560,17 @@ class String
         result:EqualableList<String> = new EqualableList<String>();
         offset:int = 0;
 
+        buffer:Buffer = self.toBuffer();
+
         while(true) {
             ovec_max:int = 16;
             ovec:PcreOVec = new PcreOVec(ovec_max);
 
-            regex_result:int = System.pcre_exec(separator, self, offset, ovec_max, ovec);
+            regex_result:int = System.pcre_exec(separator, buffer, offset, ovec_max, ovec);
 
             ### match and no group strings ###
             if(regex_result == 1) {
-                str:String = self.subString(offset, ovec.start[0]);
+                str:String = buffer.subBuffer(offset, ovec.start[0]).toString();
                 group_strings:EqualableList<String> = new EqualableList<String>();
                 result.add(block_(str, group_strings));
 
@@ -557,7 +583,15 @@ class String
             }
             ### group strings ###
             elif(regex_result > 1) {
-                str:String = self.subString(offset, ovec.start[0]);
+                str:String = buffer.subBuffer(offset, ovec.start[0]).toString();
+
+                group_strings:EqualableList<String> = new EqualableList<String>();
+                for(i:int = 1; i<regex_result; i++) {
+                    str:String = buffer.subBuffer(ovec.start[i], ovec.end[i]).toString();
+                    group_strings.add(str);
+                }
+
+                result.add(block_(str, group_strings));
 
                 if(offset == ovec.end[0]) {
                     offset++;
@@ -565,18 +599,10 @@ class String
                 else {
                     offset = ovec.end[0];
                 }
-
-                group_strings:EqualableList<String> = new EqualableList<String>();
-                for(i:int = 1; i<regex_result; i++) {
-                    str:String = self.subString(ovec.start[i], ovec.end[i]);
-                    group_strings.add(str);
-                }
-
-                result.add(block_(str, group_strings));
             }
             ### no match ###
             else {
-                str:String = self.subString(offset, -1);
+                str:String = buffer.subBuffer(offset, -1).toString();
                 group_strings:EqualableList<String> = new EqualableList<String>();
                 result.add(block_(str, group_strings));
                 break;
@@ -586,22 +612,60 @@ class String
         return result;
     }
 
-    def indexOf(regex_:regex, count:int):int {
+    def indexOf(regex_:regex, count:int):int throws Exception {
         result:int = -1;
         offset:int = 0;
         count2:int = 0;
+
+        buffer:Buffer = self.toBuffer();
 
         while(true) {
             ovec_max:int = 16;
             ovec:PcreOVec = new PcreOVec(ovec_max);
 
-            regex_result:int = System.pcre_exec(regex_, self, offset, ovec_max, ovec);
+            regex_result:int = System.pcre_exec(regex_, buffer, offset, ovec_max, ovec);
 
             ### match ###
             if(regex_result > 0) {
                 count2++;
                 if(count2 == count) {
-                    result = ovec.start[0];
+                    ovec_result:int = ovec.start[0];
+
+                    if(ovec_result == 0) {
+                        result = 0;
+                    }
+                    else {
+                        utf32_offset:int = 0;
+
+                        p:pointer = buffer.buffer;
+                        while(p < p + buffer.len) {
+                            c:ubyte = p->ubyte;
+
+                            # utf8 character
+                            if(c > 127ub) {
+                                size:int = ((c & 0x80) >> 7) + ((c & 0x40) >> 6) + ((c & 0x20) >> 5) + ((c & 0x10) >> 4);
+                                if(size > System.MB_LEN_MAX) {
+                                    throw new Exception("unexpected error at String.indexOf");
+                                }
+                                else {
+                                    p += size.to_ulong;
+                                }
+
+                                utf32_offset++;
+                            }
+                            # ascii
+                            else {
+                                p++;
+                                utf32_offset++;
+                            }
+
+                            if(p - buffer.buffer == ovec_result) {
+                                break;
+                            }
+                        }
+
+                        result = utf32_offset;
+                    }
                     break;
                 }
 
@@ -729,6 +793,8 @@ class String
             result.append(array_[i]);
         }
 
+        # no null-terminated Buffer will be returened
+
         return result;
     }
 }
@@ -784,11 +850,20 @@ class Buffer
         self.len += len;
     }
 
-    def chars(index:size_t):byte throws Exception {
+    def chars(index:int):byte throws Exception {
         if(index < 0) {
             index += self.len;
         }
 
+        if(index >= 0 && index < self.len) {
+            return((self.buffer + index.to_ulong)->byte);
+        }
+        else {
+            throw new Exception("Invalid range on Buffer.char");
+        }
+    }
+
+    def chars(index:ulong):byte throws Exception {
         if(index >= 0 && index < self.len) {
             return((self.buffer + index)->byte);
         }
@@ -811,13 +886,54 @@ class Buffer
         return true;
     }
 
+    def clone():Buffer {
+        result:Buffer = new Buffer(self.size);
+
+        System.memcpy(result.buffer, self.buffer, self.size);
+        result.len = self.len;
+
+        return result;
+    }
+
     def toString():String throws Exception {
-        self.append(b"\0");
+        tmp:Buffer = self.clone();
+        tmp.append(b"\0");
 
         wcs:char[] = null;
-        System.mbstowcs(&wcs, self.buffer, self.len);
+        System.mbstowcs(&wcs, tmp.buffer, tmp.len);
         return new String(wcs);
     }
+
+    def subBuffer(start:int, end:int): Buffer {
+        if(start < 0) {
+            start += self.len;
+        }
+        if(end < 0) {
+            end += self.len + 1;
+        }
+
+        if(start < 0) {
+            start = 0;
+        }
+        if(end > self.len) {
+            end = self.len;
+        }
+
+        if(start >= end || start >= self.len || end < 0) {
+            return B"";
+        }
+
+        result: Buffer = new Buffer((end-start+1).to_ulong);
+
+        System.memcpy(result.buffer, self.buffer + start.to_ulong, (end-start).to_ulong);
+        (result.buffer + (end-start).to_ulong)->byte = 0b;
+
+        result.len = end-start;
+        result.size = end-start+1;
+
+        return result;
+    }
+
 }
 
 module MPrintOutObject

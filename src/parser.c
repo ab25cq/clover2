@@ -1906,7 +1906,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             return FALSE;
         }
     }
-    else if(*info->p == '0') {
+    else if(*info->p == '0' && isdigit(*(info->p+1))) {
         info->p++;
 
         if(!get_oct_number(node, info)) {

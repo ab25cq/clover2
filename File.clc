@@ -75,7 +75,12 @@ class System
     CLOCK_PROCESS_CPUTIME_ID: static int;
     CLOCK_THREAD_CPUTIME_ID: static int;
 
-    def initialize(): static native;
+    def initialize_file_system(): static native;
+
+    def initialize(): static {
+        inherit();
+        System.initialize_file_system();
+    }
     def open(file_name:String, flags:int, mode:mode_t):static native int throws Exception;
     def close(fd:int): static native int throws Exception;
     def read(fd:int, buf:Buffer, size:size_t): static native int throws Exception;

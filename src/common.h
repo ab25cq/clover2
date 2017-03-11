@@ -897,6 +897,7 @@ extern BOOL gSigInt;
 
 #define OP_PADD 600
 #define OP_PSUB 601
+#define OP_PPSUB 602
 
 #define OP_CADD 700
 #define OP_CSUB 701
@@ -1824,7 +1825,8 @@ BOOL System_srand(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_rand(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_open(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_close(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
-BOOL System_initialize(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_initialize_string_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_initialize_file_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_read(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_write(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_time(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
