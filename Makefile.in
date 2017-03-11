@@ -23,11 +23,12 @@ OS=@OS@
 OBJS=@OBJS@
 COMPILER_OBJS=@COMPILER_OBJS@
 COMMON_OBJS=@COMMON_OBJS@
+INTERPRETER=@INTERPRETER@
 
 ##########################################################
 # main
 ##########################################################
-all: cclover2 clover2 iclover2
+all: cclover2 clover2 $(INTERPRETER)
 	if test $(OS) = DARWIN; then ctags src/*.c > /dev/null 2>&1; else ctags -R; fi
 
 cclover2: config.h src/compiler.o $(COMMON_OBJS) $(COMPILER_OBJS)
@@ -120,7 +121,7 @@ install:
 	mkdir -p "$(bindir)"
 	$(INSTALL) -m 755 clover2 "$(bindir)"
 	$(INSTALL) -m 755 cclover2 "$(bindir)"
-	$(INSTALL) -m 755 iclover2 "$(bindir)"
+	if test -e ./iclover2; then $(INSTALL) -m 755 iclover2 "$(bindir)"; fi
 
 #########################################################
 # uninstall

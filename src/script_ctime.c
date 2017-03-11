@@ -205,9 +205,11 @@ BOOL compile_script(char* fname, char* source)
         cinfo.sline = gNodes[node].mLine;
 
         if(info.err_num == 0 && node != 0) {
+#ifdef ENABLE_INTERPRETER
             append_opecode_to_code(cinfo.code, OP_HEAD_OF_EXPRESSION, cinfo.no_output);
             append_str_to_constant_pool_and_code(cinfo.constant, cinfo.code, cinfo.sname, cinfo.no_output);
             append_int_value_to_code(cinfo.code, cinfo.sline, cinfo.no_output);
+#endif
 
             if(!compile(node, &cinfo)) {
                 sByteCode_free(&code);
@@ -217,7 +219,9 @@ BOOL compile_script(char* fname, char* source)
 
             arrange_stack(&cinfo);
 
+#ifdef ENABLE_INTERPRETER
             append_opecode_to_code(cinfo.code, OP_SIGINT, cinfo.no_output);
+#endif
         }
 
         if(*info.p == ';') {

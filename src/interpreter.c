@@ -1451,9 +1451,11 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
         cinfo.sline = gNodes[node].mLine;
 
         if(info.err_num == 0 && node != 0) {
+#ifdef ENABLE_INTERPRETER
             append_opecode_to_code(cinfo.code, OP_HEAD_OF_EXPRESSION, cinfo.no_output);
             append_str_to_constant_pool_and_code(cinfo.constant, cinfo.code, cinfo.sname, cinfo.no_output);
             append_int_value_to_code(cinfo.code, cinfo.sline, cinfo.no_output);
+#endif
 
             if(!compile(node, &cinfo)) {
                 return FALSE;
@@ -1461,7 +1463,9 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
 
             arrange_stack(&cinfo);
 
+#ifdef ENABLE_INTERPRETER
             append_opecode_to_code(cinfo.code, OP_SIGINT, cinfo.no_output);
+#endif
         }
 
         if(*info.p == ';') {

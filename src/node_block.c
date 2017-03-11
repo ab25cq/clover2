@@ -111,9 +111,11 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info)
         info->sname = gNodes[node].mSName;
         info->sline = gNodes[node].mLine;
 
+#ifdef ENABLE_INTERPRETER
         append_opecode_to_code(info->code, OP_HEAD_OF_EXPRESSION, info->no_output);
         append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
         append_int_value_to_code(info->code, info->sline, info->no_output);
+#endif
 
         if(!compile(node, info)) {
             info->lv_table = old_table;
@@ -122,7 +124,9 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info)
         }
         arrange_stack(info);
 
+#ifdef ENABLE_INTERPRETER
         append_opecode_to_code(info->code, OP_SIGINT, info->no_output);
+#endif
     }
 
     info->stack_num = stack_num_before;

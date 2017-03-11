@@ -22,6 +22,7 @@ LOGGING=0
 AC_ARG_WITH(debug,              [  --with-debug              include debug info ], [ DEBUGGING=1; ], [])
 AC_ARG_WITH(log,                [  --with-log                create log ], [ LOGGING=1; ], [])
 AC_ARG_WITH(optimize,           [  --with-optimize           with optimize(-O in CFLAGS) ], [ ENABLE_OPTIMIZE=1 ], [ ENABLE_OPTIMIZE=0 ])
+AC_ARG_WITH(interpreter,           [  --with-interpreter        with interpreter ], [ ENABLE_INTERPRETER=1 ], [ ENABLE_INTERPRETER=0])
 
 #####################################################################
 # check cpu type
@@ -120,6 +121,13 @@ fi
 if test $ENABLE_OPTIMIZE = 1
 then
     CFLAGS="$CFLAGS -O3"
+fi
+
+if test $ENABLE_INTERPRETER = 1
+then
+    CFLAGS="$CFLAGS -DENABLE_INTERPRETER"
+    INTERPRETER=iclover2
+    AC_SUBST(INTERPRETER)
 fi
 
 if test $DEBUGGING = 1

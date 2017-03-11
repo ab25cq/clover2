@@ -511,11 +511,10 @@ class String
         offset:int = 0;
 
         buffer:Buffer = self.toBuffer();
+        ovec_max:int = 16;
+        ovec:PcreOVec = new PcreOVec(ovec_max);
 
         while(true) {
-            ovec_max:int = 16;
-            ovec:PcreOVec = new PcreOVec(ovec_max);
-
             regex_result:int = System.pcre_exec(separator, buffer, offset, ovec_max, ovec);
 
             ### match and no group strings ###

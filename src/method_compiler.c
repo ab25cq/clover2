@@ -76,9 +76,11 @@ BOOL compile_method(sCLMethod* method, sParserParam* params, int num_params, sPa
             cinfo2.sline = gNodes[node].mLine;
 
             if(info->err_num == 0) {
+#ifdef ENABLE_INTERPRETER
                 append_opecode_to_code(cinfo2.code, OP_HEAD_OF_EXPRESSION, cinfo2.no_output);
                 append_str_to_constant_pool_and_code(cinfo2.constant, cinfo2.code, cinfo2.sname, cinfo2.no_output);
                 append_int_value_to_code(cinfo2.code, cinfo2.sline, cinfo2.no_output);
+#endif
 
                 if(!compile(node, &cinfo2)) {
                     sByteCode_free(cinfo2.code);
@@ -86,7 +88,9 @@ BOOL compile_method(sCLMethod* method, sParserParam* params, int num_params, sPa
                 }
 
                 arrange_stack(&cinfo2);
+#ifdef ENABLE_INTERPRETER
                 append_opecode_to_code(cinfo2.code, OP_SIGINT, cinfo2.no_output);
+#endif
             }
 
             if(*info->p == ';') {

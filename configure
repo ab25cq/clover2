@@ -625,6 +625,7 @@ COMMON_OBJS
 COMPILER_OBJS
 OBJS
 OS
+INTERPRETER
 EGREP
 GREP
 CPP
@@ -682,6 +683,7 @@ enable_option_checking
 with_debug
 with_log
 with_optimize
+with_interpreter
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1301,6 +1303,7 @@ Optional Packages:
   --with-debug              include debug info
   --with-log                create log
   --with-optimize           with optimize(-O in CFLAGS)
+  --with-interpreter        with interpreter
 
 Some influential environment variables:
   CC          C compiler command
@@ -3596,6 +3599,14 @@ else
 fi
 
 
+# Check whether --with-interpreter was given.
+if test "${with_interpreter+set}" = set; then :
+  withval=$with_interpreter;  ENABLE_INTERPRETER=1
+else
+   ENABLE_INTERPRETER=0
+fi
+
+
 #####################################################################
 # check cpu type
 #####################################################################
@@ -3735,6 +3746,13 @@ fi
 if test $ENABLE_OPTIMIZE = 1
 then
     CFLAGS="$CFLAGS -O3"
+fi
+
+if test $ENABLE_INTERPRETER = 1
+then
+    CFLAGS="$CFLAGS -DENABLE_INTERPRETER"
+    INTERPRETER=iclover2
+
 fi
 
 if test $DEBUGGING = 1

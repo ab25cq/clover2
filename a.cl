@@ -1,3 +1,4 @@
-a:String = null;
 
-a.scan(/./)
+Clover.realtime(lambda() {
+    p"src/parser.c".read().toString().split(/\n/);
+}).toString().println();
