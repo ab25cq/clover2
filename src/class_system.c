@@ -625,16 +625,18 @@ BOOL System_mbstowcs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* dest = lvar;
     CLVALUE* src = lvar+1;
     CLVALUE* size = lvar+2;
+    CLVALUE* append_null_terminated = lvar+3;
 
     /// clover variable to c variable ///
     char* src_value = src->mPointerValue;
     size_t size_value = size->mULongValue;
     wchar_t* wcs = MCALLOC(1, sizeof(wchar_t)*(size_value));
     CLVALUE* dest_value = (CLVALUE*)dest->mPointerValue;
+    BOOL append_null_terminated_value = append_null_terminated->mBoolValue;
 
-    BOOL null_terminated = FALSE;
+    BOOL already_null_terminated = FALSE;
     if(src_value[size_value-1] == '\0') {
-        null_terminated = TRUE;
+        already_null_terminated = TRUE;
     }
 
     /// go ///
@@ -651,7 +653,7 @@ BOOL System_mbstowcs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     MASSERT(klass != NULL);
 
-    if(null_terminated) {
+    if(already_null_terminated || append_null_terminated) {
         CLObject object = create_array_object(klass, size_wcs+1);
         sCLObject* object_data = CLOBJECT(object);
 

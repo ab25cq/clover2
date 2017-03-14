@@ -111,7 +111,7 @@ static sNativeMethod gNativeMethods[] = {
     { "System.sleep(int)", System_sleep },
     { "System.pcre_exec(regex,Buffer,int,int,PcreOVec)", System_pcre_exec },
     { "System.sprintf(String,Array)", System_sprintf },
-    { "System.mbstowcs(pointer,pointer,ulong)", System_mbstowcs },
+    { "System.mbstowcs(pointer,pointer,ulong,bool)", System_mbstowcs },
     { "System.wcstombs(pointer,char[])", System_wcstombs },
     { "System.atoi(String)", System_atoi },
     { "System.atof(String)", System_atof },

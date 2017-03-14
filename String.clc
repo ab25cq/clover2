@@ -26,7 +26,7 @@ class System
     def strcasecmp(str1:String, str2:String): native static int;
     def strtol(str:String, base:int): native static long;
     def strtoul(str:String, base:int): native static ulong;
-    def mbstowcs(dest:pointer@wchar[], src:pointer@utf8-string-memory, size:size_t): static native int throws Exception;
+    def mbstowcs(dest:pointer@wchar[], src:pointer@utf8-string-memory, size:size_t, append_null_terminated:bool): static native int throws Exception;
     def wcstombs(dest:pointer@byte[], src:char[]): static native int throws Exception;
 
     MB_LEN_MAX:static int;
@@ -502,6 +502,25 @@ class String
         return self;
     }
 
+    def split(c:char): EqualableList<String> {
+        result:EqualableList<String> = new EqualableList<String>();
+        offset:int = 0;
+        str:String = "";
+
+        for(i:=0; i<self.len; i++) {
+            if(self.buffer[i] == c) {
+                result.add(str);
+                str = "";
+            }
+            else {
+                str.append(self.buffer[i]);
+            }
+        }
+
+
+        return result;
+    }
+
     def split(separator:regex):EqualableList<String> {
         result:EqualableList<String> = new EqualableList<String>();
         offset:int = 0;
@@ -604,6 +623,28 @@ class String
         }
 
         return result;
+    }
+
+    def indexOf(str:String, count:int):int throws Exception {
+        result:int = -1;
+        count2:int = 0;
+        len:int = str.length();
+
+        for(i:=0; i<self.len; i++) {
+            if(self.subString(i, i+len).equals(str)) {
+                count2++;
+                if(count2 == count) {
+                    result = i;
+                    break;
+                }
+            }
+        }
+
+        return result;
+    }
+
+    def indexOf(str:String):int {
+        return self.indexOf(str, 1);
     }
 
     def indexOf(regex_:regex, count:int):int throws Exception {
@@ -889,11 +930,8 @@ class Buffer
     }
 
     def toString():String throws Exception {
-        tmp:Buffer = self.clone();
-        tmp.append(b"\0");
-
         wcs:char[] = null;
-        System.mbstowcs(&wcs, tmp.buffer, tmp.len);
+        System.mbstowcs(&wcs, self.buffer, self.len, true);
         return new String(wcs);
     }
 
@@ -916,13 +954,14 @@ class Buffer
             return B"";
         }
 
-        result: Buffer = new Buffer((end-start+1).to_ulong);
+        result: Buffer = new Buffer(end-start.to_ulong);
 
         System.memcpy(result.buffer, self.buffer + start.to_ulong, (end-start).to_ulong);
-        (result.buffer + (end-start).to_ulong)->byte = 0b;
 
         result.len = end-start;
-        result.size = end-start+1;
+        result.size = end-start;
+
+        # no null-terminated buffer will be returned
 
         return result;
     }

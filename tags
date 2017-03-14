@@ -60,9 +60,9 @@ HAVE_PCRE_H	config.h	6;"	d
 INSTALL	Makefile	/^INSTALL=\/usr\/bin\/install -c$/;"	m
 INTERPRETER	Makefile	/^INTERPRETER=$/;"	m
 LANG	Makefile	/^	export LANG="ja_JP.utf8"; export LC_ALL="ja_JP.utf8"; .\/cclover2 code\/char.cl && .\/clover2 code\/char.clo$/;"	m
-LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM	src/class_system.c	1628;"	d	file:
-LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM	src/class_system.c	1086;"	d	file:
-LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM	src/class_system.c	996;"	d	file:
+LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM	src/class_system.c	1630;"	d	file:
+LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM	src/class_system.c	1088;"	d	file:
+LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM	src/class_system.c	998;"	d	file:
 LIBS	Makefile	/^LIBS= -lutil -lreadline -ldl -lm -lpcre -lrt$/;"	m
 LIST_VALUE_ELEMENT_MAX	src/common.h	54;"	d
 LOCAL_VARIABLE_MAX	src/common.h	372;"	d

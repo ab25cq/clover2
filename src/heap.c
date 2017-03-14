@@ -246,8 +246,7 @@ CLObject alloc_heap_mem(int size, sCLClass* klass, int array_num)
         if(gCLHeap.mMemLen + size >= gCLHeap.mMemSize) {
             BOOL current_is_mem_a = gCLHeap.mMem == gCLHeap.mCurrentMem;
 
-            int new_heap_size = (gCLHeap.mMemLen + size + 1) * 2;
-
+            int new_heap_size = (gCLHeap.mMemLen + size + 1) * 10;
 
             gCLHeap.mMem = MREALLOC(gCLHeap.mMem, new_heap_size);
             memset(gCLHeap.mMem + gCLHeap.mMemSize, 0, new_heap_size - gCLHeap.mMemSize);
@@ -277,7 +276,7 @@ CLObject alloc_heap_mem(int size, sCLClass* klass, int array_num)
     /// no free handle. get new one ///
     else {
         if(gCLHeap.mNumHandles == gCLHeap.mSizeHandles) {
-            const int new_offset_size = (gCLHeap.mSizeHandles + 1) * 2;
+            const int new_offset_size = (gCLHeap.mSizeHandles + 1) * 10;
 
 
             gCLHeap.mHandles = MREALLOC(gCLHeap.mHandles, sizeof(sHandle)*new_offset_size);

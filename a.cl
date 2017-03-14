@@ -1,6 +1,6 @@
 
-3.times(lambda() {
-    Clover.realtime(lambda() {
-        p"src/parser.c".read().toString().split(/\n/);
-    }).toString().print();
+1.times(lambda() {
+    Clover.time(lambda() {
+        p"src/".glob("*.c").grep(/main/);
+    }).toString().println();
 });

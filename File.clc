@@ -144,7 +144,7 @@ class timespec
     }
 
     def toString():String {
-        return sprintf("%lu.%09lu sec\n", array { self.tv_sec.toULong, self.tv_nsec.toULong });
+        return sprintf("%lu.%09lu sec", array { self.tv_sec.toULong, self.tv_nsec.toULong });
     }
 }
 
