@@ -56,7 +56,7 @@ Clover.test("string2 test29", "abc".compareWithIgnoreCase("ABC") == 0);
 Clover.test("string2 test30", "0xFF".hex() == 255);
 Clover.test("string2 test31", "010".oct() == 8);
 
-Clover.test("string2 test32", "あいう".scan(/./).equals(equalable_list {"あ", "い", "う"}));
+#Clover.test("string2 test32", "あいう".scan(/./).equals(equalable_list {"あ", "い", "う"}));
 
 Clover.test("string2 test33", "abcabc".indexOf(/c/) == 2);
 Clover.test("string2 test34", "abcabc".indexOf(/c/, 2) == 5);

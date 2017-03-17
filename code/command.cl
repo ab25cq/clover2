@@ -4,5 +4,5 @@
 
 #Clover.jobs.items(0).forground();
 
-Command.pwd().print();
+Command.pwd().toString().print();
 
