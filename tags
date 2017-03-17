@@ -12,7 +12,7 @@ BREAK_NUM_MAX	src/common.h	45;"	d
 BUFFER_H	src/buffer.h	2;"	d
 BYTE_CODE_INIT_SIZE	src/code.c	3;"	d	file:
 CC	Makefile	/^CC=clang$/;"	m
-CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -I\/home\/ab25cq\/include -L\/home\/ab25cq\/lib  -I\/usr\/local\/include -L \/usr\/local\/lib -g -DMDEBUG -Werror -Qunused-arguments$/;"	m
+CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -I\/home\/ab25cq\/include -L\/home\/ab25cq\/lib  -I\/usr\/local\/include -L \/usr\/local\/lib -DENABLE_INTERPRETER -g -DMDEBUG -Werror -Qunused-arguments$/;"	m
 CHECKML_BEGIN	src/debug.h	11;"	d
 CHECKML_BEGIN	src/debug.h	38;"	d
 CHECKML_END	src/debug.h	12;"	d
@@ -41,7 +41,6 @@ COMMON_OBJS	Makefile	/^COMMON_OBJS=src\/buffer.o src\/debug.o src\/xfunc.o src\/
 COMPILER_OBJS	Makefile	/^COMPILER_OBJS=src\/parser.o src\/node_type.o src\/node.o src\/cast.o src\/vtable.o src\/script_ctime.o src\/node_block.o src\/node_block_type.o src\/class_compiler.o src\/klass_compile_time.o src\/method_compiler.o src\/module.o$/;"	m
 CONS_str	src/common.h	113;"	d
 Clover_load	src/class_clover.c	/^BOOL Clover_load(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
-CreateProcess	ltmain.sh	/^   CreateProcess().  We must quote the arguments since Win32 CreateProcess()$/;"	f
 DEBUG_H	src/debug.h	2;"	d
 DUMMY_ARRAY_SIZE	src/common.h	1683;"	d
 ELIF_NUM_MAX	src/common.h	44;"	d
@@ -58,7 +57,7 @@ HAVE_ICONV_H	config.h	5;"	d
 HAVE_MATH_H	config.h	2;"	d
 HAVE_PCRE_H	config.h	6;"	d
 INSTALL	Makefile	/^INSTALL=\/usr\/bin\/install -c$/;"	m
-INTERPRETER	Makefile	/^INTERPRETER=$/;"	m
+INTERPRETER	Makefile	/^INTERPRETER=iclover2$/;"	m
 LANG	Makefile	/^	export LANG="ja_JP.utf8"; export LC_ALL="ja_JP.utf8"; .\/cclover2 code\/char.cl && .\/clover2 code\/char.clo$/;"	m
 LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM	src/class_system.c	1630;"	d	file:
 LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM	src/class_system.c	1088;"	d	file:
@@ -991,25 +990,17 @@ arrange_alignment	src/code.c	/^static void arrange_alignment(sByteCode* code)$/;
 arrange_alignment	src/constant.c	/^static void arrange_alignment(sConst* self)$/;"	f	file:
 arrange_stack	src/node.c	/^void arrange_stack(sCompileInfo* cinfo)$/;"	f
 array_mark_fun	src/array.c	/^void array_mark_fun(CLObject self, unsigned char* mark_flg)$/;"	f
-as_fn_append	config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	configure	/^  as_fn_append ()$/;"	f
-as_fn_arith	config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	configure	/^  as_fn_arith ()$/;"	f
-as_fn_error	config.status	/^as_fn_error ()$/;"	f
 as_fn_error	configure	/^as_fn_error ()$/;"	f
-as_fn_executable_p	config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	configure	/^as_fn_executable_p ()$/;"	f
-as_fn_exit	config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	configure	/^as_fn_exit ()$/;"	f
 as_fn_failure	configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
-as_fn_mkdir_p	config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	configure	/^as_fn_mkdir_p ()$/;"	f
 as_fn_ret_failure	configure	/^as_fn_ret_failure () { return 1; }$/;"	f
 as_fn_ret_success	configure	/^as_fn_ret_success () { return 0; }$/;"	f
-as_fn_set_status	config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	configure	/^as_fn_set_status ()$/;"	f
 as_fn_success	configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
-as_fn_unset	config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	configure	/^as_fn_unset ()$/;"	f
 assign_operator	src/parser.c	/^static BOOL assign_operator(unsigned int* node, sParserInfo* info)$/;"	f	file:
 binary_operator	src/node.c	/^static BOOL binary_operator(unsigned int node, sNodeType* left_type, sNodeType* right_type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, int float_operand, int double_operand, int pointer_operand, int null_operand, int char_operand, int bool_operand, char* op_string, sCompileInfo* info)$/;"	f	file:
@@ -1261,103 +1252,6 @@ free_node_block_types	src/node_block_type.c	/^void free_node_block_types()$/;"	f
 free_node_types	src/node_type.c	/^void free_node_types()$/;"	f
 free_nodes	src/node.c	/^void free_nodes()$/;"	f
 free_object	src/object.c	/^BOOL free_object(CLObject self)$/;"	f
-func_append	ltmain.sh	/^func_append ()$/;"	f
-func_append_quoted	ltmain.sh	/^func_append_quoted ()$/;"	f
-func_arith	ltmain.sh	/^func_arith ()$/;"	f
-func_basename	ltmain.sh	/^func_basename ()$/;"	f
-func_check_version_match	ltmain.sh	/^func_check_version_match ()$/;"	f
-func_config	ltmain.sh	/^func_config ()$/;"	f
-func_convert_core_file_wine_to_w32	ltmain.sh	/^func_convert_core_file_wine_to_w32 ()$/;"	f
-func_convert_core_msys_to_w32	ltmain.sh	/^func_convert_core_msys_to_w32 ()$/;"	f
-func_convert_core_path_wine_to_w32	ltmain.sh	/^func_convert_core_path_wine_to_w32 ()$/;"	f
-func_convert_file_check	ltmain.sh	/^func_convert_file_check ()$/;"	f
-func_convert_file_cygwin_to_w32	ltmain.sh	/^func_convert_file_cygwin_to_w32 ()$/;"	f
-func_convert_file_msys_to_cygwin	ltmain.sh	/^func_convert_file_msys_to_cygwin ()$/;"	f
-func_convert_file_msys_to_w32	ltmain.sh	/^func_convert_file_msys_to_w32 ()$/;"	f
-func_convert_file_nix_to_cygwin	ltmain.sh	/^func_convert_file_nix_to_cygwin ()$/;"	f
-func_convert_file_nix_to_w32	ltmain.sh	/^func_convert_file_nix_to_w32 ()$/;"	f
-func_convert_file_noop	ltmain.sh	/^func_convert_file_noop ()$/;"	f
-func_convert_path_check	ltmain.sh	/^func_convert_path_check ()$/;"	f
-func_convert_path_cygwin_to_w32	ltmain.sh	/^func_convert_path_cygwin_to_w32 ()$/;"	f
-func_convert_path_front_back_pathsep	ltmain.sh	/^func_convert_path_front_back_pathsep ()$/;"	f
-func_convert_path_msys_to_cygwin	ltmain.sh	/^func_convert_path_msys_to_cygwin ()$/;"	f
-func_convert_path_msys_to_w32	ltmain.sh	/^func_convert_path_msys_to_w32 ()$/;"	f
-func_convert_path_nix_to_cygwin	ltmain.sh	/^func_convert_path_nix_to_cygwin ()$/;"	f
-func_convert_path_nix_to_w32	ltmain.sh	/^func_convert_path_nix_to_w32 ()$/;"	f
-func_convert_path_noop	ltmain.sh	/^func_convert_path_noop ()$/;"	f
-func_cygming_dll_for_implib	ltmain.sh	/^func_cygming_dll_for_implib ()$/;"	f
-func_cygming_dll_for_implib_fallback	ltmain.sh	/^func_cygming_dll_for_implib_fallback ()$/;"	f
-func_cygming_dll_for_implib_fallback_core	ltmain.sh	/^func_cygming_dll_for_implib_fallback_core ()$/;"	f
-func_cygming_gnu_implib_p	ltmain.sh	/^func_cygming_gnu_implib_p ()$/;"	f
-func_cygming_ms_implib_p	ltmain.sh	/^func_cygming_ms_implib_p ()$/;"	f
-func_cygpath	ltmain.sh	/^func_cygpath ()$/;"	f
-func_dirname	ltmain.sh	/^func_dirname ()$/;"	f
-func_dirname_and_basename	ltmain.sh	/^func_dirname_and_basename ()$/;"	f
-func_echo	ltmain.sh	/^func_echo ()$/;"	f
-func_echo_all	ltmain.sh	/^func_echo_all ()$/;"	f
-func_emit_cwrapperexe_src	ltmain.sh	/^func_emit_cwrapperexe_src ()$/;"	f
-func_emit_wrapper	ltmain.sh	/^func_emit_wrapper ()$/;"	f
-func_enable_tag	ltmain.sh	/^func_enable_tag ()$/;"	f
-func_error	ltmain.sh	/^func_error ()$/;"	f
-func_exec_program	ltmain.sh	/^func_exec_program ()$/;"	f
-func_exec_program_core	ltmain.sh	/^func_exec_program_core ()$/;"	f
-func_execute_cmds	ltmain.sh	/^func_execute_cmds ()$/;"	f
-func_extract_an_archive	ltmain.sh	/^func_extract_an_archive ()$/;"	f
-func_extract_archives	ltmain.sh	/^func_extract_archives ()$/;"	f
-func_fallback_echo	ltmain.sh	/^func_fallback_echo ()$/;"	f
-func_fatal_configuration	ltmain.sh	/^func_fatal_configuration ()$/;"	f
-func_fatal_error	ltmain.sh	/^func_fatal_error ()$/;"	f
-func_fatal_help	ltmain.sh	/^func_fatal_help ()$/;"	f
-func_features	ltmain.sh	/^func_features ()$/;"	f
-func_generate_dlsyms	ltmain.sh	/^func_generate_dlsyms ()$/;"	f
-func_grep	ltmain.sh	/^func_grep ()$/;"	f
-func_help	ltmain.sh	/^func_help ()$/;"	f
-func_infer_tag	ltmain.sh	/^func_infer_tag ()$/;"	f
-func_init_to_host_path_cmd	ltmain.sh	/^func_init_to_host_path_cmd ()$/;"	f
-func_lalib_p	ltmain.sh	/^func_lalib_p ()$/;"	f
-func_lalib_unsafe_p	ltmain.sh	/^func_lalib_unsafe_p ()$/;"	f
-func_len	ltmain.sh	/^func_len ()$/;"	f
-func_lo2o	ltmain.sh	/^func_lo2o ()$/;"	f
-func_lt_dump_args	ltmain.sh	/^func_lt_dump_args ()$/;"	f
-func_ltwrapper_executable_p	ltmain.sh	/^func_ltwrapper_executable_p ()$/;"	f
-func_ltwrapper_p	ltmain.sh	/^func_ltwrapper_p ()$/;"	f
-func_ltwrapper_script_p	ltmain.sh	/^func_ltwrapper_script_p ()$/;"	f
-func_ltwrapper_scriptname	ltmain.sh	/^func_ltwrapper_scriptname ()$/;"	f
-func_missing_arg	ltmain.sh	/^func_missing_arg ()$/;"	f
-func_mkdir_p	ltmain.sh	/^func_mkdir_p ()$/;"	f
-func_mktempdir	ltmain.sh	/^func_mktempdir ()$/;"	f
-func_mode_compile	ltmain.sh	/^func_mode_compile ()$/;"	f
-func_mode_execute	ltmain.sh	/^func_mode_execute ()$/;"	f
-func_mode_finish	ltmain.sh	/^func_mode_finish ()$/;"	f
-func_mode_help	ltmain.sh	/^func_mode_help ()$/;"	f
-func_mode_install	ltmain.sh	/^func_mode_install ()$/;"	f
-func_mode_link	ltmain.sh	/^func_mode_link ()$/;"	f
-func_mode_uninstall	ltmain.sh	/^func_mode_uninstall ()$/;"	f
-func_normal_abspath	ltmain.sh	/^func_normal_abspath ()$/;"	f
-func_parse_lt_options	ltmain.sh	/^func_parse_lt_options ()$/;"	f
-func_quote_for_eval	ltmain.sh	/^func_quote_for_eval ()$/;"	f
-func_quote_for_expand	ltmain.sh	/^func_quote_for_expand ()$/;"	f
-func_relative_path	ltmain.sh	/^func_relative_path ()$/;"	f
-func_replace_sysroot	ltmain.sh	/^func_replace_sysroot ()$/;"	f
-func_resolve_sysroot	ltmain.sh	/^func_resolve_sysroot ()$/;"	f
-func_show_eval	ltmain.sh	/^func_show_eval ()$/;"	f
-func_show_eval_locale	ltmain.sh	/^func_show_eval_locale ()$/;"	f
-func_source	ltmain.sh	/^func_source ()$/;"	f
-func_split_long_opt	ltmain.sh	/^func_split_long_opt ()$/;"	f
-func_split_short_opt	ltmain.sh	/^func_split_short_opt ()$/;"	f
-func_stripname	ltmain.sh	/^func_stripname ()$/;"	f
-func_to_host_file	ltmain.sh	/^func_to_host_file ()$/;"	f
-func_to_host_path	ltmain.sh	/^func_to_host_path ()$/;"	f
-func_to_tool_file	ltmain.sh	/^func_to_tool_file ()$/;"	f
-func_tr_sh	ltmain.sh	/^func_tr_sh ()$/;"	f
-func_usage	ltmain.sh	/^func_usage ()$/;"	f
-func_verbose	ltmain.sh	/^func_verbose ()$/;"	f
-func_version	ltmain.sh	/^func_version ()$/;"	f
-func_warning	ltmain.sh	/^func_warning ()$/;"	f
-func_win32_import_lib_p	ltmain.sh	/^func_win32_import_lib_p ()$/;"	f
-func_win32_libid	ltmain.sh	/^func_win32_libid ()$/;"	f
-func_write_libtool_object	ltmain.sh	/^func_write_libtool_object ()$/;"	f
-func_xform	ltmain.sh	/^func_xform ()$/;"	f
 gCLHeap	src/heap.c	/^static sCLHeapManager gCLHeap;$/;"	v	file:
 gCandidates	src/interpreter.c	/^char** gCandidates = NULL;$/;"	v
 gCastMethods	src/node.c	/^struct sCastMethods gCastMethods[] = {$/;"	v	typeref:struct:sCastMethods
