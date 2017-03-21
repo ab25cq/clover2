@@ -243,6 +243,9 @@ ALLOC ALLOC char** get_method_names_with_arguments(sCLClass* klass, BOOL class_m
     *(result+result_num) = MANAGED MSTRDUP("className()");
     result_num++;
 
+    *(result+result_num) = MANAGED MSTRDUP("toNull()");
+    result_num++;
+
     if(result_num >= result_size) {
         result_size *= 2;
         result = MREALLOC(result, sizeof(char*)*result_size);

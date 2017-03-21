@@ -2323,8 +2323,13 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
             return TRUE;
         }
 
+        append_opecode_to_code(info->code, OP_POP, info->no_output);
+
+        info->stack_num--;
+
         append_opecode_to_code(info->code, OP_LDCINT, info->no_output);
         append_int_value_to_code(info->code, 0, info->no_output);
+
         info->stack_num++;
 
         info->type = create_node_type_with_class_name("Null");
