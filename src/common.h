@@ -1,7 +1,9 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
 
 #include <string.h>
 #include <stdlib.h>
@@ -291,7 +293,7 @@ struct sClassTableStruct
 
 typedef struct sClassTableStruct sClassTable;
 
-sClassTable* gHeadClassTable;
+extern sClassTable* gHeadClassTable;
 
 typedef fNativeMethod (*fGetNativeMethod)(char* path);
 extern fGetNativeMethod gGetNativeMethod;
@@ -1956,6 +1958,11 @@ int utf32_index_to_utf8_index(char* str, int utf32index);
 
 /// class_clover.c ///
 BOOL Clover_load(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+
+/// jit.cpp ///
+BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sVMInfo* info);
+void jit_init();
+void jit_final();
 
 #endif
 

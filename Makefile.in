@@ -16,8 +16,10 @@ docdir=@datadir@/doc
 # environmnet variables
 ##########################################################
 CC=@CC@
+CXX=@CXX@
 INSTALL=@INSTALL@
 CFLAGS=@CFLAGS@
+CXXFLAGS=@CXXFLAGS@
 LIBS=@LIBS@
 OS=@OS@
 OBJS=@OBJS@
@@ -32,13 +34,13 @@ all: cclover2 clover2 $(INTERPRETER)
 	if test $(OS) = DARWIN; then ctags src/*.c > /dev/null 2>&1; else ctags -R; fi
 
 cclover2: config.h src/compiler.o $(COMMON_OBJS) $(COMPILER_OBJS)
-	clang -o cclover2 src/compiler.o $(COMMON_OBJS) $(COMPILER_OBJS) $(CFLAGS) $(LIBS)
+	$(CC) -o cclover2 src/compiler.o $(COMMON_OBJS) $(COMPILER_OBJS) $(CFLAGS) $(LIBS)
 
 clover2: config.h src/main.o $(COMMON_OBJS) $(OBJS)
-	clang -o clover2 src/main.o $(COMMON_OBJS) $(OBJS) $(CFLAGS) $(LIBS)
+	$(CXX) -o clover2 src/main.o $(COMMON_OBJS) $(OBJS) $(CFLAGS) $(LIBS) $(CXXFLAGS)
 
 iclover2: config.h src/interpreter.o $(COMMON_OBJS) $(OBJS) $(COMPILER_OBJS)
-	clang -o iclover2 src/interpreter.o $(COMMON_OBJS) $(OBJS) $(COMPILER_OBJS) $(CFLAGS) $(LIBS)
+	$(CXX) -o iclover2 src/interpreter.o $(COMMON_OBJS) $(OBJS) $(COMPILER_OBJS) $(CFLAGS) $(LIBS) $(CXXFLAGS)
 
 #########################################################
 # Object files
@@ -167,7 +169,7 @@ test:
 	./cclover2 -class code/initialize_test.clc && ./cclover2 code/initialize_test.cl && ./clover2 code/initialize_test.clo
 	./cclover2 -class code/stack.clc && ./cclover2 code/stack.cl && ./clover2 code/stack.clo
 	./cclover2 code/array.cl && ./clover2 code/array.clo
-	export LANG="ja_JP.utf8"; export LC_ALL="ja_JP.utf8"; ./cclover2 code/char.cl && ./clover2 code/char.clo
+	if locale -a | grep ja_JP.utf8; then export LANG="ja_JP_utf8"; export LC_ALL="ja_JP.utf8"; ./cclover2 code/char.cl && ./clover2 code/char.clo; else export LANG="C.UTF-8"; export LC_ALL="C.UTF-8"; ./cclover2 code/char.cl && ./clover2 code/char.clo; fi
 	./cclover2 code/hello_world.cl && ./clover2 code/hello_world.clo
 	./cclover2 code/cast.cl && ./clover2 code/cast.clo
 	./cclover2 code/string.cl && ./clover2 code/string.clo
