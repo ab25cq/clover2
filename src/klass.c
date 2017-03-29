@@ -357,7 +357,8 @@ static BOOL read_methods_from_file(int fd, sCLMethod** methods, int* num_methods
             char* path = CONS_str(&klass->mConst, method->mPathOffset);
 
             if(gGetNativeMethod) { // if running Virtual Matchine,  gGetNativeMethod is not NULL
-                fNativeMethod native_method = gGetNativeMethod(path);
+                char* fun_name;
+                fNativeMethod native_method = gGetNativeMethod(path, &fun_name);
 
                 if(native_method == NULL) {
                     fprintf(stderr, "%s is not found\n", path);
@@ -365,6 +366,7 @@ static BOOL read_methods_from_file(int fd, sCLMethod** methods, int* num_methods
                 }
 
                 method->uCode.mNativeMethod = native_method;
+                method->uCode.mNativeFunName = fun_name;
             }
 
             method->mVarNum = 0;

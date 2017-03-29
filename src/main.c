@@ -8,10 +8,12 @@ static void clover2_init()
     heap_init(128, 128);
     stack_init();
     (void)class_init_on_runtime();
+    jit_init();
 }
 
 static void clover2_final()
 {
+    jit_final();
     native_method_final();
     stack_final();
     heap_final();

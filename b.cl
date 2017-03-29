@@ -1,1 +1,3 @@
-1+1
+a:JITTest  = new JITTest();
+a.run();
+

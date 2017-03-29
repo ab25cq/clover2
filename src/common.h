@@ -79,6 +79,7 @@ union CLVALUEUnion {
     double mDoubleValue;
     BOOL mBoolValue;
     char* mPointerValue;
+    void* LLVMValue;
 };
 
 typedef union CLVALUEUnion CLVALUE;
@@ -168,6 +169,7 @@ typedef struct sCLParamStruct sCLParam;
 
 #define METHOD_FLAGS_NATIVE 0x01
 #define METHOD_FLAGS_CLASS_METHOD 0x02
+#define METHOD_FLAGS_JIT 0x04
 #define EXCEPTION_MESSAGE_MAX 256
 
 struct sVMInfoStruct {
@@ -195,7 +197,10 @@ struct sCLMethodStruct {
 
     union {
         sByteCode mByteCodes;
-        fNativeMethod mNativeMethod;
+        struct {
+            fNativeMethod mNativeMethod;
+            char* mNativeFunName;
+        };
     } uCode;
     
     int mVarNum;
@@ -295,7 +300,7 @@ typedef struct sClassTableStruct sClassTable;
 
 extern sClassTable* gHeadClassTable;
 
-typedef fNativeMethod (*fGetNativeMethod)(char* path);
+typedef fNativeMethod (*fGetNativeMethod)(char* path, char** native_method_name);
 extern fGetNativeMethod gGetNativeMethod;
 
 /// node_type.c ///
@@ -1580,7 +1585,7 @@ BOOL class_init_on_runtime();
 BOOL compile_class_source(char* fname, char* source);
 
 /// klass_compile_time.c ///
-BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_);
+BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_, BOOL jit_);
 BOOL add_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type);
 BOOL add_typedef_to_class(sCLClass* klass, char* class_name1, char* class_name2);
 BOOL add_class_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type);
@@ -1601,7 +1606,7 @@ void create_method_name_and_params(char* result, int size_result, sCLClass* klas
 void native_method_init();
 void native_method_final();
 
-fNativeMethod get_native_method(char* path);
+fNativeMethod get_native_method(char* path, char** fun_name);
 
 /// exception.c ///
 void entry_exception_object_with_class_name(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, char* class_name, char* msg, ...);
@@ -1960,7 +1965,7 @@ int utf32_index_to_utf8_index(char* str, int utf32index);
 BOOL Clover_load(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 /// jit.cpp ///
-BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sVMInfo* info);
+BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sCLMethod* method, sVMInfo* info);
 void jit_init();
 void jit_final();
 

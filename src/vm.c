@@ -447,11 +447,22 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
         /// initialize local var except params ///
         memset(lvar + real_param_num, 0, sizeof(CLVALUE)* (new_var_num - real_param_num));
 
-        if(!vm(code, constant, new_stack, new_var_num, klass, info)) {
-            *stack_ptr = lvar;
-            **stack_ptr = *(new_stack + new_var_num);
-            (*stack_ptr)++;
-            return FALSE;
+        if(method->mFlags & METHOD_FLAGS_JIT) {
+            if(!jit(code, constant, stack, var_num, klass, method, info))
+            {
+                *stack_ptr = lvar;
+                **stack_ptr = *(new_stack + new_var_num);
+                (*stack_ptr)++;
+                return FALSE;
+            }
+        }
+        else {
+            if(!vm(code, constant, new_stack, new_var_num, klass, info)) {
+                *stack_ptr = lvar;
+                **stack_ptr = *(new_stack + new_var_num);
+                (*stack_ptr)++;
+                return FALSE;
+            }
         }
 
         *stack_ptr = lvar;      // see OP_RETURN

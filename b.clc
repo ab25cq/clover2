@@ -1,0 +1,9 @@
+class JITTest 
+{
+    def initialize() {
+    }
+
+    def run(): jit {
+        1+1;
+    }
+}

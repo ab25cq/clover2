@@ -1502,10 +1502,12 @@ static void clover2_init()
     stack_init();
     (void)class_init_on_runtime();
     set_boxing_and_unboxing_classes();
+    jit_init();
 }
 
 static void clover2_final()
 {
+    jit_final();
     native_method_final();
     stack_final();
     heap_final();
