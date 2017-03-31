@@ -140,65 +140,67 @@ private:
 };
 
 static LLVMContext TheContext;
-static std::map<std::string, Value *> NamedValues;
 static IRBuilder<> Builder(TheContext);
 static std::unique_ptr<Module> TheModule;
 static std::unique_ptr<legacy::FunctionPassManager> TheFPM;
 static std::unique_ptr<CloverJIT> TheJIT;
 
-class PrototypeAST {
+class FunctionAST {
 public:
     std::string name;
-    std::vector<std::string> args;
+    Function* llvmFunction;
 
-    PrototypeAST(const std::string &name, std::vector<std::string> args)
-        : name(name), args(std::move(args)) 
+    FunctionAST(const std::string &name)
+        : name(name)
     {
-    }
-
-    Function* entry()
-    {
-        Type* result_type = IntegerType::get(TheContext, 32);
-
         std::vector<Type *> params;
+
         Type* param1_type = PointerType::get(IntegerType::get(TheContext,64), 0);
         params.push_back(param1_type);
         Type* param2_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
         params.push_back(param2_type);
         Type* param3_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
         params.push_back(param3_type);
+        Type* param4_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+        params.push_back(param4_type);
+
+        Type* result_type = IntegerType::get(TheContext, 32);
         FunctionType* function_type = FunctionType::get(result_type, params, false);
 
         Function* function = Function::Create(function_type, Function::ExternalLinkage, name, TheModule.get());
+        std::vector<std::string> args;
+
+        std::string arg1("stack_ptr");
+        args.push_back(arg1);
+        std::string arg2("lvar");
+        args.push_back(arg2);
+        std::string arg3("info");
+        args.push_back(arg3);
+        std::string arg4("stack");
+        args.push_back(arg4);
+
         unsigned index = 0;
         for (auto &arg : function->args()) {
             arg.setName(args[index++]);
         }
 
-        return function;
+        this->llvmFunction = function;
     }
 };
 
-static std::map<std::string, std::unique_ptr<PrototypeAST>> FunctionProtos;
+static std::map<std::string, std::unique_ptr<FunctionAST>> LLVMFunctions;
 
 static void InitializeModuleAndPassManager() 
 {
-    // Open a new module.
     TheModule = llvm::make_unique<Module>("Clover2 jit", TheContext);
     TheModule->setDataLayout(TheJIT->getTargetMachine().createDataLayout());
     
-    // Create a new pass manager attached to it.
     TheFPM = llvm::make_unique<legacy::FunctionPassManager>(TheModule.get());
     
-    // Do simple "peephole" optimizations and bit-twiddling optzns.
     TheFPM->add(createInstructionCombiningPass());
-    // Reassociate expressions.
     TheFPM->add(createReassociatePass());
-    // Eliminate Common SubExpressions.
     TheFPM->add(createGVNPass());
-    // Simplify the control flow graph (deleting unreachable blocks, etc).
     TheFPM->add(createCFGSimplificationPass());
-    
     TheFPM->doInitialization();
 }
 
@@ -304,40 +306,52 @@ static BOOL invoke_method_in_jit(sCLClass* klass, sCLMethod* method, CLVALUE* st
     return TRUE;
 }
 
-static void push_value_to_stack_ptr(std::map<std::string, Value*> params, BasicBlock* block, Value* value)
+static void inc_stack_ptr(std::map<std::string, Value*>& params, BasicBlock* block, int value)
 {
     std::string arg_name("stack_ptr");
     Value* stack_ptr_value = params[arg_name];
-    Value* stack_ptr_value_address = Builder.CreateLoad(stack_ptr_value, "var_tmp");
 
-    StoreInst* store_inst = new StoreInst(stack_ptr_value_address, value);
-    store_inst->setAlignment(4);
-    block->getInstList().push_back(store_inst);
+    Value* stack_ptr_value_address = ConstantExpr::getIntToPtr(cast<Constant>(stack_ptr_value), PointerType::getUnqual(Builder.getInt64Ty()));
 
     Value* lvalue = stack_ptr_value_address;
-    Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(64, 1, true));
+    Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(64, 8*value, true));
+    Value* inc_ptr_value = Builder.CreateAdd(lvalue, rvalue, "inc_ptr_value", false, false);
 
-    Value* inc_value = Builder.CreateAdd(lvalue, rvalue, "inc_ptr", false, false);
+    params[arg_name] = inc_ptr_value;
+}
 
-    StoreInst* store_inst2 = new StoreInst(stack_ptr_value_address, inc_value);
-    store_inst2->setAlignment(4);
-    block->getInstList().push_back(store_inst2);
+static void dec_stack_ptr(std::map<std::string, Value*>& params, BasicBlock* block, int value)
+{
+    std::string arg_name("stack_ptr");
+    Value* stack_ptr_value = params[arg_name];
+
+    Value* stack_ptr_value_address = ConstantExpr::getIntToPtr(cast<Constant>(stack_ptr_value), PointerType::getUnqual(Builder.getInt64Ty()));
+
+    Value* lvalue = stack_ptr_value_address;
+    Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(64, 8*value, true));
+    Value* dec_ptr_value = Builder.CreateSub(lvalue, rvalue, "dec_ptr_value", false, false);
+
+    params[arg_name] = dec_ptr_value;
+}
+
+static void push_value_to_stack_ptr(std::map<std::string, Value*>& params, BasicBlock* block, Value* value)
+{
+    std::string arg_name("stack_ptr");
+    Value* stack_ptr_value = params[arg_name];
+
+    StoreInst* store_inst = new StoreInst(value, stack_ptr_value);
+    store_inst->setAlignment(8);
+    block->getInstList().push_back(store_inst);
+
+    inc_stack_ptr(params, block, 1);
 }
 
 static BOOL compile_to_native_code(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sCLMethod* method, sVMInfo* info)
 {
     std::string func_name("__anon_expr");
-    std::vector<std::string> args;
-    std::string arg1("stack_ptr");
-    args.push_back(arg1);
-    std::string arg2("lvar");
-    args.push_back(arg2);
-    std::string arg3("info");
-    args.push_back(arg3);
-    std::unique_ptr<PrototypeAST> proto = llvm::make_unique<PrototypeAST>(func_name, args);
-    proto->entry();
+    std::unique_ptr<FunctionAST> llvm_func = llvm::make_unique<FunctionAST>(func_name);
 
-    FunctionProtos[func_name] = std::move(proto);
+    LLVMFunctions[func_name] = std::move(llvm_func);
 
     Function* function = TheModule->getFunction(func_name);
 
@@ -369,6 +383,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, CLVALUE* s
             case OP_POP:
 puts("OP_POP");
                 value_ptr--;
+                dec_stack_ptr(params, block, 1);
                 break;
 
             case OP_LDCINT: 
@@ -394,13 +409,34 @@ puts("OP_IADD");
 
                     Value* llvm_value = Builder.CreateAdd(lvalue, rvalue, "addtmp", false, false);
 
-                    value_ptr-=2;
-                    *value_ptr = llvm_value;
-                    value_ptr++;
-
+                    dec_stack_ptr(params, block, 2);
                     push_value_to_stack_ptr(params, block, llvm_value);
                 }
                 break;
+
+/*
+            case OP_RETURN:
+                {
+puts("OP_RETURN");
+                std::string arg_name("stack_ptr");
+                Value* stack_ptr_value = params[arg_name];
+                Value* stack_ptr_value_address = Builder.CreateLoad(stack_ptr_value, "var_tmp");
+
+                Value* lvalue = stack_ptr_value_address;
+                Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(64, 1, true));
+
+                Value* stack_ptr_minus_1_value = Builder.CreateSub(lvalue, rvalue, "subtmp", false, false);
+
+                Value* stack_ptr_minus_1_value_address = Builder.CreateLoad(stack_ptr_minus_1_value, "stack_ptr_minus_1");
+                std::string arg_name2("stack");
+                Value* stack_value = params[arg_name2];
+                Value* stack_value_address = Builder.CreateLoad(stack_ptr_value, "stack");
+
+                StoreInst* store_inst = new StoreInst(stack_value_address, stack_ptr_minus_1_value);
+                store_inst->setAlignment(4);
+                block->getInstList().push_back(store_inst);
+                }
+                return TRUE;
 
             case OP_INVOKE_METHOD:
                 {
@@ -466,11 +502,15 @@ puts("OP_CREATE_STRING");
                     stack_ptr++;
                 }
                 break;
+*/
         }
     }
 
     // Finish off the function.
-    Builder.CreateRet(ConstantInt::get(TheContext, llvm::APInt(64, 0, true)));
+    Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 1, true));
+
+    //Builder.SetInsertPoint(block);
+    Builder.CreateRet(ret_value);
 
     // Validate the generated code, checking for consistency.
     verifyFunction(*function);
@@ -478,47 +518,58 @@ puts("OP_CREATE_STRING");
     // Run the optimizer on the function.
     //TheFPM->run(*function);
 
-    // Error reading body, remove function.
-    //function->eraseFromParent();
-
     return TRUE;
 }
 
+typedef BOOL (*fJITMethodType)(CLVALUE* stack_ptr, CLVALUE* lvar, sVMInfo* info, CLVALUE* stack);
+
 static BOOL run_native_code(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sCLMethod* method, sVMInfo* info)
 {
-/*
     CLVALUE* stack_ptr = stack + var_num;
+    CLVALUE* lvar = stack;
+
     long stack_id = append_stack_to_stack_list(stack, &stack_ptr);
-*/
 
-    TheModule->dump();
-/*
-    auto Proto = llvm::make_unique<PrototypeAST>("__anon_expr", std::vector<std::string>());
-
-    auto H = TheJIT->addModule(std::move(TheModule));
+    //InitializeModuleAndPassManager();
     
     auto ExprSymbol = TheJIT->findSymbol("__anon_expr");
     assert(ExprSymbol && "Function not found");
+
+    fJITMethodType function = (fJITMethodType)ExprSymbol.getAddress();
+    if(!function(stack_ptr, lvar, info, stack)) {
+        remove_stack_to_stack_list(stack);
+        return FALSE;
+    }
     
-    int (*FP)() = int (*)())(intptr_t)ExprSymbol.getAddress();
-    fprintf(stderr, "Evaluated to %f\n", FP());
-    
-    TheJIT->removeModule(H);
-*/
-//    remove_stack_to_stack_list(stack);
+    remove_stack_to_stack_list(stack);
+
+puts("OK");
 
     return TRUE;
 }
 
 BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sCLMethod* method, sVMInfo* info)
 {
-    if(!compile_to_native_code(code, constant, stack, var_num, klass, method, info)) {
-        return FALSE;
+    auto ExprSymbol = TheJIT->findSymbol("__anon_expr");
+    if(!ExprSymbol) {
+        if(!compile_to_native_code(code, constant, stack, var_num, klass, method, info)) {
+            return FALSE;
+        }
+
+        TheModule->dump();
+        auto H = TheJIT->addModule(std::move(TheModule));
     }
 
     if(!run_native_code(code, constant, stack, var_num, klass, method, info)) {
         return FALSE;
     }
+
+printf("var_num %d\n", var_num);
+
+int i;
+for(i=0; i<10; i++) {
+    printf("stack [%d] %d\n", i, stack[i].mIntValue);
+}
 
     return TRUE;
 }
