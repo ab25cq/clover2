@@ -3634,7 +3634,7 @@ fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking Operating System" >&5
 $as_echo_n "checking Operating System... " >&6; }
 
-CFLAGS=""
+CFLAGS="-fPIC -rdynamic"
 
 if test `uname -s` = "Darwin"; then
     echo "Darwin"
@@ -4038,7 +4038,7 @@ CFLAGS="$CFLAGS -Qunused-arguments"
 
 
 
-OBJS="src/vm.o src/script.o src/object.o src/array.o src/string.o src/block.o src/regex.o src/integer.o src/byte.o src/short.o src/long.o src/float.o src/pointer.o src/char.o src/bool.o src/hash.o src/list.o src/tuple.o src/carray.o src/type.o src/stack.o src/heap.o src/exception.o src/native_method.o src/class_system.o src/class_clover.o src/clover_to_clang.o src/jit.o"
+OBJS="src/vm.o src/jit.o src/script.o src/object.o src/array.o src/string.o src/block.o src/regex.o src/integer.o src/byte.o src/short.o src/long.o src/float.o src/pointer.o src/char.o src/bool.o src/hash.o src/list.o src/tuple.o src/carray.o src/type.o src/stack.o src/heap.o src/exception.o src/native_method.o src/class_system.o src/class_clover.o src/clover_to_clang.o"
 COMPILER_OBJS="src/parser.o src/node_type.o src/node.o src/cast.o src/vtable.o src/script_ctime.o src/node_block.o src/node_block_type.o src/class_compiler.o src/klass_compile_time.o src/method_compiler.o src/module.o"
 COMMON_OBJS="src/buffer.o src/debug.o src/xfunc.o src/klass.o src/constant.o src/code.o src/alignment.o src/utf.o"
 

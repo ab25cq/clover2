@@ -3,7 +3,15 @@ class JITTest
     def initialize() {
     }
 
-    def run():jit {
-        3+1;
+    def run(): jit int {
+        return 3+1;
+    }
+
+    def run2():jit String {
+        return "ABC";
+    }
+
+    def run3():jit {
+        println("HELLO WORLD");
     }
 }

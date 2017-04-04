@@ -269,6 +269,7 @@ typedef struct sCLClassStruct sCLClass;
 
 #define CLASS_NAME(klass) (CONS_str((&(klass)->mConst), (klass)->mClassNameOffset))
 #define METHOD_NAME2(klass, method) (CONS_str((&(klass)->mConst), (method)->mNameOffset))
+#define METHOD_PATH(klass, method) (CONS_str((&(klass)->mConst), (method)->mPathOffset))
 #define FIELD_NAME(klass, field) (CONS_str((&(klass)->mConst), (field)->mNameOffset))
 #define METHOD_NAME_AND_PARAMS(klass, method) (CONS_str((&(klass)->mConst), (method)->mMethodNameAndParamsOffset))
 

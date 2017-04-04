@@ -190,6 +190,21 @@ public:
 
 static std::map<std::string, std::unique_ptr<FunctionAST>> LLVMFunctions;
 
+static void create_internal_functions()
+{
+    Type* result_type = IntegerType::get(TheContext, 32);
+
+    std::vector<Type *> type_params;
+    Type* param1_type = PointerType::get(IntegerType::get(TheContext,8), 0);
+    type_params.push_back(param1_type);
+
+    FunctionType* function_type = FunctionType::get(result_type, type_params, false);
+    Function* create_string_object_fun = Function::Create(function_type, Function::ExternalLinkage, "create_string_object", TheModule.get());
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "puts", TheModule.get());
+}
+
 static void InitializeModuleAndPassManager() 
 {
     TheModule = llvm::make_unique<Module>("Clover2 jit", TheContext);
@@ -202,29 +217,87 @@ static void InitializeModuleAndPassManager()
     TheFPM->add(createGVNPass());
     TheFPM->add(createCFGSimplificationPass());
     TheFPM->doInitialization();
+
+    create_internal_functions();
 }
+
 
 extern "C"
 {
 
 void jit_init()
 {
-   InitializeNativeTarget();
-   InitializeNativeTargetAsmPrinter();
-   InitializeNativeTargetAsmParser();
+    InitializeNativeTarget();
+    InitializeNativeTargetAsmPrinter();
+    InitializeNativeTargetAsmParser();
 
-   TheJIT = llvm::make_unique<CloverJIT>();
+    TheJIT = llvm::make_unique<CloverJIT>();
 
-   InitializeModuleAndPassManager();
+    InitializeModuleAndPassManager();
 }
 
 void jit_final()
 {
 }
 
-static Value* stack_value_to_llvm_value(int offset)
+
+static void store_value(Value* llvm_value, Value* stored_value, BasicBlock* block)
 {
-    return nullptr;
+    StoreInst* store_inst = new StoreInst(llvm_value, stored_value);
+    store_inst->setAlignment(8);
+    block->getInstList().push_back(store_inst);
+}
+
+static void inc_stack_ptr(std::map<std::string, Value*>& params, BasicBlock* block, int value)
+{
+    std::string arg_name("stack_ptr");
+    Value* stack_ptr_value = params[arg_name];
+
+    Value* stack_ptr_value_address = ConstantExpr::getIntToPtr(cast<Constant>(stack_ptr_value), PointerType::getUnqual(Builder.getInt64Ty()));
+
+    Value* lvalue = stack_ptr_value_address;
+    Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(64, 8*value, true));
+    Value* inc_ptr_value = Builder.CreateAdd(lvalue, rvalue, "inc_ptr_value", false, false);
+
+    params[arg_name] = inc_ptr_value;
+}
+
+static void dec_stack_ptr(std::map<std::string, Value*>& params, BasicBlock* block, int value)
+{
+    std::string arg_name("stack_ptr");
+    Value* stack_ptr_value = params[arg_name];
+
+    Value* stack_ptr_value_address = ConstantExpr::getIntToPtr(cast<Constant>(stack_ptr_value), PointerType::getUnqual(Builder.getInt64Ty()));
+
+    Value* lvalue = stack_ptr_value_address;
+    Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(64, 8*value, true));
+    Value* dec_ptr_value = Builder.CreateSub(lvalue, rvalue, "dec_ptr_value", false, false);
+
+    params[arg_name] = dec_ptr_value;
+}
+
+static Value* get_stack_ptr_value_from_index(std::map<std::string, Value*>& params, BasicBlock* block, int index)
+{
+    std::string arg_name("stack_ptr");
+    Value* stack_ptr_value = params[arg_name];
+
+    Value* stack_ptr_value_address = ConstantExpr::getIntToPtr(cast<Constant>(stack_ptr_value), PointerType::getUnqual(Builder.getInt64Ty()));
+
+    Value* lvalue = stack_ptr_value_address;
+    Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(64, 8*index, true));
+    Value* inc_ptr_value = Builder.CreateAdd(lvalue, rvalue, "inc_ptr_value", false, false);
+
+    return Builder.CreateLoad(inc_ptr_value, "inc_ptr_value");
+}
+
+static void push_value_to_stack_ptr(std::map<std::string, Value*>& params, BasicBlock* block, Value* value)
+{
+    std::string arg_name("stack_ptr");
+    Value* stack_ptr_value = params[arg_name];
+
+    store_value(value, stack_ptr_value, block);
+
+    inc_stack_ptr(params, block, 1);
 }
 
 static BOOL invoke_method_in_jit(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info)
@@ -240,20 +313,25 @@ static BOOL invoke_method_in_jit(sCLClass* klass, sCLMethod* method, CLVALUE* st
         info->current_stack = stack;        // for invoking_block in native method
         info->current_var_num = var_num;
 
-        Type* result_type = IntegerType::get(TheContext, 32);
+        Function* native_method = TheModule->getFunction(func_name);
 
-        std::vector<Type *> type_params;
-        Type* param1_type = PointerType::get(IntegerType::get(TheContext,64), 0);
-        type_params.push_back(param1_type);
-        Type* param2_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
-        type_params.push_back(param2_type);
-        Type* param3_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
-        type_params.push_back(param3_type);
+        if(native_method == nullptr) {
+            Type* result_type = IntegerType::get(TheContext, 32);
 
-        FunctionType* function_type = FunctionType::get(result_type, type_params, false);
-        char* native_fun_name = method->uCode.mNativeFunName;
+            std::vector<Type *> type_params;
+            Type* param1_type = PointerType::get(IntegerType::get(TheContext,64), 0);
+            type_params.push_back(param1_type);
+            Type* param2_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+            type_params.push_back(param2_type);
+            Type* param3_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+            type_params.push_back(param3_type);
 
-        Function* native_method = Function::Create(function_type, Function::ExternalLinkage, native_fun_name, TheModule.get());
+            FunctionType* function_type = FunctionType::get(result_type, type_params, false);
+            char* native_fun_name = method->uCode.mNativeFunName;
+
+
+            native_method = Function::Create(function_type, Function::ExternalLinkage, native_fun_name, TheModule.get());
+        }
 
         std::vector<Value*> params;
 
@@ -270,11 +348,29 @@ static BOOL invoke_method_in_jit(sCLClass* klass, sCLMethod* method, CLVALUE* st
             *stack_ptr = lvar;
             (*stack_ptr)->mIntValue = 0;
             (*stack_ptr)++;
+
+            std::string arg_name("stack_ptr");
+            std::string arg_name2("lvar");
+            params[arg_name] = params[arg_name2];
+
+            int value = 0;
+            Value* llvm_value = ConstantInt::get(TheContext, llvm::APInt(32, value, true)); 
+
+            push_value_to_stack_ptr(params, block, llvm_value);
         }
         else {
+            CLVALUE result = *(*stack_ptr - 1);
             *stack_ptr = lvar;
-            (*stack_ptr)->LLVMValue = (void*)result;
+            **stack_ptr = result;
             (*stack_ptr)++;
+
+            std::string arg_name("stack_ptr");
+            std::string arg_name2("lvar");
+            params[arg_name] = params[arg_name2];
+
+            Value* result = get_stack_ptr_value_from_index(params, block, -1);
+
+            push_value_to_stack_ptr(params, block, result);
         }
     }
 /*
@@ -306,49 +402,10 @@ static BOOL invoke_method_in_jit(sCLClass* klass, sCLMethod* method, CLVALUE* st
     return TRUE;
 }
 
-static void inc_stack_ptr(std::map<std::string, Value*>& params, BasicBlock* block, int value)
-{
-    std::string arg_name("stack_ptr");
-    Value* stack_ptr_value = params[arg_name];
-
-    Value* stack_ptr_value_address = ConstantExpr::getIntToPtr(cast<Constant>(stack_ptr_value), PointerType::getUnqual(Builder.getInt64Ty()));
-
-    Value* lvalue = stack_ptr_value_address;
-    Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(64, 8*value, true));
-    Value* inc_ptr_value = Builder.CreateAdd(lvalue, rvalue, "inc_ptr_value", false, false);
-
-    params[arg_name] = inc_ptr_value;
-}
-
-static void dec_stack_ptr(std::map<std::string, Value*>& params, BasicBlock* block, int value)
-{
-    std::string arg_name("stack_ptr");
-    Value* stack_ptr_value = params[arg_name];
-
-    Value* stack_ptr_value_address = ConstantExpr::getIntToPtr(cast<Constant>(stack_ptr_value), PointerType::getUnqual(Builder.getInt64Ty()));
-
-    Value* lvalue = stack_ptr_value_address;
-    Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(64, 8*value, true));
-    Value* dec_ptr_value = Builder.CreateSub(lvalue, rvalue, "dec_ptr_value", false, false);
-
-    params[arg_name] = dec_ptr_value;
-}
-
-static void push_value_to_stack_ptr(std::map<std::string, Value*>& params, BasicBlock* block, Value* value)
-{
-    std::string arg_name("stack_ptr");
-    Value* stack_ptr_value = params[arg_name];
-
-    StoreInst* store_inst = new StoreInst(value, stack_ptr_value);
-    store_inst->setAlignment(8);
-    block->getInstList().push_back(store_inst);
-
-    inc_stack_ptr(params, block, 1);
-}
 
 static BOOL compile_to_native_code(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sCLMethod* method, sVMInfo* info)
 {
-    std::string func_name("__anon_expr");
+    std::string func_name(METHOD_PATH(klass, method));
     std::unique_ptr<FunctionAST> llvm_func = llvm::make_unique<FunctionAST>(func_name);
 
     LLVMFunctions[func_name] = std::move(llvm_func);
@@ -414,29 +471,21 @@ puts("OP_IADD");
                 }
                 break;
 
-/*
             case OP_RETURN:
                 {
 puts("OP_RETURN");
-                std::string arg_name("stack_ptr");
-                Value* stack_ptr_value = params[arg_name];
-                Value* stack_ptr_value_address = Builder.CreateLoad(stack_ptr_value, "var_tmp");
+                std::string arg_name("stack");
+                Value* stack = params[arg_name];
 
-                Value* lvalue = stack_ptr_value_address;
-                Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(64, 1, true));
+                std::string arg_name2("stack_ptr");
+                Value* stack_ptr = params[arg_name2];
+                Value* llvm_value = get_stack_ptr_value_from_index(params, block, -1);
 
-                Value* stack_ptr_minus_1_value = Builder.CreateSub(lvalue, rvalue, "subtmp", false, false);
+                store_value(llvm_value, stack, block);
 
-                Value* stack_ptr_minus_1_value_address = Builder.CreateLoad(stack_ptr_minus_1_value, "stack_ptr_minus_1");
-                std::string arg_name2("stack");
-                Value* stack_value = params[arg_name2];
-                Value* stack_value_address = Builder.CreateLoad(stack_ptr_value, "stack");
-
-                StoreInst* store_inst = new StoreInst(stack_value_address, stack_ptr_minus_1_value);
-                store_inst->setAlignment(4);
-                block->getInstList().push_back(store_inst);
+                pc = code->mCodes + code->mLen; // return
                 }
-                return TRUE;
+                break;
 
             case OP_INVOKE_METHOD:
                 {
@@ -463,6 +512,7 @@ puts("OP_INVOKE_METHOD");
                     sCLMethod* method = klass->mMethods + method_index;
 
                     if(!invoke_method_in_jit(klass, method, stack, var_num, &stack_ptr, info)) {
+/*
                         if(try_offset != 0) {
                             pc = code->mCodes + try_offset;
                             try_offset = try_offset_before;
@@ -470,6 +520,7 @@ puts("OP_INVOKE_METHOD");
                         else {
                             return FALSE;
                         }
+*/
                     }
                 }
                 break;
@@ -482,27 +533,18 @@ puts("OP_CREATE_STRING");
 
                     char* str = CONS_str(constant, offset);
 
-                    Type* result_type = PointerType::get(IntegerType::get(TheContext, sizeof(Value)), 0);
+                    Function* function = TheModule->getFunction("create_string_object");
 
-                    std::vector<Type *> type_params;
-                    Type* param1_type = PointerType::get(IntegerType::get(TheContext,8), 0);
-                    type_params.push_back(param1_type);
+                    std::vector<Value*> params2;
+                    Constant* str_constant = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)str);
+                    Value* param1 = ConstantExpr::getIntToPtr(str_constant, PointerType::get(IntegerType::get(TheContext,8), 0));
+                    params2.push_back(param1);
 
-                    FunctionType* function_type = FunctionType::get(result_type, type_params, false);
+                    Value* result = Builder.CreateCall(function, params2);
 
-                    Function* create_str_fun = Function::Create(function_type, Function::ExternalLinkage, "create_string_object", TheModule.get());
-
-                    std::vector<Value*> params;
-                    Value* param1 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)str);
-                    params.push_back(param1);
-
-                    Value* result = Builder.CreateCall(create_str_fun, params);
-
-                    stack_ptr->LLVMValue = result;
-                    stack_ptr++;
+                    push_value_to_stack_ptr(params, block, result);
                 }
                 break;
-*/
         }
     }
 
@@ -516,7 +558,7 @@ puts("OP_CREATE_STRING");
     verifyFunction(*function);
 
     // Run the optimizer on the function.
-    //TheFPM->run(*function);
+    TheFPM->run(*function);
 
     return TRUE;
 }
@@ -530,9 +572,8 @@ static BOOL run_native_code(sByteCode* code, sConst* constant, CLVALUE* stack, i
 
     long stack_id = append_stack_to_stack_list(stack, &stack_ptr);
 
-    //InitializeModuleAndPassManager();
     
-    auto ExprSymbol = TheJIT->findSymbol("__anon_expr");
+    auto ExprSymbol = TheJIT->findSymbol(METHOD_PATH(klass, method));
     assert(ExprSymbol && "Function not found");
 
     fJITMethodType function = (fJITMethodType)ExprSymbol.getAddress();
@@ -543,21 +584,21 @@ static BOOL run_native_code(sByteCode* code, sConst* constant, CLVALUE* stack, i
     
     remove_stack_to_stack_list(stack);
 
-puts("OK");
-
     return TRUE;
 }
 
 BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sCLMethod* method, sVMInfo* info)
 {
-    auto ExprSymbol = TheJIT->findSymbol("__anon_expr");
+    auto ExprSymbol = TheJIT->findSymbol(METHOD_PATH(klass, method));
     if(!ExprSymbol) {
+printf("compiling %s\n", METHOD_PATH(klass, method));
         if(!compile_to_native_code(code, constant, stack, var_num, klass, method, info)) {
             return FALSE;
         }
 
         TheModule->dump();
         auto H = TheJIT->addModule(std::move(TheModule));
+        InitializeModuleAndPassManager();
     }
 
     if(!run_native_code(code, constant, stack, var_num, klass, method, info)) {
