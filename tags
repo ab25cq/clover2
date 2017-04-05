@@ -20,7 +20,7 @@ BinopPrecedence	toy.cpp	/^static std::map<char, int> BinopPrecedence;$/;"	v	file
 Body	toy.cpp	/^  std::unique_ptr<ExprAST> Body;$/;"	m	class:__anon23::FunctionAST	file:
 Body	toy.cpp	/^  std::unique_ptr<ExprAST> Start, End, Step, Body;$/;"	m	class:__anon23::ForExprAST	file:
 CC	Makefile	/^CC=clang$/;"	m
-CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -I\/home\/ab25cq\/include -L\/home\/ab25cq\/lib -fPIC -rdynamic -I\/usr\/local\/include -L \/usr\/local\/lib -O3 -DENABLE_INTERPRETER -g -DMDEBUG -Werror -Qunused-arguments$/;"	m
+CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -I\/home\/ab25cq\/include -L\/home\/ab25cq\/lib -fPIC -rdynamic -I\/usr\/local\/include -L \/usr\/local\/lib -O3 -DENABLE_INTERPRETER -g -DMDEBUG -Werror -Qunused-arguments -DENABLE_JIT$/;"	m
 CHECKML_BEGIN	src/debug.h	11;"	d
 CHECKML_BEGIN	src/debug.h	38;"	d
 CHECKML_END	src/debug.h	12;"	d
@@ -100,7 +100,7 @@ IfExprAST	toy.cpp	/^  IfExprAST(std::unique_ptr<ExprAST> Cond, std::unique_ptr<E
 IfExprAST	toy.cpp	/^class IfExprAST : public ExprAST {$/;"	c	namespace:__anon23	file:
 InitializeModuleAndPassManager	src/jit.cpp	/^static void InitializeModuleAndPassManager() $/;"	f	file:
 InitializeModuleAndPassManager	toy.cpp	/^static void InitializeModuleAndPassManager() {$/;"	f	file:
-JIT	Makefile	/^JIT=0$/;"	m
+JIT	Makefile	/^JIT=1$/;"	m
 KaleidoscopeJIT	KaleidoscopeJIT.h	/^  KaleidoscopeJIT()$/;"	f	class:llvm::orc::KaleidoscopeJIT
 KaleidoscopeJIT	KaleidoscopeJIT.h	/^class KaleidoscopeJIT {$/;"	c	namespace:llvm::orc
 LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM	src/class_system.c	1630;"	d	file:
@@ -157,7 +157,7 @@ NamedValues	toy.cpp	/^static std::map<std::string, Value *> NamedValues;$/;"	v	f
 NumVal	toy.cpp	/^static double NumVal;             \/\/ Filled in if tok_number$/;"	v	file:
 NumberExprAST	toy.cpp	/^  NumberExprAST(double Val) : Val(Val) {}$/;"	f	class:__anon23::NumberExprAST
 NumberExprAST	toy.cpp	/^class NumberExprAST : public ExprAST {$/;"	c	namespace:__anon23	file:
-OBJS	Makefile	/^OBJS=src\/vm.o src\/script.o src\/object.o src\/array.o src\/string.o src\/block.o src\/regex.o src\/integer.o src\/byte.o src\/short.o src\/long.o src\/float.o src\/pointer.o src\/char.o src\/bool.o src\/hash.o src\/list.o src\/tuple.o src\/carray.o src\/type.o src\/stack.o src\/heap.o src\/exception.o src\/native_method.o src\/class_system.o src\/class_clover.o src\/clover_to_clang.o$/;"	m
+OBJS	Makefile	/^OBJS=src\/vm.o src\/jit.o src\/script.o src\/object.o src\/array.o src\/string.o src\/block.o src\/regex.o src\/integer.o src\/byte.o src\/short.o src\/long.o src\/float.o src\/pointer.o src\/char.o src\/bool.o src\/hash.o src\/list.o src\/tuple.o src\/carray.o src\/type.o src\/stack.o src\/heap.o src\/exception.o src\/native_method.o src\/class_system.o src\/class_clover.o src\/clover_to_clang.o$/;"	m
 OP_ANDAND	src/common.h	1001;"	d
 OP_ARRAY_TO_CARRAY_CAST	src/common.h	1534;"	d
 OP_BADD	src/common.h	799;"	d
@@ -1095,25 +1095,17 @@ arrange_alignment	src/code.c	/^static void arrange_alignment(sByteCode* code)$/;
 arrange_alignment	src/constant.c	/^static void arrange_alignment(sConst* self)$/;"	f	file:
 arrange_stack	src/node.c	/^void arrange_stack(sCompileInfo* cinfo)$/;"	f
 array_mark_fun	src/array.c	/^void array_mark_fun(CLObject self, unsigned char* mark_flg)$/;"	f
-as_fn_append	config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	configure	/^  as_fn_append ()$/;"	f
-as_fn_arith	config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	configure	/^  as_fn_arith ()$/;"	f
-as_fn_error	config.status	/^as_fn_error ()$/;"	f
 as_fn_error	configure	/^as_fn_error ()$/;"	f
-as_fn_executable_p	config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	configure	/^as_fn_executable_p ()$/;"	f
-as_fn_exit	config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	configure	/^as_fn_exit ()$/;"	f
 as_fn_failure	configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
-as_fn_mkdir_p	config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	configure	/^as_fn_mkdir_p ()$/;"	f
 as_fn_ret_failure	configure	/^as_fn_ret_failure () { return 1; }$/;"	f
 as_fn_ret_success	configure	/^as_fn_ret_success () { return 0; }$/;"	f
-as_fn_set_status	config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	configure	/^as_fn_set_status ()$/;"	f
 as_fn_success	configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
-as_fn_unset	config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	configure	/^as_fn_unset ()$/;"	f
 assign_operator	src/parser.c	/^static BOOL assign_operator(unsigned int* node, sParserInfo* info)$/;"	f	file:
 binary_operator	src/node.c	/^static BOOL binary_operator(unsigned int node, sNodeType* left_type, sNodeType* right_type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, int float_operand, int double_operand, int pointer_operand, int null_operand, int char_operand, int bool_operand, char* op_string, sCompileInfo* info)$/;"	f	file:
@@ -1504,7 +1496,7 @@ interpreter_final	src/interpreter.c	/^static void interpreter_final()$/;"	f	file
 interpreter_init	src/interpreter.c	/^static void interpreter_init()$/;"	f	file:
 invoke_block	src/vm.c	/^BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_params, CLVALUE** stack_ptr, sVMInfo* info)$/;"	f
 invoke_method	src/vm.c	/^BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info)$/;"	f
-invoke_method_in_jit	src/jit.cpp	/^static BOOL invoke_method_in_jit(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info)$/;"	f	file:
+invoke_method_in_jit	src/jit.cpp	/^static BOOL invoke_method_in_jit(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, std::map<std::string, Value *> params, BasicBlock* block)$/;"	f	file:
 is_assign_operator	src/parser.c	/^static BOOL is_assign_operator(sParserInfo* info) $/;"	f	file:
 is_exception_type	src/node_type.c	/^BOOL is_exception_type(sNodeType* exception_type)$/;"	f
 is_this_class_with_class_name	src/type.c	/^BOOL is_this_class_with_class_name(sCLClass* klass, char* class_name)$/;"	f
@@ -1977,6 +1969,7 @@ remove_module_from_table	src/module.c	/^static void remove_module_from_table(cha
 remove_stack_to_stack_list	src/stack.c	/^BOOL remove_stack_to_stack_list(CLVALUE* stack)$/;"	f
 reset_method_index_on_compile_time	src/class_compiler.c	/^static void reset_method_index_on_compile_time()$/;"	f	file:
 return_expression	src/parser.c	/^static BOOL return_expression(unsigned int* node, sParserInfo* info)$/;"	f	file:
+run_head_of_expression	src/jit.cpp	/^void run_head_of_expression(sVMInfo* info, char* sname, int sline)$/;"	f
 run_native_code	src/jit.cpp	/^static BOOL run_native_code(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sCLMethod* method, sVMInfo* info)$/;"	f	file:
 sArrayValue	src/common.h	/^        } sArrayValue;$/;"	m	union:sNodeTreeStruct::__anon3	typeref:struct:sNodeTreeStruct::__anon3::__anon17
 sAssignVariable	src/common.h	/^        } sAssignVariable;$/;"	m	union:sNodeTreeStruct::__anon3	typeref:struct:sNodeTreeStruct::__anon3::__anon4

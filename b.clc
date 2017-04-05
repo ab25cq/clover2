@@ -12,6 +12,6 @@ class JITTest
     }
 
     def run3():jit {
-        println("HELLO WORLD");
+        System.println("HELLO WORLD");
     }
 }

@@ -199,10 +199,20 @@ static void create_internal_functions()
     type_params.push_back(param1_type);
 
     FunctionType* function_type = FunctionType::get(result_type, type_params, false);
-    Function* create_string_object_fun = Function::Create(function_type, Function::ExternalLinkage, "create_string_object", TheModule.get());
+    Function::Create(function_type, Function::ExternalLinkage, "create_string_object", TheModule.get());
 
-    function_type = FunctionType::get(result_type, type_params, false);
-    Function::Create(function_type, Function::ExternalLinkage, "puts", TheModule.get());
+    Type* result_type2 = Type::getVoidTy(TheContext);
+
+    std::vector<Type *> type_params2;
+    param1_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params2.push_back(param1_type);
+    Type* param2_type = PointerType::get(IntegerType::get(TheContext, 8), 0);
+    type_params2.push_back(param2_type);
+    Type* param3_type = IntegerType::get(TheContext, 32);
+    type_params2.push_back(param3_type);
+
+    function_type = FunctionType::get(result_type2, type_params2, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_head_of_expression", TheModule.get());
 }
 
 static void InitializeModuleAndPassManager() 
@@ -240,6 +250,13 @@ void jit_final()
 {
 }
 
+void run_head_of_expression(sVMInfo* info, char* sname, int sline)
+{
+    info->sname = sname;
+    info->sline = sline;
+
+    gSigInt = FALSE;
+}
 
 static void store_value(Value* llvm_value, Value* stored_value, BasicBlock* block)
 {
@@ -300,7 +317,7 @@ static void push_value_to_stack_ptr(std::map<std::string, Value*>& params, Basic
     inc_stack_ptr(params, block, 1);
 }
 
-static BOOL invoke_method_in_jit(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info)
+static BOOL invoke_method_in_jit(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, std::map<std::string, Value *> params, BasicBlock* block)
 {
     if(method->mFlags & METHOD_FLAGS_NATIVE) {
         CLVALUE* lvar = *stack_ptr - method->mNumParams;
@@ -310,8 +327,7 @@ static BOOL invoke_method_in_jit(sCLClass* klass, sCLMethod* method, CLVALUE* st
             return FALSE;
         }
 
-        info->current_stack = stack;        // for invoking_block in native method
-        info->current_var_num = var_num;
+        std::string func_name(METHOD_PATH(klass, method));
 
         Function* native_method = TheModule->getFunction(func_name);
 
@@ -333,24 +349,21 @@ static BOOL invoke_method_in_jit(sCLClass* klass, sCLMethod* method, CLVALUE* st
             native_method = Function::Create(function_type, Function::ExternalLinkage, native_fun_name, TheModule.get());
         }
 
-        std::vector<Value*> params;
+        std::vector<Value*> params2;
 
         Value* param1 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)stack_ptr);
-        params.push_back(param1);
+        params2.push_back(param1);
         Value* param2 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)lvar);
-        params.push_back(param2);
+        params2.push_back(param2);
         Value* param3 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
-        params.push_back(param3);
+        params2.push_back(param3);
 
-        Value* result = Builder.CreateCall(native_method, params);
+        Value* result = Builder.CreateCall(native_method, params2);
 
         if(is_void_type(method->mResultType, klass)) {
-            *stack_ptr = lvar;
-            (*stack_ptr)->mIntValue = 0;
-            (*stack_ptr)++;
-
             std::string arg_name("stack_ptr");
             std::string arg_name2("lvar");
+
             params[arg_name] = params[arg_name2];
 
             int value = 0;
@@ -359,11 +372,6 @@ static BOOL invoke_method_in_jit(sCLClass* klass, sCLMethod* method, CLVALUE* st
             push_value_to_stack_ptr(params, block, llvm_value);
         }
         else {
-            CLVALUE result = *(*stack_ptr - 1);
-            *stack_ptr = lvar;
-            **stack_ptr = result;
-            (*stack_ptr)++;
-
             std::string arg_name("stack_ptr");
             std::string arg_name2("lvar");
             params[arg_name] = params[arg_name2];
@@ -511,7 +519,7 @@ puts("OP_INVOKE_METHOD");
 
                     sCLMethod* method = klass->mMethods + method_index;
 
-                    if(!invoke_method_in_jit(klass, method, stack, var_num, &stack_ptr, info)) {
+                    if(!invoke_method_in_jit(klass, method, stack, var_num, &stack_ptr, info, params, block)) {
 /*
                         if(try_offset != 0) {
                             pc = code->mCodes + try_offset;
@@ -545,6 +553,48 @@ puts("OP_CREATE_STRING");
                     push_value_to_stack_ptr(params, block, result);
                 }
                 break;
+
+            case OP_HEAD_OF_EXPRESSION: {
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+
+                char* sname = CONS_str(constant, offset);
+
+                int sline = *(int*)pc;
+                pc += sizeof(int);
+
+                Function* function = TheModule->getFunction("run_head_of_expression");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
+                params2.push_back(param1);
+
+                Value* param2 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)sname);
+                params2.push_back(param2);
+
+                Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)sline);
+                params2.push_back(param3);
+
+                Value* result = Builder.CreateCall(function, params2);
+                }
+                break;
+
+/*
+            case OP_SIGINT:
+                if(gSigInt) {
+                    gSigInt = FALSE;
+                    vm_mutex_off();
+                    entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Signal Interrupt");
+                    remove_stack_to_stack_list(stack);
+                    return FALSE;
+                }
+                break;
+*/
+
+            default:
+                printf("inst %d\n", inst);
+                exit(1);
         }
     }
 
@@ -572,6 +622,8 @@ static BOOL run_native_code(sByteCode* code, sConst* constant, CLVALUE* stack, i
 
     long stack_id = append_stack_to_stack_list(stack, &stack_ptr);
 
+    info->current_stack = stack;        // for invoking_block in native method
+    info->current_var_num = var_num;
     
     auto ExprSymbol = TheJIT->findSymbol(METHOD_PATH(klass, method));
     assert(ExprSymbol && "Function not found");

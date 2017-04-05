@@ -4048,17 +4048,16 @@ fi
 CFLAGS="$CFLAGS -Qunused-arguments"
 #CFLAGS="$CFLAGS -Qunused-arguments -Wunused-variable"
 
-
-
 if test $ENABLE_JIT = 1
 then
-    CLAGS="$CFLAGS -DENABLE_JIT"
+    CFLAGS="$CFLAGS -DENABLE_JIT"
     OBJS="src/vm.o src/jit.o src/script.o src/object.o src/array.o src/string.o src/block.o src/regex.o src/integer.o src/byte.o src/short.o src/long.o src/float.o src/pointer.o src/char.o src/bool.o src/hash.o src/list.o src/tuple.o src/carray.o src/type.o src/stack.o src/heap.o src/exception.o src/native_method.o src/class_system.o src/class_clover.o src/clover_to_clang.o"
     JIT=1
 else
     OBJS="src/vm.o src/script.o src/object.o src/array.o src/string.o src/block.o src/regex.o src/integer.o src/byte.o src/short.o src/long.o src/float.o src/pointer.o src/char.o src/bool.o src/hash.o src/list.o src/tuple.o src/carray.o src/type.o src/stack.o src/heap.o src/exception.o src/native_method.o src/class_system.o src/class_clover.o src/clover_to_clang.o"
     JIT=0
 fi
+
 
 
 
