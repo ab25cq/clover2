@@ -20,7 +20,7 @@ BinopPrecedence	toy.cpp	/^static std::map<char, int> BinopPrecedence;$/;"	v	file
 Body	toy.cpp	/^  std::unique_ptr<ExprAST> Body;$/;"	m	class:__anon23::FunctionAST	file:
 Body	toy.cpp	/^  std::unique_ptr<ExprAST> Start, End, Step, Body;$/;"	m	class:__anon23::ForExprAST	file:
 CC	Makefile	/^CC=clang$/;"	m
-CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -I\/home\/ab25cq\/include -L\/home\/ab25cq\/lib -fPIC -rdynamic -I\/usr\/local\/include -L \/usr\/local\/lib -DENABLE_INTERPRETER -g -DMDEBUG -Werror -Qunused-arguments$/;"	m
+CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -I\/home\/ab25cq\/include -L\/home\/ab25cq\/lib -fPIC -rdynamic -I\/usr\/local\/include -L \/usr\/local\/lib -O3 -DENABLE_INTERPRETER -g -DMDEBUG -Werror -Qunused-arguments$/;"	m
 CHECKML_BEGIN	src/debug.h	11;"	d
 CHECKML_BEGIN	src/debug.h	38;"	d
 CHECKML_END	src/debug.h	12;"	d

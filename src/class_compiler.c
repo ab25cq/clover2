@@ -911,7 +911,7 @@ static BOOL parse_class_source(sParserInfo* info, sCompileInfo* cinfo)
     skip_spaces_and_lf(info);
 
     while(*info->p) {
-        char buf[VAR_NAME_MAX];
+        char buf[VAR_NAME_MAX+1];
 
         if(!parse_word(buf, VAR_NAME_MAX, info, TRUE)) {
             return FALSE;
@@ -945,6 +945,7 @@ static BOOL parse_class_source(sParserInfo* info, sCompileInfo* cinfo)
         else {
             parser_err_msg(info, "Require class keyword. It is %s", buf);
             info->err_num++;
+            return FALSE;
         }
     }
 
