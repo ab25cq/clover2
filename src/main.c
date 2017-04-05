@@ -8,12 +8,16 @@ static void clover2_init()
     heap_init(128, 128);
     stack_init();
     (void)class_init_on_runtime();
+#ifdef ENABLE_JIT
     jit_init();
+#endif
 }
 
 static void clover2_final()
 {
+#ifdef ENABLE_JIT
     jit_final();
+#endif
     native_method_final();
     stack_final();
     heap_final();

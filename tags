@@ -100,6 +100,7 @@ IfExprAST	toy.cpp	/^  IfExprAST(std::unique_ptr<ExprAST> Cond, std::unique_ptr<E
 IfExprAST	toy.cpp	/^class IfExprAST : public ExprAST {$/;"	c	namespace:__anon23	file:
 InitializeModuleAndPassManager	src/jit.cpp	/^static void InitializeModuleAndPassManager() $/;"	f	file:
 InitializeModuleAndPassManager	toy.cpp	/^static void InitializeModuleAndPassManager() {$/;"	f	file:
+JIT	Makefile	/^JIT=0$/;"	m
 KaleidoscopeJIT	KaleidoscopeJIT.h	/^  KaleidoscopeJIT()$/;"	f	class:llvm::orc::KaleidoscopeJIT
 KaleidoscopeJIT	KaleidoscopeJIT.h	/^class KaleidoscopeJIT {$/;"	c	namespace:llvm::orc
 LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM	src/class_system.c	1630;"	d	file:
@@ -156,7 +157,7 @@ NamedValues	toy.cpp	/^static std::map<std::string, Value *> NamedValues;$/;"	v	f
 NumVal	toy.cpp	/^static double NumVal;             \/\/ Filled in if tok_number$/;"	v	file:
 NumberExprAST	toy.cpp	/^  NumberExprAST(double Val) : Val(Val) {}$/;"	f	class:__anon23::NumberExprAST
 NumberExprAST	toy.cpp	/^class NumberExprAST : public ExprAST {$/;"	c	namespace:__anon23	file:
-OBJS	Makefile	/^OBJS=src\/vm.o src\/jit.o src\/script.o src\/object.o src\/array.o src\/string.o src\/block.o src\/regex.o src\/integer.o src\/byte.o src\/short.o src\/long.o src\/float.o src\/pointer.o src\/char.o src\/bool.o src\/hash.o src\/list.o src\/tuple.o src\/carray.o src\/type.o src\/stack.o src\/heap.o src\/exception.o src\/native_method.o src\/class_system.o src\/class_clover.o src\/clover_to_clang.o$/;"	m
+OBJS	Makefile	/^OBJS=src\/vm.o src\/script.o src\/object.o src\/array.o src\/string.o src\/block.o src\/regex.o src\/integer.o src\/byte.o src\/short.o src\/long.o src\/float.o src\/pointer.o src\/char.o src\/bool.o src\/hash.o src\/list.o src\/tuple.o src\/carray.o src\/type.o src\/stack.o src\/heap.o src\/exception.o src\/native_method.o src\/class_system.o src\/class_clover.o src\/clover_to_clang.o$/;"	m
 OP_ANDAND	src/common.h	1001;"	d
 OP_ARRAY_TO_CARRAY_CAST	src/common.h	1534;"	d
 OP_BADD	src/common.h	799;"	d
