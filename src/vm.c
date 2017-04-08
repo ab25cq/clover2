@@ -62,6 +62,14 @@ static void show_inst(unsigned inst)
             puts("OP_RETURN");
             break;
 
+        case OP_HEAD_OF_EXPRESSION:
+            puts("OP_HEAD_OF_EXPRESSION");
+            break;
+
+        case OP_SIGINT:
+            puts("OP_SIGINT");
+            break;
+
         case OP_THROW :
             puts("OP_THROW");
             break;
@@ -449,7 +457,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
 
 #ifdef ENABLE_JIT
         if(method->mFlags & METHOD_FLAGS_JIT) {
-            if(!jit(code, constant, stack, var_num, klass, method, info))
+            if(!jit(code, constant, new_stack, new_var_num, klass, method, info))
             {
                 *stack_ptr = lvar;
                 **stack_ptr = *(new_stack + new_var_num);
@@ -4444,7 +4452,6 @@ if(stack_ptr != lvar + var_num + 1) {
                     }
 
                     sCLMethod* method = klass->mMethods + method_index;
-
 
                     if(!invoke_method(klass, method, stack, var_num, &stack_ptr, info)) {
                         if(try_offset != 0) {
@@ -12093,6 +12100,10 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     pc += sizeof(int);
 
                     char* str = CONS_str(constant, offset);
+
+#ifdef VM_DEBUG
+printf("str %s\n", str);
+#endif
 
                     CLObject string_object = create_string_object(str);
 

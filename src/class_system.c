@@ -1074,7 +1074,9 @@ BOOL System_initialize_file_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* 
 #ifdef CLOCK_MONOTONIC_COARSE
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+57].mValue.mIntValue = CLOCK_MONOTONIC_COARSE;
 #endif
+#ifdef CLOCK_MONOTONIC_RAW
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+58].mValue.mIntValue = CLOCK_MONOTONIC_RAW;
+#endif
 #ifdef CLOCK_BOOTTIME
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+59].mValue.mIntValue = CLOCK_BOOTTIME;
 #endif
@@ -1590,7 +1592,9 @@ BOOL System_initialize_command_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInf
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+129].mValue.mIntValue = FLUSHO;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+130].mValue.mIntValue = PENDIN;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+131].mValue.mIntValue = IEXTEN;
+#ifdef EXTPROC
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+132].mValue.mIntValue = EXTPROC;
+#endif
 
     // tcflow() and TCXONC use these 
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+133].mValue.mIntValue = TCOOFF;

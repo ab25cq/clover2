@@ -32,7 +32,7 @@ JIT=@JIT@
 # main
 ##########################################################
 all: cclover2 clover2 $(INTERPRETER)
-	if test $(OS) = DARWIN; then ctags src/*.c > /dev/null 2>&1; else ctags -R; fi
+	if which ctags > /dev/null; then if test $(OS) = DARWIN; then ctags src/*.c > /dev/null 2>&1; else ctags -R; fi; fi
 
 cclover2: config.h src/compiler.o $(COMMON_OBJS) $(COMPILER_OBJS)
 	$(CC) -o cclover2 src/compiler.o $(COMMON_OBJS) $(COMPILER_OBJS) $(CFLAGS) $(LIBS)

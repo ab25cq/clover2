@@ -11,7 +11,13 @@ class JITTest
         return "ABC";
     }
 
+    def run3():jit int {
+        return 3+1;
+    }
+
+/*
     def run3():jit {
         System.println("HELLO WORLD");
     }
+*/
 }
