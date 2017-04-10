@@ -15,9 +15,25 @@ class JITTest
         return 3+1;
     }
 
-/*
-    def run3():jit {
+    def run4():jit {
         System.println("HELLO WORLD");
+    }
+
+    def run5():jit double {
+        return System.strtod("123.1");
+    }
+
+    def run6(): jit {
+        a:int = 123;
+    }
+
+/*
+    def method(): String {
+        return "ABC";
+    }
+
+    def run7():jit String {
+        return self.method().append("DEF");
     }
 */
 }

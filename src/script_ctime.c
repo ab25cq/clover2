@@ -197,7 +197,7 @@ BOOL compile_script(char* fname, char* source)
             return FALSE;
         }
 
-#ifdef VM_DEBUG
+#ifdef VM_LOG
     //show_node(node);
 #endif
 

@@ -34,12 +34,12 @@ CLASS_NAME	src/common.h	270;"	d
 CLASS_NAME_MAX	src/common.h	43;"	d
 CLASS_NUM_MAX	src/common.h	60;"	d
 CLASS_VERSION_MAX	src/common.h	50;"	d
-CLBLOCK	src/common.h	1737;"	d
-CLHEAPMEM	src/common.h	1658;"	d
-CLOBJECT	src/common.h	1705;"	d
+CLBLOCK	src/common.h	1738;"	d
+CLHEAPMEM	src/common.h	1659;"	d
+CLOBJECT	src/common.h	1706;"	d
 CLOVER_STACK_SIZE	src/common.h	61;"	d
 CLObject	src/common.h	/^typedef unsigned int CLObject;$/;"	t
-CLREGEX	src/common.h	1760;"	d
+CLREGEX	src/common.h	1761;"	d
 CLVALUE	src/common.h	/^typedef union CLVALUEUnion CLVALUE;$/;"	t	typeref:union:CLVALUEUnion
 CLVALUEUnion	src/common.h	/^union CLVALUEUnion {$/;"	u
 CL_MODULE_HASH_SIZE	src/common.h	53;"	d
@@ -65,7 +65,7 @@ CurTok	toy.cpp	/^static int CurTok;$/;"	v	file:
 DEBUG_H	src/debug.h	2;"	d
 DL	KaleidoscopeJIT.h	/^  const DataLayout DL;$/;"	m	class:llvm::orc::KaleidoscopeJIT
 DL	src/jit.cpp	/^    const DataLayout DL;$/;"	m	class:CloverJIT	file:
-DUMMY_ARRAY_SIZE	src/common.h	1691;"	d
+DUMMY_ARRAY_SIZE	src/common.h	1692;"	d
 ELIF_NUM_MAX	src/common.h	46;"	d
 EXCEPTION_MESSAGE_MAX	src/common.h	173;"	d
 Else	toy.cpp	/^  std::unique_ptr<ExprAST> Cond, Then, Else;$/;"	m	class:__anon23::IfExprAST	file:
@@ -885,14 +885,14 @@ ObjectLayer	KaleidoscopeJIT.h	/^  ObjLayerT ObjectLayer;$/;"	m	class:llvm::orc::
 ObjectLayer	src/jit.cpp	/^    ObjLayerT ObjectLayer;$/;"	m	class:CloverJIT	file:
 Op	toy.cpp	/^  char Op;$/;"	m	class:__anon23::BinaryExprAST	file:
 PARAMS_MAX	src/common.h	48;"	d
-PARSE_PHASE_ADD_GENERICS_TYPES	src/common.h	1580;"	d
-PARSE_PHASE_ADD_METHODS_AND_FIELDS	src/common.h	1581;"	d
-PARSE_PHASE_ADD_SUPER_CLASSES	src/common.h	1578;"	d
-PARSE_PHASE_ALLOC_CLASSES	src/common.h	1577;"	d
-PARSE_PHASE_CALCULATE_SUPER_CLASSES	src/common.h	1579;"	d
-PARSE_PHASE_COMPILE_PARAM_INITIALIZER	src/common.h	1582;"	d
-PARSE_PHASE_DO_COMPILE_CODE	src/common.h	1583;"	d
-PARSE_PHASE_MAX	src/common.h	1584;"	d
+PARSE_PHASE_ADD_GENERICS_TYPES	src/common.h	1581;"	d
+PARSE_PHASE_ADD_METHODS_AND_FIELDS	src/common.h	1582;"	d
+PARSE_PHASE_ADD_SUPER_CLASSES	src/common.h	1579;"	d
+PARSE_PHASE_ALLOC_CLASSES	src/common.h	1578;"	d
+PARSE_PHASE_CALCULATE_SUPER_CLASSES	src/common.h	1580;"	d
+PARSE_PHASE_COMPILE_PARAM_INITIALIZER	src/common.h	1583;"	d
+PARSE_PHASE_DO_COMPILE_CODE	src/common.h	1584;"	d
+PARSE_PHASE_MAX	src/common.h	1585;"	d
 ParseBinOpRHS	toy.cpp	/^static std::unique_ptr<ExprAST> ParseBinOpRHS(int ExprPrec,$/;"	f	file:
 ParseDefinition	toy.cpp	/^static std::unique_ptr<FunctionAST> ParseDefinition() {$/;"	f	file:
 ParseExpression	toy.cpp	/^static std::unique_ptr<ExprAST> ParseExpression() {$/;"	f	file:
@@ -1095,25 +1095,17 @@ arrange_alignment	src/code.c	/^static void arrange_alignment(sByteCode* code)$/;
 arrange_alignment	src/constant.c	/^static void arrange_alignment(sConst* self)$/;"	f	file:
 arrange_stack	src/node.c	/^void arrange_stack(sCompileInfo* cinfo)$/;"	f
 array_mark_fun	src/array.c	/^void array_mark_fun(CLObject self, unsigned char* mark_flg)$/;"	f
-as_fn_append	config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	configure	/^  as_fn_append ()$/;"	f
-as_fn_arith	config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	configure	/^  as_fn_arith ()$/;"	f
-as_fn_error	config.status	/^as_fn_error ()$/;"	f
 as_fn_error	configure	/^as_fn_error ()$/;"	f
-as_fn_executable_p	config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	configure	/^as_fn_executable_p ()$/;"	f
-as_fn_exit	config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	configure	/^as_fn_exit ()$/;"	f
 as_fn_failure	configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
-as_fn_mkdir_p	config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	configure	/^as_fn_mkdir_p ()$/;"	f
 as_fn_ret_failure	configure	/^as_fn_ret_failure () { return 1; }$/;"	f
 as_fn_ret_success	configure	/^as_fn_ret_success () { return 0; }$/;"	f
-as_fn_set_status	config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	configure	/^as_fn_set_status ()$/;"	f
 as_fn_success	configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
-as_fn_unset	config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	configure	/^as_fn_unset ()$/;"	f
 assign_operator	src/parser.c	/^static BOOL assign_operator(unsigned int* node, sParserInfo* info)$/;"	f	file:
 binary_operator	src/node.c	/^static BOOL binary_operator(unsigned int node, sNodeType* left_type, sNodeType* right_type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, int float_operand, int double_operand, int pointer_operand, int null_operand, int char_operand, int bool_operand, char* op_string, sCompileInfo* info)$/;"	f	file:
@@ -1127,6 +1119,8 @@ break_points	src/common.h	/^    int* break_points;$/;"	m	struct:sCompileInfoStru
 c_termios_to_clover_termios	src/clover_to_clang.c	/^void c_termios_to_clover_termios(struct termios* terminfo_value, CLObject terminfo_object)$/;"	f
 call_finalize_method_on_free_object	src/vm.c	/^BOOL call_finalize_method_on_free_object(sCLClass* klass, CLObject self)$/;"	f
 call_normal_method	src/node.c	/^static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType* object_type, sNodeType* generics_types, sCLClass* klass, sNodeType* param_types[PARAMS_MAX], int num_params, char* method_name, unsigned int params[PARAMS_MAX], int num_method_chains, int max_method_chains)$/;"	f	file:
+call_show_inst_in_jit	src/jit.cpp	/^static void call_show_inst_in_jit(int opecode)$/;"	f	file:
+call_show_number_in_jit	src/jit.cpp	/^static void call_show_number_in_jit(int number)$/;"	f	file:
 call_show_stack	src/jit.cpp	/^static void call_show_stack(CLVALUE* stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info)$/;"	f	file:
 cast_right_type_to_Array	src/cast.c	/^void cast_right_type_to_Array(sNodeType** right_type, sCompileInfo* info)$/;"	f
 cast_right_type_to_Bool	src/cast.c	/^void cast_right_type_to_Bool(sNodeType** right_type, sCompileInfo* info)$/;"	f
@@ -1226,6 +1220,7 @@ compile_increment_operand	src/node.c	/^BOOL compile_increment_operand(unsigned i
 compile_increment_operand_with_value	src/node.c	/^BOOL compile_increment_operand_with_value(unsigned int node, sCompileInfo* info) $/;"	f
 compile_inherit_call	src/node.c	/^static BOOL compile_inherit_call(unsigned int node, sCompileInfo* info)$/;"	f	file:
 compile_int_value	src/node.c	/^static BOOL compile_int_value(unsigned int node, sCompileInfo* info)$/;"	f	file:
+compile_invoking_method	src/jit.cpp	/^static BOOL compile_invoking_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, std::map<std::string, Value *> params, BasicBlock* basic_bock)$/;"	f	file:
 compile_list_value	src/node.c	/^BOOL compile_list_value(unsigned int node, sCompileInfo* info)$/;"	f
 compile_load_array_element	src/node.c	/^BOOL compile_load_array_element(unsigned int node, sCompileInfo* info)$/;"	f
 compile_load_class_field	src/node.c	/^static BOOL compile_load_class_field(unsigned int node, sCompileInfo* info)$/;"	f	file:
@@ -1364,7 +1359,7 @@ expression_shift	src/parser.c	/^static BOOL expression_shift(unsigned int* node,
 expression_xor	src/parser.c	/^static BOOL expression_xor(unsigned int* node, sParserInfo* info)$/;"	f	file:
 fFreeFun	src/common.h	/^typedef void (*fFreeFun)(CLObject self);$/;"	t
 fGetNativeMethod	src/common.h	/^typedef fNativeMethod (*fGetNativeMethod)(char* path, char** native_method_name);$/;"	t
-fJITMethodType	src/jit.cpp	/^typedef BOOL (*fJITMethodType)(CLVALUE* stack_ptr, CLVALUE* lvar, sVMInfo* info, CLVALUE* stack);$/;"	t	file:
+fJITMethodType	src/jit.cpp	/^typedef BOOL (*fJITMethodType)(CLVALUE* stack_ptr, CLVALUE* lvar, sVMInfo* info, CLVALUE* stack, CLVALUE** stack_ptr_address);$/;"	t	file:
 fNativeMethod	src/common.h	/^typedef BOOL (*fNativeMethod)(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);$/;"	t
 file_completion	src/interpreter.c	/^static void file_completion(char* line)$/;"	f	file:
 final_vtable	src/vtable.c	/^void final_vtable()$/;"	f
@@ -1443,6 +1438,7 @@ get_global_method_names	src/interpreter.c	/^void get_global_method_names(char** 
 get_hash_key	src/klass.c	/^unsigned int get_hash_key(char* name, unsigned int max)$/;"	f
 get_hash_key_for_native_method	src/native_method.c	/^static unsigned int get_hash_key_for_native_method(char* path)$/;"	f	file:
 get_hex_number	src/parser.c	/^static BOOL get_hex_number(unsigned int* node, sParserInfo* info)$/;"	f	file:
+get_lvar_value_from_offset	src/jit.cpp	/^static Value* get_lvar_value_from_offset(std::map<std::string, Value*>& params, BasicBlock* basic_bock, int offset)$/;"	f	file:
 get_method_names_with_arguments	src/interpreter.c	/^ALLOC ALLOC char** get_method_names_with_arguments(sCLClass* klass, BOOL class_method, int* num_methods)$/;"	f
 get_module	src/module.c	/^sCLModule* get_module(char* module_name)$/;"	f
 get_module_body	src/module.c	/^char* get_module_body(sCLModule* module)$/;"	f
@@ -1455,6 +1451,7 @@ get_parent_var_num_of_sum	src/vtable.c	/^int get_parent_var_num_of_sum(sVarTable
 get_pointer_from_buffer_object	src/clover_to_clang.c	/^void* get_pointer_from_buffer_object(CLObject buffer)$/;"	f
 get_size_from_buffer_object	src/clover_to_clang.c	/^int get_size_from_buffer_object(CLObject buffer)$/;"	f
 get_stack_ptr_value_from_index	src/jit.cpp	/^static Value* get_stack_ptr_value_from_index(std::map<std::string, Value*>& params, BasicBlock* basic_bock, int index)$/;"	f	file:
+get_stack_ptr_value_from_offset	src/jit.cpp	/^static Value* get_stack_ptr_value_from_offset(std::map<std::string, Value*>& params, BasicBlock* basic_bock, int offset)$/;"	f	file:
 get_sum_of_parent_var_num	src/vtable.c	/^static int get_sum_of_parent_var_num(sVarTable* table)$/;"	f	file:
 get_type	src/interpreter.c	/^static BOOL get_type(char* source, char* fname, sVarTable* lv_table, CLVALUE* stack, sNodeType** type_)$/;"	f	file:
 get_type_for_interpreter	src/common.h	/^    BOOL get_type_for_interpreter;$/;"	m	struct:sParserInfoStruct
@@ -1505,7 +1502,7 @@ interpreter_final	src/interpreter.c	/^static void interpreter_final()$/;"	f	file
 interpreter_init	src/interpreter.c	/^static void interpreter_init()$/;"	f	file:
 invoke_block	src/vm.c	/^BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_params, CLVALUE** stack_ptr, sVMInfo* info)$/;"	f
 invoke_method	src/vm.c	/^BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info)$/;"	f
-invoke_method_in_jit	src/jit.cpp	/^static BOOL invoke_method_in_jit(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, std::map<std::string, Value *> params, BasicBlock* basic_bock)$/;"	f	file:
+invoke_method_in_jit	src/jit.cpp	/^BOOL invoke_method_in_jit(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info)$/;"	f
 is_assign_operator	src/parser.c	/^static BOOL is_assign_operator(sParserInfo* info) $/;"	f	file:
 is_exception_type	src/node_type.c	/^BOOL is_exception_type(sNodeType* exception_type)$/;"	f
 is_this_class_with_class_name	src/type.c	/^BOOL is_this_class_with_class_name(sCLClass* klass, char* class_name)$/;"	f
@@ -2157,9 +2154,11 @@ set_signal_for_interpreter	src/interpreter.c	/^static void set_signal_for_interp
 sharedstatedir	Makefile	/^sharedstatedir=${prefix}\/com$/;"	m
 show_exception_message	src/exception.c	/^void show_exception_message(char* message)$/;"	f
 show_inst	src/vm.c	/^static void show_inst(unsigned inst)$/;"	f	file:
+show_inst_in_jit	src/jit.cpp	/^void show_inst_in_jit(int opecode)$/;"	f
 show_node	src/node.c	/^void show_node(unsigned int node)$/;"	f
-show_stack	src/jit.cpp	/^BOOL show_stack(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info)$/;"	f
-show_stack	src/vm.c	/^static void show_stack(CLVALUE* stack, CLVALUE* stack_ptr, CLVALUE* lvar, int var_num)$/;"	f	file:
+show_number_in_jit	src/jit.cpp	/^void show_number_in_jit(int number)$/;"	f
+show_stack	src/vm.c	/^void show_stack(CLVALUE* stack, CLVALUE* stack_ptr, CLVALUE* lvar, int var_num)$/;"	f
+show_stack_in_jit	src/jit.cpp	/^BOOL show_stack_in_jit(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info)$/;"	f
 show_vtable	src/vtable.c	/^void show_vtable(sVarTable* table)$/;"	f
 sig_int	src/interpreter.c	/^static void sig_int()$/;"	f	file:
 single_operator	src/node.c	/^static BOOL single_operator(sNodeType* type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, sCompileInfo* info)$/;"	f	file:
@@ -2183,6 +2182,7 @@ stack_final	src/stack.c	/^void stack_final()$/;"	f
 stack_init	src/stack.c	/^void stack_init()$/;"	f
 stack_num	src/common.h	/^    int stack_num;$/;"	m	struct:sCompileInfoStruct
 store_value	src/jit.cpp	/^static void store_value(Value* llvm_value, Value* stored_value, BasicBlock* basic_bock)$/;"	f	file:
+store_value_to_lvar_with_offset	src/jit.cpp	/^static void store_value_to_lvar_with_offset(std::map<std::string, Value*>& params, BasicBlock* basic_bock, int index, Value* llvm_value)$/;"	f	file:
 string_object_to_char_array	src/clover_to_clang.c	/^ALLOC char* string_object_to_char_array(CLObject string_object)$/;"	f
 string_object_to_wchar_array	src/clover_to_clang.c	/^ALLOC wchar_t* string_object_to_wchar_array(CLObject string_object)$/;"	f
 substitution_posibility	src/node_type.c	/^BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_generics_types, sNodeType* right_generics_types)$/;"	f

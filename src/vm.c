@@ -2,7 +2,7 @@
 
 BOOL gSigInt = FALSE;
 
-static void show_stack(CLVALUE* stack, CLVALUE* stack_ptr, CLVALUE* lvar, int var_num)
+void show_stack(CLVALUE* stack, CLVALUE* stack_ptr, CLVALUE* lvar, int var_num)
 {
     if(stack_ptr == lvar+var_num) {
         puts("stack is empty");
@@ -26,7 +26,7 @@ static void show_stack(CLVALUE* stack, CLVALUE* stack_ptr, CLVALUE* lvar, int va
     }
 }
 
-#ifdef VM_DEBUG
+#ifdef VM_LOG
 static void show_inst(unsigned inst)
 {
     switch(inst) {
@@ -849,7 +849,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
         unsigned int inst = *(unsigned int*)pc;
         pc+=sizeof(int);
 
-#ifdef VM_DEBUG
+#ifdef VM_LOG
 show_inst(inst);
 #endif
 
@@ -4467,7 +4467,7 @@ if(stack_ptr != lvar + var_num + 1) {
 
                     vm_mutex_off();
 
-#ifdef VM_DEBUG
+#ifdef VM_LOG
 show_stack(stack, stack_ptr, lvar, var_num);
 #endif
                 }
@@ -12101,10 +12101,6 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char* str = CONS_str(constant, offset);
 
-#ifdef VM_DEBUG
-printf("str %s\n", str);
-#endif
-
                     CLObject string_object = create_string_object(str);
 
                     stack_ptr->mObjectValue = string_object;
@@ -12694,7 +12690,7 @@ printf("str %s\n", str);
                 }
                 break;
         }
-#ifdef VM_DEBUG
+#ifdef VM_LOG
 show_stack(stack, stack_ptr, lvar, var_num);
 #endif
     }

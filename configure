@@ -3776,7 +3776,7 @@ fi
 
 if test $LOGGING = 1
 then
-    CFLAGS="$CFLAGS -DVM_DEBUG"
+    CFLAGS="$CFLAGS -DVM_LOG"
 fi
 
 
