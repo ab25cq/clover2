@@ -457,6 +457,8 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
 
 #ifdef ENABLE_JIT
         if(method->mFlags & METHOD_FLAGS_JIT) {
+printf("jit start %s\n", METHOD_NAME2(klass,method));
+show_stack(stack, *stack_ptr, lvar, var_num);
             if(!jit(code, constant, new_stack, new_var_num, klass, method, info))
             {
                 *stack_ptr = lvar;
@@ -464,6 +466,8 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
                 (*stack_ptr)++;
                 return FALSE;
             }
+printf("jit done %s\n", METHOD_NAME2(klass,method));
+show_stack(stack, *stack_ptr, lvar, var_num);
         }
         else {
             if(!vm(code, constant, new_stack, new_var_num, klass, info)) {

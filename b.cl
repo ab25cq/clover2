@@ -12,8 +12,6 @@ a.run4();
 
 Clover.test("jit test4", a.run5() == 123.1);
 
-a.run6();
+Clover.test("jit test5", a.run6() == 124);
 
-#Clover.test("jit test5", a.run6() == 4);
-
-#Clover.test("jit test6", a.run7().equals("ABCDEF"));
+Clover.test("jit test6", a.run7().equals("ABC"));

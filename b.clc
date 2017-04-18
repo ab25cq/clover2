@@ -23,11 +23,11 @@ class JITTest
         return System.strtod("123.1");
     }
 
-    def run6(): jit {
+    def run6(): jit int {
         a:int = 123;
+        return a + 1;
     }
 
-/*
     def method(): String {
         return "ABC";
     }
@@ -35,5 +35,4 @@ class JITTest
     def run7():jit String {
         return self.method().append("DEF");
     }
-*/
 }

@@ -46,6 +46,8 @@ CLObject create_string_object(char* str)
 
     MFREE(wstr);
 
+printf("create string object ID %d\n", obj);
+
     return obj;
 }
 
