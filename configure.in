@@ -176,7 +176,10 @@ AC_HAVE_LIBRARY(rt, [ LIBS="$LIBS -lrt"; ], [])
 
 AC_SUBST(LIBS)
 
-if which clang > /dev/null
+if which clang-4.0 > /dev/null
+then
+    CC=clang-4.0
+elif which clang > /dev/null
 then
     CC=clang
 else

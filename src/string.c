@@ -41,12 +41,14 @@ CLObject create_string_object(char* str)
     obj_data->mFields[1].mIntValue = wlen + 1;
     obj_data->mFields[2].mIntValue = wlen;
 
+#ifdef MDEBUG
+printf("create_string_object %d %s\n", obj, str);
+#endif
+
     /// pop object ///
     gGlobalStackPtr--;
 
     MFREE(wstr);
-
-printf("create string object ID %d\n", obj);
 
     return obj;
 }

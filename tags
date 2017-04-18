@@ -19,7 +19,7 @@ BinaryExprAST	toy.cpp	/^class BinaryExprAST : public ExprAST {$/;"	c	namespace:_
 BinopPrecedence	toy.cpp	/^static std::map<char, int> BinopPrecedence;$/;"	v	file:
 Body	toy.cpp	/^  std::unique_ptr<ExprAST> Body;$/;"	m	class:__anon23::FunctionAST	file:
 Body	toy.cpp	/^  std::unique_ptr<ExprAST> Start, End, Step, Body;$/;"	m	class:__anon23::ForExprAST	file:
-CC	Makefile	/^CC=clang$/;"	m
+CC	Makefile	/^CC=clang-4.0$/;"	m
 CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -I\/home\/ab25cq\/include -L\/home\/ab25cq\/lib -fPIC -rdynamic -I\/usr\/local\/include -L \/usr\/local\/lib -DENABLE_INTERPRETER -g -DMDEBUG -Werror -Qunused-arguments -DENABLE_JIT$/;"	m
 CHECKML_BEGIN	src/debug.h	11;"	d
 CHECKML_BEGIN	src/debug.h	38;"	d
@@ -1330,6 +1330,7 @@ debug_init	src/debug.c	/^void debug_init()$/;"	f
 debug_malloc	src/debug.c	/^ALLOC void* debug_malloc(size_t size, const char* file_name, int line, const char* func_name)$/;"	f
 debug_realloc	src/debug.c	/^ALLOC void* debug_realloc(void* memory, size_t size, const char* file_name, int line, const char* func_name)$/;"	f
 debug_strdup	src/debug.c	/^ALLOC char* debug_strdup(char* str, const char* file_name, int line, const char* func_name)$/;"	f
+dec_stack_ptr	src/jit.cpp	/^static void dec_stack_ptr(std::map<std::string, Value*>& params, BasicBlock* basic_block, int value)$/;"	f	file:
 decrement_operand_core	src/node.c	/^static void decrement_operand_core(unsigned int node, sCompileInfo* info, unsigned int lnode, int add_operand, int sub_operand, int ldc_operand, BOOL monadic, BOOL with_value)$/;"	f	file:
 decrement_operand_core_for_field	src/node.c	/^static BOOL decrement_operand_core_for_field(unsigned int node, sCompileInfo* info, unsigned int lnode, int add_operand, int sub_operand, int ldc_operand, BOOL monadic, BOOL with_value)$/;"	f	file:
 delete_all_object	src/heap.c	/^static void delete_all_object()$/;"	f	file:
@@ -1866,6 +1867,7 @@ mVarNum	src/common.h	/^    int mVarNum;$/;"	m	struct:sCLMethodStruct
 mVarNum	src/common.h	/^    int mVarNum;$/;"	m	struct:sVarTableStruct
 mVirtualMethodTable	src/common.h	/^    sCLMethod* mVirtualMethodTable[METHOD_NUM_MAX]; \/\/ This requires on the run time$/;"	m	struct:sCLClassStruct
 mWhileNodeBlock	src/common.h	/^            MANAGED sNodeBlock* mWhileNodeBlock;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon6
+main	a.c	/^int main()$/;"	f
 main	src/compiler.c	/^int main(int argc, char** argv)$/;"	f
 main	src/interpreter.c	/^int main(int argc, char** argv)$/;"	f
 main	src/main.c	/^int main(int argc, char** argv)$/;"	f
