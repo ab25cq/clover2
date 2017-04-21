@@ -216,6 +216,27 @@ static void create_internal_functions()
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "create_string_object", TheModule.get());
 
+    /// create_object ///
+    result_type = IntegerType::get(TheContext, 32);
+
+    param1_type = PointerType::get(IntegerType::get(TheContext,64), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "create_object", TheModule.get());
+
+    /// create_array_object ///
+    result_type = IntegerType::get(TheContext, 32);
+
+    param1_type = PointerType::get(IntegerType::get(TheContext,64), 0);
+    type_params.push_back(param1_type);
+
+    param2_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param2_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "create_array_object", TheModule.get());
+
     /// run_head_of_expression ///
     type_params.clear();
 
@@ -327,6 +348,20 @@ static void create_internal_functions()
     function_type = FunctionType::get(result_type, type_params, false);
 
     Function::Create(function_type, Function::ExternalLinkage, "invoke_none_native_method_in_jit", TheModule.get());
+
+    /// entry_exception_object ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param1_type);
+
+    param2_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param2_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "entry_exception_object", TheModule.get());
 }
 
 static void InitializeModuleAndPassManager() 
@@ -367,9 +402,17 @@ void jit_final()
 /////////////////////////////////////////////////////////////////////////////
 /// JIT debug functions
 /////////////////////////////////////////////////////////////////////////////
+void show_stack_stat(CLVALUE** stack_ptr, CLVALUE* stack)
+{
+    printf("stack_ptr %p\n", stack_ptr);
+    printf("*stack_ptr %p\n", *stack_ptr);
+    printf("stack_ptr - stack %d\n", (int)(*stack_ptr - stack));
+}
+
 BOOL show_stack_in_jit(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info)
 {
     printf("var_num %d\n", var_num);
+    show_stack_stat(stack_ptr, stack);
 
     int i;
     for(i=0; i<10; i++) {
@@ -419,6 +462,10 @@ void show_inst_in_jit(int opecode)
             puts("OP_INVOKE_METHOD");
             break;
 
+        case OP_THROW:
+            puts("OP_THROW");
+            break;
+
         case OP_CREATE_STRING:
             puts("OP_CREATE_STRING");
             break;
@@ -431,6 +478,10 @@ void show_inst_in_jit(int opecode)
             puts("OP_SIGINT");
             break;
 
+        case OP_NEW:
+            puts("OP_NEW");
+            break;
+
         default:
             printf("opecode %d\n", opecode);
             break;
@@ -440,12 +491,6 @@ void show_inst_in_jit(int opecode)
 void show_number_in_jit(int number)
 {
     printf("%d\n", number);
-}
-
-void show_stack_stat(CLVALUE** stack_ptr)
-{
-    printf("stack_ptr %p\n", stack_ptr);
-    printf("*stack_ptr %p\n", *stack_ptr);
 }
 
 static void call_show_number_in_jit(int number)
@@ -463,12 +508,17 @@ static void call_show_stack_stat(std::map<std::string, Value *> params)
 {
     Function* show_address_fun = TheModule->getFunction("show_stack_stat");
 
+    std::vector<Value*> params2;
+
     std::string stack_ptr_address_arg_name("stack_ptr_address");
     Value* stack_ptr_address_value = params[stack_ptr_address_arg_name];
-
-    std::vector<Value*> params2;
     Value* param1 = stack_ptr_address_value;
     params2.push_back(param1);
+
+    std::string stack_arg_name("stack");
+    Value* stack_value = params[stack_arg_name];
+    Value* param2 = stack_value;
+    params2.push_back(param2);
 
     Value* result = Builder.CreateCall(show_address_fun, params2);
 }
@@ -485,15 +535,22 @@ static void call_show_inst_in_jit(int opecode)
     Value* result = Builder.CreateCall(show_inst, params2);
 }
 
-static void call_show_stack(CLVALUE* stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info)
+static void call_show_stack(int var_num, sVMInfo* info, std::map<std::string, Value *> params)
 {
     Function* show_stack_fun = TheModule->getFunction("show_stack_in_jit");
 
+    std::string stack_ptr_address_name("stack_ptr_address");
+    Value* stack_ptr_address_value = params[stack_ptr_address_name];
+
+    Value* loaded_stack_ptr_address_value = Builder.CreateLoad(stack_ptr_address_value, "loaded_stack_ptr_address_value");
+    std::string stack_name("stack");
+    Value* stack_value = params[stack_name];
+
     std::vector<Value*> params2;
-    Value* param1 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)stack_ptr);
+    Value* param1 = stack_ptr_address_value;
     params2.push_back(param1);
 
-    Value* param2 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)stack);
+    Value* param2 = stack_value;
     params2.push_back(param2);
 
     Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)var_num);
@@ -558,17 +615,9 @@ BOOL invoke_none_native_method_in_jit(sCLClass* klass, sCLMethod* method, CLVALU
         }
     }
 
-puts("*");
-show_stack_in_jit(stack_ptr, stack, var_num, info);
-printf("stack_ptr - stack %d\n", (int)(*stack_ptr - stack));
-
     *stack_ptr = lvar;      // see OP_RETURN
     **stack_ptr = *new_stack;
     (*stack_ptr)++;
-
-puts("*");
-show_stack_in_jit(stack_ptr, stack, var_num, info);
-printf("stack_ptr - stack %d\n", (int)(*stack_ptr - stack));
 
     return TRUE;
 }
@@ -576,14 +625,14 @@ printf("stack_ptr - stack %d\n", (int)(*stack_ptr - stack));
 //////////////////////////////////////////////////////////////////////
 // LLVM operation functions
 //////////////////////////////////////////////////////////////////////
-static void store_value(Value* llvm_value, Value* stored_value, BasicBlock* basic_block)
+static void store_value(Value* llvm_value, Value* stored_value, BasicBlock* current_block)
 {
     StoreInst* store_inst = new StoreInst(llvm_value, stored_value);
     store_inst->setAlignment(8);
-    basic_block->getInstList().push_back(store_inst);
+    current_block->getInstList().push_back(store_inst);
 }
 
-static void inc_stack_ptr(std::map<std::string, Value*>& params, BasicBlock* basic_block, int value)
+static void inc_stack_ptr(std::map<std::string, Value*>& params, BasicBlock* current_block, int value)
 {
     std::string stack_ptr_address_name("stack_ptr_address");
     Value* stack_ptr_address_value = params[stack_ptr_address_name];
@@ -598,10 +647,10 @@ static void inc_stack_ptr(std::map<std::string, Value*>& params, BasicBlock* bas
     std::string stack_ptr_arg_name("stack_ptr");
     params[stack_ptr_arg_name] = inc_ptr_value;
 
-    store_value(inc_ptr_value, stack_ptr_address_value, basic_block);
+    store_value(inc_ptr_value, stack_ptr_address_value, current_block);
 }
 
-static void dec_stack_ptr(std::map<std::string, Value*>& params, BasicBlock* basic_block, int value)
+static void dec_stack_ptr(std::map<std::string, Value*>& params, BasicBlock* current_block, int value)
 {
     std::string stack_ptr_address_name("stack_ptr_address");
     Value* stack_ptr_address_value = params[stack_ptr_address_name];
@@ -615,10 +664,10 @@ static void dec_stack_ptr(std::map<std::string, Value*>& params, BasicBlock* bas
     std::string stack_ptr_arg_name("stack_ptr");
     params[stack_ptr_arg_name] = dec_ptr_value;
 
-    store_value(dec_ptr_value, stack_ptr_address_value, basic_block);
+    store_value(dec_ptr_value, stack_ptr_address_value, current_block);
 }
 
-static Value* get_stack_ptr_value_from_offset(std::map<std::string, Value*>& params, BasicBlock* basic_block, int offset)
+static Value* get_stack_ptr_value_from_offset(std::map<std::string, Value*>& params, BasicBlock* current_block, int offset)
 {
     std::string stack_ptr_address_name("stack_ptr_address");
     Value* stack_ptr_address_value = params[stack_ptr_address_name];
@@ -630,7 +679,7 @@ static Value* get_stack_ptr_value_from_offset(std::map<std::string, Value*>& par
     return Builder.CreateSub(lvalue, rvalue, "offset_stack_ptr", true, true);
 }
 
-static Value* get_lvar_value_from_offset(std::map<std::string, Value*>& params, BasicBlock* basic_block, int offset)
+static Value* get_lvar_value_from_offset(std::map<std::string, Value*>& params, BasicBlock* current_block, int offset)
 {
     std::string lvar_arg_name("lvar");
     Value* lvar_value = params[lvar_arg_name];
@@ -642,7 +691,7 @@ static Value* get_lvar_value_from_offset(std::map<std::string, Value*>& params, 
     return Builder.CreateLoad(offset_lvar, "offset_lvar");
 }
 
-static void store_value_to_lvar_with_offset(std::map<std::string, Value*>& params, BasicBlock* basic_block, int index, Value* llvm_value)
+static void store_value_to_lvar_with_offset(std::map<std::string, Value*>& params, BasicBlock* current_block, int index, Value* llvm_value)
 {
     std::string lvar_arg_name("lvar");
     Value* lvar_value = params[lvar_arg_name];
@@ -651,10 +700,10 @@ static void store_value_to_lvar_with_offset(std::map<std::string, Value*>& param
     Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(64, 8*index, true));
     Value* lvar_offset_value = Builder.CreateAdd(lvalue, rvalue, "lvar_offset_value", true, true);
 
-    store_value(llvm_value, lvar_offset_value, basic_block);
+    store_value(llvm_value, lvar_offset_value, current_block);
 }
 
-static Value* get_stack_ptr_value_from_index(std::map<std::string, Value*>& params, BasicBlock* basic_block, int index)
+static Value* get_stack_ptr_value_from_index(std::map<std::string, Value*>& params, BasicBlock* current_block, int index)
 {
     std::string stack_ptr_address_name("stack_ptr_address");
     Value* stack_ptr_address_value = params[stack_ptr_address_name];
@@ -668,19 +717,21 @@ static Value* get_stack_ptr_value_from_index(std::map<std::string, Value*>& para
     return Builder.CreateLoad(stack_pointer_offset_value, "stack_pointer_offset_value");
 }
 
-static void push_value_to_stack_ptr(std::map<std::string, Value*>& params, BasicBlock* basic_block, Value* value)
+static void push_value_to_stack_ptr(std::map<std::string, Value*>& params, BasicBlock* current_block, Value* value)
 {
+    Builder.SetInsertPoint(current_block);
+
     std::string stack_ptr_address_name("stack_ptr_address");
     Value* stack_ptr_address_value = params[stack_ptr_address_name];
 
     Value* loaded_stack_ptr_address_value = Builder.CreateLoad(stack_ptr_address_value, "loaded_stack_ptr_address_value");
 
-    store_value(value, loaded_stack_ptr_address_value, basic_block);
+    store_value(value, loaded_stack_ptr_address_value, current_block);
 
-    inc_stack_ptr(params, basic_block, 1);
+    inc_stack_ptr(params, current_block, 1);
 }
 
-static BOOL compile_invoking_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, std::map<std::string, Value *> params, BasicBlock* basic_block)
+static BOOL compile_invoking_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, std::map<std::string, Value *> params, BasicBlock** current_block, Function* function)
 {
     int real_param_num = method->mNumParams + (method->mFlags & METHOD_FLAGS_CLASS_METHOD ? 0:1);
 
@@ -717,7 +768,7 @@ static BOOL compile_invoking_method(sCLClass* klass, sCLMethod* method, CLVALUE*
         Value* stack_ptr_address_value = params[stack_ptr_address_value_name];
         params2.push_back(stack_ptr_address_value);
 
-        Value* new_lvar = get_stack_ptr_value_from_offset(params, basic_block, method->mNumParams);
+        Value* new_lvar = get_stack_ptr_value_from_offset(params, *current_block, method->mNumParams);
         Value* lvar_value = new_lvar;
         params2.push_back(lvar_value);
 
@@ -726,27 +777,56 @@ static BOOL compile_invoking_method(sCLClass* klass, sCLMethod* method, CLVALUE*
 
         Value* result = Builder.CreateCall(native_method, params2);
 
-        /// if result == FALSE then; ret 0
+        // if result is FALSE ret 0
+        Value* comp = Builder.CreateICmpNE(result, ConstantInt::get(TheContext, llvm::APInt(32, 1, true)), "ifcond");
 
-        if(is_void_type(method->mResultType, klass)) {
-            std::string stack_ptr_arg_name("stack_ptr");
+        BasicBlock* then_block = BasicBlock::Create(TheContext, "then_block", function);
+        BasicBlock* entry_ifend = BasicBlock::Create(TheContext, "entry_ifend", function);
+
+        Builder.CreateCondBr(comp, then_block, entry_ifend);
+
+        Builder.SetInsertPoint(then_block);
+        
+        Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 0, true));
+        Builder.CreateRet(ret_value);
+
+        Builder.SetInsertPoint(entry_ifend);
+
+        *current_block = entry_ifend;
+
+        /// result ///
+        if(is_void_type(method->mResultType, klass) && strcmp(METHOD_NAME2(klass, method), "initialize") != 0) {
+            std::string stack_ptr_address_name("stack_ptr_address");
+            Value* stack_ptr_address_value = params[stack_ptr_address_name];
+
             std::string lvar_arg_name("lvar");
+            Value* lvar_address_value = params[lvar_arg_name];
 
+            std::string stack_ptr_arg_name("stack_ptr");
             params[stack_ptr_arg_name] = params[lvar_arg_name];
+
+            store_value(lvar_address_value, stack_ptr_address_value, *current_block);
 
             int value = 0;
             Value* llvm_value = ConstantInt::get(TheContext, llvm::APInt(32, value, true)); 
 
-            push_value_to_stack_ptr(params, basic_block, llvm_value);
+            push_value_to_stack_ptr(params, *current_block, llvm_value);
         }
         else {
-            std::string stack_ptr_arg_name("stack_ptr");
+            Value* result = get_stack_ptr_value_from_index(params, entry_ifend, -1);
+
+            std::string stack_ptr_address_name("stack_ptr_address");
+            Value* stack_ptr_address_value = params[stack_ptr_address_name];
+
             std::string lvar_arg_name("lvar");
+            Value* lvar_address_value = params[lvar_arg_name];
 
+            store_value(lvar_address_value, stack_ptr_address_value, *current_block);
+
+            push_value_to_stack_ptr(params, *current_block, result);
+
+            std::string stack_ptr_arg_name("stack_ptr");
             params[stack_ptr_arg_name] = params[lvar_arg_name];
-
-            Value* result = get_stack_ptr_value_from_index(params, basic_block, -1);
-            push_value_to_stack_ptr(params, basic_block, result);
         }
     }
     else {
@@ -779,27 +859,57 @@ static BOOL compile_invoking_method(sCLClass* klass, sCLMethod* method, CLVALUE*
         Value* result = Builder.CreateCall(llvm_function, params2);
 
         // if result is FALSE ret 0
+        Value* comp = Builder.CreateICmpNE(result, ConstantInt::get(TheContext, llvm::APInt(32, 1, true)), "ifcond");
 
-        if(is_void_type(method->mResultType, klass)) {
-            std::string stack_ptr_arg_name("stack_ptr");
+        BasicBlock* then_block = BasicBlock::Create(TheContext, "then_block", function);
+        BasicBlock* entry_ifend = BasicBlock::Create(TheContext, "entry_ifend", function);
+
+        Builder.CreateCondBr(comp, then_block, entry_ifend);
+
+        Builder.SetInsertPoint(then_block);
+
+call_show_number_in_jit(999);
+        
+        Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 0, true));
+        Builder.CreateRet(ret_value);
+
+        Builder.SetInsertPoint(entry_ifend);
+call_show_number_in_jit(999);
+
+        *current_block = entry_ifend;
+
+        /// result ///
+        if(is_void_type(method->mResultType, klass) && strcmp(METHOD_NAME2(klass, method), "initialize") != 0) {
+            std::string stack_ptr_address_name("stack_ptr_address");
+            Value* stack_ptr_address_value = params[stack_ptr_address_name];
+
             std::string lvar_arg_name("lvar");
+            Value* lvar_address_value = params[lvar_arg_name];
 
+            std::string stack_ptr_arg_name("stack_ptr");
             params[stack_ptr_arg_name] = params[lvar_arg_name];
+
+            store_value(lvar_address_value, stack_ptr_address_value, *current_block);
 
             int value = 0;
             Value* llvm_value = ConstantInt::get(TheContext, llvm::APInt(32, value, true)); 
 
-            push_value_to_stack_ptr(params, basic_block, llvm_value);
+            push_value_to_stack_ptr(params, *current_block, llvm_value);
         }
         else {
-            std::string stack_ptr_arg_name("stack_ptr");
+            Value* result = get_stack_ptr_value_from_index(params, entry_ifend, -1);
+
+            std::string stack_ptr_address_name("stack_ptr_address");
+            Value* stack_ptr_address_value = params[stack_ptr_address_name];
+
             std::string lvar_arg_name("lvar");
+            Value* lvar_address_value = params[lvar_arg_name];
 
-            params[stack_ptr_arg_name] = params[lvar_arg_name];
+            store_value(lvar_address_value, stack_ptr_address_value, *current_block);
 
-            Value* result = get_stack_ptr_value_from_index(params, basic_block, -1);
+            push_value_to_stack_ptr(params, *current_block, result);
 
-            push_value_to_stack_ptr(params, basic_block, result);
+            std::string stack_ptr_arg_name("stack_ptr");
         }
     }
 
@@ -819,8 +929,8 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, CLVALUE* s
     Function* function = TheModule->getFunction(func_name);
 
     // Create a new basic block to start insertion into.
-    BasicBlock *basic_block = BasicBlock::Create(TheContext, "entry", function);
-    Builder.SetInsertPoint(basic_block);
+    BasicBlock* current_block = BasicBlock::Create(TheContext, "entry", function);
+    Builder.SetInsertPoint(current_block);
   
     register char* pc = code->mCodes;
     CLVALUE* stack_ptr = stack + var_num;
@@ -848,9 +958,9 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, CLVALUE* s
             case OP_POP:
 puts("OP_POP");
 call_show_inst_in_jit(inst);
-                dec_stack_ptr(params, basic_block, 1);
+                dec_stack_ptr(params, current_block, 1);
 show_stack_in_jit(&stack_ptr, stack, var_num, info);
-call_show_stack(stack_ptr, stack, var_num, info);
+call_show_stack(var_num, info, params);
                 break;
 
             case OP_LOAD:
@@ -860,11 +970,11 @@ call_show_inst_in_jit(inst);
                     int index = *(int*)pc;
                     pc += sizeof(int);
 
-                    Value* llvm_value = get_lvar_value_from_offset(params, basic_block, index);
+                    Value* llvm_value = get_lvar_value_from_offset(params, current_block, index);
 
-                    push_value_to_stack_ptr(params, basic_block, llvm_value);
+                    push_value_to_stack_ptr(params, current_block, llvm_value);
 show_stack_in_jit(&stack_ptr, stack, var_num, info);
-call_show_stack(stack_ptr, stack, var_num, info);
+call_show_stack(var_num, info, params);
                 }
                 break;
 
@@ -875,11 +985,11 @@ call_show_inst_in_jit(inst);
                     int index = *(int*)pc;
                     pc += sizeof(int);
 
-                    Value* llvm_value = get_stack_ptr_value_from_index(params, basic_block, -1);
+                    Value* llvm_value = get_stack_ptr_value_from_index(params, current_block, -1);
 
-                    store_value_to_lvar_with_offset(params, basic_block, index, llvm_value);
+                    store_value_to_lvar_with_offset(params, current_block, index, llvm_value);
 show_stack_in_jit(&stack_ptr, stack, var_num, info);
-call_show_stack(stack_ptr, stack, var_num, info);
+call_show_stack(var_num, info, params);
                 }
                 break;
 
@@ -892,8 +1002,8 @@ call_show_inst_in_jit(inst);
 
                     Value* llvm_value = ConstantInt::get(TheContext, llvm::APInt(32, value, true)); 
 
-                    push_value_to_stack_ptr(params, basic_block, llvm_value);
-call_show_stack(stack_ptr, stack, var_num, info);
+                    push_value_to_stack_ptr(params, current_block, llvm_value);
+call_show_stack(var_num, info, params);
 show_stack_in_jit(&stack_ptr, stack, var_num, info);
                 }
                 break;
@@ -905,8 +1015,8 @@ call_show_inst_in_jit(inst);
                     int value = 0;
                     Value* llvm_value = ConstantInt::get(TheContext, llvm::APInt(32, value, true)); 
 
-                    push_value_to_stack_ptr(params, basic_block, llvm_value);
-call_show_stack(stack_ptr, stack, var_num, info);
+                    push_value_to_stack_ptr(params, current_block, llvm_value);
+call_show_stack(var_num, info, params);
 show_stack_in_jit(&stack_ptr, stack, var_num, info);
                 }
                 break;
@@ -915,15 +1025,15 @@ show_stack_in_jit(&stack_ptr, stack, var_num, info);
                 {
 puts("OP_IADD");
 call_show_inst_in_jit(inst);
-                    Value* lvalue = get_stack_ptr_value_from_index(params, basic_block, -2);
-                    Value* rvalue = get_stack_ptr_value_from_index(params, basic_block, -1);
+                    Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
+                    Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
 
                     Value* llvm_value = Builder.CreateAdd(lvalue, rvalue, "addtmp", false, false);
 
-                    dec_stack_ptr(params, basic_block, 2);
-                    push_value_to_stack_ptr(params, basic_block, llvm_value);
+                    dec_stack_ptr(params, current_block, 2);
+                    push_value_to_stack_ptr(params, current_block, llvm_value);
 
-call_show_stack(stack_ptr, stack, var_num, info);
+call_show_stack(var_num, info, params);
 show_stack_in_jit(&stack_ptr, stack, var_num, info);
                 }
                 break;
@@ -934,26 +1044,59 @@ call_show_inst_in_jit(inst);
                     std::string stack_param_name("stack");
                     Value* stack_value = params[stack_param_name];
 
-call_show_number_in_jit(777);
-call_show_stack(stack_ptr, stack, var_num, info);
-                    Value* llvm_value = get_stack_ptr_value_from_index(params, basic_block, -1);
+                    Value* llvm_value = get_stack_ptr_value_from_index(params, current_block, -1);
 
-                    store_value(llvm_value, stack_value, basic_block);
-call_show_number_in_jit(666);
-call_show_stack(stack_ptr, stack, var_num, info);
+                    store_value(llvm_value, stack_value, current_block);
 
                     Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 1, true));
                     Builder.CreateRet(ret_value);
 
                     flag_last_opecode_is_return = TRUE;
-show_stack_in_jit(&stack_ptr, stack, var_num, info);
+                }
+                break;
+
+            case OP_THROW: {
+puts("OP_THROW");
+call_show_inst_in_jit(inst);
+call_show_stack(var_num, info, params);
+                std::string stack_param_name("stack");
+                Value* stack_value = params[stack_param_name];
+call_show_number_in_jit(1);
+
+                Value* llvm_value = get_stack_ptr_value_from_index(params, current_block, -1);
+
+                store_value(llvm_value, stack_value, current_block);
+
+                Function* entry_exception_object_fun = TheModule->getFunction("entry_exception_object");
+call_show_number_in_jit(2);
+
+                std::vector<Value*> params2;
+
+                Value* param1 = llvm_value;
+                params2.push_back(param1);
+
+                Value* vminfo_value = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
+                params2.push_back(vminfo_value);
+
+call_show_number_in_jit(3);
+
+                (void)Builder.CreateCall(entry_exception_object_fun, params2);
+call_show_number_in_jit(4);
+call_show_stack(var_num, info, params);
+
+                Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 0, true));
+                Builder.CreateRet(ret_value);
+
+                current_block = BasicBlock::Create(TheContext, "entry", function);
+                Builder.SetInsertPoint(current_block);
                 }
                 break;
 
             case OP_INVOKE_METHOD: {
 puts("OP_INVOKE_METHOD");
 call_show_inst_in_jit(inst);
-call_show_stack(stack_ptr, stack, var_num, info);
+call_show_stack(var_num, info, params);
+
                     int offset = *(int*)pc;
                     pc += sizeof(int);
 
@@ -975,11 +1118,11 @@ call_show_stack(stack_ptr, stack, var_num, info);
 
                     sCLMethod* method = klass->mMethods + method_index;
 
-                    if(!compile_invoking_method(klass, method, stack, var_num, &stack_ptr, info, params, basic_block))
+                    if(!compile_invoking_method(klass, method, stack, var_num, &stack_ptr, info, params, &current_block, function))
                     {
                         return FALSE;
                     }
-call_show_stack(stack_ptr, stack, var_num, info);
+call_show_stack(var_num, info, params);
 show_stack_in_jit(&stack_ptr, stack, var_num, info);
                 }
                 break;
@@ -1001,9 +1144,9 @@ call_show_inst_in_jit(inst);
 
                     Value* llvm_value = Builder.CreateCall(function, params2);
 
-                    push_value_to_stack_ptr(params, basic_block, llvm_value);
+                    push_value_to_stack_ptr(params, current_block, llvm_value);
 
-call_show_stack(stack_ptr, stack, var_num, info);
+call_show_stack(var_num, info, params);
 show_stack_in_jit(&stack_ptr, stack, var_num, info);
                 }
                 break;
@@ -1034,9 +1177,9 @@ puts("OP_HEAD_OF_EXPRESSION");
                 params2.push_back(param3);
 
                 Value* result = Builder.CreateCall(function, params2);
-//call_show_stack(stack_ptr, stack, var_num, info);
+//call_show_stack(var_num, info);
 */
-call_show_stack(stack_ptr, stack, var_num, info);
+call_show_stack(var_num, info, params);
                 }
                 break;
 
@@ -1060,12 +1203,12 @@ call_show_inst_in_jit(inst);
                 params2.push_back(param4);
 
                 Value* result = Builder.CreateCall(sigint_function, params2);
-
+, params
 /*
                 Value* comp = Builder.CreateICmpNE(result, ConstantInt::get(TheContext, llvm::APInt(32, 1, true)), "ifcond");
 
                 BasicBlock* then_block = BasicBlock::Create(TheContext, "then", function);
-                BasicBlock* merge_block = BasicBlock::Create(TheContext, "ifcont");
+                BasicBlock* entry_ifend = BasicBlock::Create(TheContext, "ifcont");
 
                 Builder.CreateCondBr(comp, then_block, nullptr);
 
@@ -1074,18 +1217,66 @@ call_show_inst_in_jit(inst);
                 Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 0, true));
                 Builder.CreateRet(ret_value);
 
-                Builder.CreateBr(merge_block);
+                Builder.CreateBr(entry_ifend);
 
                 then_block = Builder.GetInsertBlock();
 
-                function->getBasicBlockList().push_back(merge_block);
-                Builder.SetInsertPoint(merge_block);
+                function->getBasicBlockList().push_back(entry_ifend);
+                Builder.SetInsertPoint(entry_ifend);
 
                 PHINode* pnode = Builder.CreatePHI(Type::getInt32Ty(TheContext), 1, "iftmp");
-                pnode->addIncoming(then_block, basic_block);
+                pnode->addIncoming(then_block, current_block);
 */
-call_show_stack(stack_ptr, stack, var_num, info);
+call_show_stack(var_num, info, params);
 show_stack_in_jit(&stack_ptr, stack, var_num, info);
+                }
+                break;
+
+            case OP_NEW: {
+puts("OP_NEW");
+call_show_inst_in_jit(inst);
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+
+                BOOL flg_array = *(int*)pc;
+                pc += sizeof(int);
+
+                char* class_name = CONS_str(constant, offset);
+
+                sCLClass* klass = get_class_with_load_and_initialize(class_name);
+
+                if(klass == NULL) {
+                    entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(3)");
+                    return FALSE;
+                }
+
+                if(flg_array) {
+                    Value* array_num_value = get_stack_ptr_value_from_index(params, current_block, -1);
+                    dec_stack_ptr(params, current_block, 1);
+
+                    Function* function = TheModule->getFunction("create_array_object");
+
+                    std::vector<Value*> params2;
+                    Value* klass_value = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)klass);
+                    params2.push_back(klass_value);
+                    params2.push_back(array_num_value);
+
+                    Value* llvm_value = Builder.CreateCall(function, params2);
+
+                    push_value_to_stack_ptr(params, current_block, llvm_value);
+                }
+                else {
+                    Function* function = TheModule->getFunction("create_object");
+
+                    std::vector<Value*> params2;
+                    Value* klass_value = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)klass);
+                    params2.push_back(klass_value);
+
+                    Value* llvm_value = Builder.CreateCall(function, params2);
+
+                    push_value_to_stack_ptr(params, current_block, llvm_value);
+                }
+call_show_stack(var_num, info, params);
                 }
                 break;
 
@@ -1099,7 +1290,7 @@ show_stack_in_jit(&stack_ptr, stack, var_num, info);
         // Finish off the function.
         Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 1, true));
 
-        //Builder.SetInsertPoint(basic_block);
+        //Builder.SetInsertPoint(current_block);
         Builder.CreateRet(ret_value);
     }
 
@@ -1116,7 +1307,6 @@ typedef BOOL (*fJITMethodType)(CLVALUE* stack_ptr, CLVALUE* lvar, sVMInfo* info,
 
 static BOOL run_native_code(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sCLMethod* method, sVMInfo* info)
 {
-printf("run_native_code %s\n", METHOD_NAME2(klass, method));
     CLVALUE* stack_ptr = stack + var_num;
     CLVALUE* lvar = stack;
 
@@ -1130,6 +1320,7 @@ printf("run_native_code %s\n", METHOD_NAME2(klass, method));
 
     fJITMethodType function = (fJITMethodType)ExprSymbol.getAddress();
     if(!function(stack_ptr, lvar, info, stack, &stack_ptr)) {
+puts("AAA");
         remove_stack_to_stack_list(stack);
         return FALSE;
     }
@@ -1153,6 +1344,7 @@ printf("compiling %s\n", METHOD_PATH(klass, method));
         InitializeModuleAndPassManager();
     }
 
+printf("run_native_code %s\n", METHOD_NAME2(klass, method));
     if(!run_native_code(code, constant, stack, var_num, klass, method, info)) {
         return FALSE;
     }

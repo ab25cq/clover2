@@ -35,4 +35,8 @@ class JITTest
     def run7():jit String {
         return self.method().append("DEF");
     }
+
+    def run8(): jit {
+        throw new Exception("JIT throw test");
+    }
 }

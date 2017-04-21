@@ -41,6 +41,10 @@ CLObject create_object(sCLClass* klass)
 
     CLObject obj = alloc_heap_mem(size, klass, -1);
 
+#ifdef MDEBUG
+printf("create_object %d\n", obj);
+#endif
+
     return obj;
 }
 
