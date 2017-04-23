@@ -482,6 +482,30 @@ void show_inst_in_jit(int opecode)
             puts("OP_NEW");
             break;
 
+        case OP_IEQ:
+            puts("OP_IEQ");
+            break;
+
+        case OP_INOTEQ:
+            puts("OP_INOTEQ");
+            break;
+
+        case OP_IGT:
+            puts("OP_IGT");
+            break;
+
+        case OP_ILE:
+            puts("OP_ILE");
+            break;
+
+        case OP_IGTEQ:
+            puts("OP_IGTEQ");
+            break;
+
+        case OP_ILEEQ:
+            puts("OP_ILEEQ");
+            break;
+
         default:
             printf("opecode %d\n", opecode);
             break;
@@ -868,13 +892,11 @@ static BOOL compile_invoking_method(sCLClass* klass, sCLMethod* method, CLVALUE*
 
         Builder.SetInsertPoint(then_block);
 
-call_show_number_in_jit(999);
         
         Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 0, true));
         Builder.CreateRet(ret_value);
 
         Builder.SetInsertPoint(entry_ifend);
-call_show_number_in_jit(999);
 
         *current_block = entry_ifend;
 
@@ -953,78 +975,57 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, CLVALUE* s
         if(inst != OP_SIGINT) {
             flag_last_opecode_is_return = FALSE;
         }
+call_show_inst_in_jit(inst);
 
         switch(inst) {
             case OP_POP:
-puts("OP_POP");
-call_show_inst_in_jit(inst);
                 dec_stack_ptr(params, current_block, 1);
-show_stack_in_jit(&stack_ptr, stack, var_num, info);
-call_show_stack(var_num, info, params);
                 break;
 
             case OP_LOAD:
                 {
-puts("OP_LOAD");
-call_show_inst_in_jit(inst);
                     int index = *(int*)pc;
                     pc += sizeof(int);
 
                     Value* llvm_value = get_lvar_value_from_offset(params, current_block, index);
 
                     push_value_to_stack_ptr(params, current_block, llvm_value);
-show_stack_in_jit(&stack_ptr, stack, var_num, info);
-call_show_stack(var_num, info, params);
                 }
                 break;
 
             case OP_STORE:
                 {
-puts("OP_STORE");
-call_show_inst_in_jit(inst);
                     int index = *(int*)pc;
                     pc += sizeof(int);
 
                     Value* llvm_value = get_stack_ptr_value_from_index(params, current_block, -1);
 
                     store_value_to_lvar_with_offset(params, current_block, index, llvm_value);
-show_stack_in_jit(&stack_ptr, stack, var_num, info);
-call_show_stack(var_num, info, params);
                 }
                 break;
 
             case OP_LDCINT: 
                 {
-puts("OP_LDCINT");
-call_show_inst_in_jit(inst);
                     int value = *(int*)pc;
                     pc += sizeof(int);
 
                     Value* llvm_value = ConstantInt::get(TheContext, llvm::APInt(32, value, true)); 
 
                     push_value_to_stack_ptr(params, current_block, llvm_value);
-call_show_stack(var_num, info, params);
-show_stack_in_jit(&stack_ptr, stack, var_num, info);
                 }
                 break;
 
             case OP_LDCNULL:
                 {
-puts("OP_LDCNULL");
-call_show_inst_in_jit(inst);
                     int value = 0;
                     Value* llvm_value = ConstantInt::get(TheContext, llvm::APInt(32, value, true)); 
 
                     push_value_to_stack_ptr(params, current_block, llvm_value);
-call_show_stack(var_num, info, params);
-show_stack_in_jit(&stack_ptr, stack, var_num, info);
                 }
                 break;
 
             case OP_IADD: 
                 {
-puts("OP_IADD");
-call_show_inst_in_jit(inst);
                     Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
                     Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
 
@@ -1032,15 +1033,10 @@ call_show_inst_in_jit(inst);
 
                     dec_stack_ptr(params, current_block, 2);
                     push_value_to_stack_ptr(params, current_block, llvm_value);
-
-call_show_stack(var_num, info, params);
-show_stack_in_jit(&stack_ptr, stack, var_num, info);
                 }
                 break;
 
             case OP_RETURN: {
-puts("OP_RETURN");
-call_show_inst_in_jit(inst);
                     std::string stack_param_name("stack");
                     Value* stack_value = params[stack_param_name];
 
@@ -1056,19 +1052,14 @@ call_show_inst_in_jit(inst);
                 break;
 
             case OP_THROW: {
-puts("OP_THROW");
-call_show_inst_in_jit(inst);
-call_show_stack(var_num, info, params);
                 std::string stack_param_name("stack");
                 Value* stack_value = params[stack_param_name];
-call_show_number_in_jit(1);
 
                 Value* llvm_value = get_stack_ptr_value_from_index(params, current_block, -1);
 
                 store_value(llvm_value, stack_value, current_block);
 
                 Function* entry_exception_object_fun = TheModule->getFunction("entry_exception_object");
-call_show_number_in_jit(2);
 
                 std::vector<Value*> params2;
 
@@ -1078,11 +1069,7 @@ call_show_number_in_jit(2);
                 Value* vminfo_value = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
                 params2.push_back(vminfo_value);
 
-call_show_number_in_jit(3);
-
                 (void)Builder.CreateCall(entry_exception_object_fun, params2);
-call_show_number_in_jit(4);
-call_show_stack(var_num, info, params);
 
                 Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 0, true));
                 Builder.CreateRet(ret_value);
@@ -1093,10 +1080,6 @@ call_show_stack(var_num, info, params);
                 break;
 
             case OP_INVOKE_METHOD: {
-puts("OP_INVOKE_METHOD");
-call_show_inst_in_jit(inst);
-call_show_stack(var_num, info, params);
-
                     int offset = *(int*)pc;
                     pc += sizeof(int);
 
@@ -1122,14 +1105,10 @@ call_show_stack(var_num, info, params);
                     {
                         return FALSE;
                     }
-call_show_stack(var_num, info, params);
-show_stack_in_jit(&stack_ptr, stack, var_num, info);
                 }
                 break;
 
             case OP_CREATE_STRING: {
-puts("OP_CREATE_STRING");
-call_show_inst_in_jit(inst);
                     int offset = *(int*)pc;
                     pc += sizeof(int);
 
@@ -1145,15 +1124,10 @@ call_show_inst_in_jit(inst);
                     Value* llvm_value = Builder.CreateCall(function, params2);
 
                     push_value_to_stack_ptr(params, current_block, llvm_value);
-
-call_show_stack(var_num, info, params);
-show_stack_in_jit(&stack_ptr, stack, var_num, info);
                 }
                 break;
 
             case OP_HEAD_OF_EXPRESSION: {
-call_show_inst_in_jit(inst);
-puts("OP_HEAD_OF_EXPRESSION");
                 int offset = *(int*)pc;
                 pc += sizeof(int);
 
@@ -1177,15 +1151,11 @@ puts("OP_HEAD_OF_EXPRESSION");
                 params2.push_back(param3);
 
                 Value* result = Builder.CreateCall(function, params2);
-//call_show_stack(var_num, info);
 */
-call_show_stack(var_num, info, params);
                 }
                 break;
 
             case OP_SIGINT: {
-puts("OP_SIGINT");
-call_show_inst_in_jit(inst);
 /*
                 Function* sigint_function = TheModule->getFunction("run_sigint");
 
@@ -1227,14 +1197,10 @@ call_show_inst_in_jit(inst);
                 PHINode* pnode = Builder.CreatePHI(Type::getInt32Ty(TheContext), 1, "iftmp");
                 pnode->addIncoming(then_block, current_block);
 */
-call_show_stack(var_num, info, params);
-show_stack_in_jit(&stack_ptr, stack, var_num, info);
                 }
                 break;
 
             case OP_NEW: {
-puts("OP_NEW");
-call_show_inst_in_jit(inst);
                 int offset = *(int*)pc;
                 pc += sizeof(int);
 
@@ -1276,7 +1242,72 @@ call_show_inst_in_jit(inst);
 
                     push_value_to_stack_ptr(params, current_block, llvm_value);
                 }
-call_show_stack(var_num, info, params);
+                }
+                break;
+
+            case OP_IEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
+                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
+
+                Value* result = Builder.CreateICmpEQ(lvalue, rvalue, "IEQ");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr(params, current_block, result);
+                }
+                break;
+
+            case OP_INOTEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
+                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
+
+                Value* result = Builder.CreateICmpNE(lvalue, rvalue, "INOTEQ");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr(params, current_block, result);
+                }
+                break;
+
+            case OP_IGT: {
+                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
+                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
+
+                Value* result = Builder.CreateICmpSGT(lvalue, rvalue, "IGT");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr(params, current_block, result);
+                }
+                break;
+
+            case OP_ILE: {
+                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
+                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
+
+                Value* result = Builder.CreateICmpSLE(lvalue, rvalue, "ILE");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr(params, current_block, result);
+                }
+                break;
+            
+            case OP_IGTEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
+                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
+
+                Value* result = Builder.CreateICmpSGE(lvalue, rvalue, "IGETQ");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr(params, current_block, result);
+                }
+                break;
+
+            case OP_ILEEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
+                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
+
+                Value* result = Builder.CreateICmpSLE(lvalue, rvalue, "ILEEQ");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr(params, current_block, result);
                 }
                 break;
 
@@ -1284,6 +1315,10 @@ call_show_stack(var_num, info, params);
                 printf("inst %d\n", inst);
                 exit(1);
         }
+
+if(!flag_last_opecode_is_return) {
+call_show_stack(var_num, info, params);
+}
     }
 
     if(!flag_last_opecode_is_return) {
@@ -1320,7 +1355,6 @@ static BOOL run_native_code(sByteCode* code, sConst* constant, CLVALUE* stack, i
 
     fJITMethodType function = (fJITMethodType)ExprSymbol.getAddress();
     if(!function(stack_ptr, lvar, info, stack, &stack_ptr)) {
-puts("AAA");
         remove_stack_to_stack_list(stack);
         return FALSE;
     }

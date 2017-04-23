@@ -23,3 +23,7 @@ try {
 catch(e:Exception) {
     println("OK");
 }
+
+Clover.test("jit test8", a.run9() == true);
+
+#Clover.test("jit test9", a.run10() == 1);

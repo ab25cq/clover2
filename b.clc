@@ -39,4 +39,21 @@ class JITTest
     def run8(): jit {
         throw new Exception("JIT throw test");
     }
+
+    def run9(): jit bool {
+        a:int = 1;
+        b:bool = a == 1;
+
+        return b;
+    }
+
+    def run10(): jit int {
+        a:int = 1;
+        if(a == 1) {
+            return 1;
+        }
+        else {
+            return 2;
+        }
+    }
 }
