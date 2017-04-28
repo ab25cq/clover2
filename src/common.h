@@ -777,6 +777,7 @@ extern BOOL gSigInt;
 #define OP_TRY 10
 #define OP_HEAD_OF_EXPRESSION 11
 #define OP_SIGINT 12
+#define OP_LABEL 13
 
 #define OP_STORE 15
 #define OP_LOAD 16

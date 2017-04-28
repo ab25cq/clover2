@@ -58,6 +58,10 @@ static void show_inst(unsigned inst)
             puts("OP_GOTO");
             break;
 
+        case OP_LABEL :
+            puts("OP_LABEL");
+            break;
+
         case OP_RETURN :
             puts("OP_RETURN");
             break;
@@ -943,6 +947,9 @@ show_inst(inst);
                     vm_mutex_on();
 
                     int jump_value = *(int*)pc;
+                    pc += sizeof(int);
+                    int label_offset = *(int*)pc;
+                    pc += sizeof(int);
 
                     pc = code->mCodes + jump_value;
 
@@ -955,7 +962,7 @@ show_inst(inst);
                 remove_stack_to_stack_list(stack);
 #ifdef MDEBUG
 if(stack_ptr != lvar + var_num + 1) {
-    fprintf(stderr, "invalid stack\n");
+    fprintf(stderr, "invalid stack1\n");
     exit(3);
 }
 #endif
@@ -970,7 +977,7 @@ if(stack_ptr != lvar + var_num + 1) {
                 entry_exception_object(exception, info);
 #ifdef MDEBUG
 if(stack_ptr != lvar + var_num + 1) {
-    fprintf(stderr, "invalid stack\n");
+    fprintf(stderr, "invalid stack2\n");
     exit(3);
 }
 #endif
@@ -1017,6 +1024,14 @@ if(stack_ptr != lvar + var_num + 1) {
                 }
 
                 vm_mutex_off();
+                break;
+
+            case OP_LABEL: {
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+
+                /// nothing to do, this opecode is for Just In Time Compile
+                }
                 break;
 
             case OP_STORE:
@@ -12703,7 +12718,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
 #ifdef MDEBUG
 if(stack_ptr != lvar + var_num) {
-    fprintf(stderr, "invalid stack\n");
+    fprintf(stderr, "invalid stack3\n");
     exit(3);
 }
 #endif

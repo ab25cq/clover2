@@ -191,19 +191,19 @@ AC_SUBST(CC)
 if which clang++-4.0 > /dev/null
 then
     CXX=clang++-4.0
-    if test $ENABLE_OPTIMIZE = 1;
+    if test $DEBUGGING = 1
     then
-        CXXFLAGS='`llvm-config-4.0 --cxxflags --ldflags --system-libs --libs core mcjit native` -O3'
+        CXXFLAGS='`llvm-config-4.0 --cxxflags --ldflags --system-libs --libs core mcjit native` -O3 -DMDEBUG -g'
     else
-        CXXFLAGS='`llvm-config-4.0 --cxxflags --ldflags --system-libs --libs core mcjit native`'
+        CXXFLAGS='`llvm-config-4.0 --cxxflags --ldflags --system-libs --libs core mcjit native` -O3'
     fi
 else
-    CXX=clang++
-    if test $ENABLE_OPTIMIZE = 1
+    CXX=clang+
+    if test $DEBUGGING = 1
     then
-        CXXFLAGS="`llvm-config --cxxflags --ldflags --system-libs --libs core mcjit native` -O3"
+        CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs core mcjit native` -O3 -DMDEBUG -g'
     else
-        CXXFLAGS="`llvm-config --cxxflags --ldflags --system-libs --libs core mcjit native`"
+        CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs core mcjit native` -O3'
     fi
 fi
 

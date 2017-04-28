@@ -144,6 +144,7 @@ static IRBuilder<> Builder(TheContext);
 static std::unique_ptr<Module> TheModule;
 static std::unique_ptr<legacy::FunctionPassManager> TheFPM;
 static std::unique_ptr<CloverJIT> TheJIT;
+static std::map<std::string, BasicBlock*> TheLabels;
 
 class FunctionAST {
 public:
@@ -378,6 +379,7 @@ static void InitializeModuleAndPassManager()
     TheFPM->doInitialization();
 
     create_internal_functions();
+    TheLabels.clear();
 }
 
 
@@ -432,6 +434,26 @@ void show_inst_in_jit(int opecode)
     switch(opecode) {
         case OP_POP:
             puts("OP_POP");
+            break;
+
+        case OP_DUPE:
+            puts("OP_DUPE");
+            break;
+
+        case OP_COND_JUMP :
+            puts("OP_COND_JUMP");
+            break;
+
+        case OP_COND_NOT_JUMP:
+            puts("OP_COND_NOT_JUMP");
+            break;
+
+        case OP_GOTO:
+            puts("OP_GOTO");
+            break;
+
+        case OP_LABEL:
+            puts("OP_LABEL");
             break;
 
         case OP_LOAD:
@@ -504,6 +526,10 @@ void show_inst_in_jit(int opecode)
 
         case OP_ILEEQ:
             puts("OP_ILEEQ");
+            break;
+
+        case OP_ANDAND:
+            puts("OP_ANDAND");
             break;
 
         default:
@@ -941,6 +967,8 @@ static BOOL compile_invoking_method(sCLClass* klass, sCLMethod* method, CLVALUE*
 //////////////////////////////////////////////////////////////////////
 // JIT main
 //////////////////////////////////////////////////////////////////////
+#define MAX_COND_JUMP 128
+
 static BOOL compile_to_native_code(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sCLMethod* method, sVMInfo* info)
 {
     std::string func_name(METHOD_PATH(klass, method));
@@ -966,20 +994,138 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, CLVALUE* s
         params[param.getName()] = &param;
     }
 
-    BOOL flag_last_opecode_is_return = FALSE;
+    int num_cond_jump = 0;
+    char* cond_jump_labels[MAX_COND_JUMP];
+    BasicBlock* entry_condends[MAX_COND_JUMP];
+
+    int num_cond_not_jump = 0;
+    char* cond_not_jump_labels[MAX_COND_JUMP];
+    BasicBlock* entry_condnotends[MAX_COND_JUMP];
 
     while(pc - code->mCodes < code->mLen) {
+        if(pc == cond_jump_labels[num_cond_jump-1]) {
+            Builder.SetInsertPoint(entry_condends[num_cond_jump-1]);
+            current_block = entry_condends[num_cond_jump-1];
+            num_cond_jump--;
+        }
+        if(pc == cond_not_jump_labels[num_cond_not_jump-1]) {
+            Builder.SetInsertPoint(entry_condnotends[num_cond_not_jump-1]);
+            current_block = entry_condnotends[num_cond_not_jump-1];
+            num_cond_not_jump--;
+        }
+
         unsigned int inst = *(unsigned int*)pc;
         pc+=sizeof(int);
 
-        if(inst != OP_SIGINT) {
-            flag_last_opecode_is_return = FALSE;
-        }
+#ifdef MDEBUG
 call_show_inst_in_jit(inst);
+show_inst_in_jit(inst);
+#endif
 
         switch(inst) {
             case OP_POP:
                 dec_stack_ptr(params, current_block, 1);
+                break;
+
+            case OP_DUPE: {
+                Value* llvm_value = get_stack_ptr_value_from_index(params, current_block, -1);
+                push_value_to_stack_ptr(params, current_block, llvm_value);
+                }
+                break;
+
+            case OP_COND_JUMP: {
+                int jump_value = *(int*)pc;
+                pc += sizeof(int);
+
+                Value* conditinal_value = get_stack_ptr_value_from_index(params, current_block, -1);
+                dec_stack_ptr(params, current_block, 2);
+
+                BasicBlock* cond_jump_then_block = BasicBlock::Create(TheContext, "cond_jump_then", function);
+                entry_condends[num_cond_jump] = BasicBlock::Create(TheContext, "entry_condend", function);
+
+                Builder.CreateCondBr(conditinal_value, entry_condends[num_cond_jump], cond_jump_then_block);
+
+                Builder.SetInsertPoint(cond_jump_then_block);
+
+                current_block = cond_jump_then_block;
+
+                cond_jump_labels[num_cond_jump] = pc + jump_value;
+                num_cond_jump++;
+
+                if(num_cond_jump >= MAX_COND_JUMP) {
+                    entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "overflow number of condjump");
+                    return FALSE;
+                }
+                }
+                break;
+
+            case OP_COND_NOT_JUMP: {
+                int jump_value = *(int*)pc;
+                pc += sizeof(int);
+
+                Value* conditinal_value = get_stack_ptr_value_from_index(params, current_block, -1);
+                dec_stack_ptr(params, current_block, 2);
+
+                BasicBlock* cond_not_jump_then_block = BasicBlock::Create(TheContext, "cond_not_jump_then", function);
+                entry_condnotends[num_cond_not_jump] = BasicBlock::Create(TheContext, "entry_condnotend", function);
+
+                Builder.CreateCondBr(conditinal_value, cond_not_jump_then_block, entry_condnotends[num_cond_not_jump]);
+
+                Builder.SetInsertPoint(cond_not_jump_then_block);
+                current_block = cond_not_jump_then_block;
+
+                cond_not_jump_labels[num_cond_not_jump] = pc + jump_value;
+                num_cond_not_jump++;
+
+                if(num_cond_not_jump >= MAX_COND_JUMP) {
+                    entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "overflow number of condnotjump");
+                    return FALSE;
+                }
+                }
+                break;
+
+            case OP_GOTO: {
+                int jump_value = *(int*)pc;
+                pc += sizeof(int);
+
+                int label_offset = *(int*)pc;
+                pc += sizeof(int);
+
+                char* label_name = CONS_str(constant, label_offset);
+
+                BasicBlock* label = TheLabels[label_name];
+                if(label == nullptr) {
+                    label = BasicBlock::Create(TheContext, label_name, function);
+                    TheLabels[label_name] = label;
+                }
+
+                Builder.CreateBr(label);
+
+                Builder.SetInsertPoint(label);
+                current_block = label;
+                
+                BasicBlock* entry_after_goto = BasicBlock::Create(TheContext, "entry_after_goto", function);
+                Builder.SetInsertPoint(entry_after_goto);
+                current_block = entry_after_goto;
+                }
+                break;
+
+            case OP_LABEL: {
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+
+                char* label_name = CONS_str(constant, offset);
+
+                BasicBlock* label = TheLabels[label_name];
+                if(label == nullptr) {
+                    label = BasicBlock::Create(TheContext, label_name, function);
+                    TheLabels[label_name] = label;
+                }
+
+                Builder.CreateBr(label);
+                Builder.SetInsertPoint(label);
+                current_block = label;
+                }
                 break;
 
             case OP_LOAD:
@@ -1015,39 +1161,39 @@ call_show_inst_in_jit(inst);
                 }
                 break;
 
-            case OP_LDCNULL:
-                {
-                    int value = 0;
-                    Value* llvm_value = ConstantInt::get(TheContext, llvm::APInt(32, value, true)); 
+            case OP_LDCNULL: {
+                int value = 0;
+                Value* llvm_value = ConstantInt::get(TheContext, llvm::APInt(32, value, true)); 
 
-                    push_value_to_stack_ptr(params, current_block, llvm_value);
+                push_value_to_stack_ptr(params, current_block, llvm_value);
                 }
                 break;
 
-            case OP_IADD: 
-                {
-                    Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
-                    Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
+            case OP_IADD: {
+                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
+                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
 
-                    Value* llvm_value = Builder.CreateAdd(lvalue, rvalue, "addtmp", false, false);
+                Value* llvm_value = Builder.CreateAdd(lvalue, rvalue, "addtmp", false, false);
 
-                    dec_stack_ptr(params, current_block, 2);
-                    push_value_to_stack_ptr(params, current_block, llvm_value);
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr(params, current_block, llvm_value);
                 }
                 break;
 
             case OP_RETURN: {
-                    std::string stack_param_name("stack");
-                    Value* stack_value = params[stack_param_name];
+                std::string stack_param_name("stack");
+                Value* stack_value = params[stack_param_name];
 
-                    Value* llvm_value = get_stack_ptr_value_from_index(params, current_block, -1);
+                Value* llvm_value = get_stack_ptr_value_from_index(params, current_block, -1);
 
-                    store_value(llvm_value, stack_value, current_block);
+                store_value(llvm_value, stack_value, current_block);
 
-                    Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 1, true));
-                    Builder.CreateRet(ret_value);
+                Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 1, true));
+                Builder.CreateRet(ret_value);
 
-                    flag_last_opecode_is_return = TRUE;
+                BasicBlock* entry_after_return = BasicBlock::Create(TheContext, "entry_after_return", function);
+                Builder.SetInsertPoint(entry_after_return);
+                current_block = entry_after_return;
                 }
                 break;
 
@@ -1311,23 +1457,43 @@ call_show_inst_in_jit(inst);
                 }
                 break;
 
+            case OP_ANDAND: {
+                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
+                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
+
+                Value* result = Builder.CreateAnd(lvalue, rvalue, "ANDAND");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr(params, current_block, result);
+                }
+                break;
+
+            case OP_OROR: {
+                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
+                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
+
+                Value* result = Builder.CreateAnd(lvalue, rvalue, "OROR");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr(params, current_block, result);
+                }
+                break;
+
             default:
                 printf("inst %d\n", inst);
                 exit(1);
         }
 
-if(!flag_last_opecode_is_return) {
+#ifdef MDEBUG
 call_show_stack(var_num, info, params);
-}
+#endif
     }
 
-    if(!flag_last_opecode_is_return) {
-        // Finish off the function.
-        Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 1, true));
+    // Finish off the function.
+    Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 1, true));
 
-        //Builder.SetInsertPoint(current_block);
-        Builder.CreateRet(ret_value);
-    }
+    //Builder.SetInsertPoint(current_block);
+    Builder.CreateRet(ret_value);
 
     // Validate the generated code, checking for consistency.
     verifyFunction(*function);

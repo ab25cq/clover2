@@ -34,10 +34,6 @@ CLObject create_array_object(sCLClass* klass, int array_num)
 
     CLObject obj = alloc_heap_mem(size, klass, array_num);
 
-#ifdef MDEBUG
-printf("create_array_object %d\n", obj);
-#endif
-
     return obj;
 }
 
