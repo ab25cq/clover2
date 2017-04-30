@@ -178,6 +178,8 @@ struct sVMInfoStruct {
     int current_var_num;
     char* sname;
     int sline;
+
+    char* try_catch_label_name;
 };
 
 typedef struct sVMInfoStruct sVMInfo;
@@ -643,6 +645,8 @@ struct sCompileInfoStruct
     sNodeType* block_result_type;
     char* sname;
     int sline;
+
+    char* break_point_label_name;
 };
 
 typedef struct sCompileInfoStruct sCompileInfo;

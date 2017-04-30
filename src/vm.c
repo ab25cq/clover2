@@ -983,14 +983,18 @@ if(stack_ptr != lvar + var_num + 1) {
 #endif
                 return FALSE;
 
-            case OP_TRY:
+            case OP_TRY: {
                 vm_mutex_on();
 
                 try_offset_before = try_offset;
                 try_offset = *(int*)pc;
                 pc += sizeof(int);
+
+                int catch_label_name_offset = *(int*)pc;
+                pc += sizeof(int);
                 
                 vm_mutex_off();
+                }
                 break;
 
             case OP_HEAD_OF_EXPRESSION:

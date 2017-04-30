@@ -350,6 +350,31 @@ static void create_internal_functions()
 
     Function::Create(function_type, Function::ExternalLinkage, "invoke_none_native_method_in_jit", TheModule.get());
 
+    /// try_function ///
+    type_params.clear();
+
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(IntegerType::get(TheContext,64), 0);
+    type_params.push_back(param1_type);
+
+    param2_type = PointerType::get(IntegerType::get(TheContext,8), 0);
+    type_params.push_back(param2_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "try_function", TheModule.get());
+
+    /// get_try_catch_label_name ///
+    type_params.clear();
+
+    result_type = PointerType::get(IntegerType::get(TheContext,8), 0);
+
+    param1_type = PointerType::get(IntegerType::get(TheContext,64), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "get_try_catch_label_name", TheModule.get());
+
     /// entry_exception_object ///
     type_params.clear();
     
@@ -478,6 +503,10 @@ void show_inst_in_jit(int opecode)
 
         case OP_RETURN: 
             puts("OP_RETURN");
+            break;
+
+        case OP_TRY:
+            puts("OP_TRY");
             break;
 
         case OP_INVOKE_METHOD:
@@ -634,6 +663,16 @@ BOOL run_sigint(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info)
     return TRUE;
 }
 
+void try_function(sVMInfo* info, char* try_cach_label)
+{
+    info->try_catch_label_name = try_cach_label;
+}
+
+char* get_try_catch_label_name(sVMInfo* info)
+{
+    return info->try_catch_label_name;
+}
+
 BOOL invoke_none_native_method_in_jit(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info)
 {
     int real_param_num = method->mNumParams + (method->mFlags & METHOD_FLAGS_CLASS_METHOD ? 0:1);
@@ -781,7 +820,97 @@ static void push_value_to_stack_ptr(std::map<std::string, Value*>& params, Basic
     inc_stack_ptr(params, current_block, 1);
 }
 
-static BOOL compile_invoking_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, std::map<std::string, Value *> params, BasicBlock** current_block, Function* function)
+static void finish_method_call(Value* result, sCLClass* klass, sCLMethod* method, sVMInfo* info, std::map<std::string, Value *> params, BasicBlock** current_block, Function* function, char* try_catch_label_name)
+{
+    // if result is FALSE ret 0
+    Value* comp = Builder.CreateICmpNE(result, ConstantInt::get(TheContext, llvm::APInt(32, 1, true)), "ifcond");
+
+    BasicBlock* then_block = BasicBlock::Create(TheContext, "then_block", function);
+    BasicBlock* entry_ifend = BasicBlock::Create(TheContext, "entry_ifend", function);
+
+    Builder.CreateCondBr(comp, then_block, entry_ifend);
+
+    Builder.SetInsertPoint(then_block);
+
+    Function* try_catch_label_name_fun = TheModule->getFunction("get_try_catch_label_name");
+
+    std::vector<Value*> params2;
+
+    Value* vminfo_value = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
+    params2.push_back(vminfo_value);
+
+    Value* try_catch_label_name_value = Builder.CreateCall(try_catch_label_name_fun, params2);
+
+    Value* comp2 = Builder.CreateICmpNE(try_catch_label_name_value, ConstantInt::get(TheContext, llvm::APInt(32, 0, false)), "catchcond");
+
+    BasicBlock* then_block2 = BasicBlock::Create(TheContext, "then_block_b", function);
+    BasicBlock* entry_ifend2 = BasicBlock::Create(TheContext, "entry_ifend_b", function);
+
+    Builder.CreateCondBr(comp2, then_block2, entry_ifend2);
+
+    Builder.SetInsertPoint(then_block2);
+
+    if(try_catch_label_name == nullptr) {
+        Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 0, true));
+        Builder.CreateRet(ret_value);
+    }
+    else {
+        BasicBlock* label = TheLabels[try_catch_label_name];
+
+        if(label == nullptr) {
+            Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 0, true));
+            Builder.CreateRet(ret_value);
+        }
+        else {
+            Builder.CreateBr(label);
+        }
+    }
+
+    Builder.SetInsertPoint(entry_ifend2);
+    
+    Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 0, true));
+    Builder.CreateRet(ret_value);
+
+    Builder.SetInsertPoint(entry_ifend); 
+    *current_block = entry_ifend;
+
+    /// result ///
+    if(is_void_type(method->mResultType, klass) && strcmp(METHOD_NAME2(klass, method), "initialize") != 0) {
+        std::string stack_ptr_address_name("stack_ptr_address");
+        Value* stack_ptr_address_value = params[stack_ptr_address_name];
+
+        std::string lvar_arg_name("lvar");
+        Value* lvar_address_value = params[lvar_arg_name];
+
+        std::string stack_ptr_arg_name("stack_ptr");
+        params[stack_ptr_arg_name] = params[lvar_arg_name];
+
+        store_value(lvar_address_value, stack_ptr_address_value, *current_block);
+
+        int value = 0;
+        Value* llvm_value = ConstantInt::get(TheContext, llvm::APInt(32, value, true)); 
+
+        push_value_to_stack_ptr(params, *current_block, llvm_value);
+    }
+    else {
+        Value* result = get_stack_ptr_value_from_index(params, entry_ifend, -1);
+
+        std::string stack_ptr_address_name("stack_ptr_address");
+        Value* stack_ptr_address_value = params[stack_ptr_address_name];
+
+        std::string lvar_arg_name("lvar");
+        Value* lvar_address_value = params[lvar_arg_name];
+
+        store_value(lvar_address_value, stack_ptr_address_value, *current_block);
+
+        push_value_to_stack_ptr(params, *current_block, result);
+
+        std::string stack_ptr_arg_name("stack_ptr");
+        params[stack_ptr_arg_name] = params[lvar_arg_name];
+    }
+}
+
+static BOOL compile_invoking_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, std::map<std::string, Value *> params, BasicBlock** current_block, Function* function, char* try_catch_label_name)
 {
     int real_param_num = method->mNumParams + (method->mFlags & METHOD_FLAGS_CLASS_METHOD ? 0:1);
 
@@ -827,57 +956,7 @@ static BOOL compile_invoking_method(sCLClass* klass, sCLMethod* method, CLVALUE*
 
         Value* result = Builder.CreateCall(native_method, params2);
 
-        // if result is FALSE ret 0
-        Value* comp = Builder.CreateICmpNE(result, ConstantInt::get(TheContext, llvm::APInt(32, 1, true)), "ifcond");
-
-        BasicBlock* then_block = BasicBlock::Create(TheContext, "then_block", function);
-        BasicBlock* entry_ifend = BasicBlock::Create(TheContext, "entry_ifend", function);
-
-        Builder.CreateCondBr(comp, then_block, entry_ifend);
-
-        Builder.SetInsertPoint(then_block);
-        
-        Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 0, true));
-        Builder.CreateRet(ret_value);
-
-        Builder.SetInsertPoint(entry_ifend);
-
-        *current_block = entry_ifend;
-
-        /// result ///
-        if(is_void_type(method->mResultType, klass) && strcmp(METHOD_NAME2(klass, method), "initialize") != 0) {
-            std::string stack_ptr_address_name("stack_ptr_address");
-            Value* stack_ptr_address_value = params[stack_ptr_address_name];
-
-            std::string lvar_arg_name("lvar");
-            Value* lvar_address_value = params[lvar_arg_name];
-
-            std::string stack_ptr_arg_name("stack_ptr");
-            params[stack_ptr_arg_name] = params[lvar_arg_name];
-
-            store_value(lvar_address_value, stack_ptr_address_value, *current_block);
-
-            int value = 0;
-            Value* llvm_value = ConstantInt::get(TheContext, llvm::APInt(32, value, true)); 
-
-            push_value_to_stack_ptr(params, *current_block, llvm_value);
-        }
-        else {
-            Value* result = get_stack_ptr_value_from_index(params, entry_ifend, -1);
-
-            std::string stack_ptr_address_name("stack_ptr_address");
-            Value* stack_ptr_address_value = params[stack_ptr_address_name];
-
-            std::string lvar_arg_name("lvar");
-            Value* lvar_address_value = params[lvar_arg_name];
-
-            store_value(lvar_address_value, stack_ptr_address_value, *current_block);
-
-            push_value_to_stack_ptr(params, *current_block, result);
-
-            std::string stack_ptr_arg_name("stack_ptr");
-            params[stack_ptr_arg_name] = params[lvar_arg_name];
-        }
+        finish_method_call(result, klass, method, info, params, current_block, function, try_catch_label_name);
     }
     else {
         Function* llvm_function = TheModule->getFunction("invoke_none_native_method_in_jit");
@@ -908,57 +987,7 @@ static BOOL compile_invoking_method(sCLClass* klass, sCLMethod* method, CLVALUE*
 
         Value* result = Builder.CreateCall(llvm_function, params2);
 
-        // if result is FALSE ret 0
-        Value* comp = Builder.CreateICmpNE(result, ConstantInt::get(TheContext, llvm::APInt(32, 1, true)), "ifcond");
-
-        BasicBlock* then_block = BasicBlock::Create(TheContext, "then_block", function);
-        BasicBlock* entry_ifend = BasicBlock::Create(TheContext, "entry_ifend", function);
-
-        Builder.CreateCondBr(comp, then_block, entry_ifend);
-
-        Builder.SetInsertPoint(then_block);
-
-        
-        Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 0, true));
-        Builder.CreateRet(ret_value);
-
-        Builder.SetInsertPoint(entry_ifend);
-
-        *current_block = entry_ifend;
-
-        /// result ///
-        if(is_void_type(method->mResultType, klass) && strcmp(METHOD_NAME2(klass, method), "initialize") != 0) {
-            std::string stack_ptr_address_name("stack_ptr_address");
-            Value* stack_ptr_address_value = params[stack_ptr_address_name];
-
-            std::string lvar_arg_name("lvar");
-            Value* lvar_address_value = params[lvar_arg_name];
-
-            std::string stack_ptr_arg_name("stack_ptr");
-            params[stack_ptr_arg_name] = params[lvar_arg_name];
-
-            store_value(lvar_address_value, stack_ptr_address_value, *current_block);
-
-            int value = 0;
-            Value* llvm_value = ConstantInt::get(TheContext, llvm::APInt(32, value, true)); 
-
-            push_value_to_stack_ptr(params, *current_block, llvm_value);
-        }
-        else {
-            Value* result = get_stack_ptr_value_from_index(params, entry_ifend, -1);
-
-            std::string stack_ptr_address_name("stack_ptr_address");
-            Value* stack_ptr_address_value = params[stack_ptr_address_name];
-
-            std::string lvar_arg_name("lvar");
-            Value* lvar_address_value = params[lvar_arg_name];
-
-            store_value(lvar_address_value, stack_ptr_address_value, *current_block);
-
-            push_value_to_stack_ptr(params, *current_block, result);
-
-            std::string stack_ptr_arg_name("stack_ptr");
-        }
+        finish_method_call(result, klass, method, info, params, current_block, function, try_catch_label_name);
     }
 
     return TRUE;
@@ -974,6 +1003,8 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, CLVALUE* s
     std::string func_name(METHOD_PATH(klass, method));
     std::unique_ptr<FunctionAST> llvm_func = llvm::make_unique<FunctionAST>(func_name);
 
+    char* try_catch_label_name = NULL;
+
     LLVMFunctions[func_name] = std::move(llvm_func);
 
     Function* function = TheModule->getFunction(func_name);
@@ -985,9 +1016,6 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, CLVALUE* s
     register char* pc = code->mCodes;
     CLVALUE* stack_ptr = stack + var_num;
     CLVALUE* lvar = stack;
-
-    int try_offset_before = 0;
-    int try_offset = 0;
 
     std::map<std::string, Value *> params;
     for(auto &param : function->args()) {
@@ -1197,6 +1225,29 @@ show_inst_in_jit(inst);
                 }
                 break;
 
+            case OP_TRY: {
+                int tmp = *(int*)pc;
+                pc += sizeof(int);
+
+                int catch_label_name_offset = *(int*)pc;
+                pc += sizeof(int);
+
+                try_catch_label_name = CONS_str(constant, catch_label_name_offset);
+
+                Function* try_fun = TheModule->getFunction("try_function");
+
+                std::vector<Value*> params2;
+
+                Value* vminfo_value = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
+                params2.push_back(vminfo_value);
+
+                Value* try_catch_label_value = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)try_catch_label_name);
+                params2.push_back(try_catch_label_value);
+
+                (void)Builder.CreateCall(try_fun, params2);
+                }
+                break;
+
             case OP_THROW: {
                 std::string stack_param_name("stack");
                 Value* stack_value = params[stack_param_name];
@@ -1247,7 +1298,7 @@ show_inst_in_jit(inst);
 
                     sCLMethod* method = klass->mMethods + method_index;
 
-                    if(!compile_invoking_method(klass, method, stack, var_num, &stack_ptr, info, params, &current_block, function))
+                    if(!compile_invoking_method(klass, method, stack, var_num, &stack_ptr, info, params, &current_block, function, try_catch_label_name))
                     {
                         return FALSE;
                     }
