@@ -501,6 +501,10 @@ void show_inst_in_jit(int opecode)
             puts("OP_IADD");
             break;
 
+        case OP_ISUB: 
+            puts("OP_ISUB");
+            break;
+
         case OP_RETURN: 
             puts("OP_RETURN");
             break;
@@ -1046,8 +1050,10 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, CLVALUE* s
         pc+=sizeof(int);
 
 #ifdef MDEBUG
+if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 call_show_inst_in_jit(inst);
 show_inst_in_jit(inst);
+}
 #endif
 
         switch(inst) {
@@ -1066,7 +1072,7 @@ show_inst_in_jit(inst);
                 pc += sizeof(int);
 
                 Value* conditinal_value = get_stack_ptr_value_from_index(params, current_block, -1);
-                dec_stack_ptr(params, current_block, 2);
+                dec_stack_ptr(params, current_block, 1);
 
                 BasicBlock* cond_jump_then_block = BasicBlock::Create(TheContext, "cond_jump_then", function);
                 entry_condends[num_cond_jump] = BasicBlock::Create(TheContext, "entry_condend", function);
@@ -1092,7 +1098,7 @@ show_inst_in_jit(inst);
                 pc += sizeof(int);
 
                 Value* conditinal_value = get_stack_ptr_value_from_index(params, current_block, -1);
-                dec_stack_ptr(params, current_block, 2);
+                dec_stack_ptr(params, current_block, 1);
 
                 BasicBlock* cond_not_jump_then_block = BasicBlock::Create(TheContext, "cond_not_jump_then", function);
                 entry_condnotends[num_cond_not_jump] = BasicBlock::Create(TheContext, "entry_condnotend", function);
@@ -1202,6 +1208,17 @@ show_inst_in_jit(inst);
                 Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
 
                 Value* llvm_value = Builder.CreateAdd(lvalue, rvalue, "addtmp", false, false);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr(params, current_block, llvm_value);
+                }
+                break;
+
+            case OP_ISUB: {
+                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
+                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
+
+                Value* llvm_value = Builder.CreateSub(lvalue, rvalue, "subtmp", false, false);
 
                 dec_stack_ptr(params, current_block, 2);
                 push_value_to_stack_ptr(params, current_block, llvm_value);
@@ -1479,7 +1496,7 @@ show_inst_in_jit(inst);
                 Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
                 Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
 
-                Value* result = Builder.CreateICmpSLE(lvalue, rvalue, "ILE");
+                Value* result = Builder.CreateICmpSLT(lvalue, rvalue, "ILE");
 
                 dec_stack_ptr(params, current_block, 2);
                 push_value_to_stack_ptr(params, current_block, result);
@@ -1536,7 +1553,9 @@ show_inst_in_jit(inst);
         }
 
 #ifdef MDEBUG
-call_show_stack(var_num, info, params);
+if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
+    call_show_stack(var_num, info, params);
+}
 #endif
     }
 

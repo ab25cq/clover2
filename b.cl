@@ -31,3 +31,5 @@ Clover.test("jit test9", a.run10() == 2);
 Clover.test("jit test9", a.run11() == 1);
 
 Clover.test("jit test10", a.run12() == 2);
+
+Clover.test("jit test11", a.run13() == 3);

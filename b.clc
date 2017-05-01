@@ -72,4 +72,14 @@ class JITTest
 
         return a;
     }
+
+    def run13(): jit int {
+        a:int = 0;
+
+        for(i:int=0; i<3; i++) {
+            a++;
+        }
+
+        return a;
+    }
 }
