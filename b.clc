@@ -1,6 +1,9 @@
 class JITTest 
 {
+    field1: int;
+
     def initialize() {
+        self.field1 = 123;
     }
 
     def run(): jit int {
@@ -81,5 +84,37 @@ class JITTest
         }
 
         return a;
+    }
+
+    def run14(): jit int {
+        a:int = 0;
+
+        while(true) {
+            a++;
+
+            if(a == 1) {
+                break;
+            }
+        }
+
+        return a;
+    }
+
+    def run15(): jit int {
+        return self.field1;
+    }
+
+    def run16(): jit {
+        throw new Exception("exception");
+    }
+
+    def run17(): jit int {
+        try {
+            self.run16();
+        }
+        catch(e:Exception) {
+            println("catch");
+            println(e.message);
+        }
     }
 }

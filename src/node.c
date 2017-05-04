@@ -2834,7 +2834,7 @@ static BOOL compile_try_expression(unsigned int node, sCompileInfo* info)
     append_int_value_to_code(info->code, 0, info->no_output);
 
     char label_name[LABEL_NAME_MAX];
-    create_label_name("try_label", label_name, LABEL_NAME_MAX, label_num);
+    create_label_name("try_end", label_name, LABEL_NAME_MAX, label_num);
     append_str_to_constant_pool_and_code(info->constant, info->code, label_name, info->no_output);
 
     *(int*)(info->code->mCodes + try_offset_point) = info->code->mLen;
