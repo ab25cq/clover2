@@ -163,7 +163,8 @@ static void compaction(unsigned char* mark_flg)
                 if(klass && !(klass->mFlags & CLASS_FLAGS_PRIMITIVE) && array_num == -1) {
                     (void)free_object(obj);
                 }
-                else if(klass->mFreeFun) {
+
+                if(klass->mFreeFun) {
                     klass->mFreeFun(obj);
                 }
             }

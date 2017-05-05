@@ -339,6 +339,32 @@ static void create_internal_functions()
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_load_field", TheModule.get());
 
+    /// run_load_address ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    param2_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param2_type);
+
+    param3_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param3_type);
+
+    param4_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param4_type);
+
+    param5_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param5_type);
+
+    param6_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param6_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_load_address", TheModule.get());
+
     /// show_inst ///
     type_params.clear();
     
@@ -836,6 +862,14 @@ BOOL run_load_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* i
 
     CLVALUE value = object_pointer->mFields[field_index];
     **stack_ptr = value;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL run_load_address(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, CLVALUE* lvar, int index)
+{
+    (*stack_ptr)->mPointerValue = (char*)&lvar[index];
     (*stack_ptr)++;
 
     return TRUE;
@@ -1496,6 +1530,16 @@ show_inst_in_jit(inst);
                 }
                 break;
 
+            case OP_STORE: {
+                int index = *(int*)pc;
+                pc += sizeof(int);
+
+                Value* llvm_value = get_stack_ptr_value_from_index(params, current_block, -1);
+
+                store_value_to_lvar_with_offset(params, current_block, index, llvm_value);
+                }
+                break;
+
             case OP_LOAD: {
                 int index = *(int*)pc;
                 pc += sizeof(int);
@@ -1506,13 +1550,36 @@ show_inst_in_jit(inst);
                 }
                 break;
 
-            case OP_STORE: {
+            case OP_LOAD_ADDRESS: {
                 int index = *(int*)pc;
                 pc += sizeof(int);
 
-                Value* llvm_value = get_stack_ptr_value_from_index(params, current_block, -1);
+                Function* load_address_fun = TheModule->getFunction("run_load_address");
 
-                store_value_to_lvar_with_offset(params, current_block, index, llvm_value);
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                std::string stack_value_name("stack");
+                Value* param2 = params[stack_value_name];
+                params2.push_back(param2);
+
+                Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)var_num);
+                params2.push_back(param3);
+
+                Value* param4 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
+                params2.push_back(param4);
+
+                std::string lvar_arg_name("lvar");
+                Value* param5 = params[lvar_arg_name];
+                params2.push_back(param5);
+
+                Value* param6 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)index);
+                params2.push_back(param6);
+
+                Builder.CreateCall(load_address_fun, params2);
                 }
                 break;
 
