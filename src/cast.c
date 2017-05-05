@@ -1792,6 +1792,11 @@ void cast_right_type_to_String(sNodeType** right_type, sCompileInfo* info)
         append_opecode_to_code(info->code, OP_BOOL_TO_STRING_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("String");
     }
+    else if(type_identify_with_class_name(*right_type, "regex"))
+    {
+        append_opecode_to_code(info->code, OP_REGEX_TO_STRING_CAST, info->no_output);
+        *right_type = create_node_type_with_class_name("String");
+    }
 }
 
 void cast_right_type_to_Byte(sNodeType** right_type, sCompileInfo* info)

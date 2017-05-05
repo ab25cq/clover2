@@ -999,6 +999,9 @@ extern BOOL gSigInt;
 #define OP_CGTEQ 1204
 #define OP_CLEEQ 1205
 
+#define OP_REGEQ 1220
+#define OP_REGNOTEQ 1221
+
 #define OP_OBJ_IDENTIFY 1300
 #define OP_CLASSNAME 1301
 #define OP_IMPLMENTS 1302
@@ -1355,8 +1358,9 @@ extern BOOL gSigInt;
 #define OP_FLOAT_TO_STRING_CAST 7368
 #define OP_DOUBLE_TO_STRING_CAST 7369
 #define OP_BOOL_TO_STRING_CAST 7370
-#define OP_POINTER_TO_STRING_CAST 7371
-#define OP_CHAR_TO_STRING_CAST 7372
+#define OP_REGEX_TO_STRING_CAST 7371
+#define OP_POINTER_TO_STRING_CAST 7372
+#define OP_CHAR_TO_STRING_CAST 7373
 
 #define OP_BYTE_TO_INTEGER_CAST 7400
 #define OP_UBYTE_TO_INTEGER_CAST 7401
@@ -1751,6 +1755,7 @@ struct sRegexObjectStruct
     sCLClass* mClass;       // NULL --> no class only memory
     int mArrayNum;
     pcre* mRegex;
+    char* mRegexString;
     BOOL mGlobal;
     BOOL mIgnoreCase;
     BOOL mMultiline;
@@ -1767,6 +1772,7 @@ typedef struct sRegexObjectStruct sRegexObject;
 
 CLObject create_regex_object(char* regex, BOOL global, BOOL ignore_case, BOOL multiline, BOOL extended, BOOL dotall, BOOL anchored, BOOL dollar_endonly, BOOL ungreedy);
 void regex_free_fun(CLObject obj);
+BOOL regex_equals(CLObject left, CLObject right);
 
 /// string.c ///
 CLObject create_string_object(char* str);

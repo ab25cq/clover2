@@ -109,12 +109,24 @@ class JITTest
     }
 
     def run17(): jit int {
+        print("jit test14...");
         try {
             self.run16();
         }
         catch(e:Exception) {
-            println("catch");
-            println(e.message);
+            println("OK");
         }
+    }
+
+    def run18(): jit regex {
+        return /./;
+    }
+
+    def run19(): jit bool {
+        return /./ == /./;
+    }
+
+    def run20(): jit bool {
+        return /../ != /./;
     }
 }

@@ -238,6 +238,14 @@ static void show_inst(unsigned inst)
             puts("OP_INOTEQ");
             break;
 
+        case OP_REGEQ:
+            puts("OP_REGEQ");
+            break;
+
+        case OP_REGNOTEQ:
+            puts("OP_REGNOTEQ");
+            break;
+
         case OP_ANDAND:
             puts("OP_ANDAND");
             break;
@@ -4314,6 +4322,41 @@ if(stack_ptr != lvar + var_num + 1) {
                     vm_mutex_off();
                 }
                 break;
+
+            case OP_REGEQ:
+                {
+                    vm_mutex_on();
+
+                    CLObject left = (stack_ptr-2)->mObjectValue;
+                    CLObject right = (stack_ptr-1)->mObjectValue;
+
+                    BOOL result = regex_equals(left, right);
+
+                    stack_ptr-=2;
+                    stack_ptr->mBoolValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_REGNOTEQ:
+                {
+                    vm_mutex_on();
+
+                    CLObject left = (stack_ptr-2)->mObjectValue;
+                    CLObject right = (stack_ptr-1)->mObjectValue;
+
+                    BOOL result = !regex_equals(left, right);
+
+                    stack_ptr-=2;
+                    stack_ptr->mBoolValue = result;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
 
             case OP_OBJ_IDENTIFY:
                 {
@@ -9529,6 +9572,22 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     }
 
                     CLObject str = create_string_object(buf);
+
+                    (stack_ptr-1)->mObjectValue = str;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_REGEX_TO_STRING_CAST:
+                {
+                    vm_mutex_on();
+
+                    CLObject regex = (stack_ptr-1)->mObjectValue;
+
+                    sRegexObject* object_data = CLREGEX(regex);
+
+                    CLObject str = create_string_object(object_data->mRegexString);
 
                     (stack_ptr-1)->mObjectValue = str;
 

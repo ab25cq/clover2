@@ -21,3 +21,6 @@ Clover.test("regex test3", pcre_ovec3.start[0] == 0 && pcre_ovec3.end[0] == 1);
 b:regex = /^A/g;
 
 Clover.test("regex test4", b.global && !b.ignoreCase && !b.multiline && !b.extended && !b.dotAll && !b.anchored && !b.dollarEndOnly && !b.ungreedy);
+
+Clover.test("regex test5", /./.toString.equals("."));
+Clover.test("regex test6", /./ == /./);
