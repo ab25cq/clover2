@@ -122,7 +122,7 @@ MANAGED	src/macros.h	21;"	d
 MASSERT	src/debug.h	25;"	d
 MASSERT	src/debug.h	47;"	d
 MAX_CODES	src/interpreter.c	1385;"	d	file:
-MAX_COND_JUMP	src/jit.cpp	1216;"	d	file:
+MAX_COND_JUMP	src/jit.cpp	1339;"	d	file:
 MCALLOC	src/debug.h	22;"	d
 MCALLOC	src/debug.h	42;"	d
 METHOD_CHAIN_MAX	src/common.h	62;"	d
@@ -1471,6 +1471,7 @@ get_parent_var_num_of_sum	src/vtable.c	/^int get_parent_var_num_of_sum(sVarTable
 get_pointer_from_buffer_object	src/clover_to_clang.c	/^void* get_pointer_from_buffer_object(CLObject buffer)$/;"	f
 get_size_from_buffer_object	src/clover_to_clang.c	/^int get_size_from_buffer_object(CLObject buffer)$/;"	f
 get_stack_ptr_value_from_index	src/jit.cpp	/^static Value* get_stack_ptr_value_from_index(std::map<std::string, Value*>& params, BasicBlock* current_block, int index)$/;"	f	file:
+get_stack_ptr_value_from_index_with_aligned	src/jit.cpp	/^static Value* get_stack_ptr_value_from_index_with_aligned(std::map<std::string, Value*>& params, BasicBlock* current_block, int index, int align)$/;"	f	file:
 get_stack_ptr_value_from_offset	src/jit.cpp	/^static Value* get_stack_ptr_value_from_offset(std::map<std::string, Value*>& params, BasicBlock* current_block, int offset)$/;"	f	file:
 get_sum_of_parent_var_num	src/vtable.c	/^static int get_sum_of_parent_var_num(sVarTable* table)$/;"	f	file:
 get_try_catch_label_name	src/jit.cpp	/^char* get_try_catch_label_name(sVMInfo* info)$/;"	f
@@ -1971,6 +1972,7 @@ print_node_type	src/node_type.c	/^void print_node_type(sNodeType* node_type)$/;"
 printd	toy.cpp	/^extern "C" double printd(double X) {$/;"	f
 prototypes	configure	/^   function prototypes and stuff, but not '\\xHH' hex character constants.$/;"	f
 push_value_to_stack_ptr	src/jit.cpp	/^static void push_value_to_stack_ptr(std::map<std::string, Value*>& params, BasicBlock* current_block, Value* value)$/;"	f	file:
+push_value_to_stack_ptr_with_aligned	src/jit.cpp	/^static void push_value_to_stack_ptr_with_aligned(std::map<std::string, Value*>& params, BasicBlock* current_block, Value* value, int align)$/;"	f	file:
 put_class_to_table	src/klass.c	/^BOOL put_class_to_table(char* class_name, sCLClass* klass)$/;"	f
 put_fun_to_hash_for_native_method	src/native_method.c	/^static void put_fun_to_hash_for_native_method(char* path, char* fun_name, fNativeMethod fun)$/;"	f	file:
 putchard	toy.cpp	/^extern "C" double putchard(double X) {$/;"	f
@@ -1999,6 +2001,9 @@ remove_stack_to_stack_list	src/stack.c	/^BOOL remove_stack_to_stack_list(CLVALUE
 reset_method_index_on_compile_time	src/class_compiler.c	/^static void reset_method_index_on_compile_time()$/;"	f	file:
 return_expression	src/parser.c	/^static BOOL return_expression(unsigned int* node, sParserInfo* info)$/;"	f	file:
 run_head_of_expression	src/jit.cpp	/^void run_head_of_expression(sVMInfo* info, char* sname, int sline)$/;"	f
+run_ldclong	src/jit.cpp	/^void run_ldclong(CLVALUE** stack_ptr, int value1, int value2)$/;"	f
+run_ldcpointer	src/jit.cpp	/^void run_ldcpointer(CLVALUE** stack_ptr, int value1, int value2)$/;"	f
+run_ldculong	src/jit.cpp	/^void run_ldculong(CLVALUE** stack_ptr, int value1, int value2)$/;"	f
 run_load_address	src/jit.cpp	/^BOOL run_load_address(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, CLVALUE* lvar, int index)$/;"	f
 run_load_field	src/jit.cpp	/^BOOL run_load_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index)$/;"	f
 run_native_code	src/jit.cpp	/^static BOOL run_native_code(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sCLMethod* method, sVMInfo* info)$/;"	f	file:
@@ -2210,6 +2215,7 @@ stack_init	src/stack.c	/^void stack_init()$/;"	f
 stack_num	src/common.h	/^    int stack_num;$/;"	m	struct:sCompileInfoStruct
 store_value	src/jit.cpp	/^static void store_value(Value* llvm_value, Value* stored_value, BasicBlock* current_block)$/;"	f	file:
 store_value_to_lvar_with_offset	src/jit.cpp	/^static void store_value_to_lvar_with_offset(std::map<std::string, Value*>& params, BasicBlock* current_block, int index, Value* llvm_value)$/;"	f	file:
+store_value_with_aligned	src/jit.cpp	/^static void store_value_with_aligned(Value* llvm_value, Value* stored_value, BasicBlock* current_block, int align)$/;"	f	file:
 string_object_to_char_array	src/clover_to_clang.c	/^ALLOC char* string_object_to_char_array(CLObject string_object)$/;"	f
 string_object_to_wchar_array	src/clover_to_clang.c	/^ALLOC wchar_t* string_object_to_wchar_array(CLObject string_object)$/;"	f
 substitution_posibility	src/node_type.c	/^BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_generics_types, sNodeType* right_generics_types)$/;"	f

@@ -365,6 +365,57 @@ static void create_internal_functions()
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_load_address", TheModule.get());
 
+    /// run_ldclong ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    param2_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param2_type);
+
+    param3_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param3_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_ldclong", TheModule.get());
+
+    /// run_ldcpointer ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    param2_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param2_type);
+
+    param3_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param3_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_ldcpointer", TheModule.get());
+
+    /// run_lduclong ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    param2_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param2_type);
+
+    param3_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param3_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_ldculong", TheModule.get());
+
     /// show_inst ///
     type_params.clear();
     
@@ -719,6 +770,10 @@ void show_inst_in_jit(int opecode)
             puts("OP_LOAD_FIELD");
             break;
 
+        case OP_INT_TO_BYTE_CAST:
+            puts("OP_INT_TO_BYTE_CAST");
+            break;
+
         default:
             printf("opecode %d\n", opecode);
             break;
@@ -875,6 +930,39 @@ BOOL run_load_address(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo*
     return TRUE;
 }
 
+void run_ldclong(CLVALUE** stack_ptr, int value1, int value2)
+{
+    long lvalue;
+
+    memcpy(&lvalue, &value1, sizeof(int));
+    memcpy((char*)&lvalue + sizeof(int), &value2, sizeof(int));
+
+    (*stack_ptr)->mLongValue = lvalue;
+    (*stack_ptr)++;
+}
+
+void run_ldcpointer(CLVALUE** stack_ptr, int value1, int value2)
+{
+    void* lvalue;
+
+    memcpy(&lvalue, &value1, sizeof(int));
+    memcpy((char*)&lvalue + sizeof(int), &value2, sizeof(int));
+
+    (*stack_ptr)->mPointerValue = (char*)lvalue;
+    (*stack_ptr)++;
+}
+
+void run_ldculong(CLVALUE** stack_ptr, int value1, int value2)
+{
+    long lvalue;
+
+    memcpy(&lvalue, &value1, sizeof(int));
+    memcpy((char*)&lvalue + sizeof(int), &value2, sizeof(int));
+
+    (*stack_ptr)->mULongValue = lvalue;
+    (*stack_ptr)++;
+}
+
 void try_function(sVMInfo* info, char* try_cach_label)
 {
     info->try_catch_label_name = try_cach_label;
@@ -930,6 +1018,13 @@ static void store_value(Value* llvm_value, Value* stored_value, BasicBlock* curr
 {
     StoreInst* store_inst = new StoreInst(llvm_value, stored_value);
     store_inst->setAlignment(8);
+    current_block->getInstList().push_back(store_inst);
+}
+
+static void store_value_with_aligned(Value* llvm_value, Value* stored_value, BasicBlock* current_block, int align)
+{
+    StoreInst* store_inst = new StoreInst(llvm_value, stored_value);
+    store_inst->setAlignment(align);
     current_block->getInstList().push_back(store_inst);
 }
 
@@ -1018,6 +1113,20 @@ static Value* get_stack_ptr_value_from_index(std::map<std::string, Value*>& para
     return Builder.CreateLoad(stack_pointer_offset_value, "stack_pointer_offset_value");
 }
 
+static Value* get_stack_ptr_value_from_index_with_aligned(std::map<std::string, Value*>& params, BasicBlock* current_block, int index, int align)
+{
+    std::string stack_ptr_address_name("stack_ptr_address");
+    Value* stack_ptr_address_value = params[stack_ptr_address_name];
+
+    Value* loaded_stack_ptr_address_value = Builder.CreateLoad(stack_ptr_address_value, "loaded_stack_ptr_address_value");
+
+    Value* lvalue = loaded_stack_ptr_address_value;
+    Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(64, 8*index, true));
+    Value* stack_pointer_offset_value = Builder.CreateAdd(lvalue, rvalue, "stack_pointer_offset_value", true, true);
+
+    return Builder.CreateAlignedLoad(stack_pointer_offset_value, align, "stack_pointer_offset_value");
+}
+
 static void push_value_to_stack_ptr(std::map<std::string, Value*>& params, BasicBlock* current_block, Value* value)
 {
     Builder.SetInsertPoint(current_block);
@@ -1028,6 +1137,20 @@ static void push_value_to_stack_ptr(std::map<std::string, Value*>& params, Basic
     Value* loaded_stack_ptr_address_value = Builder.CreateLoad(stack_ptr_address_value, "loaded_stack_ptr_address_value");
 
     store_value(value, loaded_stack_ptr_address_value, current_block);
+
+    inc_stack_ptr(params, current_block, 1);
+}
+
+static void push_value_to_stack_ptr_with_aligned(std::map<std::string, Value*>& params, BasicBlock* current_block, Value* value, int align)
+{
+    Builder.SetInsertPoint(current_block);
+
+    std::string stack_ptr_address_name("stack_ptr_address");
+    Value* stack_ptr_address_value = params[stack_ptr_address_name];
+
+    Value* loaded_stack_ptr_address_value = Builder.CreateLoad(stack_ptr_address_value, "loaded_stack_ptr_address_value");
+
+    store_value_with_aligned(value, loaded_stack_ptr_address_value, current_block, align);
 
     inc_stack_ptr(params, current_block, 1);
 }
@@ -1583,6 +1706,50 @@ show_inst_in_jit(inst);
                 }
                 break;
 
+            case OP_LDCBYTE: 
+                {
+                    int value = *(int*)pc;
+                    pc += sizeof(int);
+
+                    Value* llvm_value = ConstantInt::get(TheContext, llvm::APInt(8, value, true)); 
+
+                    push_value_to_stack_ptr(params, current_block, llvm_value);
+                }
+                break;
+
+            case OP_LDCUBYTE: 
+                {
+                    int value = *(int*)pc;
+                    pc += sizeof(int);
+
+                    Value* llvm_value = ConstantInt::get(TheContext, llvm::APInt(8, value, false)); 
+
+                    push_value_to_stack_ptr(params, current_block, llvm_value);
+                }
+                break;
+
+            case OP_LDCSHORT: 
+                {
+                    int value = *(int*)pc;
+                    pc += sizeof(int);
+
+                    Value* llvm_value = ConstantInt::get(TheContext, llvm::APInt(16, value, true)); 
+
+                    push_value_to_stack_ptr(params, current_block, llvm_value);
+                }
+                break;
+
+            case OP_LDCUSHORT: 
+                {
+                    int value = *(int*)pc;
+                    pc += sizeof(int);
+
+                    Value* llvm_value = ConstantInt::get(TheContext, llvm::APInt(16, value, false)); 
+
+                    push_value_to_stack_ptr(params, current_block, llvm_value);
+                }
+                break;
+
             case OP_LDCINT: {
                 int value = *(int*)pc;
                 pc += sizeof(int);
@@ -1593,6 +1760,66 @@ show_inst_in_jit(inst);
                 }
                 break;
 
+            case OP_LDCUINT: {
+                unsigned int value = *(unsigned int*)pc;
+                pc += sizeof(int);
+
+                Value* llvm_value = ConstantInt::get(TheContext, llvm::APInt(32, value, false)); 
+
+                push_value_to_stack_ptr(params, current_block, llvm_value);
+                }
+                break;
+
+            case OP_LDCLONG: {
+                int value1 = *(int*)pc;
+                pc += sizeof(int);
+
+                int value2 = *(int*)pc;
+                pc += sizeof(int);
+
+                Function* run_ldclong_fun = TheModule->getFunction("run_ldclong");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                Value* param2 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)value1);
+                params2.push_back(param2);
+
+                Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)value2);
+                params2.push_back(param3);
+
+                Builder.CreateCall(run_ldclong_fun, params2);
+                }
+                break;
+
+            case OP_LDCULONG: {
+                int value1 = *(int*)pc;
+                pc += sizeof(int);
+
+                int value2 = *(int*)pc;
+                pc += sizeof(int);
+
+                Function* run_ldculong_fun = TheModule->getFunction("run_ldculong");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                Value* param2 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)value1);
+                params2.push_back(param2);
+
+                Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)value2);
+                params2.push_back(param3);
+
+                Builder.CreateCall(run_ldculong_fun, params2);
+                }
+                break;
+
             case OP_LDCNULL: {
                 int value = 0;
                 Value* llvm_value = ConstantInt::get(TheContext, llvm::APInt(32, value, true)); 
@@ -1600,6 +1827,234 @@ show_inst_in_jit(inst);
                 push_value_to_stack_ptr(params, current_block, llvm_value);
                 }
                 break;
+
+            case OP_LDCPOINTER: {
+                int value1 = *(int*)pc;
+                pc += sizeof(int);
+
+                int value2 = *(int*)pc;
+                pc += sizeof(int);
+
+                Function* run_ldclong_fun = TheModule->getFunction("run_ldcpointer");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                Value* param2 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)value1);
+                params2.push_back(param2);
+
+                Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)value2);
+                params2.push_back(param3);
+
+                Builder.CreateCall(run_ldclong_fun, params2);
+                }
+                break;
+
+            case OP_LDCFLOAT: {
+                float value1 = *(float*)pc;
+                pc += sizeof(float);
+
+                stack_ptr->mFloatValue = value1;
+                stack_ptr++;
+
+                Value* llvm_value = ConstantFP::get(TheContext, llvm::APFloat(value1)); 
+
+                push_value_to_stack_ptr(params, current_block, llvm_value);
+                }
+                break;
+
+            case OP_LDCDOUBLE: {
+                int value1 = *(int*)pc;
+                pc += sizeof(int);
+
+                int value2 = *(int*)pc;
+                pc += sizeof(int);
+
+                double lvalue;
+
+                memcpy(&lvalue, &value1, sizeof(int));
+                memcpy((char*)&lvalue + sizeof(int), &value2, sizeof(int));
+
+                Value* llvm_value = ConstantFP::get(TheContext, llvm::APFloat(lvalue)); 
+
+                push_value_to_stack_ptr(params, current_block, llvm_value);
+                }
+                break;
+
+            case OP_BADD: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+
+                Value* llvm_value = Builder.CreateAdd(lvalue, rvalue, "addtmp", true, false);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr(params, current_block, llvm_value);
+                }
+                break;
+
+/*
+            case OP_BSUB: {
+                vm_mutex_on();
+
+                char left = (stack_ptr-2)->mByteValue;
+                char right = (stack_ptr-1)->mByteValue;
+
+                char result = left - right;
+
+                stack_ptr-=2;
+                stack_ptr->mByteValue = result;
+                stack_ptr++;
+
+                vm_mutex_off();
+                }
+                break;
+
+            case OP_BMULT: {
+                vm_mutex_on();
+
+                char left = (stack_ptr-2)->mByteValue;
+                char right = (stack_ptr-1)->mByteValue;
+
+                char result = left * right;
+
+                stack_ptr-=2;
+                stack_ptr->mByteValue = result;
+                stack_ptr++;
+
+                vm_mutex_off();
+                }
+                break;
+
+            case OP_BDIV: {
+                vm_mutex_on();
+
+                char left = (stack_ptr-2)->mByteValue;
+                char right = (stack_ptr-1)->mByteValue;
+
+                if(right == 0) {
+                    vm_mutex_off();
+                    entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
+                    remove_stack_to_stack_list(stack);
+                    return FALSE;
+                }
+
+                char result = left / right;
+
+                stack_ptr-=2;
+                stack_ptr->mByteValue = result;
+                stack_ptr++;
+
+                vm_mutex_off();
+                }
+                break;
+
+            case OP_BMOD: {
+                vm_mutex_on();
+
+                char left = (stack_ptr-2)->mByteValue;
+                char right = (stack_ptr-1)->mByteValue;
+
+                if(right == 0) {
+                    vm_mutex_off();
+                    entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
+                    remove_stack_to_stack_list(stack);
+                    return FALSE;
+                }
+
+                char result = left % right;
+
+                stack_ptr-=2;
+                stack_ptr->mByteValue = result;
+                stack_ptr++;
+
+                vm_mutex_off();
+                }
+                break;
+
+            case OP_BLSHIFT: {
+                vm_mutex_on();
+
+                char left = (stack_ptr-2)->mByteValue;
+                char right = (stack_ptr-1)->mByteValue;
+
+                char result = left << right;
+
+                stack_ptr-=2;
+                stack_ptr->mByteValue = result;
+                stack_ptr++;
+
+                vm_mutex_off();
+                }
+                break;
+
+            case OP_BRSHIFT: {
+                vm_mutex_on();
+
+                char left = (stack_ptr-2)->mByteValue;
+                char right = (stack_ptr-1)->mByteValue;
+
+                char result = left >> right;
+
+                stack_ptr-=2;
+                stack_ptr->mByteValue = result;
+                stack_ptr++;
+
+                vm_mutex_off();
+                }
+                break;
+
+            case OP_BAND: {
+                vm_mutex_on();
+
+                char left = (stack_ptr-2)->mByteValue;
+                char right = (stack_ptr-1)->mByteValue;
+
+                char result = left & right;
+
+                stack_ptr-=2;
+                stack_ptr->mByteValue = result;
+                stack_ptr++;
+
+                vm_mutex_off();
+                }
+                break;
+
+            case OP_BXOR: {
+                vm_mutex_on();
+
+                char left = (stack_ptr-2)->mByteValue;
+                char right = (stack_ptr-1)->mByteValue;
+
+                char result = left ^ right;
+
+                stack_ptr-=2;
+                stack_ptr->mByteValue = result;
+                stack_ptr++;
+
+                vm_mutex_off();
+                }
+                break;
+
+            case OP_BOR: {
+                vm_mutex_on();
+
+                char left = (stack_ptr-2)->mByteValue;
+                char right = (stack_ptr-1)->mByteValue;
+
+                char result = left | right;
+
+                stack_ptr-=2;
+                stack_ptr->mByteValue = result;
+                stack_ptr++;
+
+                vm_mutex_off();
+                }
+                break;
+*/
+
 
             case OP_IADD: {
                 Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
@@ -1780,170 +2235,178 @@ show_inst_in_jit(inst);
                 Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
                 Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
 
-            Value* result = Builder.CreateICmpEQ(lvalue, rvalue, "IEQ");
+                Value* result = Builder.CreateICmpEQ(lvalue, rvalue, "IEQ");
 
-            dec_stack_ptr(params, current_block, 2);
-            push_value_to_stack_ptr(params, current_block, result);
-            }
-            break;
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr(params, current_block, result);
+                }
+                break;
 
-        case OP_INOTEQ: {
-            Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
-            Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
+            case OP_INOTEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
+                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
 
-            Value* result = Builder.CreateICmpNE(lvalue, rvalue, "INOTEQ");
+                Value* result = Builder.CreateICmpNE(lvalue, rvalue, "INOTEQ");
 
-            dec_stack_ptr(params, current_block, 2);
-            push_value_to_stack_ptr(params, current_block, result);
-            }
-            break;
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr(params, current_block, result);
+                }
+                break;
 
-        case OP_IGT: {
-            Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
-            Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
+            case OP_IGT: {
+                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
+                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
 
-            Value* result = Builder.CreateICmpSGT(lvalue, rvalue, "IGT");
+                Value* result = Builder.CreateICmpSGT(lvalue, rvalue, "IGT");
 
-            dec_stack_ptr(params, current_block, 2);
-            push_value_to_stack_ptr(params, current_block, result);
-            }
-            break;
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr(params, current_block, result);
+                }
+                break;
 
-        case OP_ILE: {
-            Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
-            Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
+            case OP_ILE: {
+                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
+                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
 
-            Value* result = Builder.CreateICmpSLT(lvalue, rvalue, "ILE");
+                Value* result = Builder.CreateICmpSLT(lvalue, rvalue, "ILE");
 
-            dec_stack_ptr(params, current_block, 2);
-            push_value_to_stack_ptr(params, current_block, result);
-            }
-            break;
-        
-        case OP_IGTEQ: {
-            Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
-            Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr(params, current_block, result);
+                }
+                break;
+            
+            case OP_IGTEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
+                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
 
-            Value* result = Builder.CreateICmpSGE(lvalue, rvalue, "IGETQ");
+                Value* result = Builder.CreateICmpSGE(lvalue, rvalue, "IGETQ");
 
-            dec_stack_ptr(params, current_block, 2);
-            push_value_to_stack_ptr(params, current_block, result);
-            }
-            break;
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr(params, current_block, result);
+                }
+                break;
 
-        case OP_ILEEQ: {
-            Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
-            Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
+            case OP_ILEEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
+                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
 
-            Value* result = Builder.CreateICmpSLE(lvalue, rvalue, "ILEEQ");
+                Value* result = Builder.CreateICmpSLE(lvalue, rvalue, "ILEEQ");
 
-            dec_stack_ptr(params, current_block, 2);
-            push_value_to_stack_ptr(params, current_block, result);
-            }
-            break;
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr(params, current_block, result);
+                }
+                break;
 
-        case OP_REGEQ: {
-            Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
-            Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
+            case OP_REGEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
+                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
 
-            Function* function = TheModule->getFunction("regex_equals");
+                Function* function = TheModule->getFunction("regex_equals");
 
-            std::vector<Value*> params2;
-            params2.push_back(lvalue);
-            params2.push_back(rvalue);
+                std::vector<Value*> params2;
+                params2.push_back(lvalue);
+                params2.push_back(rvalue);
 
-            Value* result = Builder.CreateCall(function, params2);
+                Value* result = Builder.CreateCall(function, params2);
 
-            dec_stack_ptr(params, current_block, 2);
-            push_value_to_stack_ptr(params, current_block, result);
-            }
-            break;
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr(params, current_block, result);
+                }
+                break;
 
-        case OP_REGNOTEQ: {
-            Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
-            Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
+            case OP_REGNOTEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
+                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
 
-            Function* function = TheModule->getFunction("regex_equals");
+                Function* function = TheModule->getFunction("regex_equals");
 
-            std::vector<Value*> params2;
-            params2.push_back(lvalue);
-            params2.push_back(rvalue);
+                std::vector<Value*> params2;
+                params2.push_back(lvalue);
+                params2.push_back(rvalue);
 
-            Value* result = Builder.CreateCall(function, params2);
+                Value* result = Builder.CreateCall(function, params2);
 
-            Value* result2 = Builder.CreateICmpEQ(result, ConstantInt::get(TheContext, llvm::APInt(32, 0, true)), "ifcond");
+                Value* result2 = Builder.CreateICmpEQ(result, ConstantInt::get(TheContext, llvm::APInt(32, 0, true)), "ifcond");
 
 
-            dec_stack_ptr(params, current_block, 2);
-            push_value_to_stack_ptr(params, current_block, result2);
-            }
-            break;
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr(params, current_block, result2);
+                }
+                break;
 
-        case OP_ANDAND: {
-            Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
-            Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
+            case OP_ANDAND: {
+                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
+                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
 
-            Value* result = Builder.CreateAnd(lvalue, rvalue, "ANDAND");
+                Value* result = Builder.CreateAnd(lvalue, rvalue, "ANDAND");
 
-            dec_stack_ptr(params, current_block, 2);
-            push_value_to_stack_ptr(params, current_block, result);
-            }
-            break;
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr(params, current_block, result);
+                }
+                break;
 
-        case OP_OROR: {
-            Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
-            Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
+            case OP_OROR: {
+                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
+                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
 
-            Value* result = Builder.CreateAnd(lvalue, rvalue, "OROR");
+                Value* result = Builder.CreateAnd(lvalue, rvalue, "OROR");
 
-            dec_stack_ptr(params, current_block, 2);
-            push_value_to_stack_ptr(params, current_block, result);
-            }
-            break;
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr(params, current_block, result);
+                }
+                break;
 
-        case OP_LOAD_FIELD: {
-            int field_index = *(int*)pc;
-            pc += sizeof(int);
+            case OP_LOAD_FIELD: {
+                int field_index = *(int*)pc;
+                pc += sizeof(int);
 
-            Function* load_field_fun = TheModule->getFunction("run_load_field");
+                Function* load_field_fun = TheModule->getFunction("run_load_field");
 
-            std::vector<Value*> params2;
+                std::vector<Value*> params2;
 
-            std::string stack_ptr_address_name("stack_ptr_address");
-            Value* param1 = params[stack_ptr_address_name];
-            params2.push_back(param1);
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
 
-            std::string stack_value_name("stack");
-            Value* param2 = params[stack_value_name];
-            params2.push_back(param2);
+                std::string stack_value_name("stack");
+                Value* param2 = params[stack_value_name];
+                params2.push_back(param2);
 
-            Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)var_num);
-            params2.push_back(param3);
+                Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)var_num);
+                params2.push_back(param3);
 
-            Value* param4 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
-            params2.push_back(param4);
+                Value* param4 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
+                params2.push_back(param4);
 
-            Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)field_index);
-            params2.push_back(param5);
+                Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)field_index);
+                params2.push_back(param5);
 
-            Value* result = Builder.CreateCall(load_field_fun, params2);
+                Value* result = Builder.CreateCall(load_field_fun, params2);
 
-            BasicBlock* then_block = BasicBlock::Create(TheContext, "then_block", function);
-            BasicBlock* entry_ifend = BasicBlock::Create(TheContext, "entry_ifend", function);
+                BasicBlock* then_block = BasicBlock::Create(TheContext, "then_block", function);
+                BasicBlock* entry_ifend = BasicBlock::Create(TheContext, "entry_ifend", function);
 
-            Value* comp = Builder.CreateICmpNE(result, ConstantInt::get(TheContext, llvm::APInt(32, 1, true)), "ifcond");
+                Value* comp = Builder.CreateICmpNE(result, ConstantInt::get(TheContext, llvm::APInt(32, 1, true)), "ifcond");
 
-            Builder.CreateCondBr(comp, then_block, entry_ifend);
+                Builder.CreateCondBr(comp, then_block, entry_ifend);
 
-            Builder.SetInsertPoint(then_block);
+                Builder.SetInsertPoint(then_block);
 
-            Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 0, true));
-            Builder.CreateRet(ret_value);
+                Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 0, true));
+                Builder.CreateRet(ret_value);
 
-            Builder.SetInsertPoint(entry_ifend);
-            current_block = entry_ifend;
-            }
-            break;
+                Builder.SetInsertPoint(entry_ifend);
+                current_block = entry_ifend;
+                }
+                break;
+
+            case OP_INT_TO_BYTE_CAST: {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value, 2);
+                }
+                break;
 
             default:
                 printf("inst %d\n", inst);

@@ -129,4 +129,16 @@ class JITTest
     def run20(): jit bool {
         return /../ != /./;
     }
+
+    def run21(): jit byte {
+        a:byte = 1b;
+        b:byte = 2b;
+
+        return a + b;
+    }
+    def run22(): jit byte {
+        a:byte = 1;
+
+        return a;
+    }
 }
