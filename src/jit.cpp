@@ -770,9 +770,15 @@ void show_inst_in_jit(int opecode)
             puts("OP_LOAD_FIELD");
             break;
 
+        case OP_BYTE_TO_INT_CAST:
+            puts("OP_BYTE_TO_INT_CAST");
+            break;
+
+/*
         case OP_INT_TO_BYTE_CAST:
             puts("OP_INT_TO_BYTE_CAST");
             break;
+*/
 
         default:
             printf("opecode %d\n", opecode);
@@ -2400,6 +2406,15 @@ show_inst_in_jit(inst);
                 }
                 break;
 
+            case OP_BYTE_TO_INT_CAST: {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+                dec_stack_ptr(params, current_block, 1);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value, 4);
+                }
+                break;
+
+/*
             case OP_INT_TO_BYTE_CAST: {
                 Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
                 dec_stack_ptr(params, current_block, 1);
@@ -2407,6 +2422,7 @@ show_inst_in_jit(inst);
                 push_value_to_stack_ptr_with_aligned(params, current_block, value, 2);
                 }
                 break;
+*/
 
             default:
                 printf("inst %d\n", inst);

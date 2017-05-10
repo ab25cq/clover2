@@ -141,4 +141,14 @@ class JITTest
 
         return a;
     }
+    def run23(): jit byte {
+        a:byte = 1;
+
+        return a;
+    }
+    def run24(): jit int {
+        a:byte = 123;
+
+        return a;
+    }
 }

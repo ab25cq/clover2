@@ -5592,6 +5592,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 }
                 break;
 
+/*
             case OP_SHORT_TO_BYTE_CAST:
                 {
                     vm_mutex_on();
@@ -5663,6 +5664,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     vm_mutex_off();
                 }
                 break;
+*/
 
             case OP_FLOAT_TO_BYTE_CAST:
                 {
@@ -5957,6 +5959,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 }
                 break;
 
+/*
             case OP_INT_TO_SHORT_CAST:
                 {
                     vm_mutex_on();
@@ -6004,6 +6007,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     vm_mutex_off();
                 }
                 break;
+*/
 
             case OP_FLOAT_TO_SHORT_CAST:
                 {
@@ -6322,6 +6326,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 }
                 break;
 
+/*
             case OP_LONG_TO_INT_CAST:
                 {
                     vm_mutex_on();
@@ -6345,6 +6350,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     vm_mutex_off();
                 }
                 break;
+*/
 
             case OP_FLOAT_TO_INT_CAST:
                 {
