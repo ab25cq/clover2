@@ -756,6 +756,86 @@ void show_inst_in_jit(int opecode)
             puts("OP_NEW");
             break;
 
+        case OP_BADD:
+            puts("OP_BAND");
+            break;
+
+        case OP_BSUB:
+            puts("OP_BSUB");
+            break;
+
+        case OP_BMULT:
+            puts("OP_BMULT");
+            break;
+
+        case OP_BDIV:
+            puts("OP_BDIV");
+            break;
+
+        case OP_BMOD:
+            puts("OP_BMOD");
+            break;
+
+        case OP_BLSHIFT:
+            puts("OP_BLSHIFT");
+            break;
+
+        case OP_BRSHIFT:
+            puts("OP_BRSHIFT");
+            break;
+
+        case OP_BAND:
+            puts("OP_BAND");
+            break;
+
+        case OP_BXOR:
+            puts("OP_BXOR");
+            break;
+
+        case OP_BOR:
+            puts("OP_BOR");
+            break;
+
+        case OP_UBADD:
+            puts("OP_UBAND");
+            break;
+
+        case OP_UBSUB:
+            puts("OP_UBSUB");
+            break;
+
+        case OP_UBMULT:
+            puts("OP_UBMULT");
+            break;
+
+        case OP_UBDIV:
+            puts("OP_UBDIV");
+            break;
+
+        case OP_UBMOD:
+            puts("OP_UBMOD");
+            break;
+
+        case OP_UBLSHIFT:
+            puts("OP_UBLSHIFT");
+            break;
+
+        case OP_UBRSHIFT:
+            puts("OP_UBRSHIFT");
+            break;
+
+        case OP_UBAND:
+            puts("OP_UBAND");
+            break;
+
+        case OP_UBXOR:
+            puts("OP_UBXOR");
+            break;
+
+        case OP_UBOR:
+            puts("OP_BOR");
+            break;
+
         case OP_IEQ:
             puts("OP_IEQ");
             break;
@@ -1981,6 +2061,234 @@ show_inst_in_jit(inst);
                 break;
 
             case OP_BADD: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 1);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+
+                Value* llvm_value = Builder.CreateAdd(lvalue, rvalue, "addtmp", true, false);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 1);
+                }
+                break;
+
+            case OP_BSUB: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 1);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+
+                Value* llvm_value = Builder.CreateSub(lvalue, rvalue, "subtmp", true, false);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 1);
+                }
+                break;
+
+            case OP_BMULT: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 1);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+
+                Value* llvm_value = Builder.CreateMul(lvalue, rvalue, "multmp", true, false);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 1);
+                }
+                break;
+
+            case OP_BDIV: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 1);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+
+                if_value_is_zero_entry_exception_object(rvalue, params, var_num, info, function, &current_block, "Exception", "division by zero");
+
+                Value* llvm_value = Builder.CreateSDiv(lvalue, rvalue, "divtmp", false);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 1);
+                }
+                break;
+
+            case OP_BMOD: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 1);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+
+                if_value_is_zero_entry_exception_object(rvalue, params, var_num, info, function, &current_block, "Exception", "division by zero");
+
+                Value* llvm_value = Builder.CreateSRem(lvalue, rvalue, "remtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 1);
+                }
+                break;
+
+            case OP_BLSHIFT: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 1);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+
+                Value* llvm_value = Builder.CreateShl(lvalue, rvalue, "lshifttmp", true, false);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 1);
+                }
+                break;
+
+            case OP_BRSHIFT: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 1);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+
+                Value* llvm_value = Builder.CreateAShr(lvalue, rvalue, "rshifttmp", false);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 1);
+                }
+                break;
+
+            case OP_BAND: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 1);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+
+                Value* llvm_value = Builder.CreateAnd(lvalue, rvalue, "andtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 1);
+                }
+                break;
+
+            case OP_BXOR: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 1);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+
+                Value* llvm_value = Builder.CreateXor(lvalue, rvalue, "xortmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 1);
+                }
+                break;
+
+            case OP_BOR: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 1);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+
+                Value* llvm_value = Builder.CreateOr(lvalue, rvalue, "ortmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 1);
+                }
+                break;
+
+            case OP_UBADD: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 1);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+
+                Value* llvm_value = Builder.CreateAdd(lvalue, rvalue, "addtmp", false, true);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 1);
+                }
+                break;
+
+            case OP_UBSUB: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 1);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+
+                Value* llvm_value = Builder.CreateSub(lvalue, rvalue, "subtmp", false, true);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 1);
+                }
+                break;
+
+            case OP_UBMULT: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 1);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+
+                Value* llvm_value = Builder.CreateMul(lvalue, rvalue, "multmp", false, true);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 1);
+                }
+                break;
+
+            case OP_UBDIV: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 1);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+
+                if_value_is_zero_entry_exception_object(rvalue, params, var_num, info, function, &current_block, "Exception", "division by zero");
+
+                Value* llvm_value = Builder.CreateUDiv(lvalue, rvalue, "divtmp", false);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 1);
+                }
+                break;
+
+            case OP_UBMOD: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 1);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+
+                if_value_is_zero_entry_exception_object(rvalue, params, var_num, info, function, &current_block, "Exception", "division by zero");
+
+                Value* llvm_value = Builder.CreateURem(lvalue, rvalue, "remtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 1);
+                }
+                break;
+
+            case OP_UBLSHIFT: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 1);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+
+                Value* llvm_value = Builder.CreateShl(lvalue, rvalue, "lshifttmp", false, true);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 1);
+                }
+                break;
+
+            case OP_UBRSHIFT: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 1);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+
+                Value* llvm_value = Builder.CreateLShr(lvalue, rvalue, "rshifttmp", false);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 1);
+                }
+                break;
+
+            case OP_UBAND: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 1);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+
+                Value* llvm_value = Builder.CreateAnd(lvalue, rvalue, "andtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 1);
+                }
+                break;
+
+            case OP_UBXOR: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 1);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+
+                Value* llvm_value = Builder.CreateXor(lvalue, rvalue, "xortmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 1);
+                }
+                break;
+
+            case OP_UBOR: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 1);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+
+                Value* llvm_value = Builder.CreateOr(lvalue, rvalue, "ortmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 1);
+                }
+                break;
+
+            case OP_SADD: {
                 Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
                 Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
 
@@ -1991,7 +2299,7 @@ show_inst_in_jit(inst);
                 }
                 break;
 
-            case OP_BSUB: {
+            case OP_SSUB: {
                 Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
                 Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
 
@@ -2002,7 +2310,7 @@ show_inst_in_jit(inst);
                 }
                 break;
 
-            case OP_BMULT: {
+            case OP_SMULT: {
                 Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
                 Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
 
@@ -2013,7 +2321,7 @@ show_inst_in_jit(inst);
                 }
                 break;
 
-            case OP_BDIV: {
+            case OP_SDIV: {
                 Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
                 Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
 
@@ -2026,7 +2334,7 @@ show_inst_in_jit(inst);
                 }
                 break;
 
-            case OP_BMOD: {
+            case OP_SMOD: {
                 Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
                 Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
 
@@ -2039,7 +2347,7 @@ show_inst_in_jit(inst);
                 }
                 break;
 
-            case OP_BLSHIFT: {
+            case OP_SLSHIFT: {
                 Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
                 Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
 
@@ -2050,7 +2358,7 @@ show_inst_in_jit(inst);
                 }
                 break;
 
-            case OP_BRSHIFT: {
+            case OP_SRSHIFT: {
                 Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
                 Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
 
@@ -2061,7 +2369,7 @@ show_inst_in_jit(inst);
                 }
                 break;
 
-            case OP_BAND: {
+            case OP_SAND: {
                 Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
                 Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
 
@@ -2072,7 +2380,7 @@ show_inst_in_jit(inst);
                 }
                 break;
 
-            case OP_BXOR: {
+            case OP_SXOR: {
                 Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
                 Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
 
@@ -2083,7 +2391,121 @@ show_inst_in_jit(inst);
                 }
                 break;
 
-            case OP_BOR: {
+            case OP_SOR: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+
+                Value* llvm_value = Builder.CreateOr(lvalue, rvalue, "ortmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 2);
+                }
+                break;
+
+            case OP_USADD: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+
+                Value* llvm_value = Builder.CreateAdd(lvalue, rvalue, "addtmp", false, true);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 2);
+                }
+                break;
+
+            case OP_USSUB: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+
+                Value* llvm_value = Builder.CreateSub(lvalue, rvalue, "subtmp", false, true);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 2);
+                }
+                break;
+
+            case OP_USMULT: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+
+                Value* llvm_value = Builder.CreateMul(lvalue, rvalue, "multmp", false, true);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 2);
+                }
+                break;
+
+            case OP_USDIV: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+
+                if_value_is_zero_entry_exception_object(rvalue, params, var_num, info, function, &current_block, "Exception", "division by zero");
+
+                Value* llvm_value = Builder.CreateUDiv(lvalue, rvalue, "divtmp", false);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 2);
+                }
+                break;
+
+            case OP_USMOD: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+
+                if_value_is_zero_entry_exception_object(rvalue, params, var_num, info, function, &current_block, "Exception", "division by zero");
+
+                Value* llvm_value = Builder.CreateURem(lvalue, rvalue, "remtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 2);
+                }
+                break;
+
+            case OP_USLSHIFT: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+
+                Value* llvm_value = Builder.CreateShl(lvalue, rvalue, "lshifttmp", false, true);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 2);
+                }
+                break;
+
+            case OP_USRSHIFT: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+
+                Value* llvm_value = Builder.CreateLShr(lvalue, rvalue, "rshifttmp", false);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 2);
+                }
+                break;
+
+            case OP_USAND: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+
+                Value* llvm_value = Builder.CreateAnd(lvalue, rvalue, "andtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 2);
+                }
+                break;
+
+            case OP_USXOR: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+
+                Value* llvm_value = Builder.CreateXor(lvalue, rvalue, "xortmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 2);
+                }
+                break;
+
+            case OP_USOR: {
                 Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
                 Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
 
@@ -2095,24 +2517,458 @@ show_inst_in_jit(inst);
                 break;
 
             case OP_IADD: {
-                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
-                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
 
-                Value* llvm_value = Builder.CreateAdd(lvalue, rvalue, "addtmp", false, false);
+                Value* llvm_value = Builder.CreateAdd(lvalue, rvalue, "addtmp", true, false);
 
                 dec_stack_ptr(params, current_block, 2);
-                push_value_to_stack_ptr(params, current_block, llvm_value);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
                 }
                 break;
 
             case OP_ISUB: {
-                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
-                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
 
-                Value* llvm_value = Builder.CreateSub(lvalue, rvalue, "subtmp", false, false);
+                Value* llvm_value = Builder.CreateSub(lvalue, rvalue, "subtmp", true, false);
 
                 dec_stack_ptr(params, current_block, 2);
-                push_value_to_stack_ptr(params, current_block, llvm_value);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_IMULT: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+
+                Value* llvm_value = Builder.CreateMul(lvalue, rvalue, "multmp", true, false);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_IDIV: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+
+                if_value_is_zero_entry_exception_object(rvalue, params, var_num, info, function, &current_block, "Exception", "division by zero");
+
+                Value* llvm_value = Builder.CreateSDiv(lvalue, rvalue, "divtmp", false);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_IMOD: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+
+                if_value_is_zero_entry_exception_object(rvalue, params, var_num, info, function, &current_block, "Exception", "division by zero");
+
+                Value* llvm_value = Builder.CreateSRem(lvalue, rvalue, "remtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_ILSHIFT: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+
+                Value* llvm_value = Builder.CreateShl(lvalue, rvalue, "lshifttmp", true, false);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_IRSHIFT: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+
+                Value* llvm_value = Builder.CreateAShr(lvalue, rvalue, "rshifttmp", false);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_IAND: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+
+                Value* llvm_value = Builder.CreateAnd(lvalue, rvalue, "andtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_IXOR: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+
+                Value* llvm_value = Builder.CreateXor(lvalue, rvalue, "xortmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_IOR: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+
+                Value* llvm_value = Builder.CreateOr(lvalue, rvalue, "ortmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_UIADD: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+
+                Value* llvm_value = Builder.CreateAdd(lvalue, rvalue, "addtmp", false, true);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_UISUB: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+
+                Value* llvm_value = Builder.CreateSub(lvalue, rvalue, "subtmp", false, true);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_UIMULT: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+
+                Value* llvm_value = Builder.CreateMul(lvalue, rvalue, "multmp", false, true);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_UIDIV: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+
+                if_value_is_zero_entry_exception_object(rvalue, params, var_num, info, function, &current_block, "Exception", "division by zero");
+
+                Value* llvm_value = Builder.CreateUDiv(lvalue, rvalue, "divtmp", false);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_UIMOD: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+
+                if_value_is_zero_entry_exception_object(rvalue, params, var_num, info, function, &current_block, "Exception", "division by zero");
+
+                Value* llvm_value = Builder.CreateURem(lvalue, rvalue, "remtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_UILSHIFT: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+
+                Value* llvm_value = Builder.CreateShl(lvalue, rvalue, "lshifttmp", false, true);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_UIRSHIFT: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+
+                Value* llvm_value = Builder.CreateLShr(lvalue, rvalue, "rshifttmp", false);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_UIAND: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+
+                Value* llvm_value = Builder.CreateAnd(lvalue, rvalue, "andtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_UIXOR: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+
+                Value* llvm_value = Builder.CreateXor(lvalue, rvalue, "xortmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_UIOR: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+
+                Value* llvm_value = Builder.CreateOr(lvalue, rvalue, "ortmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_LADD: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* llvm_value = Builder.CreateAdd(lvalue, rvalue, "addtmp", true, false);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 8);
+                }
+                break;
+
+            case OP_LSUB: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* llvm_value = Builder.CreateSub(lvalue, rvalue, "subtmp", true, false);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 8);
+                }
+                break;
+
+            case OP_LMULT: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* llvm_value = Builder.CreateMul(lvalue, rvalue, "multmp", true, false);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 8);
+                }
+                break;
+
+            case OP_LDIV: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                if_value_is_zero_entry_exception_object(rvalue, params, var_num, info, function, &current_block, "Exception", "division by zero");
+
+                Value* llvm_value = Builder.CreateSDiv(lvalue, rvalue, "divtmp", false);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 8);
+                }
+                break;
+
+            case OP_LMOD: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                if_value_is_zero_entry_exception_object(rvalue, params, var_num, info, function, &current_block, "Exception", "division by zero");
+
+                Value* llvm_value = Builder.CreateSRem(lvalue, rvalue, "remtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 8);
+                }
+                break;
+
+            case OP_LLSHIFT: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* llvm_value = Builder.CreateShl(lvalue, rvalue, "lshifttmp", true, false);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 8);
+                }
+                break;
+
+            case OP_LRSHIFT: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* llvm_value = Builder.CreateAShr(lvalue, rvalue, "rshifttmp", false);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 8);
+                }
+                break;
+
+            case OP_LAND: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* llvm_value = Builder.CreateAnd(lvalue, rvalue, "andtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 8);
+                }
+                break;
+
+            case OP_LXOR: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* llvm_value = Builder.CreateXor(lvalue, rvalue, "xortmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 8);
+                }
+                break;
+
+            case OP_LOR: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* llvm_value = Builder.CreateOr(lvalue, rvalue, "ortmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 8);
+                }
+                break;
+
+            case OP_ULADD: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* llvm_value = Builder.CreateAdd(lvalue, rvalue, "addtmp", false, true);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 8);
+                }
+                break;
+
+            case OP_ULSUB: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* llvm_value = Builder.CreateSub(lvalue, rvalue, "subtmp", false, true);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 8);
+                }
+                break;
+
+            case OP_ULMULT: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* llvm_value = Builder.CreateMul(lvalue, rvalue, "multmp", false, true);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 8);
+                }
+                break;
+
+            case OP_ULDIV: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                if_value_is_zero_entry_exception_object(rvalue, params, var_num, info, function, &current_block, "Exception", "division by zero");
+
+                Value* llvm_value = Builder.CreateUDiv(lvalue, rvalue, "divtmp", false);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 8);
+                }
+                break;
+
+            case OP_ULMOD: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                if_value_is_zero_entry_exception_object(rvalue, params, var_num, info, function, &current_block, "Exception", "division by zero");
+
+                Value* llvm_value = Builder.CreateURem(lvalue, rvalue, "remtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 8);
+                }
+                break;
+
+            case OP_ULLSHIFT: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* llvm_value = Builder.CreateShl(lvalue, rvalue, "lshifttmp", false, true);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 8);
+                }
+                break;
+
+            case OP_ULRSHIFT: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* llvm_value = Builder.CreateLShr(lvalue, rvalue, "rshifttmp", false);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 8);
+                }
+                break;
+
+            case OP_ULAND: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* llvm_value = Builder.CreateAnd(lvalue, rvalue, "andtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 8);
+                }
+                break;
+
+            case OP_ULXOR: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* llvm_value = Builder.CreateXor(lvalue, rvalue, "xortmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 8);
+                }
+                break;
+
+            case OP_ULOR: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* llvm_value = Builder.CreateOr(lvalue, rvalue, "ortmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 8);
                 }
                 break;
 

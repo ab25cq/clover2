@@ -122,7 +122,7 @@ MANAGED	src/macros.h	21;"	d
 MASSERT	src/debug.h	25;"	d
 MASSERT	src/debug.h	47;"	d
 MAX_CODES	src/interpreter.c	1385;"	d	file:
-MAX_COND_JUMP	src/jit.cpp	1447;"	d	file:
+MAX_COND_JUMP	src/jit.cpp	1527;"	d	file:
 MCALLOC	src/debug.h	22;"	d
 MCALLOC	src/debug.h	42;"	d
 METHOD_CHAIN_MAX	src/common.h	62;"	d

@@ -196,4 +196,7 @@ class JITTest
     def run34(): jit byte {
         return 0x07y ^ 0x01y;
     }
+    def run35(): jit long {
+        return 1l + 2l;
+    }
 }
