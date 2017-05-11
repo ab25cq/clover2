@@ -131,8 +131,8 @@ class JITTest
     }
 
     def run21(): jit byte {
-        a:byte = 1b;
-        b:byte = 2b;
+        a:byte = 1y;
+        b:byte = 2y;
 
         return a + b;
     }
@@ -152,14 +152,14 @@ class JITTest
         return a;
     }
     def run25(): jit int {
-        a:byte = 123b;
-        b:byte = 123b;
+        a:byte = 123y;
+        b:byte = 123y;
 
         return a + b;
     }
     def run26(): jit int {
-        a:byte = 123b;
-        b:byte = 23b;
+        a:byte = 123y;
+        b:byte = 23y;
 
         return a - b;
     }
@@ -174,5 +174,26 @@ class JITTest
         b:byte = 3;
 
         return a / b;
+    }
+    def run29(): jit byte {
+        a:byte = 5;
+        b:byte = 3;
+
+        return a % b;
+    }
+    def run30(): jit byte {
+        return 1y << 1y;
+    }
+    def run31(): jit byte {
+        return 2y >> 1y;
+    }
+    def run32(): jit byte {
+        return 011y & 01y;
+    }
+    def run33(): jit byte {
+        return 0x01y | 0x02y;
+    }
+    def run34(): jit byte {
+        return 0x07y ^ 0x01y;
     }
 }

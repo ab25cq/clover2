@@ -676,7 +676,7 @@ class String
                             c:ubyte = p->ubyte;
 
                             # utf8 character
-                            if(c > 127ub) {
+                            if(c > 127uy) {
                                 size:int = ((c & 0x80) >> 7) + ((c & 0x40) >> 6) + ((c & 0x20) >> 5) + ((c & 0x10) >> 4);
                                 if(size > System.MB_LEN_MAX) {
                                     throw new Exception("unexpected error at String.indexOf");

@@ -1995,7 +1995,7 @@ show_inst_in_jit(inst);
                 Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
                 Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
 
-                Value* llvm_value = Builder.CreateSub(lvalue, rvalue, "addtmp", true, false);
+                Value* llvm_value = Builder.CreateSub(lvalue, rvalue, "subtmp", true, false);
 
                 dec_stack_ptr(params, current_block, 2);
                 push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 2);
@@ -2006,7 +2006,7 @@ show_inst_in_jit(inst);
                 Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
                 Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
 
-                Value* llvm_value = Builder.CreateMul(lvalue, rvalue, "addtmp", true, false);
+                Value* llvm_value = Builder.CreateMul(lvalue, rvalue, "multmp", true, false);
 
                 dec_stack_ptr(params, current_block, 2);
                 push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 2);
@@ -2019,118 +2019,80 @@ show_inst_in_jit(inst);
 
                 if_value_is_zero_entry_exception_object(rvalue, params, var_num, info, function, &current_block, "Exception", "division by zero");
 
-                Value* llvm_value = Builder.CreateSDiv(lvalue, rvalue, "addtmp", false);
+                Value* llvm_value = Builder.CreateSDiv(lvalue, rvalue, "divtmp", false);
 
                 dec_stack_ptr(params, current_block, 2);
                 push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 2);
                 }
                 break;
 
-/*
             case OP_BMOD: {
-                vm_mutex_on();
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
 
-                char left = (stack_ptr-2)->mByteValue;
-                char right = (stack_ptr-1)->mByteValue;
+                if_value_is_zero_entry_exception_object(rvalue, params, var_num, info, function, &current_block, "Exception", "division by zero");
 
-                if(right == 0) {
-                    vm_mutex_off();
-                    entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
-                    remove_stack_to_stack_list(stack);
-                    return FALSE;
-                }
+                Value* llvm_value = Builder.CreateSRem(lvalue, rvalue, "remtmp");
 
-                char result = left % right;
-
-                stack_ptr-=2;
-                stack_ptr->mByteValue = result;
-                stack_ptr++;
-
-                vm_mutex_off();
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 2);
                 }
                 break;
 
             case OP_BLSHIFT: {
-                vm_mutex_on();
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
 
-                char left = (stack_ptr-2)->mByteValue;
-                char right = (stack_ptr-1)->mByteValue;
+                Value* llvm_value = Builder.CreateShl(lvalue, rvalue, "lshifttmp", true, false);
 
-                char result = left << right;
-
-                stack_ptr-=2;
-                stack_ptr->mByteValue = result;
-                stack_ptr++;
-
-                vm_mutex_off();
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 2);
                 }
                 break;
 
             case OP_BRSHIFT: {
-                vm_mutex_on();
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
 
-                char left = (stack_ptr-2)->mByteValue;
-                char right = (stack_ptr-1)->mByteValue;
+                Value* llvm_value = Builder.CreateAShr(lvalue, rvalue, "rshifttmp", false);
 
-                char result = left >> right;
-
-                stack_ptr-=2;
-                stack_ptr->mByteValue = result;
-                stack_ptr++;
-
-                vm_mutex_off();
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 2);
                 }
                 break;
 
             case OP_BAND: {
-                vm_mutex_on();
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
 
-                char left = (stack_ptr-2)->mByteValue;
-                char right = (stack_ptr-1)->mByteValue;
+                Value* llvm_value = Builder.CreateAnd(lvalue, rvalue, "andtmp");
 
-                char result = left & right;
-
-                stack_ptr-=2;
-                stack_ptr->mByteValue = result;
-                stack_ptr++;
-
-                vm_mutex_off();
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 2);
                 }
                 break;
 
             case OP_BXOR: {
-                vm_mutex_on();
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
 
-                char left = (stack_ptr-2)->mByteValue;
-                char right = (stack_ptr-1)->mByteValue;
+                Value* llvm_value = Builder.CreateXor(lvalue, rvalue, "xortmp");
 
-                char result = left ^ right;
-
-                stack_ptr-=2;
-                stack_ptr->mByteValue = result;
-                stack_ptr++;
-
-                vm_mutex_off();
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 2);
                 }
                 break;
 
             case OP_BOR: {
-                vm_mutex_on();
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
 
-                char left = (stack_ptr-2)->mByteValue;
-                char right = (stack_ptr-1)->mByteValue;
+                Value* llvm_value = Builder.CreateOr(lvalue, rvalue, "ortmp");
 
-                char result = left | right;
-
-                stack_ptr-=2;
-                stack_ptr->mByteValue = result;
-                stack_ptr++;
-
-                vm_mutex_off();
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 2);
                 }
                 break;
-*/
-
 
             case OP_IADD: {
                 Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
