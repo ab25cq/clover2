@@ -577,6 +577,32 @@ static void create_internal_functions()
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "regex_equals", TheModule.get());
+
+    /// entry_exception_object_with_class_name ///
+    type_params.clear();
+    
+    result_type = IntegerType::get(TheContext, 32);
+
+    param1_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param1_type);
+
+    param2_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param2_type);
+
+    param3_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param3_type);
+
+    param4_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param4_type);
+
+    param5_type = PointerType::get(IntegerType::get(TheContext, 8), 0);
+    type_params.push_back(param5_type);
+
+    param6_type = PointerType::get(IntegerType::get(TheContext, 8), 0);
+    type_params.push_back(param6_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "entry_exception_object_with_class_name2", TheModule.get());
 }
 
 static void InitializeModuleAndPassManager() 
@@ -1161,6 +1187,82 @@ static void push_value_to_stack_ptr_with_aligned(std::map<std::string, Value*>& 
     inc_stack_ptr(params, current_block, 1);
 }
 
+static Value* get_value_from_char_array(char* str)
+{
+    Constant* str_constant = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)str);
+    return ConstantExpr::getIntToPtr(str_constant, PointerType::get(IntegerType::get(TheContext,8), 0));
+}
+
+static void run_entry_exception_object_with_class_name2(std::map<std::string, Value *> params, int var_num, sVMInfo* info, char* class_name, char* message)
+{
+    Function* entry_exception_object_fun = TheModule->getFunction("entry_exception_object_with_class_name2");
+
+    std::vector<Value*> params2;
+
+    std::string stack_ptr_address_name("stack_ptr_address");
+    Value* param1 = params[stack_ptr_address_name];
+    params2.push_back(param1);
+
+    std::string stack_value_name("stack");
+    Value* param2 = params[stack_value_name];
+    params2.push_back(param2);
+
+    Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)var_num);
+    params2.push_back(param3);
+
+    Value* param4 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
+    params2.push_back(param4);
+
+    Value* param5 = get_value_from_char_array(class_name);
+    params2.push_back(param5);
+
+    Value* param6 = get_value_from_char_array(message);
+    params2.push_back(param6);
+
+    (void)Builder.CreateCall(entry_exception_object_fun, params2);
+}
+
+static void if_value_is_zero_entry_exception_object(Value* value, std::map<std::string, Value *> params, int var_num, sVMInfo* info, Function* function, BasicBlock** current_block, char* class_name, char* message)
+{
+    BasicBlock* then_block = BasicBlock::Create(TheContext, "then_block", function);
+    BasicBlock* entry_ifend = BasicBlock::Create(TheContext, "entry_ifend", function);
+
+    Value* comp = Builder.CreateICmpEQ(value, ConstantInt::get(TheContext, llvm::APInt(32, 0, true)), "ifcond");
+
+    Builder.CreateCondBr(comp, then_block, entry_ifend);
+
+    Builder.SetInsertPoint(then_block);
+
+    run_entry_exception_object_with_class_name2(params, var_num, info, class_name, message);
+
+    Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 0, true));
+    Builder.CreateRet(ret_value);
+
+    Builder.SetInsertPoint(entry_ifend);
+    *current_block = entry_ifend;
+}
+
+static void if_value_is_zero_ret_zero(Value* value, std::map<std::string, Value *> params, int var_num, sVMInfo* info, Function* function, BasicBlock** current_block)
+{
+    BasicBlock* then_block = BasicBlock::Create(TheContext, "then_block", function);
+    BasicBlock* entry_ifend = BasicBlock::Create(TheContext, "entry_ifend", function);
+
+    Value* comp = Builder.CreateICmpEQ(value, ConstantInt::get(TheContext, llvm::APInt(32, 0, true)), "ifcond");
+
+    Builder.CreateCondBr(comp, then_block, entry_ifend);
+
+    Builder.SetInsertPoint(then_block);
+
+    Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 0, true));
+    Builder.CreateRet(ret_value);
+
+    Builder.SetInsertPoint(entry_ifend);
+    *current_block = entry_ifend;
+}
+
+////////////////////////////////////////////////////////////
+// LLVM invoking method
+////////////////////////////////////////////////////////////
 static void finish_method_call(Value* result, sCLClass* klass, sCLMethod* method, sVMInfo* info, std::map<std::string, Value *> params, BasicBlock** current_block, Function* function, char* try_catch_label_name)
 {
     // if result is FALSE ret 0
@@ -1592,8 +1694,7 @@ show_inst_in_jit(inst);
                 Value* param1 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
                 params2.push_back(param1);
 
-                Constant* str_constant = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)sname);
-                Value* param2 = ConstantExpr::getIntToPtr(str_constant, PointerType::get(IntegerType::get(TheContext,8), 0));
+                Value* param2 = get_value_from_char_array(sname);
                 params2.push_back(param2);
 
                 Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)sline);
@@ -1624,18 +1725,7 @@ show_inst_in_jit(inst);
 
                 Value* result = Builder.CreateCall(sigint_function, params2);
 
-                BasicBlock* sigint_break_block = BasicBlock::Create(TheContext, "sigint_break", function);
-                BasicBlock* entry_after_sigint_block = BasicBlock::Create(TheContext, "entry_after_sigint", function);
-
-                Builder.CreateCondBr(result, entry_after_sigint_block, sigint_break_block);
-
-                Builder.SetInsertPoint(sigint_break_block);
-
-                Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 0, true));
-                Builder.CreateRet(ret_value);
-
-                Builder.SetInsertPoint(entry_after_sigint_block);
-                current_block = entry_after_sigint_block;
+                if_value_is_zero_ret_zero(result, params, var_num, info, function, &current_block);
                 }
                 break;
 
@@ -1897,66 +1987,46 @@ show_inst_in_jit(inst);
                 Value* llvm_value = Builder.CreateAdd(lvalue, rvalue, "addtmp", true, false);
 
                 dec_stack_ptr(params, current_block, 2);
-                push_value_to_stack_ptr(params, current_block, llvm_value);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 2);
                 }
                 break;
 
-/*
             case OP_BSUB: {
-                vm_mutex_on();
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
 
-                char left = (stack_ptr-2)->mByteValue;
-                char right = (stack_ptr-1)->mByteValue;
+                Value* llvm_value = Builder.CreateSub(lvalue, rvalue, "addtmp", true, false);
 
-                char result = left - right;
-
-                stack_ptr-=2;
-                stack_ptr->mByteValue = result;
-                stack_ptr++;
-
-                vm_mutex_off();
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 2);
                 }
                 break;
 
             case OP_BMULT: {
-                vm_mutex_on();
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
 
-                char left = (stack_ptr-2)->mByteValue;
-                char right = (stack_ptr-1)->mByteValue;
+                Value* llvm_value = Builder.CreateMul(lvalue, rvalue, "addtmp", true, false);
 
-                char result = left * right;
-
-                stack_ptr-=2;
-                stack_ptr->mByteValue = result;
-                stack_ptr++;
-
-                vm_mutex_off();
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 2);
                 }
                 break;
 
             case OP_BDIV: {
-                vm_mutex_on();
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
 
-                char left = (stack_ptr-2)->mByteValue;
-                char right = (stack_ptr-1)->mByteValue;
+                if_value_is_zero_entry_exception_object(rvalue, params, var_num, info, function, &current_block, "Exception", "division by zero");
 
-                if(right == 0) {
-                    vm_mutex_off();
-                    entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
-                    remove_stack_to_stack_list(stack);
-                    return FALSE;
-                }
+                Value* llvm_value = Builder.CreateSDiv(lvalue, rvalue, "addtmp", false);
 
-                char result = left / right;
-
-                stack_ptr-=2;
-                stack_ptr->mByteValue = result;
-                stack_ptr++;
-
-                vm_mutex_off();
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 2);
                 }
                 break;
 
+/*
             case OP_BMOD: {
                 vm_mutex_on();
 
@@ -2389,20 +2459,7 @@ show_inst_in_jit(inst);
 
                 Value* result = Builder.CreateCall(load_field_fun, params2);
 
-                BasicBlock* then_block = BasicBlock::Create(TheContext, "then_block", function);
-                BasicBlock* entry_ifend = BasicBlock::Create(TheContext, "entry_ifend", function);
-
-                Value* comp = Builder.CreateICmpNE(result, ConstantInt::get(TheContext, llvm::APInt(32, 1, true)), "ifcond");
-
-                Builder.CreateCondBr(comp, then_block, entry_ifend);
-
-                Builder.SetInsertPoint(then_block);
-
-                Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 0, true));
-                Builder.CreateRet(ret_value);
-
-                Builder.SetInsertPoint(entry_ifend);
-                current_block = entry_ifend;
+                if_value_is_zero_ret_zero(result, params, var_num, info, function, &current_block);
                 }
                 break;
 

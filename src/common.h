@@ -1629,6 +1629,7 @@ fNativeMethod get_native_method(char* path, char** fun_name);
 void entry_exception_object_with_class_name(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, char* class_name, char* msg, ...);
 void entry_exception_object(CLObject exception, sVMInfo* info);
 void show_exception_message(char* message);
+void entry_exception_object_with_class_name2(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, char* class_name, char* msg);
 
 /// method_compiler.c ///
 BOOL compile_method(sCLMethod* method, sParserParam* params, int num_params, sParserInfo* info, sCompileInfo* cinfo);

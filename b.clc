@@ -151,4 +151,28 @@ class JITTest
 
         return a;
     }
+    def run25(): jit int {
+        a:byte = 123b;
+        b:byte = 123b;
+
+        return a + b;
+    }
+    def run26(): jit int {
+        a:byte = 123b;
+        b:byte = 23b;
+
+        return a - b;
+    }
+    def run27(): jit byte {
+        a:byte = 1;
+        b:byte = 2;
+
+        return a * b;
+    }
+    def run28(): jit byte {
+        a:byte = 9;
+        b:byte = 3;
+
+        return a / b;
+    }
 }

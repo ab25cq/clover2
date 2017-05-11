@@ -34,12 +34,12 @@ CLASS_NAME	src/common.h	272;"	d
 CLASS_NAME_MAX	src/common.h	43;"	d
 CLASS_NUM_MAX	src/common.h	60;"	d
 CLASS_VERSION_MAX	src/common.h	50;"	d
-CLBLOCK	src/common.h	1753;"	d
-CLHEAPMEM	src/common.h	1674;"	d
-CLOBJECT	src/common.h	1721;"	d
+CLBLOCK	src/common.h	1754;"	d
+CLHEAPMEM	src/common.h	1675;"	d
+CLOBJECT	src/common.h	1722;"	d
 CLOVER_STACK_SIZE	src/common.h	61;"	d
 CLObject	src/common.h	/^typedef unsigned int CLObject;$/;"	t
-CLREGEX	src/common.h	1777;"	d
+CLREGEX	src/common.h	1778;"	d
 CLVALUE	src/common.h	/^typedef union CLVALUEUnion CLVALUE;$/;"	t	typeref:union:CLVALUEUnion
 CLVALUEUnion	src/common.h	/^union CLVALUEUnion {$/;"	u
 CL_MODULE_HASH_SIZE	src/common.h	53;"	d
@@ -65,7 +65,7 @@ CurTok	toy.cpp	/^static int CurTok;$/;"	v	file:
 DEBUG_H	src/debug.h	2;"	d
 DL	KaleidoscopeJIT.h	/^  const DataLayout DL;$/;"	m	class:llvm::orc::KaleidoscopeJIT
 DL	src/jit.cpp	/^    const DataLayout DL;$/;"	m	class:CloverJIT	file:
-DUMMY_ARRAY_SIZE	src/common.h	1707;"	d
+DUMMY_ARRAY_SIZE	src/common.h	1708;"	d
 ELIF_NUM_MAX	src/common.h	46;"	d
 EXCEPTION_MESSAGE_MAX	src/common.h	173;"	d
 Else	toy.cpp	/^  std::unique_ptr<ExprAST> Cond, Then, Else;$/;"	m	class:__anon23::IfExprAST	file:
@@ -122,7 +122,7 @@ MANAGED	src/macros.h	21;"	d
 MASSERT	src/debug.h	25;"	d
 MASSERT	src/debug.h	47;"	d
 MAX_CODES	src/interpreter.c	1385;"	d	file:
-MAX_COND_JUMP	src/jit.cpp	1345;"	d	file:
+MAX_COND_JUMP	src/jit.cpp	1447;"	d	file:
 MCALLOC	src/debug.h	22;"	d
 MCALLOC	src/debug.h	42;"	d
 METHOD_CHAIN_MAX	src/common.h	62;"	d
@@ -1339,6 +1339,7 @@ eNodeType	src/common.h	/^enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, 
 eOperand	src/common.h	/^enum eOperand { kOpAdd, kOpSub , kOpComplement, kOpLogicalDenial, kOpMult, kOpDiv, kOpMod, kOpLeftShift, kOpRightShift, kOpComparisonEqual, kOpComparisonNotEqual,kOpComparisonGreaterEqual, kOpComparisonLesserEqual, kOpComparisonGreater, kOpComparisonLesser, kOpAnd, kOpXor, kOpOr };$/;"	g
 entry_exception_object	src/exception.c	/^void entry_exception_object(CLObject exception, sVMInfo* info)$/;"	f
 entry_exception_object_with_class_name	src/exception.c	/^void entry_exception_object_with_class_name(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, char* class_name, char* msg, ...)$/;"	f
+entry_exception_object_with_class_name2	src/exception.c	/^void entry_exception_object_with_class_name2(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, char* class_name, char* msg)$/;"	f
 err_msg_for_method_not_found	src/node.c	/^static void err_msg_for_method_not_found(sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL class_method, sCompileInfo* info)$/;"	f	file:
 err_num	src/common.h	/^    int err_num;$/;"	m	struct:sCompileInfoStruct
 err_num	src/common.h	/^    int err_num;$/;"	m	struct:sParserInfoStruct
@@ -1478,6 +1479,7 @@ get_value_from_UByte	src/clover_to_clang.c	/^unsigned char get_value_from_UByte(
 get_value_from_UInteger	src/clover_to_clang.c	/^unsigned int get_value_from_UInteger(CLObject object)$/;"	f
 get_value_from_ULong	src/clover_to_clang.c	/^unsigned long get_value_from_ULong(CLObject object)$/;"	f
 get_value_from_UShort	src/clover_to_clang.c	/^unsigned short get_value_from_UShort(CLObject object)$/;"	f
+get_value_from_char_array	src/jit.cpp	/^static Value* get_value_from_char_array(char* str)$/;"	f	file:
 get_var_num	src/vtable.c	/^int get_var_num(sVarTable* table)$/;"	f
 get_variable_from_table	src/vtable.c	/^sVar* get_variable_from_table(sVarTable* table, char* name)$/;"	f
 get_variable_from_this_table_only	src/vtable.c	/^static sVar* get_variable_from_this_table_only(sVarTable* table, char* name)$/;"	f	file:
@@ -1486,6 +1488,8 @@ gettok	toy.cpp	/^static int gettok() {$/;"	f	file:
 heap_final	src/heap.c	/^void heap_final()$/;"	f
 heap_init	src/heap.c	/^void heap_init(int heap_size, int size_hadles)$/;"	f
 if_expression	src/parser.c	/^static BOOL if_expression(unsigned int* node, sParserInfo* info)$/;"	f	file:
+if_value_is_zero_entry_exception_object	src/jit.cpp	/^static void if_value_is_zero_entry_exception_object(Value* value, std::map<std::string, Value *> params, int var_num, sVMInfo* info, Function* function, BasicBlock** current_block, char* class_name, char* message)$/;"	f	file:
+if_value_is_zero_ret_zero	src/jit.cpp	/^static void if_value_is_zero_ret_zero(Value* value, std::map<std::string, Value *> params, int var_num, sVMInfo* info, Function* function, BasicBlock** current_block)$/;"	f	file:
 inc_stack_ptr	src/jit.cpp	/^static void inc_stack_ptr(std::map<std::string, Value*>& params, BasicBlock* current_block, int value)$/;"	f	file:
 include_file	src/class_compiler.c	/^static BOOL include_file(sParserInfo* info, sCompileInfo* cinfo)$/;"	f	file:
 included_source	src/common.h	/^    BOOL included_source;$/;"	m	struct:sParserInfoStruct
@@ -1869,7 +1873,6 @@ mVarNum	src/common.h	/^    int mVarNum;$/;"	m	struct:sCLMethodStruct
 mVarNum	src/common.h	/^    int mVarNum;$/;"	m	struct:sVarTableStruct
 mVirtualMethodTable	src/common.h	/^    sCLMethod* mVirtualMethodTable[METHOD_NUM_MAX]; \/\/ This requires on the run time$/;"	m	struct:sCLClassStruct
 mWhileNodeBlock	src/common.h	/^            MANAGED sNodeBlock* mWhileNodeBlock;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon6
-main	a.c	/^int main()$/;"	f
 main	src/compiler.c	/^int main(int argc, char** argv)$/;"	f
 main	src/interpreter.c	/^int main(int argc, char** argv)$/;"	f
 main	src/main.c	/^int main(int argc, char** argv)$/;"	f
@@ -1989,6 +1992,7 @@ remove_module_from_table	src/module.c	/^static void remove_module_from_table(cha
 remove_stack_to_stack_list	src/stack.c	/^BOOL remove_stack_to_stack_list(CLVALUE* stack)$/;"	f
 reset_method_index_on_compile_time	src/class_compiler.c	/^static void reset_method_index_on_compile_time()$/;"	f	file:
 return_expression	src/parser.c	/^static BOOL return_expression(unsigned int* node, sParserInfo* info)$/;"	f	file:
+run_entry_exception_object_with_class_name2	src/jit.cpp	/^static void run_entry_exception_object_with_class_name2(std::map<std::string, Value *> params, int var_num, sVMInfo* info, char* class_name, char* message)$/;"	f	file:
 run_head_of_expression	src/jit.cpp	/^void run_head_of_expression(sVMInfo* info, char* sname, int sline)$/;"	f
 run_ldclong	src/jit.cpp	/^void run_ldclong(CLVALUE** stack_ptr, int value1, int value2)$/;"	f
 run_ldcpointer	src/jit.cpp	/^void run_ldcpointer(CLVALUE** stack_ptr, int value1, int value2)$/;"	f
