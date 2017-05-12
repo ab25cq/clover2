@@ -199,4 +199,10 @@ class JITTest
     def run35(): jit long {
         return 1l + 2l;
     }
+    def run36(): jit byte {
+        return ~0x01y;
+    }
+    def run37(): jit int {
+        return ~0x01;
+    }
 }

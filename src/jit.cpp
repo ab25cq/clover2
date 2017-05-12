@@ -712,50 +712,6 @@ void show_inst_in_jit(int opecode)
             puts("OP_LDCNULL");
             break;
 
-        case OP_IADD: 
-            puts("OP_IADD");
-            break;
-
-        case OP_ISUB: 
-            puts("OP_ISUB");
-            break;
-
-        case OP_RETURN: 
-            puts("OP_RETURN");
-            break;
-
-        case OP_TRY:
-            puts("OP_TRY");
-            break;
-
-        case OP_INVOKE_METHOD:
-            puts("OP_INVOKE_METHOD");
-            break;
-
-        case OP_THROW:
-            puts("OP_THROW");
-            break;
-
-        case OP_CREATE_STRING:
-            puts("OP_CREATE_STRING");
-            break;
-
-        case OP_CREATE_REGEX:
-            puts("OP_CREATE_REGEX");
-            break;
-
-        case OP_HEAD_OF_EXPRESSION: 
-            puts("OP_HEAD_OF_EXPRESSION");
-            break;
-
-        case OP_SIGINT:
-            puts("OP_SIGINT");
-            break;
-
-        case OP_NEW:
-            puts("OP_NEW");
-            break;
-
         case OP_BADD:
             puts("OP_BAND");
             break;
@@ -834,6 +790,286 @@ void show_inst_in_jit(int opecode)
 
         case OP_UBOR:
             puts("OP_BOR");
+            break;
+
+        case OP_SADD:
+            puts("OP_SADD");
+            break;
+
+        case OP_SSUB:
+            puts("OP_SSUB");
+            break;
+
+        case OP_SMULT: 
+            puts("OP_SMULT");
+            break;
+
+        case OP_SDIV: 
+            puts("OP_SDIV");
+            break;
+
+        case OP_SMOD: 
+            puts("OP_SMOD");
+            break;
+
+        case OP_SLSHIFT: 
+            puts("OP_SLSHIFT");
+            break;
+
+        case OP_SRSHIFT: 
+            puts("OP_SRSHIFT");
+            break;
+
+        case OP_SAND: 
+            puts("OP_SAND");
+            break;
+
+        case OP_SXOR: 
+            puts("OP_SXOR");
+            break;
+
+        case OP_SOR: 
+            puts("OP_SOR");
+            break;
+
+        case OP_USADD: 
+            puts("OP_USADD");
+            break;
+
+        case OP_USSUB: 
+            puts("OP_USSUB");
+            break;
+
+        case OP_USMULT: 
+            puts("OP_USMULT");
+            break;
+
+        case OP_USDIV: 
+            puts("OP_USDIV");
+            break;
+
+        case OP_USMOD: 
+            puts("OP_USMOD");
+            break;
+
+        case OP_USLSHIFT: 
+            puts("OP_USLSHIFT");
+            break;
+
+        case OP_USRSHIFT: 
+            puts("OP_USRSHIFT");
+            break;
+
+        case OP_USAND: 
+            puts("OP_USAND");
+            break;
+
+        case OP_USXOR: 
+            puts("OP_USXOR");
+            break;
+
+        case OP_USOR: 
+            puts("OP_USOR");
+            break;
+
+        case OP_IADD: 
+            puts("OP_IADD");
+            break;
+
+        case OP_ISUB: 
+            puts("OP_ISUB");
+            break;
+
+        case OP_IMULT: 
+            puts("OP_IMULT");
+            break;
+
+        case OP_IDIV: 
+            puts("OP_IDIV");
+            break;
+
+        case OP_IMOD: 
+            puts("OP_IMOD");
+            break;
+
+        case OP_ILSHIFT: 
+            puts("OP_ILSHIFT");
+            break;
+
+        case OP_IRSHIFT: 
+            puts("OP_IRSHIFT");
+            break;
+
+        case OP_IAND: 
+            puts("OP_IAND");
+            break;
+
+        case OP_IXOR: 
+            puts("OP_IXOR");
+            break;
+
+        case OP_IOR: 
+            puts("OP_IOR");
+            break;
+
+        case OP_UIADD: 
+            puts("OP_UIADD");
+            break;
+
+        case OP_UISUB: 
+            puts("OP_UISUB");
+            break;
+
+        case OP_UIMULT: 
+            puts("OP_UIMULT");
+            break;
+
+        case OP_UIDIV: 
+            puts("OP_UIDIV");
+            break;
+
+        case OP_UIMOD: 
+            puts("OP_UIMOD");
+            break;
+
+        case OP_UILSHIFT: 
+            puts("OP_UILSHIFT");
+            break;
+
+        case OP_UIRSHIFT: 
+            puts("OP_UIRSHIFT");
+            break;
+
+        case OP_UIAND: 
+            puts("OP_UIAND");
+            break;
+
+        case OP_UIXOR: 
+            puts("OP_UIXOR");
+            break;
+
+        case OP_UIOR: 
+            puts("OP_UIOR");
+            break;
+
+        case OP_LADD: 
+            puts("OP_LADD");
+            break;
+
+        case OP_LSUB: 
+            puts("OP_LSUB");
+            break;
+
+        case OP_LMULT: 
+            puts("OP_LMULT");
+            break;
+
+        case OP_LDIV: 
+            puts("OP_LDIV");
+            break;
+
+        case OP_LMOD: 
+            puts("OP_LMOD");
+            break;
+
+        case OP_LLSHIFT: 
+            puts("OP_LLSHIFT");
+            break;
+
+        case OP_LRSHIFT: 
+            puts("OP_LRSHIFT");
+            break;
+
+        case OP_LAND: 
+            puts("OP_LAND");
+            break;
+
+        case OP_LXOR: 
+            puts("OP_LXOR");
+            break;
+
+        case OP_LOR: 
+            puts("OP_LOR");
+            break;
+
+        case OP_ULADD: 
+            puts("OP_ULADD");
+            break;
+
+        case OP_ULSUB: 
+            puts("OP_ULSUB");
+            break;
+
+        case OP_ULMULT: 
+            puts("OP_ULMULT");
+            break;
+
+        case OP_ULDIV: 
+            puts("OP_ULDIV");
+            break;
+
+        case OP_ULMOD: 
+            puts("OP_ULMOD");
+            break;
+
+        case OP_ULLSHIFT: 
+            puts("OP_ULLSHIFT");
+            break;
+
+        case OP_ULRSHIFT: 
+            puts("OP_ULRSHIFT");
+            break;
+
+        case OP_ULAND: 
+            puts("OP_ULAND");
+            break;
+
+        case OP_ULXOR: 
+            puts("OP_ULXOR");
+            break;
+
+        case OP_ULOR: 
+            puts("OP_ULOR");
+            break;
+
+        case OP_RETURN: 
+            puts("OP_RETURN");
+            break;
+
+        case OP_TRY:
+            puts("OP_TRY");
+            break;
+
+        case OP_INVOKE_METHOD:
+            puts("OP_INVOKE_METHOD");
+            break;
+
+        case OP_THROW:
+            puts("OP_THROW");
+            break;
+
+        case OP_CREATE_STRING:
+            puts("OP_CREATE_STRING");
+            break;
+
+        case OP_CREATE_REGEX:
+            puts("OP_CREATE_REGEX");
+            break;
+
+        case OP_HEAD_OF_EXPRESSION: 
+            puts("OP_HEAD_OF_EXPRESSION");
+            break;
+
+        case OP_SIGINT:
+            puts("OP_SIGINT");
+            break;
+
+        case OP_NEW:
+            puts("OP_NEW");
+            break;
+
+        case OP_BCOMPLEMENT:
+            puts("OP_BCOMPLEMENT");
             break;
 
         case OP_IEQ:
@@ -2968,6 +3204,94 @@ show_inst_in_jit(inst);
                 Value* llvm_value = Builder.CreateOr(lvalue, rvalue, "ortmp");
 
                 dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 8);
+                }
+                break;
+
+            case OP_BCOMPLEMENT: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+                Value* rvalue = ConstantInt::get(Type::getInt8Ty(TheContext), (uint8_t)0xFF);
+
+                Value* llvm_value = Builder.CreateXor(lvalue, rvalue, "xortmp");
+
+                dec_stack_ptr(params, current_block, 1);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 1);
+                }
+                break;
+
+            case OP_UBCOMPLEMENT: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+                Value* rvalue = ConstantInt::get(Type::getInt8Ty(TheContext), (uint8_t)0xFF);
+
+                Value* llvm_value = Builder.CreateXor(lvalue, rvalue, "xortmp");
+
+                dec_stack_ptr(params, current_block, 1);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 1);
+                }
+                break;
+
+            case OP_SCOMPLEMENT: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+                Value* rvalue = ConstantInt::get(Type::getInt8Ty(TheContext), (uint8_t)0xFFFF);
+
+                Value* llvm_value = Builder.CreateXor(lvalue, rvalue, "xortmp");
+
+                dec_stack_ptr(params, current_block, 1);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 2);
+                }
+                break;
+
+            case OP_USCOMPLEMENT: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+                Value* rvalue = ConstantInt::get(Type::getInt8Ty(TheContext), (uint8_t)0xFFFF);
+
+                Value* llvm_value = Builder.CreateXor(lvalue, rvalue, "xortmp");
+
+                dec_stack_ptr(params, current_block, 1);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 2);
+                }
+                break;
+
+            case OP_ICOMPLEMENT: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                Value* rvalue = ConstantInt::get(Type::getInt8Ty(TheContext), (uint8_t)0xFFFFFFFF);
+
+                Value* llvm_value = Builder.CreateXor(lvalue, rvalue, "xortmp");
+
+                dec_stack_ptr(params, current_block, 1);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_UICOMPLEMENT: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                Value* rvalue = ConstantInt::get(Type::getInt8Ty(TheContext), (uint8_t)0xFFFFFFFF);
+
+                Value* llvm_value = Builder.CreateXor(lvalue, rvalue, "xortmp");
+
+                dec_stack_ptr(params, current_block, 1);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_LCOMPLEMENT: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                Value* rvalue = ConstantInt::get(Type::getInt8Ty(TheContext), (uint8_t)0xFFFFFFFFFFFFFFFF);
+
+                Value* llvm_value = Builder.CreateXor(lvalue, rvalue, "xortmp");
+
+                dec_stack_ptr(params, current_block, 1);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 8);
+                }
+                break;
+
+            case OP_ULCOMPLEMENT: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                Value* rvalue = ConstantInt::get(Type::getInt8Ty(TheContext), (uint8_t)0xFFFFFFFFFFFFFFFF);
+
+                Value* llvm_value = Builder.CreateXor(lvalue, rvalue, "xortmp");
+
+                dec_stack_ptr(params, current_block, 1);
                 push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 8);
                 }
                 break;
