@@ -122,7 +122,7 @@ MANAGED	src/macros.h	21;"	d
 MASSERT	src/debug.h	25;"	d
 MASSERT	src/debug.h	47;"	d
 MAX_CODES	src/interpreter.c	1385;"	d	file:
-MAX_COND_JUMP	src/jit.cpp	1763;"	d	file:
+MAX_COND_JUMP	src/jit.cpp	1759;"	d	file:
 MCALLOC	src/debug.h	22;"	d
 MCALLOC	src/debug.h	42;"	d
 METHOD_CHAIN_MAX	src/common.h	62;"	d
@@ -1873,6 +1873,7 @@ mVarNum	src/common.h	/^    int mVarNum;$/;"	m	struct:sCLMethodStruct
 mVarNum	src/common.h	/^    int mVarNum;$/;"	m	struct:sVarTableStruct
 mVirtualMethodTable	src/common.h	/^    sCLMethod* mVirtualMethodTable[METHOD_NUM_MAX]; \/\/ This requires on the run time$/;"	m	struct:sCLClassStruct
 mWhileNodeBlock	src/common.h	/^            MANAGED sNodeBlock* mWhileNodeBlock;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon6
+main	b.c	/^int main()$/;"	f
 main	src/compiler.c	/^int main(int argc, char** argv)$/;"	f
 main	src/interpreter.c	/^int main(int argc, char** argv)$/;"	f
 main	src/main.c	/^int main(int argc, char** argv)$/;"	f

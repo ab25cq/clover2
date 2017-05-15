@@ -1,5 +1,4 @@
 a:JITTest  = new JITTest();
-
 b:int = a.run();
 Clover.test("jit test", b == 4);
 
@@ -60,3 +59,6 @@ Clover.test("jit test29", a.run34() == 6y);
 Clover.test("jit test30", a.run35() == 3l);
 Clover.test("jit test31", a.run36() == 0xfe);
 Clover.test("jit test32", a.run37() == 0xfffffffe);
+Clover.test("jit test33", a.run38() == 2.2f);
+Clover.test("jit test34", a.run39() == 2.2f);
+Clover.test("jit test35", a.run40() == 4.0);

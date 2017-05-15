@@ -205,4 +205,13 @@ class JITTest
     def run37(): jit int {
         return ~0x01;
     }
+    def run38(): jit float {
+        return 1.1f + 1.1f;
+    }
+    def run39(): jit float {
+        return 1.1f * 2.0f;
+    }
+    def run40(): jit double {
+        return 2.0 + 2.0;
+    }
 }

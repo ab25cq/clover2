@@ -1364,16 +1364,12 @@ BOOL invoke_none_native_method_in_jit(sCLClass* klass, sCLMethod* method, CLVALU
 //////////////////////////////////////////////////////////////////////
 static void store_value(Value* llvm_value, Value* stored_value, BasicBlock* current_block)
 {
-    StoreInst* store_inst = new StoreInst(llvm_value, stored_value);
-    store_inst->setAlignment(8);
-    current_block->getInstList().push_back(store_inst);
+    Builder.CreateStore(llvm_value, stored_value);
 }
 
 static void store_value_with_aligned(Value* llvm_value, Value* stored_value, BasicBlock* current_block, int align)
 {
-    StoreInst* store_inst = new StoreInst(llvm_value, stored_value);
-    store_inst->setAlignment(align);
-    current_block->getInstList().push_back(store_inst);
+    Builder.CreateAlignedStore(llvm_value, stored_value, align);
 }
 
 static void inc_stack_ptr(std::map<std::string, Value*>& params, BasicBlock* current_block, int value)
@@ -1496,7 +1492,7 @@ static void push_value_to_stack_ptr_with_aligned(std::map<std::string, Value*>& 
     std::string stack_ptr_address_name("stack_ptr_address");
     Value* stack_ptr_address_value = params[stack_ptr_address_name];
 
-    Value* loaded_stack_ptr_address_value = Builder.CreateLoad(stack_ptr_address_value, "loaded_stack_ptr_address_value");
+    Value* loaded_stack_ptr_address_value = Builder.CreateAlignedLoad(stack_ptr_address_value, align, "loaded_stack_ptr_address_value");
 
     store_value_with_aligned(value, loaded_stack_ptr_address_value, current_block, align);
 
@@ -3293,6 +3289,177 @@ show_inst_in_jit(inst);
 
                 dec_stack_ptr(params, current_block, 1);
                 push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 8);
+                }
+                break;
+
+            case OP_FADD: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+
+                Value* flvalue = Builder.CreateCast(Instruction::Trunc, lvalue, Type::getFloatTy(TheContext), "flvalue");
+                Value* frvalue = Builder.CreateCast(Instruction::Trunc, rvalue, Type::getFloatTy(TheContext), "frvalue");
+
+                Value* llvm_value = Builder.CreateFAdd(flvalue, frvalue, "addtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr(params, current_block, llvm_value);
+                }
+                break;
+
+            case OP_FSUB: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+
+                Value* flvalue = Builder.CreateCast(Instruction::Trunc, lvalue, Type::getFloatTy(TheContext), "flvalue");
+                Value* frvalue = Builder.CreateCast(Instruction::Trunc, rvalue, Type::getFloatTy(TheContext), "frvalue");
+
+                Value* llvm_value = Builder.CreateFSub(flvalue, frvalue, "addtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr(params, current_block, llvm_value);
+                }
+                break;
+
+            case OP_FMULT: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+
+                Value* flvalue = Builder.CreateCast(Instruction::Trunc, lvalue, Type::getFloatTy(TheContext), "flvalue");
+                Value* frvalue = Builder.CreateCast(Instruction::Trunc, rvalue, Type::getFloatTy(TheContext), "frvalue");
+
+                Value* llvm_value = Builder.CreateFMul(flvalue, frvalue, "addtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr(params, current_block, llvm_value);
+                }
+                break;
+
+            case OP_FDIV: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+
+                Value* flvalue = Builder.CreateCast(Instruction::Trunc, lvalue, Type::getFloatTy(TheContext), "flvalue");
+                Value* frvalue = Builder.CreateCast(Instruction::Trunc, rvalue, Type::getFloatTy(TheContext), "frvalue");
+
+                if_value_is_zero_entry_exception_object(frvalue, params, var_num, info, function, &current_block, "Exception", "division by zero");
+
+                Value* llvm_value = Builder.CreateFDiv(flvalue, frvalue, "divtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_DADD: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* dlvalue = Builder.CreateCast(Instruction::Trunc, lvalue, Type::getDoubleTy(TheContext), "flvalue");
+                Value* drvalue = Builder.CreateCast(Instruction::Trunc, rvalue, Type::getDoubleTy(TheContext), "frvalue");
+
+                Value* llvm_value = Builder.CreateFAdd(dlvalue, drvalue, "addtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr(params, current_block, llvm_value);
+                }
+                break;
+
+            case OP_DSUB: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* dlvalue = Builder.CreateCast(Instruction::Trunc, lvalue, Type::getDoubleTy(TheContext), "flvalue");
+                Value* drvalue = Builder.CreateCast(Instruction::Trunc, rvalue, Type::getDoubleTy(TheContext), "frvalue");
+
+                Value* llvm_value = Builder.CreateFSub(dlvalue, drvalue, "addtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr(params, current_block, llvm_value);
+                }
+                break;
+
+            case OP_DMULT: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* dlvalue = Builder.CreateCast(Instruction::Trunc, lvalue, Type::getDoubleTy(TheContext), "flvalue");
+                Value* drvalue = Builder.CreateCast(Instruction::Trunc, rvalue, Type::getDoubleTy(TheContext), "frvalue");
+
+                Value* llvm_value = Builder.CreateFMul(dlvalue, drvalue, "addtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr(params, current_block, llvm_value);
+                }
+                break;
+
+            case OP_DDIV: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* dlvalue = Builder.CreateCast(Instruction::Trunc, lvalue, Type::getDoubleTy(TheContext), "flvalue");
+                Value* drvalue = Builder.CreateCast(Instruction::Trunc, rvalue, Type::getDoubleTy(TheContext), "frvalue");
+
+                if_value_is_zero_entry_exception_object(drvalue, params, var_num, info, function, &current_block, "Exception", "division by zero");
+
+                Value* llvm_value = Builder.CreateFDiv(dlvalue, drvalue, "divtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 8);
+                }
+                break;
+
+            case OP_PADD: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* llvm_value = Builder.CreateAdd(lvalue, rvalue, "addtmp", false, true);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 8);
+                }
+                break;
+
+            case OP_PSUB: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* llvm_value = Builder.CreateSub(lvalue, rvalue, "subtmp", false, true);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 8);
+                }
+                break;
+
+            case OP_PPSUB: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* llvm_value = Builder.CreateSub(lvalue, rvalue, "subtmp", false, true);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 8);
+                }
+                break;
+
+            case OP_CADD: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+
+                Value* llvm_value = Builder.CreateAdd(lvalue, rvalue, "addtmp", false, true);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_CSUB: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+
+                Value* llvm_value = Builder.CreateSub(lvalue, rvalue, "subtmp", false, true);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
                 }
                 break;
 
