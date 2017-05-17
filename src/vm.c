@@ -4400,7 +4400,7 @@ if(stack_ptr != lvar + var_num + 1) {
                 }
                 break;
 
-            case OP_IMPLMENTS:
+            case OP_IMPLEMENTS:
                 {
                     vm_mutex_on();
 

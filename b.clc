@@ -214,4 +214,31 @@ class JITTest
     def run40(): jit double {
         return 2.0 + 2.0;
     }
+    def run41(): jit bool {
+        return 1y < 2y;
+    }
+    def run42(): jit bool {
+        return 1uy < 2uy;
+    }
+    def run43(): jit bool {
+        return 1l < 2l;
+    }
+    def run44(): jit bool {
+        return 100000ul < 200000000000ul;
+    }
+    def run45(): jit bool {
+        return 1.1f < 2.2f;
+    }
+    def run46(): jit bool {
+        return 1.1 < 2.2;
+    }
+    def run47(): jit bool {
+        return 'a' < 'b';
+    }
+    def run48(): jit bool {
+        return !false;
+    }
+    def run49(): jit bool {
+        return !true;
+    }
 }

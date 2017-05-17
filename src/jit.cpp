@@ -704,6 +704,10 @@ void show_inst_in_jit(int opecode)
             puts("OP_STORE");
             break;
 
+        case OP_LDCBYTE: 
+            puts("OP_LDCBYTE");
+            break;
+
         case OP_LDCINT: 
             puts("OP_LDCINT");
             break;
@@ -1028,6 +1032,384 @@ void show_inst_in_jit(int opecode)
             puts("OP_ULXOR");
             break;
 
+        case OP_UBCOMPLEMENT:
+            puts("OP_UBCOMPLEMENT");
+            break;
+
+        case OP_SCOMPLEMENT:
+            puts("OP_SCOMPLEMENT");
+            break;
+
+        case OP_USCOMPLEMENT:
+            puts("OP_USCOMPLEMENT");
+            break;
+
+        case OP_ICOMPLEMENT:
+            puts("OP_ICOMPLEMENT");
+            break;
+
+        case OP_UICOMPLEMENT:
+            puts("OP_UICOMPLEMENT");
+            break;
+
+        case OP_LCOMPLEMENT:
+            puts("OP_LCOMPLEMENT");
+            break;
+
+        case OP_ULCOMPLEMENT:
+            puts("OP_ULCOMPLEMENT");
+            break;
+
+
+        case OP_FADD:
+            puts("OP_FADD");
+            break;
+
+        case OP_FSUB:
+            puts("OP_FSUB");
+            break;
+
+        case OP_FMULT:
+            puts("OP_FMULT");
+            break;
+
+        case OP_FDIV:
+            puts("OP_FDIV");
+            break;
+
+
+        case OP_DADD:
+            puts("OP_DADD");
+            break;
+
+        case OP_DSUB:
+            puts("OP_DSUB");
+            break;
+
+        case OP_DMULT:
+            puts("OP_DMULT");
+            break;
+
+        case OP_DDIV:
+            puts("OP_DDIV");
+            break;
+
+
+        case OP_PADD:
+            puts("OP_PADD");
+            break;
+
+        case OP_PSUB:
+            puts("OP_PSUB");
+            break;
+
+        case OP_PPSUB:
+            puts("OP_PPSUB");
+            break;
+
+
+        case OP_CADD:
+            puts("OP_CADD");
+            break;
+
+        case OP_CSUB:
+            puts("OP_CSUB");
+            break;
+
+
+        case OP_BEQ :
+            puts("OP_BEQ ");
+            break;
+
+        case OP_BNOTEQ :
+            puts("OP_BNOTEQ ");
+            break;
+
+        case OP_BGT :
+            puts("OP_BGT ");
+            break;
+
+        case OP_BLE :
+            puts("OP_BLE ");
+            break;
+
+        case OP_BGTEQ :
+            puts("OP_BGTEQ ");
+            break;
+
+        case OP_BLEEQ :
+            puts("OP_BLEEQ ");
+            break;
+
+
+        case OP_UBEQ :
+            puts("OP_UBEQ ");
+            break;
+
+        case OP_UBNOTEQ :
+            puts("OP_UBNOTEQ ");
+            break;
+
+        case OP_UBGT :
+            puts("OP_UBGT ");
+            break;
+
+        case OP_UBLE :
+            puts("OP_UBLE ");
+            break;
+
+        case OP_UBGTEQ :
+            puts("OP_UBGTEQ ");
+            break;
+
+        case OP_UBLEEQ :
+            puts("OP_UBLEEQ ");
+            break;
+
+
+        case OP_SEQ :
+            puts("OP_SEQ ");
+            break;
+
+        case OP_SNOTEQ :
+            puts("OP_SNOTEQ ");
+            break;
+
+        case OP_SGT :
+            puts("OP_SGT ");
+            break;
+
+        case OP_SLE :
+            puts("OP_SLE ");
+            break;
+
+        case OP_SGTEQ :
+            puts("OP_SGTEQ ");
+            break;
+
+        case OP_SLEEQ :
+            puts("OP_SLEEQ ");
+            break;
+
+
+        case OP_USEQ :
+            puts("OP_USEQ ");
+            break;
+
+        case OP_USNOTEQ :
+            puts("OP_USNOTEQ ");
+            break;
+
+        case OP_USGT :
+            puts("OP_USGT ");
+            break;
+
+        case OP_USLE :
+            puts("OP_USLE ");
+            break;
+
+        case OP_USGTEQ :
+            puts("OP_USGTEQ ");
+            break;
+
+        case OP_USLEEQ :
+            puts("OP_USLEEQ ");
+            break;
+
+        case OP_INOTEQ :
+            puts("OP_INOTEQ ");
+            break;
+
+        case OP_IGT :
+            puts("OP_IGT ");
+            break;
+
+        case OP_UIEQ :
+            puts("OP_UIEQ ");
+            break;
+
+        case OP_UINOTEQ :
+            puts("OP_UINOTEQ ");
+            break;
+
+        case OP_UIGT :
+            puts("OP_UIGT ");
+            break;
+
+        case OP_UILE :
+            puts("OP_UILE ");
+            break;
+
+        case OP_UIGTEQ :
+            puts("OP_UIGTEQ ");
+            break;
+
+        case OP_UILEEQ :
+            puts("OP_UILEEQ ");
+            break;
+
+
+
+        case OP_LEQ :
+            puts("OP_LEQ ");
+            break;
+
+        case OP_LNOTEQ :
+            puts("OP_LNOTEQ ");
+            break;
+
+        case OP_LGT :
+            puts("OP_LGT ");
+            break;
+
+        case OP_LLE :
+            puts("OP_LLE ");
+            break;
+
+        case OP_LGTEQ :
+            puts("OP_LGTEQ ");
+            break;
+
+        case OP_LLEEQ :
+            puts("OP_LLEEQ ");
+            break;
+
+
+        case OP_ULEQ :
+            puts("OP_ULEQ ");
+            break;
+
+        case OP_ULNOTEQ :
+            puts("OP_ULNOTEQ ");
+            break;
+
+        case OP_ULGT :
+            puts("OP_ULGT ");
+            break;
+
+        case OP_ULLE :
+            puts("OP_ULLE ");
+            break;
+
+        case OP_ULGTEQ :
+            puts("OP_ULGTEQ ");
+            break;
+
+        case OP_ULLEEQ :
+            puts("OP_ULLEEQ ");
+            break;
+
+
+
+        case OP_FEQ :
+            puts("OP_FEQ ");
+            break;
+
+        case OP_FNOTEQ :
+            puts("OP_FNOTEQ ");
+            break;
+
+        case OP_FGT :
+            puts("OP_FGT ");
+            break;
+
+        case OP_FLE :
+            puts("OP_FLE ");
+            break;
+
+        case OP_FGTEQ :
+            puts("OP_FGTEQ ");
+            break;
+
+        case OP_FLEEQ :
+            puts("OP_FLEEQ ");
+            break;
+
+
+
+        case OP_DEQ :
+            puts("OP_DEQ ");
+            break;
+
+        case OP_DNOTEQ :
+            puts("OP_DNOTEQ ");
+            break;
+
+        case OP_DGT :
+            puts("OP_DGT ");
+            break;
+
+        case OP_DLE :
+            puts("OP_DLE ");
+            break;
+
+        case OP_DGTEQ :
+            puts("OP_DGTEQ ");
+            break;
+
+        case OP_DLEEQ :
+            puts("OP_DLEEQ ");
+            break;
+
+
+
+        case OP_PEQ :
+            puts("OP_PEQ ");
+            break;
+
+        case OP_PNOTEQ :
+            puts("OP_PNOTEQ ");
+            break;
+
+        case OP_PGT :
+            puts("OP_PGT ");
+            break;
+
+        case OP_PLE :
+            puts("OP_PLE ");
+            break;
+
+        case OP_PGTEQ :
+            puts("OP_PGTEQ ");
+            break;
+
+        case OP_PLEEQ :
+            puts("OP_PLEEQ ");
+            break;
+
+
+        case OP_CEQ :
+            puts("OP_CEQ ");
+            break;
+
+        case OP_CNOTEQ :
+            puts("OP_CNOTEQ ");
+            break;
+
+        case OP_CGT :
+            puts("OP_CGT ");
+            break;
+
+        case OP_CLE :
+            puts("OP_CLE ");
+            break;
+
+        case OP_CGTEQ :
+            puts("OP_CGTEQ ");
+            break;
+
+        case OP_CLEEQ :
+            puts("OP_CLEEQ ");
+            break;
+
+        case OP_REGEQ :
+            puts("OP_REGEQ ");
+            break;
+
+        case OP_REGNOTEQ :
+            puts("OP_REGNOTEQ ");
+            break;
+
         case OP_ULOR: 
             puts("OP_ULOR");
             break;
@@ -1076,32 +1458,12 @@ void show_inst_in_jit(int opecode)
             puts("OP_IEQ");
             break;
 
-        case OP_INOTEQ:
-            puts("OP_INOTEQ");
-            break;
-
-        case OP_IGT:
-            puts("OP_IGT");
-            break;
-
         case OP_ILE:
             puts("OP_ILE");
             break;
 
         case OP_IGTEQ:
             puts("OP_IGTEQ");
-            break;
-
-        case OP_ILEEQ:
-            puts("OP_ILEEQ");
-            break;
-
-        case OP_REGEQ:
-            puts("OP_REGEQ");
-            break;
-
-        case OP_REGNOTEQ:
-            puts("OP_REGNOTEQ");
             break;
 
         case OP_ANDAND:
@@ -1480,6 +1842,9 @@ static void push_value_to_stack_ptr(std::map<std::string, Value*>& params, Basic
 
     Value* loaded_stack_ptr_address_value = Builder.CreateLoad(stack_ptr_address_value, "loaded_stack_ptr_address_value");
 
+    Value* zero = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)0);
+    store_value(zero, loaded_stack_ptr_address_value, current_block);
+
     store_value(value, loaded_stack_ptr_address_value, current_block);
 
     inc_stack_ptr(params, current_block, 1);
@@ -1493,6 +1858,9 @@ static void push_value_to_stack_ptr_with_aligned(std::map<std::string, Value*>& 
     Value* stack_ptr_address_value = params[stack_ptr_address_name];
 
     Value* loaded_stack_ptr_address_value = Builder.CreateAlignedLoad(stack_ptr_address_value, align, "loaded_stack_ptr_address_value");
+
+    Value* zero = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)0);
+    store_value_with_aligned(zero, loaded_stack_ptr_address_value, current_block, 8);
 
     store_value_with_aligned(value, loaded_stack_ptr_address_value, current_block, align);
 
@@ -1650,7 +2018,7 @@ static void finish_method_call(Value* result, sCLClass* klass, sCLMethod* method
         int value = 0;
         Value* llvm_value = ConstantInt::get(TheContext, llvm::APInt(32, value, true)); 
 
-        push_value_to_stack_ptr(params, *current_block, llvm_value);
+        push_value_to_stack_ptr_with_aligned(params, *current_block, llvm_value, 4);
     }
     else {
         Value* result = get_stack_ptr_value_from_index(params, entry_ifend, -1);
@@ -3463,6 +3831,928 @@ show_inst_in_jit(inst);
                 }
                 break;
 
+            case OP_BEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 1);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+
+                Value* llvm_value = Builder.CreateICmpEQ(lvalue, rvalue, "eqtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_BNOTEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 1);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+
+                Value* llvm_value = Builder.CreateICmpNE(lvalue, rvalue, "eqtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_BGT: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 1);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+
+                Value* llvm_value = Builder.CreateICmpSGT(lvalue, rvalue, "gttmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_BLE: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 1);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+
+                Value* llvm_value = Builder.CreateICmpSLT(lvalue, rvalue, "lttmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_BGTEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 1);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+
+                Value* llvm_value = Builder.CreateICmpSGE(lvalue, rvalue, "gteqtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_BLEEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 1);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+
+                Value* llvm_value = Builder.CreateICmpSLE(lvalue, rvalue, "lteqtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_UBEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 1);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+
+                Value* llvm_value = Builder.CreateICmpEQ(lvalue, rvalue, "eqtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_UBNOTEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 1);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+
+                Value* llvm_value = Builder.CreateICmpNE(lvalue, rvalue, "noteqtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+                
+            case OP_UBGT: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 1);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+
+                Value* llvm_value = Builder.CreateICmpUGT(lvalue, rvalue, "gttmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_UBLE: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 1);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+
+                Value* llvm_value = Builder.CreateICmpULT(lvalue, rvalue, "gteqtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_UBGTEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 1);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+
+                Value* llvm_value = Builder.CreateICmpUGE(lvalue, rvalue, "lteqtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+                
+            case OP_UBLEEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 1);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+
+                Value* llvm_value = Builder.CreateICmpULE(lvalue, rvalue, "lteqtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_SEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+
+                Value* llvm_value = Builder.CreateICmpEQ(lvalue, rvalue, "eqtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_SNOTEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+
+                Value* llvm_value = Builder.CreateICmpNE(lvalue, rvalue, "eqtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_SGT: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+
+                Value* llvm_value = Builder.CreateICmpSGT(lvalue, rvalue, "gttmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_SLE: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+
+                Value* llvm_value = Builder.CreateICmpSLT(lvalue, rvalue, "lttmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_SGTEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+
+                Value* llvm_value = Builder.CreateICmpSGE(lvalue, rvalue, "gteqtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_SLEEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+
+                Value* llvm_value = Builder.CreateICmpSLE(lvalue, rvalue, "lteqtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_USEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+
+                Value* llvm_value = Builder.CreateICmpEQ(lvalue, rvalue, "eqtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_USNOTEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+
+                Value* llvm_value = Builder.CreateICmpNE(lvalue, rvalue, "noteqtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+                
+            case OP_USGT: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+
+                Value* llvm_value = Builder.CreateICmpUGT(lvalue, rvalue, "gttmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_USLE: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+
+                Value* llvm_value = Builder.CreateICmpULT(lvalue, rvalue, "gteqtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_USGTEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+
+                Value* llvm_value = Builder.CreateICmpUGE(lvalue, rvalue, "lteqtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+                
+            case OP_USLEEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+
+                Value* llvm_value = Builder.CreateICmpULE(lvalue, rvalue, "lteqtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_IEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
+                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
+
+                Value* result = Builder.CreateICmpEQ(lvalue, rvalue, "IEQ");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr(params, current_block, result);
+                }
+                break;
+
+            case OP_INOTEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
+                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
+
+                Value* result = Builder.CreateICmpNE(lvalue, rvalue, "INOTEQ");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr(params, current_block, result);
+                }
+                break;
+
+            case OP_IGT: {
+                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
+                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
+
+                Value* result = Builder.CreateICmpSGT(lvalue, rvalue, "IGT");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr(params, current_block, result);
+                }
+                break;
+
+            case OP_ILE: {
+                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
+                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
+
+                Value* result = Builder.CreateICmpSLT(lvalue, rvalue, "ILE");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr(params, current_block, result);
+                }
+                break;
+            
+            case OP_IGTEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
+                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
+
+                Value* result = Builder.CreateICmpSGE(lvalue, rvalue, "IGETQ");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr(params, current_block, result);
+                }
+                break;
+
+            case OP_ILEEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
+                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
+
+                Value* result = Builder.CreateICmpSLE(lvalue, rvalue, "ILEEQ");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr(params, current_block, result);
+                }
+                break;
+
+            case OP_UIEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+
+                Value* llvm_value = Builder.CreateICmpEQ(lvalue, rvalue, "eqtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_UINOTEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+
+                Value* llvm_value = Builder.CreateICmpNE(lvalue, rvalue, "noteqtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+                
+            case OP_UIGT: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+
+                Value* llvm_value = Builder.CreateICmpUGT(lvalue, rvalue, "gttmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_UILE: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+
+                Value* llvm_value = Builder.CreateICmpULT(lvalue, rvalue, "gteqtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_UIGTEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+
+                Value* llvm_value = Builder.CreateICmpUGE(lvalue, rvalue, "lteqtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_UILEEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+
+                Value* llvm_value = Builder.CreateICmpULE(lvalue, rvalue, "lteqtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_LEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* llvm_value = Builder.CreateICmpEQ(lvalue, rvalue, "eqtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_LNOTEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* llvm_value = Builder.CreateICmpNE(lvalue, rvalue, "eqtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_LGT: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* llvm_value = Builder.CreateICmpSGT(lvalue, rvalue, "gttmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_LLE: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* llvm_value = Builder.CreateICmpSLT(lvalue, rvalue, "lttmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_LGTEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* llvm_value = Builder.CreateICmpSGE(lvalue, rvalue, "gteqtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_LLEEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* llvm_value = Builder.CreateICmpSLE(lvalue, rvalue, "lteqtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_ULEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* llvm_value = Builder.CreateICmpEQ(lvalue, rvalue, "eqtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_ULNOTEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* llvm_value = Builder.CreateICmpNE(lvalue, rvalue, "noteqtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+                
+            case OP_ULGT: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* llvm_value = Builder.CreateICmpUGT(lvalue, rvalue, "gttmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_ULLE: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* llvm_value = Builder.CreateICmpULT(lvalue, rvalue, "gteqtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_ULGTEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* llvm_value = Builder.CreateICmpUGE(lvalue, rvalue, "lteqtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+                
+            case OP_ULLEEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* llvm_value = Builder.CreateICmpULE(lvalue, rvalue, "lteqtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_FEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+
+                Value* flvalue = Builder.CreateCast(Instruction::Trunc, lvalue, Type::getFloatTy(TheContext), "flvalue");
+                Value* frvalue = Builder.CreateCast(Instruction::Trunc, rvalue, Type::getFloatTy(TheContext), "frvalue");
+
+                Value* llvm_value = Builder.CreateFCmpOEQ(flvalue, frvalue, "addtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_FNOTEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+
+                Value* flvalue = Builder.CreateCast(Instruction::Trunc, lvalue, Type::getFloatTy(TheContext), "flvalue");
+                Value* frvalue = Builder.CreateCast(Instruction::Trunc, rvalue, Type::getFloatTy(TheContext), "frvalue");
+
+                Value* llvm_value = Builder.CreateFCmpONE(flvalue, frvalue, "addtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_FGT: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+
+                Value* flvalue = Builder.CreateCast(Instruction::Trunc, lvalue, Type::getFloatTy(TheContext), "flvalue");
+                Value* frvalue = Builder.CreateCast(Instruction::Trunc, rvalue, Type::getFloatTy(TheContext), "frvalue");
+
+                Value* llvm_value = Builder.CreateFCmpOGT(flvalue, frvalue, "addtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_FLE: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+
+                Value* flvalue = Builder.CreateCast(Instruction::Trunc, lvalue, Type::getFloatTy(TheContext), "flvalue");
+                Value* frvalue = Builder.CreateCast(Instruction::Trunc, rvalue, Type::getFloatTy(TheContext), "frvalue");
+
+                Value* llvm_value = Builder.CreateFCmpOLT(flvalue, frvalue, "addtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_FGTEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+
+                Value* flvalue = Builder.CreateCast(Instruction::Trunc, lvalue, Type::getFloatTy(TheContext), "flvalue");
+                Value* frvalue = Builder.CreateCast(Instruction::Trunc, rvalue, Type::getFloatTy(TheContext), "frvalue");
+
+                Value* llvm_value = Builder.CreateFCmpOGE(flvalue, frvalue, "addtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_FLEEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+
+                Value* flvalue = Builder.CreateCast(Instruction::Trunc, lvalue, Type::getFloatTy(TheContext), "flvalue");
+                Value* frvalue = Builder.CreateCast(Instruction::Trunc, rvalue, Type::getFloatTy(TheContext), "frvalue");
+
+                Value* llvm_value = Builder.CreateFCmpOLE(flvalue, frvalue, "addtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_DEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* flvalue = Builder.CreateCast(Instruction::Trunc, lvalue, Type::getDoubleTy(TheContext), "flvalue");
+                Value* frvalue = Builder.CreateCast(Instruction::Trunc, rvalue, Type::getDoubleTy(TheContext), "frvalue");
+
+                Value* llvm_value = Builder.CreateFCmpOEQ(flvalue, frvalue, "addtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_DNOTEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* flvalue = Builder.CreateCast(Instruction::Trunc, lvalue, Type::getDoubleTy(TheContext), "flvalue");
+                Value* frvalue = Builder.CreateCast(Instruction::Trunc, rvalue, Type::getDoubleTy(TheContext), "frvalue");
+
+                Value* llvm_value = Builder.CreateFCmpONE(flvalue, frvalue, "addtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_DGT: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* flvalue = Builder.CreateCast(Instruction::Trunc, lvalue, Type::getDoubleTy(TheContext), "flvalue");
+                Value* frvalue = Builder.CreateCast(Instruction::Trunc, rvalue, Type::getDoubleTy(TheContext), "frvalue");
+
+                Value* llvm_value = Builder.CreateFCmpOGT(flvalue, frvalue, "addtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_DLE: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* flvalue = Builder.CreateCast(Instruction::Trunc, lvalue, Type::getDoubleTy(TheContext), "flvalue");
+                Value* frvalue = Builder.CreateCast(Instruction::Trunc, rvalue, Type::getDoubleTy(TheContext), "frvalue");
+
+                Value* llvm_value = Builder.CreateFCmpOLT(flvalue, frvalue, "addtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_DGTEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* flvalue = Builder.CreateCast(Instruction::Trunc, lvalue, Type::getDoubleTy(TheContext), "flvalue");
+                Value* frvalue = Builder.CreateCast(Instruction::Trunc, rvalue, Type::getDoubleTy(TheContext), "frvalue");
+
+                Value* llvm_value = Builder.CreateFCmpOGE(flvalue, frvalue, "addtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_DLEEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* flvalue = Builder.CreateCast(Instruction::Trunc, lvalue, Type::getDoubleTy(TheContext), "flvalue");
+                Value* frvalue = Builder.CreateCast(Instruction::Trunc, rvalue, Type::getDoubleTy(TheContext), "frvalue");
+
+                Value* llvm_value = Builder.CreateFCmpOLE(flvalue, frvalue, "addtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_PEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* llvm_value = Builder.CreateICmpEQ(lvalue, rvalue, "eqtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_PNOTEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* llvm_value = Builder.CreateICmpNE(lvalue, rvalue, "eqtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_PGT: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* llvm_value = Builder.CreateICmpSGT(lvalue, rvalue, "gttmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_PLE: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* llvm_value = Builder.CreateICmpSLT(lvalue, rvalue, "lttmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_PGTEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* llvm_value = Builder.CreateICmpSGE(lvalue, rvalue, "gteqtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_PLEEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                Value* llvm_value = Builder.CreateICmpSLE(lvalue, rvalue, "lteqtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_REGEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
+                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
+
+                Function* function = TheModule->getFunction("regex_equals");
+
+                std::vector<Value*> params2;
+                params2.push_back(lvalue);
+                params2.push_back(rvalue);
+
+                Value* result = Builder.CreateCall(function, params2);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr(params, current_block, result);
+                }
+                break;
+
+            case OP_CEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+
+                Value* llvm_value = Builder.CreateICmpEQ(lvalue, rvalue, "eqtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_CNOTEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+
+                Value* llvm_value = Builder.CreateICmpNE(lvalue, rvalue, "noteqtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+                
+            case OP_CGT: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+
+                Value* llvm_value = Builder.CreateICmpUGT(lvalue, rvalue, "gttmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_CLE: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+
+                Value* llvm_value = Builder.CreateICmpULT(lvalue, rvalue, "gteqtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_CGTEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+
+                Value* llvm_value = Builder.CreateICmpUGE(lvalue, rvalue, "lteqtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_CLEEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+
+                Value* llvm_value = Builder.CreateICmpULE(lvalue, rvalue, "lteqtmp");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_REGNOTEQ: {
+                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
+                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
+
+                Function* function = TheModule->getFunction("regex_equals");
+
+                std::vector<Value*> params2;
+                params2.push_back(lvalue);
+                params2.push_back(rvalue);
+
+                Value* result = Builder.CreateCall(function, params2);
+
+                Value* result2 = Builder.CreateICmpEQ(result, ConstantInt::get(TheContext, llvm::APInt(32, 0, true)), "ifcond");
+
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr(params, current_block, result2);
+                }
+                break;
+
+            case OP_OBJ_IDENTIFY: {
+                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
+                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
+
+                Value* result = Builder.CreateICmpEQ(lvalue, rvalue, "IEQ");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr(params, current_block, result);
+                }
+                break;
+
+            case OP_CLASSNAME: {
+                puts("OP_CLASSNAME is not defined");
+                exit(3);
+                }
+                break;
+
+            case OP_IMPLEMENTS: {
+                puts("OP_IMPLEMENTS is not defined");
+                exit(3);
+                }
+                break;
+
+            case OP_ANDAND: {
+                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
+                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
+
+                Value* result = Builder.CreateAnd(lvalue, rvalue, "ANDAND");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr(params, current_block, result);
+                }
+                break;
+
+            case OP_OROR: {
+                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
+                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
+
+                Value* result = Builder.CreateAnd(lvalue, rvalue, "OROR");
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr(params, current_block, result);
+                }
+                break;
+
+            case OP_LOGICAL_DENIAL: {
+                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -1);
+
+                Value* rvalue = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)0);
+
+                Value* llvm_value = Builder.CreateICmpEQ(lvalue, rvalue, "eqtmp");
+
+                dec_stack_ptr(params, current_block, 1);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
             case OP_INVOKE_METHOD: {
                 int offset = *(int*)pc;
                 pc += sizeof(int);
@@ -3616,130 +4906,7 @@ show_inst_in_jit(inst);
                 }
                 break;
 
-            case OP_IEQ: {
-                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
-                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
 
-                Value* result = Builder.CreateICmpEQ(lvalue, rvalue, "IEQ");
-
-                dec_stack_ptr(params, current_block, 2);
-                push_value_to_stack_ptr(params, current_block, result);
-                }
-                break;
-
-            case OP_INOTEQ: {
-                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
-                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
-
-                Value* result = Builder.CreateICmpNE(lvalue, rvalue, "INOTEQ");
-
-                dec_stack_ptr(params, current_block, 2);
-                push_value_to_stack_ptr(params, current_block, result);
-                }
-                break;
-
-            case OP_IGT: {
-                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
-                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
-
-                Value* result = Builder.CreateICmpSGT(lvalue, rvalue, "IGT");
-
-                dec_stack_ptr(params, current_block, 2);
-                push_value_to_stack_ptr(params, current_block, result);
-                }
-                break;
-
-            case OP_ILE: {
-                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
-                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
-
-                Value* result = Builder.CreateICmpSLT(lvalue, rvalue, "ILE");
-
-                dec_stack_ptr(params, current_block, 2);
-                push_value_to_stack_ptr(params, current_block, result);
-                }
-                break;
-            
-            case OP_IGTEQ: {
-                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
-                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
-
-                Value* result = Builder.CreateICmpSGE(lvalue, rvalue, "IGETQ");
-
-                dec_stack_ptr(params, current_block, 2);
-                push_value_to_stack_ptr(params, current_block, result);
-                }
-                break;
-
-            case OP_ILEEQ: {
-                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
-                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
-
-                Value* result = Builder.CreateICmpSLE(lvalue, rvalue, "ILEEQ");
-
-                dec_stack_ptr(params, current_block, 2);
-                push_value_to_stack_ptr(params, current_block, result);
-                }
-                break;
-
-            case OP_REGEQ: {
-                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
-                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
-
-                Function* function = TheModule->getFunction("regex_equals");
-
-                std::vector<Value*> params2;
-                params2.push_back(lvalue);
-                params2.push_back(rvalue);
-
-                Value* result = Builder.CreateCall(function, params2);
-
-                dec_stack_ptr(params, current_block, 2);
-                push_value_to_stack_ptr(params, current_block, result);
-                }
-                break;
-
-            case OP_REGNOTEQ: {
-                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
-                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
-
-                Function* function = TheModule->getFunction("regex_equals");
-
-                std::vector<Value*> params2;
-                params2.push_back(lvalue);
-                params2.push_back(rvalue);
-
-                Value* result = Builder.CreateCall(function, params2);
-
-                Value* result2 = Builder.CreateICmpEQ(result, ConstantInt::get(TheContext, llvm::APInt(32, 0, true)), "ifcond");
-
-
-                dec_stack_ptr(params, current_block, 2);
-                push_value_to_stack_ptr(params, current_block, result2);
-                }
-                break;
-
-            case OP_ANDAND: {
-                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
-                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
-
-                Value* result = Builder.CreateAnd(lvalue, rvalue, "ANDAND");
-
-                dec_stack_ptr(params, current_block, 2);
-                push_value_to_stack_ptr(params, current_block, result);
-                }
-                break;
-
-            case OP_OROR: {
-                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
-                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
-
-                Value* result = Builder.CreateAnd(lvalue, rvalue, "OROR");
-
-                dec_stack_ptr(params, current_block, 2);
-                push_value_to_stack_ptr(params, current_block, result);
-                }
-                break;
 
             case OP_LOAD_FIELD: {
                 int field_index = *(int*)pc;

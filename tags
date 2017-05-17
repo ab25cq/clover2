@@ -122,7 +122,7 @@ MANAGED	src/macros.h	21;"	d
 MASSERT	src/debug.h	25;"	d
 MASSERT	src/debug.h	47;"	d
 MAX_CODES	src/interpreter.c	1385;"	d	file:
-MAX_COND_JUMP	src/jit.cpp	1759;"	d	file:
+MAX_COND_JUMP	src/jit.cpp	2127;"	d	file:
 MCALLOC	src/debug.h	22;"	d
 MCALLOC	src/debug.h	42;"	d
 METHOD_CHAIN_MAX	src/common.h	62;"	d
@@ -478,7 +478,7 @@ OP_ILE	src/common.h	949;"	d
 OP_ILEEQ	src/common.h	951;"	d
 OP_ILSHIFT	src/common.h	853;"	d
 OP_IMOD	src/common.h	852;"	d
-OP_IMPLMENTS	src/common.h	1007;"	d
+OP_IMPLEMENTS	src/common.h	1007;"	d
 OP_IMULT	src/common.h	850;"	d
 OP_INOTEQ	src/common.h	947;"	d
 OP_INTEGER_TO_BYTE_CAST	src/common.h	1076;"	d

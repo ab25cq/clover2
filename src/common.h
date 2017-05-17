@@ -1004,7 +1004,7 @@ extern BOOL gSigInt;
 
 #define OP_OBJ_IDENTIFY 1300
 #define OP_CLASSNAME 1301
-#define OP_IMPLMENTS 1302
+#define OP_IMPLEMENTS 1302
 
 #define OP_ANDAND 2000
 #define OP_OROR 2001
