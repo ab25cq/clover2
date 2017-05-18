@@ -6413,7 +6413,7 @@ static BOOL compile_implements(unsigned int node, sCompileInfo* info)
 
     info->stack_num--;
 
-    append_opecode_to_code(info->code, OP_IMPLMENTS, info->no_output);
+    append_opecode_to_code(info->code, OP_IMPLEMENTS, info->no_output);
     append_str_to_constant_pool_and_code(info->constant, info->code, interface_name, info->no_output);
 
     info->type = create_node_type_with_class_name("bool");
