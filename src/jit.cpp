@@ -703,6 +703,27 @@ static void create_internal_functions()
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "invoke_dynamic_method", TheModule.get());
+
+    /// invoke_block_in_jit ///
+    result_type = IntegerType::get(TheContext, 32);
+
+    param1_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param1_type);
+
+    param2_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param2_type);
+
+    param3_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param3_type);
+
+    param4_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param4_type);
+
+    param5_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param5_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "invoke_block_in_jit", TheModule.get());
 }
 
 static void InitializeModuleAndPassManager() 
@@ -2378,6 +2399,25 @@ BOOL invoke_dynamic_method(int offset, int offset2, int num_params, int static_,
             }
         }
     }
+
+    return TRUE;
+}
+
+BOOL invoke_block_in_jit(int num_params, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info)
+{
+    CLObject block_object = ((*stack_ptr)-num_params-1)->mObjectValue;
+
+    if(!invoke_block(block_object, stack, var_num, num_params, stack_ptr, info)) 
+    {
+        return FALSE;
+    }
+
+    CLVALUE result = *((*stack_ptr)-1);
+
+    (*stack_ptr) -= num_params+1+1;
+
+    **stack_ptr = result;
+    (*stack_ptr)++;
 
     return TRUE;
 }
@@ -5189,6 +5229,37 @@ show_inst_in_jit(inst);
                 }
                 break;
 
+            case OP_INVOKE_BLOCK: {
+                int num_params = *(int*)pc;
+                pc += sizeof(int);
+
+                Function* fun = TheModule->getFunction("invoke_block_in_jit");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_params);
+                params2.push_back(param1);
+
+                std::string stack_value_name("stack");
+                Value* param2 = params[stack_value_name];
+                params2.push_back(param2);
+
+                Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)var_num);
+                params2.push_back(param3);
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param4 = params[stack_ptr_address_name];
+                params2.push_back(param4);
+
+                Value* param5 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
+                params2.push_back(param5);
+
+                Value* result = Builder.CreateCall(fun, params2);
+
+                if_value_is_zero_ret_zero(result, params, var_num, info, function, &current_block);
+                }
+                break;
+
             case OP_NEW: {
                 int offset = *(int*)pc;
                 pc += sizeof(int);
@@ -5264,6 +5335,45 @@ show_inst_in_jit(inst);
                 if_value_is_zero_ret_zero(result, params, var_num, info, function, &current_block);
                 }
                 break;
+/*
+#define OP_LOAD_FIELD_ADDRESS 4002
+#define OP_STORE_FIELD 4003
+#define OP_LOAD_CLASS_FIELD 4004
+#define OP_LOAD_CLASS_FIELD_ADDRESS 4005
+#define OP_STORE_CLASS_FIELD 4006
+#define OP_LOAD_ELEMENT 4007
+#define OP_STORE_ELEMENT 4008
+
+#define OP_STORE_VALUE_TO_INT_ADDRESS 5000
+#define OP_STORE_VALUE_TO_UINT_ADDRESS 5001
+#define OP_STORE_VALUE_TO_BYTE_ADDRESS 5002
+#define OP_STORE_VALUE_TO_UBYTE_ADDRESS 5003
+#define OP_STORE_VALUE_TO_SHORT_ADDRESS 5004
+#define OP_STORE_VALUE_TO_USHORT_ADDRESS 5005
+#define OP_STORE_VALUE_TO_LONG_ADDRESS 5006
+#define OP_STORE_VALUE_TO_ULONG_ADDRESS 5007
+#define OP_STORE_VALUE_TO_FLOAT_ADDRESS 5008
+#define OP_STORE_VALUE_TO_DOUBLE_ADDRESS 5009
+#define OP_STORE_VALUE_TO_POINTER_ADDRESS 5010
+#define OP_STORE_VALUE_TO_CHAR_ADDRESS 5011
+#define OP_STORE_VALUE_TO_BOOL_ADDRESS 5012
+#define OP_STORE_VALUE_TO_OBJECT_ADDRESS 5013
+
+#define OP_LOAD_VALUE_FROM_INT_ADDRESS 6000
+#define OP_LOAD_VALUE_FROM_UINT_ADDRESS 6001
+#define OP_LOAD_VALUE_FROM_BYTE_ADDRESS 6002
+#define OP_LOAD_VALUE_FROM_UBYTE_ADDRESS 6003
+#define OP_LOAD_VALUE_FROM_SHORT_ADDRESS 6004
+#define OP_LOAD_VALUE_FROM_USHORT_ADDRESS 6005
+#define OP_LOAD_VALUE_FROM_LONG_ADDRESS 6006
+#define OP_LOAD_VALUE_FROM_ULONG_ADDRESS 6007
+#define OP_LOAD_VALUE_FROM_FLOAT_ADDRESS 6008
+#define OP_LOAD_VALUE_FROM_DOUBLE_ADDRESS 6009
+#define OP_LOAD_VALUE_FROM_POINTER_ADDRESS 6010
+#define OP_LOAD_VALUE_FROM_CHAR_ADDRESS 6011
+#define OP_LOAD_VALUE_FROM_BOOL_ADDRESS 6012
+#define OP_LOAD_VALUE_FROM_OBJECT_ADDRESS 6013
+*/
 
             case OP_BYTE_TO_INT_CAST: {
                 Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
@@ -5272,6 +5382,37 @@ show_inst_in_jit(inst);
                 push_value_to_stack_ptr_with_aligned(params, current_block, value, 4);
                 }
                 break;
+
+/*
+#define OP_GET_ARRAY_LENGTH 8000
+
+#define OP_GET_REGEX_GLOBAL 8100
+#define OP_GET_REGEX_IGNORE_CASE 8101
+#define OP_GET_REGEX_MULTILINE 8102
+#define OP_GET_REGEX_EXTENDED 8103
+#define OP_GET_REGEX_DOTALL 8104
+#define OP_GET_REGEX_ANCHORED 8105
+#define OP_GET_REGEX_DOLLAR_ENDONLY 8106
+#define OP_GET_REGEX_UNGREEDY 8107
+
+#define OP_CHAR_UPPERCASE 8150
+#define OP_CHAR_LOWERCASE 8151
+
+#define OP_CREATE_STRING 9000
+#define OP_CREATE_BUFFER 9001
+#define OP_CREATE_PATH 9002
+#define OP_CREATE_ARRAY 9003
+#define OP_CREATE_CARRAY 9004
+#define OP_CREATE_SORTABLE_CARRAY 9005
+#define OP_CREATE_EQUALABLE_CARRAY 9006
+#define OP_CREATE_LIST 9007
+#define OP_CREATE_SORTALBE_LIST 9008
+#define OP_CREATE_EQUALABLE_LIST 9009
+#define OP_CREATE_TUPLE 9010
+#define OP_CREATE_HASH 9011
+#define OP_CREATE_BLOCK_OBJECT 9012
+#define OP_CREATE_REGEX 9013
+*/
 
             case OP_CREATE_STRING: {
                 int offset = *(int*)pc;

@@ -281,4 +281,8 @@ class JITTest
     def run54(): jit {
         ls("-al", "src/main.c");
     }
+
+    def run55(x:int, y:int, block_:lambda(int,int):int): jit int {
+        return block_(x, y);
+    }
 }
