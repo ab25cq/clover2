@@ -178,6 +178,9 @@ struct sVMInfoStruct {
     int current_var_num;
     char* sname;
     int sline;
+    int* try_offset;
+    int* try_offset_before;
+    char** pc;
 
     char* try_catch_label_name;
 };

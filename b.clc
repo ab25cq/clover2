@@ -1,3 +1,19 @@
+
+interface JITTestInterface
+{
+    def method():int;
+}
+
+class JITTestClassA
+{
+    def initialize() {
+    }
+
+    def method():int {
+        return 123;
+    }
+}
+
 class JITTest 
 {
     field1: int;
@@ -240,5 +256,29 @@ class JITTest
     }
     def run49(): jit bool {
         return !true;
+    }
+    def run50(): jit String {
+        a:String = "ABC";
+
+        return a.className();
+    }
+    def run51(): jit bool {
+        a:String = "ABC";
+
+        return a.className().equals("String");
+    }
+    def run52(): jit bool {
+        a:String = "ABC";
+        return a implements Object;
+    }
+
+    def run53(): jit int {
+        interface:JITTestInterface = new JITTestClassA();
+
+        return interface.method();
+    }
+
+    def run54(): jit {
+        ls("-al", "src/main.c");
     }
 }

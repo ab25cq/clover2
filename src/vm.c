@@ -847,13 +847,16 @@ void boxing_primitive_value_to_object(CLVALUE object, CLVALUE* result, sCLClass*
 
 BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sVMInfo* info)
 {
-    register char* pc = code->mCodes;
+    char* pc = code->mCodes;
+    info->pc = &pc;
 
     CLVALUE* stack_ptr = stack + var_num;
     CLVALUE* lvar = stack;
 
     int try_offset_before = 0;
+    info->try_offset_before = &try_offset_before;
     int try_offset = 0;
+    info->try_offset = &try_offset;
 
     long stack_id = append_stack_to_stack_list(stack, &stack_ptr);
 
@@ -4393,7 +4396,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     CLObject result = create_string_object(CLASS_NAME(object_data->mClass));
 
                     stack_ptr--;
-                    stack_ptr->mBoolValue = result;
+                    stack_ptr->mObjectValue = result;
                     stack_ptr++;
 
                     vm_mutex_off();
