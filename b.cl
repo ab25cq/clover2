@@ -81,3 +81,9 @@ a.run54();
 
 Clover.test("jit test49", a.run55(1, 2, lambda(x:int, y:int):int { return x + y }) == 3);
 
+a.run56();
+
+Clover.test("jit test50", a.run57() == 777);
+a.run58();
+Clover.test("jit test51", a.run59() == 777);
+

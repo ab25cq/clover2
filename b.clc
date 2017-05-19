@@ -285,4 +285,20 @@ class JITTest
     def run55(x:int, y:int, block_:lambda(int,int):int): jit int {
         return block_(x, y);
     }
+
+    def run56(): jit {
+        self.field1 = 777;
+    }
+    def run57(): jit int {
+        return self.field1;
+    }
+
+    classField1: static int;
+
+    def run58(): jit {
+        JITTest.classField1 = 777;
+    }
+    def run59(): jit int {
+        return JITTest.classField1;
+    }
 }
