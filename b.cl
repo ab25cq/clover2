@@ -86,4 +86,6 @@ a.run56();
 Clover.test("jit test50", a.run57() == 777);
 a.run58();
 Clover.test("jit test51", a.run59() == 777);
-
+Clover.test("jit test52", a.run60() == 245);
+Clover.test("jit test53", a.run61() == 245l);
+Clover.test("jit test54", a.run62() == 245.1);

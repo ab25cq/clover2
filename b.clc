@@ -301,4 +301,25 @@ class JITTest
     def run59(): jit int {
         return JITTest.classField1;
     }
+
+    def run60(): jit int {
+        a:int = 123;
+        b:pointer = &a;
+        b->int = 245;
+        return a;
+    }
+
+    def run61(): jit long {
+        a:long = 123l;
+        b:pointer = &a;
+        b->long = 245l;
+        return a;
+    }
+
+    def run62(): jit double {
+        a:double = 123.1;
+        b:pointer = &a;
+        b->double = 245.1;
+        return a;
+    }
 }

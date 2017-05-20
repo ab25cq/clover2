@@ -5927,37 +5927,176 @@ show_inst_in_jit(inst);
                 }
                 break;
 
-/*
-#define OP_STORE_VALUE_TO_INT_ADDRESS 5000
-#define OP_STORE_VALUE_TO_UINT_ADDRESS 5001
-#define OP_STORE_VALUE_TO_BYTE_ADDRESS 5002
-#define OP_STORE_VALUE_TO_UBYTE_ADDRESS 5003
-#define OP_STORE_VALUE_TO_SHORT_ADDRESS 5004
-#define OP_STORE_VALUE_TO_USHORT_ADDRESS 5005
-#define OP_STORE_VALUE_TO_LONG_ADDRESS 5006
-#define OP_STORE_VALUE_TO_ULONG_ADDRESS 5007
-#define OP_STORE_VALUE_TO_FLOAT_ADDRESS 5008
-#define OP_STORE_VALUE_TO_DOUBLE_ADDRESS 5009
-#define OP_STORE_VALUE_TO_POINTER_ADDRESS 5010
-#define OP_STORE_VALUE_TO_CHAR_ADDRESS 5011
-#define OP_STORE_VALUE_TO_BOOL_ADDRESS 5012
-#define OP_STORE_VALUE_TO_OBJECT_ADDRESS 5013
+            case OP_STORE_VALUE_TO_INT_ADDRESS: 
+            case OP_STORE_VALUE_TO_UINT_ADDRESS: {
+                Value* address = get_stack_ptr_value_from_index(params, current_block, -2);
+                Value* value = get_stack_ptr_value_from_index(params, current_block, -1);
 
-#define OP_LOAD_VALUE_FROM_INT_ADDRESS 6000
-#define OP_LOAD_VALUE_FROM_UINT_ADDRESS 6001
-#define OP_LOAD_VALUE_FROM_BYTE_ADDRESS 6002
-#define OP_LOAD_VALUE_FROM_UBYTE_ADDRESS 6003
-#define OP_LOAD_VALUE_FROM_SHORT_ADDRESS 6004
-#define OP_LOAD_VALUE_FROM_USHORT_ADDRESS 6005
-#define OP_LOAD_VALUE_FROM_LONG_ADDRESS 6006
-#define OP_LOAD_VALUE_FROM_ULONG_ADDRESS 6007
-#define OP_LOAD_VALUE_FROM_FLOAT_ADDRESS 6008
-#define OP_LOAD_VALUE_FROM_DOUBLE_ADDRESS 6009
-#define OP_LOAD_VALUE_FROM_POINTER_ADDRESS 6010
-#define OP_LOAD_VALUE_FROM_CHAR_ADDRESS 6011
-#define OP_LOAD_VALUE_FROM_BOOL_ADDRESS 6012
-#define OP_LOAD_VALUE_FROM_OBJECT_ADDRESS 6013
-*/
+                store_value_with_aligned(value, address, current_block, 4);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, value, 4);
+                }
+                break;
+            
+            case OP_STORE_VALUE_TO_BYTE_ADDRESS:
+            case OP_STORE_VALUE_TO_UBYTE_ADDRESS: {
+                Value* address = get_stack_ptr_value_from_index(params, current_block, -2);
+                Value* value = get_stack_ptr_value_from_index(params, current_block, -1);
+
+                store_value_with_aligned(value, address, current_block, 1);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, value, 1);
+                }
+                break;
+
+            case OP_STORE_VALUE_TO_SHORT_ADDRESS:
+            case OP_STORE_VALUE_TO_USHORT_ADDRESS: {
+                Value* address = get_stack_ptr_value_from_index(params, current_block, -2);
+                Value* value = get_stack_ptr_value_from_index(params, current_block, -1);
+
+                store_value_with_aligned(value, address, current_block, 2);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, value, 1);
+                }
+                break;
+
+            case OP_STORE_VALUE_TO_LONG_ADDRESS:
+            case OP_STORE_VALUE_TO_ULONG_ADDRESS: {
+                Value* address = get_stack_ptr_value_from_index(params, current_block, -2);
+                Value* value = get_stack_ptr_value_from_index(params, current_block, -1);
+
+                store_value_with_aligned(value, address, current_block, 8);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, value, 1);
+                }
+                break;
+
+            case OP_STORE_VALUE_TO_FLOAT_ADDRESS: {
+                Value* address = get_stack_ptr_value_from_index(params, current_block, -2);
+                Value* value = get_stack_ptr_value_from_index(params, current_block, -1);
+
+                store_value_with_aligned(value, address, current_block, 4);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, value, 4);
+                }
+                break;
+
+            case OP_STORE_VALUE_TO_DOUBLE_ADDRESS: {
+                Value* address = get_stack_ptr_value_from_index(params, current_block, -2);
+                Value* value = get_stack_ptr_value_from_index(params, current_block, -1);
+
+                store_value_with_aligned(value, address, current_block, 8);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, value, 4);
+                }
+                break;
+
+            case OP_STORE_VALUE_TO_POINTER_ADDRESS: {
+                Value* address = get_stack_ptr_value_from_index(params, current_block, -2);
+                Value* value = get_stack_ptr_value_from_index(params, current_block, -1);
+
+                store_value_with_aligned(value, address, current_block, 8);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, value, 4);
+                }
+                break;
+
+            case OP_STORE_VALUE_TO_CHAR_ADDRESS:
+            case OP_STORE_VALUE_TO_BOOL_ADDRESS:
+            case OP_STORE_VALUE_TO_OBJECT_ADDRESS: {
+                Value* address = get_stack_ptr_value_from_index(params, current_block, -2);
+                Value* value = get_stack_ptr_value_from_index(params, current_block, -1);
+
+                store_value_with_aligned(value, address, current_block, 4);
+
+                dec_stack_ptr(params, current_block, 2);
+                push_value_to_stack_ptr_with_aligned(params, current_block, value, 4);
+                }
+                break;
+
+            case OP_LOAD_VALUE_FROM_INT_ADDRESS:
+            case OP_LOAD_VALUE_FROM_UINT_ADDRESS: {
+                Value* address = get_stack_ptr_value_from_index(params, current_block, -2);
+
+                Value* llvm_value = Builder.CreateAlignedLoad(address, 4, "llvm_value");
+
+                dec_stack_ptr(params, current_block, 1);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_LOAD_VALUE_FROM_BYTE_ADDRESS:
+            case OP_LOAD_VALUE_FROM_UBYTE_ADDRESS: {
+                Value* address = get_stack_ptr_value_from_index(params, current_block, -2);
+
+                Value* llvm_value = Builder.CreateAlignedLoad(address, 1, "llvm_value");
+
+                dec_stack_ptr(params, current_block, 1);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 1);
+                }
+                break;
+
+            case OP_LOAD_VALUE_FROM_SHORT_ADDRESS:
+            case OP_LOAD_VALUE_FROM_USHORT_ADDRESS: {
+                Value* address = get_stack_ptr_value_from_index(params, current_block, -2);
+
+                Value* llvm_value = Builder.CreateAlignedLoad(address, 2, "llvm_value");
+
+                dec_stack_ptr(params, current_block, 1);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 2);
+                }
+                break;
+
+            case OP_LOAD_VALUE_FROM_LONG_ADDRESS:
+            case OP_LOAD_VALUE_FROM_ULONG_ADDRESS: {
+                Value* address = get_stack_ptr_value_from_index(params, current_block, -2);
+
+                Value* llvm_value = Builder.CreateAlignedLoad(address, 8, "llvm_value");
+
+                dec_stack_ptr(params, current_block, 1);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 8);
+                }
+                break;
+
+            case OP_LOAD_VALUE_FROM_FLOAT_ADDRESS: {
+                Value* address = get_stack_ptr_value_from_index(params, current_block, -2);
+
+                Value* llvm_value = Builder.CreateAlignedLoad(address, 4, "llvm_value");
+
+                dec_stack_ptr(params, current_block, 1);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
+
+            case OP_LOAD_VALUE_FROM_DOUBLE_ADDRESS:
+            case OP_LOAD_VALUE_FROM_POINTER_ADDRESS: {
+                Value* address = get_stack_ptr_value_from_index(params, current_block, -2);
+
+                Value* llvm_value = Builder.CreateAlignedLoad(address, 8, "llvm_value");
+
+                dec_stack_ptr(params, current_block, 1);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 8);
+                }
+                break;
+
+            case OP_LOAD_VALUE_FROM_CHAR_ADDRESS:
+            case OP_LOAD_VALUE_FROM_BOOL_ADDRESS:
+            case OP_LOAD_VALUE_FROM_OBJECT_ADDRESS: {
+                Value* address = get_stack_ptr_value_from_index(params, current_block, -2);
+
+                Value* llvm_value = Builder.CreateAlignedLoad(address, 4, "llvm_value");
+
+                dec_stack_ptr(params, current_block, 1);
+                push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
+                }
+                break;
 
             case OP_BYTE_TO_INT_CAST: {
                 Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);

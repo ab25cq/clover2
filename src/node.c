@@ -3424,7 +3424,12 @@ BOOL compile_store_value_to_pointer(unsigned int node, sCompileInfo* info)
     if(right_type == NULL 
         || !substitution_posibility(node_type, right_type, NULL, NULL))
     {
-        compile_err_msg(info, "The different type between left type and right type(4)");
+        if(right_type == NULL || node_type->mClass == NULL) {
+            compile_err_msg(info, "The different type between left type and right type(4). NULL type.");
+        }
+        else {
+            compile_err_msg(info, "The different type between left type and right type(4). Left type is %s. right type is %s", CLASS_NAME(node_type->mClass), CLASS_NAME(right_type->mClass));
+        }
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
