@@ -897,6 +897,66 @@ static void create_internal_functions()
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_store_element", TheModule.get());
+
+    /// run_get_array_length ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_get_array_length", TheModule.get());
+
+    /// run_char_uppercase ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_char_uppercase", TheModule.get());
+
+    /// run_char_lowercase ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_char_lowercase", TheModule.get());
+
+    /// run_create_array ///
+    type_params.clear();
+    
+    result_type = IntegerType::get(TheContext, 32);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    param2_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param2_type);
+
+    param3_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param3_type);
+
+    param4_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param4_type);
+
+    param5_type = PointerType::get(IntegerType::get(TheContext, 8), 0);
+    type_params.push_back(param5_type);
+
+    param6_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param6_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_create_array", TheModule.get());
+
 }
 
 static void InitializeModuleAndPassManager() 
@@ -2776,6 +2836,69 @@ BOOL run_store_element(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo
     (*stack_ptr)-=3;
 
     **stack_ptr = value;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+void run_get_array_length(CLVALUE** stack_ptr)
+{
+    CLObject array_ = ((*stack_ptr)-1)->mObjectValue;
+    sCLObject* array_data = CLOBJECT(array_);
+    (*stack_ptr)--;
+
+    (*stack_ptr)->mIntValue = array_data->mArrayNum;
+    (*stack_ptr)++;
+}
+
+void run_char_uppercase(CLVALUE** stack_ptr)
+{
+    wchar_t c = ((*stack_ptr)-1)->mCharValue;
+
+    wchar_t result = c;
+    if(c >= 'a' && c <= 'z') {
+        result = c - 'a' + 'A';
+    }
+
+    ((*stack_ptr)-1)->mCharValue = result;
+}
+
+void run_char_lowercase(CLVALUE** stack_ptr)
+{
+    wchar_t c = ((*stack_ptr)-1)->mCharValue;
+
+    wchar_t result = c;
+    if(c >= 'A' && c <= 'Z') {
+        result = c - 'A' + 'a';
+    }
+
+    ((*stack_ptr)-1)->mCharValue = result;
+}
+
+BOOL run_create_array(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, char* class_name, int num_elements)
+{
+    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+
+    if(klass == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(11)");
+        return FALSE;
+    }
+
+    CLObject array_object = create_array_object(klass, num_elements);
+    (*stack_ptr)->mObjectValue = array_object; // push object
+    (*stack_ptr)++;
+
+    sCLObject* object_data = CLOBJECT(array_object);
+
+    int i;
+    for(i=0; i<num_elements; i++) {
+        object_data->mFields[i] = *((*stack_ptr)-1-num_elements+i);
+    }
+
+    (*stack_ptr)--; // pop_object
+
+    (*stack_ptr)-=num_elements;
+    (*stack_ptr)->mObjectValue = array_object;
     (*stack_ptr)++;
 
     return TRUE;
@@ -6106,9 +6229,20 @@ show_inst_in_jit(inst);
                 }
                 break;
 
-/*
-#define OP_GET_ARRAY_LENGTH 8000
+            case OP_GET_ARRAY_LENGTH: {
+                Function* fun = TheModule->getFunction("run_get_array_length");
 
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+/*
 #define OP_GET_REGEX_GLOBAL 8100
 #define OP_GET_REGEX_IGNORE_CASE 8101
 #define OP_GET_REGEX_MULTILINE 8102
@@ -6117,10 +6251,35 @@ show_inst_in_jit(inst);
 #define OP_GET_REGEX_ANCHORED 8105
 #define OP_GET_REGEX_DOLLAR_ENDONLY 8106
 #define OP_GET_REGEX_UNGREEDY 8107
+*/
 
-#define OP_CHAR_UPPERCASE 8150
-#define OP_CHAR_LOWERCASE 8151
+            case OP_CHAR_UPPERCASE: {
+                Function* fun = TheModule->getFunction("run_char_uppercase");
 
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CHAR_LOWERCASE: {
+                Function* fun = TheModule->getFunction("run_char_lowercase");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+/*
 #define OP_CREATE_STRING 9000
 #define OP_CREATE_BUFFER 9001
 #define OP_CREATE_PATH 9002
@@ -6153,6 +6312,45 @@ show_inst_in_jit(inst);
                 Value* llvm_value = Builder.CreateCall(function, params2);
 
                 push_value_to_stack_ptr(params, current_block, llvm_value);
+                }
+                break;
+
+            case OP_CREATE_ARRAY: {
+                int num_elements = *(int*)pc;
+                pc += sizeof(int);
+
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+
+                char* class_name = CONS_str(constant, offset);
+
+                Function* fun = TheModule->getFunction("run_create_array");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                std::string stack_value_name("stack");
+                Value* param2 = params[stack_value_name];
+                params2.push_back(param2);
+
+                Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)var_num);
+                params2.push_back(param3);
+
+                Value* param4 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
+                params2.push_back(param4);
+
+                Value* param5 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)class_name);
+                params2.push_back(param5);
+
+                Value* param6 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_elements);
+                params2.push_back(param6);
+
+                Value* result = Builder.CreateCall(fun, params2);
+
+                if_value_is_zero_ret_zero(result, params, var_num, info, function, &current_block);
                 }
                 break;
 

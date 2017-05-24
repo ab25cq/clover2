@@ -322,4 +322,26 @@ class JITTest
         b->double = 245.1;
         return a;
     }
+    def run63(): jit int {
+        a:int[] = new int[5]();
+
+        a[1] = 111;
+        a[2] = 222;
+
+        return a.length;
+    }
+    def run64(): jit int {
+        a:int[] = new int[5]();
+
+        a[1] = 111;
+        a[2] = 222;
+
+        return a[1];
+    }
+    def run65(): jit char {
+        return 'a'.to_upper;
+    }
+    def run66(): jit char {
+        return 'A'.to_lower;
+    }
 }
