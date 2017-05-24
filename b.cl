@@ -93,3 +93,7 @@ Clover.test("jit test55", a.run63() == 5);
 Clover.test("jit test56", a.run64() == 111);
 Clover.test("jit test57", a.run65() == 'A');
 Clover.test("jit test58", a.run66() == 'a');
+Clover.test("jit test59", a.run67() == true);
+Clover.test("jit test60", a.run68() == false);
+Clover.test("jit test61", a.run69() == true);
+Clover.test("jit test62", a.run70() == false);

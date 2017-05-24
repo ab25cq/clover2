@@ -122,7 +122,7 @@ MANAGED	src/macros.h	21;"	d
 MASSERT	src/debug.h	25;"	d
 MASSERT	src/debug.h	47;"	d
 MAX_CODES	src/interpreter.c	1385;"	d	file:
-MAX_COND_JUMP	src/jit.cpp	2910;"	d	file:
+MAX_COND_JUMP	src/jit.cpp	3089;"	d	file:
 MCALLOC	src/debug.h	22;"	d
 MCALLOC	src/debug.h	42;"	d
 METHOD_CHAIN_MAX	src/common.h	62;"	d
@@ -2003,6 +2003,14 @@ run_char_uppercase	src/jit.cpp	/^void run_char_uppercase(CLVALUE** stack_ptr)$/;
 run_create_array	src/jit.cpp	/^BOOL run_create_array(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, char* class_name, int num_elements)$/;"	f
 run_entry_exception_object_with_class_name2	src/jit.cpp	/^static void run_entry_exception_object_with_class_name2(std::map<std::string, Value *> params, int var_num, sVMInfo* info, char* class_name, char* message)$/;"	f	file:
 run_get_array_length	src/jit.cpp	/^void run_get_array_length(CLVALUE** stack_ptr)$/;"	f
+run_get_regex_anchored	src/jit.cpp	/^void run_get_regex_anchored(CLVALUE** stack_ptr)$/;"	f
+run_get_regex_dollar_endonly	src/jit.cpp	/^void run_get_regex_dollar_endonly(CLVALUE** stack_ptr)$/;"	f
+run_get_regex_dotall	src/jit.cpp	/^void run_get_regex_dotall(CLVALUE** stack_ptr)$/;"	f
+run_get_regex_extended	src/jit.cpp	/^void run_get_regex_extended(CLVALUE** stack_ptr)$/;"	f
+run_get_regex_global	src/jit.cpp	/^void run_get_regex_global(CLVALUE** stack_ptr)$/;"	f
+run_get_regex_ignorecase	src/jit.cpp	/^void run_get_regex_ignorecase(CLVALUE** stack_ptr)$/;"	f
+run_get_regex_multiline	src/jit.cpp	/^void run_get_regex_multiline(CLVALUE** stack_ptr)$/;"	f
+run_get_regex_ungreedy	src/jit.cpp	/^void run_get_regex_ungreedy(CLVALUE** stack_ptr)$/;"	f
 run_head_of_expression	src/jit.cpp	/^void run_head_of_expression(sVMInfo* info, char* sname, int sline)$/;"	f
 run_ldclong	src/jit.cpp	/^void run_ldclong(CLVALUE** stack_ptr, int value1, int value2)$/;"	f
 run_ldcpointer	src/jit.cpp	/^void run_ldcpointer(CLVALUE** stack_ptr, int value1, int value2)$/;"	f

@@ -909,6 +909,105 @@ static void create_internal_functions()
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_get_array_length", TheModule.get());
 
+    /// run_get_regex_global ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_get_regex_global", TheModule.get());
+
+    /// run_get_regex_ignorecase ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_get_regex_ignorecase", TheModule.get());
+
+    /// run_get_regex_multiline ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_get_regex_multiline", TheModule.get());
+
+    /// run_get_regex_extended ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_get_regex_extended", TheModule.get());
+
+    /// run_get_regex_dotall ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_get_regex_dotall", TheModule.get());
+
+    /// run_get_regex_anchored ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_get_regex_anchored", TheModule.get());
+
+    /// run_get_regex_dollar_endonly ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_get_regex_dollar_endonly", TheModule.get());
+
+    /// run_get_regex_ungreedy ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_get_regex_ungreedy", TheModule.get());
+
+    /// run_get_regex_anchored ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_get_regex_multiline", TheModule.get());
+
     /// run_char_uppercase ///
     type_params.clear();
     
@@ -2848,6 +2947,86 @@ void run_get_array_length(CLVALUE** stack_ptr)
     (*stack_ptr)--;
 
     (*stack_ptr)->mIntValue = array_data->mArrayNum;
+    (*stack_ptr)++;
+}
+
+void run_get_regex_global(CLVALUE** stack_ptr)
+{
+    CLObject regex = ((*stack_ptr)-1)->mObjectValue;
+    sRegexObject* regex_object = CLREGEX(regex);
+    (*stack_ptr)--;
+
+    (*stack_ptr)->mBoolValue = regex_object->mGlobal;
+    (*stack_ptr)++;
+}
+
+void run_get_regex_ignorecase(CLVALUE** stack_ptr)
+{
+    CLObject regex = ((*stack_ptr)-1)->mObjectValue;
+    sRegexObject* regex_object = CLREGEX(regex);
+    (*stack_ptr)--;
+
+    (*stack_ptr)->mBoolValue = regex_object->mIgnoreCase;
+    (*stack_ptr)++;
+}
+
+void run_get_regex_multiline(CLVALUE** stack_ptr)
+{
+    CLObject regex = ((*stack_ptr)-1)->mObjectValue;
+    sRegexObject* regex_object = CLREGEX(regex);
+    (*stack_ptr)--;
+
+    (*stack_ptr)->mBoolValue = regex_object->mMultiline;
+    (*stack_ptr)++;
+}
+
+void run_get_regex_extended(CLVALUE** stack_ptr)
+{
+    CLObject regex = ((*stack_ptr)-1)->mObjectValue;
+    sRegexObject* regex_object = CLREGEX(regex);
+    (*stack_ptr)--;
+
+    (*stack_ptr)->mBoolValue = regex_object->mExtended;
+    (*stack_ptr)++;
+}
+
+void run_get_regex_dotall(CLVALUE** stack_ptr)
+{
+    CLObject regex = ((*stack_ptr)-1)->mObjectValue;
+    sRegexObject* regex_object = CLREGEX(regex);
+    (*stack_ptr)--;
+
+    (*stack_ptr)->mBoolValue = regex_object->mDotAll;
+    (*stack_ptr)++;
+}
+
+void run_get_regex_anchored(CLVALUE** stack_ptr)
+{
+    CLObject regex = ((*stack_ptr)-1)->mObjectValue;
+    sRegexObject* regex_object = CLREGEX(regex);
+    (*stack_ptr)--;
+
+    (*stack_ptr)->mBoolValue = regex_object->mAnchored;
+    (*stack_ptr)++;
+}
+
+void run_get_regex_dollar_endonly(CLVALUE** stack_ptr)
+{
+    CLObject regex = ((*stack_ptr)-1)->mObjectValue;
+    sRegexObject* regex_object = CLREGEX(regex);
+    (*stack_ptr)--;
+
+    (*stack_ptr)->mBoolValue = regex_object->mDollarEndOnly;
+    (*stack_ptr)++;
+}
+
+void run_get_regex_ungreedy(CLVALUE** stack_ptr)
+{
+    CLObject regex = ((*stack_ptr)-1)->mObjectValue;
+    sRegexObject* regex_object = CLREGEX(regex);
+    (*stack_ptr)--;
+
+    (*stack_ptr)->mBoolValue = regex_object->mUngreedy;
     (*stack_ptr)++;
 }
 
@@ -6242,16 +6421,109 @@ show_inst_in_jit(inst);
                 }
                 break;
 
-/*
-#define OP_GET_REGEX_GLOBAL 8100
-#define OP_GET_REGEX_IGNORE_CASE 8101
-#define OP_GET_REGEX_MULTILINE 8102
-#define OP_GET_REGEX_EXTENDED 8103
-#define OP_GET_REGEX_DOTALL 8104
-#define OP_GET_REGEX_ANCHORED 8105
-#define OP_GET_REGEX_DOLLAR_ENDONLY 8106
-#define OP_GET_REGEX_UNGREEDY 8107
-*/
+            case OP_GET_REGEX_GLOBAL: {
+                Function* fun = TheModule->getFunction("run_get_regex_global");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_GET_REGEX_IGNORE_CASE: {
+                Function* fun = TheModule->getFunction("run_get_regex_ignorecase");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_GET_REGEX_MULTILINE: {
+                Function* fun = TheModule->getFunction("run_get_regex_multiline");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_GET_REGEX_EXTENDED: {
+                Function* fun = TheModule->getFunction("run_get_regex_extended");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_GET_REGEX_DOTALL: {
+                Function* fun = TheModule->getFunction("run_get_regex_dotall");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_GET_REGEX_ANCHORED: {
+                Function* fun = TheModule->getFunction("run_get_regex_anchored");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_GET_REGEX_DOLLAR_ENDONLY: {
+                Function* fun = TheModule->getFunction("run_get_regex_dollar_endonly");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_GET_REGEX_UNGREEDY: {
+                Function* fun = TheModule->getFunction("run_get_regex_ungreedy");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
 
             case OP_CHAR_UPPERCASE: {
                 Function* fun = TheModule->getFunction("run_char_uppercase");
@@ -6280,19 +6552,6 @@ show_inst_in_jit(inst);
                 break;
 
 /*
-#define OP_CREATE_STRING 9000
-#define OP_CREATE_BUFFER 9001
-#define OP_CREATE_PATH 9002
-#define OP_CREATE_ARRAY 9003
-#define OP_CREATE_CARRAY 9004
-#define OP_CREATE_SORTABLE_CARRAY 9005
-#define OP_CREATE_EQUALABLE_CARRAY 9006
-#define OP_CREATE_LIST 9007
-#define OP_CREATE_SORTALBE_LIST 9008
-#define OP_CREATE_EQUALABLE_LIST 9009
-#define OP_CREATE_TUPLE 9010
-#define OP_CREATE_HASH 9011
-#define OP_CREATE_BLOCK_OBJECT 9012
 #define OP_CREATE_REGEX 9013
 */
 
@@ -6312,6 +6571,14 @@ show_inst_in_jit(inst);
                 Value* llvm_value = Builder.CreateCall(function, params2);
 
                 push_value_to_stack_ptr(params, current_block, llvm_value);
+                }
+                break;
+
+            case OP_CREATE_BUFFER: {
+                }
+                break;
+
+            case OP_CREATE_PATH: {
                 }
                 break;
 
@@ -6351,6 +6618,42 @@ show_inst_in_jit(inst);
                 Value* result = Builder.CreateCall(fun, params2);
 
                 if_value_is_zero_ret_zero(result, params, var_num, info, function, &current_block);
+                }
+                break;
+
+            case OP_CREATE_CARRAY : {
+                }
+                break;
+
+            case OP_CREATE_SORTABLE_CARRAY : {
+                }
+                break;
+
+            case OP_CREATE_EQUALABLE_CARRAY : {
+                }
+                break;
+
+            case OP_CREATE_LIST : {
+                }
+                break;
+
+            case OP_CREATE_SORTALBE_LIST : {
+                }
+                break;
+
+            case OP_CREATE_EQUALABLE_LIST : {
+                }
+                break;
+
+            case OP_CREATE_TUPLE : {
+                }
+                break;
+
+            case OP_CREATE_HASH : {
+                }
+                break;
+
+            case OP_CREATE_BLOCK_OBJECT : {
                 }
                 break;
 

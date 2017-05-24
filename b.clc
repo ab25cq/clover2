@@ -344,4 +344,16 @@ class JITTest
     def run66(): jit char {
         return 'A'.to_lower;
     }
+    def run67(): jit bool {
+        return /aaa/g.global;
+    }
+    def run68(): jit bool {
+        return /aaa/.global;
+    }
+    def run69(): jit bool {
+        return /aaa/i.ignoreCase;
+    }
+    def run70(): jit bool {
+        return /aaa/.ignoreCase;
+    }
 }
