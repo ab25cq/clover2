@@ -222,6 +222,40 @@ static void create_internal_functions()
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "create_string_object", TheModule.get());
 
+    /// create_integer ///
+    type_params.clear();
+
+    result_type = IntegerType::get(TheContext, 32);
+
+    param1_type = IntegerType::get(TheContext,32);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "create_integer", TheModule.get());
+
+    /// create_buffer_object ///
+    type_params.clear();
+
+    result_type = IntegerType::get(TheContext, 32);
+
+    param1_type = PointerType::get(IntegerType::get(TheContext,8), 0);
+    type_params.push_back(param1_type);
+
+    param2_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param2_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "create_buffer_object", TheModule.get());
+
+    /// create_path_object ///
+    result_type = IntegerType::get(TheContext, 32);
+
+    param1_type = PointerType::get(IntegerType::get(TheContext,8), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "create_path_object", TheModule.get());
+
     /// create_object ///
     type_params.clear();
 
@@ -1056,6 +1090,254 @@ static void create_internal_functions()
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_create_array", TheModule.get());
 
+    /// run_create_carray ///
+    type_params.clear();
+    
+    result_type = IntegerType::get(TheContext, 32);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    param2_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param2_type);
+
+    param3_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param3_type);
+
+    param4_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param4_type);
+
+    param5_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param5_type);
+
+    param6_type = PointerType::get(IntegerType::get(TheContext, 8), 0);
+    type_params.push_back(param6_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_create_carray", TheModule.get());
+
+    /// run_create_equalable_carray ///
+    type_params.clear();
+    
+    result_type = IntegerType::get(TheContext, 32);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    param2_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param2_type);
+
+    param3_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param3_type);
+
+    param4_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param4_type);
+
+    param5_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param5_type);
+
+    param6_type = PointerType::get(IntegerType::get(TheContext, 8), 0);
+    type_params.push_back(param6_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_create_equalable_carray", TheModule.get());
+
+    /// run_create_sortable_carray ///
+    type_params.clear();
+    
+    result_type = IntegerType::get(TheContext, 32);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    param2_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param2_type);
+
+    param3_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param3_type);
+
+    param4_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param4_type);
+
+    param5_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param5_type);
+
+    param6_type = PointerType::get(IntegerType::get(TheContext, 8), 0);
+    type_params.push_back(param6_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_create_sortable_carray", TheModule.get());
+
+    /// run_create_list ///
+    type_params.clear();
+    
+    result_type = IntegerType::get(TheContext, 32);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    param2_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param2_type);
+
+    param3_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param3_type);
+
+    param4_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param4_type);
+
+    param5_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param5_type);
+
+    param6_type = PointerType::get(IntegerType::get(TheContext, 8), 0);
+    type_params.push_back(param6_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_create_list", TheModule.get());
+
+    /// run_create_sortable_list ///
+    type_params.clear();
+    
+    result_type = IntegerType::get(TheContext, 32);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    param2_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param2_type);
+
+    param3_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param3_type);
+
+    param4_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param4_type);
+
+    param5_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param5_type);
+
+    param6_type = PointerType::get(IntegerType::get(TheContext, 8), 0);
+    type_params.push_back(param6_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_create_sortable_list", TheModule.get());
+
+    /// run_create_equalable_list ///
+    type_params.clear();
+    
+    result_type = IntegerType::get(TheContext, 32);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    param2_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param2_type);
+
+    param3_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param3_type);
+
+    param4_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param4_type);
+
+    param5_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param5_type);
+
+    param6_type = PointerType::get(IntegerType::get(TheContext, 8), 0);
+    type_params.push_back(param6_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_create_equalable_list", TheModule.get());
+
+    /// run_create_tuple ///
+    type_params.clear();
+    
+    result_type = IntegerType::get(TheContext, 32);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    param2_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param2_type);
+
+    param3_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param3_type);
+
+    param4_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param4_type);
+
+    param5_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param5_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_create_tuple", TheModule.get());
+
+    /// run_create_hash ///
+    type_params.clear();
+    
+    result_type = IntegerType::get(TheContext, 32);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    param2_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param2_type);
+
+    param3_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param3_type);
+
+    param4_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param4_type);
+
+    param5_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param5_type);
+
+    param6_type = PointerType::get(IntegerType::get(TheContext, 8), 0);
+    type_params.push_back(param6_type);
+
+    param7_type = PointerType::get(IntegerType::get(TheContext, 8), 0);
+    type_params.push_back(param7_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_create_hash", TheModule.get());
+
+    /// run_create_block_object ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    param2_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param2_type);
+
+    param3_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param3_type);
+
+    param4_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param4_type);
+
+    param5_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param5_type);
+
+    param6_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param6_type);
+
+    param7_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param7_type);
+
+    param8_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param8_type);
+
+    param9_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param9_type);
+
+    param10_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param10_type);
+
+    param11_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param11_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_create_block_object", TheModule.get());
 }
 
 static void InitializeModuleAndPassManager() 
@@ -3081,6 +3363,312 @@ BOOL run_create_array(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo*
     (*stack_ptr)++;
 
     return TRUE;
+}
+
+BOOL run_create_carray(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, char* class_name)
+{
+    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+
+    if(klass == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(12)");
+        return FALSE;
+    }
+
+    CLObject array_object = create_carray_object();
+    (*stack_ptr)->mObjectValue = array_object; // push object
+    (*stack_ptr)++;
+
+    CLObject items[ARRAY_VALUE_ELEMENT_MAX];
+
+    int i;
+    for(i=0; i<num_elements; i++) {
+        CLVALUE element = *((*stack_ptr)-1-num_elements+i);
+        items[i] = (*((*stack_ptr)-1-num_elements+i)).mObjectValue;
+    }
+
+    if(!initialize_carray_object(array_object, num_elements, items, stack, var_num, stack_ptr, info, klass))
+    {
+        return FALSE;
+    }
+
+    (*stack_ptr)--; // pop_object
+
+    (*stack_ptr)-=num_elements;
+    (*stack_ptr)->mObjectValue = array_object;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+
+BOOL run_create_equalable_carray(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, char* class_name)
+{
+    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+
+    if(klass == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(12)");
+        return FALSE;
+    }
+
+    CLObject array_object = create_equalable_carray_object();
+    (*stack_ptr)->mObjectValue = array_object; // push object
+    (*stack_ptr)++;
+
+    CLObject items[ARRAY_VALUE_ELEMENT_MAX];
+
+    int i;
+    for(i=0; i<num_elements; i++) {
+        CLVALUE element = *((*stack_ptr)-1-num_elements+i);
+        items[i] = (*((*stack_ptr)-1-num_elements+i)).mObjectValue;
+    }
+
+    if(!initialize_equalable_carray_object(array_object, num_elements, items, stack, var_num, stack_ptr, info, klass))
+    {
+        return FALSE;
+    }
+
+    (*stack_ptr)--; // pop_object
+
+    (*stack_ptr)-=num_elements;
+    (*stack_ptr)->mObjectValue = array_object;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL run_create_sortable_carray(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, char* class_name)
+{
+    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+
+    if(klass == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(12)");
+        return FALSE;
+    }
+
+    CLObject array_object = create_sortable_carray_object();
+    (*stack_ptr)->mObjectValue = array_object; // push object
+    (*stack_ptr)++;
+
+    CLObject items[ARRAY_VALUE_ELEMENT_MAX];
+
+    int i;
+    for(i=0; i<num_elements; i++) {
+        CLVALUE element = *((*stack_ptr)-1-num_elements+i);
+        items[i] = (*((*stack_ptr)-1-num_elements+i)).mObjectValue;
+    }
+
+    if(!initialize_sortable_carray_object(array_object, num_elements, items, stack, var_num, stack_ptr, info, klass))
+    {
+        return FALSE;
+    }
+
+    (*stack_ptr)--; // pop_object
+
+    (*stack_ptr)-=num_elements;
+    (*stack_ptr)->mObjectValue = array_object;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL run_create_list(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, char* class_name)
+{
+    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+
+    if(klass == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(13)");
+        return FALSE;
+    }
+
+    CLObject list_object = create_list_object();
+    (*stack_ptr)->mObjectValue = list_object; // push object
+    (*stack_ptr)++;
+
+    CLObject items[LIST_VALUE_ELEMENT_MAX];
+
+    int i;
+    for(i=0; i<num_elements; i++) {
+        CLVALUE element = *((*stack_ptr)-1-num_elements+i);
+        items[i] = (*((*stack_ptr)-1-num_elements+i)).mObjectValue;
+    }
+
+    if(!initialize_list_object(list_object, num_elements, items, stack, var_num, stack_ptr, info, klass))
+    {
+        return FALSE;
+    }
+
+    (*stack_ptr)--; // pop_object
+
+    (*stack_ptr)-=num_elements;
+    (*stack_ptr)->mObjectValue = list_object;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL run_create_sortable_list(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, char* class_name)
+{
+    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+
+    if(klass == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(13)");
+        return FALSE;
+    }
+
+    CLObject list_object = create_sortable_list_object();
+    (*stack_ptr)->mObjectValue = list_object; // push object
+    (*stack_ptr)++;
+
+    CLObject items[LIST_VALUE_ELEMENT_MAX];
+
+    int i;
+    for(i=0; i<num_elements; i++) {
+        CLVALUE element = *((*stack_ptr)-1-num_elements+i);
+        items[i] = (*((*stack_ptr)-1-num_elements+i)).mObjectValue;
+    }
+
+    if(!initialize_sortable_list_object(list_object, num_elements, items, stack, var_num, stack_ptr, info, klass))
+    {
+        return FALSE;
+    }
+
+    (*stack_ptr)--; // pop_object
+
+    (*stack_ptr)-=num_elements;
+    (*stack_ptr)->mObjectValue = list_object;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL run_create_equalable_list(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, char* class_name)
+{
+    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+
+    if(klass == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(13)");
+        return FALSE;
+    }
+
+    CLObject list_object = create_equalable_list_object();
+    (*stack_ptr)->mObjectValue = list_object; // push object
+    (*stack_ptr)++;
+
+    CLObject items[LIST_VALUE_ELEMENT_MAX];
+
+    int i;
+    for(i=0; i<num_elements; i++) {
+        CLVALUE element = *((*stack_ptr)-1-num_elements+i);
+        items[i] = (*((*stack_ptr)-1-num_elements+i)).mObjectValue;
+    }
+
+    if(!initialize_equalable_list_object(list_object, num_elements, items, stack, var_num, stack_ptr, info, klass))
+    {
+        return FALSE;
+    }
+
+    (*stack_ptr)--; // pop_object
+
+    (*stack_ptr)-=num_elements;
+    (*stack_ptr)->mObjectValue = list_object;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL run_create_tuple(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements)
+{
+    CLObject tuple_object = create_tuple_object(num_elements);
+
+    (*stack_ptr)->mObjectValue = tuple_object; // push object
+    (*stack_ptr)++;
+
+    CLObject items[TUPLE_VALUE_ELEMENT_MAX];
+
+    int i;
+    for(i=0; i<num_elements; i++) {
+        CLVALUE element = *((*stack_ptr)-1-num_elements+i);
+        items[i] = (*((*stack_ptr)-1-num_elements+i)).mObjectValue;
+    }
+
+    if(!initialize_tuple_object(tuple_object, num_elements, items, stack, var_num, stack_ptr, info))
+    {
+        return FALSE;
+    }
+
+    (*stack_ptr)--; // pop_object
+
+    (*stack_ptr)-=num_elements;
+    (*stack_ptr)->mObjectValue = tuple_object;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL run_create_hash(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, char* class_name, char* class_name2)
+{
+    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+
+    if(klass == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(14)");
+        return FALSE;
+    }
+
+    sCLClass* klass2 = get_class_with_load_and_initialize(class_name2);
+
+    if(klass2 == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(15)");
+        return FALSE;
+    }
+
+    CLObject keys[HASH_VALUE_ELEMENT_MAX];
+
+    int i;
+    for(i=0; i<num_elements; i++) {
+        keys[i] = ((*stack_ptr) - num_elements * 2 + i * 2)->mObjectValue;
+    }
+
+    CLObject items[HASH_VALUE_ELEMENT_MAX];
+
+    for(i=0; i<num_elements; i++) {
+        items[i] = ((*stack_ptr) - num_elements * 2 + i * 2 + 1)->mObjectValue;
+    }
+
+    CLObject hash_object = create_hash_object();
+    (*stack_ptr)->mObjectValue = hash_object; // push object
+    (*stack_ptr)++;
+
+    if(!initialize_hash_object(hash_object, num_elements, keys, items, stack, var_num, stack_ptr, info, klass, klass2))
+    {
+        return FALSE;
+    }
+
+    (*stack_ptr)--; // pop_object
+
+    (*stack_ptr)-=num_elements*2;
+    (*stack_ptr)->mObjectValue = hash_object;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+void run_create_block_object(CLVALUE** stack_ptr, CLVALUE* stack, sConst* constant, int code_offset, int code_len, int constant_offset, int constant_len, int block_var_num, int parent_var_num, BOOL lambda, sVMInfo* info)
+
+{
+    sByteCode codes2;
+    codes2.mCodes = CONS_str(constant, code_offset);
+    codes2.mLen = code_len;
+
+    sConst constant2;
+    constant2.mConst = CONS_str(constant, constant_offset);
+    constant2.mLen = constant_len;
+
+    CLVALUE* parent_stack = stack;
+
+    CLObject block_object = create_block_object(&codes2, &constant2, parent_stack, parent_var_num, block_var_num, info->stack_id, lambda);
+
+    (*stack_ptr)->mObjectValue = block_object;
+    (*stack_ptr)++;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -6401,12 +6989,506 @@ show_inst_in_jit(inst);
                 break;
 
             case OP_BYTE_TO_INT_CAST: {
-                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
                 dec_stack_ptr(params, current_block, 1);
 
                 push_value_to_stack_ptr_with_aligned(params, current_block, value, 4);
                 }
                 break;
+
+            case OP_INT_TO_INTEGER_CAST: {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_integer");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+/*
+#define OP_UBYTE_TO_BYTE_CAST 7000
+#define OP_FLOAT_TO_BYTE_CAST 7007
+#define OP_DOUBLE_TO_BYTE_CAST 7008
+#define OP_POINTER_TO_BYTE_CAST 7009
+#define OP_CHAR_TO_BYTE_CAST 7010
+
+#define OP_CBYTE_TO_BYTE_CAST 7011
+#define OP_CUBYTE_TO_BYTE_CAST 7012
+#define OP_CSHORT_TO_BYTE_CAST 7013
+#define OP_CUSHORT_TO_BYTE_CAST 7014
+#define OP_INTEGER_TO_BYTE_CAST 7015
+#define OP_UINTEGER_TO_BYTE_CAST 7016
+#define OP_CLONG_TO_BYTE_CAST 7017
+#define OP_CULONG_TO_BYTE_CAST 7018
+#define OP_CFLOAT_TO_BYTE_CAST 7019
+#define OP_CDOUBLE_TO_BYTE_CAST 7020
+#define OP_CPOINTER_TO_BYTE_CAST 7021
+#define OP_CCHAR_TO_BYTE_CAST 7022
+#define OP_CBOOL_TO_BYTE_CAST 7023
+
+#define OP_BYTE_TO_SHORT_CAST 7030
+#define OP_UBYTE_TO_SHORT_CAST 7031
+#define OP_USHORT_TO_SHORT_CAST 7032
+#define OP_FLOAT_TO_SHORT_CAST 7037
+#define OP_DOUBLE_TO_SHORT_CAST 7038
+#define OP_POINTER_TO_SHORT_CAST 7039
+#define OP_CHAR_TO_SHORT_CAST 7040
+
+#define OP_CBYTE_TO_SHORT_CAST 7041
+#define OP_CUBYTE_TO_SHORT_CAST 7042
+#define OP_CSHORT_TO_SHORT_CAST 7043
+#define OP_CUSHORT_TO_SHORT_CAST 7044
+#define OP_INTEGER_TO_SHORT_CAST 7045
+#define OP_UINTEGER_TO_SHORT_CAST 7046
+#define OP_CLONG_TO_SHORT_CAST 7047
+#define OP_CULONG_TO_SHORT_CAST 7048
+#define OP_CFLOAT_TO_SHORT_CAST 7049
+#define OP_CDOUBLE_TO_SHORT_CAST 7050
+#define OP_CPOINTER_TO_SHORT_CAST 7051
+#define OP_CCHAR_TO_SHORT_CAST 7052
+#define OP_CBOOL_TO_SHORT_CAST 7053
+
+#define OP_BYTE_TO_INT_CAST 7060
+#define OP_UBYTE_TO_INT_CAST 7061
+#define OP_SHORT_TO_INT_CAST 7062
+#define OP_USHORT_TO_INT_CAST 7063
+#define OP_UINT_TO_INT_CAST 7064
+#define OP_FLOAT_TO_INT_CAST 7067
+#define OP_DOUBLE_TO_INT_CAST 7068
+#define OP_POINTER_TO_INT_CAST 7069
+#define OP_CHAR_TO_INT_CAST 7070
+
+#define OP_CBYTE_TO_INT_CAST 7071
+#define OP_CUBYTE_TO_INT_CAST 7072
+#define OP_CSHORT_TO_INT_CAST 7073
+#define OP_CUSHORT_TO_INT_CAST 7074
+#define OP_INTEGER_TO_INT_CAST 7075
+#define OP_UINTEGER_TO_INT_CAST 7076
+#define OP_CLONG_TO_INT_CAST 7077
+#define OP_CULONG_TO_INT_CAST 7078
+#define OP_CFLOAT_TO_INT_CAST 7079
+#define OP_CDOUBLE_TO_INT_CAST 7080
+#define OP_CPOINTER_TO_INT_CAST 7081
+#define OP_CCHAR_TO_INT_CAST 7082
+#define OP_CBOOL_TO_INT_CAST 7083
+
+#define OP_BYTE_TO_LONG_CAST 7090
+#define OP_UBYTE_TO_LONG_CAST 7091
+#define OP_SHORT_TO_LONG_CAST 7092
+#define OP_USHORT_TO_LONG_CAST 7093
+#define OP_INT_TO_LONG_CAST 7094
+#define OP_UINT_TO_LONG_CAST 7095
+#define OP_ULONG_TO_LONG_CAST 7096
+#define OP_FLOAT_TO_LONG_CAST 7097
+#define OP_DOUBLE_TO_LONG_CAST 7098
+#define OP_POINTER_TO_LONG_CAST 7099
+#define OP_CHAR_TO_LONG_CAST 7100
+
+#define OP_CBYTE_TO_LONG_CAST 7101
+#define OP_CUBYTE_TO_LONG_CAST 7102
+#define OP_CSHORT_TO_LONG_CAST 7103
+#define OP_CUSHORT_TO_LONG_CAST 7104
+#define OP_INTEGER_TO_LONG_CAST 7105
+#define OP_UINTEGER_TO_LONG_CAST 7106
+#define OP_CLONG_TO_LONG_CAST 7107
+#define OP_CULONG_TO_LONG_CAST 7108
+#define OP_CFLOAT_TO_LONG_CAST 7109
+#define OP_CDOUBLE_TO_LONG_CAST 7110
+#define OP_CPOINTER_TO_LONG_CAST 7111
+#define OP_CCHAR_TO_LONG_CAST 7112
+#define OP_CBOOL_TO_LONG_CAST 7113
+
+#define OP_BYTE_TO_UBYTE_CAST 7120
+#define OP_SHORT_TO_UBYTE_CAST 7121
+#define OP_USHORT_TO_UBYTE_CAST 7122
+#define OP_INT_TO_UBYTE_CAST 7123
+#define OP_UINT_TO_UBYTE_CAST 7124
+#define OP_LONG_TO_UBYTE_CAST 7125
+#define OP_ULONG_TO_UBYTE_CAST 7126
+#define OP_FLOAT_TO_UBYTE_CAST 7127
+#define OP_DOUBLE_TO_UBYTE_CAST 7128
+#define OP_POINTER_TO_UBYTE_CAST 7129
+#define OP_CHAR_TO_UBYTE_CAST 7130
+
+#define OP_CBYTE_TO_UBYTE_CAST 7131
+#define OP_CUBYTE_TO_UBYTE_CAST 7132
+#define OP_CSHORT_TO_UBYTE_CAST 7133
+#define OP_CUSHORT_TO_UBYTE_CAST 7134
+#define OP_INTEGER_TO_UBYTE_CAST 7135
+#define OP_UINTEGER_TO_UBYTE_CAST 7136
+#define OP_CLONG_TO_UBYTE_CAST 7137
+#define OP_CULONG_TO_UBYTE_CAST 7138
+#define OP_CFLOAT_TO_UBYTE_CAST 7139
+#define OP_CDOUBLE_TO_UBYTE_CAST 7140
+#define OP_CPOINTER_TO_UBYTE_CAST 7141
+#define OP_CCHAR_TO_UBYTE_CAST 7142
+#define OP_CBOOL_TO_UBYTE_CAST 7143
+
+#define OP_BYTE_TO_USHORT_CAST 7150
+#define OP_UBYTE_TO_USHORT_CAST 7151
+#define OP_SHORT_TO_USHORT_CAST 7152
+#define OP_INT_TO_USHORT_CAST 7153
+#define OP_UINT_TO_USHORT_CAST 7154
+#define OP_LONG_TO_USHORT_CAST 7155
+#define OP_ULONG_TO_USHORT_CAST 7156
+#define OP_FLOAT_TO_USHORT_CAST 7157
+#define OP_DOUBLE_TO_USHORT_CAST 7158
+#define OP_POINTER_TO_USHORT_CAST 7159
+#define OP_CHAR_TO_USHORT_CAST 7160
+
+#define OP_CBYTE_TO_USHORT_CAST 7161
+#define OP_CUBYTE_TO_USHORT_CAST 7162
+#define OP_CSHORT_TO_USHORT_CAST 7163
+#define OP_CUSHORT_TO_USHORT_CAST 7164
+#define OP_INTEGER_TO_USHORT_CAST 7165
+#define OP_UINTEGER_TO_USHORT_CAST 7166
+#define OP_CLONG_TO_USHORT_CAST 7167
+#define OP_CULONG_TO_USHORT_CAST 7168
+#define OP_CFLOAT_TO_USHORT_CAST 7169
+#define OP_CDOUBLE_TO_USHORT_CAST 7170
+#define OP_CPOINTER_TO_USHORT_CAST 7171
+#define OP_CCHAR_TO_USHORT_CAST 7172
+#define OP_CBOOL_TO_USHORT_CAST 7173
+
+#define OP_BYTE_TO_UINT_CAST 7200
+#define OP_UBYTE_TO_UINT_CAST 7201
+#define OP_SHORT_TO_UINT_CAST 7202
+#define OP_USHORT_TO_UINT_CAST 7203
+#define OP_INT_TO_UINT_CAST 7204
+#define OP_LONG_TO_UINT_CAST 7205
+#define OP_ULONG_TO_UINT_CAST 7206
+#define OP_FLOAT_TO_UINT_CAST 7207
+#define OP_DOUBLE_TO_UINT_CAST 7208
+#define OP_POINTER_TO_UINT_CAST 7209
+#define OP_CHAR_TO_UINT_CAST 7210
+
+#define OP_CBYTE_TO_UINT_CAST 7211
+#define OP_CUBYTE_TO_UINT_CAST 7212
+#define OP_CSHORT_TO_UINT_CAST 7213
+#define OP_CUSHORT_TO_UINT_CAST 7214
+#define OP_INTEGER_TO_UINT_CAST 7215
+#define OP_UINTEGER_TO_UINT_CAST 7216
+#define OP_CLONG_TO_UINT_CAST 7217
+#define OP_CULONG_TO_UINT_CAST 7218
+#define OP_CFLOAT_TO_UINT_CAST 7219
+#define OP_CDOUBLE_TO_UINT_CAST 7220
+#define OP_CPOINTER_TO_UINT_CAST 7221
+#define OP_CCHAR_TO_UINT_CAST 7222
+#define OP_CBOOL_TO_UINT_CAST 7223
+
+#define OP_BYTE_TO_ULONG_CAST 7230
+#define OP_UBYTE_TO_ULONG_CAST 7231
+#define OP_SHORT_TO_ULONG_CAST 7232
+#define OP_USHORT_TO_ULONG_CAST 7233
+#define OP_INT_TO_ULONG_CAST 7234
+#define OP_UINT_TO_ULONG_CAST 7235
+#define OP_LONG_TO_ULONG_CAST 7236
+#define OP_FLOAT_TO_ULONG_CAST 7237
+#define OP_DOUBLE_TO_ULONG_CAST 7238
+#define OP_POINTER_TO_ULONG_CAST 7239
+#define OP_CHAR_TO_ULONG_CAST 7240
+
+#define OP_CBYTE_TO_ULONG_CAST 7241
+#define OP_CUBYTE_TO_ULONG_CAST 7242
+#define OP_CSHORT_TO_ULONG_CAST 7243
+#define OP_CUSHORT_TO_ULONG_CAST 7244
+#define OP_INTEGER_TO_ULONG_CAST 7245
+#define OP_UINTEGER_TO_ULONG_CAST 7246
+#define OP_CLONG_TO_ULONG_CAST 7247
+#define OP_CULONG_TO_ULONG_CAST 7248
+#define OP_CFLOAT_TO_ULONG_CAST 7249
+#define OP_CDOUBLE_TO_ULONG_CAST 7250
+#define OP_CPOINTER_TO_ULONG_CAST 7251
+#define OP_CCHAR_TO_ULONG_CAST 7252
+#define OP_CBOOL_TO_ULONG_CAST 7253
+
+#define OP_BYTE_TO_FLOAT_CAST 7260
+#define OP_UBYTE_TO_FLOAT_CAST 7261
+#define OP_SHORT_TO_FLOAT_CAST 7262
+#define OP_USHORT_TO_FLOAT_CAST 7263
+#define OP_INT_TO_FLOAT_CAST 7264
+#define OP_UINT_TO_FLOAT_CAST 7265
+#define OP_LONG_TO_FLOAT_CAST 7266
+#define OP_ULONG_TO_FLOAT_CAST 7267
+#define OP_DOUBLE_TO_FLOAT_CAST 7268
+#define OP_CHAR_TO_FLOAT_CAST 7269
+
+#define OP_CBYTE_TO_FLOAT_CAST 7270
+#define OP_CUBYTE_TO_FLOAT_CAST 7271
+#define OP_CSHORT_TO_FLOAT_CAST 7272
+#define OP_CUSHORT_TO_FLOAT_CAST 7273
+#define OP_INTEGER_TO_FLOAT_CAST 7274
+#define OP_UINTEGER_TO_FLOAT_CAST 7275
+#define OP_CLONG_TO_FLOAT_CAST 7276
+#define OP_CULONG_TO_FLOAT_CAST 7277
+#define OP_CFLOAT_TO_FLOAT_CAST 7278
+#define OP_CDOUBLE_TO_FLOAT_CAST 7279
+#define OP_CCHAR_TO_FLOAT_CAST 7281
+#define OP_CBOOL_TO_FLOAT_CAST 7282
+
+#define OP_BYTE_TO_DOUBLE_CAST 7290
+#define OP_UBYTE_TO_DOUBLE_CAST 7291
+#define OP_SHORT_TO_DOUBLE_CAST 7292
+#define OP_USHORT_TO_DOUBLE_CAST 7293
+#define OP_INT_TO_DOUBLE_CAST 7294
+#define OP_UINT_TO_DOUBLE_CAST 7295
+#define OP_LONG_TO_DOUBLE_CAST 7296
+#define OP_ULONG_TO_DOUBLE_CAST 7297
+#define OP_FLOAT_TO_DOUBLE_CAST 7298
+#define OP_CHAR_TO_DOUBLE_CAST 7299
+
+#define OP_CBYTE_TO_DOUBLE_CAST 7300
+#define OP_CUBYTE_TO_DOUBLE_CAST 7301
+#define OP_CSHORT_TO_DOUBLE_CAST 7302
+#define OP_CUSHORT_TO_DOUBLE_CAST 7303
+#define OP_INTEGER_TO_DOUBLE_CAST 7304
+#define OP_UINTEGER_TO_DOUBLE_CAST 7305
+#define OP_CLONG_TO_DOUBLE_CAST 7306
+#define OP_CULONG_TO_DOUBLE_CAST 7307
+#define OP_CFLOAT_TO_DOUBLE_CAST 7308
+#define OP_CDOUBLE_TO_DOUBLE_CAST 7309
+#define OP_CCHAR_TO_DOUBLE_CAST 7311
+#define OP_CBOOL_TO_DOUBLE_CAST 7312
+
+#define OP_BYTE_TO_POINTER_CAST 7320
+#define OP_UBYTE_TO_POINTER_CAST 7321
+#define OP_SHORT_TO_POINTER_CAST 7322
+#define OP_USHORT_TO_POINTER_CAST 7323
+#define OP_INT_TO_POINTER_CAST 7324
+#define OP_UINT_TO_POINTER_CAST 7325
+#define OP_LONG_TO_POINTER_CAST 7326
+#define OP_ULONG_TO_POINTER_CAST 7327
+#define OP_CHAR_TO_POINTER_CAST 7328
+
+#define OP_BYTE_TO_CHAR_CAST 7330
+#define OP_UBYTE_TO_CHAR_CAST 7331
+#define OP_SHORT_TO_CHAR_CAST 7332
+#define OP_USHORT_TO_CHAR_CAST 7333
+#define OP_INT_TO_CHAR_CAST 7334
+#define OP_UINT_TO_CHAR_CAST 7335
+#define OP_LONG_TO_CHAR_CAST 7336
+#define OP_ULONG_TO_CHAR_CAST 7337
+#define OP_FLOAT_TO_CHAR_CAST 7338
+#define OP_DOUBLE_TO_CHAR_CAST 7339
+#define OP_POINTER_TO_CHAR_CAST 7340
+
+#define OP_CBYTE_TO_CHAR_CAST 7341
+#define OP_CUBYTE_TO_CHAR_CAST 7342
+#define OP_CSHORT_TO_CHAR_CAST 7343
+#define OP_CUSHORT_TO_CHAR_CAST 7344
+#define OP_INTEGER_TO_CHAR_CAST 7345
+#define OP_UINTEGER_TO_CHAR_CAST 7346
+#define OP_CLONG_TO_CHAR_CAST 7347
+#define OP_CULONG_TO_CHAR_CAST 7348
+#define OP_CFLOAT_TO_CHAR_CAST 7349
+#define OP_CDOUBLE_TO_CHAR_CAST 7350
+#define OP_CPOINTER_TO_CHAR_CAST 7351
+#define OP_CCHAR_TO_CHAR_CAST 7352
+#define OP_CBOOL_TO_CHAR_CAST 7353
+
+#define OP_BYTE_TO_STRING_CAST 7360
+#define OP_SHORT_TO_STRING_CAST 7361
+#define OP_INT_TO_STRING_CAST 7362
+#define OP_LONG_TO_STRING_CAST 7363
+#define OP_UBYTE_TO_STRING_CAST 7364
+#define OP_USHORT_TO_STRING_CAST 7365
+#define OP_UINT_TO_STRING_CAST 7366
+#define OP_ULONG_TO_STRING_CAST 7367
+#define OP_FLOAT_TO_STRING_CAST 7368
+#define OP_DOUBLE_TO_STRING_CAST 7369
+#define OP_BOOL_TO_STRING_CAST 7370
+#define OP_REGEX_TO_STRING_CAST 7371
+#define OP_POINTER_TO_STRING_CAST 7372
+#define OP_CHAR_TO_STRING_CAST 7373
+
+#define OP_BYTE_TO_INTEGER_CAST 7400
+#define OP_UBYTE_TO_INTEGER_CAST 7401
+#define OP_SHORT_TO_INTEGER_CAST 7402
+#define OP_USHORT_TO_INTEGER_CAST 7403
+#define OP_INT_TO_INTEGER_CAST 7404
+#define OP_UINT_TO_INTEGER_CAST 7405
+#define OP_LONG_TO_INTEGER_CAST 7406
+#define OP_ULONG_TO_INTEGER_CAST 7407
+#define OP_FLOAT_TO_INTEGER_CAST 7408
+#define OP_DOUBLE_TO_INTEGER_CAST 7409
+#define OP_CHAR_TO_INTEGER_CAST 7410
+#define OP_POINTER_TO_INTEGER_CAST 7411
+#define OP_BOOL_TO_INTEGER_CAST 7412
+
+#define OP_BYTE_TO_UINTEGER_CAST 7420
+#define OP_UBYTE_TO_UINTEGER_CAST 7421
+#define OP_SHORT_TO_UINTEGER_CAST 7422
+#define OP_USHORT_TO_UINTEGER_CAST 7423
+#define OP_INT_TO_UINTEGER_CAST 7424
+#define OP_UINT_TO_UINTEGER_CAST 7425
+#define OP_LONG_TO_UINTEGER_CAST 7426
+#define OP_ULONG_TO_UINTEGER_CAST 7427
+#define OP_FLOAT_TO_UINTEGER_CAST 7428
+#define OP_DOUBLE_TO_UINTEGER_CAST 7429
+#define OP_CHAR_TO_UINTEGER_CAST 7430
+#define OP_POINTER_TO_UINTEGER_CAST 7431
+#define OP_BOOL_TO_UINTEGER_CAST 7432
+
+#define OP_BYTE_TO_CBYTE_CAST 7440
+#define OP_UBYTE_TO_CBYTE_CAST 7441
+#define OP_SHORT_TO_CBYTE_CAST 7442
+#define OP_USHORT_TO_CBYTE_CAST 7443
+#define OP_INT_TO_CBYTE_CAST 7444
+#define OP_UINT_TO_CBYTE_CAST 7445
+#define OP_LONG_TO_CBYTE_CAST 7446
+#define OP_ULONG_TO_CBYTE_CAST 7447
+#define OP_FLOAT_TO_CBYTE_CAST 7448
+#define OP_DOUBLE_TO_CBYTE_CAST 7449
+#define OP_CHAR_TO_CBYTE_CAST 7450
+#define OP_POINTER_TO_CBYTE_CAST 7451
+#define OP_BOOL_TO_CBYTE_CAST 7452
+
+#define OP_BYTE_TO_CUBYTE_CAST 7460
+#define OP_UBYTE_TO_CUBYTE_CAST 7461
+#define OP_SHORT_TO_CUBYTE_CAST 7462
+#define OP_USHORT_TO_CUBYTE_CAST 7463
+#define OP_INT_TO_CUBYTE_CAST 7464
+#define OP_UINT_TO_CUBYTE_CAST 7465
+#define OP_LONG_TO_CUBYTE_CAST 7466
+#define OP_ULONG_TO_CUBYTE_CAST 7467
+#define OP_FLOAT_TO_CUBYTE_CAST 7468
+#define OP_DOUBLE_TO_CUBYTE_CAST 7469
+#define OP_CHAR_TO_CUBYTE_CAST 7470
+#define OP_POINTER_TO_CUBYTE_CAST 7471
+#define OP_BOOL_TO_CUBYTE_CAST 7472
+
+#define OP_BYTE_TO_CSHORT_CAST 7480
+#define OP_UBYTE_TO_CSHORT_CAST 7481
+#define OP_SHORT_TO_CSHORT_CAST 7482
+#define OP_USHORT_TO_CSHORT_CAST 7483
+#define OP_INT_TO_CSHORT_CAST 7484
+#define OP_UINT_TO_CSHORT_CAST 7485
+#define OP_LONG_TO_CSHORT_CAST 7486
+#define OP_ULONG_TO_CSHORT_CAST 7487
+#define OP_FLOAT_TO_CSHORT_CAST 7488
+#define OP_DOUBLE_TO_CSHORT_CAST 7489
+#define OP_CHAR_TO_CSHORT_CAST 7490
+#define OP_POINTER_TO_CSHORT_CAST 7491
+#define OP_BOOL_TO_CSHORT_CAST 7492
+
+#define OP_BYTE_TO_CUSHORT_CAST 7500
+#define OP_UBYTE_TO_CUSHORT_CAST 7501
+#define OP_SHORT_TO_CUSHORT_CAST 7502
+#define OP_USHORT_TO_CUSHORT_CAST 7503
+#define OP_INT_TO_CUSHORT_CAST 7504
+#define OP_UINT_TO_CUSHORT_CAST 7505
+#define OP_LONG_TO_CUSHORT_CAST 7506
+#define OP_ULONG_TO_CUSHORT_CAST 7507
+#define OP_FLOAT_TO_CUSHORT_CAST 7508
+#define OP_DOUBLE_TO_CUSHORT_CAST 7509
+#define OP_CHAR_TO_CUSHORT_CAST 7510
+#define OP_POINTER_TO_CUSHORT_CAST 7511
+#define OP_BOOL_TO_CUSHORT_CAST 7512
+
+#define OP_BYTE_TO_CLONG_CAST 7520
+#define OP_UBYTE_TO_CLONG_CAST 7521
+#define OP_SHORT_TO_CLONG_CAST 7522
+#define OP_USHORT_TO_CLONG_CAST 7523
+#define OP_INT_TO_CLONG_CAST 7524
+#define OP_UINT_TO_CLONG_CAST 7525
+#define OP_LONG_TO_CLONG_CAST 7526
+#define OP_ULONG_TO_CLONG_CAST 7527
+#define OP_FLOAT_TO_CLONG_CAST 7528
+#define OP_DOUBLE_TO_CLONG_CAST 7529
+#define OP_CHAR_TO_CLONG_CAST 7530
+#define OP_POINTER_TO_CLONG_CAST 7531
+#define OP_BOOL_TO_CLONG_CAST 7532
+
+#define OP_BYTE_TO_CULONG_CAST 7540
+#define OP_UBYTE_TO_CULONG_CAST 7541
+#define OP_SHORT_TO_CULONG_CAST 7542
+#define OP_USHORT_TO_CULONG_CAST 7543
+#define OP_INT_TO_CULONG_CAST 7544
+#define OP_UINT_TO_CULONG_CAST 7545
+#define OP_LONG_TO_CULONG_CAST 7546
+#define OP_ULONG_TO_CULONG_CAST 7547
+#define OP_FLOAT_TO_CULONG_CAST 7548
+#define OP_DOUBLE_TO_CULONG_CAST 7549
+#define OP_CHAR_TO_CULONG_CAST 7550
+#define OP_POINTER_TO_CULONG_CAST 7551
+#define OP_BOOL_TO_CULONG_CAST 7552
+
+#define OP_BYTE_TO_CFLOAT_CAST 7560
+#define OP_UBYTE_TO_CFLOAT_CAST 7561
+#define OP_SHORT_TO_CFLOAT_CAST 7562
+#define OP_USHORT_TO_CFLOAT_CAST 7563
+#define OP_INT_TO_CFLOAT_CAST 7564
+#define OP_UINT_TO_CFLOAT_CAST 7565
+#define OP_LONG_TO_CFLOAT_CAST 7566
+#define OP_ULONG_TO_CFLOAT_CAST 7567
+#define OP_FLOAT_TO_CFLOAT_CAST 7568
+#define OP_DOUBLE_TO_CFLOAT_CAST 7569
+#define OP_CHAR_TO_CFLOAT_CAST 7570
+#define OP_BOOL_TO_CFLOAT_CAST 7572
+
+#define OP_BYTE_TO_CDOUBLE_CAST 7580
+#define OP_UBYTE_TO_CDOUBLE_CAST 7581
+#define OP_SHORT_TO_CDOUBLE_CAST 7582
+#define OP_USHORT_TO_CDOUBLE_CAST 7583
+#define OP_INT_TO_CDOUBLE_CAST 7584
+#define OP_UINT_TO_CDOUBLE_CAST 7585
+#define OP_LONG_TO_CDOUBLE_CAST 7586
+#define OP_ULONG_TO_CDOUBLE_CAST 7587
+#define OP_FLOAT_TO_CDOUBLE_CAST 7588
+#define OP_DOUBLE_TO_CDOUBLE_CAST 7589
+#define OP_CHAR_TO_CDOUBLE_CAST 7590
+#define OP_BOOL_TO_CDOUBLE_CAST 7592
+
+#define OP_BYTE_TO_CPOINTER_CAST 7600
+#define OP_UBYTE_TO_CPOINTER_CAST 7601
+#define OP_SHORT_TO_CPOINTER_CAST 7602
+#define OP_USHORT_TO_CPOINTER_CAST 7603
+#define OP_INT_TO_CPOINTER_CAST 7604
+#define OP_UINT_TO_CPOINTER_CAST 7605
+#define OP_LONG_TO_CPOINTER_CAST 7606
+#define OP_ULONG_TO_CPOINTER_CAST 7607
+#define OP_CHAR_TO_CPOINTER_CAST 7610
+#define OP_POINTER_TO_CPOINTER_CAST 7611
+#define OP_BOOL_TO_CPOINTER_CAST 7612
+
+#define OP_BYTE_TO_CCHAR_CAST 7620
+#define OP_UBYTE_TO_CCHAR_CAST 7621
+#define OP_SHORT_TO_CCHAR_CAST 7622
+#define OP_USHORT_TO_CCHAR_CAST 7623
+#define OP_INT_TO_CCHAR_CAST 7624
+#define OP_UINT_TO_CCHAR_CAST 7625
+#define OP_LONG_TO_CCHAR_CAST 7626
+#define OP_ULONG_TO_CCHAR_CAST 7627
+#define OP_FLOAT_TO_CCHAR_CAST 7628
+#define OP_DOUBLE_TO_CCHAR_CAST 7629
+#define OP_CHAR_TO_CCHAR_CAST 7630
+#define OP_POINTER_TO_CCHAR_CAST 7631
+#define OP_BOOL_TO_CCHAR_CAST 7632
+
+#define OP_BYTE_TO_CBOOL_CAST 7640
+#define OP_UBYTE_TO_CBOOL_CAST 7641
+#define OP_SHORT_TO_CBOOL_CAST 7642
+#define OP_USHORT_TO_CBOOL_CAST 7643
+#define OP_INT_TO_CBOOL_CAST 7644
+#define OP_UINT_TO_CBOOL_CAST 7645
+#define OP_LONG_TO_CBOOL_CAST 7646
+#define OP_ULONG_TO_CBOOL_CAST 7647
+#define OP_FLOAT_TO_CBOOL_CAST 7648
+#define OP_DOUBLE_TO_CBOOL_CAST 7649
+#define OP_CHAR_TO_CBOOL_CAST 7650
+#define OP_POINTER_TO_CBOOL_CAST 7651
+#define OP_BOOL_TO_CBOOL_CAST 7652
+
+#define OP_ARRAY_TO_CARRAY_CAST 7700
+*/
 
             case OP_GET_ARRAY_LENGTH: {
                 Function* fun = TheModule->getFunction("run_get_array_length");
@@ -6551,10 +7633,6 @@ show_inst_in_jit(inst);
                 }
                 break;
 
-/*
-#define OP_CREATE_REGEX 9013
-*/
-
             case OP_CREATE_STRING: {
                 int offset = *(int*)pc;
                 pc += sizeof(int);
@@ -6575,10 +7653,46 @@ show_inst_in_jit(inst);
                 break;
 
             case OP_CREATE_BUFFER: {
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+
+                int size = *(int*)pc;
+                pc += sizeof(int);
+
+                char* str = CONS_str(constant, offset);
+
+                Function* function = TheModule->getFunction("create_buffer_object");
+
+                std::vector<Value*> params2;
+                Constant* str_constant = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)str);
+                Value* param1 = ConstantExpr::getIntToPtr(str_constant, PointerType::get(IntegerType::get(TheContext,8), 0));
+                params2.push_back(param1);
+
+                Value* param2 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)size);
+                params2.push_back(param2);
+
+                Value* llvm_value = Builder.CreateCall(function, params2);
+
+                push_value_to_stack_ptr(params, current_block, llvm_value);
                 }
                 break;
 
             case OP_CREATE_PATH: {
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+
+                char* buf = CONS_str(constant, offset);
+
+                Function* function = TheModule->getFunction("create_path_object");
+
+                std::vector<Value*> params2;
+                Constant* str_constant = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)buf);
+                Value* param1 = ConstantExpr::getIntToPtr(str_constant, PointerType::get(IntegerType::get(TheContext,8), 0));
+                params2.push_back(param1);
+
+                Value* llvm_value = Builder.CreateCall(function, params2);
+
+                push_value_to_stack_ptr(params, current_block, llvm_value);
                 }
                 break;
 
@@ -6622,38 +7736,378 @@ show_inst_in_jit(inst);
                 break;
 
             case OP_CREATE_CARRAY : {
+                int num_elements = *(int*)pc;
+                pc += sizeof(int);
+
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+
+                char* class_name = CONS_str(constant, offset);
+
+                Function* fun = TheModule->getFunction("run_create_carray");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                std::string stack_value_name("stack");
+                Value* param2 = params[stack_value_name];
+                params2.push_back(param2);
+
+                Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)var_num);
+                params2.push_back(param3);
+
+                Value* param4 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
+                params2.push_back(param4);
+
+                Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_elements);
+                params2.push_back(param5);
+
+                Value* param6 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)class_name);
+                params2.push_back(param6);
+
+                Value* result = Builder.CreateCall(fun, params2);
+
+                if_value_is_zero_ret_zero(result, params, var_num, info, function, &current_block);
                 }
                 break;
 
             case OP_CREATE_SORTABLE_CARRAY : {
+                int num_elements = *(int*)pc;
+                pc += sizeof(int);
+
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+
+                char* class_name = CONS_str(constant, offset);
+
+                Function* fun = TheModule->getFunction("run_create_sortable_carray");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                std::string stack_value_name("stack");
+                Value* param2 = params[stack_value_name];
+                params2.push_back(param2);
+
+                Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)var_num);
+                params2.push_back(param3);
+
+                Value* param4 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
+                params2.push_back(param4);
+
+                Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_elements);
+                params2.push_back(param5);
+
+                Value* param6 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)class_name);
+                params2.push_back(param6);
+
+                Value* result = Builder.CreateCall(fun, params2);
+
+                if_value_is_zero_ret_zero(result, params, var_num, info, function, &current_block);
                 }
                 break;
 
             case OP_CREATE_EQUALABLE_CARRAY : {
+                int num_elements = *(int*)pc;
+                pc += sizeof(int);
+
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+
+                char* class_name = CONS_str(constant, offset);
+
+                Function* fun = TheModule->getFunction("run_create_equalable_carray");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                std::string stack_value_name("stack");
+                Value* param2 = params[stack_value_name];
+                params2.push_back(param2);
+
+                Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)var_num);
+                params2.push_back(param3);
+
+                Value* param4 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
+                params2.push_back(param4);
+
+                Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_elements);
+                params2.push_back(param5);
+
+                Value* param6 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)class_name);
+                params2.push_back(param6);
+
+                Value* result = Builder.CreateCall(fun, params2);
+
+                if_value_is_zero_ret_zero(result, params, var_num, info, function, &current_block);
                 }
                 break;
 
             case OP_CREATE_LIST : {
+                int num_elements = *(int*)pc;
+                pc += sizeof(int);
+
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+
+                char* class_name = CONS_str(constant, offset);
+
+                Function* fun = TheModule->getFunction("run_create_list");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                std::string stack_value_name("stack");
+                Value* param2 = params[stack_value_name];
+                params2.push_back(param2);
+
+                Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)var_num);
+                params2.push_back(param3);
+
+                Value* param4 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
+                params2.push_back(param4);
+
+                Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_elements);
+                params2.push_back(param5);
+
+                Value* param6 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)class_name);
+                params2.push_back(param6);
+
+                Value* result = Builder.CreateCall(fun, params2);
+
+                if_value_is_zero_ret_zero(result, params, var_num, info, function, &current_block);
                 }
                 break;
 
             case OP_CREATE_SORTALBE_LIST : {
+                int num_elements = *(int*)pc;
+                pc += sizeof(int);
+
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+
+                char* class_name = CONS_str(constant, offset);
+
+                Function* fun = TheModule->getFunction("run_create_sortable_list");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                std::string stack_value_name("stack");
+                Value* param2 = params[stack_value_name];
+                params2.push_back(param2);
+
+                Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)var_num);
+                params2.push_back(param3);
+
+                Value* param4 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
+                params2.push_back(param4);
+
+                Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_elements);
+                params2.push_back(param5);
+
+                Value* param6 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)class_name);
+                params2.push_back(param6);
+
+                Value* result = Builder.CreateCall(fun, params2);
+
+                if_value_is_zero_ret_zero(result, params, var_num, info, function, &current_block);
                 }
                 break;
 
             case OP_CREATE_EQUALABLE_LIST : {
+                int num_elements = *(int*)pc;
+                pc += sizeof(int);
+
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+
+                char* class_name = CONS_str(constant, offset);
+
+                Function* fun = TheModule->getFunction("run_create_equalable_list");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                std::string stack_value_name("stack");
+                Value* param2 = params[stack_value_name];
+                params2.push_back(param2);
+
+                Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)var_num);
+                params2.push_back(param3);
+
+                Value* param4 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
+                params2.push_back(param4);
+
+                Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_elements);
+                params2.push_back(param5);
+
+                Value* param6 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)class_name);
+                params2.push_back(param6);
+
+                Value* result = Builder.CreateCall(fun, params2);
+
+                if_value_is_zero_ret_zero(result, params, var_num, info, function, &current_block);
                 }
                 break;
 
             case OP_CREATE_TUPLE : {
+                int num_elements = *(int*)pc;
+                pc += sizeof(int);
+
+                Function* fun = TheModule->getFunction("run_create_tuple");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                std::string stack_value_name("stack");
+                Value* param2 = params[stack_value_name];
+                params2.push_back(param2);
+
+                Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)var_num);
+                params2.push_back(param3);
+
+                Value* param4 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
+                params2.push_back(param4);
+
+                Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_elements);
+                params2.push_back(param5);
+
+                Value* result = Builder.CreateCall(fun, params2);
+
+                if_value_is_zero_ret_zero(result, params, var_num, info, function, &current_block);
                 }
                 break;
 
             case OP_CREATE_HASH : {
+                int num_elements = *(int*)pc;
+                pc += sizeof(int);
+
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+
+                int offset2 = *(int*)pc;
+                pc += sizeof(int);
+
+                char* class_name = CONS_str(constant, offset);
+                char* class_name2 = CONS_str(constant, offset2);
+
+                Function* fun = TheModule->getFunction("run_create_hash");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                std::string stack_value_name("stack");
+                Value* param2 = params[stack_value_name];
+                params2.push_back(param2);
+
+                Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)var_num);
+                params2.push_back(param3);
+
+                Value* param4 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
+                params2.push_back(param4);
+
+                Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_elements);
+                params2.push_back(param5);
+
+                Value* param6 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)class_name);
+                params2.push_back(param6);
+
+                Value* param7 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)class_name2);
+                params2.push_back(param7);
+
+                Value* result = Builder.CreateCall(fun, params2);
+
+                if_value_is_zero_ret_zero(result, params, var_num, info, function, &current_block);
                 }
                 break;
 
             case OP_CREATE_BLOCK_OBJECT : {
+                int code_offset = *(int*)pc;
+                pc += sizeof(int);
+
+                int code_len = *(int*)pc;
+                pc += sizeof(int);
+
+                int constant_offset = *(int*)pc;
+                pc += sizeof(int);
+
+                int constant_len = *(int*)pc;
+                pc += sizeof(int);
+
+                int block_var_num = *(int*)pc;
+                pc += sizeof(int);
+
+                int parent_var_num = *(int*)pc;
+                pc += sizeof(int);
+
+                int lambda = *(int*)pc;
+                pc += sizeof(int);
+
+                Function* fun = TheModule->getFunction("run_create_block_object");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                std::string stack_value_name("stack");
+                Value* param2 = params[stack_value_name];
+                params2.push_back(param2);
+
+                Value* param3 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)constant);
+                params2.push_back(param3);
+
+                Value* param4 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)code_offset);
+                params2.push_back(param4);
+
+                Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)code_len);
+                params2.push_back(param5);
+
+                Value* param6 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)constant_offset);
+                params2.push_back(param6);
+
+                Value* param7 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)constant_len);
+                params2.push_back(param7);
+
+                Value* param8 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)block_var_num);
+                params2.push_back(param8);
+
+                Value* param9 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)parent_var_num);
+                params2.push_back(param9);
+
+                Value* param10 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)lambda);
+                params2.push_back(param10);
+
+                Value* param11 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
+                params2.push_back(param11);
+
+                Builder.CreateCall(fun, params2);
                 }
                 break;
 
@@ -6754,6 +8208,7 @@ static BOOL run_native_code(sByteCode* code, sConst* constant, CLVALUE* stack, i
 
     info->current_stack = stack;        // for invoking_block in native method
     info->current_var_num = var_num;
+    info->stack_id = stack_id;
     
     auto ExprSymbol = TheJIT->findSymbol(METHOD_PATH(klass, method));
     assert(ExprSymbol && "Function not found");

@@ -356,4 +356,10 @@ class JITTest
     def run70(): jit bool {
         return /aaa/.ignoreCase;
     }
+    def run71(): jit EqualableArray<Integer> {
+        return equalable_array { 1,2,3 };
+    }
+    def run72(): jit lambda(int,int):int {
+        return lambda(x:int, y:int):int { return x + y; };
+    }
 }
