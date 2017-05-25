@@ -101,3 +101,9 @@ Clover.test("jit test63", a.run71().equals( equalable_array { 1, 2, 3 }));
 
 z:lambda(int,int):int = a.run72();
 Clover.test("jit test64", z(1,2) == 3);
+Clover.test("jit test65", a.run73() == 12);
+Clover.test("jit test66", a.run74() == 123);
+Clover.test("jit test67", a.run75() == 123);
+Clover.test("jit test68", a.run76() == 123);
+Clover.test("jit test69", a.run77() == 65);
+Clover.test("jit test70", a.run78() == 1);

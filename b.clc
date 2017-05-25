@@ -362,4 +362,22 @@ class JITTest
     def run72(): jit lambda(int,int):int {
         return lambda(x:int, y:int):int { return x + y; };
     }
+    def run73(): jit Integer {
+        return 12y.toInteger;
+    }
+    def run74(): jit Integer {
+        return 123l.toInteger;
+    }
+    def run75(): jit Integer {
+        return 123.1f.toInteger;
+    }
+    def run76(): jit Integer {
+        return 123.1.toInteger;
+    }
+    def run77(): jit Integer {
+        return 'A'.toInteger;
+    }
+    def run78(): jit Integer {
+        return true.toInteger;
+    }
 }
