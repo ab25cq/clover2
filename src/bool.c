@@ -7,7 +7,7 @@ CLObject create_bool(BOOL value)
 
     sCLObject* obj_data = CLOBJECT(obj);
 
-    obj_data->mFields[0].mBoolValue = value;
+    obj_data->mFields[0].mBoolValue = (value ? 1:0);
     
     return obj;
 }

@@ -122,7 +122,7 @@ MANAGED	src/macros.h	21;"	d
 MASSERT	src/debug.h	25;"	d
 MASSERT	src/debug.h	47;"	d
 MAX_CODES	src/interpreter.c	1385;"	d	file:
-MAX_COND_JUMP	src/jit.cpp	3754;"	d	file:
+MAX_COND_JUMP	src/jit.cpp	4133;"	d	file:
 MCALLOC	src/debug.h	22;"	d
 MCALLOC	src/debug.h	42;"	d
 METHOD_CHAIN_MAX	src/common.h	62;"	d
@@ -1998,7 +1998,10 @@ remove_module_from_table	src/module.c	/^static void remove_module_from_table(cha
 remove_stack_to_stack_list	src/stack.c	/^BOOL remove_stack_to_stack_list(CLVALUE* stack)$/;"	f
 reset_method_index_on_compile_time	src/class_compiler.c	/^static void reset_method_index_on_compile_time()$/;"	f	file:
 return_expression	src/parser.c	/^static BOOL return_expression(unsigned int* node, sParserInfo* info)$/;"	f	file:
+run_bool_to_string_cast	src/jit.cpp	/^void run_bool_to_string_cast(CLVALUE** stack_ptr)$/;"	f
+run_byte_to_string_cast	src/jit.cpp	/^void run_byte_to_string_cast(CLVALUE** stack_ptr)$/;"	f
 run_char_lowercase	src/jit.cpp	/^void run_char_lowercase(CLVALUE** stack_ptr)$/;"	f
+run_char_to_string_cast	src/jit.cpp	/^void run_char_to_string_cast(CLVALUE** stack_ptr)$/;"	f
 run_char_uppercase	src/jit.cpp	/^void run_char_uppercase(CLVALUE** stack_ptr)$/;"	f
 run_create_array	src/jit.cpp	/^BOOL run_create_array(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, char* class_name, int num_elements)$/;"	f
 run_create_block_object	src/jit.cpp	/^void run_create_block_object(CLVALUE** stack_ptr, CLVALUE* stack, sConst* constant, int code_offset, int code_len, int constant_offset, int constant_len, int block_var_num, int parent_var_num, BOOL lambda, sVMInfo* info)$/;"	f
@@ -2010,7 +2013,9 @@ run_create_list	src/jit.cpp	/^BOOL run_create_list(CLVALUE** stack_ptr, CLVALUE*
 run_create_sortable_carray	src/jit.cpp	/^BOOL run_create_sortable_carray(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, char* class_name)$/;"	f
 run_create_sortable_list	src/jit.cpp	/^BOOL run_create_sortable_list(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, char* class_name)$/;"	f
 run_create_tuple	src/jit.cpp	/^BOOL run_create_tuple(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements)$/;"	f
+run_double_to_string_cast	src/jit.cpp	/^void run_double_to_string_cast(CLVALUE** stack_ptr)$/;"	f
 run_entry_exception_object_with_class_name2	src/jit.cpp	/^static void run_entry_exception_object_with_class_name2(std::map<std::string, Value *> params, int var_num, sVMInfo* info, char* class_name, char* message)$/;"	f	file:
+run_float_to_string_cast	src/jit.cpp	/^void run_float_to_string_cast(CLVALUE** stack_ptr)$/;"	f
 run_get_array_length	src/jit.cpp	/^void run_get_array_length(CLVALUE** stack_ptr)$/;"	f
 run_get_regex_anchored	src/jit.cpp	/^void run_get_regex_anchored(CLVALUE** stack_ptr)$/;"	f
 run_get_regex_dollar_endonly	src/jit.cpp	/^void run_get_regex_dollar_endonly(CLVALUE** stack_ptr)$/;"	f
@@ -2021,6 +2026,7 @@ run_get_regex_ignorecase	src/jit.cpp	/^void run_get_regex_ignorecase(CLVALUE** s
 run_get_regex_multiline	src/jit.cpp	/^void run_get_regex_multiline(CLVALUE** stack_ptr)$/;"	f
 run_get_regex_ungreedy	src/jit.cpp	/^void run_get_regex_ungreedy(CLVALUE** stack_ptr)$/;"	f
 run_head_of_expression	src/jit.cpp	/^void run_head_of_expression(sVMInfo* info, char* sname, int sline)$/;"	f
+run_int_to_string_cast	src/jit.cpp	/^void run_int_to_string_cast(CLVALUE** stack_ptr)$/;"	f
 run_ldclong	src/jit.cpp	/^void run_ldclong(CLVALUE** stack_ptr, int value1, int value2)$/;"	f
 run_ldcpointer	src/jit.cpp	/^void run_ldcpointer(CLVALUE** stack_ptr, int value1, int value2)$/;"	f
 run_ldculong	src/jit.cpp	/^void run_ldculong(CLVALUE** stack_ptr, int value1, int value2)$/;"	f
@@ -2030,11 +2036,19 @@ run_load_class_field_address	src/jit.cpp	/^BOOL run_load_class_field_address(CLV
 run_load_element	src/jit.cpp	/^BOOL run_load_element(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info)$/;"	f
 run_load_field	src/jit.cpp	/^BOOL run_load_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index)$/;"	f
 run_load_field_address	src/jit.cpp	/^BOOL run_load_field_address(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index)$/;"	f
+run_long_to_string_cast	src/jit.cpp	/^void run_long_to_string_cast(CLVALUE** stack_ptr)$/;"	f
 run_native_code	src/jit.cpp	/^static BOOL run_native_code(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sCLMethod* method, sVMInfo* info)$/;"	f	file:
+run_pointer_to_string_cast	src/jit.cpp	/^void run_pointer_to_string_cast(CLVALUE** stack_ptr)$/;"	f
+run_regex_to_string_cast	src/jit.cpp	/^void run_regex_to_string_cast(CLVALUE** stack_ptr)$/;"	f
+run_short_to_string_cast	src/jit.cpp	/^void run_short_to_string_cast(CLVALUE** stack_ptr)$/;"	f
 run_sigint	src/jit.cpp	/^BOOL run_sigint(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info)$/;"	f
 run_store_class_field	src/jit.cpp	/^BOOL run_store_class_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index, int offset, sConst* constant)$/;"	f
 run_store_element	src/jit.cpp	/^BOOL run_store_element(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info)$/;"	f
 run_store_field	src/jit.cpp	/^BOOL run_store_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index)$/;"	f
+run_ubyte_to_string_cast	src/jit.cpp	/^void run_ubyte_to_string_cast(CLVALUE** stack_ptr)$/;"	f
+run_uint_to_string_cast	src/jit.cpp	/^void run_uint_to_string_cast(CLVALUE** stack_ptr)$/;"	f
+run_ulong_to_string_cast	src/jit.cpp	/^void run_ulong_to_string_cast(CLVALUE** stack_ptr)$/;"	f
+run_ushort_to_string_cast	src/jit.cpp	/^void run_ushort_to_string_cast(CLVALUE** stack_ptr)$/;"	f
 sArrayValue	src/common.h	/^        } sArrayValue;$/;"	m	union:sNodeTreeStruct::__anon3	typeref:struct:sNodeTreeStruct::__anon3::__anon17
 sAssignVariable	src/common.h	/^        } sAssignVariable;$/;"	m	union:sNodeTreeStruct::__anon3	typeref:struct:sNodeTreeStruct::__anon3::__anon4
 sBlockCall	src/common.h	/^        } sBlockCall;$/;"	m	union:sNodeTreeStruct::__anon3	typeref:struct:sNodeTreeStruct::__anon3::__anon15

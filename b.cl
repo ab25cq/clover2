@@ -113,3 +113,16 @@ Clover.test("jit test73", a.run81() == 123uy);
 Clover.test("jit test74", a.run82() == 123uy);
 Clover.test("jit test75", a.run83() == 123ul);
 Clover.test("jit test76", a.run84() == 123456l);
+Clover.test("jit test77", a.run85() == 123.0f);
+Clover.test("jit test78", a.run86() == 123.1f);
+Clover.test("jit test79", a.run87() == 123.1f);
+Clover.test("jit test80", a.run88() == 123.0);
+#Clover.test("jit test81", a.run89() == 123.1);
+Clover.test("jit test82", a.run90() == 123.1);
+
+y:pointer = &z;
+Clover.test("jit test83", a.run91(y).equals(&z));
+Clover.test("jit test84", a.run92() == true);
+#Clover.test("jit test85", a.run93().equals("1.1"));
+Clover.test("jit test86", a.run94().equals("123"));
+Clover.test("jit test87", a.run95().equals("a"));

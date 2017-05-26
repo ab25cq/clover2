@@ -398,4 +398,37 @@ class JITTest
     def run84(): jit Long {
         return 123456.toLong;
     }
+    def run85(): jit Float {
+        return 123.toFloat;
+    }
+    def run86(): jit Float {
+        return 123.1f.toFloat;
+    }
+    def run87(): jit Float {
+        return 123.1.toFloat;
+    }
+    def run88(): jit Double {
+        return 123.toDouble;
+    }
+    def run89(): jit Double {
+        return 123.1f.toDouble;
+    }
+    def run90(): jit Double {
+        return 123.1.toDouble;
+    }
+    def run91(p:pointer): Pointer {
+        return p.toPointer;
+    }
+    def run92(): Bool {
+        return 1.1.toBool;
+    }
+    def run93(): String {
+        return 1.1.toString;
+    }
+    def run94(): String {
+        return 123.toString;
+    }
+    def run95(): String {
+        return 'a'.toString;
+    }
 }
