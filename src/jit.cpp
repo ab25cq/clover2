@@ -222,6 +222,50 @@ static void create_internal_functions()
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "create_string_object", TheModule.get());
 
+    /// create_byte ///
+    type_params.clear();
+
+    result_type = IntegerType::get(TheContext, 32);
+
+    param1_type = IntegerType::get(TheContext, 8);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "create_byte", TheModule.get());
+
+    /// create_ubyte ///
+    type_params.clear();
+
+    result_type = IntegerType::get(TheContext, 32);
+
+    param1_type = IntegerType::get(TheContext, 8);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "create_ubyte", TheModule.get());
+
+    /// create_short ///
+    type_params.clear();
+
+    result_type = IntegerType::get(TheContext, 32);
+
+    param1_type = IntegerType::get(TheContext, 16);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "create_short", TheModule.get());
+
+    /// create_ushort ///
+    type_params.clear();
+
+    result_type = IntegerType::get(TheContext, 32);
+
+    param1_type = IntegerType::get(TheContext, 16);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "create_ushort", TheModule.get());
+
     /// create_integer ///
     type_params.clear();
 
@@ -232,6 +276,39 @@ static void create_internal_functions()
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "create_integer", TheModule.get());
+
+    /// create_integer ///
+    type_params.clear();
+
+    result_type = IntegerType::get(TheContext, 32);
+
+    param1_type = IntegerType::get(TheContext,32);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "create_uinteger", TheModule.get());
+
+    /// create_long ///
+    type_params.clear();
+
+    result_type = IntegerType::get(TheContext, 32);
+
+    param1_type = IntegerType::get(TheContext,64);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "create_long", TheModule.get());
+
+    /// create_ulong ///
+    type_params.clear();
+
+    result_type = IntegerType::get(TheContext, 32);
+
+    param1_type = IntegerType::get(TheContext,64);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "create_ulong", TheModule.get());
 
     /// create_buffer_object ///
     type_params.clear();
@@ -6996,23 +7073,6 @@ show_inst_in_jit(inst);
                 }
                 break;
 
-            case OP_INT_TO_INTEGER_CAST: {
-                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
-                dec_stack_ptr(params, current_block, 1);
-
-                Function* fun = TheModule->getFunction("create_integer");
-
-                std::vector<Value*> params2;
-
-                Value* param1 = value;
-                params2.push_back(param1);
-
-                Value* value2 = Builder.CreateCall(fun, params2);
-
-                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
-                }
-                break;
-
             case OP_BYTE_TO_INTEGER_CAST: {
                 Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
                 dec_stack_ptr(params, current_block, 1);
@@ -7066,6 +7126,23 @@ show_inst_in_jit(inst);
 
             case OP_USHORT_TO_INTEGER_CAST: {
                 Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_integer");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_INT_TO_INTEGER_CAST: {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
                 dec_stack_ptr(params, current_block, 1);
 
                 Function* fun = TheModule->getFunction("create_integer");
@@ -7230,6 +7307,1683 @@ show_inst_in_jit(inst);
                 push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
                 }
                 break;
+
+            case OP_BYTE_TO_UINTEGER_CAST: {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_uinteger");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_UBYTE_TO_UINTEGER_CAST: {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_uinteger");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_SHORT_TO_UINTEGER_CAST: {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_uinteger");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_USHORT_TO_UINTEGER_CAST: {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_uinteger");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_INT_TO_UINTEGER_CAST: {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_uinteger");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_UINT_TO_UINTEGER_CAST: {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_uinteger");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_LONG_TO_UINTEGER_CAST: {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt32Ty(TheContext), "value2");
+
+                Function* fun = TheModule->getFunction("create_uinteger");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value2;
+                params2.push_back(param1);
+
+                Value* value3 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value3, 4);
+                }
+                break;
+                
+            case OP_ULONG_TO_UINTEGER_CAST: {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt32Ty(TheContext), "value2");
+
+                Function* fun = TheModule->getFunction("create_uinteger");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value2;
+                params2.push_back(param1);
+
+                Value* value3 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value3, 4);
+                }
+                break;
+
+            case OP_FLOAT_TO_UINTEGER_CAST: {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* fvalue = Builder.CreateCast(Instruction::Trunc, value, Type::getFloatTy(TheContext), "fvalue");
+
+                Value* value2 = Builder.CreateCast(Instruction::FPToSI, fvalue, Type::getInt32Ty(TheContext), "value2");
+
+                Function* fun = TheModule->getFunction("create_uinteger");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value2;
+                params2.push_back(param1);
+
+                Value* value3 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value3, 4);
+                }
+                break;
+
+            case OP_DOUBLE_TO_UINTEGER_CAST: {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* fvalue = Builder.CreateCast(Instruction::Trunc, value, Type::getDoubleTy(TheContext), "fvalue");
+
+                Value* value2 = Builder.CreateCast(Instruction::FPToSI, fvalue, Type::getInt32Ty(TheContext), "value2");
+
+                Function* fun = TheModule->getFunction("create_uinteger");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value2;
+                params2.push_back(param1);
+
+                Value* value3 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value3, 4);
+                }
+                break;
+
+            case OP_CHAR_TO_UINTEGER_CAST: {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_uinteger");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_POINTER_TO_UINTEGER_CAST: {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt32Ty(TheContext), "value2");
+
+                Function* fun = TheModule->getFunction("create_uinteger");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value2;
+                params2.push_back(param1);
+
+                Value* value3 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value3, 4);
+                }
+                break;
+
+            case OP_BOOL_TO_UINTEGER_CAST: {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_uinteger");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+
+
+            case OP_BYTE_TO_CBYTE_CAST: {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_byte");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_UBYTE_TO_CBYTE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_byte");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_SHORT_TO_CBYTE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_byte");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_USHORT_TO_CBYTE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_byte");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_INT_TO_CBYTE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_byte");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_UINT_TO_CBYTE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_byte");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_LONG_TO_CBYTE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_byte");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_ULONG_TO_CBYTE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_byte");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_FLOAT_TO_CBYTE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* fvalue = Builder.CreateCast(Instruction::Trunc, value, Type::getFloatTy(TheContext), "fvalue");
+
+                Value* value2 = Builder.CreateCast(Instruction::FPToSI, fvalue, Type::getInt8Ty(TheContext), "value2");
+
+                Function* fun = TheModule->getFunction("create_byte");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value2;
+                params2.push_back(param1);
+
+                Value* value3 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value3, 4);
+                }
+                break;
+
+            case OP_DOUBLE_TO_CBYTE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* fvalue = Builder.CreateCast(Instruction::Trunc, value, Type::getDoubleTy(TheContext), "fvalue");
+                Value* value2 = Builder.CreateCast(Instruction::FPToSI, fvalue, Type::getInt8Ty(TheContext), "value2");
+
+                Function* fun = TheModule->getFunction("create_byte");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value2;
+                params2.push_back(param1);
+
+                Value* value3 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value3, 4);
+                }
+                break;
+
+            case OP_CHAR_TO_CBYTE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_byte");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_POINTER_TO_CBYTE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_byte");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_BOOL_TO_CBYTE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_byte");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_BYTE_TO_CUBYTE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_ubyte");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_UBYTE_TO_CUBYTE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_ubyte");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_SHORT_TO_CUBYTE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_ubyte");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_USHORT_TO_CUBYTE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_ubyte");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_INT_TO_CUBYTE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_ubyte");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_UINT_TO_CUBYTE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_ubyte");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_LONG_TO_CUBYTE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_ubyte");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_ULONG_TO_CUBYTE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_ubyte");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_FLOAT_TO_CUBYTE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* fvalue = Builder.CreateCast(Instruction::Trunc, value, Type::getFloatTy(TheContext), "fvalue");
+                Value* value2 = Builder.CreateCast(Instruction::FPToSI, fvalue, Type::getInt8Ty(TheContext), "value2");
+
+                Function* fun = TheModule->getFunction("create_ubyte");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value2;
+                params2.push_back(param1);
+
+                Value* value3 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value3, 4);
+                }
+                break;
+
+            case OP_DOUBLE_TO_CUBYTE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* fvalue = Builder.CreateCast(Instruction::Trunc, value, Type::getDoubleTy(TheContext), "fvalue");
+                Value* value2 = Builder.CreateCast(Instruction::FPToSI, fvalue, Type::getInt8Ty(TheContext), "value2");
+
+                Function* fun = TheModule->getFunction("create_ubyte");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value2;
+                params2.push_back(param1);
+
+                Value* value3 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value3, 4);
+                }
+                break;
+
+            case OP_CHAR_TO_CUBYTE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_ubyte");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_POINTER_TO_CUBYTE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_ubyte");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_BOOL_TO_CUBYTE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_ubyte");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_BYTE_TO_CSHORT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_short");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_UBYTE_TO_CSHORT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_short");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_SHORT_TO_CSHORT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_short");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_USHORT_TO_CSHORT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_short");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_INT_TO_CSHORT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_short");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_UINT_TO_CSHORT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_short");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_LONG_TO_CSHORT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_short");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_ULONG_TO_CSHORT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_short");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_FLOAT_TO_CSHORT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* fvalue = Builder.CreateCast(Instruction::Trunc, value, Type::getFloatTy(TheContext), "fvalue");
+
+                Value* value2 = Builder.CreateCast(Instruction::FPToSI, fvalue, Type::getInt16Ty(TheContext), "value2");
+
+                Function* fun = TheModule->getFunction("create_short");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value2;
+                params2.push_back(param1);
+
+                Value* value3 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value3, 4);
+                }
+                break;
+
+            case OP_DOUBLE_TO_CSHORT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* fvalue = Builder.CreateCast(Instruction::Trunc, value, Type::getDoubleTy(TheContext), "fvalue");
+
+                Value* value2 = Builder.CreateCast(Instruction::FPToSI, fvalue, Type::getInt16Ty(TheContext), "value2");
+
+                Function* fun = TheModule->getFunction("create_short");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value2;
+                params2.push_back(param1);
+
+                Value* value3 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value3, 4);
+                }
+                break;
+
+            case OP_CHAR_TO_CSHORT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_short");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_POINTER_TO_CSHORT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_short");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_BOOL_TO_CSHORT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_short");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_BYTE_TO_CUSHORT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_ushort");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_UBYTE_TO_CUSHORT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_ushort");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_SHORT_TO_CUSHORT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_ushort");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_USHORT_TO_CUSHORT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_ushort");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_INT_TO_CUSHORT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_ushort");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_UINT_TO_CUSHORT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_ushort");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_LONG_TO_CUSHORT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_ushort");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_ULONG_TO_CUSHORT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_ushort");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_FLOAT_TO_CUSHORT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* fvalue = Builder.CreateCast(Instruction::Trunc, value, Type::getFloatTy(TheContext), "fvalue");
+
+                Value* value2 = Builder.CreateCast(Instruction::FPToSI, fvalue, Type::getInt16Ty(TheContext), "value2");
+
+                Function* fun = TheModule->getFunction("create_ushort");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value2;
+                params2.push_back(param1);
+
+                Value* value3 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value3, 4);
+                }
+                break;
+
+            case OP_DOUBLE_TO_CUSHORT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* fvalue = Builder.CreateCast(Instruction::Trunc, value, Type::getDoubleTy(TheContext), "fvalue");
+
+                Value* value2 = Builder.CreateCast(Instruction::FPToSI, fvalue, Type::getInt16Ty(TheContext), "value2");
+
+                Function* fun = TheModule->getFunction("create_ushort");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value2;
+                params2.push_back(param1);
+
+                Value* value3 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value3, 4);
+                }
+                break;
+
+            case OP_CHAR_TO_CUSHORT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_ushort");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_POINTER_TO_CUSHORT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_ushort");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_BOOL_TO_CUSHORT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_ushort");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_BYTE_TO_CLONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_long");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_UBYTE_TO_CLONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_long");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_SHORT_TO_CLONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_long");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_USHORT_TO_CLONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_long");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_INT_TO_CLONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_long");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_UINT_TO_CLONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_long");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_LONG_TO_CLONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_long");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_ULONG_TO_CLONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_long");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_FLOAT_TO_CLONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* fvalue = Builder.CreateCast(Instruction::Trunc, value, Type::getFloatTy(TheContext), "fvalue");
+
+                Value* value2 = Builder.CreateCast(Instruction::FPToSI, fvalue, Type::getInt64Ty(TheContext), "value2");
+
+                Function* fun = TheModule->getFunction("create_long");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value2;
+                params2.push_back(param1);
+
+                Value* value3 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value3, 4);
+                }
+                break;
+
+            case OP_DOUBLE_TO_CLONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* fvalue = Builder.CreateCast(Instruction::Trunc, value, Type::getDoubleTy(TheContext), "fvalue");
+
+                Value* value2 = Builder.CreateCast(Instruction::FPToSI, fvalue, Type::getInt64Ty(TheContext), "value2");
+
+                Function* fun = TheModule->getFunction("create_long");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value2;
+                params2.push_back(param1);
+
+                Value* value3 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value3, 4);
+                }
+                break;
+
+            case OP_CHAR_TO_CLONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_long");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_POINTER_TO_CLONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_long");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_BOOL_TO_CLONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_long");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_BYTE_TO_CULONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_ulong");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_UBYTE_TO_CULONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_ulong");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_SHORT_TO_CULONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_ulong");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_USHORT_TO_CULONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_ulong");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_INT_TO_CULONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_ulong");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_UINT_TO_CULONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_ulong");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_LONG_TO_CULONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_ulong");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_ULONG_TO_CULONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_ulong");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_FLOAT_TO_CULONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* fvalue = Builder.CreateCast(Instruction::Trunc, value, Type::getFloatTy(TheContext), "fvalue");
+
+                Value* value2 = Builder.CreateCast(Instruction::FPToSI, fvalue, Type::getInt64Ty(TheContext), "value2");
+
+                Function* fun = TheModule->getFunction("create_ulong");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value2;
+                params2.push_back(param1);
+
+                Value* value3 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value3, 4);
+                }
+                break;
+
+            case OP_DOUBLE_TO_CULONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* fvalue = Builder.CreateCast(Instruction::Trunc, value, Type::getDoubleTy(TheContext), "fvalue");
+
+                Value* value2 = Builder.CreateCast(Instruction::FPToSI, fvalue, Type::getInt64Ty(TheContext), "value2");
+
+                Function* fun = TheModule->getFunction("create_ulong");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value2;
+                params2.push_back(param1);
+
+                Value* value3 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value3, 4);
+                }
+                break;
+
+            case OP_CHAR_TO_CULONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_ulong");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_POINTER_TO_CULONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_ulong");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_BOOL_TO_CULONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Function* fun = TheModule->getFunction("create_ulong");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value;
+                params2.push_back(param1);
+
+                Value* value2 = Builder.CreateCall(fun, params2);
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+/*
+#define OP_BYTE_TO_CFLOAT_CAST 7560
+#define OP_UBYTE_TO_CFLOAT_CAST 7561
+#define OP_SHORT_TO_CFLOAT_CAST 7562
+#define OP_USHORT_TO_CFLOAT_CAST 7563
+#define OP_INT_TO_CFLOAT_CAST 7564
+#define OP_UINT_TO_CFLOAT_CAST 7565
+#define OP_LONG_TO_CFLOAT_CAST 7566
+#define OP_ULONG_TO_CFLOAT_CAST 7567
+#define OP_FLOAT_TO_CFLOAT_CAST 7568
+#define OP_DOUBLE_TO_CFLOAT_CAST 7569
+#define OP_CHAR_TO_CFLOAT_CAST 7570
+#define OP_BOOL_TO_CFLOAT_CAST 7572
+
+#define OP_BYTE_TO_CDOUBLE_CAST 7580
+#define OP_UBYTE_TO_CDOUBLE_CAST 7581
+#define OP_SHORT_TO_CDOUBLE_CAST 7582
+#define OP_USHORT_TO_CDOUBLE_CAST 7583
+#define OP_INT_TO_CDOUBLE_CAST 7584
+#define OP_UINT_TO_CDOUBLE_CAST 7585
+#define OP_LONG_TO_CDOUBLE_CAST 7586
+#define OP_ULONG_TO_CDOUBLE_CAST 7587
+#define OP_FLOAT_TO_CDOUBLE_CAST 7588
+#define OP_DOUBLE_TO_CDOUBLE_CAST 7589
+#define OP_CHAR_TO_CDOUBLE_CAST 7590
+#define OP_BOOL_TO_CDOUBLE_CAST 7592
+
+#define OP_BYTE_TO_CPOINTER_CAST 7600
+#define OP_UBYTE_TO_CPOINTER_CAST 7601
+#define OP_SHORT_TO_CPOINTER_CAST 7602
+#define OP_USHORT_TO_CPOINTER_CAST 7603
+#define OP_INT_TO_CPOINTER_CAST 7604
+#define OP_UINT_TO_CPOINTER_CAST 7605
+#define OP_LONG_TO_CPOINTER_CAST 7606
+#define OP_ULONG_TO_CPOINTER_CAST 7607
+#define OP_CHAR_TO_CPOINTER_CAST 7610
+#define OP_POINTER_TO_CPOINTER_CAST 7611
+#define OP_BOOL_TO_CPOINTER_CAST 7612
+
+#define OP_BYTE_TO_CCHAR_CAST 7620
+#define OP_UBYTE_TO_CCHAR_CAST 7621
+#define OP_SHORT_TO_CCHAR_CAST 7622
+#define OP_USHORT_TO_CCHAR_CAST 7623
+#define OP_INT_TO_CCHAR_CAST 7624
+#define OP_UINT_TO_CCHAR_CAST 7625
+#define OP_LONG_TO_CCHAR_CAST 7626
+#define OP_ULONG_TO_CCHAR_CAST 7627
+#define OP_FLOAT_TO_CCHAR_CAST 7628
+#define OP_DOUBLE_TO_CCHAR_CAST 7629
+#define OP_CHAR_TO_CCHAR_CAST 7630
+#define OP_POINTER_TO_CCHAR_CAST 7631
+#define OP_BOOL_TO_CCHAR_CAST 7632
+
+#define OP_BYTE_TO_CBOOL_CAST 7640
+#define OP_UBYTE_TO_CBOOL_CAST 7641
+#define OP_SHORT_TO_CBOOL_CAST 7642
+#define OP_USHORT_TO_CBOOL_CAST 7643
+#define OP_INT_TO_CBOOL_CAST 7644
+#define OP_UINT_TO_CBOOL_CAST 7645
+#define OP_LONG_TO_CBOOL_CAST 7646
+#define OP_ULONG_TO_CBOOL_CAST 7647
+#define OP_FLOAT_TO_CBOOL_CAST 7648
+#define OP_DOUBLE_TO_CBOOL_CAST 7649
+#define OP_CHAR_TO_CBOOL_CAST 7650
+#define OP_POINTER_TO_CBOOL_CAST 7651
+#define OP_BOOL_TO_CBOOL_CAST 7652
+*/
+
 
 /*
 #define OP_UBYTE_TO_BYTE_CAST 7000
@@ -7526,171 +9280,6 @@ show_inst_in_jit(inst);
 #define OP_REGEX_TO_STRING_CAST 7371
 #define OP_POINTER_TO_STRING_CAST 7372
 #define OP_CHAR_TO_STRING_CAST 7373
-
-
-#define OP_BYTE_TO_UINTEGER_CAST 7420
-#define OP_UBYTE_TO_UINTEGER_CAST 7421
-#define OP_SHORT_TO_UINTEGER_CAST 7422
-#define OP_USHORT_TO_UINTEGER_CAST 7423
-#define OP_INT_TO_UINTEGER_CAST 7424
-#define OP_UINT_TO_UINTEGER_CAST 7425
-#define OP_LONG_TO_UINTEGER_CAST 7426
-#define OP_ULONG_TO_UINTEGER_CAST 7427
-#define OP_FLOAT_TO_UINTEGER_CAST 7428
-#define OP_DOUBLE_TO_UINTEGER_CAST 7429
-#define OP_CHAR_TO_UINTEGER_CAST 7430
-#define OP_POINTER_TO_UINTEGER_CAST 7431
-#define OP_BOOL_TO_UINTEGER_CAST 7432
-
-#define OP_BYTE_TO_CBYTE_CAST 7440
-#define OP_UBYTE_TO_CBYTE_CAST 7441
-#define OP_SHORT_TO_CBYTE_CAST 7442
-#define OP_USHORT_TO_CBYTE_CAST 7443
-#define OP_INT_TO_CBYTE_CAST 7444
-#define OP_UINT_TO_CBYTE_CAST 7445
-#define OP_LONG_TO_CBYTE_CAST 7446
-#define OP_ULONG_TO_CBYTE_CAST 7447
-#define OP_FLOAT_TO_CBYTE_CAST 7448
-#define OP_DOUBLE_TO_CBYTE_CAST 7449
-#define OP_CHAR_TO_CBYTE_CAST 7450
-#define OP_POINTER_TO_CBYTE_CAST 7451
-#define OP_BOOL_TO_CBYTE_CAST 7452
-
-#define OP_BYTE_TO_CUBYTE_CAST 7460
-#define OP_UBYTE_TO_CUBYTE_CAST 7461
-#define OP_SHORT_TO_CUBYTE_CAST 7462
-#define OP_USHORT_TO_CUBYTE_CAST 7463
-#define OP_INT_TO_CUBYTE_CAST 7464
-#define OP_UINT_TO_CUBYTE_CAST 7465
-#define OP_LONG_TO_CUBYTE_CAST 7466
-#define OP_ULONG_TO_CUBYTE_CAST 7467
-#define OP_FLOAT_TO_CUBYTE_CAST 7468
-#define OP_DOUBLE_TO_CUBYTE_CAST 7469
-#define OP_CHAR_TO_CUBYTE_CAST 7470
-#define OP_POINTER_TO_CUBYTE_CAST 7471
-#define OP_BOOL_TO_CUBYTE_CAST 7472
-
-#define OP_BYTE_TO_CSHORT_CAST 7480
-#define OP_UBYTE_TO_CSHORT_CAST 7481
-#define OP_SHORT_TO_CSHORT_CAST 7482
-#define OP_USHORT_TO_CSHORT_CAST 7483
-#define OP_INT_TO_CSHORT_CAST 7484
-#define OP_UINT_TO_CSHORT_CAST 7485
-#define OP_LONG_TO_CSHORT_CAST 7486
-#define OP_ULONG_TO_CSHORT_CAST 7487
-#define OP_FLOAT_TO_CSHORT_CAST 7488
-#define OP_DOUBLE_TO_CSHORT_CAST 7489
-#define OP_CHAR_TO_CSHORT_CAST 7490
-#define OP_POINTER_TO_CSHORT_CAST 7491
-#define OP_BOOL_TO_CSHORT_CAST 7492
-
-#define OP_BYTE_TO_CUSHORT_CAST 7500
-#define OP_UBYTE_TO_CUSHORT_CAST 7501
-#define OP_SHORT_TO_CUSHORT_CAST 7502
-#define OP_USHORT_TO_CUSHORT_CAST 7503
-#define OP_INT_TO_CUSHORT_CAST 7504
-#define OP_UINT_TO_CUSHORT_CAST 7505
-#define OP_LONG_TO_CUSHORT_CAST 7506
-#define OP_ULONG_TO_CUSHORT_CAST 7507
-#define OP_FLOAT_TO_CUSHORT_CAST 7508
-#define OP_DOUBLE_TO_CUSHORT_CAST 7509
-#define OP_CHAR_TO_CUSHORT_CAST 7510
-#define OP_POINTER_TO_CUSHORT_CAST 7511
-#define OP_BOOL_TO_CUSHORT_CAST 7512
-
-#define OP_BYTE_TO_CLONG_CAST 7520
-#define OP_UBYTE_TO_CLONG_CAST 7521
-#define OP_SHORT_TO_CLONG_CAST 7522
-#define OP_USHORT_TO_CLONG_CAST 7523
-#define OP_INT_TO_CLONG_CAST 7524
-#define OP_UINT_TO_CLONG_CAST 7525
-#define OP_LONG_TO_CLONG_CAST 7526
-#define OP_ULONG_TO_CLONG_CAST 7527
-#define OP_FLOAT_TO_CLONG_CAST 7528
-#define OP_DOUBLE_TO_CLONG_CAST 7529
-#define OP_CHAR_TO_CLONG_CAST 7530
-#define OP_POINTER_TO_CLONG_CAST 7531
-#define OP_BOOL_TO_CLONG_CAST 7532
-
-#define OP_BYTE_TO_CULONG_CAST 7540
-#define OP_UBYTE_TO_CULONG_CAST 7541
-#define OP_SHORT_TO_CULONG_CAST 7542
-#define OP_USHORT_TO_CULONG_CAST 7543
-#define OP_INT_TO_CULONG_CAST 7544
-#define OP_UINT_TO_CULONG_CAST 7545
-#define OP_LONG_TO_CULONG_CAST 7546
-#define OP_ULONG_TO_CULONG_CAST 7547
-#define OP_FLOAT_TO_CULONG_CAST 7548
-#define OP_DOUBLE_TO_CULONG_CAST 7549
-#define OP_CHAR_TO_CULONG_CAST 7550
-#define OP_POINTER_TO_CULONG_CAST 7551
-#define OP_BOOL_TO_CULONG_CAST 7552
-
-#define OP_BYTE_TO_CFLOAT_CAST 7560
-#define OP_UBYTE_TO_CFLOAT_CAST 7561
-#define OP_SHORT_TO_CFLOAT_CAST 7562
-#define OP_USHORT_TO_CFLOAT_CAST 7563
-#define OP_INT_TO_CFLOAT_CAST 7564
-#define OP_UINT_TO_CFLOAT_CAST 7565
-#define OP_LONG_TO_CFLOAT_CAST 7566
-#define OP_ULONG_TO_CFLOAT_CAST 7567
-#define OP_FLOAT_TO_CFLOAT_CAST 7568
-#define OP_DOUBLE_TO_CFLOAT_CAST 7569
-#define OP_CHAR_TO_CFLOAT_CAST 7570
-#define OP_BOOL_TO_CFLOAT_CAST 7572
-
-#define OP_BYTE_TO_CDOUBLE_CAST 7580
-#define OP_UBYTE_TO_CDOUBLE_CAST 7581
-#define OP_SHORT_TO_CDOUBLE_CAST 7582
-#define OP_USHORT_TO_CDOUBLE_CAST 7583
-#define OP_INT_TO_CDOUBLE_CAST 7584
-#define OP_UINT_TO_CDOUBLE_CAST 7585
-#define OP_LONG_TO_CDOUBLE_CAST 7586
-#define OP_ULONG_TO_CDOUBLE_CAST 7587
-#define OP_FLOAT_TO_CDOUBLE_CAST 7588
-#define OP_DOUBLE_TO_CDOUBLE_CAST 7589
-#define OP_CHAR_TO_CDOUBLE_CAST 7590
-#define OP_BOOL_TO_CDOUBLE_CAST 7592
-
-#define OP_BYTE_TO_CPOINTER_CAST 7600
-#define OP_UBYTE_TO_CPOINTER_CAST 7601
-#define OP_SHORT_TO_CPOINTER_CAST 7602
-#define OP_USHORT_TO_CPOINTER_CAST 7603
-#define OP_INT_TO_CPOINTER_CAST 7604
-#define OP_UINT_TO_CPOINTER_CAST 7605
-#define OP_LONG_TO_CPOINTER_CAST 7606
-#define OP_ULONG_TO_CPOINTER_CAST 7607
-#define OP_CHAR_TO_CPOINTER_CAST 7610
-#define OP_POINTER_TO_CPOINTER_CAST 7611
-#define OP_BOOL_TO_CPOINTER_CAST 7612
-
-#define OP_BYTE_TO_CCHAR_CAST 7620
-#define OP_UBYTE_TO_CCHAR_CAST 7621
-#define OP_SHORT_TO_CCHAR_CAST 7622
-#define OP_USHORT_TO_CCHAR_CAST 7623
-#define OP_INT_TO_CCHAR_CAST 7624
-#define OP_UINT_TO_CCHAR_CAST 7625
-#define OP_LONG_TO_CCHAR_CAST 7626
-#define OP_ULONG_TO_CCHAR_CAST 7627
-#define OP_FLOAT_TO_CCHAR_CAST 7628
-#define OP_DOUBLE_TO_CCHAR_CAST 7629
-#define OP_CHAR_TO_CCHAR_CAST 7630
-#define OP_POINTER_TO_CCHAR_CAST 7631
-#define OP_BOOL_TO_CCHAR_CAST 7632
-
-#define OP_BYTE_TO_CBOOL_CAST 7640
-#define OP_UBYTE_TO_CBOOL_CAST 7641
-#define OP_SHORT_TO_CBOOL_CAST 7642
-#define OP_USHORT_TO_CBOOL_CAST 7643
-#define OP_INT_TO_CBOOL_CAST 7644
-#define OP_UINT_TO_CBOOL_CAST 7645
-#define OP_LONG_TO_CBOOL_CAST 7646
-#define OP_ULONG_TO_CBOOL_CAST 7647
-#define OP_FLOAT_TO_CBOOL_CAST 7648
-#define OP_DOUBLE_TO_CBOOL_CAST 7649
-#define OP_CHAR_TO_CBOOL_CAST 7650
-#define OP_POINTER_TO_CBOOL_CAST 7651
-#define OP_BOOL_TO_CBOOL_CAST 7652
 
 #define OP_ARRAY_TO_CARRAY_CAST 7700
 */

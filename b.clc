@@ -380,4 +380,22 @@ class JITTest
     def run78(): jit Integer {
         return true.toInteger;
     }
+    def run79(): jit Byte {
+        return 123.toByte;
+    }
+    def run80(): jit Byte {
+        return 123.1.toByte;
+    }
+    def run81(): jit UByte {
+        return 123.toUByte;
+    }
+    def run82(): jit UByte {
+        return 123.1.toUByte;
+    }
+    def run83(): jit ULong {
+        return 123.toULong;
+    }
+    def run84(): jit Long {
+        return 123456.toLong;
+    }
 }
