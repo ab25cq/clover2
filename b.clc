@@ -431,4 +431,8 @@ class JITTest
     def run95(): String {
         return 'a'.toString;
     }
+    def run96(): int {
+        a:Integer = new Integer(123);
+        return a;
+    }
 }

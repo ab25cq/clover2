@@ -126,3 +126,4 @@ Clover.test("jit test84", a.run92() == true);
 #Clover.test("jit test85", a.run93().equals("1.1"));
 Clover.test("jit test86", a.run94().equals("123"));
 Clover.test("jit test87", a.run95().equals("a"));
+Clover.test("jit test88", a.run96() == 123);
