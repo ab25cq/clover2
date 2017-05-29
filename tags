@@ -122,7 +122,7 @@ MANAGED	src/macros.h	21;"	d
 MASSERT	src/debug.h	25;"	d
 MASSERT	src/debug.h	47;"	d
 MAX_CODES	src/interpreter.c	1385;"	d	file:
-MAX_COND_JUMP	src/jit.cpp	5277;"	d	file:
+MAX_COND_JUMP	src/jit.cpp	6963;"	d	file:
 MCALLOC	src/debug.h	22;"	d
 MCALLOC	src/debug.h	42;"	d
 METHOD_CHAIN_MAX	src/common.h	62;"	d
@@ -1090,25 +1090,17 @@ arrange_alignment	src/code.c	/^static void arrange_alignment(sByteCode* code)$/;
 arrange_alignment	src/constant.c	/^static void arrange_alignment(sConst* self)$/;"	f	file:
 arrange_stack	src/node.c	/^void arrange_stack(sCompileInfo* cinfo)$/;"	f
 array_mark_fun	src/array.c	/^void array_mark_fun(CLObject self, unsigned char* mark_flg)$/;"	f
-as_fn_append	config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	configure	/^  as_fn_append ()$/;"	f
-as_fn_arith	config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	configure	/^  as_fn_arith ()$/;"	f
-as_fn_error	config.status	/^as_fn_error ()$/;"	f
 as_fn_error	configure	/^as_fn_error ()$/;"	f
-as_fn_executable_p	config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	configure	/^as_fn_executable_p ()$/;"	f
-as_fn_exit	config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	configure	/^as_fn_exit ()$/;"	f
 as_fn_failure	configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
-as_fn_mkdir_p	config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	configure	/^as_fn_mkdir_p ()$/;"	f
 as_fn_ret_failure	configure	/^as_fn_ret_failure () { return 1; }$/;"	f
 as_fn_ret_success	configure	/^as_fn_ret_success () { return 0; }$/;"	f
-as_fn_set_status	config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	configure	/^as_fn_set_status ()$/;"	f
 as_fn_success	configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
-as_fn_unset	config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	configure	/^as_fn_unset ()$/;"	f
 assign_operator	src/parser.c	/^static BOOL assign_operator(unsigned int* node, sParserInfo* info)$/;"	f	file:
 binary_operator	src/node.c	/^static BOOL binary_operator(unsigned int node, sNodeType* left_type, sNodeType* right_type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, int float_operand, int double_operand, int pointer_operand, int null_operand, int char_operand, int bool_operand, int regex_operand, char* op_string, sCompileInfo* info)$/;"	f	file:
@@ -1128,6 +1120,7 @@ call_show_number_in_jit	src/jit.cpp	/^static void call_show_number_in_jit(int nu
 call_show_stack	src/jit.cpp	/^static void call_show_stack(int var_num, sVMInfo* info, std::map<std::string, Value *> params)$/;"	f	file:
 call_show_stack_stat	src/jit.cpp	/^static void call_show_stack_stat(std::map<std::string, Value *> params)$/;"	f	file:
 call_show_str_in_jit	src/jit.cpp	/^static void call_show_str_in_jit(char* str)$/;"	f	file:
+call_show_value_in_jit	src/jit.cpp	/^static void call_show_value_in_jit(Value* value)$/;"	f	file:
 cast_right_type_to_Array	src/cast.c	/^void cast_right_type_to_Array(sNodeType** right_type, sCompileInfo* info)$/;"	f
 cast_right_type_to_Bool	src/cast.c	/^void cast_right_type_to_Bool(sNodeType** right_type, sCompileInfo* info)$/;"	f
 cast_right_type_to_Byte	src/cast.c	/^void cast_right_type_to_Byte(sNodeType** right_type, sCompileInfo* info)$/;"	f
@@ -2001,36 +1994,76 @@ return_expression	src/parser.c	/^static BOOL return_expression(unsigned int* nod
 run_bool_to_string_cast	src/jit.cpp	/^void run_bool_to_string_cast(CLVALUE** stack_ptr)$/;"	f
 run_byte_to_string_cast	src/jit.cpp	/^void run_byte_to_string_cast(CLVALUE** stack_ptr)$/;"	f
 run_cbool_to_byte_cast	src/jit.cpp	/^void run_cbool_to_byte_cast(CLVALUE** stack_ptr)$/;"	f
+run_cbool_to_double_cast	src/jit.cpp	/^void run_cbool_to_double_cast(CLVALUE** stack_ptr)$/;"	f
+run_cbool_to_float_cast	src/jit.cpp	/^void run_cbool_to_float_cast(CLVALUE** stack_ptr)$/;"	f
 run_cbool_to_int_cast	src/jit.cpp	/^void run_cbool_to_int_cast(CLVALUE** stack_ptr)$/;"	f
 run_cbool_to_long_cast	src/jit.cpp	/^void run_cbool_to_long_cast(CLVALUE** stack_ptr)$/;"	f
 run_cbool_to_short_cast	src/jit.cpp	/^void run_cbool_to_short_cast(CLVALUE** stack_ptr)$/;"	f
+run_cbool_to_ubyte_cast	src/jit.cpp	/^void run_cbool_to_ubyte_cast(CLVALUE** stack_ptr)$/;"	f
+run_cbool_to_uint_cast	src/jit.cpp	/^void run_cbool_to_uint_cast(CLVALUE** stack_ptr)$/;"	f
+run_cbool_to_ulong_cast	src/jit.cpp	/^void run_cbool_to_ulong_cast(CLVALUE** stack_ptr)$/;"	f
+run_cbool_to_ushort_cast	src/jit.cpp	/^void run_cbool_to_ushort_cast(CLVALUE** stack_ptr)$/;"	f
 run_cbyte_to_byte_cast	src/jit.cpp	/^void run_cbyte_to_byte_cast(CLVALUE** stack_ptr)$/;"	f
+run_cbyte_to_double_cast	src/jit.cpp	/^void run_cbyte_to_double_cast(CLVALUE** stack_ptr)$/;"	f
+run_cbyte_to_float_cast	src/jit.cpp	/^void run_cbyte_to_float_cast(CLVALUE** stack_ptr)$/;"	f
 run_cbyte_to_int_cast	src/jit.cpp	/^void run_cbyte_to_int_cast(CLVALUE** stack_ptr)$/;"	f
 run_cbyte_to_long_cast	src/jit.cpp	/^void run_cbyte_to_long_cast(CLVALUE** stack_ptr)$/;"	f
 run_cbyte_to_short_cast	src/jit.cpp	/^void run_cbyte_to_short_cast(CLVALUE** stack_ptr)$/;"	f
+run_cbyte_to_ubyte_cast	src/jit.cpp	/^void run_cbyte_to_ubyte_cast(CLVALUE** stack_ptr)$/;"	f
+run_cbyte_to_uint_cast	src/jit.cpp	/^void run_cbyte_to_uint_cast(CLVALUE** stack_ptr)$/;"	f
+run_cbyte_to_ulong_cast	src/jit.cpp	/^void run_cbyte_to_ulong_cast(CLVALUE** stack_ptr)$/;"	f
+run_cbyte_to_ushort_cast	src/jit.cpp	/^void run_cbyte_to_ushort_cast(CLVALUE** stack_ptr)$/;"	f
 run_cchar_to_byte_cast	src/jit.cpp	/^void run_cchar_to_byte_cast(CLVALUE** stack_ptr)$/;"	f
+run_cchar_to_double_cast	src/jit.cpp	/^void run_cchar_to_double_cast(CLVALUE** stack_ptr)$/;"	f
+run_cchar_to_float_cast	src/jit.cpp	/^void run_cchar_to_float_cast(CLVALUE** stack_ptr)$/;"	f
 run_cchar_to_int_cast	src/jit.cpp	/^void run_cchar_to_int_cast(CLVALUE** stack_ptr)$/;"	f
 run_cchar_to_long_cast	src/jit.cpp	/^void run_cchar_to_long_cast(CLVALUE** stack_ptr)$/;"	f
 run_cchar_to_short_cast	src/jit.cpp	/^void run_cchar_to_short_cast(CLVALUE** stack_ptr)$/;"	f
+run_cchar_to_ubyte_cast	src/jit.cpp	/^void run_cchar_to_ubyte_cast(CLVALUE** stack_ptr)$/;"	f
+run_cchar_to_uint_cast	src/jit.cpp	/^void run_cchar_to_uint_cast(CLVALUE** stack_ptr)$/;"	f
+run_cchar_to_ulong_cast	src/jit.cpp	/^void run_cchar_to_ulong_cast(CLVALUE** stack_ptr)$/;"	f
+run_cchar_to_ushort_cast	src/jit.cpp	/^void run_cchar_to_ushort_cast(CLVALUE** stack_ptr)$/;"	f
 run_cdouble_to_byte_cast	src/jit.cpp	/^void run_cdouble_to_byte_cast(CLVALUE** stack_ptr)$/;"	f
+run_cdouble_to_double_cast	src/jit.cpp	/^void run_cdouble_to_double_cast(CLVALUE** stack_ptr)$/;"	f
+run_cdouble_to_float_cast	src/jit.cpp	/^void run_cdouble_to_float_cast(CLVALUE** stack_ptr)$/;"	f
 run_cdouble_to_int_cast	src/jit.cpp	/^void run_cdouble_to_int_cast(CLVALUE** stack_ptr)$/;"	f
 run_cdouble_to_long_cast	src/jit.cpp	/^void run_cdouble_to_long_cast(CLVALUE** stack_ptr)$/;"	f
 run_cdouble_to_short_cast	src/jit.cpp	/^void run_cdouble_to_short_cast(CLVALUE** stack_ptr)$/;"	f
+run_cdouble_to_ubyte_cast	src/jit.cpp	/^void run_cdouble_to_ubyte_cast(CLVALUE** stack_ptr)$/;"	f
+run_cdouble_to_uint_cast	src/jit.cpp	/^void run_cdouble_to_uint_cast(CLVALUE** stack_ptr)$/;"	f
+run_cdouble_to_ulong_cast	src/jit.cpp	/^void run_cdouble_to_ulong_cast(CLVALUE** stack_ptr)$/;"	f
+run_cdouble_to_ushort_cast	src/jit.cpp	/^void run_cdouble_to_ushort_cast(CLVALUE** stack_ptr)$/;"	f
 run_cfloat_to_byte_cast	src/jit.cpp	/^void run_cfloat_to_byte_cast(CLVALUE** stack_ptr)$/;"	f
+run_cfloat_to_double_cast	src/jit.cpp	/^void run_cfloat_to_double_cast(CLVALUE** stack_ptr)$/;"	f
+run_cfloat_to_float_cast	src/jit.cpp	/^void run_cfloat_to_float_cast(CLVALUE** stack_ptr)$/;"	f
 run_cfloat_to_int_cast	src/jit.cpp	/^void run_cfloat_to_int_cast(CLVALUE** stack_ptr)$/;"	f
 run_cfloat_to_long_cast	src/jit.cpp	/^void run_cfloat_to_long_cast(CLVALUE** stack_ptr)$/;"	f
 run_cfloat_to_short_cast	src/jit.cpp	/^void run_cfloat_to_short_cast(CLVALUE** stack_ptr)$/;"	f
+run_cfloat_to_ubyte_cast	src/jit.cpp	/^void run_cfloat_to_ubyte_cast(CLVALUE** stack_ptr)$/;"	f
+run_cfloat_to_uint_cast	src/jit.cpp	/^void run_cfloat_to_uint_cast(CLVALUE** stack_ptr)$/;"	f
+run_cfloat_to_ulong_cast	src/jit.cpp	/^void run_cfloat_to_ulong_cast(CLVALUE** stack_ptr)$/;"	f
+run_cfloat_to_ushort_cast	src/jit.cpp	/^void run_cfloat_to_ushort_cast(CLVALUE** stack_ptr)$/;"	f
 run_char_lowercase	src/jit.cpp	/^void run_char_lowercase(CLVALUE** stack_ptr)$/;"	f
 run_char_to_string_cast	src/jit.cpp	/^void run_char_to_string_cast(CLVALUE** stack_ptr)$/;"	f
 run_char_uppercase	src/jit.cpp	/^void run_char_uppercase(CLVALUE** stack_ptr)$/;"	f
 run_clong_to_byte_cast	src/jit.cpp	/^void run_clong_to_byte_cast(CLVALUE** stack_ptr)$/;"	f
+run_clong_to_double_cast	src/jit.cpp	/^void run_clong_to_double_cast(CLVALUE** stack_ptr)$/;"	f
+run_clong_to_float_cast	src/jit.cpp	/^void run_clong_to_float_cast(CLVALUE** stack_ptr)$/;"	f
 run_clong_to_int_cast	src/jit.cpp	/^void run_clong_to_int_cast(CLVALUE** stack_ptr)$/;"	f
 run_clong_to_long_cast	src/jit.cpp	/^void run_clong_to_long_cast(CLVALUE** stack_ptr)$/;"	f
 run_clong_to_short_cast	src/jit.cpp	/^void run_clong_to_short_cast(CLVALUE** stack_ptr)$/;"	f
+run_clong_to_ubyte_cast	src/jit.cpp	/^void run_clong_to_ubyte_cast(CLVALUE** stack_ptr)$/;"	f
+run_clong_to_uint_cast	src/jit.cpp	/^void run_clong_to_uint_cast(CLVALUE** stack_ptr)$/;"	f
+run_clong_to_ulong_cast	src/jit.cpp	/^void run_clong_to_ulong_cast(CLVALUE** stack_ptr)$/;"	f
+run_clong_to_ushort_cast	src/jit.cpp	/^void run_clong_to_ushort_cast(CLVALUE** stack_ptr)$/;"	f
 run_cpointer_to_byte_cast	src/jit.cpp	/^void run_cpointer_to_byte_cast(CLVALUE** stack_ptr)$/;"	f
 run_cpointer_to_int_cast	src/jit.cpp	/^void run_cpointer_to_int_cast(CLVALUE** stack_ptr)$/;"	f
 run_cpointer_to_long_cast	src/jit.cpp	/^void run_cpointer_to_long_cast(CLVALUE** stack_ptr)$/;"	f
 run_cpointer_to_short_cast	src/jit.cpp	/^void run_cpointer_to_short_cast(CLVALUE** stack_ptr)$/;"	f
+run_cpointer_to_ubyte_cast	src/jit.cpp	/^void run_cpointer_to_ubyte_cast(CLVALUE** stack_ptr)$/;"	f
+run_cpointer_to_uint_cast	src/jit.cpp	/^void run_cpointer_to_uint_cast(CLVALUE** stack_ptr)$/;"	f
+run_cpointer_to_ulong_cast	src/jit.cpp	/^void run_cpointer_to_ulong_cast(CLVALUE** stack_ptr)$/;"	f
+run_cpointer_to_ushort_cast	src/jit.cpp	/^void run_cpointer_to_ushort_cast(CLVALUE** stack_ptr)$/;"	f
 run_create_array	src/jit.cpp	/^BOOL run_create_array(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, char* class_name, int num_elements)$/;"	f
 run_create_block_object	src/jit.cpp	/^void run_create_block_object(CLVALUE** stack_ptr, CLVALUE* stack, sConst* constant, int code_offset, int code_len, int constant_offset, int constant_len, int block_var_num, int parent_var_num, BOOL lambda, sVMInfo* info)$/;"	f
 run_create_carray	src/jit.cpp	/^BOOL run_create_carray(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, char* class_name)$/;"	f
@@ -2042,21 +2075,45 @@ run_create_sortable_carray	src/jit.cpp	/^BOOL run_create_sortable_carray(CLVALUE
 run_create_sortable_list	src/jit.cpp	/^BOOL run_create_sortable_list(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, char* class_name)$/;"	f
 run_create_tuple	src/jit.cpp	/^BOOL run_create_tuple(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements)$/;"	f
 run_cshort_to_byte_cast	src/jit.cpp	/^void run_cshort_to_byte_cast(CLVALUE** stack_ptr)$/;"	f
+run_cshort_to_double_cast	src/jit.cpp	/^void run_cshort_to_double_cast(CLVALUE** stack_ptr)$/;"	f
+run_cshort_to_float_cast	src/jit.cpp	/^void run_cshort_to_float_cast(CLVALUE** stack_ptr)$/;"	f
 run_cshort_to_int_cast	src/jit.cpp	/^void run_cshort_to_int_cast(CLVALUE** stack_ptr)$/;"	f
 run_cshort_to_long_cast	src/jit.cpp	/^void run_cshort_to_long_cast(CLVALUE** stack_ptr)$/;"	f
 run_cshort_to_short_cast	src/jit.cpp	/^void run_cshort_to_short_cast(CLVALUE** stack_ptr)$/;"	f
+run_cshort_to_ubyte_cast	src/jit.cpp	/^void run_cshort_to_ubyte_cast(CLVALUE** stack_ptr)$/;"	f
+run_cshort_to_uint_cast	src/jit.cpp	/^void run_cshort_to_uint_cast(CLVALUE** stack_ptr)$/;"	f
+run_cshort_to_ulong_cast	src/jit.cpp	/^void run_cshort_to_ulong_cast(CLVALUE** stack_ptr)$/;"	f
+run_cshort_to_ushort_cast	src/jit.cpp	/^void run_cshort_to_ushort_cast(CLVALUE** stack_ptr)$/;"	f
 run_cubyte_to_byte_cast	src/jit.cpp	/^void run_cubyte_to_byte_cast(CLVALUE** stack_ptr)$/;"	f
+run_cubyte_to_double_cast	src/jit.cpp	/^void run_cubyte_to_double_cast(CLVALUE** stack_ptr)$/;"	f
+run_cubyte_to_float_cast	src/jit.cpp	/^void run_cubyte_to_float_cast(CLVALUE** stack_ptr)$/;"	f
 run_cubyte_to_int_cast	src/jit.cpp	/^void run_cubyte_to_int_cast(CLVALUE** stack_ptr)$/;"	f
 run_cubyte_to_long_cast	src/jit.cpp	/^void run_cubyte_to_long_cast(CLVALUE** stack_ptr)$/;"	f
 run_cubyte_to_short_cast	src/jit.cpp	/^void run_cubyte_to_short_cast(CLVALUE** stack_ptr)$/;"	f
+run_cubyte_to_ubyte_cast	src/jit.cpp	/^void run_cubyte_to_ubyte_cast(CLVALUE** stack_ptr)$/;"	f
+run_cubyte_to_uint_cast	src/jit.cpp	/^void run_cubyte_to_uint_cast(CLVALUE** stack_ptr)$/;"	f
+run_cubyte_to_ulong_cast	src/jit.cpp	/^void run_cubyte_to_ulong_cast(CLVALUE** stack_ptr)$/;"	f
+run_cubyte_to_ushort_cast	src/jit.cpp	/^void run_cubyte_to_ushort_cast(CLVALUE** stack_ptr)$/;"	f
 run_culong_to_byte_cast	src/jit.cpp	/^void run_culong_to_byte_cast(CLVALUE** stack_ptr)$/;"	f
+run_culong_to_double_cast	src/jit.cpp	/^void run_culong_to_double_cast(CLVALUE** stack_ptr)$/;"	f
+run_culong_to_float_cast	src/jit.cpp	/^void run_culong_to_float_cast(CLVALUE** stack_ptr)$/;"	f
 run_culong_to_int_cast	src/jit.cpp	/^void run_culong_to_int_cast(CLVALUE** stack_ptr)$/;"	f
 run_culong_to_long_cast	src/jit.cpp	/^void run_culong_to_long_cast(CLVALUE** stack_ptr)$/;"	f
 run_culong_to_short_cast	src/jit.cpp	/^void run_culong_to_short_cast(CLVALUE** stack_ptr)$/;"	f
+run_culong_to_ubyte_cast	src/jit.cpp	/^void run_culong_to_ubyte_cast(CLVALUE** stack_ptr)$/;"	f
+run_culong_to_uint_cast	src/jit.cpp	/^void run_culong_to_uint_cast(CLVALUE** stack_ptr)$/;"	f
+run_culong_to_ulong_cast	src/jit.cpp	/^void run_culong_to_ulong_cast(CLVALUE** stack_ptr)$/;"	f
+run_culong_to_ushort_cast	src/jit.cpp	/^void run_culong_to_ushort_cast(CLVALUE** stack_ptr)$/;"	f
 run_cushort_to_byte_cast	src/jit.cpp	/^void run_cushort_to_byte_cast(CLVALUE** stack_ptr)$/;"	f
+run_cushort_to_double_cast	src/jit.cpp	/^void run_cushort_to_double_cast(CLVALUE** stack_ptr)$/;"	f
+run_cushort_to_float_cast	src/jit.cpp	/^void run_cushort_to_float_cast(CLVALUE** stack_ptr)$/;"	f
 run_cushort_to_int_cast	src/jit.cpp	/^void run_cushort_to_int_cast(CLVALUE** stack_ptr)$/;"	f
 run_cushort_to_long_cast	src/jit.cpp	/^void run_cushort_to_long_cast(CLVALUE** stack_ptr)$/;"	f
 run_cushort_to_short_cast	src/jit.cpp	/^void run_cushort_to_short_cast(CLVALUE** stack_ptr)$/;"	f
+run_cushort_to_ubyte_cast	src/jit.cpp	/^void run_cushort_to_ubyte_cast(CLVALUE** stack_ptr)$/;"	f
+run_cushort_to_uint_cast	src/jit.cpp	/^void run_cushort_to_uint_cast(CLVALUE** stack_ptr)$/;"	f
+run_cushort_to_ulong_cast	src/jit.cpp	/^void run_cushort_to_ulong_cast(CLVALUE** stack_ptr)$/;"	f
+run_cushort_to_ushort_cast	src/jit.cpp	/^void run_cushort_to_ushort_cast(CLVALUE** stack_ptr)$/;"	f
 run_double_to_string_cast	src/jit.cpp	/^void run_double_to_string_cast(CLVALUE** stack_ptr)$/;"	f
 run_entry_exception_object_with_class_name2	src/jit.cpp	/^static void run_entry_exception_object_with_class_name2(std::map<std::string, Value *> params, int var_num, sVMInfo* info, char* class_name, char* message)$/;"	f	file:
 run_float_to_string_cast	src/jit.cpp	/^void run_float_to_string_cast(CLVALUE** stack_ptr)$/;"	f
@@ -2072,9 +2129,15 @@ run_get_regex_ungreedy	src/jit.cpp	/^void run_get_regex_ungreedy(CLVALUE** stack
 run_head_of_expression	src/jit.cpp	/^void run_head_of_expression(sVMInfo* info, char* sname, int sline)$/;"	f
 run_int_to_string_cast	src/jit.cpp	/^void run_int_to_string_cast(CLVALUE** stack_ptr)$/;"	f
 run_integer_to_byte_cast	src/jit.cpp	/^void run_integer_to_byte_cast(CLVALUE** stack_ptr)$/;"	f
+run_integer_to_double_cast	src/jit.cpp	/^void run_integer_to_double_cast(CLVALUE** stack_ptr)$/;"	f
+run_integer_to_float_cast	src/jit.cpp	/^void run_integer_to_float_cast(CLVALUE** stack_ptr)$/;"	f
 run_integer_to_int_cast	src/jit.cpp	/^void run_integer_to_int_cast(CLVALUE** stack_ptr)$/;"	f
 run_integer_to_long_cast	src/jit.cpp	/^void run_integer_to_long_cast(CLVALUE** stack_ptr)$/;"	f
 run_integer_to_short_cast	src/jit.cpp	/^void run_integer_to_short_cast(CLVALUE** stack_ptr)$/;"	f
+run_integer_to_ubyte_cast	src/jit.cpp	/^void run_integer_to_ubyte_cast(CLVALUE** stack_ptr)$/;"	f
+run_integer_to_uint_cast	src/jit.cpp	/^void run_integer_to_uint_cast(CLVALUE** stack_ptr)$/;"	f
+run_integer_to_ulong_cast	src/jit.cpp	/^void run_integer_to_ulong_cast(CLVALUE** stack_ptr)$/;"	f
+run_integer_to_ushort_cast	src/jit.cpp	/^void run_integer_to_ushort_cast(CLVALUE** stack_ptr)$/;"	f
 run_ldclong	src/jit.cpp	/^void run_ldclong(CLVALUE** stack_ptr, int value1, int value2)$/;"	f
 run_ldcpointer	src/jit.cpp	/^void run_ldcpointer(CLVALUE** stack_ptr, int value1, int value2)$/;"	f
 run_ldculong	src/jit.cpp	/^void run_ldculong(CLVALUE** stack_ptr, int value1, int value2)$/;"	f
@@ -2096,9 +2159,15 @@ run_store_field	src/jit.cpp	/^BOOL run_store_field(CLVALUE** stack_ptr, CLVALUE*
 run_ubyte_to_string_cast	src/jit.cpp	/^void run_ubyte_to_string_cast(CLVALUE** stack_ptr)$/;"	f
 run_uint_to_string_cast	src/jit.cpp	/^void run_uint_to_string_cast(CLVALUE** stack_ptr)$/;"	f
 run_uinteger_to_byte_cast	src/jit.cpp	/^void run_uinteger_to_byte_cast(CLVALUE** stack_ptr)$/;"	f
+run_uinteger_to_double_cast	src/jit.cpp	/^void run_uinteger_to_double_cast(CLVALUE** stack_ptr)$/;"	f
+run_uinteger_to_float_cast	src/jit.cpp	/^void run_uinteger_to_float_cast(CLVALUE** stack_ptr)$/;"	f
 run_uinteger_to_int_cast	src/jit.cpp	/^void run_uinteger_to_int_cast(CLVALUE** stack_ptr)$/;"	f
 run_uinteger_to_long_cast	src/jit.cpp	/^void run_uinteger_to_long_cast(CLVALUE** stack_ptr)$/;"	f
 run_uinteger_to_short_cast	src/jit.cpp	/^void run_uinteger_to_short_cast(CLVALUE** stack_ptr)$/;"	f
+run_uinteger_to_ubyte_cast	src/jit.cpp	/^void run_uinteger_to_ubyte_cast(CLVALUE** stack_ptr)$/;"	f
+run_uinteger_to_uint_cast	src/jit.cpp	/^void run_uinteger_to_uint_cast(CLVALUE** stack_ptr)$/;"	f
+run_uinteger_to_ulong_cast	src/jit.cpp	/^void run_uinteger_to_ulong_cast(CLVALUE** stack_ptr)$/;"	f
+run_uinteger_to_ushort_cast	src/jit.cpp	/^void run_uinteger_to_ushort_cast(CLVALUE** stack_ptr)$/;"	f
 run_ulong_to_string_cast	src/jit.cpp	/^void run_ulong_to_string_cast(CLVALUE** stack_ptr)$/;"	f
 run_ushort_to_string_cast	src/jit.cpp	/^void run_ushort_to_string_cast(CLVALUE** stack_ptr)$/;"	f
 sArrayValue	src/common.h	/^        } sArrayValue;$/;"	m	union:sNodeTreeStruct::__anon3	typeref:struct:sNodeTreeStruct::__anon3::__anon17

@@ -416,22 +416,30 @@ class JITTest
     def run90(): jit Double {
         return 123.1.toDouble;
     }
-    def run91(p:pointer): Pointer {
+    def run91(p:pointer): jit Pointer {
         return p.toPointer;
     }
-    def run92(): Bool {
+    def run92(): jit Bool {
         return 1.1.toBool;
     }
-    def run93(): String {
+    def run93(): jit String {
         return 1.1.toString;
     }
-    def run94(): String {
+    def run94(): jit String {
         return 123.toString;
     }
-    def run95(): String {
+    def run95(): jit String {
         return 'a'.toString;
     }
-    def run96(): int {
+    def run96(): jit int {
+        a:Integer = new Integer(123);
+        return a;
+    }
+    def run97(): jit long {
+        a:Integer = new Integer(123);
+        return a;
+    }
+    def run98(): jit float {
         a:Integer = new Integer(123);
         return a;
     }

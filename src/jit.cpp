@@ -2193,6 +2193,842 @@ static void create_internal_functions()
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_cbool_to_long_cast", TheModule.get());
+
+    /// run_cbyte_to_ubyte_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cbyte_to_ubyte_cast", TheModule.get());
+
+    /// run_cubyte_to_ubyte_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cubyte_to_ubyte_cast", TheModule.get());
+
+    /// run_cshort_to_ubyte_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cshort_to_ubyte_cast", TheModule.get());
+
+    /// run_cushort_to_ubyte_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cushort_to_ubyte_cast", TheModule.get());
+
+    /// run_integer_to_ubyte_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_integer_to_ubyte_cast", TheModule.get());
+
+    /// run_uinteger_to_ubyte_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_uinteger_to_ubyte_cast", TheModule.get());
+
+    /// run_clong_to_ubyte_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_clong_to_ubyte_cast", TheModule.get());
+
+    /// run_culong_to_ubyte_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_culong_to_ubyte_cast", TheModule.get());
+
+    /// run_cfloat_to_ubyte_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cfloat_to_ubyte_cast", TheModule.get());
+
+    /// run_cdouble_to_ubyte_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cdouble_to_ubyte_cast", TheModule.get());
+
+    /// run_cpointer_to_ubyte_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cpointer_to_ubyte_cast", TheModule.get());
+
+    /// run_cchar_to_ubyte_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cchar_to_ubyte_cast", TheModule.get());
+
+    /// run_cbool_to_ubyte_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cbool_to_ubyte_cast", TheModule.get());
+
+    /// run_cbyte_to_ushort_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cbyte_to_ushort_cast", TheModule.get());
+
+    /// run_cubyte_to_ushort_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cubyte_to_ushort_cast", TheModule.get());
+
+    /// run_cshort_to_ushort_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cshort_to_ushort_cast", TheModule.get());
+
+    /// run_cushort_to_ushort_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cushort_to_ushort_cast", TheModule.get());
+
+    /// run_integer_to_ushort_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_integer_to_ushort_cast", TheModule.get());
+
+    /// run_uinteger_to_ushort_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_uinteger_to_ushort_cast", TheModule.get());
+
+    /// run_clong_to_ushort_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_clong_to_ushort_cast", TheModule.get());
+
+    /// run_culong_to_ushort_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_culong_to_ushort_cast", TheModule.get());
+
+    /// run_cfloat_to_ushort_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cfloat_to_ushort_cast", TheModule.get());
+
+    /// run_cdouble_to_ushort_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cdouble_to_ushort_cast", TheModule.get());
+    /// run_cpointer_to_ushort_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cpointer_to_ushort_cast", TheModule.get());
+    /// run_cchar_to_ushort_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cchar_to_ushort_cast", TheModule.get());
+
+    /// run_cbool_to_ushort_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cbool_to_ushort_cast", TheModule.get());
+
+    /// run_cbyte_to_uint_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cbyte_to_uint_cast", TheModule.get());
+
+    /// run_cubyte_to_uint_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cubyte_to_uint_cast", TheModule.get());
+
+    /// run_cshort_to_uint_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cshort_to_uint_cast", TheModule.get());
+
+    /// run_cushort_to_uint_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cushort_to_uint_cast", TheModule.get());
+
+    /// run_integer_to_uint_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_integer_to_uint_cast", TheModule.get());
+
+    /// run_uinteger_to_uint_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_uinteger_to_uint_cast", TheModule.get());
+
+    /// run_clong_to_uint_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_clong_to_uint_cast", TheModule.get());
+
+    /// run_culong_to_uint_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_culong_to_uint_cast", TheModule.get());
+
+    /// run_cfloat_to_uint_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cfloat_to_uint_cast", TheModule.get());
+
+    /// run_cdouble_to_uint_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cdouble_to_uint_cast", TheModule.get());
+
+    /// run_cpointer_to_uint_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cpointer_to_uint_cast", TheModule.get());
+
+    /// run_cchar_to_uint_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cchar_to_uint_cast", TheModule.get());
+
+    /// run_cbool_to_uint_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cbool_to_uint_cast", TheModule.get());
+
+    /// run_cbyte_to_ulong_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cbyte_to_ulong_cast", TheModule.get());
+
+    /// run_cubyte_to_ulong_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cubyte_to_ulong_cast", TheModule.get());
+
+    /// run_cshort_to_ulong_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cshort_to_ulong_cast", TheModule.get());
+
+    /// run_cushort_to_ulong_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cushort_to_ulong_cast", TheModule.get());
+
+    /// run_integer_to_ulong_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_integer_to_ulong_cast", TheModule.get());
+
+    /// run_uinteger_to_ulong_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_uinteger_to_ulong_cast", TheModule.get());
+
+    /// run_clong_to_ulong_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_clong_to_ulong_cast", TheModule.get());
+
+    /// run_culong_to_ulong_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_culong_to_ulong_cast", TheModule.get());
+
+    /// run_cfloat_to_ulong_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cfloat_to_ulong_cast", TheModule.get());
+
+    /// run_cdouble_to_ulong_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cdouble_to_ulong_cast", TheModule.get());
+
+    /// run_cpointer_to_ulong_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cpointer_to_ulong_cast", TheModule.get());
+
+    /// run_cchar_to_ulong_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cchar_to_ulong_cast", TheModule.get());
+
+    /// run_cbool_to_ulong_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cbool_to_ulong_cast", TheModule.get());
+
+    /// run_cbyte_to_float_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cbyte_to_float_cast", TheModule.get());
+
+    /// run_cubyte_to_float_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cubyte_to_float_cast", TheModule.get());
+
+    /// run_cshort_to_float_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cshort_to_float_cast", TheModule.get());
+
+    /// run_cushort_to_float_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cushort_to_float_cast", TheModule.get());
+
+    /// run_integer_to_float_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_integer_to_float_cast", TheModule.get());
+
+    /// run_uinteger_to_float_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_uinteger_to_float_cast", TheModule.get());
+
+    /// run_clong_to_float_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_clong_to_float_cast", TheModule.get());
+
+    /// run_culong_to_float_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_culong_to_float_cast", TheModule.get());
+
+    /// run_cfloat_to_float_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cfloat_to_float_cast", TheModule.get());
+
+    /// run_cdouble_to_float_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cdouble_to_float_cast", TheModule.get());
+
+
+    /// run_cchar_to_float_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cchar_to_float_cast", TheModule.get());
+
+    /// run_cbool_to_float_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cbool_to_float_cast", TheModule.get());
+
+    /// run_cbyte_to_double_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cbyte_to_double_cast", TheModule.get());
+
+    /// run_cubyte_to_double_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cubyte_to_double_cast", TheModule.get());
+
+    /// run_cshort_to_double_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cshort_to_double_cast", TheModule.get());
+
+    /// run_cushort_to_double_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cushort_to_double_cast", TheModule.get());
+
+    /// run_integer_to_double_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_integer_to_double_cast", TheModule.get());
+
+    /// run_uinteger_to_double_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_uinteger_to_double_cast", TheModule.get());
+
+    /// run_clong_to_double_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_clong_to_double_cast", TheModule.get());
+
+    /// run_culong_to_double_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_culong_to_double_cast", TheModule.get());
+
+    /// run_cfloat_to_double_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cfloat_to_double_cast", TheModule.get());
+
+    /// run_cdouble_to_double_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cdouble_to_double_cast", TheModule.get());
+
+
+    /// run_cchar_to_double_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cchar_to_double_cast", TheModule.get());
+
+    /// run_cbool_to_double_cast ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cbool_to_double_cast", TheModule.get());
 }
 
 static void InitializeModuleAndPassManager() 
@@ -2202,7 +3038,7 @@ static void InitializeModuleAndPassManager()
     
     TheFPM = llvm::make_unique<legacy::FunctionPassManager>(TheModule.get());
     
-    TheFPM->add(createInstructionCombiningPass());
+    //TheFPM->add(createInstructionCombiningPass()); // --> Segmentation Fault
     TheFPM->add(createReassociatePass());
     TheFPM->add(createGVNPass());
     TheFPM->add(createCFGSimplificationPass());
@@ -3095,6 +3931,17 @@ static void call_show_number_in_jit(int number)
     Value* result = Builder.CreateCall(show_number, params2);
 }
 
+static void call_show_value_in_jit(Value* value)
+{
+    Function* show_number = TheModule->getFunction("show_number_in_jit");
+
+    std::vector<Value*> params2;
+    Value* param1 = value;
+    params2.push_back(param1);
+
+    Value* result = Builder.CreateCall(show_number, params2);
+}
+
 void show_str_in_jit(char* str)
 {
     printf("%s\n", str);
@@ -3386,12 +4233,12 @@ static void store_value_to_lvar_with_offset(std::map<std::string, Value*>& param
 {
     std::string lvar_arg_name("lvar");
     Value* lvar_value = params[lvar_arg_name];
-
+    
     Value* lvalue = lvar_value;
     Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(64, 8*index, true));
     Value* lvar_offset_value = Builder.CreateAdd(lvalue, rvalue, "lvar_offset_value", true, true);
 
-    store_value(llvm_value, lvar_offset_value, current_block);
+    store_value_with_aligned(llvm_value, lvar_offset_value, current_block, 8);
 }
 
 static Value* get_stack_ptr_value_from_index(std::map<std::string, Value*>& params, BasicBlock* current_block, int index)
@@ -5270,6 +6117,845 @@ void run_cbool_to_long_cast(CLVALUE** stack_ptr)
 
     ((*stack_ptr)-1)->mLongValue = value;
 }
+
+void run_cbyte_to_ubyte_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned char value = (unsigned char)obj_data->mFields[0].mByteValue;
+
+    ((*stack_ptr)-1)->mUByteValue = value;
+}
+
+void run_cubyte_to_ubyte_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned char value = (unsigned char)obj_data->mFields[0].mUByteValue;
+
+    ((*stack_ptr)-1)->mUByteValue = value;
+}
+
+void run_cshort_to_ubyte_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned char value = (unsigned char)obj_data->mFields[0].mShortValue;
+
+    ((*stack_ptr)-1)->mUByteValue = value;
+}
+
+void run_cushort_to_ubyte_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned char value = (unsigned char)obj_data->mFields[0].mUShortValue;
+
+    ((*stack_ptr)-1)->mUByteValue = value;
+}
+
+void run_integer_to_ubyte_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned char value = (unsigned char)obj_data->mFields[0].mIntValue;
+
+    ((*stack_ptr)-1)->mUByteValue = value;
+}
+
+void run_uinteger_to_ubyte_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned char value = (unsigned char)obj_data->mFields[0].mUIntValue;
+
+    ((*stack_ptr)-1)->mUByteValue = value;
+}
+
+void run_clong_to_ubyte_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned char value = (unsigned char)obj_data->mFields[0].mLongValue;
+
+    ((*stack_ptr)-1)->mUByteValue = value;
+}
+
+void run_culong_to_ubyte_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned char value = (unsigned char)obj_data->mFields[0].mULongValue;
+
+    ((*stack_ptr)-1)->mUByteValue = value;
+}
+
+void run_cfloat_to_ubyte_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned char value = (unsigned char)obj_data->mFields[0].mFloatValue;
+
+    ((*stack_ptr)-1)->mUByteValue = value;
+}
+
+void run_cdouble_to_ubyte_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned char value = (unsigned char)obj_data->mFields[0].mDoubleValue;
+
+    ((*stack_ptr)-1)->mUByteValue = value;
+}
+
+void run_cpointer_to_ubyte_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned char value = (unsigned char)0;// obj_data->mFields[0].mPointerValue; 
+
+    ((*stack_ptr)-1)->mUByteValue = value;
+}
+
+void run_cchar_to_ubyte_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned char value = (unsigned char)obj_data->mFields[0].mCharValue;
+
+    ((*stack_ptr)-1)->mUByteValue = value;
+}
+
+void run_cbool_to_ubyte_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned char value = (unsigned char)obj_data->mFields[0].mBoolValue;
+
+    ((*stack_ptr)-1)->mUByteValue = value;
+}
+
+void run_cbyte_to_ushort_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned short value = (unsigned short)obj_data->mFields[0].mByteValue;
+
+    ((*stack_ptr)-1)->mUShortValue = value;
+}
+
+void run_cubyte_to_ushort_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned short value = (unsigned short)obj_data->mFields[0].mUByteValue;
+
+    ((*stack_ptr)-1)->mUShortValue = value;
+}
+
+void run_cshort_to_ushort_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned short value = (unsigned short)obj_data->mFields[0].mUShortValue;
+
+    ((*stack_ptr)-1)->mUShortValue = value;
+}
+
+void run_cushort_to_ushort_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned short value = (unsigned short)obj_data->mFields[0].mUShortValue;
+
+    ((*stack_ptr)-1)->mUShortValue = value;
+}
+
+void run_integer_to_ushort_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned short value = (unsigned short)obj_data->mFields[0].mIntValue;
+
+    ((*stack_ptr)-1)->mUShortValue = value;
+}
+
+void run_uinteger_to_ushort_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned short value = (unsigned short)obj_data->mFields[0].mUIntValue;
+
+    ((*stack_ptr)-1)->mUShortValue = value;
+}
+
+void run_clong_to_ushort_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned short value = (unsigned short)obj_data->mFields[0].mLongValue;
+
+    ((*stack_ptr)-1)->mUShortValue = value;
+}
+
+void run_culong_to_ushort_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned short value = (unsigned short)obj_data->mFields[0].mULongValue;
+
+    ((*stack_ptr)-1)->mUShortValue = value;
+}
+
+void run_cfloat_to_ushort_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned short value = (unsigned short)obj_data->mFields[0].mFloatValue;
+
+    ((*stack_ptr)-1)->mUShortValue = value;
+}
+
+void run_cdouble_to_ushort_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned short value = (unsigned short)obj_data->mFields[0].mDoubleValue;
+
+    ((*stack_ptr)-1)->mUShortValue = value;
+}
+
+void run_cpointer_to_ushort_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned short value = (unsigned short)0; //obj_data->mFields[0].mPointerValue;
+
+    ((*stack_ptr)-1)->mUShortValue = value;
+}
+
+void run_cchar_to_ushort_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned short value = (unsigned short)obj_data->mFields[0].mCharValue;
+
+    ((*stack_ptr)-1)->mUShortValue = value;
+}
+
+void run_cbool_to_ushort_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned short value = (unsigned short)obj_data->mFields[0].mBoolValue;
+
+    ((*stack_ptr)-1)->mUShortValue = value;
+}
+
+void run_cbyte_to_uint_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned int value = (unsigned int)obj_data->mFields[0].mByteValue;
+
+    ((*stack_ptr)-1)->mUIntValue = value;
+}
+
+void run_cubyte_to_uint_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned int value = (unsigned int)obj_data->mFields[0].mUByteValue;
+
+    ((*stack_ptr)-1)->mUIntValue = value;
+}
+
+void run_cshort_to_uint_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned int value = (unsigned int)obj_data->mFields[0].mShortValue;
+
+    ((*stack_ptr)-1)->mUIntValue = value;
+}
+
+void run_cushort_to_uint_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned int value = (unsigned int)obj_data->mFields[0].mUShortValue;
+
+    ((*stack_ptr)-1)->mUIntValue = value;
+}
+
+void run_integer_to_uint_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned int value = (unsigned int)obj_data->mFields[0].mUIntValue;
+
+    ((*stack_ptr)-1)->mUIntValue = value;
+}
+
+void run_uinteger_to_uint_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned int value = (unsigned int)obj_data->mFields[0].mUIntValue;
+
+    ((*stack_ptr)-1)->mUIntValue = value;
+}
+
+void run_clong_to_uint_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned int value = (unsigned int)obj_data->mFields[0].mLongValue;
+
+    ((*stack_ptr)-1)->mUIntValue = value;
+}
+
+void run_culong_to_uint_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned int value = (unsigned int)obj_data->mFields[0].mULongValue;
+
+    ((*stack_ptr)-1)->mUIntValue = value;
+
+}
+
+void run_cfloat_to_uint_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned int value = (unsigned int)obj_data->mFields[0].mFloatValue;
+
+    ((*stack_ptr)-1)->mUIntValue = value;
+}
+
+void run_cdouble_to_uint_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned int value = (unsigned int)obj_data->mFields[0].mDoubleValue;
+
+    ((*stack_ptr)-1)->mUIntValue = value;
+}
+
+void run_cpointer_to_uint_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned int value = (unsigned int)0; //obj_data->mFields[0].mPointerValue;
+
+    ((*stack_ptr)-1)->mUIntValue = value;
+}
+
+void run_cchar_to_uint_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned int value = (unsigned int)obj_data->mFields[0].mCharValue;
+
+    ((*stack_ptr)-1)->mUIntValue = value;
+}
+
+void run_cbool_to_uint_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned int value = (unsigned int)obj_data->mFields[0].mBoolValue;
+
+    ((*stack_ptr)-1)->mUIntValue = value;
+}
+
+void run_cbyte_to_ulong_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned long value = (unsigned long)obj_data->mFields[0].mByteValue;
+
+    ((*stack_ptr)-1)->mULongValue = value;
+}
+
+void run_cubyte_to_ulong_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned long value = (unsigned long)obj_data->mFields[0].mUByteValue;
+
+    ((*stack_ptr)-1)->mULongValue = value;
+}
+
+void run_cshort_to_ulong_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned long value = (unsigned long)obj_data->mFields[0].mShortValue;
+
+    ((*stack_ptr)-1)->mULongValue = value;
+}
+
+void run_cushort_to_ulong_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned long value = (unsigned long)obj_data->mFields[0].mUShortValue;
+
+    ((*stack_ptr)-1)->mULongValue = value;
+}
+
+void run_integer_to_ulong_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned long value = (unsigned long)obj_data->mFields[0].mIntValue;
+
+    ((*stack_ptr)-1)->mULongValue = value;
+}
+
+void run_uinteger_to_ulong_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned long value = (unsigned long)obj_data->mFields[0].mUIntValue;
+
+    ((*stack_ptr)-1)->mULongValue = value;
+}
+
+void run_clong_to_ulong_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned long value = (unsigned long)obj_data->mFields[0].mULongValue;
+
+    ((*stack_ptr)-1)->mULongValue = value;
+}
+
+void run_culong_to_ulong_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned long value = (unsigned long)obj_data->mFields[0].mULongValue;
+
+    ((*stack_ptr)-1)->mULongValue = value;
+}
+
+void run_cfloat_to_ulong_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned long value = (unsigned long)obj_data->mFields[0].mFloatValue;
+
+    ((*stack_ptr)-1)->mULongValue = value;
+}
+
+void run_cdouble_to_ulong_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned long value = (unsigned long)obj_data->mFields[0].mDoubleValue;
+
+    ((*stack_ptr)-1)->mULongValue = value;
+}
+
+void run_cpointer_to_ulong_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned long value = (unsigned long)obj_data->mFields[0].mPointerValue;
+
+    ((*stack_ptr)-1)->mULongValue = value;
+}
+
+void run_cchar_to_ulong_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned long value = (unsigned long)obj_data->mFields[0].mCharValue;
+
+    ((*stack_ptr)-1)->mULongValue = value;
+}
+
+void run_cbool_to_ulong_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned long value = (unsigned long)obj_data->mFields[0].mBoolValue;
+
+    ((*stack_ptr)-1)->mULongValue = value;
+}
+
+void run_cbyte_to_float_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    float value = (float)obj_data->mFields[0].mByteValue;
+
+    ((*stack_ptr)-1)->mFloatValue = value;
+}
+
+void run_cubyte_to_float_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    float value = (float)obj_data->mFields[0].mUByteValue;
+
+    ((*stack_ptr)-1)->mFloatValue = value;
+}
+
+void run_cshort_to_float_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    float value = (float)obj_data->mFields[0].mShortValue;
+
+    ((*stack_ptr)-1)->mFloatValue = value;
+}
+
+void run_cushort_to_float_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    float value = (float)obj_data->mFields[0].mUShortValue;
+
+    ((*stack_ptr)-1)->mFloatValue = value;
+}
+
+void run_integer_to_float_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    float value = (float)obj_data->mFields[0].mIntValue;
+
+    ((*stack_ptr)-1)->mFloatValue = value;
+}
+
+void run_uinteger_to_float_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    float value = (float)obj_data->mFields[0].mUIntValue;
+
+    ((*stack_ptr)-1)->mFloatValue = value;
+}
+
+void run_clong_to_float_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    float value = (float)obj_data->mFields[0].mLongValue;
+
+    ((*stack_ptr)-1)->mFloatValue = value;
+}
+
+void run_culong_to_float_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    float value = (float)obj_data->mFields[0].mULongValue;
+
+    ((*stack_ptr)-1)->mFloatValue = value;
+}
+
+void run_cfloat_to_float_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    float value = (float)obj_data->mFields[0].mFloatValue;
+
+    ((*stack_ptr)-1)->mFloatValue = value;
+}
+
+void run_cdouble_to_float_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    float value = (float)obj_data->mFields[0].mDoubleValue;
+
+    ((*stack_ptr)-1)->mFloatValue = value;
+}
+
+void run_cchar_to_float_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    float value = (float)obj_data->mFields[0].mCharValue;
+
+    ((*stack_ptr)-1)->mFloatValue = value;
+}
+
+void run_cbool_to_float_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    float value = (float)obj_data->mFields[0].mBoolValue;
+
+    ((*stack_ptr)-1)->mFloatValue = value;
+}
+
+void run_cbyte_to_double_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    double value = (double)obj_data->mFields[0].mByteValue;
+
+    ((*stack_ptr)-1)->mDoubleValue = value;
+}
+
+void run_cubyte_to_double_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    double value = (double)obj_data->mFields[0].mUByteValue;
+
+    ((*stack_ptr)-1)->mDoubleValue = value;
+}
+
+void run_cshort_to_double_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    double value = (double)obj_data->mFields[0].mShortValue;
+
+    ((*stack_ptr)-1)->mDoubleValue = value;
+}
+
+void run_cushort_to_double_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    double value = (double)obj_data->mFields[0].mUShortValue;
+
+    ((*stack_ptr)-1)->mDoubleValue = value;
+}
+
+void run_integer_to_double_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    double value = (double)obj_data->mFields[0].mIntValue;
+
+    ((*stack_ptr)-1)->mDoubleValue = value;
+}
+
+void run_uinteger_to_double_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    double value = (double)obj_data->mFields[0].mUIntValue;
+
+    ((*stack_ptr)-1)->mDoubleValue = value;
+}
+
+void run_clong_to_double_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    double value = (double)obj_data->mFields[0].mLongValue;
+
+    ((*stack_ptr)-1)->mDoubleValue = value;
+}
+
+void run_culong_to_double_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    double value = (double)obj_data->mFields[0].mULongValue;
+
+    ((*stack_ptr)-1)->mDoubleValue = value;
+}
+
+void run_cfloat_to_double_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    double value = (double)obj_data->mFields[0].mDoubleValue;
+
+    ((*stack_ptr)-1)->mDoubleValue = value;
+}
+
+void run_cdouble_to_double_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    double value = (double)obj_data->mFields[0].mDoubleValue;
+
+    ((*stack_ptr)-1)->mDoubleValue = value;
+}
+
+void run_cchar_to_double_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    double value = (double)obj_data->mFields[0].mCharValue;
+
+    ((*stack_ptr)-1)->mDoubleValue = value;
+}
+
+void run_cbool_to_double_cast(CLVALUE** stack_ptr)
+{
+    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
+
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    double value = (double)obj_data->mFields[0].mBoolValue;
+
+    ((*stack_ptr)-1)->mDoubleValue = value;
+}
+
+
 
 //////////////////////////////////////////////////////////////////////
 // JIT main
@@ -12416,105 +14102,1166 @@ show_inst_in_jit(inst);
                 }
                 break;
 
+            case OP_CBYTE_TO_UBYTE_CAST: {
+                Function* fun = TheModule->getFunction("run_cbyte_to_ubyte_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CUBYTE_TO_UBYTE_CAST : {
+                Function* fun = TheModule->getFunction("run_cubyte_to_ubyte_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CSHORT_TO_UBYTE_CAST : {
+                Function* fun = TheModule->getFunction("run_cshort_to_ubyte_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CUSHORT_TO_UBYTE_CAST : {
+                Function* fun = TheModule->getFunction("run_cushort_to_ubyte_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_INTEGER_TO_UBYTE_CAST : {
+                Function* fun = TheModule->getFunction("run_integer_to_ubyte_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_UINTEGER_TO_UBYTE_CAST : {
+                Function* fun = TheModule->getFunction("run_uinteger_to_ubyte_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CLONG_TO_UBYTE_CAST : {
+                Function* fun = TheModule->getFunction("run_clong_to_ubyte_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CULONG_TO_UBYTE_CAST : {
+                Function* fun = TheModule->getFunction("run_culong_to_ubyte_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CFLOAT_TO_UBYTE_CAST : {
+                Function* fun = TheModule->getFunction("run_cfloat_to_ubyte_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CDOUBLE_TO_UBYTE_CAST : {
+                Function* fun = TheModule->getFunction("run_cdouble_to_ubyte_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CPOINTER_TO_UBYTE_CAST : {
+                Function* fun = TheModule->getFunction("run_cpointer_to_ubyte_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CCHAR_TO_UBYTE_CAST : {
+                Function* fun = TheModule->getFunction("run_cchar_to_ubyte_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CBOOL_TO_UBYTE_CAST : {
+                Function* fun = TheModule->getFunction("run_cbool_to_ubyte_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CBYTE_TO_USHORT_CAST: {
+                Function* fun = TheModule->getFunction("run_cbyte_to_ushort_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CUBYTE_TO_USHORT_CAST : {
+                Function* fun = TheModule->getFunction("run_cubyte_to_ushort_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CSHORT_TO_USHORT_CAST : {
+                Function* fun = TheModule->getFunction("run_cshort_to_ushort_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CUSHORT_TO_USHORT_CAST : {
+                Function* fun = TheModule->getFunction("run_cushort_to_ushort_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_INTEGER_TO_USHORT_CAST : {
+                Function* fun = TheModule->getFunction("run_integer_to_ushort_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_UINTEGER_TO_USHORT_CAST : {
+                Function* fun = TheModule->getFunction("run_uinteger_to_ushort_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CLONG_TO_USHORT_CAST : {
+                Function* fun = TheModule->getFunction("run_clong_to_ushort_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CULONG_TO_USHORT_CAST : {
+                Function* fun = TheModule->getFunction("run_culong_to_ushort_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CFLOAT_TO_USHORT_CAST : {
+                Function* fun = TheModule->getFunction("run_cfloat_to_ushort_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CDOUBLE_TO_USHORT_CAST : {
+                Function* fun = TheModule->getFunction("run_cdouble_to_ushort_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CPOINTER_TO_USHORT_CAST : {
+                Function* fun = TheModule->getFunction("run_cpointer_to_ushort_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CCHAR_TO_USHORT_CAST : {
+                Function* fun = TheModule->getFunction("run_cchar_to_ushort_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CBOOL_TO_USHORT_CAST : {
+                Function* fun = TheModule->getFunction("run_cbool_to_ushort_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CBYTE_TO_UINT_CAST : {
+                Function* fun = TheModule->getFunction("run_cbyte_to_uint_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CUBYTE_TO_UINT_CAST : {
+                Function* fun = TheModule->getFunction("run_cubyte_to_uint_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CSHORT_TO_UINT_CAST : {
+                Function* fun = TheModule->getFunction("run_cshort_to_uint_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CUSHORT_TO_UINT_CAST : {
+                Function* fun = TheModule->getFunction("run_cushort_to_uint_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_INTEGER_TO_UINT_CAST : {
+                Function* fun = TheModule->getFunction("run_integer_to_uint_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_UINTEGER_TO_UINT_CAST : {
+                Function* fun = TheModule->getFunction("run_uinteger_to_uint_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CLONG_TO_UINT_CAST : {
+                Function* fun = TheModule->getFunction("run_clong_to_uint_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CULONG_TO_UINT_CAST : {
+                Function* fun = TheModule->getFunction("run_culong_to_uint_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CFLOAT_TO_UINT_CAST : {
+                Function* fun = TheModule->getFunction("run_cfloat_to_uint_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CDOUBLE_TO_UINT_CAST : {
+                Function* fun = TheModule->getFunction("run_cdouble_to_uint_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CPOINTER_TO_UINT_CAST : {
+                Function* fun = TheModule->getFunction("run_cpointer_to_uint_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CCHAR_TO_UINT_CAST : {
+                Function* fun = TheModule->getFunction("run_cchar_to_uint_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CBOOL_TO_UINT_CAST : {
+                Function* fun = TheModule->getFunction("run_cbool_to_uint_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CBYTE_TO_ULONG_CAST : {
+                Function* fun = TheModule->getFunction("run_cbyte_to_ulong_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CUBYTE_TO_ULONG_CAST : {
+                Function* fun = TheModule->getFunction("run_cubyte_to_ulong_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CSHORT_TO_ULONG_CAST : {
+                Function* fun = TheModule->getFunction("run_cshort_to_ulong_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CUSHORT_TO_ULONG_CAST : {
+                Function* fun = TheModule->getFunction("run_cushort_to_ulong_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_INTEGER_TO_ULONG_CAST : {
+                Function* fun = TheModule->getFunction("run_integer_to_ulong_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_UINTEGER_TO_ULONG_CAST : {
+                Function* fun = TheModule->getFunction("run_uinteger_to_ulong_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CLONG_TO_ULONG_CAST : {
+                Function* fun = TheModule->getFunction("run_clong_to_ulong_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CULONG_TO_ULONG_CAST : {
+                Function* fun = TheModule->getFunction("run_culong_to_ulong_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CFLOAT_TO_ULONG_CAST : {
+                Function* fun = TheModule->getFunction("run_cfloat_to_ulong_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CDOUBLE_TO_ULONG_CAST : {
+                Function* fun = TheModule->getFunction("run_cdouble_to_ulong_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CPOINTER_TO_ULONG_CAST : {
+                Function* fun = TheModule->getFunction("run_cpointer_to_ulong_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CCHAR_TO_ULONG_CAST : {
+                Function* fun = TheModule->getFunction("run_cchar_to_ulong_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CBOOL_TO_ULONG_CAST : {
+                Function* fun = TheModule->getFunction("run_cbool_to_ulong_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CBYTE_TO_FLOAT_CAST : {
+                Function* fun = TheModule->getFunction("run_cbyte_to_float_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CUBYTE_TO_FLOAT_CAST : {
+                Function* fun = TheModule->getFunction("run_cubyte_to_float_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CSHORT_TO_FLOAT_CAST : {
+                Function* fun = TheModule->getFunction("run_cshort_to_float_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CUSHORT_TO_FLOAT_CAST : {
+                Function* fun = TheModule->getFunction("run_cushort_to_float_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_INTEGER_TO_FLOAT_CAST : {
+                Function* fun = TheModule->getFunction("run_integer_to_float_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_UINTEGER_TO_FLOAT_CAST : {
+                Function* fun = TheModule->getFunction("run_uinteger_to_float_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CLONG_TO_FLOAT_CAST : {
+                Function* fun = TheModule->getFunction("run_clong_to_float_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CULONG_TO_FLOAT_CAST : {
+                Function* fun = TheModule->getFunction("run_culong_to_float_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CFLOAT_TO_FLOAT_CAST : {
+                Function* fun = TheModule->getFunction("run_cfloat_to_float_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CDOUBLE_TO_FLOAT_CAST : {
+                Function* fun = TheModule->getFunction("run_cdouble_to_float_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+
+            case OP_CCHAR_TO_FLOAT_CAST : {
+                Function* fun = TheModule->getFunction("run_cchar_to_float_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CBOOL_TO_FLOAT_CAST : {
+                Function* fun = TheModule->getFunction("run_cbool_to_float_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CBYTE_TO_DOUBLE_CAST : {
+                Function* fun = TheModule->getFunction("run_cbyte_to_double_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CUBYTE_TO_DOUBLE_CAST : {
+                Function* fun = TheModule->getFunction("run_cubyte_to_double_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CSHORT_TO_DOUBLE_CAST : {
+                Function* fun = TheModule->getFunction("run_cshort_to_double_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CUSHORT_TO_DOUBLE_CAST : {
+                Function* fun = TheModule->getFunction("run_cushort_to_double_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_INTEGER_TO_DOUBLE_CAST : {
+                Function* fun = TheModule->getFunction("run_integer_to_double_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_UINTEGER_TO_DOUBLE_CAST : {
+                Function* fun = TheModule->getFunction("run_uinteger_to_double_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CLONG_TO_DOUBLE_CAST : {
+                Function* fun = TheModule->getFunction("run_clong_to_double_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CULONG_TO_DOUBLE_CAST : {
+                Function* fun = TheModule->getFunction("run_culong_to_double_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CFLOAT_TO_DOUBLE_CAST : {
+                Function* fun = TheModule->getFunction("run_cfloat_to_double_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CDOUBLE_TO_DOUBLE_CAST : {
+                Function* fun = TheModule->getFunction("run_cdouble_to_double_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+
+            case OP_CCHAR_TO_DOUBLE_CAST : {
+                Function* fun = TheModule->getFunction("run_cchar_to_double_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CBOOL_TO_DOUBLE_CAST : {
+                Function* fun = TheModule->getFunction("run_cbool_to_double_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CBYTE_TO_CHAR_CAST : {
+                Function* fun = TheModule->getFunction("run_cbyte_to_uint_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CUBYTE_TO_CHAR_CAST : {
+                Function* fun = TheModule->getFunction("run_cubyte_to_uint_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CSHORT_TO_CHAR_CAST : {
+                Function* fun = TheModule->getFunction("run_cshort_to_uint_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CUSHORT_TO_CHAR_CAST : {
+                Function* fun = TheModule->getFunction("run_cushort_to_uint_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_INTEGER_TO_CHAR_CAST : {
+                Function* fun = TheModule->getFunction("run_integer_to_uint_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_UINTEGER_TO_CHAR_CAST : {
+                Function* fun = TheModule->getFunction("run_uinteger_to_uint_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CLONG_TO_CHAR_CAST : {
+                Function* fun = TheModule->getFunction("run_clong_to_uint_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CULONG_TO_CHAR_CAST : {
+                Function* fun = TheModule->getFunction("run_culong_to_uint_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CFLOAT_TO_CHAR_CAST : {
+                Function* fun = TheModule->getFunction("run_cfloat_to_uint_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CDOUBLE_TO_CHAR_CAST : {
+                Function* fun = TheModule->getFunction("run_cdouble_to_uint_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CPOINTER_TO_CHAR_CAST : {
+                Function* fun = TheModule->getFunction("run_cpointer_to_uint_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CCHAR_TO_CHAR_CAST : {
+                Function* fun = TheModule->getFunction("run_cchar_to_uint_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
+            case OP_CBOOL_TO_CHAR_CAST : {
+                Function* fun = TheModule->getFunction("run_cbool_to_uint_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                (void)Builder.CreateCall(fun, params2);
+                }
+                break;
+
 /*
-#define OP_CBYTE_TO_UBYTE_CAST 7131
-#define OP_CUBYTE_TO_UBYTE_CAST 7132
-#define OP_CSHORT_TO_UBYTE_CAST 7133
-#define OP_CUSHORT_TO_UBYTE_CAST 7134
-#define OP_INTEGER_TO_UBYTE_CAST 7135
-#define OP_UINTEGER_TO_UBYTE_CAST 7136
-#define OP_CLONG_TO_UBYTE_CAST 7137
-#define OP_CULONG_TO_UBYTE_CAST 7138
-#define OP_CFLOAT_TO_UBYTE_CAST 7139
-#define OP_CDOUBLE_TO_UBYTE_CAST 7140
-#define OP_CPOINTER_TO_UBYTE_CAST 7141
-#define OP_CCHAR_TO_UBYTE_CAST 7142
-#define OP_CBOOL_TO_UBYTE_CAST 7143
-
-#define OP_CBYTE_TO_USHORT_CAST 7161
-#define OP_CUBYTE_TO_USHORT_CAST 7162
-#define OP_CSHORT_TO_USHORT_CAST 7163
-#define OP_CUSHORT_TO_USHORT_CAST 7164
-#define OP_INTEGER_TO_USHORT_CAST 7165
-#define OP_UINTEGER_TO_USHORT_CAST 7166
-#define OP_CLONG_TO_USHORT_CAST 7167
-#define OP_CULONG_TO_USHORT_CAST 7168
-#define OP_CFLOAT_TO_USHORT_CAST 7169
-#define OP_CDOUBLE_TO_USHORT_CAST 7170
-#define OP_CPOINTER_TO_USHORT_CAST 7171
-#define OP_CCHAR_TO_USHORT_CAST 7172
-#define OP_CBOOL_TO_USHORT_CAST 7173
-
-#define OP_CBYTE_TO_UINT_CAST 7211
-#define OP_CUBYTE_TO_UINT_CAST 7212
-#define OP_CSHORT_TO_UINT_CAST 7213
-#define OP_CUSHORT_TO_UINT_CAST 7214
-#define OP_INTEGER_TO_UINT_CAST 7215
-#define OP_UINTEGER_TO_UINT_CAST 7216
-#define OP_CLONG_TO_UINT_CAST 7217
-#define OP_CULONG_TO_UINT_CAST 7218
-#define OP_CFLOAT_TO_UINT_CAST 7219
-#define OP_CDOUBLE_TO_UINT_CAST 7220
-#define OP_CPOINTER_TO_UINT_CAST 7221
-#define OP_CCHAR_TO_UINT_CAST 7222
-#define OP_CBOOL_TO_UINT_CAST 7223
-
-#define OP_CBYTE_TO_ULONG_CAST 7241
-#define OP_CUBYTE_TO_ULONG_CAST 7242
-#define OP_CSHORT_TO_ULONG_CAST 7243
-#define OP_CUSHORT_TO_ULONG_CAST 7244
-#define OP_INTEGER_TO_ULONG_CAST 7245
-#define OP_UINTEGER_TO_ULONG_CAST 7246
-#define OP_CLONG_TO_ULONG_CAST 7247
-#define OP_CULONG_TO_ULONG_CAST 7248
-#define OP_CFLOAT_TO_ULONG_CAST 7249
-#define OP_CDOUBLE_TO_ULONG_CAST 7250
-#define OP_CPOINTER_TO_ULONG_CAST 7251
-#define OP_CCHAR_TO_ULONG_CAST 7252
-
-#define OP_CBYTE_TO_FLOAT_CAST 7270
-#define OP_CUBYTE_TO_FLOAT_CAST 7271
-#define OP_CSHORT_TO_FLOAT_CAST 7272
-#define OP_CUSHORT_TO_FLOAT_CAST 7273
-#define OP_INTEGER_TO_FLOAT_CAST 7274
-#define OP_UINTEGER_TO_FLOAT_CAST 7275
-#define OP_CLONG_TO_FLOAT_CAST 7276
-#define OP_CULONG_TO_FLOAT_CAST 7277
-#define OP_CFLOAT_TO_FLOAT_CAST 7278
-#define OP_CDOUBLE_TO_FLOAT_CAST 7279
-#define OP_CCHAR_TO_FLOAT_CAST 7281
-#define OP_CBOOL_TO_FLOAT_CAST 7282
-
-#define OP_CBYTE_TO_DOUBLE_CAST 7300
-#define OP_CUBYTE_TO_DOUBLE_CAST 7301
-#define OP_CSHORT_TO_DOUBLE_CAST 7302
-#define OP_CUSHORT_TO_DOUBLE_CAST 7303
-#define OP_INTEGER_TO_DOUBLE_CAST 7304
-#define OP_UINTEGER_TO_DOUBLE_CAST 7305
-#define OP_CLONG_TO_DOUBLE_CAST 7306
-#define OP_CULONG_TO_DOUBLE_CAST 7307
-#define OP_CFLOAT_TO_DOUBLE_CAST 7308
-#define OP_CDOUBLE_TO_DOUBLE_CAST 7309
-#define OP_CCHAR_TO_DOUBLE_CAST 7311
-#define OP_CBOOL_TO_DOUBLE_CAST 7312
-
-#define OP_CBYTE_TO_CHAR_CAST 7341
-#define OP_CUBYTE_TO_CHAR_CAST 7342
-#define OP_CSHORT_TO_CHAR_CAST 7343
-#define OP_CUSHORT_TO_CHAR_CAST 7344
-#define OP_INTEGER_TO_CHAR_CAST 7345
-#define OP_UINTEGER_TO_CHAR_CAST 7346
-#define OP_CLONG_TO_CHAR_CAST 7347
-#define OP_CULONG_TO_CHAR_CAST 7348
-#define OP_CFLOAT_TO_CHAR_CAST 7349
-#define OP_CDOUBLE_TO_CHAR_CAST 7350
-#define OP_CPOINTER_TO_CHAR_CAST 7351
-#define OP_CCHAR_TO_CHAR_CAST 7352
-#define OP_CBOOL_TO_CHAR_CAST 7353
-
-
-
-
 #define OP_UBYTE_TO_BYTE_CAST 7000
 #define OP_FLOAT_TO_BYTE_CAST 7007
 #define OP_DOUBLE_TO_BYTE_CAST 7008
@@ -13348,7 +16095,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
     verifyFunction(*function);
 
     // Run the optimizer on the function.
-    //TheFPM->run(*function);
+    TheFPM->run(*function);
 
     return TRUE;
 }
