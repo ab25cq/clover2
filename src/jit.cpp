@@ -3029,6 +3029,29 @@ static void create_internal_functions()
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_cbool_to_double_cast", TheModule.get());
+
+    /// run_array_to_carray_cast ///
+    type_params.clear();
+    
+    result_type = Type::getInt32Ty(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    param2_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param2_type);
+
+    param3_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param3_type);
+
+    param4_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param4_type);
+
+    param5_type = PointerType::get(IntegerType::get(TheContext, 8), 0);
+    type_params.push_back(param5_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_array_to_carray_cast", TheModule.get());
 }
 
 static void InitializeModuleAndPassManager() 
@@ -6955,7 +6978,57 @@ void run_cbool_to_double_cast(CLVALUE** stack_ptr)
     ((*stack_ptr)-1)->mDoubleValue = value;
 }
 
+BOOL run_array_to_carray_cast(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, char* class_name)
+{
+    sCLClass* klass = get_class_with_load_and_initialize(class_name);
 
+    if(klass == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(10)");
+        return FALSE;
+    }
+
+    CLObject array = ((*stack_ptr)-1)->mObjectValue;
+    sCLObject* array_data = CLOBJECT(array);
+    int array_num = array_data->mArrayNum;
+
+    sCLClass* klass2 = get_class("Array");
+    MASSERT(klass2 != NULL);
+
+    CLObject new_array = create_object(klass2);
+
+    (*stack_ptr)->mObjectValue = new_array;   // push object
+    (*stack_ptr)++;
+
+    CLObject new_primitive_array;
+    if(klass->mFlags & CLASS_FLAGS_PRIMITIVE) {
+        new_primitive_array = create_array_object(klass->mBoxingClass, array_num);
+    }
+    else {
+        new_primitive_array = create_array_object(klass, array_num);
+    }
+
+    sCLObject* new_array_data = CLOBJECT(new_array);
+
+    new_array_data->mFields[0].mObjectValue = new_primitive_array;
+
+    /// boxing element ///
+    int i;
+    for(i=0; i<array_num; i++ ) {
+        array_data = CLOBJECT(array);           // reget for GC
+
+        CLVALUE element;
+        boxing_primitive_value_to_object(array_data->mFields[i], &element, klass);
+
+        sCLObject* new_primitive_array_data = CLOBJECT(new_primitive_array);
+        new_primitive_array_data->mFields[i] = element;
+    }
+
+    (*stack_ptr)-=2;
+    (*stack_ptr)->mObjectValue = new_array;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
 
 //////////////////////////////////////////////////////////////////////
 // JIT main
@@ -10271,14 +10344,6 @@ show_inst_in_jit(inst);
 
                 dec_stack_ptr(params, current_block, 1);
                 push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
-                }
-                break;
-
-            case OP_BYTE_TO_INT_CAST: {
-                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
-                dec_stack_ptr(params, current_block, 1);
-
-                push_value_to_stack_ptr_with_aligned(params, current_block, value, 4);
                 }
                 break;
 
@@ -15261,137 +15326,1190 @@ show_inst_in_jit(inst);
                 }
                 break;
 
-/*
-#define OP_UBYTE_TO_BYTE_CAST 7000
-#define OP_FLOAT_TO_BYTE_CAST 7007
-#define OP_DOUBLE_TO_BYTE_CAST 7008
-#define OP_POINTER_TO_BYTE_CAST 7009
-#define OP_CHAR_TO_BYTE_CAST 7010
+            case OP_UBYTE_TO_BYTE_CAST: {
+                }
+                break;
 
-#define OP_BYTE_TO_SHORT_CAST 7030
-#define OP_UBYTE_TO_SHORT_CAST 7031
-#define OP_USHORT_TO_SHORT_CAST 7032
-#define OP_FLOAT_TO_SHORT_CAST 7037
-#define OP_DOUBLE_TO_SHORT_CAST 7038
-#define OP_POINTER_TO_SHORT_CAST 7039
-#define OP_CHAR_TO_SHORT_CAST 7040
+            case OP_FLOAT_TO_BYTE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
 
-#define OP_BYTE_TO_INT_CAST 7060
-#define OP_UBYTE_TO_INT_CAST 7061
-#define OP_SHORT_TO_INT_CAST 7062
-#define OP_USHORT_TO_INT_CAST 7063
-#define OP_UINT_TO_INT_CAST 7064
-#define OP_FLOAT_TO_INT_CAST 7067
-#define OP_DOUBLE_TO_INT_CAST 7068
-#define OP_POINTER_TO_INT_CAST 7069
-#define OP_CHAR_TO_INT_CAST 7070
+                Value* fvalue = Builder.CreateCast(Instruction::Trunc, value, Type::getFloatTy(TheContext), "fvalue");
 
-#define OP_BYTE_TO_LONG_CAST 7090
-#define OP_UBYTE_TO_LONG_CAST 7091
-#define OP_SHORT_TO_LONG_CAST 7092
-#define OP_USHORT_TO_LONG_CAST 7093
-#define OP_INT_TO_LONG_CAST 7094
-#define OP_UINT_TO_LONG_CAST 7095
-#define OP_ULONG_TO_LONG_CAST 7096
-#define OP_FLOAT_TO_LONG_CAST 7097
-#define OP_DOUBLE_TO_LONG_CAST 7098
-#define OP_POINTER_TO_LONG_CAST 7099
-#define OP_CHAR_TO_LONG_CAST 7100
+                Value* value2 = Builder.CreateCast(Instruction::FPToSI, fvalue, Type::getInt8Ty(TheContext), "value2");
 
-#define OP_BYTE_TO_UBYTE_CAST 7120
-#define OP_SHORT_TO_UBYTE_CAST 7121
-#define OP_USHORT_TO_UBYTE_CAST 7122
-#define OP_INT_TO_UBYTE_CAST 7123
-#define OP_UINT_TO_UBYTE_CAST 7124
-#define OP_LONG_TO_UBYTE_CAST 7125
-#define OP_ULONG_TO_UBYTE_CAST 7126
-#define OP_FLOAT_TO_UBYTE_CAST 7127
-#define OP_DOUBLE_TO_UBYTE_CAST 7128
-#define OP_POINTER_TO_UBYTE_CAST 7129
-#define OP_CHAR_TO_UBYTE_CAST 7130
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 1);
+                }
+                break;
 
-#define OP_BYTE_TO_USHORT_CAST 7150
-#define OP_UBYTE_TO_USHORT_CAST 7151
-#define OP_SHORT_TO_USHORT_CAST 7152
-#define OP_INT_TO_USHORT_CAST 7153
-#define OP_UINT_TO_USHORT_CAST 7154
-#define OP_LONG_TO_USHORT_CAST 7155
-#define OP_ULONG_TO_USHORT_CAST 7156
-#define OP_FLOAT_TO_USHORT_CAST 7157
-#define OP_DOUBLE_TO_USHORT_CAST 7158
-#define OP_POINTER_TO_USHORT_CAST 7159
-#define OP_CHAR_TO_USHORT_CAST 7160
+            case OP_DOUBLE_TO_BYTE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
 
-#define OP_BYTE_TO_UINT_CAST 7200
-#define OP_UBYTE_TO_UINT_CAST 7201
-#define OP_SHORT_TO_UINT_CAST 7202
-#define OP_USHORT_TO_UINT_CAST 7203
-#define OP_INT_TO_UINT_CAST 7204
-#define OP_LONG_TO_UINT_CAST 7205
-#define OP_ULONG_TO_UINT_CAST 7206
-#define OP_FLOAT_TO_UINT_CAST 7207
-#define OP_DOUBLE_TO_UINT_CAST 7208
-#define OP_POINTER_TO_UINT_CAST 7209
-#define OP_CHAR_TO_UINT_CAST 7210
+                Value* fvalue = Builder.CreateCast(Instruction::Trunc, value, Type::getDoubleTy(TheContext), "fvalue");
 
-#define OP_BYTE_TO_ULONG_CAST 7230
-#define OP_UBYTE_TO_ULONG_CAST 7231
-#define OP_SHORT_TO_ULONG_CAST 7232
-#define OP_USHORT_TO_ULONG_CAST 7233
-#define OP_INT_TO_ULONG_CAST 7234
-#define OP_UINT_TO_ULONG_CAST 7235
-#define OP_LONG_TO_ULONG_CAST 7236
-#define OP_FLOAT_TO_ULONG_CAST 7237
-#define OP_DOUBLE_TO_ULONG_CAST 7238
-#define OP_POINTER_TO_ULONG_CAST 7239
-#define OP_CHAR_TO_ULONG_CAST 7240
+                Value* value2 = Builder.CreateCast(Instruction::FPToSI, fvalue, Type::getInt8Ty(TheContext), "value2");
 
-#define OP_BYTE_TO_FLOAT_CAST 7260
-#define OP_UBYTE_TO_FLOAT_CAST 7261
-#define OP_SHORT_TO_FLOAT_CAST 7262
-#define OP_USHORT_TO_FLOAT_CAST 7263
-#define OP_INT_TO_FLOAT_CAST 7264
-#define OP_UINT_TO_FLOAT_CAST 7265
-#define OP_LONG_TO_FLOAT_CAST 7266
-#define OP_ULONG_TO_FLOAT_CAST 7267
-#define OP_DOUBLE_TO_FLOAT_CAST 7268
-#define OP_CHAR_TO_FLOAT_CAST 7269
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 1);
+                }
+                break;
 
-#define OP_BYTE_TO_DOUBLE_CAST 7290
-#define OP_UBYTE_TO_DOUBLE_CAST 7291
-#define OP_SHORT_TO_DOUBLE_CAST 7292
-#define OP_USHORT_TO_DOUBLE_CAST 7293
-#define OP_INT_TO_DOUBLE_CAST 7294
-#define OP_UINT_TO_DOUBLE_CAST 7295
-#define OP_LONG_TO_DOUBLE_CAST 7296
-#define OP_ULONG_TO_DOUBLE_CAST 7297
-#define OP_FLOAT_TO_DOUBLE_CAST 7298
-#define OP_CHAR_TO_DOUBLE_CAST 7299
+            case OP_POINTER_TO_BYTE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
 
-#define OP_BYTE_TO_POINTER_CAST 7320
-#define OP_UBYTE_TO_POINTER_CAST 7321
-#define OP_SHORT_TO_POINTER_CAST 7322
-#define OP_USHORT_TO_POINTER_CAST 7323
-#define OP_INT_TO_POINTER_CAST 7324
-#define OP_UINT_TO_POINTER_CAST 7325
-#define OP_LONG_TO_POINTER_CAST 7326
-#define OP_ULONG_TO_POINTER_CAST 7327
-#define OP_CHAR_TO_POINTER_CAST 7328
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt8Ty(TheContext), "value2");
 
-#define OP_BYTE_TO_CHAR_CAST 7330
-#define OP_UBYTE_TO_CHAR_CAST 7331
-#define OP_SHORT_TO_CHAR_CAST 7332
-#define OP_USHORT_TO_CHAR_CAST 7333
-#define OP_INT_TO_CHAR_CAST 7334
-#define OP_UINT_TO_CHAR_CAST 7335
-#define OP_LONG_TO_CHAR_CAST 7336
-#define OP_ULONG_TO_CHAR_CAST 7337
-#define OP_FLOAT_TO_CHAR_CAST 7338
-#define OP_DOUBLE_TO_CHAR_CAST 7339
-#define OP_POINTER_TO_CHAR_CAST 7340
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 1);
+                }
+                break;
 
-#define OP_ARRAY_TO_CARRAY_CAST 7700
-*/
+            case OP_CHAR_TO_BYTE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt8Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 1);
+                }
+                break;
+
+            case OP_BYTE_TO_SHORT_CAST: {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt16Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 2);
+                }
+                break;
+
+            case OP_UBYTE_TO_SHORT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt16Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 2);
+                }
+                break;
+
+            case OP_USHORT_TO_SHORT_CAST : {
+                }
+                break;
+
+            case OP_FLOAT_TO_SHORT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* fvalue = Builder.CreateCast(Instruction::Trunc, value, Type::getFloatTy(TheContext), "fvalue");
+
+                Value* value2 = Builder.CreateCast(Instruction::FPToSI, fvalue, Type::getInt16Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 2);
+                }
+                break;
+
+            case OP_DOUBLE_TO_SHORT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* fvalue = Builder.CreateCast(Instruction::Trunc, value, Type::getDoubleTy(TheContext), "fvalue");
+
+                Value* value2 = Builder.CreateCast(Instruction::FPToSI, fvalue, Type::getInt16Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 2);
+                }
+                break;
+
+            case OP_POINTER_TO_SHORT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt16Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 2);
+                }
+                break;
+
+            case OP_CHAR_TO_SHORT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt16Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 2);
+                }
+                break;
+
+            case OP_BYTE_TO_INT_CAST: {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt32Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_UBYTE_TO_INT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt32Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_SHORT_TO_INT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt32Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_USHORT_TO_INT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt32Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_UINT_TO_INT_CAST : {
+                }
+                break;
+
+            case OP_FLOAT_TO_INT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* fvalue = Builder.CreateCast(Instruction::Trunc, value, Type::getFloatTy(TheContext), "fvalue");
+
+                Value* value2 = Builder.CreateCast(Instruction::FPToSI, fvalue, Type::getInt32Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_DOUBLE_TO_INT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* fvalue = Builder.CreateCast(Instruction::Trunc, value, Type::getDoubleTy(TheContext), "fvalue");
+
+                Value* value2 = Builder.CreateCast(Instruction::FPToSI, fvalue, Type::getInt32Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_POINTER_TO_INT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt32Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_CHAR_TO_INT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt32Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_BYTE_TO_LONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt64Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 8);
+                }
+                break;
+
+            case OP_UBYTE_TO_LONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt64Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 8);
+                }
+                break;
+
+            case OP_SHORT_TO_LONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt64Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 8);
+                }
+                break;
+
+            case OP_USHORT_TO_LONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt64Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 8);
+                }
+                break;
+
+            case OP_INT_TO_LONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt64Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 8);
+                }
+                break;
+
+            case OP_UINT_TO_LONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt64Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 8);
+                }
+                break;
+
+            case OP_ULONG_TO_LONG_CAST : {
+                }
+                break;
+
+            case OP_FLOAT_TO_LONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* fvalue = Builder.CreateCast(Instruction::Trunc, value, Type::getFloatTy(TheContext), "fvalue");
+
+                Value* value2 = Builder.CreateCast(Instruction::FPToSI, fvalue, Type::getInt64Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 8);
+                }
+                break;
+
+            case OP_DOUBLE_TO_LONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* fvalue = Builder.CreateCast(Instruction::Trunc, value, Type::getDoubleTy(TheContext), "fvalue");
+
+                Value* value2 = Builder.CreateCast(Instruction::FPToSI, fvalue, Type::getInt64Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 8);
+                }
+                break;
+
+            case OP_POINTER_TO_LONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt64Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 8);
+                }
+                break;
+
+            case OP_CHAR_TO_LONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt64Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 8);
+                }
+                break;
+
+            case OP_BYTE_TO_UBYTE_CAST : {
+                }
+                break;
+                
+            case OP_SHORT_TO_UBYTE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt8Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 1);
+                }
+                break;
+                
+            case OP_USHORT_TO_UBYTE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt8Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 1);
+                }
+                break;
+                
+            case OP_INT_TO_UBYTE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt8Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 1);
+                }
+                break;
+                
+            case OP_UINT_TO_UBYTE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt8Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 1);
+                }
+                break;
+                
+            case OP_LONG_TO_UBYTE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt8Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 1);
+                }
+                break;
+                
+            case OP_ULONG_TO_UBYTE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt8Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 1);
+                }
+                break;
+                
+            case OP_FLOAT_TO_UBYTE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* fvalue = Builder.CreateCast(Instruction::Trunc, value, Type::getFloatTy(TheContext), "fvalue");
+
+                Value* value2 = Builder.CreateCast(Instruction::FPToUI, fvalue, Type::getInt8Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 1);
+                }
+                break;
+                
+            case OP_DOUBLE_TO_UBYTE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* fvalue = Builder.CreateCast(Instruction::Trunc, value, Type::getDoubleTy(TheContext), "fvalue");
+
+                Value* value2 = Builder.CreateCast(Instruction::FPToUI, fvalue, Type::getInt8Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 1);
+                }
+                break;
+                
+            case OP_POINTER_TO_UBYTE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt8Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 1);
+                }
+                break;
+                
+            case OP_CHAR_TO_UBYTE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt8Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 1);
+                }
+                break;
+
+            case OP_BYTE_TO_USHORT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt16Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 2);
+                }
+                break;
+
+            case OP_UBYTE_TO_USHORT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt16Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 2);
+                }
+                break;
+
+            case OP_SHORT_TO_USHORT_CAST : {
+                }
+                break;
+
+            case OP_INT_TO_USHORT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt16Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 2);
+                }
+                break;
+
+            case OP_UINT_TO_USHORT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt16Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 2);
+                }
+                break;
+
+            case OP_LONG_TO_USHORT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt16Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 2);
+                }
+                break;
+
+            case OP_ULONG_TO_USHORT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt16Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 2);
+                }
+                break;
+
+            case OP_FLOAT_TO_USHORT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* fvalue = Builder.CreateCast(Instruction::Trunc, value, Type::getFloatTy(TheContext), "fvalue");
+
+                Value* value2 = Builder.CreateCast(Instruction::FPToUI, fvalue, Type::getInt16Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 2);
+                }
+                break;
+
+            case OP_DOUBLE_TO_USHORT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* fvalue = Builder.CreateCast(Instruction::Trunc, value, Type::getDoubleTy(TheContext), "fvalue");
+
+                Value* value2 = Builder.CreateCast(Instruction::FPToUI, fvalue, Type::getInt16Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 2);
+                }
+                break;
+
+            case OP_POINTER_TO_USHORT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt16Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 2);
+                }
+                break;
+
+            case OP_CHAR_TO_USHORT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt16Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 2);
+                }
+                break;
+
+            case OP_BYTE_TO_UINT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt32Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_UBYTE_TO_UINT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt32Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_SHORT_TO_UINT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt32Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_USHORT_TO_UINT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt32Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_INT_TO_UINT_CAST : {
+                }
+                break;
+
+            case OP_LONG_TO_UINT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt32Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_ULONG_TO_UINT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt32Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_FLOAT_TO_UINT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* fvalue = Builder.CreateCast(Instruction::Trunc, value, Type::getFloatTy(TheContext), "fvalue");
+
+                Value* value2 = Builder.CreateCast(Instruction::FPToUI, fvalue, Type::getInt32Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_DOUBLE_TO_UINT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* fvalue = Builder.CreateCast(Instruction::Trunc, value, Type::getDoubleTy(TheContext), "fvalue");
+
+                Value* value2 = Builder.CreateCast(Instruction::FPToUI, fvalue, Type::getInt32Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_POINTER_TO_UINT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt32Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_CHAR_TO_UINT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt32Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_BYTE_TO_ULONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt64Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 8);
+                }
+                break;
+
+            case OP_UBYTE_TO_ULONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt64Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 8);
+                }
+                break;
+
+            case OP_SHORT_TO_ULONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt64Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 8);
+                }
+                break;
+
+            case OP_USHORT_TO_ULONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt64Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 8);
+                }
+                break;
+
+            case OP_INT_TO_ULONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt64Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 8);
+                }
+                break;
+
+            case OP_UINT_TO_ULONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt64Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 8);
+                }
+                break;
+
+            case OP_LONG_TO_ULONG_CAST : {
+                }
+                break;
+
+            case OP_FLOAT_TO_ULONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* fvalue = Builder.CreateCast(Instruction::Trunc, value, Type::getFloatTy(TheContext), "fvalue");
+
+                Value* value2 = Builder.CreateCast(Instruction::FPToUI, fvalue, Type::getInt64Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 8);
+                }
+                break;
+
+            case OP_DOUBLE_TO_ULONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* fvalue = Builder.CreateCast(Instruction::Trunc, value, Type::getDoubleTy(TheContext), "fvalue");
+
+                Value* value2 = Builder.CreateCast(Instruction::FPToUI, fvalue, Type::getInt64Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 8);
+                }
+                break;
+
+            case OP_POINTER_TO_ULONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt64Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 8);
+                }
+                break;
+
+            case OP_CHAR_TO_ULONG_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt64Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 8);
+                }
+                break;
+
+            case OP_BYTE_TO_FLOAT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::SIToFP, value, Type::getFloatTy(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_UBYTE_TO_FLOAT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::UIToFP, value, Type::getFloatTy(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_SHORT_TO_FLOAT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::SIToFP, value, Type::getFloatTy(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_USHORT_TO_FLOAT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::UIToFP, value, Type::getFloatTy(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_INT_TO_FLOAT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::SIToFP, value, Type::getFloatTy(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_UINT_TO_FLOAT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::UIToFP, value, Type::getFloatTy(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_LONG_TO_FLOAT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::SIToFP, value, Type::getFloatTy(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_ULONG_TO_FLOAT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::UIToFP, value, Type::getFloatTy(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_DOUBLE_TO_FLOAT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* fvalue = Builder.CreateCast(Instruction::Trunc, value, Type::getDoubleTy(TheContext), "fvalue");
+
+                Value* value2 = Builder.CreateCast(Instruction::FPTrunc, fvalue, Type::getFloatTy(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_CHAR_TO_FLOAT_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::UIToFP, value, Type::getFloatTy(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_BYTE_TO_DOUBLE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::SIToFP, value, Type::getDoubleTy(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 8);
+                }
+                break;
+
+            case OP_UBYTE_TO_DOUBLE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::UIToFP, value, Type::getDoubleTy(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 8);
+                }
+                break;
+
+            case OP_SHORT_TO_DOUBLE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::SIToFP, value, Type::getDoubleTy(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 8);
+                }
+                break;
+
+            case OP_USHORT_TO_DOUBLE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::UIToFP, value, Type::getDoubleTy(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 8);
+                }
+                break;
+
+            case OP_INT_TO_DOUBLE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::SIToFP, value, Type::getDoubleTy(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 8);
+                }
+                break;
+
+            case OP_UINT_TO_DOUBLE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::UIToFP, value, Type::getDoubleTy(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 8);
+                }
+                break;
+
+            case OP_LONG_TO_DOUBLE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::SIToFP, value, Type::getDoubleTy(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 8);
+                }
+                break;
+
+            case OP_ULONG_TO_DOUBLE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::UIToFP, value, Type::getDoubleTy(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 8);
+                }
+                break;
+
+            case OP_FLOAT_TO_DOUBLE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* fvalue = Builder.CreateCast(Instruction::Trunc, value, Type::getFloatTy(TheContext), "fvalue");
+
+                Value* value2 = Builder.CreateCast(Instruction::FPExt, fvalue, Type::getDoubleTy(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 8);
+                }
+                break;
+
+            case OP_CHAR_TO_DOUBLE_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::UIToFP, value, Type::getDoubleTy(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 8);
+                }
+                break;
+
+            case OP_BYTE_TO_POINTER_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt64Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 8);
+                }
+                break;
+
+            case OP_UBYTE_TO_POINTER_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt64Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 8);
+                }
+                break;
+
+            case OP_SHORT_TO_POINTER_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt64Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 8);
+                }
+                break;
+
+            case OP_USHORT_TO_POINTER_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt64Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 8);
+                }
+                break;
+
+            case OP_INT_TO_POINTER_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt64Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 8);
+                }
+                break;
+
+            case OP_UINT_TO_POINTER_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt64Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 8);
+                }
+                break;
+
+            case OP_LONG_TO_POINTER_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt64Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 8);
+                }
+                break;
+
+            case OP_ULONG_TO_POINTER_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt64Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 8);
+                }
+                break;
+
+            case OP_CHAR_TO_POINTER_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt64Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 8);
+                }
+                break;
+
+            case OP_BYTE_TO_CHAR_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt32Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_UBYTE_TO_CHAR_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt32Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_SHORT_TO_CHAR_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt32Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_USHORT_TO_CHAR_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt32Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_INT_TO_CHAR_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt32Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_UINT_TO_CHAR_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt32Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_LONG_TO_CHAR_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt32Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_ULONG_TO_CHAR_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt32Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_FLOAT_TO_CHAR_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* fvalue = Builder.CreateCast(Instruction::Trunc, value, Type::getFloatTy(TheContext), "fvalue");
+
+                Value* value2 = Builder.CreateCast(Instruction::FPToUI, fvalue, Type::getInt32Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_DOUBLE_TO_CHAR_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* fvalue = Builder.CreateCast(Instruction::Trunc, value, Type::getDoubleTy(TheContext), "fvalue");
+
+                Value* value2 = Builder.CreateCast(Instruction::FPToUI, fvalue, Type::getInt32Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_POINTER_TO_CHAR_CAST : {
+                Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                dec_stack_ptr(params, current_block, 1);
+
+                Value* value2 = Builder.CreateCast(Instruction::Trunc, value, Type::getInt32Ty(TheContext), "value2");
+
+                push_value_to_stack_ptr_with_aligned(params, current_block, value2, 4);
+                }
+                break;
+
+            case OP_ARRAY_TO_CARRAY_CAST: {
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+
+                char* class_name = CONS_str(constant, offset);
+
+                Function* fun = TheModule->getFunction("run_array_to_carray_cast");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                std::string stack_value_name("stack");
+                Value* param2 = params[stack_value_name];
+                params2.push_back(param2);
+
+                Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)var_num);
+                params2.push_back(param3);
+
+                Value* param4 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
+                params2.push_back(param4);
+
+                Value* param5 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)class_name);
+                params2.push_back(param5);
+
+                Value* result = Builder.CreateCall(fun, params2);
+
+                if_value_is_zero_ret_zero(result, params, var_num, info, function, &current_block);
+                }
+                break;
 
             case OP_GET_ARRAY_LENGTH: {
                 Function* fun = TheModule->getFunction("run_get_array_length");

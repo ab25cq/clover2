@@ -1575,6 +1575,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
 BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_params, CLVALUE** stack_ptr, sVMInfo* info);
 BOOL class_init_on_runtime();
 void show_stack(CLVALUE* stack, CLVALUE* stack_ptr, CLVALUE* lvar, int var_num);
+void boxing_primitive_value_to_object(CLVALUE object, CLVALUE* result, sCLClass* klass);
 
 /// class_compiler.c ///
 #define PARSE_PHASE_ALLOC_CLASSES 1

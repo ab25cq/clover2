@@ -34,12 +34,12 @@ CLASS_NAME	src/common.h	277;"	d
 CLASS_NAME_MAX	src/common.h	43;"	d
 CLASS_NUM_MAX	src/common.h	60;"	d
 CLASS_VERSION_MAX	src/common.h	50;"	d
-CLBLOCK	src/common.h	1741;"	d
-CLHEAPMEM	src/common.h	1662;"	d
-CLOBJECT	src/common.h	1709;"	d
+CLBLOCK	src/common.h	1742;"	d
+CLHEAPMEM	src/common.h	1663;"	d
+CLOBJECT	src/common.h	1710;"	d
 CLOVER_STACK_SIZE	src/common.h	61;"	d
 CLObject	src/common.h	/^typedef unsigned int CLObject;$/;"	t
-CLREGEX	src/common.h	1765;"	d
+CLREGEX	src/common.h	1766;"	d
 CLVALUE	src/common.h	/^typedef union CLVALUEUnion CLVALUE;$/;"	t	typeref:union:CLVALUEUnion
 CLVALUEUnion	src/common.h	/^union CLVALUEUnion {$/;"	u
 CL_MODULE_HASH_SIZE	src/common.h	53;"	d
@@ -65,7 +65,7 @@ CurTok	toy.cpp	/^static int CurTok;$/;"	v	file:
 DEBUG_H	src/debug.h	2;"	d
 DL	KaleidoscopeJIT.h	/^  const DataLayout DL;$/;"	m	class:llvm::orc::KaleidoscopeJIT
 DL	src/jit.cpp	/^    const DataLayout DL;$/;"	m	class:CloverJIT	file:
-DUMMY_ARRAY_SIZE	src/common.h	1695;"	d
+DUMMY_ARRAY_SIZE	src/common.h	1696;"	d
 ELIF_NUM_MAX	src/common.h	46;"	d
 EXCEPTION_MESSAGE_MAX	src/common.h	173;"	d
 Else	toy.cpp	/^  std::unique_ptr<ExprAST> Cond, Then, Else;$/;"	m	class:__anon23::IfExprAST	file:
@@ -122,7 +122,7 @@ MANAGED	src/macros.h	21;"	d
 MASSERT	src/debug.h	25;"	d
 MASSERT	src/debug.h	47;"	d
 MAX_CODES	src/interpreter.c	1385;"	d	file:
-MAX_COND_JUMP	src/jit.cpp	6963;"	d	file:
+MAX_COND_JUMP	src/jit.cpp	7036;"	d	file:
 MCALLOC	src/debug.h	22;"	d
 MCALLOC	src/debug.h	42;"	d
 METHOD_CHAIN_MAX	src/common.h	62;"	d
@@ -879,14 +879,14 @@ ObjectLayer	KaleidoscopeJIT.h	/^  ObjLayerT ObjectLayer;$/;"	m	class:llvm::orc::
 ObjectLayer	src/jit.cpp	/^    ObjLayerT ObjectLayer;$/;"	m	class:CloverJIT	file:
 Op	toy.cpp	/^  char Op;$/;"	m	class:__anon23::BinaryExprAST	file:
 PARAMS_MAX	src/common.h	48;"	d
-PARSE_PHASE_ADD_GENERICS_TYPES	src/common.h	1583;"	d
-PARSE_PHASE_ADD_METHODS_AND_FIELDS	src/common.h	1584;"	d
-PARSE_PHASE_ADD_SUPER_CLASSES	src/common.h	1581;"	d
-PARSE_PHASE_ALLOC_CLASSES	src/common.h	1580;"	d
-PARSE_PHASE_CALCULATE_SUPER_CLASSES	src/common.h	1582;"	d
-PARSE_PHASE_COMPILE_PARAM_INITIALIZER	src/common.h	1585;"	d
-PARSE_PHASE_DO_COMPILE_CODE	src/common.h	1586;"	d
-PARSE_PHASE_MAX	src/common.h	1587;"	d
+PARSE_PHASE_ADD_GENERICS_TYPES	src/common.h	1584;"	d
+PARSE_PHASE_ADD_METHODS_AND_FIELDS	src/common.h	1585;"	d
+PARSE_PHASE_ADD_SUPER_CLASSES	src/common.h	1582;"	d
+PARSE_PHASE_ALLOC_CLASSES	src/common.h	1581;"	d
+PARSE_PHASE_CALCULATE_SUPER_CLASSES	src/common.h	1583;"	d
+PARSE_PHASE_COMPILE_PARAM_INITIALIZER	src/common.h	1586;"	d
+PARSE_PHASE_DO_COMPILE_CODE	src/common.h	1587;"	d
+PARSE_PHASE_MAX	src/common.h	1588;"	d
 ParseBinOpRHS	toy.cpp	/^static std::unique_ptr<ExprAST> ParseBinOpRHS(int ExprPrec,$/;"	f	file:
 ParseDefinition	toy.cpp	/^static std::unique_ptr<FunctionAST> ParseDefinition() {$/;"	f	file:
 ParseExpression	toy.cpp	/^static std::unique_ptr<ExprAST> ParseExpression() {$/;"	f	file:
@@ -1090,17 +1090,25 @@ arrange_alignment	src/code.c	/^static void arrange_alignment(sByteCode* code)$/;
 arrange_alignment	src/constant.c	/^static void arrange_alignment(sConst* self)$/;"	f	file:
 arrange_stack	src/node.c	/^void arrange_stack(sCompileInfo* cinfo)$/;"	f
 array_mark_fun	src/array.c	/^void array_mark_fun(CLObject self, unsigned char* mark_flg)$/;"	f
+as_fn_append	config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	configure	/^  as_fn_append ()$/;"	f
+as_fn_arith	config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	configure	/^  as_fn_arith ()$/;"	f
+as_fn_error	config.status	/^as_fn_error ()$/;"	f
 as_fn_error	configure	/^as_fn_error ()$/;"	f
+as_fn_executable_p	config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	configure	/^as_fn_executable_p ()$/;"	f
+as_fn_exit	config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	configure	/^as_fn_exit ()$/;"	f
 as_fn_failure	configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
+as_fn_mkdir_p	config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	configure	/^as_fn_mkdir_p ()$/;"	f
 as_fn_ret_failure	configure	/^as_fn_ret_failure () { return 1; }$/;"	f
 as_fn_ret_success	configure	/^as_fn_ret_success () { return 0; }$/;"	f
+as_fn_set_status	config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	configure	/^as_fn_set_status ()$/;"	f
 as_fn_success	configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
+as_fn_unset	config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	configure	/^as_fn_unset ()$/;"	f
 assign_operator	src/parser.c	/^static BOOL assign_operator(unsigned int* node, sParserInfo* info)$/;"	f	file:
 binary_operator	src/node.c	/^static BOOL binary_operator(unsigned int node, sNodeType* left_type, sNodeType* right_type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, int float_operand, int double_operand, int pointer_operand, int null_operand, int char_operand, int bool_operand, int regex_operand, char* op_string, sCompileInfo* info)$/;"	f	file:
@@ -1991,6 +1999,7 @@ remove_module_from_table	src/module.c	/^static void remove_module_from_table(cha
 remove_stack_to_stack_list	src/stack.c	/^BOOL remove_stack_to_stack_list(CLVALUE* stack)$/;"	f
 reset_method_index_on_compile_time	src/class_compiler.c	/^static void reset_method_index_on_compile_time()$/;"	f	file:
 return_expression	src/parser.c	/^static BOOL return_expression(unsigned int* node, sParserInfo* info)$/;"	f	file:
+run_array_to_carray_cast	src/jit.cpp	/^BOOL run_array_to_carray_cast(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, char* class_name)$/;"	f
 run_bool_to_string_cast	src/jit.cpp	/^void run_bool_to_string_cast(CLVALUE** stack_ptr)$/;"	f
 run_byte_to_string_cast	src/jit.cpp	/^void run_byte_to_string_cast(CLVALUE** stack_ptr)$/;"	f
 run_cbool_to_byte_cast	src/jit.cpp	/^void run_cbool_to_byte_cast(CLVALUE** stack_ptr)$/;"	f

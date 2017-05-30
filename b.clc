@@ -443,4 +443,16 @@ class JITTest
         a:Integer = new Integer(123);
         return a;
     }
+    def run99(): jit int {
+        return 2.1f;
+    }
+    def run100(): jit float {
+        return 2y;
+    }
+    def run101(): jit byte {
+        return 2l;
+    }
+    def run102(): jit long {
+        return 2y;
+    }
 }

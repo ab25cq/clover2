@@ -129,3 +129,7 @@ Clover.test("jit test87", a.run95().equals("a"));
 Clover.test("jit test88", a.run96() == 123);
 Clover.test("jit test89", a.run97() == 123l);
 Clover.test("jit test90", a.run98() == 123.0f);
+Clover.test("jit test91", a.run99() == 2);
+Clover.test("jit test92", a.run100() == 2.0f);
+Clover.test("jit test93", a.run101() == 2y);
+Clover.test("jit test94", a.run102() == 2l);
