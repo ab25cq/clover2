@@ -103,7 +103,7 @@ InitializeModuleAndPassManager	toy.cpp	/^static void InitializeModuleAndPassMana
 JIT	Makefile	/^JIT=1$/;"	m
 KaleidoscopeJIT	KaleidoscopeJIT.h	/^  KaleidoscopeJIT()$/;"	f	class:llvm::orc::KaleidoscopeJIT
 KaleidoscopeJIT	KaleidoscopeJIT.h	/^class KaleidoscopeJIT {$/;"	c	namespace:llvm::orc
-LABEL_NAME_MAX	src/node.c	104;"	d	file:
+LABEL_NAME_MAX	src/node.c	106;"	d	file:
 LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM	src/class_system.c	1634;"	d	file:
 LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM	src/class_system.c	1090;"	d	file:
 LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM	src/class_system.c	998;"	d	file:
@@ -1406,6 +1406,7 @@ gInputingMethod	src/interpreter.c	/^BOOL gInputingMethod = FALSE;$/;"	v
 gInputingPath	src/interpreter.c	/^BOOL gInputingPath = FALSE;$/;"	v
 gInterpreter	src/parser.c	/^BOOL gInterpreter = FALSE;$/;"	v
 gLVTable	src/interpreter.c	/^sVarTable* gLVTable = NULL;$/;"	v
+gLabelNum	src/node.c	/^static unsigned int gLabelNum = 0;$/;"	v	file:
 gMallocEntries	src/debug.c	/^static t_malloc_entry* gMallocEntries[ARRAY_SIZE];$/;"	v	file:
 gModules	src/module.c	/^sCLModule* gModules[CL_MODULE_HASH_SIZE];$/;"	v
 gNativeMethodHash	src/native_method.c	/^static struct sNativeMethodHashItem gNativeMethodHash[NATIVE_METHOD_HASH_SIZE];$/;"	v	typeref:struct:sNativeMethodHashItem	file:

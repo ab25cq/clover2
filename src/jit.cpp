@@ -7068,15 +7068,33 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, CLVALUE* s
     BasicBlock* entry_condnotends[MAX_COND_JUMP];
 
     while(pc - code->mCodes < code->mLen) {
-        if(pc == cond_jump_labels[num_cond_jump-1]) {
-            Builder.SetInsertPoint(entry_condends[num_cond_jump-1]);
-            current_block = entry_condends[num_cond_jump-1];
-            num_cond_jump--;
+        int k;
+        for(k=0; k<num_cond_jump; k++) {
+            if(pc == cond_jump_labels[k]) {
+printf("label start entry_condends %p\n", entry_condends[k]);
+                Builder.SetInsertPoint(entry_condends[k]);
+                current_block = entry_condends[k];
+
+                int j;
+                for(j=k; j<num_cond_jump; j++) {
+                    cond_jump_labels[j] = cond_jump_labels[j+1];
+                    entry_condends[j] = entry_condends[j+1];
+                }
+                num_cond_jump--;
+            }
         }
-        if(pc == cond_not_jump_labels[num_cond_not_jump-1]) {
-            Builder.SetInsertPoint(entry_condnotends[num_cond_not_jump-1]);
-            current_block = entry_condnotends[num_cond_not_jump-1];
-            num_cond_not_jump--;
+        for(k=0; k<num_cond_not_jump; k++) {
+            if(pc == cond_not_jump_labels[k]) {
+                Builder.SetInsertPoint(entry_condnotends[k]);
+                current_block = entry_condnotends[k];
+
+                int j;
+                for(j=k; j<num_cond_not_jump; j++) {
+                    cond_not_jump_labels[j] = cond_not_jump_labels[j+1];
+                    entry_condnotends[j] = entry_condnotends[j+1];
+                }
+                num_cond_not_jump--;
+            }
         }
 
         unsigned int inst = *(unsigned int*)pc;
@@ -7121,6 +7139,7 @@ show_inst_in_jit(inst);
                 break;
 
             case OP_COND_JUMP: {
+puts("!!!COND_JUMP");
                 int jump_value = *(int*)pc;
                 pc += sizeof(int);
 
@@ -7131,6 +7150,8 @@ show_inst_in_jit(inst);
                 entry_condends[num_cond_jump] = BasicBlock::Create(TheContext, "entry_condend", function);
 
                 Builder.CreateCondBr(conditinal_value, entry_condends[num_cond_jump], cond_jump_then_block);
+
+printf("OP_COND_JUMP entry_condends %p\n", entry_condends[num_cond_jump]);
 
                 Builder.SetInsertPoint(cond_jump_then_block);
 
@@ -7185,7 +7206,6 @@ show_inst_in_jit(inst);
                 if(label == nullptr) {
                     label = BasicBlock::Create(TheContext, label_name, function);
                     TheLabels[label_name_string] = label;
-
                 }
 
                 Builder.CreateBr(label);

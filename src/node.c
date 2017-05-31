@@ -4,10 +4,12 @@ sNodeTree* gNodes;
 
 static unsigned int gSizeNodes = 0;
 static unsigned int gUsedNodes = 0;
+static unsigned int gLabelNum = 0;
 
 void init_nodes()
 {
     const int node_size = 32;
+    gLabelNum = 0;
 
     if(gUsedNodes == 0) {
         gNodes = MCALLOC(1, sizeof(sNodeTree)*node_size);
@@ -587,7 +589,7 @@ unsigned int sNodeTree_create_and_and(unsigned int left_node, unsigned int right
 
 static BOOL compile_and_and(unsigned int node, sCompileInfo* info)
 {
-    static int label_num = 0;
+    int label_num = gLabelNum++;
 
     /// compile expression ///
     unsigned int left_node = gNodes[node].mLeft;
@@ -665,8 +667,6 @@ static BOOL compile_and_and(unsigned int node, sCompileInfo* info)
 
     info->type = create_node_type_with_class_name("bool");
 
-    label_num++;
-    
     return TRUE;
 }
 
@@ -690,7 +690,7 @@ unsigned int sNodeTree_create_or_or(unsigned int left_node, unsigned int right_n
 
 static BOOL compile_or_or(unsigned int node, sCompileInfo* info)
 {
-    static int label_num = 0;
+    int label_num = gLabelNum++;
 
     /// compile expression ///
     unsigned int left_node = gNodes[node].mLeft;
@@ -768,8 +768,6 @@ static BOOL compile_or_or(unsigned int node, sCompileInfo* info)
 
     info->type = create_node_type_with_class_name("bool");
 
-    label_num++;
-    
     return TRUE;
 }
 
@@ -793,7 +791,7 @@ unsigned int sNodeTree_conditional_expression(unsigned int expression_node, unsi
 
 static BOOL compile_conditional_operator(unsigned int node, sCompileInfo* info)
 {
-    static int label_num = 0;
+    int label_num = gLabelNum++;
 
     /// compile expression ///
     unsigned int expression_node = gNodes[node].mMiddle;
@@ -881,8 +879,6 @@ static BOOL compile_conditional_operator(unsigned int node, sCompileInfo* info)
     info->type = true_expression_type;
     info->stack_num++;
 
-    label_num++;
-    
     return TRUE;
 }
 
@@ -1376,7 +1372,17 @@ unsigned int sNodeTree_if_expression(unsigned int expression_node, MANAGED sNode
 
 static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
 {
-    static int label_num = 0;
+    int label_num = gLabelNum++;
+    sNodeBlock* else_node_block = gNodes[node].uValue.sIf.mElseNodeBlock;
+
+    char label_name_elif[LABEL_NAME_MAX];
+    create_label_name("label_elif", label_name_elif, LABEL_NAME_MAX, label_num);
+
+    char label_name_else[LABEL_NAME_MAX];
+    create_label_name("label_else", label_name_else, LABEL_NAME_MAX, label_num);
+
+    char label_end_point[LABEL_NAME_MAX];
+    create_label_name("label_if_end", label_end_point, LABEL_NAME_MAX, label_num);
 
     /// compile expression ///
     unsigned int expression_node = gNodes[node].uValue.sIf.mExpressionNode;
@@ -1404,10 +1410,15 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
     int goto_point = info->code->mLen;
     append_int_value_to_code(info->code, 0, info->no_output);
 
-    char label_name_elif[LABEL_NAME_MAX];
-    create_label_name("label_elif", label_name_elif, LABEL_NAME_MAX, label_num);
-
-    append_str_to_constant_pool_and_code(info->constant, info->code, label_name_elif, info->no_output);
+    if(gNodes[node].uValue.sIf.mElifNum > 0) {
+        append_str_to_constant_pool_and_code(info->constant, info->code, label_name_elif, info->no_output);
+    }
+    else if(else_node_block) {
+        append_str_to_constant_pool_and_code(info->constant, info->code, label_name_else, info->no_output);
+    }
+    else {
+        append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
+    }
 
     sNodeBlock* if_block = gNodes[node].uValue.sIf.mIfNodeBlock;
     if(!compile_block(if_block, info)) {
@@ -1415,24 +1426,21 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
     }
 
     append_opecode_to_code(info->code, OP_GOTO, info->no_output);
-    int num_end_points = 1;
     int end_points[ELIF_NUM_MAX+1];
     end_points[0] = info->code->mLen;
+    int num_end_points = 1;
 
     append_int_value_to_code(info->code, 0, info->no_output);
-
-    char label_end_point[LABEL_NAME_MAX];
-    create_label_name("label_if_end", label_end_point, LABEL_NAME_MAX, label_num);
 
     append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
 
     //// elif ///
-    *(int*)(info->code->mCodes + goto_point) = info->code->mLen;
-
-    append_opecode_to_code(info->code, OP_LABEL, info->no_output);
-    append_str_to_constant_pool_and_code(info->constant, info->code, label_name_elif, info->no_output);
-
     if(gNodes[node].uValue.sIf.mElifNum > 0) {
+        *(int*)(info->code->mCodes + goto_point) = info->code->mLen;
+
+        append_opecode_to_code(info->code, OP_LABEL, info->no_output);
+        append_str_to_constant_pool_and_code(info->constant, info->code, label_name_elif, info->no_output);
+
         int j;
         for(j=0; j<gNodes[node].uValue.sIf.mElifNum; j++) {
             /// compile expression ///
@@ -1484,13 +1492,24 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
             append_str_to_constant_pool_and_code(info->constant, info->code, label_name, info->no_output);
         }
     }
+    else {
+        *(int*)(info->code->mCodes + goto_point) = info->code->mLen;
+    }
 
     /// else block ///
-    sNodeBlock* else_node_block = gNodes[node].uValue.sIf.mElseNodeBlock;
     if(else_node_block) {
+        append_opecode_to_code(info->code, OP_LABEL, info->no_output);
+        append_str_to_constant_pool_and_code(info->constant, info->code, label_name_else, info->no_output);
+
         if(!compile_block(else_node_block, info)) {
             return FALSE;
         }
+
+        append_opecode_to_code(info->code, OP_GOTO, info->no_output);
+        end_points[num_end_points] = info->code->mLen;
+        num_end_points++;
+        append_int_value_to_code(info->code, 0, info->no_output);
+        append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
     }
 
     int i;
@@ -1505,8 +1524,6 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
 
     info->type = create_node_type_with_class_name("Null");
 
-    label_num++;
-    
     return TRUE;
 }
 
@@ -1533,7 +1550,7 @@ unsigned int sNodeTree_while_expression(unsigned int expression_node, MANAGED sN
 
 static BOOL compile_while_expression(unsigned int node, sCompileInfo* info)
 {
-    static int label_num = 0;
+    int label_num = gLabelNum++;
 
     /// compile expression ///
     unsigned int expression_node = gNodes[node].uValue.sWhile.mExpressionNode;
@@ -1613,8 +1630,6 @@ static BOOL compile_while_expression(unsigned int node, sCompileInfo* info)
 
     info->type = create_node_type_with_class_name("Null");
 
-    label_num++;
-    
     return TRUE;
 }
 
@@ -1643,7 +1658,7 @@ unsigned int sNodeTree_for_expression(unsigned int expression_node1, unsigned in
 
 static BOOL compile_for_expression(unsigned int node, sCompileInfo* info)
 {
-    static int label_num = 0;
+    int label_num = gLabelNum++;
 
     /// compile expression ///
     unsigned int expression_node = gNodes[node].uValue.sFor.mExpressionNode;
@@ -1738,8 +1753,6 @@ static BOOL compile_for_expression(unsigned int node, sCompileInfo* info)
 
     info->type = create_node_type_with_class_name("Null");
 
-    label_num++;
-    
     return TRUE;
 }
 
@@ -2817,7 +2830,7 @@ unsigned int sNodeTree_try_expression(MANAGED sNodeBlock* try_node_block, MANAGE
 
 static BOOL compile_try_expression(unsigned int node, sCompileInfo* info)
 {
-    static int label_num = 0;
+    int label_num = gLabelNum++;
 
     /// try ///
     append_opecode_to_code(info->code, OP_TRY, info->no_output);
@@ -2876,8 +2889,6 @@ static BOOL compile_try_expression(unsigned int node, sCompileInfo* info)
 
     info->type = create_node_type_with_class_name("Null");
 
-    label_num++;
-    
     return TRUE;
 }
 

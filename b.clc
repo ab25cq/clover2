@@ -17,9 +17,11 @@ class JITTestClassA
 class JITTest 
 {
     field1: int;
+    len:int;
 
     def initialize() {
         self.field1 = 123;
+        self.len = 10;
     }
 
     def run(): jit int {
@@ -454,5 +456,14 @@ class JITTest
     }
     def run102(): jit long {
         return 2y;
+    }
+    def run103(): jit bool {
+        if(true) {
+            if(true) {
+                return true;
+            }
+        }
+
+        return true;
     }
 }
