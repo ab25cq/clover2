@@ -163,7 +163,7 @@ class String
         return result;
     }
 
-    def equals(str: String): bool {
+    def equals(str: String): jit bool {
         if(self.len == str.length()) {
             for(i:int = 0; i<self.len; i++) {
                 if(self.buffer[i] != str.buffer[i]) {

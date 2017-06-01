@@ -125,6 +125,31 @@ static void create_label_name(char* prefix, char* result, size_t result_size, in
     }
 }
 
+static void create_label_name2(char* prefix, char* result, size_t result_size, int num, int num2)
+{
+    xstrncpy(result, prefix, result_size);
+
+    int n = num;
+    while(1) {
+        if(n > 'z' - 'a') {
+            xstrncat(result, "z", result_size);
+            n -= 'z' - 'a';
+        }
+        else {
+            char str[2];
+            str[0] = n + 'a';
+            str[1] = 0;
+            xstrncat(result, str, result_size);
+            break;
+        }
+    }
+
+    char buf[128];
+    snprintf(buf, 128, "%da", num2);
+
+    xstrncat(result, buf, result_size);
+}
+
 // return node index
 static unsigned int alloc_node()
 {
@@ -1376,7 +1401,7 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
     sNodeBlock* else_node_block = gNodes[node].uValue.sIf.mElseNodeBlock;
 
     char label_name_elif[LABEL_NAME_MAX];
-    create_label_name("label_elif", label_name_elif, LABEL_NAME_MAX, label_num);
+    create_label_name2("label_elif", label_name_elif, LABEL_NAME_MAX, label_num, 1);
 
     char label_name_else[LABEL_NAME_MAX];
     create_label_name("label_else", label_name_else, LABEL_NAME_MAX, label_num);
@@ -1470,7 +1495,7 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
             append_int_value_to_code(info->code, 0, info->no_output);
 
             char label_name[LABEL_NAME_MAX];
-            create_label_name("label_if_elif", label_name, LABEL_NAME_MAX, label_num);
+            create_label_name2("label_if_elif", label_name, LABEL_NAME_MAX, label_num, j);
             append_str_to_constant_pool_and_code(info->constant, info->code, label_name, info->no_output);
 
             sNodeBlock* elif_block = gNodes[node].uValue.sIf.mElifNodeBlocks[j];

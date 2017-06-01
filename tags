@@ -122,7 +122,7 @@ MANAGED	src/macros.h	21;"	d
 MASSERT	src/debug.h	25;"	d
 MASSERT	src/debug.h	47;"	d
 MAX_CODES	src/interpreter.c	1385;"	d	file:
-MAX_COND_JUMP	src/jit.cpp	7036;"	d	file:
+MAX_COND_JUMP	src/jit.cpp	7018;"	d	file:
 MCALLOC	src/debug.h	22;"	d
 MCALLOC	src/debug.h	42;"	d
 METHOD_CHAIN_MAX	src/common.h	62;"	d
@@ -1294,6 +1294,7 @@ create_hash_object	src/hash.c	/^CLObject create_hash_object()$/;"	f
 create_integer	src/integer.c	/^CLObject create_integer(int value)$/;"	f
 create_internal_functions	src/jit.cpp	/^static void create_internal_functions()$/;"	f	file:
 create_label_name	src/node.c	/^static void create_label_name(char* prefix, char* result, size_t result_size, int num)$/;"	f	file:
+create_label_name2	src/node.c	/^static void create_label_name2(char* prefix, char* result, size_t result_size, int num, int num2)$/;"	f	file:
 create_list_object	src/list.c	/^CLObject create_list_object()$/;"	f
 create_long	src/long.c	/^CLObject create_long(long value)$/;"	f
 create_method_name_and_params	src/klass_compile_time.c	/^void create_method_name_and_params(char* result, int size_result, sCLClass* klass, char* method_name, sNodeType* param_types[PARAMS_MAX], int num_params)$/;"	f
@@ -1377,7 +1378,7 @@ findMangledSymbol	KaleidoscopeJIT.h	/^  JITSymbol findMangledSymbol(const std::s
 findMangledSymbol	src/jit.cpp	/^    JITSymbol findMangledSymbol(const std::string &Name) {$/;"	f	class:CloverJIT	file:
 findSymbol	KaleidoscopeJIT.h	/^  JITSymbol findSymbol(const std::string Name) {$/;"	f	class:llvm::orc::KaleidoscopeJIT
 findSymbol	src/jit.cpp	/^    JITSymbol findSymbol(const std::string Name) {$/;"	f	class:CloverJIT
-finish_method_call	src/jit.cpp	/^static void finish_method_call(Value* result, sCLClass* klass, sCLMethod* method, sVMInfo* info, std::map<std::string, Value *> params, BasicBlock** current_block, Function* function, char* try_catch_label_name)$/;"	f	file:
+finish_method_call	src/jit.cpp	/^static void finish_method_call(Value* result, sCLClass* klass, sCLMethod* method, sVMInfo* info, std::map<std::string, Value *> params, BasicBlock** current_block, Function* function, char* try_catch_label_name, int real_param_num)$/;"	f	file:
 for_expression	src/parser.c	/^static BOOL for_expression(unsigned int* node, sParserInfo* info)$/;"	f	file:
 free_cl_block_type	src/klass.c	/^static void free_cl_block_type(sCLBlockType* block_type)$/;"	f	file:
 free_cl_type	src/klass.c	/^void free_cl_type(sCLType* cl_type)$/;"	f

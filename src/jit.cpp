@@ -4411,7 +4411,7 @@ CLObject get_string_object_of_object_name(CLObject object)
 ////////////////////////////////////////////////////////////
 // LLVM invoking method
 ////////////////////////////////////////////////////////////
-static void finish_method_call(Value* result, sCLClass* klass, sCLMethod* method, sVMInfo* info, std::map<std::string, Value *> params, BasicBlock** current_block, Function* function, char* try_catch_label_name)
+static void finish_method_call(Value* result, sCLClass* klass, sCLMethod* method, sVMInfo* info, std::map<std::string, Value *> params, BasicBlock** current_block, Function* function, char* try_catch_label_name, int real_param_num)
 {
     // if result is FALSE ret 0
     Value* comp = Builder.CreateICmpNE(result, ConstantInt::get(TheContext, llvm::APInt(32, 1, true)), "ifcond");
@@ -4472,16 +4472,7 @@ static void finish_method_call(Value* result, sCLClass* klass, sCLMethod* method
 
     /// result ///
     if(is_void_type(method->mResultType, klass) && strcmp(METHOD_NAME2(klass, method), "initialize") != 0) {
-        std::string stack_ptr_address_name("stack_ptr_address");
-        Value* stack_ptr_address_value = params[stack_ptr_address_name];
-
-        std::string lvar_arg_name("lvar");
-        Value* lvar_address_value = params[lvar_arg_name];
-
-        std::string stack_ptr_arg_name("stack_ptr");
-        params[stack_ptr_arg_name] = params[lvar_arg_name];
-
-        store_value(lvar_address_value, stack_ptr_address_value, *current_block);
+        dec_stack_ptr(params, *current_block, real_param_num);
 
         int value = 0;
         Value* llvm_value = ConstantInt::get(TheContext, llvm::APInt(32, value, true)); 
@@ -4491,18 +4482,9 @@ static void finish_method_call(Value* result, sCLClass* klass, sCLMethod* method
     else {
         Value* result = get_stack_ptr_value_from_index(params, entry_ifend, -1);
 
-        std::string stack_ptr_address_name("stack_ptr_address");
-        Value* stack_ptr_address_value = params[stack_ptr_address_name];
-
-        std::string lvar_arg_name("lvar");
-        Value* lvar_address_value = params[lvar_arg_name];
-
-        store_value(lvar_address_value, stack_ptr_address_value, *current_block);
+        dec_stack_ptr(params, *current_block, real_param_num);
 
         push_value_to_stack_ptr(params, *current_block, result);
-
-        std::string stack_ptr_arg_name("stack_ptr");
-        params[stack_ptr_arg_name] = params[lvar_arg_name];
     }
 }
 
@@ -4552,7 +4534,7 @@ static BOOL compile_invoking_method(sCLClass* klass, sCLMethod* method, CLVALUE*
 
         Value* result = Builder.CreateCall(native_method, params2);
 
-        finish_method_call(result, klass, method, info, params, current_block, function, try_catch_label_name);
+        finish_method_call(result, klass, method, info, params, current_block, function, try_catch_label_name, real_param_num);
     }
     else {
         Function* llvm_function = TheModule->getFunction("invoke_none_native_method_in_jit");
@@ -4583,7 +4565,7 @@ static BOOL compile_invoking_method(sCLClass* klass, sCLMethod* method, CLVALUE*
 
         Value* result = Builder.CreateCall(llvm_function, params2);
 
-        finish_method_call(result, klass, method, info, params, current_block, function, try_catch_label_name);
+        finish_method_call(result, klass, method, info, params, current_block, function, try_catch_label_name, real_param_num);
     }
 
     return TRUE;

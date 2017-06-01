@@ -459,11 +459,29 @@ class JITTest
     }
     def run103(): jit bool {
         if(true) {
-            if(true) {
+            if(false) {
+                return false;
+            }
+            elif(false) {
+                return false;
+            }
+            elif(false) {
+                return false;
+            }
+            elif(true) {
                 return true;
             }
+            else {
+                return false;
+            }
+        }
+        elif(false) {
+            return false;
+        }
+        else {
+            return false;
         }
 
-        return true;
+        return false;
     }
 }
