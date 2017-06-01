@@ -107,7 +107,7 @@ class String
         return self.len;
     }
 
-    def append(str: String): String {
+    def append(str: String): jit String {
         len:int = str.length();
 
         if(self.len+len+1 < self.size) {

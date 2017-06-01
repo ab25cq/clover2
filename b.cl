@@ -1,6 +1,5 @@
 a:JITTest  = new JITTest();
 
-/*
 b:int = a.run();
 Clover.test("jit test", b == 4);
 
@@ -135,6 +134,5 @@ Clover.test("jit test92", a.run100() == 2.0f);
 Clover.test("jit test93", a.run101() == 2y);
 Clover.test("jit test94", a.run102() == 2l);
 Clover.test("jit test95", a.run103());
-*/
 
 Clover.test("jit test96", "AAA".equals("AAA"));

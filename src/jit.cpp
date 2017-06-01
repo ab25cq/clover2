@@ -7053,7 +7053,6 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, CLVALUE* s
         int k;
         for(k=0; k<num_cond_jump; k++) {
             if(pc == cond_jump_labels[k]) {
-printf("label start entry_condends %p\n", entry_condends[k]);
                 Builder.SetInsertPoint(entry_condends[k]);
                 current_block = entry_condends[k];
 
@@ -7121,7 +7120,6 @@ show_inst_in_jit(inst);
                 break;
 
             case OP_COND_JUMP: {
-puts("!!!COND_JUMP");
                 int jump_value = *(int*)pc;
                 pc += sizeof(int);
 
@@ -7132,8 +7130,6 @@ puts("!!!COND_JUMP");
                 entry_condends[num_cond_jump] = BasicBlock::Create(TheContext, "entry_condend", function);
 
                 Builder.CreateCondBr(conditinal_value, entry_condends[num_cond_jump], cond_jump_then_block);
-
-printf("OP_COND_JUMP entry_condends %p\n", entry_condends[num_cond_jump]);
 
                 Builder.SetInsertPoint(cond_jump_then_block);
 
