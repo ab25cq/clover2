@@ -79,7 +79,7 @@ class Global
 
 class String
 {
-    def printf(format:String) {
+    def printf(format:String):jit {
         printf(format, array { self });
     }
 
@@ -178,7 +178,7 @@ class String
         }
     }
 
-    def getHashKey(): uint {
+    def getHashKey(): jit uint {
         key:uint = 0;
         for(i:int =1; i<self.len; i++) {
             key += self.buffer[i].to_uint;
@@ -187,23 +187,23 @@ class String
         return key;
     }
 
-    def toString(): String {
+    def toString(): jit String {
         return self;
     }
 
-    def printf(format:String) {
+    def printf(format:String):jit {
         printf(format, array { self });
     }
 
-    def print() {
+    def print():jit {
         print(self);
     }
 
-    def println() {
+    def println():jit {
         println(self);
     }
 
-    def match(regex_:regex):bool {
+    def match(regex_:regex):jit bool {
         ovec_max:int = 16;
         ovec:PcreOVec = new PcreOVec(ovec_max);
 
@@ -215,7 +215,7 @@ class String
         return regex_result > 0;
     }
 
-    def match(regex_:regex, group_strings:EqualableList<String>): bool {
+    def match(regex_:regex, group_strings:EqualableList<String>): jit bool {
         ovec_max:int = 16;
         ovec:PcreOVec = new PcreOVec(ovec_max);
 
@@ -308,7 +308,7 @@ class String
         return result;
     }
 
-    def sub(regex_:regex, replace:String): String {
+    def sub(regex_:regex, replace:String): jit String {
         return self.sub(regex_, replace, null);
     }
 
@@ -387,7 +387,7 @@ class String
         return result;
     }
     
-    def sub(regex_:regex, replace:lambda(String,EqualableList<String>):String): String {
+    def sub(regex_:regex, replace:lambda(String,EqualableList<String>):String): jit String {
         group_strings:EqualableList<String> = new EqualableList<String>();
         return self.sub(regex_, replace, group_strings);
     }
@@ -494,7 +494,7 @@ class String
         return result;
     }
 
-    def each(block_:lambda(char)):String {
+    def each(block_:lambda(char)):jit String {
         for(i:int = 0; i<self.len; i++) {
             block_(self.buffer[i]);
         }
@@ -502,7 +502,7 @@ class String
         return self;
     }
 
-    def split(c:char): EqualableList<String> {
+    def split(c:char): jit EqualableList<String> {
         result:EqualableList<String> = new EqualableList<String>();
         offset:int = 0;
         str:String = "";
@@ -570,7 +570,7 @@ class String
         return result;
     }
 
-    def split(separator:regex, block_:lambda(String,EqualableList<String>):String):EqualableList<String> {
+    def split(separator:regex, block_:lambda(String,EqualableList<String>):String): EqualableList<String> {
         result:EqualableList<String> = new EqualableList<String>();
         offset:int = 0;
 
@@ -625,7 +625,7 @@ class String
         return result;
     }
 
-    def indexOf(str:String, count:int):int throws Exception {
+    def indexOf(str:String, count:int):jit int throws Exception {
         result:int = -1;
         count2:int = 0;
         len:int = str.length();

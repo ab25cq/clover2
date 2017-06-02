@@ -3926,6 +3926,14 @@ void show_inst_in_jit(int opecode)
             puts("OP_BYTE_TO_INT_CAST");
             break;
 
+        case OP_LOAD_ELEMENT :
+            puts("OP_LOAD_ELEMENT");
+            break;
+
+        case OP_STORE_ELEMENT:
+            puts("OP_STORE_ELEMENT");
+            break;
+
 /*
         case OP_INT_TO_BYTE_CAST:
             puts("OP_INT_TO_BYTE_CAST");
@@ -4470,21 +4478,24 @@ static void finish_method_call(Value* result, sCLClass* klass, sCLMethod* method
     Builder.SetInsertPoint(entry_ifend); 
     *current_block = entry_ifend;
 
-    /// result ///
-    if(is_void_type(method->mResultType, klass) && strcmp(METHOD_NAME2(klass, method), "initialize") != 0) {
-        dec_stack_ptr(params, *current_block, real_param_num);
+    if(method->mFlags & METHOD_FLAGS_NATIVE) {
+        if(is_void_type(method->mResultType, klass) 
+            && strcmp(METHOD_NAME2(klass, method), "initialize") != 0) 
+        {
+            dec_stack_ptr(params, *current_block, real_param_num);
 
-        int value = 0;
-        Value* llvm_value = ConstantInt::get(TheContext, llvm::APInt(32, value, true)); 
+            int value = 0;
+            Value* llvm_value = ConstantInt::get(TheContext, llvm::APInt(32, value, true)); 
 
-        push_value_to_stack_ptr_with_aligned(params, *current_block, llvm_value, 4);
-    }
-    else {
-        Value* result = get_stack_ptr_value_from_index(params, entry_ifend, -1);
+            push_value_to_stack_ptr_with_aligned(params, *current_block, llvm_value, 4);
+        }
+        else {
+            Value* result = get_stack_ptr_value_from_index(params, entry_ifend, -1);
 
-        dec_stack_ptr(params, *current_block, real_param_num);
+            dec_stack_ptr(params, *current_block, real_param_num);
 
-        push_value_to_stack_ptr(params, *current_block, result);
+            push_value_to_stack_ptr(params, *current_block, result);
+        }
     }
 }
 

@@ -484,4 +484,17 @@ class JITTest
 
         return false;
     }
+    def reverse():jit String {
+        a:String = "ABC";
+        result:String = new String(a.size);
+
+        for(i:int = 0; i<a.len; i++) {
+            result.buffer[i] = a.buffer[a.len-i-1];
+        }
+        result.buffer[i] = '\0';
+
+        result.len = a.len;
+
+        return result;
+    }
 }

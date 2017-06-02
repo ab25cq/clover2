@@ -67,7 +67,7 @@ class String
         self.setValue(str);
     }
 
-    def setValue(str: String) {
+    def setValue(str: String):jit {
         len:int = str.length();
         size:int = len * 2 + 1;
 
@@ -82,13 +82,13 @@ class String
         self.size = size;
     }
 
-    def setValue(buffer:char[]) {
+    def setValue(buffer:char[]): jit {
         self.buffer = buffer;
         self.len = buffer.length-1;
         self.size = buffer.length;
     }
 
-    def chars(index:int):char {
+    def chars(index:int):jit char {
         if(index < 0) {
             index += self.len;
         }
@@ -103,11 +103,11 @@ class String
         return self.buffer[index];
     }
 
-    def length():int {
+    def length():jit int {
         return self.len;
     }
 
-    def append(str: String): jit String {
+    def append(str: String): String {
         len:int = str.length();
 
         if(self.len+len+1 < self.size) {
@@ -165,7 +165,7 @@ class String
         return self;
     }
 
-    def replace(index:int, c:char) {
+    def replace(index:int, c:char):jit {
         if(index < 0) {
             index += self.len;
         }
