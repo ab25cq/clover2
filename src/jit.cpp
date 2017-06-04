@@ -8775,7 +8775,11 @@ show_inst_in_jit(inst);
                 Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 1);
                 Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
 
-                Value* llvm_value = Builder.CreateICmpSGT(lvalue, rvalue, "gttmp");
+                Value* lvalue2 = Builder.CreateCast(Instruction::Trunc, lvalue, Type::getInt8Ty(TheContext));
+                Value* rvalue2 = Builder.CreateCast(Instruction::Trunc, rvalue, Type::getInt8Ty(TheContext));
+
+
+                Value* llvm_value = Builder.CreateICmpSGT(lvalue2, rvalue2, "gttmp");
 
                 dec_stack_ptr(params, current_block, 2);
                 push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
@@ -8786,7 +8790,9 @@ show_inst_in_jit(inst);
                 Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 1);
                 Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
 
-                Value* llvm_value = Builder.CreateICmpSLT(lvalue, rvalue, "lttmp");
+                Value* lvalue2 = Builder.CreateCast(Instruction::Trunc, lvalue, Type::getInt8Ty(TheContext));
+                Value* rvalue2 = Builder.CreateCast(Instruction::Trunc, rvalue, Type::getInt8Ty(TheContext));
+                Value* llvm_value = Builder.CreateICmpSLT(lvalue2, rvalue2, "lttmp");
 
                 dec_stack_ptr(params, current_block, 2);
                 push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
@@ -8797,7 +8803,10 @@ show_inst_in_jit(inst);
                 Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 1);
                 Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
 
-                Value* llvm_value = Builder.CreateICmpSGE(lvalue, rvalue, "gteqtmp");
+                Value* lvalue2 = Builder.CreateCast(Instruction::Trunc, lvalue, Type::getInt8Ty(TheContext));
+                Value* rvalue2 = Builder.CreateCast(Instruction::Trunc, rvalue, Type::getInt8Ty(TheContext));
+
+                Value* llvm_value = Builder.CreateICmpSGE(lvalue2, rvalue2, "gteqtmp");
 
                 dec_stack_ptr(params, current_block, 2);
                 push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
@@ -8808,7 +8817,10 @@ show_inst_in_jit(inst);
                 Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 1);
                 Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
 
-                Value* llvm_value = Builder.CreateICmpSLE(lvalue, rvalue, "lteqtmp");
+                Value* lvalue2 = Builder.CreateCast(Instruction::Trunc, lvalue, Type::getInt8Ty(TheContext));
+                Value* rvalue2 = Builder.CreateCast(Instruction::Trunc, rvalue, Type::getInt8Ty(TheContext));
+
+                Value* llvm_value = Builder.CreateICmpSLE(lvalue2, rvalue2, "lteqtmp");
 
                 dec_stack_ptr(params, current_block, 2);
                 push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
@@ -8907,7 +8919,10 @@ show_inst_in_jit(inst);
                 Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
                 Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
 
-                Value* llvm_value = Builder.CreateICmpSGT(lvalue, rvalue, "gttmp");
+                Value* lvalue2 = Builder.CreateCast(Instruction::Trunc, lvalue, Type::getInt16Ty(TheContext));
+                Value* rvalue2 = Builder.CreateCast(Instruction::Trunc, rvalue, Type::getInt16Ty(TheContext));
+
+                Value* llvm_value = Builder.CreateICmpSGT(lvalue2, rvalue2, "gttmp");
 
                 dec_stack_ptr(params, current_block, 2);
                 push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
@@ -8918,7 +8933,10 @@ show_inst_in_jit(inst);
                 Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
                 Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
 
-                Value* llvm_value = Builder.CreateICmpSLT(lvalue, rvalue, "lttmp");
+                Value* lvalue2 = Builder.CreateCast(Instruction::Trunc, lvalue, Type::getInt16Ty(TheContext));
+                Value* rvalue2 = Builder.CreateCast(Instruction::Trunc, rvalue, Type::getInt16Ty(TheContext));
+
+                Value* llvm_value = Builder.CreateICmpSLT(lvalue2, rvalue2, "lttmp");
 
                 dec_stack_ptr(params, current_block, 2);
                 push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
@@ -8929,7 +8947,10 @@ show_inst_in_jit(inst);
                 Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
                 Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
 
-                Value* llvm_value = Builder.CreateICmpSGE(lvalue, rvalue, "gteqtmp");
+                Value* lvalue2 = Builder.CreateCast(Instruction::Trunc, lvalue, Type::getInt16Ty(TheContext));
+                Value* rvalue2 = Builder.CreateCast(Instruction::Trunc, rvalue, Type::getInt16Ty(TheContext));
+
+                Value* llvm_value = Builder.CreateICmpSGE(lvalue2, rvalue2, "gteqtmp");
 
                 dec_stack_ptr(params, current_block, 2);
                 push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
@@ -8940,7 +8961,10 @@ show_inst_in_jit(inst);
                 Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
                 Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
 
-                Value* llvm_value = Builder.CreateICmpSLE(lvalue, rvalue, "lteqtmp");
+                Value* lvalue2 = Builder.CreateCast(Instruction::Trunc, lvalue, Type::getInt16Ty(TheContext));
+                Value* rvalue2 = Builder.CreateCast(Instruction::Trunc, rvalue, Type::getInt16Ty(TheContext));
+
+                Value* llvm_value = Builder.CreateICmpSLE(lvalue2, rvalue2, "lteqtmp");
 
                 dec_stack_ptr(params, current_block, 2);
                 push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
@@ -9036,21 +9060,27 @@ show_inst_in_jit(inst);
                 break;
 
             case OP_IGT: {
-                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
-                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
 
-                Value* result = Builder.CreateICmpSGT(lvalue, rvalue, "IGT");
+                Value* lvalue2 = Builder.CreateCast(Instruction::Trunc, lvalue, Type::getInt32Ty(TheContext));
+                Value* rvalue2 = Builder.CreateCast(Instruction::Trunc, rvalue, Type::getInt32Ty(TheContext));
+
+                Value* result = Builder.CreateICmpSGT(lvalue2, rvalue2, "IGT");
 
                 dec_stack_ptr(params, current_block, 2);
-                push_value_to_stack_ptr(params, current_block, result);
+                push_value_to_stack_ptr_with_aligned(params, current_block, result, 4);
                 }
                 break;
 
             case OP_ILE: {
-                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
-                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
 
-                Value* result = Builder.CreateICmpSLT(lvalue, rvalue, "ILE");
+                Value* lvalue2 = Builder.CreateCast(Instruction::Trunc, lvalue, Type::getInt32Ty(TheContext));
+                Value* rvalue2 = Builder.CreateCast(Instruction::Trunc, rvalue, Type::getInt32Ty(TheContext));
+
+                Value* result = Builder.CreateICmpSLT(lvalue2, rvalue2, "ILE");
 
                 dec_stack_ptr(params, current_block, 2);
                 push_value_to_stack_ptr(params, current_block, result);
@@ -9058,10 +9088,13 @@ show_inst_in_jit(inst);
                 break;
             
             case OP_IGTEQ: {
-                Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
-                Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
+                Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
+                Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
 
-                Value* result = Builder.CreateICmpSGE(lvalue, rvalue, "IGETQ");
+                Value* lvalue2 = Builder.CreateCast(Instruction::Trunc, lvalue, Type::getInt32Ty(TheContext));
+                Value* rvalue2 = Builder.CreateCast(Instruction::Trunc, rvalue, Type::getInt32Ty(TheContext));
+
+                Value* result = Builder.CreateICmpSGE(lvalue2, rvalue2, "IGETQ");
 
                 dec_stack_ptr(params, current_block, 2);
                 push_value_to_stack_ptr(params, current_block, result);
@@ -9072,7 +9105,10 @@ show_inst_in_jit(inst);
                 Value* lvalue = get_stack_ptr_value_from_index(params, current_block, -2);
                 Value* rvalue = get_stack_ptr_value_from_index(params, current_block, -1);
 
-                Value* result = Builder.CreateICmpSLE(lvalue, rvalue, "ILEEQ");
+                Value* lvalue2 = Builder.CreateCast(Instruction::Trunc, lvalue, Type::getInt32Ty(TheContext));
+                Value* rvalue2 = Builder.CreateCast(Instruction::Trunc, rvalue, Type::getInt32Ty(TheContext));
+
+                Value* result = Builder.CreateICmpSLE(lvalue2, rvalue2, "ILEEQ");
 
                 dec_stack_ptr(params, current_block, 2);
                 push_value_to_stack_ptr(params, current_block, result);
@@ -9149,6 +9185,7 @@ show_inst_in_jit(inst);
                 Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
                 Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
 
+
                 Value* llvm_value = Builder.CreateICmpEQ(lvalue, rvalue, "eqtmp");
 
                 dec_stack_ptr(params, current_block, 2);
@@ -9171,7 +9208,10 @@ show_inst_in_jit(inst);
                 Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
                 Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
 
-                Value* llvm_value = Builder.CreateICmpSGT(lvalue, rvalue, "gttmp");
+                Value* lvalue2 = Builder.CreateCast(Instruction::Trunc, lvalue, Type::getInt64Ty(TheContext));
+                Value* rvalue2 = Builder.CreateCast(Instruction::Trunc, rvalue, Type::getInt64Ty(TheContext));
+
+                Value* llvm_value = Builder.CreateICmpSGT(lvalue2, rvalue2, "gttmp");
 
                 dec_stack_ptr(params, current_block, 2);
                 push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
@@ -9182,7 +9222,10 @@ show_inst_in_jit(inst);
                 Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
                 Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
 
-                Value* llvm_value = Builder.CreateICmpSLT(lvalue, rvalue, "lttmp");
+                Value* lvalue2 = Builder.CreateCast(Instruction::Trunc, lvalue, Type::getInt64Ty(TheContext));
+                Value* rvalue2 = Builder.CreateCast(Instruction::Trunc, rvalue, Type::getInt64Ty(TheContext));
+
+                Value* llvm_value = Builder.CreateICmpSLT(lvalue2, rvalue2, "lttmp");
 
                 dec_stack_ptr(params, current_block, 2);
                 push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);
@@ -9193,7 +9236,10 @@ show_inst_in_jit(inst);
                 Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
                 Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
 
-                Value* llvm_value = Builder.CreateICmpSGE(lvalue, rvalue, "gteqtmp");
+                Value* lvalue2 = Builder.CreateCast(Instruction::Trunc, lvalue, Type::getInt64Ty(TheContext));
+                Value* rvalue2 = Builder.CreateCast(Instruction::Trunc, rvalue, Type::getInt64Ty(TheContext));
+
+                Value* llvm_value = Builder.CreateICmpSGE(lvalue2, rvalue2, "gteqtmp");
 
                 dec_stack_ptr(params, current_block, 2);
                 push_value_to_stack_ptr_with_aligned(params, current_block, llvm_value, 4);

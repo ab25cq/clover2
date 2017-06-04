@@ -141,5 +141,7 @@ Clover.test("jit test95", a.run103());
 
 #a.reverse().println();
 
-Clover.test("jit test98", a.reverse().equals("CBA"));
+#Clover.test("jit test98", a.reverse().equals("CBA"));
+
+Clover.test("jite test99", a.insert(-2, "111").equals("AB111C"));
 
