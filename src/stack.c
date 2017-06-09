@@ -29,7 +29,6 @@ void stack_final()
         MFREE(it);
         it = next;
     }
-
     MFREE(gGlobalStack);
 }
 
@@ -48,7 +47,7 @@ long append_stack_to_stack_list(CLVALUE* stack_mem, CLVALUE** stack_ptr)
     return stack->mStackID;
 }
 
-BOOL remove_stack_to_stack_list(CLVALUE* stack)
+BOOL remove_stack_to_stack_list(CLVALUE* stack, CLVALUE** stack_ptr)
 {
     sCLStack* it = gHeadStack;
     sCLStack* it_before = gHeadStack;
@@ -76,6 +75,8 @@ BOOL remove_stack_to_stack_list(CLVALUE* stack)
 
 BOOL check_variables_existance_on_stack(long stack_id)
 {
+    return TRUE;
+/*
     BOOL result = FALSE;
     sCLStack* it = gHeadStack;
 
@@ -89,4 +90,5 @@ BOOL check_variables_existance_on_stack(long stack_id)
     }
 
     return result;
+*/
 }

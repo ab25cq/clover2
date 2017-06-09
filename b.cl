@@ -1,6 +1,5 @@
 a:JITTest  = new JITTest();
 
-/*
 b:int = a.run();
 Clover.test("jit test", b == 4);
 
@@ -135,13 +134,70 @@ Clover.test("jit test92", a.run100() == 2.0f);
 Clover.test("jit test93", a.run101() == 2y);
 Clover.test("jit test94", a.run102() == 2l);
 Clover.test("jit test95", a.run103());
-*/
 
-#Clover.test("jit test97", "AAA".equals("AAA"));
+Clover.test("jit test97", "AAA".equals("AAA"));
 
-#a.reverse().println();
+Clover.test("jit test98", a.reverse().equals("CBA"));
 
-#Clover.test("jit test98", a.reverse().equals("CBA"));
+Clover.test("jit test99", a.insert(-2, "111").equals("AB111C"));
 
-Clover.test("jite test99", a.insert(-2, "111").equals("AB111C"));
+Clover.test("jit test100", a.run104() == 'B');
+Clover.test("jit test101", a.run105() == 'B');
 
+Clover.test("jit test102", a.indexOf(/B/, 1) == 1);
+Clover.test("jit test103", a.run106() == 101);
+Clover.test("jit test104", a.add(4).equals(equalable_list { 1, 2, 3, 4 }));
+
+Clover.test("jit test105", a.insert2(-1, 7).equals(equalable_list { 1, 2, 3, 7}));
+
+a.buffer_initialize(100ul);
+
+d:int = 123;
+a.buffer_initialize2(&d, 4ul);
+
+Clover.test("jit test106", a.subBuffer(1, -1).equals(B"BC"));
+Clover.test("jit test107", a.sub(/./, "X", null).equals("XBC"));
+Clover.test("jit test108", a.scan(/./).equals(equalable_list {"A", "B", "C"}));
+Clover.test("string2 test1", "ABC".sub(/A/, "B").equals("BBC"));
+Clover.test("string2 test2", "AAA".sub(/A/g, "B").equals("BBB"));
+Clover.test("string2 test3", "AAA".sub(/^A/g, "B").equals("BAA"));
+
+Clover.test("string2 test4", "ABC".subString(-2, -1).equals("BC"));
+group_strings:EqualableList<String> = new EqualableList<String>();
+str:String = "ABCD".sub(/(.)(.)$/, "XX", group_strings);
+
+Clover.test("string2 test5", str.equals("ABXX") && group_strings.length() == 2 && group_strings.items(0).equals("C") && group_strings.items(1).equals("D"));
+
+str2:String = "ABCD".sub(/(.)(.)$/
+            , lambda(match_string:String, group_strings:EqualableList<String>):String { 
+                return System.sprintf("%s%s", array { group_strings.items(0), group_strings.items(0) }); 
+            });
+
+Clover.test("string2 test6", str2.equals("ABCC"));
+
+Clover.test("string2 tset7", "ABC".match(/^A/) && "ABC".match(/C$/) && "ABC".match(/B/));
+
+group_strings3:EqualableList<String> = new EqualableList<String>();
+Clover.test("string2 test8", "ABC".match(/^A(.)C/, group_strings3) && group_strings3.length() == 1 && group_strings3.items(0).equals("B"));
+Clover.test("string2 test9", "ABC".scan(/./).equals(equalable_list {"A", "B", "C"}));
+Clover.test("List2 test12", equalable_list {1,2,3,1,2,3}.deleteWithRange(2,4).equals(equalable_list {1,2,2,3}));
+
+
+Clover.test("file test9", p"/bin".to_stat().groupName().equals("root"));
+Clover.test("file test10", p"/bin".to_stat().userName().equals("root"));
+Clover.test("file test11", p"a.txt".to_stat().S_ISREG());
+#Clover.test("file test12", p"a.txt".to_stat().mtime().dayOfMonth() == 21 && p"a.txt".to_stat().mtime().month() == 12);
+Clover.test("file test13", p"a.txt".read().equals(b"ABCDEFGHI\n"));
+
+f2 := new File("b.txt", System.O_CREAT|System.O_TRUNC|System.O_WRONLY, 0644);
+f2.write(b"aaa\nbbb\nccc\n");
+f2.close();
+
+Clover.test("file test14", File.read("b.txt").equals(b"aaa\nbbb\nccc\n"));
+
+File.write("c.txt", b"abc\ndef\n");
+Clover.test("file test15", File.read("c.txt").equals(b"abc\ndef\n"));
+#Clover.test("file test16", p"c.txt".to_stat().permission() == 0644);
+
+p"d.txt".write(b"GGG\n");
+Clover.test("file test17", p"d.txt".read().equals(b"GGG\n"));

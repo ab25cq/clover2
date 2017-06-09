@@ -28,6 +28,11 @@ class System
     def getenv(name:String): static native String;
     def setenv(name:String, value:String, overwrite:int): static native throws Exception;
     def unsetenv(name:String): static native throws Exception;
+
+    def print(str:String): native static;
+    def println(str:String): native static;
+    def printToError(str:String): native static;
+    def printlnToError(str:String): native static;
 }
 
 class Global
@@ -67,7 +72,7 @@ class String
         self.setValue(str);
     }
 
-    def setValue(str: String):jit {
+    def setValue(str: String) {
         len:int = str.length();
         size:int = len * 2 + 1;
 
@@ -82,13 +87,13 @@ class String
         self.size = size;
     }
 
-    def setValue(buffer:char[]): jit {
+    def setValue(buffer:char[]) {
         self.buffer = buffer;
         self.len = buffer.length-1;
         self.size = buffer.length;
     }
 
-    def chars(index:int):jit char {
+    def chars(index:int):char {
         if(index < 0) {
             index += self.len;
         }
@@ -103,11 +108,11 @@ class String
         return self.buffer[index];
     }
 
-    def length():jit int {
+    def length(): int {
         return self.len;
     }
 
-    def append(str: String): jit String {
+    def append(str: String):  String {
         len:int = str.length();
 
         if(self.len+len+1 < self.size) {
@@ -138,7 +143,7 @@ class String
         return self;
     }
 
-    def append(c:char): jit String {
+    def append(c:char):  String {
         len:int = 1;
 
         if(self.len+len+1 < self.size) {
@@ -165,7 +170,7 @@ class String
         return self;
     }
 
-    def replace(index:int, c:char):jit {
+    def replace(index:int, c:char): {
         if(index < 0) {
             index += self.len;
         }
@@ -205,55 +210,55 @@ class Clover
 
 module MWrapperClassBase 
 {
-    def toByte():Byte {
+    def toByte(): Byte {
         return self.value.toByte;
     }
 
-    def toUByte():UByte {
+    def toUByte(): UByte {
         return self.value.toUByte;
     }
 
-    def toShort():Short {
+    def toShort(): Short {
         return self.value.toShort;
     }
 
-    def toUShort():UShort {
+    def toUShort(): UShort {
         return self.value.toUShort;
     }
 
-    def toInteger():Integer {
+    def toInteger(): Integer {
         return self.value.toInteger;
     }
 
-    def toUInteger():UInteger {
+    def toUInteger(): UInteger {
         return self.value.toUInteger;
     }
 
-    def toLong():Long {
+    def toLong(): Long {
         return self.value.toLong;
     }
 
-    def toULong():ULong {
+    def toULong(): ULong {
         return self.value.toULong;
     }
 
-    def toChar():Char {
+    def toChar(): Char {
         return self.value.toChar;
     }
 
-    def toBool():Bool {
+    def toBool(): Bool {
         return self.value.toBool;
     }
 
-    def toString():String {
+    def toString(): String {
         return self.value.toString;
     }
 
-    def equals(right:SELF):bool {
+    def equals(right:SELF): bool {
         return self.value == right.value;
     }
 
-    def compare(right:SELF): int {
+    def compare(right:SELF):  int {
         if(self.value < right.value) {
             return -1;
         }

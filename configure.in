@@ -24,6 +24,7 @@ AC_ARG_WITH(log,                [  --with-log                create log ], [ LOG
 AC_ARG_WITH(optimize,           [  --with-optimize           with optimize(-O in CFLAGS) ], [ ENABLE_OPTIMIZE=1 ], [ ENABLE_OPTIMIZE=0 ])
 AC_ARG_WITH(interpreter,        [  --with-interpreter        with interpreter ], [ ENABLE_INTERPRETER=1 ], [ ENABLE_INTERPRETER=0])
 AC_ARG_WITH(jit,                [  --with-jit                with jit ], [ ENABLE_JIT=1 ], [ ENABLE_JIT=0])
+AC_ARG_WITH(all-jit-compile,    [  --with-all-jit-compile    with all jit compile for debug], [ ENABLE_ALL_JIT_COMPILE=1 ], [ ENABLE_ALL_JIT_COMPILE=0])
 
 #####################################################################
 # check cpu type
@@ -123,6 +124,10 @@ if test $ENABLE_OPTIMIZE = 1
 then
     CFLAGS="$CFLAGS -O3"
 fi
+if test $ENABLE_ALL_JIT_COMPILE = 1
+then
+    CFLAGS="$CFLAGS -DALL_JIT_COMPILE"
+fi
 
 if test $ENABLE_INTERPRETER = 1
 then
@@ -193,7 +198,7 @@ then
     CXX=clang++-4.0
     if test $DEBUGGING = 1
     then
-        CXXFLAGS='`llvm-config-4.0 --cxxflags --ldflags --system-libs --libs core mcjit native` -O3 -DMDEBUG -g'
+        CXXFLAGS='`llvm-config-4.0 --cxxflags --ldflags --system-libs --libs core mcjit native` -DMDEBUG -g'
     else
         CXXFLAGS='`llvm-config-4.0 --cxxflags --ldflags --system-libs --libs core mcjit native` -O3'
     fi
@@ -201,7 +206,7 @@ else
     CXX=clang+
     if test $DEBUGGING = 1
     then
-        CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs core mcjit native` -O3 -DMDEBUG -g'
+        CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs core mcjit native` -DMDEBUG -g'
     else
         CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs core mcjit native` -O3'
     fi
@@ -216,7 +221,7 @@ CFLAGS="$CFLAGS -Qunused-arguments"
 if test $ENABLE_JIT = 1
 then
     CFLAGS="$CFLAGS -DENABLE_JIT"
-    OBJS="src/vm.o src/jit.o src/script.o src/object.o src/array.o src/string.o src/block.o src/regex.o src/integer.o src/byte.o src/short.o src/long.o src/float.o src/pointer.o src/char.o src/bool.o src/hash.o src/list.o src/tuple.o src/carray.o src/type.o src/stack.o src/heap.o src/exception.o src/native_method.o src/class_system.o src/class_clover.o src/clover_to_clang.o"
+    OBJS="src/vm.o src/jit.o src/jit_sub.o src/script.o src/object.o src/array.o src/string.o src/block.o src/regex.o src/integer.o src/byte.o src/short.o src/long.o src/float.o src/pointer.o src/char.o src/bool.o src/hash.o src/list.o src/tuple.o src/carray.o src/type.o src/stack.o src/heap.o src/exception.o src/native_method.o src/class_system.o src/class_clover.o src/clover_to_clang.o"
     JIT=1
 else
     OBJS="src/vm.o src/script.o src/object.o src/array.o src/string.o src/block.o src/regex.o src/integer.o src/byte.o src/short.o src/long.o src/float.o src/pointer.o src/char.o src/bool.o src/hash.o src/list.o src/tuple.o src/carray.o src/type.o src/stack.o src/heap.o src/exception.o src/native_method.o src/class_system.o src/class_clover.o src/clover_to_clang.o"

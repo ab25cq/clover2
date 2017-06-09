@@ -5,7 +5,7 @@ BOOL eval_file(char* fname, int stack_size)
     FILE* f = fopen(fname, "r");
 
     if(f == NULL) {
-        fprintf(stderr, "%s doesn't exist\n", fname);
+        fprintf(stderr, "%s doesn't exist(1)\n", fname);
         return FALSE;
     }
 

@@ -1267,6 +1267,8 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
     /// type inference ///
     if(gNodes[node].mType == NULL) {
         gNodes[node].mType = right_type;
+    }
+    if(var->mType == NULL) {
         var->mType = right_type;
     }
 

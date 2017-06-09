@@ -196,6 +196,7 @@ struct sCLMethodStruct {
     int mNameOffset;
     int mPathOffset;
     int mMethodNameAndParamsOffset;
+    int mMethodIndex;
 
     sCLParam mParams[PARAMS_MAX]; // +1 --> self
     int mNumParams;
@@ -1643,12 +1644,12 @@ void stack_init();
 void stack_final();
 
 long append_stack_to_stack_list(CLVALUE* stack, CLVALUE** stack_ptr);
-BOOL remove_stack_to_stack_list(CLVALUE* stack);
+BOOL remove_stack_to_stack_list(CLVALUE* stack, CLVALUE** stack_ptr);
 BOOL check_variables_existance_on_stack(long stack_id);
 
-sCLStack* gHeadStack;
-CLVALUE* gGlobalStack;
-CLVALUE* gGlobalStackPtr;
+extern sCLStack* gHeadStack;
+extern CLVALUE* gGlobalStack;
+extern CLVALUE* gGlobalStackPtr;
 
 /// heap.c ///
 struct sCLHeapMemStruct {

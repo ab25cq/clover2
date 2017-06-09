@@ -239,6 +239,8 @@ BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* param
 
     klass->mMethods[num_methods].mMethodNameAndParamsOffset = append_str_to_constant_pool(&klass->mConst, method_name_and_params, FALSE);
 
+    klass->mMethods[num_methods].mMethodIndex = num_methods;
+
     klass->mNumMethods++;
 
     if(klass->mNumMethods >= METHOD_NUM_MAX) {
@@ -575,6 +577,7 @@ static void append_methods_to_buffer(sBuf* buf, sCLMethod* methods, sCLClass* kl
         sBuf_append_int(buf, method->mNameOffset);
         sBuf_append_int(buf, method->mPathOffset);
         sBuf_append_int(buf, method->mMethodNameAndParamsOffset);
+        sBuf_append_int(buf, method->mMethodIndex);
 
         sBuf_append_int(buf, method->mNumParams);
 

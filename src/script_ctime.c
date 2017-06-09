@@ -5,7 +5,7 @@ BOOL read_source(char* fname, sBuf* source)
     int f = open(fname, O_RDONLY);
 
     if(f < 0) {
-        fprintf(stderr, "%s doesn't exist\n", fname);
+        fprintf(stderr, "%s doesn't exist(2)\n", fname);
         return FALSE;
     }
 

@@ -14,10 +14,6 @@ class PcreOVec
 class System
 {
     def sprintf(format:String, prams:Array<Object>): native static String throws Exception;
-    def print(str:String): native static;
-    def println(str:String): native static;
-    def printToError(str:String): native static;
-    def printlnToError(str:String): native static;
     def pcre_exec(regex:regex, str:Buffer, offset:int, ovec_max:int, ovec:PcreOVec): native static int;
     def atoi(str:String):native static int;
     def atof(str:String):native static float;
@@ -79,11 +75,11 @@ class Global
 
 class String
 {
-    def printf(format:String):jit {
+    def printf(format:String): {
         printf(format, array { self });
     }
 
-    def insert(index:int, str:String): jit String {
+    def insert(index:int, str:String):  String {
         if(index < 0) {
             index += self.len + 1;
         }
@@ -131,7 +127,7 @@ class String
         return self;
     }
 
-    def subString(start:int, end:int): jit String {
+    def subString(start:int, end:int):  String {
         if(start < 0) {
             start += self.len;
         }
@@ -163,7 +159,7 @@ class String
         return result;
     }
 
-    def equals(str: String): jit bool {
+    def equals(str: String):  bool {
         if(self.len == str.length()) {
             for(i:int = 0; i<self.len; i++) {
                 if(self.buffer[i] != str.buffer[i]) {
@@ -178,7 +174,7 @@ class String
         }
     }
 
-    def getHashKey(): jit uint {
+    def getHashKey():  uint {
         key:uint = 0;
         for(i:int =1; i<self.len; i++) {
             key += self.buffer[i].to_uint;
@@ -187,23 +183,23 @@ class String
         return key;
     }
 
-    def toString(): jit String {
+    def toString():  String {
         return self;
     }
 
-    def printf(format:String):jit {
+    def printf(format:String): {
         printf(format, array { self });
     }
 
-    def print():jit {
+    def print(): {
         print(self);
     }
 
-    def println():jit {
+    def println(): {
         println(self);
     }
 
-    def match(regex_:regex):jit bool {
+    def match(regex_:regex): bool {
         ovec_max:int = 16;
         ovec:PcreOVec = new PcreOVec(ovec_max);
 
@@ -215,7 +211,7 @@ class String
         return regex_result > 0;
     }
 
-    def match(regex_:regex, group_strings:EqualableList<String>): jit bool {
+    def match(regex_:regex, group_strings:EqualableList<String>):  bool {
         ovec_max:int = 16;
         ovec:PcreOVec = new PcreOVec(ovec_max);
 
@@ -243,7 +239,7 @@ class String
         }
     }
 
-    def sub(regex_:regex, replace:String, group_strings:EqualableList<String>): jit String {
+    def sub(regex_:regex, replace:String, group_strings:EqualableList<String>):  String {
         result: String = new String();
         offset:int = 0;
 
@@ -308,11 +304,11 @@ class String
         return result;
     }
 
-    def sub(regex_:regex, replace:String): jit String {
+    def sub(regex_:regex, replace:String):  String {
         return self.sub(regex_, replace, null);
     }
 
-    def sub(regex_:regex, replace:lambda(String,EqualableList<String>):String, group_strings:EqualableList<String>): jit String 
+    def sub(regex_:regex, replace:lambda(String,EqualableList<String>):String, group_strings:EqualableList<String>):  String 
     {
         result: String = new String();
         offset:int = 0;
@@ -387,12 +383,12 @@ class String
         return result;
     }
     
-    def sub(regex_:regex, replace:lambda(String,EqualableList<String>):String): jit String {
+    def sub(regex_:regex, replace:lambda(String,EqualableList<String>):String):  String {
         group_strings:EqualableList<String> = new EqualableList<String>();
         return self.sub(regex_, replace, group_strings);
     }
 
-    def scan(regex_:regex): jit EqualableList<String> {
+    def scan(regex_:regex):  EqualableList<String> {
         result: EqualableList<String> = new EqualableList<String>();
         offset:int = 0;
 
@@ -441,7 +437,7 @@ class String
         return result;
     }
 
-    def scan(regex_:regex, block_:lambda(String,EqualableList<String>):String): jit EqualableList<String> {
+    def scan(regex_:regex, block_:lambda(String,EqualableList<String>):String):  EqualableList<String> {
         result: EqualableList<String> = new EqualableList<String>();
         offset:int = 0;
 
@@ -494,7 +490,7 @@ class String
         return result;
     }
 
-    def each(block_:lambda(char)):jit String {
+    def each(block_:lambda(char)): String {
         for(i:int = 0; i<self.len; i++) {
             block_(self.buffer[i]);
         }
@@ -502,7 +498,7 @@ class String
         return self;
     }
 
-    def split(c:char): jit EqualableList<String> {
+    def split(c:char):  EqualableList<String> {
         result:EqualableList<String> = new EqualableList<String>();
         offset:int = 0;
         str:String = "";
@@ -521,7 +517,7 @@ class String
         return result;
     }
 
-    def split(separator:regex):jit EqualableList<String> {
+    def split(separator:regex): EqualableList<String> {
         result:EqualableList<String> = new EqualableList<String>();
         offset:int = 0;
 
@@ -570,7 +566,7 @@ class String
         return result;
     }
 
-    def split(separator:regex, block_:lambda(String,EqualableList<String>):String): jit EqualableList<String> {
+    def split(separator:regex, block_:lambda(String,EqualableList<String>):String):  EqualableList<String> {
         result:EqualableList<String> = new EqualableList<String>();
         offset:int = 0;
 
@@ -625,7 +621,7 @@ class String
         return result;
     }
 
-    def indexOf(str:String, count:int):int throws Exception {
+    def indexOf(str:String, count:int): int throws Exception {
         result:int = -1;
         count2:int = 0;
         len:int = str.length();
@@ -643,11 +639,11 @@ class String
         return result;
     }
 
-    def indexOf(str:String): int {
+    def indexOf(str:String):  int {
         return self.indexOf(str, 1);
     }
 
-    def indexOf(regex_:regex, count:int):int throws Exception {
+    def indexOf(regex_:regex, count:int): int throws Exception {
         result:int = -1;
         offset:int = 0;
         count2:int = 0;
@@ -719,11 +715,11 @@ class String
         return result;
     }
 
-    def indexOf(regex_:regex):jit int {
+    def indexOf(regex_:regex): int {
         return self.indexOf(regex_, 1);
     }
 
-    def reverse():jit String {
+    def reverse(): String {
         result:String = new String(self.size);
 
         for(i:int = 0; i<self.len; i++) {
@@ -736,7 +732,7 @@ class String
         return result;
     }
 
-    def upperCase():jit String {
+    def upperCase(): String {
         for(i:int = 0; i<self.len; i++) {
             self.buffer[i] = self.buffer[i].to_upper;
         }
@@ -744,7 +740,7 @@ class String
         return self;
     }
 
-    def lowerCase():jit String {
+    def lowerCase(): String {
         for(i:int = 0; i<self.len; i++) {
             self.buffer[i] = self.buffer[i].to_lower;
         }
@@ -752,19 +748,19 @@ class String
         return self;
     }
 
-    def to_int(): jit int {
+    def to_int():  int {
         return System.atoi(self);
     }
 
-    def to_float(): jit float {
+    def to_float():  float {
         return System.atof(self);
     }
 
-    def to_double(): jit double {
+    def to_double():  double {
         return System.strtod(self);
     }
 
-    def multiply(value:int): jit String {
+    def multiply(value:int):  String {
         result:String = new String();
 
         for(i:int = 0; i<value; i++) {
@@ -775,24 +771,24 @@ class String
     }
 
     # same: 0, self > str: > 0, self < str: < 0
-    def compare(str:String): jit int {
+    def compare(str:String):  int {
         return System.strcmp(self, str);
     }
 
     # same: 0, self > str: > 0, self < str: < 0
-    def compareWithIgnoreCase(str:String): jit int {
+    def compareWithIgnoreCase(str:String):  int {
         return System.strcasecmp(self, str);
     }
 
-    def hex(): jit int {
+    def hex():  int {
         return System.strtol(self, 0).to_int;
     }
 
-    def oct(): jit int {
+    def oct():  int {
         return System.strtol(self, 0).to_int;
     }
 
-    def chomp(): jit String {
+    def chomp():  String {
         result:String = "";
 
         if(self.length() >= 2) {
@@ -818,7 +814,7 @@ class String
         return result;
     }
 
-    def toBuffer(): jit Buffer throws Exception {
+    def toBuffer():  Buffer throws Exception {
         array_:byte[] = null;
         System.wcstombs(&array_, self.buffer);
 
@@ -954,7 +950,7 @@ class Buffer
             return B"";
         }
 
-        result: Buffer = new Buffer(end-start.to_ulong);
+        result: Buffer = new Buffer(end.to_ulong-start.to_ulong);
 
         System.memcpy(result.buffer, self.buffer + start.to_ulong, (end-start).to_ulong);
 
