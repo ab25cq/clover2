@@ -203,7 +203,7 @@ static BOOL parse_throws(sParserInfo* info, sCompileInfo* cinfo, BOOL* throw_exi
     return TRUE;
 }
 
-static BOOL parse_method_name_and_params(char* method_name, int method_name_max, sParserParam* params, int* num_params, sNodeType** result_type, BOOL* native_, BOOL* static_, BOOL* jit_, sParserInfo* info, sCompileInfo* cinfo)
+static BOOL parse_method_name_and_params(char* method_name, int method_name_max, sParserParam* params, int* num_params, sNodeType** result_type, BOOL* native_, BOOL* static_, sParserInfo* info, sCompileInfo* cinfo)
 {
     /// method name ///
     if(!parse_word(method_name, method_name_max, info, TRUE)) {
@@ -235,9 +235,6 @@ static BOOL parse_method_name_and_params(char* method_name, int method_name_max,
 
             if(strcmp(buf, "native") == 0) {
                 *native_ = TRUE;
-            }
-            else if(strcmp(buf, "jit") == 0) {
-                *jit_ = TRUE;
             }
             else if(strcmp(buf, "static") == 0) {
                 *static_ = TRUE;
@@ -387,15 +384,14 @@ static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOO
         sNodeType* result_type = NULL;
         BOOL native_ = FALSE;
         BOOL static_ = FALSE;
-        BOOL jit_ = FALSE;
 
-        if(!parse_method_name_and_params(method_name, METHOD_NAME_MAX, params, &num_params, &result_type, &native_, &static_, &jit_, info, cinfo)) 
+        if(!parse_method_name_and_params(method_name, METHOD_NAME_MAX, params, &num_params, &result_type, &native_, &static_, info, cinfo)) 
         {
             return FALSE;
         }
 
         if(info->err_num == 0 && (info->klass->mFlags & CLASS_FLAGS_ALLOCATED)) {
-            if(!add_method_to_class(info->klass, method_name, params, num_params, result_type, native_, static_, jit_)) {
+            if(!add_method_to_class(info->klass, method_name, params, num_params, result_type, native_, static_)) {
                 fprintf(stderr, "overflow method number\n");
                 return FALSE;
             }
@@ -580,9 +576,8 @@ BOOL parse_methods_and_fields_on_compile_time(sParserInfo* info, sCompileInfo* c
         sNodeType* result_type = NULL;
         BOOL native_ = FALSE;
         BOOL static_ = FALSE;
-        BOOL jit_ = FALSE;
 
-        if(!parse_method_name_and_params(method_name, METHOD_NAME_MAX, params, &num_params, &result_type, &native_, &static_, &jit_, info, cinfo)) 
+        if(!parse_method_name_and_params(method_name, METHOD_NAME_MAX, params, &num_params, &result_type, &native_, &static_, info, cinfo)) 
         {
             return FALSE;
         }

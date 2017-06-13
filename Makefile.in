@@ -24,6 +24,8 @@ LIBS=@LIBS@
 OS=@OS@
 OBJS=@OBJS@
 COMPILER_OBJS=@COMPILER_OBJS@
+JIT_OBJS=@JIT_OBJS@
+JIT_RUNTIME_OBJS=@JIT_RUNTIME_OBJS@
 COMMON_OBJS=@COMMON_OBJS@
 INTERPRETER=@INTERPRETER@
 JIT=@JIT@
@@ -37,11 +39,11 @@ all: cclover2 clover2 $(INTERPRETER)
 cclover2: config.h src/compiler.o $(COMMON_OBJS) $(COMPILER_OBJS)
 	$(CC) -o cclover2 src/compiler.o $(COMMON_OBJS) $(COMPILER_OBJS) $(CFLAGS) $(LIBS)
 
-clover2: config.h src/main.o $(COMMON_OBJS) $(OBJS)
-	if test $(JIT) = 1; then $(CXX) -o clover2 src/main.o $(COMMON_OBJS) $(OBJS) $(CFLAGS) $(LIBS) $(CXXFLAGS); else $(CC) -o clover2 src/main.o $(COMMON_OBJS) $(OBJS) $(CFLAGS) $(LIBS); fi
+clover2: config.h src/main.o $(COMMON_OBJS) $(OBJS) $(JIT_OBJS) $(JIT_RUNTIME_OBJS)
+	if test $(JIT) = 1; then $(CXX) -o clover2 src/main.o $(COMMON_OBJS) $(OBJS) $(JIT_OBJS) $(JIT_RUNTIME_OBJS) $(CFLAGS) $(LIBS) $(CXXFLAGS); else $(CC) -o clover2 src/main.o $(COMMON_OBJS) $(OBJS) $(CFLAGS) $(LIBS); fi
 
-iclover2: config.h src/interpreter.o $(COMMON_OBJS) $(OBJS) $(COMPILER_OBJS)
-	if test $(JIT) = 1; then $(CXX) -o iclover2 src/interpreter.o $(COMMON_OBJS) $(OBJS) $(COMPILER_OBJS) $(CFLAGS) $(LIBS) $(CXXFLAGS); else $(CC) -o iclover2 src/interpreter.o $(COMMON_OBJS) $(OBJS) $(COMPILER_OBJS) $(CFLAGS) $(LIBS); fi
+iclover2: config.h src/interpreter.o $(COMMON_OBJS) $(OBJS) $(COMPILER_OBJS) $(JIT_OBJS) $(JIT_RUNTIME_OBJS)
+	if test $(JIT) = 1; then $(CXX) -o iclover2 src/interpreter.o $(COMMON_OBJS) $(OBJS) $(COMPILER_OBJS) $(JIT_OBJS) $(JIT_RUNTIME_OBJS) $(CFLAGS) $(LIBS) $(CXXFLAGS); else $(CC) -o iclover2 src/interpreter.o $(COMMON_OBJS) $(OBJS) $(COMPILER_OBJS) $(CFLAGS) $(LIBS); fi
 
 #########################################################
 # Object files
@@ -113,6 +115,7 @@ install:
 	$(INSTALL) -m 644 tm.clcl ~/.clover2
 	$(INSTALL) -m 644 timespec.clcl ~/.clover2
 	$(INSTALL) -m 644 stat.clcl ~/.clover2
+
 	$(INSTALL) -m 644 MArrayImplement.clm ~/.clover2
 	$(INSTALL) -m 644 MEqualableArrayImplement.clm ~/.clover2
 	$(INSTALL) -m 644 MEqualableListImplementation.clm ~/.clover2
@@ -149,7 +152,7 @@ permission:
 # clean
 ########################################################
 clean:
-	rm -fR clover2 clover2.dSYM cclover2 cclover2.dSYM iclover2 iclover2.dSYM src/*.o config.log config.status *.stackdump autom4te.cache .DS_Store core.* a.out *.clcl *.clo code/*.clo *.clm a.c src/*.dwo
+	rm -fR clover2 clover2.dSYM cclover2 cclover2.dSYM iclover2 iclover2.dSYM src/*.o config.log config.status *.stackdump autom4te.cache .DS_Store core.* a.out *.clcl *.bc *.clo code/*.clo *.clm a.c src/*.dwo
 
 distclean: clean
 	rm -fR  config.h Makefile autom4te.cache

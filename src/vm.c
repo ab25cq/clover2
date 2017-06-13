@@ -468,28 +468,12 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
         memset(lvar + real_param_num, 0, sizeof(CLVALUE)* (new_var_num - real_param_num));
 
 #ifdef ENABLE_JIT
-
-#if defined(MDEBUG) && defined(ALL_JIT_COMPILE)
-        if(TRUE && strcmp(METHOD_NAME2(klass, method), "initialize") != 0 && strcmp(METHOD_NAME2(klass, method), "finalize") != 0) 
-#else
-        if((method->mFlags & METHOD_FLAGS_JIT) && strcmp(METHOD_NAME2(klass, method), "initialize") != 0 && strcmp(METHOD_NAME2(klass, method), "finalize") != 0) 
-#endif
+        if(!jit(code, constant, new_stack, new_var_num, klass, method, info))
         {
-            if(!jit(code, constant, new_stack, new_var_num, klass, method, info))
-            {
-                *stack_ptr = lvar;
-                **stack_ptr = *(new_stack + new_var_num);
-                (*stack_ptr)++;
-                return FALSE;
-            }
-        }
-        else {
-            if(!vm(code, constant, new_stack, new_var_num, klass, info)) {
-                *stack_ptr = lvar;
-                **stack_ptr = *(new_stack + new_var_num);
-                (*stack_ptr)++;
-                return FALSE;
-            }
+            *stack_ptr = lvar;
+            **stack_ptr = *(new_stack + new_var_num);
+            (*stack_ptr)++;
+            return FALSE;
         }
 #else
         if(!vm(code, constant, new_stack, new_var_num, klass, info)) {
@@ -851,8 +835,12 @@ void boxing_primitive_value_to_object(CLVALUE object, CLVALUE* result, sCLClass*
 
 BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sVMInfo* info)
 {
+#ifdef ENABLE_JIT
     char* pc = code->mCodes;
     info->pc = &pc;
+#else
+    register char* pc = code->mCodes;
+#endif
 
     CLVALUE* stack_ptr = stack + var_num;
     CLVALUE* lvar = stack;

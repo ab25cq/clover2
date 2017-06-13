@@ -2,7 +2,7 @@ include "Command.clc"
 
 class SortableList<T:ISortable>
 {
-    def grep(reg:regex):jit {
+    def grep(reg:regex) {
         self.each(closure(file_name:T) {
             if(file_name.className().equals("String")) {
                 file_name2: String = file_name.toAnonymous();

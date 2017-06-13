@@ -1,6 +1,6 @@
 clover2 computer language
 
-version 1.0.4
+version 1.5.0
 
 サポートしている機能
 
@@ -23,6 +23,8 @@ list {m,a,i,n,.,c}
 
 詳しくはwikiを見てください https://github.com/ab25cq/clover2/wiki
 
+7. LLVMでJITします。何度かメソッドが呼ばれると実行時にコンパイルされて高速化されます。
+
 Yet another compiler and a Virtual Machine.
 
 FEATURES
@@ -32,6 +34,7 @@ FEATURES
 3. Generics
 4. No inheritance, only interfaces and classes, modules
 5. open class
+6. LLVM JIT
 
 See clover2 wiki on github (Japanese) https://github.com/ab25cq/clover2/wiki
 

@@ -388,6 +388,9 @@ static BOOL read_methods_from_file(int fd, sCLMethod** methods, int* num_methods
 
             method->mVarNum = n;
         }
+
+        method->mMethodCallCount = 0;
+        method->mJITCompiled = FALSE;
     }
 
     return TRUE;

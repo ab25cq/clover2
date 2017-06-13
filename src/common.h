@@ -169,7 +169,6 @@ typedef struct sCLParamStruct sCLParam;
 
 #define METHOD_FLAGS_NATIVE 0x01
 #define METHOD_FLAGS_CLASS_METHOD 0x02
-#define METHOD_FLAGS_JIT 0x04
 #define EXCEPTION_MESSAGE_MAX 256
 
 struct sVMInfoStruct {
@@ -212,6 +211,9 @@ struct sCLMethodStruct {
     } uCode;
     
     int mVarNum;
+
+    int mMethodCallCount;
+    BOOL mJITCompiled;
 };
 
 typedef struct sCLMethodStruct sCLMethod;
@@ -295,6 +297,7 @@ sCLClass* load_class(char* class_name);
 sCLMethod* search_for_method_from_virtual_method_table(sCLClass* klass, char* method_name_and_params);
 BOOL is_valid_class(sCLClass* klass);
 BOOL put_class_to_table(char* class_name, sCLClass* klass);
+BOOL jit_compile_all_class(sCLClass* klass);
 
 struct sClassTableStruct
 {
@@ -1591,7 +1594,7 @@ void boxing_primitive_value_to_object(CLVALUE object, CLVALUE* result, sCLClass*
 BOOL compile_class_source(char* fname, char* source);
 
 /// klass_compile_time.c ///
-BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_, BOOL jit_);
+BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_);
 BOOL add_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type);
 BOOL add_typedef_to_class(sCLClass* klass, char* class_name1, char* class_name2);
 BOOL add_class_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type);
@@ -1977,6 +1980,7 @@ BOOL Clover_load(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sCLMethod* method, sVMInfo* info);
 void jit_init();
 void jit_final();
+BOOL compile_jit_method(sCLClass* klass, sCLMethod* method);
 
 #endif
 

@@ -18,7 +18,7 @@ std::map<std::string, std::unique_ptr<FunctionAST>> LLVMFunctions;
 extern "C"
 {
 
-static BOOL compile_to_native_code(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sCLMethod* method, sVMInfo* info, char* method_path2)
+BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2)
 {
     std::string func_name(method_path2);
     std::unique_ptr<FunctionAST> llvm_func = llvm::make_unique<FunctionAST>(func_name);
@@ -34,8 +34,6 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, CLVALUE* s
     Builder.SetInsertPoint(current_block);
   
     register char* pc = code->mCodes;
-    CLVALUE* stack_ptr = stack + var_num;
-    CLVALUE* lvar = stack;
 
     std::map<std::string, Value *> params;
     for(auto &param : function->args()) {
@@ -142,7 +140,7 @@ show_inst_in_jit(inst);
                 num_cond_jump++;
 
                 if(num_cond_jump >= MAX_COND_JUMP) {
-                    entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "overflow number of condjump");
+                    fprintf(stderr, "overflow number of condjump\n");
                     return FALSE;
                 }
                 }
@@ -167,7 +165,7 @@ show_inst_in_jit(inst);
                 num_cond_not_jump++;
 
                 if(num_cond_not_jump >= MAX_COND_JUMP) {
-                    entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "overflow number of condnotjump");
+                    fprintf(stderr, "overflow number of condnotjump\n");
                     return FALSE;
                 }
                 }
@@ -232,7 +230,8 @@ show_inst_in_jit(inst);
                 Value* param1 = llvm_value;
                 params2.push_back(param1);
 
-                Value* vminfo_value = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
+                std::string info_value_name("info");
+                Value* vminfo_value = params[info_value_name];
                 params2.push_back(vminfo_value);
 
                 (void)Builder.CreateCall(entry_exception_object_fun, params2);
@@ -258,7 +257,8 @@ show_inst_in_jit(inst);
 
                 std::vector<Value*> params2;
 
-                Value* vminfo_value = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
+                std::string info_value_name("info");
+                Value* vminfo_value = params[info_value_name];
                 params2.push_back(vminfo_value);
 
                 Value* try_catch_label_value = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)try_catch_label_name);
@@ -281,8 +281,9 @@ show_inst_in_jit(inst);
 
                 std::vector<Value*> params2;
 
-                Value* param1 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
-                params2.push_back(param1);
+                std::string info_value_name("info");
+                Value* vminfo_value = params[info_value_name];
+                params2.push_back(vminfo_value);
 
                 Value* param2 = get_value_from_char_array(sname);
                 params2.push_back(param2);
@@ -307,15 +308,17 @@ show_inst_in_jit(inst);
                 Value* param2 = params[stack_value_name];
                 params2.push_back(param2);
 
-                Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)var_num);
+                std::string var_num_value_name("var_num");
+                Value* param3 = params[var_num_value_name];
                 params2.push_back(param3);
 
-                Value* param4 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
-                params2.push_back(param4);
+                std::string info_value_name("info");
+                Value* vminfo_value = params[info_value_name];
+                params2.push_back(vminfo_value);
 
                 Value* result = Builder.CreateCall(sigint_function, params2);
 
-                if_value_is_zero_ret_zero(result, params, var_num, info, function, &current_block);
+                if_value_is_zero_ret_zero(result, params, function, &current_block);
                 }
                 break;
 
@@ -375,11 +378,13 @@ show_inst_in_jit(inst);
                 Value* param2 = params[stack_value_name];
                 params2.push_back(param2);
 
-                Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)var_num);
+                std::string var_num_value_name("var_num");
+                Value* param3 = params[var_num_value_name];
                 params2.push_back(param3);
 
-                Value* param4 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
-                params2.push_back(param4);
+                std::string info_value_name("info");
+                Value* vminfo_value = params[info_value_name];
+                params2.push_back(vminfo_value);
 
                 std::string lvar_arg_name("lvar");
                 Value* param5 = params[lvar_arg_name];
@@ -543,9 +548,6 @@ show_inst_in_jit(inst);
                 float value1 = *(float*)pc;
                 pc += sizeof(float);
 
-                stack_ptr->mFloatValue = value1;
-                stack_ptr++;
-
                 Value* llvm_value = ConstantFP::get(TheContext, llvm::APFloat(value1)); 
 
                 push_value_to_stack_ptr(params, current_block, llvm_value);
@@ -607,7 +609,7 @@ show_inst_in_jit(inst);
                 Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 1);
                 Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
 
-                if_value_is_zero_entry_exception_object(rvalue, params, var_num, info, function, &current_block, "Exception", "division by zero");
+                if_value_is_zero_entry_exception_object(rvalue, params, function, &current_block, "Exception", "division by zero");
 
                 Value* llvm_value = Builder.CreateSDiv(lvalue, rvalue, "divtmp", false);
 
@@ -620,7 +622,7 @@ show_inst_in_jit(inst);
                 Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 1);
                 Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
 
-                if_value_is_zero_entry_exception_object(rvalue, params, var_num, info, function, &current_block, "Exception", "division by zero");
+                if_value_is_zero_entry_exception_object(rvalue, params, function, &current_block, "Exception", "division by zero");
 
                 Value* llvm_value = Builder.CreateSRem(lvalue, rvalue, "remtmp");
 
@@ -721,7 +723,7 @@ show_inst_in_jit(inst);
                 Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 1);
                 Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
 
-                if_value_is_zero_entry_exception_object(rvalue, params, var_num, info, function, &current_block, "Exception", "division by zero");
+                if_value_is_zero_entry_exception_object(rvalue, params, function, &current_block, "Exception", "division by zero");
 
                 Value* llvm_value = Builder.CreateUDiv(lvalue, rvalue, "divtmp", false);
 
@@ -734,7 +736,7 @@ show_inst_in_jit(inst);
                 Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 1);
                 Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 1);
 
-                if_value_is_zero_entry_exception_object(rvalue, params, var_num, info, function, &current_block, "Exception", "division by zero");
+                if_value_is_zero_entry_exception_object(rvalue, params, function, &current_block, "Exception", "division by zero");
 
                 Value* llvm_value = Builder.CreateURem(lvalue, rvalue, "remtmp");
 
@@ -835,7 +837,7 @@ show_inst_in_jit(inst);
                 Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
                 Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
 
-                if_value_is_zero_entry_exception_object(rvalue, params, var_num, info, function, &current_block, "Exception", "division by zero");
+                if_value_is_zero_entry_exception_object(rvalue, params, function, &current_block, "Exception", "division by zero");
 
                 Value* llvm_value = Builder.CreateSDiv(lvalue, rvalue, "divtmp", false);
 
@@ -848,7 +850,7 @@ show_inst_in_jit(inst);
                 Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
                 Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
 
-                if_value_is_zero_entry_exception_object(rvalue, params, var_num, info, function, &current_block, "Exception", "division by zero");
+                if_value_is_zero_entry_exception_object(rvalue, params, function, &current_block, "Exception", "division by zero");
 
                 Value* llvm_value = Builder.CreateSRem(lvalue, rvalue, "remtmp");
 
@@ -949,7 +951,7 @@ show_inst_in_jit(inst);
                 Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
                 Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
 
-                if_value_is_zero_entry_exception_object(rvalue, params, var_num, info, function, &current_block, "Exception", "division by zero");
+                if_value_is_zero_entry_exception_object(rvalue, params, function, &current_block, "Exception", "division by zero");
 
                 Value* llvm_value = Builder.CreateUDiv(lvalue, rvalue, "divtmp", false);
 
@@ -962,7 +964,7 @@ show_inst_in_jit(inst);
                 Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 2);
                 Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 2);
 
-                if_value_is_zero_entry_exception_object(rvalue, params, var_num, info, function, &current_block, "Exception", "division by zero");
+                if_value_is_zero_entry_exception_object(rvalue, params, function, &current_block, "Exception", "division by zero");
 
                 Value* llvm_value = Builder.CreateURem(lvalue, rvalue, "remtmp");
 
@@ -1063,7 +1065,7 @@ show_inst_in_jit(inst);
                 Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
                 Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
 
-                if_value_is_zero_entry_exception_object(rvalue, params, var_num, info, function, &current_block, "Exception", "division by zero");
+                if_value_is_zero_entry_exception_object(rvalue, params, function, &current_block, "Exception", "division by zero");
 
                 Value* llvm_value = Builder.CreateSDiv(lvalue, rvalue, "divtmp", false);
 
@@ -1076,7 +1078,7 @@ show_inst_in_jit(inst);
                 Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
                 Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
 
-                if_value_is_zero_entry_exception_object(rvalue, params, var_num, info, function, &current_block, "Exception", "division by zero");
+                if_value_is_zero_entry_exception_object(rvalue, params, function, &current_block, "Exception", "division by zero");
 
                 Value* llvm_value = Builder.CreateSRem(lvalue, rvalue, "remtmp");
 
@@ -1179,7 +1181,7 @@ show_inst_in_jit(inst);
                 Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
                 Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
 
-                if_value_is_zero_entry_exception_object(rvalue, params, var_num, info, function, &current_block, "Exception", "division by zero");
+                if_value_is_zero_entry_exception_object(rvalue, params, function, &current_block, "Exception", "division by zero");
 
                 Value* llvm_value = Builder.CreateUDiv(lvalue, rvalue, "divtmp", false);
 
@@ -1192,7 +1194,7 @@ show_inst_in_jit(inst);
                 Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 4);
                 Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
 
-                if_value_is_zero_entry_exception_object(rvalue, params, var_num, info, function, &current_block, "Exception", "division by zero");
+                if_value_is_zero_entry_exception_object(rvalue, params, function, &current_block, "Exception", "division by zero");
 
                 Value* llvm_value = Builder.CreateURem(lvalue, rvalue, "remtmp");
 
@@ -1293,7 +1295,7 @@ show_inst_in_jit(inst);
                 Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
                 Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
 
-                if_value_is_zero_entry_exception_object(rvalue, params, var_num, info, function, &current_block, "Exception", "division by zero");
+                if_value_is_zero_entry_exception_object(rvalue, params, function, &current_block, "Exception", "division by zero");
 
                 Value* llvm_value = Builder.CreateSDiv(lvalue, rvalue, "divtmp", false);
 
@@ -1306,7 +1308,7 @@ show_inst_in_jit(inst);
                 Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
                 Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
 
-                if_value_is_zero_entry_exception_object(rvalue, params, var_num, info, function, &current_block, "Exception", "division by zero");
+                if_value_is_zero_entry_exception_object(rvalue, params, function, &current_block, "Exception", "division by zero");
 
                 Value* llvm_value = Builder.CreateSRem(lvalue, rvalue, "remtmp");
 
@@ -1407,7 +1409,7 @@ show_inst_in_jit(inst);
                 Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
                 Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
 
-                if_value_is_zero_entry_exception_object(rvalue, params, var_num, info, function, &current_block, "Exception", "division by zero");
+                if_value_is_zero_entry_exception_object(rvalue, params, function, &current_block, "Exception", "division by zero");
 
                 Value* llvm_value = Builder.CreateUDiv(lvalue, rvalue, "divtmp", false);
 
@@ -1420,7 +1422,7 @@ show_inst_in_jit(inst);
                 Value* lvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -2, 8);
                 Value* rvalue = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
 
-                if_value_is_zero_entry_exception_object(rvalue, params, var_num, info, function, &current_block, "Exception", "division by zero");
+                if_value_is_zero_entry_exception_object(rvalue, params, function, &current_block, "Exception", "division by zero");
 
                 Value* llvm_value = Builder.CreateURem(lvalue, rvalue, "remtmp");
 
@@ -1609,7 +1611,7 @@ show_inst_in_jit(inst);
                 Value* lvalue = get_stack_ptr_float_value_from_index_with_aligned(params, current_block, -2, 4);
                 Value* rvalue = get_stack_ptr_float_value_from_index_with_aligned(params, current_block, -1, 4);
 
-                if_value_is_zero_entry_exception_object(rvalue, params, var_num, info, function, &current_block, "Exception", "division by zero");
+                if_value_is_zero_entry_exception_object(rvalue, params, function, &current_block, "Exception", "division by zero");
 
                 Value* llvm_value = Builder.CreateFDiv(lvalue, rvalue, "divtmp");
 
@@ -1655,7 +1657,7 @@ show_inst_in_jit(inst);
                 Value* lvalue = get_stack_ptr_float_value_from_index_with_aligned(params, current_block, -2, 8);
                 Value* rvalue = get_stack_ptr_float_value_from_index_with_aligned(params, current_block, -1, 8);
 
-                if_value_is_zero_entry_exception_object(rvalue, params, var_num, info, function, &current_block, "Exception", "division by zero");
+                if_value_is_zero_entry_exception_object(rvalue, params, function, &current_block, "Exception", "division by zero");
 
                 Value* llvm_value = Builder.CreateFDiv(lvalue, rvalue, "divtmp");
 
@@ -2480,7 +2482,7 @@ show_inst_in_jit(inst);
 
             case OP_CLASSNAME: {
                 Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
-                if_value_is_zero_entry_exception_object(value, params, var_num, info, function, &current_block, "Exception", "Null pointer exception(1)");
+                if_value_is_zero_entry_exception_object(value, params, function, &current_block, "Exception", "Null pointer exception(1)");
 
                 Function* fun = TheModule->getFunction("get_string_object_of_object_name");
 
@@ -2503,12 +2505,12 @@ show_inst_in_jit(inst);
                 sCLClass* klass = get_class_with_load_and_initialize(class_name);
 
                 if(klass == NULL) {
-                    entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(1)");
+                    fprintf(stderr, "class not found(1) (%s)", class_name);
                     return FALSE;
                 }
 
                 Value* value = get_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 4);
-                if_value_is_zero_entry_exception_object(value, params, var_num, info, function, &current_block, "Exception", "Null pointer exception(2)");
+                if_value_is_zero_entry_exception_object(value, params, function, &current_block, "Exception", "Null pointer exception(2)");
 
                 Function* fun = TheModule->getFunction("object_implements_interface");
 
@@ -2571,18 +2573,18 @@ show_inst_in_jit(inst);
                 sCLClass* klass = get_class_with_load_and_initialize(class_name);
 
                 if(klass == NULL) {
-                    entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(2)");
+                    fprintf(stderr, "class not found(2) (%s)\n", class_name);
                     return FALSE;
                 }
 
                 if(method_index < 0 || method_index >= klass->mNumMethods) {
-                    entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "OP_INVOKE_METHOD: Method not found");
+                    fprintf(stderr, "OP_INVOKE_METHOD: Method not found");
                     return FALSE;
                 }
 
                 sCLMethod* method = klass->mMethods + method_index;
 
-                if(!compile_invoking_method(klass, method, stack, var_num, &stack_ptr, info, params, &current_block, function, try_catch_label_name))
+                if(!compile_invoking_method(klass, method, params, &current_block, function, try_catch_label_name))
                 {
                     return FALSE;
                 }
@@ -2610,14 +2612,16 @@ show_inst_in_jit(inst);
                 Value* param3 = params[stack_value_name];
                 params2.push_back(param3);
 
-                Value* param4 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)var_num);
+                std::string var_num_value_name("var_num");
+                Value* param4 = params[var_num_value_name];
                 params2.push_back(param4);
 
                 std::string stack_ptr_address_name("stack_ptr_address");
                 Value* param5 = params[stack_ptr_address_name];
                 params2.push_back(param5);
 
-                Value* param6 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
+                std::string info_value_name("info");
+                Value* param6 = params[info_value_name];
                 params2.push_back(param6);
 
                 Value* param7 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)code);
@@ -2628,7 +2632,7 @@ show_inst_in_jit(inst);
 
                 Value* result = Builder.CreateCall(fun, params2);
 
-                if_value_is_zero_ret_zero(result, params, var_num, info, function, &current_block);
+                if_value_is_zero_ret_zero(result, params, function, &current_block);
                 }
                 break;
 
@@ -2677,14 +2681,16 @@ show_inst_in_jit(inst);
                 Value* param7 = params[stack_value_name];
                 params2.push_back(param7);
 
-                Value* param8 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)var_num);
+                std::string var_num_value_name("var_num");
+                Value* param8 = params[var_num_value_name];
                 params2.push_back(param8);
 
                 std::string stack_ptr_address_name("stack_ptr_address");
                 Value* param9 = params[stack_ptr_address_name];
                 params2.push_back(param9);
 
-                Value* param10 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
+                std::string info_value_name("info");
+                Value* param10 = params[info_value_name];
                 params2.push_back(param10);
 
                 Value* param11 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)code);
@@ -2695,7 +2701,7 @@ show_inst_in_jit(inst);
 
                 Value* result = Builder.CreateCall(fun, params2);
 
-                if_value_is_zero_ret_zero(result, params, var_num, info, function, &current_block);
+                if_value_is_zero_ret_zero(result, params, function, &current_block);
                 }
                 break;
 
@@ -2714,19 +2720,21 @@ show_inst_in_jit(inst);
                 Value* param2 = params[stack_value_name];
                 params2.push_back(param2);
 
-                Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)var_num);
+                std::string var_num_value_name("var_num");
+                Value* param3 = params[var_num_value_name];
                 params2.push_back(param3);
 
                 std::string stack_ptr_address_name("stack_ptr_address");
                 Value* param4 = params[stack_ptr_address_name];
                 params2.push_back(param4);
 
-                Value* param5 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
+                std::string info_value_name("info");
+                Value* param5 = params[info_value_name];
                 params2.push_back(param5);
 
                 Value* result = Builder.CreateCall(fun, params2);
 
-                if_value_is_zero_ret_zero(result, params, var_num, info, function, &current_block);
+                if_value_is_zero_ret_zero(result, params, function, &current_block);
                 }
                 break;
 
@@ -2742,7 +2750,7 @@ show_inst_in_jit(inst);
                 sCLClass* klass = get_class_with_load_and_initialize(class_name);
 
                 if(klass == NULL) {
-                    entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(3)");
+                    fprintf(stderr, "class not found(3)(%s)\n", class_name);
                     return FALSE;
                 }
 
@@ -2791,10 +2799,12 @@ show_inst_in_jit(inst);
                 Value* param2 = params[stack_value_name];
                 params2.push_back(param2);
 
-                Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)var_num);
+                std::string var_num_value_name("var_num");
+                Value* param3 = params[var_num_value_name];
                 params2.push_back(param3);
 
-                Value* param4 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
+                std::string info_value_name("info");
+                Value* param4 = params[info_value_name];
                 params2.push_back(param4);
 
                 Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)field_index);
@@ -2802,7 +2812,7 @@ show_inst_in_jit(inst);
 
                 Value* result = Builder.CreateCall(load_field_fun, params2);
 
-                if_value_is_zero_ret_zero(result, params, var_num, info, function, &current_block);
+                if_value_is_zero_ret_zero(result, params, function, &current_block);
                 }
                 break;
 
@@ -2822,10 +2832,12 @@ show_inst_in_jit(inst);
                 Value* param2 = params[stack_value_name];
                 params2.push_back(param2);
 
-                Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)var_num);
+                std::string var_num_value_name("var_num");
+                Value* param3 = params[var_num_value_name];
                 params2.push_back(param3);
 
-                Value* param4 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
+                std::string info_value_name("info");
+                Value* param4 = params[info_value_name];
                 params2.push_back(param4);
 
                 Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)field_index);
@@ -2833,7 +2845,7 @@ show_inst_in_jit(inst);
 
                 Value* result = Builder.CreateCall(fun, params2);
 
-                if_value_is_zero_ret_zero(result, params, var_num, info, function, &current_block);
+                if_value_is_zero_ret_zero(result, params, function, &current_block);
                 }
                 break;
 
@@ -2853,10 +2865,12 @@ show_inst_in_jit(inst);
                 Value* param2 = params[stack_value_name];
                 params2.push_back(param2);
 
-                Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)var_num);
+                std::string var_num_value_name("var_num");
+                Value* param3 = params[var_num_value_name];
                 params2.push_back(param3);
 
-                Value* param4 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
+                std::string info_value_name("info");
+                Value* param4 = params[info_value_name];
                 params2.push_back(param4);
 
                 Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)field_index);
@@ -2864,7 +2878,7 @@ show_inst_in_jit(inst);
 
                 Value* result = Builder.CreateCall(fun, params2);
 
-                if_value_is_zero_ret_zero(result, params, var_num, info, function, &current_block);
+                if_value_is_zero_ret_zero(result, params, function, &current_block);
                 }
                 break;
 
@@ -2887,10 +2901,12 @@ show_inst_in_jit(inst);
                 Value* param2 = params[stack_value_name];
                 params2.push_back(param2);
 
-                Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)var_num);
+                std::string var_num_value_name("var_num");
+                Value* param3 = params[var_num_value_name];
                 params2.push_back(param3);
 
-                Value* param4 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
+                std::string info_value_name("info");
+                Value* param4 = params[info_value_name];
                 params2.push_back(param4);
 
                 Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)field_index);
@@ -2904,7 +2920,7 @@ show_inst_in_jit(inst);
 
                 Value* result = Builder.CreateCall(fun, params2);
 
-                if_value_is_zero_ret_zero(result, params, var_num, info, function, &current_block);
+                if_value_is_zero_ret_zero(result, params, function, &current_block);
                 }
                 break;
 
@@ -2927,10 +2943,12 @@ show_inst_in_jit(inst);
                 Value* param2 = params[stack_value_name];
                 params2.push_back(param2);
 
-                Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)var_num);
+                std::string var_num_value_name("var_num");
+                Value* param3 = params[var_num_value_name];
                 params2.push_back(param3);
 
-                Value* param4 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
+                std::string info_value_name("info");
+                Value* param4 = params[info_value_name];
                 params2.push_back(param4);
 
                 Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)field_index);
@@ -2944,7 +2962,7 @@ show_inst_in_jit(inst);
 
                 Value* result = Builder.CreateCall(fun, params2);
 
-                if_value_is_zero_ret_zero(result, params, var_num, info, function, &current_block);
+                if_value_is_zero_ret_zero(result, params, function, &current_block);
                 }
                 break;
 
@@ -2967,10 +2985,12 @@ show_inst_in_jit(inst);
                 Value* param2 = params[stack_value_name];
                 params2.push_back(param2);
 
-                Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)var_num);
+                std::string var_num_value_name("var_num");
+                Value* param3 = params[var_num_value_name];
                 params2.push_back(param3);
 
-                Value* param4 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
+                std::string info_value_name("info");
+                Value* param4 = params[info_value_name];
                 params2.push_back(param4);
 
                 Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)field_index);
@@ -2984,7 +3004,7 @@ show_inst_in_jit(inst);
 
                 Value* result = Builder.CreateCall(fun, params2);
 
-                if_value_is_zero_ret_zero(result, params, var_num, info, function, &current_block);
+                if_value_is_zero_ret_zero(result, params, function, &current_block);
                 }
                 break;
 
@@ -3001,15 +3021,17 @@ show_inst_in_jit(inst);
                 Value* param2 = params[stack_value_name];
                 params2.push_back(param2);
 
-                Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)var_num);
+                std::string var_num_value_name("var_num");
+                Value* param3 = params[var_num_value_name];
                 params2.push_back(param3);
 
-                Value* param4 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
+                std::string info_value_name("info");
+                Value* param4 = params[info_value_name];
                 params2.push_back(param4);
 
                 Value* result = Builder.CreateCall(fun, params2);
 
-                if_value_is_zero_ret_zero(result, params, var_num, info, function, &current_block);
+                if_value_is_zero_ret_zero(result, params, function, &current_block);
                 }
                 break;
 
@@ -3026,15 +3048,17 @@ show_inst_in_jit(inst);
                 Value* param2 = params[stack_value_name];
                 params2.push_back(param2);
 
-                Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)var_num);
+                std::string var_num_value_name("var_num");
+                Value* param3 = params[var_num_value_name];
                 params2.push_back(param3);
 
-                Value* param4 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
+                std::string info_value_name("info");
+                Value* param4 = params[info_value_name];
                 params2.push_back(param4);
 
                 Value* result = Builder.CreateCall(fun, params2);
 
-                if_value_is_zero_ret_zero(result, params, var_num, info, function, &current_block);
+                if_value_is_zero_ret_zero(result, params, function, &current_block);
                 }
                 break;
 
@@ -9264,10 +9288,12 @@ show_inst_in_jit(inst);
                 Value* param2 = params[stack_value_name];
                 params2.push_back(param2);
 
-                Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)var_num);
+                std::string var_num_value_name("var_num");
+                Value* param3 = params[var_num_value_name];
                 params2.push_back(param3);
 
-                Value* param4 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
+                std::string info_value_name("info");
+                Value* param4 = params[info_value_name];
                 params2.push_back(param4);
 
                 Value* param5 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)class_name);
@@ -9275,7 +9301,7 @@ show_inst_in_jit(inst);
 
                 Value* result = Builder.CreateCall(fun, params2);
 
-                if_value_is_zero_ret_zero(result, params, var_num, info, function, &current_block);
+                if_value_is_zero_ret_zero(result, params, function, &current_block);
                 }
                 break;
 
@@ -9506,10 +9532,12 @@ show_inst_in_jit(inst);
                 Value* param2 = params[stack_value_name];
                 params2.push_back(param2);
 
-                Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)var_num);
+                std::string var_num_value_name("var_num");
+                Value* param3 = params[var_num_value_name];
                 params2.push_back(param3);
 
-                Value* param4 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
+                std::string info_value_name("info");
+                Value* param4 = params[info_value_name];
                 params2.push_back(param4);
 
                 Value* param5 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)class_name);
@@ -9520,7 +9548,7 @@ show_inst_in_jit(inst);
 
                 Value* result = Builder.CreateCall(fun, params2);
 
-                if_value_is_zero_ret_zero(result, params, var_num, info, function, &current_block);
+                if_value_is_zero_ret_zero(result, params, function, &current_block);
                 }
                 break;
 
@@ -9545,10 +9573,12 @@ show_inst_in_jit(inst);
                 Value* param2 = params[stack_value_name];
                 params2.push_back(param2);
 
-                Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)var_num);
+                std::string var_num_value_name("var_num");
+                Value* param3 = params[var_num_value_name];
                 params2.push_back(param3);
 
-                Value* param4 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
+                std::string info_value_name("info");
+                Value* param4 = params[info_value_name];
                 params2.push_back(param4);
 
                 Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_elements);
@@ -9559,7 +9589,7 @@ show_inst_in_jit(inst);
 
                 Value* result = Builder.CreateCall(fun, params2);
 
-                if_value_is_zero_ret_zero(result, params, var_num, info, function, &current_block);
+                if_value_is_zero_ret_zero(result, params, function, &current_block);
                 }
                 break;
 
@@ -9584,10 +9614,12 @@ show_inst_in_jit(inst);
                 Value* param2 = params[stack_value_name];
                 params2.push_back(param2);
 
-                Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)var_num);
+                std::string var_num_value_name("var_num");
+                Value* param3 = params[var_num_value_name];
                 params2.push_back(param3);
 
-                Value* param4 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
+                std::string info_value_name("info");
+                Value* param4 = params[info_value_name];
                 params2.push_back(param4);
 
                 Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_elements);
@@ -9598,7 +9630,7 @@ show_inst_in_jit(inst);
 
                 Value* result = Builder.CreateCall(fun, params2);
 
-                if_value_is_zero_ret_zero(result, params, var_num, info, function, &current_block);
+                if_value_is_zero_ret_zero(result, params, function, &current_block);
                 }
                 break;
 
@@ -9623,10 +9655,12 @@ show_inst_in_jit(inst);
                 Value* param2 = params[stack_value_name];
                 params2.push_back(param2);
 
-                Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)var_num);
+                std::string var_num_value_name("var_num");
+                Value* param3 = params[var_num_value_name];
                 params2.push_back(param3);
 
-                Value* param4 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
+                std::string info_value_name("info");
+                Value* param4 = params[info_value_name];
                 params2.push_back(param4);
 
                 Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_elements);
@@ -9637,7 +9671,7 @@ show_inst_in_jit(inst);
 
                 Value* result = Builder.CreateCall(fun, params2);
 
-                if_value_is_zero_ret_zero(result, params, var_num, info, function, &current_block);
+                if_value_is_zero_ret_zero(result, params, function, &current_block);
                 }
                 break;
 
@@ -9662,10 +9696,12 @@ show_inst_in_jit(inst);
                 Value* param2 = params[stack_value_name];
                 params2.push_back(param2);
 
-                Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)var_num);
+                std::string var_num_value_name("var_num");
+                Value* param3 = params[var_num_value_name];
                 params2.push_back(param3);
 
-                Value* param4 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
+                std::string info_value_name("info");
+                Value* param4 = params[info_value_name];
                 params2.push_back(param4);
 
                 Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_elements);
@@ -9676,7 +9712,7 @@ show_inst_in_jit(inst);
 
                 Value* result = Builder.CreateCall(fun, params2);
 
-                if_value_is_zero_ret_zero(result, params, var_num, info, function, &current_block);
+                if_value_is_zero_ret_zero(result, params, function, &current_block);
                 }
                 break;
 
@@ -9701,10 +9737,12 @@ show_inst_in_jit(inst);
                 Value* param2 = params[stack_value_name];
                 params2.push_back(param2);
 
-                Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)var_num);
+                std::string var_num_value_name("var_num");
+                Value* param3 = params[var_num_value_name];
                 params2.push_back(param3);
 
-                Value* param4 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
+                std::string info_value_name("info");
+                Value* param4 = params[info_value_name];
                 params2.push_back(param4);
 
                 Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_elements);
@@ -9715,7 +9753,7 @@ show_inst_in_jit(inst);
 
                 Value* result = Builder.CreateCall(fun, params2);
 
-                if_value_is_zero_ret_zero(result, params, var_num, info, function, &current_block);
+                if_value_is_zero_ret_zero(result, params, function, &current_block);
                 }
                 break;
 
@@ -9740,10 +9778,12 @@ show_inst_in_jit(inst);
                 Value* param2 = params[stack_value_name];
                 params2.push_back(param2);
 
-                Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)var_num);
+                std::string var_num_value_name("var_num");
+                Value* param3 = params[var_num_value_name];
                 params2.push_back(param3);
 
-                Value* param4 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
+                std::string info_value_name("info");
+                Value* param4 = params[info_value_name];
                 params2.push_back(param4);
 
                 Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_elements);
@@ -9754,7 +9794,7 @@ show_inst_in_jit(inst);
 
                 Value* result = Builder.CreateCall(fun, params2);
 
-                if_value_is_zero_ret_zero(result, params, var_num, info, function, &current_block);
+                if_value_is_zero_ret_zero(result, params, function, &current_block);
                 }
                 break;
 
@@ -9774,10 +9814,12 @@ show_inst_in_jit(inst);
                 Value* param2 = params[stack_value_name];
                 params2.push_back(param2);
 
-                Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)var_num);
+                std::string var_num_value_name("var_num");
+                Value* param3 = params[var_num_value_name];
                 params2.push_back(param3);
 
-                Value* param4 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
+                std::string info_value_name("info");
+                Value* param4 = params[info_value_name];
                 params2.push_back(param4);
 
                 Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_elements);
@@ -9785,7 +9827,7 @@ show_inst_in_jit(inst);
 
                 Value* result = Builder.CreateCall(fun, params2);
 
-                if_value_is_zero_ret_zero(result, params, var_num, info, function, &current_block);
+                if_value_is_zero_ret_zero(result, params, function, &current_block);
                 }
                 break;
 
@@ -9814,10 +9856,12 @@ show_inst_in_jit(inst);
                 Value* param2 = params[stack_value_name];
                 params2.push_back(param2);
 
-                Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)var_num);
+                std::string var_num_value_name("var_num");
+                Value* param3 = params[var_num_value_name];
                 params2.push_back(param3);
 
-                Value* param4 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
+                std::string info_value_name("info");
+                Value* param4 = params[info_value_name];
                 params2.push_back(param4);
 
                 Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_elements);
@@ -9831,7 +9875,7 @@ show_inst_in_jit(inst);
 
                 Value* result = Builder.CreateCall(fun, params2);
 
-                if_value_is_zero_ret_zero(result, params, var_num, info, function, &current_block);
+                if_value_is_zero_ret_zero(result, params, function, &current_block);
                 }
                 break;
 
@@ -9884,7 +9928,8 @@ show_inst_in_jit(inst);
                 Value* param7 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)constant_len);
                 params2.push_back(param7);
 
-                Value* param8 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)block_var_num);
+                std::string var_num_value_name("var_num");
+                Value* param8 = params[var_num_value_name];
                 params2.push_back(param8);
 
                 Value* param9 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)parent_var_num);
@@ -9893,7 +9938,8 @@ show_inst_in_jit(inst);
                 Value* param10 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)lambda);
                 params2.push_back(param10);
 
-                Value* param11 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)info);
+                std::string info_value_name("info");
+                Value* param11 = params[info_value_name];
                 params2.push_back(param11);
 
                 Builder.CreateCall(fun, params2);
@@ -9967,7 +10013,7 @@ show_inst_in_jit(inst);
 #ifdef MDEBUG
 /*
 if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
-    call_show_stack(var_num, info, params);
+    call_show_stack(params);
 }
 */
 #endif
@@ -9988,67 +10034,5 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
     return TRUE;
 }
 
-static BOOL run_native_code(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sCLMethod* method, sVMInfo* info)
-{
-    CLVALUE* stack_ptr = stack + var_num;
-    CLVALUE* lvar = stack;
-
-    long stack_id = append_stack_to_stack_list(stack, &stack_ptr);
-
-    info->current_stack = stack;        // for invoking_block in native method
-    info->current_var_num = var_num;
-    info->stack_id = stack_id;
-
-    char method_path2[METHOD_NAME_MAX + 128];
-    create_method_path_for_jit(klass, method, method_path2, METHOD_NAME_MAX + 128);
-    
-    auto ExprSymbol = TheJIT->findSymbol(method_path2);
-    assert(ExprSymbol && "Function not found");
-
-
-    fJITMethodType function = (fJITMethodType)ExprSymbol.getAddress();
-    if(!function(stack_ptr, lvar, info, stack, &stack_ptr)) {
-        remove_stack_to_stack_list(stack, &stack_ptr);
-        return FALSE;
-    }
-
-    remove_stack_to_stack_list(stack, &stack_ptr);
-
-    return TRUE;
-}
-
-BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sCLMethod* method, sVMInfo* info)
-{
-    char method_path2[METHOD_NAME_MAX + 128];
-    create_method_path_for_jit(klass, method, method_path2, METHOD_NAME_MAX + 128);
-
-    auto ExprSymbol = TheJIT->findSymbol(method_path2);
-    if(!ExprSymbol) {
-#ifdef MDEBUG
-//printf("compiling %s\n", method_path2);
-#endif
-        if(!compile_to_native_code(code, constant, stack, var_num, klass, method, info, method_path2)) {
-            return FALSE;
-        }
-#ifdef MDEBUG
-//printf("compiling %s end\n", method_path2);
-#endif
-
-#ifdef MDEBUG
-//        TheModule->dump();
-#endif
-        auto H = TheJIT->addModule(std::move(TheModule));
-        InitializeModuleAndPassManager();
-    }
-
-#ifdef MDEBUG
-//printf("run_native_code %s.%s%d\n", CLASS_NAME(klass), METHOD_NAME2(klass, method), method->mMethodIndex);
-#endif
-    if(!run_native_code(code, constant, stack, var_num, klass, method, info)) {
-        return FALSE;
-    }
-
-    return TRUE;
-}
 
 } // extern "C"

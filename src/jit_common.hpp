@@ -34,6 +34,14 @@ extern "C"
 #include "llvm/Support/DynamicLibrary.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/Target/TargetMachine.h"
+#include "llvm-c/BitWriter.h"
+#include "llvm/Support/FileSystem.h"
+#include "llvm/IRReader/IRReader.h"
+#include "llvm/Support/SourceMgr.h"
+#include "llvm/Support/MemoryBuffer.h"
+#include <fstream>
+#include <iostream>
+
 #include <algorithm>
 #include <memory>
 #include <string>
@@ -166,6 +174,8 @@ public:
         params.push_back(param4_type);
         Type* param5_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
         params.push_back(param5_type);
+        Type* param6_type = IntegerType::get(TheContext, 32);
+        params.push_back(param6_type);
 
         Type* result_type = IntegerType::get(TheContext, 32);
         FunctionType* function_type = FunctionType::get(result_type, params, false);
@@ -183,6 +193,8 @@ public:
         args.push_back(stack_name);
         std::string stack_ptr_address_name("stack_ptr_address");
         args.push_back(stack_ptr_address_name);
+        std::string var_num_name("var_num");
+        args.push_back(var_num_name);
 
         unsigned index = 0;
         for (auto &arg : function->args()) {
@@ -201,7 +213,11 @@ extern "C"
 void create_internal_functions();
 void InitializeModuleAndPassManager();
 
-typedef BOOL (*fJITMethodType)(CLVALUE* stack_ptr, CLVALUE* lvar, sVMInfo* info, CLVALUE* stack, CLVALUE** stack_ptr_address);
+typedef BOOL (*fJITMethodType)(CLVALUE* stack_ptr, CLVALUE* lvar, sVMInfo* info, CLVALUE* stack, CLVALUE** stack_ptr_address, int var_num);
+
+/// jit.cpp ///
+BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2);
+void if_value_is_zero_ret_zero(Value* value, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block);
 
 /// jit_sub.cpp ///
 void create_internal_functions();
@@ -216,7 +232,7 @@ void show_str_in_jit(char* str);
 void call_show_str_in_jit(char* str);
 void call_show_stack_stat(std::map<std::string, Value *> params);
 void call_show_inst_in_jit(int opecode);
-void call_show_stack(int var_num, sVMInfo* info, std::map<std::string, Value *> params);
+void call_show_stack(std::map<std::string, Value *> params);
 void store_value(Value* llvm_value, Value* stored_value, BasicBlock* current_block);
 void store_value_with_aligned(Value* llvm_value, Value* stored_value, BasicBlock* current_block, int align);
 void inc_stack_ptr(std::map<std::string, Value*>& params, BasicBlock* current_block, int value);
@@ -231,12 +247,12 @@ void push_value_to_stack_ptr(std::map<std::string, Value*>& params, BasicBlock* 
 void push_value_to_stack_ptr_with_aligned(std::map<std::string, Value*>& params, BasicBlock* current_block, Value* value, int align);
 void push_value_to_stack_ptr_with_aligned(std::map<std::string, Value*>& params, BasicBlock* current_block, Value* value, int align);
 Value* get_value_from_char_array(char* str);
-void run_entry_exception_object_with_class_name2(std::map<std::string, Value *> params, int var_num, sVMInfo* info, char* class_name, char* message);
-void if_value_is_zero_entry_exception_object(Value* value, std::map<std::string, Value *> params, int var_num, sVMInfo* info, Function* function, BasicBlock** current_block, char* class_name, char* message);
-void if_value_is_zero_ret_zero(Value* value, std::map<std::string, Value *> params, int var_num, sVMInfo* info, Function* function, BasicBlock** current_block);
+void run_entry_exception_object_with_class_name2(std::map<std::string, Value *> params, char* class_name, char* message);
+void if_value_is_zero_entry_exception_object(Value* value, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block, char* class_name, char* message);
+void if_value_is_zero_ret_zero(Value* value, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block);
 CLObject get_string_object_of_object_name(CLObject object);
-void finish_method_call(Value* result, sCLClass* klass, sCLMethod* method, sVMInfo* info, std::map<std::string, Value *> params, BasicBlock** current_block, Function* function, char* try_catch_label_name);
-BOOL compile_invoking_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, std::map<std::string, Value *> params, BasicBlock** current_block, Function* function, char* try_catch_label_name);
+void finish_method_call(Value* result, sCLClass* klass, sCLMethod* method, std::map<std::string, Value *> params, BasicBlock** current_block, Function* function, char* try_catch_label_name);
+BOOL compile_invoking_method(sCLClass* klass, sCLMethod* method, std::map<std::string, Value *> params, BasicBlock** current_block, Function* function, char* try_catch_label_name);
 BOOL invoke_virtual_method(int num_real_params, int offset, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sByteCode* code, sConst* constant);
 BOOL invoke_dynamic_method(int offset, int offset2, int num_params, int static_, int num_method_chains, int max_method_chains, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sByteCode* code, sConst* constant);
 BOOL invoke_block_in_jit(int num_params, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info);
