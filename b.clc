@@ -6,11 +6,29 @@ interface JITTestInterface
 
 class JITTestClassA
 {
+    value:int;
+
     def initialize() {
+        self.value = 111;
+    }
+
+    def initialize(value:int) {
+        self.value = value;
     }
 
     def method():int {
         return 123;
+    }
+
+    def classMethod(): static int {
+        return 1;
+    }
+    def classMethod(a:int, b:int):static int {
+        return a + b;
+    }
+
+    def getValue(): int {
+        return self.value;
     }
 }
 
@@ -24,7 +42,7 @@ class JITTest
         self.len = 10;
     }
 
-    def run():  int {
+    def run(): int {
         return 3+1;
     }
 
@@ -32,19 +50,23 @@ class JITTest
         return "ABC";
     }
 
-    def run3(): int {
-        return 3+1;
-    }
-
-    def run4(): {
+    def run3(): {
         System.println("HELLO WORLD");
     }
 
-    def run5(): double {
+    def run4(): int {
+        return JITTestClassA.classMethod() + 3;
+    }
+
+    def run5(): int {
+        return JITTestClassA.classMethod(1, 2);
+    }
+
+    def run6(): double {
         return System.strtod("123.1");
     }
 
-    def run6():  int {
+    def run7():  int {
         a:int = 123;
         return a + 1;
     }
@@ -53,14 +75,20 @@ class JITTest
         return "ABC";
     }
 
-    def run7(): String {
+    def run8(): String {
         return self.method().append("DEF");
     }
 
-    def run8():  {
-        throw new Exception("JIT throw test");
+    def run9(): JITTestClassA {
+        return new JITTestClassA(123);
     }
 
+    def run10(): int {
+        throw new Exception("Exception");
+        return 1;
+    }
+
+/*
     def run9():  bool {
         a:int = 1;
         b:bool = a == 1;
@@ -886,4 +914,5 @@ println("HELLO JIT with mixin-layers");
 
         return result;
     }
+*/
 }

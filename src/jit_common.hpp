@@ -210,6 +210,13 @@ extern std::map<std::string, std::unique_ptr<FunctionAST>> LLVMFunctions;
 extern "C" 
 {
 
+struct LVALUEStruct {
+    Value* value;
+    BOOL vm_stack;
+};
+
+typedef struct LVALUEStruct LVALUE;
+
 void create_internal_functions();
 void InitializeModuleAndPassManager();
 
@@ -229,21 +236,16 @@ void show_number_in_jit(int number);
 void call_show_number_in_jit(int number);
 void call_show_value_in_jit(Value* value);
 void show_str_in_jit(char* str);
-void call_show_str_in_jit(char* str);
+void call_show_str_in_jit(Value* value);
 void call_show_stack_stat(std::map<std::string, Value *> params);
 void call_show_inst_in_jit(int opecode);
 void call_show_stack(std::map<std::string, Value *> params);
 void store_value(Value* llvm_value, Value* stored_value, BasicBlock* current_block);
 void store_value_with_aligned(Value* llvm_value, Value* stored_value, BasicBlock* current_block, int align);
 void inc_stack_ptr(std::map<std::string, Value*>& params, BasicBlock* current_block, int value);
-void dec_stack_ptr(std::map<std::string, Value*>& params, BasicBlock* current_block, int value);
 Value* get_stack_ptr_value_from_offset(std::map<std::string, Value*>& params, BasicBlock* current_block, int offset);
 Value* get_stack_ptr_float_value_from_index_with_aligned(std::map<std::string, Value*>& params, BasicBlock* current_block, int index, int align);
 Value* get_stack_ptr_pointer_value_from_index(std::map<std::string, Value*>& params, BasicBlock* current_block, int index);
-Value* get_lvar_value_from_offset(std::map<std::string, Value*>& params, BasicBlock* current_block, int offset);
-void store_value_to_lvar_with_offset(std::map<std::string, Value*>& params, BasicBlock* current_block, int index, Value* llvm_value);
-Value* get_stack_ptr_value_from_index_with_aligned(std::map<std::string, Value*>& params, BasicBlock* current_block, int index, int align);
-void push_value_to_stack_ptr(std::map<std::string, Value*>& params, BasicBlock* current_block, Value* value);
 void push_value_to_stack_ptr_with_aligned(std::map<std::string, Value*>& params, BasicBlock* current_block, Value* value, int align);
 void push_value_to_stack_ptr_with_aligned(std::map<std::string, Value*>& params, BasicBlock* current_block, Value* value, int align);
 Value* get_value_from_char_array(char* str);
@@ -251,9 +253,8 @@ void run_entry_exception_object_with_class_name2(std::map<std::string, Value *> 
 void if_value_is_zero_entry_exception_object(Value* value, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block, char* class_name, char* message);
 void if_value_is_zero_ret_zero(Value* value, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block);
 CLObject get_string_object_of_object_name(CLObject object);
-void finish_method_call(Value* result, sCLClass* klass, sCLMethod* method, std::map<std::string, Value *> params, BasicBlock** current_block, Function* function, char* try_catch_label_name);
-BOOL compile_invoking_method(sCLClass* klass, sCLMethod* method, std::map<std::string, Value *> params, BasicBlock** current_block, Function* function, char* try_catch_label_name);
 BOOL invoke_virtual_method(int num_real_params, int offset, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sByteCode* code, sConst* constant);
 BOOL invoke_dynamic_method(int offset, int offset2, int num_params, int static_, int num_method_chains, int max_method_chains, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sByteCode* code, sConst* constant);
 BOOL invoke_block_in_jit(int num_params, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info);
+BOOL get_vm_stack_ptr_flag(BOOL* llvm_stack_from_vm_stack_flag, Value** llvm_stack_ptr, Value* llvm_stack , int index);
 }

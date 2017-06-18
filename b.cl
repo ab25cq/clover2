@@ -1,29 +1,34 @@
-a:JITTest  = new JITTest();
+a:JITTest = new JITTest();
 
 b:int = a.run();
 Clover.test("jit test", b == 4);
 
+
 c:String = a.run2();
 Clover.test("jit test2", c.equals("ABC"));
 
-Clover.test("jit test3", a.run() == 4);
+a.run3();
 
-a.run4();
+Clover.test("jit test3", a.run4() == 4);
+Clover.test("jit test4", a.run5() == 3);
 
-Clover.test("jit test4", a.run5() == 123.1);
+Clover.test("jit test5", a.run6() == 123.1);
 
-Clover.test("jit test5", a.run6() == 124);
+Clover.test("jit test5", a.run7() == 124);
 
-Clover.test("jit test6", a.run7().equals("ABCDEF"));
+Clover.test("jit test6", a.run8().equals("ABCDEF"));
 
-print("jit test7...");
+Clover.test("jit test9", a.run9().value == 123);
+
+print("jit test10...");
 try {
-    a.run8();
+    a.run10();
 }
 catch(e:Exception) {
     println("OK");
 }
 
+/*
 Clover.test("jit test8", a.run9() == true);
 
 Clover.test("jit test9", a.run10() == 2);
@@ -201,3 +206,4 @@ Clover.test("file test15", File.read("c.txt").equals(b"abc\ndef\n"));
 
 p"d.txt".write(b"GGG\n");
 Clover.test("file test17", p"d.txt".read().equals(b"GGG\n"));
+*/
