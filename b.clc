@@ -30,6 +30,10 @@ class JITTestClassA
     def getValue(): int {
         return self.value;
     }
+
+    def runException(): static { 
+        throw new Exception("AAA");
+    }
 }
 
 class JITTest 
@@ -88,14 +92,42 @@ class JITTest
         return 1;
     }
 
-/*
-    def run9():  bool {
+    def method2():  {
+        throw new Exception("exception");
+    }
+
+    def run11(): {
+        print(" test11...");
+        try {
+            self.method2();
+        }
+        catch(e:Exception) {
+            println("OK");
+        }
+    }
+
+    def run12():  bool {
         a:int = 1;
         b:bool = a == 1;
 
         return b;
     }
 
+    def run13(): int {
+        a:int = 1;
+
+        if(a == 1) {
+            return 2;
+        }
+        else {
+            return 3;
+        }
+
+
+        return a;
+    }
+
+/*
     def run10():  int {
         a:int = 1;
         a.to_bool && ((a = 2).to_bool);
@@ -106,18 +138,6 @@ class JITTest
     def run11():  int {
         a:int = 1;
         a.to_bool || ((a = 2).to_bool);
-
-        return a;
-    }
-
-    def run12():  int {
-        a:int = 1;
-        if(a == 1) {
-            return 2;
-        }
-        else {
-            return 3;
-        }
 
         return a;
     }
@@ -148,20 +168,6 @@ class JITTest
 
     def run15():  int {
         return self.field1;
-    }
-
-    def run16():  {
-        throw new Exception("exception");
-    }
-
-    def run17():  int {
-        print(" test14...");
-        try {
-            self.run16();
-        }
-        catch(e:Exception) {
-            println("OK");
-        }
     }
 
     def run18():  regex {

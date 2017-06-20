@@ -28,11 +28,12 @@ catch(e:Exception) {
     println("OK");
 }
 
+a.run11();
+
+Clover.test("jit test12", a.run12());
+Clover.test("jit test13", a.run13() == 2);
+
 /*
-Clover.test("jit test8", a.run9() == true);
-
-Clover.test("jit test9", a.run10() == 2);
-
 Clover.test("jit test9", a.run11() == 1);
 
 Clover.test("jit test10", a.run12() == 2);

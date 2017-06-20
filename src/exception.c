@@ -75,7 +75,7 @@ void entry_exception_object(CLObject exception, sVMInfo* info)
 
     char* str = ALLOC string_object_to_char_array(message);
 
-    xstrncpy(info->exception_message, str, EXCEPTION_MESSAGE_MAX); // for show_exception_message 
+    snprintf(info->exception_message, EXCEPTION_MESSAGE_MAX, "%s %d: %s\n", info->sname, info->sline, str);
 
     MFREE(str);
 }

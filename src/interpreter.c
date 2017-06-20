@@ -1455,6 +1455,8 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
 
         if(info.err_num == 0 && node != 0) {
             append_opecode_to_code(cinfo.code, OP_HEAD_OF_EXPRESSION, cinfo.no_output);
+
+            append_opecode_to_code(cinfo.code, OP_MARK_SOURCE_CODE_POSITION, cinfo.no_output);
             append_str_to_constant_pool_and_code(cinfo.constant, cinfo.code, cinfo.sname, cinfo.no_output);
             append_int_value_to_code(cinfo.code, cinfo.sline, cinfo.no_output);
 

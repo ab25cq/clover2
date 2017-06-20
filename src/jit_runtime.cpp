@@ -7,25 +7,6 @@ extern "C"
 //////////////////////////////////////////////////////////////////////
 // VM functions
 //////////////////////////////////////////////////////////////////////
-void run_head_of_expression(sVMInfo* info, char* sname, int sline)
-{
-    info->sname = sname;
-    info->sline = sline;
-
-    gSigInt = FALSE;
-}
-
-BOOL run_sigint(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info)
-{
-    if(gSigInt) {
-        gSigInt = FALSE;
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "Signal Interrupt");
-        return FALSE;
-    }
-
-    return TRUE;
-}
-
 BOOL run_load_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index)
 {
     CLObject obj = ((*stack_ptr) -1)->mObjectValue;
@@ -95,11 +76,6 @@ void run_ldculong(CLVALUE** stack_ptr, int value1, int value2)
 
     (*stack_ptr)->mULongValue = lvalue;
     (*stack_ptr)++;
-}
-
-void try_function(sVMInfo* info, char* try_cach_label)
-{
-    info->try_catch_label_name = try_cach_label;
 }
 
 char* get_try_catch_label_name(sVMInfo* info)

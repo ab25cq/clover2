@@ -967,7 +967,7 @@ if(stack_ptr != lvar + var_num + 1) {
 #endif
                 return TRUE;
 
-            case OP_THROW:
+            case OP_THROW: {
                 *stack = *(stack_ptr-1);
                 remove_stack_to_stack_list(stack, &stack_ptr);
 
@@ -980,6 +980,7 @@ if(stack_ptr != lvar + var_num + 1) {
     exit(3);
 }
 #endif
+                }
                 return FALSE;
 
             case OP_TRY: {
@@ -999,6 +1000,12 @@ if(stack_ptr != lvar + var_num + 1) {
             case OP_HEAD_OF_EXPRESSION:
                 vm_mutex_on();
 
+                gSigInt = FALSE;
+
+                vm_mutex_off();
+                break;
+
+            case OP_MARK_SOURCE_CODE_POSITION: {
                 int offset = *(int*)pc;
                 pc += sizeof(int);
 
@@ -1009,10 +1016,7 @@ if(stack_ptr != lvar + var_num + 1) {
 
                 info->sname = sname;
                 info->sline = sline;
-
-                gSigInt = FALSE;
-
-                vm_mutex_off();
+                }
                 break;
 
             case OP_SIGINT:

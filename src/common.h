@@ -172,7 +172,8 @@ typedef struct sCLParamStruct sCLParam;
 #define EXCEPTION_MESSAGE_MAX 256
 
 struct sVMInfoStruct {
-    char exception_message[EXCEPTION_MESSAGE_MAX];
+    char* try_catch_label_name;
+
     CLVALUE* current_stack;
     int current_var_num;
     char* sname;
@@ -181,9 +182,8 @@ struct sVMInfoStruct {
     int* try_offset_before;
     char** pc;
 
-    char* try_catch_label_name;
-
     long stack_id;
+    char exception_message[EXCEPTION_MESSAGE_MAX];
 };
 
 typedef struct sVMInfoStruct sVMInfo;
@@ -789,8 +789,9 @@ extern BOOL gSigInt;
 #define OP_THROW 9
 #define OP_TRY 10
 #define OP_HEAD_OF_EXPRESSION 11
-#define OP_SIGINT 12
-#define OP_LABEL 13
+#define OP_MARK_SOURCE_CODE_POSITION 12
+#define OP_SIGINT 13
+#define OP_LABEL 14
 
 #define OP_STORE 15
 #define OP_LOAD 16

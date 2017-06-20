@@ -3,6 +3,8 @@
 extern "C" 
 {
 
+GlobalVariable* gSigIntValue;
+
 void create_internal_functions()
 {
     Type* result_type;
@@ -273,25 +275,6 @@ void create_internal_functions()
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_head_of_expression", TheModule.get());
 
-    /// run_sigint ///
-    type_params.clear();
-    
-    result_type = IntegerType::get(TheContext, 32);
-
-    param1_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
-    type_params.push_back(param1_type);
-
-    param2_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
-    type_params.push_back(param2_type);
-
-    param3_type = IntegerType::get(TheContext, 32);
-    type_params.push_back(param3_type);
-
-    param4_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
-    type_params.push_back(param4_type);
-
-    function_type = FunctionType::get(result_type, type_params, false);
-    Function::Create(function_type, Function::ExternalLinkage, "run_sigint", TheModule.get());
     /// run_load_address ///
     type_params.clear();
     
@@ -2860,6 +2843,10 @@ void create_internal_functions()
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_native_method_dec_stack_ptr", TheModule.get());
+
+    /// gSigInt ///
+    Type* variable_type = IntegerType::get(TheContext, 32);
+    gSigIntValue = new GlobalVariable(*TheModule, variable_type, false, GlobalValue::ExternalLinkage, nullptr, "gSigInt");
 }
 
 void InitializeModuleAndPassManager() 
@@ -2869,7 +2856,7 @@ void InitializeModuleAndPassManager()
     
     TheFPM = llvm::make_unique<legacy::FunctionPassManager>(TheModule.get());
     
-    TheFPM->add(createInstructionCombiningPass());
+    //TheFPM->add(createInstructionCombiningPass());
     TheFPM->add(createReassociatePass());
     TheFPM->add(createGVNPass());
     TheFPM->add(createCFGSimplificationPass());
@@ -4101,6 +4088,8 @@ if(strcmp(CLASS_NAME(klass), "JITTest") == 0) {
                 if(!compile_to_native_code(code, constant, klass, method, method_path2)) {
                     return FALSE;
                 }
+TheModule->dump();
+
 
                 auto H = TheJIT->addModule(std::move(TheModule));
                 InitializeModuleAndPassManager();

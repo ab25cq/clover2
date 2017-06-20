@@ -380,6 +380,51 @@ static void restore_vm_stack_value(LVALUE* llvm_stack, std::map<std::string, Val
     dec_vm_stack_ptr(params, current_block, stack_value_num);
 }
 
+void try_function(sVMInfo* info, char* try_cach_label)
+{
+    info->try_catch_label_name = try_cach_label;
+}
+
+void run_head_of_expression(sVMInfo* info, char* sname, int sline)
+{
+    info->sname = sname;
+    info->sline = sline;
+
+    gSigInt = FALSE;
+}
+
+StructType* get_vm_info_struct_type()
+{
+    StructType* result_type = StructType::create(TheContext, "vm_info_struct");
+    std::vector<Type*> fields;
+    Type* field_type1 = PointerType::get(IntegerType::get(TheContext, 8), 0); // try_catch_label_name
+    fields.push_back(field_type1);
+    Type* field_type2 = PointerType::get(IntegerType::get(TheContext, 64), 0); // current_stack
+    fields.push_back(field_type2);
+    Type* field_type3 = IntegerType::get(TheContext, 32); // current_var_num
+    fields.push_back(field_type3);
+    Type* field_type4 = PointerType::get(IntegerType::get(TheContext, 8), 0); // sname
+    fields.push_back(field_type4);
+    Type* field_type5 = IntegerType::get(TheContext, 32);                       // sline
+    fields.push_back(field_type5);
+    Type* field_type6 = PointerType::get(IntegerType::get(TheContext, 32), 0); // try_offset
+    fields.push_back(field_type6);
+    Type* field_type7 = PointerType::get(IntegerType::get(TheContext, 32), 0); // try_offset_before
+    fields.push_back(field_type7);
+    Type* field_type8 = PointerType::get(PointerType::get(IntegerType::get(TheContext, 8), 0), 0); // pc
+    fields.push_back(field_type8);
+    Type* field_type9 = IntegerType::get(TheContext, 64);                           // stack_id
+    fields.push_back(field_type9);
+    Type* field_type10 = ArrayType::get(IntegerType::get(TheContext, 8), EXCEPTION_MESSAGE_MAX);  // exception_message
+    fields.push_back(field_type10);
+
+    if(result_type->isOpaque()) {
+        result_type->setBody(fields, false);
+    }
+
+    return result_type;
+}
+
 //////////////////////////////////////////////////////////////////////
 // LLVM core
 //////////////////////////////////////////////////////////////////////
@@ -431,9 +476,11 @@ printf("compile %s.%s\n", CLASS_NAME(klass), METHOD_NAME2(klass, method));
     }
 
     while(pc - code->mCodes < code->mLen) {
+printf("num_cond_jump %d\n", num_cond_jump);
         int k;
         for(k=0; k<num_cond_jump; k++) {
             if(pc == cond_jump_labels[k]) {
+printf("k %d %p\n", k, entry_condends[k]);
                 Builder.SetInsertPoint(entry_condends[k]);
                 current_block = entry_condends[k];
 
@@ -483,6 +530,60 @@ show_inst_in_jit(inst);
                 }
                 break;
 
+            case OP_COND_JUMP: {
+                int jump_value = *(int*)pc;
+                pc += sizeof(int);
+
+                LVALUE* conditional_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                BasicBlock* cond_jump_then_block = BasicBlock::Create(TheContext, "cond_jump_then", function);
+                entry_condends[num_cond_jump] = BasicBlock::Create(TheContext, "entry_condend", function);
+
+                Builder.CreateCondBr(conditional_value->value, entry_condends[num_cond_jump], cond_jump_then_block);
+
+                Builder.SetInsertPoint(cond_jump_then_block);
+
+                current_block = cond_jump_then_block;
+
+                cond_jump_labels[num_cond_jump] = pc + jump_value;
+                num_cond_jump++;
+
+                if(num_cond_jump >= MAX_COND_JUMP) {
+                    fprintf(stderr, "overflow number of condjump\n");
+                    return FALSE;
+                }
+
+                dec_stack_ptr(&llvm_stack_ptr, 1);
+                }
+                break;
+
+            case OP_GOTO: {
+                int jump_value = *(int*)pc;
+                pc += sizeof(int);
+
+                int label_offset = *(int*)pc;
+                pc += sizeof(int);
+
+                char* label_name = CONS_str(constant, label_offset);
+                std::string label_name_string(label_name);
+
+                BasicBlock* label = TheLabels[label_name_string];
+                if(label == nullptr) {
+                    label = BasicBlock::Create(TheContext, label_name, function);
+                    TheLabels[label_name_string] = label;
+                }
+
+                Builder.CreateBr(label);
+
+                Builder.SetInsertPoint(label);
+                current_block = label;
+                
+                BasicBlock* entry_after_goto = BasicBlock::Create(TheContext, "entry_after_goto", function);
+                Builder.SetInsertPoint(entry_after_goto);
+                current_block = entry_after_goto;
+                }
+                break;
+
             case OP_RETURN: {
                 std::string stack_param_name("stack");
                 Value* stack_value = params[stack_param_name];
@@ -528,16 +629,27 @@ show_inst_in_jit(inst);
                 }
                 break;
 
-            case OP_HEAD_OF_EXPRESSION: {
-                int offset = *(int*)pc;
+            case OP_TRY: {
+                int tmp = *(int*)pc;
                 pc += sizeof(int);
 
-                char* sname = CONS_str(constant, offset);
-
-                int sline = *(int*)pc;
+                int catch_label_name_offset = *(int*)pc;
                 pc += sizeof(int);
 
-                Function* function = TheModule->getFunction("run_head_of_expression");
+                try_catch_label_name = CONS_str(constant, catch_label_name_offset);
+
+/*
+                std::vector<Type*> args_type;
+                args_type.push_back(PointerType::get(structTy, 0));
+
+                v = builder->CreateStructGEP(v, 1);
+                v = builder->CreateLoad(v, "load0");
+                v = builder->CreateStructGEP(v, 0);
+                v = builder->CreateLoad(v, "load1");
+                builder->CreateRet(v);
+*/
+
+                Function* try_fun = TheModule->getFunction("try_function");
 
                 std::vector<Value*> params2;
 
@@ -545,18 +657,33 @@ show_inst_in_jit(inst);
                 Value* vminfo_value = params[info_value_name];
                 params2.push_back(vminfo_value);
 
-                Value* param2 = get_value_from_char_array(sname);
-                params2.push_back(param2);
+                Value* try_catch_label_value = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)try_catch_label_name);
+                params2.push_back(try_catch_label_value);
 
-                Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)sline);
-                params2.push_back(param3);
+                (void)Builder.CreateCall(try_fun, params2);
+                }
+                break;
 
-                Builder.CreateCall(function, params2);
+            case OP_HEAD_OF_EXPRESSION: {
+                Value* sig_int_value = ConstantInt::get(Type::getInt32Ty(TheContext), 0);
+                Builder.CreateStore(sig_int_value, gSigIntValue);
                 }
                 break;
 
             case OP_SIGINT: {
-                Function* sigint_function = TheModule->getFunction("run_sigint");
+                Value* sig_int_value = Builder.CreateLoad(gSigIntValue, "sig_int_value");
+
+                BasicBlock* then_block = BasicBlock::Create(TheContext, "sigint_then_block", function);
+                BasicBlock* else_block = BasicBlock::Create(TheContext, "entry_after_sigint", function);
+
+                Builder.CreateCondBr(sig_int_value, then_block, else_block);
+
+                Builder.SetInsertPoint(then_block);
+
+                Value* llvm_value1 = ConstantInt::get(Type::getInt32Ty(TheContext), 0);
+                Builder.CreateStore(llvm_value1, gSigIntValue);
+
+                Function* entry_exception_object_with_class_name_fun = TheModule->getFunction("entry_exception_object_with_class_name2");
 
                 std::vector<Value*> params2;
 
@@ -576,9 +703,66 @@ show_inst_in_jit(inst);
                 Value* vminfo_value = params[info_value_name];
                 params2.push_back(vminfo_value);
 
-                Value* result = Builder.CreateCall(sigint_function, params2);
+                Constant* str_constant = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)"Exception");
+                Value* exception_class_name = ConstantExpr::getIntToPtr(str_constant, PointerType::get(IntegerType::get(TheContext,8), 0));
+                params2.push_back(exception_class_name);
 
-                if_value_is_zero_ret_zero(result, params, function, &current_block);
+                Constant* str_constant2 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)"Signal Interrupt");
+                Value* exception_msg = ConstantExpr::getIntToPtr(str_constant2, PointerType::get(IntegerType::get(TheContext,8), 0));
+                params2.push_back(exception_msg);
+
+                (void)Builder.CreateCall(entry_exception_object_with_class_name_fun, params2);
+
+                Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 0, true));
+                Builder.CreateRet(ret_value);
+
+                Builder.SetInsertPoint(else_block);
+                current_block = else_block;
+                }
+                break;
+
+            case OP_MARK_SOURCE_CODE_POSITION: {
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+
+                char* sname = CONS_str(constant, offset);
+
+                int sline = *(int*)pc;
+                pc += sizeof(int);
+
+                std::string info_value_name("info");
+                Value* vminfo_value = params[info_value_name];
+
+                StructType* vm_info_struct_type = get_vm_info_struct_type();
+
+                Value* sname_field = Builder.CreateStructGEP(vm_info_struct_type, vminfo_value, 3);
+                Constant* str_constant = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)sname);
+                Value* sname_value = ConstantExpr::getIntToPtr(str_constant, PointerType::get(IntegerType::get(TheContext,8), 0));
+                Builder.CreateStore(sname_value, sname_field, "sname_store");
+
+                Value* sline_field = Builder.CreateStructGEP(vm_info_struct_type, vminfo_value, 4);
+                Value* sline_value = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)sline);
+                Builder.CreateStore(sline_value, sline_field, "sline_store");
+                }
+                break;
+
+            case OP_LABEL: {
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+
+                char* label_name = CONS_str(constant, offset);
+
+                std::string label_name_string(label_name);
+
+                BasicBlock* label = TheLabels[label_name_string];
+                if(label == nullptr) {
+                    label = BasicBlock::Create(TheContext, label_name, function);
+                    TheLabels[label_name_string] = label;
+                }
+
+                Builder.CreateBr(label);
+                Builder.SetInsertPoint(label);
+                current_block = label;
                 }
                 break;
 
@@ -639,6 +823,32 @@ show_inst_in_jit(inst);
                 }
                 break;
 
+            case OP_IEQ: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateICmpEQ(lvalue->value, rvalue->value, "IEQ");
+                llvm_value.vm_stack = FALSE;
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_INOTEQ: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateICmpNE(lvalue->value, rvalue->value, "INOTEQ");
+                llvm_value.vm_stack = FALSE;
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
             case OP_INVOKE_METHOD: {
                 int offset = *(int*)pc;
                 pc += sizeof(int);
@@ -686,7 +896,6 @@ show_inst_in_jit(inst);
 
                 if(flg_array) {
                     LVALUE* array_num_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
-                    dec_stack_ptr(&llvm_stack_ptr, 1);
 
                     Function* function = TheModule->getFunction("create_array_object");
 
@@ -699,6 +908,7 @@ show_inst_in_jit(inst);
                     llvm_value.value = Builder.CreateCall(function, params2);
                     llvm_value.vm_stack = TRUE;
 
+                    dec_stack_ptr(&llvm_stack_ptr, 1);
                     push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
                 else {

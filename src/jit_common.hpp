@@ -257,4 +257,6 @@ BOOL invoke_virtual_method(int num_real_params, int offset, CLVALUE* stack, int 
 BOOL invoke_dynamic_method(int offset, int offset2, int num_params, int static_, int num_method_chains, int max_method_chains, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sByteCode* code, sConst* constant);
 BOOL invoke_block_in_jit(int num_params, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info);
 BOOL get_vm_stack_ptr_flag(BOOL* llvm_stack_from_vm_stack_flag, Value** llvm_stack_ptr, Value* llvm_stack , int index);
+
+extern GlobalVariable* gSigIntValue;
 }
