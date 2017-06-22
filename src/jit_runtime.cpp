@@ -924,16 +924,14 @@ void run_short_to_string_cast(CLVALUE** stack_ptr)
     ((*stack_ptr)-1)->mObjectValue = str;
 }
 
-void run_int_to_string_cast(CLVALUE** stack_ptr)
+CLObject run_int_to_string_cast(int value)
 {
-    int value = ((*stack_ptr)-1)->mIntValue;
-
     char buf[32];
     snprintf(buf, 32, "%d", value);
 
     CLObject str = create_string_object(buf);
 
-    ((*stack_ptr)-1)->mObjectValue = str;
+    return str;
 }
 
 void run_long_to_string_cast(CLVALUE** stack_ptr)

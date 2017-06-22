@@ -123,6 +123,41 @@ class JITTest
             return 3;
         }
 
+        return a;
+    }
+
+    def run14():  int {
+        a:int = 0;
+
+        while(true) {
+            a++;
+
+            if(a == 1) {
+                break;
+            }
+        }
+
+        return a;
+    }
+
+    def run15():  int {
+        a:int = 0;
+
+        i:int = 0;
+        while(i<3) {
+            a++;
+            i++;
+        }
+
+        return a;
+    }
+
+    def run16(): int {
+        a:int = 0;
+
+        for(i:int = 0; i<3; i++) {
+            a++;
+        }
 
         return a;
     }
@@ -138,30 +173,6 @@ class JITTest
     def run11():  int {
         a:int = 1;
         a.to_bool || ((a = 2).to_bool);
-
-        return a;
-    }
-
-    def run13():  int {
-        a:int = 0;
-
-        for(i:int=0; i<3; i++) {
-            a++;
-        }
-
-        return a;
-    }
-
-    def run14():  int {
-        a:int = 0;
-
-        while(true) {
-            a++;
-
-            if(a == 1) {
-                break;
-            }
-        }
 
         return a;
     }

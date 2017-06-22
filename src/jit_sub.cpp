@@ -1263,9 +1263,9 @@ void create_internal_functions()
     /// run_int_to_string_cast ///
     type_params.clear();
     
-    result_type = Type::getVoidTy(TheContext);
+    result_type = IntegerType::get(TheContext, 32);
 
-    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    param1_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param1_type);
 
     function_type = FunctionType::get(result_type, type_params, false);

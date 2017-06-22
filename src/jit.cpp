@@ -63,13 +63,18 @@ static void push_value_to_stack_ptr(LVALUE** llvm_stack_ptr, LVALUE* value)
 
 static void store_llvm_value_to_lvar_with_offset(LVALUE* llvm_stack, int index, LVALUE* llvm_value)
 {
-    llvm_stack[index].value = llvm_value->value;
+    Builder.CreateStore(llvm_value->value, llvm_stack[index].value);
     llvm_stack[index].vm_stack = llvm_value->vm_stack;
 }
 
-static LVALUE* get_llvm_value_from_lvar_with_offset(LVALUE* llvm_stack, int index)
+static LVALUE get_llvm_value_from_lvar_with_offset(LVALUE* llvm_stack, int index)
 {
-    return llvm_stack + index;
+    LVALUE* llvm_value = llvm_stack + index;
+    LVALUE result;
+    result.value = Builder.CreateLoad(llvm_value->value, "lvar");
+    result.vm_stack = llvm_value->vm_stack;
+
+    return result;
 }
 
 static LVALUE get_vm_stack_ptr_value_from_index_with_aligned(std::map<std::string, Value*>& params, BasicBlock* current_block, int index, int align)
@@ -219,7 +224,6 @@ static void finish_method_call(Value* result, sCLClass* klass, sCLMethod* method
 
 BOOL call_invoke_method(sCLClass* klass, sCLMethod* method, std::map<std::string, Value *> params, BasicBlock** current_block, Function* function, char* try_catch_label_name, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack)
 {
-printf("call_invoke_method %s.%s\n", CLASS_NAME(klass), METHOD_NAME2(klass,method));
     /// llvm stack to VM stack ///
     int real_param_num = method->mNumParams + (method->mFlags & METHOD_FLAGS_CLASS_METHOD ? 0:1);
     llvm_stack_to_vm_stack(*llvm_stack_ptr, params, *current_block, real_param_num);
@@ -305,7 +309,7 @@ static void store_value_to_lvar_with_offset(std::map<std::string, Value*>& param
     Builder.CreateAlignedStore(llvm_value, lvar_offset_value, 8);
 }
 
-static void flush_llvm_stack_lvar_to_vm_stack_lvar(LVALUE* llvm_stack, int var_num, std::map<std::string, Value*> params, BasicBlock* current_block)
+static void flush_vm_stack_lvar_from_llvm_lvar(LVALUE* llvm_stack, int var_num, std::map<std::string, Value*> params, BasicBlock* current_block)
 {
     int i;
     for(i=0; i<var_num; i++) {
@@ -316,9 +320,9 @@ static void flush_llvm_stack_lvar_to_vm_stack_lvar(LVALUE* llvm_stack, int var_n
     }
 }
 
-static int flush_llvm_stack_to_vm_stack(LVALUE* llvm_stack, int var_num, LVALUE* llvm_stack_ptr, std::map<std::string, Value*> params, BasicBlock* current_block)
+static void flush_vm_stack_from_llvm_stack(LVALUE* llvm_stack, int var_num, LVALUE* llvm_stack_ptr, std::map<std::string, Value*> params, BasicBlock* current_block)
 {
-    flush_llvm_stack_lvar_to_vm_stack_lvar(llvm_stack, var_num, params, current_block);
+    flush_vm_stack_lvar_from_llvm_lvar(llvm_stack, var_num, params, current_block);
 
     int stack_value_num = llvm_stack_ptr - llvm_stack;
 
@@ -329,8 +333,6 @@ static int flush_llvm_stack_to_vm_stack(LVALUE* llvm_stack, int var_num, LVALUE*
         Value* llvm_value = llvm_stack_ptr[i-stack_value_num].value;
         push_value_to_vm_stack_ptr_with_aligned(params, current_block, llvm_value, 8);
     }
-
-    return stack_value_num;
 }
 
 static void dec_vm_stack_ptr(std::map<std::string, Value*>& params, BasicBlock* current_block, int value)
@@ -373,11 +375,6 @@ static void restore_lvar_of_llvm_stack_from_lvar_of_vm_stack(LVALUE* llvm_stack,
         LVALUE llvm_value = get_lvar_value_from_offset(params, current_block, i);
         store_llvm_value_to_lvar_with_offset(llvm_stack, i, &llvm_value);
     }
-}
-
-static void restore_vm_stack_value(LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock* current_block, int stack_value_num, int var_num)
-{
-    dec_vm_stack_ptr(params, current_block, stack_value_num);
 }
 
 void try_function(sVMInfo* info, char* try_cach_label)
@@ -425,12 +422,19 @@ StructType* get_vm_info_struct_type()
     return result_type;
 }
 
+static AllocaInst* create_entry_block_alloca(Function* function, int index)
+{
+    IRBuilder<> builder(&function->getEntryBlock(), function->getEntryBlock().begin());
+    char var_name[128];
+    snprintf(var_name, 128, "lvar$%d$", index);
+    return builder.CreateAlloca(Type::getInt64Ty(TheContext), 0, var_name);
+}
+
 //////////////////////////////////////////////////////////////////////
 // LLVM core
 //////////////////////////////////////////////////////////////////////
 BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2)
 {
-printf("compile %s.%s\n", CLASS_NAME(klass), METHOD_NAME2(klass, method));
     std::string func_name(method_path2);
     std::unique_ptr<FunctionAST> llvm_func = llvm::make_unique<FunctionAST>(func_name);
 
@@ -475,12 +479,16 @@ printf("compile %s.%s\n", CLASS_NAME(klass), METHOD_NAME2(klass, method));
         llvm_stack[i] = get_vm_stack_ptr_value_from_index_with_aligned(params, current_block, index, 8);
     }
 
+    /// alloc local variables ///
+    for(i=0; i<var_num; i++) {
+        llvm_stack[i].value = create_entry_block_alloca(function, i);
+        llvm_stack[i].vm_stack = FALSE;
+    }
+
     while(pc - code->mCodes < code->mLen) {
-printf("num_cond_jump %d\n", num_cond_jump);
         int k;
         for(k=0; k<num_cond_jump; k++) {
             if(pc == cond_jump_labels[k]) {
-printf("k %d %p\n", k, entry_condends[k]);
                 Builder.SetInsertPoint(entry_condends[k]);
                 current_block = entry_condends[k];
 
@@ -511,7 +519,7 @@ printf("k %d %p\n", k, entry_condends[k]);
 
 #ifdef MDEBUG
 if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
-call_show_inst_in_jit(inst);
+//call_show_inst_in_jit(inst);
 show_inst_in_jit(inst);
 }
 #endif
@@ -780,9 +788,9 @@ show_inst_in_jit(inst);
                 int index = *(int*)pc;
                 pc += sizeof(int);
 
-                LVALUE* llvm_value = get_llvm_value_from_lvar_with_offset(llvm_stack, index);
+                LVALUE llvm_value = get_llvm_value_from_lvar_with_offset(llvm_stack, index);
 
-                push_value_to_stack_ptr(&llvm_stack_ptr, llvm_value);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
                 break;
 
@@ -809,13 +817,25 @@ show_inst_in_jit(inst);
                 }
                 break;
 
-
             case OP_IADD: {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateAdd(lvalue->value, rvalue->value, "addtmp", true, false);
+                llvm_value.vm_stack = FALSE;
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_ISUB: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", true, false);
                 llvm_value.vm_stack = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
@@ -843,6 +863,54 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateICmpNE(lvalue->value, rvalue->value, "INOTEQ");
                 llvm_value.vm_stack = FALSE;
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_IGT: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateICmpSGT(lvalue->value, rvalue->value, "IGT");
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_ILE: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateICmpSLT(lvalue->value, rvalue->value, "ILE");
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+            
+            case OP_IGTEQ: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateICmpSGE(lvalue->value, rvalue->value, "IGE");
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_ILEEQ: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateICmpSLE(lvalue->value, rvalue->value, "ILE");
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -927,6 +995,23 @@ show_inst_in_jit(inst);
                 }
                 break;
 
+            case OP_INT_TO_STRING_CAST : {
+                LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                Function* fun = TheModule->getFunction("run_int_to_string_cast");
+
+                std::vector<Value*> params2;
+
+                params2.push_back(llvm_value->value);
+
+                LVALUE result;
+                result.value = Builder.CreateCall(fun, params2);
+                result.vm_stack = TRUE;
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &result);
+                }
+                break;
+
             case OP_CREATE_STRING: {
                 int offset = *(int*)pc;
                 pc += sizeof(int);
@@ -956,6 +1041,7 @@ show_inst_in_jit(inst);
 #ifdef MDEBUG
 if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
     show_stack_for_llvm_stack(llvm_stack, llvm_stack_ptr, var_num);
+    //call_show_stack(params);
 }
 #endif
     }
@@ -970,7 +1056,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
     verifyFunction(*function);
 
     // Run the optimizer on the function.
-    TheFPM->run(*function);
+    //TheFPM->run(*function);
 
     return TRUE;
 }

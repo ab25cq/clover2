@@ -7,16 +7,17 @@ Clover.test("jit test", b == 4);
 c:String = a.run2();
 Clover.test("jit test2", c.equals("ABC"));
 
+println("jit test3");
 a.run3();
 
-Clover.test("jit test3", a.run4() == 4);
-Clover.test("jit test4", a.run5() == 3);
+Clover.test("jit test4", a.run4() == 4);
+Clover.test("jit test5", a.run5() == 3);
 
-Clover.test("jit test5", a.run6() == 123.1);
+Clover.test("jit test6", a.run6() == 123.1);
 
-Clover.test("jit test5", a.run7() == 124);
+Clover.test("jit test7", a.run7() == 124);
 
-Clover.test("jit test6", a.run8().equals("ABCDEF"));
+Clover.test("jit test8", a.run8().equals("ABCDEF"));
 
 Clover.test("jit test9", a.run9().value == 123);
 
@@ -32,10 +33,11 @@ a.run11();
 
 Clover.test("jit test12", a.run12());
 Clover.test("jit test13", a.run13() == 2);
+Clover.test("jit test14", a.run14() == 1);
+Clover.test("jit test15", a.run15() == 3);
+Clover.test("jit test16", a.run16() == 3);
 
 /*
-Clover.test("jit test9", a.run11() == 1);
-
 Clover.test("jit test10", a.run12() == 2);
 
 Clover.test("jit test11", a.run13() == 3);
