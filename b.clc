@@ -162,25 +162,25 @@ class JITTest
         return a;
     }
 
-/*
-    def run10():  int {
+    def run17():  int {
         a:int = 1;
         a.to_bool && ((a = 2).to_bool);
         
         return a;
     }
 
-    def run11():  int {
+    def run18():  int {
         a:int = 1;
         a.to_bool || ((a = 2).to_bool);
 
         return a;
     }
 
-    def run15():  int {
+    def run19():  int {
         return self.field1;
     }
 
+/*
     def run18():  regex {
         return /./;
     }

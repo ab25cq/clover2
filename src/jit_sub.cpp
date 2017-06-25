@@ -477,10 +477,10 @@ void create_internal_functions()
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "entry_exception_object", TheModule.get());
 
-    /// run_load_field ///
+    /// get_field_from_object ///
     type_params.clear();
     
-    result_type = IntegerType::get(TheContext, 32);
+    result_type = IntegerType::get(TheContext, 64);
 
     param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
     type_params.push_back(param1_type);
@@ -497,8 +497,11 @@ void create_internal_functions()
     param5_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param5_type);
 
+    param6_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param6_type);
+
     function_type = FunctionType::get(result_type, type_params, false);
-    Function::Create(function_type, Function::ExternalLinkage, "run_load_field", TheModule.get());
+    Function::Create(function_type, Function::ExternalLinkage, "get_field_from_object", TheModule.get());
 
     /// regex_equals ///
     type_params.clear();

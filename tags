@@ -101,7 +101,7 @@ IfExprAST	toy.cpp	/^class IfExprAST : public ExprAST {$/;"	c	namespace:__anon23	
 InitializeModuleAndPassManager	src/jit_sub.cpp	/^void InitializeModuleAndPassManager() $/;"	f
 InitializeModuleAndPassManager	toy.cpp	/^static void InitializeModuleAndPassManager() {$/;"	f	file:
 JIT	Makefile	/^JIT=1$/;"	m
-JIT_METHOD_CALL_COUNT	src/jit_sub.cpp	4067;"	d	file:
+JIT_METHOD_CALL_COUNT	src/jit_sub.cpp	4070;"	d	file:
 JIT_OBJS	Makefile	/^JIT_OBJS=src\/jit.o src\/jit_sub.o$/;"	m
 JIT_RUNTIME_OBJS	Makefile	/^JIT_RUNTIME_OBJS=src\/jit_runtime.o$/;"	m
 KaleidoscopeJIT	KaleidoscopeJIT.h	/^  KaleidoscopeJIT()$/;"	f	class:llvm::orc::KaleidoscopeJIT
@@ -1454,6 +1454,7 @@ get_class_with_load_and_initialize	src/vm.c	/^sCLClass* get_class_with_load_and_
 get_element_from_Array	src/clover_to_clang.c	/^NULLABLE CLVALUE* get_element_from_Array(CLObject array, int index)$/;"	f
 get_element_from_array	src/clover_to_clang.c	/^NULLABLE CLVALUE* get_element_from_array(CLObject array, int index)$/;"	f
 get_element_number_from_Array	src/clover_to_clang.c	/^int get_element_number_from_Array(CLObject array)$/;"	f
+get_field_from_object	src/jit.cpp	/^struct sGetFieldFromObjectResultStruct get_field_from_object(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, CLObject obj, int field_index)$/;"	f
 get_generics_type_of_inner_class	src/node.c	/^static sNodeType* get_generics_type_of_inner_class(sParserInfo* pinfo)$/;"	f	file:
 get_global_method_names	src/interpreter.c	/^void get_global_method_names(char** candidates, int *num_candidates)$/;"	f
 get_hash_key	src/klass.c	/^unsigned int get_hash_key(char* name, unsigned int max)$/;"	f
@@ -1473,6 +1474,7 @@ get_parent_var_num_of_sum	src/vtable.c	/^int get_parent_var_num_of_sum(sVarTable
 get_pointer_from_buffer_object	src/clover_to_clang.c	/^void* get_pointer_from_buffer_object(CLObject buffer)$/;"	f
 get_size_from_buffer_object	src/clover_to_clang.c	/^int get_size_from_buffer_object(CLObject buffer)$/;"	f
 get_stack_ptr_value_from_index	src/jit.cpp	/^static LVALUE* get_stack_ptr_value_from_index(LVALUE* llvm_stack_ptr, int index)$/;"	f	file:
+get_stack_value_from_index_with_aligned	src/jit.cpp	/^static LVALUE get_stack_value_from_index_with_aligned(std::map<std::string, Value*>& params, BasicBlock* current_block, int index, int align)$/;"	f	file:
 get_string_object_of_object_name	src/jit_runtime.cpp	/^CLObject get_string_object_of_object_name(CLObject object)$/;"	f
 get_sum_of_parent_var_num	src/vtable.c	/^static int get_sum_of_parent_var_num(sVarTable* table)$/;"	f	file:
 get_try_catch_label_name	src/jit_runtime.cpp	/^char* get_try_catch_label_name(sVMInfo* info)$/;"	f
@@ -2013,6 +2015,8 @@ remove_module_from_table	src/module.c	/^static void remove_module_from_table(cha
 remove_stack_to_stack_list	src/stack.c	/^BOOL remove_stack_to_stack_list(CLVALUE* stack, CLVALUE** stack_ptr)$/;"	f
 reset_method_index_on_compile_time	src/class_compiler.c	/^static void reset_method_index_on_compile_time()$/;"	f	file:
 restore_lvar_of_llvm_stack_from_lvar_of_vm_stack	src/jit.cpp	/^static void restore_lvar_of_llvm_stack_from_lvar_of_vm_stack(LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock* current_block, int var_num)$/;"	f	file:
+result1	src/jit.cpp	/^    CLVALUE result1;$/;"	m	struct:sGetFieldFromObjectResultStruct	file:
+result2	src/jit.cpp	/^    BOOL result2;$/;"	m	struct:sGetFieldFromObjectResultStruct	file:
 return_expression	src/parser.c	/^static BOOL return_expression(unsigned int* node, sParserInfo* info)$/;"	f	file:
 run_array_to_carray_cast	src/jit_runtime.cpp	/^BOOL run_array_to_carray_cast(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, char* class_name)$/;"	f
 run_bool_to_string_cast	src/jit_runtime.cpp	/^void run_bool_to_string_cast(CLVALUE** stack_ptr)$/;"	f
@@ -2149,7 +2153,6 @@ run_get_regex_global	src/jit_runtime.cpp	/^void run_get_regex_global(CLVALUE** s
 run_get_regex_ignorecase	src/jit_runtime.cpp	/^void run_get_regex_ignorecase(CLVALUE** stack_ptr)$/;"	f
 run_get_regex_multiline	src/jit_runtime.cpp	/^void run_get_regex_multiline(CLVALUE** stack_ptr)$/;"	f
 run_get_regex_ungreedy	src/jit_runtime.cpp	/^void run_get_regex_ungreedy(CLVALUE** stack_ptr)$/;"	f
-run_head_of_expression	src/jit.cpp	/^void run_head_of_expression(sVMInfo* info, char* sname, int sline)$/;"	f
 run_int_to_string_cast	src/jit_runtime.cpp	/^CLObject run_int_to_string_cast(int value)$/;"	f
 run_integer_to_byte_cast	src/jit_runtime.cpp	/^void run_integer_to_byte_cast(CLVALUE** stack_ptr)$/;"	f
 run_integer_to_double_cast	src/jit_runtime.cpp	/^void run_integer_to_double_cast(CLVALUE** stack_ptr)$/;"	f
@@ -2249,6 +2252,7 @@ sConst_init_with_size	src/constant.c	/^void sConst_init_with_size(sConst* self, 
 sFor	src/common.h	/^        } sFor;$/;"	m	union:sNodeTreeStruct::__anon3	typeref:struct:sNodeTreeStruct::__anon3::__anon7
 sGenericsParamInfo	src/common.h	/^typedef struct sGenericsParamInfoStruct sGenericsParamInfo;$/;"	t	typeref:struct:sGenericsParamInfoStruct
 sGenericsParamInfoStruct	src/common.h	/^struct sGenericsParamInfoStruct$/;"	s
+sGetFieldFromObjectResultStruct	src/jit.cpp	/^struct sGetFieldFromObjectResultStruct {$/;"	s	file:
 sHandle	src/heap.c	/^typedef struct sHandle_ sHandle;$/;"	t	typeref:struct:sHandle_	file:
 sHandle_	src/heap.c	/^struct sHandle_ {$/;"	s	file:
 sHashValue	src/common.h	/^        } sHashValue;$/;"	m	union:sNodeTreeStruct::__anon3	typeref:struct:sNodeTreeStruct::__anon3::__anon20

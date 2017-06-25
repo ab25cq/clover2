@@ -29,7 +29,9 @@ catch(e:Exception) {
     println("OK");
 }
 
+print("jit test11...");
 a.run11();
+println("OK");
 
 Clover.test("jit test12", a.run12());
 Clover.test("jit test13", a.run13() == 2);
@@ -37,10 +39,11 @@ Clover.test("jit test14", a.run14() == 1);
 Clover.test("jit test15", a.run15() == 3);
 Clover.test("jit test16", a.run16() == 3);
 
-/*
-Clover.test("jit test10", a.run12() == 2);
+Clover.test("jit test17", a.run17() == 2);
+Clover.test("jit test18", a.run18() == 1);
+Clover.test("jit test19", a.run19() == 123);
 
-Clover.test("jit test11", a.run13() == 3);
+/*
 
 Clover.test("jit test12", a.run14() == 1);
 
