@@ -462,14 +462,14 @@ static AllocaInst* create_entry_block_alloca(Function* function, int index)
     return builder.CreateAlloca(Type::getInt64Ty(TheContext), 0, var_name);
 }
 
-struct sGetFieldFromObjectResultStruct {
+struct sCLVALUEAndBoolResult {
     CLVALUE result1;
     BOOL result2;
 };
 
-struct sGetFieldFromObjectResultStruct get_field_from_object(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, CLObject obj, int field_index)
+struct sCLVALUEAndBoolResult get_field_from_object(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, CLObject obj, int field_index)
 {
-    struct sGetFieldFromObjectResultStruct result;
+    struct sCLVALUEAndBoolResult result;
 
     if(obj == 0) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
@@ -1041,6 +1041,45 @@ show_inst_in_jit(inst);
                 }
                 break;
 
+            case OP_REGEQ: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                Function* function = TheModule->getFunction("regex_equals");
+
+                std::vector<Value*> params2;
+                params2.push_back(lvalue->value);
+                params2.push_back(rvalue->value);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateCall(function, params2);
+                llvm_value.vm_stack = FALSE;
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_REGNOTEQ: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                Function* function = TheModule->getFunction("regex_equals");
+
+                std::vector<Value*> params2;
+                params2.push_back(lvalue->value);
+                params2.push_back(rvalue->value);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateCall(function, params2);
+                llvm_value.value = Builder.CreateICmpEQ(llvm_value.value, ConstantInt::get(TheContext, llvm::APInt(32, 0, true)), "bool_value_reverse");
+                llvm_value.vm_stack = FALSE;
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
             case OP_ANDAND: {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
@@ -1255,6 +1294,67 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(function, params2);
                 llvm_value.vm_stack = FALSE;
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_CREATE_REGEX: {
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+
+                BOOL global = *(int*)pc;
+                pc += sizeof(int);
+
+                BOOL ignore_case = *(int*)pc;
+                pc += sizeof(int);
+
+                BOOL multiline = *(int*)pc;
+                pc += sizeof(int);
+
+                BOOL extended = *(int*)pc;
+                pc += sizeof(int);
+
+                BOOL dotall = *(int*)pc;
+                pc += sizeof(int);
+
+                BOOL anchored = *(int*)pc;
+                pc += sizeof(int);
+
+                BOOL dollar_endonly = *(int*)pc;
+                pc += sizeof(int);
+
+                BOOL ungreedy = *(int*)pc;
+                pc += sizeof(int);
+
+                char* regex_str = CONS_str(constant, offset);
+
+                Function* function = TheModule->getFunction("create_regex_object");
+
+                std::vector<Value*> params2;
+                Constant* str_constant = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)regex_str);
+                Value* param1 = ConstantExpr::getIntToPtr(str_constant, PointerType::get(IntegerType::get(TheContext,8), 0));
+                params2.push_back(param1);
+                Value* param2 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)global);
+                params2.push_back(param2);
+                Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)ignore_case);
+                params2.push_back(param3);
+                Value* param4 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)multiline);
+                params2.push_back(param4);
+                Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)extended);
+                params2.push_back(param5);
+                Value* param6 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)dotall);
+                params2.push_back(param6);
+                Value* param7 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)anchored);
+                params2.push_back(param7);
+                Value* param8 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)dollar_endonly);
+                params2.push_back(param8);
+                Value* param9 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)ungreedy);
+                params2.push_back(param9);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateCall(function, params2);
+                llvm_value.vm_stack = TRUE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }

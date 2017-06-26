@@ -43,6 +43,9 @@ Clover.test("jit test17", a.run17() == 2);
 Clover.test("jit test18", a.run18() == 1);
 Clover.test("jit test19", a.run19() == 123);
 
+Clover.test("jit test20", a.run20() == /./);
+Clover.test("jit test21", a.run21());
+
 /*
 
 Clover.test("jit test12", a.run14() == 1);

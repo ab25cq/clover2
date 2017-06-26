@@ -180,15 +180,15 @@ class JITTest
         return self.field1;
     }
 
-/*
-    def run18():  regex {
+    def run20(): regex {
         return /./;
     }
 
-    def run19():  bool {
+    def run21():  bool {
         return /./ == /./;
     }
 
+/*
     def run20():  bool {
         return /../ != /./;
     }
