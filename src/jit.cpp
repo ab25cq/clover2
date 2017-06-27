@@ -914,6 +914,58 @@ show_inst_in_jit(inst);
                 }
                 break;
 
+            case OP_LDCBYTE: 
+                {
+                    int value = *(int*)pc;
+                    pc += sizeof(int);
+
+                    LVALUE llvm_value;
+                    llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(8, value, true)); 
+                    llvm_value.vm_stack = FALSE;
+
+                    push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_LDCUBYTE: 
+                {
+                    int value = *(int*)pc;
+                    pc += sizeof(int);
+
+                    LVALUE llvm_value;
+                    llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(8, value, false)); 
+                    llvm_value.vm_stack = FALSE;
+
+                    push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_LDCSHORT: 
+                {
+                    int value = *(int*)pc;
+                    pc += sizeof(int);
+
+                    LVALUE llvm_value;
+                    llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(16, value, true)); 
+                    llvm_value.vm_stack = FALSE;
+
+                    push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_LDCUSHORT: 
+                {
+                    int value = *(int*)pc;
+                    pc += sizeof(int);
+
+                    LVALUE llvm_value;
+                    llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(16, value, false)); 
+                    llvm_value.vm_stack = FALSE;
+
+                    push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
             case OP_LDCINT: {
                 int value = *(int*)pc;
                 pc += sizeof(int);
@@ -926,11 +978,117 @@ show_inst_in_jit(inst);
                 }
                 break;
 
+            case OP_LDCUINT: {
+                unsigned int value = *(unsigned int*)pc;
+                pc += sizeof(int);
+
+                LVALUE llvm_value;
+                llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(32, value, false)); 
+                llvm_value.vm_stack = FALSE;
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_LDCLONG: {
+                int value1 = *(int*)pc;
+                pc += sizeof(int);
+
+                int value2 = *(int*)pc;
+                pc += sizeof(int);
+
+                long lvalue;
+
+                memcpy(&lvalue, &value1, sizeof(int));
+                memcpy((char*)&lvalue + sizeof(int), &value2, sizeof(int));
+
+                LVALUE llvm_value;
+                llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(64, lvalue, true)); 
+                llvm_value.vm_stack = FALSE;
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_LDCULONG: {
+                int value1 = *(int*)pc;
+                pc += sizeof(int);
+
+                int value2 = *(int*)pc;
+                pc += sizeof(int);
+
+                long lvalue;
+
+                memcpy(&lvalue, &value1, sizeof(int));
+                memcpy((char*)&lvalue + sizeof(int), &value2, sizeof(int));
+
+                LVALUE llvm_value;
+                llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(64, lvalue, false)); 
+                llvm_value.vm_stack = FALSE;
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
             case OP_LDCNULL: {
                 int value = 0;
 
                 LVALUE llvm_value;
                 llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(32, value, true)); 
+                llvm_value.vm_stack = FALSE;
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_LDCPOINTER: {
+                int value1 = *(int*)pc;
+                pc += sizeof(int);
+
+                int value2 = *(int*)pc;
+                pc += sizeof(int);
+
+                long lvalue;
+
+                memcpy(&lvalue, &value1, sizeof(int));
+                memcpy((char*)&lvalue + sizeof(int), &value2, sizeof(int));
+
+                LVALUE llvm_value;
+                llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(64, lvalue, false)); 
+                llvm_value.vm_stack = FALSE;
+
+                llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, PointerType::get(IntegerType::get(TheContext, 64), 0));
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_LDCFLOAT: {
+                float value1 = *(float*)pc;
+                pc += sizeof(float);
+
+                LVALUE llvm_value;
+                llvm_value.value = ConstantFP::get(TheContext, llvm::APFloat(value1)); 
+                llvm_value.vm_stack = FALSE;
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_LDCDOUBLE: {
+                int value1 = *(int*)pc;
+                pc += sizeof(int);
+
+                int value2 = *(int*)pc;
+                pc += sizeof(int);
+
+                double lvalue;
+
+                memcpy(&lvalue, &value1, sizeof(int));
+                memcpy((char*)&lvalue + sizeof(int), &value2, sizeof(int));
+
+                LVALUE llvm_value;
+                llvm_value.value = ConstantFP::get(TheContext, llvm::APFloat(lvalue)); 
                 llvm_value.vm_stack = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
