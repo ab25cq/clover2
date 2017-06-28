@@ -1126,6 +1126,7 @@ boxing_to_lapper_class	src/node_type.c	/^void boxing_to_lapper_class(sNodeType**
 break_point_label_name	src/common.h	/^    char* break_point_label_name;$/;"	m	struct:sCompileInfoStruct
 break_points	src/common.h	/^    int* break_points;$/;"	m	struct:sCompileInfoStruct
 c_termios_to_clover_termios	src/clover_to_clang.c	/^void c_termios_to_clover_termios(struct termios* terminfo_value, CLObject terminfo_object)$/;"	f
+call_entry_exception_object_with_class_name2	src/jit.cpp	/^static void call_entry_exception_object_with_class_name2(std::map<std::string, Value *> params, char* class_name, char* message)$/;"	f	file:
 call_finalize_method_on_free_object	src/vm.c	/^BOOL call_finalize_method_on_free_object(sCLClass* klass, CLObject self)$/;"	f
 call_invoke_method	src/jit.cpp	/^BOOL call_invoke_method(sCLClass* klass, sCLMethod* method, std::map<std::string, Value *> params, BasicBlock** current_block, Function* function, char* try_catch_label_name, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack)$/;"	f
 call_normal_method	src/node.c	/^static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType* object_type, sNodeType* generics_types, sCLClass* klass, sNodeType* param_types[PARAMS_MAX], int num_params, char* method_name, unsigned int params[PARAMS_MAX], int num_method_chains, int max_method_chains)$/;"	f	file:
@@ -1504,6 +1505,7 @@ gettok	toy.cpp	/^static int gettok() {$/;"	f	file:
 heap_final	src/heap.c	/^void heap_final()$/;"	f
 heap_init	src/heap.c	/^void heap_init(int heap_size, int size_hadles)$/;"	f
 if_expression	src/parser.c	/^static BOOL if_expression(unsigned int* node, sParserInfo* info)$/;"	f	file:
+if_value_is_zero_entry_exception_object	src/jit.cpp	/^void if_value_is_zero_entry_exception_object(Value* value, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block, char* class_name, char* message)$/;"	f
 if_value_is_zero_ret_zero	src/jit.cpp	/^void if_value_is_zero_ret_zero(Value* value, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block)$/;"	f
 inc_vm_stack_ptr	src/jit.cpp	/^static void inc_vm_stack_ptr(std::map<std::string, Value*>& params, BasicBlock* current_block, int value)$/;"	f	file:
 include_file	src/class_compiler.c	/^static BOOL include_file(sParserInfo* info, sCompileInfo* cinfo)$/;"	f	file:

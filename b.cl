@@ -45,16 +45,10 @@ Clover.test("jit test19", a.run19() == 123);
 
 Clover.test("jit test20", a.run20() == /./);
 Clover.test("jit test21", a.run21());
+Clover.test("jit test22", a.run22());
+Clover.test("jit test23", a.run23() == 3y);
 
 /*
-
-Clover.test("jit test12", a.run14() == 1);
-
-Clover.test("jit test13", a.run15() == 123);
-
-a.run17();
-
-Clover.test("jit test15", a.run18() == /./);
 Clover.test("jit test16", a.run19());
 Clover.test("jit test17", a.run20());
 Clover.test("jit test18", a.run21() == 3y);

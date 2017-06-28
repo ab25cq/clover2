@@ -188,18 +188,18 @@ class JITTest
         return /./ == /./;
     }
 
-/*
-    def run20():  bool {
+    def run22():  bool {
         return /../ != /./;
     }
 
-    def run21():  byte {
+    def run23():  byte {
         a:byte = 1y;
         b:byte = 2y;
 
         return a + b;
     }
-    def run22():  byte {
+/*
+    def run24():  byte {
         a:byte = 1;
 
         return a;

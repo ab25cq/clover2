@@ -504,6 +504,57 @@ struct sCLVALUEAndBoolResult get_field_from_object(CLVALUE** stack_ptr, CLVALUE*
     return result;
 }
 
+static void call_entry_exception_object_with_class_name2(std::map<std::string, Value *> params, char* class_name, char* message)
+{
+    Function* entry_exception_object_fun = TheModule->getFunction("entry_exception_object_with_class_name2");
+
+    std::vector<Value*> params2;
+
+    std::string stack_ptr_address_name("stack_ptr_address");
+    Value* param1 = params[stack_ptr_address_name];
+    params2.push_back(param1);
+
+    std::string stack_value_name("stack");
+    Value* param2 = params[stack_value_name];
+    params2.push_back(param2);
+
+    std::string var_num_value_name("var_num");
+    Value* param3 = params[var_num_value_name];
+    params2.push_back(param3);
+
+    std::string info_value_name("info");
+    Value* param4 = params[info_value_name];
+    params2.push_back(param4);
+
+    Value* param5 = get_value_from_char_array(class_name);
+    params2.push_back(param5);
+
+    Value* param6 = get_value_from_char_array(message);
+    params2.push_back(param6);
+
+    (void)Builder.CreateCall(entry_exception_object_fun, params2);
+}
+
+void if_value_is_zero_entry_exception_object(Value* value, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block, char* class_name, char* message)
+{
+    BasicBlock* then_block = BasicBlock::Create(TheContext, "then_block", function);
+    BasicBlock* entry_ifend = BasicBlock::Create(TheContext, "entry_ifend", function);
+
+    Value* comp = Builder.CreateICmpEQ(value, ConstantInt::get(TheContext, llvm::APInt(32, 0, true)), "ifcond");
+
+    Builder.CreateCondBr(comp, then_block, entry_ifend);
+
+    Builder.SetInsertPoint(then_block);
+
+    call_entry_exception_object_with_class_name2(params, class_name, message);
+
+    Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 0, true));
+    Builder.CreateRet(ret_value);
+
+    Builder.SetInsertPoint(entry_ifend);
+    *current_block = entry_ifend;
+}
+
 //////////////////////////////////////////////////////////////////////
 // LLVM core
 //////////////////////////////////////////////////////////////////////
@@ -811,35 +862,7 @@ show_inst_in_jit(inst);
                 Value* llvm_value1 = ConstantInt::get(Type::getInt32Ty(TheContext), 0);
                 Builder.CreateStore(llvm_value1, gSigIntValue);
 
-                Function* entry_exception_object_with_class_name_fun = TheModule->getFunction("entry_exception_object_with_class_name2");
-
-                std::vector<Value*> params2;
-
-                std::string stack_ptr_address_name("stack_ptr_address");
-                Value* param1 = params[stack_ptr_address_name];
-                params2.push_back(param1);
-
-                std::string stack_value_name("stack");
-                Value* param2 = params[stack_value_name];
-                params2.push_back(param2);
-
-                std::string var_num_value_name("var_num");
-                Value* param3 = params[var_num_value_name];
-                params2.push_back(param3);
-
-                std::string info_value_name("info");
-                Value* vminfo_value = params[info_value_name];
-                params2.push_back(vminfo_value);
-
-                Constant* str_constant = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)"Exception");
-                Value* exception_class_name = ConstantExpr::getIntToPtr(str_constant, PointerType::get(IntegerType::get(TheContext,8), 0));
-                params2.push_back(exception_class_name);
-
-                Constant* str_constant2 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)"Signal Interrupt");
-                Value* exception_msg = ConstantExpr::getIntToPtr(str_constant2, PointerType::get(IntegerType::get(TheContext,8), 0));
-                params2.push_back(exception_msg);
-
-                (void)Builder.CreateCall(entry_exception_object_with_class_name_fun, params2);
+                call_entry_exception_object_with_class_name2(params, "Exception", "Signal Interrupt");
 
                 Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 0, true));
                 Builder.CreateRet(ret_value);
@@ -1095,6 +1118,7 @@ show_inst_in_jit(inst);
                 }
                 break;
 
+            case OP_BADD:
             case OP_IADD: {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
@@ -1108,12 +1132,129 @@ show_inst_in_jit(inst);
                 }
                 break;
 
+            case OP_BSUB:
             case OP_ISUB: {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", true, false);
+                llvm_value.vm_stack = FALSE;
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_BMULT:
+            case OP_IMULT: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateMul(lvalue->value, rvalue->value, "multmp", true, false);
+                llvm_value.vm_stack = FALSE;
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_BDIV:
+            case OP_IDIV: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                if_value_is_zero_entry_exception_object(rvalue->value, params, function, &current_block, "Exception", "division by zero");
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateSDiv(lvalue->value, rvalue->value, "divtmp", false);
+                llvm_value.vm_stack = FALSE;
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_BMOD: 
+            case OP_IMOD: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                if_value_is_zero_entry_exception_object(rvalue->value, params, function, &current_block, "Exception", "division by zero");
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateSRem(lvalue->value, rvalue->value, "remtmp");
+                llvm_value.vm_stack = FALSE;
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_BLSHIFT:
+            case OP_ILSHIFT: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateShl(lvalue->value, rvalue->value, "lshifttmp", true, false);
+                llvm_value.vm_stack = FALSE;
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_BRSHIFT:
+            case OP_IRSHIFT: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateAShr(lvalue->value, rvalue->value, "rshifttmp", false);
+                llvm_value.vm_stack = FALSE;
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_BAND: 
+            case OP_IAND: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateAnd(lvalue->value, rvalue->value, "andtmp");
+                llvm_value.vm_stack = FALSE;
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_BXOR: 
+            case OP_IXOR: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateXor(lvalue->value, rvalue->value, "xortmp");
+                llvm_value.vm_stack = FALSE;
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_BOR: 
+            case OP_IOR: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateOr(lvalue->value, rvalue->value, "ortmp");
                 llvm_value.vm_stack = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
