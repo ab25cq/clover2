@@ -1119,7 +1119,9 @@ show_inst_in_jit(inst);
                 break;
 
             case OP_BADD:
-            case OP_IADD: {
+            case OP_SADD:
+            case OP_IADD: 
+            case OP_LADD: {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
@@ -1132,8 +1134,30 @@ show_inst_in_jit(inst);
                 }
                 break;
 
+            case OP_UBADD: 
+            case OP_USADD:
+            case OP_UIADD:
+            case OP_ULADD: 
+            case OP_CADD:
+            case OP_PADD: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                LVALUE llvm_value;
+                llvm_value.value  = Builder.CreateAdd(lvalue->value, rvalue->value, "addtmp", false, true);
+                llvm_value.vm_stack = FALSE;
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
             case OP_BSUB:
-            case OP_ISUB: {
+            case OP_SSUB:
+            case OP_ISUB: 
+            case OP_LSUB:
+            case OP_PSUB:
+            case OP_PPSUB: {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
@@ -1146,8 +1170,27 @@ show_inst_in_jit(inst);
                 }
                 break;
 
+            case OP_UBSUB: 
+            case OP_USSUB:
+            case OP_UISUB:
+            case OP_ULSUB: 
+            case OP_CSUB: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", false, true);
+                llvm_value.vm_stack = FALSE;
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
             case OP_BMULT:
-            case OP_IMULT: {
+            case OP_SMULT:
+            case OP_IMULT: 
+            case OP_LMULT: {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
@@ -1160,8 +1203,26 @@ show_inst_in_jit(inst);
                 }
                 break;
 
+            case OP_UBMULT: 
+            case OP_USMULT:
+            case OP_UIMULT:
+            case OP_ULMULT: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateMul(lvalue->value, rvalue->value, "multmp", false, true);
+                llvm_value.vm_stack = FALSE;
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
             case OP_BDIV:
-            case OP_IDIV: {
+            case OP_SDIV:
+            case OP_IDIV: 
+            case OP_LDIV: {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
@@ -1176,8 +1237,28 @@ show_inst_in_jit(inst);
                 }
                 break;
 
+            case OP_UBDIV: 
+            case OP_USDIV:
+            case OP_UIDIV:
+            case OP_ULDIV: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                if_value_is_zero_entry_exception_object(rvalue->value, params, function, &current_block, "Exception", "division by zero");
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateUDiv(lvalue->value, rvalue->value, "divtmp", false);
+                llvm_value.vm_stack = FALSE;
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
             case OP_BMOD: 
-            case OP_IMOD: {
+            case OP_SMOD:
+            case OP_IMOD:
+            case OP_LMOD: {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
@@ -1192,8 +1273,28 @@ show_inst_in_jit(inst);
                 }
                 break;
 
+            case OP_UBMOD:
+            case OP_USMOD:
+            case OP_UIMOD:
+            case OP_ULMOD: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                if_value_is_zero_entry_exception_object(rvalue->value, params, function, &current_block, "Exception", "division by zero");
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateURem(lvalue->value, rvalue->value, "remtmp");
+                llvm_value.vm_stack = FALSE;
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
             case OP_BLSHIFT:
-            case OP_ILSHIFT: {
+            case OP_SLSHIFT:
+            case OP_ILSHIFT: 
+            case OP_LLSHIFT: {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
@@ -1206,8 +1307,26 @@ show_inst_in_jit(inst);
                 }
                 break;
 
+            case OP_UBLSHIFT: 
+            case OP_USLSHIFT:
+            case OP_UILSHIFT:
+            case OP_ULLSHIFT: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateShl(lvalue->value, rvalue->value, "lshifttmp", false, true);
+                llvm_value.vm_stack = FALSE;
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
             case OP_BRSHIFT:
-            case OP_IRSHIFT: {
+            case OP_SRSHIFT:
+            case OP_IRSHIFT:
+            case OP_LRSHIFT: {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
@@ -1220,8 +1339,30 @@ show_inst_in_jit(inst);
                 }
                 break;
 
+            case OP_UBRSHIFT: 
+            case OP_USRSHIFT:
+            case OP_UIRSHIFT:
+            case OP_ULRSHIFT: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateLShr(lvalue->value, rvalue->value, "rshifttmp", false);
+                llvm_value.vm_stack = FALSE;
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
             case OP_BAND: 
-            case OP_IAND: {
+            case OP_UBAND:
+            case OP_SAND:
+            case OP_USAND:
+            case OP_IAND:
+            case OP_UIAND:
+            case OP_LAND: 
+            case OP_ULAND: {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
@@ -1235,7 +1376,13 @@ show_inst_in_jit(inst);
                 break;
 
             case OP_BXOR: 
-            case OP_IXOR: {
+            case OP_UBXOR:
+            case OP_SXOR:
+            case OP_USXOR:
+            case OP_IXOR: 
+            case OP_UIXOR:
+            case OP_LXOR: 
+            case OP_ULXOR: {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
@@ -1249,7 +1396,13 @@ show_inst_in_jit(inst);
                 break;
 
             case OP_BOR: 
-            case OP_IOR: {
+            case OP_UBOR:
+            case OP_SOR:
+            case OP_USOR:
+            case OP_IOR:
+            case OP_UIOR:
+            case OP_LOR: 
+            case OP_ULOR: {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
@@ -1262,12 +1415,77 @@ show_inst_in_jit(inst);
                 }
                 break;
 
-            case OP_IEQ: {
+            case OP_BCOMPLEMENT:
+            case OP_UBCOMPLEMENT: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+                LVALUE rvalue;
+                rvalue.value = ConstantInt::get(Type::getInt8Ty(TheContext), (uint8_t)0xFF);
+                rvalue.vm_stack = FALSE;
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateXor(lvalue->value, rvalue.value, "xortmp");
+                llvm_value.vm_stack = FALSE;
+
+                dec_stack_ptr(&llvm_stack_ptr, 1);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_SCOMPLEMENT:
+            case OP_USCOMPLEMENT: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+                LVALUE rvalue;
+                rvalue.value = ConstantInt::get(Type::getInt16Ty(TheContext), (uint16_t)0xFFFF);
+                rvalue.vm_stack = FALSE;
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateXor(lvalue->value, rvalue.value, "xortmp");
+                llvm_value.vm_stack = FALSE;
+
+                dec_stack_ptr(&llvm_stack_ptr, 1);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_ICOMPLEMENT:
+            case OP_UICOMPLEMENT: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+                LVALUE rvalue;
+                rvalue.value = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)0xFFFFFFFF);
+                rvalue.vm_stack = FALSE;
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateXor(lvalue->value, rvalue.value, "xortmp");
+                llvm_value.vm_stack = FALSE;
+
+                dec_stack_ptr(&llvm_stack_ptr, 1);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_LCOMPLEMENT:
+            case OP_ULCOMPLEMENT: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+                LVALUE rvalue;
+                rvalue.value = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)0xFFFFFFFFFFFFFFFF);
+                rvalue.vm_stack = FALSE;
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateXor(lvalue->value, rvalue.value, "xortmp");
+                llvm_value.vm_stack = FALSE;
+
+                dec_stack_ptr(&llvm_stack_ptr, 1);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_FADD:
+            case OP_DADD: {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
                 LVALUE llvm_value;
-                llvm_value.value = Builder.CreateICmpEQ(lvalue->value, rvalue->value, "IEQ");
+                llvm_value.value = Builder.CreateFAdd(lvalue->value, rvalue->value, "addtmp");
                 llvm_value.vm_stack = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
@@ -1275,12 +1493,13 @@ show_inst_in_jit(inst);
                 }
                 break;
 
-            case OP_INOTEQ: {
+            case OP_FSUB: 
+            case OP_DSUB: {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
                 LVALUE llvm_value;
-                llvm_value.value = Builder.CreateICmpNE(lvalue->value, rvalue->value, "INOTEQ");
+                llvm_value.value = Builder.CreateFSub(lvalue->value, rvalue->value, "addtmp");
                 llvm_value.vm_stack = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
@@ -1288,12 +1507,13 @@ show_inst_in_jit(inst);
                 }
                 break;
 
-            case OP_IGT: {
+            case OP_FMULT:
+            case OP_DMULT: {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
                 LVALUE llvm_value;
-                llvm_value.value = Builder.CreateICmpSGT(lvalue->value, rvalue->value, "IGT");
+                llvm_value.value = Builder.CreateFMul(lvalue->value, rvalue->value, "multtmp");
                 llvm_value.vm_stack = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
@@ -1301,12 +1521,127 @@ show_inst_in_jit(inst);
                 }
                 break;
 
-            case OP_ILE: {
+            case OP_FDIV:
+            case OP_DDIV: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                if_value_is_zero_entry_exception_object(rvalue->value, params, function, &current_block, "Exception", "division by zero");
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateFDiv(lvalue->value, rvalue->value, "divtmp");
+                llvm_value.vm_stack = FALSE;
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_BEQ:
+            case OP_UBEQ:
+            case OP_SEQ:
+            case OP_USEQ:
+            case OP_IEQ:
+            case OP_UIEQ:
+            case OP_LEQ: 
+            case OP_ULEQ: 
+            case OP_PEQ: 
+            case OP_CEQ: {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
                 LVALUE llvm_value;
-                llvm_value.value = Builder.CreateICmpSLT(lvalue->value, rvalue->value, "ILE");
+                llvm_value.value = Builder.CreateICmpEQ(lvalue->value, rvalue->value, "eqtmp");
+                llvm_value.vm_stack = FALSE;
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_BNOTEQ:
+            case OP_UBNOTEQ:
+            case OP_SNOTEQ:
+            case OP_USNOTEQ:
+            case OP_INOTEQ: 
+            case OP_UINOTEQ:
+            case OP_LNOTEQ: 
+            case OP_ULNOTEQ: 
+            case OP_PNOTEQ: 
+            case OP_CNOTEQ: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateICmpNE(lvalue->value, rvalue->value, "noteqtmp");
+                llvm_value.vm_stack = FALSE;
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_BGT:
+            case OP_SGT:
+            case OP_IGT: 
+            case OP_LGT: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateICmpSGT(lvalue->value, rvalue->value, "gttmp");
+                llvm_value.vm_stack = FALSE;
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_UBGT:
+            case OP_USGT:
+            case OP_UIGT:
+            case OP_ULGT: 
+            case OP_PGT: 
+            case OP_CGT: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateICmpUGT(lvalue->value, rvalue->value, "ugttmp");
+                llvm_value.vm_stack = FALSE;
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_BLE:
+            case OP_SLE:
+            case OP_ILE: 
+            case OP_LLE: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateICmpSLT(lvalue->value, rvalue->value, "letmp");
+                llvm_value.vm_stack = FALSE;
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_UBLE: 
+            case OP_USLE:
+            case OP_UILE:
+            case OP_ULLE: 
+            case OP_PLE:
+            case OP_CLE: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateICmpULT(lvalue->value, rvalue->value, "uletmp");
                 llvm_value.vm_stack = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
@@ -1314,12 +1649,15 @@ show_inst_in_jit(inst);
                 }
                 break;
             
-            case OP_IGTEQ: {
+            case OP_BGTEQ:
+            case OP_SGTEQ:
+            case OP_IGTEQ: 
+            case OP_LGTEQ: {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
                 LVALUE llvm_value;
-                llvm_value.value = Builder.CreateICmpSGE(lvalue->value, rvalue->value, "IGE");
+                llvm_value.value = Builder.CreateICmpSGE(lvalue->value, rvalue->value, "gteqtmp");
                 llvm_value.vm_stack = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
@@ -1327,12 +1665,135 @@ show_inst_in_jit(inst);
                 }
                 break;
 
-            case OP_ILEEQ: {
+            case OP_UBGTEQ: 
+            case OP_USGTEQ:
+            case OP_UIGTEQ:
+            case OP_ULGTEQ: 
+            case OP_PGTEQ: 
+            case OP_CGTEQ: {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
                 LVALUE llvm_value;
-                llvm_value.value = Builder.CreateICmpSLE(lvalue->value, rvalue->value, "ILE");
+                llvm_value.value = Builder.CreateICmpUGE(lvalue->value, rvalue->value, "ugeqtmp");
+                llvm_value.vm_stack = FALSE;
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_BLEEQ:
+            case OP_SLEEQ:
+            case OP_ILEEQ: 
+            case OP_LLEEQ: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateICmpSLE(lvalue->value, rvalue->value, "lteqtmp");
+                llvm_value.vm_stack = FALSE;
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_UBLEEQ:
+            case OP_USLEEQ:
+            case OP_UILEEQ: 
+            case OP_ULLEEQ:
+            case OP_PLEEQ: 
+            case OP_CLEEQ: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateICmpULE(lvalue->value, rvalue->value, "lteqtmp");
+                llvm_value.vm_stack = FALSE;
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_FEQ:
+            case OP_DEQ: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateFCmpOEQ(lvalue->value, rvalue->value, "eqtmp");
+                llvm_value.vm_stack = FALSE;
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_FNOTEQ:
+            case OP_DNOTEQ: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateFCmpONE(lvalue->value, rvalue->value, "noteqtmp");
+                llvm_value.vm_stack = FALSE;
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_FGT:
+            case OP_DGT: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateFCmpOGT(lvalue->value, rvalue->value, "gttmp");
+                llvm_value.vm_stack = FALSE;
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_FLE:
+            case OP_DLE: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateFCmpOLT(lvalue->value, rvalue->value, "letmp");
+                llvm_value.vm_stack = FALSE;
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_FGTEQ:
+            case OP_DGTEQ: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateFCmpOGE(lvalue->value, rvalue->value, "gteqtmp");
+                llvm_value.vm_stack = FALSE;
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_FLEEQ:
+            case OP_DLEEQ: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateFCmpOLE(lvalue->value, rvalue->value, "leeqtmp");
                 llvm_value.vm_stack = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
@@ -1553,6 +2014,19 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = result1;
                 llvm_value.vm_stack = TRUE;
+
+                dec_stack_ptr(&llvm_stack_ptr, 1);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_BYTE_TO_INT_CAST: {
+                LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateCast(Instruction::Trunc, value->value, Type::getInt32Ty(TheContext), "value2");
+                llvm_value.vm_stack = value->vm_stack;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 

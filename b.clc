@@ -198,23 +198,12 @@ class JITTest
 
         return a + b;
     }
-/*
     def run24():  byte {
         a:byte = 1;
 
         return a;
     }
-    def run23():  byte {
-        a:byte = 1;
-
-        return a;
-    }
-    def run24():  int {
-        a:byte = 123;
-
-        return a;
-    }
-    def run25():  int {
+    def run25(): int {
         a:byte = 123y;
         b:byte = 123y;
 
@@ -262,6 +251,7 @@ class JITTest
     def run35():  long {
         return 1l + 2l;
     }
+/*
     def run36():  byte {
         return ~0x01y;
     }
