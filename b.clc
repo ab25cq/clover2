@@ -251,7 +251,6 @@ class JITTest
     def run35():  long {
         return 1l + 2l;
     }
-/*
     def run36():  byte {
         return ~0x01y;
     }
@@ -267,7 +266,7 @@ class JITTest
     def run40():  double {
         return 2.0 + 2.0;
     }
-    def run41():  bool {
+    def run41(): bool {
         return 1y < 2y;
     }
     def run42():  bool {
@@ -294,6 +293,7 @@ class JITTest
     def run49():  bool {
         return !true;
     }
+/*
     def run50():  String {
         a:String = "ABC";
 

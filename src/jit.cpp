@@ -768,6 +768,11 @@ show_inst_in_jit(inst);
                 Value* stack_value = params[stack_param_name];
 
                 LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                /// 0 clear align 8 byte ///
+                Value* llvm_value2 = ConstantInt::get(TheContext, llvm::APInt(64, 0, true));
+                Builder.CreateStore(llvm_value2, stack_value);
+
                 Builder.CreateStore(llvm_value->value, stack_value);
 
                 Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 1, true));
