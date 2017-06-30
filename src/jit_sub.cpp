@@ -2859,7 +2859,7 @@ void InitializeModuleAndPassManager()
     
     TheFPM = llvm::make_unique<legacy::FunctionPassManager>(TheModule.get());
     
-    //TheFPM->add(createInstructionCombiningPass());
+    TheFPM->add(createInstructionCombiningPass());
     TheFPM->add(createReassociatePass());
     TheFPM->add(createGVNPass());
     TheFPM->add(createCFGSimplificationPass());
