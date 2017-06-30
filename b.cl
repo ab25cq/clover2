@@ -75,6 +75,8 @@ Clover.test("jit test46", a.run46() == true);
 Clover.test("jit test47", a.run47() == true);
 Clover.test("jit test48", a.run48() == true);
 Clover.test("jit test49", a.run49() == false);
+Clover.test("jit test49.5", a.run49_5(&b));
+
 /*
 Clover.test("jit test45", a.run50().equals("String"));
 Clover.test("jit test46", a.run51() == true);

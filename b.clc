@@ -293,6 +293,12 @@ class JITTest
     def run49():  bool {
         return !true;
     }
+    def run49_5(a:pointer):bool {
+        a++;
+        a+=2ul;
+
+        return true;
+    }
 /*
     def run50():  String {
         a:String = "ABC";
