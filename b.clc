@@ -1,7 +1,8 @@
 
 interface JITTestInterface
 {
-    def method():int;
+    def method(value:int):int;
+    def method2();
 }
 
 class JITTestClassA
@@ -16,8 +17,11 @@ class JITTestClassA
         self.value = value;
     }
 
-    def method():int {
-        return 123;
+    def method(value:int):int {
+        return value;
+    }
+    def method2() throws Exception {
+        throw new Exception("exception");
     }
 
     def classMethod(): static int {
@@ -92,7 +96,7 @@ class JITTest
         return 1;
     }
 
-    def method2():  {
+    def method2() throws Exception {
         throw new Exception("exception");
     }
 
@@ -299,7 +303,6 @@ class JITTest
 
         return true;
     }
-/*
     def run50():  String {
         a:String = "ABC";
 
@@ -314,13 +317,19 @@ class JITTest
         a:String = "ABC";
         return a implements Object;
     }
-
-    def run53():  int {
+    def run53(): int {
         interface:JITTestInterface = new JITTestClassA();
 
-        return interface.method();
+        return interface.method(123) + 123;
     }
 
+    def run53_5() throws Exception {
+        interface:JITTestInterface = new JITTestClassA();
+
+        interface.method2();
+    }
+
+/*
     def run54():  {
         ls("-al", "src/main.c");
     }

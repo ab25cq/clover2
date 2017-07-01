@@ -83,15 +83,6 @@ char* get_try_catch_label_name(sVMInfo* info)
     return info->try_catch_label_name;
 }
 
-CLObject get_string_object_of_object_name(CLObject object)
-{
-    sCLObject* object_data = CLOBJECT(object);
-
-    CLObject object2 = create_string_object(CLASS_NAME(object_data->mClass));
-
-    return object2;
-}
-
 BOOL invoke_virtual_method(int num_real_params, int offset, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sByteCode* code, sConst* constant)
 {
     CLObject object = ((*stack_ptr)-num_real_params)->mObjectValue;

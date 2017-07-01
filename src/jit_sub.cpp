@@ -568,7 +568,7 @@ void create_internal_functions()
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "object_implements_interface", TheModule.get());
 
-    /// invoke_virtual_method ///
+    /// call_invoke_virtual_method ///
     result_type = IntegerType::get(TheContext, 32);
 
     param1_type = IntegerType::get(TheContext, 32);
@@ -595,8 +595,11 @@ void create_internal_functions()
     param8_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
     type_params.push_back(param8_type);
 
+    param9_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param9_type);
+
     function_type = FunctionType::get(result_type, type_params, false);
-    Function::Create(function_type, Function::ExternalLinkage, "invoke_virtual_method", TheModule.get());
+    Function::Create(function_type, Function::ExternalLinkage, "call_invoke_virtual_method", TheModule.get());
 
     /// invoke_dynamic_method ///
     result_type = IntegerType::get(TheContext, 32);

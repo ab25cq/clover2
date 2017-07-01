@@ -313,6 +313,38 @@ BOOL call_invoke_method(sCLClass* klass, sCLMethod* method, std::map<std::string
     return TRUE;
 }
 
+BOOL call_invoke_virtual_method(int num_real_params, int offset, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sByteCode* code, sConst* constant, CLObject object)
+{
+    /// go ///
+    sCLObject* object_data = CLOBJECT(object);
+
+    sCLClass* klass = object_data->mClass;
+
+    MASSERT(klass != NULL);
+
+    char* method_name_and_params = CONS_str(constant, offset);
+
+    sCLMethod* method = search_for_method_from_virtual_method_table(klass, method_name_and_params);
+
+    if(method == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "OP_INVOKE_VIRTUAL_METHOD: Method not found");
+        return FALSE;
+    }
+    else {
+        if(!invoke_method(klass, method, stack, var_num, stack_ptr, info)) {
+            if(*info->try_offset != 0) {
+                *info->pc = code->mCodes + *info->try_offset;
+                *info->try_offset = *info->try_offset_before;
+            }
+            else {
+                return FALSE;
+            }
+        }
+    }
+
+    return TRUE;
+}
+
 void if_value_is_zero_ret_zero(Value* value, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block)
 {
     BasicBlock* then_block = BasicBlock::Create(TheContext, "then_block", function);
@@ -554,6 +586,16 @@ void if_value_is_zero_entry_exception_object(Value* value, std::map<std::string,
     Builder.SetInsertPoint(entry_ifend);
     *current_block = entry_ifend;
 }
+
+CLObject get_string_object_of_object_name(CLObject object)
+{
+    sCLObject* object_data = CLOBJECT(object);
+
+    CLObject object2 = create_string_object(CLASS_NAME(object_data->mClass));
+
+    return object2;
+}
+
 
 //////////////////////////////////////////////////////////////////////
 // LLVM core
@@ -1709,7 +1751,8 @@ show_inst_in_jit(inst);
             case OP_UILEEQ: 
             case OP_ULLEEQ:
             case OP_PLEEQ: 
-            case OP_CLEEQ: {
+            case OP_CLEEQ:
+            case OP_OBJ_IDENTIFY: {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
@@ -1845,6 +1888,58 @@ show_inst_in_jit(inst);
                 }
                 break;
 
+            case OP_CLASSNAME: {
+                LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+                if_value_is_zero_entry_exception_object(value->value, params, function, &current_block, "Exception", "Null pointer exception(1)");
+
+                Function* fun = TheModule->getFunction("get_string_object_of_object_name");
+
+                std::vector<Value*> params2;
+                params2.push_back(value->value);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateCall(fun, params2);
+                llvm_value.vm_stack = FALSE;
+
+                dec_stack_ptr(&llvm_stack_ptr, 1);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_IMPLEMENTS: {
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+
+                char* class_name = CONS_str(constant, offset);
+
+                sCLClass* klass = get_class_with_load_and_initialize(class_name);
+
+                if(klass == NULL) {
+                    fprintf(stderr, "class not found(1) (%s)", class_name);
+                    return FALSE;
+                }
+
+                LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+                if_value_is_zero_entry_exception_object(value->value, params, function, &current_block, "Exception", "Null pointer exception(2)");
+
+                Function* fun = TheModule->getFunction("object_implements_interface");
+
+                std::vector<Value*> params2;
+
+                params2.push_back(value->value);
+
+                Value* param2 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)klass);
+                params2.push_back(param2);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateCall(fun, params2);
+                llvm_value.vm_stack = FALSE;
+
+                dec_stack_ptr(&llvm_stack_ptr, 1);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
             case OP_ANDAND: {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
@@ -1914,6 +2009,72 @@ show_inst_in_jit(inst);
                     return FALSE;
                 }
                 }
+                break;
+
+            case OP_INVOKE_VIRTUAL_METHOD: {
+                int num_real_params = *(int*)pc;
+                pc += sizeof(int);
+
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+
+                /// llvm stack to VM stack ///
+                llvm_stack_to_vm_stack(llvm_stack_ptr, params, current_block, num_real_params);
+
+                /// get object value from llvm stack ///
+                LVALUE* object_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -num_real_params);
+
+                /// go ///
+                Function* fun = TheModule->getFunction("call_invoke_virtual_method");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_real_params);
+                params2.push_back(param1);
+
+                Value* param2 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)offset);
+                params2.push_back(param2);
+
+                std::string stack_value_name("stack");
+                Value* param3 = params[stack_value_name];
+                params2.push_back(param3);
+
+                std::string var_num_value_name("var_num");
+                Value* param4 = params[var_num_value_name];
+                params2.push_back(param4);
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param5 = params[stack_ptr_address_name];
+                params2.push_back(param5);
+
+                std::string info_value_name("info");
+                Value* param6 = params[info_value_name];
+                params2.push_back(param6);
+
+                Value* param7 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)code);
+                params2.push_back(param7);
+
+                Value* param8 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)constant);
+                params2.push_back(param8);
+
+                Value* param9 = object_value->value;
+                params2.push_back(param9);
+
+                Value* result = Builder.CreateCall(fun, params2);
+
+                if_value_is_zero_ret_zero(result, params, function, &current_block);
+
+                /// dec llvm stack pointer ///
+                dec_stack_ptr(&llvm_stack_ptr, num_real_params);
+
+                /// vm stack_ptr to llvm stack ///
+                LVALUE llvm_value = get_vm_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_INVOKE_DYNAMIC_METHOD:
                 break;
 
             case OP_NEW: {

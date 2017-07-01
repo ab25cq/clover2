@@ -76,12 +76,20 @@ Clover.test("jit test47", a.run47() == true);
 Clover.test("jit test48", a.run48() == true);
 Clover.test("jit test49", a.run49() == false);
 Clover.test("jit test49.5", a.run49_5(&b));
+Clover.test("jit test50", a.run50().equals("String"));
+Clover.test("jit test51", a.run51() == true);
+Clover.test("jit test52", a.run52() == true);
+Clover.test("jit test53", a.run53() == 246);
+
+print("jit test53.5...");
+try {
+    a.run53_5();
+}
+catch(e:Exception) {
+    println("OK");
+}
 
 /*
-Clover.test("jit test45", a.run50().equals("String"));
-Clover.test("jit test46", a.run51() == true);
-Clover.test("jit test47", a.run52() == true);
-Clover.test("jit test48", a.run53() == 123);
 
 a.run54();
 

@@ -101,7 +101,7 @@ IfExprAST	toy.cpp	/^class IfExprAST : public ExprAST {$/;"	c	namespace:__anon23	
 InitializeModuleAndPassManager	src/jit_sub.cpp	/^void InitializeModuleAndPassManager() $/;"	f
 InitializeModuleAndPassManager	toy.cpp	/^static void InitializeModuleAndPassManager() {$/;"	f	file:
 JIT	Makefile	/^JIT=1$/;"	m
-JIT_METHOD_CALL_COUNT	src/jit_sub.cpp	4070;"	d	file:
+JIT_METHOD_CALL_COUNT	src/jit_sub.cpp	4073;"	d	file:
 JIT_OBJS	Makefile	/^JIT_OBJS=src\/jit.o src\/jit_sub.o$/;"	m
 JIT_RUNTIME_OBJS	Makefile	/^JIT_RUNTIME_OBJS=src\/jit_runtime.o$/;"	m
 KaleidoscopeJIT	KaleidoscopeJIT.h	/^  KaleidoscopeJIT()$/;"	f	class:llvm::orc::KaleidoscopeJIT
@@ -1129,6 +1129,7 @@ c_termios_to_clover_termios	src/clover_to_clang.c	/^void c_termios_to_clover_ter
 call_entry_exception_object_with_class_name2	src/jit.cpp	/^static void call_entry_exception_object_with_class_name2(std::map<std::string, Value *> params, char* class_name, char* message)$/;"	f	file:
 call_finalize_method_on_free_object	src/vm.c	/^BOOL call_finalize_method_on_free_object(sCLClass* klass, CLObject self)$/;"	f
 call_invoke_method	src/jit.cpp	/^BOOL call_invoke_method(sCLClass* klass, sCLMethod* method, std::map<std::string, Value *> params, BasicBlock** current_block, Function* function, char* try_catch_label_name, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack)$/;"	f
+call_invoke_virtual_method	src/jit.cpp	/^BOOL call_invoke_virtual_method(int num_real_params, int offset, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sByteCode* code, sConst* constant, CLObject object)$/;"	f
 call_normal_method	src/node.c	/^static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType* object_type, sNodeType* generics_types, sCLClass* klass, sNodeType* param_types[PARAMS_MAX], int num_params, char* method_name, unsigned int params[PARAMS_MAX], int num_method_chains, int max_method_chains)$/;"	f	file:
 call_show_inst_in_jit	src/jit_sub.cpp	/^void call_show_inst_in_jit(int opecode)$/;"	f
 call_show_number_in_jit	src/jit_sub.cpp	/^void call_show_number_in_jit(int number)$/;"	f
@@ -1476,7 +1477,7 @@ get_pointer_from_buffer_object	src/clover_to_clang.c	/^void* get_pointer_from_bu
 get_size_from_buffer_object	src/clover_to_clang.c	/^int get_size_from_buffer_object(CLObject buffer)$/;"	f
 get_stack_ptr_value_from_index	src/jit.cpp	/^static LVALUE* get_stack_ptr_value_from_index(LVALUE* llvm_stack_ptr, int index)$/;"	f	file:
 get_stack_value_from_index_with_aligned	src/jit.cpp	/^static LVALUE get_stack_value_from_index_with_aligned(std::map<std::string, Value*>& params, BasicBlock* current_block, int index, int align)$/;"	f	file:
-get_string_object_of_object_name	src/jit_runtime.cpp	/^CLObject get_string_object_of_object_name(CLObject object)$/;"	f
+get_string_object_of_object_name	src/jit.cpp	/^CLObject get_string_object_of_object_name(CLObject object)$/;"	f
 get_sum_of_parent_var_num	src/vtable.c	/^static int get_sum_of_parent_var_num(sVarTable* table)$/;"	f	file:
 get_try_catch_label_name	src/jit_runtime.cpp	/^char* get_try_catch_label_name(sVMInfo* info)$/;"	f
 get_type	src/interpreter.c	/^static BOOL get_type(char* source, char* fname, sVarTable* lv_table, CLVALUE* stack, sNodeType** type_)$/;"	f	file:
