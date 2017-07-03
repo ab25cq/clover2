@@ -775,7 +775,7 @@ void create_internal_functions()
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_load_class_field_address", TheModule.get());
 
-    /// run_store_class_field ///
+    /// store_class_field ///
     type_params.clear();
     
     result_type = IntegerType::get(TheContext, 32);
@@ -801,8 +801,11 @@ void create_internal_functions()
     param7_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
     type_params.push_back(param7_type);
 
+    param8_type = IntegerType::get(TheContext, 64);
+    type_params.push_back(param8_type);
+
     function_type = FunctionType::get(result_type, type_params, false);
-    Function::Create(function_type, Function::ExternalLinkage, "run_store_class_field", TheModule.get());
+    Function::Create(function_type, Function::ExternalLinkage, "store_class_field", TheModule.get());
 
     /// run_load_element ///
     type_params.clear();

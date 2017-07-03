@@ -789,6 +789,28 @@ struct sCLVALUEAndBoolResult load_class_field(CLVALUE** stack_ptr, CLVALUE* stac
     return result;
 }
 
+BOOL store_class_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index, int offset, sConst* constant, CLVALUE value)
+{
+    char* class_name = CONS_str(constant, offset);
+
+    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+
+    if(klass == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(9)");
+        return FALSE;
+    }
+
+    if(field_index < 0 || field_index >= klass->mNumClassFields) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "field index is invalid");
+        return FALSE;
+    }
+
+    sCLField* field = klass->mClassFields + field_index;
+    field->mValue = value;
+
+    return TRUE;
+}
+
 //////////////////////////////////////////////////////////////////////
 // LLVM core
 //////////////////////////////////////////////////////////////////////
@@ -2583,6 +2605,53 @@ show_inst_in_jit(inst);
                 llvm_value.vm_stack = TRUE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_STORE_CLASS_FIELD: {
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+
+                int field_index = *(int*)pc;
+                pc += sizeof(int);
+
+                LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                Function* fun = TheModule->getFunction("store_class_field");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                std::string stack_value_name("stack");
+                Value* param2 = params[stack_value_name];
+                params2.push_back(param2);
+
+                std::string var_num_value_name("var_num");
+                Value* param3 = params[var_num_value_name];
+                params2.push_back(param3);
+
+                std::string info_value_name("info");
+                Value* param4 = params[info_value_name];
+                params2.push_back(param4);
+
+                Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)field_index);
+                params2.push_back(param5);
+
+                Value* param6 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)offset);
+                params2.push_back(param6);
+
+                Value* param7 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)constant);
+                params2.push_back(param7);
+
+                Value* param8 = llvm_value->value;
+                params2.push_back(param8);
+
+                Value* result = Builder.CreateCall(fun, params2);
+
+                if_value_is_zero_ret_zero(result, params, function, &current_block);
                 }
                 break;
 

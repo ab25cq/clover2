@@ -350,10 +350,12 @@ class JITTest
         return JITTest.classField1;
     }
 
-/*
-    def run59():  {
+    def run59(): int {
         JITTest.classField1 = 777;
+        return JITTest.classField1;
     }
+
+/*
     def run60():  int {
         a:int = 123;
         b:pointer = &a;

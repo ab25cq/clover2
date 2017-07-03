@@ -100,8 +100,9 @@ Clover.test("jit test57", a.run57() == 777);
 JITTest.classField1 = 888;
 Clover.test("jit test58", a.run58() == 888);
 
-/*
 Clover.test("jit test59", a.run59() == 777);
+
+/*
 
 Clover.test("jit test52", a.run60() == 245);
 Clover.test("jit test53", a.run61() == 245l);

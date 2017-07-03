@@ -175,30 +175,6 @@ BOOL run_load_class_field_address(CLVALUE** stack_ptr, CLVALUE* stack, int var_n
     return TRUE;
 }
 
-BOOL run_store_class_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index, int offset, sConst* constant)
-{
-    char* class_name = CONS_str(constant, offset);
-
-    sCLClass* klass = get_class_with_load_and_initialize(class_name);
-
-    if(klass == NULL) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(9)");
-        return FALSE;
-    }
-
-    if(field_index < 0 || field_index >= klass->mNumClassFields) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "field index is invalid");
-        return FALSE;
-    }
-
-    CLVALUE value = *((*stack_ptr)-1);
-
-    sCLField* field = klass->mClassFields + field_index;
-    field->mValue = value;
-
-    return TRUE;
-}
-
 BOOL run_load_element(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info)
 {
     CLObject array = ((*stack_ptr) -2)->mObjectValue;
