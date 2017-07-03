@@ -329,7 +329,6 @@ class JITTest
         interface.method2();
     }
 
-/*
     def run54():  {
         ls("-al", "src/main.c");
     }
@@ -347,13 +346,14 @@ class JITTest
 
     classField1: static int;
 
-    def run58():  {
-        JITTest.classField1 = 777;
-    }
-    def run59():  int {
+    def run58():  int {
         return JITTest.classField1;
     }
 
+/*
+    def run59():  {
+        JITTest.classField1 = 777;
+    }
     def run60():  int {
         a:int = 123;
         b:pointer = &a;

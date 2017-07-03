@@ -4,6 +4,7 @@ extern "C"
 {
 
 GlobalVariable* gSigIntValue;
+StructType* gCLValueAndBoolStruct;
 
 void create_internal_functions()
 {
@@ -687,7 +688,7 @@ void create_internal_functions()
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_load_field_address", TheModule.get());
 
-    /// run_store_field ///
+    /// store_field ///
     type_params.clear();
     
     result_type = IntegerType::get(TheContext, 32);
@@ -707,13 +708,19 @@ void create_internal_functions()
     param5_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param5_type);
 
-    function_type = FunctionType::get(result_type, type_params, false);
-    Function::Create(function_type, Function::ExternalLinkage, "run_store_field", TheModule.get());
+    param6_type = IntegerType::get(TheContext, 64);
+    type_params.push_back(param6_type);
 
-    /// run_load_class_field ///
+    param7_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param7_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "store_field", TheModule.get());
+
+    /// load_class_field ///
     type_params.clear();
     
-    result_type = IntegerType::get(TheContext, 32);
+    result_type = IntegerType::get(TheContext, 64);
 
     param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
     type_params.push_back(param1_type);
@@ -737,7 +744,7 @@ void create_internal_functions()
     type_params.push_back(param7_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
-    Function::Create(function_type, Function::ExternalLinkage, "run_load_class_field", TheModule.get());
+    Function::Create(function_type, Function::ExternalLinkage, "load_class_field", TheModule.get());
 
     /// run_load_class_field_address ///
     type_params.clear();
@@ -2881,6 +2888,19 @@ void jit_init()
     TheJIT = llvm::make_unique<CloverJIT>();
 
     InitializeModuleAndPassManager();
+
+    /// CLVALUE and BOOL Struct type ///
+    gCLValueAndBoolStruct = StructType::create(TheContext, "clvalue_and_bool_struct");
+
+    std::vector<Type*> fields;
+    Type* field_type1 = IntegerType::get(TheContext, 64);
+    fields.push_back(field_type1);
+    Type* field_type2 = IntegerType::get(TheContext, 32);
+    fields.push_back(field_type2);
+
+    if(gCLValueAndBoolStruct->isOpaque()) {
+        gCLValueAndBoolStruct->setBody(fields, false);
+    }
 }
 
 void jit_final()

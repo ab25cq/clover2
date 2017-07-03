@@ -596,6 +596,198 @@ CLObject get_string_object_of_object_name(CLObject object)
     return object2;
 }
 
+BOOL invoke_dynamic_method(int offset, int offset2, int num_params, int static_, int num_method_chains, int max_method_chains, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sByteCode* code, sConst* constant)
+{
+    /// none static method ////
+    if(static_ == 0) {
+        int num_real_params = num_params + 1;
+        char* method_name = CONS_str(constant, offset2);
+
+        CLObject object = ((*stack_ptr)-num_real_params)->mObjectValue;
+
+        sCLObject* object_data = CLOBJECT(object);
+
+        sCLClass* klass = object_data->mClass;
+
+        MASSERT(klass != NULL);
+
+        if(klass->mCallingMethodIndex == -1) {
+            entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "OP_INVOKE_DYNAMIC_METHOD: Method not found(1)");
+            return FALSE;
+        }
+
+        sCLMethod* method = klass->mMethods + klass->mCallingMethodIndex;
+
+        CLObject elements[ARRAY_VALUE_ELEMENT_MAX];
+
+        int i;
+        for(i=0; i<num_params; i++) {
+            CLObject object = ((*stack_ptr)-num_params + i)->mObjectValue;
+
+            elements[i] = object;
+        }
+
+        CLObject carray = create_carray_object_with_elements(num_params, elements);
+
+        gGlobalStackPtr->mObjectValue = carray;
+        gGlobalStackPtr++;
+
+        (*stack_ptr)-=num_params;
+
+        (*stack_ptr)->mObjectValue = create_string_object(method_name);
+        (*stack_ptr)++;
+        (*stack_ptr)->mObjectValue = carray;
+        (*stack_ptr)++;
+        (*stack_ptr)->mIntValue = num_method_chains;
+        (*stack_ptr)++;
+        (*stack_ptr)->mIntValue = max_method_chains;
+        (*stack_ptr)++;
+
+        gGlobalStackPtr--;
+
+        if(!invoke_method(klass, method, stack, var_num, stack_ptr, info)) {
+            if(*info->try_offset != 0) {
+                *info->pc = code->mCodes + *info->try_offset;
+                *info->try_offset = *info->try_offset_before;
+            }
+            else {
+                return FALSE;
+            }
+        }
+    }
+    /// static method ///
+    else {
+        char* class_name = CONS_str(constant, offset);
+        char* method_name = CONS_str(constant, offset2);
+
+        sCLClass* klass = get_class_with_load_and_initialize(class_name);
+
+        if(klass == NULL) {
+            entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(3)");
+            return FALSE;
+        }
+
+        if(klass->mCallingClassMethodIndex == -1) {
+            entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "OP_INVOKE_DYNAMIC_METHOD: Method not found(2)");
+            return FALSE;
+        }
+
+        sCLMethod* method = klass->mMethods + klass->mCallingClassMethodIndex;
+
+        CLObject elements[ARRAY_VALUE_ELEMENT_MAX];
+
+        int i;
+        for(i=0; i<num_params; i++) {
+            CLObject object = ((*stack_ptr)-num_params + i)->mObjectValue;
+
+            elements[i] = object;
+        }
+
+        CLObject carray = create_carray_object_with_elements(num_params, elements);
+
+        gGlobalStackPtr->mObjectValue = carray;
+        gGlobalStackPtr++;
+
+        (*stack_ptr)-=num_params;
+
+        (*stack_ptr)->mObjectValue = create_string_object(method_name);
+        (*stack_ptr)++;
+        (*stack_ptr)->mObjectValue = carray;
+        (*stack_ptr)++;
+        (*stack_ptr)->mIntValue = num_method_chains;
+        (*stack_ptr)++;
+        (*stack_ptr)->mIntValue = max_method_chains;
+        (*stack_ptr)++;
+
+        gGlobalStackPtr--;
+
+        if(!invoke_method(klass, method, stack, var_num, stack_ptr, info)) {
+            if(*info->try_offset != 0) {
+                *info->pc = code->mCodes + *info->try_offset;
+                *info->try_offset = *info->try_offset_before;
+            }
+            else {
+                return FALSE;
+            }
+        }
+    }
+
+    return TRUE;
+}
+
+BOOL invoke_block_in_jit(int num_params, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info)
+{
+    CLObject block_object = ((*stack_ptr)-num_params-1)->mObjectValue;
+
+    if(!invoke_block(block_object, stack, var_num, num_params, stack_ptr, info)) 
+    {
+        return FALSE;
+    }
+
+    CLVALUE result = *((*stack_ptr)-1);
+
+    (*stack_ptr) -= num_params+1+1;
+
+    **stack_ptr = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL store_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, CLObject obj, CLVALUE value, int field_index)
+{
+    if(obj == 0) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(5)");
+        return FALSE;
+    }
+
+    sCLObject* object_pointer = CLOBJECT(obj);
+    sCLClass* klass = object_pointer->mClass;
+
+    if(klass == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(6)");
+        return FALSE;
+    }
+
+    if(field_index < 0 || field_index >= klass->mNumFields) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "field index is invalid");
+        return FALSE;
+    }
+
+    object_pointer->mFields[field_index] = value;
+
+    return TRUE;
+}
+
+struct sCLVALUEAndBoolResult load_class_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index, int offset, sConst* constant)
+{
+    struct sCLVALUEAndBoolResult result;
+
+    char* class_name = CONS_str(constant, offset);
+
+    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+
+    if(klass == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(7)");
+        result.result1.mLongValue = 0;
+        result.result2 = FALSE;
+        return result;
+    }
+
+    if(field_index < 0 || field_index >= klass->mNumClassFields) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "field index is invalid");
+        result.result1.mLongValue = 0;
+        result.result2 = FALSE;
+        return result;
+    }
+
+    sCLField* field = klass->mClassFields + field_index;
+
+    result.result1 = field->mValue;
+    result.result2 = TRUE;
+
+    return result;
+}
 
 //////////////////////////////////////////////////////////////////////
 // LLVM core
@@ -2074,8 +2266,134 @@ show_inst_in_jit(inst);
                 }
                 break;
 
-            case OP_INVOKE_DYNAMIC_METHOD:
+            case OP_INVOKE_DYNAMIC_METHOD: {
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+
+                int offset2 = *(int*)pc;
+                pc += sizeof(int);
+
+                int num_params = *(int*)pc;
+                pc += sizeof(int);
+
+                BOOL static_ = *(int*)pc;
+                pc += sizeof(int);
+
+                int num_method_chains = *(int*)pc;
+                pc += sizeof(int);
+
+                int max_method_chains = *(int*)pc;
+                pc += sizeof(int);
+
+                int num_real_params = num_params + (static_ ? 0:1);
+
+                /// llvm stack to VM stack ///
+                llvm_stack_to_vm_stack(llvm_stack_ptr, params, current_block, num_real_params);
+
+                /// go ///
+                Function* fun = TheModule->getFunction("invoke_dynamic_method");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)offset);
+                params2.push_back(param1);
+
+                Value* param2 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)offset2);
+                params2.push_back(param2);
+
+                Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_params);
+                params2.push_back(param3);
+
+                Value* param4 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)static_);
+                params2.push_back(param4);
+
+                Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_method_chains);
+                params2.push_back(param5);
+
+                Value* param6 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)max_method_chains);
+                params2.push_back(param6);
+
+                std::string stack_value_name("stack");
+                Value* param7 = params[stack_value_name];
+                params2.push_back(param7);
+
+                std::string var_num_value_name("var_num");
+                Value* param8 = params[var_num_value_name];
+                params2.push_back(param8);
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param9 = params[stack_ptr_address_name];
+                params2.push_back(param9);
+
+                std::string info_value_name("info");
+                Value* param10 = params[info_value_name];
+                params2.push_back(param10);
+
+                Value* param11 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)code);
+                params2.push_back(param11);
+
+                Value* param12 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)constant);
+                params2.push_back(param12);
+
+                Value* result = Builder.CreateCall(fun, params2);
+
+                if_value_is_zero_ret_zero(result, params, function, &current_block);
+
+                /// dec llvm stack pointer ///
+                dec_stack_ptr(&llvm_stack_ptr, num_real_params);
+
+                /// vm stack_ptr to llvm stack ///
+                LVALUE llvm_value = get_vm_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
                 break;
+
+            case OP_INVOKE_BLOCK: {
+                int num_params = *(int*)pc;
+                pc += sizeof(int);
+
+                /// llvm stack to VM stack ///
+                llvm_stack_to_vm_stack(llvm_stack_ptr, params, current_block, num_params + 1);
+
+                /// go ///
+                Function* fun = TheModule->getFunction("invoke_block_in_jit");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_params);
+                params2.push_back(param1);
+
+                std::string stack_value_name("stack");
+                Value* param2 = params[stack_value_name];
+                params2.push_back(param2);
+
+                std::string var_num_value_name("var_num");
+                Value* param3 = params[var_num_value_name];
+                params2.push_back(param3);
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param4 = params[stack_ptr_address_name];
+                params2.push_back(param4);
+
+                std::string info_value_name("info");
+                Value* param5 = params[info_value_name];
+                params2.push_back(param5);
+
+                Value* result = Builder.CreateCall(fun, params2);
+
+                if_value_is_zero_ret_zero(result, params, function, &current_block);
+
+                /// dec llvm stack pointer ///
+                dec_stack_ptr(&llvm_stack_ptr, num_params+2);
+
+                /// vm stack_ptr to llvm stack ///
+                LVALUE llvm_value = get_vm_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
 
             case OP_NEW: {
                 int offset = *(int*)pc;
@@ -2161,20 +2479,8 @@ show_inst_in_jit(inst);
 
                 Value* result = Builder.CreateCall(get_field_fun, params2);
 
-
-                StructType* get_field_from_object_result_struct_type = StructType::create(TheContext, "get_field_from_object_result_struct_type");
-                std::vector<Type*> fields;
-                Type* field_type1 = IntegerType::get(TheContext, 64);
-                fields.push_back(field_type1);
-                Type* field_type2 = IntegerType::get(TheContext, 32);
-                fields.push_back(field_type2);
-
-                if(get_field_from_object_result_struct_type->isOpaque()) {
-                    get_field_from_object_result_struct_type->setBody(fields, false);
-                }
-
-                Value* result1 = Builder.CreateStructGEP(get_field_from_object_result_struct_type, result, 0);
-                Value* result2 = Builder.CreateStructGEP(get_field_from_object_result_struct_type, result, 1);
+                Value* result1 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 0);
+                Value* result2 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 1);
                 if_value_is_zero_ret_zero(result2, params, function, &current_block);
 
                 LVALUE llvm_value;
@@ -2182,6 +2488,99 @@ show_inst_in_jit(inst);
                 llvm_value.vm_stack = TRUE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_STORE_FIELD: {
+                int field_index = *(int*)pc;
+                pc += sizeof(int);
+
+                LVALUE* obj = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                Function* fun = TheModule->getFunction("store_field");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                std::string stack_value_name("stack");
+                Value* param2 = params[stack_value_name];
+                params2.push_back(param2);
+
+                std::string var_num_value_name("var_num");
+                Value* param3 = params[var_num_value_name];
+                params2.push_back(param3);
+
+                std::string info_value_name("info");
+                Value* param4 = params[info_value_name];
+                params2.push_back(param4);
+
+                Value* param5 = obj->value;
+                params2.push_back(param5);
+
+                Value* param6 = value->value;
+                params2.push_back(param6);
+
+                Value* param7 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)field_index);
+                params2.push_back(param7);
+
+                Value* result = Builder.CreateCall(fun, params2);
+
+                if_value_is_zero_ret_zero(result, params, function, &current_block);
+                }
+                break;
+
+            case OP_LOAD_CLASS_FIELD: {
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+
+                int field_index = *(int*)pc;
+                pc += sizeof(int);
+
+                Function* fun = TheModule->getFunction("load_class_field");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                std::string stack_value_name("stack");
+                Value* param2 = params[stack_value_name];
+                params2.push_back(param2);
+
+                std::string var_num_value_name("var_num");
+                Value* param3 = params[var_num_value_name];
+                params2.push_back(param3);
+
+                std::string info_value_name("info");
+                Value* param4 = params[info_value_name];
+                params2.push_back(param4);
+
+                Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)field_index);
+                params2.push_back(param5);
+
+                Value* param6 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)offset);
+                params2.push_back(param6);
+
+                Value* param7 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)constant);
+                params2.push_back(param7);
+
+                Value* result = Builder.CreateCall(fun, params2);
+
+                Value* result1 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 0);
+                Value* result2 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 1);
+
+                if_value_is_zero_ret_zero(result2, params, function, &current_block);
+
+                LVALUE llvm_value;
+                llvm_value.value = result1;
+                llvm_value.vm_stack = TRUE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }

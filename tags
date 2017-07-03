@@ -101,7 +101,7 @@ IfExprAST	toy.cpp	/^class IfExprAST : public ExprAST {$/;"	c	namespace:__anon23	
 InitializeModuleAndPassManager	src/jit_sub.cpp	/^void InitializeModuleAndPassManager() $/;"	f
 InitializeModuleAndPassManager	toy.cpp	/^static void InitializeModuleAndPassManager() {$/;"	f	file:
 JIT	Makefile	/^JIT=1$/;"	m
-JIT_METHOD_CALL_COUNT	src/jit_sub.cpp	4073;"	d	file:
+JIT_METHOD_CALL_COUNT	src/jit_sub.cpp	4093;"	d	file:
 JIT_OBJS	Makefile	/^JIT_OBJS=src\/jit.o src\/jit_sub.o$/;"	m
 JIT_RUNTIME_OBJS	Makefile	/^JIT_RUNTIME_OBJS=src\/jit_runtime.o$/;"	m
 KaleidoscopeJIT	KaleidoscopeJIT.h	/^  KaleidoscopeJIT()$/;"	f	class:llvm::orc::KaleidoscopeJIT
@@ -1095,25 +1095,17 @@ arrange_alignment	src/code.c	/^static void arrange_alignment(sByteCode* code)$/;
 arrange_alignment	src/constant.c	/^static void arrange_alignment(sConst* self)$/;"	f	file:
 arrange_stack	src/node.c	/^void arrange_stack(sCompileInfo* cinfo)$/;"	f
 array_mark_fun	src/array.c	/^void array_mark_fun(CLObject self, unsigned char* mark_flg)$/;"	f
-as_fn_append	config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	configure	/^  as_fn_append ()$/;"	f
-as_fn_arith	config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	configure	/^  as_fn_arith ()$/;"	f
-as_fn_error	config.status	/^as_fn_error ()$/;"	f
 as_fn_error	configure	/^as_fn_error ()$/;"	f
-as_fn_executable_p	config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	configure	/^as_fn_executable_p ()$/;"	f
-as_fn_exit	config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	configure	/^as_fn_exit ()$/;"	f
 as_fn_failure	configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
-as_fn_mkdir_p	config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	configure	/^as_fn_mkdir_p ()$/;"	f
 as_fn_ret_failure	configure	/^as_fn_ret_failure () { return 1; }$/;"	f
 as_fn_ret_success	configure	/^as_fn_ret_success () { return 0; }$/;"	f
-as_fn_set_status	config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	configure	/^as_fn_set_status ()$/;"	f
 as_fn_success	configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
-as_fn_unset	config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	configure	/^as_fn_unset ()$/;"	f
 assign_operator	src/parser.c	/^static BOOL assign_operator(unsigned int* node, sParserInfo* info)$/;"	f	file:
 binary_operator	src/node.c	/^static BOOL binary_operator(unsigned int node, sNodeType* left_type, sNodeType* right_type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, int float_operand, int double_operand, int pointer_operand, int null_operand, int char_operand, int bool_operand, int regex_operand, char* op_string, sCompileInfo* info)$/;"	f	file:
@@ -1402,6 +1394,7 @@ free_node_types	src/node_type.c	/^void free_node_types()$/;"	f
 free_nodes	src/node.c	/^void free_nodes()$/;"	f
 free_object	src/object.c	/^BOOL free_object(CLObject self)$/;"	f
 gCLHeap	src/heap.c	/^static sCLHeapManager gCLHeap;$/;"	v	file:
+gCLValueAndBoolStruct	src/jit_sub.cpp	/^StructType* gCLValueAndBoolStruct;$/;"	v
 gCandidates	src/interpreter.c	/^char** gCandidates = NULL;$/;"	v
 gCastMethods	src/node.c	/^struct sCastMethods gCastMethods[] = {$/;"	v	typeref:struct:sCastMethods
 gClassTable	src/klass.c	/^static sClassTable gClassTable[CLASS_NUM_MAX];$/;"	v	file:
@@ -1533,8 +1526,8 @@ inputing_block_or_paren	src/interpreter.c	/^static BOOL inputing_block_or_paren(
 interpreter_final	src/interpreter.c	/^static void interpreter_final()$/;"	f	file:
 interpreter_init	src/interpreter.c	/^static void interpreter_init()$/;"	f	file:
 invoke_block	src/vm.c	/^BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_params, CLVALUE** stack_ptr, sVMInfo* info)$/;"	f
-invoke_block_in_jit	src/jit_runtime.cpp	/^BOOL invoke_block_in_jit(int num_params, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info)$/;"	f
-invoke_dynamic_method	src/jit_runtime.cpp	/^BOOL invoke_dynamic_method(int offset, int offset2, int num_params, int static_, int num_method_chains, int max_method_chains, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sByteCode* code, sConst* constant)$/;"	f
+invoke_block_in_jit	src/jit.cpp	/^BOOL invoke_block_in_jit(int num_params, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info)$/;"	f
+invoke_dynamic_method	src/jit.cpp	/^BOOL invoke_dynamic_method(int offset, int offset2, int num_params, int static_, int num_method_chains, int max_method_chains, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sByteCode* code, sConst* constant)$/;"	f
 invoke_method	src/vm.c	/^BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info)$/;"	f
 invoke_virtual_method	src/jit_runtime.cpp	/^BOOL invoke_virtual_method(int num_real_params, int offset, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sByteCode* code, sConst* constant)$/;"	f
 is_assign_operator	src/parser.c	/^static BOOL is_assign_operator(sParserInfo* info) $/;"	f	file:
@@ -1634,6 +1627,7 @@ llvm	KaleidoscopeJIT.h	/^namespace llvm {$/;"	n
 llvmFunction	src/jit_common.hpp	/^    Function* llvmFunction;$/;"	m	class:FunctionAST
 llvm_stack_to_vm_stack	src/jit.cpp	/^static void llvm_stack_to_vm_stack(LVALUE* llvm_stack_ptr, std::map<std::string, Value*> params, BasicBlock* current_block, int num)$/;"	f	file:
 load_class	src/klass.c	/^sCLClass* load_class(char* class_name)$/;"	f
+load_class_field	src/jit.cpp	/^struct sCLVALUEAndBoolResult load_class_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index, int offset, sConst* constant)$/;"	f
 load_class_from_class_file	src/klass.c	/^static sCLClass* load_class_from_class_file(char* class_name, char* class_file_name)$/;"	f	file:
 load_class_with_initialize	src/vm.c	/^static BOOL load_class_with_initialize(char* class_name)$/;"	f	file:
 load_fundamental_classes_on_compile_time	src/klass.c	/^static void load_fundamental_classes_on_compile_time()$/;"	f	file:
@@ -2171,7 +2165,6 @@ run_ldclong	src/jit_runtime.cpp	/^void run_ldclong(CLVALUE** stack_ptr, int valu
 run_ldcpointer	src/jit_runtime.cpp	/^void run_ldcpointer(CLVALUE** stack_ptr, int value1, int value2)$/;"	f
 run_ldculong	src/jit_runtime.cpp	/^void run_ldculong(CLVALUE** stack_ptr, int value1, int value2)$/;"	f
 run_load_address	src/jit_runtime.cpp	/^BOOL run_load_address(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, CLVALUE* lvar, int index)$/;"	f
-run_load_class_field	src/jit_runtime.cpp	/^BOOL run_load_class_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index, int offset, sConst* constant)$/;"	f
 run_load_class_field_address	src/jit_runtime.cpp	/^BOOL run_load_class_field_address(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index, int offset, sConst* constant)$/;"	f
 run_load_element	src/jit_runtime.cpp	/^BOOL run_load_element(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info)$/;"	f
 run_load_field	src/jit_runtime.cpp	/^BOOL run_load_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index)$/;"	f
@@ -2182,7 +2175,6 @@ run_regex_to_string_cast	src/jit_runtime.cpp	/^void run_regex_to_string_cast(CLV
 run_short_to_string_cast	src/jit_runtime.cpp	/^void run_short_to_string_cast(CLVALUE** stack_ptr)$/;"	f
 run_store_class_field	src/jit_runtime.cpp	/^BOOL run_store_class_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index, int offset, sConst* constant)$/;"	f
 run_store_element	src/jit_runtime.cpp	/^BOOL run_store_element(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info)$/;"	f
-run_store_field	src/jit_runtime.cpp	/^BOOL run_store_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index)$/;"	f
 run_ubyte_to_string_cast	src/jit_runtime.cpp	/^void run_ubyte_to_string_cast(CLVALUE** stack_ptr)$/;"	f
 run_uint_to_string_cast	src/jit_runtime.cpp	/^void run_uint_to_string_cast(CLVALUE** stack_ptr)$/;"	f
 run_uinteger_to_byte_cast	src/jit_runtime.cpp	/^void run_uinteger_to_byte_cast(CLVALUE** stack_ptr)$/;"	f
@@ -2405,6 +2397,7 @@ stack_final	src/stack.c	/^void stack_final()$/;"	f
 stack_id	src/common.h	/^    long stack_id;$/;"	m	struct:sVMInfoStruct
 stack_init	src/stack.c	/^void stack_init()$/;"	f
 stack_num	src/common.h	/^    int stack_num;$/;"	m	struct:sCompileInfoStruct
+store_field	src/jit.cpp	/^BOOL store_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, CLObject obj, CLVALUE value, int field_index)$/;"	f
 store_llvm_value_to_lvar_with_offset	src/jit.cpp	/^static void store_llvm_value_to_lvar_with_offset(LVALUE* llvm_stack, int index, LVALUE* llvm_value)$/;"	f	file:
 store_value_to_lvar_with_offset	src/jit.cpp	/^static void store_value_to_lvar_with_offset(std::map<std::string, Value*>& params, BasicBlock* current_block, int index, Value* llvm_value)$/;"	f	file:
 string_object_to_char_array	src/clover_to_clang.c	/^ALLOC char* string_object_to_char_array(CLObject string_object)$/;"	f

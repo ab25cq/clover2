@@ -259,4 +259,5 @@ BOOL invoke_block_in_jit(int num_params, CLVALUE* stack, int var_num, CLVALUE** 
 BOOL get_vm_stack_ptr_flag(BOOL* llvm_stack_from_vm_stack_flag, Value** llvm_stack_ptr, Value* llvm_stack , int index);
 
 extern GlobalVariable* gSigIntValue;
+extern StructType* gCLValueAndBoolStruct;
 }

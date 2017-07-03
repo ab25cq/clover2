@@ -89,17 +89,20 @@ catch(e:Exception) {
     println("OK");
 }
 
-/*
-
 a.run54();
 
-Clover.test("jit test49", a.run55(1, 2, lambda(x:int, y:int):int { return x + y }) == 3);
+Clover.test("jit test55", a.run55(1, 2, lambda(x:int, y:int):int { return x + y }) == 3);
 
 a.run56();
 
-Clover.test("jit test50", a.run57() == 777);
-a.run58();
-Clover.test("jit test51", a.run59() == 777);
+Clover.test("jit test57", a.run57() == 777);
+
+JITTest.classField1 = 888;
+Clover.test("jit test58", a.run58() == 888);
+
+/*
+Clover.test("jit test59", a.run59() == 777);
+
 Clover.test("jit test52", a.run60() == 245);
 Clover.test("jit test53", a.run61() == 245l);
 Clover.test("jit test54", a.run62() == 245.1);
