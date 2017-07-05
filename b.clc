@@ -355,7 +355,6 @@ class JITTest
         return JITTest.classField1;
     }
 
-/*
     def run60():  int {
         a:int = 123;
         b:pointer = &a;
@@ -410,12 +409,31 @@ class JITTest
     def run70():  bool {
         return /aaa/.ignoreCase;
     }
+    def run70_5(): int[] {
+        return { 1, 2, 3 };
+    }
+    def run70_7(): Array<Integer> {
+        return array { 1, 2, 3 };
+    }
     def run71():  EqualableArray<Integer> {
         return equalable_array { 1,2,3 };
+    }
+    def run71_1(): List<Integer> {
+        return list { 1, 2, 3 };
+    }
+    def run71_2(): EqualableList<Integer> {
+        return equalable_list { 1, 2, 3 };
+    }
+    def run71_3(): Tuple2 <Integer, String> {
+        return tuple { 1, "ABC" }
+    }
+    def run71_4(): Hash<String, Integer> {
+        return hash { "ABC":1, "DEF":2 }
     }
     def run72():  lambda(int,int):int {
         return lambda(x:int, y:int):int { return x + y; };
     }
+/*
     def run73():  Integer {
         return 12y.toInteger;
     }

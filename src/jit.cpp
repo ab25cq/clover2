@@ -53,6 +53,7 @@ static void dec_stack_ptr(LVALUE** llvm_stack_ptr, int value)
 
     (*llvm_stack_ptr)->value = 0;
     (*llvm_stack_ptr)->vm_stack = FALSE;
+    (*llvm_stack_ptr)->lvar_address_index = -1;
 }
 
 static void push_value_to_stack_ptr(LVALUE** llvm_stack_ptr, LVALUE* value)
@@ -70,6 +71,7 @@ static void store_llvm_value_to_lvar_with_offset(LVALUE* llvm_stack, int index, 
     /// store ///
     Builder.CreateStore(llvm_value->value, llvm_stack[index].value);
     llvm_stack[index].vm_stack = llvm_value->vm_stack;
+    llvm_stack[index].lvar_address_index = llvm_value->lvar_address_index;
 }
 
 static LVALUE get_llvm_value_from_lvar_with_offset(LVALUE* llvm_stack, int index)
@@ -78,6 +80,7 @@ static LVALUE get_llvm_value_from_lvar_with_offset(LVALUE* llvm_stack, int index
     LVALUE result;
     result.value = Builder.CreateLoad(llvm_value->value, "lvar");
     result.vm_stack = llvm_value->vm_stack;
+    result.lvar_address_index = llvm_value->lvar_address_index;
 
     return result;
 }
@@ -115,6 +118,7 @@ static LVALUE get_vm_stack_ptr_value_from_index_with_aligned(std::map<std::strin
     }
 
     result.vm_stack = TRUE;
+    result.lvar_address_index = -1;
 
     return result;
 }
@@ -185,6 +189,7 @@ static LVALUE get_stack_value_from_index_with_aligned(std::map<std::string, Valu
     }
 
     result.vm_stack = TRUE;
+    result.lvar_address_index = -1;
 
     return result;
 }
@@ -436,6 +441,7 @@ static LVALUE get_lvar_value_from_offset(std::map<std::string, Value*>& params, 
     LVALUE result;
     result.value = Builder.CreateAlignedLoad(offset_lvar, 8, "offset_lvar");
     result.vm_stack = TRUE;
+    result.lvar_address_index = -1;
 
     return result;
 }
@@ -810,6 +816,528 @@ BOOL store_class_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo
 
     return TRUE;
 }
+
+static void lvar_of_vm_to_lvar_of_llvm(std::map<std::string, Value *> params, BasicBlock* current_block, LVALUE* llvm_stack, int var_num)
+{
+    int i;
+    for(i=0; i<var_num; i++) {
+        LVALUE llvm_value = get_stack_value_from_index_with_aligned(params, current_block, i, 8);
+        store_llvm_value_to_lvar_with_offset(llvm_stack, i, &llvm_value);
+    }
+}
+
+BOOL run_store_element(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, CLObject array, int element_num, CLVALUE value)
+{
+    if(array == 0) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(8)");
+        return FALSE;
+    }
+
+    sCLObject* object_pointer = CLOBJECT(array);
+
+    if(element_num < 0 || element_num >= object_pointer->mArrayNum) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "element index is invalid");
+        return FALSE;
+    }
+
+    object_pointer->mFields[element_num] = value;
+
+    return TRUE;
+}
+
+int get_array_length(CLObject array_)
+{
+    sCLObject* array_data = CLOBJECT(array_);
+    return array_data->mArrayNum;
+}
+
+struct sCLVALUEAndBoolResult load_element(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, CLObject array, int element_num)
+{
+    struct sCLVALUEAndBoolResult result;
+
+    if(array == 0) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(7)");
+        result.result1.mLongValue = 0;
+        result.result2 = FALSE;
+        return result;
+    }
+
+    sCLObject* object_pointer = CLOBJECT(array);
+
+    if(element_num < 0 || element_num >= object_pointer->mArrayNum) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "element index is invalid");
+        result.result1.mLongValue = 0;
+        result.result2 = FALSE;
+        return result;
+    }
+
+    result.result1 = object_pointer->mFields[element_num];
+    result.result2 = TRUE;
+
+    return result;
+}
+
+wchar_t char_uppercase(wchar_t c)
+{
+    wchar_t result = c;
+    if(c >= 'a' && c <= 'z') {
+        result = c - 'a' + 'A';
+    }
+
+    return result;
+}
+
+wchar_t char_lowercase(wchar_t c)
+{
+    wchar_t result = c;
+    if(c >= 'A' && c <= 'Z') {
+        result = c - 'A' + 'a';
+    }
+
+    return result;
+}
+
+BOOL get_regex_global(CLObject regex)
+{
+    sRegexObject* regex_object = CLREGEX(regex);
+    return regex_object->mGlobal;
+}
+
+BOOL get_regex_ignorecase(CLObject regex)
+{
+    sRegexObject* regex_object = CLREGEX(regex);
+    return regex_object->mIgnoreCase;
+}
+
+BOOL get_regex_multiline(CLObject regex)
+{
+    sRegexObject* regex_object = CLREGEX(regex);
+    return regex_object->mMultiline;
+}
+
+BOOL get_regex_extended(CLObject regex)
+{
+    sRegexObject* regex_object = CLREGEX(regex);
+    return regex_object->mExtended;
+}
+
+BOOL get_regex_dotall(CLObject regex)
+{
+    sRegexObject* regex_object = CLREGEX(regex);
+    return regex_object->mDotAll;
+}
+
+BOOL get_regex_anchored(CLObject regex)
+{
+    sRegexObject* regex_object = CLREGEX(regex);
+    return regex_object->mAnchored;
+}
+
+BOOL get_regex_dollar_endonly(CLObject regex)
+{
+    sRegexObject* regex_object = CLREGEX(regex);
+    return regex_object->mDollarEndOnly;
+}
+
+BOOL get_regex_ungreedy(CLObject regex)
+{
+    sRegexObject* regex_object = CLREGEX(regex);
+    return regex_object->mUngreedy;
+}
+
+struct sCLVALUEAndBoolResult run_create_array(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, char* class_name, int num_elements)
+{
+    struct sCLVALUEAndBoolResult result;
+
+    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+
+    if(klass == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(11)");
+        result.result1.mLongValue = 0;
+        result.result2 = FALSE;
+        return result;
+    }
+
+    CLObject array_object = create_array_object(klass, num_elements);
+    (*stack_ptr)->mObjectValue = array_object; // push object
+    (*stack_ptr)++;
+
+    sCLObject* object_data = CLOBJECT(array_object);
+
+    int i;
+    for(i=0; i<num_elements; i++) {
+        object_data->mFields[i] = *((*stack_ptr)-1-num_elements+i);
+    }
+
+    (*stack_ptr)--; // pop_object
+
+    (*stack_ptr)-=num_elements;
+
+    result.result1.mObjectValue = array_object;
+    result.result2 = TRUE;
+
+    return result;
+}
+
+struct sCLVALUEAndBoolResult run_create_carray(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, char* class_name)
+{
+    struct sCLVALUEAndBoolResult result;
+
+    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+
+    if(klass == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(12)");
+        result.result1.mLongValue = 0;
+        result.result2 = FALSE;
+        return result;
+    }
+
+    CLObject array_object = create_carray_object();
+    (*stack_ptr)->mObjectValue = array_object; // push object
+    (*stack_ptr)++;
+
+    CLObject items[ARRAY_VALUE_ELEMENT_MAX];
+
+    int i;
+    for(i=0; i<num_elements; i++) {
+        CLVALUE element = *((*stack_ptr)-1-num_elements+i);
+        items[i] = (*((*stack_ptr)-1-num_elements+i)).mObjectValue;
+    }
+
+    if(!initialize_carray_object(array_object, num_elements, items, stack, var_num, stack_ptr, info, klass))
+    {
+        result.result1.mLongValue = 0;
+        result.result2 = FALSE;
+        return result;
+    }
+
+    (*stack_ptr)--; // pop_object
+
+    (*stack_ptr)-=num_elements;
+
+    result.result1.mObjectValue = array_object;
+    result.result2 = TRUE;
+
+    return result;
+}
+
+struct sCLVALUEAndBoolResult run_create_equalable_carray(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, char* class_name)
+{
+    struct sCLVALUEAndBoolResult result;
+
+    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+
+    if(klass == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(12)");
+        result.result1.mLongValue = 0;
+        result.result2 = FALSE;
+        return result;
+    }
+
+    CLObject array_object = create_equalable_carray_object();
+    (*stack_ptr)->mObjectValue = array_object; // push object
+    (*stack_ptr)++;
+
+    CLObject items[ARRAY_VALUE_ELEMENT_MAX];
+
+    int i;
+    for(i=0; i<num_elements; i++) {
+        CLVALUE element = *((*stack_ptr)-1-num_elements+i);
+        items[i] = (*((*stack_ptr)-1-num_elements+i)).mObjectValue;
+    }
+
+    if(!initialize_equalable_carray_object(array_object, num_elements, items, stack, var_num, stack_ptr, info, klass))
+    {
+        result.result1.mLongValue = 0;
+        result.result2 = FALSE;
+        return result;
+    }
+
+    (*stack_ptr)--; // pop_object
+
+    (*stack_ptr)-=num_elements;
+
+    result.result1.mObjectValue = array_object;
+    result.result2 = TRUE;
+
+    return result;
+}
+
+struct sCLVALUEAndBoolResult run_create_sortable_carray(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, char* class_name)
+{
+    struct sCLVALUEAndBoolResult result;
+
+    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+
+    if(klass == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(12)");
+        result.result1.mLongValue = 0;
+        result.result2 = FALSE;
+        return result;
+    }
+
+    CLObject array_object = create_sortable_carray_object();
+    (*stack_ptr)->mObjectValue = array_object; // push object
+    (*stack_ptr)++;
+
+    CLObject items[ARRAY_VALUE_ELEMENT_MAX];
+
+    int i;
+    for(i=0; i<num_elements; i++) {
+        CLVALUE element = *((*stack_ptr)-1-num_elements+i);
+        items[i] = (*((*stack_ptr)-1-num_elements+i)).mObjectValue;
+    }
+
+    if(!initialize_sortable_carray_object(array_object, num_elements, items, stack, var_num, stack_ptr, info, klass))
+    {
+        result.result1.mLongValue = 0;
+        result.result2 = FALSE;
+        return result;
+    }
+
+    (*stack_ptr)--; // pop_object
+
+    (*stack_ptr)-=num_elements;
+
+    result.result1.mObjectValue = array_object;
+    result.result2 = TRUE;
+
+    return result;
+}
+
+struct sCLVALUEAndBoolResult run_create_list(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, char* class_name)
+{
+    struct sCLVALUEAndBoolResult result;
+
+    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+
+    if(klass == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(13)");
+        result.result1.mLongValue = 0;
+        result.result2 = FALSE;
+        return result;
+    }
+
+    CLObject list_object = create_list_object();
+    (*stack_ptr)->mObjectValue = list_object; // push object
+    (*stack_ptr)++;
+
+    CLObject items[LIST_VALUE_ELEMENT_MAX];
+
+    int i;
+    for(i=0; i<num_elements; i++) {
+        CLVALUE element = *((*stack_ptr)-1-num_elements+i);
+        items[i] = (*((*stack_ptr)-1-num_elements+i)).mObjectValue;
+    }
+
+    if(!initialize_list_object(list_object, num_elements, items, stack, var_num, stack_ptr, info, klass))
+    {
+        result.result1.mLongValue = 0;
+        result.result2 = FALSE;
+        return result;
+    }
+
+    (*stack_ptr)--; // pop_object
+
+    (*stack_ptr)-=num_elements;
+
+    result.result1.mObjectValue = list_object;
+    result.result2 = TRUE;
+
+    return result;
+}
+
+struct sCLVALUEAndBoolResult run_create_sortable_list(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, char* class_name)
+{
+    struct sCLVALUEAndBoolResult result;
+
+    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+
+    if(klass == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(13)");
+        result.result1.mLongValue = 0;
+        result.result2 = FALSE;
+        return result;
+    }
+
+    CLObject list_object = create_sortable_list_object();
+    (*stack_ptr)->mObjectValue = list_object; // push object
+    (*stack_ptr)++;
+
+    CLObject items[LIST_VALUE_ELEMENT_MAX];
+
+    int i;
+    for(i=0; i<num_elements; i++) {
+        CLVALUE element = *((*stack_ptr)-1-num_elements+i);
+        items[i] = (*((*stack_ptr)-1-num_elements+i)).mObjectValue;
+    }
+
+    if(!initialize_sortable_list_object(list_object, num_elements, items, stack, var_num, stack_ptr, info, klass))
+    {
+        result.result1.mLongValue = 0;
+        result.result2 = FALSE;
+        return result;
+    }
+
+    (*stack_ptr)--; // pop_object
+
+    (*stack_ptr)-=num_elements;
+
+    result.result1.mObjectValue = list_object;
+    result.result2 = TRUE;
+
+    return result;
+}
+
+struct sCLVALUEAndBoolResult run_create_equalable_list(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, char* class_name)
+{
+    struct sCLVALUEAndBoolResult result;
+
+    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+
+    if(klass == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(13)");
+        result.result1.mLongValue = 0;
+        result.result2 = FALSE;
+        return result;
+    }
+
+    CLObject list_object = create_equalable_list_object();
+    (*stack_ptr)->mObjectValue = list_object; // push object
+    (*stack_ptr)++;
+
+    CLObject items[LIST_VALUE_ELEMENT_MAX];
+
+    int i;
+    for(i=0; i<num_elements; i++) {
+        CLVALUE element = *((*stack_ptr)-1-num_elements+i);
+        items[i] = (*((*stack_ptr)-1-num_elements+i)).mObjectValue;
+    }
+
+    if(!initialize_equalable_list_object(list_object, num_elements, items, stack, var_num, stack_ptr, info, klass))
+    {
+        result.result1.mLongValue = 0;
+        result.result2 = FALSE;
+        return result;
+    }
+
+    (*stack_ptr)--; // pop_object
+
+    (*stack_ptr)-=num_elements;
+
+    result.result1.mObjectValue = list_object;
+    result.result2 = TRUE;
+
+    return result;
+}
+
+struct sCLVALUEAndBoolResult run_create_tuple(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements)
+{
+    struct sCLVALUEAndBoolResult result;
+
+    CLObject tuple_object = create_tuple_object(num_elements);
+
+    (*stack_ptr)->mObjectValue = tuple_object; // push object
+    (*stack_ptr)++;
+
+    CLObject items[TUPLE_VALUE_ELEMENT_MAX];
+
+    int i;
+    for(i=0; i<num_elements; i++) {
+        CLVALUE element = *((*stack_ptr)-1-num_elements+i);
+        items[i] = (*((*stack_ptr)-1-num_elements+i)).mObjectValue;
+    }
+
+    if(!initialize_tuple_object(tuple_object, num_elements, items, stack, var_num, stack_ptr, info))
+    {
+        result.result1.mLongValue = 0;
+        result.result2 = FALSE;
+        return result;
+    }
+
+    (*stack_ptr)--; // pop_object
+
+    (*stack_ptr)-=num_elements;
+
+    result.result1.mObjectValue = tuple_object;
+    result.result2 = TRUE;
+
+    return result;
+}
+
+struct sCLVALUEAndBoolResult run_create_hash(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, char* class_name, char* class_name2)
+{
+    struct sCLVALUEAndBoolResult result;
+
+    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+
+    if(klass == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(14)");
+        result.result1.mLongValue = 0;
+        result.result2 = FALSE;
+        return result;
+    }
+
+    sCLClass* klass2 = get_class_with_load_and_initialize(class_name2);
+
+    if(klass2 == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(15)");
+        result.result1.mLongValue = 0;
+        result.result2 = FALSE;
+        return result;
+    }
+
+    CLObject keys[HASH_VALUE_ELEMENT_MAX];
+
+    int i;
+    for(i=0; i<num_elements; i++) {
+        keys[i] = ((*stack_ptr) - num_elements * 2 + i * 2)->mObjectValue;
+    }
+
+    CLObject items[HASH_VALUE_ELEMENT_MAX];
+
+    for(i=0; i<num_elements; i++) {
+        items[i] = ((*stack_ptr) - num_elements * 2 + i * 2 + 1)->mObjectValue;
+    }
+
+    CLObject hash_object = create_hash_object();
+    (*stack_ptr)->mObjectValue = hash_object; // push object
+    (*stack_ptr)++;
+
+    if(!initialize_hash_object(hash_object, num_elements, keys, items, stack, var_num, stack_ptr, info, klass, klass2))
+    {
+        result.result1.mLongValue = 0;
+        result.result2 = FALSE;
+        return result;
+    }
+
+    (*stack_ptr)--; // pop_object
+
+    (*stack_ptr)-=num_elements*2;
+
+    result.result1.mObjectValue = hash_object;
+    result.result2 = TRUE;
+
+    return result;
+}
+
+CLObject run_create_block_object(CLVALUE** stack_ptr, CLVALUE* stack, sConst* constant, int code_offset, int code_len, int constant_offset, int constant_len, int block_var_num, int parent_var_num, BOOL lambda, sVMInfo* info)
+{
+    sByteCode codes2;
+    codes2.mCodes = CONS_str(constant, code_offset);
+    codes2.mLen = code_len;
+
+    sConst constant2;
+    constant2.mConst = CONS_str(constant, constant_offset);
+    constant2.mLen = constant_len;
+
+    CLVALUE* parent_stack = stack;
+
+    CLObject block_object = create_block_object(&codes2, &constant2, parent_stack, parent_var_num, block_var_num, info->stack_id, lambda);
+
+    return block_object;
+}
+
 
 //////////////////////////////////////////////////////////////////////
 // LLVM core
@@ -1198,6 +1726,24 @@ show_inst_in_jit(inst);
                 }
                 break;
 
+            case OP_LOAD_ADDRESS: {
+                int index = *(int*)pc;
+                pc += sizeof(int);
+
+                std::string lvar_arg_name("lvar");
+                Value* lvar_value = params[lvar_arg_name];
+
+                LVALUE llvm_value;
+                Value* add_value = ConstantInt::get(TheContext, llvm::APInt(64, index * 8, true)); 
+                llvm_value.value = Builder.CreateAdd(lvar_value, add_value, "addtmp", false, true);
+                llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, PointerType::get(IntegerType::get(TheContext, 64), 0));
+                llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = index;
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
             case OP_LDCBYTE: 
                 {
                     int value = *(int*)pc;
@@ -1206,6 +1752,7 @@ show_inst_in_jit(inst);
                     LVALUE llvm_value;
                     llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(8, value, true)); 
                     llvm_value.vm_stack = FALSE;
+                    llvm_value.lvar_address_index = -1;
 
                     push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -1219,6 +1766,7 @@ show_inst_in_jit(inst);
                     LVALUE llvm_value;
                     llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(8, value, false)); 
                     llvm_value.vm_stack = FALSE;
+                    llvm_value.lvar_address_index = -1;
 
                     push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -1232,6 +1780,7 @@ show_inst_in_jit(inst);
                     LVALUE llvm_value;
                     llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(16, value, true)); 
                     llvm_value.vm_stack = FALSE;
+                    llvm_value.lvar_address_index = -1;
 
                     push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -1245,6 +1794,7 @@ show_inst_in_jit(inst);
                     LVALUE llvm_value;
                     llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(16, value, false)); 
                     llvm_value.vm_stack = FALSE;
+                    llvm_value.lvar_address_index = -1;
 
                     push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -1257,6 +1807,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(32, value, true)); 
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -1269,6 +1820,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(32, value, false)); 
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -1289,6 +1841,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(64, lvalue, true)); 
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -1309,6 +1862,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(64, lvalue, false)); 
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -1320,6 +1874,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(32, value, true)); 
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -1340,6 +1895,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(64, lvalue, false)); 
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, PointerType::get(IntegerType::get(TheContext, 64), 0));
 
@@ -1354,6 +1910,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = ConstantFP::get(TheContext, llvm::APFloat(value1)); 
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -1374,6 +1931,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = ConstantFP::get(TheContext, llvm::APFloat(lvalue)); 
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -1389,6 +1947,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateAdd(lvalue->value, rvalue->value, "addtmp", true, false);
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -1407,6 +1966,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value  = Builder.CreateAdd(lvalue->value, rvalue->value, "addtmp", false, true);
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -1425,6 +1985,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", true, false);
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -1442,6 +2003,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", false, true);
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -1458,6 +2020,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateMul(lvalue->value, rvalue->value, "multmp", true, false);
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -1474,6 +2037,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateMul(lvalue->value, rvalue->value, "multmp", false, true);
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -1492,6 +2056,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateSDiv(lvalue->value, rvalue->value, "divtmp", false);
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -1510,6 +2075,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateUDiv(lvalue->value, rvalue->value, "divtmp", false);
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -1528,6 +2094,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateSRem(lvalue->value, rvalue->value, "remtmp");
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -1546,6 +2113,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateURem(lvalue->value, rvalue->value, "remtmp");
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -1562,6 +2130,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateShl(lvalue->value, rvalue->value, "lshifttmp", true, false);
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -1578,6 +2147,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateShl(lvalue->value, rvalue->value, "lshifttmp", false, true);
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -1594,6 +2164,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateAShr(lvalue->value, rvalue->value, "rshifttmp", false);
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -1610,6 +2181,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateLShr(lvalue->value, rvalue->value, "rshifttmp", false);
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -1630,6 +2202,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateAnd(lvalue->value, rvalue->value, "andtmp");
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -1650,6 +2223,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateXor(lvalue->value, rvalue->value, "xortmp");
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -1670,6 +2244,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateOr(lvalue->value, rvalue->value, "ortmp");
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -1686,6 +2261,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateXor(lvalue->value, rvalue.value, "xortmp");
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -1702,6 +2278,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateXor(lvalue->value, rvalue.value, "xortmp");
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -1718,6 +2295,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateXor(lvalue->value, rvalue.value, "xortmp");
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -1734,6 +2312,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateXor(lvalue->value, rvalue.value, "xortmp");
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -1748,6 +2327,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateFAdd(lvalue->value, rvalue->value, "addtmp");
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -1762,6 +2342,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateFSub(lvalue->value, rvalue->value, "addtmp");
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -1776,6 +2357,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateFMul(lvalue->value, rvalue->value, "multtmp");
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -1792,6 +2374,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateFDiv(lvalue->value, rvalue->value, "divtmp");
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -1814,6 +2397,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateICmpEQ(lvalue->value, rvalue->value, "eqtmp");
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -1836,6 +2420,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateICmpNE(lvalue->value, rvalue->value, "noteqtmp");
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -1852,6 +2437,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateICmpSGT(lvalue->value, rvalue->value, "gttmp");
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -1870,6 +2456,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateICmpUGT(lvalue->value, rvalue->value, "ugttmp");
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -1886,6 +2473,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateICmpSLT(lvalue->value, rvalue->value, "letmp");
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -1904,6 +2492,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateICmpULT(lvalue->value, rvalue->value, "uletmp");
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -1920,6 +2509,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateICmpSGE(lvalue->value, rvalue->value, "gteqtmp");
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -1938,6 +2528,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateICmpUGE(lvalue->value, rvalue->value, "ugeqtmp");
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -1954,6 +2545,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateICmpSLE(lvalue->value, rvalue->value, "lteqtmp");
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -1973,6 +2565,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateICmpULE(lvalue->value, rvalue->value, "lteqtmp");
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -1987,6 +2580,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateFCmpOEQ(lvalue->value, rvalue->value, "eqtmp");
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -2001,6 +2595,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateFCmpONE(lvalue->value, rvalue->value, "noteqtmp");
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -2015,6 +2610,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateFCmpOGT(lvalue->value, rvalue->value, "gttmp");
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -2029,6 +2625,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateFCmpOLT(lvalue->value, rvalue->value, "letmp");
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -2043,6 +2640,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateFCmpOGE(lvalue->value, rvalue->value, "gteqtmp");
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -2057,6 +2655,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateFCmpOLE(lvalue->value, rvalue->value, "leeqtmp");
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -2076,6 +2675,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(function, params2);
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -2096,6 +2696,7 @@ show_inst_in_jit(inst);
                 llvm_value.value = Builder.CreateCall(function, params2);
                 llvm_value.value = Builder.CreateICmpEQ(llvm_value.value, ConstantInt::get(TheContext, llvm::APInt(32, 0, true)), "bool_value_reverse");
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -2114,6 +2715,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -2148,6 +2750,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -2161,6 +2764,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateAnd(lvalue->value, rvalue->value, "ANDAND");
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -2174,6 +2778,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateOr(lvalue->value, rvalue->value, "ANDAND");
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -2190,6 +2795,7 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateICmpEQ(lvalue->value, rvalue.value, "LOGICAL_DIANEAL");
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -2446,6 +3052,7 @@ show_inst_in_jit(inst);
                     LVALUE llvm_value;
                     llvm_value.value = Builder.CreateCall(function, params2);
                     llvm_value.vm_stack = TRUE;
+                    llvm_value.lvar_address_index = -1;
 
                     dec_stack_ptr(&llvm_stack_ptr, 1);
                     push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -2460,6 +3067,7 @@ show_inst_in_jit(inst);
                     LVALUE llvm_value;
                     llvm_value.value = Builder.CreateCall(function, params2);
                     llvm_value.vm_stack = TRUE;
+                    llvm_value.lvar_address_index = -1;
 
                     push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -2655,12 +3263,176 @@ show_inst_in_jit(inst);
                 }
                 break;
 
+            case OP_STORE_VALUE_TO_INT_ADDRESS: 
+            case OP_STORE_VALUE_TO_UINT_ADDRESS:
+            case OP_STORE_VALUE_TO_CHAR_ADDRESS:
+            case OP_STORE_VALUE_TO_BOOL_ADDRESS:
+            case OP_STORE_VALUE_TO_OBJECT_ADDRESS:
+            case OP_STORE_VALUE_TO_FLOAT_ADDRESS: {
+                LVALUE* address = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                Builder.CreateAlignedStore(value->value, address->value, 4);
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, value);
+
+                /// lvar of vm stack to lvar of llvm stack ///
+                lvar_of_vm_to_lvar_of_llvm(params, current_block, llvm_stack, var_num);
+                }
+                break;
+
+            case OP_STORE_VALUE_TO_BYTE_ADDRESS:
+            case OP_STORE_VALUE_TO_UBYTE_ADDRESS: {
+                LVALUE* address = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                Builder.CreateAlignedStore(value->value, address->value, 1);
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, value);
+
+                /// lvar of vm stack to lvar of llvm stack ///
+                lvar_of_vm_to_lvar_of_llvm(params, current_block, llvm_stack, var_num);
+                }
+                break;
+
+            case OP_STORE_VALUE_TO_SHORT_ADDRESS:
+            case OP_STORE_VALUE_TO_USHORT_ADDRESS: {
+                LVALUE* address = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                Builder.CreateAlignedStore(value->value, address->value, 2);
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, value);
+
+                /// lvar of vm stack to lvar of llvm stack ///
+                lvar_of_vm_to_lvar_of_llvm(params, current_block, llvm_stack, var_num);
+                }
+                break;
+
+            case OP_LOAD_ELEMENT: {
+                LVALUE* array = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* element_num = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                Function* fun = TheModule->getFunction("load_element");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                std::string stack_value_name("stack");
+                Value* param2 = params[stack_value_name];
+                params2.push_back(param2);
+
+                std::string var_num_value_name("var_num");
+                Value* param3 = params[var_num_value_name];
+                params2.push_back(param3);
+
+                std::string info_value_name("info");
+                Value* param4 = params[info_value_name];
+                params2.push_back(param4);
+
+                Value* param5 = array->value;
+                params2.push_back(param5);
+
+                Value* param6 = element_num->value;
+                params2.push_back(param6);
+
+                Value* result = Builder.CreateCall(fun, params2);
+
+                Value* result1 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 0);
+                Value* result2 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 1);
+
+                if_value_is_zero_ret_zero(result2, params, function, &current_block);
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+
+                LVALUE llvm_value;
+                llvm_value.value = result1;
+                llvm_value.vm_stack = FALSE;
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_STORE_ELEMENT: {
+                LVALUE* array = get_stack_ptr_value_from_index(llvm_stack_ptr, -3);
+                LVALUE* element_num = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                Function* fun = TheModule->getFunction("run_store_element");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                std::string stack_value_name("stack");
+                Value* param2 = params[stack_value_name];
+                params2.push_back(param2);
+
+                std::string var_num_value_name("var_num");
+                Value* param3 = params[var_num_value_name];
+                params2.push_back(param3);
+
+                std::string info_value_name("info");
+                Value* param4 = params[info_value_name];
+                params2.push_back(param4);
+
+                Value* param5 = array->value;
+                params2.push_back(param5);
+
+                Value* param6 = element_num->value;
+                params2.push_back(param6);
+
+                Value* param7 = value->value;
+                params2.push_back(param7);
+
+                Value* result = Builder.CreateCall(fun, params2);
+
+                if_value_is_zero_ret_zero(result, params, function, &current_block);
+
+                LVALUE llvm_value = *value;
+
+                dec_stack_ptr(&llvm_stack_ptr, 3);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_STORE_VALUE_TO_LONG_ADDRESS:
+            case OP_STORE_VALUE_TO_ULONG_ADDRESS:
+            case OP_STORE_VALUE_TO_DOUBLE_ADDRESS:
+            case OP_STORE_VALUE_TO_POINTER_ADDRESS: {
+                LVALUE* address = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                Builder.CreateAlignedStore(value->value, address->value, 8);
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, value);
+
+                /// lvar of vm stack to lvar of llvm stack ///
+                lvar_of_vm_to_lvar_of_llvm(params, current_block, llvm_stack, var_num);
+                }
+                break;
+
             case OP_BYTE_TO_INT_CAST: {
                 LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCast(Instruction::Trunc, value->value, Type::getInt32Ty(TheContext), "value2");
                 llvm_value.vm_stack = value->vm_stack;
+                llvm_value.lvar_address_index = value->lvar_address_index;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -2680,8 +3452,260 @@ show_inst_in_jit(inst);
                 LVALUE result;
                 result.value = Builder.CreateCall(fun, params2);
                 result.vm_stack = TRUE;
+                result.lvar_address_index = -1;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &result);
+                }
+                break;
+
+            case OP_INT_TO_INTEGER_CAST: {
+                LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                Function* fun = TheModule->getFunction("create_integer");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value->value;
+                params2.push_back(param1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateCall(fun, params2);
+                llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
+
+                dec_stack_ptr(&llvm_stack_ptr, 1);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_GET_ARRAY_LENGTH: {
+                LVALUE* array_ = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                Function* fun = TheModule->getFunction("get_array_length");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = array_->value;
+                params2.push_back(param1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateCall(fun, params2);
+                llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
+
+                dec_stack_ptr(&llvm_stack_ptr, 1);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_GET_REGEX_GLOBAL: {
+                LVALUE* regex = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                Function* fun = TheModule->getFunction("get_regex_global");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = regex->value;
+                params2.push_back(param1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateCall(fun, params2);
+                llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
+
+                dec_stack_ptr(&llvm_stack_ptr, 1);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_GET_REGEX_IGNORE_CASE: {
+                LVALUE* regex = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                Function* fun = TheModule->getFunction("get_regex_ignorecase");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = regex->value;
+                params2.push_back(param1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateCall(fun, params2);
+                llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
+
+                dec_stack_ptr(&llvm_stack_ptr, 1);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_GET_REGEX_MULTILINE: {
+                LVALUE* regex = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                Function* fun = TheModule->getFunction("get_regex_multiline");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = regex->value;
+                params2.push_back(param1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateCall(fun, params2);
+                llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
+
+                dec_stack_ptr(&llvm_stack_ptr, 1);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_GET_REGEX_EXTENDED: {
+                LVALUE* regex = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                Function* fun = TheModule->getFunction("get_regex_extended");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = regex->value;
+                params2.push_back(param1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateCall(fun, params2);
+                llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
+
+                dec_stack_ptr(&llvm_stack_ptr, 1);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_GET_REGEX_DOTALL: {
+                LVALUE* regex = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                Function* fun = TheModule->getFunction("get_regex_dotall");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = regex->value;
+                params2.push_back(param1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateCall(fun, params2);
+                llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
+
+                dec_stack_ptr(&llvm_stack_ptr, 1);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_GET_REGEX_ANCHORED: {
+                LVALUE* regex = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                Function* fun = TheModule->getFunction("get_regex_anchored");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = regex->value;
+                params2.push_back(param1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateCall(fun, params2);
+                llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
+
+                dec_stack_ptr(&llvm_stack_ptr, 1);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_GET_REGEX_DOLLAR_ENDONLY: {
+                LVALUE* regex = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                Function* fun = TheModule->getFunction("get_regex_dollar_endonly");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = regex->value;
+                params2.push_back(param1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateCall(fun, params2);
+                llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
+
+                dec_stack_ptr(&llvm_stack_ptr, 1);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_GET_REGEX_UNGREEDY: {
+                LVALUE* regex = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                Function* fun = TheModule->getFunction("get_regex_ungreedy");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = regex->value;
+                params2.push_back(param1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateCall(fun, params2);
+                llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
+
+                dec_stack_ptr(&llvm_stack_ptr, 1);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_CHAR_UPPERCASE: {
+                LVALUE* c = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                Function* fun = TheModule->getFunction("char_uppercase");
+
+                std::vector<Value*> params2;
+                Value* param1 = c->value;
+                params2.push_back(param1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateCall(fun, params2);
+                llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
+
+                dec_stack_ptr(&llvm_stack_ptr, 1);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_CHAR_LOWERCASE: {
+                LVALUE* c = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                Function* fun = TheModule->getFunction("char_lowercase");
+
+                std::vector<Value*> params2;
+                Value* param1 = c->value;
+                params2.push_back(param1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateCall(fun, params2);
+                llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
+
+                dec_stack_ptr(&llvm_stack_ptr, 1);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
                 break;
 
@@ -2701,7 +3725,642 @@ show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(function, params2);
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
 
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_CREATE_BUFFER: {
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+
+                int size = *(int*)pc;
+                pc += sizeof(int);
+
+                char* str = CONS_str(constant, offset);
+
+                Function* function = TheModule->getFunction("create_buffer_object");
+
+                std::vector<Value*> params2;
+                Constant* str_constant = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)str);
+                Value* param1 = ConstantExpr::getIntToPtr(str_constant, PointerType::get(IntegerType::get(TheContext,8), 0));
+                params2.push_back(param1);
+
+                Value* param2 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)size);
+                params2.push_back(param2);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateCall(function, params2);
+                llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_CREATE_PATH: {
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+
+                char* buf = CONS_str(constant, offset);
+
+                Function* function = TheModule->getFunction("create_path_object");
+
+                std::vector<Value*> params2;
+                Constant* str_constant = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)buf);
+                Value* param1 = ConstantExpr::getIntToPtr(str_constant, PointerType::get(IntegerType::get(TheContext,8), 0));
+                params2.push_back(param1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateCall(function, params2);
+                llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_CREATE_ARRAY: {
+                int num_elements = *(int*)pc;
+                pc += sizeof(int);
+
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+
+                char* class_name = CONS_str(constant, offset);
+
+                llvm_stack_to_vm_stack(llvm_stack_ptr, params, current_block, num_elements);
+
+                Function* fun = TheModule->getFunction("run_create_array");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                std::string stack_value_name("stack");
+                Value* param2 = params[stack_value_name];
+                params2.push_back(param2);
+
+                std::string var_num_value_name("var_num");
+                Value* param3 = params[var_num_value_name];
+                params2.push_back(param3);
+
+                std::string info_value_name("info");
+                Value* param4 = params[info_value_name];
+                params2.push_back(param4);
+
+                Value* param5 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)class_name);
+                params2.push_back(param5);
+
+                Value* param6 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_elements);
+                params2.push_back(param6);
+
+                Value* result = Builder.CreateCall(fun, params2);
+
+                Value* result1 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 0);
+                Value* result2 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 1);
+
+                if_value_is_zero_ret_zero(result2, params, function, &current_block);
+
+                LVALUE llvm_value;
+                llvm_value.value = result1;
+                llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
+
+                /// dec llvm stack pointer ///
+                dec_stack_ptr(&llvm_stack_ptr, num_elements);
+
+                /// vm stack_ptr to llvm stack ///
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_CREATE_CARRAY : {
+                int num_elements = *(int*)pc;
+                pc += sizeof(int);
+
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+
+                char* class_name = CONS_str(constant, offset);
+
+                llvm_stack_to_vm_stack(llvm_stack_ptr, params, current_block, num_elements);
+
+                Function* fun = TheModule->getFunction("run_create_carray");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                std::string stack_value_name("stack");
+                Value* param2 = params[stack_value_name];
+                params2.push_back(param2);
+
+                std::string var_num_value_name("var_num");
+                Value* param3 = params[var_num_value_name];
+                params2.push_back(param3);
+
+                std::string info_value_name("info");
+                Value* param4 = params[info_value_name];
+                params2.push_back(param4);
+
+                Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_elements);
+                params2.push_back(param5);
+
+                Value* param6 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)class_name);
+                params2.push_back(param6);
+
+                Value* result = Builder.CreateCall(fun, params2);
+
+                Value* result1 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 0);
+                Value* result2 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 1);
+
+                if_value_is_zero_ret_zero(result2, params, function, &current_block);
+
+                LVALUE llvm_value;
+                llvm_value.value = result1;
+                llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
+
+                /// dec llvm stack pointer ///
+                dec_stack_ptr(&llvm_stack_ptr, num_elements);
+
+                /// vm stack_ptr to llvm stack ///
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_CREATE_SORTABLE_CARRAY : {
+                int num_elements = *(int*)pc;
+                pc += sizeof(int);
+
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+
+                char* class_name = CONS_str(constant, offset);
+
+                llvm_stack_to_vm_stack(llvm_stack_ptr, params, current_block, num_elements);
+
+                Function* fun = TheModule->getFunction("run_create_sortable_carray");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                std::string stack_value_name("stack");
+                Value* param2 = params[stack_value_name];
+                params2.push_back(param2);
+
+                std::string var_num_value_name("var_num");
+                Value* param3 = params[var_num_value_name];
+                params2.push_back(param3);
+
+                std::string info_value_name("info");
+                Value* param4 = params[info_value_name];
+                params2.push_back(param4);
+
+                Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_elements);
+                params2.push_back(param5);
+
+                Value* param6 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)class_name);
+                params2.push_back(param6);
+
+                Value* result = Builder.CreateCall(fun, params2);
+
+                Value* result1 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 0);
+                Value* result2 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 1);
+
+                if_value_is_zero_ret_zero(result2, params, function, &current_block);
+
+                LVALUE llvm_value;
+                llvm_value.value = result1;
+                llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
+
+                /// dec llvm stack pointer ///
+                dec_stack_ptr(&llvm_stack_ptr, num_elements);
+
+                /// vm stack_ptr to llvm stack ///
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_CREATE_EQUALABLE_CARRAY : {
+                int num_elements = *(int*)pc;
+                pc += sizeof(int);
+
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+
+                char* class_name = CONS_str(constant, offset);
+
+                llvm_stack_to_vm_stack(llvm_stack_ptr, params, current_block, num_elements);
+
+                Function* fun = TheModule->getFunction("run_create_equalable_carray");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                std::string stack_value_name("stack");
+                Value* param2 = params[stack_value_name];
+                params2.push_back(param2);
+
+                std::string var_num_value_name("var_num");
+                Value* param3 = params[var_num_value_name];
+                params2.push_back(param3);
+
+                std::string info_value_name("info");
+                Value* param4 = params[info_value_name];
+                params2.push_back(param4);
+
+                Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_elements);
+                params2.push_back(param5);
+
+                Value* param6 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)class_name);
+                params2.push_back(param6);
+
+                Value* result = Builder.CreateCall(fun, params2);
+
+                Value* result1 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 0);
+                Value* result2 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 1);
+
+                if_value_is_zero_ret_zero(result2, params, function, &current_block);
+
+                LVALUE llvm_value;
+                llvm_value.value = result1;
+                llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
+
+                /// dec llvm stack pointer ///
+                dec_stack_ptr(&llvm_stack_ptr, num_elements);
+
+                /// vm stack_ptr to llvm stack ///
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_CREATE_LIST : {
+                int num_elements = *(int*)pc;
+                pc += sizeof(int);
+
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+
+                char* class_name = CONS_str(constant, offset);
+
+                llvm_stack_to_vm_stack(llvm_stack_ptr, params, current_block, num_elements);
+
+                Function* fun = TheModule->getFunction("run_create_list");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                std::string stack_value_name("stack");
+                Value* param2 = params[stack_value_name];
+                params2.push_back(param2);
+
+                std::string var_num_value_name("var_num");
+                Value* param3 = params[var_num_value_name];
+                params2.push_back(param3);
+
+                std::string info_value_name("info");
+                Value* param4 = params[info_value_name];
+                params2.push_back(param4);
+
+                Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_elements);
+                params2.push_back(param5);
+
+                Value* param6 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)class_name);
+                params2.push_back(param6);
+
+                Value* result = Builder.CreateCall(fun, params2);
+
+                Value* result1 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 0);
+                Value* result2 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 1);
+
+                if_value_is_zero_ret_zero(result2, params, function, &current_block);
+
+                LVALUE llvm_value;
+                llvm_value.value = result1;
+                llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
+
+                /// dec llvm stack pointer ///
+                dec_stack_ptr(&llvm_stack_ptr, num_elements);
+
+                /// vm stack_ptr to llvm stack ///
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_CREATE_SORTALBE_LIST: {
+                int num_elements = *(int*)pc;
+                pc += sizeof(int);
+
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+
+                char* class_name = CONS_str(constant, offset);
+
+                llvm_stack_to_vm_stack(llvm_stack_ptr, params, current_block, num_elements);
+
+                Function* fun = TheModule->getFunction("run_create_sortable_list");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                std::string stack_value_name("stack");
+                Value* param2 = params[stack_value_name];
+                params2.push_back(param2);
+
+                std::string var_num_value_name("var_num");
+                Value* param3 = params[var_num_value_name];
+                params2.push_back(param3);
+
+                std::string info_value_name("info");
+                Value* param4 = params[info_value_name];
+                params2.push_back(param4);
+
+                Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_elements);
+                params2.push_back(param5);
+
+                Value* param6 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)class_name);
+                params2.push_back(param6);
+
+                Value* result = Builder.CreateCall(fun, params2);
+
+                Value* result1 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 0);
+                Value* result2 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 1);
+
+                if_value_is_zero_ret_zero(result2, params, function, &current_block);
+
+                LVALUE llvm_value;
+                llvm_value.value = result1;
+                llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
+
+                /// dec llvm stack pointer ///
+                dec_stack_ptr(&llvm_stack_ptr, num_elements);
+
+                /// vm stack_ptr to llvm stack ///
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_CREATE_EQUALABLE_LIST: {
+                int num_elements = *(int*)pc;
+                pc += sizeof(int);
+
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+
+                char* class_name = CONS_str(constant, offset);
+
+                llvm_stack_to_vm_stack(llvm_stack_ptr, params, current_block, num_elements);
+
+                Function* fun = TheModule->getFunction("run_create_equalable_list");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                std::string stack_value_name("stack");
+                Value* param2 = params[stack_value_name];
+                params2.push_back(param2);
+
+                std::string var_num_value_name("var_num");
+                Value* param3 = params[var_num_value_name];
+                params2.push_back(param3);
+
+                std::string info_value_name("info");
+                Value* param4 = params[info_value_name];
+                params2.push_back(param4);
+
+                Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_elements);
+                params2.push_back(param5);
+
+                Value* param6 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)class_name);
+                params2.push_back(param6);
+
+                Value* result = Builder.CreateCall(fun, params2);
+
+                Value* result1 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 0);
+                Value* result2 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 1);
+
+                if_value_is_zero_ret_zero(result2, params, function, &current_block);
+
+                LVALUE llvm_value;
+                llvm_value.value = result1;
+                llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
+
+                /// dec llvm stack pointer ///
+                dec_stack_ptr(&llvm_stack_ptr, num_elements);
+
+                /// vm stack_ptr to llvm stack ///
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_CREATE_TUPLE: {
+                int num_elements = *(int*)pc;
+                pc += sizeof(int);
+
+                llvm_stack_to_vm_stack(llvm_stack_ptr, params, current_block, num_elements);
+
+                Function* fun = TheModule->getFunction("run_create_tuple");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                std::string stack_value_name("stack");
+                Value* param2 = params[stack_value_name];
+                params2.push_back(param2);
+
+                std::string var_num_value_name("var_num");
+                Value* param3 = params[var_num_value_name];
+                params2.push_back(param3);
+
+                std::string info_value_name("info");
+                Value* param4 = params[info_value_name];
+                params2.push_back(param4);
+
+                Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_elements);
+                params2.push_back(param5);
+
+                Value* result = Builder.CreateCall(fun, params2);
+
+                Value* result1 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 0);
+                Value* result2 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 1);
+
+                if_value_is_zero_ret_zero(result2, params, function, &current_block);
+
+                LVALUE llvm_value;
+                llvm_value.value = result1;
+                llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
+
+                /// dec llvm stack pointer ///
+                dec_stack_ptr(&llvm_stack_ptr, num_elements);
+
+                /// vm stack_ptr to llvm stack ///
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_CREATE_HASH: {
+                int num_elements = *(int*)pc;
+                pc += sizeof(int);
+
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+
+                int offset2 = *(int*)pc;
+                pc += sizeof(int);
+
+                char* class_name = CONS_str(constant, offset);
+                char* class_name2 = CONS_str(constant, offset2);
+
+                llvm_stack_to_vm_stack(llvm_stack_ptr, params, current_block, num_elements*2);
+
+                Function* fun = TheModule->getFunction("run_create_hash");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                std::string stack_value_name("stack");
+                Value* param2 = params[stack_value_name];
+                params2.push_back(param2);
+
+                std::string var_num_value_name("var_num");
+                Value* param3 = params[var_num_value_name];
+                params2.push_back(param3);
+
+                std::string info_value_name("info");
+                Value* param4 = params[info_value_name];
+                params2.push_back(param4);
+
+                Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_elements);
+                params2.push_back(param5);
+
+                Value* param6 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)class_name);
+                params2.push_back(param6);
+
+                Value* param7 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)class_name2);
+                params2.push_back(param7);
+
+                Value* result = Builder.CreateCall(fun, params2);
+
+                Value* result1 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 0);
+                Value* result2 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 1);
+
+                if_value_is_zero_ret_zero(result2, params, function, &current_block);
+
+                LVALUE llvm_value;
+                llvm_value.value = result1;
+                llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
+
+                /// dec llvm stack pointer ///
+                dec_stack_ptr(&llvm_stack_ptr, num_elements*2);
+
+                /// vm stack_ptr to llvm stack ///
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_CREATE_BLOCK_OBJECT : {
+                int code_offset = *(int*)pc;
+                pc += sizeof(int);
+
+                int code_len = *(int*)pc;
+                pc += sizeof(int);
+
+                int constant_offset = *(int*)pc;
+                pc += sizeof(int);
+
+                int constant_len = *(int*)pc;
+                pc += sizeof(int);
+
+                int block_var_num = *(int*)pc;
+                pc += sizeof(int);
+
+                int parent_var_num = *(int*)pc;
+                pc += sizeof(int);
+
+                int lambda = *(int*)pc;
+                pc += sizeof(int);
+
+                Function* fun = TheModule->getFunction("run_create_block_object");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                std::string stack_value_name("stack");
+                Value* param2 = params[stack_value_name];
+                params2.push_back(param2);
+
+                Value* param3 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)constant);
+                params2.push_back(param3);
+
+                Value* param4 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)code_offset);
+                params2.push_back(param4);
+
+                Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)code_len);
+                params2.push_back(param5);
+
+                Value* param6 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)constant_offset);
+                params2.push_back(param6);
+
+                Value* param7 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)constant_len);
+                params2.push_back(param7);
+
+                Value* param8 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)block_var_num);
+                params2.push_back(param8);
+
+                Value* param9 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)parent_var_num);
+                params2.push_back(param9);
+
+                Value* param10 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)lambda);
+                params2.push_back(param10);
+
+                std::string info_value_name("info");
+                Value* param11 = params[info_value_name];
+                params2.push_back(param11);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateCall(fun, params2);
+                llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
+
+                /// vm stack_ptr to llvm stack ///
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
                 break;

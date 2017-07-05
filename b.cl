@@ -102,23 +102,46 @@ Clover.test("jit test58", a.run58() == 888);
 
 Clover.test("jit test59", a.run59() == 777);
 
-/*
+Clover.test("jit test60", a.run60() == 245);
+Clover.test("jit test61", a.run61() == 245l);
+Clover.test("jit test62", a.run62() == 245.1);
+Clover.test("jit test63", a.run63() == 5);
+Clover.test("jit test64", a.run64() == 111);
+Clover.test("jit test65", a.run65() == 'A');
+Clover.test("jit test66", a.run66() == 'a');
+Clover.test("jit test67", a.run67() == true);
+Clover.test("jit test68", a.run68() == false);
+Clover.test("jit test69", a.run69() == true);
+Clover.test("jit test70", a.run70() == false);
 
-Clover.test("jit test52", a.run60() == 245);
-Clover.test("jit test53", a.run61() == 245l);
-Clover.test("jit test54", a.run62() == 245.1);
-Clover.test("jit test55", a.run63() == 5);
-Clover.test("jit test56", a.run64() == 111);
-Clover.test("jit test57", a.run65() == 'A');
-Clover.test("jit test58", a.run66() == 'a');
-Clover.test("jit test59", a.run67() == true);
-Clover.test("jit test60", a.run68() == false);
-Clover.test("jit test61", a.run69() == true);
-Clover.test("jit test62", a.run70() == false);
-Clover.test("jit test63", a.run71().equals( equalable_array { 1, 2, 3 }));
+d:int[] = a.run70_5();
+
+Clover.test("jit test70.5", d[0] == 1 && d[1] == 2 && d[2] == 3);
+
+e:Array<Integer> = a.run70_7();
+
+Clover.test("jit test70.7", e.items(0) == 1 && e.items(1) == 2 && e.items(2) == 3);
+
+Clover.test("jit test71", a.run71().equals( equalable_array { 1, 2, 3 }));
+
+f:List<Integer> = a.run71_1();
+
+Clover.test("jit test71.1", f.items(0) == 1 && f.items(1) == 2 && f.items(2) == 3);
+
+Clover.test("jit test71.2", a.run71_2().equals(equalable_list { 1, 2, 3}));
+
+g:Tuple2<Integer, String> = a.run71_3();
+
+Clover.test("jit test71.3", g.value1 == 1 && g.value2.equals("ABC"));
+
+i:Hash<String, Integer> = a.run71_4();
+
+Clover.test("jit test71.4", i.equals(hash { "ABC":1, "DEF":2 }));
 
 z:lambda(int,int):int = a.run72();
-Clover.test("jit test64", z(1,2) == 3);
+Clover.test("jit test72", z(1,2) == 3);
+
+/*
 Clover.test("jit test65", a.run73() == 12);
 Clover.test("jit test66", a.run74() == 123);
 Clover.test("jit test67", a.run75() == 123);
@@ -220,3 +243,4 @@ Clover.test("file test15", File.read("c.txt").equals(b"abc\ndef\n"));
 p"d.txt".write(b"GGG\n");
 Clover.test("file test17", p"d.txt".read().equals(b"GGG\n"));
 */
+

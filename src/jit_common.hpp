@@ -213,6 +213,7 @@ extern "C"
 struct LVALUEStruct {
     Value* value;
     BOOL vm_stack;
+    int lvar_address_index;
 };
 
 typedef struct LVALUEStruct LVALUE;

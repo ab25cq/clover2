@@ -807,10 +807,10 @@ void create_internal_functions()
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "store_class_field", TheModule.get());
 
-    /// run_load_element ///
+    /// load_element ///
     type_params.clear();
     
-    result_type = IntegerType::get(TheContext, 32);
+    result_type = IntegerType::get(TheContext, 64);
 
     param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
     type_params.push_back(param1_type);
@@ -824,8 +824,14 @@ void create_internal_functions()
     param4_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
     type_params.push_back(param4_type);
 
+    param5_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param5_type);
+
+    param6_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param6_type);
+
     function_type = FunctionType::get(result_type, type_params, false);
-    Function::Create(function_type, Function::ExternalLinkage, "run_load_element", TheModule.get());
+    Function::Create(function_type, Function::ExternalLinkage, "load_element", TheModule.get());
 
     /// run_store_element ///
     type_params.clear();
@@ -844,145 +850,154 @@ void create_internal_functions()
     param4_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
     type_params.push_back(param4_type);
 
+    param5_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param5_type);
+
+    param6_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param6_type);
+
+    param7_type = IntegerType::get(TheContext, 64);
+    type_params.push_back(param7_type);
+
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_store_element", TheModule.get());
 
-    /// run_get_array_length ///
+    /// get_array_length ///
     type_params.clear();
     
-    result_type = Type::getVoidTy(TheContext);
+    result_type = IntegerType::get(TheContext, 32);
 
-    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    param1_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param1_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
-    Function::Create(function_type, Function::ExternalLinkage, "run_get_array_length", TheModule.get());
+    Function::Create(function_type, Function::ExternalLinkage, "get_array_length", TheModule.get());
 
-    /// run_get_regex_global ///
+    /// get_regex_global ///
     type_params.clear();
     
-    result_type = Type::getVoidTy(TheContext);
+    result_type = IntegerType::get(TheContext, 32);
 
-    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    param1_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param1_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
-    Function::Create(function_type, Function::ExternalLinkage, "run_get_regex_global", TheModule.get());
+    Function::Create(function_type, Function::ExternalLinkage, "get_regex_global", TheModule.get());
 
-    /// run_get_regex_ignorecase ///
+    /// get_regex_ignorecase ///
     type_params.clear();
     
-    result_type = Type::getVoidTy(TheContext);
+    result_type = IntegerType::get(TheContext, 32);
 
-    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    param1_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param1_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
-    Function::Create(function_type, Function::ExternalLinkage, "run_get_regex_ignorecase", TheModule.get());
+    Function::Create(function_type, Function::ExternalLinkage, "get_regex_ignorecase", TheModule.get());
 
-    /// run_get_regex_multiline ///
+    /// get_regex_multiline ///
     type_params.clear();
     
-    result_type = Type::getVoidTy(TheContext);
+    result_type = IntegerType::get(TheContext, 32);
 
-    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    param1_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param1_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
-    Function::Create(function_type, Function::ExternalLinkage, "run_get_regex_multiline", TheModule.get());
+    Function::Create(function_type, Function::ExternalLinkage, "get_regex_multiline", TheModule.get());
 
-    /// run_get_regex_extended ///
+    /// get_regex_extended ///
     type_params.clear();
     
-    result_type = Type::getVoidTy(TheContext);
+    result_type = IntegerType::get(TheContext, 32);
 
-    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    param1_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param1_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
-    Function::Create(function_type, Function::ExternalLinkage, "run_get_regex_extended", TheModule.get());
+    Function::Create(function_type, Function::ExternalLinkage, "get_regex_extended", TheModule.get());
 
-    /// run_get_regex_dotall ///
+    /// get_regex_dotall ///
     type_params.clear();
     
-    result_type = Type::getVoidTy(TheContext);
+    result_type = IntegerType::get(TheContext, 32);
 
-    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    param1_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param1_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
-    Function::Create(function_type, Function::ExternalLinkage, "run_get_regex_dotall", TheModule.get());
+    Function::Create(function_type, Function::ExternalLinkage, "get_regex_dotall", TheModule.get());
 
-    /// run_get_regex_anchored ///
+    /// get_regex_anchored ///
     type_params.clear();
     
-    result_type = Type::getVoidTy(TheContext);
+    result_type = IntegerType::get(TheContext, 32);
 
-    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    param1_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param1_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
-    Function::Create(function_type, Function::ExternalLinkage, "run_get_regex_anchored", TheModule.get());
+    Function::Create(function_type, Function::ExternalLinkage, "get_regex_anchored", TheModule.get());
 
-    /// run_get_regex_dollar_endonly ///
+    /// get_regex_dollar_endonly ///
     type_params.clear();
     
-    result_type = Type::getVoidTy(TheContext);
+    result_type = IntegerType::get(TheContext, 32);
 
-    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    param1_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param1_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
-    Function::Create(function_type, Function::ExternalLinkage, "run_get_regex_dollar_endonly", TheModule.get());
+    Function::Create(function_type, Function::ExternalLinkage, "get_regex_dollar_endonly", TheModule.get());
 
-    /// run_get_regex_ungreedy ///
+    /// get_regex_ungreedy ///
     type_params.clear();
     
-    result_type = Type::getVoidTy(TheContext);
+    result_type = IntegerType::get(TheContext, 32);
 
-    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    param1_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param1_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
-    Function::Create(function_type, Function::ExternalLinkage, "run_get_regex_ungreedy", TheModule.get());
+    Function::Create(function_type, Function::ExternalLinkage, "get_regex_ungreedy", TheModule.get());
 
-    /// run_get_regex_anchored ///
+    /// get_regex_anchored ///
     type_params.clear();
     
-    result_type = Type::getVoidTy(TheContext);
+    result_type = IntegerType::get(TheContext, 32);
 
-    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    param1_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param1_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
-    Function::Create(function_type, Function::ExternalLinkage, "run_get_regex_multiline", TheModule.get());
+    Function::Create(function_type, Function::ExternalLinkage, "get_regex_multiline", TheModule.get());
 
-    /// run_char_uppercase ///
+    /// char_uppercase ///
     type_params.clear();
     
-    result_type = Type::getVoidTy(TheContext);
+    result_type = IntegerType::get(TheContext, 32);
 
-    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    param1_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param1_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
-    Function::Create(function_type, Function::ExternalLinkage, "run_char_uppercase", TheModule.get());
+    Function::Create(function_type, Function::ExternalLinkage, "char_uppercase", TheModule.get());
 
-    /// run_char_lowercase ///
+    /// char_lowercase ///
     type_params.clear();
     
-    result_type = Type::getVoidTy(TheContext);
+    result_type = IntegerType::get(TheContext, 32);
 
-    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    param1_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param1_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
-    Function::Create(function_type, Function::ExternalLinkage, "run_char_lowercase", TheModule.get());
+    Function::Create(function_type, Function::ExternalLinkage, "char_lowercase", TheModule.get());
 
     /// run_create_array ///
     type_params.clear();
     
-    result_type = IntegerType::get(TheContext, 32);
+    result_type = IntegerType::get(TheContext, 64);
 
     param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
     type_params.push_back(param1_type);
@@ -1008,7 +1023,7 @@ void create_internal_functions()
     /// run_create_carray ///
     type_params.clear();
     
-    result_type = IntegerType::get(TheContext, 32);
+    result_type = IntegerType::get(TheContext, 64);
 
     param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
     type_params.push_back(param1_type);
@@ -1034,7 +1049,7 @@ void create_internal_functions()
     /// run_create_equalable_carray ///
     type_params.clear();
     
-    result_type = IntegerType::get(TheContext, 32);
+    result_type = IntegerType::get(TheContext, 64);
 
     param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
     type_params.push_back(param1_type);
@@ -1060,7 +1075,7 @@ void create_internal_functions()
     /// run_create_sortable_carray ///
     type_params.clear();
     
-    result_type = IntegerType::get(TheContext, 32);
+    result_type = IntegerType::get(TheContext, 64);
 
     param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
     type_params.push_back(param1_type);
@@ -1086,7 +1101,7 @@ void create_internal_functions()
     /// run_create_list ///
     type_params.clear();
     
-    result_type = IntegerType::get(TheContext, 32);
+    result_type = IntegerType::get(TheContext, 64);
 
     param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
     type_params.push_back(param1_type);
@@ -1112,7 +1127,7 @@ void create_internal_functions()
     /// run_create_sortable_list ///
     type_params.clear();
     
-    result_type = IntegerType::get(TheContext, 32);
+    result_type = IntegerType::get(TheContext, 64);
 
     param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
     type_params.push_back(param1_type);
@@ -1138,7 +1153,7 @@ void create_internal_functions()
     /// run_create_equalable_list ///
     type_params.clear();
     
-    result_type = IntegerType::get(TheContext, 32);
+    result_type = IntegerType::get(TheContext, 64);
 
     param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
     type_params.push_back(param1_type);
@@ -1164,7 +1179,7 @@ void create_internal_functions()
     /// run_create_tuple ///
     type_params.clear();
     
-    result_type = IntegerType::get(TheContext, 32);
+    result_type = IntegerType::get(TheContext, 64);
 
     param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
     type_params.push_back(param1_type);
@@ -1187,7 +1202,7 @@ void create_internal_functions()
     /// run_create_hash ///
     type_params.clear();
     
-    result_type = IntegerType::get(TheContext, 32);
+    result_type = IntegerType::get(TheContext, 64);
 
     param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
     type_params.push_back(param1_type);
@@ -1216,7 +1231,7 @@ void create_internal_functions()
     /// run_create_block_object ///
     type_params.clear();
     
-    result_type = Type::getVoidTy(TheContext);
+    result_type = IntegerType::get(TheContext, 32);
 
     param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
     type_params.push_back(param1_type);
@@ -3990,7 +4005,7 @@ void show_inst_in_jit(int opecode)
 
 void show_number_in_jit(int number)
 {
-    printf("%d\n", number);
+    printf("%d(%p)\n", number, number);
 }
 
 void call_show_number_in_jit(int number)
