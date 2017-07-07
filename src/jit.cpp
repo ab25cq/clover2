@@ -826,6 +826,17 @@ static void lvar_of_vm_to_lvar_of_llvm(std::map<std::string, Value *> params, Ba
     }
 }
 
+static void lvar_of_llvm_to_lvar_of_vm(std::map<std::string, Value *> params, BasicBlock* current_block, LVALUE* llvm_stack, int var_num)
+{
+    int i;
+    for(i=0; i<var_num; i++) {
+        LVALUE llvm_value = get_llvm_value_from_lvar_with_offset(llvm_stack, i);
+        if(llvm_value.value != 0) {
+            store_value_to_lvar_with_offset(params, current_block, i, llvm_value.value);
+        }
+    }
+}
+
 BOOL run_store_element(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, CLObject array, int element_num, CLVALUE value)
 {
     if(array == 0) {
@@ -1338,6 +1349,75 @@ CLObject run_create_block_object(CLVALUE** stack_ptr, CLVALUE* stack, sConst* co
     return block_object;
 }
 
+struct sPointerAndBoolResult {
+    char* result1;
+    BOOL result2;
+};
+
+struct sPointerAndBoolResult run_load_field_address(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index, CLObject obj)
+{
+    struct sPointerAndBoolResult result;
+
+    if(obj == 0) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(4)");
+        result.result1 = NULL;
+        result.result2 = FALSE;
+        return result;
+    }
+
+    sCLObject* object_pointer = CLOBJECT(obj);
+    sCLClass* klass = object_pointer->mClass;
+
+    if(klass == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(5)");
+        result.result1 = NULL;
+        result.result2 = FALSE;
+        return result;
+    }
+
+    if(field_index < 0 || field_index >= klass->mNumFields) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "field index is invalid");
+        result.result1 = NULL;
+        result.result2 = FALSE;
+        return result;
+    }
+
+    char* value = (char*)&object_pointer->mFields[field_index];
+    result.result1 = value;
+    result.result2 = TRUE;
+    return result;
+}
+
+struct sPointerAndBoolResult run_load_class_field_address(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index, int offset, sConst* constant)
+{
+    struct sPointerAndBoolResult result;
+
+    char* class_name = CONS_str(constant, offset);
+
+    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+
+    if(klass == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(8)");
+        result.result1 = NULL;
+        result.result2 = FALSE;
+        return result;
+    }
+
+    if(field_index < 0 || field_index >= klass->mNumClassFields) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "field index is invalid");
+        result.result1 = NULL;
+        result.result2 = FALSE;
+        return result;
+    }
+
+    sCLField* field = klass->mClassFields + field_index;
+    char* value = (char*)&field->mValue;
+
+    result.result1 = value;
+    result.result2 = TRUE;
+
+    return result;
+}
 
 //////////////////////////////////////////////////////////////////////
 // LLVM core
@@ -3123,6 +3203,56 @@ show_inst_in_jit(inst);
                 }
                 break;
 
+            case OP_LOAD_FIELD_ADDRESS: {
+                int field_index = *(int*)pc;
+                pc += sizeof(int);
+
+                LVALUE* obj_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                Function* fun = TheModule->getFunction("run_load_field_address");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                std::string stack_value_name("stack");
+                Value* param2 = params[stack_value_name];
+                params2.push_back(param2);
+
+                std::string var_num_value_name("var_num");
+                Value* param3 = params[var_num_value_name];
+                params2.push_back(param3);
+
+                std::string info_value_name("info");
+                Value* param4 = params[info_value_name];
+                params2.push_back(param4);
+
+                Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)field_index);
+                params2.push_back(param5);
+
+                Value* param6 = obj_value->value;
+                params2.push_back(param6);
+
+                Value* result = Builder.CreateCall(fun, params2);
+
+                Value* result1 = Builder.CreateStructGEP(gPointerAndBoolStruct, result, 0);
+                Value* result2 = Builder.CreateStructGEP(gPointerAndBoolStruct, result, 1);
+
+                if_value_is_zero_ret_zero(result2, params, function, &current_block);
+
+                LVALUE llvm_value;
+                llvm_value.value = result1;
+                llvm_value.vm_stack = TRUE;
+                llvm_value.lvar_address_index = -1;
+
+                dec_stack_ptr(&llvm_stack_ptr, 1);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
             case OP_STORE_FIELD: {
                 int field_index = *(int*)pc;
                 pc += sizeof(int);
@@ -3216,6 +3346,58 @@ show_inst_in_jit(inst);
                 }
                 break;
 
+            case OP_LOAD_CLASS_FIELD_ADDRESS: {
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+
+                int field_index = *(int*)pc;
+                pc += sizeof(int);
+
+                Function* fun = TheModule->getFunction("run_load_class_field_address");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                std::string stack_value_name("stack");
+                Value* param2 = params[stack_value_name];
+                params2.push_back(param2);
+
+                std::string var_num_value_name("var_num");
+                Value* param3 = params[var_num_value_name];
+                params2.push_back(param3);
+
+                std::string info_value_name("info");
+                Value* param4 = params[info_value_name];
+                params2.push_back(param4);
+
+                Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)field_index);
+                params2.push_back(param5);
+
+                Value* param6 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)offset);
+                params2.push_back(param6);
+
+                Value* param7 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)constant);
+                params2.push_back(param7);
+
+                Value* result = Builder.CreateCall(fun, params2);
+
+                Value* result1 = Builder.CreateStructGEP(gPointerAndBoolStruct, result, 0);
+                Value* result2 = Builder.CreateStructGEP(gPointerAndBoolStruct, result, 1);
+
+                if_value_is_zero_ret_zero(result2, params, function, &current_block);
+
+                LVALUE llvm_value;
+                llvm_value.value = result1;
+                llvm_value.vm_stack = TRUE;
+                llvm_value.lvar_address_index = -1;
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
             case OP_STORE_CLASS_FIELD: {
                 int offset = *(int*)pc;
                 pc += sizeof(int);
@@ -3269,6 +3451,10 @@ show_inst_in_jit(inst);
             case OP_STORE_VALUE_TO_BOOL_ADDRESS:
             case OP_STORE_VALUE_TO_OBJECT_ADDRESS:
             case OP_STORE_VALUE_TO_FLOAT_ADDRESS: {
+                /// lvar of llvm stack to lvar of vm stack ///
+                lvar_of_llvm_to_lvar_of_vm(params, current_block, llvm_stack, var_num);
+
+                /// go ///
                 LVALUE* address = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
@@ -3285,6 +3471,10 @@ show_inst_in_jit(inst);
 
             case OP_STORE_VALUE_TO_BYTE_ADDRESS:
             case OP_STORE_VALUE_TO_UBYTE_ADDRESS: {
+                /// lvar of llvm stack to lvar of vm stack ///
+                lvar_of_llvm_to_lvar_of_vm(params, current_block, llvm_stack, var_num);
+
+                /// go ///
                 LVALUE* address = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
@@ -3301,6 +3491,10 @@ show_inst_in_jit(inst);
 
             case OP_STORE_VALUE_TO_SHORT_ADDRESS:
             case OP_STORE_VALUE_TO_USHORT_ADDRESS: {
+                /// lvar of llvm stack to lvar of vm stack ///
+                lvar_of_llvm_to_lvar_of_vm(params, current_block, llvm_stack, var_num);
+
+                /// go ///
                 LVALUE* address = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
@@ -3312,6 +3506,167 @@ show_inst_in_jit(inst);
 
                 /// lvar of vm stack to lvar of llvm stack ///
                 lvar_of_vm_to_lvar_of_llvm(params, current_block, llvm_stack, var_num);
+                }
+                break;
+
+            case OP_LOAD_VALUE_FROM_INT_ADDRESS: 
+            case OP_LOAD_VALUE_FROM_UINT_ADDRESS: 
+            case OP_LOAD_VALUE_FROM_CHAR_ADDRESS: 
+            case OP_LOAD_VALUE_FROM_BOOL_ADDRESS: 
+            case OP_LOAD_VALUE_FROM_OBJECT_ADDRESS: {
+                /// lvar of llvm stack to lvar of vm stack ///
+                lvar_of_llvm_to_lvar_of_vm(params, current_block, llvm_stack, var_num);
+
+                /// go ///
+                LVALUE* address = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                address->value = Builder.CreateCast(Instruction::IntToPtr, address->value, PointerType::get(IntegerType::get(TheContext, 32), 0));
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateAlignedLoad(address->value, 4, "llvm_value");
+                llvm_value.vm_stack = TRUE;
+                llvm_value.lvar_address_index = -1;
+                
+                llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt32Ty(TheContext));
+
+                dec_stack_ptr(&llvm_stack_ptr, 1);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_LOAD_VALUE_FROM_FLOAT_ADDRESS: {
+                /// lvar of llvm stack to lvar of vm stack ///
+                lvar_of_llvm_to_lvar_of_vm(params, current_block, llvm_stack, var_num);
+
+                /// go ///
+                LVALUE* address = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                address->value = Builder.CreateCast(Instruction::IntToPtr, address->value, PointerType::get(Type::getFloatTy(TheContext), 0));
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateAlignedLoad(address->value, 4, "llvm_value");
+                llvm_value.vm_stack = TRUE;
+                llvm_value.lvar_address_index = -1;
+                
+                llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getFloatTy(TheContext));
+
+                dec_stack_ptr(&llvm_stack_ptr, 1);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_LOAD_VALUE_FROM_BYTE_ADDRESS: 
+            case OP_LOAD_VALUE_FROM_UBYTE_ADDRESS: {
+                /// lvar of llvm stack to lvar of vm stack ///
+                lvar_of_llvm_to_lvar_of_vm(params, current_block, llvm_stack, var_num);
+
+                /// go ///
+                LVALUE* address = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                address->value = Builder.CreateCast(Instruction::IntToPtr, address->value, PointerType::get(IntegerType::get(TheContext, 8), 0));
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateAlignedLoad(address->value, 1, "llvm_value");
+                llvm_value.vm_stack = TRUE;
+                llvm_value.lvar_address_index = -1;
+
+                llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt8Ty(TheContext));
+
+                dec_stack_ptr(&llvm_stack_ptr, 1);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_LOAD_VALUE_FROM_SHORT_ADDRESS:
+            case OP_LOAD_VALUE_FROM_USHORT_ADDRESS: {
+                /// lvar of llvm stack to lvar of vm stack ///
+                lvar_of_llvm_to_lvar_of_vm(params, current_block, llvm_stack, var_num);
+
+                /// go ///
+                LVALUE* address = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                address->value = Builder.CreateCast(Instruction::IntToPtr, address->value, PointerType::get(IntegerType::get(TheContext, 16), 0));
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateAlignedLoad(address->value, 2, "llvm_value");
+                llvm_value.vm_stack = TRUE;
+                llvm_value.lvar_address_index = -1;
+
+                llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt16Ty(TheContext));
+
+                dec_stack_ptr(&llvm_stack_ptr, 1);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_LOAD_VALUE_FROM_LONG_ADDRESS:
+            case OP_LOAD_VALUE_FROM_ULONG_ADDRESS: {
+                /// lvar of llvm stack to lvar of vm stack ///
+                lvar_of_llvm_to_lvar_of_vm(params, current_block, llvm_stack, var_num);
+
+                /// go ///
+                LVALUE* address = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                address->value = Builder.CreateCast(Instruction::IntToPtr, address->value, PointerType::get(IntegerType::get(TheContext, 64), 0));
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateAlignedLoad(address->value, 8, "llvm_value");
+                llvm_value.vm_stack = TRUE;
+                llvm_value.lvar_address_index = -1;
+
+                llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt64Ty(TheContext));
+
+                dec_stack_ptr(&llvm_stack_ptr, 1);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_LOAD_VALUE_FROM_POINTER_ADDRESS: {
+                /// lvar of llvm stack to lvar of vm stack ///
+                lvar_of_llvm_to_lvar_of_vm(params, current_block, llvm_stack, var_num);
+
+                /// go ///
+                LVALUE* address = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                address->value = Builder.CreateCast(Instruction::IntToPtr, address->value, PointerType::get(IntegerType::get(TheContext, 64), 0));
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateAlignedLoad(address->value, 8, "llvm_value");
+                llvm_value.vm_stack = TRUE;
+                llvm_value.lvar_address_index = -1;
+
+                llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, PointerType::get(IntegerType::get(TheContext, 64), 0));
+
+                dec_stack_ptr(&llvm_stack_ptr, 1);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_LOAD_VALUE_FROM_DOUBLE_ADDRESS: {
+                /// lvar of llvm stack to lvar of vm stack ///
+                lvar_of_llvm_to_lvar_of_vm(params, current_block, llvm_stack, var_num);
+
+                /// go ///
+                LVALUE* address = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                address->value = Builder.CreateCast(Instruction::IntToPtr, address->value, PointerType::get(Type::getDoubleTy(TheContext), 0));
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateAlignedLoad(address->value, 8, "llvm_value");
+                llvm_value.vm_stack = TRUE;
+                llvm_value.lvar_address_index = -1;
+
+                llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getDoubleTy(TheContext));
+
+                dec_stack_ptr(&llvm_stack_ptr, 1);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
                 break;
 

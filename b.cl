@@ -141,6 +141,14 @@ Clover.test("jit test71.4", i.equals(hash { "ABC":1, "DEF":2 }));
 z:lambda(int,int):int = a.run72();
 Clover.test("jit test72", z(1,2) == 3);
 
+Clover.test("jit test72.5", a.run72_5() == 234);
+
+Clover.test("jit test72.6", a.run72_6() == 123);
+Clover.test("jit test72.7", a.run72_7() == 123.1);
+Clover.test("jit test72.8", a.run72_8() == 123.1f);
+Clover.test("jit test72.9", a.run72_9() == 123l);
+Clover.test("jit test72.a", a.run72_a() == 123y);
+
 /*
 Clover.test("jit test65", a.run73() == 12);
 Clover.test("jit test66", a.run74() == 123);

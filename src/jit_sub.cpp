@@ -5,6 +5,7 @@ extern "C"
 
 GlobalVariable* gSigIntValue;
 StructType* gCLValueAndBoolStruct;
+StructType* gPointerAndBoolStruct;
 
 void create_internal_functions()
 {
@@ -668,7 +669,7 @@ void create_internal_functions()
     /// run_load_field_adrress ///
     type_params.clear();
     
-    result_type = IntegerType::get(TheContext, 32);
+    result_type = PointerType::get(IntegerType::get(TheContext, 8), 0);
 
     param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
     type_params.push_back(param1_type);
@@ -684,6 +685,9 @@ void create_internal_functions()
 
     param5_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param5_type);
+
+    param6_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param6_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_load_field_address", TheModule.get());
@@ -749,7 +753,7 @@ void create_internal_functions()
     /// run_load_class_field_address ///
     type_params.clear();
     
-    result_type = IntegerType::get(TheContext, 32);
+    result_type = IntegerType::get(TheContext, 64);
 
     param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
     type_params.push_back(param1_type);
@@ -2918,6 +2922,20 @@ void jit_init()
 
     if(gCLValueAndBoolStruct->isOpaque()) {
         gCLValueAndBoolStruct->setBody(fields, false);
+    }
+
+    /// CLVALUE and BOOL Struct type ///
+    fields.clear();
+
+    gPointerAndBoolStruct = StructType::create(TheContext, "pointer_and_bool_struct");
+
+    field_type1 = PointerType::get(IntegerType::get(TheContext, 8), 0);
+    fields.push_back(field_type1);
+    field_type2 = IntegerType::get(TheContext, 32);
+    fields.push_back(field_type2);
+
+    if(gPointerAndBoolStruct->isOpaque()) {
+        gPointerAndBoolStruct->setBody(fields, false);
     }
 }
 

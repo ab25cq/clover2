@@ -101,7 +101,7 @@ IfExprAST	toy.cpp	/^class IfExprAST : public ExprAST {$/;"	c	namespace:__anon23	
 InitializeModuleAndPassManager	src/jit_sub.cpp	/^void InitializeModuleAndPassManager() $/;"	f
 InitializeModuleAndPassManager	toy.cpp	/^static void InitializeModuleAndPassManager() {$/;"	f	file:
 JIT	Makefile	/^JIT=1$/;"	m
-JIT_METHOD_CALL_COUNT	src/jit_sub.cpp	4111;"	d	file:
+JIT_METHOD_CALL_COUNT	src/jit_sub.cpp	4129;"	d	file:
 JIT_OBJS	Makefile	/^JIT_OBJS=src\/jit.o src\/jit_sub.o$/;"	m
 JIT_RUNTIME_OBJS	Makefile	/^JIT_RUNTIME_OBJS=src\/jit_runtime.o$/;"	m
 KaleidoscopeJIT	KaleidoscopeJIT.h	/^  KaleidoscopeJIT()$/;"	f	class:llvm::orc::KaleidoscopeJIT
@@ -1095,17 +1095,25 @@ arrange_alignment	src/code.c	/^static void arrange_alignment(sByteCode* code)$/;
 arrange_alignment	src/constant.c	/^static void arrange_alignment(sConst* self)$/;"	f	file:
 arrange_stack	src/node.c	/^void arrange_stack(sCompileInfo* cinfo)$/;"	f
 array_mark_fun	src/array.c	/^void array_mark_fun(CLObject self, unsigned char* mark_flg)$/;"	f
+as_fn_append	config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	configure	/^  as_fn_append ()$/;"	f
+as_fn_arith	config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	configure	/^  as_fn_arith ()$/;"	f
+as_fn_error	config.status	/^as_fn_error ()$/;"	f
 as_fn_error	configure	/^as_fn_error ()$/;"	f
+as_fn_executable_p	config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	configure	/^as_fn_executable_p ()$/;"	f
+as_fn_exit	config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	configure	/^as_fn_exit ()$/;"	f
 as_fn_failure	configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
+as_fn_mkdir_p	config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	configure	/^as_fn_mkdir_p ()$/;"	f
 as_fn_ret_failure	configure	/^as_fn_ret_failure () { return 1; }$/;"	f
 as_fn_ret_success	configure	/^as_fn_ret_success () { return 0; }$/;"	f
+as_fn_set_status	config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	configure	/^as_fn_set_status ()$/;"	f
 as_fn_success	configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
+as_fn_unset	config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	configure	/^as_fn_unset ()$/;"	f
 assign_operator	src/parser.c	/^static BOOL assign_operator(unsigned int* node, sParserInfo* info)$/;"	f	file:
 binary_operator	src/node.c	/^static BOOL binary_operator(unsigned int node, sNodeType* left_type, sNodeType* right_type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, int float_operand, int double_operand, int pointer_operand, int null_operand, int char_operand, int bool_operand, int regex_operand, char* op_string, sCompileInfo* info)$/;"	f	file:
@@ -1423,6 +1431,7 @@ gNodes	src/node.c	/^sNodeTree* gNodes;$/;"	v
 gNumCandidates	src/interpreter.c	/^int gNumCandidates = 0;$/;"	v
 gNumCodes	src/interpreter.c	/^static int gNumCodes;$/;"	v	file:
 gNumStackID	src/stack.c	/^int gNumStackID;$/;"	v
+gPointerAndBoolStruct	src/jit_sub.cpp	/^StructType* gPointerAndBoolStruct;$/;"	v
 gSigInt	src/vm.c	/^BOOL gSigInt = FALSE;$/;"	v
 gSigIntValue	src/jit_sub.cpp	/^GlobalVariable* gSigIntValue;$/;"	v
 gSizeNodes	src/node.c	/^static unsigned int gSizeNodes = 0;$/;"	v	file:
@@ -1648,6 +1657,7 @@ load_module_from_file	src/module.c	/^BOOL load_module_from_file(ALLOC sCLModule*
 lv_table	src/common.h	/^    sVarTable* lv_table;$/;"	m	struct:sCompileInfoStruct
 lv_table	src/common.h	/^    sVarTable* lv_table;$/;"	m	struct:sParserInfoStruct
 lvar_address_index	src/jit_common.hpp	/^    int lvar_address_index;$/;"	m	struct:LVALUEStruct
+lvar_of_llvm_to_lvar_of_vm	src/jit.cpp	/^static void lvar_of_llvm_to_lvar_of_vm(std::map<std::string, Value *> params, BasicBlock* current_block, LVALUE* llvm_stack, int var_num)$/;"	f	file:
 lvar_of_vm_to_lvar_of_llvm	src/jit.cpp	/^static void lvar_of_vm_to_lvar_of_llvm(std::map<std::string, Value *> params, BasicBlock* current_block, LVALUE* llvm_stack, int var_num)$/;"	f	file:
 mAnchored	src/common.h	/^            BOOL mAnchored;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon21
 mAnchored	src/common.h	/^    BOOL mAnchored;$/;"	m	struct:sRegexObjectStruct
@@ -2027,7 +2037,9 @@ remove_stack_to_stack_list	src/stack.c	/^BOOL remove_stack_to_stack_list(CLVALUE
 reset_method_index_on_compile_time	src/class_compiler.c	/^static void reset_method_index_on_compile_time()$/;"	f	file:
 restore_lvar_of_llvm_stack_from_lvar_of_vm_stack	src/jit.cpp	/^static void restore_lvar_of_llvm_stack_from_lvar_of_vm_stack(LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock* current_block, int var_num)$/;"	f	file:
 result1	src/jit.cpp	/^    CLVALUE result1;$/;"	m	struct:sCLVALUEAndBoolResult	file:
+result1	src/jit.cpp	/^    char* result1;$/;"	m	struct:sPointerAndBoolResult	file:
 result2	src/jit.cpp	/^    BOOL result2;$/;"	m	struct:sCLVALUEAndBoolResult	file:
+result2	src/jit.cpp	/^    BOOL result2;$/;"	m	struct:sPointerAndBoolResult	file:
 return_expression	src/parser.c	/^static BOOL return_expression(unsigned int* node, sParserInfo* info)$/;"	f	file:
 run_array_to_carray_cast	src/jit_runtime.cpp	/^BOOL run_array_to_carray_cast(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, char* class_name)$/;"	f
 run_bool_to_string_cast	src/jit_runtime.cpp	/^void run_bool_to_string_cast(CLVALUE** stack_ptr)$/;"	f
@@ -2167,10 +2179,10 @@ run_integer_to_ushort_cast	src/jit_runtime.cpp	/^void run_integer_to_ushort_cast
 run_ldclong	src/jit_runtime.cpp	/^void run_ldclong(CLVALUE** stack_ptr, int value1, int value2)$/;"	f
 run_ldcpointer	src/jit_runtime.cpp	/^void run_ldcpointer(CLVALUE** stack_ptr, int value1, int value2)$/;"	f
 run_ldculong	src/jit_runtime.cpp	/^void run_ldculong(CLVALUE** stack_ptr, int value1, int value2)$/;"	f
-run_load_class_field_address	src/jit_runtime.cpp	/^BOOL run_load_class_field_address(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index, int offset, sConst* constant)$/;"	f
+run_load_class_field_address	src/jit.cpp	/^struct sPointerAndBoolResult run_load_class_field_address(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index, int offset, sConst* constant)$/;"	f
 run_load_element	src/jit_runtime.cpp	/^BOOL run_load_element(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info)$/;"	f
 run_load_field	src/jit_runtime.cpp	/^BOOL run_load_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index)$/;"	f
-run_load_field_address	src/jit_runtime.cpp	/^BOOL run_load_field_address(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index)$/;"	f
+run_load_field_address	src/jit.cpp	/^struct sPointerAndBoolResult run_load_field_address(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index, CLObject obj)$/;"	f
 run_long_to_string_cast	src/jit_runtime.cpp	/^void run_long_to_string_cast(CLVALUE** stack_ptr)$/;"	f
 run_pointer_to_string_cast	src/jit_runtime.cpp	/^void run_pointer_to_string_cast(CLVALUE** stack_ptr)$/;"	f
 run_regex_to_string_cast	src/jit_runtime.cpp	/^void run_regex_to_string_cast(CLVALUE** stack_ptr)$/;"	f
@@ -2337,6 +2349,7 @@ sParserInfo	src/common.h	/^typedef struct sParserInfoStruct sParserInfo;$/;"	t	t
 sParserInfoStruct	src/common.h	/^struct sParserInfoStruct$/;"	s
 sParserParam	src/common.h	/^typedef struct sParserParamStruct sParserParam;$/;"	t	typeref:struct:sParserParamStruct
 sParserParamStruct	src/common.h	/^struct sParserParamStruct $/;"	s
+sPointerAndBoolResult	src/jit.cpp	/^struct sPointerAndBoolResult {$/;"	s	file:
 sRegex	src/common.h	/^        } sRegex;$/;"	m	union:sNodeTreeStruct::__anon3	typeref:struct:sNodeTreeStruct::__anon3::__anon21
 sRegexObject	src/common.h	/^typedef struct sRegexObjectStruct sRegexObject;$/;"	t	typeref:struct:sRegexObjectStruct
 sRegexObjectStruct	src/common.h	/^struct sRegexObjectStruct$/;"	s

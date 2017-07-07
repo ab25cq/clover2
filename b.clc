@@ -433,6 +433,51 @@ class JITTest
     def run72():  lambda(int,int):int {
         return lambda(x:int, y:int):int { return x + y; };
     }
+    def run72_5(): int {
+        a := new JITTestClassA();
+        a.value = 123;
+
+        b:pointer = &a.value;
+
+        b->int = 234;
+
+        return a.value;
+    }
+    def run72_6(): int {
+        a := 123;
+
+        b:pointer = &a;
+
+        return b->int;
+    }
+    def run72_7(): double {
+        a := 123.1;
+
+        b:pointer = &a;
+
+        return b->double;
+    }
+    def run72_8(): float {
+        a := 123.1f;
+
+        b:pointer = &a;
+
+        return b->float;
+    }
+    def run72_9(): long {
+        a := 123l;
+
+        b:pointer = &a;
+
+        return b->long;
+    }
+    def run72_a(): byte {
+        a := 123y;
+
+        b:pointer = &a;
+
+        return b->byte;
+    }
 /*
     def run73():  Integer {
         return 12y.toInteger;

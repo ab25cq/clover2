@@ -111,62 +111,9 @@ BOOL invoke_virtual_method(int num_real_params, int offset, CLVALUE* stack, int 
 
 
 
-BOOL run_load_field_address(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index)
-{
-    CLObject obj = ((*stack_ptr) -1)->mObjectValue;
-    (*stack_ptr)--;
-
-    if(obj == 0) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(4)");
-        return FALSE;
-    }
-
-    sCLObject* object_pointer = CLOBJECT(obj);
-    sCLClass* klass = object_pointer->mClass;
-
-    if(klass == NULL) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(5)");
-        return FALSE;
-    }
-
-    if(field_index < 0 || field_index >= klass->mNumFields) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "field index is invalid");
-        return FALSE;
-    }
-
-    char* value = (char*)&object_pointer->mFields[field_index];
-    (*stack_ptr)->mPointerValue = value;
-    (*stack_ptr)++;
-
-    return TRUE;
-}
 
 
 
-BOOL run_load_class_field_address(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index, int offset, sConst* constant)
-{
-    char* class_name = CONS_str(constant, offset);
-
-    sCLClass* klass = get_class_with_load_and_initialize(class_name);
-
-    if(klass == NULL) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(8)");
-        return FALSE;
-    }
-
-    if(field_index < 0 || field_index >= klass->mNumClassFields) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "field index is invalid");
-        return FALSE;
-    }
-
-    sCLField* field = klass->mClassFields + field_index;
-    char* value = (char*)&field->mValue;
-
-    (*stack_ptr)->mPointerValue = value;
-    (*stack_ptr)++;
-
-    return TRUE;
-}
 
 BOOL run_load_element(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info)
 {

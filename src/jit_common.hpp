@@ -261,4 +261,5 @@ BOOL get_vm_stack_ptr_flag(BOOL* llvm_stack_from_vm_stack_flag, Value** llvm_sta
 
 extern GlobalVariable* gSigIntValue;
 extern StructType* gCLValueAndBoolStruct;
+extern StructType* gPointerAndBoolStruct;
 }
