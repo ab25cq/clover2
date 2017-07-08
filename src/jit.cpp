@@ -3813,10 +3813,154 @@ show_inst_in_jit(inst);
                 }
                 break;
 
-            case OP_INT_TO_INTEGER_CAST: {
+            case OP_BYTE_TO_INTEGER_CAST:
+            case OP_UBYTE_TO_INTEGER_CAST:
+            case OP_SHORT_TO_INTEGER_CAST:
+            case OP_USHORT_TO_INTEGER_CAST:
+            case OP_INT_TO_INTEGER_CAST:
+            case OP_UINT_TO_INTEGER_CAST:
+            case OP_LONG_TO_INTEGER_CAST:
+            case OP_ULONG_TO_INTEGER_CAST:
+            case OP_CHAR_TO_INTEGER_CAST:
+            case OP_POINTER_TO_INTEGER_CAST:
+            case OP_BOOL_TO_INTEGER_CAST: {
                 LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
                 Function* fun = TheModule->getFunction("create_integer");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value->value;
+                params2.push_back(param1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateCall(fun, params2);
+                llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
+
+                dec_stack_ptr(&llvm_stack_ptr, 1);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_FLOAT_TO_INTEGER_CAST:
+            case OP_DOUBLE_TO_INTEGER_CAST: {
+                LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                value->value = Builder.CreateCast(Instruction::FPToSI, value->value, Type::getInt32Ty(TheContext));
+
+                Function* fun = TheModule->getFunction("create_integer");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value->value;
+                params2.push_back(param1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateCall(fun, params2);
+                llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
+
+                dec_stack_ptr(&llvm_stack_ptr, 1);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_BYTE_TO_CBYTE_CAST:
+            case OP_UBYTE_TO_CBYTE_CAST:
+            case OP_SHORT_TO_CBYTE_CAST:
+            case OP_USHORT_TO_CBYTE_CAST:
+            case OP_INT_TO_CBYTE_CAST:
+            case OP_UINT_TO_CBYTE_CAST:
+            case OP_LONG_TO_CBYTE_CAST:
+            case OP_ULONG_TO_CBYTE_CAST:
+            case OP_CHAR_TO_CBYTE_CAST:
+            case OP_POINTER_TO_CBYTE_CAST:
+            case OP_BOOL_TO_CBYTE_CAST: {
+                LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                Function* fun = TheModule->getFunction("create_byte");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value->value;
+                params2.push_back(param1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateCall(fun, params2);
+                llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
+
+                dec_stack_ptr(&llvm_stack_ptr, 1);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_FLOAT_TO_CBYTE_CAST:
+            case OP_DOUBLE_TO_CBYTE_CAST: {
+                LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                value->value = Builder.CreateCast(Instruction::FPToSI, value->value, Type::getInt32Ty(TheContext));
+
+                Function* fun = TheModule->getFunction("create_byte");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value->value;
+                params2.push_back(param1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateCall(fun, params2);
+                llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
+
+                dec_stack_ptr(&llvm_stack_ptr, 1);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_BYTE_TO_CUBYTE_CAST:
+            case OP_UBYTE_TO_CUBYTE_CAST:
+            case OP_SHORT_TO_CUBYTE_CAST:
+            case OP_USHORT_TO_CUBYTE_CAST:
+            case OP_INT_TO_CUBYTE_CAST:
+            case OP_UINT_TO_CUBYTE_CAST:
+            case OP_LONG_TO_CUBYTE_CAST:
+            case OP_ULONG_TO_CUBYTE_CAST:
+            case OP_CHAR_TO_CUBYTE_CAST:
+            case OP_POINTER_TO_CUBYTE_CAST:
+            case OP_BOOL_TO_CUBYTE_CAST: {
+                LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                Function* fun = TheModule->getFunction("create_ubyte");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = value->value;
+                params2.push_back(param1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateCall(fun, params2);
+                llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
+
+                dec_stack_ptr(&llvm_stack_ptr, 1);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_FLOAT_TO_CUBYTE_CAST:
+            case OP_DOUBLE_TO_CUBYTE_CAST: {
+                LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                value->value = Builder.CreateCast(Instruction::FPToUI, value->value, Type::getInt32Ty(TheContext));
+
+                Function* fun = TheModule->getFunction("create_ubyte");
 
                 std::vector<Value*> params2;
 

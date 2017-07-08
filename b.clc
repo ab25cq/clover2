@@ -478,7 +478,6 @@ class JITTest
 
         return b->byte;
     }
-/*
     def run73():  Integer {
         return 12y.toInteger;
     }
@@ -509,6 +508,7 @@ class JITTest
     def run82():  UByte {
         return 123.1.toUByte;
     }
+/*
     def run83():  ULong {
         return 123.toULong;
     }

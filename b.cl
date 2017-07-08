@@ -149,17 +149,17 @@ Clover.test("jit test72.8", a.run72_8() == 123.1f);
 Clover.test("jit test72.9", a.run72_9() == 123l);
 Clover.test("jit test72.a", a.run72_a() == 123y);
 
+Clover.test("jit test73", a.run73() == 12);
+Clover.test("jit test74", a.run74() == 123);
+Clover.test("jit test75", a.run75() == 123);
+Clover.test("jit test76", a.run76() == 123);
+Clover.test("jit test77", a.run77() == 65);
+Clover.test("jit test78", a.run78() == 1);
+Clover.test("jit test79", a.run79() == 123y);
+Clover.test("jit test80", a.run80() == 123y);
+Clover.test("jit test81", a.run81() == 123uy);
+Clover.test("jit test82", a.run82() == 123uy);
 /*
-Clover.test("jit test65", a.run73() == 12);
-Clover.test("jit test66", a.run74() == 123);
-Clover.test("jit test67", a.run75() == 123);
-Clover.test("jit test68", a.run76() == 123);
-Clover.test("jit test69", a.run77() == 65);
-Clover.test("jit test70", a.run78() == 1);
-Clover.test("jit test71", a.run79() == 123y);
-Clover.test("jit test72", a.run80() == 123y);
-Clover.test("jit test73", a.run81() == 123uy);
-Clover.test("jit test74", a.run82() == 123uy);
 Clover.test("jit test75", a.run83() == 123ul);
 Clover.test("jit test76", a.run84() == 123456l);
 Clover.test("jit test77", a.run85() == 123.0f);
