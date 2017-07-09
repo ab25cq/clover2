@@ -15,7 +15,7 @@ CLObject create_short(short value)
 
 CLObject create_ushort(unsigned short value)
 {
-    sCLClass* klass = get_class("USHort");
+    sCLClass* klass = get_class("UShort");
     CLObject obj = create_object(klass);
 
     sCLObject* obj_data = CLOBJECT(obj);

@@ -496,25 +496,43 @@ class JITTest
     def run78():  Integer {
         return true.toInteger;
     }
-    def run79():  Byte {
+    def run78_1(): UInteger {
+        return 123.toUInteger;
+    }
+    def run78_2(): UInteger {
+        return 123.1.toUInteger;
+    }
+    def run79(): Byte {
         return 123.toByte;
     }
-    def run80():  Byte {
+    def run80(): Byte {
         return 123.1.toByte;
     }
-    def run81():  UByte {
+    def run81(): UByte {
         return 123.toUByte;
     }
-    def run82():  UByte {
+    def run82(): UByte {
         return 123.1.toUByte;
     }
-/*
+    def run82_1(): Short {
+        return 123.toShort;
+    }
+    def run82_2(): Short {
+        return 123.1.toShort;
+    }
+    def run82_3(): UShort {
+        return 123.toUShort;
+    }
+    def run82_4(): UShort {
+        return 123.1.toUShort;
+    }
     def run83():  ULong {
         return 123.toULong;
     }
     def run84():  Long {
         return 123456.toLong;
     }
+/*
     def run85():  Float {
         return 123.toFloat;
     }

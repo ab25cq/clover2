@@ -89,7 +89,7 @@ void create_internal_functions()
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "create_integer", TheModule.get());
 
-    /// create_integer ///
+    /// create_uinteger ///
     type_params.clear();
 
     result_type = IntegerType::get(TheContext, 32);

@@ -275,7 +275,19 @@ static BOOL get_number(BOOL minus, unsigned int* node, sParserInfo* info)
 
             *node = sNodeTree_create_ubyte_value(atoi(buf), 0, 0, 0, info);
         }
-        else if(*info->p == 'l' || *info->p == 'L') {
+        else if(*info->p == 's') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            *node = sNodeTree_create_short_value(atoi(buf), 0, 0, 0, info);
+        }
+        else if(*info->p == 'u' && *(info->p+1) == 's') {
+            info->p+=2;
+            skip_spaces_and_lf(info);
+
+            *node = sNodeTree_create_ushort_value(atoi(buf), 0, 0, 0, info);
+        }
+        else if(*info->p == 'l') {
             info->p++;
             skip_spaces_and_lf(info);
 
@@ -286,6 +298,12 @@ static BOOL get_number(BOOL minus, unsigned int* node, sParserInfo* info)
             skip_spaces_and_lf(info);
 
             *node = sNodeTree_create_ulong_value(atol(buf), 0, 0, 0, info);
+        }
+        else if(*info->p == 'u') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            *node = sNodeTree_create_uint_value(atoi(buf), 0, 0, 0, info);
         }
         else {
             *node = sNodeTree_create_int_value(atoi(buf), 0, 0, 0, info);
@@ -335,9 +353,21 @@ static BOOL get_hex_number(unsigned int* node, sParserInfo* info)
         info->p+=2;
         skip_spaces_and_lf(info);
 
-        *node = sNodeTree_create_ubyte_value((short)value, 0, 0, 0, info);
+        *node = sNodeTree_create_ubyte_value((unsigned char)value, 0, 0, 0, info);
     }
-    else if(*info->p == 'l' || *info->p == 'L') {
+    else if(*info->p == 's') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        *node = sNodeTree_create_short_value((short)value, 0, 0, 0, info);
+    }
+    else if(*info->p == 'u' && *(info->p+1) == 's') {
+        info->p+=2;
+        skip_spaces_and_lf(info);
+
+        *node = sNodeTree_create_ushort_value((unsigned short)value, 0, 0, 0, info);
+    }
+    else if(*info->p == 'l') {
         info->p++;
         skip_spaces_and_lf(info);
 
@@ -348,6 +378,12 @@ static BOOL get_hex_number(unsigned int* node, sParserInfo* info)
         skip_spaces_and_lf(info);
 
         *node = sNodeTree_create_ulong_value(value, 0, 0, 0, info);
+    }
+    else if(*info->p == 'u') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        *node = sNodeTree_create_uint_value((unsigned int)value, 0, 0, 0, info);
     }
     else {
         *node = sNodeTree_create_int_value((int)value, 0, 0, 0, info);
@@ -387,9 +423,21 @@ static BOOL get_oct_number(unsigned int* node, sParserInfo* info)
         info->p+=2;
         skip_spaces_and_lf(info);
 
-        *node = sNodeTree_create_ubyte_value((short)value, 0, 0, 0, info);
+        *node = sNodeTree_create_ubyte_value((unsigned char)value, 0, 0, 0, info);
     }
-    else if(*info->p == 'l' || *info->p == 'L') {
+    else if(*info->p == 's') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        *node = sNodeTree_create_short_value((short)value, 0, 0, 0, info);
+    }
+    else if(*info->p == 'u' && *(info->p+1) == 's') {
+        info->p+=2;
+        skip_spaces_and_lf(info);
+
+        *node = sNodeTree_create_ushort_value((unsigned short)value, 0, 0, 0, info);
+    }
+    else if(*info->p == 'l') {
         info->p++;
         skip_spaces_and_lf(info);
 
@@ -400,6 +448,12 @@ static BOOL get_oct_number(unsigned int* node, sParserInfo* info)
         skip_spaces_and_lf(info);
 
         *node = sNodeTree_create_ulong_value(value, 0, 0, 0, info);
+    }
+    else if(*info->p == 'u')  {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        *node = sNodeTree_create_uint_value((unsigned int)value, 0, 0, 0, info);
     }
     else {
         *node = sNodeTree_create_int_value((int)value, 0, 0, 0, info);
