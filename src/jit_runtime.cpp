@@ -168,27 +168,6 @@ void run_short_to_string_cast(CLVALUE** stack_ptr)
     ((*stack_ptr)-1)->mObjectValue = str;
 }
 
-CLObject run_int_to_string_cast(int value)
-{
-    char buf[32];
-    snprintf(buf, 32, "%d", value);
-
-    CLObject str = create_string_object(buf);
-
-    return str;
-}
-
-void run_long_to_string_cast(CLVALUE** stack_ptr)
-{
-    long value = ((*stack_ptr)-1)->mLongValue;
-
-    char buf[32];
-    snprintf(buf, 32, "%ld", value);
-
-    CLObject str = create_string_object(buf);
-
-    ((*stack_ptr)-1)->mObjectValue = str;
-}
 
 void run_ubyte_to_string_cast(CLVALUE** stack_ptr)
 {
@@ -214,17 +193,6 @@ void run_ushort_to_string_cast(CLVALUE** stack_ptr)
     ((*stack_ptr)-1)->mObjectValue = str;
 }
 
-void run_uint_to_string_cast(CLVALUE** stack_ptr)
-{
-    unsigned int value = ((*stack_ptr)-1)->mUIntValue;
-
-    char buf[32];
-    snprintf(buf, 32, "%u", value);
-
-    CLObject str = create_string_object(buf);
-
-    ((*stack_ptr)-1)->mObjectValue = str;
-}
 
 void run_ulong_to_string_cast(CLVALUE** stack_ptr)
 {

@@ -101,7 +101,7 @@ IfExprAST	toy.cpp	/^class IfExprAST : public ExprAST {$/;"	c	namespace:__anon23	
 InitializeModuleAndPassManager	src/jit_sub.cpp	/^void InitializeModuleAndPassManager() $/;"	f
 InitializeModuleAndPassManager	toy.cpp	/^static void InitializeModuleAndPassManager() {$/;"	f	file:
 JIT	Makefile	/^JIT=1$/;"	m
-JIT_METHOD_CALL_COUNT	src/jit_sub.cpp	4129;"	d	file:
+JIT_METHOD_CALL_COUNT	src/jit_sub.cpp	4130;"	d	file:
 JIT_OBJS	Makefile	/^JIT_OBJS=src\/jit.o src\/jit_sub.o$/;"	m
 JIT_RUNTIME_OBJS	Makefile	/^JIT_RUNTIME_OBJS=src\/jit_runtime.o$/;"	m
 KaleidoscopeJIT	KaleidoscopeJIT.h	/^  KaleidoscopeJIT()$/;"	f	class:llvm::orc::KaleidoscopeJIT
@@ -2165,7 +2165,7 @@ run_cushort_to_ulong_cast	src/jit_runtime.cpp	/^void run_cushort_to_ulong_cast(C
 run_cushort_to_ushort_cast	src/jit_runtime.cpp	/^void run_cushort_to_ushort_cast(CLVALUE** stack_ptr)$/;"	f
 run_double_to_string_cast	src/jit_runtime.cpp	/^void run_double_to_string_cast(CLVALUE** stack_ptr)$/;"	f
 run_float_to_string_cast	src/jit_runtime.cpp	/^void run_float_to_string_cast(CLVALUE** stack_ptr)$/;"	f
-run_int_to_string_cast	src/jit_runtime.cpp	/^CLObject run_int_to_string_cast(int value)$/;"	f
+run_int_to_string_cast	src/jit.cpp	/^CLObject run_int_to_string_cast(int n)$/;"	f
 run_integer_to_byte_cast	src/jit_runtime.cpp	/^void run_integer_to_byte_cast(CLVALUE** stack_ptr)$/;"	f
 run_integer_to_double_cast	src/jit_runtime.cpp	/^void run_integer_to_double_cast(CLVALUE** stack_ptr)$/;"	f
 run_integer_to_float_cast	src/jit_runtime.cpp	/^void run_integer_to_float_cast(CLVALUE** stack_ptr)$/;"	f
@@ -2183,13 +2183,13 @@ run_load_class_field_address	src/jit.cpp	/^struct sPointerAndBoolResult run_load
 run_load_element	src/jit_runtime.cpp	/^BOOL run_load_element(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info)$/;"	f
 run_load_field	src/jit_runtime.cpp	/^BOOL run_load_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index)$/;"	f
 run_load_field_address	src/jit.cpp	/^struct sPointerAndBoolResult run_load_field_address(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index, CLObject obj)$/;"	f
-run_long_to_string_cast	src/jit_runtime.cpp	/^void run_long_to_string_cast(CLVALUE** stack_ptr)$/;"	f
+run_long_to_string_cast	src/jit.cpp	/^CLObject run_long_to_string_cast(long l)$/;"	f
 run_pointer_to_string_cast	src/jit_runtime.cpp	/^void run_pointer_to_string_cast(CLVALUE** stack_ptr)$/;"	f
 run_regex_to_string_cast	src/jit_runtime.cpp	/^void run_regex_to_string_cast(CLVALUE** stack_ptr)$/;"	f
 run_short_to_string_cast	src/jit_runtime.cpp	/^void run_short_to_string_cast(CLVALUE** stack_ptr)$/;"	f
 run_store_element	src/jit.cpp	/^BOOL run_store_element(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, CLObject array, int element_num, CLVALUE value)$/;"	f
 run_ubyte_to_string_cast	src/jit_runtime.cpp	/^void run_ubyte_to_string_cast(CLVALUE** stack_ptr)$/;"	f
-run_uint_to_string_cast	src/jit_runtime.cpp	/^void run_uint_to_string_cast(CLVALUE** stack_ptr)$/;"	f
+run_uint_to_string_cast	src/jit.cpp	/^CLObject run_uint_to_string_cast(unsigned int n)$/;"	f
 run_uinteger_to_byte_cast	src/jit_runtime.cpp	/^void run_uinteger_to_byte_cast(CLVALUE** stack_ptr)$/;"	f
 run_uinteger_to_double_cast	src/jit_runtime.cpp	/^void run_uinteger_to_double_cast(CLVALUE** stack_ptr)$/;"	f
 run_uinteger_to_float_cast	src/jit_runtime.cpp	/^void run_uinteger_to_float_cast(CLVALUE** stack_ptr)$/;"	f

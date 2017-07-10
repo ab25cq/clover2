@@ -502,11 +502,17 @@ class JITTest
     def run78_2(): UInteger {
         return 123.1.toUInteger;
     }
+    def run78_3():  Integer {
+        return -123.toInteger;
+    }
     def run79(): Byte {
         return 123.toByte;
     }
     def run80(): Byte {
         return 123.1.toByte;
+    }
+    def run80_1(): Byte {
+        return -123.toByte;
     }
     def run81(): UByte {
         return 123.toUByte;
@@ -526,6 +532,9 @@ class JITTest
     def run82_4(): UShort {
         return 123.1.toUShort;
     }
+    def run82_5(): Short {
+        return -123u.toShort;
+    }
     def run83():  ULong {
         return 123.toULong;
     }
@@ -544,6 +553,9 @@ class JITTest
     def run87_1():  Float {
         return 123u.toFloat;
     }
+    def run87_2():  Float {
+        return -123.toFloat;
+    }
     def run88():  Double {
         return 123.toDouble;
     }
@@ -556,14 +568,32 @@ class JITTest
     def run90_1(): Double {
         return 123u.toDouble;
     }
-/*
-    def run91(p:pointer):  Pointer {
+    def run90_2(): Double {
+        return -123.toDouble;
+    }
+    def run91(p:pointer): Pointer {
         return p.toPointer;
     }
-    def run92():  Bool {
+    def run92(): Bool {
         return 1.1.toBool;
     }
-    def run93():  String {
+    def run92_1(): Char {
+        return 65.toChar;
+    }
+    def run92_2(): Char {
+        return 65.0.toChar;
+    }
+    def run93_1(): String {
+        return 123.toString;
+    }
+    def run93_2(): String {
+        return 123l.toString;
+    }
+    def run93_3(): String {
+        return 123y.toString;
+    }
+/*
+    def run93(): String {
         return 1.1.toString;
     }
     def run94():  String {
