@@ -167,14 +167,16 @@ Clover.test("jit test82.3", a.run82_3() == 123us);
 Clover.test("jit test82.4", a.run82_4() == 123us);
 Clover.test("jit test83", a.run83() == 123ul);
 Clover.test("jit test84", a.run84() == 123456l);
-/*
-Clover.test("jit test77", a.run85() == 123.0f);
-Clover.test("jit test78", a.run86() == 123.1f);
-Clover.test("jit test79", a.run87() == 123.1f);
-Clover.test("jit test80", a.run88() == 123.0);
-#Clover.test("jit test81", a.run89() == 123.1);
-Clover.test("jit test82", a.run90() == 123.1);
+Clover.test("jit test85", a.run85() == 123.0f);
+Clover.test("jit test86", a.run86() == 123.1f);
+Clover.test("jit test87", a.run87() == 123.1f);
+Clover.test("jit test87.1", a.run87_1() == 123.0f);
+Clover.test("jit test88", a.run88() == 123.0);
+#Clover.test("jit test89", a.run89() == 123.1);
+Clover.test("jit test90", a.run90() == 123.1);
+Clover.test("jit test90.1", a.run90_1() == 123.0);
 
+/*
 y:pointer = &z;
 Clover.test("jit test83", a.run91(y).equals(&z));
 Clover.test("jit test84", a.run92() == true);

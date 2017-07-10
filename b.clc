@@ -532,7 +532,6 @@ class JITTest
     def run84():  Long {
         return 123456.toLong;
     }
-/*
     def run85():  Float {
         return 123.toFloat;
     }
@@ -541,6 +540,9 @@ class JITTest
     }
     def run87():  Float {
         return 123.1.toFloat;
+    }
+    def run87_1():  Float {
+        return 123u.toFloat;
     }
     def run88():  Double {
         return 123.toDouble;
@@ -551,6 +553,10 @@ class JITTest
     def run90():  Double {
         return 123.1.toDouble;
     }
+    def run90_1(): Double {
+        return 123u.toDouble;
+    }
+/*
     def run91(p:pointer):  Pointer {
         return p.toPointer;
     }
