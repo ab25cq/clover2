@@ -186,13 +186,25 @@ Clover.test("jit test91", a.run91(y).equals(&z));
 Clover.test("jit test92", a.run92() == true);
 Clover.test("jit test92.1", a.run92_1() == 'A');
 #Clover.test("jit test92.2", a.run92_2() == 'A');
+#Clover.test("jit test93", a.run93().equals("1.1"));
 Clover.test("jit test93.1", a.run93_1().equals("123"));
 Clover.test("jit test93.2", a.run93_2().equals("123"));
 Clover.test("jit test93.3", a.run93_3().equals("123"));
-/*
-Clover.test("jit test93", a.run93().equals("1.1"));
+Clover.test("jit test93.4", a.run93_4().equals("123"));
+Clover.test("jit test93.5", a.run93_5().equals("123"));
+Clover.test("jit test93.6", a.run93_6().equals("-123"));
+#Clover.test("jit test93.7", a.run93_7().equals("123.1"));
+#Clover.test("jit test93.8", a.run93_8().equals("123.1"));
 Clover.test("jit test94", a.run94().equals("123"));
 Clover.test("jit test95", a.run95().equals("a"));
+Clover.test("jit test95_1", a.run95_1().equals("a"));
+Clover.test("jit test95_2", a.run95_2().equals("true"));
+Clover.test("jit test95_3", a.run95_3().equals("false"));
+
+#a.run95_4(y).println();
+#System.sleep(3);
+
+/*
 Clover.test("jit test88", a.run96() == 123);
 Clover.test("jit test89", a.run97() == 123l);
 Clover.test("jit test90", a.run98() == 123.0f);

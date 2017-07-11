@@ -592,7 +592,21 @@ class JITTest
     def run93_3(): String {
         return 123y.toString;
     }
-/*
+    def run93_4(): String {
+        return 123ul.toString;
+    }
+    def run93_5(): String {
+        return 123uy.toString;
+    }
+    def run93_6(): String {
+        return -123.toString;
+    }
+    def run93_7(): String {
+        return 123.1.toString;
+    }
+    def run93_8(): String {
+        return 123.1f.toString;
+    }
     def run93(): String {
         return 1.1.toString;
     }
@@ -602,6 +616,19 @@ class JITTest
     def run95():  String {
         return 'a'.toString;
     }
+    def run95_1():  String {
+        return /a/.toString;
+    }
+    def run95_2():  String {
+        return true.toString;
+    }
+    def run95_3():  String {
+        return false.toString;
+    }
+    def run95_4(p:pointer):  String {
+        return p.toString;
+    }
+/*
     def run96():  int {
         a:Integer = new Integer(123);
         return a;

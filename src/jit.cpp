@@ -1429,6 +1429,16 @@ CLObject run_int_to_string_cast(int n)
     return str;
 }
 
+CLObject run_long_to_string_cast(long l)
+{
+    char buf[32];
+    snprintf(buf, 32, "%ld", l);
+
+    CLObject str = create_string_object(buf);
+
+    return str;
+}
+
 CLObject run_uint_to_string_cast(unsigned int n)
 {
     char buf[32];
@@ -1439,10 +1449,74 @@ CLObject run_uint_to_string_cast(unsigned int n)
     return str;
 }
 
-CLObject run_long_to_string_cast(long l)
+CLObject run_ulong_to_string_cast(long l)
 {
     char buf[32];
-    snprintf(buf, 32, "%ld", l);
+    snprintf(buf, 32, "%lu", l);
+
+    CLObject str = create_string_object(buf);
+
+    return str;
+}
+
+CLObject run_float_to_string_cast(float f)
+{
+    char buf[32];
+    snprintf(buf, 32, "%f", f);
+
+    CLObject str = create_string_object(buf);
+
+    return str;
+}
+
+CLObject run_double_to_string_cast(double d)
+{
+    char buf[32];
+    snprintf(buf, 32, "%lf", d);
+
+    CLObject str = create_string_object(buf);
+
+    return str;
+}
+
+CLObject run_char_to_string_cast(wchar_t c)
+{
+    char buf[32];
+    snprintf(buf, 32, "%lc", c);
+
+    CLObject str = create_string_object(buf);
+
+    return str;
+}
+
+CLObject run_regex_to_string_cast(CLObject regex)
+{
+    sRegexObject* object_data = CLREGEX(regex);
+
+    CLObject str = create_string_object(object_data->mRegexString);
+
+    return str;
+}
+
+CLObject run_bool_to_string_cast(BOOL b)
+{
+    char buf[32];
+    if(b) {
+        snprintf(buf, 32, "true");
+    }
+    else {
+        snprintf(buf, 32, "false");
+    }
+
+    CLObject str = create_string_object(buf);
+
+    return str;
+}
+
+CLObject run_pointer_to_string_cast(char* p)
+{
+    char buf[32];
+    snprintf(buf, 32, "%p", p);
 
     CLObject str = create_string_object(buf);
 
@@ -3863,7 +3937,6 @@ show_inst_in_jit(inst);
                 }
                 break;
 
-/*
             case OP_UBYTE_TO_STRING_CAST :
             case OP_USHORT_TO_STRING_CAST :
             case OP_UINT_TO_STRING_CAST : {
@@ -3885,85 +3958,130 @@ show_inst_in_jit(inst);
                 break;
 
             case OP_ULONG_TO_STRING_CAST : {
+                LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
                 Function* fun = TheModule->getFunction("run_ulong_to_string_cast");
 
                 std::vector<Value*> params2;
 
-                std::string stack_ptr_address_name("stack_ptr_address");
-                Value* param1 = params[stack_ptr_address_name];
-                params2.push_back(param1);
+                params2.push_back(llvm_value->value);
 
-                (void)Builder.CreateCall(fun, params2);
+                LVALUE result;
+                result.value = Builder.CreateCall(fun, params2);
+                result.vm_stack = TRUE;
+                result.lvar_address_index = -1;
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &result);
                 }
                 break;
 
             case OP_FLOAT_TO_STRING_CAST : {
+                LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
                 Function* fun = TheModule->getFunction("run_float_to_string_cast");
 
                 std::vector<Value*> params2;
 
-                std::string stack_ptr_address_name("stack_ptr_address");
-                Value* param1 = params[stack_ptr_address_name];
-                params2.push_back(param1);
+                params2.push_back(llvm_value->value);
 
-                (void)Builder.CreateCall(fun, params2);
+                LVALUE result;
+                result.value = Builder.CreateCall(fun, params2);
+                result.vm_stack = TRUE;
+                result.lvar_address_index = -1;
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &result);
                 }
                 break;
 
             case OP_DOUBLE_TO_STRING_CAST : {
+                LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
                 Function* fun = TheModule->getFunction("run_double_to_string_cast");
 
                 std::vector<Value*> params2;
 
-                std::string stack_ptr_address_name("stack_ptr_address");
-                Value* param1 = params[stack_ptr_address_name];
-                params2.push_back(param1);
+                params2.push_back(llvm_value->value);
 
-                (void)Builder.CreateCall(fun, params2);
-                }
-                break;
+                LVALUE result;
+                result.value = Builder.CreateCall(fun, params2);
+                result.vm_stack = TRUE;
+                result.lvar_address_index = -1;
 
-            case OP_REGEX_TO_STRING_CAST : {
-                Function* fun = TheModule->getFunction("run_regex_to_string_cast");
-
-                std::vector<Value*> params2;
-
-                std::string stack_ptr_address_name("stack_ptr_address");
-                Value* param1 = params[stack_ptr_address_name];
-                params2.push_back(param1);
-
-                (void)Builder.CreateCall(fun, params2);
-                }
-                break;
-
-            case OP_BOOL_TO_STRING_CAST : {
-
-            case OP_POINTER_TO_STRING_CAST : {
-                Function* fun = TheModule->getFunction("run_pointer_to_string_cast");
-
-                std::vector<Value*> params2;
-
-                std::string stack_ptr_address_name("stack_ptr_address");
-                Value* param1 = params[stack_ptr_address_name];
-                params2.push_back(param1);
-
-                (void)Builder.CreateCall(fun, params2);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &result);
                 }
                 break;
 
             case OP_CHAR_TO_STRING_CAST : {
+                LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
                 Function* fun = TheModule->getFunction("run_char_to_string_cast");
 
                 std::vector<Value*> params2;
 
-                std::string stack_ptr_address_name("stack_ptr_address");
-                Value* param1 = params[stack_ptr_address_name];
-                params2.push_back(param1);
+                params2.push_back(llvm_value->value);
 
-                (void)Builder.CreateCall(fun, params2);
+                LVALUE result;
+                result.value = Builder.CreateCall(fun, params2);
+                result.vm_stack = TRUE;
+                result.lvar_address_index = -1;
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &result);
                 }
                 break;
-*/
+
+            case OP_REGEX_TO_STRING_CAST : {
+                LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                Function* fun = TheModule->getFunction("run_regex_to_string_cast");
+
+                std::vector<Value*> params2;
+
+                params2.push_back(llvm_value->value);
+
+                LVALUE result;
+                result.value = Builder.CreateCall(fun, params2);
+                result.vm_stack = TRUE;
+                result.lvar_address_index = -1;
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &result);
+                }
+                break;
+
+            case OP_BOOL_TO_STRING_CAST : {
+                LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                Function* fun = TheModule->getFunction("run_bool_to_string_cast");
+
+                std::vector<Value*> params2;
+
+                params2.push_back(llvm_value->value);
+
+                LVALUE result;
+                result.value = Builder.CreateCall(fun, params2);
+                result.vm_stack = TRUE;
+                result.lvar_address_index = -1;
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &result);
+                }
+                break;
+
+            case OP_POINTER_TO_STRING_CAST : {
+                LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                Function* fun = TheModule->getFunction("run_pointer_to_string_cast");
+
+                std::vector<Value*> params2;
+
+                params2.push_back(llvm_value->value);
+
+                LVALUE result;
+                result.value = Builder.CreateCall(fun, params2);
+                result.vm_stack = TRUE;
+                result.lvar_address_index = -1;
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &result);
+                }
+                break;
 
             case OP_BYTE_TO_INTEGER_CAST:
             case OP_UBYTE_TO_INTEGER_CAST:

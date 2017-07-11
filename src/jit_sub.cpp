@@ -1273,28 +1273,6 @@ void create_internal_functions()
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_create_block_object", TheModule.get());
 
-    /// run_byte_to_string_cast ///
-    type_params.clear();
-    
-    result_type = Type::getVoidTy(TheContext);
-
-    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
-    type_params.push_back(param1_type);
-
-    function_type = FunctionType::get(result_type, type_params, false);
-    Function::Create(function_type, Function::ExternalLinkage, "run_byte_to_string_cast", TheModule.get());
-
-    /// run_short_to_string_cast ///
-    type_params.clear();
-    
-    result_type = Type::getVoidTy(TheContext);
-
-    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
-    type_params.push_back(param1_type);
-
-    function_type = FunctionType::get(result_type, type_params, false);
-    Function::Create(function_type, Function::ExternalLinkage, "run_short_to_string_cast", TheModule.get());
-
     /// run_int_to_string_cast ///
     type_params.clear();
     
@@ -1306,7 +1284,7 @@ void create_internal_functions()
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_int_to_string_cast", TheModule.get());
 
-    /// run_int_to_string_cast ///
+    /// run_long_to_string_cast ///
     type_params.clear();
     
     result_type = IntegerType::get(TheContext, 32);
@@ -1316,28 +1294,6 @@ void create_internal_functions()
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_long_to_string_cast", TheModule.get());
-
-    /// run_ubyte_to_string_cast ///
-    type_params.clear();
-    
-    result_type = Type::getVoidTy(TheContext);
-
-    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
-    type_params.push_back(param1_type);
-
-    function_type = FunctionType::get(result_type, type_params, false);
-    Function::Create(function_type, Function::ExternalLinkage, "run_ubyte_to_string_cast", TheModule.get());
-
-    /// run_ushort_to_string_cast ///
-    type_params.clear();
-    
-    result_type = Type::getVoidTy(TheContext);
-
-    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
-    type_params.push_back(param1_type);
-
-    function_type = FunctionType::get(result_type, type_params, false);
-    Function::Create(function_type, Function::ExternalLinkage, "run_ushort_to_string_cast", TheModule.get());
 
     /// run_uint_to_string_cast ///
     type_params.clear();
@@ -1353,9 +1309,9 @@ void create_internal_functions()
     /// run_ulong_to_string_cast ///
     type_params.clear();
     
-    result_type = Type::getVoidTy(TheContext);
+    result_type = IntegerType::get(TheContext, 32);
 
-    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    param1_type = IntegerType::get(TheContext, 64);
     type_params.push_back(param1_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
@@ -1364,9 +1320,9 @@ void create_internal_functions()
     /// run_float_to_string_cast ///
     type_params.clear();
     
-    result_type = Type::getVoidTy(TheContext);
+    result_type = IntegerType::get(TheContext, 32);
 
-    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    param1_type = Type::getFloatTy(TheContext);
     type_params.push_back(param1_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
@@ -1375,19 +1331,20 @@ void create_internal_functions()
     /// run_double_to_string_cast ///
     type_params.clear();
     
-    result_type = Type::getVoidTy(TheContext);
+    result_type = IntegerType::get(TheContext, 32);
 
-    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    param1_type = Type::getDoubleTy(TheContext);
     type_params.push_back(param1_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_double_to_string_cast", TheModule.get());
+
     /// run_bool_to_string_cast ///
     type_params.clear();
     
-    result_type = Type::getVoidTy(TheContext);
+    result_type = IntegerType::get(TheContext, 32);
 
-    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    param1_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param1_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
@@ -1396,9 +1353,9 @@ void create_internal_functions()
     /// run_regex_to_string_cast ///
     type_params.clear();
     
-    result_type = Type::getVoidTy(TheContext);
+    result_type = IntegerType::get(TheContext, 32);
 
-    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    param1_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param1_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
@@ -1407,20 +1364,19 @@ void create_internal_functions()
     /// run_pointer_to_string_cast ///
     type_params.clear();
     
-    result_type = Type::getVoidTy(TheContext);
+    result_type = IntegerType::get(TheContext, 32);
 
-    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    param1_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
     type_params.push_back(param1_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_pointer_to_string_cast", TheModule.get());
-
     /// run_char_to_string_cast ///
     type_params.clear();
     
-    result_type = Type::getVoidTy(TheContext);
+    result_type = IntegerType::get(TheContext, 32);
 
-    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    param1_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param1_type);
 
     function_type = FunctionType::get(result_type, type_params, false);

@@ -101,7 +101,7 @@ IfExprAST	toy.cpp	/^class IfExprAST : public ExprAST {$/;"	c	namespace:__anon23	
 InitializeModuleAndPassManager	src/jit_sub.cpp	/^void InitializeModuleAndPassManager() $/;"	f
 InitializeModuleAndPassManager	toy.cpp	/^static void InitializeModuleAndPassManager() {$/;"	f	file:
 JIT	Makefile	/^JIT=1$/;"	m
-JIT_METHOD_CALL_COUNT	src/jit_sub.cpp	4130;"	d	file:
+JIT_METHOD_CALL_COUNT	src/jit_sub.cpp	4086;"	d	file:
 JIT_OBJS	Makefile	/^JIT_OBJS=src\/jit.o src\/jit_sub.o$/;"	m
 JIT_RUNTIME_OBJS	Makefile	/^JIT_RUNTIME_OBJS=src\/jit_runtime.o$/;"	m
 KaleidoscopeJIT	KaleidoscopeJIT.h	/^  KaleidoscopeJIT()$/;"	f	class:llvm::orc::KaleidoscopeJIT
@@ -1095,25 +1095,17 @@ arrange_alignment	src/code.c	/^static void arrange_alignment(sByteCode* code)$/;
 arrange_alignment	src/constant.c	/^static void arrange_alignment(sConst* self)$/;"	f	file:
 arrange_stack	src/node.c	/^void arrange_stack(sCompileInfo* cinfo)$/;"	f
 array_mark_fun	src/array.c	/^void array_mark_fun(CLObject self, unsigned char* mark_flg)$/;"	f
-as_fn_append	config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	configure	/^  as_fn_append ()$/;"	f
-as_fn_arith	config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	configure	/^  as_fn_arith ()$/;"	f
-as_fn_error	config.status	/^as_fn_error ()$/;"	f
 as_fn_error	configure	/^as_fn_error ()$/;"	f
-as_fn_executable_p	config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	configure	/^as_fn_executable_p ()$/;"	f
-as_fn_exit	config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	configure	/^as_fn_exit ()$/;"	f
 as_fn_failure	configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
-as_fn_mkdir_p	config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	configure	/^as_fn_mkdir_p ()$/;"	f
 as_fn_ret_failure	configure	/^as_fn_ret_failure () { return 1; }$/;"	f
 as_fn_ret_success	configure	/^as_fn_ret_success () { return 0; }$/;"	f
-as_fn_set_status	config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	configure	/^as_fn_set_status ()$/;"	f
 as_fn_success	configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
-as_fn_unset	config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	configure	/^as_fn_unset ()$/;"	f
 assign_operator	src/parser.c	/^static BOOL assign_operator(unsigned int* node, sParserInfo* info)$/;"	f	file:
 binary_operator	src/node.c	/^static BOOL binary_operator(unsigned int node, sNodeType* left_type, sNodeType* right_type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, int float_operand, int double_operand, int pointer_operand, int null_operand, int char_operand, int bool_operand, int regex_operand, char* op_string, sCompileInfo* info)$/;"	f	file:
@@ -2042,7 +2034,7 @@ result2	src/jit.cpp	/^    BOOL result2;$/;"	m	struct:sCLVALUEAndBoolResult	file:
 result2	src/jit.cpp	/^    BOOL result2;$/;"	m	struct:sPointerAndBoolResult	file:
 return_expression	src/parser.c	/^static BOOL return_expression(unsigned int* node, sParserInfo* info)$/;"	f	file:
 run_array_to_carray_cast	src/jit_runtime.cpp	/^BOOL run_array_to_carray_cast(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, char* class_name)$/;"	f
-run_bool_to_string_cast	src/jit_runtime.cpp	/^void run_bool_to_string_cast(CLVALUE** stack_ptr)$/;"	f
+run_bool_to_string_cast	src/jit.cpp	/^CLObject run_bool_to_string_cast(BOOL b)$/;"	f
 run_byte_to_string_cast	src/jit_runtime.cpp	/^void run_byte_to_string_cast(CLVALUE** stack_ptr)$/;"	f
 run_cbool_to_byte_cast	src/jit_runtime.cpp	/^void run_cbool_to_byte_cast(CLVALUE** stack_ptr)$/;"	f
 run_cbool_to_double_cast	src/jit_runtime.cpp	/^void run_cbool_to_double_cast(CLVALUE** stack_ptr)$/;"	f
@@ -2094,7 +2086,7 @@ run_cfloat_to_ubyte_cast	src/jit_runtime.cpp	/^void run_cfloat_to_ubyte_cast(CLV
 run_cfloat_to_uint_cast	src/jit_runtime.cpp	/^void run_cfloat_to_uint_cast(CLVALUE** stack_ptr)$/;"	f
 run_cfloat_to_ulong_cast	src/jit_runtime.cpp	/^void run_cfloat_to_ulong_cast(CLVALUE** stack_ptr)$/;"	f
 run_cfloat_to_ushort_cast	src/jit_runtime.cpp	/^void run_cfloat_to_ushort_cast(CLVALUE** stack_ptr)$/;"	f
-run_char_to_string_cast	src/jit_runtime.cpp	/^void run_char_to_string_cast(CLVALUE** stack_ptr)$/;"	f
+run_char_to_string_cast	src/jit.cpp	/^CLObject run_char_to_string_cast(wchar_t c)$/;"	f
 run_clong_to_byte_cast	src/jit_runtime.cpp	/^void run_clong_to_byte_cast(CLVALUE** stack_ptr)$/;"	f
 run_clong_to_double_cast	src/jit_runtime.cpp	/^void run_clong_to_double_cast(CLVALUE** stack_ptr)$/;"	f
 run_clong_to_float_cast	src/jit_runtime.cpp	/^void run_clong_to_float_cast(CLVALUE** stack_ptr)$/;"	f
@@ -2163,8 +2155,8 @@ run_cushort_to_ubyte_cast	src/jit_runtime.cpp	/^void run_cushort_to_ubyte_cast(C
 run_cushort_to_uint_cast	src/jit_runtime.cpp	/^void run_cushort_to_uint_cast(CLVALUE** stack_ptr)$/;"	f
 run_cushort_to_ulong_cast	src/jit_runtime.cpp	/^void run_cushort_to_ulong_cast(CLVALUE** stack_ptr)$/;"	f
 run_cushort_to_ushort_cast	src/jit_runtime.cpp	/^void run_cushort_to_ushort_cast(CLVALUE** stack_ptr)$/;"	f
-run_double_to_string_cast	src/jit_runtime.cpp	/^void run_double_to_string_cast(CLVALUE** stack_ptr)$/;"	f
-run_float_to_string_cast	src/jit_runtime.cpp	/^void run_float_to_string_cast(CLVALUE** stack_ptr)$/;"	f
+run_double_to_string_cast	src/jit.cpp	/^CLObject run_double_to_string_cast(double d)$/;"	f
+run_float_to_string_cast	src/jit.cpp	/^CLObject run_float_to_string_cast(float f)$/;"	f
 run_int_to_string_cast	src/jit.cpp	/^CLObject run_int_to_string_cast(int n)$/;"	f
 run_integer_to_byte_cast	src/jit_runtime.cpp	/^void run_integer_to_byte_cast(CLVALUE** stack_ptr)$/;"	f
 run_integer_to_double_cast	src/jit_runtime.cpp	/^void run_integer_to_double_cast(CLVALUE** stack_ptr)$/;"	f
@@ -2184,8 +2176,8 @@ run_load_element	src/jit_runtime.cpp	/^BOOL run_load_element(CLVALUE** stack_ptr
 run_load_field	src/jit_runtime.cpp	/^BOOL run_load_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index)$/;"	f
 run_load_field_address	src/jit.cpp	/^struct sPointerAndBoolResult run_load_field_address(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index, CLObject obj)$/;"	f
 run_long_to_string_cast	src/jit.cpp	/^CLObject run_long_to_string_cast(long l)$/;"	f
-run_pointer_to_string_cast	src/jit_runtime.cpp	/^void run_pointer_to_string_cast(CLVALUE** stack_ptr)$/;"	f
-run_regex_to_string_cast	src/jit_runtime.cpp	/^void run_regex_to_string_cast(CLVALUE** stack_ptr)$/;"	f
+run_pointer_to_string_cast	src/jit.cpp	/^CLObject run_pointer_to_string_cast(char* p)$/;"	f
+run_regex_to_string_cast	src/jit.cpp	/^CLObject run_regex_to_string_cast(CLObject regex)$/;"	f
 run_short_to_string_cast	src/jit_runtime.cpp	/^void run_short_to_string_cast(CLVALUE** stack_ptr)$/;"	f
 run_store_element	src/jit.cpp	/^BOOL run_store_element(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, CLObject array, int element_num, CLVALUE value)$/;"	f
 run_ubyte_to_string_cast	src/jit_runtime.cpp	/^void run_ubyte_to_string_cast(CLVALUE** stack_ptr)$/;"	f
@@ -2200,7 +2192,7 @@ run_uinteger_to_ubyte_cast	src/jit_runtime.cpp	/^void run_uinteger_to_ubyte_cast
 run_uinteger_to_uint_cast	src/jit_runtime.cpp	/^void run_uinteger_to_uint_cast(CLVALUE** stack_ptr)$/;"	f
 run_uinteger_to_ulong_cast	src/jit_runtime.cpp	/^void run_uinteger_to_ulong_cast(CLVALUE** stack_ptr)$/;"	f
 run_uinteger_to_ushort_cast	src/jit_runtime.cpp	/^void run_uinteger_to_ushort_cast(CLVALUE** stack_ptr)$/;"	f
-run_ulong_to_string_cast	src/jit_runtime.cpp	/^void run_ulong_to_string_cast(CLVALUE** stack_ptr)$/;"	f
+run_ulong_to_string_cast	src/jit.cpp	/^CLObject run_ulong_to_string_cast(long l)$/;"	f
 run_ushort_to_string_cast	src/jit_runtime.cpp	/^void run_ushort_to_string_cast(CLVALUE** stack_ptr)$/;"	f
 sArrayValue	src/common.h	/^        } sArrayValue;$/;"	m	union:sNodeTreeStruct::__anon3	typeref:struct:sNodeTreeStruct::__anon3::__anon17
 sAssignVariable	src/common.h	/^        } sAssignVariable;$/;"	m	union:sNodeTreeStruct::__anon3	typeref:struct:sNodeTreeStruct::__anon3::__anon4
