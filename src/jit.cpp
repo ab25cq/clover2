@@ -3885,11 +3885,32 @@ show_inst_in_jit(inst);
                 }
                 break;
 
-            case OP_BYTE_TO_INT_CAST: {
+            case OP_BYTE_TO_INT_CAST:
+            case OP_UBYTE_TO_INT_CAST:
+            case OP_SHORT_TO_INT_CAST:
+            case OP_USHORT_TO_INT_CAST:
+            case OP_UINT_TO_INT_CAST:
+            case OP_CHAR_TO_INT_CAST: 
+            case OP_POINTER_TO_INT_CAST: {
                 LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCast(Instruction::Trunc, value->value, Type::getInt32Ty(TheContext), "value2");
+                llvm_value.vm_stack = value->vm_stack;
+                llvm_value.lvar_address_index = value->lvar_address_index;
+
+                dec_stack_ptr(&llvm_stack_ptr, 1);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_FLOAT_TO_INT_CAST:
+            case OP_DOUBLE_TO_INT_CAST: {
+                LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateCast(Instruction::FPToSI, value->value, Type::getInt32Ty(TheContext), "value2");
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
 
@@ -4986,6 +5007,7 @@ show_inst_in_jit(inst);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
                 break;
+
 
             case OP_GET_REGEX_UNGREEDY: {
                 LVALUE* regex = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);

@@ -628,6 +628,15 @@ class JITTest
     def run95_4(p:pointer):  String {
         return p.toString;
     }
+    def run95_5() : int {
+        return 123y.to_int;
+    }
+    def run95_6() : int {
+        return 123l.to_int;
+    }
+    def run95_7() : int {
+        return 123.1.to_int;
+    }
 /*
     def run96():  int {
         a:Integer = new Integer(123);

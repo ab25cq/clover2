@@ -203,6 +203,9 @@ Clover.test("jit test95_3", a.run95_3().equals("false"));
 
 #a.run95_4(y).println();
 #System.sleep(3);
+Clover.test("jit test95_5", a.run95_5() == 123);
+Clover.test("jit test95_6", a.run95_6() == 123);
+Clover.test("jit test95_7", a.run95_7() == 123);
 
 /*
 Clover.test("jit test88", a.run96() == 123);
