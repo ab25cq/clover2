@@ -206,7 +206,12 @@ Clover.test("jit test95_3", a.run95_3().equals("false"));
 Clover.test("jit test95_5", a.run95_5() == 123);
 Clover.test("jit test95_6", a.run95_6() == 123);
 Clover.test("jit test95_7", a.run95_7() == 123);
-
+Clover.test("jit test95_8", a.run95_8() == 123y);
+Clover.test("jit test95_9", a.run95_9() == 123s);
+Clover.test("jit test95_10", a.run95_10() == 123l);
+Clover.test("jit test95_11", a.run95_11() == 123y);
+Clover.test("jit test95_12", a.run95_12() == 123y);
+Clover.test("jit test95_13", a.run95_13() == 123y);
 /*
 Clover.test("jit test88", a.run96() == 123);
 Clover.test("jit test89", a.run97() == 123l);

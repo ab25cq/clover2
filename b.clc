@@ -637,6 +637,24 @@ class JITTest
     def run95_7() : int {
         return 123.1.to_int;
     }
+    def run95_8() : byte {
+        return 123.1.to_long;
+    }
+    def run95_9() : short {
+        return 123.1.to_long;
+    }
+    def run95_10() : long {
+        return 123y.to_long;
+    }
+    def run95_11() : byte {
+        return 123u.to_long;
+    }
+    def run95_12() : byte {
+        return 123.1.to_byte;
+    }
+    def run95_13() : byte {
+        return 123s.to_byte;
+    }
 /*
     def run96():  int {
         a:Integer = new Integer(123);
