@@ -655,6 +655,27 @@ class JITTest
     def run95_13() : byte {
         return 123s.to_byte;
     }
+    def run95_14() : double {
+        return 123l.to_double;
+    }
+    def run95_15() : float {
+        return 123.to_float;
+    }
+    def run95_16() : float {
+        return 123.1.to_float;
+    }
+    def run95_17() : float {
+        return 123u.to_float;
+    }
+    def run95_18() : double {
+        return 123.to_double;
+    }
+    def run95_19() : double {
+        return 123.1f.to_double;
+    }
+    def run95_20() : double {
+        return 123u.to_double;
+    }
 /*
     def run96():  int {
         a:Integer = new Integer(123);

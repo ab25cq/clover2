@@ -212,6 +212,15 @@ Clover.test("jit test95_10", a.run95_10() == 123l);
 Clover.test("jit test95_11", a.run95_11() == 123y);
 Clover.test("jit test95_12", a.run95_12() == 123y);
 Clover.test("jit test95_13", a.run95_13() == 123y);
+Clover.test("jit test95_14", a.run95_14() == 123.0);
+Clover.test("jit test95_15", a.run95_15() == 123.0f);
+Clover.test("jit test95_16", a.run95_16() == 123.1f);
+Clover.test("jit test95_17", a.run95_17() == 123.0f);
+Clover.test("jit test95_18", a.run95_18() == 123.0);
+#a.run95_19().toString().println();
+#System.sleep(10);
+#Clover.test("jit test95_19", a.run95_19() == 123.1);
+Clover.test("jit test95_20", a.run95_20() == 123.0);
 /*
 Clover.test("jit test88", a.run96() == 123);
 Clover.test("jit test89", a.run97() == 123l);
