@@ -195,16 +195,6 @@ void run_ushort_to_string_cast(CLVALUE** stack_ptr)
 
 
 
-void run_cbyte_to_byte_cast(CLVALUE** stack_ptr)
-{
-    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
-
-    sCLObject* obj_data = CLOBJECT(obj);
-
-    char value = (char)obj_data->mFields[0].mByteValue;
-
-    ((*stack_ptr)-1)->mByteValue = value;
-}
 
 void run_cubyte_to_byte_cast(CLVALUE** stack_ptr)
 {
@@ -356,17 +346,6 @@ void run_cubyte_to_short_cast(CLVALUE** stack_ptr)
     sCLObject* obj_data = CLOBJECT(obj);
 
     short value = (short)obj_data->mFields[0].mUByteValue;
-
-    ((*stack_ptr)-1)->mShortValue = value;
-}
-
-void run_cshort_to_short_cast(CLVALUE** stack_ptr)
-{
-    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
-
-    sCLObject* obj_data = CLOBJECT(obj);
-
-    short value = (short)obj_data->mFields[0].mShortValue;
 
     ((*stack_ptr)-1)->mShortValue = value;
 }
@@ -525,17 +504,6 @@ void run_cushort_to_int_cast(CLVALUE** stack_ptr)
     ((*stack_ptr)-1)->mIntValue = value;
 }
 
-void run_integer_to_int_cast(CLVALUE** stack_ptr)
-{
-    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
-
-    sCLObject* obj_data = CLOBJECT(obj);
-
-    int value = (int)obj_data->mFields[0].mIntValue;
-
-    ((*stack_ptr)-1)->mIntValue = value;
-}
-
 void run_uinteger_to_int_cast(CLVALUE** stack_ptr)
 {
     CLObject obj = ((*stack_ptr)-1)->mObjectValue;
@@ -568,28 +536,6 @@ void run_culong_to_int_cast(CLVALUE** stack_ptr)
 
     ((*stack_ptr)-1)->mIntValue = value;
 
-}
-
-void run_cfloat_to_int_cast(CLVALUE** stack_ptr)
-{
-    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
-
-    sCLObject* obj_data = CLOBJECT(obj);
-
-    int value = (int)obj_data->mFields[0].mFloatValue;
-
-    ((*stack_ptr)-1)->mIntValue = value;
-}
-
-void run_cdouble_to_int_cast(CLVALUE** stack_ptr)
-{
-    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
-
-    sCLObject* obj_data = CLOBJECT(obj);
-
-    int value = (int)obj_data->mFields[0].mDoubleValue;
-
-    ((*stack_ptr)-1)->mIntValue = value;
 }
 
 void run_cpointer_to_int_cast(CLVALUE** stack_ptr)
@@ -691,16 +637,6 @@ void run_uinteger_to_long_cast(CLVALUE** stack_ptr)
     ((*stack_ptr)-1)->mLongValue = value;
 }
 
-void run_clong_to_long_cast(CLVALUE** stack_ptr)
-{
-    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
-
-    sCLObject* obj_data = CLOBJECT(obj);
-
-    long value = (long)obj_data->mFields[0].mLongValue;
-
-    ((*stack_ptr)-1)->mLongValue = value;
-}
 
 void run_culong_to_long_cast(CLVALUE** stack_ptr)
 {
@@ -775,17 +711,6 @@ void run_cbyte_to_ubyte_cast(CLVALUE** stack_ptr)
     sCLObject* obj_data = CLOBJECT(obj);
 
     unsigned char value = (unsigned char)obj_data->mFields[0].mByteValue;
-
-    ((*stack_ptr)-1)->mUByteValue = value;
-}
-
-void run_cubyte_to_ubyte_cast(CLVALUE** stack_ptr)
-{
-    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
-
-    sCLObject* obj_data = CLOBJECT(obj);
-
-    unsigned char value = (unsigned char)obj_data->mFields[0].mUByteValue;
 
     ((*stack_ptr)-1)->mUByteValue = value;
 }
@@ -1109,16 +1034,6 @@ void run_integer_to_uint_cast(CLVALUE** stack_ptr)
     ((*stack_ptr)-1)->mUIntValue = value;
 }
 
-void run_uinteger_to_uint_cast(CLVALUE** stack_ptr)
-{
-    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
-
-    sCLObject* obj_data = CLOBJECT(obj);
-
-    unsigned int value = (unsigned int)obj_data->mFields[0].mUIntValue;
-
-    ((*stack_ptr)-1)->mUIntValue = value;
-}
 
 void run_clong_to_uint_cast(CLVALUE** stack_ptr)
 {
@@ -1429,16 +1344,6 @@ void run_culong_to_float_cast(CLVALUE** stack_ptr)
     ((*stack_ptr)-1)->mFloatValue = value;
 }
 
-void run_cfloat_to_float_cast(CLVALUE** stack_ptr)
-{
-    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
-
-    sCLObject* obj_data = CLOBJECT(obj);
-
-    float value = (float)obj_data->mFields[0].mFloatValue;
-
-    ((*stack_ptr)-1)->mFloatValue = value;
-}
 
 void run_cdouble_to_float_cast(CLVALUE** stack_ptr)
 {
@@ -1572,16 +1477,6 @@ void run_cfloat_to_double_cast(CLVALUE** stack_ptr)
     ((*stack_ptr)-1)->mDoubleValue = value;
 }
 
-void run_cdouble_to_double_cast(CLVALUE** stack_ptr)
-{
-    CLObject obj = ((*stack_ptr)-1)->mObjectValue;
-
-    sCLObject* obj_data = CLOBJECT(obj);
-
-    double value = (double)obj_data->mFields[0].mDoubleValue;
-
-    ((*stack_ptr)-1)->mDoubleValue = value;
-}
 
 void run_cchar_to_double_cast(CLVALUE** stack_ptr)
 {

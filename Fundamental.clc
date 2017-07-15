@@ -517,6 +517,10 @@ class Long
         self.value = 0.to_long;
     }
 
+    def initialize(value:int) {
+        self.value = value.to_long;
+    }
+
     def initialize(value:long) {
         self.value = value;
     }

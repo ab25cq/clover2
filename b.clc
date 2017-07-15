@@ -676,9 +676,43 @@ class JITTest
     def run95_20() : double {
         return 123u.to_double;
     }
-/*
     def run96():  int {
         a:Integer = new Integer(123);
+        return a;
+    }
+    def run96_1(): byte {
+        a:Integer = new Integer(123);
+
+        return a;
+    }
+    def run96_2(): float {
+        a:Integer = new Integer(123);
+
+        return a;
+    }
+    def run96_3(): double {
+        a:Integer = new Integer(123);
+
+        return a;
+    }
+    def run96_4(): byte {
+        a:Integer = new Integer(-123);
+
+        return a;
+    }
+    def run96_5(): double {
+        a:Integer = new Integer(-123);
+
+        return a;
+    }
+    def run96_6(): double {
+        a:UInteger = new UInteger(123);
+
+        return a;
+    }
+    def run96_7(): byte {
+        a:UInteger = new UInteger(123);
+
         return a;
     }
     def run97():  long {
@@ -689,8 +723,104 @@ class JITTest
         a:Integer = new Integer(123);
         return a;
     }
+    def run98_1(): byte {
+        a:Byte = new Byte(123);
+        return a;
+    }
+    def run98_2(): int {
+        a:Byte = new Byte(123);
+        return a;
+    }
+    def run98_3(): float {
+        a:Byte = new Byte(123);
+        return a;
+    }
+    def run98_4(): long {
+        a:Byte = new Byte(123);
+        return a;
+    }
+    def run98_5(): long {
+        a:UByte = new UByte(123);
+        return a;
+    }
+    def run98_6(): long {
+        a:Byte = new Byte(-1);
+        return a;
+    }
+    def run98_7(): double {
+        a:UByte = new UByte(123);
+        return a;
+    }
+    def run98_8(): double {
+        a := new Short(123);
+        return a;
+    }
+    def run98_9(): byte {
+        a := new Short(123);
+        return a;
+    }
+    def run98_10(): int {
+        a := new Short(123);
+        return a;
+    }
+    def run98_11(): short {
+        a := new Short(-1);
+        return a;
+    }
+    def run98_12(): byte {
+        a := new Short(-1);
+        return a;
+    }
+    def run98_13(): long {
+        a := new Long(123);
+        return a;
+    }
+    def run98_14(): byte {
+        a := new Long(123);
+        return a;
+    }
+    def run98_15(): double {
+        a := new Long(123);
+        return a;
+    }
+    def run98_16(): double {
+        a := new Long(-123);
+        return a;
+    }
+    def run98_17(): byte {
+        a := new Long(-123);
+        return a;
+    }
+    def run98_18(): byte {
+        a :Char = new Char('A');
+        return a;
+    }
+    def run98_19(): int {
+        a :Char = new Char('A');
+        return a;
+    }
     def run99():  int {
         return 2.1f;
+    }
+    def run99_1(): long {
+        a: Float = new Float(2.1f);
+        return a;
+    }
+    def run99_2(): double {
+        a: Float = new Float(2.1f);
+        return a;
+    }
+    def run99_3(): int {
+        a: Float = new Float(2.1f);
+        return a;
+    }
+    def run99_4(): double {
+        a := new Double(2.1);
+        return a;
+    }
+    def run99_5(): int {
+        a := new Double(2.1);
+        return a;
     }
     def run100():  float {
         return 2y;
@@ -728,6 +858,7 @@ class JITTest
 
         return false;
     }
+/*
     def reverse(): String {
         a:String = "ABC";
         result:String = new String(a.size);
