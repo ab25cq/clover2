@@ -101,7 +101,7 @@ class JITTest
     }
 
     def run11(): {
-        print(" test11...");
+        print("jit test11...");
         try {
             self.method2();
         }
@@ -858,7 +858,143 @@ class JITTest
 
         return false;
     }
-/*
+    def run104(block_:lambda(int)) {
+        for(i:int = 0; i<3; i++) {
+            block_(123);
+        }
+    }
+    def run105() {
+        a:Array<Integer> = array { 1, 2, 3 };
+        a.each(lambda(n:Integer) {
+            n.toString().println();
+        });
+    }
+    def run106(): int {
+        a:bool = false;
+        n:int = 123;
+        m:int = 123;
+        if(a || n == m) {
+            return 123;
+        }
+        else {
+            return 245;
+        }
+    }
+    def callingMethod(method_name:String, params:Array<Object>, num_method_chains:int, max_method_chains:int) : static Command throws Exception 
+    {
+        params2:List<String> = new List<String>();
+        controlling_terminal_flag:bool = false;
+        getting_stderr_flag:bool = false;
+        
+        params.each(closure(item:Object) {
+            if(item.className().equals("String")) {
+                str:String = item.toAnonymous();
+                if(str.equals("--controlling-terminal")) {
+                    controlling_terminal_flag = true;
+                }
+                elif(str.equals("--getting-stderr")) {
+                    getting_stderr_flag = true;
+                }
+                else {
+                    params2.add(str);
+                }
+            }
+            elif(item.className().equals("List")) {
+                list_:List<Object> = item.toAnonymous();
+
+                list_.each(closure(item2:Object) {
+                    if(item2.className().equals("String")) {
+                        params2.add(item2.toAnonymous());
+                    }
+                });
+            }
+            elif(item.className().equals("EqualableList")) {
+                list_:EqualableList<IEqualable> = item.toAnonymous();
+
+                list_.each(closure(item2:IEqualable) {
+                    if(item2.className().equals("String")) {
+                        params2.add(item2.toAnonymous());
+                    }
+                });
+            }
+            elif(item.className().equals("SortableList")) {
+                list_:SortableList<ISortable> = item.toAnonymous();
+
+                list_.each(closure(item2:ISortable) {
+                    if(item2.className().equals("String")) {
+                        params2.add(item2.toAnonymous());
+                    }
+                });
+            }
+            elif(item.className().equals("Array")) {
+                array_:Array<Object> = item.toAnonymous();
+
+                array_.each(closure(item2:Object) {
+                    if(item2.className().equals("String")) {
+                        params2.add(item2.toAnonymous());
+                    }
+                });
+            }
+            elif(item.className().equals("EqualableArray")) {
+                array_:EqualableArray<IEqualable> = item.toAnonymous();
+
+                array_.each(closure(item2:IEqualable) {
+                    if(item2.className().equals("String")) {
+                        params2.add(item2.toAnonymous());
+                    }
+                });
+            }
+            elif(item.className().equals("SortableArray")) {
+                array_:SortableArray<ISortable> = item.toAnonymous();
+
+                array_.each(closure(item2:ISortable) {
+                    if(item2.className().equals("String")) {
+                        params2.add(item2.toAnonymous());
+                    }
+                });
+            }
+        });
+
+        if(getting_stderr_flag) {
+            str:String = null;
+            #return Command.executeCommandWithGettingStderr(method_name, params2, str);
+        }
+        elif(controlling_terminal_flag || (num_method_chains == max_method_chains-1 && Command.controllingTerminalPrograms.indexOf(method_name) != -1)) 
+        {
+            a:int = 123;
+            a.toString.println();
+            #return Command.executeCommandWithControllingTerminal(method_name, params2);
+        }
+        else {
+            b:int = 123;
+            b.toString.println();
+            #str:String = null;
+            #return Command.executeCommand(method_name, params2, str);
+        }
+        return new Command("AAA", 0);
+    }
+    def run108(): bool {
+        a:String = "ABC";
+        result:String = new String(a.size);
+
+        i:int =1;
+        result.buffer[i] = a.buffer[a.len-i-1];
+
+        return true;
+    }
+    def run108_1(): String {
+        a:String = "ABC";
+        result:String = new String(a.size);
+
+        for(i:int = 0; i<a.len; i++) {
+            result.buffer[i] = a.buffer[a.len-i-1];
+        }
+        result.buffer[i] = '\0';
+
+        result.len = a.len;
+
+        return result;
+    }
     def reverse(): String {
         a:String = "ABC";
         result:String = new String(a.size);
@@ -872,6 +1008,34 @@ class JITTest
 
         return result;
     }
+    def run109(index:int, str:String):String {
+        a:String = "ABC";
+
+        len:int = str.length();
+
+        new_size:int = (a.len + len + 1) * 2 + 1;
+        new_buffer:char[] = new char[new_size];
+
+        for(i:int = 0; i<index; i++) {
+            new_buffer[i] = a.buffer[i];
+        }
+        for(i=0; i<len; i++) {
+            new_buffer[i+index] = str.buffer[i];
+        }
+        for(i=index; i<a.len; i++) {
+            new_buffer[i+len] = a.buffer[i];
+        }
+
+        new_buffer[i+len] = '\0';
+
+        a.buffer = new_buffer;
+        a.size = new_size;
+
+        a.len += len;
+
+        return a;
+    }
+/*
     def insert(index:int, str:String):  String {
         a:String = "ABC";
 
@@ -911,6 +1075,7 @@ class JITTest
             for(i=index; i<a.len; i++) {
                 new_buffer[i+len] = a.buffer[i];
             }
+
             new_buffer[i+len] = '\0';
 
             a.buffer = new_buffer;

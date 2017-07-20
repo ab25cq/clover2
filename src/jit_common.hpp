@@ -176,6 +176,10 @@ public:
         params.push_back(param5_type);
         Type* param6_type = IntegerType::get(TheContext, 32);
         params.push_back(param6_type);
+        Type* param7_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+        params.push_back(param7_type);
+        Type* param8_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+        params.push_back(param8_type);
 
         Type* result_type = IntegerType::get(TheContext, 32);
         FunctionType* function_type = FunctionType::get(result_type, params, false);
@@ -195,6 +199,10 @@ public:
         args.push_back(stack_ptr_address_name);
         std::string var_num_name("var_num");
         args.push_back(var_num_name);
+        std::string object_stack_name("object_stack");
+        args.push_back(object_stack_name);
+        std::string object_stack_ptr_name("object_stack_ptr");
+        args.push_back(object_stack_ptr_name);
 
         unsigned index = 0;
         for (auto &arg : function->args()) {
@@ -221,7 +229,7 @@ typedef struct LVALUEStruct LVALUE;
 void create_internal_functions();
 void InitializeModuleAndPassManager();
 
-typedef BOOL (*fJITMethodType)(CLVALUE* stack_ptr, CLVALUE* lvar, sVMInfo* info, CLVALUE* stack, CLVALUE** stack_ptr_address, int var_num);
+typedef BOOL (*fJITMethodType)(CLVALUE* stack_ptr, CLVALUE* lvar, sVMInfo* info, CLVALUE* stack, CLVALUE** stack_ptr_address, int var_num, CLVALUE* object_stack, CLVALUE** object_stack_ptr);
 
 /// jit.cpp ///
 BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2);

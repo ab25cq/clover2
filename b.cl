@@ -29,9 +29,7 @@ catch(e:Exception) {
     println("OK");
 }
 
-print("jit test11...");
 a.run11();
-println("OK");
 
 Clover.test("jit test12", a.run12());
 Clover.test("jit test13", a.run13() == 2);
@@ -84,12 +82,12 @@ Clover.test("jit test53", a.run53() == 246);
 print("jit test53.5...");
 try {
     a.run53_5();
+println("FALSE");
 }
 catch(e:Exception) {
     println("OK");
 }
-
-a.run54();
+#a.run54();
 
 Clover.test("jit test55", a.run55(1, 2, lambda(x:int, y:int):int { return x + y }) == 3);
 
@@ -263,13 +261,25 @@ Clover.test("jit test101", a.run101() == 2y);
 Clover.test("jit test102", a.run102() == 2l);
 Clover.test("jit test103", a.run103());
 
+a.run104(lambda(n:int) { n.toString.println() });
+
+a.run105();
+Clover.test("jit test 106", a.run106() == 123);
+
+JITTest.callingMethod("AAA", array { 1, 2, 3 } , 1, 1);
+#ls("-al")
+
+Clover.test("jit test107", "AAA".equals("AAA"));
 /*
-Clover.test("jit test97", "AAA".equals("AAA"));
+Clover.test("jit test108", a.run108());
 
-Clover.test("jit test98", a.reverse().equals("CBA"));
+Clover.test("jit test108.1", a.run108_1().equals("CBA"));
+Clover.test("jit test-reverse", a.reverse().equals("CBA"));
 
-Clover.test("jit test99", a.insert(-2, "111").equals("AB111C"));
 
+Clover.test("jit test109", a.run109(2, "111").equals("AB111C"));
+
+Clover.test("jit test-insert", a.insert(-2, "111").equals("AB111C"));
 Clover.test("jit test100", a.run104() == 'B');
 Clover.test("jit test101", a.run105() == 'B');
 

@@ -837,7 +837,6 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 {
 #ifdef ENABLE_JIT
     char* pc = code->mCodes;
-    info->pc = &pc;
 #else
     register char* pc = code->mCodes;
 #endif
@@ -846,9 +845,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
     CLVALUE* lvar = stack;
 
     int try_offset_before = 0;
-    info->try_offset_before = &try_offset_before;
     int try_offset = 0;
-    info->try_offset = &try_offset;
 
     long stack_id = append_stack_to_stack_list(stack, &stack_ptr);
 
@@ -986,6 +983,13 @@ if(stack_ptr != lvar + var_num + 1) {
             case OP_TRY: {
                 vm_mutex_on();
 
+#ifdef ENABLE_JIT
+                info->try_pc = &pc;
+                info->try_code = code;
+                info->try_offset = &try_offset;
+                info->try_offset_before = &try_offset_before;
+#endif
+
                 try_offset_before = try_offset;
                 try_offset = *(int*)pc;
                 pc += sizeof(int);
@@ -995,6 +999,14 @@ if(stack_ptr != lvar + var_num + 1) {
                 
                 vm_mutex_off();
                 }
+                break;
+
+            case OP_TRY_END:
+                vm_mutex_on();
+
+                try_offset = try_offset_before;
+                
+                vm_mutex_off();
                 break;
 
             case OP_HEAD_OF_EXPRESSION:
@@ -12783,6 +12795,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 #ifdef MDEBUG
 if(stack_ptr != lvar + var_num) {
     fprintf(stderr, "invalid stack3\n");
+    fprintf(stderr, "stack_ptr - lvar - var_num %ld\n", stack_ptr - (lvar + var_num));
     exit(3);
 }
 #endif

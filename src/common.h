@@ -180,7 +180,8 @@ struct sVMInfoStruct {
     int sline;
     int* try_offset;
     int* try_offset_before;
-    char** pc;
+    char** try_pc;
+    sByteCode* try_code;
 
     long stack_id;
     char exception_message[EXCEPTION_MESSAGE_MAX];
@@ -788,28 +789,33 @@ extern BOOL gSigInt;
 #define OP_RETURN 8
 #define OP_THROW 9
 #define OP_TRY 10
-#define OP_HEAD_OF_EXPRESSION 11
-#define OP_MARK_SOURCE_CODE_POSITION 12
-#define OP_SIGINT 13
-#define OP_LABEL 14
+#define OP_TRY_END 11
+#define OP_HEAD_OF_EXPRESSION 12
+#define OP_MARK_SOURCE_CODE_POSITION 13
+#define OP_SIGINT 14
+#define OP_LABEL 15
 
-#define OP_STORE 15
-#define OP_LOAD 16
+#define OP_VALUE_FOR_ANDAND_OROR 16
+#define OP_STORE_VALUE_FOR_ANDAND_OROR 17
+#define OP_LOAD_VALUE_FOR_ANDAND_OROR 18
 
-#define OP_LOAD_ADDRESS 17
+#define OP_STORE 19
+#define OP_LOAD 20
 
-#define OP_LDCBYTE 20
-#define OP_LDCUBYTE 21
-#define OP_LDCSHORT 22
-#define OP_LDCUSHORT 23
-#define OP_LDCINT 24
-#define OP_LDCUINT 25
-#define OP_LDCLONG 26
-#define OP_LDCULONG 27
-#define OP_LDCNULL 28
-#define OP_LDCPOINTER 29
-#define OP_LDCFLOAT 30
-#define OP_LDCDOUBLE 31
+#define OP_LOAD_ADDRESS 21
+
+#define OP_LDCBYTE 25
+#define OP_LDCUBYTE 26
+#define OP_LDCSHORT 27
+#define OP_LDCUSHORT 28
+#define OP_LDCINT 29
+#define OP_LDCUINT 30
+#define OP_LDCLONG 31
+#define OP_LDCULONG 32
+#define OP_LDCNULL 33
+#define OP_LDCPOINTER 34
+#define OP_LDCFLOAT 35
+#define OP_LDCDOUBLE 36
 
 #define OP_BADD 40
 #define OP_BSUB 41

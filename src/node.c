@@ -653,7 +653,7 @@ static BOOL compile_and_and(unsigned int node, sCompileInfo* info)
     append_int_value_to_code(info->code, 0, info->no_output);
 
     char label_end_point[LABEL_NAME_MAX];
-    create_label_name("label_and_and", label_end_point, LABEL_NAME_MAX, label_num);
+    create_label_name("label_and_endpoint", label_end_point, LABEL_NAME_MAX, label_num);
 
     append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
 
@@ -741,6 +741,8 @@ static BOOL compile_or_or(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
+    append_opecode_to_code(info->code, OP_VALUE_FOR_ANDAND_OROR, info->no_output);
+
     append_opecode_to_code(info->code, OP_DUPE, info->no_output);
     info->stack_num++;
 
@@ -754,7 +756,7 @@ static BOOL compile_or_or(unsigned int node, sCompileInfo* info)
     append_int_value_to_code(info->code, 0, info->no_output);
 
     char label_end_point[LABEL_NAME_MAX];
-    create_label_name("label_or_or", label_end_point, LABEL_NAME_MAX, label_num);
+    create_label_name("label_or_endpoint", label_end_point, LABEL_NAME_MAX, label_num);
 
     append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
 
@@ -785,11 +787,15 @@ static BOOL compile_or_or(unsigned int node, sCompileInfo* info)
     append_opecode_to_code(info->code, OP_OROR, info->no_output);
     info->stack_num--;
 
+    append_opecode_to_code(info->code, OP_STORE_VALUE_FOR_ANDAND_OROR, info->no_output);
+
     /// the end point ///
     *(int*)(info->code->mCodes + goto_point) = info->code->mLen;
 
     append_opecode_to_code(info->code, OP_LABEL, info->no_output);
     append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
+
+    append_opecode_to_code(info->code, OP_LOAD_VALUE_FOR_ANDAND_OROR, info->no_output);
 
     info->type = create_node_type_with_class_name("bool");
 
@@ -2874,6 +2880,8 @@ static BOOL compile_try_expression(unsigned int node, sCompileInfo* info)
     if(!compile_block(try_node_block, info)) {
         return FALSE;
     }
+
+    append_opecode_to_code(info->code, OP_TRY_END, info->no_output);
 
     append_opecode_to_code(info->code, OP_GOTO, info->no_output);
     int goto_point = info->code->mLen;

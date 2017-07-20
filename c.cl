@@ -4,3 +4,4 @@ b:ulong = 1l;
 a = b;
 
 a.className().println();
+

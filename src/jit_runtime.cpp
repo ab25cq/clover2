@@ -97,7 +97,7 @@ BOOL invoke_virtual_method(int num_real_params, int offset, CLVALUE* stack, int 
     else {
         if(!invoke_method(klass, method, stack, var_num, stack_ptr, info)) {
             if(*info->try_offset != 0) {
-                *info->pc = code->mCodes + *info->try_offset;
+                *info->try_pc = info->try_code->mCodes + *info->try_offset;
                 *info->try_offset = *info->try_offset_before;
             }
             else {
@@ -1558,6 +1558,12 @@ BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClas
         return FALSE;
     }
 
+    int object_stack_size = 1024;
+    CLVALUE* object_stack = (CLVALUE*)MCALLOC(1, sizeof(CLVALUE)*object_stack_size);
+    CLVALUE* object_stack_ptr = object_stack;
+
+    long object_stack_id = append_stack_to_stack_list(object_stack, &object_stack_ptr);
+
     char method_path2[METHOD_NAME_MAX + 128];
     create_method_path_for_jit(klass, method, method_path2, METHOD_NAME_MAX + 128);
     
@@ -1578,18 +1584,28 @@ BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClas
         info->current_var_num = var_num;
         info->stack_id = stack_id;
 
-        if(!function(stack_ptr, lvar, info, stack, &stack_ptr, var_num)) {
+        BOOL result = function(stack_ptr, lvar, info, stack, &stack_ptr, var_num, object_stack, &object_stack_ptr);
+        if(!result) {
             remove_stack_to_stack_list(stack, &stack_ptr);
+            remove_stack_to_stack_list(object_stack, &object_stack_ptr);
+            MFREE(object_stack);
             return FALSE;
         }
 
         remove_stack_to_stack_list(stack, &stack_ptr);
     }
     else {
-        if(!vm(code, constant, stack, var_num, klass, info)) {
+        BOOL result = vm(code, constant, stack, var_num, klass, info);
+
+        if(!result) {
+            remove_stack_to_stack_list(object_stack, &object_stack_ptr);
+            MFREE(object_stack);
             return FALSE;
         }
     }
+
+    remove_stack_to_stack_list(object_stack, &object_stack_ptr);
+    MFREE(object_stack);
 
     return TRUE;
 }

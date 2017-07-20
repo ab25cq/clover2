@@ -448,7 +448,7 @@ void create_internal_functions()
     param1_type = PointerType::get(IntegerType::get(TheContext,64), 0);
     type_params.push_back(param1_type);
 
-    param2_type = PointerType::get(IntegerType::get(TheContext,8), 0);
+    param2_type = IntegerType::get(TheContext,32);
     type_params.push_back(param2_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
@@ -2837,7 +2837,7 @@ void InitializeModuleAndPassManager()
     
     TheFPM = llvm::make_unique<legacy::FunctionPassManager>(TheModule.get());
     
-    TheFPM->add(createInstructionCombiningPass());
+    //TheFPM->add(createInstructionCombiningPass());
     TheFPM->add(createReassociatePass());
     TheFPM->add(createGVNPass());
     TheFPM->add(createCFGSimplificationPass());
@@ -3451,6 +3451,10 @@ void show_inst_in_jit(int opecode)
 
         case OP_LRSHIFT: 
             puts("OP_LRSHIFT");
+            break;
+
+        case OP_INVOKE_BLOCK:
+            puts("OP_INVOKE_BLOCK");
             break;
 
         case OP_LAND: 
@@ -4079,7 +4083,10 @@ BOOL compile_jit_method(sCLClass* klass, sCLMethod* method)
     method->mMethodCallCount++;
 
 if(strcmp(CLASS_NAME(klass), "JITTest") == 0) {
-    method->mMethodCallCount = 1000;
+method->mMethodCallCount = 1000;
+}
+else {
+method->mMethodCallCount = 0;
 }
 
     if(method->mMethodCallCount > JIT_METHOD_CALL_COUNT && !method->mJITCompiled) {
@@ -4096,8 +4103,7 @@ if(strcmp(CLASS_NAME(klass), "JITTest") == 0) {
                 if(!compile_to_native_code(code, constant, klass, method, method_path2)) {
                     return FALSE;
                 }
-TheModule->dump();
-
+//TheModule->dump();
 
                 auto H = TheJIT->addModule(std::move(TheModule));
                 InitializeModuleAndPassManager();
