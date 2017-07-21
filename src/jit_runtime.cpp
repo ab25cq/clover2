@@ -76,44 +76,6 @@ char* get_try_catch_label_name(sVMInfo* info)
     return info->try_catch_label_name;
 }
 
-BOOL invoke_virtual_method(int num_real_params, int offset, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sByteCode* code, sConst* constant)
-{
-    CLObject object = ((*stack_ptr)-num_real_params)->mObjectValue;
-
-    sCLObject* object_data = CLOBJECT(object);
-
-    sCLClass* klass = object_data->mClass;
-
-    MASSERT(klass != NULL);
-
-    char* method_name_and_params = CONS_str(constant, offset);
-
-    sCLMethod* method = search_for_method_from_virtual_method_table(klass, method_name_and_params);
-
-    if(method == NULL) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "OP_INVOKE_VIRTUAL_METHOD: Method not found");
-        return FALSE;
-    }
-    else {
-        if(!invoke_method(klass, method, stack, var_num, stack_ptr, info)) {
-            if(*info->try_offset != 0) {
-                *info->try_pc = info->try_code->mCodes + *info->try_offset;
-                *info->try_offset = *info->try_offset_before;
-            }
-            else {
-                return FALSE;
-            }
-        }
-    }
-
-    return TRUE;
-}
-
-
-
-
-
-
 
 BOOL run_load_element(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info)
 {

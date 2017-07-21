@@ -3,7 +3,6 @@ a:JITTest = new JITTest();
 b:int = a.run();
 Clover.test("jit test", b == 4);
 
-
 c:String = a.run2();
 Clover.test("jit test2", c.equals("ABC"));
 
@@ -270,10 +269,10 @@ JITTest.callingMethod("AAA", array { 1, 2, 3 } , 1, 1);
 #ls("-al")
 
 Clover.test("jit test107", "AAA".equals("AAA"));
-/*
 Clover.test("jit test108", a.run108());
-
 Clover.test("jit test108.1", a.run108_1().equals("CBA"));
+
+/*
 Clover.test("jit test-reverse", a.reverse().equals("CBA"));
 
 

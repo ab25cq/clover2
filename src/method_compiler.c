@@ -104,6 +104,7 @@ BOOL compile_method(sCLMethod* method, sParserParam* params, int num_params, sPa
     {
         append_opecode_to_code(cinfo2.code, OP_LOAD, FALSE);
         append_int_value_to_code(cinfo2.code, 0, FALSE);
+        append_int_value_to_code(cinfo2.code, 4, FALSE);
         append_opecode_to_code(cinfo2.code, OP_RETURN, FALSE);
     }
     else if(type_identify_with_class_name(result_type, "Null")) {

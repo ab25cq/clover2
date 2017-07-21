@@ -844,9 +844,6 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
     CLVALUE* stack_ptr = stack + var_num;
     CLVALUE* lvar = stack;
 
-    int try_offset_before = 0;
-    int try_offset = 0;
-
     long stack_id = append_stack_to_stack_list(stack, &stack_ptr);
 
     while(pc - code->mCodes < code->mLen) {
@@ -983,16 +980,13 @@ if(stack_ptr != lvar + var_num + 1) {
             case OP_TRY: {
                 vm_mutex_on();
 
+                info->try_offset = *(int*)pc;
+                pc += sizeof(int);
+
 #ifdef ENABLE_JIT
                 info->try_pc = &pc;
                 info->try_code = code;
-                info->try_offset = &try_offset;
-                info->try_offset_before = &try_offset_before;
 #endif
-
-                try_offset_before = try_offset;
-                try_offset = *(int*)pc;
-                pc += sizeof(int);
 
                 int catch_label_name_offset = *(int*)pc;
                 pc += sizeof(int);
@@ -1004,7 +998,11 @@ if(stack_ptr != lvar + var_num + 1) {
             case OP_TRY_END:
                 vm_mutex_on();
 
-                try_offset = try_offset_before;
+#ifdef ENABLE_JIT
+                info->try_pc = 0;
+                info->try_code = NULL;
+#endif
+                info->try_offset = 0;
                 
                 vm_mutex_off();
                 break;
@@ -1071,6 +1069,9 @@ if(stack_ptr != lvar + var_num + 1) {
                     vm_mutex_on();
 
                     int index = *(int*)pc;
+                    pc += sizeof(int);
+
+                    int tmp = *(int*)pc;
                     pc += sizeof(int);
 
                     *stack_ptr = lvar[index];
@@ -4527,9 +4528,9 @@ if(stack_ptr != lvar + var_num + 1) {
                     sCLMethod* method = klass->mMethods + method_index;
 
                     if(!invoke_method(klass, method, stack, var_num, &stack_ptr, info)) {
-                        if(try_offset != 0) {
-                            pc = code->mCodes + try_offset;
-                            try_offset = try_offset_before;
+                        if(info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
                         }
                         else {
                             vm_mutex_off();
@@ -4577,9 +4578,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     }
                     else {
                         if(!invoke_method(klass, method, stack, var_num, &stack_ptr, info)) {
-                            if(try_offset != 0) {
-                                pc = code->mCodes + try_offset;
-                                try_offset = try_offset_before;
+                            if(info->try_offset != 0) {
+                                pc = code->mCodes + info->try_offset;
+                                info->try_offset = 0;
                             }
                             else {
                                 vm_mutex_off();
@@ -4665,9 +4666,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
                         gGlobalStackPtr--;
 
                         if(!invoke_method(klass, method, stack, var_num, &stack_ptr, info)) {
-                            if(try_offset != 0) {
-                                pc = code->mCodes + try_offset;
-                                try_offset = try_offset_before;
+                            if(info->try_offset != 0) {
+                                pc = code->mCodes + info->try_offset;
+                                info->try_offset = 0;
                             }
                             else {
                                 vm_mutex_off();
@@ -4727,9 +4728,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
                         gGlobalStackPtr--;
 
                         if(!invoke_method(klass, method, stack, var_num, &stack_ptr, info)) {
-                            if(try_offset != 0) {
-                                pc = code->mCodes + try_offset;
-                                try_offset = try_offset_before;
+                            if(info->try_offset != 0) {
+                                pc = code->mCodes + info->try_offset;
+                                info->try_offset = 0;
                             }
                             else {
                                 vm_mutex_off();
@@ -4814,6 +4815,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     vm_mutex_on();
 
                     int field_index = *(int*)pc;
+                    pc += sizeof(int);
+
+                    int tmp = *(int*)pc;
                     pc += sizeof(int);
 
                     CLObject obj = (stack_ptr -1)->mObjectValue;
@@ -4944,6 +4948,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     pc += sizeof(int);
 
                     int field_index = *(int*)pc;
+                    pc += sizeof(int);
+
+                    int tmp = *(int*)pc;
                     pc += sizeof(int);
 
                     char* class_name = CONS_str(constant, offset);

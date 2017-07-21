@@ -208,8 +208,8 @@ class JITTest
         return a;
     }
     def run25(): int {
-        a:byte = 123y;
-        b:byte = 123y;
+        a:ubyte = 123y;
+        b:ubyte = 123y;
 
         return a + b;
     }

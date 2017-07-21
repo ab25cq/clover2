@@ -369,9 +369,9 @@ BOOL call_invoke_virtual_method(int num_real_params, int offset, CLVALUE* stack,
     }
     else {
         if(!invoke_method(klass, method, stack, var_num, stack_ptr, info)) {
-            if(*info->try_offset != 0) {
-                *info->try_pc = info->try_code->mCodes + *info->try_offset;
-                *info->try_offset = *info->try_offset_before;
+            if(info->try_offset != 0) {
+                *info->try_pc = info->try_code->mCodes + info->try_offset;
+                info->try_offset = 0;
             }
             else {
                 return FALSE;
@@ -490,7 +490,7 @@ static void restore_lvar_of_llvm_stack_from_lvar_of_vm_stack(LVALUE* llvm_stack,
 void try_function(sVMInfo* info, char* try_cach_label, int try_offset)
 {
     info->try_catch_label_name = try_cach_label;
-    *info->try_offset = try_offset;
+    info->try_offset = try_offset;
 }
 
 StructType* get_vm_info_struct_type()
@@ -507,12 +507,12 @@ StructType* get_vm_info_struct_type()
     fields.push_back(field_type4);
     Type* field_type5 = IntegerType::get(TheContext, 32);                       // sline
     fields.push_back(field_type5);
-    Type* field_type6 = PointerType::get(IntegerType::get(TheContext, 32), 0); // try_offset
+    Type* field_type6 = IntegerType::get(TheContext, 32);                       // try_offset
     fields.push_back(field_type6);
-    Type* field_type7 = PointerType::get(IntegerType::get(TheContext, 32), 0); // try_offset_before
+    Type* field_type7 = PointerType::get(PointerType::get(IntegerType::get(TheContext, 8), 0), 0); // try_pc
     fields.push_back(field_type7);
-    Type* field_type8 = PointerType::get(PointerType::get(IntegerType::get(TheContext, 8), 0), 0); // pc
-    fields.push_back(field_type8);
+    Type* field_type8 = PointerType::get(IntegerType::get(TheContext, 64), 0);      // try_code
+    fields.push_back(field_type7);
     Type* field_type9 = IntegerType::get(TheContext, 64);                           // stack_id
     fields.push_back(field_type9);
     Type* field_type10 = ArrayType::get(IntegerType::get(TheContext, 8), EXCEPTION_MESSAGE_MAX);  // exception_message
@@ -685,9 +685,9 @@ BOOL invoke_dynamic_method(int offset, int offset2, int num_params, int static_,
         gGlobalStackPtr--;
 
         if(!invoke_method(klass, method, stack, var_num, stack_ptr, info)) {
-            if(*info->try_offset != 0) {
-                *info->try_pc = info->try_code->mCodes + *info->try_offset;
-                *info->try_offset = *info->try_offset_before;
+            if(info->try_offset != 0) {
+                *info->try_pc = info->try_code->mCodes + info->try_offset;
+                info->try_offset = 0;
             }
             else {
                 return FALSE;
@@ -741,9 +741,9 @@ BOOL invoke_dynamic_method(int offset, int offset2, int num_params, int static_,
         gGlobalStackPtr--;
 
         if(!invoke_method(klass, method, stack, var_num, stack_ptr, info)) {
-            if(*info->try_offset != 0) {
-                *info->try_pc = info->try_code->mCodes + *info->try_offset;
-                *info->try_offset = *info->try_offset_before;
+            if(info->try_offset != 0) {
+                *info->try_pc = info->try_code->mCodes + info->try_offset;
+                info->try_offset = 0;
             }
             else {
                 return FALSE;
@@ -1846,6 +1846,41 @@ void trunc_vm_stack_value(LVALUE* value, int inst)
     }
 }
 
+void trunc_vm_stack_value2(LVALUE* llvm_value, int size)
+{
+    switch(size) {
+        case 1:
+            llvm_value->value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt8Ty(TheContext));
+            break;
+
+        case 2:
+            llvm_value->value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt16Ty(TheContext));
+            break;
+
+        case 4:
+            llvm_value->value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt32Ty(TheContext));
+            break;
+
+        case 8:
+            llvm_value->value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt64Ty(TheContext));
+            break;
+
+        case 16:
+            llvm_value->value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getFloatTy(TheContext));
+            break;
+
+        case 32:
+            llvm_value->value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getDoubleTy(TheContext));
+            break;
+
+        case 64:
+            llvm_value->value = Builder.CreateCast(Instruction::IntToPtr, llvm_value->value, PointerType::get(IntegerType::get(TheContext, 64), 0));
+            break;
+    }
+
+    llvm_value->vm_stack = FALSE;
+}
+
 //////////////////////////////////////////////////////////////////////
 // LLVM core
 //////////////////////////////////////////////////////////////////////
@@ -1893,7 +1928,8 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
     int i;
     for(i=0; i<var_num; i++) {
         llvm_stack[i].value = create_entry_block_alloca(function, i);
-        llvm_stack[i].vm_stack = FALSE;
+        llvm_stack[i].vm_stack = TRUE;
+        llvm_stack[i].lvar_address_index = -1;
     }
 
     /// parametor from VM stack ptr ///
@@ -2283,7 +2319,12 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 int index = *(int*)pc;
                 pc += sizeof(int);
 
+                int size = *(int*)pc;
+                pc += sizeof(int);
+
                 LVALUE llvm_value = get_llvm_value_from_lvar_with_offset(llvm_stack, index);
+
+                trunc_vm_stack_value2(&llvm_value, size);
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -3771,6 +3812,9 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 int field_index = *(int*)pc;
                 pc += sizeof(int);
 
+                int size = *(int*)pc;
+                pc += sizeof(int);
+
                 LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
                 Function* get_field_fun = TheModule->getFunction("get_field_from_object");
@@ -3811,6 +3855,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = TRUE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
+
+                trunc_vm_stack_value2(&llvm_value, size);
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -3915,6 +3961,9 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 int field_index = *(int*)pc;
                 pc += sizeof(int);
 
+                int size = *(int*)pc;
+                pc += sizeof(int);
+
                 Function* fun = TheModule->getFunction("load_class_field");
 
                 std::vector<Value*> params2;
@@ -3954,6 +4003,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE llvm_value;
                 llvm_value.value = result1;
                 llvm_value.vm_stack = TRUE;
+
+                trunc_vm_stack_value2(&llvm_value, size);
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -4395,16 +4446,23 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 break;
 
             case OP_BYTE_TO_INT_CAST:
-            case OP_UBYTE_TO_INT_CAST:
             case OP_SHORT_TO_INT_CAST:
-            case OP_USHORT_TO_INT_CAST:
+            case OP_UBYTE_TO_INT_CAST:
+            case OP_USHORT_TO_INT_CAST: {
+                LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateCast(Instruction::SExt, value->value, Type::getInt32Ty(TheContext), "value2");
+                llvm_value.vm_stack = value->vm_stack;
+                llvm_value.lvar_address_index = value->lvar_address_index;
+
+                dec_stack_ptr(&llvm_stack_ptr, 1);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
             case OP_UINT_TO_INT_CAST:
-/*
-            case OP_LONG_TO_INT_CAST:
-            case OP_ULONG_TO_INT_CAST:
-            case OP_LONG_TO_INT_CAST:
-            case OP_ULONG_TO_INT_CAST:
-*/
             case OP_CHAR_TO_INT_CAST: 
             case OP_POINTER_TO_INT_CAST: 
             case OP_BYTE_TO_UINT_CAST:

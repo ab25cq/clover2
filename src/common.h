@@ -178,8 +178,7 @@ struct sVMInfoStruct {
     int current_var_num;
     char* sname;
     int sline;
-    int* try_offset;
-    int* try_offset_before;
+    int try_offset;
     char** try_pc;
     sByteCode* try_code;
 
