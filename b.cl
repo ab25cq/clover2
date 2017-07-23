@@ -272,10 +272,10 @@ Clover.test("jit test107", "AAA".equals("AAA"));
 Clover.test("jit test108", a.run108());
 Clover.test("jit test108.1", a.run108_1().equals("CBA"));
 
-/*
 Clover.test("jit test-reverse", a.reverse().equals("CBA"));
 
 
+/*
 Clover.test("jit test109", a.run109(2, "111").equals("AB111C"));
 
 Clover.test("jit test-insert", a.insert(-2, "111").equals("AB111C"));

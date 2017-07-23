@@ -225,7 +225,7 @@ class JITTest
 
         return a * b;
     }
-    def run28():  byte {
+    def run28(): byte {
         a:byte = 9;
         b:byte = 3;
 

@@ -14,37 +14,37 @@ void cast_right_type_to_byte(sNodeType** right_type, sCompileInfo* info)
     }
     else if(type_identify_with_class_name(*right_type, "short"))
     {
-        //append_opecode_to_code(info->code, OP_SHORT_TO_BYTE_CAST, info->no_output);
+        append_opecode_to_code(info->code, OP_SHORT_TO_BYTE_CAST, info->no_output);
 
         *right_type = create_node_type_with_class_name("byte");
     }
     else if(type_identify_with_class_name(*right_type, "ushort")) 
     {
-        //append_opecode_to_code(info->code, OP_USHORT_TO_BYTE_CAST, info->no_output);
+        append_opecode_to_code(info->code, OP_USHORT_TO_BYTE_CAST, info->no_output);
 
         *right_type = create_node_type_with_class_name("byte");
     }
     else if(type_identify_with_class_name(*right_type, "int"))
     {
-        //append_opecode_to_code(info->code, OP_INT_TO_BYTE_CAST, info->no_output);
+        append_opecode_to_code(info->code, OP_INT_TO_BYTE_CAST, info->no_output);
 
         *right_type = create_node_type_with_class_name("byte");
     }
     else if(type_identify_with_class_name(*right_type, "uint"))
     {
-        //append_opecode_to_code(info->code, OP_UINT_TO_BYTE_CAST, info->no_output);
+        append_opecode_to_code(info->code, OP_UINT_TO_BYTE_CAST, info->no_output);
 
         *right_type = create_node_type_with_class_name("byte");
     }
     else if(type_identify_with_class_name(*right_type, "long"))
     {
-        //append_opecode_to_code(info->code, OP_LONG_TO_BYTE_CAST, info->no_output);
+        append_opecode_to_code(info->code, OP_LONG_TO_BYTE_CAST, info->no_output);
 
         *right_type = create_node_type_with_class_name("byte");
     }
     else if(type_identify_with_class_name(*right_type, "ulong"))
     {
-        //append_opecode_to_code(info->code, OP_ULONG_TO_BYTE_CAST, info->no_output);
+        append_opecode_to_code(info->code, OP_ULONG_TO_BYTE_CAST, info->no_output);
 
         *right_type = create_node_type_with_class_name("byte");
     }
@@ -166,25 +166,25 @@ void cast_right_type_to_short(sNodeType** right_type, sCompileInfo* info)
     }
     else if(type_identify_with_class_name(*right_type, "int"))
     {
-        //append_opecode_to_code(info->code, OP_INT_TO_SHORT_CAST, info->no_output);
+        append_opecode_to_code(info->code, OP_INT_TO_SHORT_CAST, info->no_output);
 
         *right_type = create_node_type_with_class_name("short");
     }
     else if(type_identify_with_class_name(*right_type, "uint")) 
     {
-        //append_opecode_to_code(info->code, OP_UINT_TO_SHORT_CAST, info->no_output);
+        append_opecode_to_code(info->code, OP_UINT_TO_SHORT_CAST, info->no_output);
 
         *right_type = create_node_type_with_class_name("short");
     }
     else if(type_identify_with_class_name(*right_type, "long"))
     {
-        //append_opecode_to_code(info->code, OP_LONG_TO_SHORT_CAST, info->no_output);
+        append_opecode_to_code(info->code, OP_LONG_TO_SHORT_CAST, info->no_output);
 
         *right_type = create_node_type_with_class_name("short");
     }
     else if(type_identify_with_class_name(*right_type, "ulong")) 
     {
-        //append_opecode_to_code(info->code, OP_ULONG_TO_SHORT_CAST, info->no_output);
+        append_opecode_to_code(info->code, OP_ULONG_TO_SHORT_CAST, info->no_output);
 
         *right_type = create_node_type_with_class_name("short");
     }
@@ -318,13 +318,13 @@ void cast_right_type_to_int(sNodeType** right_type, sCompileInfo* info)
     }
     else if(type_identify_with_class_name(*right_type, "long"))
     {
-        //append_opecode_to_code(info->code, OP_LONG_TO_INT_CAST, info->no_output);
+        append_opecode_to_code(info->code, OP_LONG_TO_INT_CAST, info->no_output);
 
         *right_type = create_node_type_with_class_name("int");
     }
     else if(type_identify_with_class_name(*right_type, "ulong")) 
     {
-        //append_opecode_to_code(info->code, OP_ULONG_TO_INT_CAST, info->no_output);
+        append_opecode_to_code(info->code, OP_ULONG_TO_INT_CAST, info->no_output);
 
         *right_type = create_node_type_with_class_name("int");
     }
