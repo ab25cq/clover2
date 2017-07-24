@@ -640,6 +640,8 @@ static BOOL compile_and_and(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
+    append_opecode_to_code(info->code, OP_VALUE_FOR_ANDAND_OROR, info->no_output);
+
     append_opecode_to_code(info->code, OP_DUPE, info->no_output);
     info->stack_num++;
 
@@ -683,6 +685,8 @@ static BOOL compile_and_and(unsigned int node, sCompileInfo* info)
 
     append_opecode_to_code(info->code, OP_ANDAND, info->no_output);
     info->stack_num--;
+
+    append_opecode_to_code(info->code, OP_STORE_VALUE_FOR_ANDAND_OROR, info->no_output);
 
     /// the end point ///
     *(int*)(info->code->mCodes + goto_point) = info->code->mLen;

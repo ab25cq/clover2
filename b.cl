@@ -260,45 +260,49 @@ Clover.test("jit test101", a.run101() == 2y);
 Clover.test("jit test102", a.run102() == 2l);
 Clover.test("jit test103", a.run103());
 
+print("jit test 104...");
 a.run104(lambda(n:int) { n.toString.println() });
+println("OK");
 
+print("jit test 105...");
 a.run105();
+println("OK");
 Clover.test("jit test 106", a.run106() == 123);
 
-JITTest.callingMethod("AAA", array { 1, 2, 3 } , 1, 1);
+#JITTest.callingMethod("AAA", array { 1, 2, 3 } , 1, 1);
 #ls("-al")
 
 Clover.test("jit test107", "AAA".equals("AAA"));
 Clover.test("jit test108", a.run108());
 Clover.test("jit test108.1", a.run108_1().equals("CBA"));
-
+Clover.test("jit test109", a.run109(2, "111").equals("AB111C"));
+Clover.test("jit test110", a.run110() == 'B');
+Clover.test("jit test111", a.run111() == 'B');
+Clover.test("jit test112", a.run112() == 101);
 Clover.test("jit test-reverse", a.reverse().equals("CBA"));
+Clover.test("jit test-insert", a.insert(-2, "111").equals("AB111C"));
+Clover.test("jit test-indexOf", a.indexOf(/B/, 1) == 1);
+Clover.test("jit test-insert2", a.insert2(-1, 7).equals(equalable_list { 1, 2, 3, 7}));
+Clover.test("jit test-add", a.add(4).equals(equalable_list { 1, 2, 3, 4 }));
+Clover.test("jit test-subBuffer", a.subBuffer(1, -1).equals(B"BC"));
 
 
 /*
-Clover.test("jit test109", a.run109(2, "111").equals("AB111C"));
 
-Clover.test("jit test-insert", a.insert(-2, "111").equals("AB111C"));
-Clover.test("jit test100", a.run104() == 'B');
-Clover.test("jit test101", a.run105() == 'B');
 
-Clover.test("jit test102", a.indexOf(/B/, 1) == 1);
-Clover.test("jit test103", a.run106() == 101);
-Clover.test("jit test104", a.add(4).equals(equalable_list { 1, 2, 3, 4 }));
-
-Clover.test("jit test105", a.insert2(-1, 7).equals(equalable_list { 1, 2, 3, 7}));
 
 a.buffer_initialize(100ul);
 
 d:int = 123;
 a.buffer_initialize2(&d, 4ul);
 
-Clover.test("jit test106", a.subBuffer(1, -1).equals(B"BC"));
 Clover.test("jit test107", a.sub(/./, "X", null).equals("XBC"));
 Clover.test("jit test108", a.scan(/./).equals(equalable_list {"A", "B", "C"}));
 Clover.test("string2 test1", "ABC".sub(/A/, "B").equals("BBC"));
 Clover.test("string2 test2", "AAA".sub(/A/g, "B").equals("BBB"));
 Clover.test("string2 test3", "AAA".sub(/^A/g, "B").equals("BAA"));
+
+
 
 Clover.test("string2 test4", "ABC".subString(-2, -1).equals("BC"));
 group_strings:EqualableList<String> = new EqualableList<String>();

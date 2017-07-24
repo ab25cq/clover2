@@ -1883,7 +1883,15 @@ void trunc_vm_stack_value2(LVALUE* llvm_value, int size)
             break;
     }
 
-    llvm_value->vm_stack = FALSE;
+    //llvm_value->vm_stack = FALSE;
+}
+
+Value* llvm_make_str_value(char* str)
+{
+    Constant* str_constant = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)str);
+    Value* value = ConstantExpr::getIntToPtr(str_constant, PointerType::get(IntegerType::get(TheContext,8), 0));
+
+    return value;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -2027,6 +2035,9 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 pc += sizeof(int);
 
                 LVALUE* conditional_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+//call_show_str_in_jit(llvm_make_str_value("OP_COND_JUMP"));
+//call_show_value_in_jit(conditional_value->value);
 
                 BasicBlock* cond_jump_then_block = BasicBlock::Create(TheContext, "cond_jump_then", function);
                 entry_condends[num_cond_jump] = BasicBlock::Create(TheContext, "entry_condend", function);
@@ -2261,6 +2272,9 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 IRBuilder<> builder(&function->getEntryBlock(), function->getEntryBlock().begin());
                 value_for_andand_oror[num_value_for_andand_oror] = builder.CreateAlloca(Type::getInt64Ty(TheContext), 0, "VALUE_FOR_ANDAND_OROR");
                 Builder.CreateAlignedStore(llvm_value->value, value_for_andand_oror[num_value_for_andand_oror], 8);
+
+                trunc_vm_stack_value2(llvm_value, 4);
+
                 num_value_for_andand_oror++;
 
                 MASSERT(num_value_for_andand_oror >= ANDAND_OROR_MAX);
@@ -2285,6 +2299,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateLoad(value_for_andand_oror[num_value_for_andand_oror], "value_for_andand_oror");
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+
+                trunc_vm_stack_value2(&llvm_value, 4);
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }

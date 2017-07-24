@@ -995,19 +995,6 @@ class JITTest
 
         return result;
     }
-    def reverse(): String {
-        a:String = "ABC";
-        result:String = new String(a.size);
-
-        for(i:int = 0; i<a.len; i++) {
-            result.buffer[i] = a.buffer[a.len-i-1];
-        }
-        result.buffer[i] = '\0';
-
-        result.len = a.len;
-
-        return result;
-    }
     def run109(index:int, str:String):String {
         a:String = "ABC";
 
@@ -1035,7 +1022,43 @@ class JITTest
 
         return a;
     }
-/*
+    def run110(): char {
+        c:char = 'B';
+
+        p:pointer = &c;
+
+        return p->char;
+    }
+    def run111(): char {
+        c:char = 'A';
+
+        p:pointer = &c;
+
+        p->char = 'B';
+
+        return c;
+    }
+    def run112(): int {
+        println("HELLO JIT with mixin-layers");
+        return 100;
+    }
+    def run112(): int {
+        inherit();
+        return 101;
+    }
+    def reverse(): String {
+        a:String = "ABC";
+        result:String = new String(a.size);
+
+        for(i:int = 0; i<a.len; i++) {
+            result.buffer[i] = a.buffer[a.len-i-1];
+        }
+        result.buffer[i] = '\0';
+
+        result.len = a.len;
+
+        return result;
+    }
     def insert(index:int, str:String):  String {
         a:String = "ABC";
 
@@ -1159,48 +1182,6 @@ class JITTest
 
         return result;
     }
-    def run104(): char {
-        c:char = 'B';
-
-        p:pointer = &c;
-
-        return p->char;
-    }
-    def run105(): char {
-        c:char = 'A';
-
-        p:pointer = &c;
-
-        p->char = 'B';
-
-        return c;
-    }
-    def run106(): int {
-println("HELLO JIT with mixin-layers");
-        return 100;
-    }
-    def run106(): int {
-        inherit();
-        return 101;
-    }
-    def add(item:Integer):EqualableList<Integer> {
-        aaa:EqualableList<Integer> = equalable_list { 1, 2, 3 };
-
-        if(aaa.head.identifyWith(null)) {
-            aaa.head = new ListItem<Integer>(item, null, null);
-            aaa.tail = aaa.head;
-        }
-        else {
-            new_item:ListItem<Integer> = new ListItem<Integer>(item, aaa.tail, null);
-
-            aaa.tail.next = new_item;
-            aaa.tail = new_item;
-        }
-
-        aaa.number++;
-
-        return aaa;
-    }
     def insert2(index:int, item:Integer): EqualableList<Integer> {
         aaa :EqualableList<Integer> = equalable_list { 1, 2, 3 };
 
@@ -1250,6 +1231,56 @@ println("HELLO JIT with mixin-layers");
 
         return aaa;
     }
+    def add(item:Integer):EqualableList<Integer> {
+        aaa:EqualableList<Integer> = equalable_list { 1, 2, 3 };
+
+        if(aaa.head.identifyWith(null)) {
+            aaa.head = new ListItem<Integer>(item, null, null);
+            aaa.tail = aaa.head;
+        }
+        else {
+            new_item:ListItem<Integer> = new ListItem<Integer>(item, aaa.tail, null);
+
+            aaa.tail.next = new_item;
+            aaa.tail = new_item;
+        }
+
+        aaa.number++;
+
+        return aaa;
+    }
+    def subBuffer(start:int, end:int): Buffer {
+        aaa:Buffer = b"ABC";
+        if(start < 0) {
+            start += aaa.len;
+        }
+        if(end < 0) {
+            end += aaa.len.to_int + 1;
+        }
+
+        if(start < 0) {
+            start = 0;
+        }
+        if(end > aaa.len) {
+            end = aaa.len;
+        }
+
+        if(start >= end || start >= aaa.len || end < 0) {
+            return B"";
+        }
+
+        result: Buffer = new Buffer(end.to_ulong-start.to_ulong);
+
+        System.memcpy(result.buffer, aaa.buffer + start.to_ulong, (end-start).to_ulong);
+
+        result.len = end-start;
+        result.size = end-start;
+
+        # no null-terminated buffer will be returned
+
+        return result;
+    }
+/*
     def buffer_initialize(size:size_t): {
         a:Buffer = new Buffer();
         System.free(a.buffer);
@@ -1328,37 +1359,6 @@ println("HELLO JIT with mixin-layers");
                 break;
             }
         }
-
-        return result;
-    }
-    def subBuffer(start:int, end:int): Buffer {
-        aaa:Buffer = b"ABC";
-        if(start < 0) {
-            start += aaa.len;
-        }
-        if(end < 0) {
-            end += aaa.len.to_int + 1;
-        }
-
-        if(start < 0) {
-            start = 0;
-        }
-        if(end > aaa.len) {
-            end = aaa.len;
-        }
-
-        if(start >= end || start >= aaa.len || end < 0) {
-            return B"";
-        }
-
-        result: Buffer = new Buffer(end.to_ulong-start.to_ulong);
-
-        System.memcpy(result.buffer, aaa.buffer + start.to_ulong, (end-start).to_ulong);
-
-        result.len = end-start;
-        result.size = end-start;
-
-        # no null-terminated buffer will be returned
 
         return result;
     }
