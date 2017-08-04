@@ -324,7 +324,7 @@ void create_internal_functions()
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "show_stack_in_jit", TheModule.get());
 
-    /// invoke_method ///
+    /// call_invoke_method ///
     type_params.clear();
 
     result_type = IntegerType::get(TheContext, 32);
@@ -333,18 +333,36 @@ void create_internal_functions()
     type_params.push_back(param1_type);
     param2_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
     type_params.push_back(param2_type);
+
     param3_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
     type_params.push_back(param3_type);
+
     param4_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param4_type);
-    param5_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+
+    param5_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
     type_params.push_back(param5_type);
+
     param6_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
     type_params.push_back(param6_type);
 
-    function_type = FunctionType::get(result_type, type_params, false);
+    param7_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param7_type);
 
-    Function::Create(function_type, Function::ExternalLinkage, "invoke_method", TheModule.get());
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "call_invoke_method", TheModule.get());
+
+    /// push_jit_object ///
+    type_params.clear();
+
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "push_jit_object", TheModule.get());
+
 
     /// try_function ///
     type_params.clear();
@@ -357,8 +375,25 @@ void create_internal_functions()
     param2_type = IntegerType::get(TheContext,32);
     type_params.push_back(param2_type);
 
+    param3_type = PointerType::get(IntegerType::get(TheContext,64), 0);
+    type_params.push_back(param3_type);
+
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "try_function", TheModule.get());
+
+    /// catch_function ///
+    type_params.clear();
+
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(IntegerType::get(TheContext,64), 0);
+    type_params.push_back(param1_type);
+
+    param2_type = PointerType::get(IntegerType::get(TheContext,64), 0);
+    type_params.push_back(param2_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "catch_function", TheModule.get());
 
     /// get_try_catch_label_name ///
     type_params.clear();
@@ -483,7 +518,7 @@ void create_internal_functions()
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "call_invoke_virtual_method", TheModule.get());
 
-    /// invoke_dynamic_method ///
+    /// call_invoke_dynamic_method ///
     result_type = IntegerType::get(TheContext, 32);
 
     param1_type = IntegerType::get(TheContext, 32);
@@ -523,7 +558,7 @@ void create_internal_functions()
     type_params.push_back(param12_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
-    Function::Create(function_type, Function::ExternalLinkage, "invoke_dynamic_method", TheModule.get());
+    Function::Create(function_type, Function::ExternalLinkage, "call_invoke_dynamic_method", TheModule.get());
 
     /// invoke_block_in_jit ///
     result_type = IntegerType::get(TheContext, 32);
@@ -1313,6 +1348,38 @@ void create_internal_functions()
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_cubyte_to_ubyte_cast", TheModule.get());
 
+    /// run_cushort_to_ushort_cast ///
+    type_params.clear();
+    
+    result_type = IntegerType::get(TheContext, 16);
+
+    param1_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cushort_to_ushort_cast", TheModule.get());
+    /// run_culong_to_ulong_cast ///
+    type_params.clear();
+    
+    result_type = IntegerType::get(TheContext, 64);
+
+    param1_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_culong_to_ulong_cast", TheModule.get());
+
+    /// run_cpointer_to_pointer_cast ///
+    type_params.clear();
+    
+    result_type = PointerType::get(IntegerType::get(TheContext, 8), 0);
+
+    param1_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_cpointer_to_pointer_cast", TheModule.get());
+
     /// run_uinteger_to_uint_cast ///
     type_params.clear();
     
@@ -1397,6 +1464,32 @@ void create_internal_functions()
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_load_field_address", TheModule.get());
 
+    /// run_array_to_carray_cast ///
+    type_params.clear();
+    
+    result_type = IntegerType::get(TheContext, 64);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    param2_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param2_type);
+
+    param3_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param3_type);
+
+    param4_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param4_type);
+
+    param5_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param5_type);
+
+    param6_type = PointerType::get(IntegerType::get(TheContext, 8), 0);
+    type_params.push_back(param6_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_array_to_carray_cast", TheModule.get());
+
     /// gSigInt ///
     Type* variable_type = IntegerType::get(TheContext, 32);
     gSigIntValue = new GlobalVariable(*TheModule, variable_type, false, GlobalValue::ExternalLinkage, nullptr, "gSigInt");
@@ -1417,6 +1510,7 @@ void InitializeModuleAndPassManager()
 
     create_internal_functions();
     TheLabels.clear();
+
 }
 
 void jit_init()
@@ -1455,15 +1549,17 @@ void jit_init()
     if(gPointerAndBoolStruct->isOpaque()) {
         gPointerAndBoolStruct->setBody(fields, false);
     }
+    init_jit_objects();
 }
 
 void jit_final()
 {
+    free_jit_objects();
 }
 
 void create_method_path_for_jit(sCLClass* klass, sCLMethod* method, char* result, int size_result)
 {
-    snprintf(result, size_result, "%s$$%d", METHOD_PATH(klass, method), method->mMethodIndex);
+    snprintf(result, size_result, "%s.%s$$%d", CLASS_NAME(klass), METHOD_NAME_AND_PARAMS(klass, method), method->mMethodIndex);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -2652,34 +2748,29 @@ void call_show_stack(std::map<std::string, Value *> params)
 
 BOOL compile_jit_method(sCLClass* klass, sCLMethod* method)
 {
-    method->mMethodCallCount++;
+//    method->mMethodCallCount++;
 
-if(strcmp(CLASS_NAME(klass), "JITTest") == 0) {
+//if(strcmp(CLASS_NAME(klass), "JITTest") == 0) {
 method->mMethodCallCount = 1000;
-}
-else {
-method->mMethodCallCount = 0;
-}
+//}
 
-    if(method->mMethodCallCount > JIT_METHOD_CALL_COUNT && !method->mJITCompiled) {
-        if(strcmp(METHOD_NAME2(klass, method), "initialize") != 0 && strcmp(METHOD_NAME2(klass, method), "finalize") != 0) 
-        {
-            char method_path2[METHOD_NAME_MAX + 128];
-            create_method_path_for_jit(klass, method, method_path2, METHOD_NAME_MAX + 128);
+    if(method->mMethodCallCount > JIT_METHOD_CALL_COUNT && !method->mJITCompiled && strcmp(METHOD_NAME2(klass, method), "initialize") != 0 && strcmp(METHOD_NAME2(klass, method), "finalize") != 0) 
+    {
+        char method_path2[METHOD_NAME_MAX + 128];
+        create_method_path_for_jit(klass, method, method_path2, METHOD_NAME_MAX + 128);
 
-            sByteCode* code = &method->uCode.mByteCodes;
-            sConst* constant = &klass->mConst;
+        sByteCode* code = &method->uCode.mByteCodes;
+        sConst* constant = &klass->mConst;
 
-            auto ExprSymbol = TheJIT->findSymbol(method_path2);
-            if(!ExprSymbol) {
-                if(!compile_to_native_code(code, constant, klass, method, method_path2)) {
-                    return FALSE;
-                }
+        auto ExprSymbol = TheJIT->findSymbol(method_path2);
+        if(!ExprSymbol) {
+            if(!compile_to_native_code(code, constant, klass, method, method_path2)) {
+                return FALSE;
+            }
 //TheModule->dump();
 
-                auto H = TheJIT->addModule(std::move(TheModule));
-                InitializeModuleAndPassManager();
-            }
+            auto H = TheJIT->addModule(std::move(TheModule));
+            InitializeModuleAndPassManager();
         }
 
         method->mJITCompiled = TRUE;

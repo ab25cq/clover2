@@ -3368,8 +3368,7 @@ static BOOL expression_or(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
-// from left to right order
-static BOOL expression_and_and(unsigned int* node, sParserInfo* info)
+static BOOL expression_and_and_or_or(unsigned int* node, sParserInfo* info)
 {
     if(!expression_or(node, info)) {
         return FALSE;
@@ -3384,7 +3383,7 @@ static BOOL expression_and_and(unsigned int* node, sParserInfo* info)
             skip_spaces_and_lf(info);
 
             unsigned int right = 0;
-            if(!expression_or(&right, info)) {
+            if(!expression_and_and_or_or(&right, info)) {
                 return FALSE;
             }
 
@@ -3395,30 +3394,12 @@ static BOOL expression_and_and(unsigned int* node, sParserInfo* info)
 
             *node = sNodeTree_create_and_and(*node, right, info);
         }
-        else {
-            break;
-        }
-    }
-
-    return TRUE;
-}
-
-static BOOL expression_or_or(unsigned int* node, sParserInfo* info)
-{
-    if(!expression_and_and(node, info)) {
-        return FALSE;
-    }
-    if(*node == 0) {
-        return TRUE;
-    }
-
-    while(*info->p) {
-        if(*info->p == '|' && *(info->p+1) == '|') {
+        else if(*info->p == '|' && *(info->p+1) == '|') {
             info->p+=2;
             skip_spaces_and_lf(info);
 
             unsigned int right = 0;
-            if(!expression_and_and(&right, info)) {
+            if(!expression_and_and_or_or(&right, info)) {
                 return FALSE;
             }
 
@@ -3440,7 +3421,7 @@ static BOOL expression_or_or(unsigned int* node, sParserInfo* info)
 // from left to right order
 static BOOL expression_conditional_operator(unsigned int* node, sParserInfo* info)
 {
-    if(!expression_or_or(node, info)) {
+    if(!expression_and_and_or_or(node, info)) {
         return FALSE;
     }
     if(*node == 0) {

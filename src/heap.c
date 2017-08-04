@@ -117,6 +117,16 @@ static void mark_all_class_fields(unsigned char* mark_flg)
         p = p->mNextClass;
     }
 }
+#ifdef ENABLE_JIT
+void mark_jit_objects(unsigned char* mark_flg)
+{
+    int i;
+    for(i=0; i<gNumJITObjects; i++) {
+        mark_object(gJITObjects[i], mark_flg);
+    }
+
+}
+#endif
 
 static void mark(unsigned char* mark_flg)
 {
@@ -138,6 +148,12 @@ static void mark(unsigned char* mark_flg)
 
     /// mark class fields ///
     mark_all_class_fields(mark_flg);
+
+#ifdef ENABLE_JIT
+    /// mark jit objects ///
+
+    mark_jit_objects(mark_flg);
+#endif
 }
 
 static void compaction(unsigned char* mark_flg)

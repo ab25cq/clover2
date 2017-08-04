@@ -3593,9 +3593,9 @@ else
     myprefix=$prefix
 fi
 
-######################################################################
+##############################################################
 # configure arguments
-######################################################################
+##############################################################
 DEBUGGING=0
 LOGGING=0
 
@@ -3644,9 +3644,9 @@ else
 fi
 
 
-#####################################################################
+##############################################################
 # check cpu type
-#####################################################################
+##############################################################
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking CPU type" >&5
 $as_echo_n "checking CPU type... " >&6; }
 
@@ -3663,9 +3663,9 @@ else
 
 fi
 
-#####################################################################
+##############################################################
 # check operating systems
-#####################################################################
+##############################################################
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking Operating System" >&5
 $as_echo_n "checking Operating System... " >&6; }
 
@@ -3757,9 +3757,9 @@ ac_cv_lib_util=ac_cv_lib_util_main
 
 fi
 
-##########################################################################
+##############################################################
 # CFLAGS settings
-##########################################################################
+##############################################################
 if test -d /usr/local/include
 then
     CFLAGS="$CFLAGS -I/usr/local/include"
@@ -3822,8 +3822,6 @@ ac_fn_c_check_header_mongrel "$LINENO" "readline/readline.h" "ac_cv_header_readl
 if test "x$ac_cv_header_readline_readline_h" = xyes; then :
   $as_echo "#define HAVE_READLINE_H 1" >>confdefs.h
 
-else
-   exit
 fi
 
 
@@ -3859,8 +3857,6 @@ fi
 $as_echo "$ac_cv_lib_readline_main" >&6; }
 if test "x$ac_cv_lib_readline_main" = xyes; then :
    LIBS="$LIBS -lreadline";
-else
-   exit
 fi
 ac_cv_lib_readline=ac_cv_lib_readline_main
 

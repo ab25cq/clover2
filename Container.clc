@@ -24,6 +24,10 @@ module MArrayImplement
 {
     items:T[];
 
+    def initialize() {
+        self.items = null;
+    }
+
     def initialize(items:T[]) {
         self.items = items;
     }

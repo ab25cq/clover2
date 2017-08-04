@@ -4,10 +4,6 @@ BOOL gSigInt = FALSE;
 
 void show_stack(CLVALUE* stack, CLVALUE* stack_ptr, CLVALUE* lvar, int var_num)
 {
-    if(lvar == NULL) {
-        lvar = stack + var_num;
-    }
-
     if(stack_ptr == lvar+var_num) {
         puts("stack is empty");
     }
@@ -18,15 +14,15 @@ void show_stack(CLVALUE* stack, CLVALUE* stack_ptr, CLVALUE* lvar, int var_num)
     }
 
     int i;
-    for(i=0; i<30; i++) {
-        //if(stack + i < stack_ptr) {
-            if(stack_ptr == stack + i) {
+    for(i=0; i<10; i++) {
+        if(stack + i < stack_ptr) {
+            if(stack_ptr-1 == stack + i) {
                 printf("![%d] %d on %p\n", i, stack[i].mIntValue, stack + i);
             }
             else {
                 printf("[%d] %d on %p\n", i, stack[i].mIntValue, stack + i);
             }
-        //}
+        }
     }
 }
 
@@ -472,8 +468,9 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
         memset(lvar + real_param_num, 0, sizeof(CLVALUE)* (new_var_num - real_param_num));
 
 #ifdef ENABLE_JIT
-        if(!jit(code, constant, new_stack, new_var_num, klass, method, info, stack_ptr))
+        if(!jit(code, constant, new_stack, new_var_num, klass, method, info))
         {
+puts("CCC");
             *stack_ptr = lvar;
             **stack_ptr = *(new_stack + new_var_num);
             (*stack_ptr)++;
@@ -848,6 +845,8 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
     CLVALUE* stack_ptr = stack + var_num;
     CLVALUE* lvar = stack;
 
+    int try_offset = 0;
+
     long stack_id = append_stack_to_stack_list(stack, &stack_ptr);
 
     while(pc - code->mCodes < code->mLen) {
@@ -910,10 +909,10 @@ show_inst(inst);
                     int jump_value = *(int*)pc;
                     pc += sizeof(int);
 
-                    BOOL conditional_value = (stack_ptr-1)->mBoolValue;
+                    BOOL conditinal_value = (stack_ptr-1)->mBoolValue;
                     stack_ptr--;
 
-                    if(conditional_value) {
+                    if(conditinal_value) {
                         pc += jump_value;
                     }
 
@@ -928,10 +927,10 @@ show_inst(inst);
                     int jump_value = *(int*)pc;
                     pc += sizeof(int);
 
-                    BOOL conditional_value = (stack_ptr-1)->mBoolValue;
+                    BOOL conditinal_value = (stack_ptr-1)->mBoolValue;
                     stack_ptr--;
 
-                    if(!conditional_value) {
+                    if(!conditinal_value) {
                         pc += jump_value;
                     }
 
@@ -947,7 +946,6 @@ show_inst(inst);
                     pc += sizeof(int);
                     int label_offset = *(int*)pc;
                     pc += sizeof(int);
-
 
                     pc = code->mCodes + jump_value;
 
@@ -985,14 +983,14 @@ if(stack_ptr != lvar + var_num + 1) {
             case OP_TRY: {
                 vm_mutex_on();
 
-                info->try_offset = *(int*)pc;
-                pc += sizeof(int);
-
 #ifdef ENABLE_JIT
                 info->try_pc = &pc;
+                info->try_code = code;
+                info->try_offset = &try_offset;
 #endif
 
-                info->try_code = code;
+                try_offset = *(int*)pc;
+                pc += sizeof(int);
 
                 int catch_label_name_offset = *(int*)pc;
                 pc += sizeof(int);
@@ -1004,11 +1002,13 @@ if(stack_ptr != lvar + var_num + 1) {
             case OP_TRY_END:
                 vm_mutex_on();
 
+                try_offset = 0;
+
 #ifdef ENABLE_JIT
                 info->try_pc = 0;
-#endif
                 info->try_code = NULL;
                 info->try_offset = 0;
+#endif
                 
                 vm_mutex_off();
                 break;
@@ -4534,12 +4534,13 @@ if(stack_ptr != lvar + var_num + 1) {
                     sCLMethod* method = klass->mMethods + method_index;
 
                     if(!invoke_method(klass, method, stack, var_num, &stack_ptr, info)) {
-                        if(info->try_code == code && info->try_offset != 0) {
-                            pc = code->mCodes + info->try_offset;
-                            info->try_offset = 0;
-                            info->try_code = NULL;
+                        if(try_offset != 0) {
+puts("after invoke_method changed pc in OP_INVOKE_METHOD");
+                            pc = code->mCodes + try_offset;
+                            try_offset = 0;
                         }
                         else {
+puts("after invoke method not changed pc in OP_INVOKE_METHOD");
                             vm_mutex_off();
                             remove_stack_to_stack_list(stack, &stack_ptr);
                             return FALSE;
@@ -4585,10 +4586,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     }
                     else {
                         if(!invoke_method(klass, method, stack, var_num, &stack_ptr, info)) {
-                            if(info->try_code == code && info->try_offset != 0) {
-                                pc = code->mCodes + info->try_offset;
-                                info->try_offset = 0;
-                                info->try_code = NULL;
+                            if(try_offset != 0) {
+                                pc = code->mCodes + try_offset;
+                                try_offset = 0;
                             }
                             else {
                                 vm_mutex_off();
@@ -4674,10 +4674,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
                         gGlobalStackPtr--;
 
                         if(!invoke_method(klass, method, stack, var_num, &stack_ptr, info)) {
-                            if(info->try_code == code && info->try_offset != 0) {
-                                pc = code->mCodes + info->try_offset;
-                                info->try_offset = 0;
-                                info->try_code = NULL;
+                            if(try_offset != 0) {
+                                pc = code->mCodes + try_offset;
+                                try_offset = 0;
                             }
                             else {
                                 vm_mutex_off();
@@ -4737,10 +4736,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
                         gGlobalStackPtr--;
 
                         if(!invoke_method(klass, method, stack, var_num, &stack_ptr, info)) {
-                            if(info->try_code == code && info->try_offset != 0) {
-                                pc = code->mCodes + info->try_offset;
-                                info->try_offset = 0;
-                                info->try_code = NULL;
+                            if(try_offset != 0) {
+                                pc = code->mCodes + try_offset;
+                                try_offset = 0;
                             }
                             else {
                                 vm_mutex_off();
@@ -5068,9 +5066,6 @@ show_stack(stack, stack_ptr, lvar, var_num);
             case OP_LOAD_ELEMENT:
                 {
                     vm_mutex_on();
-
-                    int tmp = *(int*)pc;
-                    pc += sizeof(int);
 
                     CLObject array = (stack_ptr -2)->mObjectValue;
                     int element_num = (stack_ptr -1)->mIntValue;
@@ -5623,6 +5618,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 }
                 break;
 
+/*
             case OP_SHORT_TO_BYTE_CAST:
                 {
                     vm_mutex_on();
@@ -5694,6 +5690,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     vm_mutex_off();
                 }
                 break;
+*/
 
             case OP_FLOAT_TO_BYTE_CAST:
                 {
@@ -5988,6 +5985,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 }
                 break;
 
+/*
             case OP_INT_TO_SHORT_CAST:
                 {
                     vm_mutex_on();
@@ -6035,6 +6033,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     vm_mutex_off();
                 }
                 break;
+*/
 
             case OP_FLOAT_TO_SHORT_CAST:
                 {
@@ -6353,6 +6352,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 }
                 break;
 
+/*
             case OP_LONG_TO_INT_CAST:
                 {
                     vm_mutex_on();
@@ -6376,6 +6376,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     vm_mutex_off();
                 }
                 break;
+*/
 
             case OP_FLOAT_TO_INT_CAST:
                 {
@@ -12809,8 +12810,6 @@ show_stack(stack, stack_ptr, lvar, var_num);
 #ifdef MDEBUG
 if(stack_ptr != lvar + var_num) {
     fprintf(stderr, "invalid stack3\n");
-    fprintf(stderr, "var_num %d\n", var_num);
-    if(klass) { fprintf(stderr, "class name %s\n", CLASS_NAME(klass)); }
     fprintf(stderr, "stack_ptr - lvar - var_num %ld\n", stack_ptr - (lvar + var_num));
     exit(3);
 }

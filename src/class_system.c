@@ -682,6 +682,7 @@ BOOL System_mbstowcs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     (*stack_ptr)->mIntValue = size_wcs;
     (*stack_ptr)++;
 
+
     return TRUE;
 }
 

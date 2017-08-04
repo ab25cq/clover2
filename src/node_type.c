@@ -190,7 +190,10 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_
     sCLClass* left_class = left2->mClass;
     sCLClass* right_class = right2->mClass;
 
-    if(type_identify_with_class_name(right2, "Null") && (!(left_class->mFlags & CLASS_FLAGS_PRIMITIVE) || left2->mArray)) 
+    if(left_class->mGenericsParamClassNum != -1 || right_class->mGenericsParamClassNum != -1) {
+        return FALSE;
+    }
+    else if(type_identify_with_class_name(right2, "Null") && (!(left_class->mFlags & CLASS_FLAGS_PRIMITIVE) || left2->mArray)) 
     {
         return TRUE;
     }

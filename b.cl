@@ -17,6 +17,7 @@ Clover.test("jit test6", a.run6() == 123.1);
 Clover.test("jit test7", a.run7() == 124);
 
 Clover.test("jit test8", a.run8().equals("ABCDEF"));
+System.sleep(1);
 
 Clover.test("jit test9", a.run9().value == 123);
 
@@ -110,6 +111,8 @@ Clover.test("jit test67", a.run67() == true);
 Clover.test("jit test68", a.run68() == false);
 Clover.test("jit test69", a.run69() == true);
 Clover.test("jit test70", a.run70() == false);
+Clover.test("jit test70.5", a.run70_5()[0] == 1);
+Clover.test("jit test70.7", a.run70_7().items(1) == 2);
 
 d:int[] = a.run70_5();
 
@@ -233,7 +236,8 @@ Clover.test("jit test98_2", a.run98_2() == 123);
 Clover.test("jit test98_3", a.run98_3() == 123.0f);
 Clover.test("jit test98_4", a.run98_4() == 123l);
 Clover.test("jit test98_5", a.run98_5() == 123l);
-Clover.test("jit test98_6", a.run98_6() == 255);
+Clover.test("jit test98_6", a.run98_6() == -1);
+#Clover.test("jit test98_6", a.run98_6() == 255);
 Clover.test("jit test98_7", a.run98_7() == 123.0);
 Clover.test("jit test98_8", a.run98_8() == 123.0);
 Clover.test("jit test98_9", a.run98_9() == 123y);
@@ -248,6 +252,7 @@ Clover.test("jit test98_17", a.run98_17() == -123);
 Clover.test("jit test98_18", a.run98_18() == 65);
 Clover.test("jit test98_19", a.run98_19() == 65);
 Clover.test("jit test99", a.run99() == 2);
+
 Clover.test("jit test99_1", a.run99_1() == 2l);
 #a.run99_2().toString().println();
 #System.sleep(3);
@@ -279,53 +284,67 @@ Clover.test("jit test109", a.run109(2, "111").equals("AB111C"));
 Clover.test("jit test110", a.run110() == 'B');
 Clover.test("jit test111", a.run111() == 'B');
 Clover.test("jit test112", a.run112() == 101);
+Clover.test("jit test113", a.run113());
+Clover.test("jit test114", a.run114());
+Clover.test("jit test115", a.run115());
+Clover.test("jit test116", a.run116());
+Clover.test("jit test116_5", a.run116_5());
+Clover.test("jit test116_6", a.run116_6());
+Clover.test("jit test116_9", !a.run116_9());
+
+Clover.test("jit test117", a.run117());
 Clover.test("jit test-reverse", a.reverse().equals("CBA"));
 Clover.test("jit test-insert", a.insert(-2, "111").equals("AB111C"));
+Clover.test("jit test-toBuffer", a.toBuffer().equals(B"ABC"));
 Clover.test("jit test-indexOf", a.indexOf(/B/, 1) == 1);
 Clover.test("jit test-insert2", a.insert2(-1, 7).equals(equalable_list { 1, 2, 3, 7}));
 Clover.test("jit test-add", a.add(4).equals(equalable_list { 1, 2, 3, 4 }));
 Clover.test("jit test-subBuffer", a.subBuffer(1, -1).equals(B"BC"));
 
-
-/*
-
-
+Clover.test("jit test-scan", a.scan(/./).equals(equalable_list {"A", "B", "C"}));
+Clover.test("jit test-sub", a.sub(/./, "X", null).equals("XBC"));
 
 a.buffer_initialize(100ul);
 
-d:int = 123;
-a.buffer_initialize2(&d, 4ul);
+k:int = 123;
+a.buffer_initialize2(&k, 4ul);
 
-Clover.test("jit test107", a.sub(/./, "X", null).equals("XBC"));
-Clover.test("jit test108", a.scan(/./).equals(equalable_list {"A", "B", "C"}));
-Clover.test("string2 test1", "ABC".sub(/A/, "B").equals("BBC"));
-Clover.test("string2 test2", "AAA".sub(/A/g, "B").equals("BBB"));
-Clover.test("string2 test3", "AAA".sub(/^A/g, "B").equals("BAA"));
+Clover.test("jit test-sub2", "ABC".sub(/A/, "B").equals("BBC"));
 
+Clover.test("jit test-sub2-5", a.sub(/A/g, "X", null).equals("XBC"));
+Clover.test("jit test-sub3", "AAA".sub(/A/g, "B").equals("BBB"));
+Clover.test("jit test-sub4", "AAA".sub(/^A/g, "B").equals("BAA"));
+Clover.test("jit test-scan", "ABC".scan(/./).equals(equalable_list {"A", "B", "C"}));
+Clover.test("jit test subString", "ABC".subString(-2, -1).equals("BC"));
 
-
-Clover.test("string2 test4", "ABC".subString(-2, -1).equals("BC"));
 group_strings:EqualableList<String> = new EqualableList<String>();
 str:String = "ABCD".sub(/(.)(.)$/, "XX", group_strings);
 
-Clover.test("string2 test5", str.equals("ABXX") && group_strings.length() == 2 && group_strings.items(0).equals("C") && group_strings.items(1).equals("D"));
+Clover.test("jit test-sub5", str.equals("ABXX") && group_strings.length() == 2 && group_strings.items(0).equals("C") && group_strings.items(1).equals("D"));
 
 str2:String = "ABCD".sub(/(.)(.)$/
             , lambda(match_string:String, group_strings:EqualableList<String>):String { 
                 return System.sprintf("%s%s", array { group_strings.items(0), group_strings.items(0) }); 
             });
 
-Clover.test("string2 test6", str2.equals("ABCC"));
+Clover.test("jit test-sub6", str2.equals("ABCC"));
 
-Clover.test("string2 tset7", "ABC".match(/^A/) && "ABC".match(/C$/) && "ABC".match(/B/));
+Clover.test("jit test-match", "ABC".match(/^A/) && "ABC".match(/C$/) && "ABC".match(/B/));
 
 group_strings3:EqualableList<String> = new EqualableList<String>();
-Clover.test("string2 test8", "ABC".match(/^A(.)C/, group_strings3) && group_strings3.length() == 1 && group_strings3.items(0).equals("B"));
-Clover.test("string2 test9", "ABC".scan(/./).equals(equalable_list {"A", "B", "C"}));
-Clover.test("List2 test12", equalable_list {1,2,3,1,2,3}.deleteWithRange(2,4).equals(equalable_list {1,2,2,3}));
+Clover.test("jit test-match2", "ABC".match(/^A(.)C/, group_strings3) && group_strings3.length() == 1 && group_strings3.items(0).equals("B"));
+Clover.test("jit test-list", equalable_list {1,2,3,1,2,3}.deleteWithRange(2,4).equals(equalable_list {1,2,2,3}));
 
+Clover.test("jit test-split", a.split(/\n/).equals( equalable_list { "ABC" }) );
 
-Clover.test("file test9", p"/bin".to_stat().groupName().equals("root"));
+a.split2(p"/etc/group".read().toString(), /\n/);
+
+zz:Array<Integer> = a.run70_7();
+
+Clover.test("jit test-items", a.items(zz, 0) == 1 && a.items(zz, 1) == 2 && a.items(zz, 2) == 3);
+
+/*
+Clover.test("jit test-file", p"/bin".to_stat().groupName().equals("root"));
 Clover.test("file test10", p"/bin".to_stat().userName().equals("root"));
 Clover.test("file test11", p"a.txt".to_stat().S_ISREG());
 #Clover.test("file test12", p"a.txt".to_stat().mtime().dayOfMonth() == 21 && p"a.txt".to_stat().mtime().month() == 12);
@@ -344,4 +363,3 @@ Clover.test("file test15", File.read("c.txt").equals(b"abc\ndef\n"));
 p"d.txt".write(b"GGG\n");
 Clover.test("file test17", p"d.txt".read().equals(b"GGG\n"));
 */
-

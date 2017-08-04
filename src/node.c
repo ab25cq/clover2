@@ -694,6 +694,8 @@ static BOOL compile_and_and(unsigned int node, sCompileInfo* info)
     append_opecode_to_code(info->code, OP_LABEL, info->no_output);
     append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
 
+    append_opecode_to_code(info->code, OP_LOAD_VALUE_FOR_ANDAND_OROR, info->no_output);
+
     info->type = create_node_type_with_class_name("bool");
 
     return TRUE;
@@ -789,9 +791,9 @@ static BOOL compile_or_or(unsigned int node, sCompileInfo* info)
     }
 
     append_opecode_to_code(info->code, OP_OROR, info->no_output);
-    info->stack_num--;
 
     append_opecode_to_code(info->code, OP_STORE_VALUE_FOR_ANDAND_OROR, info->no_output);
+    info->stack_num--;
 
     /// the end point ///
     *(int*)(info->code->mCodes + goto_point) = info->code->mLen;
@@ -1340,6 +1342,47 @@ unsigned int sNodeTree_create_load_variable(char* var_name, sParserInfo* info)
     return node;
 }
 
+static int get_var_size(sNodeType* var_type)
+{
+    int size = 0;
+    if(var_type->mClass->mFlags & CLASS_FLAGS_INTERFACE) {
+        size = 4;
+    }
+    else if(type_identify_with_class_name(var_type, "byte") || type_identify_with_class_name(var_type, "ubyte"))
+    {
+        size = 1;
+    }
+    else if(type_identify_with_class_name(var_type, "short") || type_identify_with_class_name(var_type, "ushort"))
+    {
+        size = 2;
+    }
+    else if(type_identify_with_class_name(var_type, "int") || type_identify_with_class_name(var_type, "uint"))
+    {
+        size = 4;
+    }
+    else if(type_identify_with_class_name(var_type, "long") || type_identify_with_class_name(var_type, "ulong"))
+    {
+        size = 8;
+    }
+    else if(type_identify_with_class_name(var_type, "float"))
+    {
+        size = 16;
+    }
+    else if(type_identify_with_class_name(var_type, "double"))
+    {
+        size = 32;
+    }
+    else if(type_identify_with_class_name(var_type, "pointer"))
+    {
+        size = 64;
+    }
+    else {
+        size = 4;
+    }
+
+    return size;
+}
+
 static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
 {
     sVar* var = get_variable_from_table(info->lv_table, gNodes[node].uValue.mVarName);
@@ -1362,38 +1405,7 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
 
     append_opecode_to_code(info->code, OP_LOAD, info->no_output);
     append_int_value_to_code(info->code, var_index, info->no_output);
-    int size = 0;
-    if(substitution_posibility_with_class_name(var_type, "byte") || substitution_posibility_with_class_name(var_type, "ubyte"))
-    {
-        size = 1;
-    }
-    else if(substitution_posibility_with_class_name(var_type, "short") || substitution_posibility_with_class_name(var_type, "ushort"))
-    {
-        size = 2;
-    }
-    else if(substitution_posibility_with_class_name(var_type, "int") || substitution_posibility_with_class_name(var_type, "uint"))
-    {
-        size = 4;
-    }
-    else if(substitution_posibility_with_class_name(var_type, "long") || substitution_posibility_with_class_name(var_type, "ulong"))
-    {
-        size = 8;
-    }
-    else if(substitution_posibility_with_class_name(var_type, "float"))
-    {
-        size = 16;
-    }
-    else if(substitution_posibility_with_class_name(var_type, "double"))
-    {
-        size = 32;
-    }
-    else if(substitution_posibility_with_class_name(var_type, "pointer"))
-    {
-        size = 64;
-    }
-    else {
-        size = 4;
-    }
+    int size = get_var_size(var_type);
     append_int_value_to_code(info->code, size, info->no_output);
 
     info->stack_num++;
@@ -3206,38 +3218,7 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
         /// generate code ///
         append_opecode_to_code(info->code, OP_LOAD_FIELD, info->no_output);
         append_int_value_to_code(info->code, field_index, info->no_output);
-        int size = 0;
-        if(substitution_posibility_with_class_name(field_type, "byte") || substitution_posibility_with_class_name(field_type, "ubyte"))
-        {
-            size = 1;
-        }
-        else if(substitution_posibility_with_class_name(field_type, "short") || substitution_posibility_with_class_name(field_type, "ushort"))
-        {
-            size = 2;
-        }
-        else if(substitution_posibility_with_class_name(field_type, "int") || substitution_posibility_with_class_name(field_type, "uint"))
-        {
-            size = 4;
-        }
-        else if(substitution_posibility_with_class_name(field_type, "long") || substitution_posibility_with_class_name(field_type, "ulong"))
-        {
-            size = 8;
-        }
-        else if(substitution_posibility_with_class_name(field_type, "float"))
-        {
-            size = 16;
-        }
-        else if(substitution_posibility_with_class_name(field_type, "double"))
-        {
-            size = 32;
-        }
-        else if(substitution_posibility_with_class_name(field_type, "pointer"))
-        {
-            size = 64;
-        }
-        else {
-            size = 4;
-        }
+        int size = get_var_size(field_type);
 
         append_int_value_to_code(info->code, size, info->no_output);
 
@@ -3402,38 +3383,7 @@ static BOOL compile_load_class_field(unsigned int node, sCompileInfo* info)
     append_class_name_to_constant_pool_and_code(info, klass);
     append_int_value_to_code(info->code, field_index, info->no_output);
 
-    int size = 0;
-    if(substitution_posibility_with_class_name(field_type, "byte") || substitution_posibility_with_class_name(field_type, "ubyte"))
-    {
-        size = 1;
-    }
-    else if(substitution_posibility_with_class_name(field_type, "short") || substitution_posibility_with_class_name(field_type, "ushort"))
-    {
-        size = 2;
-    }
-    else if(substitution_posibility_with_class_name(field_type, "int") || substitution_posibility_with_class_name(field_type, "uint"))
-    {
-        size = 4;
-    }
-    else if(substitution_posibility_with_class_name(field_type, "long") || substitution_posibility_with_class_name(field_type, "ulong"))
-    {
-        size = 8;
-    }
-    else if(substitution_posibility_with_class_name(field_type, "float"))
-    {
-        size = 16;
-    }
-    else if(substitution_posibility_with_class_name(field_type, "double"))
-    {
-        size = 32;
-    }
-    else if(substitution_posibility_with_class_name(field_type, "pointer"))
-    {
-        size = 64;
-    }
-    else {
-        size = 4;
-    }
+    int size = get_var_size(field_type);
 
     append_int_value_to_code(info->code, size, info->no_output);
 
@@ -4983,6 +4933,7 @@ unsigned int sNodeTree_create_load_array_element(unsigned int array, unsigned in
     return node;
 }
 
+
 BOOL compile_load_array_element(unsigned int node, sCompileInfo* info)
 {
     /// compile left node ///
@@ -5049,7 +5000,14 @@ BOOL compile_load_array_element(unsigned int node, sCompileInfo* info)
     }
 
     /// generate code ///
+    sNodeType* var_type = clone_node_type(left_type);
+
+    var_type->mArray = FALSE;
+
     append_opecode_to_code(info->code, OP_LOAD_ELEMENT, info->no_output);
+
+    int size = get_var_size(var_type);
+    append_int_value_to_code(info->code, size, info->no_output);
 
     info->stack_num-=2;
     info->stack_num++;

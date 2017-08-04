@@ -1995,10 +1995,16 @@ int utf32_index_to_utf8_index(char* str, int utf32index);
 BOOL Clover_load(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 /// jit.cpp ///
-BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sCLMethod* method, sVMInfo* info);
+BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sCLMethod* method, sVMInfo* info, CLVALUE** stack_ptr);
 void jit_init();
 void jit_final();
 BOOL compile_jit_method(sCLClass* klass, sCLMethod* method);
+
+#ifdef ENABLE_JIT
+CLObject* gJITObjects;
+int gNumJITObjects;
+int gSizeJITObjects;
+#endif
 
 #endif
 

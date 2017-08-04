@@ -13,9 +13,9 @@ else
     myprefix=$prefix
 fi
 
-######################################################################
+##############################################################
 # configure arguments
-######################################################################
+##############################################################
 DEBUGGING=0
 LOGGING=0
 
@@ -26,9 +26,9 @@ AC_ARG_WITH(interpreter,        [  --with-interpreter        with interpreter ],
 AC_ARG_WITH(jit,                [  --with-jit                with jit ], [ ENABLE_JIT=1 ], [ ENABLE_JIT=0])
 AC_ARG_WITH(all-jit-compile,    [  --with-all-jit-compile    with all jit compile for debug], [ ENABLE_ALL_JIT_COMPILE=1 ], [ ENABLE_ALL_JIT_COMPILE=0])
 
-#####################################################################
+##############################################################
 # check cpu type
-#####################################################################
+##############################################################
 AC_MSG_CHECKING(CPU type)
 
 if test `uname -m` = x86_64
@@ -42,9 +42,9 @@ else
     AC_DEFINE(__32BIT_CPU__, 1)
 fi
 
-#####################################################################
+##############################################################
 # check operating systems
-#####################################################################
+##############################################################
 AC_MSG_CHECKING(Operating System)
 
 CFLAGS="-fPIC -rdynamic"
@@ -97,9 +97,9 @@ else
     AC_HAVE_LIBRARY(util, [ LIBS="$LIBS -lutil"; ], [])
 fi
 
-##########################################################################
+##############################################################
 # CFLAGS settings
-##########################################################################
+##############################################################
 if test -d /usr/local/include
 then
     CFLAGS="$CFLAGS -I/usr/local/include"
@@ -158,8 +158,8 @@ INSTALL="/usr/bin/install -c"
 #AC_CHECK_HEADER(pthread.h, [AC_DEFINE(HAVE_PTHREAD_H, 1)], [ exit ])
 #AC_HAVE_LIBRARY(pthread, [ LIBS="$LIBS -lpthread"; ], [ exit ])
 
-AC_CHECK_HEADER(readline/readline.h, [AC_DEFINE(HAVE_READLINE_H, 1)], [ exit ])
-AC_HAVE_LIBRARY(readline, [ LIBS="$LIBS -lreadline"; ], [ exit ])
+AC_CHECK_HEADER(readline/readline.h, [AC_DEFINE(HAVE_READLINE_H, 1)], [])
+AC_HAVE_LIBRARY(readline, [ LIBS="$LIBS -lreadline"; ], [])
 
 if test "$OS" != FREEBSD
 then

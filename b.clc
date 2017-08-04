@@ -38,6 +38,14 @@ class JITTestClassA
     def runException(): static { 
         throw new Exception("AAA");
     }
+
+    def method_byte(value:byte): static bool {
+        return true;
+    }
+
+    def aaaa():static int {
+        return 123;
+    }
 }
 
 class JITTest 
@@ -208,8 +216,8 @@ class JITTest
         return a;
     }
     def run25(): int {
-        a:ubyte = 123y;
-        b:ubyte = 123y;
+        a:ubyte = 123uy;
+        b:ubyte = 123uy;
 
         return a + b;
     }
@@ -803,8 +811,10 @@ class JITTest
         return 2.1f;
     }
     def run99_1(): long {
-        a: Float = new Float(2.1f);
-        return a;
+        #a:float = 2.1f;
+        #axyz: Float = new Float(a);
+        axyz: Float = new Float(2.1f);
+        return axyz;
     }
     def run99_2(): double {
         a: Float = new Float(2.1f);
@@ -1046,6 +1056,92 @@ class JITTest
         inherit();
         return 101;
     }
+    def run113(): bool {
+        if(false || false && true) {
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+    def run114(): bool {
+        regex_result:int = 1;
+        group_strings:Array<String> = null;
+
+        if(regex_result == 1 || group_strings.identifyWith(null) && regex_result > 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    def run115(): bool {
+        regex_result:int = 1;
+        group_strings:Array<String> = new Array<String>();
+
+        if(regex_result == 1 || group_strings.identifyWith(null) && regex_result > 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    def run116(): bool {
+        regex_result:int = 2;
+        group_strings:Array<String> = null;
+
+        if(regex_result == 1 || group_strings.identifyWith(null) && regex_result > 0) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    def run116_5(): bool {
+        if(false || false && true) {
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+    def run116_6(): bool {
+        a:int = 0;
+        b:int = 0;
+        (a = 1).to_bool || (b = 2).to_bool;
+
+        return a == 1 && b == 0;
+        
+    }
+    def run116_7(): bool {
+        a:int = 0;
+        b:int = 0;
+        c:int = 0;
+        (a = 0).to_bool || (b = 2).to_bool && (c = 3).to_bool;
+
+        return a == 0 && b == 0;
+        
+    }
+    def run116_8(): bool {
+        return false;
+    }
+    def run116_9():bool {
+        a:JITTest = new JITTest();
+        #return false || "AAA".equals("BAA") && true;
+        return false || a.identifyWith(null) && true;
+    }
+    def run117(): bool {
+        regex_result:int = 3;
+        group_strings:Array<String> = new Array<String>();
+
+        #if(regex_result == 1 || false && regex_result > 0) {
+        if(regex_result == 1 || group_strings.identifyWith(null) && regex_result > 0) {
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
     def reverse(): String {
         a:String = "ABC";
         result:String = new String(a.size);
@@ -1109,6 +1205,22 @@ class JITTest
 
         return a;
     }
+
+    def toBuffer():  Buffer throws Exception {
+        aaaa:String = "ABC";
+        array_:byte[] = null;
+        System.wcstombs(&array_, aaaa.buffer);
+
+        result:Buffer = new Buffer(array_.length.to_ulong);
+        for(i:int = 0; i<array_.length-1; i++) {
+            result.append(array_[i]);
+        }
+
+        # no null-terminated Buffer will be returened
+
+        return result;
+    }
+
     def indexOf(regex_:regex, count:int): int throws Exception {
         result:int = -1;
         offset:int = 0;
@@ -1280,21 +1392,69 @@ class JITTest
 
         return result;
     }
-/*
-    def buffer_initialize(size:size_t): {
-        a:Buffer = new Buffer();
-        System.free(a.buffer);
-        a.size = size;
-        a.buffer = System.malloc(a.size);
-        a.len = 0;
+    def scan(regex_:regex): EqualableList<String> {
+        aaa:String = "ABC";
+
+        result: EqualableList<String> = new EqualableList<String>();
+        offset:int = 0;
+
+        buffer:Buffer = aaa.toBuffer();
+        ovec_max:int = 16;
+        ovec:PcreOVec = new PcreOVec(ovec_max);
+
+        while(true) {
+            regex_result:int = System.pcre_exec(regex_, buffer, offset, ovec_max, ovec);
+
+            ### match and no group strings ###
+            if(regex_result == 1) {
+                match_string:String = buffer.subBuffer(ovec.start[0], ovec.end[0]).toString();
+                result.add(match_string);
+
+                if(offset == ovec.end[0]) {
+                    offset++;
+                }
+                else {
+                    offset = ovec.end[0];
+                }
+            }
+            ### group strings ###
+            elif(regex_result > 1) {
+                match_string:String = buffer.subBuffer(ovec.start[0], ovec.end[0]).toString();
+                result.add(match_string);
+
+                if(offset == ovec.end[0]) {
+                    offset++;
+                }
+                else {
+                    offset = ovec.end[0];
+                }
+
+                for(i:int = 1; i<regex_result; i++) {
+                    match_string:String = buffer.subBuffer(ovec.start[i], ovec.end[i]).toString();
+                    result.add(match_string);
+                }
+            }
+            ### no match ###
+            else {
+                break;
+            }
+        }
+
+        return result;
     }
-    def buffer_initialize2(buf:pointer, size:size_t): {
-        a:Buffer = new Buffer();
-        System.free(a.buffer);
-        a.size = size;
-        a.buffer = System.malloc(a.size);
-        System.memcpy(a.buffer, buf, size);
-        a.len = a.size;
+    def groupName():String {
+        aaa:stat = new stat("/bin");
+        result:String = "";
+
+        p"/etc/group".read().toString().split(/\n/).each(closure(line:String) {
+            fields:EqualableList<String> = line.chomp().split(/:/);
+            
+            if(fields.items(2).to_int() == aaa.st_gid) {
+                result = fields.items(0);
+            }
+        });
+
+        return result;
     }
     def sub(regex_:regex, replace:String, group_strings:EqualableList<String>):  String {
         aaa:String = "ABC";
@@ -1362,23 +1522,71 @@ class JITTest
 
         return result;
     }
-    def scan(regex_:regex): EqualableList<String> {
-        aaa:String = "ABC";
+    def buffer_initialize(size:size_t): {
+        a:Buffer = new Buffer();
+        System.free(a.buffer);
+        a.size = size;
+        a.buffer = System.malloc(a.size);
+        a.len = 0;
+    }
+    def buffer_initialize2(buf:pointer, size:size_t): {
+        a:Buffer = new Buffer();
+        System.free(a.buffer);
+        a.size = size;
+        a.buffer = System.malloc(a.size);
+        System.memcpy(a.buffer, buf, size);
+        a.len = a.size;
+    }
 
-        result: EqualableList<String> = new EqualableList<String>();
+    def run118(): static Buffer {
+        array_:byte[] = null;
+        System.wcstombs(&array_, "AAA".buffer);
+
+        result:Buffer = new Buffer(array_.length.to_ulong);
+        for(i:int = 0; i<array_.length-1; i++) {
+            result.append(array_[i]);
+        }
+
+        # no null-terminated Buffer will be returened
+
+        return result;
+    }
+    def items(aaa:Array<Integer>, index:int): Integer throws Exception {
+        if(index < 0) {
+            index += aaa.items.length;
+        }
+
+        return aaa.items[index];
+    }
+
+    def toBuffer(aaa:String):  Buffer throws Exception {
+        array_:byte[] = null;
+        System.wcstombs(&array_, aaa.buffer);
+
+        result:Buffer = new Buffer(array_.length.to_ulong);
+        for(i:int = 0; i<array_.length-1; i++) {
+            result.append(array_[i]);
+        }
+
+        # no null-terminated Buffer will be returened
+
+        return result;
+    }
+    def split2(aaa:String, separator:regex): EqualableList<String> {
+        result:EqualableList<String> = new EqualableList<String>();
         offset:int = 0;
 
-        buffer:Buffer = aaa.toBuffer();
+        buffer:Buffer = self.toBuffer(aaa);
         ovec_max:int = 16;
         ovec:PcreOVec = new PcreOVec(ovec_max);
 
         while(true) {
-            regex_result:int = System.pcre_exec(regex_, buffer, offset, ovec_max, ovec);
+            regex_result:int = System.pcre_exec(separator, buffer, offset, ovec_max, ovec);
 
             ### match and no group strings ###
             if(regex_result == 1) {
-                match_string:String = buffer.subBuffer(ovec.start[0], ovec.end[0]).toString();
-                result.add(match_string);
+                str:String = buffer.subBuffer(offset, ovec.start[0]).toString();
+                result.add(str);
 
                 if(offset == ovec.end[0]) {
                     offset++;
@@ -1389,8 +1597,8 @@ class JITTest
             }
             ### group strings ###
             elif(regex_result > 1) {
-                match_string:String = buffer.subBuffer(ovec.start[0], ovec.end[0]).toString();
-                result.add(match_string);
+                str:String = buffer.subBuffer(offset, ovec.start[0]).toString();
+                result.add(str);
 
                 if(offset == ovec.end[0]) {
                     offset++;
@@ -1400,8 +1608,8 @@ class JITTest
                 }
 
                 for(i:int = 1; i<regex_result; i++) {
-                    match_string:String = buffer.subBuffer(ovec.start[i], ovec.end[i]).toString();
-                    result.add(match_string);
+                    str:String = buffer.subBuffer(ovec.start[i], ovec.end[i]).toString();
+                    result.add(str);
                 }
             }
             ### no match ###
@@ -1412,19 +1620,53 @@ class JITTest
 
         return result;
     }
-    def groupName():String {
-        aaa:stat = new stat("/bin");
-        result:String = "";
+    def split(separator:regex): EqualableList<String> {
+        aaa:String = "ABC\nDEF";
+        result:EqualableList<String> = new EqualableList<String>();
+        offset:int = 0;
 
-        p"/etc/group".read().toString().split(/\n/).each(closure(line:String) {
-            fields:EqualableList<String> = line.chomp().split(/:/);
-            
-            if(fields.items(2).to_int() == aaa.st_gid) {
-                result = fields.items(0);
+        buffer:Buffer = aaa.toBuffer();
+        ovec_max:int = 16;
+        ovec:PcreOVec = new PcreOVec(ovec_max);
+
+        while(true) {
+            regex_result:int = System.pcre_exec(separator, buffer, offset, ovec_max, ovec);
+
+            ### match and no group strings ###
+            if(regex_result == 1) {
+                str:String = buffer.subBuffer(offset, ovec.start[0]).toString();
+                result.add(str);
+
+                if(offset == ovec.end[0]) {
+                    offset++;
+                }
+                else {
+                    offset = ovec.end[0];
+                }
             }
-        });
+            ### group strings ###
+            elif(regex_result > 1) {
+                str:String = buffer.subBuffer(offset, ovec.start[0]).toString();
+                result.add(str);
+
+                if(offset == ovec.end[0]) {
+                    offset++;
+                }
+                else {
+                    offset = ovec.end[0];
+                }
+
+                for(i:int = 1; i<regex_result; i++) {
+                    str:String = buffer.subBuffer(ovec.start[i], ovec.end[i]).toString();
+                    result.add(str);
+                }
+            }
+            ### no match ###
+            else {
+                break;
+            }
+        }
 
         return result;
     }
-*/
 }
