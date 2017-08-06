@@ -78,6 +78,7 @@ static void dec_stack_ptr(LVALUE** llvm_stack_ptr, int value)
         (*llvm_stack_ptr)->value = 0;
         (*llvm_stack_ptr)->vm_stack = FALSE;
         (*llvm_stack_ptr)->lvar_address_index = -1;
+        (*llvm_stack_ptr)->lvar_stored = FALSE;
 
         (*llvm_stack_ptr)--;
     }
@@ -85,6 +86,7 @@ static void dec_stack_ptr(LVALUE** llvm_stack_ptr, int value)
     (*llvm_stack_ptr)->value = 0;
     (*llvm_stack_ptr)->vm_stack = FALSE;
     (*llvm_stack_ptr)->lvar_address_index = -1;
+    (*llvm_stack_ptr)->lvar_stored = FALSE;
 }
 
 static void push_value_to_stack_ptr(LVALUE** llvm_stack_ptr, LVALUE* value)
@@ -108,17 +110,16 @@ static void store_llvm_value_to_lvar_with_offset(LVALUE* llvm_stack, int index, 
     Builder.CreateStore(llvm_value->value, llvm_stack[index].value);
     llvm_stack[index].vm_stack = llvm_value->vm_stack;
     llvm_stack[index].lvar_address_index = llvm_value->lvar_address_index;
+    llvm_stack[index].lvar_stored = TRUE;
 }
 
-static LVALUE get_llvm_value_from_lvar_with_offset(LVALUE* llvm_stack, int index)
+static void get_llvm_value_from_lvar_with_offset(LVALUE* result, LVALUE* llvm_stack, int index)
 {
     LVALUE* llvm_value = llvm_stack + index;
-    LVALUE result;
-    result.value = Builder.CreateLoad(llvm_value->value, "lvar");
-    result.vm_stack = llvm_value->vm_stack;
-    result.lvar_address_index = llvm_value->lvar_address_index;
-
-    return result;
+    result->value = Builder.CreateLoad(llvm_value->value, "lvar");
+    result->vm_stack = llvm_value->vm_stack;
+    result->lvar_address_index = llvm_value->lvar_address_index;
+    result->lvar_stored = llvm_value->lvar_stored;
 }
 
 static LVALUE get_vm_stack_ptr_value_from_index_with_aligned(std::map<std::string, Value*>& params, BasicBlock* current_block, int index, int align)
@@ -155,6 +156,7 @@ static LVALUE get_vm_stack_ptr_value_from_index_with_aligned(std::map<std::strin
 
     result.vm_stack = TRUE;
     result.lvar_address_index = -1;
+    result.lvar_stored = FALSE;
 
     return result;
 }
@@ -227,6 +229,7 @@ static LVALUE get_stack_value_from_index_with_aligned(std::map<std::string, Valu
 
     result.vm_stack = TRUE;
     result.lvar_address_index = -1;
+    result.lvar_stored = FALSE;
 
     return result;
 }
@@ -338,6 +341,7 @@ static LVALUE get_lvar_value_from_offset(std::map<std::string, Value*>& params, 
     result.value = Builder.CreateAlignedLoad(offset_lvar, 8, "offset_lvar");
     result.vm_stack = TRUE;
     result.lvar_address_index = -1;
+    result.lvar_stored = TRUE;
 
     return result;
 }
@@ -647,7 +651,16 @@ void catch_function(sVMInfo* info, sByteCode* code)
     }
 }
 
-static void finish_method_call(Value* result, sCLClass* klass, sCLMethod* method, std::map<std::string, Value *> params, BasicBlock** current_block, Function* function, char** try_catch_label_name, sByteCode* code)
+static void vm_lvar_to_llvm_lvar(LVALUE* llvm_stack,std::map<std::string, Value*>& params, BasicBlock* current_block, int var_num)
+{
+    int i;
+    for(i=0; i<var_num; i++) {
+        LVALUE llvm_value = get_stack_value_from_index_with_aligned(params, current_block, i, 8);
+        store_llvm_value_to_lvar_with_offset(llvm_stack, i, &llvm_value);
+    }
+}
+
+static void finish_method_call(Value* result, sCLClass* klass, sCLMethod* method, std::map<std::string, Value *> params, BasicBlock** current_block, Function* function, char** try_catch_label_name, sByteCode* code, int real_param_num, int var_num, LVALUE* llvm_stack, LVALUE* llvm_stack_ptr)
 {
     // if result is FALSE ret 0
     Value* comp = Builder.CreateICmpNE(result, ConstantInt::get(TheContext, llvm::APInt(32, 1, true)), "ifcond");
@@ -863,7 +876,9 @@ static void lvar_of_llvm_to_lvar_of_vm(std::map<std::string, Value *> params, Ba
 {
     int i;
     for(i=0; i<var_num; i++) {
-        LVALUE llvm_value = get_llvm_value_from_lvar_with_offset(llvm_stack, i);
+        LVALUE llvm_value;
+        get_llvm_value_from_lvar_with_offset(&llvm_value, llvm_stack, i);
+
         if(llvm_value.value != 0) {
             store_value_to_lvar_with_offset(params, current_block, i, llvm_value.value);
         }
@@ -2328,6 +2343,36 @@ struct sCLVALUEAndBoolResult run_array_to_carray_cast(CLVALUE** stack_ptr, CLVAL
     return result;
 }
 
+void store_value_to_vm_lvar(std::map<std::string, Value*>& params, BasicBlock* current_block, int offset, Value* value)
+{
+    std::string lvar_arg_name("lvar");
+    Value* lvar_value = params[lvar_arg_name];
+
+    Value* lvalue = lvar_value;
+    Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(64, 8*offset, true));
+    Value* lvar_offset_value = Builder.CreateAdd(lvalue, rvalue, "lvar_offset_value", true, true);
+    /// 0 clear align 8 byte ///
+    Value* zero = ConstantInt::get(TheContext, llvm::APInt(64, 0, true));
+    Builder.CreateAlignedStore(zero, lvar_offset_value, 8);
+
+    /// go ///
+    Builder.CreateStore(value, lvar_offset_value);
+}
+
+static void llvm_lvar_to_vm_lvar(LVALUE* llvm_stack,std::map<std::string, Value*>& params, BasicBlock* current_block, int var_num)
+{
+    int i;
+    for(i=0; i<var_num; i++) {
+        LVALUE llvm_value;
+        get_llvm_value_from_lvar_with_offset(&llvm_value, llvm_stack, i);
+
+        if(llvm_value.lvar_stored) {
+            store_value_to_vm_lvar(params, current_block, i, llvm_value.value);
+        }
+    }
+}
+
+
 //////////////////////////////////////////////////////////////
 // LLVM core
 //////////////////////////////////////////////////////////////
@@ -2335,8 +2380,6 @@ struct sCLVALUEAndBoolResult run_array_to_carray_cast(CLVALUE** stack_ptr, CLVAL
 
 BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2)
 {
-//printf("compile_to_native_code %s.%s\n", CLASS_NAME(klass), METHOD_NAME2(klass, method));
-
     std::string func_name(method_path2);
     std::unique_ptr<FunctionAST> llvm_func = llvm::make_unique<FunctionAST>(func_name);
 
@@ -2369,7 +2412,7 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
     int var_num = method->mVarNum;
 
     LVALUE llvm_stack[CLOVER_STACK_SIZE];
-    memset(llvm_stack, 0, sizeof(LVALUE*)*CLOVER_STACK_SIZE);
+    memset(llvm_stack, 0, sizeof(LVALUE)*CLOVER_STACK_SIZE);
 
     LVALUE* llvm_stack_ptr = llvm_stack + var_num;
 
@@ -2377,14 +2420,27 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
     int i;
     for(i=0; i<var_num; i++) {
         llvm_stack[i].value = create_entry_block_alloca(function, i);
+
         llvm_stack[i].vm_stack = TRUE;
         llvm_stack[i].lvar_address_index = -1;
+        llvm_stack[i].lvar_stored = FALSE;
     }
 
     /// parametor from VM stack ptr ///
     int real_param_num = method->mNumParams + ((method->mFlags & METHOD_FLAGS_CLASS_METHOD) ? 0:1);
     for(i=0; i<real_param_num; i++) {
         LVALUE llvm_value = get_stack_value_from_index_with_aligned(params, current_block, i, 8);
+
+        store_llvm_value_to_lvar_with_offset(llvm_stack, i, &llvm_value);
+    }
+
+    /// clear local variable ///
+    for(i=real_param_num; i<var_num; i++) {
+        LVALUE llvm_value;
+        llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(64, 0, true));
+        llvm_stack[i].vm_stack = TRUE;
+        llvm_stack[i].lvar_address_index = -1;
+        llvm_stack[i].lvar_stored = FALSE;
 
         store_llvm_value_to_lvar_with_offset(llvm_stack, i, &llvm_value);
     }
@@ -2651,7 +2707,11 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 params2.push_back(try_code);
 
                 (void)Builder.CreateCall(try_fun, params2);
+
                 }
+                break;
+
+            case OP_CATCH_POP:
                 break;
 
             case OP_HEAD_OF_EXPRESSION: {
@@ -2749,6 +2809,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateLoad(value_for_andand_oror[num_value_for_andand_oror], "value_for_andand_oror");
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
 //call_show_str_in_jit(llvm_make_str_value("OP_LOAD_VALUE_FOR_ANDAND_OROR value"));
 //call_show_value_in_jit(llvm_value.value);
@@ -2794,7 +2855,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 int size = *(int*)pc;
                 pc += sizeof(int);
 
-                LVALUE llvm_value = get_llvm_value_from_lvar_with_offset(llvm_stack, index);
+                LVALUE llvm_value;
+                get_llvm_value_from_lvar_with_offset(&llvm_value, llvm_stack, index);
 
                 trunc_vm_stack_value2(&llvm_value, size);
 
@@ -2815,6 +2877,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, PointerType::get(IntegerType::get(TheContext, 64), 0));
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = index;
+                llvm_value.lvar_stored = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -2829,6 +2892,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                     llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(8, value, true)); 
                     llvm_value.vm_stack = FALSE;
                     llvm_value.lvar_address_index = -1;
+                    llvm_value.lvar_stored = FALSE;
 
                     push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -2843,6 +2907,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                     llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(8, value, false)); 
                     llvm_value.vm_stack = FALSE;
                     llvm_value.lvar_address_index = -1;
+                    llvm_value.lvar_stored = FALSE;
 
                     push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -2857,6 +2922,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                     llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(16, value, true)); 
                     llvm_value.vm_stack = FALSE;
                     llvm_value.lvar_address_index = -1;
+                    llvm_value.lvar_stored = FALSE;
 
                     push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -2871,6 +2937,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                     llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(16, value, false)); 
                     llvm_value.vm_stack = FALSE;
                     llvm_value.lvar_address_index = -1;
+                    llvm_value.lvar_stored = FALSE;
 
                     push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -2884,6 +2951,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(32, value, true)); 
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -2897,6 +2965,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(32, value, false)); 
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -2918,6 +2987,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(64, lvalue, true)); 
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -2939,6 +3009,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(64, lvalue, false)); 
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -2951,6 +3022,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(32, value, true)); 
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -2972,6 +3044,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(64, lvalue, false)); 
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, PointerType::get(IntegerType::get(TheContext, 64), 0));
 
@@ -2987,6 +3060,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = ConstantFP::get(TheContext, llvm::APFloat(value1)); 
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -3008,6 +3082,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = ConstantFP::get(TheContext, llvm::APFloat(lvalue)); 
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -3027,6 +3102,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateAdd(lvalue->value, rvalue->value, "addtmp", true, false);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3049,6 +3125,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value  = Builder.CreateAdd(lvalue->value, rvalue->value, "addtmp", false, true);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3071,6 +3148,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", true, false);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3092,6 +3170,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", false, true);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3112,6 +3191,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateMul(lvalue->value, rvalue->value, "multmp", true, false);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3132,6 +3212,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateMul(lvalue->value, rvalue->value, "multmp", false, true);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3154,6 +3235,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateSDiv(lvalue->value, rvalue->value, "divtmp", false);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3176,6 +3258,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateUDiv(lvalue->value, rvalue->value, "divtmp", false);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3198,6 +3281,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateSRem(lvalue->value, rvalue->value, "remtmp");
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3220,6 +3304,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateURem(lvalue->value, rvalue->value, "remtmp");
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3240,6 +3325,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateShl(lvalue->value, rvalue->value, "lshifttmp", true, false);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3260,6 +3346,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateShl(lvalue->value, rvalue->value, "lshifttmp", false, true);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3280,6 +3367,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateAShr(lvalue->value, rvalue->value, "rshifttmp", false);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3300,6 +3388,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateLShr(lvalue->value, rvalue->value, "rshifttmp", false);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3324,6 +3413,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateAnd(lvalue->value, rvalue->value, "andtmp");
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3348,6 +3438,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateXor(lvalue->value, rvalue->value, "xortmp");
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3372,6 +3463,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateOr(lvalue->value, rvalue->value, "ortmp");
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3391,6 +3483,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateXor(lvalue->value, rvalue.value, "xortmp");
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3410,6 +3503,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateXor(lvalue->value, rvalue.value, "xortmp");
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3429,6 +3523,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateXor(lvalue->value, rvalue.value, "xortmp");
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3448,6 +3543,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateXor(lvalue->value, rvalue.value, "xortmp");
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3466,6 +3562,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateFAdd(lvalue->value, rvalue->value, "faddtmp");
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3484,6 +3581,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateFSub(lvalue->value, rvalue->value, "fsubtmp");
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3502,6 +3600,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateFMul(lvalue->value, rvalue->value, "fmulttmp");
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3522,6 +3621,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateFDiv(lvalue->value, rvalue->value, "fdivtmp");
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3549,6 +3649,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateICmpEQ(lvalue->value, rvalue->value, "eqtmpx");
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3575,6 +3676,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateICmpNE(lvalue->value, rvalue->value, "noteqtmp");
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3595,6 +3697,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateICmpSGT(lvalue->value, rvalue->value, "gttmp");
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3617,6 +3720,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateICmpUGT(lvalue->value, rvalue->value, "ugttmp");
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3637,6 +3741,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateICmpSLT(lvalue->value, rvalue->value, "letmp");
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3659,6 +3764,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateICmpULT(lvalue->value, rvalue->value, "uletmp");
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3679,6 +3785,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateICmpSGE(lvalue->value, rvalue->value, "gteqtmp");
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3701,6 +3808,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateICmpUGE(lvalue->value, rvalue->value, "ugeqtmp");
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3721,6 +3829,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateICmpSLE(lvalue->value, rvalue->value, "lteqtmp");
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3743,6 +3852,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateICmpULE(lvalue->value, rvalue->value, "lteqtmp");
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3761,6 +3871,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateFCmpOEQ(lvalue->value, rvalue->value, "eqtmp");
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3779,6 +3890,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateFCmpONE(lvalue->value, rvalue->value, "noteqtmp");
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3797,6 +3909,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateFCmpOGT(lvalue->value, rvalue->value, "gttmp");
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3815,6 +3928,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateFCmpOLT(lvalue->value, rvalue->value, "letmp");
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3833,6 +3947,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateFCmpOGE(lvalue->value, rvalue->value, "gteqtmp");
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3851,6 +3966,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateFCmpOLE(lvalue->value, rvalue->value, "leeqtmp");
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3871,6 +3987,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCall(function, params2);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3892,6 +4009,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateICmpEQ(llvm_value.value, ConstantInt::get(TheContext, llvm::APInt(32, 0, true)), "bool_value_reverse");
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3911,6 +4029,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCall(fun, params2);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3956,6 +4075,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCall(fun, params2);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3973,6 +4093,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateAnd(lvalue->value, rvalue->value, "ANDAND");
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -3990,6 +4111,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateOr(lvalue->value, rvalue->value, "OROR");
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -4009,6 +4131,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateICmpEQ(lvalue->value, rvalue.value, "LOGICAL_DIANEAL");
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -4038,6 +4161,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 sCLMethod* method = klass->mMethods + method_index;
 
                 /// llvm stack to VM stack ///
+                llvm_lvar_to_vm_lvar(llvm_stack, params, current_block, var_num);
+
                 int real_param_num = method->mNumParams + (method->mFlags & METHOD_FLAGS_CLASS_METHOD ? 0:1);
                 llvm_stack_to_vm_stack(llvm_stack_ptr, params, current_block, real_param_num);
 
@@ -4073,10 +4198,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 Value* result = Builder.CreateCall(fun, params2);
 
-                finish_method_call(result, klass, method, params, &current_block, function, &try_catch_label_name, code);
+                finish_method_call(result, klass, method, params, &current_block, function, &try_catch_label_name, code, real_param_num, var_num, llvm_stack, llvm_stack_ptr);
                 
+
                 /// the pointer of lvar syncs to llvm stack ///
-                int i;
                 for(i=0; i<real_param_num; i++) {
                     LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -i-1);
                     if(llvm_value->lvar_address_index != -1) {
@@ -4085,6 +4210,9 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                         llvm_value->lvar_address_index = -1;
                     }
                 }
+
+                /// VM stack to llvm stack ///
+                vm_lvar_to_llvm_lvar(llvm_stack, params, current_block, var_num);
 
                 /// dec llvm stack pointer ///
                 dec_stack_ptr(&llvm_stack_ptr, real_param_num);
@@ -4116,6 +4244,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 pc += sizeof(int);
 
                 /// llvm stack to VM stack ///
+                llvm_lvar_to_vm_lvar(llvm_stack, params, current_block, var_num);
+
                 llvm_stack_to_vm_stack(llvm_stack_ptr, params, current_block, num_real_params);
 
                 /// get object value from llvm stack ///
@@ -4159,7 +4289,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 Value* result = Builder.CreateCall(fun, params2);
 
-                finish_method_call(result, klass, method, params, &current_block, function, &try_catch_label_name, code);
+                finish_method_call(result, klass, method, params, &current_block, function, &try_catch_label_name, code, num_real_params-1, var_num, llvm_stack, llvm_stack_ptr);
                 
                 /// the pointer of lvar syncs to llvm stack ///
                 int i;
@@ -4170,6 +4300,9 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                         store_llvm_value_to_lvar_with_offset(llvm_stack, llvm_value->lvar_address_index, &llvm_value_of_vm_stack);
                     }
                 }
+
+                /// VM stack to llvm stack ///
+                vm_lvar_to_llvm_lvar(llvm_stack, params, current_block, var_num);
 
                 /// dec llvm stack pointer ///
                 dec_stack_ptr(&llvm_stack_ptr, num_real_params);
@@ -4215,6 +4348,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 int num_real_params = num_params + (static_ ? 0:1);
 
                 /// llvm stack to VM stack ///
+                llvm_lvar_to_vm_lvar(llvm_stack, params, current_block, var_num);
+
                 llvm_stack_to_vm_stack(llvm_stack_ptr, params, current_block, num_real_params);
 
                 /// go ///
@@ -4264,7 +4399,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 Value* result = Builder.CreateCall(fun, params2);
 
-                finish_method_call(result, klass, method, params, &current_block, function, &try_catch_label_name, code);
+                finish_method_call(result, klass, method, params, &current_block, function, &try_catch_label_name, code, num_real_params-1, var_num, llvm_stack, llvm_stack_ptr);
                 
                 /// the pointer of lvar syncs to llvm stack ///
                 int i;
@@ -4275,6 +4410,9 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                         store_llvm_value_to_lvar_with_offset(llvm_stack, llvm_value->lvar_address_index, &llvm_value_of_vm_stack);
                     }
                 }
+
+                /// VM stack to llvm stack ///
+                vm_lvar_to_llvm_lvar(llvm_stack, params, current_block, var_num);
 
                 /// dec llvm stack pointer ///
                 dec_stack_ptr(&llvm_stack_ptr, num_real_params);
@@ -4387,6 +4525,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                     llvm_value.value = Builder.CreateCall(function, params2);
                     llvm_value.vm_stack = TRUE;
                     llvm_value.lvar_address_index = -1;
+                    llvm_value.lvar_stored = FALSE;
 
                     dec_stack_ptr(&llvm_stack_ptr, 1);
                     push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -4412,6 +4551,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                     llvm_value.value = Builder.CreateCall(function, params2);
                     llvm_value.vm_stack = TRUE;
                     llvm_value.lvar_address_index = -1;
+                    llvm_value.lvar_stored = FALSE;
 
                     push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
 
@@ -4474,6 +4614,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = result1;
                 llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -4526,6 +4667,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = result1;
                 llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -4625,6 +4767,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = result1;
                 llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 trunc_vm_stack_value2(&llvm_value, size);
 
@@ -4679,6 +4822,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = result1;
                 llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -4812,6 +4956,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateAlignedLoad(address->value, 4, "llvm_value");
                 llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
                 
                 llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt32Ty(TheContext));
 
@@ -4834,6 +4979,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateAlignedLoad(address->value, 4, "llvm_value");
                 llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
                 
                 llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getFloatTy(TheContext));
 
@@ -4857,6 +5003,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateAlignedLoad(address->value, 1, "llvm_value");
                 llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt8Ty(TheContext));
 
@@ -4880,6 +5027,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateAlignedLoad(address->value, 2, "llvm_value");
                 llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt16Ty(TheContext));
 
@@ -4903,6 +5051,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateAlignedLoad(address->value, 8, "llvm_value");
                 llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt64Ty(TheContext));
 
@@ -4925,6 +5074,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateAlignedLoad(address->value, 8, "llvm_value");
                 llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, PointerType::get(IntegerType::get(TheContext, 64), 0));
 
@@ -4947,6 +5097,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateAlignedLoad(address->value, 8, "llvm_value");
                 llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getDoubleTy(TheContext));
 
@@ -5081,6 +5232,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCast(Instruction::SExt, value->value, Type::getInt32Ty(TheContext), "value2");
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -5096,6 +5248,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCast(Instruction::ZExt, value->value, Type::getInt32Ty(TheContext), "value2");
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -5117,6 +5270,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCast(Instruction::ZExt, value->value, Type::getInt32Ty(TheContext), "value2");
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -5144,6 +5298,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCast(Instruction::Trunc, value->value, Type::getInt32Ty(TheContext), "value2");
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -5159,6 +5314,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCast(Instruction::FPToSI, value->value, Type::getInt32Ty(TheContext), "value2");
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -5176,6 +5332,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCast(Instruction::FPToUI, value->value, Type::getInt32Ty(TheContext), "value2");
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -5192,6 +5349,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCast(Instruction::PtrToInt, value->value, Type::getInt32Ty(TheContext), "value2");
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -5223,6 +5381,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCast(Instruction::Trunc, value->value, Type::getInt8Ty(TheContext), "value2");
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -5238,6 +5397,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCast(Instruction::FPToSI, value->value, Type::getInt8Ty(TheContext), "value2");
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -5253,6 +5413,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCast(Instruction::FPToUI, value->value, Type::getInt8Ty(TheContext), "value2");
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -5268,6 +5429,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCast(Instruction::PtrToInt, value->value, Type::getInt8Ty(TheContext), "value2");
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -5291,6 +5453,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCast(Instruction::Trunc, value->value, Type::getInt16Ty(TheContext), "value2");
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -5306,6 +5469,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCast(Instruction::FPToSI, value->value, Type::getInt16Ty(TheContext), "value2");
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -5321,6 +5485,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCast(Instruction::FPToUI, value->value, Type::getInt16Ty(TheContext), "value2");
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -5335,6 +5500,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCast(Instruction::SExt, value->value, Type::getInt32Ty(TheContext), "value2");
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -5349,6 +5515,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCast(Instruction::ZExt, value->value, Type::getInt32Ty(TheContext), "value2");
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -5364,6 +5531,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCast(Instruction::ZExt, value->value, Type::getInt32Ty(TheContext), "value2");
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -5383,6 +5551,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCast(Instruction::PtrToInt, value->value, Type::getInt16Ty(TheContext), "value2");
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -5399,6 +5568,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCast(Instruction::SExt, value->value, Type::getInt64Ty(TheContext), "value2");
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -5423,6 +5593,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCast(Instruction::ZExt, value->value, Type::getInt64Ty(TheContext), "value2");
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -5441,6 +5612,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCast(Instruction::FPToSI, value->value, Type::getInt64Ty(TheContext), "value2");
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -5456,6 +5628,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCast(Instruction::FPToUI, value->value, Type::getInt64Ty(TheContext), "value2");
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -5471,6 +5644,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCast(Instruction::PtrToInt, value->value, Type::getInt64Ty(TheContext), "value2");
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -5493,6 +5667,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, PointerType::get(IntegerType::get(TheContext, 64), 0));
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -5509,6 +5684,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCast(Instruction::SIToFP, value->value, Type::getFloatTy(TheContext));
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -5527,6 +5703,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCast(Instruction::UIToFP, value->value, Type::getFloatTy(TheContext));
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -5541,6 +5718,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCast(Instruction::FPTrunc, value->value, Type::getFloatTy(TheContext));
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -5558,6 +5736,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCast(Instruction::SIToFP, value->value, Type::getDoubleTy(TheContext));
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -5576,6 +5755,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCast(Instruction::UIToFP, value->value, Type::getDoubleTy(TheContext));
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -5590,6 +5770,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCast(Instruction::FPExt, value->value, Type::getDoubleTy(TheContext));
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -5615,6 +5796,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 result.value = Builder.CreateCall(fun, params2);
                 result.vm_stack = TRUE;
                 result.lvar_address_index = -1;
+                result.lvar_stored = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &result);
 
@@ -5643,6 +5825,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 result.value = Builder.CreateCall(fun, params2);
                 result.vm_stack = TRUE;
                 result.lvar_address_index = -1;
+                result.lvar_stored = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &result);
 
@@ -5673,6 +5856,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 result.value = Builder.CreateCall(fun, params2);
                 result.vm_stack = TRUE;
                 result.lvar_address_index = -1;
+                result.lvar_stored = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &result);
 
@@ -5701,6 +5885,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 result.value = Builder.CreateCall(fun, params2);
                 result.vm_stack = TRUE;
                 result.lvar_address_index = -1;
+                result.lvar_stored = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &result);
 
@@ -5729,6 +5914,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 result.value = Builder.CreateCall(fun, params2);
                 result.vm_stack = TRUE;
                 result.lvar_address_index = -1;
+                result.lvar_stored = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &result);
 
@@ -5757,6 +5943,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 result.value = Builder.CreateCall(fun, params2);
                 result.vm_stack = TRUE;
                 result.lvar_address_index = -1;
+                result.lvar_stored = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &result);
 
@@ -5785,6 +5972,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 result.value = Builder.CreateCall(fun, params2);
                 result.vm_stack = TRUE;
                 result.lvar_address_index = -1;
+                result.lvar_stored = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &result);
 
@@ -5813,6 +6001,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 result.value = Builder.CreateCall(fun, params2);
                 result.vm_stack = TRUE;
                 result.lvar_address_index = -1;
+                result.lvar_stored = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &result);
 
@@ -5841,6 +6030,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 result.value = Builder.CreateCall(fun, params2);
                 result.vm_stack = TRUE;
                 result.lvar_address_index = -1;
+                result.lvar_stored = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &result);
 
@@ -5869,6 +6059,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 result.value = Builder.CreateCall(fun, params2);
                 result.vm_stack = TRUE;
                 result.lvar_address_index = -1;
+                result.lvar_stored = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &result);
 
@@ -5913,6 +6104,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCall(fun, params2);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -5959,6 +6151,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCall(fun, params2);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -6004,6 +6197,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCall(fun, params2);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -6050,6 +6244,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCall(fun, params2);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -6096,6 +6291,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCall(fun, params2);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -6141,6 +6337,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCall(fun, params2);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -6186,6 +6383,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCall(fun, params2);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -6231,6 +6429,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCall(fun, params2);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -6275,6 +6474,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCall(fun, params2);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -6319,6 +6519,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCall(fun, params2);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -6360,6 +6561,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCall(fun, params2);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -6403,6 +6605,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCall(fun, params2);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -6446,6 +6649,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCall(fun, params2);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -6487,6 +6691,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCall(fun, params2);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 cast_llvm_value_from_inst(&llvm_value, inst);
 
@@ -6520,6 +6725,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCall(fun, params2);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 cast_llvm_value_from_inst(&llvm_value, inst);
 
@@ -6553,6 +6759,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCall(fun, params2);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -6586,6 +6793,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCall(fun, params2);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -6630,6 +6838,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCall(fun, params2);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -6674,6 +6883,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCall(fun, params2);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -6707,6 +6917,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCall(fun, params2);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -6740,6 +6951,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCall(fun, params2);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -6771,6 +6983,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCall(fun, params2);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, PointerType::get(IntegerType::get(TheContext, 64), 0));
 
@@ -6804,6 +7017,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCall(fun, params2);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -6828,6 +7042,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCall(fun, params2);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -6859,6 +7074,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCall(fun, params2);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -6883,6 +7099,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCall(fun, params2);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -6936,6 +7153,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = result1;
                 llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -6960,6 +7178,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCall(fun, params2);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -6983,6 +7202,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCall(fun, params2);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7004,6 +7224,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCall(fun, params2);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7025,6 +7246,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCall(fun, params2);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7046,6 +7268,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCall(fun, params2);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7067,6 +7290,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCall(fun, params2);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7088,6 +7312,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCall(fun, params2);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7109,6 +7334,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCall(fun, params2);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7131,6 +7357,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCall(fun, params2);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7151,6 +7378,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCall(fun, params2);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7171,6 +7399,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCall(fun, params2);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7195,6 +7424,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCall(function, params2);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
 
@@ -7233,6 +7463,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCall(function, params2);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
 
@@ -7265,6 +7496,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCall(function, params2);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
 
@@ -7328,6 +7560,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = result1;
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 /// dec llvm stack pointer ///
                 dec_stack_ptr(&llvm_stack_ptr, num_elements);
@@ -7398,6 +7631,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = result1;
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 /// dec llvm stack pointer ///
                 dec_stack_ptr(&llvm_stack_ptr, num_elements);
@@ -7465,6 +7699,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = result1;
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 /// dec llvm stack pointer ///
                 dec_stack_ptr(&llvm_stack_ptr, num_elements);
@@ -7532,6 +7767,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = result1;
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 /// dec llvm stack pointer ///
                 dec_stack_ptr(&llvm_stack_ptr, num_elements);
@@ -7599,6 +7835,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = result1;
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 /// dec llvm stack pointer ///
                 dec_stack_ptr(&llvm_stack_ptr, num_elements);
@@ -7666,6 +7903,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = result1;
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 /// dec llvm stack pointer ///
                 dec_stack_ptr(&llvm_stack_ptr, num_elements);
@@ -7733,6 +7971,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = result1;
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 /// dec llvm stack pointer ///
                 dec_stack_ptr(&llvm_stack_ptr, num_elements);
@@ -7792,6 +8031,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = result1;
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 /// dec llvm stack pointer ///
                 dec_stack_ptr(&llvm_stack_ptr, num_elements);
@@ -7866,6 +8106,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = result1;
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 /// dec llvm stack pointer ///
                 dec_stack_ptr(&llvm_stack_ptr, num_elements*2);
@@ -7951,6 +8192,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateCall(fun, params2);
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 /// vm stack_ptr to llvm stack ///
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -8023,6 +8265,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(function, params2);
                 llvm_value.vm_stack = TRUE;
+                llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
 
@@ -8096,7 +8340,6 @@ BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClas
             info->current_var_num = var_num;
             info->stack_id = stack_id;
 
-//printf("call JIT %s.%s\n", CLASS_NAME(klass), METHOD_NAME2(klass, method));
             BOOL result = function(stack_ptr, lvar, info, stack, &stack_ptr, var_num);
             if(!result) {
                 remove_stack_to_stack_list(stack, &stack_ptr);

@@ -46,6 +46,10 @@ class JITTestClassA
     def aaaa():static int {
         return 123;
     }
+
+    def method10(a:int, b: int, block_:lambda(int,int):int): int {
+        return block_(a,b);
+    }
 }
 
 class JITTest 
@@ -442,7 +446,7 @@ class JITTest
         return lambda(x:int, y:int):int { return x + y; };
     }
     def run72_5(): int {
-        a := new JITTestClassA();
+        a :JITTestClassA = new JITTestClassA();
         a.value = 123;
 
         b:pointer = &a.value;
@@ -452,35 +456,35 @@ class JITTest
         return a.value;
     }
     def run72_6(): int {
-        a := 123;
+        a :int = 123;
 
         b:pointer = &a;
 
         return b->int;
     }
     def run72_7(): double {
-        a := 123.1;
+        a :double = 123.1;
 
         b:pointer = &a;
 
         return b->double;
     }
     def run72_8(): float {
-        a := 123.1f;
+        a :float = 123.1f;
 
         b:pointer = &a;
 
         return b->float;
     }
     def run72_9(): long {
-        a := 123l;
+        a :long = 123l;
 
         b:pointer = &a;
 
         return b->long;
     }
     def run72_a(): byte {
-        a := 123y;
+        a :byte = 123y;
 
         b:pointer = &a;
 
@@ -760,43 +764,43 @@ class JITTest
         return a;
     }
     def run98_8(): double {
-        a := new Short(123);
+        a :Short = new Short(123);
         return a;
     }
     def run98_9(): byte {
-        a := new Short(123);
+        a :Short = new Short(123);
         return a;
     }
     def run98_10(): int {
-        a := new Short(123);
+        a :Short = new Short(123);
         return a;
     }
     def run98_11(): short {
-        a := new Short(-1);
+        a :Short = new Short(-1);
         return a;
     }
     def run98_12(): byte {
-        a := new Short(-1);
+        a :Short = new Short(-1);
         return a;
     }
     def run98_13(): long {
-        a := new Long(123);
+        a :Long = new Long(123);
         return a;
     }
     def run98_14(): byte {
-        a := new Long(123);
+        a :Long = new Long(123);
         return a;
     }
     def run98_15(): double {
-        a := new Long(123);
+        a :Long = new Long(123);
         return a;
     }
     def run98_16(): double {
-        a := new Long(-123);
+        a :Long = new Long(-123);
         return a;
     }
     def run98_17(): byte {
-        a := new Long(-123);
+        a :Long = new Long(-123);
         return a;
     }
     def run98_18(): byte {
@@ -825,11 +829,11 @@ class JITTest
         return a;
     }
     def run99_4(): double {
-        a := new Double(2.1);
+        a :Double = new Double(2.1);
         return a;
     }
     def run99_5(): int {
-        a := new Double(2.1);
+        a :Double = new Double(2.1);
         return a;
     }
     def run100():  float {
@@ -1226,7 +1230,7 @@ class JITTest
         offset:int = 0;
         count2:int = 0;
 
-        aaaa := "ABC";
+        aaaa :String = "ABC";
 
         buffer:Buffer = aaaa.toBuffer();
         ovec_max:int = 16;
@@ -1322,7 +1326,7 @@ class JITTest
         else {
             it:ListItem<Integer> = aaa.head;
 
-            i:= 0;
+            i:int = 0;
 
             while(!it.identifyWith(null)) {
                 if(i == index-1) {
@@ -1666,6 +1670,38 @@ class JITTest
                 break;
             }
         }
+
+        return result;
+    }
+
+    def closure_test1():int {
+        a: JITTestClassA = new JITTestClassA();
+
+        e:int = 30;
+        f:int = 40
+
+        return a.method10(10, 20, closure(x:int, y:int):int {
+            return x + y + e + f;
+        });
+    }
+    def closure_test2():int {
+        a: JITTestClassA = new JITTestClassA();
+
+        e:int = 30;
+        f:int = 10
+
+        a.method10(10, 20, closure(x:int, y:int):int {
+            e += f;
+        });
+
+        return e;
+    }
+    def closure_test3(): String {
+        result:String = "";
+
+        "ABC\nDEF\nGHI".split(/\n/).each(closure(line:String) {
+            result = "ABC";
+        });
 
         return result;
     }

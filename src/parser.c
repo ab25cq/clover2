@@ -2481,6 +2481,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 node_type = NULL;
                 check_already_added_variable(info->lv_table, buf, info);
                 add_variable_to_table(info->lv_table, buf, node_type);
+
             }
 
             /// assign the value to a variable ///

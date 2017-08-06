@@ -46,6 +46,7 @@
 #define ELIF_NUM_MAX 32
 #define BREAK_NUM_MAX 32
 #define PARAMS_MAX 32
+#define METHOD_VAR_NUM_MAX 64
 #define GENERICS_TYPES_MAX 32
 #define CLASS_VERSION_MAX 128
 #define METHOD_PATH_MAX 1024
@@ -423,6 +424,9 @@ BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_);
 // result: (null) not found (sVar*) found
 sVar* get_variable_from_table(sVarTable* table, char* name);
 
+// result: (null) not found (sVar*) found
+sVar* get_variable_from_index(sVarTable* table, int index);
+
 int get_var_num(sVarTable* table);
 void show_vtable(sVarTable* table);
 
@@ -789,19 +793,21 @@ extern BOOL gSigInt;
 #define OP_THROW 9
 #define OP_TRY 10
 #define OP_TRY_END 11
-#define OP_HEAD_OF_EXPRESSION 12
-#define OP_MARK_SOURCE_CODE_POSITION 13
-#define OP_SIGINT 14
-#define OP_LABEL 15
+#define OP_CATCH_POP 12
+#define OP_HEAD_OF_EXPRESSION 13
+#define OP_MARK_SOURCE_CODE_POSITION 14
+#define OP_SIGINT 15
+#define OP_LABEL 16
 
-#define OP_VALUE_FOR_ANDAND_OROR 16
-#define OP_STORE_VALUE_FOR_ANDAND_OROR 17
-#define OP_LOAD_VALUE_FOR_ANDAND_OROR 18
 
-#define OP_STORE 19
-#define OP_LOAD 20
+#define OP_VALUE_FOR_ANDAND_OROR 17
+#define OP_STORE_VALUE_FOR_ANDAND_OROR 18
+#define OP_LOAD_VALUE_FOR_ANDAND_OROR 19
 
-#define OP_LOAD_ADDRESS 21
+#define OP_STORE 20
+#define OP_LOAD 21
+
+#define OP_LOAD_ADDRESS 22
 
 #define OP_LDCBYTE 25
 #define OP_LDCUBYTE 26

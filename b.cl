@@ -343,23 +343,27 @@ zz:Array<Integer> = a.run70_7();
 
 Clover.test("jit test-items", a.items(zz, 0) == 1 && a.items(zz, 1) == 2 && a.items(zz, 2) == 3);
 
-/*
+Clover.test("jit test-closure1", a.closure_test1() == 100);
+Clover.test("jit test-closure2", a.closure_test2() == 40);
+
+Clover.test("jit test-closure3", a.closure_test3().equals("ABC"));
+
+
 Clover.test("jit test-file", p"/bin".to_stat().groupName().equals("root"));
-Clover.test("file test10", p"/bin".to_stat().userName().equals("root"));
-Clover.test("file test11", p"a.txt".to_stat().S_ISREG());
-#Clover.test("file test12", p"a.txt".to_stat().mtime().dayOfMonth() == 21 && p"a.txt".to_stat().mtime().month() == 12);
-Clover.test("file test13", p"a.txt".read().equals(b"ABCDEFGHI\n"));
+Clover.test("jit test-file2", p"/bin".to_stat().userName().equals("root"));
+Clover.test("jit test-file3", p"a.txt".to_stat().S_ISREG());
+#Clover.test("jit test-file4", p"a.txt".to_stat().mtime().dayOfMonth() == 21 && p"a.txt".to_stat().mtime().month() == 12);
+Clover.test("jit test-file5", p"a.txt".read().equals(b"ABCDEFGHI\n"));
 
 f2 := new File("b.txt", System.O_CREAT|System.O_TRUNC|System.O_WRONLY, 0644);
 f2.write(b"aaa\nbbb\nccc\n");
 f2.close();
 
-Clover.test("file test14", File.read("b.txt").equals(b"aaa\nbbb\nccc\n"));
+Clover.test("jit test-file6", File.read("b.txt").equals(b"aaa\nbbb\nccc\n"));
 
 File.write("c.txt", b"abc\ndef\n");
-Clover.test("file test15", File.read("c.txt").equals(b"abc\ndef\n"));
+Clover.test("jit test-file7", File.read("c.txt").equals(b"abc\ndef\n"));
 #Clover.test("file test16", p"c.txt".to_stat().permission() == 0644);
 
 p"d.txt".write(b"GGG\n");
-Clover.test("file test17", p"d.txt".read().equals(b"GGG\n"));
-*/
+Clover.test("jit test-file8", p"d.txt".read().equals(b"GGG\n"));

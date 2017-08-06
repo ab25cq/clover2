@@ -60,7 +60,7 @@ module MEqualableArrayImplement
 
         result:String = "array {";
 
-        for(i:= 0; i<self.items.length; i++) {
+        for(i:int = 0; i<self.items.length; i++) {
             result.append(self.items[i].toString());
             result.append(",");
         }
@@ -79,7 +79,7 @@ module MEqualableArrayImplement
             return false;
         }
 
-        for(i:= 0; i<self.items.length; i++) {
+        for(i:int = 0; i<self.items.length; i++) {
             if(!self.items[i].equals(right.items[i])) {
                 return false;
             }
@@ -93,7 +93,7 @@ module MEqualableArrayImplement
             return false;
         }
 
-        for(i:= 0; i<self.items.length; i++) {
+        for(i:int = 0; i<self.items.length; i++) {
             if(!self.items[i].equals(right.items[i])) {
                 return false;
             }
@@ -197,7 +197,7 @@ class SortableArray <T:ISortable>
             return false;
         }
 
-        for(i:= 0; i<self.items.length; i++) {
+        for(i:int = 0; i<self.items.length; i++) {
             if(!self.items[i].equals(right.items[i])) {
                 return false;
             }
@@ -393,8 +393,8 @@ module MListImplementation
             return null;
         }
         else {
-            new_tail := self.tail.prev;
-            item := self.tail.item;
+            new_tail :ListItem<T> = self.tail.prev;
+            item :T = self.tail.item;
 
             if(new_tail.identifyWith(null)) {
                 self.head = null;
@@ -419,8 +419,8 @@ module MListImplementation
             return null;
         }
         else {
-            new_head := self.head.next;
-            item := self.head.item;
+            new_head :ListItem<T> = self.head.next;
+            item :T = self.head.item;
 
             if(new_head.identifyWith(null)) {
                 self.head = null;
@@ -466,7 +466,7 @@ module MListImplementation
         else {
             it:ListItem<T> = self.head;
 
-            i:= 0;
+            i:int= 0;
 
             while(!it.identifyWith(null)) {
                 if(i == index-1) {
@@ -628,7 +628,7 @@ module MListImplementation
     def select(block_:lambda(T):bool):SELF<T> {
         new_list: SELF<T> = new SELF<T>();
 
-        it := self.head;
+        it :ListItem<T> = self.head;
 
         while(!it.identifyWith(null)) {
             if(block_(it.item)) {
@@ -642,7 +642,7 @@ module MListImplementation
 
     def clone():SELF<T> {
         result:SELF<T> = new SELF<T>();
-        it := self.head;
+        it :ListItem<T> = self.head;
         while(!it.identifyWith(null)) {
             result.add(it.item);
             it = it.next;
@@ -670,7 +670,7 @@ module MListImplementation
 
         new_list: SELF<T> = new SELF<T>();
 
-        it := self.head;
+        it :ListItem<T> = self.head;
         count:int = 0;
 
         while(!it.identifyWith(null)) {
@@ -704,7 +704,7 @@ module MListImplementation
 
         new_list: SELF<T> = new SELF<T>();
 
-        it := self.head;
+        it :ListItem<T> = self.head;
         count:int = 0;
 
         while(!it.identifyWith(null)) {
@@ -738,7 +738,7 @@ module MListImplementation
 
         new_list: SELF<T> = new SELF<T>();
 
-        it := self.head;
+        it :ListItem<T> = self.head;
         count:int = 0;
 
         while(!it.identifyWith(null)) {
@@ -761,7 +761,7 @@ module MListImplementation
     def reverse():SELF<T> {
         result:SELF<T> = new SELF<T>();
 
-        it := self.tail;
+        it :ListItem<T> = self.tail;
 
         while(!it.identifyWith(null)) {
             result.add(it.item);
@@ -772,14 +772,14 @@ module MListImplementation
     }
 
     def shuffle():SELF<T> {
-        result := self.clone();
+        result:SELF<T> = self.clone();
 
-        for(i:=0; i<50; i++) {
-            n := System.rand() % self.number;
-            m := System.rand() % self.number;
+        for(i:int =0; i<50; i++) {
+            n :int = System.rand() % self.number;
+            m :int = System.rand() % self.number;
 
-            item := result.items(n);
-            item2 := result.items(m);
+            item :T = result.items(n);
+            item2 :T = result.items(m);
 
             result.replace(m, item);
             result.replace(n, item2);
@@ -795,7 +795,7 @@ module MEqualableListImplementation
         if(self.number != right.number) {
             return false;
         }
-        for(i:=0; i<self.number; i++) {
+        for(i:int =0; i<self.number; i++) {
             if(!self.items(i).equals(right.items(i))) {
                 return false;
             }
@@ -890,7 +890,7 @@ module MEqualableListImplementation
     }
     def join(separator:String):String {
         result:String = new String("");
-        it := self.head;
+        it :ListItem<T> = self.head;
 
         while(!it.identifyWith(null)) {
             result.append(it.item.toString());
@@ -911,7 +911,7 @@ module MEqualableListImplementation
     def count(item:T):int {
         result:int = 0;
 
-        it := self.head;
+        it :ListItem<T> = self.head;
 
         while(!it.identifyWith(null)) {
             if(it.item.equals(item)) {
@@ -926,7 +926,7 @@ module MEqualableListImplementation
 
     def indexOf(item:T):int {
         result:int = 0;
-        it := self.head;
+        it :ListItem<T> = self.head;
 
         while(!it.identifyWith(null)) {
             if(it.item.equals(item)) {
@@ -947,10 +947,10 @@ class List <T:Object>
     def toEqualableList():EqualableList<IEqualable> throws Exception {
         result:EqualableList<IEqualable>  = new EqualableList<IEqualable>();
 
-        it := result.head;
+        it :ListItem<IEqualable> = result.head;
 
         while(!it.identifyWith(null)) {
-            item := it.item;
+            item :IEqualable = it.item;
 
             if(item implements IEqualable) {
                 result.add(item);
@@ -965,10 +965,10 @@ class List <T:Object>
     def toSortableList():SortableList<ISortable> throws Exception {
         result:SortableList<ISortable>  = new SortableList<ISortable>();
 
-        it := result.head;
+        it :ListItem<ISortable>= result.head;
 
         while(!it.identifyWith(null)) {
-            item := it.item;
+            item :ISortable = it.item;
 
             if(item implements ISortable) {
                 result.add(item);
@@ -989,10 +989,10 @@ class EqualableList<T:IEqualable>
     def toSortableList():SortableList<ISortable> throws Exception {
         result:SortableList<ISortable>  = new SortableList<ISortable>();
 
-        it := result.head;
+        it :ListItem<ISortable> = result.head;
 
         while(!it.identifyWith(null)) {
-            item := it.item;
+            item :ISortable = it.item;
 
             if(item implements ISortable) {
                 result.add(item);
@@ -1175,7 +1175,7 @@ class Hash <T:IHashKey, T2:IEqualable>
         self.tableSize = hash_size;
         self.itemNumber = num_elements;
 
-        for(i:=0; i<num_elements; i++) {
+        for(i:int =0; i<num_elements; i++) {
             self.put(keys[i], items[i]);
         }
     }
@@ -1244,14 +1244,14 @@ class Hash <T:IHashKey, T2:IEqualable>
     }
 
     def rehash() {
-        table := self.table;
-        itemNumber := self.itemNumber;
+        table :HashItem<T,T2>[] = self.table;
+        itemNumber :uint = self.itemNumber;
 
         self.tableSize *= 2;
         self.table = new HashItem<T,T2>[self.tableSize];
         self.itemNumber = 0;
 
-        for(i:=0; i<itemNumber; i++) {
+        for(i:int= 0; i<itemNumber; i++) {
             if(!table[i].identifyWith(null)) {
                 self.put(table[i].key, table[i].item);
             }

@@ -2959,7 +2959,7 @@ static BOOL compile_try_expression(unsigned int node, sCompileInfo* info)
     append_opecode_to_code(info->code, OP_STORE, info->no_output);
     append_int_value_to_code(info->code, var_index, info->no_output);
 
-    append_opecode_to_code(info->code, OP_POP, info->no_output);
+    append_opecode_to_code(info->code, OP_CATCH_POP, info->no_output); // for none JIT code
 
     if(!compile_block(catch_node_block, info)) {
         return FALSE;

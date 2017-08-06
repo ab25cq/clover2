@@ -19,14 +19,14 @@ void show_stack(CLVALUE* stack, CLVALUE* stack_ptr, CLVALUE* lvar, int var_num)
 
     int i;
     for(i=0; i<30; i++) {
-        //if(stack + i < stack_ptr) {
+        if(stack + i < stack_ptr) {
             if(stack_ptr == stack + i) {
                 printf("![%d] %d on %p\n", i, stack[i].mIntValue, stack + i);
             }
             else {
                 printf("[%d] %d on %p\n", i, stack[i].mIntValue, stack + i);
             }
-        //}
+        }
     }
 }
 
@@ -536,7 +536,6 @@ BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_pa
         memcpy(new_stack, object_data->mParentStack, sizeof(CLVALUE)*object_data->mParentVarNum);
         memcpy(new_stack + object_data->mParentVarNum, (*stack_ptr)-num_params, sizeof(CLVALUE)*num_params);
 
-
         if(!vm(&code, &constant, new_stack, new_var_num, klass, info)) {
             /// copy back variables to parent ///
             object_data = CLBLOCK(block_object);
@@ -1010,6 +1009,14 @@ if(stack_ptr != lvar + var_num + 1) {
                 info->try_code = NULL;
                 info->try_offset = 0;
                 
+                vm_mutex_off();
+                break;
+
+            case OP_CATCH_POP:
+                vm_mutex_on();
+
+                stack_ptr--;
+
                 vm_mutex_off();
                 break;
 

@@ -214,6 +214,7 @@ struct LVALUEStruct {
     Value* value;
     BOOL vm_stack;
     int lvar_address_index;
+    BOOL lvar_stored;
 };
 
 typedef struct LVALUEStruct LVALUE;

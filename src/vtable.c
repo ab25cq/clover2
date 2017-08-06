@@ -121,6 +121,28 @@ BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_)
     }
 }
 
+sVar* get_variable_from_index(sVarTable* table, int index)
+{
+    int hash_value;
+    sVar* p;
+
+    p = table->mLocalVariables;
+
+    while(1) {
+        if(p->mName[0] != 0 && p->mIndex == index) {
+            return p;
+        }
+
+        p++;
+
+        if(p == table->mLocalVariables + LOCAL_VARIABLE_MAX) {
+            break;
+        }
+    }
+
+    return NULL;
+}
+
 // result: (null) not found (sVar*) found
 static sVar* get_variable_from_this_table_only(sVarTable* table, char* name)
 {
@@ -149,6 +171,8 @@ static sVar* get_variable_from_this_table_only(sVarTable* table, char* name)
         }
     }
 }
+
+
 
 void check_already_added_variable(sVarTable* table, char* name, struct sParserInfoStruct* info)
 {
