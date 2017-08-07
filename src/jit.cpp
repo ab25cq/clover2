@@ -430,7 +430,7 @@ struct sCLVALUEAndBoolResult get_field_from_object(CLVALUE** stack_ptr, CLVALUE*
     }
 
     if(field_index < 0 || field_index >= klass->mNumFields) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "field index is invalid");
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "field index is invalid(1)");
         result.result1.mLongValue = 0;
         result.result2 = 0;
         return result;
@@ -802,7 +802,7 @@ BOOL store_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info
     }
 
     if(field_index < 0 || field_index >= klass->mNumFields) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "field index is invalid");
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "field index is invalid(2)");
         return FALSE;
     }
 
@@ -827,7 +827,7 @@ struct sCLVALUEAndBoolResult load_class_field(CLVALUE** stack_ptr, CLVALUE* stac
     }
 
     if(field_index < 0 || field_index >= klass->mNumClassFields) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "field index is invalid");
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "field index is invalid(3)");
         result.result1.mLongValue = 0;
         result.result2 = FALSE;
         return result;
@@ -853,7 +853,7 @@ BOOL store_class_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo
     }
 
     if(field_index < 0 || field_index >= klass->mNumClassFields) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "field index is invalid");
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "field index is invalid(4)");
         return FALSE;
     }
 
@@ -1424,7 +1424,7 @@ struct sPointerAndBoolResult run_load_field_address(CLVALUE** stack_ptr, CLVALUE
     }
 
     if(field_index < 0 || field_index >= klass->mNumFields) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "field index is invalid");
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "field index is invalid(5)");
         result.result1 = NULL;
         result.result2 = FALSE;
         return result;
@@ -1452,7 +1452,7 @@ struct sPointerAndBoolResult run_load_class_field_address(CLVALUE** stack_ptr, C
     }
 
     if(field_index < 0 || field_index >= klass->mNumClassFields) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "field index is invalid");
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "field index is invalid(6)");
         result.result1 = NULL;
         result.result2 = FALSE;
         return result;
@@ -5661,6 +5661,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
             case OP_LONG_TO_POINTER_CAST:
             case OP_ULONG_TO_POINTER_CAST:
             case OP_CHAR_TO_POINTER_CAST: {
+/*
                 LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
                 LVALUE llvm_value;
@@ -5672,7 +5673,9 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+*/
                 }
+                break;
 
             case OP_BYTE_TO_FLOAT_CAST:
             case OP_SHORT_TO_FLOAT_CAST:

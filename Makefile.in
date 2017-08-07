@@ -39,6 +39,9 @@ all: cclover2 clover2 $(INTERPRETER)
 cclover2: config.h src/compiler.o $(COMMON_OBJS) $(COMPILER_OBJS)
 	$(CC) -o cclover2 src/compiler.o $(COMMON_OBJS) $(COMPILER_OBJS) $(CFLAGS) $(LIBS)
 
+src/script_ctime.o: config.h src/script_ctime.c
+	$(CC) -c -o src/script_ctime.o src/script_ctime.c $(CFLAGS:-O3=)
+
 clover2: config.h src/main.o $(COMMON_OBJS) $(OBJS) $(JIT_OBJS) $(JIT_RUNTIME_OBJS)
 	if test $(JIT) = 1; then $(CXX) -o clover2 src/main.o $(COMMON_OBJS) $(OBJS) $(JIT_OBJS) $(JIT_RUNTIME_OBJS) $(CFLAGS) $(LIBS) $(CXXFLAGS); else $(CC) -o clover2 src/main.o $(COMMON_OBJS) $(OBJS) $(CFLAGS) $(LIBS); fi
 

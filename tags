@@ -21,7 +21,7 @@ BinopPrecedence	toy.cpp	/^static std::map<char, int> BinopPrecedence;$/;"	v	file
 Body	toy.cpp	/^  std::unique_ptr<ExprAST> Body;$/;"	m	class:__anon23::FunctionAST	file:
 Body	toy.cpp	/^  std::unique_ptr<ExprAST> Start, End, Step, Body;$/;"	m	class:__anon23::ForExprAST	file:
 CC	Makefile	/^CC=clang-4.0$/;"	m
-CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -I\/home\/ab25cq\/include -L\/home\/ab25cq\/lib -fPIC -rdynamic -I\/usr\/local\/include -L \/usr\/local\/lib -g -DMDEBUG -Werror -Qunused-arguments -DENABLE_JIT$/;"	m
+CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -I\/home\/ab25cq\/include -L\/home\/ab25cq\/lib -fPIC -rdynamic -I\/usr\/local\/include -L \/usr\/local\/lib -O3 -Qunused-arguments -DENABLE_JIT$/;"	m
 CHECKML_BEGIN	src/debug.h	11;"	d
 CHECKML_BEGIN	src/debug.h	38;"	d
 CHECKML_END	src/debug.h	12;"	d
@@ -50,7 +50,7 @@ COMMON_OBJS	Makefile	/^COMMON_OBJS=src\/buffer.o src\/debug.o src\/xfunc.o src\/
 COMPILER_OBJS	Makefile	/^COMPILER_OBJS=src\/parser.o src\/node_type.o src\/node.o src\/cast.o src\/vtable.o src\/script_ctime.o src\/node_block.o src\/node_block_type.o src\/class_compiler.o src\/klass_compile_time.o src\/method_compiler.o src\/module.o$/;"	m
 CONS_str	src/common.h	117;"	d
 CXX	Makefile	/^CXX=clang++-4.0$/;"	m
-CXXFLAGS	Makefile	/^CXXFLAGS=`llvm-config-4.0 --cxxflags --ldflags --system-libs --libs core mcjit native` -DMDEBUG -g $/;"	m
+CXXFLAGS	Makefile	/^CXXFLAGS=`llvm-config-4.0 --cxxflags --ldflags --system-libs --libs core mcjit native` -O3 $/;"	m
 CallExprAST	toy.cpp	/^  CallExprAST(const std::string &Callee,$/;"	f	class:__anon23::CallExprAST
 CallExprAST	toy.cpp	/^class CallExprAST : public ExprAST {$/;"	c	namespace:__anon23	file:
 Callee	toy.cpp	/^  std::string Callee;$/;"	m	class:__anon23::CallExprAST	file:
@@ -108,7 +108,7 @@ JIT_RUNTIME_OBJS	Makefile	/^JIT_RUNTIME_OBJS=src\/jit_runtime.o$/;"	m
 KaleidoscopeJIT	KaleidoscopeJIT.h	/^  KaleidoscopeJIT()$/;"	f	class:llvm::orc::KaleidoscopeJIT
 KaleidoscopeJIT	KaleidoscopeJIT.h	/^class KaleidoscopeJIT {$/;"	c	namespace:llvm::orc
 LABEL_NAME_MAX	src/node.c	106;"	d	file:
-LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM	src/class_system.c	1635;"	d	file:
+LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM	src/class_system.c	1636;"	d	file:
 LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM	src/class_system.c	1091;"	d	file:
 LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM	src/class_system.c	999;"	d	file:
 LHS	toy.cpp	/^  std::unique_ptr<ExprAST> LHS, RHS;$/;"	m	class:__anon23::BinaryExprAST	file:

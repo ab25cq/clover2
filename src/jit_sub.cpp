@@ -2744,15 +2744,11 @@ void call_show_stack(std::map<std::string, Value *> params)
 ////////////////////////////////////////////////////////////
 // LLVM invoking method
 ////////////////////////////////////////////////////////////
-#define JIT_METHOD_CALL_COUNT 100
+#define JIT_METHOD_CALL_COUNT 50
 
 BOOL compile_jit_method(sCLClass* klass, sCLMethod* method)
 {
-//    method->mMethodCallCount++;
-
-//if(strcmp(CLASS_NAME(klass), "JITTest") == 0) {
-method->mMethodCallCount = 1000;
-//}
+    method->mMethodCallCount++;
 
     if(method->mMethodCallCount > JIT_METHOD_CALL_COUNT && !method->mJITCompiled && strcmp(METHOD_NAME2(klass, method), "initialize") != 0 && strcmp(METHOD_NAME2(klass, method), "finalize") != 0) 
     {
