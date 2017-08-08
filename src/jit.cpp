@@ -17,36 +17,6 @@ std::map<std::string, std::unique_ptr<FunctionAST>> LLVMFunctions;
 extern "C"
 {
 
-CLObject* gJITObjects;
-int gNumJITObjects;
-int gSizeJITObjects;
-
-void init_jit_objects()
-{
-    gSizeJITObjects = 1024;
-    gJITObjects = (CLObject*)MCALLOC(1, sizeof(CLObject)*gSizeJITObjects);
-    gNumJITObjects = 0;
-}
-
-void free_jit_objects()
-{
-    MFREE(gJITObjects);
-}
-
-void push_jit_object(CLObject obj)
-{
-    if(gNumJITObjects >= gSizeJITObjects) {
-        int new_size = gSizeJITObjects * 2;
-        gJITObjects = (CLObject*)MREALLOC(gJITObjects, sizeof(CLObject)*new_size);
-        memset(gJITObjects + gSizeJITObjects, 0, sizeof(CLObject)*(new_size - gSizeJITObjects));
-
-        gSizeJITObjects = new_size;
-    }
-
-    gJITObjects[gNumJITObjects] = obj;
-    gNumJITObjects++;
-}
-
 /////////////////////////////////////////////////////////////
 // LLVM debug functions
 /////////////////////////////////////////////////////////////
@@ -196,7 +166,6 @@ static void push_value_to_vm_stack_ptr_with_aligned(std::map<std::string, Value*
     inc_vm_stack_ptr(params, current_block, 1);
 }
 
-
 static LVALUE get_stack_value_from_index_with_aligned(std::map<std::string, Value*>& params, BasicBlock* current_block, int index, int align)
 {
     std::string stack_name("stack");
@@ -246,13 +215,7 @@ static void llvm_stack_to_vm_stack(LVALUE* llvm_stack_ptr, std::map<std::string,
     }
 }
 
-char* get_try_catch_label_name(sVMInfo* info)
-{
-    return info->try_catch_label_name;
-}
-
-
-void if_value_is_zero_ret_zero(Value* value, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block)
+static void if_value_is_zero_ret_zero(Value* value, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block)
 {
     BasicBlock* then_block = BasicBlock::Create(TheContext, "then_block", function);
     BasicBlock* entry_ifend = BasicBlock::Create(TheContext, "entry_ifend", function);
@@ -270,7 +233,7 @@ void if_value_is_zero_ret_zero(Value* value, std::map<std::string, Value *> para
     *current_block = entry_ifend;
 }
 
-Value* get_value_from_char_array(char* str)
+static Value* get_value_from_char_array(char* str)
 {
     Constant* str_constant = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)str);
     return ConstantExpr::getIntToPtr(str_constant, PointerType::get(IntegerType::get(TheContext,8), 0));
@@ -286,32 +249,6 @@ static void store_value_to_lvar_with_offset(std::map<std::string, Value*>& param
     Value* lvar_offset_value = Builder.CreateAdd(lvalue, rvalue, "lvar_offset_value", true, true);
 
     Builder.CreateAlignedStore(llvm_value, lvar_offset_value, 8);
-}
-
-static void flush_vm_stack_lvar_from_llvm_lvar(LVALUE* llvm_stack, int var_num, std::map<std::string, Value*> params, BasicBlock* current_block)
-{
-    int i;
-    for(i=0; i<var_num; i++) {
-        Value* llvm_value = llvm_stack[i].value;
-        if(llvm_stack[i].value != 0) {
-            store_value_to_lvar_with_offset(params, current_block, i, llvm_value);
-        }
-    }
-}
-
-static void flush_vm_stack_from_llvm_stack(LVALUE* llvm_stack, int var_num, LVALUE* llvm_stack_ptr, std::map<std::string, Value*> params, BasicBlock* current_block)
-{
-    flush_vm_stack_lvar_from_llvm_lvar(llvm_stack, var_num, params, current_block);
-
-    int stack_value_num = llvm_stack_ptr - llvm_stack;
-
-    stack_value_num -= var_num;
-    
-    int i;
-    for(i=0; i<stack_value_num; i++) {
-        Value* llvm_value = llvm_stack_ptr[i-stack_value_num].value;
-        push_value_to_vm_stack_ptr_with_aligned(params, current_block, llvm_value, 8);
-    }
 }
 
 static void dec_vm_stack_ptr(std::map<std::string, Value*>& params, BasicBlock* current_block, int value)
@@ -346,23 +283,7 @@ static LVALUE get_lvar_value_from_offset(std::map<std::string, Value*>& params, 
     return result;
 }
 
-static void restore_lvar_of_llvm_stack_from_lvar_of_vm_stack(LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock* current_block, int var_num)
-{
-    int i;
-    for(i=0; i<var_num; i++) {
-        LVALUE llvm_value = get_lvar_value_from_offset(params, current_block, i);
-        store_llvm_value_to_lvar_with_offset(llvm_stack, i, &llvm_value);
-    }
-}
-
-void try_function(sVMInfo* info, char* try_catch_label, int try_offset, sByteCode* code)
-{
-    info->try_catch_label_name = try_catch_label;
-    info->try_offset = try_offset;
-    info->try_code = code;
-}
-
-StructType* get_vm_info_struct_type()
+static StructType* get_vm_info_struct_type()
 {
     StructType* result_type = StructType::create(TheContext, "vm_info_struct");
     std::vector<Type*> fields;
@@ -402,48 +323,6 @@ static AllocaInst* create_entry_block_alloca(Function* function, int index)
     return builder.CreateAlloca(Type::getInt64Ty(TheContext), 0, var_name);
 }
 
-struct sCLVALUEAndBoolResult {
-    CLVALUE result1;
-    BOOL result2;
-};
-
-struct sCLVALUEAndBoolResult get_field_from_object(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, CLObject obj, int field_index)
-{
-    struct sCLVALUEAndBoolResult result;
-
-    if(obj == 0) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
-        result.result1.mLongValue = 0;
-        result.result2 = 0;
-
-        return result;
-    }
-
-    sCLObject* object_pointer = CLOBJECT(obj);
-    sCLClass* klass = object_pointer->mClass;
-
-    if(klass == NULL) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(4)");
-        result.result1.mLongValue = 0;
-        result.result2 = 0;
-        return result;
-    }
-
-    if(field_index < 0 || field_index >= klass->mNumFields) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "field index is invalid(1)");
-        result.result1.mLongValue = 0;
-        result.result2 = 0;
-        return result;
-    }
-
-    CLVALUE value = object_pointer->mFields[field_index];
-
-    result.result1 = value;
-    result.result2 = 1;
-
-    return result;
-}
-
 static void call_entry_exception_object_with_class_name2(std::map<std::string, Value *> params, char* class_name, char* message)
 {
     Function* entry_exception_object_fun = TheModule->getFunction("entry_exception_object_with_class_name2");
@@ -475,7 +354,7 @@ static void call_entry_exception_object_with_class_name2(std::map<std::string, V
     (void)Builder.CreateCall(entry_exception_object_fun, params2);
 }
 
-void if_value_is_zero_entry_exception_object(Value* value, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block, char* class_name, char* message)
+static void if_value_is_zero_entry_exception_object(Value* value, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block, char* class_name, char* message)
 {
     BasicBlock* then_block = BasicBlock::Create(TheContext, "then_block", function);
     BasicBlock* entry_ifend = BasicBlock::Create(TheContext, "entry_ifend", function);
@@ -493,162 +372,6 @@ void if_value_is_zero_entry_exception_object(Value* value, std::map<std::string,
 
     Builder.SetInsertPoint(entry_ifend);
     *current_block = entry_ifend;
-}
-
-CLObject get_string_object_of_object_name(CLObject object)
-{
-    sCLObject* object_data = CLOBJECT(object);
-
-    CLObject object2 = create_string_object(CLASS_NAME(object_data->mClass));
-
-    return object2;
-}
-
-BOOL call_invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sByteCode* code)
-{
-    return invoke_method(klass, method, stack, var_num, stack_ptr, info);
-}
-
-BOOL call_invoke_virtual_method(int num_real_params, int offset, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sByteCode* code, sConst* constant, CLObject object)
-{
-    /// go ///
-    sCLObject* object_data = CLOBJECT(object);
-
-    sCLClass* klass = object_data->mClass;
-
-    MASSERT(klass != NULL);
-
-    char* method_name_and_params = CONS_str(constant, offset);
-
-    sCLMethod* method = search_for_method_from_virtual_method_table(klass, method_name_and_params);
-
-    if(method == NULL) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "OP_INVOKE_VIRTUAL_METHOD: Method not found");
-        return FALSE;
-    }
-    else {
-        if(!invoke_method(klass, method, stack, var_num, stack_ptr, info)) {
-            return FALSE;
-        }
-    }
-
-    return TRUE;
-}
-
-BOOL call_invoke_dynamic_method(int offset, int offset2, int num_params, int static_, int num_method_chains, int max_method_chains, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sByteCode* code, sConst* constant)
-{
-    /// none static method ////
-    if(static_ == 0) {
-        int num_real_params = num_params + 1;
-        char* method_name = CONS_str(constant, offset2);
-
-        CLObject object = ((*stack_ptr)-num_real_params)->mObjectValue;
-
-        sCLObject* object_data = CLOBJECT(object);
-
-        sCLClass* klass = object_data->mClass;
-
-        MASSERT(klass != NULL);
-
-        if(klass->mCallingMethodIndex == -1) {
-            entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "OP_INVOKE_DYNAMIC_METHOD: Method not found(1)");
-            return FALSE;
-        }
-
-        sCLMethod* method = klass->mMethods + klass->mCallingMethodIndex;
-
-        CLObject elements[ARRAY_VALUE_ELEMENT_MAX];
-
-        int i;
-        for(i=0; i<num_params; i++) {
-            CLObject object = ((*stack_ptr)-num_params + i)->mObjectValue;
-
-            elements[i] = object;
-        }
-
-        CLObject carray = create_carray_object_with_elements(num_params, elements);
-
-        gGlobalStackPtr->mObjectValue = carray;
-        gGlobalStackPtr++;
-
-        (*stack_ptr)-=num_params;
-
-        (*stack_ptr)->mObjectValue = create_string_object(method_name);
-        (*stack_ptr)++;
-        (*stack_ptr)->mObjectValue = carray;
-        (*stack_ptr)++;
-        (*stack_ptr)->mIntValue = num_method_chains;
-        (*stack_ptr)++;
-        (*stack_ptr)->mIntValue = max_method_chains;
-        (*stack_ptr)++;
-
-        gGlobalStackPtr--;
-
-        if(!invoke_method(klass, method, stack, var_num, stack_ptr, info)) {
-            return FALSE;
-        }
-    }
-    /// static method ///
-    else {
-        char* class_name = CONS_str(constant, offset);
-        char* method_name = CONS_str(constant, offset2);
-
-        sCLClass* klass = get_class_with_load_and_initialize(class_name);
-
-        if(klass == NULL) {
-            entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(3)");
-            return FALSE;
-        }
-
-        if(klass->mCallingClassMethodIndex == -1) {
-            entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "OP_INVOKE_DYNAMIC_METHOD: Method not found(2)");
-            return FALSE;
-        }
-
-        sCLMethod* method = klass->mMethods + klass->mCallingClassMethodIndex;
-
-        CLObject elements[ARRAY_VALUE_ELEMENT_MAX];
-
-        int i;
-        for(i=0; i<num_params; i++) {
-            CLObject object = ((*stack_ptr)-num_params + i)->mObjectValue;
-
-            elements[i] = object;
-        }
-
-        CLObject carray = create_carray_object_with_elements(num_params, elements);
-
-        gGlobalStackPtr->mObjectValue = carray;
-        gGlobalStackPtr++;
-
-        (*stack_ptr)-=num_params;
-
-        (*stack_ptr)->mObjectValue = create_string_object(method_name);
-        (*stack_ptr)++;
-        (*stack_ptr)->mObjectValue = carray;
-        (*stack_ptr)++;
-        (*stack_ptr)->mIntValue = num_method_chains;
-        (*stack_ptr)++;
-        (*stack_ptr)->mIntValue = max_method_chains;
-        (*stack_ptr)++;
-
-        gGlobalStackPtr--;
-
-        if(!invoke_method(klass, method, stack, var_num, stack_ptr, info)) {
-            return FALSE;
-        }
-    }
-
-    return TRUE;
-}
-
-void catch_function(sVMInfo* info, sByteCode* code) 
-{
-    if(info->try_code == code && info->try_offset != 0) {
-        *info->try_pc = info->try_code->mCodes + info->try_offset;
-        info->try_offset = 0;
-        info->try_code = NULL;
-    }
 }
 
 static void vm_lvar_to_llvm_lvar(LVALUE* llvm_stack,std::map<std::string, Value*>& params, BasicBlock* current_block, int var_num)
@@ -767,102 +490,6 @@ static void finish_method_call(Value* result, sCLClass* klass, sCLMethod* method
     *current_block = entry_ifend;
 }
 
-BOOL invoke_block_in_jit(int num_params, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info)
-{
-    CLObject block_object = ((*stack_ptr)-num_params-1)->mObjectValue;
-
-    if(!invoke_block(block_object, stack, var_num, num_params, stack_ptr, info)) 
-    {
-        return FALSE;
-    }
-
-    CLVALUE result = *((*stack_ptr)-1);
-
-    (*stack_ptr) -= num_params+1+1;
-
-    **stack_ptr = result;
-    (*stack_ptr)++;
-
-    return TRUE;
-}
-
-BOOL store_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, CLObject obj, CLVALUE value, int field_index)
-{
-    if(obj == 0) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(5)");
-        return FALSE;
-    }
-
-    sCLObject* object_pointer = CLOBJECT(obj);
-    sCLClass* klass = object_pointer->mClass;
-
-    if(klass == NULL) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(6)");
-        return FALSE;
-    }
-
-    if(field_index < 0 || field_index >= klass->mNumFields) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "field index is invalid(2)");
-        return FALSE;
-    }
-
-    object_pointer->mFields[field_index] = value;
-
-    return TRUE;
-}
-
-struct sCLVALUEAndBoolResult load_class_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index, int offset, sConst* constant)
-{
-    struct sCLVALUEAndBoolResult result;
-
-    char* class_name = CONS_str(constant, offset);
-
-    sCLClass* klass = get_class_with_load_and_initialize(class_name);
-
-    if(klass == NULL) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(7)");
-        result.result1.mLongValue = 0;
-        result.result2 = FALSE;
-        return result;
-    }
-
-    if(field_index < 0 || field_index >= klass->mNumClassFields) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "field index is invalid(3)");
-        result.result1.mLongValue = 0;
-        result.result2 = FALSE;
-        return result;
-    }
-
-    sCLField* field = klass->mClassFields + field_index;
-
-    result.result1 = field->mValue;
-    result.result2 = TRUE;
-
-    return result;
-}
-
-BOOL store_class_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index, int offset, sConst* constant, CLVALUE value)
-{
-    char* class_name = CONS_str(constant, offset);
-
-    sCLClass* klass = get_class_with_load_and_initialize(class_name);
-
-    if(klass == NULL) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(9)");
-        return FALSE;
-    }
-
-    if(field_index < 0 || field_index >= klass->mNumClassFields) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "field index is invalid(4)");
-        return FALSE;
-    }
-
-    sCLField* field = klass->mClassFields + field_index;
-    field->mValue = value;
-
-    return TRUE;
-}
-
 static void lvar_of_vm_to_lvar_of_llvm(std::map<std::string, Value *> params, BasicBlock* current_block, LVALUE* llvm_stack, int var_num)
 {
     int i;
@@ -885,810 +512,7 @@ static void lvar_of_llvm_to_lvar_of_vm(std::map<std::string, Value *> params, Ba
     }
 }
 
-BOOL run_store_element(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, CLObject array, int element_num, CLVALUE value)
-{
-    if(array == 0) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(8)");
-        return FALSE;
-    }
-
-    sCLObject* object_pointer = CLOBJECT(array);
-
-    if(element_num < 0 || element_num >= object_pointer->mArrayNum) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "element index is invalid(1)");
-        return FALSE;
-    }
-
-    object_pointer->mFields[element_num] = value;
-
-    return TRUE;
-}
-
-int get_array_length(CLObject array_)
-{
-    sCLObject* array_data = CLOBJECT(array_);
-    return array_data->mArrayNum;
-}
-
-struct sCLVALUEAndBoolResult load_element(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, CLObject array, int element_num, int size)
-{
-    struct sCLVALUEAndBoolResult result;
-
-    if(array == 0) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(7)");
-        result.result1.mLongValue = 0;
-        result.result2 = FALSE;
-        return result;
-    }
-
-    sCLObject* object_pointer = CLOBJECT(array);
-
-    if(element_num < 0 || element_num >= object_pointer->mArrayNum) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "element index is invalid(2)");
-        result.result1.mLongValue = 0;
-        result.result2 = FALSE;
-        return result;
-    }
-
-    result.result1 = object_pointer->mFields[element_num];
-    result.result2 = TRUE;
-
-    return result;
-}
-
-wchar_t char_uppercase(wchar_t c)
-{
-    wchar_t result = c;
-    if(c >= 'a' && c <= 'z') {
-        result = c - 'a' + 'A';
-    }
-
-    return result;
-}
-
-wchar_t char_lowercase(wchar_t c)
-{
-    wchar_t result = c;
-    if(c >= 'A' && c <= 'Z') {
-        result = c - 'A' + 'a';
-    }
-
-    return result;
-}
-
-BOOL get_regex_global(CLObject regex)
-{
-    sRegexObject* regex_object = CLREGEX(regex);
-    return regex_object->mGlobal;
-}
-
-BOOL get_regex_ignorecase(CLObject regex)
-{
-    sRegexObject* regex_object = CLREGEX(regex);
-    return regex_object->mIgnoreCase;
-}
-
-BOOL get_regex_multiline(CLObject regex)
-{
-    sRegexObject* regex_object = CLREGEX(regex);
-    return regex_object->mMultiline;
-}
-
-BOOL get_regex_extended(CLObject regex)
-{
-    sRegexObject* regex_object = CLREGEX(regex);
-    return regex_object->mExtended;
-}
-
-BOOL get_regex_dotall(CLObject regex)
-{
-    sRegexObject* regex_object = CLREGEX(regex);
-    return regex_object->mDotAll;
-}
-
-BOOL get_regex_anchored(CLObject regex)
-{
-    sRegexObject* regex_object = CLREGEX(regex);
-    return regex_object->mAnchored;
-}
-
-BOOL get_regex_dollar_endonly(CLObject regex)
-{
-    sRegexObject* regex_object = CLREGEX(regex);
-    return regex_object->mDollarEndOnly;
-}
-
-BOOL get_regex_ungreedy(CLObject regex)
-{
-    sRegexObject* regex_object = CLREGEX(regex);
-    return regex_object->mUngreedy;
-}
-
-struct sCLVALUEAndBoolResult run_create_array(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, char* class_name, int num_elements)
-{
-    struct sCLVALUEAndBoolResult result;
-
-    sCLClass* klass = get_class_with_load_and_initialize(class_name);
-
-    if(klass == NULL) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(11)");
-        result.result1.mLongValue = 0;
-        result.result2 = FALSE;
-        return result;
-    }
-
-    CLObject array_object = create_array_object(klass, num_elements);
-    (*stack_ptr)->mObjectValue = array_object; // push object
-    (*stack_ptr)++;
-
-    sCLObject* object_data = CLOBJECT(array_object);
-
-    int i;
-    for(i=0; i<num_elements; i++) {
-        object_data->mFields[i] = *((*stack_ptr)-1-num_elements+i);
-    }
-
-    (*stack_ptr)--; // pop_object
-
-    (*stack_ptr)-=num_elements;
-
-    result.result1.mObjectValue = array_object;
-    result.result2 = TRUE;
-
-    return result;
-}
-
-struct sCLVALUEAndBoolResult run_create_carray(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, char* class_name)
-{
-    struct sCLVALUEAndBoolResult result;
-
-    sCLClass* klass = get_class_with_load_and_initialize(class_name);
-
-    if(klass == NULL) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(12)");
-        result.result1.mLongValue = 0;
-        result.result2 = FALSE;
-        return result;
-    }
-
-    CLObject array_object = create_carray_object();
-    (*stack_ptr)->mObjectValue = array_object; // push object
-    (*stack_ptr)++;
-
-    CLObject items[ARRAY_VALUE_ELEMENT_MAX];
-
-    int i;
-    for(i=0; i<num_elements; i++) {
-        CLVALUE element = *((*stack_ptr)-1-num_elements+i);
-        items[i] = (*((*stack_ptr)-1-num_elements+i)).mObjectValue;
-    }
-
-    if(!initialize_carray_object(array_object, num_elements, items, stack, var_num, stack_ptr, info, klass))
-    {
-        result.result1.mLongValue = 0;
-        result.result2 = FALSE;
-        return result;
-    }
-
-    (*stack_ptr)--; // pop_object
-
-    (*stack_ptr)-=num_elements;
-
-    result.result1.mObjectValue = array_object;
-    result.result2 = TRUE;
-
-    return result;
-}
-
-struct sCLVALUEAndBoolResult run_create_equalable_carray(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, char* class_name)
-{
-    struct sCLVALUEAndBoolResult result;
-
-    sCLClass* klass = get_class_with_load_and_initialize(class_name);
-
-    if(klass == NULL) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(12)");
-        result.result1.mLongValue = 0;
-        result.result2 = FALSE;
-        return result;
-    }
-
-    CLObject array_object = create_equalable_carray_object();
-    (*stack_ptr)->mObjectValue = array_object; // push object
-    (*stack_ptr)++;
-
-    CLObject items[ARRAY_VALUE_ELEMENT_MAX];
-
-    int i;
-    for(i=0; i<num_elements; i++) {
-        CLVALUE element = *((*stack_ptr)-1-num_elements+i);
-        items[i] = (*((*stack_ptr)-1-num_elements+i)).mObjectValue;
-    }
-
-    if(!initialize_equalable_carray_object(array_object, num_elements, items, stack, var_num, stack_ptr, info, klass))
-    {
-        result.result1.mLongValue = 0;
-        result.result2 = FALSE;
-        return result;
-    }
-
-    (*stack_ptr)--; // pop_object
-
-    (*stack_ptr)-=num_elements;
-
-    result.result1.mObjectValue = array_object;
-    result.result2 = TRUE;
-
-    return result;
-}
-
-struct sCLVALUEAndBoolResult run_create_sortable_carray(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, char* class_name)
-{
-    struct sCLVALUEAndBoolResult result;
-
-    sCLClass* klass = get_class_with_load_and_initialize(class_name);
-
-    if(klass == NULL) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(12)");
-        result.result1.mLongValue = 0;
-        result.result2 = FALSE;
-        return result;
-    }
-
-    CLObject array_object = create_sortable_carray_object();
-    (*stack_ptr)->mObjectValue = array_object; // push object
-    (*stack_ptr)++;
-
-    CLObject items[ARRAY_VALUE_ELEMENT_MAX];
-
-    int i;
-    for(i=0; i<num_elements; i++) {
-        CLVALUE element = *((*stack_ptr)-1-num_elements+i);
-        items[i] = (*((*stack_ptr)-1-num_elements+i)).mObjectValue;
-    }
-
-    if(!initialize_sortable_carray_object(array_object, num_elements, items, stack, var_num, stack_ptr, info, klass))
-    {
-        result.result1.mLongValue = 0;
-        result.result2 = FALSE;
-        return result;
-    }
-
-    (*stack_ptr)--; // pop_object
-
-    (*stack_ptr)-=num_elements;
-
-    result.result1.mObjectValue = array_object;
-    result.result2 = TRUE;
-
-    return result;
-}
-
-struct sCLVALUEAndBoolResult run_create_list(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, char* class_name)
-{
-    struct sCLVALUEAndBoolResult result;
-
-    sCLClass* klass = get_class_with_load_and_initialize(class_name);
-
-    if(klass == NULL) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(13)");
-        result.result1.mLongValue = 0;
-        result.result2 = FALSE;
-        return result;
-    }
-
-    CLObject list_object = create_list_object();
-    (*stack_ptr)->mObjectValue = list_object; // push object
-    (*stack_ptr)++;
-
-    CLObject items[LIST_VALUE_ELEMENT_MAX];
-
-    int i;
-    for(i=0; i<num_elements; i++) {
-        CLVALUE element = *((*stack_ptr)-1-num_elements+i);
-        items[i] = (*((*stack_ptr)-1-num_elements+i)).mObjectValue;
-    }
-
-    if(!initialize_list_object(list_object, num_elements, items, stack, var_num, stack_ptr, info, klass))
-    {
-        result.result1.mLongValue = 0;
-        result.result2 = FALSE;
-        return result;
-    }
-
-    (*stack_ptr)--; // pop_object
-
-    (*stack_ptr)-=num_elements;
-
-    result.result1.mObjectValue = list_object;
-    result.result2 = TRUE;
-
-    return result;
-}
-
-struct sCLVALUEAndBoolResult run_create_sortable_list(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, char* class_name)
-{
-    struct sCLVALUEAndBoolResult result;
-
-    sCLClass* klass = get_class_with_load_and_initialize(class_name);
-
-    if(klass == NULL) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(13)");
-        result.result1.mLongValue = 0;
-        result.result2 = FALSE;
-        return result;
-    }
-
-    CLObject list_object = create_sortable_list_object();
-    (*stack_ptr)->mObjectValue = list_object; // push object
-    (*stack_ptr)++;
-
-    CLObject items[LIST_VALUE_ELEMENT_MAX];
-
-    int i;
-    for(i=0; i<num_elements; i++) {
-        CLVALUE element = *((*stack_ptr)-1-num_elements+i);
-        items[i] = (*((*stack_ptr)-1-num_elements+i)).mObjectValue;
-    }
-
-    if(!initialize_sortable_list_object(list_object, num_elements, items, stack, var_num, stack_ptr, info, klass))
-    {
-        result.result1.mLongValue = 0;
-        result.result2 = FALSE;
-        return result;
-    }
-
-    (*stack_ptr)--; // pop_object
-
-    (*stack_ptr)-=num_elements;
-
-    result.result1.mObjectValue = list_object;
-    result.result2 = TRUE;
-
-    return result;
-}
-
-struct sCLVALUEAndBoolResult run_create_equalable_list(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, char* class_name)
-{
-    struct sCLVALUEAndBoolResult result;
-
-    sCLClass* klass = get_class_with_load_and_initialize(class_name);
-
-    if(klass == NULL) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(13)");
-        result.result1.mLongValue = 0;
-        result.result2 = FALSE;
-        return result;
-    }
-
-    CLObject list_object = create_equalable_list_object();
-    (*stack_ptr)->mObjectValue = list_object; // push object
-    (*stack_ptr)++;
-
-    CLObject items[LIST_VALUE_ELEMENT_MAX];
-
-    int i;
-    for(i=0; i<num_elements; i++) {
-        CLVALUE element = *((*stack_ptr)-1-num_elements+i);
-        items[i] = (*((*stack_ptr)-1-num_elements+i)).mObjectValue;
-    }
-
-    if(!initialize_equalable_list_object(list_object, num_elements, items, stack, var_num, stack_ptr, info, klass))
-    {
-        result.result1.mLongValue = 0;
-        result.result2 = FALSE;
-        return result;
-    }
-
-    (*stack_ptr)--; // pop_object
-
-    (*stack_ptr)-=num_elements;
-
-    result.result1.mObjectValue = list_object;
-    result.result2 = TRUE;
-
-    return result;
-}
-
-struct sCLVALUEAndBoolResult run_create_tuple(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements)
-{
-    struct sCLVALUEAndBoolResult result;
-
-    CLObject tuple_object = create_tuple_object(num_elements);
-
-    (*stack_ptr)->mObjectValue = tuple_object; // push object
-    (*stack_ptr)++;
-
-    CLObject items[TUPLE_VALUE_ELEMENT_MAX];
-
-    int i;
-    for(i=0; i<num_elements; i++) {
-        CLVALUE element = *((*stack_ptr)-1-num_elements+i);
-        items[i] = (*((*stack_ptr)-1-num_elements+i)).mObjectValue;
-    }
-
-    if(!initialize_tuple_object(tuple_object, num_elements, items, stack, var_num, stack_ptr, info))
-    {
-        result.result1.mLongValue = 0;
-        result.result2 = FALSE;
-        return result;
-    }
-
-    (*stack_ptr)--; // pop_object
-
-    (*stack_ptr)-=num_elements;
-
-    result.result1.mObjectValue = tuple_object;
-    result.result2 = TRUE;
-
-    return result;
-}
-
-struct sCLVALUEAndBoolResult run_create_hash(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, char* class_name, char* class_name2)
-{
-    struct sCLVALUEAndBoolResult result;
-
-    sCLClass* klass = get_class_with_load_and_initialize(class_name);
-
-    if(klass == NULL) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(14)");
-        result.result1.mLongValue = 0;
-        result.result2 = FALSE;
-        return result;
-    }
-
-    sCLClass* klass2 = get_class_with_load_and_initialize(class_name2);
-
-    if(klass2 == NULL) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(15)");
-        result.result1.mLongValue = 0;
-        result.result2 = FALSE;
-        return result;
-    }
-
-    CLObject keys[HASH_VALUE_ELEMENT_MAX];
-
-    int i;
-    for(i=0; i<num_elements; i++) {
-        keys[i] = ((*stack_ptr) - num_elements * 2 + i * 2)->mObjectValue;
-    }
-
-    CLObject items[HASH_VALUE_ELEMENT_MAX];
-
-    for(i=0; i<num_elements; i++) {
-        items[i] = ((*stack_ptr) - num_elements * 2 + i * 2 + 1)->mObjectValue;
-    }
-
-    CLObject hash_object = create_hash_object();
-    (*stack_ptr)->mObjectValue = hash_object; // push object
-    (*stack_ptr)++;
-
-    if(!initialize_hash_object(hash_object, num_elements, keys, items, stack, var_num, stack_ptr, info, klass, klass2))
-    {
-        result.result1.mLongValue = 0;
-        result.result2 = FALSE;
-        return result;
-    }
-
-    (*stack_ptr)--; // pop_object
-
-    (*stack_ptr)-=num_elements*2;
-
-    result.result1.mObjectValue = hash_object;
-    result.result2 = TRUE;
-
-    return result;
-}
-
-CLObject run_create_block_object(CLVALUE** stack_ptr, CLVALUE* stack, sConst* constant, int code_offset, int code_len, int constant_offset, int constant_len, int block_var_num, int parent_var_num, BOOL lambda, sVMInfo* info)
-{
-    sByteCode codes2;
-    codes2.mCodes = CONS_str(constant, code_offset);
-    codes2.mLen = code_len;
-
-    sConst constant2;
-    constant2.mConst = CONS_str(constant, constant_offset);
-    constant2.mLen = constant_len;
-
-    CLVALUE* parent_stack = stack;
-
-    CLObject block_object = create_block_object(&codes2, &constant2, parent_stack, parent_var_num, block_var_num, info->stack_id, lambda);
-
-    return block_object;
-}
-
-struct sPointerAndBoolResult {
-    char* result1;
-    BOOL result2;
-};
-
-struct sPointerAndBoolResult run_load_field_address(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index, CLObject obj)
-{
-    struct sPointerAndBoolResult result;
-
-    if(obj == 0) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(4)");
-        result.result1 = NULL;
-        result.result2 = FALSE;
-        return result;
-    }
-
-    sCLObject* object_pointer = CLOBJECT(obj);
-    sCLClass* klass = object_pointer->mClass;
-
-    if(klass == NULL) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(5)");
-        result.result1 = NULL;
-        result.result2 = FALSE;
-        return result;
-    }
-
-    if(field_index < 0 || field_index >= klass->mNumFields) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "field index is invalid(5)");
-        result.result1 = NULL;
-        result.result2 = FALSE;
-        return result;
-    }
-
-    char* value = (char*)&object_pointer->mFields[field_index];
-    result.result1 = value;
-    result.result2 = TRUE;
-    return result;
-}
-
-struct sPointerAndBoolResult run_load_class_field_address(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index, int offset, sConst* constant)
-{
-    struct sPointerAndBoolResult result;
-
-    char* class_name = CONS_str(constant, offset);
-
-    sCLClass* klass = get_class_with_load_and_initialize(class_name);
-
-    if(klass == NULL) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(8)");
-        result.result1 = NULL;
-        result.result2 = FALSE;
-        return result;
-    }
-
-    if(field_index < 0 || field_index >= klass->mNumClassFields) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "field index is invalid(6)");
-        result.result1 = NULL;
-        result.result2 = FALSE;
-        return result;
-    }
-
-    sCLField* field = klass->mClassFields + field_index;
-    char* value = (char*)&field->mValue;
-
-    result.result1 = value;
-    result.result2 = TRUE;
-
-    return result;
-}
-
-CLObject run_int_to_string_cast(int n)
-{
-    char buf[32];
-    snprintf(buf, 32, "%d", n);
-
-    CLObject str = create_string_object(buf);
-
-    return str;
-}
-
-CLObject run_long_to_string_cast(long l)
-{
-    char buf[32];
-    snprintf(buf, 32, "%ld", l);
-
-    CLObject str = create_string_object(buf);
-
-    return str;
-}
-
-CLObject run_uint_to_string_cast(unsigned int n)
-{
-    char buf[32];
-    snprintf(buf, 32, "%u", n);
-
-    CLObject str = create_string_object(buf);
-
-    return str;
-}
-
-CLObject run_ulong_to_string_cast(long l)
-{
-    char buf[32];
-    snprintf(buf, 32, "%lu", l);
-
-    CLObject str = create_string_object(buf);
-
-    return str;
-}
-
-CLObject run_float_to_string_cast(float f)
-{
-    char buf[32];
-    snprintf(buf, 32, "%f", f);
-
-    CLObject str = create_string_object(buf);
-
-    return str;
-}
-
-CLObject run_double_to_string_cast(double d)
-{
-    char buf[32];
-    snprintf(buf, 32, "%lf", d);
-
-    CLObject str = create_string_object(buf);
-
-    return str;
-}
-
-CLObject run_char_to_string_cast(wchar_t c)
-{
-    char buf[32];
-    snprintf(buf, 32, "%lc", c);
-
-    CLObject str = create_string_object(buf);
-
-    return str;
-}
-
-CLObject run_regex_to_string_cast(CLObject regex)
-{
-    sRegexObject* object_data = CLREGEX(regex);
-
-    CLObject str = create_string_object(object_data->mRegexString);
-
-    return str;
-}
-
-CLObject run_bool_to_string_cast(BOOL b)
-{
-    char buf[32];
-    if(b) {
-        snprintf(buf, 32, "true");
-    }
-    else {
-        snprintf(buf, 32, "false");
-    }
-
-    CLObject str = create_string_object(buf);
-
-    return str;
-}
-
-CLObject run_pointer_to_string_cast(char* p)
-{
-    char buf[32];
-    snprintf(buf, 32, "%p", p);
-
-    CLObject str = create_string_object(buf);
-
-    return str;
-}
-
-int run_integer_to_int_cast(CLObject obj)
-{
-    sCLObject* obj_data = CLOBJECT(obj);
-
-    int value = (int)obj_data->mFields[0].mIntValue;
-
-    return value;
-}
-
-unsigned int run_uinteger_to_uint_cast(CLObject obj)
-{
-    sCLObject* obj_data = CLOBJECT(obj);
-
-    unsigned int value = (unsigned int)obj_data->mFields[0].mUIntValue;
-
-    return value;
-}
-
-char run_cbyte_to_byte_cast(CLObject obj)
-{
-    sCLObject* obj_data = CLOBJECT(obj);
-
-    char value = (char)obj_data->mFields[0].mByteValue;
-
-    return value;
-}
-
-unsigned char run_cubyte_to_ubyte_cast(CLObject obj)
-{
-    sCLObject* obj_data = CLOBJECT(obj);
-
-    unsigned char value = (unsigned char)obj_data->mFields[0].mUByteValue;
-
-    return value;
-}
-
-short run_cshort_to_short_cast(CLObject obj)
-{
-    sCLObject* obj_data = CLOBJECT(obj);
-
-    short value = (short)obj_data->mFields[0].mShortValue;
-
-    return value;
-}
-
-unsigned short run_cushort_to_ushort_cast(CLObject obj)
-{
-    sCLObject* obj_data = CLOBJECT(obj);
-
-    unsigned short value = (unsigned short)obj_data->mFields[0].mUShortValue;
-
-    return value;
-}
-
-long run_clong_to_long_cast(CLObject obj)
-{
-    sCLObject* obj_data = CLOBJECT(obj);
-
-    long value = (long)obj_data->mFields[0].mLongValue;
-
-    return value;
-}
-
-unsigned long run_culong_to_ulong_cast(CLObject obj)
-{
-    sCLObject* obj_data = CLOBJECT(obj);
-
-    unsigned long value = (unsigned long)obj_data->mFields[0].mLongValue;
-
-    return value;
-}
-
-char* run_cpointer_to_pointer_cast(CLObject obj)
-{
-    sCLObject* obj_data = CLOBJECT(obj);
-
-    char* value = (char*)obj_data->mFields[0].mPointerValue;
-
-    return value;
-}
-
-int run_cfloat_to_int_cast(CLObject obj)
-{
-    sCLObject* obj_data = CLOBJECT(obj);
-
-    int value = (int)obj_data->mFields[0].mFloatValue;
-
-    return value;
-}
-
-float run_cfloat_to_float_cast(CLObject obj)
-{
-    sCLObject* obj_data = CLOBJECT(obj);
-
-    float value = (float)obj_data->mFields[0].mFloatValue;
-
-    return value;
-}
-
-int run_cdouble_to_int_cast(CLObject obj)
-{
-    sCLObject* obj_data = CLOBJECT(obj);
-
-    int value = (int)obj_data->mFields[0].mDoubleValue;
-
-    return value;
-}
-
-double run_cdouble_to_double_cast(CLObject obj)
-{
-    sCLObject* obj_data = CLOBJECT(obj);
-
-    double value = (double)obj_data->mFields[0].mDoubleValue;
-
-    return value;
-}
-
-void trunc_vm_stack_value(LVALUE* value, int inst) 
+static void trunc_vm_stack_value(LVALUE* value, int inst) 
 {
     if(value->vm_stack) {
         switch(inst) {
@@ -1890,15 +714,8 @@ void trunc_vm_stack_value(LVALUE* value, int inst)
     }
 }
 
-Value* llvm_make_str_value(char* str)
-{
-    Constant* str_constant = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)str);
-    Value* value = ConstantExpr::getIntToPtr(str_constant, PointerType::get(IntegerType::get(TheContext,8), 0));
 
-    return value;
-}
-
-void trunc_vm_stack_value2(LVALUE* llvm_value, int size)
+static void trunc_vm_stack_value2(LVALUE* llvm_value, int size)
 {
     switch(size) {
         case 1:
@@ -1934,7 +751,7 @@ void trunc_vm_stack_value2(LVALUE* llvm_value, int size)
     //llvm_value->vm_stack = FALSE;
 }
 
-void cast_llvm_value_from_inst(LVALUE* llvm_value, int inst) 
+static void cast_llvm_value_from_inst(LVALUE* llvm_value, int inst) 
 {
     switch(inst) {
         case OP_BYTE_TO_CDOUBLE_CAST:
@@ -2286,64 +1103,7 @@ void cast_llvm_value_from_inst(LVALUE* llvm_value, int inst)
     }
 }
 
-
-struct sCLVALUEAndBoolResult run_array_to_carray_cast(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, CLObject array, char* class_name)
-{
-    struct sCLVALUEAndBoolResult result;
-
-    sCLClass* klass = get_class_with_load_and_initialize(class_name);
-
-    if(klass == NULL) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(10)");
-        result.result1.mIntValue = 0;
-        result.result2 = FALSE;
-        return result;
-    }
-
-    sCLObject* array_data = CLOBJECT(array);
-    int array_num = array_data->mArrayNum;
-
-    sCLClass* klass2 = get_class("Array");
-    MASSERT(klass2 != NULL);
-
-    CLObject new_array = create_object(klass2);
-
-    gGlobalStackPtr->mObjectValue = new_array;
-    gGlobalStackPtr++;
-
-    CLObject new_primitive_array;
-    if(klass->mFlags & CLASS_FLAGS_PRIMITIVE) {
-        new_primitive_array = create_array_object(klass->mBoxingClass, array_num);
-    }
-    else {
-        new_primitive_array = create_array_object(klass, array_num);
-    }
-
-    sCLObject* new_array_data = CLOBJECT(new_array);
-
-    new_array_data->mFields[0].mObjectValue = new_primitive_array;
-
-    /// boxing element ///
-    int i;
-    for(i=0; i<array_num; i++ ) {
-        array_data = CLOBJECT(array);           // reget for GC
-
-        CLVALUE element;
-        boxing_primitive_value_to_object(array_data->mFields[i], &element, klass);
-
-        sCLObject* new_primitive_array_data = CLOBJECT(new_primitive_array);
-        new_primitive_array_data->mFields[i] = element;
-    }
-
-    gGlobalStackPtr--;
-
-    result.result1.mObjectValue = new_array;
-    result.result2 = TRUE;
-
-    return result;
-}
-
-void store_value_to_vm_lvar(std::map<std::string, Value*>& params, BasicBlock* current_block, int offset, Value* value)
+static void store_value_to_vm_lvar(std::map<std::string, Value*>& params, BasicBlock* current_block, int offset, Value* value)
 {
     std::string lvar_arg_name("lvar");
     Value* lvar_value = params[lvar_arg_name];
@@ -2372,6 +1132,1192 @@ static void llvm_lvar_to_vm_lvar(LVALUE* llvm_stack,std::map<std::string, Value*
     }
 }
 
+/////////////////////////////////////////////////////////////////////////////
+/// JIT debug functions
+/////////////////////////////////////////////////////////////////////////////
+static Value* llvm_make_str_value(char* str)
+{
+    Constant* str_constant = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)str);
+    Value* value = ConstantExpr::getIntToPtr(str_constant, PointerType::get(IntegerType::get(TheContext,8), 0));
+
+    return value;
+}
+
+void show_stack_stat(CLVALUE** stack_ptr, CLVALUE* stack)
+{
+    printf("stack_ptr %p\n", stack_ptr);
+    printf("*stack_ptr %p\n", *stack_ptr);
+    printf("stack_ptr - stack %d\n", (int)(*stack_ptr - stack));
+}
+
+BOOL show_stack_in_jit(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info)
+{
+    printf("var_num %d\n", var_num);
+    show_stack_stat(stack_ptr, stack);
+
+    int i;
+    for(i=0; i<10; i++) {
+        if(*stack_ptr == stack + i) {
+            printf("! stack [%d] %d(%ld) on %p\n", i, stack[i].mIntValue, stack[i].mULongValue, stack + i);
+        }
+        else {
+            printf("  stack [%d] %d(%ld) on %p\n", i, stack[i].mIntValue, stack[i].mULongValue, stack + i);
+        }
+    }
+
+    return TRUE;
+}
+
+void show_inst_in_jit(int opecode)
+{
+    switch(opecode) {
+        case OP_BYTE_TO_CULONG_CAST:
+            puts("OP_BYTE_TO_CULONG_CAST");
+            break;
+
+        case OP_UBYTE_TO_CULONG_CAST:
+            puts("OP_UBYTE_TO_CULONG_CAST");
+            break;
+
+        case OP_SHORT_TO_CULONG_CAST :
+            puts("OP_SHORT_TO_CULONG_CAST ");
+            break;
+
+        case OP_USHORT_TO_CULONG_CAST :
+            puts("OP_USHORT_TO_CULONG_CAST ");
+            break;
+
+        case OP_INT_TO_CULONG_CAST :
+            puts("OP_INT_TO_CULONG_CAST ");
+            break;
+
+        case OP_UINT_TO_CULONG_CAST :
+            puts("OP_UINT_TO_CULONG_CAST ");
+            break;
+
+        case OP_LONG_TO_CULONG_CAST :
+            puts("OP_LONG_TO_CULONG_CAST ");
+            break;
+
+        case OP_ULONG_TO_CULONG_CAST :
+            puts("OP_ULONG_TO_CULONG_CAST ");
+            break;
+
+        case OP_FLOAT_TO_CULONG_CAST :
+            puts("OP_FLOAT_TO_CULONG_CAST ");
+            break;
+
+        case OP_DOUBLE_TO_CULONG_CAST :
+            puts("OP_DOUBLE_TO_CULONG_CAST ");
+            break;
+
+        case OP_CHAR_TO_CULONG_CAST :
+            puts("OP_CHAR_TO_CULONG_CAST ");
+            break;
+
+        case OP_POINTER_TO_CULONG_CAST :
+            puts("OP_POINTER_TO_CULONG_CAST ");
+            break;
+
+        case OP_BOOL_TO_CULONG_CAST :
+            puts("OP_BOOL_TO_CULONG_CAST ");
+            break;
+
+        case OP_INT_TO_ULONG_CAST:
+            puts("OP_INT_TO_ULONG_CAST");
+            break;
+
+        case OP_CREATE_BUFFER :
+            puts("OP_CREATE_BUFFER");
+            break;
+
+        case OP_CREATE_PATH :
+            puts("OP_CREATE_PATH");
+            break;
+
+        case OP_CREATE_ARRAY :
+            puts("OP_CREATE_ARRAY");
+            break;
+
+        case OP_CREATE_CARRAY :
+            puts("OP_CREATE_CARRAY");
+            break;
+
+        case OP_CREATE_SORTABLE_CARRAY :
+            puts("OP_CREATE_SORTABLE_CARRAY");
+            break;
+
+        case OP_CREATE_EQUALABLE_CARRAY :
+            puts("OP_CREATE_EQUALABLE_CARRAY");
+            break;
+
+        case OP_CREATE_LIST :
+            puts("OP_CREATE_LIST");
+            break;
+
+        case OP_CREATE_SORTALBE_LIST :
+            puts("OP_CREATE_SORTALBE_LIST");
+            break;
+
+        case OP_CREATE_EQUALABLE_LIST :
+            puts("OP_CREATE_EQUALABLE_LIST");
+            break;
+
+        case OP_CREATE_TUPLE :
+            puts("OP_CREATE_TUPLE");
+            break;
+
+        case OP_CREATE_HASH :
+            puts("OP_CREATE_HASH");
+            break;
+
+        case OP_CREATE_BLOCK_OBJECT :
+            puts("OP_CREATE_BLOCK_OBJECT");
+            break;
+
+        case OP_BYTE_TO_STRING_CAST :
+            puts("OP_BYTE_TO_STRING_CAST");
+            break;
+
+        case OP_SHORT_TO_STRING_CAST :
+            puts("OP_SHORT_TO_STRING_CAST");
+            break;
+
+        case OP_INT_TO_STRING_CAST :
+            puts("OP_INT_TO_STRING_CAST");
+            break;
+
+        case OP_LONG_TO_STRING_CAST :
+            puts("OP_LONG_TO_STRING_CAST");
+            break;
+
+        case OP_UBYTE_TO_STRING_CAST :
+            puts("OP_UBYTE_TO_STRING_CAST");
+            break;
+
+        case OP_USHORT_TO_STRING_CAST :
+            puts("OP_USHORT_TO_STRING_CAST");
+            break;
+
+        case OP_UINT_TO_STRING_CAST :
+            puts("OP_UINT_TO_STRING_CAST");
+            break;
+
+        case OP_ULONG_TO_STRING_CAST :
+            puts("OP_ULONG_TO_STRING_CAST");
+            break;
+
+        case OP_FLOAT_TO_STRING_CAST :
+            puts("OP_FLOAT_TO_STRING_CAST");
+            break;
+
+        case OP_DOUBLE_TO_STRING_CAST :
+            puts("OP_DOUBLE_TO_STRING_CAST");
+            break;
+
+        case OP_BOOL_TO_STRING_CAST :
+            puts("OP_BOOL_TO_STRING_CAST");
+            break;
+
+        case OP_REGEX_TO_STRING_CAST :
+            puts("OP_REGEX_TO_STRING_CAST");
+            break;
+
+        case OP_POINTER_TO_STRING_CAST :
+            puts("OP_POINTER_TO_STRING_CAST");
+            break;
+
+        case OP_BYTE_TO_INTEGER_CAST :
+            puts("OP_BYTE_TO_INTEGER_CAST");
+            break;
+
+        case OP_UBYTE_TO_INTEGER_CAST :
+            puts("OP_UBYTE_TO_INTEGER_CAST");
+            break;
+
+        case OP_SHORT_TO_INTEGER_CAST :
+            puts("OP_SHORT_TO_INTEGER_CAST");
+            break;
+
+        case OP_USHORT_TO_INTEGER_CAST :
+            puts("OP_USHORT_TO_INTEGER_CAST");
+            break;
+
+        case OP_INT_TO_INTEGER_CAST :
+            puts("OP_INT_TO_INTEGER_CAST");
+            break;
+
+        case OP_UINT_TO_INTEGER_CAST :
+            puts("OP_UINT_TO_INTEGER_CAST");
+            break;
+
+        case OP_LONG_TO_INTEGER_CAST :
+            puts("OP_LONG_TO_INTEGER_CAST");
+            break;
+
+        case OP_ULONG_TO_INTEGER_CAST :
+            puts("OP_ULONG_TO_INTEGER_CAST");
+            break;
+
+        case OP_FLOAT_TO_INTEGER_CAST :
+            puts("OP_FLOAT_TO_INTEGER_CAST");
+            break;
+
+        case OP_DOUBLE_TO_INTEGER_CAST :
+            puts("OP_DOUBLE_TO_INTEGER_CAST");
+            break;
+
+        case OP_CHAR_TO_INTEGER_CAST :
+            puts("OP_CHAR_TO_INTEGER_CAST");
+            break;
+
+        case OP_POINTER_TO_INTEGER_CAST :
+            puts("OP_POINTER_TO_INTEGER_CAST");
+            break;
+
+        case OP_BOOL_TO_INTEGER_CAST :
+            puts("OP_BOOL_TO_INTEGER_CAST");
+            break;
+
+        case OP_CHAR_TO_STRING_CAST :
+            puts("OP_CHAR_TO_STRING_CAST");
+            break;
+
+        case OP_STORE_FIELD:
+            puts("OP_STORE_FIELD");
+            break;
+
+        case OP_POP:
+            puts("OP_POP");
+            break;
+
+        case OP_DUPE:
+            puts("OP_DUPE");
+            break;
+
+        case OP_COND_JUMP :
+            puts("OP_COND_JUMP");
+            break;
+
+        case OP_COND_NOT_JUMP:
+            puts("OP_COND_NOT_JUMP");
+            break;
+
+        case OP_GOTO:
+            puts("OP_GOTO");
+            break;
+
+        case OP_LABEL:
+            puts("OP_LABEL");
+            break;
+
+        case OP_LOAD:
+            puts("OP_LOAD");
+            break;
+
+        case OP_STORE:
+            puts("OP_STORE");
+            break;
+
+        case OP_LDCBYTE: 
+            puts("OP_LDCBYTE");
+            break;
+
+        case OP_LDCINT: 
+            puts("OP_LDCINT");
+            break;
+
+        case OP_LDCNULL:
+            puts("OP_LDCNULL");
+            break;
+
+        case OP_BADD:
+            puts("OP_BAND");
+            break;
+
+        case OP_BSUB:
+            puts("OP_BSUB");
+            break;
+
+        case OP_BMULT:
+            puts("OP_BMULT");
+            break;
+
+        case OP_BDIV:
+            puts("OP_BDIV");
+            break;
+
+        case OP_BMOD:
+            puts("OP_BMOD");
+            break;
+
+        case OP_BLSHIFT:
+            puts("OP_BLSHIFT");
+            break;
+
+        case OP_BRSHIFT:
+            puts("OP_BRSHIFT");
+            break;
+
+        case OP_BAND:
+            puts("OP_BAND");
+            break;
+
+        case OP_BXOR:
+            puts("OP_BXOR");
+            break;
+
+        case OP_BOR:
+            puts("OP_BOR");
+            break;
+
+        case OP_UBADD:
+            puts("OP_UBAND");
+            break;
+
+        case OP_UBSUB:
+            puts("OP_UBSUB");
+            break;
+
+        case OP_UBMULT:
+            puts("OP_UBMULT");
+            break;
+
+        case OP_UBDIV:
+            puts("OP_UBDIV");
+            break;
+
+        case OP_UBMOD:
+            puts("OP_UBMOD");
+            break;
+
+        case OP_UBLSHIFT:
+            puts("OP_UBLSHIFT");
+            break;
+
+        case OP_UBRSHIFT:
+            puts("OP_UBRSHIFT");
+            break;
+
+        case OP_UBAND:
+            puts("OP_UBAND");
+            break;
+
+        case OP_UBXOR:
+            puts("OP_UBXOR");
+            break;
+
+        case OP_UBOR:
+            puts("OP_BOR");
+            break;
+
+        case OP_SADD:
+            puts("OP_SADD");
+            break;
+
+        case OP_SSUB:
+            puts("OP_SSUB");
+            break;
+
+        case OP_SMULT: 
+            puts("OP_SMULT");
+            break;
+
+        case OP_SDIV: 
+            puts("OP_SDIV");
+            break;
+
+        case OP_SMOD: 
+            puts("OP_SMOD");
+            break;
+
+        case OP_SLSHIFT: 
+            puts("OP_SLSHIFT");
+            break;
+
+        case OP_SRSHIFT: 
+            puts("OP_SRSHIFT");
+            break;
+
+        case OP_SAND: 
+            puts("OP_SAND");
+            break;
+
+        case OP_SXOR: 
+            puts("OP_SXOR");
+            break;
+
+        case OP_SOR: 
+            puts("OP_SOR");
+            break;
+
+        case OP_USADD: 
+            puts("OP_USADD");
+            break;
+
+        case OP_USSUB: 
+            puts("OP_USSUB");
+            break;
+
+        case OP_USMULT: 
+            puts("OP_USMULT");
+            break;
+
+        case OP_USDIV: 
+            puts("OP_USDIV");
+            break;
+
+        case OP_USMOD: 
+            puts("OP_USMOD");
+            break;
+
+        case OP_USLSHIFT: 
+            puts("OP_USLSHIFT");
+            break;
+
+        case OP_USRSHIFT: 
+            puts("OP_USRSHIFT");
+            break;
+
+        case OP_USAND: 
+            puts("OP_USAND");
+            break;
+
+        case OP_USXOR: 
+            puts("OP_USXOR");
+            break;
+
+        case OP_USOR: 
+            puts("OP_USOR");
+            break;
+
+        case OP_IADD: 
+            puts("OP_IADD");
+            break;
+
+        case OP_ISUB: 
+            puts("OP_ISUB");
+            break;
+
+        case OP_IMULT: 
+            puts("OP_IMULT");
+            break;
+
+        case OP_IDIV: 
+            puts("OP_IDIV");
+            break;
+
+        case OP_IMOD: 
+            puts("OP_IMOD");
+            break;
+
+        case OP_ILSHIFT: 
+            puts("OP_ILSHIFT");
+            break;
+
+        case OP_IRSHIFT: 
+            puts("OP_IRSHIFT");
+            break;
+
+        case OP_IAND: 
+            puts("OP_IAND");
+            break;
+
+        case OP_IXOR: 
+            puts("OP_IXOR");
+            break;
+
+        case OP_IOR: 
+            puts("OP_IOR");
+            break;
+
+        case OP_UIADD: 
+            puts("OP_UIADD");
+            break;
+
+        case OP_UISUB: 
+            puts("OP_UISUB");
+            break;
+
+        case OP_UIMULT: 
+            puts("OP_UIMULT");
+            break;
+
+        case OP_UIDIV: 
+            puts("OP_UIDIV");
+            break;
+
+        case OP_UIMOD: 
+            puts("OP_UIMOD");
+            break;
+
+        case OP_UILSHIFT: 
+            puts("OP_UILSHIFT");
+            break;
+
+        case OP_UIRSHIFT: 
+            puts("OP_UIRSHIFT");
+            break;
+
+        case OP_UIAND: 
+            puts("OP_UIAND");
+            break;
+
+        case OP_UIXOR: 
+            puts("OP_UIXOR");
+            break;
+
+        case OP_UIOR: 
+            puts("OP_UIOR");
+            break;
+
+        case OP_LADD: 
+            puts("OP_LADD");
+            break;
+
+        case OP_LSUB: 
+            puts("OP_LSUB");
+            break;
+
+        case OP_LMULT: 
+            puts("OP_LMULT");
+            break;
+
+        case OP_LDIV: 
+            puts("OP_LDIV");
+            break;
+
+        case OP_LMOD: 
+            puts("OP_LMOD");
+            break;
+
+        case OP_LLSHIFT: 
+            puts("OP_LLSHIFT");
+            break;
+
+        case OP_LRSHIFT: 
+            puts("OP_LRSHIFT");
+            break;
+
+        case OP_INVOKE_BLOCK:
+            puts("OP_INVOKE_BLOCK");
+            break;
+
+        case OP_LAND: 
+            puts("OP_LAND");
+            break;
+
+        case OP_LXOR: 
+            puts("OP_LXOR");
+            break;
+
+        case OP_LOR: 
+            puts("OP_LOR");
+            break;
+
+        case OP_ULADD: 
+            puts("OP_ULADD");
+            break;
+
+        case OP_ULSUB: 
+            puts("OP_ULSUB");
+            break;
+
+        case OP_ULMULT: 
+            puts("OP_ULMULT");
+            break;
+
+        case OP_ULDIV: 
+            puts("OP_ULDIV");
+            break;
+
+        case OP_ULMOD: 
+            puts("OP_ULMOD");
+            break;
+
+        case OP_ULLSHIFT: 
+            puts("OP_ULLSHIFT");
+            break;
+
+        case OP_ULRSHIFT: 
+            puts("OP_ULRSHIFT");
+            break;
+
+        case OP_ULAND: 
+            puts("OP_ULAND");
+            break;
+
+        case OP_ULXOR: 
+            puts("OP_ULXOR");
+            break;
+
+        case OP_UBCOMPLEMENT:
+            puts("OP_UBCOMPLEMENT");
+            break;
+
+        case OP_SCOMPLEMENT:
+            puts("OP_SCOMPLEMENT");
+            break;
+
+        case OP_USCOMPLEMENT:
+            puts("OP_USCOMPLEMENT");
+            break;
+
+        case OP_ICOMPLEMENT:
+            puts("OP_ICOMPLEMENT");
+            break;
+
+        case OP_UICOMPLEMENT:
+            puts("OP_UICOMPLEMENT");
+            break;
+
+        case OP_LCOMPLEMENT:
+            puts("OP_LCOMPLEMENT");
+            break;
+
+        case OP_ULCOMPLEMENT:
+            puts("OP_ULCOMPLEMENT");
+            break;
+
+
+        case OP_FADD:
+            puts("OP_FADD");
+            break;
+
+        case OP_FSUB:
+            puts("OP_FSUB");
+            break;
+
+        case OP_FMULT:
+            puts("OP_FMULT");
+            break;
+
+        case OP_FDIV:
+            puts("OP_FDIV");
+            break;
+
+
+        case OP_DADD:
+            puts("OP_DADD");
+            break;
+
+        case OP_DSUB:
+            puts("OP_DSUB");
+            break;
+
+        case OP_DMULT:
+            puts("OP_DMULT");
+            break;
+
+        case OP_DDIV:
+            puts("OP_DDIV");
+            break;
+
+
+        case OP_PADD:
+            puts("OP_PADD");
+            break;
+
+        case OP_PSUB:
+            puts("OP_PSUB");
+            break;
+
+        case OP_PPSUB:
+            puts("OP_PPSUB");
+            break;
+
+
+        case OP_CADD:
+            puts("OP_CADD");
+            break;
+
+        case OP_CSUB:
+            puts("OP_CSUB");
+            break;
+
+
+        case OP_BEQ :
+            puts("OP_BEQ ");
+            break;
+
+        case OP_BNOTEQ :
+            puts("OP_BNOTEQ ");
+            break;
+
+        case OP_BGT :
+            puts("OP_BGT ");
+            break;
+
+        case OP_BLE :
+            puts("OP_BLE ");
+            break;
+
+        case OP_BGTEQ :
+            puts("OP_BGTEQ ");
+            break;
+
+        case OP_BLEEQ :
+            puts("OP_BLEEQ ");
+            break;
+
+
+        case OP_UBEQ :
+            puts("OP_UBEQ ");
+            break;
+
+        case OP_UBNOTEQ :
+            puts("OP_UBNOTEQ ");
+            break;
+
+        case OP_UBGT :
+            puts("OP_UBGT ");
+            break;
+
+        case OP_UBLE :
+            puts("OP_UBLE ");
+            break;
+
+        case OP_UBGTEQ :
+            puts("OP_UBGTEQ ");
+            break;
+
+        case OP_UBLEEQ :
+            puts("OP_UBLEEQ ");
+            break;
+
+
+        case OP_SEQ :
+            puts("OP_SEQ ");
+            break;
+
+        case OP_SNOTEQ :
+            puts("OP_SNOTEQ ");
+            break;
+
+        case OP_SGT :
+            puts("OP_SGT ");
+            break;
+
+        case OP_SLE :
+            puts("OP_SLE ");
+            break;
+
+        case OP_SGTEQ :
+            puts("OP_SGTEQ ");
+            break;
+
+        case OP_SLEEQ :
+            puts("OP_SLEEQ ");
+            break;
+
+
+        case OP_USEQ :
+            puts("OP_USEQ ");
+            break;
+
+        case OP_USNOTEQ :
+            puts("OP_USNOTEQ ");
+            break;
+
+        case OP_USGT :
+            puts("OP_USGT ");
+            break;
+
+        case OP_USLE :
+            puts("OP_USLE ");
+            break;
+
+        case OP_USGTEQ :
+            puts("OP_USGTEQ ");
+            break;
+
+        case OP_USLEEQ :
+            puts("OP_USLEEQ ");
+            break;
+
+        case OP_INOTEQ :
+            puts("OP_INOTEQ ");
+            break;
+
+        case OP_IGT :
+            puts("OP_IGT ");
+            break;
+
+        case OP_UIEQ :
+            puts("OP_UIEQ ");
+            break;
+
+        case OP_UINOTEQ :
+            puts("OP_UINOTEQ ");
+            break;
+
+        case OP_UIGT :
+            puts("OP_UIGT ");
+            break;
+
+        case OP_UILE :
+            puts("OP_UILE ");
+            break;
+
+        case OP_UIGTEQ :
+            puts("OP_UIGTEQ ");
+            break;
+
+        case OP_UILEEQ :
+            puts("OP_UILEEQ ");
+            break;
+
+
+
+        case OP_LEQ :
+            puts("OP_LEQ ");
+            break;
+
+        case OP_LNOTEQ :
+            puts("OP_LNOTEQ ");
+            break;
+
+        case OP_LGT :
+            puts("OP_LGT ");
+            break;
+
+        case OP_LLE :
+            puts("OP_LLE ");
+            break;
+
+        case OP_LGTEQ :
+            puts("OP_LGTEQ ");
+            break;
+
+        case OP_LLEEQ :
+            puts("OP_LLEEQ ");
+            break;
+
+
+        case OP_ULEQ :
+            puts("OP_ULEQ ");
+            break;
+
+        case OP_ULNOTEQ :
+            puts("OP_ULNOTEQ ");
+            break;
+
+        case OP_ULGT :
+            puts("OP_ULGT ");
+            break;
+
+        case OP_ULLE :
+            puts("OP_ULLE ");
+            break;
+
+        case OP_ULGTEQ :
+            puts("OP_ULGTEQ ");
+            break;
+
+        case OP_ULLEEQ :
+            puts("OP_ULLEEQ ");
+            break;
+
+
+
+        case OP_FEQ :
+            puts("OP_FEQ ");
+            break;
+
+        case OP_FNOTEQ :
+            puts("OP_FNOTEQ ");
+            break;
+
+        case OP_FGT :
+            puts("OP_FGT ");
+            break;
+
+        case OP_FLE :
+            puts("OP_FLE ");
+            break;
+
+        case OP_FGTEQ :
+            puts("OP_FGTEQ ");
+            break;
+
+        case OP_FLEEQ :
+            puts("OP_FLEEQ ");
+            break;
+
+
+
+        case OP_DEQ :
+            puts("OP_DEQ ");
+            break;
+
+        case OP_DNOTEQ :
+            puts("OP_DNOTEQ ");
+            break;
+
+        case OP_DGT :
+            puts("OP_DGT ");
+            break;
+
+        case OP_DLE :
+            puts("OP_DLE ");
+            break;
+
+        case OP_DGTEQ :
+            puts("OP_DGTEQ ");
+            break;
+
+        case OP_DLEEQ :
+            puts("OP_DLEEQ ");
+            break;
+
+
+
+        case OP_PEQ :
+            puts("OP_PEQ ");
+            break;
+
+        case OP_PNOTEQ :
+            puts("OP_PNOTEQ ");
+            break;
+
+        case OP_PGT :
+            puts("OP_PGT ");
+            break;
+
+        case OP_PLE :
+            puts("OP_PLE ");
+            break;
+
+        case OP_PGTEQ :
+            puts("OP_PGTEQ ");
+            break;
+
+        case OP_PLEEQ :
+            puts("OP_PLEEQ ");
+            break;
+
+
+        case OP_CEQ :
+            puts("OP_CEQ ");
+            break;
+
+        case OP_CNOTEQ :
+            puts("OP_CNOTEQ ");
+            break;
+
+        case OP_CGT :
+            puts("OP_CGT ");
+            break;
+
+        case OP_CLE :
+            puts("OP_CLE ");
+            break;
+
+        case OP_CGTEQ :
+            puts("OP_CGTEQ ");
+            break;
+
+        case OP_CLEEQ :
+            puts("OP_CLEEQ ");
+            break;
+
+        case OP_REGEQ :
+            puts("OP_REGEQ ");
+            break;
+
+        case OP_REGNOTEQ :
+            puts("OP_REGNOTEQ ");
+            break;
+
+        case OP_ULOR: 
+            puts("OP_ULOR");
+            break;
+
+        case OP_RETURN: 
+            puts("OP_RETURN");
+            break;
+
+        case OP_TRY:
+            puts("OP_TRY");
+            break;
+
+        case OP_INVOKE_METHOD:
+            puts("OP_INVOKE_METHOD");
+            break;
+
+        case OP_THROW:
+            puts("OP_THROW");
+            break;
+
+        case OP_CREATE_STRING:
+            puts("OP_CREATE_STRING");
+            break;
+
+        case OP_CREATE_REGEX:
+            puts("OP_CREATE_REGEX");
+            break;
+
+        case OP_HEAD_OF_EXPRESSION: 
+            puts("OP_HEAD_OF_EXPRESSION");
+            break;
+
+        case OP_SIGINT:
+            puts("OP_SIGINT");
+            break;
+
+        case OP_NEW:
+            puts("OP_NEW");
+            break;
+
+        case OP_BCOMPLEMENT:
+            puts("OP_BCOMPLEMENT");
+            break;
+
+        case OP_IEQ:
+            puts("OP_IEQ");
+            break;
+
+        case OP_ILE:
+            puts("OP_ILE");
+            break;
+
+        case OP_IGTEQ:
+            puts("OP_IGTEQ");
+            break;
+
+        case OP_ANDAND:
+            puts("OP_ANDAND");
+            break;
+
+        case OP_LOAD_FIELD:
+            puts("OP_LOAD_FIELD");
+            break;
+
+        case OP_BYTE_TO_INT_CAST:
+            puts("OP_BYTE_TO_INT_CAST");
+            break;
+
+        case OP_LOAD_ELEMENT :
+            puts("OP_LOAD_ELEMENT");
+            break;
+
+        case OP_STORE_ELEMENT:
+            puts("OP_STORE_ELEMENT");
+            break;
+
+/*
+        case OP_INT_TO_BYTE_CAST:
+            puts("OP_INT_TO_BYTE_CAST");
+            break;
+*/
+
+        default:
+            printf("opecode %d\n", opecode);
+            break;
+    }
+}
+
+void show_number_in_jit(int number)
+{
+    printf("%d(%p)\n", number, number);
+}
+
+void call_show_number_in_jit(int number)
+{
+    Function* show_number = TheModule->getFunction("show_number_in_jit");
+
+    std::vector<Value*> params2;
+    Value* param1 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)number);
+    params2.push_back(param1);
+
+    Value* result = Builder.CreateCall(show_number, params2);
+}
+
+void call_show_value_in_jit(Value* value)
+{
+    Function* show_number = TheModule->getFunction("show_number_in_jit");
+
+    std::vector<Value*> params2;
+    Value* param1 = value;
+    params2.push_back(param1);
+
+    Value* result = Builder.CreateCall(show_number, params2);
+}
+
+void show_str_in_jit(char* str)
+{
+    printf("%s\n", str);
+}
+
+void call_show_str_in_jit(Value* value)
+{
+    Function* show_str = TheModule->getFunction("show_str_in_jit");
+
+    std::vector<Value*> params2;
+    params2.push_back(value);
+
+    Value* result = Builder.CreateCall(show_str, params2);
+}
+
+void call_show_stack_stat(std::map<std::string, Value *> params)
+{
+    Function* show_address_fun = TheModule->getFunction("show_stack_stat");
+
+    std::vector<Value*> params2;
+
+    std::string stack_ptr_address_arg_name("stack_ptr_address");
+    Value* stack_ptr_address_value = params[stack_ptr_address_arg_name];
+    Value* param1 = stack_ptr_address_value;
+    params2.push_back(param1);
+
+    std::string stack_arg_name("stack");
+    Value* stack_value = params[stack_arg_name];
+    Value* param2 = stack_value;
+    params2.push_back(param2);
+
+    Value* result = Builder.CreateCall(show_address_fun, params2);
+}
+
+
+void call_show_inst_in_jit(int opecode)
+{
+    Function* show_inst = TheModule->getFunction("show_inst_in_jit");
+
+    std::vector<Value*> params2;
+    Value* param1 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)opecode);
+    params2.push_back(param1);
+
+    Value* result = Builder.CreateCall(show_inst, params2);
+}
+
+void call_show_stack(std::map<std::string, Value *> params)
+{
+    Function* show_stack_fun = TheModule->getFunction("show_stack_in_jit");
+
+    std::string stack_ptr_address_name("stack_ptr_address");
+    Value* stack_ptr_address_value = params[stack_ptr_address_name];
+
+    Value* loaded_stack_ptr_address_value = Builder.CreateLoad(stack_ptr_address_value, "loaded_stack_ptr_address_value");
+    std::string stack_name("stack");
+    Value* stack_value = params[stack_name];
+
+    std::vector<Value*> params2;
+    Value* param1 = stack_ptr_address_value;
+    params2.push_back(param1);
+
+    Value* param2 = stack_value;
+    params2.push_back(param2);
+
+    std::string var_num_value_name("var_num");
+    Value* param3 = params[var_num_value_name];
+    params2.push_back(param3);
+
+    std::string info_value_name("info");
+    Value* param4 = params[info_value_name];
+    params2.push_back(param4);
+
+    Value* result = Builder.CreateCall(show_stack_fun, params2);
+}
 
 //////////////////////////////////////////////////////////////
 // LLVM core
@@ -2527,9 +2473,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 pc += sizeof(int);
 
                 LVALUE* conditional_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
-
-//call_show_str_in_jit(llvm_make_str_value("OP_COND_JUMP"));
-//call_show_value_in_jit(conditional_value->value);
 
                 BasicBlock* cond_jump_then_block = BasicBlock::Create(TheContext, "cond_jump_then", function);
                 entry_condends[num_cond_jump] = BasicBlock::Create(TheContext, "entry_condend", function);
@@ -2779,9 +2722,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 trunc_vm_stack_value2(llvm_value, 4);
 
-//call_show_str_in_jit(llvm_make_str_value("OP_VALUE_FOR_ANDAND_OROR value"));
-//call_show_value_in_jit(llvm_value->value);
-
                 num_value_for_andand_oror++;
 
                 MASSERT(num_value_for_andand_oror >= ANDAND_OROR_MAX);
@@ -2795,9 +2735,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 Builder.CreateAlignedStore(llvm_value->value, value_for_andand_oror[num_value_for_andand_oror], 8);
 
-//call_show_str_in_jit(llvm_make_str_value("OP_STORE_VALUE_FOR_ANDAND_OROR value"));
-//call_show_value_in_jit(llvm_value->value);
-
                 MASSERT(num_value_for_andand_oror >= 0);
                 }
                 break;
@@ -2810,9 +2747,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
-
-//call_show_str_in_jit(llvm_make_str_value("OP_LOAD_VALUE_FOR_ANDAND_OROR value"));
-//call_show_value_in_jit(llvm_value.value);
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -8313,67 +8247,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
     return TRUE;
 }
 
-BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sCLMethod* method, sVMInfo* info, CLVALUE** stack_ptr)
-{
-    int num_jit_objects = gNumJITObjects;
-
-    if(!compile_jit_method(klass, method)) {
-        gNumJITObjects = num_jit_objects;
-        return FALSE;
-    }
-
-    if(method->mJITCompiled) {
-        char method_path2[METHOD_NAME_MAX + 128];
-        create_method_path_for_jit(klass, method, method_path2, METHOD_NAME_MAX + 128);
-        
-        auto ExprSymbol = TheJIT->findSymbol(method_path2);
-        fJITMethodType function = nullptr;
-
-        if(ExprSymbol) {
-            function = (fJITMethodType)ExprSymbol.getAddress();
-        }
-
-        if(function != nullptr) {
-            CLVALUE* stack_ptr = stack + var_num;
-            CLVALUE* lvar = stack;
-
-            long stack_id = append_stack_to_stack_list(stack, &stack_ptr);
-
-            info->current_stack = stack;        // for invoking_block in native method
-            info->current_var_num = var_num;
-            info->stack_id = stack_id;
-
-            BOOL result = function(stack_ptr, lvar, info, stack, &stack_ptr, var_num);
-            if(!result) {
-                remove_stack_to_stack_list(stack, &stack_ptr);
-                gNumJITObjects = num_jit_objects;
-                return FALSE;
-            }
-
-            remove_stack_to_stack_list(stack, &stack_ptr);
-        }
-        else {
-            BOOL result = vm(code, constant, stack, var_num, klass, info);
-
-            if(!result) {
-                gNumJITObjects = num_jit_objects;
-                return FALSE;
-            }
-        }
-    }
-    else {
-        BOOL result = vm(code, constant, stack, var_num, klass, info);
-
-        if(!result) {
-            gNumJITObjects = num_jit_objects;
-            return FALSE;
-        }
-    }
-
-    gNumJITObjects = num_jit_objects;
-
-    return TRUE;
-}
 
 
 } // extern "C"
