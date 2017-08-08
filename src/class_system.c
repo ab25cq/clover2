@@ -1433,7 +1433,6 @@ BOOL System_closedir(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     DIR* dir_value = (DIR*)dir->mPointerValue;
 
     /// go ///
-printf("dir_value %p\n", dir_value);
     int result = closedir(dir_value);
 
     if(result < 0) {
