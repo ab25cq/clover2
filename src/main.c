@@ -4,7 +4,7 @@
 static void clover2_init()
 {
 #ifdef ENABLE_JIT
-    jit_init_on_runtime();
+    jit_init();
 #endif
     native_method_init();
     class_init();
@@ -21,7 +21,7 @@ static void clover2_final()
     heap_final();
     class_final();
 #ifdef ENABLE_JIT
-    jit_final_on_runtime();
+    jit_final();
 #endif
 }
 

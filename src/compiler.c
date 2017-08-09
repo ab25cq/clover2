@@ -94,15 +94,6 @@ static BOOL class_compiler(char* fname)
 
     write_all_modified_modules();
 
-#ifdef ENABLE_JIT
-    if(!jit_compile_all_classes()) {
-        fprintf(stderr, "faield in jit compile\n");
-        MFREE(source.mBuf);
-        MFREE(source2.mBuf);
-        return FALSE;
-    }
-#endif
-
     MFREE(source.mBuf);
     MFREE(source2.mBuf);
 
@@ -116,40 +107,33 @@ int main(int argc, char** argv)
     setlocale(LC_ALL, "");
 
     BOOL no_load_fudamental_classes = FALSE;
-    BOOL clc_compile = FALSE;
-    char sname[PATH_MAX];
-    xstrncpy(sname, "", PATH_MAX);
-
     for(i=1; i<argc; i++) {
         if(strcmp(argv[i], "-no-load-fundamental-classes") == 0) {
             no_load_fudamental_classes = TRUE;
         }
+    }
+
+    for(i=1; i<argc; i++) {
+        compiler_init(no_load_fudamental_classes);
+        if(strcmp(argv[i], "-no-load-fundamental-classes") == 0) {
+        }
         else if(strcmp(argv[i], "-class") == 0) {
-            clc_compile = TRUE;
+            if(i+1 < argc) {
+                if(!class_compiler(argv[i+1])) {
+                    fprintf(stderr, "cclover2 can't compile %s\n", argv[i+1]);
+                    compiler_final();
+                    return 1;
+                }
+                i++;
+            }
         }
-        else {
-            xstrncpy(sname, argv[i], PATH_MAX);
-        }
-    }
-
-    compiler_init(no_load_fudamental_classes);
-
-    if(clc_compile) {
-        if(!class_compiler(sname)) {
+        else if(!compiler(argv[i])) {
             fprintf(stderr, "cclover2 can't compile %s\n", argv[i]);
             compiler_final();
             return 1;
         }
+        compiler_final();
     }
-    else {
-        if(!compiler(sname)) {
-            fprintf(stderr, "cclover2 can't compile %s\n", argv[i]);
-            compiler_final();
-            return 1;
-        }
-    }
-
-    compiler_final();
 
     return 0;
 }

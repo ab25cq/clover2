@@ -1,9 +1,5 @@
 #include "jit_common.hpp"
 
-std::unique_ptr<CloverJIT> TheJIT;
-
-std::map<std::string, std::unique_ptr<FunctionAST>> LLVMFunctions;
-
 extern "C" 
 {
 
@@ -1195,23 +1191,13 @@ struct sCLVALUEAndBoolResult run_array_to_carray_cast(CLVALUE** stack_ptr, CLVAL
     return result;
 }
 
-BOOL load_method_module()
-{
-}
-
-#define JIT_METHOD_CALL_COUNT 50
-
 BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sCLMethod* method, sVMInfo* info, CLVALUE** stack_ptr)
 {
     int num_jit_objects = gNumJITObjects;
 
-    method->mMethodCallCount++;
-
-    if(method->mMethodCallCount > JIT_METHOD_CALL_COUNT && !method->mJITCompiled && strcmp(METHOD_NAME2(klass, method), "initialize") != 0 && strcmp(METHOD_NAME2(klass, method), "finalize") != 0) 
-    {
-        if(load_method_module()) {
-            method->mJITCompiled = TRUE;
-        }
+    if(!compile_jit_method(klass, method)) {
+        gNumJITObjects = num_jit_objects;
+        return FALSE;
     }
 
     if(method->mJITCompiled) {
@@ -1266,22 +1252,5 @@ BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClas
 
     return TRUE;
 }
-
-void jit_init_on_runtime()
-{
-    InitializeNativeTarget();
-    InitializeNativeTargetAsmPrinter();
-    InitializeNativeTargetAsmParser();
-
-    TheJIT = llvm::make_unique<CloverJIT>();
-
-    init_jit_objects();
-}
-
-void jit_final_on_runtime()
-{
-    free_jit_objects();
-}
-
 
 } // extern "C"
