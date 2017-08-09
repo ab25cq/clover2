@@ -36,17 +36,17 @@ JIT=@JIT@
 all: cclover2 clover2 $(INTERPRETER)
 	if which ctags > /dev/null; then if test $(OS) = DARWIN; then ctags src/*.c > /dev/null 2>&1; else ctags -R; fi; fi
 
-cclover2: config.h src/compiler.o $(COMMON_OBJS) $(COMPILER_OBJS)
-	$(CC) -o cclover2 src/compiler.o $(COMMON_OBJS) $(COMPILER_OBJS) $(CFLAGS) $(LIBS)
+cclover2: config.h src/compiler.o $(COMMON_OBJS) $(COMPILER_OBJS) $(JIT_OBJS)
+	if test $(JIT) = 1; then $(CXX) -o cclover2 src/compiler.o $(COMMON_OBJS) $(COMPILER_OBJS) $(JIT_OBJS) $(CFLAGS) $(LIBS) $(CXXFLAGS); else $(CC) -o cclover2 src/compiler.o $(COMMON_OBJS) $(COMPILER_OBJS) $(CFLAGS) $(LIBS); fi
 
 src/script_ctime.o: config.h src/script_ctime.c
 	$(CC) -c -o src/script_ctime.o src/script_ctime.c $(CFLAGS:-O3=)
 
-clover2: config.h src/main.o $(COMMON_OBJS) $(OBJS) $(JIT_OBJS) $(JIT_RUNTIME_OBJS)
-	if test $(JIT) = 1; then $(CXX) -o clover2 src/main.o $(COMMON_OBJS) $(OBJS) $(JIT_OBJS) $(JIT_RUNTIME_OBJS) $(CFLAGS) $(LIBS) $(CXXFLAGS); else $(CC) -o clover2 src/main.o $(COMMON_OBJS) $(OBJS) $(CFLAGS) $(LIBS); fi
+clover2: config.h src/main.o $(COMMON_OBJS) $(OBJS) $(JIT_RUNTIME_OBJS)
+	if test $(JIT) = 1; then $(CXX) -o clover2 src/main.o $(COMMON_OBJS) $(OBJS) $(JIT_RUNTIME_OBJS) $(CFLAGS) $(LIBS) $(CXXFLAGS); else $(CC) -o clover2 src/main.o $(COMMON_OBJS) $(OBJS) $(CFLAGS) $(LIBS); fi
 
-iclover2: config.h src/interpreter.o $(COMMON_OBJS) $(OBJS) $(COMPILER_OBJS) $(JIT_OBJS) $(JIT_RUNTIME_OBJS)
-	if test $(JIT) = 1; then $(CXX) -o iclover2 src/interpreter.o $(COMMON_OBJS) $(OBJS) $(COMPILER_OBJS) $(JIT_OBJS) $(JIT_RUNTIME_OBJS) $(CFLAGS) $(LIBS) $(CXXFLAGS); else $(CC) -o iclover2 src/interpreter.o $(COMMON_OBJS) $(OBJS) $(COMPILER_OBJS) $(CFLAGS) $(LIBS); fi
+iclover2: config.h src/interpreter.o $(COMMON_OBJS) $(OBJS) $(COMPILER_OBJS) $(JIT_RUNTIME_OBJS)
+	if test $(JIT) = 1; then $(CXX) -o iclover2 src/interpreter.o $(COMMON_OBJS) $(OBJS) $(COMPILER_OBJS) $(JIT_RUNTIME_OBJS) $(CFLAGS) $(LIBS) $(CXXFLAGS); else $(CC) -o iclover2 src/interpreter.o $(COMMON_OBJS) $(OBJS) $(COMPILER_OBJS) $(CFLAGS) $(LIBS); fi
 
 #########################################################
 # Object files

@@ -5,7 +5,7 @@
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.9~svn20110310	//
 ALLOC	src/macros.h	17;"	d
-ANDAND_OROR_MAX	src/jit.cpp	2325;"	d	file:
+ANDAND_OROR_MAX	src/jit.cpp	3886;"	d	file:
 ANG	Makefile	/^	if locale -a | grep ja_JP.utf8; then export LANG="ja_JP_utf8"; export LC_ALL="ja_JP.utf8"; .\/cclover2 code\/char.cl && .\/clover2 code\/char.clo; else export LANG="C.UTF-8"; export LC_ALL="C.UTF-8"; .\/cclover2 code\/char.cl && .\/clover2 code\/char.clo; fi$/;"	m
 ARRAY_SIZE	src/debug.c	107;"	d	file:
 ARRAY_VALUE_ELEMENT_MAX	src/common.h	56;"	d
@@ -21,7 +21,7 @@ BinopPrecedence	toy.cpp	/^static std::map<char, int> BinopPrecedence;$/;"	v	file
 Body	toy.cpp	/^  std::unique_ptr<ExprAST> Body;$/;"	m	class:__anon23::FunctionAST	file:
 Body	toy.cpp	/^  std::unique_ptr<ExprAST> Start, End, Step, Body;$/;"	m	class:__anon23::ForExprAST	file:
 CC	Makefile	/^CC=clang-4.0$/;"	m
-CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -I\/home\/ab25cq\/include -L\/home\/ab25cq\/lib -fPIC -rdynamic -I\/usr\/local\/include -L \/usr\/local\/lib -O3 -Qunused-arguments -DENABLE_JIT$/;"	m
+CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -I\/home\/ab25cq\/include -L\/home\/ab25cq\/lib -fPIC -rdynamic -I\/usr\/local\/include -L \/usr\/local\/lib -g -DMDEBUG -Werror -Qunused-arguments -DENABLE_JIT$/;"	m
 CHECKML_BEGIN	src/debug.h	11;"	d
 CHECKML_BEGIN	src/debug.h	38;"	d
 CHECKML_END	src/debug.h	12;"	d
@@ -50,7 +50,7 @@ COMMON_OBJS	Makefile	/^COMMON_OBJS=src\/buffer.o src\/debug.o src\/xfunc.o src\/
 COMPILER_OBJS	Makefile	/^COMPILER_OBJS=src\/parser.o src\/node_type.o src\/node.o src\/cast.o src\/vtable.o src\/script_ctime.o src\/node_block.o src\/node_block_type.o src\/class_compiler.o src\/klass_compile_time.o src\/method_compiler.o src\/module.o$/;"	m
 CONS_str	src/common.h	117;"	d
 CXX	Makefile	/^CXX=clang++-4.0$/;"	m
-CXXFLAGS	Makefile	/^CXXFLAGS=`llvm-config-4.0 --cxxflags --ldflags --system-libs --libs core mcjit native` -O3 $/;"	m
+CXXFLAGS	Makefile	/^CXXFLAGS=`llvm-config-4.0 --cxxflags --ldflags --system-libs --libs core mcjit native` -DMDEBUG -g $/;"	m
 CallExprAST	toy.cpp	/^  CallExprAST(const std::string &Callee,$/;"	f	class:__anon23::CallExprAST
 CallExprAST	toy.cpp	/^class CallExprAST : public ExprAST {$/;"	c	namespace:__anon23	file:
 Callee	toy.cpp	/^  std::string Callee;$/;"	m	class:__anon23::CallExprAST	file:
@@ -99,11 +99,11 @@ INTERPRETER	Makefile	/^INTERPRETER=$/;"	m
 IdentifierStr	toy.cpp	/^static std::string IdentifierStr; \/\/ Filled in if tok_identifier$/;"	v	file:
 IfExprAST	toy.cpp	/^  IfExprAST(std::unique_ptr<ExprAST> Cond, std::unique_ptr<ExprAST> Then,$/;"	f	class:__anon23::IfExprAST
 IfExprAST	toy.cpp	/^class IfExprAST : public ExprAST {$/;"	c	namespace:__anon23	file:
-InitializeModuleAndPassManager	src/jit_sub.cpp	/^void InitializeModuleAndPassManager() $/;"	f
+InitializeModuleAndPassManager	src/jit.cpp	/^void InitializeModuleAndPassManager() $/;"	f
 InitializeModuleAndPassManager	toy.cpp	/^static void InitializeModuleAndPassManager() {$/;"	f	file:
 JIT	Makefile	/^JIT=1$/;"	m
-JIT_METHOD_CALL_COUNT	src/jit_sub.cpp	1568;"	d	file:
-JIT_OBJS	Makefile	/^JIT_OBJS=src\/jit.o src\/jit_sub.o$/;"	m
+JIT_METHOD_CALL_COUNT	src/jit_runtime.cpp	1202;"	d	file:
+JIT_OBJS	Makefile	/^JIT_OBJS=src\/jit.o$/;"	m
 JIT_RUNTIME_OBJS	Makefile	/^JIT_RUNTIME_OBJS=src\/jit_runtime.o$/;"	m
 KaleidoscopeJIT	KaleidoscopeJIT.h	/^  KaleidoscopeJIT()$/;"	f	class:llvm::orc::KaleidoscopeJIT
 KaleidoscopeJIT	KaleidoscopeJIT.h	/^class KaleidoscopeJIT {$/;"	c	namespace:llvm::orc
@@ -115,6 +115,7 @@ LHS	toy.cpp	/^  std::unique_ptr<ExprAST> LHS, RHS;$/;"	m	class:__anon23::BinaryE
 LIBS	Makefile	/^LIBS= -lutil -lreadline -ldl -lm -lpcre -lrt$/;"	m
 LIST_VALUE_ELEMENT_MAX	src/common.h	57;"	d
 LLVMFunctions	src/jit.cpp	/^std::map<std::string, std::unique_ptr<FunctionAST>> LLVMFunctions;$/;"	v
+LLVMFunctions	src/jit_runtime.cpp	/^std::map<std::string, std::unique_ptr<FunctionAST>> LLVMFunctions;$/;"	v
 LLVMValue	src/common.h	/^    void* LLVMValue;$/;"	m	union:CLVALUEUnion
 LLVM_EXECUTIONENGINE_ORC_KALEIDOSCOPEJIT_H	KaleidoscopeJIT.h	15;"	d
 LOCAL_VARIABLE_MAX	src/common.h	392;"	d
@@ -1044,6 +1045,7 @@ TheContext	toy.cpp	/^static LLVMContext TheContext;$/;"	v	file:
 TheFPM	src/jit.cpp	/^std::unique_ptr<legacy::FunctionPassManager> TheFPM;$/;"	v
 TheFPM	toy.cpp	/^static std::unique_ptr<legacy::FunctionPassManager> TheFPM;$/;"	v	file:
 TheJIT	src/jit.cpp	/^std::unique_ptr<CloverJIT> TheJIT;$/;"	v
+TheJIT	src/jit_runtime.cpp	/^std::unique_ptr<CloverJIT> TheJIT;$/;"	v
 TheJIT	toy.cpp	/^static std::unique_ptr<KaleidoscopeJIT> TheJIT;$/;"	v	file:
 TheLabels	src/jit.cpp	/^std::map<std::string, BasicBlock*> TheLabels;$/;"	v
 TheModule	src/jit.cpp	/^std::unique_ptr<Module> TheModule;$/;"	v
@@ -1114,25 +1116,17 @@ arrange_alignment	src/code.c	/^static void arrange_alignment(sByteCode* code)$/;
 arrange_alignment	src/constant.c	/^static void arrange_alignment(sConst* self)$/;"	f	file:
 arrange_stack	src/node.c	/^void arrange_stack(sCompileInfo* cinfo)$/;"	f
 array_mark_fun	src/array.c	/^void array_mark_fun(CLObject self, unsigned char* mark_flg)$/;"	f
-as_fn_append	config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	configure	/^  as_fn_append ()$/;"	f
-as_fn_arith	config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	configure	/^  as_fn_arith ()$/;"	f
-as_fn_error	config.status	/^as_fn_error ()$/;"	f
 as_fn_error	configure	/^as_fn_error ()$/;"	f
-as_fn_executable_p	config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	configure	/^as_fn_executable_p ()$/;"	f
-as_fn_exit	config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	configure	/^as_fn_exit ()$/;"	f
 as_fn_failure	configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
-as_fn_mkdir_p	config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	configure	/^as_fn_mkdir_p ()$/;"	f
 as_fn_ret_failure	configure	/^as_fn_ret_failure () { return 1; }$/;"	f
 as_fn_ret_success	configure	/^as_fn_ret_success () { return 0; }$/;"	f
-as_fn_set_status	config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	configure	/^as_fn_set_status ()$/;"	f
 as_fn_success	configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
-as_fn_unset	config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	configure	/^as_fn_unset ()$/;"	f
 assign_operator	src/parser.c	/^static BOOL assign_operator(unsigned int* node, sParserInfo* info)$/;"	f	file:
 binary_operator	src/node.c	/^static BOOL binary_operator(unsigned int node, sNodeType* left_type, sNodeType* right_type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, int float_operand, int double_operand, int pointer_operand, int null_operand, int char_operand, int bool_operand, int regex_operand, char* op_string, sCompileInfo* info)$/;"	f	file:
@@ -1259,7 +1253,7 @@ compile_increment_operand	src/node.c	/^BOOL compile_increment_operand(unsigned i
 compile_increment_operand_with_value	src/node.c	/^BOOL compile_increment_operand_with_value(unsigned int node, sCompileInfo* info) $/;"	f
 compile_inherit_call	src/node.c	/^static BOOL compile_inherit_call(unsigned int node, sCompileInfo* info)$/;"	f	file:
 compile_int_value	src/node.c	/^static BOOL compile_int_value(unsigned int node, sCompileInfo* info)$/;"	f	file:
-compile_jit_method	src/jit_sub.cpp	/^BOOL compile_jit_method(sCLClass* klass, sCLMethod* method)$/;"	f
+compile_jit_methods	src/jit.cpp	/^static BOOL compile_jit_methods(sCLClass* klass)$/;"	f	file:
 compile_list_value	src/node.c	/^BOOL compile_list_value(unsigned int node, sCompileInfo* info)$/;"	f
 compile_load_array_element	src/node.c	/^BOOL compile_load_array_element(unsigned int node, sCompileInfo* info)$/;"	f
 compile_load_class_field	src/node.c	/^static BOOL compile_load_class_field(unsigned int node, sCompileInfo* info)$/;"	f	file:
@@ -1291,7 +1285,7 @@ compile_store_value_to_pointer	src/node.c	/^BOOL compile_store_value_to_pointer(
 compile_store_variable	src/node.c	/^static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)$/;"	f	file:
 compile_string_value	src/node.c	/^BOOL compile_string_value(unsigned int node, sCompileInfo* info)$/;"	f
 compile_throw_expression	src/node.c	/^static BOOL compile_throw_expression(unsigned int node, sCompileInfo* info)$/;"	f	file:
-compile_to_native_code	src/jit.cpp	/^BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2)$/;"	f
+compile_to_native_code	src/jit.cpp	/^static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2)$/;"	f	file:
 compile_true_expression	src/node.c	/^static BOOL compile_true_expression(unsigned int node, sCompileInfo* info)$/;"	f	file:
 compile_try_expression	src/node.c	/^static BOOL compile_try_expression(unsigned int node, sCompileInfo* info)$/;"	f	file:
 compile_tuple_value	src/node.c	/^static BOOL compile_tuple_value(unsigned int node, sCompileInfo* info)$/;"	f	file:
@@ -1325,14 +1319,14 @@ create_generics_types_from_generics_params	src/node_type.c	/^sNodeType* create_g
 create_global_stack_and_append_it_to_stack_list	src/stack.c	/^static void create_global_stack_and_append_it_to_stack_list()$/;"	f	file:
 create_hash_object	src/hash.c	/^CLObject create_hash_object()$/;"	f
 create_integer	src/integer.c	/^CLObject create_integer(int value)$/;"	f
-create_internal_functions	src/jit_sub.cpp	/^void create_internal_functions()$/;"	f
+create_internal_functions	src/jit.cpp	/^static void create_internal_functions()$/;"	f	file:
 create_label_name	src/node.c	/^static void create_label_name(char* prefix, char* result, size_t result_size, int num)$/;"	f	file:
 create_label_name2	src/node.c	/^static void create_label_name2(char* prefix, char* result, size_t result_size, int num, int num2)$/;"	f	file:
 create_list_object	src/list.c	/^CLObject create_list_object()$/;"	f
 create_long	src/long.c	/^CLObject create_long(long value)$/;"	f
 create_method_name_and_params	src/klass_compile_time.c	/^void create_method_name_and_params(char* result, int size_result, sCLClass* klass, char* method_name, sNodeType* param_types[PARAMS_MAX], int num_params)$/;"	f
 create_method_path	src/klass_compile_time.c	/^static void create_method_path(char* result, int result_size, sCLMethod* method, sCLClass* klass)$/;"	f	file:
-create_method_path_for_jit	src/jit_sub.cpp	/^void create_method_path_for_jit(sCLClass* klass, sCLMethod* method, char* result, int size_result)$/;"	f
+create_method_path_for_jit	src/jit_common.hpp	/^inline void create_method_path_for_jit(sCLClass* klass, sCLMethod* method, char* result, int size_result)$/;"	f
 create_module	src/module.c	/^sCLModule* create_module(char* module_name)$/;"	f
 create_node_type_from_cl_type	src/node_type.c	/^sNodeType* create_node_type_from_cl_type(sCLType* cl_type, sCLClass* klass)$/;"	f
 create_node_type_with_class_name	src/node_type.c	/^sNodeType* create_node_type_with_class_name(char* class_name)$/;"	f
@@ -1424,7 +1418,7 @@ free_node_types	src/node_type.c	/^void free_node_types()$/;"	f
 free_nodes	src/node.c	/^void free_nodes()$/;"	f
 free_object	src/object.c	/^BOOL free_object(CLObject self)$/;"	f
 gCLHeap	src/heap.c	/^static sCLHeapManager gCLHeap;$/;"	v	file:
-gCLValueAndBoolStruct	src/jit_sub.cpp	/^StructType* gCLValueAndBoolStruct;$/;"	v
+gCLValueAndBoolStruct	src/jit.cpp	/^StructType* gCLValueAndBoolStruct;$/;"	v
 gCandidates	src/interpreter.c	/^char** gCandidates = NULL;$/;"	v
 gCastMethods	src/node.c	/^struct sCastMethods gCastMethods[] = {$/;"	v	typeref:struct:sCastMethods
 gClassTable	src/klass.c	/^static sClassTable gClassTable[CLASS_NUM_MAX];$/;"	v	file:
@@ -1455,9 +1449,9 @@ gNumCodes	src/interpreter.c	/^static int gNumCodes;$/;"	v	file:
 gNumJITObjects	src/common.h	/^int gNumJITObjects;$/;"	v
 gNumJITObjects	src/jit_runtime.cpp	/^int gNumJITObjects;$/;"	v
 gNumStackID	src/stack.c	/^int gNumStackID;$/;"	v
-gPointerAndBoolStruct	src/jit_sub.cpp	/^StructType* gPointerAndBoolStruct;$/;"	v
+gPointerAndBoolStruct	src/jit.cpp	/^StructType* gPointerAndBoolStruct;$/;"	v
 gSigInt	src/vm.c	/^BOOL gSigInt = FALSE;$/;"	v
-gSigIntValue	src/jit_sub.cpp	/^GlobalVariable* gSigIntValue;$/;"	v
+gSigIntValue	src/jit.cpp	/^GlobalVariable* gSigIntValue;$/;"	v
 gSizeJITObjects	src/common.h	/^int gSizeJITObjects;$/;"	v
 gSizeJITObjects	src/jit_runtime.cpp	/^int gSizeJITObjects;$/;"	v
 gSizeNodes	src/node.c	/^static unsigned int gSizeNodes = 0;$/;"	v	file:
@@ -1585,8 +1579,11 @@ is_valid_class	src/klass.c	/^BOOL is_valid_class(sCLClass* klass)$/;"	f
 is_valid_object	src/heap.c	/^BOOL is_valid_object(CLObject obj)$/;"	f
 is_void_type	src/type.c	/^BOOL is_void_type(sCLType* cl_type, sCLClass* klass)$/;"	f
 jit	src/jit_runtime.cpp	/^BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sCLMethod* method, sVMInfo* info, CLVALUE** stack_ptr)$/;"	f
-jit_final	src/jit_sub.cpp	/^void jit_final()$/;"	f
-jit_init	src/jit_sub.cpp	/^void jit_init()$/;"	f
+jit_compile_all_classes	src/jit.cpp	/^BOOL jit_compile_all_classes()$/;"	f
+jit_final	src/jit.cpp	/^void jit_final()$/;"	f
+jit_final_on_runtime	src/jit_runtime.cpp	/^void jit_final_on_runtime()$/;"	f
+jit_init	src/jit.cpp	/^void jit_init()$/;"	f
+jit_init_on_runtime	src/jit_runtime.cpp	/^void jit_init_on_runtime()$/;"	f
 kNodeTypeAndAnd	src/common.h	/^enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeUByteValue, kNodeTypeShortValue, kNodeTypeUShortValue, kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand, kNodeTypeIncrementWithValueOperand, kNodeTypeDecrementWithValueOperand, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand, kNodeTypeLoadArrayElement, kNodeTypeStoreArrayElement, kNodeTypeChar, kNodeTypeString, kNodeTypeBuffer, kNodeTypeThrow, kNodeTypeTry, kNodeTypeBlockObject, kNodeTypeBlockCall, kNodeTypeConditional, kNodeTypeNormalBlock, kNodeTypeArrayValue, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeHashValue, kNodeTypeRegex, kNodeTypeListValue, kNodeTypeSortableListValue, kNodeTypeEqualableListValue, kNodeTypeTupleValue, kNodeTypeCArrayValue, kNodeTypeEqualableCArrayValue, kNodeTypeSortableCArrayValue, kNodeTypeImplements, kNodeTypeGetAddress, kNodeTypeInheritCall, kNodeTypeFloatValue, kNodeTypeDoubleValue, kNodeTypePath };$/;"	e	enum:eNodeType
 kNodeTypeArrayValue	src/common.h	/^enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeUByteValue, kNodeTypeShortValue, kNodeTypeUShortValue, kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand, kNodeTypeIncrementWithValueOperand, kNodeTypeDecrementWithValueOperand, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand, kNodeTypeLoadArrayElement, kNodeTypeStoreArrayElement, kNodeTypeChar, kNodeTypeString, kNodeTypeBuffer, kNodeTypeThrow, kNodeTypeTry, kNodeTypeBlockObject, kNodeTypeBlockCall, kNodeTypeConditional, kNodeTypeNormalBlock, kNodeTypeArrayValue, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeHashValue, kNodeTypeRegex, kNodeTypeListValue, kNodeTypeSortableListValue, kNodeTypeEqualableListValue, kNodeTypeTupleValue, kNodeTypeCArrayValue, kNodeTypeEqualableCArrayValue, kNodeTypeSortableCArrayValue, kNodeTypeImplements, kNodeTypeGetAddress, kNodeTypeInheritCall, kNodeTypeFloatValue, kNodeTypeDoubleValue, kNodeTypePath };$/;"	e	enum:eNodeType
 kNodeTypeAssignVariable	src/common.h	/^enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeUByteValue, kNodeTypeShortValue, kNodeTypeUShortValue, kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand, kNodeTypeIncrementWithValueOperand, kNodeTypeDecrementWithValueOperand, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand, kNodeTypeLoadArrayElement, kNodeTypeStoreArrayElement, kNodeTypeChar, kNodeTypeString, kNodeTypeBuffer, kNodeTypeThrow, kNodeTypeTry, kNodeTypeBlockObject, kNodeTypeBlockCall, kNodeTypeConditional, kNodeTypeNormalBlock, kNodeTypeArrayValue, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeHashValue, kNodeTypeRegex, kNodeTypeListValue, kNodeTypeSortableListValue, kNodeTypeEqualableListValue, kNodeTypeTupleValue, kNodeTypeCArrayValue, kNodeTypeEqualableCArrayValue, kNodeTypeSortableCArrayValue, kNodeTypeImplements, kNodeTypeGetAddress, kNodeTypeInheritCall, kNodeTypeFloatValue, kNodeTypeDoubleValue, kNodeTypePath };$/;"	e	enum:eNodeType
@@ -1683,6 +1680,7 @@ load_class_with_initialize	src/vm.c	/^static BOOL load_class_with_initialize(cha
 load_element	src/jit_runtime.cpp	/^struct sCLVALUEAndBoolResult load_element(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, CLObject array, int element_num, int size)$/;"	f
 load_fundamental_classes_on_compile_time	src/klass.c	/^static void load_fundamental_classes_on_compile_time()$/;"	f	file:
 load_fundamental_classes_on_runtime	src/vm.c	/^static BOOL load_fundamental_classes_on_runtime()$/;"	f	file:
+load_method_module	src/jit_runtime.cpp	/^BOOL load_method_module()$/;"	f
 load_module_from_file	src/module.c	/^BOOL load_module_from_file(ALLOC sCLModule** self, char* module_name)$/;"	f
 lv_table	src/common.h	/^    sVarTable* lv_table;$/;"	m	struct:sCompileInfoStruct
 lv_table	src/common.h	/^    sVarTable* lv_table;$/;"	m	struct:sParserInfoStruct
