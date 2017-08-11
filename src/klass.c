@@ -682,6 +682,7 @@ static sCLClass* load_class_from_class_file(char* class_name, char* class_file_n
 
     klass->mBoxingClass = NULL;
     klass->mUnboxingClass = NULL;
+    klass->mModuleLoaded = FALSE;
 
     klass->mFreeFun = NULL;
 
@@ -761,6 +762,7 @@ sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_clas
 
     klass->mBoxingClass = NULL;
     klass->mUnboxingClass = NULL;
+    klass->mModuleLoaded = FALSE;
 
     klass->mFreeFun = NULL;
     klass->mNumTypedef = 0;

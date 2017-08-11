@@ -268,6 +268,7 @@ struct sCLClassStruct {
 
     struct sCLClassStruct* mBoxingClass; // This requires on the run time 
     struct sCLClassStruct* mUnboxingClass; // This requires on the run time
+    BOOL mModuleLoaded;     // This requires on the run time
 
     fFreeFun mFreeFun;
 
@@ -298,7 +299,7 @@ sCLClass* load_class(char* class_name);
 sCLMethod* search_for_method_from_virtual_method_table(sCLClass* klass, char* method_name_and_params);
 BOOL is_valid_class(sCLClass* klass);
 BOOL put_class_to_table(char* class_name, sCLClass* klass);
-BOOL jit_compile_all_class(sCLClass* klass);
+BOOL jit_compile_all_classes();
 
 struct sClassTableStruct
 {
@@ -2010,6 +2011,11 @@ BOOL compile_jit_method(sCLClass* klass, sCLMethod* method);
 CLObject* gJITObjects;
 int gNumJITObjects;
 int gSizeJITObjects;
+
+/// jit_runtime.cpp ///
+void jit_init_on_runtime();
+void jit_final_on_runtime();
+BOOL load_bc_file(sCLClass* klass);
 #endif
 
 #endif
