@@ -33,6 +33,518 @@ void show_stack_for_llvm_stack(LVALUE* llvm_stack, LVALUE* llvm_stack_ptr, int v
 //////////////////////////////////////////////////////////////
 // LLVM operation functions
 //////////////////////////////////////////////////////////////
+LVALUE trunc_value(LVALUE* llvm_value, int size)
+{
+    LVALUE result = *llvm_value;
+
+    /// Constant Int ///
+    if(llvm_value->constant_int_value) {
+        ConstantInt* constant_int_value = dynamic_cast<ConstantInt*>(llvm_value->value);
+        APInt apint_value = constant_int_value->getValue();
+
+        int bit_width = constant_int_value->getBitWidth();
+        bool signed_value = apint_value.isSignBit();
+
+        switch(size) {
+            case 1:
+                if(signed_value) {
+                    result.value = ConstantInt::get(TheContext, apint_value.sextOrTrunc(8));
+                }
+                else {
+                    result.value = ConstantInt::get(TheContext, apint_value.zextOrTrunc(8));
+                }
+                break;
+
+            case 2:
+                if(signed_value) {
+                    result.value = ConstantInt::get(TheContext, apint_value.sextOrTrunc(16));
+                }
+                else {
+                    result.value = ConstantInt::get(TheContext, apint_value.zextOrTrunc(16));
+                }
+                break;
+
+            case 4:
+                if(signed_value) {
+                    result.value = ConstantInt::get(TheContext, apint_value.sextOrTrunc(32));
+                }
+                else {
+                    result.value = ConstantInt::get(TheContext, apint_value.zextOrTrunc(32));
+                }
+                break;
+
+            case 8:
+                if(signed_value) {
+                    result.value = ConstantInt::get(TheContext, apint_value.sextOrTrunc(64));
+                }
+                else {
+                    result.value = ConstantInt::get(TheContext, apint_value.zextOrTrunc(64));
+                }
+                break;
+        }
+    }
+    else if(llvm_value->constant_float_value) {
+        ConstantFP* constant_float_value = dynamic_cast<ConstantFP*>(llvm_value->value);
+        const APFloat apfloat_value = constant_float_value->getValueAPF();
+
+        switch(size) {
+            case 1: {
+                APInt apint_value = apfloat_value.bitcastToAPInt();
+                ConstantInt* value = ConstantInt::get(TheContext, apint_value);
+                result.value = ConstantInt::get(TheContext, apint_value.sextOrTrunc(8));
+                }
+                break;
+
+            case 2: {
+                APInt apint_value = apfloat_value.bitcastToAPInt();
+                ConstantInt* value = ConstantInt::get(TheContext, apint_value);
+                result.value = ConstantInt::get(TheContext, apint_value.sextOrTrunc(16));
+                }
+                break;
+
+            case 4: {
+                APInt apint_value = apfloat_value.bitcastToAPInt();
+                ConstantInt* value = ConstantInt::get(TheContext, apint_value);
+                result.value = ConstantInt::get(TheContext, apint_value.sextOrTrunc(32));
+                }
+                break;
+
+            case 8: {
+                APInt apint_value = apfloat_value.bitcastToAPInt();
+                ConstantInt* value = ConstantInt::get(TheContext, apint_value);
+                result.value = ConstantInt::get(TheContext, apint_value.sextOrTrunc(64));
+                }
+                break;
+        }
+    }
+    /// Memory ///
+    else {
+        switch(size) {
+            case 1:
+                if(!llvm_value->value->getType()->isIntegerTy(8)) {
+                    result.value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt8Ty(TheContext));
+                }
+                break;
+
+            case 2:
+                if(llvm_value->value->getType()->isIntegerTy(8)) {
+                    result.value = Builder.CreateCast(Instruction::ZExt, llvm_value->value, Type::getInt16Ty(TheContext));
+                }
+                else if(llvm_value->value->getType()->isIntegerTy(16)) {
+                }
+                else {
+                    result.value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt16Ty(TheContext));
+                }
+                break;
+
+            case 4:
+                if(llvm_value->value->getType()->isIntegerTy(8) || llvm_value->value->getType()->isIntegerTy(16)) {
+                    result.value = Builder.CreateCast(Instruction::ZExt, llvm_value->value, Type::getInt32Ty(TheContext));
+                }
+                else {
+                    result.value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt32Ty(TheContext));
+                }
+                break;
+
+            case 8:
+                if(!llvm_value->value->getType()->isIntegerTy(64)) {
+                    result.value = Builder.CreateCast(Instruction::ZExt, llvm_value->value, Type::getInt64Ty(TheContext));
+                }
+                break;
+        }
+    }
+
+    return result;
+}
+
+static void trunc_vm_stack_value2(LVALUE* llvm_value, int size)
+{
+    switch(size) {
+        case 1:
+            llvm_value->value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt8Ty(TheContext));
+
+            break;
+
+        case 2:
+            llvm_value->value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt16Ty(TheContext));
+            break;
+
+        case 4:
+            llvm_value->value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt32Ty(TheContext));
+            break;
+
+        case 8:
+            llvm_value->value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt64Ty(TheContext));
+            break;
+
+        case 16:
+            llvm_value->value = Builder.CreateCast(Instruction::UIToFP, llvm_value->value, Type::getFloatTy(TheContext));
+            break;
+
+        case 32:
+            llvm_value->value = Builder.CreateCast(Instruction::UIToFP, llvm_value->value, Type::getDoubleTy(TheContext));
+            break;
+
+        case 64:
+            llvm_value->value = Builder.CreateCast(Instruction::IntToPtr, llvm_value->value, PointerType::get(IntegerType::get(TheContext, 64), 0));
+            break;
+    }
+
+    //llvm_value->vm_stack = FALSE;
+}
+
+static void cast_llvm_value_from_inst(LVALUE* llvm_value, int inst) 
+{
+    switch(inst) {
+        case OP_BYTE_TO_CDOUBLE_CAST:
+        case OP_SHORT_TO_CDOUBLE_CAST:
+        case OP_INT_TO_CDOUBLE_CAST:
+        case OP_LONG_TO_CDOUBLE_CAST:
+        case OP_BOOL_TO_CDOUBLE_CAST:
+            llvm_value->value = Builder.CreateCast(Instruction::SIToFP, llvm_value->value, Type::getFloatTy(TheContext), "fvalue");
+            llvm_value->value = Builder.CreateCast(Instruction::FPExt, llvm_value->value, Type::getDoubleTy(TheContext), "fvalue");
+            break;
+
+        case OP_UBYTE_TO_CDOUBLE_CAST:
+        case OP_USHORT_TO_CDOUBLE_CAST:
+        case OP_UINT_TO_CDOUBLE_CAST:
+        case OP_CHAR_TO_CDOUBLE_CAST:
+        case OP_ULONG_TO_CDOUBLE_CAST:
+            llvm_value->value = Builder.CreateCast(Instruction::UIToFP, llvm_value->value, Type::getFloatTy(TheContext), "fvalue");
+            llvm_value->value = Builder.CreateCast(Instruction::FPExt, llvm_value->value, Type::getDoubleTy(TheContext), "fvalue");
+            break;
+
+        case OP_FLOAT_TO_CDOUBLE_CAST:
+            llvm_value->value = Builder.CreateCast(Instruction::FPExt, llvm_value->value, Type::getDoubleTy(TheContext), "fvalue");
+            break;
+
+        case OP_DOUBLE_TO_CDOUBLE_CAST:
+            break;
+
+        case OP_BYTE_TO_CFLOAT_CAST:
+        case OP_SHORT_TO_CFLOAT_CAST:
+        case OP_INT_TO_CFLOAT_CAST:
+        case OP_LONG_TO_CFLOAT_CAST:
+        case OP_BOOL_TO_CFLOAT_CAST: 
+            llvm_value->value = Builder.CreateCast(Instruction::SIToFP, llvm_value->value, Type::getFloatTy(TheContext), "fvalue");
+            break;
+
+        case OP_UBYTE_TO_CFLOAT_CAST:
+        case OP_USHORT_TO_CFLOAT_CAST:
+        case OP_UINT_TO_CFLOAT_CAST:
+        case OP_CHAR_TO_CFLOAT_CAST:
+        case OP_ULONG_TO_CFLOAT_CAST: 
+            llvm_value->value = Builder.CreateCast(Instruction::UIToFP, llvm_value->value, Type::getFloatTy(TheContext), "fvalue");
+            break;
+
+        case OP_BYTE_TO_CULONG_CAST:
+        case OP_UBYTE_TO_CULONG_CAST:
+        case OP_SHORT_TO_CULONG_CAST:
+        case OP_USHORT_TO_CULONG_CAST:
+        case OP_INT_TO_CULONG_CAST:
+        case OP_UINT_TO_CULONG_CAST:
+        case OP_LONG_TO_CULONG_CAST:
+        case OP_ULONG_TO_CULONG_CAST:
+        case OP_CHAR_TO_CULONG_CAST:
+        case OP_POINTER_TO_CULONG_CAST:
+        case OP_BOOL_TO_CULONG_CAST:
+            break;
+
+        case OP_FLOAT_TO_CULONG_CAST:
+        case OP_DOUBLE_TO_CULONG_CAST:
+            llvm_value->value = Builder.CreateCast(Instruction::FPToUI, llvm_value->value, Type::getInt64Ty(TheContext));
+            break;
+
+        case OP_BYTE_TO_CLONG_CAST:
+        case OP_UBYTE_TO_CLONG_CAST:
+        case OP_SHORT_TO_CLONG_CAST:
+        case OP_USHORT_TO_CLONG_CAST:
+        case OP_INT_TO_CLONG_CAST:
+        case OP_UINT_TO_CLONG_CAST:
+        case OP_LONG_TO_CLONG_CAST:
+        case OP_ULONG_TO_CLONG_CAST:
+        case OP_CHAR_TO_CLONG_CAST:
+        case OP_POINTER_TO_CLONG_CAST:
+        case OP_BOOL_TO_CLONG_CAST: 
+            break;
+
+        case OP_FLOAT_TO_CLONG_CAST:
+        case OP_DOUBLE_TO_CLONG_CAST:
+            llvm_value->value = Builder.CreateCast(Instruction::FPToSI, llvm_value->value, Type::getInt64Ty(TheContext));
+            break;
+
+        case OP_FLOAT_TO_CUSHORT_CAST:
+        case OP_DOUBLE_TO_CUSHORT_CAST: 
+            llvm_value->value = Builder.CreateCast(Instruction::FPToUI, llvm_value->value, Type::getInt16Ty(TheContext));
+            break;
+
+        case OP_FLOAT_TO_CSHORT_CAST:
+        case OP_DOUBLE_TO_CSHORT_CAST:
+            llvm_value->value = Builder.CreateCast(Instruction::FPToSI, llvm_value->value, Type::getInt16Ty(TheContext));
+            break;
+
+        case OP_FLOAT_TO_CUBYTE_CAST:
+        case OP_DOUBLE_TO_CUBYTE_CAST: 
+            llvm_value->value = Builder.CreateCast(Instruction::FPToUI, llvm_value->value, Type::getInt8Ty(TheContext));
+            break;
+
+        case OP_FLOAT_TO_CBYTE_CAST:
+        case OP_DOUBLE_TO_CBYTE_CAST: 
+            llvm_value->value = Builder.CreateCast(Instruction::FPToSI, llvm_value->value, Type::getInt8Ty(TheContext));
+            break;
+
+        case OP_FLOAT_TO_UINTEGER_CAST:
+        case OP_DOUBLE_TO_UINTEGER_CAST: 
+            llvm_value->value = Builder.CreateCast(Instruction::FPToUI, llvm_value->value, Type::getInt32Ty(TheContext));
+            break;
+
+        case OP_FLOAT_TO_INTEGER_CAST:
+        case OP_DOUBLE_TO_INTEGER_CAST:
+            llvm_value->value = Builder.CreateCast(Instruction::FPToSI, llvm_value->value, Type::getInt32Ty(TheContext));
+            break;
+
+
+
+
+
+
+        case OP_FLOAT_TO_CFLOAT_CAST:
+            break;
+
+        case OP_DOUBLE_TO_CFLOAT_CAST: 
+            llvm_value->value = Builder.CreateCast(Instruction::FPTrunc, llvm_value->value, Type::getFloatTy(TheContext), "fvalue");
+            break;
+
+
+        case OP_CBYTE_TO_SHORT_CAST:
+            llvm_value->value = Builder.CreateCast(Instruction::SExt, llvm_value->value, Type::getInt16Ty(TheContext), "value2");
+            break;
+
+        case OP_CBYTE_TO_INT_CAST:
+        case OP_CSHORT_TO_INT_CAST : 
+            llvm_value->value = Builder.CreateCast(Instruction::SExt, llvm_value->value, Type::getInt32Ty(TheContext), "value2");
+            break;
+
+        case OP_CBYTE_TO_LONG_CAST:
+        case OP_CSHORT_TO_LONG_CAST : 
+        case OP_INTEGER_TO_LONG_CAST:
+        case OP_CBOOL_TO_LONG_CAST:
+        case OP_CFLOAT_TO_LONG_CAST : 
+        case OP_CDOUBLE_TO_LONG_CAST : 
+            llvm_value->value = Builder.CreateCast(Instruction::SExt, llvm_value->value, Type::getInt64Ty(TheContext), "value2");
+            break;
+
+        case OP_CBYTE_TO_USHORT_CAST:
+        case OP_CUBYTE_TO_SHORT_CAST:
+        case OP_CUBYTE_TO_USHORT_CAST:
+            llvm_value->value = Builder.CreateCast(Instruction::ZExt, llvm_value->value, Type::getInt16Ty(TheContext), "value2");
+            break;
+
+        case OP_CBYTE_TO_UINT_CAST:
+        case OP_CBYTE_TO_CHAR_CAST:
+        case OP_CUBYTE_TO_INT_CAST:
+        case OP_CUBYTE_TO_UINT_CAST:
+        case OP_CUBYTE_TO_CHAR_CAST:
+        case OP_CSHORT_TO_UINT_CAST :
+        case OP_CSHORT_TO_CHAR_CAST:
+        case OP_CUSHORT_TO_INT_CAST : 
+        case OP_CUSHORT_TO_UINT_CAST :
+        case OP_CUSHORT_TO_CHAR_CAST:
+        case OP_CFLOAT_TO_CHAR_CAST:
+        case OP_CDOUBLE_TO_CHAR_CAST:
+            llvm_value->value = Builder.CreateCast(Instruction::ZExt, llvm_value->value, Type::getInt32Ty(TheContext), "value2");
+            break;
+
+        case OP_CBYTE_TO_ULONG_CAST:
+        case OP_CUBYTE_TO_LONG_CAST:
+        case OP_CUBYTE_TO_ULONG_CAST:
+        case OP_CSHORT_TO_ULONG_CAST :
+        case OP_CUSHORT_TO_LONG_CAST : 
+        case OP_CUSHORT_TO_ULONG_CAST :
+        case OP_INTEGER_TO_ULONG_CAST:
+        case OP_UINTEGER_TO_LONG_CAST : 
+        case OP_UINTEGER_TO_ULONG_CAST:
+        case OP_CBOOL_TO_ULONG_CAST:
+        case OP_CCHAR_TO_LONG_CAST : 
+        case OP_CFLOAT_TO_ULONG_CAST :
+        case OP_CDOUBLE_TO_ULONG_CAST :
+            llvm_value->value = Builder.CreateCast(Instruction::ZExt, llvm_value->value, Type::getInt64Ty(TheContext), "value2");
+            break;
+
+
+        case OP_CBYTE_TO_FLOAT_CAST:
+        case OP_CSHORT_TO_FLOAT_CAST:
+        case OP_INTEGER_TO_FLOAT_CAST:
+        case OP_CLONG_TO_FLOAT_CAST: 
+        case OP_CBOOL_TO_FLOAT_CAST:
+            llvm_value->value = Builder.CreateCast(Instruction::SIToFP, llvm_value->value, Type::getFloatTy(TheContext));
+            break;
+
+
+
+        case OP_CBYTE_TO_DOUBLE_CAST:
+        case OP_CSHORT_TO_DOUBLE_CAST:
+        case OP_INTEGER_TO_DOUBLE_CAST:
+        case OP_CLONG_TO_DOUBLE_CAST: 
+        case OP_CBOOL_TO_DOUBLE_CAST:
+            llvm_value->value = Builder.CreateCast(Instruction::SIToFP, llvm_value->value, Type::getDoubleTy(TheContext));
+            break;
+
+
+
+
+        case OP_CUBYTE_TO_FLOAT_CAST:
+        case OP_CUSHORT_TO_FLOAT_CAST:
+        case OP_UINTEGER_TO_FLOAT_CAST:
+        case OP_CULONG_TO_FLOAT_CAST:
+            llvm_value->value = Builder.CreateCast(Instruction::UIToFP, llvm_value->value, Type::getFloatTy(TheContext));
+            break;
+
+
+
+
+
+        case OP_CUBYTE_TO_DOUBLE_CAST: 
+        case OP_CUSHORT_TO_DOUBLE_CAST:
+        case OP_UINTEGER_TO_DOUBLE_CAST:
+        case OP_CULONG_TO_DOUBLE_CAST:
+            llvm_value->value = Builder.CreateCast(Instruction::UIToFP, llvm_value->value, Type::getDoubleTy(TheContext));
+            break;
+
+
+
+
+
+            
+        case OP_CSHORT_TO_BYTE_CAST:
+        case OP_CSHORT_TO_UBYTE_CAST :
+        case OP_CUSHORT_TO_BYTE_CAST:
+        case OP_CUSHORT_TO_UBYTE_CAST :
+        case OP_INTEGER_TO_BYTE_CAST:
+        case OP_INTEGER_TO_UBYTE_CAST:
+        case OP_UINTEGER_TO_BYTE_CAST:
+        case OP_UINTEGER_TO_UBYTE_CAST:
+        case OP_CLONG_TO_BYTE_CAST:
+        case OP_CLONG_TO_UBYTE_CAST:
+        case OP_CULONG_TO_UBYTE_CAST:
+        case OP_CULONG_TO_BYTE_CAST:
+        case OP_CBOOL_TO_BYTE_CAST:
+        case OP_CBOOL_TO_UBYTE_CAST:
+        case OP_CCHAR_TO_BYTE_CAST:
+        case OP_CCHAR_TO_UBYTE_CAST :
+        case OP_CFLOAT_TO_BYTE_CAST:
+        case OP_CFLOAT_TO_UBYTE_CAST :
+        case OP_CDOUBLE_TO_BYTE_CAST:
+        case OP_CDOUBLE_TO_UBYTE_CAST :
+            llvm_value->value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt8Ty(TheContext), "value2");
+            break;
+
+
+        case OP_INTEGER_TO_SHORT_CAST:
+        case OP_INTEGER_TO_USHORT_CAST:
+        case OP_UINTEGER_TO_SHORT_CAST:
+        case OP_UINTEGER_TO_USHORT_CAST:
+        case OP_CLONG_TO_SHORT_CAST:
+        case OP_CLONG_TO_USHORT_CAST:
+        case OP_CULONG_TO_USHORT_CAST:
+        case OP_CULONG_TO_SHORT_CAST:
+        case OP_CBOOL_TO_SHORT_CAST:
+        case OP_CBOOL_TO_USHORT_CAST:
+        case OP_CCHAR_TO_SHORT_CAST:
+        case OP_CCHAR_TO_USHORT_CAST :
+        case OP_CFLOAT_TO_SHORT_CAST:
+        case OP_CFLOAT_TO_USHORT_CAST :
+        case OP_CDOUBLE_TO_SHORT_CAST:
+        case OP_CDOUBLE_TO_USHORT_CAST :
+            llvm_value->value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt16Ty(TheContext), "value2");
+            break;
+
+        case OP_CLONG_TO_INT_CAST:
+        case OP_CLONG_TO_UINT_CAST:
+        case OP_CULONG_TO_INT_CAST:
+        case OP_CULONG_TO_UINT_CAST:
+        case OP_CULONG_TO_CHAR_CAST:
+        case OP_CCHAR_TO_INT_CAST : 
+        case OP_CLONG_TO_CHAR_CAST:
+            llvm_value->value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt32Ty(TheContext), "value2");
+            break;
+
+
+        case OP_CPOINTER_TO_BYTE_CAST:
+        case OP_CPOINTER_TO_UBYTE_CAST :
+            llvm_value->value = Builder.CreateCast(Instruction::PtrToInt, llvm_value->value, Type::getInt8Ty(TheContext), "value2");
+            break;
+
+        case OP_CPOINTER_TO_SHORT_CAST:
+        case OP_CPOINTER_TO_USHORT_CAST :
+            llvm_value->value = Builder.CreateCast(Instruction::PtrToInt, llvm_value->value, Type::getInt16Ty(TheContext), "value2");
+            break;
+
+        case OP_CPOINTER_TO_INT_CAST : 
+        case OP_CPOINTER_TO_UINT_CAST :
+        case OP_CPOINTER_TO_CHAR_CAST:
+            llvm_value->value = Builder.CreateCast(Instruction::PtrToInt, llvm_value->value, Type::getInt32Ty(TheContext), "value2");
+            break;
+
+        case OP_CPOINTER_TO_LONG_CAST : 
+        case OP_CPOINTER_TO_ULONG_CAST :
+            llvm_value->value = Builder.CreateCast(Instruction::PtrToInt, llvm_value->value, Type::getInt64Ty(TheContext), "value2");
+            break;
+
+
+
+
+        case OP_CFLOAT_TO_DOUBLE_CAST: 
+            llvm_value->value = Builder.CreateCast(Instruction::FPExt, llvm_value->value, Type::getDoubleTy(TheContext));
+            break;
+
+        case OP_CDOUBLE_TO_FLOAT_CAST:
+            llvm_value->value = Builder.CreateCast(Instruction::FPTrunc, llvm_value->value, Type::getFloatTy(TheContext));
+            break;
+
+
+
+        case OP_CBYTE_TO_BYTE_CAST:
+        case OP_CBYTE_TO_UBYTE_CAST:
+        case OP_CUBYTE_TO_BYTE_CAST:
+        case OP_CUBYTE_TO_UBYTE_CAST:
+
+        case OP_CSHORT_TO_SHORT_CAST:
+        case OP_CSHORT_TO_USHORT_CAST :
+        case OP_CUSHORT_TO_SHORT_CAST:
+        case OP_CUSHORT_TO_USHORT_CAST :
+
+        case OP_INTEGER_TO_INT_CAST:
+        case OP_INTEGER_TO_UINT_CAST:
+        case OP_UINTEGER_TO_INT_CAST:
+        case OP_UINTEGER_TO_UINT_CAST:
+
+        case OP_CLONG_TO_LONG_CAST:
+        case OP_CLONG_TO_ULONG_CAST:
+        case OP_CULONG_TO_LONG_CAST:
+        case OP_CULONG_TO_ULONG_CAST:
+
+        case OP_INTEGER_TO_CHAR_CAST:
+        case OP_UINTEGER_TO_CHAR_CAST:
+
+        case OP_CBOOL_TO_INT_CAST : 
+        case OP_CBOOL_TO_UINT_CAST :
+        case OP_CBOOL_TO_CHAR_CAST: 
+
+        case OP_CCHAR_TO_CHAR_CAST:
+        case OP_CCHAR_TO_UINT_CAST :
+
+        case OP_CFLOAT_TO_INT_CAST : 
+        case OP_CFLOAT_TO_UINT_CAST :
+
+        case OP_CFLOAT_TO_FLOAT_CAST:
+        case OP_CDOUBLE_TO_INT_CAST : 
+        case OP_CDOUBLE_TO_UINT_CAST :
+            break;
+
+    }
+}
+
 static LVALUE* get_stack_ptr_value_from_index(LVALUE* llvm_stack_ptr, int index)
 {
     return llvm_stack_ptr + index;
@@ -46,6 +558,8 @@ static void dec_stack_ptr(LVALUE** llvm_stack_ptr, int value)
         (*llvm_stack_ptr)->vm_stack = FALSE;
         (*llvm_stack_ptr)->lvar_address_index = -1;
         (*llvm_stack_ptr)->lvar_stored = FALSE;
+        (*llvm_stack_ptr)->constant_int_value = FALSE;
+        (*llvm_stack_ptr)->constant_float_value = FALSE;
 
         (*llvm_stack_ptr)--;
     }
@@ -54,6 +568,8 @@ static void dec_stack_ptr(LVALUE** llvm_stack_ptr, int value)
     (*llvm_stack_ptr)->vm_stack = FALSE;
     (*llvm_stack_ptr)->lvar_address_index = -1;
     (*llvm_stack_ptr)->lvar_stored = FALSE;
+    (*llvm_stack_ptr)->constant_int_value = FALSE;
+    (*llvm_stack_ptr)->constant_float_value = FALSE;
 }
 
 static void push_value_to_stack_ptr(LVALUE** llvm_stack_ptr, LVALUE* value)
@@ -74,10 +590,14 @@ static void store_llvm_value_to_lvar_with_offset(LVALUE* llvm_stack, int index, 
     Builder.CreateStore(llvm_value2, llvm_stack[index].value);
 
     /// store ///
+    trunc_vm_stack_value2(llvm_value, 8);
+    
     Builder.CreateStore(llvm_value->value, llvm_stack[index].value);
     llvm_stack[index].vm_stack = llvm_value->vm_stack;
     llvm_stack[index].lvar_address_index = llvm_value->lvar_address_index;
     llvm_stack[index].lvar_stored = TRUE;
+    llvm_stack[index].constant_int_value = llvm_value->constant_int_value;
+    llvm_stack[index].constant_float_value = llvm_value->constant_float_value;
 }
 
 static void get_llvm_value_from_lvar_with_offset(LVALUE* result, LVALUE* llvm_stack, int index)
@@ -87,6 +607,8 @@ static void get_llvm_value_from_lvar_with_offset(LVALUE* result, LVALUE* llvm_st
     result->vm_stack = llvm_value->vm_stack;
     result->lvar_address_index = llvm_value->lvar_address_index;
     result->lvar_stored = llvm_value->lvar_stored;
+    result->constant_int_value = llvm_value->constant_int_value;
+    result->constant_float_value = llvm_value->constant_float_value;
 }
 
 static LVALUE get_vm_stack_ptr_value_from_index_with_aligned(std::map<std::string, Value*>& params, BasicBlock* current_block, int index, int align)
@@ -124,6 +646,8 @@ static LVALUE get_vm_stack_ptr_value_from_index_with_aligned(std::map<std::strin
     result.vm_stack = TRUE;
     result.lvar_address_index = -1;
     result.lvar_stored = FALSE;
+    result.constant_int_value = FALSE;
+    result.constant_float_value = FALSE;
 
     return result;
 }
@@ -196,6 +720,8 @@ static LVALUE get_stack_value_from_index_with_aligned(std::map<std::string, Valu
     result.vm_stack = TRUE;
     result.lvar_address_index = -1;
     result.lvar_stored = FALSE;
+    result.constant_int_value = FALSE;
+    result.constant_float_value = FALSE;
 
     return result;
 }
@@ -276,6 +802,8 @@ static LVALUE get_lvar_value_from_offset(std::map<std::string, Value*>& params, 
     result.vm_stack = TRUE;
     result.lvar_address_index = -1;
     result.lvar_stored = TRUE;
+    result.constant_int_value = FALSE;
+    result.constant_float_value = FALSE;
 
     return result;
 }
@@ -712,393 +1240,6 @@ static void trunc_vm_stack_value(LVALUE* value, int inst)
 }
 
 
-static void trunc_vm_stack_value2(LVALUE* llvm_value, int size)
-{
-    switch(size) {
-        case 1:
-            llvm_value->value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt8Ty(TheContext));
-
-            break;
-
-        case 2:
-            llvm_value->value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt16Ty(TheContext));
-            break;
-
-        case 4:
-            llvm_value->value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt32Ty(TheContext));
-            break;
-
-        case 8:
-            llvm_value->value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt64Ty(TheContext));
-            break;
-
-        case 16:
-            llvm_value->value = Builder.CreateCast(Instruction::UIToFP, llvm_value->value, Type::getFloatTy(TheContext));
-            break;
-
-        case 32:
-            llvm_value->value = Builder.CreateCast(Instruction::UIToFP, llvm_value->value, Type::getDoubleTy(TheContext));
-            break;
-
-        case 64:
-            llvm_value->value = Builder.CreateCast(Instruction::IntToPtr, llvm_value->value, PointerType::get(IntegerType::get(TheContext, 64), 0));
-            break;
-    }
-
-    //llvm_value->vm_stack = FALSE;
-}
-
-static void cast_llvm_value_from_inst(LVALUE* llvm_value, int inst) 
-{
-    switch(inst) {
-        case OP_BYTE_TO_CDOUBLE_CAST:
-        case OP_SHORT_TO_CDOUBLE_CAST:
-        case OP_INT_TO_CDOUBLE_CAST:
-        case OP_LONG_TO_CDOUBLE_CAST:
-        case OP_BOOL_TO_CDOUBLE_CAST:
-            llvm_value->value = Builder.CreateCast(Instruction::SIToFP, llvm_value->value, Type::getFloatTy(TheContext), "fvalue");
-            llvm_value->value = Builder.CreateCast(Instruction::FPExt, llvm_value->value, Type::getDoubleTy(TheContext), "fvalue");
-            break;
-
-        case OP_UBYTE_TO_CDOUBLE_CAST:
-        case OP_USHORT_TO_CDOUBLE_CAST:
-        case OP_UINT_TO_CDOUBLE_CAST:
-        case OP_CHAR_TO_CDOUBLE_CAST:
-        case OP_ULONG_TO_CDOUBLE_CAST:
-            llvm_value->value = Builder.CreateCast(Instruction::UIToFP, llvm_value->value, Type::getFloatTy(TheContext), "fvalue");
-            llvm_value->value = Builder.CreateCast(Instruction::FPExt, llvm_value->value, Type::getDoubleTy(TheContext), "fvalue");
-            break;
-
-        case OP_FLOAT_TO_CDOUBLE_CAST:
-            llvm_value->value = Builder.CreateCast(Instruction::FPExt, llvm_value->value, Type::getDoubleTy(TheContext), "fvalue");
-            break;
-
-        case OP_DOUBLE_TO_CDOUBLE_CAST:
-            break;
-
-        case OP_BYTE_TO_CFLOAT_CAST:
-        case OP_SHORT_TO_CFLOAT_CAST:
-        case OP_INT_TO_CFLOAT_CAST:
-        case OP_LONG_TO_CFLOAT_CAST:
-        case OP_BOOL_TO_CFLOAT_CAST: 
-            llvm_value->value = Builder.CreateCast(Instruction::SIToFP, llvm_value->value, Type::getFloatTy(TheContext), "fvalue");
-            break;
-
-        case OP_UBYTE_TO_CFLOAT_CAST:
-        case OP_USHORT_TO_CFLOAT_CAST:
-        case OP_UINT_TO_CFLOAT_CAST:
-        case OP_CHAR_TO_CFLOAT_CAST:
-        case OP_ULONG_TO_CFLOAT_CAST: 
-            llvm_value->value = Builder.CreateCast(Instruction::UIToFP, llvm_value->value, Type::getFloatTy(TheContext), "fvalue");
-            break;
-
-        case OP_BYTE_TO_CULONG_CAST:
-        case OP_UBYTE_TO_CULONG_CAST:
-        case OP_SHORT_TO_CULONG_CAST:
-        case OP_USHORT_TO_CULONG_CAST:
-        case OP_INT_TO_CULONG_CAST:
-        case OP_UINT_TO_CULONG_CAST:
-        case OP_LONG_TO_CULONG_CAST:
-        case OP_ULONG_TO_CULONG_CAST:
-        case OP_CHAR_TO_CULONG_CAST:
-        case OP_POINTER_TO_CULONG_CAST:
-        case OP_BOOL_TO_CULONG_CAST:
-            break;
-
-        case OP_FLOAT_TO_CULONG_CAST:
-        case OP_DOUBLE_TO_CULONG_CAST:
-            llvm_value->value = Builder.CreateCast(Instruction::FPToUI, llvm_value->value, Type::getInt64Ty(TheContext));
-            break;
-
-        case OP_BYTE_TO_CLONG_CAST:
-        case OP_UBYTE_TO_CLONG_CAST:
-        case OP_SHORT_TO_CLONG_CAST:
-        case OP_USHORT_TO_CLONG_CAST:
-        case OP_INT_TO_CLONG_CAST:
-        case OP_UINT_TO_CLONG_CAST:
-        case OP_LONG_TO_CLONG_CAST:
-        case OP_ULONG_TO_CLONG_CAST:
-        case OP_CHAR_TO_CLONG_CAST:
-        case OP_POINTER_TO_CLONG_CAST:
-        case OP_BOOL_TO_CLONG_CAST: 
-            break;
-
-        case OP_FLOAT_TO_CLONG_CAST:
-        case OP_DOUBLE_TO_CLONG_CAST:
-            llvm_value->value = Builder.CreateCast(Instruction::FPToSI, llvm_value->value, Type::getInt64Ty(TheContext));
-            break;
-
-        case OP_FLOAT_TO_CUSHORT_CAST:
-        case OP_DOUBLE_TO_CUSHORT_CAST: 
-            llvm_value->value = Builder.CreateCast(Instruction::FPToUI, llvm_value->value, Type::getInt16Ty(TheContext));
-            break;
-
-        case OP_FLOAT_TO_CSHORT_CAST:
-        case OP_DOUBLE_TO_CSHORT_CAST:
-            llvm_value->value = Builder.CreateCast(Instruction::FPToSI, llvm_value->value, Type::getInt16Ty(TheContext));
-            break;
-
-        case OP_FLOAT_TO_CUBYTE_CAST:
-        case OP_DOUBLE_TO_CUBYTE_CAST: 
-            llvm_value->value = Builder.CreateCast(Instruction::FPToUI, llvm_value->value, Type::getInt8Ty(TheContext));
-            break;
-
-        case OP_FLOAT_TO_CBYTE_CAST:
-        case OP_DOUBLE_TO_CBYTE_CAST: 
-            llvm_value->value = Builder.CreateCast(Instruction::FPToSI, llvm_value->value, Type::getInt8Ty(TheContext));
-            break;
-
-        case OP_FLOAT_TO_UINTEGER_CAST:
-        case OP_DOUBLE_TO_UINTEGER_CAST: 
-            llvm_value->value = Builder.CreateCast(Instruction::FPToUI, llvm_value->value, Type::getInt32Ty(TheContext));
-            break;
-
-        case OP_FLOAT_TO_INTEGER_CAST:
-        case OP_DOUBLE_TO_INTEGER_CAST:
-            llvm_value->value = Builder.CreateCast(Instruction::FPToSI, llvm_value->value, Type::getInt32Ty(TheContext));
-            break;
-
-
-
-
-
-
-        case OP_FLOAT_TO_CFLOAT_CAST:
-            break;
-
-        case OP_DOUBLE_TO_CFLOAT_CAST: 
-            llvm_value->value = Builder.CreateCast(Instruction::FPTrunc, llvm_value->value, Type::getFloatTy(TheContext), "fvalue");
-            break;
-
-
-        case OP_CBYTE_TO_SHORT_CAST:
-            llvm_value->value = Builder.CreateCast(Instruction::SExt, llvm_value->value, Type::getInt16Ty(TheContext), "value2");
-            break;
-
-        case OP_CBYTE_TO_INT_CAST:
-        case OP_CSHORT_TO_INT_CAST : 
-            llvm_value->value = Builder.CreateCast(Instruction::SExt, llvm_value->value, Type::getInt32Ty(TheContext), "value2");
-            break;
-
-        case OP_CBYTE_TO_LONG_CAST:
-        case OP_CSHORT_TO_LONG_CAST : 
-        case OP_INTEGER_TO_LONG_CAST:
-        case OP_CBOOL_TO_LONG_CAST:
-        case OP_CFLOAT_TO_LONG_CAST : 
-        case OP_CDOUBLE_TO_LONG_CAST : 
-            llvm_value->value = Builder.CreateCast(Instruction::SExt, llvm_value->value, Type::getInt64Ty(TheContext), "value2");
-            break;
-
-        case OP_CBYTE_TO_USHORT_CAST:
-        case OP_CUBYTE_TO_SHORT_CAST:
-        case OP_CUBYTE_TO_USHORT_CAST:
-            llvm_value->value = Builder.CreateCast(Instruction::ZExt, llvm_value->value, Type::getInt16Ty(TheContext), "value2");
-            break;
-
-        case OP_CBYTE_TO_UINT_CAST:
-        case OP_CBYTE_TO_CHAR_CAST:
-        case OP_CUBYTE_TO_INT_CAST:
-        case OP_CUBYTE_TO_UINT_CAST:
-        case OP_CUBYTE_TO_CHAR_CAST:
-        case OP_CSHORT_TO_UINT_CAST :
-        case OP_CSHORT_TO_CHAR_CAST:
-        case OP_CUSHORT_TO_INT_CAST : 
-        case OP_CUSHORT_TO_UINT_CAST :
-        case OP_CUSHORT_TO_CHAR_CAST:
-        case OP_CFLOAT_TO_CHAR_CAST:
-        case OP_CDOUBLE_TO_CHAR_CAST:
-            llvm_value->value = Builder.CreateCast(Instruction::ZExt, llvm_value->value, Type::getInt32Ty(TheContext), "value2");
-            break;
-
-        case OP_CBYTE_TO_ULONG_CAST:
-        case OP_CUBYTE_TO_LONG_CAST:
-        case OP_CUBYTE_TO_ULONG_CAST:
-        case OP_CSHORT_TO_ULONG_CAST :
-        case OP_CUSHORT_TO_LONG_CAST : 
-        case OP_CUSHORT_TO_ULONG_CAST :
-        case OP_INTEGER_TO_ULONG_CAST:
-        case OP_UINTEGER_TO_LONG_CAST : 
-        case OP_UINTEGER_TO_ULONG_CAST:
-        case OP_CBOOL_TO_ULONG_CAST:
-        case OP_CCHAR_TO_LONG_CAST : 
-        case OP_CFLOAT_TO_ULONG_CAST :
-        case OP_CDOUBLE_TO_ULONG_CAST :
-            llvm_value->value = Builder.CreateCast(Instruction::ZExt, llvm_value->value, Type::getInt64Ty(TheContext), "value2");
-            break;
-
-
-        case OP_CBYTE_TO_FLOAT_CAST:
-        case OP_CSHORT_TO_FLOAT_CAST:
-        case OP_INTEGER_TO_FLOAT_CAST:
-        case OP_CLONG_TO_FLOAT_CAST: 
-        case OP_CBOOL_TO_FLOAT_CAST:
-            llvm_value->value = Builder.CreateCast(Instruction::SIToFP, llvm_value->value, Type::getFloatTy(TheContext));
-            break;
-
-
-
-        case OP_CBYTE_TO_DOUBLE_CAST:
-        case OP_CSHORT_TO_DOUBLE_CAST:
-        case OP_INTEGER_TO_DOUBLE_CAST:
-        case OP_CLONG_TO_DOUBLE_CAST: 
-        case OP_CBOOL_TO_DOUBLE_CAST:
-            llvm_value->value = Builder.CreateCast(Instruction::SIToFP, llvm_value->value, Type::getDoubleTy(TheContext));
-            break;
-
-
-
-
-        case OP_CUBYTE_TO_FLOAT_CAST:
-        case OP_CUSHORT_TO_FLOAT_CAST:
-        case OP_UINTEGER_TO_FLOAT_CAST:
-        case OP_CULONG_TO_FLOAT_CAST:
-            llvm_value->value = Builder.CreateCast(Instruction::UIToFP, llvm_value->value, Type::getFloatTy(TheContext));
-            break;
-
-
-
-
-
-        case OP_CUBYTE_TO_DOUBLE_CAST: 
-        case OP_CUSHORT_TO_DOUBLE_CAST:
-        case OP_UINTEGER_TO_DOUBLE_CAST:
-        case OP_CULONG_TO_DOUBLE_CAST:
-            llvm_value->value = Builder.CreateCast(Instruction::UIToFP, llvm_value->value, Type::getDoubleTy(TheContext));
-            break;
-
-
-
-
-
-            
-        case OP_CSHORT_TO_BYTE_CAST:
-        case OP_CSHORT_TO_UBYTE_CAST :
-        case OP_CUSHORT_TO_BYTE_CAST:
-        case OP_CUSHORT_TO_UBYTE_CAST :
-        case OP_INTEGER_TO_BYTE_CAST:
-        case OP_INTEGER_TO_UBYTE_CAST:
-        case OP_UINTEGER_TO_BYTE_CAST:
-        case OP_UINTEGER_TO_UBYTE_CAST:
-        case OP_CLONG_TO_BYTE_CAST:
-        case OP_CLONG_TO_UBYTE_CAST:
-        case OP_CULONG_TO_UBYTE_CAST:
-        case OP_CULONG_TO_BYTE_CAST:
-        case OP_CBOOL_TO_BYTE_CAST:
-        case OP_CBOOL_TO_UBYTE_CAST:
-        case OP_CCHAR_TO_BYTE_CAST:
-        case OP_CCHAR_TO_UBYTE_CAST :
-        case OP_CFLOAT_TO_BYTE_CAST:
-        case OP_CFLOAT_TO_UBYTE_CAST :
-        case OP_CDOUBLE_TO_BYTE_CAST:
-        case OP_CDOUBLE_TO_UBYTE_CAST :
-            llvm_value->value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt8Ty(TheContext), "value2");
-            break;
-
-
-        case OP_INTEGER_TO_SHORT_CAST:
-        case OP_INTEGER_TO_USHORT_CAST:
-        case OP_UINTEGER_TO_SHORT_CAST:
-        case OP_UINTEGER_TO_USHORT_CAST:
-        case OP_CLONG_TO_SHORT_CAST:
-        case OP_CLONG_TO_USHORT_CAST:
-        case OP_CULONG_TO_USHORT_CAST:
-        case OP_CULONG_TO_SHORT_CAST:
-        case OP_CBOOL_TO_SHORT_CAST:
-        case OP_CBOOL_TO_USHORT_CAST:
-        case OP_CCHAR_TO_SHORT_CAST:
-        case OP_CCHAR_TO_USHORT_CAST :
-        case OP_CFLOAT_TO_SHORT_CAST:
-        case OP_CFLOAT_TO_USHORT_CAST :
-        case OP_CDOUBLE_TO_SHORT_CAST:
-        case OP_CDOUBLE_TO_USHORT_CAST :
-            llvm_value->value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt16Ty(TheContext), "value2");
-            break;
-
-        case OP_CLONG_TO_INT_CAST:
-        case OP_CLONG_TO_UINT_CAST:
-        case OP_CULONG_TO_INT_CAST:
-        case OP_CULONG_TO_UINT_CAST:
-        case OP_CULONG_TO_CHAR_CAST:
-        case OP_CCHAR_TO_INT_CAST : 
-        case OP_CLONG_TO_CHAR_CAST:
-            llvm_value->value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt32Ty(TheContext), "value2");
-            break;
-
-
-        case OP_CPOINTER_TO_BYTE_CAST:
-        case OP_CPOINTER_TO_UBYTE_CAST :
-            llvm_value->value = Builder.CreateCast(Instruction::PtrToInt, llvm_value->value, Type::getInt8Ty(TheContext), "value2");
-            break;
-
-        case OP_CPOINTER_TO_SHORT_CAST:
-        case OP_CPOINTER_TO_USHORT_CAST :
-            llvm_value->value = Builder.CreateCast(Instruction::PtrToInt, llvm_value->value, Type::getInt16Ty(TheContext), "value2");
-            break;
-
-        case OP_CPOINTER_TO_INT_CAST : 
-        case OP_CPOINTER_TO_UINT_CAST :
-        case OP_CPOINTER_TO_CHAR_CAST:
-            llvm_value->value = Builder.CreateCast(Instruction::PtrToInt, llvm_value->value, Type::getInt32Ty(TheContext), "value2");
-            break;
-
-        case OP_CPOINTER_TO_LONG_CAST : 
-        case OP_CPOINTER_TO_ULONG_CAST :
-            llvm_value->value = Builder.CreateCast(Instruction::PtrToInt, llvm_value->value, Type::getInt64Ty(TheContext), "value2");
-            break;
-
-
-
-
-        case OP_CFLOAT_TO_DOUBLE_CAST: 
-            llvm_value->value = Builder.CreateCast(Instruction::FPExt, llvm_value->value, Type::getDoubleTy(TheContext));
-            break;
-
-        case OP_CDOUBLE_TO_FLOAT_CAST:
-            llvm_value->value = Builder.CreateCast(Instruction::FPTrunc, llvm_value->value, Type::getFloatTy(TheContext));
-            break;
-
-
-
-        case OP_CBYTE_TO_BYTE_CAST:
-        case OP_CBYTE_TO_UBYTE_CAST:
-        case OP_CUBYTE_TO_BYTE_CAST:
-        case OP_CUBYTE_TO_UBYTE_CAST:
-
-        case OP_CSHORT_TO_SHORT_CAST:
-        case OP_CSHORT_TO_USHORT_CAST :
-        case OP_CUSHORT_TO_SHORT_CAST:
-        case OP_CUSHORT_TO_USHORT_CAST :
-
-        case OP_INTEGER_TO_INT_CAST:
-        case OP_INTEGER_TO_UINT_CAST:
-        case OP_UINTEGER_TO_INT_CAST:
-        case OP_UINTEGER_TO_UINT_CAST:
-
-        case OP_CLONG_TO_LONG_CAST:
-        case OP_CLONG_TO_ULONG_CAST:
-        case OP_CULONG_TO_LONG_CAST:
-        case OP_CULONG_TO_ULONG_CAST:
-
-        case OP_INTEGER_TO_CHAR_CAST:
-        case OP_UINTEGER_TO_CHAR_CAST:
-
-        case OP_CBOOL_TO_INT_CAST : 
-        case OP_CBOOL_TO_UINT_CAST :
-        case OP_CBOOL_TO_CHAR_CAST: 
-
-        case OP_CCHAR_TO_CHAR_CAST:
-        case OP_CCHAR_TO_UINT_CAST :
-
-        case OP_CFLOAT_TO_INT_CAST : 
-        case OP_CFLOAT_TO_UINT_CAST :
-
-        case OP_CFLOAT_TO_FLOAT_CAST:
-        case OP_CDOUBLE_TO_INT_CAST : 
-        case OP_CDOUBLE_TO_UINT_CAST :
-            break;
-
-    }
-}
 
 static void store_value_to_vm_lvar(std::map<std::string, Value*>& params, BasicBlock* current_block, int offset, Value* value)
 {
@@ -3965,6 +4106,8 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
         llvm_stack[i].vm_stack = TRUE;
         llvm_stack[i].lvar_address_index = -1;
         llvm_stack[i].lvar_stored = FALSE;
+        llvm_stack[i].constant_int_value = FALSE;
+        llvm_stack[i].constant_float_value = FALSE;
     }
 
     /// parametor from VM stack ptr ///
@@ -3976,7 +4119,6 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
         store_llvm_value_to_lvar_with_offset(llvm_stack, i, &llvm_value);
     }
 */
-printf("real_param_num %d\n", real_param_num);
 
     /// clear local variable ///
     for(i=real_param_num; i<var_num; i++) {
@@ -3985,11 +4127,12 @@ printf("real_param_num %d\n", real_param_num);
         llvm_stack[i].vm_stack = TRUE;
         llvm_stack[i].lvar_address_index = -1;
         llvm_stack[i].lvar_stored = FALSE;
+        llvm_stack[i].constant_int_value = FALSE;
+        llvm_stack[i].constant_float_value = FALSE;
 
         store_llvm_value_to_lvar_with_offset(llvm_stack, i, &llvm_value);
     }
 
-/*
     Value* value_for_andand_oror[ANDAND_OROR_MAX];
     memset(value_for_andand_oror, 0, sizeof(Value*)*ANDAND_OROR_MAX);
     int num_value_for_andand_oror = 0;
@@ -4154,11 +4297,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                /// 0 clear align 8 byte ///
-                Value* llvm_value2 = ConstantInt::get(TheContext, llvm::APInt(64, 0, true));
-                Builder.CreateStore(llvm_value2, stack_value);
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(llvm_value, 8);
 
-                Builder.CreateStore(llvm_value->value, stack_value);
+                Builder.CreateAlignedStore(llvm_value2.value, stack_value, 8);
 
                 Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 1, true));
                 Builder.CreateRet(ret_value);
@@ -4257,8 +4399,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 break;
 
             case OP_HEAD_OF_EXPRESSION: {
+/*
                 Value* sig_int_value = ConstantInt::get(Type::getInt32Ty(TheContext), 0);
                 Builder.CreateStore(sig_int_value, gSigIntValue);
+*/
                 }
                 break;
 
@@ -4346,6 +4490,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -4411,6 +4557,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = index;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -4426,6 +4574,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                     llvm_value.vm_stack = FALSE;
                     llvm_value.lvar_address_index = -1;
                     llvm_value.lvar_stored = FALSE;
+                    llvm_value.constant_int_value = TRUE;
+                    llvm_value.constant_float_value = FALSE;
 
                     push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -4441,6 +4591,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                     llvm_value.vm_stack = FALSE;
                     llvm_value.lvar_address_index = -1;
                     llvm_value.lvar_stored = FALSE;
+                    llvm_value.constant_int_value = TRUE;
+                    llvm_value.constant_float_value = FALSE;
 
                     push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -4456,6 +4608,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                     llvm_value.vm_stack = FALSE;
                     llvm_value.lvar_address_index = -1;
                     llvm_value.lvar_stored = FALSE;
+                    llvm_value.constant_int_value = TRUE;
+                    llvm_value.constant_float_value = FALSE;
 
                     push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -4471,6 +4625,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                     llvm_value.vm_stack = FALSE;
                     llvm_value.lvar_address_index = -1;
                     llvm_value.lvar_stored = FALSE;
+                    llvm_value.constant_int_value = TRUE;
+                    llvm_value.constant_float_value = FALSE;
 
                     push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -4485,6 +4641,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = TRUE;
+                llvm_value.constant_float_value = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -4499,6 +4657,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = TRUE;
+                llvm_value.constant_float_value = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -4521,6 +4681,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = TRUE;
+                llvm_value.constant_float_value = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -4543,6 +4705,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = TRUE;
+                llvm_value.constant_float_value = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -4556,6 +4720,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = TRUE;
+                llvm_value.constant_float_value = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -4578,6 +4744,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = TRUE;
+                llvm_value.constant_int_value = TRUE;
 
                 llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, PointerType::get(IntegerType::get(TheContext, 64), 0));
 
@@ -4594,6 +4762,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = TRUE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -4616,6 +4786,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = TRUE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -4636,6 +4808,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -4659,6 +4833,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -4682,6 +4858,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -4704,6 +4882,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -4725,6 +4905,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -4746,6 +4928,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -4769,6 +4953,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -4792,6 +4978,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -4815,6 +5003,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -4838,6 +5028,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -4859,6 +5051,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -4880,6 +5074,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -4901,6 +5097,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -4922,6 +5120,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -4947,6 +5147,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -4972,6 +5174,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -4997,6 +5201,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5017,6 +5223,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5037,6 +5245,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5057,6 +5267,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5077,6 +5289,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5096,6 +5310,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5115,6 +5331,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5134,6 +5352,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5155,6 +5375,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5183,6 +5405,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5210,6 +5434,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5231,6 +5457,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5254,6 +5482,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5275,6 +5505,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5298,6 +5530,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5319,6 +5553,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5342,6 +5578,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5363,6 +5601,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5386,6 +5626,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5405,6 +5647,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5424,6 +5668,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5443,6 +5689,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5462,6 +5710,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5481,6 +5731,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5500,6 +5752,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5521,6 +5775,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5543,6 +5799,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5563,6 +5821,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5615,6 +5875,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5633,6 +5895,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5651,6 +5915,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5671,6 +5937,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -6085,6 +6353,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                     llvm_value.vm_stack = TRUE;
                     llvm_value.lvar_address_index = -1;
                     llvm_value.lvar_stored = FALSE;
+                    llvm_value.constant_int_value = FALSE;
+                    llvm_value.constant_float_value = FALSE;
 
                     dec_stack_ptr(&llvm_stack_ptr, 1);
                     push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -6110,6 +6380,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                     llvm_value.vm_stack = TRUE;
                     llvm_value.lvar_address_index = -1;
                     llvm_value.lvar_stored = FALSE;
+                    llvm_value.constant_int_value = FALSE;
+                    llvm_value.constant_float_value = FALSE;
 
                     push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
 
@@ -6173,6 +6445,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -6226,6 +6500,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -6326,6 +6602,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 trunc_vm_stack_value2(&llvm_value, size);
 
@@ -6381,6 +6659,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -6515,6 +6795,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
                 
                 llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt32Ty(TheContext));
 
@@ -6538,6 +6820,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
                 
                 llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getFloatTy(TheContext));
 
@@ -6562,6 +6846,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt8Ty(TheContext));
 
@@ -6586,6 +6872,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt16Ty(TheContext));
 
@@ -6610,6 +6898,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt64Ty(TheContext));
 
@@ -6633,6 +6923,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, PointerType::get(IntegerType::get(TheContext, 64), 0));
 
@@ -6656,6 +6948,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getDoubleTy(TheContext));
 
@@ -6791,6 +7085,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -6807,6 +7103,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -6829,6 +7127,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -6857,6 +7157,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -6873,6 +7175,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -6891,6 +7195,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -6908,6 +7214,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -6940,6 +7248,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -6956,6 +7266,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -6972,6 +7284,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -6988,6 +7302,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7012,6 +7328,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7028,6 +7346,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7044,6 +7364,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7059,6 +7381,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7074,6 +7398,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7090,6 +7416,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7110,6 +7438,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7127,6 +7457,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7152,6 +7484,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7174,6 +7508,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7190,6 +7526,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7206,6 +7544,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7236,6 +7576,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7255,6 +7597,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7270,6 +7614,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7288,6 +7634,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7307,6 +7655,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7322,6 +7672,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7335,28 +7687,30 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
             case OP_BYTE_TO_STRING_CAST: 
             case OP_SHORT_TO_STRING_CAST :
             case OP_INT_TO_STRING_CAST : {
-                LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+                LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
                 Function* fun = TheModule->getFunction("run_int_to_string_cast");
 
                 std::vector<Value*> params2;
 
-                params2.push_back(llvm_value->value);
+                params2.push_back(value->value);
 
-                LVALUE result;
-                result.value = Builder.CreateCall(fun, params2);
-                result.vm_stack = TRUE;
-                result.lvar_address_index = -1;
-                result.lvar_stored = FALSE;
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateCall(fun, params2);
+                llvm_value.vm_stack = TRUE;
+                llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
-                push_value_to_stack_ptr(&llvm_stack_ptr, &result);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
 
                 /// push object to jit objects ///
                 Function* fun2 = TheModule->getFunction("push_jit_object");
 
                 std::vector<Value*> params3;
 
-                Value* param1 = result.value;
+                Value* param1 = llvm_value.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -7364,28 +7718,30 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 break;
 
             case OP_LONG_TO_STRING_CAST : {
-                LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+                LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
                 Function* fun = TheModule->getFunction("run_long_to_string_cast");
 
                 std::vector<Value*> params2;
 
-                params2.push_back(llvm_value->value);
+                params2.push_back(value->value);
 
-                LVALUE result;
-                result.value = Builder.CreateCall(fun, params2);
-                result.vm_stack = TRUE;
-                result.lvar_address_index = -1;
-                result.lvar_stored = FALSE;
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateCall(fun, params2);
+                llvm_value.vm_stack = TRUE;
+                llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
-                push_value_to_stack_ptr(&llvm_stack_ptr, &result);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
 
                 /// push object to jit objects ///
                 Function* fun2 = TheModule->getFunction("push_jit_object");
 
                 std::vector<Value*> params3;
 
-                Value* param1 = result.value;
+                Value* param1 = llvm_value.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -7395,28 +7751,30 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
             case OP_UBYTE_TO_STRING_CAST :
             case OP_USHORT_TO_STRING_CAST :
             case OP_UINT_TO_STRING_CAST : {
-                LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+                LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
                 Function* fun = TheModule->getFunction("run_uint_to_string_cast");
 
                 std::vector<Value*> params2;
 
-                params2.push_back(llvm_value->value);
+                params2.push_back(value->value);
 
-                LVALUE result;
-                result.value = Builder.CreateCall(fun, params2);
-                result.vm_stack = TRUE;
-                result.lvar_address_index = -1;
-                result.lvar_stored = FALSE;
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateCall(fun, params2);
+                llvm_value.vm_stack = TRUE;
+                llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
-                push_value_to_stack_ptr(&llvm_stack_ptr, &result);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
 
                 /// push object to jit objects ///
                 Function* fun2 = TheModule->getFunction("push_jit_object");
 
                 std::vector<Value*> params3;
 
-                Value* param1 = result.value;
+                Value* param1 = llvm_value.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -7424,28 +7782,30 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 break;
 
             case OP_ULONG_TO_STRING_CAST : {
-                LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+                LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
                 Function* fun = TheModule->getFunction("run_ulong_to_string_cast");
 
                 std::vector<Value*> params2;
 
-                params2.push_back(llvm_value->value);
+                params2.push_back(value->value);
 
-                LVALUE result;
-                result.value = Builder.CreateCall(fun, params2);
-                result.vm_stack = TRUE;
-                result.lvar_address_index = -1;
-                result.lvar_stored = FALSE;
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateCall(fun, params2);
+                llvm_value.vm_stack = TRUE;
+                llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
-                push_value_to_stack_ptr(&llvm_stack_ptr, &result);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
 
                 /// push object to jit objects ///
                 Function* fun2 = TheModule->getFunction("push_jit_object");
 
                 std::vector<Value*> params3;
 
-                Value* param1 = result.value;
+                Value* param1 = llvm_value.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -7453,28 +7813,30 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 break;
 
             case OP_FLOAT_TO_STRING_CAST : {
-                LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+                LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
                 Function* fun = TheModule->getFunction("run_float_to_string_cast");
 
                 std::vector<Value*> params2;
 
-                params2.push_back(llvm_value->value);
+                params2.push_back(value->value);
 
-                LVALUE result;
-                result.value = Builder.CreateCall(fun, params2);
-                result.vm_stack = TRUE;
-                result.lvar_address_index = -1;
-                result.lvar_stored = FALSE;
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateCall(fun, params2);
+                llvm_value.vm_stack = TRUE;
+                llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
-                push_value_to_stack_ptr(&llvm_stack_ptr, &result);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
 
                 /// push object to jit objects ///
                 Function* fun2 = TheModule->getFunction("push_jit_object");
 
                 std::vector<Value*> params3;
 
-                Value* param1 = result.value;
+                Value* param1 = llvm_value.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -7482,28 +7844,30 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 break;
 
             case OP_DOUBLE_TO_STRING_CAST : {
-                LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+                LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
                 Function* fun = TheModule->getFunction("run_double_to_string_cast");
 
                 std::vector<Value*> params2;
 
-                params2.push_back(llvm_value->value);
+                params2.push_back(value->value);
 
-                LVALUE result;
-                result.value = Builder.CreateCall(fun, params2);
-                result.vm_stack = TRUE;
-                result.lvar_address_index = -1;
-                result.lvar_stored = FALSE;
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateCall(fun, params2);
+                llvm_value.vm_stack = TRUE;
+                llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
-                push_value_to_stack_ptr(&llvm_stack_ptr, &result);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
 
                 /// push object to jit objects ///
                 Function* fun2 = TheModule->getFunction("push_jit_object");
 
                 std::vector<Value*> params3;
 
-                Value* param1 = result.value;
+                Value* param1 = llvm_value.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -7511,28 +7875,30 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 break;
 
             case OP_CHAR_TO_STRING_CAST : {
-                LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+                LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
                 Function* fun = TheModule->getFunction("run_char_to_string_cast");
 
                 std::vector<Value*> params2;
 
-                params2.push_back(llvm_value->value);
+                params2.push_back(value->value);
 
-                LVALUE result;
-                result.value = Builder.CreateCall(fun, params2);
-                result.vm_stack = TRUE;
-                result.lvar_address_index = -1;
-                result.lvar_stored = FALSE;
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateCall(fun, params2);
+                llvm_value.vm_stack = TRUE;
+                llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
-                push_value_to_stack_ptr(&llvm_stack_ptr, &result);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
 
                 /// push object to jit objects ///
                 Function* fun2 = TheModule->getFunction("push_jit_object");
 
                 std::vector<Value*> params3;
 
-                Value* param1 = result.value;
+                Value* param1 = llvm_value.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -7540,28 +7906,30 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 break;
 
             case OP_REGEX_TO_STRING_CAST : {
-                LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+                LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
                 Function* fun = TheModule->getFunction("run_regex_to_string_cast");
 
                 std::vector<Value*> params2;
 
-                params2.push_back(llvm_value->value);
+                params2.push_back(value->value);
 
-                LVALUE result;
-                result.value = Builder.CreateCall(fun, params2);
-                result.vm_stack = TRUE;
-                result.lvar_address_index = -1;
-                result.lvar_stored = FALSE;
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateCall(fun, params2);
+                llvm_value.vm_stack = TRUE;
+                llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
-                push_value_to_stack_ptr(&llvm_stack_ptr, &result);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
 
                 /// push object to jit objects ///
                 Function* fun2 = TheModule->getFunction("push_jit_object");
 
                 std::vector<Value*> params3;
 
-                Value* param1 = result.value;
+                Value* param1 = llvm_value.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -7569,28 +7937,30 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 break;
 
             case OP_BOOL_TO_STRING_CAST : {
-                LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+                LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
                 Function* fun = TheModule->getFunction("run_bool_to_string_cast");
 
                 std::vector<Value*> params2;
 
-                params2.push_back(llvm_value->value);
+                params2.push_back(value->value);
 
-                LVALUE result;
-                result.value = Builder.CreateCall(fun, params2);
-                result.vm_stack = TRUE;
-                result.lvar_address_index = -1;
-                result.lvar_stored = FALSE;
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateCall(fun, params2);
+                llvm_value.vm_stack = TRUE;
+                llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
-                push_value_to_stack_ptr(&llvm_stack_ptr, &result);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
 
                 /// push object to jit objects ///
                 Function* fun2 = TheModule->getFunction("push_jit_object");
 
                 std::vector<Value*> params3;
 
-                Value* param1 = result.value;
+                Value* param1 = llvm_value.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -7598,28 +7968,30 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 break;
 
             case OP_POINTER_TO_STRING_CAST : {
-                LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+                LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
                 Function* fun = TheModule->getFunction("run_pointer_to_string_cast");
 
                 std::vector<Value*> params2;
 
-                params2.push_back(llvm_value->value);
+                params2.push_back(value->value);
 
-                LVALUE result;
-                result.value = Builder.CreateCall(fun, params2);
-                result.vm_stack = TRUE;
-                result.lvar_address_index = -1;
-                result.lvar_stored = FALSE;
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateCall(fun, params2);
+                llvm_value.vm_stack = TRUE;
+                llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
-                push_value_to_stack_ptr(&llvm_stack_ptr, &result);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
 
                 /// push object to jit objects ///
                 Function* fun2 = TheModule->getFunction("push_jit_object");
 
                 std::vector<Value*> params3;
 
-                Value* param1 = result.value;
+                Value* param1 = llvm_value.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -7656,6 +8028,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7703,6 +8077,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7749,6 +8125,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7796,6 +8174,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7843,6 +8223,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7889,6 +8271,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7935,6 +8319,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7981,6 +8367,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8026,6 +8414,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8071,6 +8461,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8113,6 +8505,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8157,6 +8551,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8201,6 +8597,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8243,6 +8641,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 cast_llvm_value_from_inst(&llvm_value, inst);
 
@@ -8277,6 +8677,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 cast_llvm_value_from_inst(&llvm_value, inst);
 
@@ -8311,6 +8713,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8345,6 +8749,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8390,6 +8796,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8435,6 +8843,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8469,6 +8879,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8503,6 +8915,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8535,6 +8949,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, PointerType::get(IntegerType::get(TheContext, 64), 0));
 
@@ -8569,6 +8985,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8594,6 +9012,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8626,6 +9046,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8651,6 +9073,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8705,6 +9129,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8729,6 +9155,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8753,6 +9181,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8775,6 +9205,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8797,6 +9229,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8819,6 +9253,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8841,6 +9277,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8863,6 +9301,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8885,6 +9325,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8908,6 +9350,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8929,6 +9373,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8950,6 +9396,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8975,6 +9423,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
 
@@ -9014,6 +9464,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
 
@@ -9047,6 +9499,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
 
@@ -9111,6 +9565,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 /// dec llvm stack pointer ///
                 dec_stack_ptr(&llvm_stack_ptr, num_elements);
@@ -9182,6 +9638,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 /// dec llvm stack pointer ///
                 dec_stack_ptr(&llvm_stack_ptr, num_elements);
@@ -9250,6 +9708,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 /// dec llvm stack pointer ///
                 dec_stack_ptr(&llvm_stack_ptr, num_elements);
@@ -9318,6 +9778,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 /// dec llvm stack pointer ///
                 dec_stack_ptr(&llvm_stack_ptr, num_elements);
@@ -9386,6 +9848,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 /// dec llvm stack pointer ///
                 dec_stack_ptr(&llvm_stack_ptr, num_elements);
@@ -9454,6 +9918,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 /// dec llvm stack pointer ///
                 dec_stack_ptr(&llvm_stack_ptr, num_elements);
@@ -9522,6 +9988,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 /// dec llvm stack pointer ///
                 dec_stack_ptr(&llvm_stack_ptr, num_elements);
@@ -9582,6 +10050,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 /// dec llvm stack pointer ///
                 dec_stack_ptr(&llvm_stack_ptr, num_elements);
@@ -9657,6 +10127,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 /// dec llvm stack pointer ///
                 dec_stack_ptr(&llvm_stack_ptr, num_elements*2);
@@ -9743,6 +10215,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 /// vm stack_ptr to llvm stack ///
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -9817,6 +10291,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
 
@@ -9844,29 +10320,9 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 }
 #endif
     }
-*/
-    int value = 1;
-
-    LVALUE llvm_value;
-    llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(32, value, true)); 
-    llvm_value.vm_stack = FALSE;
-    llvm_value.lvar_address_index = -1;
-    llvm_value.lvar_stored = FALSE;
-
-    trunc_vm_stack_value2(&llvm_value, 8);
-
-    push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
-
-    LVALUE* llvm_value2 = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
-
-    store_llvm_value_to_lvar_with_offset(llvm_stack, 0, llvm_value2);
-
-    LVALUE llvm_value3;
-    get_llvm_value_from_lvar_with_offset(&llvm_value3, llvm_stack, 0);
-    Value* ret_value = llvm_value3.value;
 
     // Finish off the function.
-    //Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 1, true));
+    Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 1, true));
 
     //Builder.SetInsertPoint(current_block);
     Builder.CreateRet(ret_value);
@@ -9888,13 +10344,15 @@ static BOOL compile_jit_methods(sCLClass* klass)
 
     TheFPM = llvm::make_unique<legacy::FunctionPassManager>(TheModule);
     
-    //TheFPM->add(createInstructionCombiningPass());
-    //TheFPM->add(createReassociatePass());
-    //TheFPM->add(createGVNPass());
-    //TheFPM->add(createCFGSimplificationPass());
+    /*
+    TheFPM->add(createInstructionCombiningPass());
+    TheFPM->add(createReassociatePass());
+    TheFPM->add(createGVNPass());
+    TheFPM->add(createCFGSimplificationPass());
+    */
     TheFPM->doInitialization();
 
-    //create_internal_functions();
+    create_internal_functions();
     TheLabels.clear();
 
     int i;
@@ -9929,11 +10387,13 @@ static BOOL compile_jit_methods(sCLClass* klass)
     std::string err_str;
     raw_string_ostream err_ostream(err_str);
 
-    if(verifyModule(*TheModule, &err_ostream)) {
-        llvm::WriteBitcodeToFile(TheModule, output_stream);
-        output_stream.flush();
-
 TheModule->dump();
+
+    llvm::WriteBitcodeToFile(TheModule, output_stream);
+    output_stream.flush();
+/*
+    if(verifyModule(*TheModule, &err_ostream)) {
+
 printf("module_name %s passed\n", module_name);
     }
     else {
@@ -9941,6 +10401,7 @@ printf("module_name %s passed\n", module_name);
         errs() << "assembly parsed, but does not verify as correct\n";
         errs() << err_ostream.str();
     }
+*/
 
     delete TheModule;
 

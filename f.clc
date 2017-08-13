@@ -1,5 +1,14 @@
 class ClassF
 {
-    def method(){
+    def method(): int {
+        return 1;
+    }
+
+    def method2(): float {
+        return 1.1f;
+    }
+
+    def method3(): double {
+        return 1.1;
     }
 }

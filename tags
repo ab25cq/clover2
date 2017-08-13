@@ -3,9 +3,9 @@
 !_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
-!_TAG_PROGRAM_VERSION	5.8	//
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
 ALLOC	src/macros.h	17;"	d
-ANDAND_OROR_MAX	src/jit.cpp	3880;"	d	file:
+ANDAND_OROR_MAX	src/jit.cpp	4021;"	d	file:
 ANG	Makefile	/^	if locale -a | grep ja_JP.utf8; then export LANG="ja_JP_utf8"; export LC_ALL="ja_JP.utf8"; .\/cclover2 code\/char.cl && .\/clover2 code\/char.clo; else export LANG="C.UTF-8"; export LC_ALL="C.UTF-8"; .\/cclover2 code\/char.cl && .\/clover2 code\/char.clo; fi$/;"	m
 ARRAY_SIZE	src/debug.c	107;"	d	file:
 ARRAY_VALUE_ELEMENT_MAX	src/common.h	56;"	d
@@ -69,7 +69,7 @@ ELIF_NUM_MAX	src/common.h	46;"	d
 EXCEPTION_MESSAGE_MAX	src/common.h	173;"	d
 Else	toy.cpp	/^  std::unique_ptr<ExprAST> Cond, Then, Else;$/;"	m	class:__anon24::IfExprAST	file:
 End	toy.cpp	/^  std::unique_ptr<ExprAST> Start, End, Step, Body;$/;"	m	class:__anon24::ForExprAST	file:
-ExitOnErr	lli.cpp	/^  ExitOnError ExitOnErr;$/;"	m	namespace:__anon1	file:
+ExitOnErr	lli.cpp	/^  ExitOnError ExitOnErr;$/;"	m	namespace:__anon23	file:
 ExprAST	toy.cpp	/^class ExprAST {$/;"	c	namespace:__anon24	file:
 FALSE	src/macros.h	13;"	d
 FIELD_FLAGS_PRIVATE	src/common.h	222;"	d
@@ -98,7 +98,7 @@ IfExprAST	toy.cpp	/^  IfExprAST(std::unique_ptr<ExprAST> Cond, std::unique_ptr<E
 IfExprAST	toy.cpp	/^class IfExprAST : public ExprAST {$/;"	c	namespace:__anon24	file:
 InitializeModuleAndPassManager	toy.cpp	/^static void InitializeModuleAndPassManager() {$/;"	f	file:
 JIT	Makefile	/^JIT=1$/;"	m
-JITKind	lli.cpp	/^  enum class JITKind { MCJIT, OrcMCJITReplacement, OrcLazy };$/;"	c	namespace:__anon1	file:
+JITKind	lli.cpp	/^  enum class JITKind { MCJIT, OrcMCJITReplacement, OrcLazy };$/;"	c	namespace:__anon23	file:
 JIT_OBJS	Makefile	/^JIT_OBJS=src\/jit.o$/;"	m
 JIT_RUNTIME_OBJS	Makefile	/^JIT_RUNTIME_OBJS=src\/jit_runtime.o$/;"	m
 KaleidoscopeJIT	KaleidoscopeJIT.h	/^  KaleidoscopeJIT()$/;"	f	class:llvm::orc::KaleidoscopeJIT
@@ -128,7 +128,7 @@ MAX_CODES	src/interpreter.c	1385;"	d	file:
 MAX_COND_JUMP	src/jit.cpp	12;"	d	file:
 MCALLOC	src/debug.h	22;"	d
 MCALLOC	src/debug.h	42;"	d
-MCJIT	lli.cpp	/^  enum class JITKind { MCJIT, OrcMCJITReplacement, OrcLazy };$/;"	m	class:__anon1::JITKind	file:
+MCJIT	lli.cpp	/^  enum class JITKind { MCJIT, OrcMCJITReplacement, OrcLazy };$/;"	m	class:__anon23::JITKind	file:
 METHOD_CHAIN_MAX	src/common.h	63;"	d
 METHOD_FLAGS_CLASS_METHOD	src/common.h	172;"	d
 METHOD_FLAGS_NATIVE	src/common.h	171;"	d
@@ -896,7 +896,7 @@ OS	Makefile	/^OS=LINUX$/;"	m
 ObjLayerT	KaleidoscopeJIT.h	/^  typedef ObjectLinkingLayer<> ObjLayerT;$/;"	t	class:llvm::orc::KaleidoscopeJIT
 ObjectLayer	KaleidoscopeJIT.h	/^  ObjLayerT ObjectLayer;$/;"	m	class:llvm::orc::KaleidoscopeJIT
 Op	toy.cpp	/^  char Op;$/;"	m	class:__anon24::BinaryExprAST	file:
-OrcMCJITReplacement	lli.cpp	/^  enum class JITKind { MCJIT, OrcMCJITReplacement, OrcLazy };$/;"	m	class:__anon1::JITKind	file:
+OrcMCJITReplacement	lli.cpp	/^  enum class JITKind { MCJIT, OrcMCJITReplacement, OrcLazy };$/;"	m	class:__anon23::JITKind	file:
 PARAMS_MAX	src/common.h	48;"	d
 PARSE_PHASE_ADD_GENERICS_TYPES	src/common.h	1613;"	d
 PARSE_PHASE_ADD_METHODS_AND_FIELDS	src/common.h	1614;"	d
@@ -918,7 +918,7 @@ ParseParenExpr	toy.cpp	/^static std::unique_ptr<ExprAST> ParseParenExpr() {$/;"	
 ParsePrimary	toy.cpp	/^static std::unique_ptr<ExprAST> ParsePrimary() {$/;"	f	file:
 ParsePrototype	toy.cpp	/^static std::unique_ptr<PrototypeAST> ParsePrototype() {$/;"	f	file:
 ParseTopLevelExpr	toy.cpp	/^static std::unique_ptr<FunctionAST> ParseTopLevelExpr() {$/;"	f	file:
-Positional	lli.cpp	/^  InputFile(cl::desc("<input bitcode>"), cl::Positional, cl::init("-"));$/;"	m	class:__anon1::cl	file:
+Positional	lli.cpp	/^  InputFile(cl::desc("<input bitcode>"), cl::Positional, cl::init("-"));$/;"	m	class:__anon23::cl	file:
 Proto	toy.cpp	/^  std::unique_ptr<PrototypeAST> Proto;$/;"	m	class:__anon24::FunctionAST	file:
 PrototypeAST	toy.cpp	/^  PrototypeAST(const std::string &Name, std::vector<std::string> Args)$/;"	f	class:__anon24::PrototypeAST
 PrototypeAST	toy.cpp	/^class PrototypeAST {$/;"	c	namespace:__anon24	file:
@@ -1292,6 +1292,8 @@ compiler_final	src/interpreter.c	/^static void compiler_final()$/;"	f	file:
 compiler_init	src/compiler.c	/^static void compiler_init(BOOL no_load_fudamental_classes)$/;"	f	file:
 compiler_init	src/interpreter.c	/^static void compiler_init(BOOL no_load_fudamental_classes)$/;"	f	file:
 constant	src/common.h	/^    sConst* constant;$/;"	m	struct:sCompileInfoStruct
+constant_float_value	src/jit_common.hpp	/^    BOOL constant_float_value;$/;"	m	struct:LVALUEStruct
+constant_int_value	src/jit_common.hpp	/^    BOOL constant_int_value;$/;"	m	struct:LVALUEStruct
 create_array_object	src/array.c	/^CLObject create_array_object(sCLClass* klass, int array_num)$/;"	f
 create_block_object	src/block.c	/^CLObject create_block_object(sByteCode* codes, sConst* constant, CLVALUE* parent_stack, int parent_var_num, int block_var_num, long stack_id, BOOL lambda)$/;"	f
 create_bool	src/bool.c	/^CLObject create_bool(BOOL value)$/;"	f
@@ -1683,20 +1685,20 @@ lvar_address_index	src/jit_common.hpp	/^    int lvar_address_index;$/;"	m	struct
 lvar_of_llvm_to_lvar_of_vm	src/jit.cpp	/^static void lvar_of_llvm_to_lvar_of_vm(std::map<std::string, Value *> params, BasicBlock* current_block, LVALUE* llvm_stack, int var_num)$/;"	f	file:
 lvar_of_vm_to_lvar_of_llvm	src/jit.cpp	/^static void lvar_of_vm_to_lvar_of_llvm(std::map<std::string, Value *> params, BasicBlock* current_block, LVALUE* llvm_stack, int var_num)$/;"	f	file:
 lvar_stored	src/jit_common.hpp	/^    BOOL lvar_stored;$/;"	m	struct:LVALUEStruct
-mAnchored	src/common.h	/^            BOOL mAnchored;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon22
+mAnchored	src/common.h	/^            BOOL mAnchored;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon21
 mAnchored	src/common.h	/^    BOOL mAnchored;$/;"	m	struct:sRegexObjectStruct
 mArray	src/common.h	/^    BOOL mArray;$/;"	m	struct:sCLTypeStruct
 mArray	src/common.h	/^    BOOL mArray;$/;"	m	struct:sNodeTypeStruct
-mArrayElements	src/common.h	/^            unsigned int mArrayElements[ARRAY_VALUE_ELEMENT_MAX];$/;"	m	struct:sNodeTreeStruct::__anon4::__anon18
-mArrayNum	src/common.h	/^            unsigned int mArrayNum;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon12
-mArrayNum	src/common.h	/^        int mArrayNum;$/;"	m	union:sCLObjectStruct::__anon23
+mArrayElements	src/common.h	/^            unsigned int mArrayElements[ARRAY_VALUE_ELEMENT_MAX];$/;"	m	struct:sNodeTreeStruct::__anon3::__anon17
+mArrayNum	src/common.h	/^            unsigned int mArrayNum;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon11
+mArrayNum	src/common.h	/^        int mArrayNum;$/;"	m	union:sCLObjectStruct::__anon22
 mArrayNum	src/common.h	/^    int mArrayNum;$/;"	m	struct:sBlockObjectStruct
 mArrayNum	src/common.h	/^    int mArrayNum;$/;"	m	struct:sCLHeapMemStruct
 mArrayNum	src/common.h	/^    int mArrayNum;$/;"	m	struct:sRegexObjectStruct
-mBlock	src/common.h	/^        sNodeBlock* mBlock;$/;"	m	union:sNodeTreeStruct::__anon4
+mBlock	src/common.h	/^        sNodeBlock* mBlock;$/;"	m	union:sNodeTreeStruct::__anon3
 mBlockLevel	src/common.h	/^    int mBlockLevel;$/;"	m	struct:sVarStruct
 mBlockLevel	src/common.h	/^    int mBlockLevel;$/;"	m	struct:sVarTableStruct
-mBlockObjectCode	src/common.h	/^            sNodeBlock* mBlockObjectCode;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon15
+mBlockObjectCode	src/common.h	/^            sNodeBlock* mBlockObjectCode;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon14
 mBlockType	src/common.h	/^    MANAGED struct sNodeBlockTypeStruct* mBlockType;$/;"	m	struct:sNodeTypeStruct	typeref:struct:sNodeTypeStruct::sNodeBlockTypeStruct
 mBlockType	src/common.h	/^    sCLBlockType* mBlockType;$/;"	m	struct:sCLTypeStruct
 mBlockVarNum	src/common.h	/^    int mBlockVarNum;$/;"	m	struct:sBlockObjectStruct
@@ -1704,18 +1706,18 @@ mBody	src/common.h	/^    sBuf mBody;$/;"	m	struct:sCLModuleStruct
 mBoolValue	src/common.h	/^    BOOL mBoolValue;$/;"	m	union:CLVALUEUnion
 mBoxingClass	src/common.h	/^    struct sCLClassStruct* mBoxingClass; \/\/ This requires on the run time $/;"	m	struct:sCLClassStruct	typeref:struct:sCLClassStruct::sCLClassStruct
 mBuf	src/buffer.h	/^    char* mBuf;$/;"	m	struct:sBufStruct
-mBuffer	src/common.h	/^            char* mBuffer;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon14
-mByteCodes	src/common.h	/^        sByteCode mByteCodes;$/;"	m	union:sCLMethodStruct::__anon2
-mByteValue	src/common.h	/^        char mByteValue;$/;"	m	union:sNodeTreeStruct::__anon4
+mBuffer	src/common.h	/^            char* mBuffer;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon13
+mByteCodes	src/common.h	/^        sByteCode mByteCodes;$/;"	m	union:sCLMethodStruct::__anon1
+mByteValue	src/common.h	/^        char mByteValue;$/;"	m	union:sNodeTreeStruct::__anon3
 mByteValue	src/common.h	/^    char mByteValue;$/;"	m	union:CLVALUEUnion
 mCallingClassMethodIndex	src/common.h	/^    int mCallingClassMethodIndex;$/;"	m	struct:sCLClassStruct
 mCallingMethodIndex	src/common.h	/^    int mCallingMethodIndex;$/;"	m	struct:sCLClassStruct
-mCatchNodeBlock	src/common.h	/^            MANAGED sNodeBlock* mCatchNodeBlock;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon9
+mCatchNodeBlock	src/common.h	/^            MANAGED sNodeBlock* mCatchNodeBlock;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon8
 mCharValue	src/common.h	/^    wchar_t mCharValue;$/;"	m	union:CLVALUEUnion
-mCharacter	src/common.h	/^        wchar_t mCharacter;$/;"	m	union:sNodeTreeStruct::__anon4
-mClass	src/common.h	/^            sCLClass* mClass;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon13
-mClass	src/common.h	/^            sCLClass* mClass;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon5
-mClass	src/common.h	/^            sNodeType* mClass;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon10
+mCharacter	src/common.h	/^        wchar_t mCharacter;$/;"	m	union:sNodeTreeStruct::__anon3
+mClass	src/common.h	/^            sCLClass* mClass;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon12
+mClass	src/common.h	/^            sCLClass* mClass;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon4
+mClass	src/common.h	/^            sNodeType* mClass;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon9
 mClass	src/common.h	/^    sCLClass* mClass;       \/\/ NULL --> no class only memory$/;"	m	struct:sBlockObjectStruct
 mClass	src/common.h	/^    sCLClass* mClass;       \/\/ NULL --> no class only memory$/;"	m	struct:sCLHeapMemStruct
 mClass	src/common.h	/^    sCLClass* mClass;       \/\/ NULL --> no class only memory$/;"	m	struct:sRegexObjectStruct
@@ -1732,23 +1734,23 @@ mConst	src/common.h	/^    char* mConst;$/;"	m	struct:sConstStruct
 mConst	src/common.h	/^    sConst mConst;$/;"	m	struct:sCLClassStruct
 mConstant	src/common.h	/^    sConst mConstant;$/;"	m	struct:sBlockObjectStruct
 mCurrentMem	src/heap.c	/^    unsigned char* mCurrentMem;$/;"	m	struct:sCLHeapManager_	file:
-mDollarEndOnly	src/common.h	/^            BOOL mDollarEndOnly;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon22
+mDollarEndOnly	src/common.h	/^            BOOL mDollarEndOnly;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon21
 mDollarEndOnly	src/common.h	/^    BOOL mDollarEndOnly;$/;"	m	struct:sRegexObjectStruct
-mDotAll	src/common.h	/^            BOOL mDotAll;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon22
+mDotAll	src/common.h	/^            BOOL mDotAll;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon21
 mDotAll	src/common.h	/^    BOOL mDotAll;$/;"	m	struct:sRegexObjectStruct
-mDoubleValue	src/common.h	/^        double mDoubleValue;$/;"	m	union:sNodeTreeStruct::__anon4
+mDoubleValue	src/common.h	/^        double mDoubleValue;$/;"	m	union:sNodeTreeStruct::__anon3
 mDoubleValue	src/common.h	/^    double mDoubleValue;$/;"	m	union:CLVALUEUnion
-mElifExpressionNodes	src/common.h	/^            unsigned int mElifExpressionNodes[ELIF_NUM_MAX];$/;"	m	struct:sNodeTreeStruct::__anon4::__anon6
-mElifNodeBlocks	src/common.h	/^            MANAGED sNodeBlock* mElifNodeBlocks[ELIF_NUM_MAX];$/;"	m	struct:sNodeTreeStruct::__anon4::__anon6
-mElifNum	src/common.h	/^            int mElifNum;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon6
-mElseNodeBlock	src/common.h	/^            MANAGED sNodeBlock* mElseNodeBlock;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon6
-mExceptionVarName	src/common.h	/^            char mExceptionVarName[VAR_NAME_MAX];$/;"	m	struct:sNodeTreeStruct::__anon4::__anon9
-mExpressionNode	src/common.h	/^            unsigned int mExpressionNode;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon6
-mExpressionNode	src/common.h	/^            unsigned int mExpressionNode;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon7
-mExpressionNode	src/common.h	/^            unsigned int mExpressionNode;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon8
-mExpressionNode2	src/common.h	/^            unsigned int mExpressionNode2;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon8
-mExpressionNode3	src/common.h	/^            unsigned int mExpressionNode3;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon8
-mExtended	src/common.h	/^            BOOL mExtended;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon22
+mElifExpressionNodes	src/common.h	/^            unsigned int mElifExpressionNodes[ELIF_NUM_MAX];$/;"	m	struct:sNodeTreeStruct::__anon3::__anon5
+mElifNodeBlocks	src/common.h	/^            MANAGED sNodeBlock* mElifNodeBlocks[ELIF_NUM_MAX];$/;"	m	struct:sNodeTreeStruct::__anon3::__anon5
+mElifNum	src/common.h	/^            int mElifNum;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon5
+mElseNodeBlock	src/common.h	/^            MANAGED sNodeBlock* mElseNodeBlock;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon5
+mExceptionVarName	src/common.h	/^            char mExceptionVarName[VAR_NAME_MAX];$/;"	m	struct:sNodeTreeStruct::__anon3::__anon8
+mExpressionNode	src/common.h	/^            unsigned int mExpressionNode;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon5
+mExpressionNode	src/common.h	/^            unsigned int mExpressionNode;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon6
+mExpressionNode	src/common.h	/^            unsigned int mExpressionNode;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon7
+mExpressionNode2	src/common.h	/^            unsigned int mExpressionNode2;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon7
+mExpressionNode3	src/common.h	/^            unsigned int mExpressionNode3;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon7
+mExtended	src/common.h	/^            BOOL mExtended;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon21
 mExtended	src/common.h	/^    BOOL mExtended;$/;"	m	struct:sRegexObjectStruct
 mFields	src/common.h	/^    CLVALUE mFields[DUMMY_ARRAY_SIZE];$/;"	m	struct:sCLObjectStruct
 mFields	src/common.h	/^    sCLField* mFields;$/;"	m	struct:sCLClassStruct
@@ -1757,9 +1759,9 @@ mFinalizeMethodIndex	src/common.h	/^    int mFinalizeMethodIndex;$/;"	m	struct:s
 mFlags	src/common.h	/^    long mFlags;$/;"	m	struct:sCLClassStruct
 mFlags	src/common.h	/^    long mFlags;$/;"	m	struct:sCLFieldStruct
 mFlags	src/common.h	/^    long mFlags;$/;"	m	struct:sCLMethodStruct
-mFloatValue	src/common.h	/^        float mFloatValue;$/;"	m	union:sNodeTreeStruct::__anon4
+mFloatValue	src/common.h	/^        float mFloatValue;$/;"	m	union:sNodeTreeStruct::__anon3
 mFloatValue	src/common.h	/^    float mFloatValue;$/;"	m	union:CLVALUEUnion
-mForNodeBlock	src/common.h	/^            MANAGED sNodeBlock* mForNodeBlock;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon8
+mForNodeBlock	src/common.h	/^            MANAGED sNodeBlock* mForNodeBlock;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon7
 mFreeFun	src/common.h	/^    fFreeFun mFreeFun;$/;"	m	struct:sCLClassStruct
 mFreeHandles	src/heap.c	/^    int mFreeHandles;    \/\/ -1 for NULL. index of mHandles$/;"	m	struct:sCLHeapManager_	file:
 mFreed	src/common.h	/^    BOOL mFreed;$/;"	m	struct:sClassTableStruct
@@ -1772,33 +1774,33 @@ mGenericsParamClassNum	src/common.h	/^    int mGenericsParamClassNum;   \/\/ -1 
 mGenericsParamTypeOffsets	src/common.h	/^    int mGenericsParamTypeOffsets[GENERICS_TYPES_MAX];$/;"	m	struct:sCLClassStruct
 mGenericsTypes	src/common.h	/^    struct sCLTypeStruct* mGenericsTypes[GENERICS_TYPES_MAX];$/;"	m	struct:sCLTypeStruct	typeref:struct:sCLTypeStruct::sCLTypeStruct
 mGenericsTypes	src/common.h	/^    struct sNodeTypeStruct* mGenericsTypes[GENERICS_TYPES_MAX];$/;"	m	struct:sNodeTypeStruct	typeref:struct:sNodeTypeStruct::sNodeTypeStruct
-mGlobal	src/common.h	/^            BOOL mGlobal;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon22
+mGlobal	src/common.h	/^            BOOL mGlobal;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon21
 mGlobal	src/common.h	/^    BOOL mGlobal;$/;"	m	struct:sRegexObjectStruct
 mHandles	src/heap.c	/^    sHandle* mHandles;$/;"	m	struct:sCLHeapManager_	file:
-mHashItems	src/common.h	/^            unsigned int mHashItems[HASH_VALUE_ELEMENT_MAX];$/;"	m	struct:sNodeTreeStruct::__anon4::__anon21
-mHashKeys	src/common.h	/^            unsigned int mHashKeys[HASH_VALUE_ELEMENT_MAX];$/;"	m	struct:sNodeTreeStruct::__anon4::__anon21
-mIfNodeBlock	src/common.h	/^            MANAGED sNodeBlock* mIfNodeBlock;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon6
-mIgnoreCase	src/common.h	/^            BOOL mIgnoreCase;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon22
+mHashItems	src/common.h	/^            unsigned int mHashItems[HASH_VALUE_ELEMENT_MAX];$/;"	m	struct:sNodeTreeStruct::__anon3::__anon20
+mHashKeys	src/common.h	/^            unsigned int mHashKeys[HASH_VALUE_ELEMENT_MAX];$/;"	m	struct:sNodeTreeStruct::__anon3::__anon20
+mIfNodeBlock	src/common.h	/^            MANAGED sNodeBlock* mIfNodeBlock;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon5
+mIgnoreCase	src/common.h	/^            BOOL mIgnoreCase;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon21
 mIgnoreCase	src/common.h	/^    BOOL mIgnoreCase;$/;"	m	struct:sRegexObjectStruct
 mIndex	src/common.h	/^    int mIndex;$/;"	m	struct:sVarStruct
-mIntValue	src/common.h	/^        int mIntValue;$/;"	m	union:sNodeTreeStruct::__anon4
+mIntValue	src/common.h	/^        int mIntValue;$/;"	m	union:sNodeTreeStruct::__anon3
 mIntValue	src/common.h	/^    int mIntValue;$/;"	m	union:CLVALUEUnion
 mInterface	src/common.h	/^    sCLClass* mInterface[GENERICS_TYPES_MAX];$/;"	m	struct:sGenericsParamInfoStruct
 mItem	src/common.h	/^    sCLClass* mItem;$/;"	m	struct:sClassTableStruct
 mJITCompiled	src/common.h	/^    BOOL mJITCompiled;$/;"	m	struct:sCLMethodStruct
 mLVTable	src/common.h	/^    sVarTable* mLVTable;$/;"	m	struct:sNodeBlockStruct
-mLambda	src/common.h	/^            BOOL mLambda;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon15
+mLambda	src/common.h	/^            BOOL mLambda;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon14
 mLambda	src/common.h	/^    BOOL mLambda;$/;"	m	struct:sBlockObjectStruct
 mLeft	src/common.h	/^    unsigned int mLeft;$/;"	m	struct:sNodeTreeStruct
 mLen	src/buffer.h	/^    int mLen;$/;"	m	struct:sBufStruct
-mLen	src/common.h	/^            int mLen;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon14
+mLen	src/common.h	/^            int mLen;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon13
 mLen	src/common.h	/^    int mLen;$/;"	m	struct:sConstStruct
 mLen	src/common.h	/^    unsigned int mLen;$/;"	m	struct:sByteCodeStruct
 mLine	src/common.h	/^    int mLine;$/;"	m	struct:sNodeTreeStruct
 mLine	src/debug.c	/^    int mLine;$/;"	m	struct:_t_malloc_entry	file:
-mListElements	src/common.h	/^            unsigned int mListElements[LIST_VALUE_ELEMENT_MAX];$/;"	m	struct:sNodeTreeStruct::__anon4::__anon19
+mListElements	src/common.h	/^            unsigned int mListElements[LIST_VALUE_ELEMENT_MAX];$/;"	m	struct:sNodeTreeStruct::__anon3::__anon18
 mLocalVariables	src/common.h	/^    sVar mLocalVariables[LOCAL_VARIABLE_MAX];  \/\/ open address hash$/;"	m	struct:sVarTableStruct
-mLongValue	src/common.h	/^        long mLongValue;$/;"	m	union:sNodeTreeStruct::__anon4
+mLongValue	src/common.h	/^        long mLongValue;$/;"	m	union:sNodeTreeStruct::__anon3
 mLongValue	src/common.h	/^    long mLongValue;$/;"	m	union:CLVALUEUnion
 mMaxBlockVarNum	src/common.h	/^    int mMaxBlockVarNum;$/;"	m	struct:sVarTableStruct
 mMaxMethodChains	src/common.h	/^    int mMaxMethodChains;$/;"	m	struct:sNodeTreeStruct
@@ -1809,17 +1811,17 @@ mMemLen	src/heap.c	/^    unsigned int mMemLen;$/;"	m	struct:sCLHeapManager_	file
 mMemSize	src/heap.c	/^    unsigned int mMemSize;$/;"	m	struct:sCLHeapManager_	file:
 mMemory	src/debug.c	/^    void* mMemory;$/;"	m	struct:_t_malloc_entry	file:
 mMethodCallCount	src/common.h	/^    int mMethodCallCount;$/;"	m	struct:sCLMethodStruct
-mMethodIndex	src/common.h	/^            int mMethodIndex;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon17
+mMethodIndex	src/common.h	/^            int mMethodIndex;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon16
 mMethodIndex	src/common.h	/^    int mMethodIndex;$/;"	m	struct:sCLMethodStruct
 mMethodIndexOnCompileTime	src/common.h	/^    int mMethodIndexOnCompileTime;                  \/\/ This requires on the compile time$/;"	m	struct:sCLClassStruct
-mMethodName	src/common.h	/^            char mMethodName[METHOD_NAME_MAX];$/;"	m	struct:sNodeTreeStruct::__anon4::__anon10
-mMethodName	src/common.h	/^            char mMethodName[METHOD_NAME_MAX];$/;"	m	struct:sNodeTreeStruct::__anon4::__anon11
+mMethodName	src/common.h	/^            char mMethodName[METHOD_NAME_MAX];$/;"	m	struct:sNodeTreeStruct::__anon3::__anon10
+mMethodName	src/common.h	/^            char mMethodName[METHOD_NAME_MAX];$/;"	m	struct:sNodeTreeStruct::__anon3::__anon9
 mMethodNameAndParamsOffset	src/common.h	/^    int mMethodNameAndParamsOffset;$/;"	m	struct:sCLMethodStruct
 mMethods	src/common.h	/^    sCLMethod* mMethods;$/;"	m	struct:sCLClassStruct
 mMiddle	src/common.h	/^    unsigned int mMiddle;$/;"	m	struct:sNodeTreeStruct
 mModified	src/common.h	/^    BOOL mModified;$/;"	m	struct:sCLModuleStruct
 mModuleLoaded	src/common.h	/^    BOOL mModuleLoaded;     \/\/ This requires on the run time$/;"	m	struct:sCLClassStruct
-mMultiline	src/common.h	/^            BOOL mMultiline;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon22
+mMultiline	src/common.h	/^            BOOL mMultiline;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon21
 mMultiline	src/common.h	/^    BOOL mMultiline;$/;"	m	struct:sRegexObjectStruct
 mName	src/common.h	/^    char mName[CL_MODULE_NAME_MAX+1];$/;"	m	struct:sCLModuleStruct
 mName	src/common.h	/^    char mName[VAR_NAME_MAX];$/;"	m	struct:sParserParamStruct
@@ -1828,8 +1830,8 @@ mName	src/common.h	/^    char* mName;$/;"	m	struct:sClassTableStruct
 mNameOffset	src/common.h	/^    int mNameOffset;                \/\/ variable name$/;"	m	struct:sCLParamStruct
 mNameOffset	src/common.h	/^    int mNameOffset;$/;"	m	struct:sCLFieldStruct
 mNameOffset	src/common.h	/^    int mNameOffset;$/;"	m	struct:sCLMethodStruct
-mNativeFunName	src/common.h	/^            char* mNativeFunName;$/;"	m	struct:sCLMethodStruct::__anon2::__anon3
-mNativeMethod	src/common.h	/^            fNativeMethod mNativeMethod;$/;"	m	struct:sCLMethodStruct::__anon2::__anon3
+mNativeFunName	src/common.h	/^            char* mNativeFunName;$/;"	m	struct:sCLMethodStruct::__anon1::__anon2
+mNativeMethod	src/common.h	/^            fNativeMethod mNativeMethod;$/;"	m	struct:sCLMethodStruct::__anon1::__anon2
 mNext	src/common.h	/^    struct sVarTableStruct* mNext;              \/\/ for free var table$/;"	m	struct:sVarTableStruct	typeref:struct:sVarTableStruct::sVarTableStruct
 mNextClass	src/common.h	/^    struct sClassTableStruct* mNextClass;$/;"	m	struct:sClassTableStruct	typeref:struct:sClassTableStruct::sClassTableStruct
 mNextEntry	src/debug.c	/^    struct _t_malloc_entry* mNextEntry;$/;"	m	struct:_t_malloc_entry	typeref:struct:_t_malloc_entry::_t_malloc_entry	file:
@@ -1837,41 +1839,41 @@ mNextFreeHandle	src/heap.c	/^    int mNextFreeHandle;         \/\/ -1 for NULL. 
 mNextStack	src/common.h	/^    struct sCLStackStruct* mNextStack;$/;"	m	struct:sCLStackStruct	typeref:struct:sCLStackStruct::sCLStackStruct
 mNodeType	src/common.h	/^    enum eNodeType mNodeType;$/;"	m	struct:sNodeTreeStruct	typeref:enum:sNodeTreeStruct::eNodeType
 mNodes	src/common.h	/^    unsigned int* mNodes;$/;"	m	struct:sNodeBlockStruct
-mNumArrayElements	src/common.h	/^            int mNumArrayElements;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon18
+mNumArrayElements	src/common.h	/^            int mNumArrayElements;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon17
 mNumClassFields	src/common.h	/^    int mNumClassFields;$/;"	m	struct:sCLClassStruct
-mNumFields	src/common.h	/^        int mNumFields;$/;"	m	union:sCLObjectStruct::__anon23
+mNumFields	src/common.h	/^        int mNumFields;$/;"	m	union:sCLObjectStruct::__anon22
 mNumFields	src/common.h	/^    int mNumFields;$/;"	m	struct:sCLClassStruct
 mNumGenerics	src/common.h	/^    int mNumGenerics;$/;"	m	struct:sCLClassStruct
 mNumGenericsTypes	src/common.h	/^    int mNumGenericsTypes;$/;"	m	struct:sCLTypeStruct
 mNumGenericsTypes	src/common.h	/^    int mNumGenericsTypes;$/;"	m	struct:sNodeTypeStruct
 mNumHandles	src/heap.c	/^    int mNumHandles;$/;"	m	struct:sCLHeapManager_	file:
-mNumHashElements	src/common.h	/^            int mNumHashElements;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon21
-mNumListElements	src/common.h	/^            int mNumListElements;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon19
-mNumMethodChains	src/common.h	/^            int mNumMethodChains;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon11
+mNumHashElements	src/common.h	/^            int mNumHashElements;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon20
+mNumListElements	src/common.h	/^            int mNumListElements;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon18
+mNumMethodChains	src/common.h	/^            int mNumMethodChains;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon10
 mNumMethods	src/common.h	/^    int mNumMethods;$/;"	m	struct:sCLClassStruct
 mNumNodes	src/common.h	/^    unsigned int mNumNodes;$/;"	m	struct:sNodeBlockStruct
-mNumParams	src/common.h	/^            int mNumParams;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon10
-mNumParams	src/common.h	/^            int mNumParams;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon11
-mNumParams	src/common.h	/^            int mNumParams;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon12
-mNumParams	src/common.h	/^            int mNumParams;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon15
-mNumParams	src/common.h	/^            int mNumParams;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon16
-mNumParams	src/common.h	/^            int mNumParams;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon17
+mNumParams	src/common.h	/^            int mNumParams;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon10
+mNumParams	src/common.h	/^            int mNumParams;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon11
+mNumParams	src/common.h	/^            int mNumParams;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon14
+mNumParams	src/common.h	/^            int mNumParams;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon15
+mNumParams	src/common.h	/^            int mNumParams;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon16
+mNumParams	src/common.h	/^            int mNumParams;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon9
 mNumParams	src/common.h	/^    int mNumParams;$/;"	m	struct:sCLBlockTypeStruct
 mNumParams	src/common.h	/^    int mNumParams;$/;"	m	struct:sCLMethodStruct
 mNumParams	src/common.h	/^    int mNumParams;$/;"	m	struct:sGenericsParamInfoStruct
 mNumParams	src/common.h	/^    int mNumParams;$/;"	m	struct:sNodeBlockTypeStruct
-mNumTupleElements	src/common.h	/^            int mNumTupleElements;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon20
+mNumTupleElements	src/common.h	/^            int mNumTupleElements;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon19
 mNumTypedef	src/common.h	/^    int mNumTypedef;$/;"	m	struct:sCLClassStruct
 mObjectValue	src/common.h	/^    CLObject mObjectValue;$/;"	m	union:CLVALUEUnion
 mOffset	src/heap.c	/^    int mOffset;                 \/\/ -1 for FreeHandle$/;"	m	struct:sHandle_	file:
-mOperand	src/common.h	/^        enum eOperand mOperand;$/;"	m	union:sNodeTreeStruct::__anon4	typeref:enum:sNodeTreeStruct::__anon4::eOperand
+mOperand	src/common.h	/^        enum eOperand mOperand;$/;"	m	union:sNodeTreeStruct::__anon3	typeref:enum:sNodeTreeStruct::__anon3::eOperand
 mParamNames	src/common.h	/^    char mParamNames[GENERICS_TYPES_MAX][VAR_NAME_MAX];$/;"	m	struct:sGenericsParamInfoStruct
-mParams	src/common.h	/^            sParserParam mParams[PARAMS_MAX];$/;"	m	struct:sNodeTreeStruct::__anon4::__anon15
-mParams	src/common.h	/^            unsigned int mParams[PARAMS_MAX];$/;"	m	struct:sNodeTreeStruct::__anon4::__anon10
-mParams	src/common.h	/^            unsigned int mParams[PARAMS_MAX];$/;"	m	struct:sNodeTreeStruct::__anon4::__anon11
-mParams	src/common.h	/^            unsigned int mParams[PARAMS_MAX];$/;"	m	struct:sNodeTreeStruct::__anon4::__anon12
-mParams	src/common.h	/^            unsigned int mParams[PARAMS_MAX];$/;"	m	struct:sNodeTreeStruct::__anon4::__anon16
-mParams	src/common.h	/^            unsigned int mParams[PARAMS_MAX];$/;"	m	struct:sNodeTreeStruct::__anon4::__anon17
+mParams	src/common.h	/^            sParserParam mParams[PARAMS_MAX];$/;"	m	struct:sNodeTreeStruct::__anon3::__anon14
+mParams	src/common.h	/^            unsigned int mParams[PARAMS_MAX];$/;"	m	struct:sNodeTreeStruct::__anon3::__anon10
+mParams	src/common.h	/^            unsigned int mParams[PARAMS_MAX];$/;"	m	struct:sNodeTreeStruct::__anon3::__anon11
+mParams	src/common.h	/^            unsigned int mParams[PARAMS_MAX];$/;"	m	struct:sNodeTreeStruct::__anon3::__anon15
+mParams	src/common.h	/^            unsigned int mParams[PARAMS_MAX];$/;"	m	struct:sNodeTreeStruct::__anon3::__anon16
+mParams	src/common.h	/^            unsigned int mParams[PARAMS_MAX];$/;"	m	struct:sNodeTreeStruct::__anon3::__anon9
 mParams	src/common.h	/^    sCLParam mParams[PARAMS_MAX]; \/\/ +1 --> self$/;"	m	struct:sCLMethodStruct
 mParams	src/common.h	/^    sNodeType* mParams[PARAMS_MAX];$/;"	m	struct:sNodeBlockTypeStruct
 mParams	src/common.h	/^    struct sCLTypeStruct* mParams[PARAMS_MAX];$/;"	m	struct:sCLBlockTypeStruct	typeref:struct:sCLBlockTypeStruct::sCLTypeStruct
@@ -1883,16 +1885,16 @@ mPath	src/native_method.c	/^    const char* mPath;$/;"	m	struct:sNativeMethodStr
 mPathOffset	src/common.h	/^    int mPathOffset;$/;"	m	struct:sCLMethodStruct
 mPointerValue	src/common.h	/^    char* mPointerValue;$/;"	m	union:CLVALUEUnion
 mRegex	src/common.h	/^    pcre* mRegex;$/;"	m	struct:sRegexObjectStruct
-mRegexStr	src/common.h	/^            char* mRegexStr;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon22
+mRegexStr	src/common.h	/^            char* mRegexStr;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon21
 mRegexString	src/common.h	/^    char* mRegexString;$/;"	m	struct:sRegexObjectStruct
-mResultType	src/common.h	/^            sNodeType* mResultType;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon15
+mResultType	src/common.h	/^            sNodeType* mResultType;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon14
 mResultType	src/common.h	/^    sCLType* mResultType;$/;"	m	struct:sCLFieldStruct
 mResultType	src/common.h	/^    sCLType* mResultType;$/;"	m	struct:sCLMethodStruct
 mResultType	src/common.h	/^    struct sCLTypeStruct* mResultType;$/;"	m	struct:sCLBlockTypeStruct	typeref:struct:sCLBlockTypeStruct::sCLTypeStruct
 mResultType	src/common.h	/^    struct sNodeTypeStruct* mResultType;$/;"	m	struct:sNodeBlockTypeStruct	typeref:struct:sNodeBlockTypeStruct::sNodeTypeStruct
 mRight	src/common.h	/^    unsigned int mRight;$/;"	m	struct:sNodeTreeStruct
 mSName	src/common.h	/^    char* mSName;$/;"	m	struct:sNodeTreeStruct
-mShortValue	src/common.h	/^        short mShortValue;$/;"	m	union:sNodeTreeStruct::__anon4
+mShortValue	src/common.h	/^        short mShortValue;$/;"	m	union:sNodeTreeStruct::__anon3
 mShortValue	src/common.h	/^    short mShortValue;$/;"	m	union:CLVALUEUnion
 mSize	src/buffer.h	/^    int mSize;$/;"	m	struct:sBufStruct
 mSize	src/common.h	/^    int mSize;$/;"	m	struct:sBlockObjectStruct
@@ -1911,35 +1913,35 @@ mStack	src/common.h	/^    CLVALUE* mStack;$/;"	m	struct:sCLStackStruct
 mStackID	src/common.h	/^    int mStackID;$/;"	m	struct:sBlockObjectStruct
 mStackID	src/common.h	/^    int mStackID;$/;"	m	struct:sCLStackStruct
 mStackPtr	src/common.h	/^    CLVALUE** mStackPtr;$/;"	m	struct:sCLStackStruct
-mString	src/common.h	/^        char* mString;$/;"	m	union:sNodeTreeStruct::__anon4
-mTryNodeBlock	src/common.h	/^            MANAGED sNodeBlock* mTryNodeBlock;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon9
-mTupleElements	src/common.h	/^            unsigned int mTupleElements[TUPLE_VALUE_ELEMENT_MAX];$/;"	m	struct:sNodeTreeStruct::__anon4::__anon20
-mType	src/common.h	/^            sNodeType* mType;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon12
+mString	src/common.h	/^        char* mString;$/;"	m	union:sNodeTreeStruct::__anon3
+mTryNodeBlock	src/common.h	/^            MANAGED sNodeBlock* mTryNodeBlock;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon8
+mTupleElements	src/common.h	/^            unsigned int mTupleElements[TUPLE_VALUE_ELEMENT_MAX];$/;"	m	struct:sNodeTreeStruct::__anon3::__anon19
+mType	src/common.h	/^            sNodeType* mType;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon11
 mType	src/common.h	/^    sCLType* mType;$/;"	m	struct:sCLParamStruct
 mType	src/common.h	/^    sNodeType* mType;$/;"	m	struct:sNodeTreeStruct
 mType	src/common.h	/^    sNodeType* mType;$/;"	m	struct:sParserParamStruct
 mType	src/common.h	/^    sNodeType* mType;$/;"	m	struct:sVarStruct
 mTypedefClassName1Offsets	src/common.h	/^    int mTypedefClassName1Offsets[TYPEDEF_MAX];$/;"	m	struct:sCLClassStruct
 mTypedefClassName2Offsets	src/common.h	/^    int mTypedefClassName2Offsets[TYPEDEF_MAX];$/;"	m	struct:sCLClassStruct
-mUByteValue	src/common.h	/^        unsigned char mUByteValue;$/;"	m	union:sNodeTreeStruct::__anon4
+mUByteValue	src/common.h	/^        unsigned char mUByteValue;$/;"	m	union:sNodeTreeStruct::__anon3
 mUByteValue	src/common.h	/^    unsigned char mUByteValue;$/;"	m	union:CLVALUEUnion
-mUIntValue	src/common.h	/^        unsigned int mUIntValue;$/;"	m	union:sNodeTreeStruct::__anon4
+mUIntValue	src/common.h	/^        unsigned int mUIntValue;$/;"	m	union:sNodeTreeStruct::__anon3
 mUIntValue	src/common.h	/^    unsigned int mUIntValue;$/;"	m	union:CLVALUEUnion
-mULongValue	src/common.h	/^        unsigned long mULongValue;$/;"	m	union:sNodeTreeStruct::__anon4
+mULongValue	src/common.h	/^        unsigned long mULongValue;$/;"	m	union:sNodeTreeStruct::__anon3
 mULongValue	src/common.h	/^    unsigned long mULongValue;$/;"	m	union:CLVALUEUnion
-mUShortValue	src/common.h	/^        unsigned short mUShortValue;$/;"	m	union:sNodeTreeStruct::__anon4
+mUShortValue	src/common.h	/^        unsigned short mUShortValue;$/;"	m	union:sNodeTreeStruct::__anon3
 mUShortValue	src/common.h	/^    unsigned short mUShortValue;$/;"	m	union:CLVALUEUnion
 mUnboxingClass	src/common.h	/^    struct sCLClassStruct* mUnboxingClass; \/\/ This requires on the run time$/;"	m	struct:sCLClassStruct	typeref:struct:sCLClassStruct::sCLClassStruct
-mUngreedy	src/common.h	/^            BOOL mUngreedy;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon22
+mUngreedy	src/common.h	/^            BOOL mUngreedy;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon21
 mUngreedy	src/common.h	/^    BOOL mUngreedy;$/;"	m	struct:sRegexObjectStruct
 mValue	src/common.h	/^    CLVALUE mValue;$/;"	m	struct:sCLFieldStruct
-mVarName	src/common.h	/^            char mVarName[VAR_NAME_MAX];$/;"	m	struct:sNodeTreeStruct::__anon4::__anon13
-mVarName	src/common.h	/^            char mVarName[VAR_NAME_MAX];$/;"	m	struct:sNodeTreeStruct::__anon4::__anon5
-mVarName	src/common.h	/^        char mVarName[VAR_NAME_MAX];$/;"	m	union:sNodeTreeStruct::__anon4
+mVarName	src/common.h	/^            char mVarName[VAR_NAME_MAX];$/;"	m	struct:sNodeTreeStruct::__anon3::__anon12
+mVarName	src/common.h	/^            char mVarName[VAR_NAME_MAX];$/;"	m	struct:sNodeTreeStruct::__anon3::__anon4
+mVarName	src/common.h	/^        char mVarName[VAR_NAME_MAX];$/;"	m	union:sNodeTreeStruct::__anon3
 mVarNum	src/common.h	/^    int mVarNum;$/;"	m	struct:sCLMethodStruct
 mVarNum	src/common.h	/^    int mVarNum;$/;"	m	struct:sVarTableStruct
 mVirtualMethodTable	src/common.h	/^    sCLMethod* mVirtualMethodTable[METHOD_NUM_MAX]; \/\/ This requires on the run time$/;"	m	struct:sCLClassStruct
-mWhileNodeBlock	src/common.h	/^            MANAGED sNodeBlock* mWhileNodeBlock;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon7
+mWhileNodeBlock	src/common.h	/^            MANAGED sNodeBlock* mWhileNodeBlock;$/;"	m	struct:sNodeTreeStruct::__anon3::__anon6
 main	b.c	/^int main()$/;"	f
 main	lli.cpp	/^int main(int argc, char **argv, char * const *envp) {$/;"	f
 main	src/compiler.c	/^int main(int argc, char** argv)$/;"	f
@@ -2102,10 +2104,10 @@ run_store_element	src/jit_runtime.cpp	/^BOOL run_store_element(CLVALUE** stack_p
 run_uint_to_string_cast	src/jit_runtime.cpp	/^CLObject run_uint_to_string_cast(unsigned int n)$/;"	f
 run_uinteger_to_uint_cast	src/jit_runtime.cpp	/^unsigned int run_uinteger_to_uint_cast(CLObject obj)$/;"	f
 run_ulong_to_string_cast	src/jit_runtime.cpp	/^CLObject run_ulong_to_string_cast(long l)$/;"	f
-sArrayValue	src/common.h	/^        } sArrayValue;$/;"	m	union:sNodeTreeStruct::__anon4	typeref:struct:sNodeTreeStruct::__anon4::__anon18
-sAssignVariable	src/common.h	/^        } sAssignVariable;$/;"	m	union:sNodeTreeStruct::__anon4	typeref:struct:sNodeTreeStruct::__anon4::__anon5
-sBlockCall	src/common.h	/^        } sBlockCall;$/;"	m	union:sNodeTreeStruct::__anon4	typeref:struct:sNodeTreeStruct::__anon4::__anon16
-sBlockObject	src/common.h	/^        } sBlockObject;$/;"	m	union:sNodeTreeStruct::__anon4	typeref:struct:sNodeTreeStruct::__anon4::__anon15
+sArrayValue	src/common.h	/^        } sArrayValue;$/;"	m	union:sNodeTreeStruct::__anon3	typeref:struct:sNodeTreeStruct::__anon3::__anon17
+sAssignVariable	src/common.h	/^        } sAssignVariable;$/;"	m	union:sNodeTreeStruct::__anon3	typeref:struct:sNodeTreeStruct::__anon3::__anon4
+sBlockCall	src/common.h	/^        } sBlockCall;$/;"	m	union:sNodeTreeStruct::__anon3	typeref:struct:sNodeTreeStruct::__anon3::__anon15
+sBlockObject	src/common.h	/^        } sBlockObject;$/;"	m	union:sNodeTreeStruct::__anon3	typeref:struct:sNodeTreeStruct::__anon3::__anon14
 sBlockObject	src/common.h	/^typedef struct sBlockObjectStruct sBlockObject;$/;"	t	typeref:struct:sBlockObjectStruct
 sBlockObjectStruct	src/common.h	/^struct sBlockObjectStruct$/;"	s
 sBuf	src/buffer.h	/^typedef struct sBufStruct sBuf;$/;"	t	typeref:struct:sBufStruct
@@ -2116,7 +2118,7 @@ sBuf_append_int	src/buffer.c	/^void sBuf_append_int(sBuf* self, int value)$/;"	f
 sBuf_append_long	src/buffer.c	/^void sBuf_append_long(sBuf* self, long value)$/;"	f
 sBuf_append_str	src/buffer.c	/^void sBuf_append_str(sBuf* self, char* str)$/;"	f
 sBuf_init	src/buffer.c	/^void sBuf_init(sBuf* self)$/;"	f
-sBuffer	src/common.h	/^        } sBuffer;$/;"	m	union:sNodeTreeStruct::__anon4	typeref:struct:sNodeTreeStruct::__anon4::__anon14
+sBuffer	src/common.h	/^        } sBuffer;$/;"	m	union:sNodeTreeStruct::__anon3	typeref:struct:sNodeTreeStruct::__anon3::__anon13
 sByteCode	src/common.h	/^typedef struct sByteCodeStruct sByteCode;$/;"	t	typeref:struct:sByteCodeStruct
 sByteCodeStruct	src/common.h	/^struct sByteCodeStruct {$/;"	s
 sByteCode_free	src/code.c	/^void sByteCode_free(sByteCode* code)$/;"	f
@@ -2146,8 +2148,8 @@ sCLType	src/common.h	/^typedef struct sCLTypeStruct sCLType;$/;"	t	typeref:struc
 sCLTypeStruct	src/common.h	/^struct sCLTypeStruct {$/;"	s
 sCLVALUEAndBoolResult	src/jit_common.hpp	/^struct sCLVALUEAndBoolResult {$/;"	s
 sCastMethods	src/node.c	/^struct sCastMethods {$/;"	s	file:
-sClassField	src/common.h	/^        } sClassField;$/;"	m	union:sNodeTreeStruct::__anon4	typeref:struct:sNodeTreeStruct::__anon4::__anon13
-sClassMethodCall	src/common.h	/^        } sClassMethodCall;$/;"	m	union:sNodeTreeStruct::__anon4	typeref:struct:sNodeTreeStruct::__anon4::__anon10
+sClassField	src/common.h	/^        } sClassField;$/;"	m	union:sNodeTreeStruct::__anon3	typeref:struct:sNodeTreeStruct::__anon3::__anon12
+sClassMethodCall	src/common.h	/^        } sClassMethodCall;$/;"	m	union:sNodeTreeStruct::__anon3	typeref:struct:sNodeTreeStruct::__anon3::__anon9
 sClassTable	src/common.h	/^typedef struct sClassTableStruct sClassTable;$/;"	t	typeref:struct:sClassTableStruct
 sClassTableStruct	src/common.h	/^struct sClassTableStruct$/;"	s
 sCompileInfo	src/common.h	/^typedef struct sCompileInfoStruct sCompileInfo;$/;"	t	typeref:struct:sCompileInfoStruct
@@ -2158,20 +2160,20 @@ sConst_append	src/constant.c	/^int sConst_append(sConst* self, void* data, size_
 sConst_free	src/constant.c	/^void sConst_free(sConst* self)$/;"	f
 sConst_init	src/constant.c	/^void sConst_init(sConst* self)$/;"	f
 sConst_init_with_size	src/constant.c	/^void sConst_init_with_size(sConst* self, int size)$/;"	f
-sFor	src/common.h	/^        } sFor;$/;"	m	union:sNodeTreeStruct::__anon4	typeref:struct:sNodeTreeStruct::__anon4::__anon8
+sFor	src/common.h	/^        } sFor;$/;"	m	union:sNodeTreeStruct::__anon3	typeref:struct:sNodeTreeStruct::__anon3::__anon7
 sGenericsParamInfo	src/common.h	/^typedef struct sGenericsParamInfoStruct sGenericsParamInfo;$/;"	t	typeref:struct:sGenericsParamInfoStruct
 sGenericsParamInfoStruct	src/common.h	/^struct sGenericsParamInfoStruct$/;"	s
 sHandle	src/heap.c	/^typedef struct sHandle_ sHandle;$/;"	t	typeref:struct:sHandle_	file:
 sHandle_	src/heap.c	/^struct sHandle_ {$/;"	s	file:
-sHashValue	src/common.h	/^        } sHashValue;$/;"	m	union:sNodeTreeStruct::__anon4	typeref:struct:sNodeTreeStruct::__anon4::__anon21
-sIf	src/common.h	/^        } sIf;$/;"	m	union:sNodeTreeStruct::__anon4	typeref:struct:sNodeTreeStruct::__anon4::__anon6
-sInheritCall	src/common.h	/^        } sInheritCall;$/;"	m	union:sNodeTreeStruct::__anon4	typeref:struct:sNodeTreeStruct::__anon4::__anon17
-sListValue	src/common.h	/^        } sListValue;$/;"	m	union:sNodeTreeStruct::__anon4	typeref:struct:sNodeTreeStruct::__anon4::__anon19
-sMethodCall	src/common.h	/^        } sMethodCall;$/;"	m	union:sNodeTreeStruct::__anon4	typeref:struct:sNodeTreeStruct::__anon4::__anon11
+sHashValue	src/common.h	/^        } sHashValue;$/;"	m	union:sNodeTreeStruct::__anon3	typeref:struct:sNodeTreeStruct::__anon3::__anon20
+sIf	src/common.h	/^        } sIf;$/;"	m	union:sNodeTreeStruct::__anon3	typeref:struct:sNodeTreeStruct::__anon3::__anon5
+sInheritCall	src/common.h	/^        } sInheritCall;$/;"	m	union:sNodeTreeStruct::__anon3	typeref:struct:sNodeTreeStruct::__anon3::__anon16
+sListValue	src/common.h	/^        } sListValue;$/;"	m	union:sNodeTreeStruct::__anon3	typeref:struct:sNodeTreeStruct::__anon3::__anon18
+sMethodCall	src/common.h	/^        } sMethodCall;$/;"	m	union:sNodeTreeStruct::__anon3	typeref:struct:sNodeTreeStruct::__anon3::__anon10
 sNativeMethod	src/native_method.c	/^typedef struct sNativeMethodStruct sNativeMethod;$/;"	t	typeref:struct:sNativeMethodStruct	file:
 sNativeMethodHashItem	src/native_method.c	/^struct sNativeMethodHashItem {$/;"	s	file:
 sNativeMethodStruct	src/native_method.c	/^struct sNativeMethodStruct {$/;"	s	file:
-sNewOperator	src/common.h	/^        } sNewOperator;$/;"	m	union:sNodeTreeStruct::__anon4	typeref:struct:sNodeTreeStruct::__anon4::__anon12
+sNewOperator	src/common.h	/^        } sNewOperator;$/;"	m	union:sNodeTreeStruct::__anon3	typeref:struct:sNodeTreeStruct::__anon3::__anon11
 sNodeBlock	src/common.h	/^typedef struct sNodeBlockStruct sNodeBlock;$/;"	t	typeref:struct:sNodeBlockStruct
 sNodeBlockStruct	src/common.h	/^struct sNodeBlockStruct$/;"	s
 sNodeBlockType	src/common.h	/^typedef struct sNodeBlockTypeStruct sNodeBlockType;$/;"	t	typeref:struct:sNodeBlockTypeStruct
@@ -2250,18 +2252,18 @@ sParserInfoStruct	src/common.h	/^struct sParserInfoStruct$/;"	s
 sParserParam	src/common.h	/^typedef struct sParserParamStruct sParserParam;$/;"	t	typeref:struct:sParserParamStruct
 sParserParamStruct	src/common.h	/^struct sParserParamStruct $/;"	s
 sPointerAndBoolResult	src/jit_common.hpp	/^struct sPointerAndBoolResult {$/;"	s
-sRegex	src/common.h	/^        } sRegex;$/;"	m	union:sNodeTreeStruct::__anon4	typeref:struct:sNodeTreeStruct::__anon4::__anon22
+sRegex	src/common.h	/^        } sRegex;$/;"	m	union:sNodeTreeStruct::__anon3	typeref:struct:sNodeTreeStruct::__anon3::__anon21
 sRegexObject	src/common.h	/^typedef struct sRegexObjectStruct sRegexObject;$/;"	t	typeref:struct:sRegexObjectStruct
 sRegexObjectStruct	src/common.h	/^struct sRegexObjectStruct$/;"	s
-sTry	src/common.h	/^        } sTry;$/;"	m	union:sNodeTreeStruct::__anon4	typeref:struct:sNodeTreeStruct::__anon4::__anon9
-sTupleValue	src/common.h	/^        } sTupleValue;$/;"	m	union:sNodeTreeStruct::__anon4	typeref:struct:sNodeTreeStruct::__anon4::__anon20
+sTry	src/common.h	/^        } sTry;$/;"	m	union:sNodeTreeStruct::__anon3	typeref:struct:sNodeTreeStruct::__anon3::__anon8
+sTupleValue	src/common.h	/^        } sTupleValue;$/;"	m	union:sNodeTreeStruct::__anon3	typeref:struct:sNodeTreeStruct::__anon3::__anon19
 sVMInfo	src/common.h	/^typedef struct sVMInfoStruct sVMInfo;$/;"	t	typeref:struct:sVMInfoStruct
 sVMInfoStruct	src/common.h	/^struct sVMInfoStruct {$/;"	s
 sVar	src/common.h	/^typedef struct sVarStruct sVar;$/;"	t	typeref:struct:sVarStruct
 sVarStruct	src/common.h	/^struct sVarStruct {$/;"	s
 sVarTable	src/common.h	/^typedef struct sVarTableStruct sVarTable;$/;"	t	typeref:struct:sVarTableStruct
 sVarTableStruct	src/common.h	/^struct sVarTableStruct {$/;"	s
-sWhile	src/common.h	/^        } sWhile;$/;"	m	union:sNodeTreeStruct::__anon4	typeref:struct:sNodeTreeStruct::__anon4::__anon7
+sWhile	src/common.h	/^        } sWhile;$/;"	m	union:sNodeTreeStruct::__anon3	typeref:struct:sNodeTreeStruct::__anon3::__anon6
 save_module_to_file	src/module.c	/^static BOOL save_module_to_file(sCLModule* self)$/;"	f	file:
 search_for_bc_file	src/jit_runtime.cpp	/^static BOOL search_for_bc_file(char* class_name, char* class_bc_file_name, size_t class_bc_file_name_size)$/;"	f	file:
 search_for_class_field	src/klass_compile_time.c	/^int search_for_class_field(sCLClass* klass, char* field_name)$/;"	f
@@ -2335,6 +2337,7 @@ tok_if	toy.cpp	/^  tok_if = -6,$/;"	e	enum:Token	file:
 tok_in	toy.cpp	/^  tok_in = -10$/;"	e	enum:Token	file:
 tok_number	toy.cpp	/^  tok_number = -5,$/;"	e	enum:Token	file:
 tok_then	toy.cpp	/^  tok_then = -7,$/;"	e	enum:Token	file:
+trunc_value	src/jit.cpp	/^LVALUE trunc_value(LVALUE* llvm_value, int size)$/;"	f
 trunc_vm_stack_value	src/jit.cpp	/^static void trunc_vm_stack_value(LVALUE* value, int inst) $/;"	f	file:
 trunc_vm_stack_value2	src/jit.cpp	/^static void trunc_vm_stack_value2(LVALUE* llvm_value, int size)$/;"	f	file:
 try_catch_label_name	src/common.h	/^    char* try_catch_label_name;$/;"	m	struct:sVMInfoStruct
@@ -2347,8 +2350,8 @@ type	src/common.h	/^    sNodeType* type;$/;"	m	struct:sCompileInfoStruct
 type_	src/node.c	/^    char* type_;$/;"	m	struct:sCastMethods	file:
 type_identify	src/node_type.c	/^BOOL type_identify(sNodeType* left, sNodeType* right)$/;"	f
 type_identify_with_class_name	src/node_type.c	/^BOOL type_identify_with_class_name(sNodeType* left, char* right_class_name)$/;"	f
-uCode	src/common.h	/^    } uCode;$/;"	m	struct:sCLMethodStruct	typeref:union:sCLMethodStruct::__anon2
-uValue	src/common.h	/^    } uValue;$/;"	m	struct:sNodeTreeStruct	typeref:union:sNodeTreeStruct::__anon4
+uCode	src/common.h	/^    } uCode;$/;"	m	struct:sCLMethodStruct	typeref:union:sCLMethodStruct::__anon1
+uValue	src/common.h	/^    } uValue;$/;"	m	struct:sNodeTreeStruct	typeref:union:sNodeTreeStruct::__anon3
 unboxig_posibility	src/node_type.c	/^BOOL unboxig_posibility(sCLClass* klass)$/;"	f
 unboxing_to_primitive_type	src/node_type.c	/^BOOL unboxing_to_primitive_type(sNodeType** left_type, struct sCompileInfoStruct* info)$/;"	f
 unload_module	src/module.c	/^void unload_module(char* module_name)$/;"	f
