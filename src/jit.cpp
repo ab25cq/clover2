@@ -3969,11 +3969,14 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
 
     /// parametor from VM stack ptr ///
     int real_param_num = method->mNumParams + ((method->mFlags & METHOD_FLAGS_CLASS_METHOD) ? 0:1);
+/*
     for(i=0; i<real_param_num; i++) {
         LVALUE llvm_value = get_stack_value_from_index_with_aligned(params, current_block, i, 8);
 
         store_llvm_value_to_lvar_with_offset(llvm_stack, i, &llvm_value);
     }
+*/
+printf("real_param_num %d\n", real_param_num);
 
     /// clear local variable ///
     for(i=real_param_num; i<var_num; i++) {
@@ -3986,6 +3989,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
         store_llvm_value_to_lvar_with_offset(llvm_stack, i, &llvm_value);
     }
 
+/*
     Value* value_for_andand_oror[ANDAND_OROR_MAX];
     memset(value_for_andand_oror, 0, sizeof(Value*)*ANDAND_OROR_MAX);
     int num_value_for_andand_oror = 0;
@@ -7218,19 +7222,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
             case OP_LONG_TO_POINTER_CAST:
             case OP_ULONG_TO_POINTER_CAST:
             case OP_CHAR_TO_POINTER_CAST: {
-/*
-                LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
-
-                LVALUE llvm_value;
-                llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, PointerType::get(IntegerType::get(TheContext, 64), 0));
-                llvm_value.vm_stack = value->vm_stack;
-                llvm_value.lvar_address_index = value->lvar_address_index;
-                llvm_value.lvar_stored = FALSE;
-
-                dec_stack_ptr(&llvm_stack_ptr, 1);
-
-                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
-*/
                 }
                 break;
 
@@ -9853,9 +9844,29 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 }
 #endif
     }
+*/
+    int value = 1;
+
+    LVALUE llvm_value;
+    llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(32, value, true)); 
+    llvm_value.vm_stack = FALSE;
+    llvm_value.lvar_address_index = -1;
+    llvm_value.lvar_stored = FALSE;
+
+    trunc_vm_stack_value2(&llvm_value, 8);
+
+    push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+
+    LVALUE* llvm_value2 = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+    store_llvm_value_to_lvar_with_offset(llvm_stack, 0, llvm_value2);
+
+    LVALUE llvm_value3;
+    get_llvm_value_from_lvar_with_offset(&llvm_value3, llvm_stack, 0);
+    Value* ret_value = llvm_value3.value;
 
     // Finish off the function.
-    Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 1, true));
+    //Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 1, true));
 
     //Builder.SetInsertPoint(current_block);
     Builder.CreateRet(ret_value);
@@ -9883,7 +9894,7 @@ static BOOL compile_jit_methods(sCLClass* klass)
     //TheFPM->add(createCFGSimplificationPass());
     TheFPM->doInitialization();
 
-    create_internal_functions();
+    //create_internal_functions();
     TheLabels.clear();
 
     int i;
@@ -9922,7 +9933,7 @@ static BOOL compile_jit_methods(sCLClass* klass)
         llvm::WriteBitcodeToFile(TheModule, output_stream);
         output_stream.flush();
 
-//TheModule->dump();
+TheModule->dump();
 printf("module_name %s passed\n", module_name);
     }
     else {

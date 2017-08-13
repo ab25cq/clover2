@@ -67,7 +67,7 @@ extern "C"
 
 inline void create_method_path_for_jit(sCLClass* klass, sCLMethod* method, char* result, int size_result)
 {
-    snprintf(result, size_result, "%s.%s$$%d", CLASS_NAME(klass), METHOD_NAME_AND_PARAMS(klass, method), method->mMethodIndex);
+    snprintf(result, size_result, "%s.%s___________%d", CLASS_NAME(klass), METHOD_NAME_AND_PARAMS(klass, method), method->mMethodIndex);
 }
 
 struct LVALUEStruct {
