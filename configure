@@ -4051,10 +4051,10 @@ ac_cv_lib_rt=ac_cv_lib_rt_main
 #if which clang-5.0 > /dev/null
 #then
 #    CC=clang-5.0
-if which clang-4.0 > /dev/null
-then
-    CC=clang-4.0
-elif which clang > /dev/null
+#if which clang-4.0 > /dev/null
+#then
+#    CC=clang-4.0
+if which clang > /dev/null
 then
     CC=clang
 else
@@ -4072,17 +4072,28 @@ fi
 #    else
 #        CXXFLAGS='`llvm-config-5.0 --cxxflags --ldflags --system-libs --libs core mcjit native` -O3'" $CXXFLAGS"
 #    fi
-if which clang++-4.0 > /dev/null
+#if which clang++-4.0 > /dev/null
+#then
+#    CXX=clang++-4.0
+#    if test $DEBUGGING = 1
+#    then
+#        CXXFLAGS='`llvm-config-4.0 --cxxflags --ldflags --system-libs --libs core mcjit native` -DMDEBUG -g'" $CXXFLAGS"
+#    else
+#        CXXFLAGS='`llvm-config-4.0 --cxxflags --ldflags --system-libs --libs core mcjit native` -O3'" $CXXFLAGS"
+#    fi
+#else
+
+if which clang++ > /dev/null
 then
-    CXX=clang++-4.0
+    CXX=clang++
     if test $DEBUGGING = 1
     then
-        CXXFLAGS='`llvm-config-4.0 --cxxflags --ldflags --system-libs --libs core mcjit native` -DMDEBUG -g'" $CXXFLAGS"
+        CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs core mcjit native` -DMDEBUG -g'" $CXXFLAGS"
     else
-        CXXFLAGS='`llvm-config-4.0 --cxxflags --ldflags --system-libs --libs core mcjit native` -O3'" $CXXFLAGS"
+        CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs core mcjit native` -O3'" $CXXFLAGS"
     fi
 else
-    CXX=clang+
+    CXX=g++
     if test $DEBUGGING = 1
     then
         CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs core mcjit native` -DMDEBUG -g'" $CXXFLAGS"

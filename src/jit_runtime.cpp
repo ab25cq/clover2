@@ -1,8 +1,9 @@
 #include "jit_common.hpp"
+/*
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/ADT/StringExtras.h"
 #include "llvm/ADT/Triple.h"
-#include "llvm/Bitcode/BitcodeReader.h"
+//#include "llvm/Bitcode/BitcodeReader.h"
 #include "llvm/CodeGen/LinkAllCodegenComponents.h"
 #include "llvm/ExecutionEngine/GenericValue.h"
 #include "llvm/ExecutionEngine/Interpreter.h"
@@ -346,6 +347,7 @@ static void reportError(SMDiagnostic Err, const char *ProgName) {
   Err.print(ProgName, errs());
   exit(1);
 }
+*/
 
 
 
@@ -1574,6 +1576,12 @@ static BOOL search_for_bc_file(char* class_name, char* class_bc_file_name, size_
     return FALSE;
 }
 
+int llvm_module_main(int argc, char** argv, char* const * envp)
+{
+    return 0;
+}
+
+/*
 int llvm_module_main(int argc, char **argv, char * const *envp) 
 {
   sys::PrintStackTraceOnErrorSignal(argv[0]);
@@ -1608,22 +1616,6 @@ puts("AAA");
     reportError(Err, argv[0]);
 }
 
-/*
-  if (UseJITKind == JITKind::OrcLazy) {
-    std::vector<std::unique_ptr<Module>> Ms;
-    Ms.push_back(std::move(Owner));
-    for (auto &ExtraMod : ExtraModules) {
-      Ms.push_back(parseIRFile(ExtraMod, Err, Context));
-      if (!Ms.back())
-        reportError(Err, argv[0]);
-    }
-    std::vector<std::string> Args;
-    Args.push_back(InputFile);
-    for (auto &Arg : InputArgv)
-      Args.push_back(Arg);
-    return runOrcLazyJIT(std::move(Ms), Args);
-  }
-*/
 
   if (EnableCacheManager) {
     std::string CacheName("file:");
@@ -1660,11 +1652,6 @@ puts("AAA");
   // Enable MCJIT if desired.
   RTDyldMemoryManager *RTDyldMM = nullptr;
   if (!ForceInterpreter) {
-/*
-    if (RemoteMCJIT)
-      RTDyldMM = new ForwardingMemoryManager();
-    else
-*/
       RTDyldMM = new SectionMemoryManager();
 
     // Deliberately construct a temp std::unique_ptr to pass in. Do not null out
@@ -1859,69 +1846,10 @@ puts("AAA");
       abort();
     }
   }
-/*
-  } else {
-    // else == "if (RemoteMCJIT)"
-
-    // Remote target MCJIT doesn't (yet) support static constructors. No reason
-    // it couldn't. This is a limitation of the LLI implemantation, not the
-    // MCJIT itself. FIXME.
-
-    // Lanch the remote process and get a channel to it.
-    std::unique_ptr<FDRawChannel> C = launchRemote();
-    if (!C) {
-      errs() << "Failed to launch remote JIT.\n";
-      exit(1);
-    }
-
-    // Create a remote target client running over the channel.
-    typedef orc::remote::OrcRemoteTargetClient<orc::rpc::RawByteChannel>
-      MyRemote;
-    auto R = ExitOnErr(MyRemote::Create(*C));
-
-    // Create a remote memory manager.
-    std::unique_ptr<MyRemote::RCMemoryManager> RemoteMM;
-    ExitOnErr(R->createRemoteMemoryManager(RemoteMM));
-
-    // Forward MCJIT's memory manager calls to the remote memory manager.
-    static_cast<ForwardingMemoryManager*>(RTDyldMM)->setMemMgr(
-      std::move(RemoteMM));
-
-    // Forward MCJIT's symbol resolution calls to the remote.
-    static_cast<ForwardingMemoryManager*>(RTDyldMM)->setResolver(
-      orc::createLambdaResolver(
-        [](const std::string &Name) { return nullptr; },
-        [&](const std::string &Name) {
-          if (auto Addr = ExitOnErr(R->getSymbolAddress(Name)))
-	    return JITSymbol(Addr, JITSymbolFlags::Exported);
-          return JITSymbol(nullptr);
-        }
-      ));
-
-    // Grab the target address of the JIT'd main function on the remote and call
-    // it.
-    // FIXME: argv and envp handling.
-    JITTargetAddress Entry = EE->getFunctionAddress(EntryFn->getName().str());
-    EE->finalizeObject();
-    DEBUG(dbgs() << "Executing '" << EntryFn->getName() << "' at 0x"
-                 << format("%llx", Entry) << "\n");
-    Result = ExitOnErr(R->callIntVoid(Entry));
-
-    // Like static constructors, the remote target MCJIT support doesn't handle
-    // this yet. It could. FIXME.
-
-    // Delete the EE - we need to tear it down *before* we terminate the session
-    // with the remote, otherwise it'll crash when it tries to release resources
-    // on a remote that has already been disconnected.
-    EE.reset();
-
-    // Signal the remote target that we're done JITing.
-    ExitOnErr(R->terminateSession());
-  }
-*/
 
   return Result;
 }
+*/
 
 BOOL load_bc_file(sCLClass* klass)
 {
