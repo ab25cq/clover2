@@ -1034,6 +1034,18 @@ if(stack_ptr != lvar + var_num + 1) {
                 vm_mutex_off();
                 break;
 
+            case OP_CATCH_STORE: {
+                vm_mutex_on();
+
+                int index = *(int*)pc;
+                pc += sizeof(int);
+
+                lvar[index] = *(stack_ptr-1);
+
+                vm_mutex_off();
+                }
+                break;
+
             case OP_HEAD_OF_EXPRESSION:
                 vm_mutex_on();
 

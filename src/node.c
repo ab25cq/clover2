@@ -454,10 +454,11 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
             }
             break;
 
-        case kOpSub:
+        case kOpSub: {
             if(!binary_operator(node, left_type, right_type, OP_BSUB, OP_UBSUB, OP_SSUB, OP_USSUB, OP_ISUB, OP_UISUB, OP_LSUB, OP_ULSUB, OP_FSUB, OP_DSUB, OP_PSUB, -1, OP_CSUB, -1, -1, "-", info))
             {
                 return FALSE;
+            }
             }
             break;
             
@@ -2956,7 +2957,7 @@ static BOOL compile_try_expression(unsigned int node, sCompileInfo* info)
     int var_index = get_variable_index(catch_block_var_table, var_name);
     MASSERT(var_index != -1);
 
-    append_opecode_to_code(info->code, OP_STORE, info->no_output);
+    append_opecode_to_code(info->code, OP_CATCH_STORE, info->no_output);
     append_int_value_to_code(info->code, var_index, info->no_output);
 
     append_opecode_to_code(info->code, OP_CATCH_POP, info->no_output); // for none JIT code

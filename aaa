@@ -1,12 +1,425 @@
+; ModuleID = 'Module ClassF'
 
+@gSigInt = external global i32
 
-/*
-            std::string stack_ptr_address_name("stack_ptr_address");
-            Value* stack_ptr_address_value = params[stack_ptr_address_name];
-            Value* lvar_address_value = params[lvar_arg_name];
-            store_value(lvar_address_value, stack_ptr_address_value, *current_block);
+declare i32 @create_string_object(i8*)
 
-            std::string stack_ptr_arg_name("stack_ptr");
-            std::string lvar_arg_name("lvar");
-            params[stack_ptr_arg_name] = params[lvar_arg_name];
-*/
+declare i32 @create_byte(i8)
+
+declare i32 @create_ubyte(i8)
+
+declare i32 @create_short(i16)
+
+declare i32 @create_ushort(i16)
+
+declare i32 @create_integer(i32)
+
+declare i32 @create_uinteger(i32)
+
+declare i32 @create_long(i64)
+
+declare i32 @create_ulong(i64)
+
+declare i32 @create_float(float)
+
+declare i32 @create_double(double)
+
+declare i32 @create_pointer(i8*)
+
+declare i32 @create_char(i32)
+
+declare i32 @create_bool(i32)
+
+declare i32 @create_buffer_object(i8*, i32)
+
+declare i32 @create_path_object(i8*)
+
+declare i32 @create_object(i64*)
+
+declare i32 @create_regex_object(i8*, i32, i32, i32, i32, i32, i32, i32, i32)
+
+declare i32 @create_array_object(i64*, i32)
+
+declare void @show_inst_in_jit(i32)
+
+declare void @show_number_in_jit(i32)
+
+declare void @show_str_in_jit(i8*)
+
+declare void @show_stack_stat(i64*)
+
+declare i32 @show_stack_in_jit(i64*, i64*, i32, i64*)
+
+declare i32 @call_invoke_method(i64*, i64*, i64*, i32, i64**, i64*, i64*)
+
+declare void @push_jit_object(i32)
+
+declare void @try_function(i64*, i32, i64*)
+
+declare void @catch_function(i64*, i64*)
+
+declare i8* @get_try_catch_label_name(i64*)
+
+declare void @entry_exception_object(i32, i64*)
+
+declare i64 @get_field_from_object(i64**, i64*, i32, i64*, i32, i32)
+
+declare i32 @regex_equals(i32, i32)
+
+declare i32 @get_string_object_of_object_name(i32)
+
+declare i32 @object_implements_interface(i32, i64*)
+
+declare i32 @call_invoke_virtual_method(i32, i32, i64*, i32, i64**, i64*, i64*, i64*, i32)
+
+declare i32 @call_invoke_dynamic_method(i32, i32, i32, i32, i32, i32, i64*, i32, i64**, i64*, i64*, i64*)
+
+declare i32 @invoke_block_in_jit(i32, i64*, i32, i64**, i64*)
+
+declare i32 @store_field(i64**, i64*, i32, i64*, i32, i64, i32)
+
+declare i64 @load_class_field(i64**, i64*, i32, i64*, i32, i32, i64*)
+
+declare i64 @run_load_class_field_address(i64**, i64*, i32, i64*, i32, i32, i64*)
+
+declare i32 @store_class_field(i64**, i64*, i32, i64*, i32, i32, i64*, i64)
+
+declare i64 @load_element(i64**, i64*, i32, i64*, i32, i32)
+
+declare i32 @run_store_element(i64**, i64*, i32, i64*, i32, i32, i64)
+
+declare i32 @get_array_length(i32)
+
+declare i32 @get_regex_global(i32)
+
+declare i32 @get_regex_ignorecase(i32)
+
+declare i32 @get_regex_multiline(i32)
+
+declare i32 @get_regex_extended(i32)
+
+declare i32 @get_regex_dotall(i32)
+
+declare i32 @get_regex_anchored(i32)
+
+declare i32 @get_regex_dollar_endonly(i32)
+
+declare i32 @get_regex_ungreedy(i32)
+
+declare i32 @get_regex_multiline.1(i32)
+
+declare i32 @char_uppercase(i32)
+
+declare i32 @char_lowercase(i32)
+
+declare i64 @run_create_array(i64**, i64*, i32, i64*, i8*, i32)
+
+declare i64 @run_create_carray(i64**, i64*, i32, i64*, i32, i8*)
+
+declare i64 @run_create_equalable_carray(i64**, i64*, i32, i64*, i32, i8*)
+
+declare i64 @run_create_sortable_carray(i64**, i64*, i32, i64*, i32, i8*)
+
+declare i64 @run_create_list(i64**, i64*, i32, i64*, i32, i8*)
+
+declare i64 @run_create_sortable_list(i64**, i64*, i32, i64*, i32, i8*)
+
+declare i64 @run_create_equalable_list(i64**, i64*, i32, i64*, i32, i8*)
+
+declare i64 @run_create_tuple(i64**, i64*, i32, i64*, i32)
+
+declare i64 @run_create_hash(i64**, i64*, i32, i64*, i32, i8*, i8*)
+
+declare i32 @run_create_block_object(i64**, i64*, i64*, i32, i32, i32, i32, i32, i32, i32, i64*)
+
+declare i32 @run_int_to_string_cast(i32)
+
+declare i32 @run_long_to_string_cast(i64)
+
+declare i32 @run_uint_to_string_cast(i32)
+
+declare i32 @run_ulong_to_string_cast(i64)
+
+declare i32 @run_float_to_string_cast(float)
+
+declare i32 @run_double_to_string_cast(double)
+
+declare i32 @run_bool_to_string_cast(i32)
+
+declare i32 @run_regex_to_string_cast(i32)
+
+declare i32 @run_pointer_to_string_cast(i64*)
+
+declare i32 @run_char_to_string_cast(i32)
+
+declare i8 @run_cbyte_to_byte_cast(i32)
+
+declare i16 @run_cshort_to_short_cast(i32)
+
+declare i32 @run_integer_to_int_cast(i32)
+
+declare i32 @run_cfloat_to_int_cast(i32)
+
+declare i32 @run_cdouble_to_int_cast(i32)
+
+declare i64 @run_clong_to_long_cast(i32)
+
+declare i8 @run_cubyte_to_ubyte_cast(i32)
+
+declare i16 @run_cushort_to_ushort_cast(i32)
+
+declare i64 @run_culong_to_ulong_cast(i32)
+
+declare i8* @run_cpointer_to_pointer_cast(i32)
+
+declare i32 @run_uinteger_to_uint_cast(i32)
+
+declare float @run_cfloat_to_float_cast(i32)
+
+declare double @run_cdouble_to_double_cast(i32)
+
+declare i32 @entry_exception_object_with_class_name2(i64*, i64*, i32, i64*, i8*, i8*)
+
+declare i8** @run_load_field_address(i64**, i64*, i32, i64*, i32, i32)
+
+declare i64 @run_array_to_carray_cast(i64**, i64*, i32, i64*, i32, i8*)
+
+declare i64* @get_class_with_load_and_initialize_in_jit(i8*)
+
+define i32 @"ClassF.method()$$0"(i64* %stack_ptr, i64* %lvar, i64* %info, i64* %stack, i64** %stack_ptr_address, i32 %var_num) {
+entry:
+  %"lvar$0$" = alloca i64
+  %stack_offset_value = load i64, i64* %stack, align 8
+  store i64 0, i64* %"lvar$0$"
+  store i64 %stack_offset_value, i64* %"lvar$0$", align 8
+  store i64 1, i64* %stack, align 8
+  ret i32 1
+
+entry_after_return:                               ; No predecessors!
+  ret i32 1
+}
+
+define i32 @"ClassF.method2()$$1"(i64* %stack_ptr, i64* %lvar, i64* %info, i64* %stack, i64** %stack_ptr_address, i32 %var_num) {
+entry:
+  %"lvar$0$" = alloca i64
+  %stack_offset_value = load i64, i64* %stack, align 8
+  store i64 0, i64* %"lvar$0$"
+  store i64 %stack_offset_value, i64* %"lvar$0$", align 8
+  store i64 1066192077, i64* %stack, align 8
+  ret i32 1
+
+entry_after_return:                               ; No predecessors!
+  ret i32 1
+}
+
+define i32 @"ClassF.method3()$$2"(i64* %stack_ptr, i64* %lvar, i64* %info, i64* %stack, i64** %stack_ptr_address, i32 %var_num) {
+entry:
+  %"lvar$0$" = alloca i64
+  %stack_offset_value = load i64, i64* %stack, align 8
+  store i64 0, i64* %"lvar$0$"
+  store i64 %stack_offset_value, i64* %"lvar$0$", align 8
+  store i64 4607632778762754458, i64* %stack, align 8
+  ret i32 1
+
+entry_after_return:                               ; No predecessors!
+  ret i32 1
+}
+
+define i32 @"ClassF.method4(int)$$3"(i64* %stack_ptr, i64* %lvar, i64* %info, i64* %stack, i64** %stack_ptr_address, i32 %var_num) {
+entry:
+  %"lvar$1$" = alloca i64
+  %"lvar$0$" = alloca i64
+  %stack_offset_value = load i64, i64* %stack, align 8
+  store i64 0, i64* %"lvar$0$"
+  store i64 %stack_offset_value, i64* %"lvar$0$", align 8
+  %stack_offset_address_value = getelementptr i64, i64* %stack, i64 1
+  %stack_offset_value1 = load i64, i64* %stack_offset_address_value, align 8
+  store i64 0, i64* %"lvar$1$"
+  store i64 %stack_offset_value1, i64* %"lvar$1$", align 8
+  store i64 1, i64* %stack, align 8
+  ret i32 1
+
+entry_after_return:                               ; No predecessors!
+  ret i32 1
+}
+
+define i32 @"ClassF.method5(int)$$4"(i64* %stack_ptr, i64* %lvar, i64* %info, i64* %stack, i64** %stack_ptr_address, i32 %var_num) {
+entry:
+  %"lvar$1$" = alloca i64
+  %"lvar$0$" = alloca i64
+  %stack_offset_value = load i64, i64* %stack, align 8
+  store i64 0, i64* %"lvar$0$"
+  store i64 %stack_offset_value, i64* %"lvar$0$", align 8
+  %stack_offset_address_value = getelementptr i64, i64* %stack, i64 1
+  %stack_offset_value1 = load i64, i64* %stack_offset_address_value, align 8
+  store i64 0, i64* %"lvar$1$"
+  store i64 %stack_offset_value1, i64* %"lvar$1$", align 8
+  %lvar2 = load i64, i64* %"lvar$1$"
+  %0 = trunc i64 %lvar2 to i32
+  %1 = zext i32 %0 to i64
+  store i64 %1, i64* %stack, align 8
+  ret i32 1
+
+entry_after_return:                               ; No predecessors!
+  ret i32 1
+}
+
+define i32 @"ClassF.method6()$$5"(i64* %stack_ptr, i64* %lvar, i64* %info, i64* %stack, i64** %stack_ptr_address, i32 %var_num) {
+entry:
+  %"lvar$0$" = alloca i64
+  %stack_offset_value = load i64, i64* %stack, align 8
+  store i64 0, i64* %"lvar$0$"
+  store i64 %stack_offset_value, i64* %"lvar$0$", align 8
+  store i64 3, i64* %stack, align 8
+  ret i32 1
+
+entry_after_return:                               ; No predecessors!
+  ret i32 1
+}
+
+define i32 @"ClassF.method7(int,int)$$6"(i64* %stack_ptr, i64* %lvar, i64* %info, i64* %stack, i64** %stack_ptr_address, i32 %var_num) {
+entry:
+  %"lvar$2$" = alloca i64
+  %"lvar$1$" = alloca i64
+  %"lvar$0$" = alloca i64
+  %stack_offset_value = load i64, i64* %stack, align 8
+  store i64 0, i64* %"lvar$0$"
+  store i64 %stack_offset_value, i64* %"lvar$0$", align 8
+  %stack_offset_address_value = getelementptr i64, i64* %stack, i64 1
+  %stack_offset_value1 = load i64, i64* %stack_offset_address_value, align 8
+  store i64 0, i64* %"lvar$1$"
+  store i64 %stack_offset_value1, i64* %"lvar$1$", align 8
+  %stack_offset_address_value2 = getelementptr i64, i64* %stack, i64 2
+  %stack_offset_value3 = load i64, i64* %stack_offset_address_value2, align 8
+  store i64 0, i64* %"lvar$2$"
+  store i64 %stack_offset_value3, i64* %"lvar$2$", align 8
+  %lvar4 = load i64, i64* %"lvar$1$"
+  %0 = trunc i64 %lvar4 to i32
+  %lvar5 = load i64, i64* %"lvar$2$"
+  %1 = trunc i64 %lvar5 to i32
+  %addtmp = add nuw i32 %0, %1
+  %2 = zext i32 %addtmp to i64
+  store i64 %2, i64* %stack, align 8
+  ret i32 1
+
+entry_after_return:                               ; No predecessors!
+  ret i32 1
+}
+
+define i32 @"ClassF.method8(double,double)$$7"(i64* %stack_ptr, i64* %lvar, i64* %info, i64* %stack, i64** %stack_ptr_address, i32 %var_num) {
+entry:
+  %"lvar$2$" = alloca i64
+  %"lvar$1$" = alloca i64
+  %"lvar$0$" = alloca i64
+  %stack_offset_value = load i64, i64* %stack, align 8
+  store i64 0, i64* %"lvar$0$"
+  store i64 %stack_offset_value, i64* %"lvar$0$", align 8
+  %stack_offset_address_value = getelementptr i64, i64* %stack, i64 1
+  %stack_offset_value1 = load i64, i64* %stack_offset_address_value, align 8
+  store i64 0, i64* %"lvar$1$"
+  store i64 %stack_offset_value1, i64* %"lvar$1$", align 8
+  %stack_offset_address_value2 = getelementptr i64, i64* %stack, i64 2
+  %stack_offset_value3 = load i64, i64* %stack_offset_address_value2, align 8
+  store i64 0, i64* %"lvar$2$"
+  store i64 %stack_offset_value3, i64* %"lvar$2$", align 8
+  %lvar4 = load i64, i64* %"lvar$1$"
+  %0 = uitofp i64 %lvar4 to double
+  %lvar5 = load i64, i64* %"lvar$2$"
+  %1 = uitofp i64 %lvar5 to double
+  %faddtmp = fadd double %0, %1
+  %2 = bitcast double %faddtmp to i64
+  store i64 %2, i64* %stack, align 8
+  ret i32 1
+
+entry_after_return:                               ; No predecessors!
+  ret i32 1
+}
+
+define i32 @"ClassF.method9(double)$$8"(i64* %stack_ptr, i64* %lvar, i64* %info, i64* %stack, i64** %stack_ptr_address, i32 %var_num) {
+entry:
+  %"lvar$1$" = alloca i64
+  %"lvar$0$" = alloca i64
+  %stack_offset_value = load i64, i64* %stack, align 8
+  store i64 0, i64* %"lvar$0$"
+  store i64 %stack_offset_value, i64* %"lvar$0$", align 8
+  %stack_offset_address_value = getelementptr i64, i64* %stack, i64 1
+  %stack_offset_value1 = load i64, i64* %stack_offset_address_value, align 8
+  store i64 0, i64* %"lvar$1$"
+  store i64 %stack_offset_value1, i64* %"lvar$1$", align 8
+  %lvar2 = load i64, i64* %"lvar$1$"
+  %0 = uitofp i64 %lvar2 to double
+  %faddtmp = fadd double %0, 3.100000e+00
+  %1 = bitcast double %faddtmp to i64
+  store i64 %1, i64* %stack, align 8
+  ret i32 1
+
+entry_after_return:                               ; No predecessors!
+  ret i32 1
+}
+
+define i32 @"ClassF.method10()$$9"(i64* %stack_ptr, i64* %lvar, i64* %info, i64* %stack, i64** %stack_ptr_address, i32 %var_num) {
+entry:
+  %"lvar$0$" = alloca i64
+  %stack_offset_value = load i64, i64* %stack, align 8
+  store i64 0, i64* %"lvar$0$"
+  store i64 %stack_offset_value, i64* %"lvar$0$", align 8
+  %lvar1 = load i64, i64* %"lvar$0$"
+  %0 = trunc i64 %lvar1 to i32
+  %1 = call i64* @get_class_with_load_and_initialize_in_jit()
+  %ifcond = icmp eq i64* %1, i32 0
+  br i1 %ifcond, label %then_block, label %entry_ifend
+
+then_block:                                       ; preds = %entry
+  ret i32 0
+
+entry_ifend:                                      ; preds = %entry
+  %lvar2 = load i64, i64* %"lvar$0$"
+  %lvar_offset_value = getelementptr i64, i64* %lvar, i64 0
+  store i64 0, i64* %lvar_offset_value, align 8
+  store i64 %lvar2, i64* %lvar_offset_value, align 8
+  %loaded_stack_ptr_address_value = load i64*, i64** %stack_ptr_address, align 8
+  store i64 0, i64* %loaded_stack_ptr_address_value, align 8
+  %2 = zext i32 %0 to i64
+  store i64 %2, i64* %loaded_stack_ptr_address_value, align 8
+  %loaded_stack_ptr_address_value3 = load i64*, i64** %stack_ptr_address
+  %inc_ptr_value = getelementptr i64, i64* %loaded_stack_ptr_address_value3, i64 1
+  store i64* %inc_ptr_value, i64** %stack_ptr_address
+  %loaded_stack_ptr_address_value4 = load i64*, i64** %stack_ptr_address, align 8
+  store i64 0, i64* %loaded_stack_ptr_address_value4, align 8
+  store i64 4607182418800017408, i64* %loaded_stack_ptr_address_value4, align 8
+  %loaded_stack_ptr_address_value5 = load i64*, i64** %stack_ptr_address
+  %inc_ptr_value6 = getelementptr i64, i64* %loaded_stack_ptr_address_value5, i64 1
+  store i64* %inc_ptr_value6, i64** %stack_ptr_address
+  %3 = call i32 @call_invoke_method(i64* %1, i64 26161088, i64* %stack, i32 %var_num, i64** %stack_ptr_address, i64* %info, i64* inttoptr (i64 26162232 to i64*))
+  %ifcond7 = icmp ne i32 %3, 1
+  br i1 %ifcond7, label %then_block8, label %entry_ifend9
+
+then_block8:                                      ; preds = %entry_ifend
+  %4 = call i8* @get_try_catch_label_name(i64* %info)
+  %catchcond = icmp ne i8* %4, i32 0
+  br i1 %catchcond, label %then_block_b, label %entry_ifend_b
+
+entry_ifend9:                                     ; preds = %entry_ifend
+  %stack_offset_value10 = load i64, i64* %stack, align 8
+  store i64 0, i64* %"lvar$0$"
+  store i64 %stack_offset_value10, i64* %"lvar$0$", align 8
+  %loaded_stack_ptr_address_value11 = load i64*, i64** %stack_ptr_address
+  %stack_pointer_offset_value = getelementptr i64, i64* %loaded_stack_ptr_address_value11, i64 -1
+  %stack_pointer_offset_value12 = load i64, i64* %stack_pointer_offset_value, align 8
+  call void @push_jit_object(i64 %stack_pointer_offset_value12)
+  %loaded_stack_ptr_address_value13 = load i64*, i64** %stack_ptr_address
+  %dec_ptr_value = getelementptr i64, i64* %loaded_stack_ptr_address_value13, i64 1
+  store i64* %dec_ptr_value, i64** %stack_ptr_address
+  store i64 %stack_pointer_offset_value12, i64* %stack, align 8
+  ret i32 1
+
+then_block_b:                                     ; preds = %then_block8
+  ret i32 0
+
+entry_ifend_b:                                    ; preds = %then_block8
+  ret i32 0
+
+entry_after_return:                               ; No predecessors!
+  ret i32 1
+}
+module_name Module ClassF passed

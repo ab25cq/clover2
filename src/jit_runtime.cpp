@@ -359,6 +359,8 @@ static void reportError(SMDiagnostic Err, const char *ProgName) {
 
 extern "C" 
 {
+struct sCLVALUEAndBoolResult gCLValueAndBoolStructMemory;
+
 sCLClass* get_class_with_load_and_initialize_in_jit(char* class_name);
 
 CLObject* gJITObjects;
@@ -399,21 +401,26 @@ char* get_try_catch_label_name(sVMInfo* info)
     return info->try_catch_label_name;
 }
 
-void try_function(sVMInfo* info, char* try_catch_label, int try_offset, sByteCode* code)
+void try_function(sVMInfo* info, int catch_label_name_offset, int try_offset, sByteCode* code, sConst* constant)
 {
-    info->try_catch_label_name = try_catch_label;
+    if(catch_label_name_offset != 0) {
+        info->try_catch_label_name = CONS_str(constant, catch_label_name_offset);
+    }
+    else {
+        info->try_catch_label_name = NULL;
+    }
     info->try_offset = try_offset;
     info->try_code = code;
 }
 
-struct sCLVALUEAndBoolResult get_field_from_object(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, CLObject obj, int field_index)
+struct sCLVALUEAndBoolResult* get_field_from_object(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, CLObject obj, int field_index)
 {
-    struct sCLVALUEAndBoolResult result;
+    struct sCLVALUEAndBoolResult* result = &gCLValueAndBoolStructMemory;
 
     if(obj == 0) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
-        result.result1.mLongValue = 0;
-        result.result2 = 0;
+        result->result1.mLongValue = 0;
+        result->result2 = 0;
 
         return result;
     }
@@ -423,22 +430,22 @@ struct sCLVALUEAndBoolResult get_field_from_object(CLVALUE** stack_ptr, CLVALUE*
 
     if(klass == NULL) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(4)");
-        result.result1.mLongValue = 0;
-        result.result2 = 0;
+        result->result1.mLongValue = 0;
+        result->result2 = 0;
         return result;
     }
 
     if(field_index < 0 || field_index >= klass->mNumFields) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "field index is invalid(1)");
-        result.result1.mLongValue = 0;
-        result.result2 = 0;
+        result->result1.mLongValue = 0;
+        result->result2 = 0;
         return result;
     }
 
     CLVALUE value = object_pointer->mFields[field_index];
 
-    result.result1 = value;
-    result.result2 = 1;
+    result->result1 = value;
+    result->result2 = 1;
 
     return result;
 }
@@ -452,12 +459,13 @@ CLObject get_string_object_of_object_name(CLObject object)
     return object2;
 }
 
-BOOL call_invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sByteCode* code)
+BOOL call_invoke_method(sCLClass* klass, int method_index, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info)
 {
+    sCLMethod* method = klass->mMethods + method_index;
     return invoke_method(klass, method, stack, var_num, stack_ptr, info);
 }
 
-BOOL call_invoke_virtual_method(int num_real_params, int offset, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sByteCode* code, sConst* constant, CLObject object)
+BOOL call_invoke_virtual_method(int offset, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sConst* constant, CLObject object)
 {
     /// go ///
     sCLObject* object_data = CLOBJECT(object);
@@ -643,9 +651,9 @@ BOOL store_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info
     return TRUE;
 }
 
-struct sCLVALUEAndBoolResult load_class_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index, int offset, sConst* constant)
+struct sCLVALUEAndBoolResult* load_class_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index, int offset, sConst* constant)
 {
-    struct sCLVALUEAndBoolResult result;
+    struct sCLVALUEAndBoolResult* result = &gCLValueAndBoolStructMemory;
 
     char* class_name = CONS_str(constant, offset);
 
@@ -653,22 +661,22 @@ struct sCLVALUEAndBoolResult load_class_field(CLVALUE** stack_ptr, CLVALUE* stac
 
     if(klass == NULL) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(7)");
-        result.result1.mLongValue = 0;
-        result.result2 = FALSE;
+        result->result1.mLongValue = 0;
+        result->result2 = FALSE;
         return result;
     }
 
     if(field_index < 0 || field_index >= klass->mNumClassFields) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "field index is invalid(3)");
-        result.result1.mLongValue = 0;
-        result.result2 = FALSE;
+        result->result1.mLongValue = 0;
+        result->result2 = FALSE;
         return result;
     }
 
     sCLField* field = klass->mClassFields + field_index;
 
-    result.result1 = field->mValue;
-    result.result2 = TRUE;
+    result->result1 = field->mValue;
+    result->result2 = TRUE;
 
     return result;
 }
@@ -720,14 +728,14 @@ int get_array_length(CLObject array_)
     return array_data->mArrayNum;
 }
 
-struct sCLVALUEAndBoolResult load_element(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, CLObject array, int element_num, int size)
+struct sCLVALUEAndBoolResult* load_element(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, CLObject array, int element_num, int size)
 {
-    struct sCLVALUEAndBoolResult result;
+    struct sCLVALUEAndBoolResult* result = &gCLValueAndBoolStructMemory;
 
     if(array == 0) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(7)");
-        result.result1.mLongValue = 0;
-        result.result2 = FALSE;
+        result->result1.mLongValue = 0;
+        result->result2 = FALSE;
         return result;
     }
 
@@ -735,13 +743,13 @@ struct sCLVALUEAndBoolResult load_element(CLVALUE** stack_ptr, CLVALUE* stack, i
 
     if(element_num < 0 || element_num >= object_pointer->mArrayNum) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "element index is invalid(2)");
-        result.result1.mLongValue = 0;
-        result.result2 = FALSE;
+        result->result1.mLongValue = 0;
+        result->result2 = FALSE;
         return result;
     }
 
-    result.result1 = object_pointer->mFields[element_num];
-    result.result2 = TRUE;
+    result->result1 = object_pointer->mFields[element_num];
+    result->result2 = TRUE;
 
     return result;
 }
@@ -814,16 +822,18 @@ BOOL get_regex_ungreedy(CLObject regex)
     return regex_object->mUngreedy;
 }
 
-struct sCLVALUEAndBoolResult run_create_array(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, char* class_name, int num_elements)
+struct sCLVALUEAndBoolResult* run_create_array(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, int class_name_offset, sConst* constant)
 {
-    struct sCLVALUEAndBoolResult result;
+    struct sCLVALUEAndBoolResult* result = &gCLValueAndBoolStructMemory;
+
+    char* class_name = CONS_str(constant, class_name_offset);
 
     sCLClass* klass = get_class_with_load_and_initialize_in_jit(class_name);
 
     if(klass == NULL) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(11)");
-        result.result1.mLongValue = 0;
-        result.result2 = FALSE;
+        result->result1.mLongValue = 0;
+        result->result2 = FALSE;
         return result;
     }
 
@@ -842,22 +852,24 @@ struct sCLVALUEAndBoolResult run_create_array(CLVALUE** stack_ptr, CLVALUE* stac
 
     (*stack_ptr)-=num_elements;
 
-    result.result1.mObjectValue = array_object;
-    result.result2 = TRUE;
+    result->result1.mObjectValue = array_object;
+    result->result2 = TRUE;
 
     return result;
 }
 
-struct sCLVALUEAndBoolResult run_create_carray(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, char* class_name)
+struct sCLVALUEAndBoolResult* run_create_carray(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, int class_name_offset, sConst* constant)
 {
-    struct sCLVALUEAndBoolResult result;
+    struct sCLVALUEAndBoolResult* result = &gCLValueAndBoolStructMemory;
+
+    char* class_name = CONS_str(constant, class_name_offset);
 
     sCLClass* klass = get_class_with_load_and_initialize_in_jit(class_name);
 
     if(klass == NULL) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(12)");
-        result.result1.mLongValue = 0;
-        result.result2 = FALSE;
+        result->result1.mLongValue = 0;
+        result->result2 = FALSE;
         return result;
     }
 
@@ -875,8 +887,8 @@ struct sCLVALUEAndBoolResult run_create_carray(CLVALUE** stack_ptr, CLVALUE* sta
 
     if(!initialize_carray_object(array_object, num_elements, items, stack, var_num, stack_ptr, info, klass))
     {
-        result.result1.mLongValue = 0;
-        result.result2 = FALSE;
+        result->result1.mLongValue = 0;
+        result->result2 = FALSE;
         return result;
     }
 
@@ -884,22 +896,24 @@ struct sCLVALUEAndBoolResult run_create_carray(CLVALUE** stack_ptr, CLVALUE* sta
 
     (*stack_ptr)-=num_elements;
 
-    result.result1.mObjectValue = array_object;
-    result.result2 = TRUE;
+    result->result1.mObjectValue = array_object;
+    result->result2 = TRUE;
 
     return result;
 }
 
-struct sCLVALUEAndBoolResult run_create_equalable_carray(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, char* class_name)
+struct sCLVALUEAndBoolResult* run_create_equalable_carray(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, int class_name_offset, sConst* constant)
 {
-    struct sCLVALUEAndBoolResult result;
+    struct sCLVALUEAndBoolResult* result = &gCLValueAndBoolStructMemory;
+
+    char* class_name = CONS_str(constant, class_name_offset);
 
     sCLClass* klass = get_class_with_load_and_initialize_in_jit(class_name);
 
     if(klass == NULL) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(12)");
-        result.result1.mLongValue = 0;
-        result.result2 = FALSE;
+        result->result1.mLongValue = 0;
+        result->result2 = FALSE;
         return result;
     }
 
@@ -917,8 +931,8 @@ struct sCLVALUEAndBoolResult run_create_equalable_carray(CLVALUE** stack_ptr, CL
 
     if(!initialize_equalable_carray_object(array_object, num_elements, items, stack, var_num, stack_ptr, info, klass))
     {
-        result.result1.mLongValue = 0;
-        result.result2 = FALSE;
+        result->result1.mLongValue = 0;
+        result->result2 = FALSE;
         return result;
     }
 
@@ -926,22 +940,24 @@ struct sCLVALUEAndBoolResult run_create_equalable_carray(CLVALUE** stack_ptr, CL
 
     (*stack_ptr)-=num_elements;
 
-    result.result1.mObjectValue = array_object;
-    result.result2 = TRUE;
+    result->result1.mObjectValue = array_object;
+    result->result2 = TRUE;
 
     return result;
 }
 
-struct sCLVALUEAndBoolResult run_create_sortable_carray(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, char* class_name)
+struct sCLVALUEAndBoolResult* run_create_sortable_carray(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, int class_name_offset, sConst* constant)
 {
-    struct sCLVALUEAndBoolResult result;
+    struct sCLVALUEAndBoolResult* result = &gCLValueAndBoolStructMemory;
+
+    char* class_name = CONS_str(constant, class_name_offset);
 
     sCLClass* klass = get_class_with_load_and_initialize_in_jit(class_name);
 
     if(klass == NULL) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(12)");
-        result.result1.mLongValue = 0;
-        result.result2 = FALSE;
+        result->result1.mLongValue = 0;
+        result->result2 = FALSE;
         return result;
     }
 
@@ -959,8 +975,8 @@ struct sCLVALUEAndBoolResult run_create_sortable_carray(CLVALUE** stack_ptr, CLV
 
     if(!initialize_sortable_carray_object(array_object, num_elements, items, stack, var_num, stack_ptr, info, klass))
     {
-        result.result1.mLongValue = 0;
-        result.result2 = FALSE;
+        result->result1.mLongValue = 0;
+        result->result2 = FALSE;
         return result;
     }
 
@@ -968,22 +984,24 @@ struct sCLVALUEAndBoolResult run_create_sortable_carray(CLVALUE** stack_ptr, CLV
 
     (*stack_ptr)-=num_elements;
 
-    result.result1.mObjectValue = array_object;
-    result.result2 = TRUE;
+    result->result1.mObjectValue = array_object;
+    result->result2 = TRUE;
 
     return result;
 }
 
-struct sCLVALUEAndBoolResult run_create_list(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, char* class_name)
+struct sCLVALUEAndBoolResult* run_create_list(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, int class_name_offset, sConst* constant)
 {
-    struct sCLVALUEAndBoolResult result;
+    struct sCLVALUEAndBoolResult* result = &gCLValueAndBoolStructMemory;
+
+    char* class_name = CONS_str(constant, class_name_offset);
 
     sCLClass* klass = get_class_with_load_and_initialize_in_jit(class_name);
 
     if(klass == NULL) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(13)");
-        result.result1.mLongValue = 0;
-        result.result2 = FALSE;
+        result->result1.mLongValue = 0;
+        result->result2 = FALSE;
         return result;
     }
 
@@ -1001,8 +1019,8 @@ struct sCLVALUEAndBoolResult run_create_list(CLVALUE** stack_ptr, CLVALUE* stack
 
     if(!initialize_list_object(list_object, num_elements, items, stack, var_num, stack_ptr, info, klass))
     {
-        result.result1.mLongValue = 0;
-        result.result2 = FALSE;
+        result->result1.mLongValue = 0;
+        result->result2 = FALSE;
         return result;
     }
 
@@ -1010,22 +1028,24 @@ struct sCLVALUEAndBoolResult run_create_list(CLVALUE** stack_ptr, CLVALUE* stack
 
     (*stack_ptr)-=num_elements;
 
-    result.result1.mObjectValue = list_object;
-    result.result2 = TRUE;
+    result->result1.mObjectValue = list_object;
+    result->result2 = TRUE;
 
     return result;
 }
 
-struct sCLVALUEAndBoolResult run_create_sortable_list(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, char* class_name)
+struct sCLVALUEAndBoolResult* run_create_sortable_list(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, int class_name_offset, sConst* constant)
 {
-    struct sCLVALUEAndBoolResult result;
+    struct sCLVALUEAndBoolResult* result = &gCLValueAndBoolStructMemory;
+
+    char* class_name = CONS_str(constant, class_name_offset);
 
     sCLClass* klass = get_class_with_load_and_initialize_in_jit(class_name);
 
     if(klass == NULL) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(13)");
-        result.result1.mLongValue = 0;
-        result.result2 = FALSE;
+        result->result1.mLongValue = 0;
+        result->result2 = FALSE;
         return result;
     }
 
@@ -1043,8 +1063,8 @@ struct sCLVALUEAndBoolResult run_create_sortable_list(CLVALUE** stack_ptr, CLVAL
 
     if(!initialize_sortable_list_object(list_object, num_elements, items, stack, var_num, stack_ptr, info, klass))
     {
-        result.result1.mLongValue = 0;
-        result.result2 = FALSE;
+        result->result1.mLongValue = 0;
+        result->result2 = FALSE;
         return result;
     }
 
@@ -1052,22 +1072,24 @@ struct sCLVALUEAndBoolResult run_create_sortable_list(CLVALUE** stack_ptr, CLVAL
 
     (*stack_ptr)-=num_elements;
 
-    result.result1.mObjectValue = list_object;
-    result.result2 = TRUE;
+    result->result1.mObjectValue = list_object;
+    result->result2 = TRUE;
 
     return result;
 }
 
-struct sCLVALUEAndBoolResult run_create_equalable_list(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, char* class_name)
+struct sCLVALUEAndBoolResult* run_create_equalable_list(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, int class_name_offset, sConst* constant)
 {
-    struct sCLVALUEAndBoolResult result;
+    struct sCLVALUEAndBoolResult* result = &gCLValueAndBoolStructMemory;
+
+    char* class_name = CONS_str(constant, class_name_offset);
 
     sCLClass* klass = get_class_with_load_and_initialize_in_jit(class_name);
 
     if(klass == NULL) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(13)");
-        result.result1.mLongValue = 0;
-        result.result2 = FALSE;
+        result->result1.mLongValue = 0;
+        result->result2 = FALSE;
         return result;
     }
 
@@ -1085,8 +1107,8 @@ struct sCLVALUEAndBoolResult run_create_equalable_list(CLVALUE** stack_ptr, CLVA
 
     if(!initialize_equalable_list_object(list_object, num_elements, items, stack, var_num, stack_ptr, info, klass))
     {
-        result.result1.mLongValue = 0;
-        result.result2 = FALSE;
+        result->result1.mLongValue = 0;
+        result->result2 = FALSE;
         return result;
     }
 
@@ -1094,15 +1116,15 @@ struct sCLVALUEAndBoolResult run_create_equalable_list(CLVALUE** stack_ptr, CLVA
 
     (*stack_ptr)-=num_elements;
 
-    result.result1.mObjectValue = list_object;
-    result.result2 = TRUE;
+    result->result1.mObjectValue = list_object;
+    result->result2 = TRUE;
 
     return result;
 }
 
-struct sCLVALUEAndBoolResult run_create_tuple(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements)
+struct sCLVALUEAndBoolResult* run_create_tuple(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements)
 {
-    struct sCLVALUEAndBoolResult result;
+    struct sCLVALUEAndBoolResult* result = &gCLValueAndBoolStructMemory;
 
     CLObject tuple_object = create_tuple_object(num_elements);
 
@@ -1119,8 +1141,8 @@ struct sCLVALUEAndBoolResult run_create_tuple(CLVALUE** stack_ptr, CLVALUE* stac
 
     if(!initialize_tuple_object(tuple_object, num_elements, items, stack, var_num, stack_ptr, info))
     {
-        result.result1.mLongValue = 0;
-        result.result2 = FALSE;
+        result->result1.mLongValue = 0;
+        result->result2 = FALSE;
         return result;
     }
 
@@ -1128,22 +1150,25 @@ struct sCLVALUEAndBoolResult run_create_tuple(CLVALUE** stack_ptr, CLVALUE* stac
 
     (*stack_ptr)-=num_elements;
 
-    result.result1.mObjectValue = tuple_object;
-    result.result2 = TRUE;
+    result->result1.mObjectValue = tuple_object;
+    result->result2 = TRUE;
 
     return result;
 }
 
-struct sCLVALUEAndBoolResult run_create_hash(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, char* class_name, char* class_name2)
+struct sCLVALUEAndBoolResult* run_create_hash(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, int class_name_offset, int class_name_offset2, sConst* constant)
 {
-    struct sCLVALUEAndBoolResult result;
+    struct sCLVALUEAndBoolResult* result = &gCLValueAndBoolStructMemory;
+
+    char* class_name = CONS_str(constant, class_name_offset);
+    char* class_name2 = CONS_str(constant, class_name_offset2);
 
     sCLClass* klass = get_class_with_load_and_initialize_in_jit(class_name);
 
     if(klass == NULL) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(14)");
-        result.result1.mLongValue = 0;
-        result.result2 = FALSE;
+        result->result1.mLongValue = 0;
+        result->result2 = FALSE;
         return result;
     }
 
@@ -1151,8 +1176,8 @@ struct sCLVALUEAndBoolResult run_create_hash(CLVALUE** stack_ptr, CLVALUE* stack
 
     if(klass2 == NULL) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(15)");
-        result.result1.mLongValue = 0;
-        result.result2 = FALSE;
+        result->result1.mLongValue = 0;
+        result->result2 = FALSE;
         return result;
     }
 
@@ -1175,8 +1200,8 @@ struct sCLVALUEAndBoolResult run_create_hash(CLVALUE** stack_ptr, CLVALUE* stack
 
     if(!initialize_hash_object(hash_object, num_elements, keys, items, stack, var_num, stack_ptr, info, klass, klass2))
     {
-        result.result1.mLongValue = 0;
-        result.result2 = FALSE;
+        result->result1.mLongValue = 0;
+        result->result2 = FALSE;
         return result;
     }
 
@@ -1184,8 +1209,8 @@ struct sCLVALUEAndBoolResult run_create_hash(CLVALUE** stack_ptr, CLVALUE* stack
 
     (*stack_ptr)-=num_elements*2;
 
-    result.result1.mObjectValue = hash_object;
-    result.result2 = TRUE;
+    result->result1.mObjectValue = hash_object;
+    result->result2 = TRUE;
 
     return result;
 }
@@ -1493,16 +1518,16 @@ double run_cdouble_to_double_cast(CLObject obj)
     return value;
 }
 
-struct sCLVALUEAndBoolResult run_array_to_carray_cast(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, CLObject array, char* class_name)
+struct sCLVALUEAndBoolResult* run_array_to_carray_cast(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, CLObject array, char* class_name)
 {
-    struct sCLVALUEAndBoolResult result;
+    struct sCLVALUEAndBoolResult* result = &gCLValueAndBoolStructMemory;
 
     sCLClass* klass = get_class_with_load_and_initialize_in_jit(class_name);
 
     if(klass == NULL) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(10)");
-        result.result1.mIntValue = 0;
-        result.result2 = FALSE;
+        result->result1.mIntValue = 0;
+        result->result2 = FALSE;
         return result;
     }
 
@@ -1543,8 +1568,8 @@ struct sCLVALUEAndBoolResult run_array_to_carray_cast(CLVALUE** stack_ptr, CLVAL
 
     gGlobalStackPtr--;
 
-    result.result1.mObjectValue = new_array;
-    result.result2 = TRUE;
+    result->result1.mObjectValue = new_array;
+    result->result2 = TRUE;
 
     return result;
 }
@@ -1937,7 +1962,7 @@ BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClas
             info->current_var_num = var_num;
             info->stack_id = stack_id;
 
-            BOOL result = function(stack_ptr, lvar, info, stack, &stack_ptr, var_num);
+            BOOL result = function(stack_ptr, lvar, info, stack, &stack_ptr, var_num, constant, code);
             if(!result) {
                 remove_stack_to_stack_list(stack, &stack_ptr);
                 gNumJITObjects = num_jit_objects;
@@ -1972,6 +1997,8 @@ BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClas
 
 void jit_init_on_runtime()
 {
+    gCLValueAndBoolStructMemory.result1.mIntValue = 0;
+    gCLValueAndBoolStructMemory.result2 = 0;
 /*
     InitializeNativeTarget();
     InitializeNativeTargetAsmPrinter();

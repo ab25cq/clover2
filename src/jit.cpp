@@ -37,6 +37,9 @@ LVALUE trunc_value(LVALUE* llvm_value, int size)
 {
     LVALUE result = *llvm_value;
 
+    Type* llvm_type = llvm_value->value->getType();
+    Type::TypeID type_id = llvm_type->getTypeID();
+
     /// Constant Int ///
     if(llvm_value->constant_int_value) {
         ConstantInt* constant_int_value = dynamic_cast<ConstantInt*>(llvm_value->value);
@@ -48,6 +51,15 @@ LVALUE trunc_value(LVALUE* llvm_value, int size)
         switch(size) {
             case 1:
                 if(signed_value) {
+                    result.value = ConstantInt::get(TheContext, apint_value.sextOrTrunc(1));
+                }
+                else {
+                    result.value = ConstantInt::get(TheContext, apint_value.zextOrTrunc(1));
+                }
+                break;
+
+            case 8:
+                if(signed_value) {
                     result.value = ConstantInt::get(TheContext, apint_value.sextOrTrunc(8));
                 }
                 else {
@@ -55,7 +67,7 @@ LVALUE trunc_value(LVALUE* llvm_value, int size)
                 }
                 break;
 
-            case 2:
+            case 16:
                 if(signed_value) {
                     result.value = ConstantInt::get(TheContext, apint_value.sextOrTrunc(16));
                 }
@@ -64,7 +76,7 @@ LVALUE trunc_value(LVALUE* llvm_value, int size)
                 }
                 break;
 
-            case 4:
+            case 32:
                 if(signed_value) {
                     result.value = ConstantInt::get(TheContext, apint_value.sextOrTrunc(32));
                 }
@@ -73,7 +85,7 @@ LVALUE trunc_value(LVALUE* llvm_value, int size)
                 }
                 break;
 
-            case 8:
+            case 64:
                 if(signed_value) {
                     result.value = ConstantInt::get(TheContext, apint_value.sextOrTrunc(64));
                 }
@@ -91,25 +103,32 @@ LVALUE trunc_value(LVALUE* llvm_value, int size)
             case 1: {
                 APInt apint_value = apfloat_value.bitcastToAPInt();
                 ConstantInt* value = ConstantInt::get(TheContext, apint_value);
+                result.value = ConstantInt::get(TheContext, apint_value.sextOrTrunc(1));
+                }
+                break;
+
+            case 8: {
+                APInt apint_value = apfloat_value.bitcastToAPInt();
+                ConstantInt* value = ConstantInt::get(TheContext, apint_value);
                 result.value = ConstantInt::get(TheContext, apint_value.sextOrTrunc(8));
                 }
                 break;
 
-            case 2: {
+            case 16: {
                 APInt apint_value = apfloat_value.bitcastToAPInt();
                 ConstantInt* value = ConstantInt::get(TheContext, apint_value);
                 result.value = ConstantInt::get(TheContext, apint_value.sextOrTrunc(16));
                 }
                 break;
 
-            case 4: {
+            case 32: {
                 APInt apint_value = apfloat_value.bitcastToAPInt();
                 ConstantInt* value = ConstantInt::get(TheContext, apint_value);
                 result.value = ConstantInt::get(TheContext, apint_value.sextOrTrunc(32));
                 }
                 break;
 
-            case 8: {
+            case 64: {
                 APInt apint_value = apfloat_value.bitcastToAPInt();
                 ConstantInt* value = ConstantInt::get(TheContext, apint_value);
                 result.value = ConstantInt::get(TheContext, apint_value.sextOrTrunc(64));
@@ -118,36 +137,112 @@ LVALUE trunc_value(LVALUE* llvm_value, int size)
         }
     }
     /// Memory ///
+    else if(type_id == Type::TypeID::FloatTyID) {
+        switch(size) {
+            case 1:
+                result.value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, Type::getInt1Ty(TheContext));
+                break;
+
+            case 8:
+                result.value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, Type::getInt8Ty(TheContext));
+                break;
+
+            case 16:
+                result.value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, Type::getInt16Ty(TheContext));
+                break;
+
+            case 32:
+                result.value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, Type::getInt32Ty(TheContext));
+                break;
+
+            case 64:
+                result.value = Builder.CreateCast(Instruction::FPExt, llvm_value->value, Type::getDoubleTy(TheContext));
+                result.value = Builder.CreateCast(Instruction::BitCast, result.value, Type::getInt64Ty(TheContext));
+                break;
+        }
+    }
+    else if(type_id == Type::TypeID::DoubleTyID) {
+        switch(size) {
+            case 1:
+                result.value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, Type::getInt1Ty(TheContext));
+                break;
+
+            case 8:
+                result.value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, Type::getInt8Ty(TheContext));
+                break;
+
+            case 16:
+                result.value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, Type::getInt16Ty(TheContext));
+                break;
+
+            case 32:
+                result.value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, Type::getInt32Ty(TheContext));
+                break;
+
+            case 64:
+                result.value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, Type::getInt64Ty(TheContext));
+                break;
+        }
+    }
+    else if(llvm_type->isPointerTy()) {
+        switch(size) {
+            case 1:
+                result.value = Builder.CreateCast(Instruction::PtrToInt, llvm_value->value, Type::getInt1Ty(TheContext));
+                break;
+
+            case 8:
+                result.value = Builder.CreateCast(Instruction::PtrToInt, llvm_value->value, Type::getInt8Ty(TheContext));
+                break;
+
+            case 16:
+                result.value = Builder.CreateCast(Instruction::PtrToInt, llvm_value->value, Type::getInt16Ty(TheContext));
+                break;
+
+            case 32:
+                result.value = Builder.CreateCast(Instruction::PtrToInt, llvm_value->value, Type::getInt32Ty(TheContext));
+                break;
+
+            case 64:
+                result.value = Builder.CreateCast(Instruction::PtrToInt, llvm_value->value, Type::getInt64Ty(TheContext));
+                break;
+        }
+    }
     else {
         switch(size) {
             case 1:
-                if(!llvm_value->value->getType()->isIntegerTy(8)) {
-                    result.value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt8Ty(TheContext));
-                }
-                break;
-
-            case 2:
-                if(llvm_value->value->getType()->isIntegerTy(8)) {
-                    result.value = Builder.CreateCast(Instruction::ZExt, llvm_value->value, Type::getInt16Ty(TheContext));
-                }
-                else if(llvm_value->value->getType()->isIntegerTy(16)) {
-                }
-                else {
-                    result.value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt16Ty(TheContext));
-                }
-                break;
-
-            case 4:
-                if(llvm_value->value->getType()->isIntegerTy(8) || llvm_value->value->getType()->isIntegerTy(16)) {
-                    result.value = Builder.CreateCast(Instruction::ZExt, llvm_value->value, Type::getInt32Ty(TheContext));
-                }
-                else {
-                    result.value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt32Ty(TheContext));
+                if(!llvm_type->isIntegerTy(1) && !llvm_type->isPointerTy()) {
+                    result.value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt1Ty(TheContext));
                 }
                 break;
 
             case 8:
-                if(!llvm_value->value->getType()->isIntegerTy(64)) {
+                if(!llvm_type->isIntegerTy(8) && !llvm_type->isPointerTy()) {
+                    result.value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt8Ty(TheContext));
+                }
+                break;
+
+            case 16:
+                if(llvm_type->isIntegerTy(8) && !llvm_type->isPointerTy()) {
+                    result.value = Builder.CreateCast(Instruction::ZExt, llvm_value->value, Type::getInt16Ty(TheContext));
+                }
+                else if(llvm_type->isIntegerTy(16)) {
+                }
+                else if(!llvm_type->isPointerTy()) {
+                    result.value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt16Ty(TheContext));
+                }
+                break;
+
+            case 32:
+                if(llvm_type->isIntegerTy(8) || llvm_type->isIntegerTy(16)) {
+                    result.value = Builder.CreateCast(Instruction::ZExt, llvm_value->value, Type::getInt32Ty(TheContext));
+                }
+                else if(!llvm_type->isPointerTy()) {
+                    result.value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt32Ty(TheContext));
+                }
+                break;
+
+            case 64:
+                if(!llvm_type->isIntegerTy(64) && !llvm_type->isPointerTy()) {
                     result.value = Builder.CreateCast(Instruction::ZExt, llvm_value->value, Type::getInt64Ty(TheContext));
                 }
                 break;
@@ -186,7 +281,7 @@ static void trunc_vm_stack_value2(LVALUE* llvm_value, int size)
             break;
 
         case 64:
-            llvm_value->value = Builder.CreateCast(Instruction::IntToPtr, llvm_value->value, PointerType::get(IntegerType::get(TheContext, 64), 0));
+            llvm_value->value = Builder.CreateCast(Instruction::IntToPtr, llvm_value->value, PointerType::get(IntegerType::get(TheContext, 8), 0));
             break;
     }
 
@@ -586,29 +681,34 @@ static void insert_value_to_stack_ptr_with_offset(LVALUE** llvm_stack_ptr, LVALU
 static void store_llvm_value_to_lvar_with_offset(LVALUE* llvm_stack, int index, LVALUE* llvm_value)
 {
     /// 0 clear align 8 byte ///
-    Value* llvm_value2 = ConstantInt::get(TheContext, llvm::APInt(64, 0, true));
-    Builder.CreateStore(llvm_value2, llvm_stack[index].value);
+    Value* zero = ConstantInt::get(TheContext, llvm::APInt(64, 0, true));
+    Builder.CreateStore(zero, llvm_stack[index].value);
 
     /// store ///
-    trunc_vm_stack_value2(llvm_value, 8);
+    LVALUE llvm_value2;
+    llvm_value2 = trunc_value(llvm_value, 64);
     
-    Builder.CreateStore(llvm_value->value, llvm_stack[index].value);
+    /// go ///
+    Builder.CreateAlignedStore(llvm_value2.value, llvm_stack[index].value, 8);
+
     llvm_stack[index].vm_stack = llvm_value->vm_stack;
     llvm_stack[index].lvar_address_index = llvm_value->lvar_address_index;
     llvm_stack[index].lvar_stored = TRUE;
-    llvm_stack[index].constant_int_value = llvm_value->constant_int_value;
-    llvm_stack[index].constant_float_value = llvm_value->constant_float_value;
+    llvm_stack[index].constant_int_value = FALSE;
+    llvm_stack[index].constant_float_value = FALSE;
 }
 
 static void get_llvm_value_from_lvar_with_offset(LVALUE* result, LVALUE* llvm_stack, int index)
 {
     LVALUE* llvm_value = llvm_stack + index;
-    result->value = Builder.CreateLoad(llvm_value->value, "lvar");
+
+    result->value = Builder.CreateLoad(llvm_value->value, "lvar"); // load from allocated value
+
     result->vm_stack = llvm_value->vm_stack;
     result->lvar_address_index = llvm_value->lvar_address_index;
     result->lvar_stored = llvm_value->lvar_stored;
-    result->constant_int_value = llvm_value->constant_int_value;
-    result->constant_float_value = llvm_value->constant_float_value;
+    result->constant_int_value = FALSE;
+    result->constant_float_value = FALSE;
 }
 
 static LVALUE get_vm_stack_ptr_value_from_index_with_aligned(std::map<std::string, Value*>& params, BasicBlock* current_block, int index, int align)
@@ -618,9 +718,14 @@ static LVALUE get_vm_stack_ptr_value_from_index_with_aligned(std::map<std::strin
 
     Value* loaded_stack_ptr_address_value = Builder.CreateLoad(stack_ptr_address_value, "loaded_stack_ptr_address_value");
 
+/*
     Value* lvalue = loaded_stack_ptr_address_value;
     Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(64, 8*index, true));
     Value* stack_pointer_offset_value = Builder.CreateAdd(lvalue, rvalue, "stack_pointer_offset_value", true, true);
+*/
+    Value* lvalue = loaded_stack_ptr_address_value;
+    Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(64, index, true));
+    Value* stack_pointer_offset_value = Builder.CreateGEP(lvalue, rvalue, "stack_pointer_offset_value");
 
     LVALUE result;
     result.value = Builder.CreateAlignedLoad(stack_pointer_offset_value, align, "stack_pointer_offset_value");
@@ -659,10 +764,15 @@ static void inc_vm_stack_ptr(std::map<std::string, Value*>& params, BasicBlock* 
 
     Value* loaded_stack_ptr_address_value = Builder.CreateLoad(stack_ptr_address_value, "loaded_stack_ptr_address_value");
 
-
+/*
     Value* lvalue = loaded_stack_ptr_address_value;
     Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(64, 8*value, true));
     Value* inc_ptr_value = Builder.CreateAdd(lvalue, rvalue, "inc_ptr_value", false, false);
+*/
+
+    Value* lvalue = loaded_stack_ptr_address_value;
+    Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(64, value, true));
+    Value* inc_ptr_value = Builder.CreateGEP(lvalue, rvalue, "inc_ptr_value");
 
     std::string stack_ptr_arg_name("stack_ptr");
     params[stack_ptr_arg_name] = inc_ptr_value;
@@ -670,19 +780,25 @@ static void inc_vm_stack_ptr(std::map<std::string, Value*>& params, BasicBlock* 
     Builder.CreateStore(inc_ptr_value, stack_ptr_address_value);
 }
 
-static void push_value_to_vm_stack_ptr_with_aligned(std::map<std::string, Value*>& params, BasicBlock* current_block, Value* value, int align)
+static void push_value_to_vm_stack_ptr_with_aligned(std::map<std::string, Value*>& params, BasicBlock* current_block, LVALUE* llvm_value)
 {
     Builder.SetInsertPoint(current_block);
 
     std::string stack_ptr_address_name("stack_ptr_address");
     Value* stack_ptr_address_value = params[stack_ptr_address_name];
 
-    Value* loaded_stack_ptr_address_value = Builder.CreateAlignedLoad(stack_ptr_address_value, align, "loaded_stack_ptr_address_value");
+    Value* loaded_stack_ptr_address_value = Builder.CreateAlignedLoad(stack_ptr_address_value, 8, "loaded_stack_ptr_address_value");
 
+    /// zero clear///
     Value* zero = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)0);
     Builder.CreateAlignedStore(zero, loaded_stack_ptr_address_value, 8);
 
-    Builder.CreateAlignedStore(value, loaded_stack_ptr_address_value, align);
+    /// trunc ///
+    LVALUE llvm_value2;
+    llvm_value2 = trunc_value(llvm_value, 64);
+
+    /// store ///
+    Builder.CreateAlignedStore(llvm_value2.value, loaded_stack_ptr_address_value, 8);
 
     inc_vm_stack_ptr(params, current_block, 1);
 }
@@ -692,12 +808,19 @@ static LVALUE get_stack_value_from_index_with_aligned(std::map<std::string, Valu
     std::string stack_name("stack");
     Value* stack_address_value = params[stack_name];
 
-    Value* lvalue = stack_address_value;
-    Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(64, 8*index, true));
-    Value* stack_offset_address_value = Builder.CreateAdd(lvalue, rvalue, "stack_offset_address_value", true, true);
-
     LVALUE result;
-    result.value = Builder.CreateAlignedLoad(stack_offset_address_value, align, "stack_offset_value");
+    if(index > 0) {
+        Value* lvalue = stack_address_value;
+        Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(64, index, true));
+        Value* stack_offset_address_value = Builder.CreateGEP(lvalue, rvalue, "stack_offset_address_value");
+
+
+        result.value = Builder.CreateAlignedLoad(stack_offset_address_value, align, "stack_offset_value");
+    }
+    else {
+        result.value = Builder.CreateAlignedLoad(stack_address_value, align, "stack_offset_value");
+    }
+
 
     switch(align) {
         case 1:
@@ -733,8 +856,8 @@ static void llvm_stack_to_vm_stack(LVALUE* llvm_stack_ptr, std::map<std::string,
 {
     int i;
     for(i=0; i<num; i++) {
-        Value* llvm_value = llvm_stack_ptr[i-num].value;
-        push_value_to_vm_stack_ptr_with_aligned(params, current_block, llvm_value, 8);
+        LVALUE* llvm_value = llvm_stack_ptr + i - num;
+        push_value_to_vm_stack_ptr_with_aligned(params, current_block, llvm_value);
     }
 }
 
@@ -743,7 +866,30 @@ static void if_value_is_zero_ret_zero(Value* value, std::map<std::string, Value 
     BasicBlock* then_block = BasicBlock::Create(TheContext, "then_block", function);
     BasicBlock* entry_ifend = BasicBlock::Create(TheContext, "entry_ifend", function);
 
-    Value* comp = Builder.CreateICmpEQ(value, ConstantInt::get(TheContext, llvm::APInt(32, 0, true)), "ifcond");
+    Value* zero = ConstantInt::get(TheContext, llvm::APInt(32, 0, true));
+
+    Value* comp = Builder.CreateICmpEQ(value, zero, "ifcond");
+
+    Builder.CreateCondBr(comp, then_block, entry_ifend);
+
+    Builder.SetInsertPoint(then_block);
+
+    Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 0, true));
+    Builder.CreateRet(ret_value);
+
+    Builder.SetInsertPoint(entry_ifend);
+    *current_block = entry_ifend;
+}
+
+static void if_value_is_null_ret_zero(Value* value, int value_bit, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block)
+{
+    BasicBlock* then_block = BasicBlock::Create(TheContext, "then_block", function);
+    BasicBlock* entry_ifend = BasicBlock::Create(TheContext, "entry_ifend", function);
+
+    Value* zero = ConstantInt::get(TheContext, llvm::APInt(32, 0, true));
+    Value* null_ptr = Builder.CreateCast(Instruction::IntToPtr, zero, PointerType::get(IntegerType::get(TheContext, value_bit), 0));
+
+    Value* comp = Builder.CreateICmpEQ(value, null_ptr, "ifcond");
 
     Builder.CreateCondBr(comp, then_block, entry_ifend);
 
@@ -762,16 +908,19 @@ static Value* get_value_from_char_array(char* str)
     return ConstantExpr::getIntToPtr(str_constant, PointerType::get(IntegerType::get(TheContext,8), 0));
 }
 
-static void store_value_to_lvar_with_offset(std::map<std::string, Value*>& params, BasicBlock* current_block, int index, Value* llvm_value)
+static void store_value_to_lvar_with_offset(std::map<std::string, Value*>& params, BasicBlock* current_block, int index, LVALUE* llvm_value)
 {
     std::string lvar_arg_name("lvar");
     Value* lvar_value = params[lvar_arg_name];
     
     Value* lvalue = lvar_value;
-    Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(64, 8*index, true));
-    Value* lvar_offset_value = Builder.CreateAdd(lvalue, rvalue, "lvar_offset_value", true, true);
+    Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(64, index, true));
+    Value* lvar_offset_value = Builder.CreateGEP(lvalue, rvalue, "lvar_offset_value");
 
-    Builder.CreateAlignedStore(llvm_value, lvar_offset_value, 8);
+    LVALUE llvm_value2;
+    llvm_value2 = trunc_value(llvm_value, 64);
+
+    Builder.CreateAlignedStore(llvm_value2.value, lvar_offset_value, 8);
 }
 
 static void dec_vm_stack_ptr(std::map<std::string, Value*>& params, BasicBlock* current_block, int value)
@@ -781,9 +930,15 @@ static void dec_vm_stack_ptr(std::map<std::string, Value*>& params, BasicBlock* 
 
     Value* loaded_stack_ptr_address_value = Builder.CreateLoad(stack_ptr_address_value, "loaded_stack_ptr_address_value");
 
+/*
     Value* lvalue = loaded_stack_ptr_address_value;
     Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(64, 8*value, true));
     Value* dec_ptr_value = Builder.CreateSub(lvalue, rvalue, "dec_ptr_value", true, true);
+*/
+
+    Value* lvalue = loaded_stack_ptr_address_value;
+    Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(64, value, true));
+    Value* dec_ptr_value = Builder.CreateGEP(lvalue, rvalue, "dec_ptr_value");
 
     Builder.CreateStore(dec_ptr_value, stack_ptr_address_value);
 }
@@ -879,12 +1034,26 @@ static void call_entry_exception_object_with_class_name2(std::map<std::string, V
     (void)Builder.CreateCall(entry_exception_object_fun, params2);
 }
 
-static void if_value_is_zero_entry_exception_object(Value* value, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block, char* class_name, char* message)
+static void if_value_is_zero_entry_exception_object(Value* value, int value_size, BOOL value_is_float, BOOL value_is_double, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block, char* class_name, char* message)
 {
     BasicBlock* then_block = BasicBlock::Create(TheContext, "then_block", function);
     BasicBlock* entry_ifend = BasicBlock::Create(TheContext, "entry_ifend", function);
 
-    Value* comp = Builder.CreateICmpEQ(value, ConstantInt::get(TheContext, llvm::APInt(32, 0, true)), "ifcond");
+    Value* rvalue;
+    if(value_is_float) {
+        double value = 0.0;
+        rvalue = ConstantFP::get(TheContext, llvm::APFloat(value)); 
+        //rvalue = Builder.CreateCast(Instruction::FPTrunc, rvalue, Type::getFloatTy(TheContext));
+    }
+    else if(value_is_double) {
+        double value = 0.0;
+        rvalue = ConstantFP::get(TheContext, llvm::APFloat(value)); 
+    }
+    else {
+        rvalue = ConstantInt::get(TheContext, llvm::APInt(value_size, 0, true));
+    }
+
+    Value* comp = Builder.CreateICmpEQ(value, rvalue, "ifcond");
 
     Builder.CreateCondBr(comp, then_block, entry_ifend);
 
@@ -930,7 +1099,10 @@ static void finish_method_call(Value* result, std::map<std::string, Value *> par
 
     Value* try_catch_label_name_value = Builder.CreateCall(try_catch_label_name_fun, params2);
 
-    Value* comp2 = Builder.CreateICmpNE(try_catch_label_name_value, ConstantInt::get(TheContext, llvm::APInt(32, 0, false)), "catchcond");
+    Value* zero = ConstantInt::get(TheContext, llvm::APInt(32, 0, true));
+    Value* null_ptr = Builder.CreateCast(Instruction::IntToPtr, zero, PointerType::get(IntegerType::get(TheContext, 8), 0));
+
+    Value* comp2 = Builder.CreateICmpNE(try_catch_label_name_value, null_ptr, "catchcond");
 
     BasicBlock* then_block2 = BasicBlock::Create(TheContext, "then_block_b", function);
     BasicBlock* entry_ifend2 = BasicBlock::Create(TheContext, "entry_ifend_b", function);
@@ -994,11 +1166,19 @@ static void finish_method_call(Value* result, std::map<std::string, Value *> par
             Value* vminfo_value = params[info_value_name];
             params2.push_back(vminfo_value);
 
-            Value* try_catch_label_value = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)NULL);
-            params2.push_back(try_catch_label_value);
+            Value* catch_label_name_offset_value  = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)0);
+            params2.push_back(catch_label_name_offset_value);
 
             Value* try_offset_value = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)0);
             params2.push_back(try_offset_value);
+
+            std::string code_value_name("code");
+            Value* code_value = params[code_value_name];
+            params2.push_back(code_value);
+
+            std::string constant_value_name("constant");
+            Value* constant_value = params[constant_value_name];
+            params2.push_back(constant_value);
 
             (void)Builder.CreateCall(try_fun, params2);
 
@@ -1032,7 +1212,7 @@ static void lvar_of_llvm_to_lvar_of_vm(std::map<std::string, Value *> params, Ba
         get_llvm_value_from_lvar_with_offset(&llvm_value, llvm_stack, i);
 
         if(llvm_value.value != 0) {
-            store_value_to_lvar_with_offset(params, current_block, i, llvm_value.value);
+            store_value_to_lvar_with_offset(params, current_block, i, &llvm_value);
         }
     }
 }
@@ -1231,8 +1411,9 @@ static void trunc_vm_stack_value(LVALUE* value, int inst)
             case OP_PLE:
             case OP_PGTEQ: 
             case OP_PLEEQ: 
-                value->value = Builder.CreateCast(Instruction::IntToPtr, value->value, PointerType::get(IntegerType::get(TheContext, 64), 0));
+                value->value = Builder.CreateCast(Instruction::IntToPtr, value->value, PointerType::get(IntegerType::get(TheContext, 8), 0));
                 break;
+
         }
 
         value->vm_stack = FALSE;
@@ -1241,20 +1422,25 @@ static void trunc_vm_stack_value(LVALUE* value, int inst)
 
 
 
-static void store_value_to_vm_lvar(std::map<std::string, Value*>& params, BasicBlock* current_block, int offset, Value* value)
+static void store_value_to_vm_lvar(std::map<std::string, Value*>& params, BasicBlock* current_block, int offset, LVALUE* llvm_value)
 {
     std::string lvar_arg_name("lvar");
     Value* lvar_value = params[lvar_arg_name];
 
     Value* lvalue = lvar_value;
-    Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(64, 8*offset, true));
-    Value* lvar_offset_value = Builder.CreateAdd(lvalue, rvalue, "lvar_offset_value", true, true);
+    Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(64, offset, true));
+    Value* lvar_offset_value = Builder.CreateGEP(lvalue, rvalue, "lvar_offset_value");
+
     /// 0 clear align 8 byte ///
     Value* zero = ConstantInt::get(TheContext, llvm::APInt(64, 0, true));
     Builder.CreateAlignedStore(zero, lvar_offset_value, 8);
 
+    /// trunc ///
+    LVALUE llvm_value2;
+    llvm_value2 = trunc_value(llvm_value, 64);
+
     /// go ///
-    Builder.CreateStore(value, lvar_offset_value);
+    Builder.CreateAlignedStore(llvm_value2.value, lvar_offset_value, 8);
 }
 
 static void llvm_lvar_to_vm_lvar(LVALUE* llvm_stack,std::map<std::string, Value*>& params, BasicBlock* current_block, int var_num)
@@ -1265,7 +1451,7 @@ static void llvm_lvar_to_vm_lvar(LVALUE* llvm_stack,std::map<std::string, Value*
         get_llvm_value_from_lvar_with_offset(&llvm_value, llvm_stack, i);
 
         if(llvm_value.lvar_stored) {
-            store_value_to_vm_lvar(params, current_block, i, llvm_value.value);
+            store_value_to_vm_lvar(params, current_block, i, &llvm_value);
         }
     }
 }
@@ -2794,7 +2980,7 @@ static void create_internal_functions()
 
     param1_type = PointerType::get(IntegerType::get(TheContext,64), 0);
     type_params.push_back(param1_type);
-    param2_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    param2_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param2_type);
 
     param3_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
@@ -2808,9 +2994,6 @@ static void create_internal_functions()
 
     param6_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
     type_params.push_back(param6_type);
-
-    param7_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
-    type_params.push_back(param7_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "call_invoke_method", TheModule);
@@ -2837,8 +3020,14 @@ static void create_internal_functions()
     param2_type = IntegerType::get(TheContext,32);
     type_params.push_back(param2_type);
 
-    param3_type = PointerType::get(IntegerType::get(TheContext,64), 0);
+    param3_type = IntegerType::get(TheContext,32);
     type_params.push_back(param3_type);
+
+    param4_type = PointerType::get(IntegerType::get(TheContext,64), 0);
+    type_params.push_back(param4_type);
+
+    param5_type = PointerType::get(IntegerType::get(TheContext,64), 0);
+    type_params.push_back(param4_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "try_function", TheModule);
@@ -2885,7 +3074,7 @@ static void create_internal_functions()
     /// get_field_from_object ///
     type_params.clear();
     
-    result_type = IntegerType::get(TheContext, 64);
+    result_type = PointerType::get(gCLValueAndBoolStruct, 0);
 
     param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
     type_params.push_back(param1_type);
@@ -2955,29 +3144,23 @@ static void create_internal_functions()
     param1_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param1_type);
 
-    param2_type = IntegerType::get(TheContext, 32);
+    param2_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
     type_params.push_back(param2_type);
 
-    param3_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    param3_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param3_type);
 
-    param4_type = IntegerType::get(TheContext, 32);
+    param4_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
     type_params.push_back(param4_type);
 
-    param5_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    param5_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
     type_params.push_back(param5_type);
 
     param6_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
     type_params.push_back(param6_type);
 
-    param7_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    param7_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param7_type);
-
-    param8_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
-    type_params.push_back(param8_type);
-
-    param9_type = IntegerType::get(TheContext, 32);
-    type_params.push_back(param9_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "call_invoke_virtual_method", TheModule);
@@ -3081,7 +3264,7 @@ static void create_internal_functions()
     /// load_class_field ///
     type_params.clear();
     
-    result_type = IntegerType::get(TheContext, 64);
+    result_type = PointerType::get(gCLValueAndBoolStruct, 0);
 
     param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
     type_params.push_back(param1_type);
@@ -3171,7 +3354,7 @@ static void create_internal_functions()
     /// load_element ///
     type_params.clear();
     
-    result_type = IntegerType::get(TheContext, 64);
+    result_type = PointerType::get(gCLValueAndBoolStruct, 0);
 
     param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
     type_params.push_back(param1_type);
@@ -3358,7 +3541,7 @@ static void create_internal_functions()
     /// run_create_array ///
     type_params.clear();
     
-    result_type = IntegerType::get(TheContext, 64);
+    result_type = PointerType::get(gCLValueAndBoolStruct, 0);
 
     param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
     type_params.push_back(param1_type);
@@ -3372,11 +3555,14 @@ static void create_internal_functions()
     param4_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
     type_params.push_back(param4_type);
 
-    param5_type = PointerType::get(IntegerType::get(TheContext, 8), 0);
+    param5_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param5_type);
 
     param6_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param6_type);
+
+    param7_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param7_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_create_array", TheModule);
@@ -3384,7 +3570,7 @@ static void create_internal_functions()
     /// run_create_carray ///
     type_params.clear();
     
-    result_type = IntegerType::get(TheContext, 64);
+    result_type = PointerType::get(gCLValueAndBoolStruct, 0);
 
     param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
     type_params.push_back(param1_type);
@@ -3401,8 +3587,11 @@ static void create_internal_functions()
     param5_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param5_type);
 
-    param6_type = PointerType::get(IntegerType::get(TheContext, 8), 0);
+    param6_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param6_type);
+
+    param7_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param7_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_create_carray", TheModule);
@@ -3410,7 +3599,7 @@ static void create_internal_functions()
     /// run_create_equalable_carray ///
     type_params.clear();
     
-    result_type = IntegerType::get(TheContext, 64);
+    result_type = PointerType::get(gCLValueAndBoolStruct, 0);
 
     param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
     type_params.push_back(param1_type);
@@ -3427,8 +3616,12 @@ static void create_internal_functions()
     param5_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param5_type);
 
-    param6_type = PointerType::get(IntegerType::get(TheContext, 8), 0);
+    param6_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param6_type);
+
+    param7_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param7_type);
+
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_create_equalable_carray", TheModule);
@@ -3436,7 +3629,7 @@ static void create_internal_functions()
     /// run_create_sortable_carray ///
     type_params.clear();
     
-    result_type = IntegerType::get(TheContext, 64);
+    result_type = PointerType::get(gCLValueAndBoolStruct, 0);
 
     param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
     type_params.push_back(param1_type);
@@ -3453,8 +3646,11 @@ static void create_internal_functions()
     param5_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param5_type);
 
-    param6_type = PointerType::get(IntegerType::get(TheContext, 8), 0);
+    param6_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param6_type);
+
+    param7_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param7_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_create_sortable_carray", TheModule);
@@ -3462,7 +3658,7 @@ static void create_internal_functions()
     /// run_create_list ///
     type_params.clear();
     
-    result_type = IntegerType::get(TheContext, 64);
+    result_type = PointerType::get(gCLValueAndBoolStruct, 0);
 
     param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
     type_params.push_back(param1_type);
@@ -3479,8 +3675,11 @@ static void create_internal_functions()
     param5_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param5_type);
 
-    param6_type = PointerType::get(IntegerType::get(TheContext, 8), 0);
+    param6_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param6_type);
+
+    param7_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param7_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_create_list", TheModule);
@@ -3488,7 +3687,7 @@ static void create_internal_functions()
     /// run_create_sortable_list ///
     type_params.clear();
     
-    result_type = IntegerType::get(TheContext, 64);
+    result_type = PointerType::get(gCLValueAndBoolStruct, 0);
 
     param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
     type_params.push_back(param1_type);
@@ -3505,8 +3704,11 @@ static void create_internal_functions()
     param5_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param5_type);
 
-    param6_type = PointerType::get(IntegerType::get(TheContext, 8), 0);
+    param6_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param6_type);
+
+    param7_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param7_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_create_sortable_list", TheModule);
@@ -3514,7 +3716,7 @@ static void create_internal_functions()
     /// run_create_equalable_list ///
     type_params.clear();
     
-    result_type = IntegerType::get(TheContext, 64);
+    result_type = PointerType::get(gCLValueAndBoolStruct, 0);
 
     param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
     type_params.push_back(param1_type);
@@ -3531,8 +3733,11 @@ static void create_internal_functions()
     param5_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param5_type);
 
-    param6_type = PointerType::get(IntegerType::get(TheContext, 8), 0);
+    param6_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param6_type);
+
+    param7_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param7_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_create_equalable_list", TheModule);
@@ -3540,7 +3745,7 @@ static void create_internal_functions()
     /// run_create_tuple ///
     type_params.clear();
     
-    result_type = IntegerType::get(TheContext, 64);
+    result_type = PointerType::get(gCLValueAndBoolStruct, 0);
 
     param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
     type_params.push_back(param1_type);
@@ -3563,7 +3768,7 @@ static void create_internal_functions()
     /// run_create_hash ///
     type_params.clear();
     
-    result_type = IntegerType::get(TheContext, 64);
+    result_type = PointerType::get(gCLValueAndBoolStruct, 0);
 
     param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
     type_params.push_back(param1_type);
@@ -3580,11 +3785,14 @@ static void create_internal_functions()
     param5_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param5_type);
 
-    param6_type = PointerType::get(IntegerType::get(TheContext, 8), 0);
+    param6_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param6_type);
 
-    param7_type = PointerType::get(IntegerType::get(TheContext, 8), 0);
+    param7_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param7_type);
+
+    param8_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param8_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_create_hash", TheModule);
@@ -3880,12 +4088,13 @@ static void create_internal_functions()
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_cdouble_to_double_cast", TheModule);
+
     /// entry_exception_object_with_class_name2 ///
     type_params.clear();
     
     result_type = IntegerType::get(TheContext, 32);
 
-    param1_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
     type_params.push_back(param1_type);
 
     param2_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
@@ -3935,7 +4144,7 @@ static void create_internal_functions()
     /// run_array_to_carray_cast ///
     type_params.clear();
     
-    result_type = IntegerType::get(TheContext, 64);
+    result_type = PointerType::get(gCLValueAndBoolStruct, 0);
 
     param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
     type_params.push_back(param1_type);
@@ -4036,6 +4245,10 @@ static Function* create_llvm_function(const std::string& name)
     params.push_back(param5_type);
     Type* param6_type = IntegerType::get(TheContext, 32);
     params.push_back(param6_type);
+    Type* param7_type = PointerType::get(IntegerType::get(TheContext,64), 0);
+    params.push_back(param7_type);
+    Type* param8_type = PointerType::get(IntegerType::get(TheContext,64), 0);
+    params.push_back(param8_type);
 
     Type* result_type = IntegerType::get(TheContext, 32);
     FunctionType* function_type = FunctionType::get(result_type, params, false);
@@ -4055,6 +4268,10 @@ static Function* create_llvm_function(const std::string& name)
     args.push_back(stack_ptr_address_name);
     std::string var_num_name("var_num");
     args.push_back(var_num_name);
+    std::string constant_name("constant");
+    args.push_back(constant_name);
+    std::string code_name("code");
+    args.push_back(code_name);
 
     unsigned index = 0;
     for (auto &arg : function->args()) {
@@ -4112,13 +4329,11 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
 
     /// parametor from VM stack ptr ///
     int real_param_num = method->mNumParams + ((method->mFlags & METHOD_FLAGS_CLASS_METHOD) ? 0:1);
-/*
     for(i=0; i<real_param_num; i++) {
         LVALUE llvm_value = get_stack_value_from_index_with_aligned(params, current_block, i, 8);
 
         store_llvm_value_to_lvar_with_offset(llvm_stack, i, &llvm_value);
     }
-*/
 
     /// clear local variable ///
     for(i=real_param_num; i<var_num; i++) {
@@ -4219,7 +4434,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 BasicBlock* cond_jump_then_block = BasicBlock::Create(TheContext, "cond_jump_then", function);
                 entry_condends[num_cond_jump] = BasicBlock::Create(TheContext, "entry_condend", function);
 
-                Builder.CreateCondBr(conditional_value->value, entry_condends[num_cond_jump], cond_jump_then_block);
+                LVALUE llvm_value;
+                llvm_value = trunc_value(conditional_value, 1);
+
+                Builder.CreateCondBr(llvm_value.value, entry_condends[num_cond_jump], cond_jump_then_block);
 
                 Builder.SetInsertPoint(cond_jump_then_block);
 
@@ -4245,8 +4463,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 BasicBlock* cond_not_jump_then_block = BasicBlock::Create(TheContext, "cond_not_jump_then", function);
                 entry_condnotends[num_cond_not_jump] = BasicBlock::Create(TheContext, "entry_condnotend", function);
+                LVALUE llvm_value;
+                llvm_value = trunc_value(conditional_value, 1);
 
-                Builder.CreateCondBr(conditional_value->value, cond_not_jump_then_block, entry_condnotends[num_cond_not_jump]);
+                Builder.CreateCondBr(llvm_value.value, cond_not_jump_then_block, entry_condnotends[num_cond_not_jump]);
 
                 Builder.SetInsertPoint(cond_not_jump_then_block);
 
@@ -4297,8 +4517,9 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
+
                 LVALUE llvm_value2;
-                llvm_value2 = trunc_value(llvm_value, 8);
+                llvm_value2 = trunc_value(llvm_value, 64);
 
                 Builder.CreateAlignedStore(llvm_value2.value, stack_value, 8);
 
@@ -4321,9 +4542,12 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 Function* entry_exception_object_fun = TheModule->getFunction("entry_exception_object");
 
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(llvm_value, 32);
+
                 std::vector<Value*> params2;
 
-                Value* param1 = llvm_value->value;
+                Value* param1 = llvm_value2.value;
                 params2.push_back(param1);
 
                 std::string info_value_name("info");
@@ -4347,8 +4571,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 int catch_label_name_offset = *(int*)pc;
                 pc += sizeof(int);
 
-                try_catch_label_name = CONS_str(constant, catch_label_name_offset);
-
                 Function* try_fun = TheModule->getFunction("try_function");
 
                 std::vector<Value*> params2;
@@ -4357,14 +4579,19 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 Value* vminfo_value = params[info_value_name];
                 params2.push_back(vminfo_value);
 
-                Value* try_catch_label_value = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)try_catch_label_name);
-                params2.push_back(try_catch_label_value);
+                Value* catch_label_name_offset_value  = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)catch_label_name_offset);
+                params2.push_back(catch_label_name_offset_value);
 
                 Value* try_offset_value = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)try_offset);
                 params2.push_back(try_offset_value);
 
-                Value* try_code = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)code);
-                params2.push_back(try_code);
+                std::string code_value_name("code");
+                Value* code_value = params[code_value_name];
+                params2.push_back(code_value);
+
+                std::string constant_value_name("constant");
+                Value* constant_value = params[constant_value_name];
+                params2.push_back(constant_value);
 
                 (void)Builder.CreateCall(try_fun, params2);
                 }
@@ -4381,14 +4608,19 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 Value* vminfo_value = params[info_value_name];
                 params2.push_back(vminfo_value);
 
-                Value* try_catch_label_value = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)NULL);
-                params2.push_back(try_catch_label_value);
+                Value* catch_label_name_offset_value  = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)0);
+                params2.push_back(catch_label_name_offset_value);
 
                 Value* try_offset_value = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)0);
                 params2.push_back(try_offset_value);
 
-                Value* try_code = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)NULL);
-                params2.push_back(try_code);
+                std::string code_value_name("code");
+                Value* code_value = params[code_value_name];
+                params2.push_back(code_value);
+
+                std::string constant_value_name("constant");
+                Value* constant_value = params[constant_value_name];
+                params2.push_back(constant_value);
 
                 (void)Builder.CreateCall(try_fun, params2);
 
@@ -4396,6 +4628,11 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 break;
 
             case OP_CATCH_POP:
+                break;
+
+            case OP_CATCH_STORE: {
+                pc += sizeof(int);
+                }
                 break;
 
             case OP_HEAD_OF_EXPRESSION: {
@@ -4412,7 +4649,9 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 BasicBlock* then_block = BasicBlock::Create(TheContext, "sigint_then_block", function);
                 BasicBlock* else_block = BasicBlock::Create(TheContext, "entry_after_sigint", function);
 
-                Builder.CreateCondBr(sig_int_value, then_block, else_block);
+                Value* value = Builder.CreateCast(Instruction::Trunc, sig_int_value, Type::getInt8Ty(TheContext));
+
+                Builder.CreateCondBr(value, then_block, else_block);
 
                 Builder.SetInsertPoint(then_block);
 
@@ -4461,7 +4700,11 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 value_for_andand_oror[num_value_for_andand_oror] = builder.CreateAlloca(Type::getInt64Ty(TheContext), 0, "VALUE_FOR_ANDAND_OROR");
                 Value* zero = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)0);
                 Builder.CreateAlignedStore(zero, value_for_andand_oror[num_value_for_andand_oror], 8);
-                Builder.CreateAlignedStore(llvm_value->value, value_for_andand_oror[num_value_for_andand_oror], 8);
+
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(llvm_value, 64);
+
+                Builder.CreateAlignedStore(llvm_value2.value, value_for_andand_oror[num_value_for_andand_oror], 8);
 
                 trunc_vm_stack_value2(llvm_value, 4);
 
@@ -4476,7 +4719,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 num_value_for_andand_oror--;
 
-                Builder.CreateAlignedStore(llvm_value->value, value_for_andand_oror[num_value_for_andand_oror], 8);
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(llvm_value, 64);
+
+                Builder.CreateAlignedStore(llvm_value2.value, value_for_andand_oror[num_value_for_andand_oror], 8);
 
                 MASSERT(num_value_for_andand_oror >= 0);
                 }
@@ -4551,9 +4797,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 Value* lvar_value = params[lvar_arg_name];
 
                 LVALUE llvm_value;
-                Value* add_value = ConstantInt::get(TheContext, llvm::APInt(64, index * 8, true)); 
-                llvm_value.value = Builder.CreateAdd(lvar_value, add_value, "addtmp", false, true);
-                llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, PointerType::get(IntegerType::get(TheContext, 64), 0));
+                Value* add_value = ConstantInt::get(TheContext, llvm::APInt(64, index, true)); 
+                llvm_value.value = Builder.CreateGEP(lvar_value, add_value, "gepaddtmp");
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = index;
                 llvm_value.lvar_stored = FALSE;
@@ -4744,8 +4989,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
-                llvm_value.constant_int_value = TRUE;
-                llvm_value.constant_int_value = TRUE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, PointerType::get(IntegerType::get(TheContext, 64), 0));
 
@@ -4820,8 +5065,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
             case OP_USADD:
             case OP_UIADD:
             case OP_ULADD: 
-            case OP_CADD:
-            case OP_PADD: {
+            case OP_CADD: {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
@@ -4841,12 +5085,31 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 }
                 break;
 
+            case OP_PADD: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                trunc_vm_stack_value(lvalue, inst);
+                trunc_vm_stack_value(rvalue, inst);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateGEP(lvalue->value, rvalue->value, "addtmp");
+                llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+                break;
+
             case OP_BSUB:
             case OP_SSUB:
-            case OP_ISUB: 
-            case OP_LSUB:
-            case OP_PSUB:
-            case OP_PPSUB: {
+            case OP_ISUB:
+            case OP_LSUB: {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
@@ -4860,6 +5123,52 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_PSUB: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                lvalue->value = Builder.CreateCast(Instruction::PtrToInt, lvalue->value, Type::getInt64Ty(TheContext), "value2");
+
+                LVALUE rvalue2;
+                rvalue2 = trunc_value(rvalue, 64);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateSub(lvalue->value, rvalue2.value, "subtmp");
+                llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
+
+                llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, PointerType::get(IntegerType::get(TheContext, 8), 0));
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_PPSUB: {
+                LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                lvalue->value = Builder.CreateCast(Instruction::PtrToInt, lvalue->value, Type::getInt64Ty(TheContext), "value2");
+                rvalue->value = Builder.CreateCast(Instruction::PtrToInt, rvalue->value, Type::getInt64Ty(TheContext), "value2");
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp");
+                llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
+
+                llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, PointerType::get(IntegerType::get(TheContext, 8), 0));
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -4946,7 +5255,21 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 trunc_vm_stack_value(lvalue, inst);
                 trunc_vm_stack_value(rvalue, inst);
 
-                if_value_is_zero_entry_exception_object(rvalue->value, params, function, &current_block, "Exception", "division by zero");
+                int value_size;
+                if(inst == OP_BDIV) {
+                    value_size = 8;
+                }
+                else if(inst == OP_SDIV) {
+                    value_size = 16;
+                }
+                else if(inst == OP_IDIV) {
+                    value_size = 32;
+                }
+                else {
+                    value_size = 64;
+                }
+
+                if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, function, &current_block, "Exception", "division by zero");
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateSDiv(lvalue->value, rvalue->value, "divtmp", false);
@@ -4971,7 +5294,21 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 trunc_vm_stack_value(lvalue, inst);
                 trunc_vm_stack_value(rvalue, inst);
 
-                if_value_is_zero_entry_exception_object(rvalue->value, params, function, &current_block, "Exception", "division by zero");
+                int value_size;
+                if(inst == OP_UBDIV) {
+                    value_size = 8;
+                }
+                else if(inst == OP_USDIV) {
+                    value_size = 16;
+                }
+                else if(inst == OP_UIDIV) {
+                    value_size = 32;
+                }
+                else {
+                    value_size = 64;
+                }
+
+                if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, function, &current_block, "Exception", "division by zero");
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateUDiv(lvalue->value, rvalue->value, "divtmp", false);
@@ -4996,7 +5333,21 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 trunc_vm_stack_value(lvalue, inst);
                 trunc_vm_stack_value(rvalue, inst);
 
-                if_value_is_zero_entry_exception_object(rvalue->value, params, function, &current_block, "Exception", "division by zero");
+                int value_size;
+                if(inst == OP_BMOD) {
+                    value_size = 8;
+                }
+                else if(inst == OP_SMOD) {
+                    value_size = 16;
+                }
+                else if(inst == OP_IMOD) {
+                    value_size = 32;
+                }
+                else {
+                    value_size = 64;
+                }
+
+                if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, function, &current_block, "Exception", "division by zero");
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateSRem(lvalue->value, rvalue->value, "remtmp");
@@ -5021,7 +5372,22 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 trunc_vm_stack_value(lvalue, inst);
                 trunc_vm_stack_value(rvalue, inst);
 
-                if_value_is_zero_entry_exception_object(rvalue->value, params, function, &current_block, "Exception", "division by zero");
+                int value_size;
+
+                if(inst == OP_UBMOD) {
+                    value_size = 8;
+                }
+                else if(inst == OP_USMOD) {
+                    value_size = 16;
+                }
+                else if(inst == OP_UIMOD) {
+                    value_size = 32;
+                }
+                else {
+                    value_size = 64;
+                }
+
+                if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, function, &current_block, "Exception", "division by zero");
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateURem(lvalue->value, rvalue->value, "remtmp");
@@ -5368,7 +5734,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 trunc_vm_stack_value(lvalue, inst);
                 trunc_vm_stack_value(rvalue, inst);
 
-                if_value_is_zero_entry_exception_object(rvalue->value, params, function, &current_block, "Exception", "division by zero");
+                BOOL value_is_float = inst == OP_FDIV;
+                BOOL value_is_double = inst == OP_DDIV;
+
+                if_value_is_zero_entry_exception_object(rvalue->value, 0, value_is_float, value_is_double, params, function, &current_block, "Exception", "division by zero");
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateFDiv(lvalue->value, rvalue->value, "fdivtmp");
@@ -5809,7 +6178,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
             case OP_CLASSNAME: {
                 LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
-                if_value_is_zero_entry_exception_object(value->value, params, function, &current_block, "Exception", "Null pointer exception(1)");
+                if_value_is_zero_entry_exception_object(value->value, 32, FALSE, FALSE, params, function, &current_block, "Exception", "Null pointer exception(1)");
 
                 Function* fun = TheModule->getFunction("get_string_object_of_object_name");
 
@@ -5852,14 +6221,15 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 Constant* str_constant = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)class_name);
                 Value* param1 = ConstantExpr::getIntToPtr(str_constant, PointerType::get(IntegerType::get(TheContext,8), 0));
+                params2.push_back(param1);
 
                 Value* klass_value = Builder.CreateCall(load_class_fun, params2);
 
-                if_value_is_zero_ret_zero(klass_value, params, function, &current_block);
+                if_value_is_null_ret_zero(klass_value, 64, params, function, &current_block);
 
                 /// go ///
                 LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
-                if_value_is_zero_entry_exception_object(value->value, params, function, &current_block, "Exception", "Null pointer exception(2)");
+                if_value_is_zero_entry_exception_object(value->value, 32, FALSE, FALSE, params, function, &current_block, "Exception", "Null pointer exception(2)");
 
                 Function* fun = TheModule->getFunction("object_implements_interface");
 
@@ -5975,10 +6345,11 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 Constant* str_constant = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)class_name);
                 Value* param1 = ConstantExpr::getIntToPtr(str_constant, PointerType::get(IntegerType::get(TheContext,8), 0));
+                params2.push_back(param1);
 
                 Value* klass_value = Builder.CreateCall(load_class_fun, params2);
 
-                if_value_is_zero_ret_zero(klass_value, params, function, &current_block);
+                if_value_is_null_ret_zero(klass_value, 64, params, function, &current_block);
 
                 /// llvm stack to VM stack ///
                 llvm_lvar_to_vm_lvar(llvm_stack, params, current_block, var_num);
@@ -5994,7 +6365,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 param1 = klass_value;
                 params2.push_back(param1);
 
-                Value* param2 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)method);
+                Value* param2 = ConstantInt::get(Type::getInt32Ty(TheContext), APInt(32, method_index, true));
                 params2.push_back(param2);
 
                 std::string stack_value_name("stack");
@@ -6012,10 +6383,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 std::string info_value_name("info");
                 Value* param6 = params[info_value_name];
                 params2.push_back(param6);
-
-                Value* param7 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)code);
-                param7 = Builder.CreateCast(Instruction::IntToPtr, param7, PointerType::get(IntegerType::get(TheContext, 64), 0));
-                params2.push_back(param7);
 
                 Value* result = Builder.CreateCall(fun, params2);
 
@@ -6047,7 +6414,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params3;
 
-                param1 = llvm_value.value;
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
+
+                param1 = llvm_value2.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -6077,36 +6447,31 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params2;
 
-                Value* param1 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_real_params);
+                Value* param1 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)offset);
                 params2.push_back(param1);
 
-                Value* param2 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)offset);
+                std::string stack_value_name("stack");
+                Value* param2 = params[stack_value_name];
                 params2.push_back(param2);
 
-                std::string stack_value_name("stack");
-                Value* param3 = params[stack_value_name];
+                std::string var_num_value_name("var_num");
+                Value* param3 = params[var_num_value_name];
                 params2.push_back(param3);
 
-                std::string var_num_value_name("var_num");
-                Value* param4 = params[var_num_value_name];
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param4 = params[stack_ptr_address_name];
                 params2.push_back(param4);
 
-                std::string stack_ptr_address_name("stack_ptr_address");
-                Value* param5 = params[stack_ptr_address_name];
+                std::string info_value_name("info");
+                Value* param5 = params[info_value_name];
                 params2.push_back(param5);
 
-                std::string info_value_name("info");
-                Value* param6 = params[info_value_name];
+                std::string constant_value_name("constant");
+                Value* param6 = params[constant_value_name];
                 params2.push_back(param6);
 
-                Value* param7 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)code);
+                Value* param7 = object_value->value;
                 params2.push_back(param7);
-
-                Value* param8 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)constant);
-                params2.push_back(param8);
-
-                Value* param9 = object_value->value;
-                params2.push_back(param9);
 
                 Value* result = Builder.CreateCall(fun, params2);
 
@@ -6137,7 +6502,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params3;
 
-                param1 = llvm_value.value;
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
+
+                param1 = llvm_value2.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -6212,10 +6580,12 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 Value* param10 = params[info_value_name];
                 params2.push_back(param10);
 
-                Value* param11 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)code);
+                std::string code_value_name("code");
+                Value* param11 = params[code_value_name];
                 params2.push_back(param11);
 
-                Value* param12 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)constant);
+                std::string constant_value_name("constant");
+                Value* param12 = params[constant_value_name];
                 params2.push_back(param12);
 
                 Value* result = Builder.CreateCall(fun, params2);
@@ -6248,7 +6618,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params3;
 
-                param1 = llvm_value.value;
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
+
+                param1 = llvm_value2.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -6306,7 +6679,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params3;
 
-                param1 = llvm_value.value;
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
+
+                param1 = llvm_value2.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -6332,10 +6708,11 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 Constant* str_constant = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)class_name);
                 Value* param1 = ConstantExpr::getIntToPtr(str_constant, PointerType::get(IntegerType::get(TheContext,8), 0));
+                params2.push_back(param1);
 
                 Value* klass_value = Builder.CreateCall(load_class_fun, params2);
 
-                if_value_is_zero_ret_zero(klass_value, params, function, &current_block);
+                if_value_is_null_ret_zero(klass_value, 64, params, function, &current_block);
 
                 /// go ///
                 if(flg_array) {
@@ -6348,8 +6725,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                     params2.push_back(array_num_value->value);
 
+                    Value* value = Builder.CreateCall(function, params2);
+
                     LVALUE llvm_value;
-                    llvm_value.value = Builder.CreateCall(function, params2);
+                    llvm_value.value = value;
                     llvm_value.vm_stack = TRUE;
                     llvm_value.lvar_address_index = -1;
                     llvm_value.lvar_stored = FALSE;
@@ -6375,13 +6754,18 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                     std::vector<Value*> params2;
                     params2.push_back(klass_value);
 
+                    Value* value = Builder.CreateCall(function, params2);
+
                     LVALUE llvm_value;
-                    llvm_value.value = Builder.CreateCall(function, params2);
+                    llvm_value.value = value;
                     llvm_value.vm_stack = TRUE;
                     llvm_value.lvar_address_index = -1;
                     llvm_value.lvar_stored = FALSE;
                     llvm_value.constant_int_value = FALSE;
                     llvm_value.constant_float_value = FALSE;
+
+//value->dump();
+//sleep(3);
 
                     push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
 
@@ -6390,7 +6774,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                     std::vector<Value*> params3;
 
-                    Value*param1 = llvm_value.value;
+                    Value* param1 = llvm_value.value;
                     params3.push_back(param1);
 
                     (void)Builder.CreateCall(fun2, params3);
@@ -6437,7 +6821,9 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 Value* result = Builder.CreateCall(get_field_fun, params2);
 
                 Value* result1 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 0);
+                result1  = Builder.CreateAlignedLoad(result1,  4);
                 Value* result2 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 1);
+                result2  = Builder.CreateAlignedLoad(result2,  4);
                 if_value_is_zero_ret_zero(result2, params, function, &current_block);
 
                 LVALUE llvm_value;
@@ -6539,7 +6925,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 Value* param5 = obj->value;
                 params2.push_back(param5);
 
-                Value* param6 = value->value;
+                LVALUE value2;
+                value2 = trunc_value(value, 64);
+
+                Value* param6 = value2.value;
                 params2.push_back(param6);
 
                 Value* param7 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)field_index);
@@ -6587,13 +6976,16 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 Value* param6 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)offset);
                 params2.push_back(param6);
 
-                Value* param7 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)constant);
+                std::string constant_value_name("constant");
+                Value* param7 = params[constant_value_name];
                 params2.push_back(param7);
 
                 Value* result = Builder.CreateCall(fun, params2);
 
                 Value* result1 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 0);
+                result1  = Builder.CreateAlignedLoad(result1,  4);
                 Value* result2 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 1);
+                result2  = Builder.CreateAlignedLoad(result2,  4);
 
                 if_value_is_zero_ret_zero(result2, params, function, &current_block);
 
@@ -6644,7 +7036,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 Value* param6 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)offset);
                 params2.push_back(param6);
 
-                Value* param7 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)constant);
+                std::string constant_value_name("constant");
+                Value* param7 = params[constant_value_name];
                 params2.push_back(param7);
 
                 Value* result = Builder.CreateCall(fun, params2);
@@ -6701,10 +7094,14 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 Value* param6 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)offset);
                 params2.push_back(param6);
 
-                Value* param7 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)constant);
+                std::string constant_value_name("constant");
+                Value* param7 = params[constant_value_name];
                 params2.push_back(param7);
 
-                Value* param8 = llvm_value->value;
+                LVALUE value2;
+                value2 = trunc_value(llvm_value, 64);
+
+                Value* param8 = value2.value;
                 params2.push_back(param8);
 
                 Value* result = Builder.CreateCall(fun, params2);
@@ -6726,6 +7123,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* address = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
+                address->value = Builder.CreateCast(Instruction::BitCast, address->value, PointerType::get(IntegerType::get(TheContext, 32), 0));
+
                 Builder.CreateAlignedStore(value->value, address->value, 4);
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
@@ -6746,6 +7145,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* address = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
+                address->value = Builder.CreateCast(Instruction::BitCast, address->value, PointerType::get(IntegerType::get(TheContext, 8), 0));
+
                 Builder.CreateAlignedStore(value->value, address->value, 1);
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
@@ -6765,6 +7166,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 /// go ///
                 LVALUE* address = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                address->value = Builder.CreateCast(Instruction::BitCast, address->value, PointerType::get(IntegerType::get(TheContext, 16), 0));
 
                 Builder.CreateAlignedStore(value->value, address->value, 2);
 
@@ -6995,7 +7398,9 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 Value* result = Builder.CreateCall(fun, params2);
 
                 Value* result1 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 0);
+                result1  = Builder.CreateAlignedLoad(result1,  4);
                 Value* result2 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 1);
+                result2  = Builder.CreateAlignedLoad(result2,  4);
 
                 if_value_is_zero_ret_zero(result2, params, function, &current_block);
 
@@ -7004,7 +7409,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE llvm_value;
                 llvm_value.value = result1;
                 llvm_value.vm_stack = FALSE;
-
 
                 trunc_vm_stack_value2(&llvm_value, size);
 
@@ -9121,7 +9525,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 Value* result = Builder.CreateCall(fun, params2);
 
                 Value* result1 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 0);
+                result1  = Builder.CreateAlignedLoad(result1,  4);
                 Value* result2 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 1);
+                result2  = Builder.CreateAlignedLoad(result2,  4);
+
                 if_value_is_zero_ret_zero(result2, params, function, &current_block);
 
                 LVALUE llvm_value;
@@ -9523,7 +9930,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 int offset = *(int*)pc;
                 pc += sizeof(int);
 
-                char* class_name = CONS_str(constant, offset);
+                int class_name_offset = offset;
 
                 llvm_stack_to_vm_stack(llvm_stack_ptr, params, current_block, num_elements);
 
@@ -9547,16 +9954,22 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 Value* param4 = params[info_value_name];
                 params2.push_back(param4);
 
-                Value* param5 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)class_name);
+                Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_elements);
                 params2.push_back(param5);
 
-                Value* param6 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_elements);
+                Value* param6 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)class_name_offset);
                 params2.push_back(param6);
+
+                std::string constant_value_name("constant");
+                Value* param7 = params[constant_value_name];
+                params2.push_back(param7);
 
                 Value* result = Builder.CreateCall(fun, params2);
 
                 Value* result1 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 0);
+                result1  = Builder.CreateAlignedLoad(result1,  4);
                 Value* result2 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 1);
+                result2  = Builder.CreateAlignedLoad(result2,  4);
 
                 if_value_is_zero_ret_zero(result2, params, function, &current_block);
 
@@ -9596,7 +10009,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 int offset = *(int*)pc;
                 pc += sizeof(int);
 
-                char* class_name = CONS_str(constant, offset);
+                int class_name_offset = offset;
 
                 llvm_stack_to_vm_stack(llvm_stack_ptr, params, current_block, num_elements);
 
@@ -9623,13 +10036,19 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_elements);
                 params2.push_back(param5);
 
-                Value* param6 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)class_name);
+                Value* param6 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)class_name_offset);
                 params2.push_back(param6);
+
+                std::string constant_value_name("constant");
+                Value* param7 = params[constant_value_name];
+                params2.push_back(param7);
 
                 Value* result = Builder.CreateCall(fun, params2);
 
                 Value* result1 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 0);
+                result1  = Builder.CreateAlignedLoad(result1,  4);
                 Value* result2 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 1);
+                result2  = Builder.CreateAlignedLoad(result2,  4);
 
                 if_value_is_zero_ret_zero(result2, params, function, &current_block);
 
@@ -9666,7 +10085,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 int offset = *(int*)pc;
                 pc += sizeof(int);
 
-                char* class_name = CONS_str(constant, offset);
+                int class_name_offset = offset;
 
                 llvm_stack_to_vm_stack(llvm_stack_ptr, params, current_block, num_elements);
 
@@ -9693,13 +10112,19 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_elements);
                 params2.push_back(param5);
 
-                Value* param6 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)class_name);
+                Value* param6 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)class_name_offset);
                 params2.push_back(param6);
+
+                std::string constant_value_name("constant");
+                Value* param7 = params[constant_value_name];
+                params2.push_back(param7);
 
                 Value* result = Builder.CreateCall(fun, params2);
 
                 Value* result1 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 0);
+                result1  = Builder.CreateAlignedLoad(result1,  4);
                 Value* result2 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 1);
+                result2  = Builder.CreateAlignedLoad(result2,  4);
 
                 if_value_is_zero_ret_zero(result2, params, function, &current_block);
 
@@ -9736,7 +10161,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 int offset = *(int*)pc;
                 pc += sizeof(int);
 
-                char* class_name = CONS_str(constant, offset);
+                int class_name_offset = offset;
 
                 llvm_stack_to_vm_stack(llvm_stack_ptr, params, current_block, num_elements);
 
@@ -9763,13 +10188,19 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_elements);
                 params2.push_back(param5);
 
-                Value* param6 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)class_name);
+                Value* param6 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)class_name_offset);
                 params2.push_back(param6);
+
+                std::string constant_value_name("constant");
+                Value* param7 = params[constant_value_name];
+                params2.push_back(param7);
 
                 Value* result = Builder.CreateCall(fun, params2);
 
                 Value* result1 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 0);
+                result1  = Builder.CreateAlignedLoad(result1,  4);
                 Value* result2 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 1);
+                result2  = Builder.CreateAlignedLoad(result2,  4);
 
                 if_value_is_zero_ret_zero(result2, params, function, &current_block);
 
@@ -9806,7 +10237,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 int offset = *(int*)pc;
                 pc += sizeof(int);
 
-                char* class_name = CONS_str(constant, offset);
+                int class_name_offset = offset;
 
                 llvm_stack_to_vm_stack(llvm_stack_ptr, params, current_block, num_elements);
 
@@ -9833,13 +10264,19 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_elements);
                 params2.push_back(param5);
 
-                Value* param6 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)class_name);
+                Value* param6 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)class_name_offset);
                 params2.push_back(param6);
+
+                std::string constant_value_name("constant");
+                Value* param7 = params[constant_value_name];
+                params2.push_back(param7);
 
                 Value* result = Builder.CreateCall(fun, params2);
 
                 Value* result1 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 0);
+                result1  = Builder.CreateAlignedLoad(result1,  4);
                 Value* result2 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 1);
+                result2  = Builder.CreateAlignedLoad(result2,  4);
 
                 if_value_is_zero_ret_zero(result2, params, function, &current_block);
 
@@ -9876,7 +10313,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 int offset = *(int*)pc;
                 pc += sizeof(int);
 
-                char* class_name = CONS_str(constant, offset);
+                int class_name_offset = offset;
 
                 llvm_stack_to_vm_stack(llvm_stack_ptr, params, current_block, num_elements);
 
@@ -9903,13 +10340,19 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_elements);
                 params2.push_back(param5);
 
-                Value* param6 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)class_name);
+                Value* param6 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)class_name_offset);
                 params2.push_back(param6);
+
+                std::string constant_value_name("constant");
+                Value* param7 = params[constant_value_name];
+                params2.push_back(param7);
 
                 Value* result = Builder.CreateCall(fun, params2);
 
                 Value* result1 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 0);
+                result1  = Builder.CreateAlignedLoad(result1,  4);
                 Value* result2 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 1);
+                result2  = Builder.CreateAlignedLoad(result2,  4);
 
                 if_value_is_zero_ret_zero(result2, params, function, &current_block);
 
@@ -9946,7 +10389,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 int offset = *(int*)pc;
                 pc += sizeof(int);
 
-                char* class_name = CONS_str(constant, offset);
+                int class_name_offset = offset;
 
                 llvm_stack_to_vm_stack(llvm_stack_ptr, params, current_block, num_elements);
 
@@ -9973,13 +10416,19 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_elements);
                 params2.push_back(param5);
 
-                Value* param6 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)class_name);
+                Value* param6 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)class_name_offset);
                 params2.push_back(param6);
+
+                std::string constant_value_name("constant");
+                Value* param7 = params[constant_value_name];
+                params2.push_back(param7);
 
                 Value* result = Builder.CreateCall(fun, params2);
 
                 Value* result1 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 0);
+                result1  = Builder.CreateAlignedLoad(result1,  4);
                 Value* result2 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 1);
+                result2  = Builder.CreateAlignedLoad(result2,  4);
 
                 if_value_is_zero_ret_zero(result2, params, function, &current_block);
 
@@ -10041,7 +10490,9 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 Value* result = Builder.CreateCall(fun, params2);
 
                 Value* result1 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 0);
+                result1  = Builder.CreateAlignedLoad(result1,  4);
                 Value* result2 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 1);
+                result2  = Builder.CreateAlignedLoad(result2,  4);
 
                 if_value_is_zero_ret_zero(result2, params, function, &current_block);
 
@@ -10081,8 +10532,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 int offset2 = *(int*)pc;
                 pc += sizeof(int);
 
-                char* class_name = CONS_str(constant, offset);
-                char* class_name2 = CONS_str(constant, offset2);
+                int class_name_offset = offset;
+                int class_name_offset2 = offset2;
 
                 llvm_stack_to_vm_stack(llvm_stack_ptr, params, current_block, num_elements*2);
 
@@ -10109,16 +10560,22 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_elements);
                 params2.push_back(param5);
 
-                Value* param6 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)class_name);
+                Value* param6 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)class_name_offset);
                 params2.push_back(param6);
 
-                Value* param7 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)class_name2);
+                Value* param7 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)class_name_offset2);
                 params2.push_back(param7);
+
+                std::string constant_value_name("constant");
+                Value* param8 = params[constant_value_name];
+                params2.push_back(param8);
 
                 Value* result = Builder.CreateCall(fun, params2);
 
                 Value* result1 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 0);
+                result1  = Builder.CreateAlignedLoad(result1,  4);
                 Value* result2 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 1);
+                result2  = Builder.CreateAlignedLoad(result2,  4);
 
                 if_value_is_zero_ret_zero(result2, params, function, &current_block);
 
@@ -10182,7 +10639,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 Value* param2 = params[stack_value_name];
                 params2.push_back(param2);
 
-                Value* param3 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)constant);
+                std::string constant_value_name("constant");
+                Value* param3 = params[constant_value_name];
                 params2.push_back(param3);
 
                 Value* param4 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)code_offset);
@@ -10344,18 +10802,17 @@ static BOOL compile_jit_methods(sCLClass* klass)
 
     TheFPM = llvm::make_unique<legacy::FunctionPassManager>(TheModule);
     
-    /*
-    TheFPM->add(createInstructionCombiningPass());
+    //TheFPM->add(createInstructionCombiningPass());
     TheFPM->add(createReassociatePass());
     TheFPM->add(createGVNPass());
     TheFPM->add(createCFGSimplificationPass());
-    */
     TheFPM->doInitialization();
 
     create_internal_functions();
     TheLabels.clear();
 
     int i;
+    int num_compiled_method = 0;
 
     if(!(klass->mFlags & CLASS_FLAGS_INTERFACE)) {
         for(i=0; i<klass->mNumMethods; i++) {
@@ -10372,36 +10829,41 @@ static BOOL compile_jit_methods(sCLClass* klass)
                 if(!compile_to_native_code(code, constant, klass, method, method_path2)) {
                     return FALSE;
                 }
+
+                num_compiled_method++;
             }
         }
     }
 
-    char path[PATH_MAX];
-    snprintf(path, PATH_MAX, "%s.bc", CLASS_NAME(klass));
+    if(num_compiled_method > 0) {
+        char path[PATH_MAX];
+        snprintf(path, PATH_MAX, "%s.bc", CLASS_NAME(klass));
 
-    (void)unlink(path);
+        (void)unlink(path);
 
-    std::error_code ecode;
-    llvm::raw_fd_ostream output_stream(path, ecode, llvm::sys::fs::F_None);
+        std::error_code ecode;
+        llvm::raw_fd_ostream output_stream(path, ecode, llvm::sys::fs::F_None);
 
-    std::string err_str;
-    raw_string_ostream err_ostream(err_str);
+        std::string err_str;
+        raw_string_ostream err_ostream(err_str);
 
+///    if(verifyModule(*TheModule, &err_ostream)) {
+//
+if(strcmp(CLASS_NAME(klass), "JITTest") == 0) {
 TheModule->dump();
+}
 
-    llvm::WriteBitcodeToFile(TheModule, output_stream);
-    output_stream.flush();
+        llvm::WriteBitcodeToFile(TheModule, output_stream);
+        output_stream.flush();
 /*
-    if(verifyModule(*TheModule, &err_ostream)) {
-
-printf("module_name %s passed\n", module_name);
-    }
-    else {
-        errs() << module_name << "\n";
-        errs() << "assembly parsed, but does not verify as correct\n";
-        errs() << err_ostream.str();
-    }
+        }
+        else {
+            errs() << module_name << "\n";
+            errs() << "assembly parsed, but does not verify as correct\n";
+            errs() << err_ostream.str();
+        }
 */
+    }
 
     delete TheModule;
 

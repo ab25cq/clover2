@@ -3,5 +3,12 @@
 
 int main()
 {
-    double a = 2.0 + 2.0;
+    int a = 123;
+    int* p = &a;
+    
+    p++;
+
+    printf("%p\n", p);
+
+    exit(0);
 }

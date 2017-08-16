@@ -122,6 +122,11 @@ class JITTest
         }
     }
 
+    def run11_5() {
+        a:int = 1;
+        b:int = a;
+    }
+
     def run12():  bool {
         a:int = 1;
         b:bool = a == 1;
@@ -373,6 +378,7 @@ class JITTest
         b->int = 245;
         return a;
     }
+/*
 
     def run61():  long {
         a:long = 123l;
@@ -1705,4 +1711,5 @@ class JITTest
 
         return result;
     }
+*/
 }
