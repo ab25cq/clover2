@@ -360,6 +360,7 @@ static void reportError(SMDiagnostic Err, const char *ProgName) {
 extern "C" 
 {
 struct sCLVALUEAndBoolResult gCLValueAndBoolStructMemory;
+struct sPointerAndBoolResult gCLPointerAndBoolStructMemory;
 
 sCLClass* get_class_with_load_and_initialize_in_jit(char* class_name);
 
@@ -1232,14 +1233,14 @@ CLObject run_create_block_object(CLVALUE** stack_ptr, CLVALUE* stack, sConst* co
     return block_object;
 }
 
-struct sPointerAndBoolResult run_load_field_address(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index, CLObject obj)
+struct sPointerAndBoolResult* run_load_field_address(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index, CLObject obj)
 {
-    struct sPointerAndBoolResult result;
+    struct sPointerAndBoolResult* result = &gCLPointerAndBoolStructMemory;
 
     if(obj == 0) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(4)");
-        result.result1 = NULL;
-        result.result2 = FALSE;
+        result->result1 = NULL;
+        result->result2 = FALSE;
         return result;
     }
 
@@ -1248,27 +1249,28 @@ struct sPointerAndBoolResult run_load_field_address(CLVALUE** stack_ptr, CLVALUE
 
     if(klass == NULL) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(5)");
-        result.result1 = NULL;
-        result.result2 = FALSE;
+        result->result1 = NULL;
+        result->result2 = FALSE;
         return result;
     }
 
     if(field_index < 0 || field_index >= klass->mNumFields) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "field index is invalid(5)");
-        result.result1 = NULL;
-        result.result2 = FALSE;
+        result->result1 = NULL;
+        result->result2 = FALSE;
         return result;
     }
 
     char* value = (char*)&object_pointer->mFields[field_index];
-    result.result1 = value;
-    result.result2 = TRUE;
+    result->result1 = value;
+    result->result2 = TRUE;
+
     return result;
 }
 
-struct sPointerAndBoolResult run_load_class_field_address(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index, int offset, sConst* constant)
+struct sPointerAndBoolResult* run_load_class_field_address(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index, int offset, sConst* constant)
 {
-    struct sPointerAndBoolResult result;
+    struct sPointerAndBoolResult* result = &gCLPointerAndBoolStructMemory;
 
     char* class_name = CONS_str(constant, offset);
 
@@ -1276,23 +1278,23 @@ struct sPointerAndBoolResult run_load_class_field_address(CLVALUE** stack_ptr, C
 
     if(klass == NULL) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(8)");
-        result.result1 = NULL;
-        result.result2 = FALSE;
+        result->result1 = NULL;
+        result->result2 = FALSE;
         return result;
     }
 
     if(field_index < 0 || field_index >= klass->mNumClassFields) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "field index is invalid(6)");
-        result.result1 = NULL;
-        result.result2 = FALSE;
+        result->result1 = NULL;
+        result->result2 = FALSE;
         return result;
     }
 
     sCLField* field = klass->mClassFields + field_index;
     char* value = (char*)&field->mValue;
 
-    result.result1 = value;
-    result.result2 = TRUE;
+    result->result1 = value;
+    result->result2 = TRUE;
 
     return result;
 }
@@ -1999,6 +2001,9 @@ void jit_init_on_runtime()
 {
     gCLValueAndBoolStructMemory.result1.mIntValue = 0;
     gCLValueAndBoolStructMemory.result2 = 0;
+
+    gCLPointerAndBoolStructMemory.result1 = NULL;
+    gCLPointerAndBoolStructMemory.result2 = FALSE;
 /*
     InitializeNativeTarget();
     InitializeNativeTargetAsmPrinter();

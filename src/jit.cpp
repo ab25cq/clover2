@@ -210,39 +210,42 @@ LVALUE trunc_value(LVALUE* llvm_value, int size)
     else {
         switch(size) {
             case 1:
-                if(!llvm_type->isIntegerTy(1) && !llvm_type->isPointerTy()) {
+                if(!llvm_type->isIntegerTy(1)) {
                     result.value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt1Ty(TheContext));
                 }
                 break;
 
             case 8:
-                if(!llvm_type->isIntegerTy(8) && !llvm_type->isPointerTy()) {
+                if(llvm_type->isIntegerTy(1)) {
+                    result.value = Builder.CreateCast(Instruction::ZExt, llvm_value->value, Type::getInt8Ty(TheContext));
+                }
+                else if(!llvm_type->isIntegerTy(8)) {
                     result.value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt8Ty(TheContext));
                 }
                 break;
 
             case 16:
-                if(llvm_type->isIntegerTy(8) && !llvm_type->isPointerTy()) {
+                if(llvm_type->isIntegerTy(1) || llvm_type->isIntegerTy(8)) {
                     result.value = Builder.CreateCast(Instruction::ZExt, llvm_value->value, Type::getInt16Ty(TheContext));
                 }
                 else if(llvm_type->isIntegerTy(16)) {
                 }
-                else if(!llvm_type->isPointerTy()) {
+                else {
                     result.value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt16Ty(TheContext));
                 }
                 break;
 
             case 32:
-                if(llvm_type->isIntegerTy(8) || llvm_type->isIntegerTy(16)) {
+                if(llvm_type->isIntegerTy(1) ||llvm_type->isIntegerTy(8) || llvm_type->isIntegerTy(16)) {
                     result.value = Builder.CreateCast(Instruction::ZExt, llvm_value->value, Type::getInt32Ty(TheContext));
                 }
-                else if(!llvm_type->isPointerTy()) {
+                else {
                     result.value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt32Ty(TheContext));
                 }
                 break;
 
             case 64:
-                if(!llvm_type->isIntegerTy(64) && !llvm_type->isPointerTy()) {
+                if(!llvm_type->isIntegerTy(64)) {
                     result.value = Builder.CreateCast(Instruction::ZExt, llvm_value->value, Type::getInt64Ty(TheContext));
                 }
                 break;
@@ -342,7 +345,12 @@ static void cast_llvm_value_from_inst(LVALUE* llvm_value, int inst)
         case OP_ULONG_TO_CULONG_CAST:
         case OP_CHAR_TO_CULONG_CAST:
         case OP_POINTER_TO_CULONG_CAST:
-        case OP_BOOL_TO_CULONG_CAST:
+        case OP_BOOL_TO_CULONG_CAST: {
+            LVALUE llvm_value2;
+            llvm_value2 = trunc_value(llvm_value, 64);
+
+            llvm_value->value = llvm_value2.value;
+            }
             break;
 
         case OP_FLOAT_TO_CULONG_CAST:
@@ -360,7 +368,12 @@ static void cast_llvm_value_from_inst(LVALUE* llvm_value, int inst)
         case OP_ULONG_TO_CLONG_CAST:
         case OP_CHAR_TO_CLONG_CAST:
         case OP_POINTER_TO_CLONG_CAST:
-        case OP_BOOL_TO_CLONG_CAST: 
+        case OP_BOOL_TO_CLONG_CAST: {
+            LVALUE llvm_value2;
+            llvm_value2 = trunc_value(llvm_value, 64);
+
+            llvm_value->value = llvm_value2.value;
+            }
             break;
 
         case OP_FLOAT_TO_CLONG_CAST:
@@ -368,9 +381,44 @@ static void cast_llvm_value_from_inst(LVALUE* llvm_value, int inst)
             llvm_value->value = Builder.CreateCast(Instruction::FPToSI, llvm_value->value, Type::getInt64Ty(TheContext));
             break;
 
+        case OP_BYTE_TO_CUSHORT_CAST:
+        case OP_UBYTE_TO_CUSHORT_CAST:
+        case OP_SHORT_TO_CUSHORT_CAST:
+        case OP_USHORT_TO_CUSHORT_CAST:
+        case OP_INT_TO_CUSHORT_CAST:
+        case OP_UINT_TO_CUSHORT_CAST:
+        case OP_LONG_TO_CUSHORT_CAST:
+        case OP_ULONG_TO_CUSHORT_CAST:
+        case OP_CHAR_TO_CUSHORT_CAST:
+        case OP_POINTER_TO_CUSHORT_CAST:
+        case OP_BOOL_TO_CUSHORT_CAST: {
+            LVALUE llvm_value2;
+            llvm_value2 = trunc_value(llvm_value, 16);
+
+            llvm_value->value = llvm_value2.value;
+            }
+            break;
+
         case OP_FLOAT_TO_CUSHORT_CAST:
         case OP_DOUBLE_TO_CUSHORT_CAST: 
             llvm_value->value = Builder.CreateCast(Instruction::FPToUI, llvm_value->value, Type::getInt16Ty(TheContext));
+            break;
+
+        case OP_BYTE_TO_CSHORT_CAST:
+        case OP_UBYTE_TO_CSHORT_CAST:
+        case OP_SHORT_TO_CSHORT_CAST:
+        case OP_USHORT_TO_CSHORT_CAST:
+        case OP_INT_TO_CSHORT_CAST:
+        case OP_UINT_TO_CSHORT_CAST:
+        case OP_LONG_TO_CSHORT_CAST:
+        case OP_ULONG_TO_CSHORT_CAST:
+        case OP_CHAR_TO_CSHORT_CAST:
+        case OP_POINTER_TO_CSHORT_CAST:
+        case OP_BOOL_TO_CSHORT_CAST: {
+            LVALUE llvm_value2;
+            llvm_value2 = trunc_value(llvm_value, 16);
+            llvm_value->value = llvm_value2.value;
+            }
             break;
 
         case OP_FLOAT_TO_CSHORT_CAST:
@@ -378,14 +426,65 @@ static void cast_llvm_value_from_inst(LVALUE* llvm_value, int inst)
             llvm_value->value = Builder.CreateCast(Instruction::FPToSI, llvm_value->value, Type::getInt16Ty(TheContext));
             break;
 
+        case OP_BYTE_TO_CUBYTE_CAST:
+        case OP_UBYTE_TO_CUBYTE_CAST:
+        case OP_SHORT_TO_CUBYTE_CAST:
+        case OP_USHORT_TO_CUBYTE_CAST:
+        case OP_INT_TO_CUBYTE_CAST:
+        case OP_UINT_TO_CUBYTE_CAST:
+        case OP_LONG_TO_CUBYTE_CAST:
+        case OP_ULONG_TO_CUBYTE_CAST:
+        case OP_CHAR_TO_CUBYTE_CAST:
+        case OP_POINTER_TO_CUBYTE_CAST:
+        case OP_BOOL_TO_CUBYTE_CAST: {
+            LVALUE llvm_value2;
+            llvm_value2 = trunc_value(llvm_value, 8);
+
+            llvm_value->value = llvm_value2.value;
+            }
+            break;
+
         case OP_FLOAT_TO_CUBYTE_CAST:
         case OP_DOUBLE_TO_CUBYTE_CAST: 
             llvm_value->value = Builder.CreateCast(Instruction::FPToUI, llvm_value->value, Type::getInt8Ty(TheContext));
             break;
 
+        case OP_BYTE_TO_CBYTE_CAST:
+        case OP_UBYTE_TO_CBYTE_CAST:
+        case OP_SHORT_TO_CBYTE_CAST:
+        case OP_USHORT_TO_CBYTE_CAST:
+        case OP_INT_TO_CBYTE_CAST:
+        case OP_UINT_TO_CBYTE_CAST:
+        case OP_LONG_TO_CBYTE_CAST:
+        case OP_ULONG_TO_CBYTE_CAST:
+        case OP_CHAR_TO_CBYTE_CAST:
+        case OP_BOOL_TO_CBYTE_CAST: 
+        case OP_POINTER_TO_CBYTE_CAST: {
+            LVALUE llvm_value2 = trunc_value(llvm_value, 8);
+            llvm_value->value = llvm_value2.value;
+            }
+            break;
+
         case OP_FLOAT_TO_CBYTE_CAST:
         case OP_DOUBLE_TO_CBYTE_CAST: 
             llvm_value->value = Builder.CreateCast(Instruction::FPToSI, llvm_value->value, Type::getInt8Ty(TheContext));
+            break;
+
+        case OP_BYTE_TO_UINTEGER_CAST:
+        case OP_UBYTE_TO_UINTEGER_CAST:
+        case OP_SHORT_TO_UINTEGER_CAST:
+        case OP_USHORT_TO_UINTEGER_CAST:
+        case OP_INT_TO_UINTEGER_CAST:
+        case OP_UINT_TO_UINTEGER_CAST:
+        case OP_LONG_TO_UINTEGER_CAST:
+        case OP_ULONG_TO_UINTEGER_CAST:
+        case OP_CHAR_TO_UINTEGER_CAST:
+        case OP_POINTER_TO_UINTEGER_CAST:
+        case OP_BOOL_TO_UINTEGER_CAST: {
+            LVALUE llvm_value2 = trunc_value(llvm_value, 32);
+
+            llvm_value->value = llvm_value2.value;
+            }
             break;
 
         case OP_FLOAT_TO_UINTEGER_CAST:
@@ -398,10 +497,22 @@ static void cast_llvm_value_from_inst(LVALUE* llvm_value, int inst)
             llvm_value->value = Builder.CreateCast(Instruction::FPToSI, llvm_value->value, Type::getInt32Ty(TheContext));
             break;
 
+        case OP_BYTE_TO_INTEGER_CAST:
+        case OP_UBYTE_TO_INTEGER_CAST:
+        case OP_SHORT_TO_INTEGER_CAST:
+        case OP_USHORT_TO_INTEGER_CAST:
+        case OP_INT_TO_INTEGER_CAST:
+        case OP_UINT_TO_INTEGER_CAST:
+        case OP_LONG_TO_INTEGER_CAST:
+        case OP_ULONG_TO_INTEGER_CAST:
+        case OP_CHAR_TO_INTEGER_CAST:
+        case OP_POINTER_TO_INTEGER_CAST:
+        case OP_BOOL_TO_INTEGER_CAST:{
+            LVALUE llvm_value2 = trunc_value(llvm_value, 32);
 
-
-
-
+            llvm_value->value = llvm_value2.value;
+            }
+            break;
 
         case OP_FLOAT_TO_CFLOAT_CAST:
             break;
@@ -637,6 +748,72 @@ static void cast_llvm_value_from_inst(LVALUE* llvm_value, int inst)
         case OP_CDOUBLE_TO_UINT_CAST :
             break;
 
+        case OP_BYTE_TO_CPOINTER_CAST:
+        case OP_UBYTE_TO_CPOINTER_CAST:
+        case OP_SHORT_TO_CPOINTER_CAST:
+        case OP_USHORT_TO_CPOINTER_CAST:
+        case OP_INT_TO_CPOINTER_CAST:
+        case OP_UINT_TO_CPOINTER_CAST:
+        case OP_LONG_TO_CPOINTER_CAST:
+        case OP_ULONG_TO_CPOINTER_CAST:
+        case OP_CHAR_TO_CPOINTER_CAST: 
+        case OP_BOOL_TO_CPOINTER_CAST: {
+            llvm_value->value = Builder.CreateCast(Instruction::IntToPtr, llvm_value->value, PointerType::get(IntegerType::get(TheContext, 8), 0));
+            }
+            break;
+
+        case OP_POINTER_TO_CPOINTER_CAST:
+            break;
+
+        case OP_BYTE_TO_CBOOL_CAST:
+        case OP_UBYTE_TO_CBOOL_CAST:
+        case OP_SHORT_TO_CBOOL_CAST:
+        case OP_USHORT_TO_CBOOL_CAST:
+        case OP_INT_TO_CBOOL_CAST:
+        case OP_UINT_TO_CBOOL_CAST:
+        case OP_LONG_TO_CBOOL_CAST:
+        case OP_ULONG_TO_CBOOL_CAST:
+        case OP_CHAR_TO_CBOOL_CAST:
+        case OP_POINTER_TO_CBOOL_CAST:{
+            LVALUE llvm_value2;
+            llvm_value2 = trunc_value(llvm_value, 32);
+
+            llvm_value->value = llvm_value2.value;
+            }
+            break;
+
+        case OP_BOOL_TO_CBOOL_CAST: 
+            break;
+
+        case OP_FLOAT_TO_CBOOL_CAST:
+        case OP_DOUBLE_TO_CBOOL_CAST: {
+            llvm_value->value = Builder.CreateCast(Instruction::FPToUI, llvm_value->value, Type::getInt32Ty(TheContext));
+            }
+            break;
+
+        case OP_BYTE_TO_CCHAR_CAST :
+        case OP_UBYTE_TO_CCHAR_CAST:
+        case OP_SHORT_TO_CCHAR_CAST:
+        case OP_USHORT_TO_CCHAR_CAST:
+        case OP_INT_TO_CCHAR_CAST:
+        case OP_UINT_TO_CCHAR_CAST:
+        case OP_LONG_TO_CCHAR_CAST:
+        case OP_ULONG_TO_CCHAR_CAST:
+        case OP_CHAR_TO_CCHAR_CAST:
+        case OP_POINTER_TO_CCHAR_CAST:
+        case OP_BOOL_TO_CCHAR_CAST: {
+            LVALUE llvm_value2;
+            llvm_value2 = trunc_value(llvm_value, 32);
+
+            llvm_value->value = llvm_value2.value;
+            }
+            break;
+
+        case OP_FLOAT_TO_CCHAR_CAST:
+        case OP_DOUBLE_TO_CCHAR_CAST: {
+            llvm_value->value = Builder.CreateCast(Instruction::FPToUI, llvm_value->value, Type::getInt32Ty(TheContext));
+            }
+            break;
     }
 }
 
@@ -3293,7 +3470,7 @@ static void create_internal_functions()
     /// run_load_class_field_address ///
     type_params.clear();
     
-    result_type = IntegerType::get(TheContext, 64);
+    result_type = PointerType::get(gPointerAndBoolStruct, 0);
 
     param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
     type_params.push_back(param1_type);
@@ -3931,7 +4108,7 @@ static void create_internal_functions()
     
     result_type = IntegerType::get(TheContext, 32);
 
-    param1_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    param1_type = PointerType::get(IntegerType::get(TheContext, 8), 0);
     type_params.push_back(param1_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
@@ -4118,7 +4295,7 @@ static void create_internal_functions()
     /// run_load_field_address ///
     type_params.clear();
     
-    result_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 8), 0), 0);
+    result_type = PointerType::get(gPointerAndBoolStruct, 0);
 
     param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
     type_params.push_back(param1_type);
@@ -4517,7 +4694,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-
                 LVALUE llvm_value2;
                 llvm_value2 = trunc_value(llvm_value, 64);
 
@@ -4636,10 +4812,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 break;
 
             case OP_HEAD_OF_EXPRESSION: {
-/*
                 Value* sig_int_value = ConstantInt::get(Type::getInt32Ty(TheContext), 0);
                 Builder.CreateStore(sig_int_value, gSigIntValue);
-*/
                 }
                 break;
 
@@ -4706,7 +4880,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 Builder.CreateAlignedStore(llvm_value2.value, value_for_andand_oror[num_value_for_andand_oror], 8);
 
-                trunc_vm_stack_value2(llvm_value, 4);
+                LVALUE llvm_value3;
+                llvm_value3 = trunc_value(llvm_value, 32);
+
+                *llvm_value = llvm_value3;
 
                 num_value_for_andand_oror++;
 
@@ -6201,7 +6378,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params3;
 
-                Value* param1 = llvm_value.value;
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
+
+                Value* param1 = llvm_value2.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -6260,8 +6440,14 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 trunc_vm_stack_value(lvalue, inst);
                 trunc_vm_stack_value(rvalue, inst);
 
+                LVALUE lvalue2;
+                lvalue2 = trunc_value(lvalue, 1);
+
+                LVALUE rvalue2;
+                rvalue2 = trunc_value(rvalue, 1);
+
                 LVALUE llvm_value;
-                llvm_value.value = Builder.CreateAnd(lvalue->value, rvalue->value, "ANDAND");
+                llvm_value.value = Builder.CreateAnd(lvalue2.value, rvalue2.value, "ANDAND");
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
@@ -6280,8 +6466,14 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 trunc_vm_stack_value(lvalue, inst);
                 trunc_vm_stack_value(rvalue, inst);
 
+                LVALUE lvalue2;
+                lvalue2 = trunc_value(lvalue, 1);
+
+                LVALUE rvalue2;
+                rvalue2 = trunc_value(rvalue, 1);
+
                 LVALUE llvm_value;
-                llvm_value.value = Builder.CreateOr(lvalue->value, rvalue->value, "OROR");
+                llvm_value.value = Builder.CreateOr(lvalue2.value, rvalue2.value, "OROR");
                 llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
@@ -6743,7 +6935,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                     std::vector<Value*> params3;
 
-                    Value* param1 = llvm_value.value;
+                    LVALUE llvm_value2;
+                    llvm_value2 = trunc_value(&llvm_value, 32);
+
+                    Value* param1 = llvm_value2.value;
                     params3.push_back(param1);
 
                     (void)Builder.CreateCall(fun2, params3);
@@ -6774,7 +6969,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                     std::vector<Value*> params3;
 
-                    Value* param1 = llvm_value.value;
+                    LVALUE llvm_value2;
+                    llvm_value2 = trunc_value(&llvm_value, 32);
+
+                    Value* param1 = llvm_value2.value;
                     params3.push_back(param1);
 
                     (void)Builder.CreateCall(fun2, params3);
@@ -6871,13 +7069,18 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)field_index);
                 params2.push_back(param5);
 
-                Value* param6 = obj_value->value;
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(obj_value, 32);
+
+                Value* param6 = llvm_value2.value;
                 params2.push_back(param6);
 
                 Value* result = Builder.CreateCall(fun, params2);
 
                 Value* result1 = Builder.CreateStructGEP(gPointerAndBoolStruct, result, 0);
+                result1  = Builder.CreateAlignedLoad(result1, 8);
                 Value* result2 = Builder.CreateStructGEP(gPointerAndBoolStruct, result, 1);
+                result2  = Builder.CreateAlignedLoad(result2, 4);
 
                 if_value_is_zero_ret_zero(result2, params, function, &current_block);
 
@@ -7043,7 +7246,9 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 Value* result = Builder.CreateCall(fun, params2);
 
                 Value* result1 = Builder.CreateStructGEP(gPointerAndBoolStruct, result, 0);
+                result1  = Builder.CreateAlignedLoad(result1, 8);
                 Value* result2 = Builder.CreateStructGEP(gPointerAndBoolStruct, result, 1);
+                result2  = Builder.CreateAlignedLoad(result2, 4);
 
                 if_value_is_zero_ret_zero(result2, params, function, &current_block);
 
@@ -7114,8 +7319,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
             case OP_STORE_VALUE_TO_UINT_ADDRESS:
             case OP_STORE_VALUE_TO_CHAR_ADDRESS:
             case OP_STORE_VALUE_TO_BOOL_ADDRESS:
-            case OP_STORE_VALUE_TO_OBJECT_ADDRESS:
-            case OP_STORE_VALUE_TO_FLOAT_ADDRESS: {
+            case OP_STORE_VALUE_TO_OBJECT_ADDRESS: {
                 /// lvar of llvm stack to lvar of vm stack ///
                 lvar_of_llvm_to_lvar_of_vm(params, current_block, llvm_stack, var_num);
 
@@ -7135,6 +7339,26 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 lvar_of_vm_to_lvar_of_llvm(params, current_block, llvm_stack, var_num);
                 }
                 break;
+
+            case OP_STORE_VALUE_TO_FLOAT_ADDRESS: {
+                /// lvar of llvm stack to lvar of vm stack ///
+                lvar_of_llvm_to_lvar_of_vm(params, current_block, llvm_stack, var_num);
+
+                /// go ///
+                LVALUE* address = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                address->value = Builder.CreateCast(Instruction::BitCast, address->value, PointerType::get(Type::getFloatTy(TheContext), 0));
+
+                Builder.CreateAlignedStore(value->value, address->value, 4);
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, value);
+
+                /// lvar of vm stack to lvar of llvm stack ///
+                lvar_of_vm_to_lvar_of_llvm(params, current_block, llvm_stack, var_num);
+                }
 
             case OP_STORE_VALUE_TO_BYTE_ADDRESS:
             case OP_STORE_VALUE_TO_UBYTE_ADDRESS: {
@@ -7191,7 +7415,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 /// go ///
                 LVALUE* address = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                address->value = Builder.CreateCast(Instruction::IntToPtr, address->value, PointerType::get(IntegerType::get(TheContext, 32), 0));
+                address->value = Builder.CreateCast(Instruction::BitCast, address->value, PointerType::get(IntegerType::get(TheContext, 32), 0));
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateAlignedLoad(address->value, 4, "llvm_value");
@@ -7216,7 +7440,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 /// go ///
                 LVALUE* address = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                address->value = Builder.CreateCast(Instruction::IntToPtr, address->value, PointerType::get(Type::getFloatTy(TheContext), 0));
+                address->value = Builder.CreateCast(Instruction::BitCast, address->value, PointerType::get(Type::getFloatTy(TheContext), 0));
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateAlignedLoad(address->value, 4, "llvm_value");
@@ -7242,7 +7466,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 /// go ///
                 LVALUE* address = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                address->value = Builder.CreateCast(Instruction::IntToPtr, address->value, PointerType::get(IntegerType::get(TheContext, 8), 0));
+                address->value = Builder.CreateCast(Instruction::BitCast, address->value, PointerType::get(IntegerType::get(TheContext, 8), 0));
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateAlignedLoad(address->value, 1, "llvm_value");
@@ -7268,7 +7492,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 /// go ///
                 LVALUE* address = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                address->value = Builder.CreateCast(Instruction::IntToPtr, address->value, PointerType::get(IntegerType::get(TheContext, 16), 0));
+                address->value = Builder.CreateCast(Instruction::BitCast, address->value, PointerType::get(IntegerType::get(TheContext, 16), 0));
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateAlignedLoad(address->value, 2, "llvm_value");
@@ -7294,7 +7518,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 /// go ///
                 LVALUE* address = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                address->value = Builder.CreateCast(Instruction::IntToPtr, address->value, PointerType::get(IntegerType::get(TheContext, 64), 0));
+                address->value = Builder.CreateCast(Instruction::BitCast, address->value, PointerType::get(IntegerType::get(TheContext, 64), 0));
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateAlignedLoad(address->value, 8, "llvm_value");
@@ -7319,7 +7543,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 /// go ///
                 LVALUE* address = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                address->value = Builder.CreateCast(Instruction::IntToPtr, address->value, PointerType::get(IntegerType::get(TheContext, 64), 0));
+                address->value = Builder.CreateCast(Instruction::BitCast, address->value, PointerType::get(IntegerType::get(TheContext, 64), 0));
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateAlignedLoad(address->value, 8, "llvm_value");
@@ -7344,7 +7568,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 /// go ///
                 LVALUE* address = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                address->value = Builder.CreateCast(Instruction::IntToPtr, address->value, PointerType::get(Type::getDoubleTy(TheContext), 0));
+                address->value = Builder.CreateCast(Instruction::BitCast, address->value, PointerType::get(Type::getDoubleTy(TheContext), 0));
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateAlignedLoad(address->value, 8, "llvm_value");
@@ -7409,6 +7633,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE llvm_value;
                 llvm_value.value = result1;
                 llvm_value.vm_stack = FALSE;
+                llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
 
                 trunc_vm_stack_value2(&llvm_value, size);
 
@@ -7447,7 +7675,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 Value* param6 = element_num->value;
                 params2.push_back(param6);
 
-                Value* param7 = value->value;
+                LVALUE value2;
+                value2 = trunc_value(value, 64);
+
+                Value* param7 = value2.value;
                 params2.push_back(param7);
 
                 Value* result = Builder.CreateCall(fun, params2);
@@ -7463,11 +7694,45 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 break;
 
             case OP_STORE_VALUE_TO_LONG_ADDRESS:
-            case OP_STORE_VALUE_TO_ULONG_ADDRESS:
-            case OP_STORE_VALUE_TO_DOUBLE_ADDRESS:
+            case OP_STORE_VALUE_TO_ULONG_ADDRESS: {
+                LVALUE* address = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                address->value = Builder.CreateCast(Instruction::BitCast, address->value, PointerType::get(IntegerType::get(TheContext, 64), 0));
+
+                Builder.CreateAlignedStore(value->value, address->value, 8);
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, value);
+
+                /// lvar of vm stack to lvar of llvm stack ///
+                lvar_of_vm_to_lvar_of_llvm(params, current_block, llvm_stack, var_num);
+                }
+                break;
+
+            case OP_STORE_VALUE_TO_DOUBLE_ADDRESS: {
+                LVALUE* address = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                address->value = Builder.CreateCast(Instruction::BitCast, address->value, PointerType::get(Type::getDoubleTy(TheContext), 0));
+
+                Builder.CreateAlignedStore(value->value, address->value, 8);
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, value);
+
+                /// lvar of vm stack to lvar of llvm stack ///
+                lvar_of_vm_to_lvar_of_llvm(params, current_block, llvm_stack, var_num);
+                }
+                break;
+
             case OP_STORE_VALUE_TO_POINTER_ADDRESS: {
                 LVALUE* address = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                address->value = Builder.CreateCast(Instruction::BitCast, address->value, PointerType::get(PointerType::get(IntegerType::get(TheContext, 8), 0), 0));
 
                 Builder.CreateAlignedStore(value->value, address->value, 8);
 
@@ -7781,7 +8046,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
                 LVALUE llvm_value;
-                llvm_value.value = Builder.CreateCast(Instruction::SExt, value->value, Type::getInt32Ty(TheContext), "value2");
+                llvm_value.value = Builder.CreateCast(Instruction::SExt, value->value, Type::getInt16Ty(TheContext), "value2");
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
@@ -7798,7 +8063,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
                 LVALUE llvm_value;
-                llvm_value.value = Builder.CreateCast(Instruction::ZExt, value->value, Type::getInt32Ty(TheContext), "value2");
+                llvm_value.value = Builder.CreateCast(Instruction::ZExt, value->value, Type::getInt16Ty(TheContext), "value2");
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
@@ -7816,7 +8081,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
                 LVALUE llvm_value;
-                llvm_value.value = Builder.CreateCast(Instruction::ZExt, value->value, Type::getInt32Ty(TheContext), "value2");
+                llvm_value.value = Builder.CreateCast(Instruction::ZExt, value->value, Type::getInt16Ty(TheContext), "value2");
                 llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
@@ -8097,7 +8362,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params2;
 
-                params2.push_back(value->value);
+                LVALUE value2;
+                value2 = trunc_value(value, 32);
+
+                params2.push_back(value2.value);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
@@ -8114,7 +8382,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params3;
 
-                Value* param1 = llvm_value.value;
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
+
+                Value* param1 = llvm_value2.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -8128,7 +8399,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params2;
 
-                params2.push_back(value->value);
+                LVALUE value2;
+                value2 = trunc_value(value, 64);
+
+                params2.push_back(value2.value);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
@@ -8145,7 +8419,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params3;
 
-                Value* param1 = llvm_value.value;
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
+
+                Value* param1 = llvm_value2.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -8161,7 +8438,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params2;
 
-                params2.push_back(value->value);
+                LVALUE value2;
+                value2 = trunc_value(value, 32);
+
+                params2.push_back(value2.value);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
@@ -8178,7 +8458,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params3;
 
-                Value* param1 = llvm_value.value;
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
+
+                Value* param1 = llvm_value2.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -8192,7 +8475,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params2;
 
-                params2.push_back(value->value);
+                LVALUE value2;
+                value2 = trunc_value(value, 64);
+
+                params2.push_back(value2.value);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
@@ -8209,7 +8495,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params3;
 
-                Value* param1 = llvm_value.value;
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
+
+                Value* param1 = llvm_value2.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -8240,7 +8529,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params3;
 
-                Value* param1 = llvm_value.value;
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
+
+                Value* param1 = llvm_value2.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -8271,7 +8563,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params3;
 
-                Value* param1 = llvm_value.value;
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
+
+                Value* param1 = llvm_value2.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -8285,7 +8580,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params2;
 
-                params2.push_back(value->value);
+                LVALUE value2;
+                value2 = trunc_value(value, 32);
+
+                params2.push_back(value2.value);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
@@ -8302,9 +8600,12 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params3;
 
-                Value* param1 = llvm_value.value;
-                params3.push_back(param1);
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
 
+                Value* param1 = llvm_value2.value;
+                params3.push_back(param1);
+                
                 (void)Builder.CreateCall(fun2, params3);
                 }
                 break;
@@ -8316,7 +8617,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params2;
 
-                params2.push_back(value->value);
+                LVALUE value2;
+                value2 = trunc_value(value, 32);
+
+                params2.push_back(value2.value);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
@@ -8333,7 +8637,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params3;
 
-                Value* param1 = llvm_value.value;
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
+
+                Value* param1 = llvm_value2.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -8347,7 +8654,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params2;
 
-                params2.push_back(value->value);
+                LVALUE value2;
+                value2 = trunc_value(value, 32);
+
+                params2.push_back(value2.value);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
@@ -8364,7 +8674,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params3;
 
-                Value* param1 = llvm_value.value;
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
+
+                Value* param1 = llvm_value2.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -8395,7 +8708,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params3;
 
-                Value* param1 = llvm_value.value;
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
+
+                Value* param1 = llvm_value2.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -8444,9 +8760,11 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params3;
 
-                param1 = llvm_value.value;
-                params3.push_back(param1);
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
 
+                param1 = llvm_value2.value;
+                params3.push_back(param1);
                 (void)Builder.CreateCall(fun2, params3);
                 }
                 break;
@@ -8493,7 +8811,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params3;
 
-                param1 = llvm_value.value;
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
+
+                param1 = llvm_value2.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -8541,7 +8862,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params3;
 
-                param1 = llvm_value.value;
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
+
+                param1 = llvm_value2.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -8588,9 +8912,13 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 /// push object to jit objects ///
                 Function* fun2 = TheModule->getFunction("push_jit_object");
 
+
                 std::vector<Value*> params3;
 
-                param1 = llvm_value.value;
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
+
+                param1 = llvm_value2.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -8639,7 +8967,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params3;
 
-                param1 = llvm_value.value;
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
+
+                param1 = llvm_value2.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -8687,7 +9018,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params3;
 
-                param1 = llvm_value.value;
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
+
+                param1 = llvm_value2.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -8735,7 +9069,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params3;
 
-                param1 = llvm_value.value;
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
+
+                param1 = llvm_value2.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -8783,7 +9120,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params3;
 
-                param1 = llvm_value.value;
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
+
+                param1 = llvm_value2.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -8794,7 +9134,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
             case OP_SHORT_TO_CFLOAT_CAST:
             case OP_INT_TO_CFLOAT_CAST:
             case OP_LONG_TO_CFLOAT_CAST:
-            case OP_BOOL_TO_CFLOAT_CAST:
+            case OP_BOOL_TO_CFLOAT_CAST: 
             case OP_UBYTE_TO_CFLOAT_CAST:
             case OP_USHORT_TO_CFLOAT_CAST:
             case OP_UINT_TO_CFLOAT_CAST:
@@ -8830,7 +9170,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params3;
 
-                param1 = llvm_value.value;
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
+
+                param1 = llvm_value2.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -8847,7 +9190,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
             case OP_UINT_TO_CDOUBLE_CAST:
             case OP_CHAR_TO_CDOUBLE_CAST:
             case OP_ULONG_TO_CDOUBLE_CAST:
-            case OP_FLOAT_TO_CDOUBLE_CAST: 
+            case OP_FLOAT_TO_CDOUBLE_CAST:
             case OP_DOUBLE_TO_CDOUBLE_CAST: {
                 LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
@@ -8877,7 +9220,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params3;
 
-                param1 = llvm_value.value;
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
+
+                param1 = llvm_value2.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -8896,6 +9242,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
             case OP_POINTER_TO_CPOINTER_CAST:
             case OP_BOOL_TO_CPOINTER_CAST: {
                 LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                cast_llvm_value_from_inst(value, inst);
 
                 Function* fun = TheModule->getFunction("create_pointer");
 
@@ -8921,7 +9269,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params3;
 
-                param1 = llvm_value.value;
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
+
+                param1 = llvm_value2.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -8942,6 +9293,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
             case OP_POINTER_TO_CBOOL_CAST:
             case OP_BOOL_TO_CBOOL_CAST: {
                 LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                cast_llvm_value_from_inst(value, inst);
 
                 Function* fun = TheModule->getFunction("create_bool");
 
@@ -8967,7 +9320,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params3;
 
-                param1 = llvm_value.value;
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
+
+                param1 = llvm_value2.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -8988,6 +9344,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
             case OP_POINTER_TO_CCHAR_CAST:
             case OP_BOOL_TO_CCHAR_CAST: {
                 LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                cast_llvm_value_from_inst(value, inst);
 
                 Function* fun = TheModule->getFunction("create_char");
 
@@ -9013,7 +9371,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params3;
 
-                param1 = llvm_value.value;
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
+
+                param1 = llvm_value2.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -9037,7 +9398,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params2;
 
-                Value* param1 = value->value;
+                LVALUE value2;
+                value2 = trunc_value(value, 32);
+
+                Value* param1 = value2.value;
                 params2.push_back(param1);
 
                 LVALUE llvm_value;
@@ -9073,7 +9437,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params2;
 
-                Value* param1 = value->value;
+                LVALUE value2;
+                value2 = trunc_value(value, 32);
+
+                Value* param1 = value2.value;
                 params2.push_back(param1);
 
                 LVALUE llvm_value;
@@ -9109,7 +9476,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params2;
 
-                Value* param1 = value->value;
+                LVALUE value2;
+                value2 = trunc_value(value, 32);
+
+                Value* param1 = value2.value;
                 params2.push_back(param1);
 
                 LVALUE llvm_value;
@@ -9145,7 +9515,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params2;
 
-                Value* param1 = value->value;
+                LVALUE value2;
+                value2 = trunc_value(value, 32);
+
+                Value* param1 = value2.value;
                 params2.push_back(param1);
 
                 LVALUE llvm_value;
@@ -9192,7 +9565,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params2;
 
-                Value* param1 = value->value;
+                LVALUE value2;
+                value2 = trunc_value(value, 32);
+
+                Value* param1 = value2.value;
                 params2.push_back(param1);
 
                 LVALUE llvm_value;
@@ -9239,7 +9615,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params2;
 
-                Value* param1 = value->value;
+                LVALUE value2;
+                value2 = trunc_value(value, 32);
+
+                Value* param1 = value2.value;
                 params2.push_back(param1);
 
                 LVALUE llvm_value;
@@ -9275,7 +9654,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params2;
 
-                Value* param1 = value->value;
+                LVALUE value2;
+                value2 = trunc_value(value, 32);
+
+                Value* param1 = value2.value;
                 params2.push_back(param1);
 
                 LVALUE llvm_value;
@@ -9311,7 +9693,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params2;
 
-                Value* param1 = value->value;
+                LVALUE value2;
+                value2 = trunc_value(value, 32);
+
+                Value* param1 = value2.value;
                 params2.push_back(param1);
 
                 LVALUE llvm_value;
@@ -9345,7 +9730,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params2;
 
-                Value* param1 = value->value;
+                LVALUE value2;
+                value2 = trunc_value(value, 32);
+
+                Value* param1 = value2.value;
                 params2.push_back(param1);
 
                 LVALUE llvm_value;
@@ -9381,7 +9769,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params2;
 
-                Value* param1 = value->value;
+                LVALUE value2;
+                value2 = trunc_value(value, 32);
+
+                Value* param1 = value2.value;
                 params2.push_back(param1);
 
                 LVALUE llvm_value;
@@ -9408,7 +9799,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params2;
 
-                Value* param1 = value->value;
+                LVALUE value2;
+                value2 = trunc_value(value, 32);
+
+                Value* param1 = value2.value;
                 params2.push_back(param1);
 
                 LVALUE llvm_value;
@@ -9442,7 +9836,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params2;
 
-                Value* param1 = value->value;
+                LVALUE value2;
+                value2 = trunc_value(value, 32);
+
+                Value* param1 = value2.value;
                 params2.push_back(param1);
 
                 LVALUE llvm_value;
@@ -9469,7 +9866,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params2;
 
-                Value* param1 = value->value;
+                LVALUE value2;
+                value2 = trunc_value(value, 32);
+
+                Value* param1 = value2.value;
                 params2.push_back(param1);
 
                 LVALUE llvm_value;
@@ -9554,7 +9954,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params2;
 
-                Value* param1 = array_->value;
+                LVALUE value2;
+                value2 = trunc_value(array_, 32);
+
+                Value* param1 = value2.value;
                 params2.push_back(param1);
 
                 LVALUE llvm_value;
@@ -9580,7 +9983,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params2;
 
-                Value* param1 = regex->value;
+                LVALUE value2;
+                value2 = trunc_value(regex, 32);
+
+                Value* param1 = value2.value;
                 params2.push_back(param1);
 
                 LVALUE llvm_value;
@@ -9604,7 +10010,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params2;
 
-                Value* param1 = regex->value;
+                LVALUE value2;
+                value2 = trunc_value(regex, 32);
+
+                Value* param1 = value2.value;
                 params2.push_back(param1);
 
                 LVALUE llvm_value;
@@ -9628,7 +10037,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params2;
 
-                Value* param1 = regex->value;
+                LVALUE value2;
+                value2 = trunc_value(regex, 32);
+
+                Value* param1 = value2.value;
                 params2.push_back(param1);
 
                 LVALUE llvm_value;
@@ -9652,7 +10064,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params2;
 
-                Value* param1 = regex->value;
+                LVALUE value2;
+                value2 = trunc_value(regex, 32);
+
+                Value* param1 = value2.value;
                 params2.push_back(param1);
 
                 LVALUE llvm_value;
@@ -9676,7 +10091,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params2;
 
-                Value* param1 = regex->value;
+                LVALUE value2;
+                value2 = trunc_value(regex, 32);
+
+                Value* param1 = value2.value;
                 params2.push_back(param1);
 
                 LVALUE llvm_value;
@@ -9700,7 +10118,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params2;
 
-                Value* param1 = regex->value;
+                LVALUE value2;
+                value2 = trunc_value(regex, 32);
+
+                Value* param1 = value2.value;
                 params2.push_back(param1);
 
                 LVALUE llvm_value;
@@ -9724,7 +10145,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params2;
 
-                Value* param1 = regex->value;
+                LVALUE value2;
+                value2 = trunc_value(regex, 32);
+
+                Value* param1 = value2.value;
                 params2.push_back(param1);
 
                 LVALUE llvm_value;
@@ -9749,7 +10173,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params2;
 
-                Value* param1 = regex->value;
+                LVALUE value2;
+                value2 = trunc_value(regex, 32);
+
+                Value* param1 = value2.value;
                 params2.push_back(param1);
 
                 LVALUE llvm_value;
@@ -9772,7 +10199,11 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 Function* fun = TheModule->getFunction("char_uppercase");
 
                 std::vector<Value*> params2;
-                Value* param1 = c->value;
+
+                LVALUE value2;
+                value2 = trunc_value(c, 32);
+
+                Value* param1 = value2.value;
                 params2.push_back(param1);
 
                 LVALUE llvm_value;
@@ -9795,7 +10226,11 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 Function* fun = TheModule->getFunction("char_lowercase");
 
                 std::vector<Value*> params2;
-                Value* param1 = c->value;
+
+                LVALUE value2;
+                value2 = trunc_value(c, 32);
+
+                Value* param1 = value2.value;
                 params2.push_back(param1);
 
                 LVALUE llvm_value;
@@ -9840,7 +10275,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params3;
 
-                param1 = llvm_value.value;
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
+
+                param1 = llvm_value2.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -9881,7 +10319,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params3;
 
-                param1 = llvm_value.value;
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
+
+                param1 = llvm_value2.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -9916,7 +10357,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params3;
 
-                param1 = llvm_value.value;
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
+
+                param1 = llvm_value2.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -9992,7 +10436,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params3;
 
-                param1 = llvm_value.value;
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
+
+                param1 = llvm_value2.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -10071,7 +10518,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params3;
 
-                param1 = llvm_value.value;
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
+
+                param1 = llvm_value2.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -10147,7 +10597,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params3;
 
-                param1 = llvm_value.value;
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
+
+                param1 = llvm_value2.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -10223,7 +10676,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params3;
 
-                param1 = llvm_value.value;
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
+
+                param1 = llvm_value2.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -10299,7 +10755,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params3;
 
-                param1 = llvm_value.value;
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
+
+                param1 = llvm_value2.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -10375,7 +10834,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params3;
 
-                param1 = llvm_value.value;
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
+
+                param1 = llvm_value2.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -10451,7 +10913,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params3;
 
-                param1 = llvm_value.value;
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
+
+                param1 = llvm_value2.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -10515,7 +10980,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params3;
 
-                param1 = llvm_value.value;
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
+
+                param1 = llvm_value2.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -10598,7 +11066,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params3;
 
-                param1 = llvm_value.value;
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
+
+                param1 = llvm_value2.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -10684,7 +11155,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params3;
 
-                param1 = llvm_value.value;
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
+
+                param1 = llvm_value2.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -10759,7 +11233,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params3;
 
-                param1 = llvm_value.value;
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
+
+                param1 = llvm_value2.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);

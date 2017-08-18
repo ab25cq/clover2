@@ -5,7 +5,7 @@
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.9~svn20110310	//
 ALLOC	src/macros.h	17;"	d
-ANDAND_OROR_MAX	src/jit.cpp	4230;"	d	file:
+ANDAND_OROR_MAX	src/jit.cpp	4407;"	d	file:
 ANG	Makefile	/^	if locale -a | grep ja_JP.utf8; then export LANG="ja_JP_utf8"; export LC_ALL="ja_JP.utf8"; .\/cclover2 code\/char.cl && .\/clover2 code\/char.clo; else export LANG="C.UTF-8"; export LC_ALL="C.UTF-8"; .\/cclover2 code\/char.cl && .\/clover2 code\/char.clo; fi$/;"	m
 ARRAY_SIZE	src/debug.c	107;"	d	file:
 ARRAY_VALUE_ELEMENT_MAX	src/common.h	56;"	d
@@ -1109,17 +1109,25 @@ arrange_alignment	src/code.c	/^static void arrange_alignment(sByteCode* code)$/;
 arrange_alignment	src/constant.c	/^static void arrange_alignment(sConst* self)$/;"	f	file:
 arrange_stack	src/node.c	/^void arrange_stack(sCompileInfo* cinfo)$/;"	f
 array_mark_fun	src/array.c	/^void array_mark_fun(CLObject self, unsigned char* mark_flg)$/;"	f
+as_fn_append	config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	configure	/^  as_fn_append ()$/;"	f
+as_fn_arith	config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	configure	/^  as_fn_arith ()$/;"	f
+as_fn_error	config.status	/^as_fn_error ()$/;"	f
 as_fn_error	configure	/^as_fn_error ()$/;"	f
+as_fn_executable_p	config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	configure	/^as_fn_executable_p ()$/;"	f
+as_fn_exit	config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	configure	/^as_fn_exit ()$/;"	f
 as_fn_failure	configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
+as_fn_mkdir_p	config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	configure	/^as_fn_mkdir_p ()$/;"	f
 as_fn_ret_failure	configure	/^as_fn_ret_failure () { return 1; }$/;"	f
 as_fn_ret_success	configure	/^as_fn_ret_success () { return 0; }$/;"	f
+as_fn_set_status	config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	configure	/^as_fn_set_status ()$/;"	f
 as_fn_success	configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
+as_fn_unset	config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	configure	/^as_fn_unset ()$/;"	f
 assign_operator	src/parser.c	/^static BOOL assign_operator(unsigned int* node, sParserInfo* info)$/;"	f	file:
 binary_operator	src/node.c	/^static BOOL binary_operator(unsigned int node, sNodeType* left_type, sNodeType* right_type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, int float_operand, int double_operand, int pointer_operand, int null_operand, int char_operand, int bool_operand, int regex_operand, char* op_string, sCompileInfo* info)$/;"	f	file:
@@ -1412,6 +1420,7 @@ free_node_types	src/node_type.c	/^void free_node_types()$/;"	f
 free_nodes	src/node.c	/^void free_nodes()$/;"	f
 free_object	src/object.c	/^BOOL free_object(CLObject self)$/;"	f
 gCLHeap	src/heap.c	/^static sCLHeapManager gCLHeap;$/;"	v	file:
+gCLPointerAndBoolStructMemory	src/jit_runtime.cpp	/^struct sPointerAndBoolResult gCLPointerAndBoolStructMemory;$/;"	v	typeref:struct:sPointerAndBoolResult
 gCLValueAndBoolStruct	src/jit.cpp	/^StructType* gCLValueAndBoolStruct;$/;"	v
 gCLValueAndBoolStructMemory	src/jit_runtime.cpp	/^struct sCLVALUEAndBoolResult gCLValueAndBoolStructMemory;$/;"	v	typeref:struct:sCLVALUEAndBoolResult
 gCandidates	src/interpreter.c	/^char** gCandidates = NULL;$/;"	v
@@ -2099,8 +2108,8 @@ run_double_to_string_cast	src/jit_runtime.cpp	/^CLObject run_double_to_string_ca
 run_float_to_string_cast	src/jit_runtime.cpp	/^CLObject run_float_to_string_cast(float f)$/;"	f
 run_int_to_string_cast	src/jit_runtime.cpp	/^CLObject run_int_to_string_cast(int n)$/;"	f
 run_integer_to_int_cast	src/jit_runtime.cpp	/^int run_integer_to_int_cast(CLObject obj)$/;"	f
-run_load_class_field_address	src/jit_runtime.cpp	/^struct sPointerAndBoolResult run_load_class_field_address(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index, int offset, sConst* constant)$/;"	f
-run_load_field_address	src/jit_runtime.cpp	/^struct sPointerAndBoolResult run_load_field_address(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index, CLObject obj)$/;"	f
+run_load_class_field_address	src/jit_runtime.cpp	/^struct sPointerAndBoolResult* run_load_class_field_address(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index, int offset, sConst* constant)$/;"	f
+run_load_field_address	src/jit_runtime.cpp	/^struct sPointerAndBoolResult* run_load_field_address(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index, CLObject obj)$/;"	f
 run_long_to_string_cast	src/jit_runtime.cpp	/^CLObject run_long_to_string_cast(long l)$/;"	f
 run_pointer_to_string_cast	src/jit_runtime.cpp	/^CLObject run_pointer_to_string_cast(char* p)$/;"	f
 run_regex_to_string_cast	src/jit_runtime.cpp	/^CLObject run_regex_to_string_cast(CLObject regex)$/;"	f

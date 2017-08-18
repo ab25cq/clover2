@@ -378,7 +378,6 @@ class JITTest
         b->int = 245;
         return a;
     }
-/*
 
     def run61():  long {
         a:long = 123l;
@@ -993,6 +992,7 @@ class JITTest
         }
         return new Command("AAA", 0);
     }
+/*
     def run108(): bool {
         a:String = "ABC";
         result:String = new String(a.size);
