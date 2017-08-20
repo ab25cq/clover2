@@ -119,6 +119,49 @@ install:
 	$(INSTALL) -m 644 timespec.clcl ~/.clover2
 	$(INSTALL) -m 644 stat.clcl ~/.clover2
 
+	if test $(JIT) = 1;then llvm-dis Clover.bc && $(INSTALL) -m 644 Clover.bc ~/.clover2; fi
+	if test $(JIT) = 1;then llvm-dis Global.bc && $(INSTALL) -m 644 Global.bc ~/.clover2; fi
+	if test $(JIT) = 1;then llvm-dis String.bc && $(INSTALL) -m 644 String.bc ~/.clover2; fi
+	if test $(JIT) = 1;then llvm-dis Buffer.bc && $(INSTALL) -m 644 Buffer.bc ~/.clover2; fi
+	if test $(JIT) = 1;then llvm-dis Byte.bc && $(INSTALL) -m 644 Byte.bc ~/.clover2; fi
+	if test $(JIT) = 1;then llvm-dis UByte.bc && $(INSTALL) -m 644 UByte.bc ~/.clover2; fi
+	if test $(JIT) = 1;then llvm-dis Short.bc && $(INSTALL) -m 644 Short.bc ~/.clover2; fi
+	if test $(JIT) = 1;then llvm-dis UShort.bc && $(INSTALL) -m 644 UShort.bc ~/.clover2; fi
+	if test $(JIT) = 1;then llvm-dis Integer.bc && $(INSTALL) -m 644 Integer.bc ~/.clover2; fi
+	if test $(JIT) = 1;then llvm-dis UInteger.bc && $(INSTALL) -m 644 UInteger.bc ~/.clover2; fi
+	if test $(JIT) = 1;then llvm-dis Long.bc && $(INSTALL) -m 644 Long.bc ~/.clover2; fi
+	if test $(JIT) = 1;then llvm-dis ULong.bc && $(INSTALL) -m 644 ULong.bc ~/.clover2; fi
+	if test $(JIT) = 1;then llvm-dis Float.bc && $(INSTALL) -m 644 Float.bc ~/.clover2; fi
+	if test $(JIT) = 1;then llvm-dis Double.bc && $(INSTALL) -m 644 Double.bc ~/.clover2; fi
+	if test $(JIT) = 1;then llvm-dis Pointer.bc && $(INSTALL) -m 644 Pointer.bc ~/.clover2; fi
+	if test $(JIT) = 1;then llvm-dis Char.bc && $(INSTALL) -m 644 Char.bc ~/.clover2; fi
+	if test $(JIT) = 1;then llvm-dis Bool.bc && $(INSTALL) -m 644 Bool.bc ~/.clover2; fi
+	if test $(JIT) = 1;then llvm-dis Array.bc && $(INSTALL) -m 644 Array.bc ~/.clover2; fi
+	if test $(JIT) = 1;then llvm-dis EqualableArray.bc && $(INSTALL) -m 644 EqualableArray.bc ~/.clover2; fi
+	if test $(JIT) = 1;then llvm-dis SortableArray.bc && $(INSTALL) -m 644 SortableArray.bc ~/.clover2; fi
+	if test $(JIT) = 1;then llvm-dis Hash.bc && $(INSTALL) -m 644 Hash.bc ~/.clover2; fi
+	if test $(JIT) = 1;then llvm-dis List.bc && $(INSTALL) -m 644 List.bc ~/.clover2; fi
+	if test $(JIT) = 1;then llvm-dis EqualableList.bc && $(INSTALL) -m 644 EqualableList.bc ~/.clover2; fi
+	if test $(JIT) = 1;then llvm-dis SortableList.bc && $(INSTALL) -m 644 SortableList.bc ~/.clover2; fi
+	if test $(JIT) = 1;then llvm-dis Tuple1.bc && $(INSTALL) -m 644 Tuple1.bc ~/.clover2; fi
+	if test $(JIT) = 1;then llvm-dis Tuple2.bc && $(INSTALL) -m 644 Tuple2.bc ~/.clover2; fi
+	if test $(JIT) = 1;then llvm-dis Tuple3.bc && $(INSTALL) -m 644 Tuple3.bc ~/.clover2; fi
+	if test $(JIT) = 1;then llvm-dis Tuple4.bc && $(INSTALL) -m 644 Tuple4.bc ~/.clover2; fi
+	if test $(JIT) = 1;then llvm-dis Tuple5.bc && $(INSTALL) -m 644 Tuple5.bc ~/.clover2; fi
+	if test $(JIT) = 1;then llvm-dis Tuple6.bc && $(INSTALL) -m 644 Tuple6.bc ~/.clover2; fi
+	if test $(JIT) = 1;then llvm-dis Tuple7.bc && $(INSTALL) -m 644 Tuple7.bc ~/.clover2; fi
+	if test $(JIT) = 1;then llvm-dis Tuple8.bc && $(INSTALL) -m 644 Tuple8.bc ~/.clover2; fi
+	if test $(JIT) = 1;then llvm-dis Tuple9.bc && $(INSTALL) -m 644 Tuple9.bc ~/.clover2; fi
+	if test $(JIT) = 1;then llvm-dis Tuple10.bc && $(INSTALL) -m 644 Tuple10.bc ~/.clover2; fi
+	if test $(JIT) = 1;then llvm-dis File.bc && $(INSTALL) -m 644 File.bc ~/.clover2; fi
+	if test $(JIT) = 1;then llvm-dis Path.bc && $(INSTALL) -m 644 Path.bc ~/.clover2; fi
+	if test $(JIT) = 1;then llvm-dis Directory.bc && $(INSTALL) -m 644 Directory.bc ~/.clover2; fi
+	if test $(JIT) = 1;then llvm-dis Job.bc && $(INSTALL) -m 644 Job.bc ~/.clover2; fi
+	if test $(JIT) = 1;then llvm-dis Command.bc && $(INSTALL) -m 644 Command.bc ~/.clover2; fi
+	if test $(JIT) = 1;then llvm-dis tm.bc && $(INSTALL) -m 644 tm.bc ~/.clover2; fi
+	if test $(JIT) = 1;then llvm-dis timespec.bc && $(INSTALL) -m 644 timespec.bc ~/.clover2; fi
+	if test $(JIT) = 1;then llvm-dis stat.bc && $(INSTALL) -m 644 stat.bc ~/.clover2; fi
+
 	$(INSTALL) -m 644 MArrayImplement.clm ~/.clover2
 	$(INSTALL) -m 644 MEqualableArrayImplement.clm ~/.clover2
 	$(INSTALL) -m 644 MEqualableListImplementation.clm ~/.clover2
@@ -155,7 +198,7 @@ permission:
 # clean
 ########################################################
 clean:
-	rm -fR clover2 clover2.dSYM cclover2 cclover2.dSYM iclover2 iclover2.dSYM src/*.o config.log config.status *.stackdump autom4te.cache .DS_Store core.* a.out *.clcl *.bc *.clo code/*.clo *.clm a.c src/*.dwo
+	rm -fR clover2 clover2.dSYM cclover2 cclover2.dSYM iclover2 iclover2.dSYM src/*.o config.log config.status *.stackdump autom4te.cache .DS_Store core.* a.out *.clcl *.bc *.clo code/*.clo *.clm a.c src/*.dwo *.ll
 
 distclean: clean
 	rm -fR  config.h Makefile autom4te.cache

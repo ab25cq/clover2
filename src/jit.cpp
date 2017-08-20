@@ -7009,9 +7009,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                     llvm_value.constant_int_value = FALSE;
                     llvm_value.constant_float_value = FALSE;
 
-//value->dump();
-//sleep(3);
-
                     push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
 
                     /// push object to jit objects ///
@@ -9916,7 +9913,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 Value* param5 = array2.value;
                 params2.push_back(param5);
 
-                Value* param6 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)class_name);
+                Constant* str_constant = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)class_name);
+                Value* param6 = ConstantExpr::getIntToPtr(str_constant, PointerType::get(IntegerType::get(TheContext,8), 0));
                 params2.push_back(param6);
 
                 Value* result = Builder.CreateCall(fun, params2);
@@ -11299,9 +11297,11 @@ static BOOL compile_jit_methods(sCLClass* klass)
 
 ///    if(verifyModule(*TheModule, &err_ostream)) {
 //
-if(strcmp(CLASS_NAME(klass), "JITTest") == 0) {
+/*
+if(strcmp(CLASS_NAME(klass), "EqualableArray") == 0) {
 TheModule->dump();
 }
+*/
 
         llvm::WriteBitcodeToFile(TheModule, output_stream);
         output_stream.flush();

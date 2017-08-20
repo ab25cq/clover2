@@ -24,7 +24,6 @@ AC_ARG_WITH(log,                [  --with-log                create log ], [ LOG
 AC_ARG_WITH(optimize,           [  --with-optimize           with optimize(-O in CFLAGS) ], [ ENABLE_OPTIMIZE=1 ], [ ENABLE_OPTIMIZE=0 ])
 AC_ARG_WITH(interpreter,        [  --with-interpreter        with interpreter ], [ ENABLE_INTERPRETER=1 ], [ ENABLE_INTERPRETER=0])
 AC_ARG_WITH(jit,                [  --with-jit                with jit ], [ ENABLE_JIT=1 ], [ ENABLE_JIT=0])
-AC_ARG_WITH(all-jit-compile,    [  --with-all-jit-compile    with all jit compile for debug], [ ENABLE_ALL_JIT_COMPILE=1 ], [ ENABLE_ALL_JIT_COMPILE=0])
 
 ##############################################################
 # check cpu type
@@ -123,11 +122,6 @@ fi
 if test $ENABLE_OPTIMIZE = 1
 then
     CFLAGS="$CFLAGS -O3"
-fi
-if test $ENABLE_ALL_JIT_COMPILE = 1
-then
-    CFLAGS="$CFLAGS -DALL_JIT_COMPILE"
-    CXXFLAGS="$CXXFLAGS -DALL_JIT_COMPILE"
 fi
 
 if test $ENABLE_INTERPRETER = 1
