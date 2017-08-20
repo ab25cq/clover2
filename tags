@@ -5,7 +5,7 @@
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.9~svn20110310	//
 ALLOC	src/macros.h	17;"	d
-ANDAND_OROR_MAX	src/jit.cpp	4407;"	d	file:
+ANDAND_OROR_MAX	src/jit.cpp	4523;"	d	file:
 ANG	Makefile	/^	if locale -a | grep ja_JP.utf8; then export LANG="ja_JP_utf8"; export LC_ALL="ja_JP.utf8"; .\/cclover2 code\/char.cl && .\/clover2 code\/char.clo; else export LANG="C.UTF-8"; export LC_ALL="C.UTF-8"; .\/cclover2 code\/char.cl && .\/clover2 code\/char.clo; fi$/;"	m
 ARRAY_SIZE	src/debug.c	107;"	d	file:
 ARRAY_VALUE_ELEMENT_MAX	src/common.h	56;"	d
@@ -2350,9 +2350,11 @@ tok_if	toy.cpp	/^  tok_if = -6,$/;"	e	enum:Token	file:
 tok_in	toy.cpp	/^  tok_in = -10$/;"	e	enum:Token	file:
 tok_number	toy.cpp	/^  tok_number = -5,$/;"	e	enum:Token	file:
 tok_then	toy.cpp	/^  tok_then = -7,$/;"	e	enum:Token	file:
-trunc_value	src/jit.cpp	/^LVALUE trunc_value(LVALUE* llvm_value, int size)$/;"	f
-trunc_vm_stack_value	src/jit.cpp	/^static void trunc_vm_stack_value(LVALUE* value, int inst) $/;"	f	file:
-trunc_vm_stack_value2	src/jit.cpp	/^static void trunc_vm_stack_value2(LVALUE* llvm_value, int size)$/;"	f	file:
+trunc_value	src/jit.cpp	/^static LVALUE trunc_value(LVALUE* llvm_value, int size)$/;"	f	file:
+trunc_value_from_inst	src/jit.cpp	/^static void trunc_value_from_inst(LVALUE* value, int inst) $/;"	f	file:
+trunc_value_to_float_or_double	src/jit.cpp	/^static LVALUE trunc_value_to_float_or_double(LVALUE* llvm_value, int size)$/;"	f	file:
+trunc_value_to_pointer	src/jit.cpp	/^static LVALUE trunc_value_to_pointer(LVALUE* llvm_value)$/;"	f	file:
+trunc_variable	src/jit.cpp	/^static void trunc_variable(LVALUE* llvm_value, int size)$/;"	f	file:
 try_catch_label_name	src/common.h	/^    char* try_catch_label_name;$/;"	m	struct:sVMInfoStruct
 try_code	src/common.h	/^    sByteCode* try_code;$/;"	m	struct:sVMInfoStruct
 try_expression	src/parser.c	/^static BOOL try_expression(unsigned int* node, sParserInfo* info)$/;"	f	file:
@@ -2375,7 +2377,6 @@ vm	src/vm.c	/^BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var
 vm_lvar_to_llvm_lvar	src/jit.cpp	/^static void vm_lvar_to_llvm_lvar(LVALUE* llvm_stack,std::map<std::string, Value*>& params, BasicBlock* current_block, int var_num)$/;"	f	file:
 vm_mutex_off	src/vm.c	/^void vm_mutex_off()$/;"	f
 vm_mutex_on	src/vm.c	/^void vm_mutex_on()$/;"	f
-vm_stack	src/jit_common.hpp	/^    BOOL vm_stack;$/;"	m	struct:LVALUEStruct
 while_expression	src/parser.c	/^static BOOL while_expression(unsigned int* node, sParserInfo* info)$/;"	f	file:
 write_all_modified_classes	src/klass_compile_time.c	/^BOOL write_all_modified_classes()$/;"	f
 write_all_modified_modules	src/module.c	/^void write_all_modified_modules()$/;"	f

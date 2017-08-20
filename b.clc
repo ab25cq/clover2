@@ -992,7 +992,6 @@ class JITTest
         }
         return new Command("AAA", 0);
     }
-/*
     def run108(): bool {
         a:String = "ABC";
         result:String = new String(a.size);
@@ -1711,5 +1710,4 @@ class JITTest
 
         return result;
     }
-*/
 }

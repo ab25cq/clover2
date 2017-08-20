@@ -72,7 +72,6 @@ inline void create_method_path_for_jit(sCLClass* klass, sCLMethod* method, char*
 
 struct LVALUEStruct {
     Value* value;
-    BOOL vm_stack;
     int lvar_address_index;
     BOOL lvar_stored;
     BOOL constant_int_value;

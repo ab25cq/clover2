@@ -26,14 +26,14 @@ void show_stack_for_llvm_stack(LVALUE* llvm_stack, LVALUE* llvm_stack_ptr, int v
 
     int i;
     for(i=0; i<10; i++) {
-        printf("stack[%d] %p %d (VM stack value %d)\n", i, llvm_stack[i].value, llvm_stack[i].value, llvm_stack[i].vm_stack);
+        printf("stack[%d] %p %d\n", i, llvm_stack[i].value, llvm_stack[i].value);
     }
 }
 
 //////////////////////////////////////////////////////////////
 // LLVM operation functions
 //////////////////////////////////////////////////////////////
-LVALUE trunc_value(LVALUE* llvm_value, int size)
+static LVALUE trunc_value(LVALUE* llvm_value, int size)
 {
     LVALUE result = *llvm_value;
 
@@ -255,7 +255,132 @@ LVALUE trunc_value(LVALUE* llvm_value, int size)
     return result;
 }
 
-static void trunc_vm_stack_value2(LVALUE* llvm_value, int size)
+// size --> 32: float 64:double
+static LVALUE trunc_value_to_float_or_double(LVALUE* llvm_value, int size)
+{
+    LVALUE result = *llvm_value;
+
+    Type* llvm_type = llvm_value->value->getType();
+    Type::TypeID type_id = llvm_type->getTypeID();
+
+    /// Constant Int ///
+    if(llvm_value->constant_int_value) {
+        ConstantInt* constant_int_value = dynamic_cast<ConstantInt*>(llvm_value->value);
+        APInt apint_value = constant_int_value->getValue();
+
+        int bit_width = constant_int_value->getBitWidth();
+        bool signed_value = apint_value.isSignBit();
+
+        switch(size) {
+            case 32:
+                if(signed_value) {
+                    result.value = Builder.CreateCast(Instruction::SIToFP, llvm_value->value, Type::getFloatTy(TheContext));
+                }
+                else {
+                    result.value = Builder.CreateCast(Instruction::UIToFP, llvm_value->value, Type::getFloatTy(TheContext));
+                }
+                break;
+
+            case 64:
+                if(signed_value) {
+                    result.value = Builder.CreateCast(Instruction::SIToFP, llvm_value->value, Type::getDoubleTy(TheContext));
+                }
+                else {
+                    result.value = Builder.CreateCast(Instruction::UIToFP, llvm_value->value, Type::getDoubleTy(TheContext));
+                }
+                break;
+        }
+    }
+    else if(llvm_value->constant_float_value) {
+    }
+    /// Memory ///
+    else if(type_id == Type::TypeID::FloatTyID) {
+        switch(size) {
+            case 64:
+                result.value = Builder.CreateCast(Instruction::FPExt, llvm_value->value, Type::getDoubleTy(TheContext));
+                break;
+        }
+    }
+    else if(type_id == Type::TypeID::DoubleTyID) {
+        switch(size) {
+            case 32:
+                result.value = Builder.CreateCast(Instruction::FPTrunc, llvm_value->value, Type::getFloatTy(TheContext));
+                break;
+
+            case 64:
+                break;
+        }
+    }
+    else if(llvm_type->isPointerTy()) {
+        switch(size) {
+            case 32:
+                result.value = Builder.CreateCast(Instruction::PtrToInt, llvm_value->value, Type::getInt32Ty(TheContext));
+                result.value = Builder.CreateCast(Instruction::UIToFP, result.value, Type::getFloatTy(TheContext));
+                break;
+
+            case 64:
+                result.value = Builder.CreateCast(Instruction::PtrToInt, llvm_value->value, Type::getInt64Ty(TheContext));
+                result.value = Builder.CreateCast(Instruction::UIToFP, result.value, Type::getDoubleTy(TheContext));
+                break;
+        }
+    }
+    else {
+        switch(size) {
+            case 32:
+                result.value = Builder.CreateCast(Instruction::UIToFP, llvm_value->value, Type::getFloatTy(TheContext));
+                break;
+
+            case 64:
+                result.value = Builder.CreateCast(Instruction::UIToFP, llvm_value->value, Type::getDoubleTy(TheContext));
+                break;
+        }
+    }
+
+    return result;
+}
+
+static LVALUE trunc_value_to_pointer(LVALUE* llvm_value)
+{
+    LVALUE result = *llvm_value;
+
+    Type* llvm_type = llvm_value->value->getType();
+    Type::TypeID type_id = llvm_type->getTypeID();
+
+    /// Constant Int ///
+    if(llvm_value->constant_int_value) {
+        ConstantInt* constant_int_value = dynamic_cast<ConstantInt*>(llvm_value->value);
+        APInt apint_value = constant_int_value->getValue();
+
+        int bit_width = constant_int_value->getBitWidth();
+        bool signed_value = apint_value.isSignBit();
+
+        result.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value->value, PointerType::get(IntegerType::get(TheContext, 8), 0));
+    }
+    else if(llvm_value->constant_float_value) {
+        ConstantFP* constant_float_value = dynamic_cast<ConstantFP*>(llvm_value->value);
+        const APFloat apfloat_value = constant_float_value->getValueAPF();
+
+        result.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value->value, PointerType::get(IntegerType::get(TheContext, 8), 0));
+    }
+    /// Memory ///
+    else if(type_id == Type::TypeID::FloatTyID) {
+        result.value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, Type::getInt64Ty(TheContext));
+        result.value = Builder.CreateCast(Instruction::IntToPtr, result.value, PointerType::get(IntegerType::get(TheContext, 8), 0));
+    }
+    else if(type_id == Type::TypeID::DoubleTyID) {
+        result.value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, Type::getInt64Ty(TheContext));
+        result.value = Builder.CreateCast(Instruction::IntToPtr, result.value, PointerType::get(IntegerType::get(TheContext, 8), 0));
+    }
+    else if(llvm_type->isPointerTy()) {
+    }
+    else {
+        result.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value->value, PointerType::get(IntegerType::get(TheContext, 8), 0));
+    }
+
+    return result;
+}
+
+static void trunc_variable(LVALUE* llvm_value, int size)
 {
     switch(size) {
         case 1:
@@ -287,8 +412,6 @@ static void trunc_vm_stack_value2(LVALUE* llvm_value, int size)
             llvm_value->value = Builder.CreateCast(Instruction::IntToPtr, llvm_value->value, PointerType::get(IntegerType::get(TheContext, 8), 0));
             break;
     }
-
-    //llvm_value->vm_stack = FALSE;
 }
 
 static void cast_llvm_value_from_inst(LVALUE* llvm_value, int inst) 
@@ -827,7 +950,6 @@ static void dec_stack_ptr(LVALUE** llvm_stack_ptr, int value)
     int i;
     for(i=0; i<value; i++) {
         (*llvm_stack_ptr)->value = 0;
-        (*llvm_stack_ptr)->vm_stack = FALSE;
         (*llvm_stack_ptr)->lvar_address_index = -1;
         (*llvm_stack_ptr)->lvar_stored = FALSE;
         (*llvm_stack_ptr)->constant_int_value = FALSE;
@@ -837,7 +959,6 @@ static void dec_stack_ptr(LVALUE** llvm_stack_ptr, int value)
     }
 
     (*llvm_stack_ptr)->value = 0;
-    (*llvm_stack_ptr)->vm_stack = FALSE;
     (*llvm_stack_ptr)->lvar_address_index = -1;
     (*llvm_stack_ptr)->lvar_stored = FALSE;
     (*llvm_stack_ptr)->constant_int_value = FALSE;
@@ -868,7 +989,6 @@ static void store_llvm_value_to_lvar_with_offset(LVALUE* llvm_stack, int index, 
     /// go ///
     Builder.CreateAlignedStore(llvm_value2.value, llvm_stack[index].value, 8);
 
-    llvm_stack[index].vm_stack = llvm_value->vm_stack;
     llvm_stack[index].lvar_address_index = llvm_value->lvar_address_index;
     llvm_stack[index].lvar_stored = TRUE;
     llvm_stack[index].constant_int_value = FALSE;
@@ -881,7 +1001,6 @@ static void get_llvm_value_from_lvar_with_offset(LVALUE* result, LVALUE* llvm_st
 
     result->value = Builder.CreateLoad(llvm_value->value, "lvar"); // load from allocated value
 
-    result->vm_stack = llvm_value->vm_stack;
     result->lvar_address_index = llvm_value->lvar_address_index;
     result->lvar_stored = llvm_value->lvar_stored;
     result->constant_int_value = FALSE;
@@ -925,7 +1044,6 @@ static LVALUE get_vm_stack_ptr_value_from_index_with_aligned(std::map<std::strin
             break;
     }
 
-    result.vm_stack = TRUE;
     result.lvar_address_index = -1;
     result.lvar_stored = FALSE;
     result.constant_int_value = FALSE;
@@ -1017,7 +1135,6 @@ static LVALUE get_stack_value_from_index_with_aligned(std::map<std::string, Valu
             break;
     }
 
-    result.vm_stack = TRUE;
     result.lvar_address_index = -1;
     result.lvar_stored = FALSE;
     result.constant_int_value = FALSE;
@@ -1131,7 +1248,6 @@ static LVALUE get_lvar_value_from_offset(std::map<std::string, Value*>& params, 
 
     LVALUE result;
     result.value = Builder.CreateAlignedLoad(offset_lvar, 8, "offset_lvar");
-    result.vm_stack = TRUE;
     result.lvar_address_index = -1;
     result.lvar_stored = TRUE;
     result.constant_int_value = FALSE;
@@ -1394,206 +1510,206 @@ static void lvar_of_llvm_to_lvar_of_vm(std::map<std::string, Value *> params, Ba
     }
 }
 
-static void trunc_vm_stack_value(LVALUE* value, int inst) 
+static void trunc_value_from_inst(LVALUE* value, int inst) 
 {
-    if(value->vm_stack) {
-        switch(inst) {
-            case OP_BADD:
-            case OP_BSUB:
-            case OP_BMULT:
-            case OP_BDIV:
-            case OP_BMOD: 
-            case OP_BLSHIFT:
-            case OP_BRSHIFT:
-            case OP_BAND: 
-            case OP_BXOR: 
-            case OP_BOR: 
-            case OP_BCOMPLEMENT:
-            case OP_BEQ:
-            case OP_BNOTEQ:
-            case OP_BGT:
-            case OP_BLE:
-            case OP_BGTEQ:
-            case OP_BLEEQ:
-            case OP_UBADD: 
-            case OP_UBSUB:
-            case OP_UBMULT:
-            case OP_UBDIV:
-            case OP_UBMOD:
-            case OP_UBLSHIFT:
-            case OP_UBRSHIFT: 
-            case OP_UBAND:
-            case OP_UBXOR:
-            case OP_UBOR:
-            case OP_UBCOMPLEMENT:
-            case OP_UBEQ:
-            case OP_UBNOTEQ:
-            case OP_UBGT:
-            case OP_UBLE: 
-            case OP_UBGTEQ: 
-            case OP_UBLEEQ:
-                value->value = Builder.CreateCast(Instruction::Trunc, value->value, Type::getInt8Ty(TheContext));
-                break;
+    switch(inst) {
+        case OP_ANDAND: 
+        case OP_OROR:
+            *value = trunc_value(value, 1);
+            break;
 
-            case OP_SADD:
-            case OP_SSUB:
-            case OP_SMULT:
-            case OP_SDIV:
-            case OP_SMOD:
-            case OP_SLSHIFT:
-            case OP_SRSHIFT:
-            case OP_SAND:
-            case OP_SXOR:
-            case OP_SOR:
-            case OP_SCOMPLEMENT:
-            case OP_SEQ:
-            case OP_SNOTEQ:
-            case OP_SGT:
-            case OP_SLE:
-            case OP_SGTEQ:
-            case OP_SLEEQ:
-            case OP_USADD:
-            case OP_USSUB:
-            case OP_USMULT:
-            case OP_USDIV:
-            case OP_USMOD:
-            case OP_USLSHIFT:
-            case OP_USRSHIFT:
-            case OP_USAND:
-            case OP_USXOR:
-            case OP_USOR:
-            case OP_USCOMPLEMENT:
-            case OP_USEQ:
-            case OP_USNOTEQ:
-            case OP_USGT:
-            case OP_USLE:
-            case OP_USGTEQ:
-            case OP_USLEEQ:
-                value->value = Builder.CreateCast(Instruction::Trunc, value->value, Type::getInt16Ty(TheContext));
-                break;
+        case OP_BADD:
+        case OP_BSUB:
+        case OP_BMULT:
+        case OP_BDIV:
+        case OP_BMOD: 
+        case OP_BLSHIFT:
+        case OP_BRSHIFT:
+        case OP_BAND: 
+        case OP_BXOR: 
+        case OP_BOR: 
+        case OP_BCOMPLEMENT:
+        case OP_BEQ:
+        case OP_BNOTEQ:
+        case OP_BGT:
+        case OP_BLE:
+        case OP_BGTEQ:
+        case OP_BLEEQ:
+        case OP_UBADD: 
+        case OP_UBSUB:
+        case OP_UBMULT:
+        case OP_UBDIV:
+        case OP_UBMOD:
+        case OP_UBLSHIFT:
+        case OP_UBRSHIFT: 
+        case OP_UBAND:
+        case OP_UBXOR:
+        case OP_UBOR:
+        case OP_UBCOMPLEMENT:
+        case OP_UBEQ:
+        case OP_UBNOTEQ:
+        case OP_UBGT:
+        case OP_UBLE: 
+        case OP_UBGTEQ: 
+        case OP_UBLEEQ:
+            *value = trunc_value(value, 8);
+            break;
 
-            case OP_IADD: 
-            case OP_ISUB:
-            case OP_IMULT:
-            case OP_IDIV:
-            case OP_IMOD:
-            case OP_ILSHIFT: 
-            case OP_IRSHIFT:
-            case OP_IAND:
-            case OP_IXOR: 
-            case OP_IOR:
-            case OP_ICOMPLEMENT:
-            case OP_IEQ:
-            case OP_INOTEQ: 
-            case OP_IGT: 
-            case OP_ILE: 
-            case OP_ILEEQ: 
-            case OP_IGTEQ: 
-            case OP_UIADD:
-            case OP_UISUB:
-            case OP_UIMULT:
-            case OP_UIDIV:
-            case OP_UIMOD:
-            case OP_UILSHIFT:
-            case OP_UIRSHIFT:
-            case OP_UIAND:
-            case OP_UIXOR:
-            case OP_UIOR:
-            case OP_UICOMPLEMENT:
-            case OP_UIEQ:
-            case OP_UINOTEQ:
-            case OP_UILE:
-            case OP_UIGT:
-            case OP_UIGTEQ:
-            case OP_UILEEQ: 
-            case OP_CADD:
-            case OP_CSUB:
-            case OP_CEQ:
-            case OP_CNOTEQ:
-            case OP_CGT:
-            case OP_CLE:
-            case OP_CGTEQ:
-            case OP_CLEEQ:
-            case OP_OBJ_IDENTIFY:
-            case OP_ANDAND: 
-            case OP_OROR:
-            case OP_LOGICAL_DENIAL:
-                value->value = Builder.CreateCast(Instruction::Trunc, value->value, Type::getInt32Ty(TheContext));
-                break;
+        case OP_SADD:
+        case OP_SSUB:
+        case OP_SMULT:
+        case OP_SDIV:
+        case OP_SMOD:
+        case OP_SLSHIFT:
+        case OP_SRSHIFT:
+        case OP_SAND:
+        case OP_SXOR:
+        case OP_SOR:
+        case OP_SCOMPLEMENT:
+        case OP_SEQ:
+        case OP_SNOTEQ:
+        case OP_SGT:
+        case OP_SLE:
+        case OP_SGTEQ:
+        case OP_SLEEQ:
+        case OP_USADD:
+        case OP_USSUB:
+        case OP_USMULT:
+        case OP_USDIV:
+        case OP_USMOD:
+        case OP_USLSHIFT:
+        case OP_USRSHIFT:
+        case OP_USAND:
+        case OP_USXOR:
+        case OP_USOR:
+        case OP_USCOMPLEMENT:
+        case OP_USEQ:
+        case OP_USNOTEQ:
+        case OP_USGT:
+        case OP_USLE:
+        case OP_USGTEQ:
+        case OP_USLEEQ:
+            *value = trunc_value(value, 16);
+            break;
 
-            case OP_LADD:
-            case OP_LSUB:
-            case OP_LMULT:
-            case OP_LMOD: 
-            case OP_LDIV:
-            case OP_LLSHIFT: 
-            case OP_LRSHIFT:
-            case OP_LAND: 
-            case OP_LXOR: 
-            case OP_LOR: 
-            case OP_LCOMPLEMENT:
-            case OP_LEQ: 
-            case OP_LNOTEQ: 
-            case OP_LGT:
-            case OP_LLE:
-            case OP_LGTEQ:
-            case OP_LLEEQ:
-            case OP_ULADD: 
-            case OP_ULMOD:
-            case OP_ULLSHIFT:
-            case OP_ULRSHIFT:
-            case OP_ULAND:
-            case OP_ULXOR:
-            case OP_ULOR:
-            case OP_ULCOMPLEMENT:
-            case OP_ULEQ: 
-            case OP_ULNOTEQ: 
-            case OP_ULGT: 
-            case OP_ULLE: 
-            case OP_ULGTEQ: 
-            case OP_ULLEEQ:
-                value->value = Builder.CreateCast(Instruction::Trunc, value->value, Type::getInt64Ty(TheContext));
-                break;
+        case OP_IADD: 
+        case OP_ISUB:
+        case OP_IMULT:
+        case OP_IDIV:
+        case OP_IMOD:
+        case OP_ILSHIFT: 
+        case OP_IRSHIFT:
+        case OP_IAND:
+        case OP_IXOR: 
+        case OP_IOR:
+        case OP_ICOMPLEMENT:
+        case OP_IEQ:
+        case OP_INOTEQ: 
+        case OP_IGT: 
+        case OP_ILE: 
+        case OP_ILEEQ: 
+        case OP_IGTEQ: 
+        case OP_UIADD:
+        case OP_UISUB:
+        case OP_UIMULT:
+        case OP_UIDIV:
+        case OP_UIMOD:
+        case OP_UILSHIFT:
+        case OP_UIRSHIFT:
+        case OP_UIAND:
+        case OP_UIXOR:
+        case OP_UIOR:
+        case OP_UICOMPLEMENT:
+        case OP_UIEQ:
+        case OP_UINOTEQ:
+        case OP_UILE:
+        case OP_UIGT:
+        case OP_UIGTEQ:
+        case OP_UILEEQ: 
+        case OP_CADD:
+        case OP_CSUB:
+        case OP_CEQ:
+        case OP_CNOTEQ:
+        case OP_CGT:
+        case OP_CLE:
+        case OP_CGTEQ:
+        case OP_CLEEQ:
+        case OP_OBJ_IDENTIFY:
+        case OP_LOGICAL_DENIAL:
+        case OP_REGEQ: 
+        case OP_REGNOTEQ:
+            *value = trunc_value(value, 32);
+            break;
 
-            case OP_FADD:
-            case OP_FSUB:
-            case OP_FMULT:
-            case OP_FDIV:
-            case OP_FEQ:
-            case OP_FNOTEQ:
-            case OP_FGT:
-            case OP_FLE:
-            case OP_FGTEQ:
-            case OP_FLEEQ:
-                value->value = Builder.CreateCast(Instruction::Trunc, value->value, Type::getFloatTy(TheContext));
-                break;
+        case OP_LADD:
+        case OP_LSUB:
+        case OP_LMULT:
+        case OP_LMOD: 
+        case OP_LDIV:
+        case OP_LLSHIFT: 
+        case OP_LRSHIFT:
+        case OP_LAND: 
+        case OP_LXOR: 
+        case OP_LOR: 
+        case OP_LCOMPLEMENT:
+        case OP_LEQ: 
+        case OP_LNOTEQ: 
+        case OP_LGT:
+        case OP_LLE:
+        case OP_LGTEQ:
+        case OP_LLEEQ:
+        case OP_ULADD: 
+        case OP_ULMOD:
+        case OP_ULLSHIFT:
+        case OP_ULRSHIFT:
+        case OP_ULAND:
+        case OP_ULXOR:
+        case OP_ULOR:
+        case OP_ULCOMPLEMENT:
+        case OP_ULEQ: 
+        case OP_ULNOTEQ: 
+        case OP_ULGT: 
+        case OP_ULLE: 
+        case OP_ULGTEQ: 
+        case OP_ULLEEQ:
+            *value = trunc_value(value, 64);
+            break;
 
-            case OP_DADD:
-            case OP_DSUB:
-            case OP_DMULT:
-            case OP_DDIV:
-            case OP_DEQ:
-            case OP_DNOTEQ:
-            case OP_DGT:
-            case OP_DLE:
-            case OP_DGTEQ:
-            case OP_DLEEQ:
-                value->value = Builder.CreateCast(Instruction::Trunc, value->value, Type::getDoubleTy(TheContext));
-                break;
+        case OP_FADD:
+        case OP_FSUB:
+        case OP_FMULT:
+        case OP_FDIV:
+        case OP_FEQ:
+        case OP_FNOTEQ:
+        case OP_FGT:
+        case OP_FLE:
+        case OP_FGTEQ:
+        case OP_FLEEQ:
+            *value = trunc_value_to_float_or_double(value, 32);
+            break;
 
-            case OP_PADD: 
-            case OP_PEQ: 
-            case OP_PNOTEQ: 
-            case OP_PGT: 
-            case OP_PLE:
-            case OP_PGTEQ: 
-            case OP_PLEEQ: 
-                value->value = Builder.CreateCast(Instruction::IntToPtr, value->value, PointerType::get(IntegerType::get(TheContext, 8), 0));
-                break;
+        case OP_DADD:
+        case OP_DSUB:
+        case OP_DMULT:
+        case OP_DDIV:
+        case OP_DEQ:
+        case OP_DNOTEQ:
+        case OP_DGT:
+        case OP_DLE:
+        case OP_DGTEQ:
+        case OP_DLEEQ:
+            *value = trunc_value_to_float_or_double(value, 64);
+            break;
 
-        }
-
-        value->vm_stack = FALSE;
+        case OP_PADD: 
+        case OP_PEQ: 
+        case OP_PNOTEQ: 
+        case OP_PGT: 
+        case OP_PLE:
+        case OP_PGTEQ: 
+        case OP_PLEEQ: 
+            *value = trunc_value_to_pointer(value);
+            break;
     }
 }
 
@@ -4497,7 +4613,6 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
     for(i=0; i<var_num; i++) {
         llvm_stack[i].value = create_entry_block_alloca(function, i);
 
-        llvm_stack[i].vm_stack = TRUE;
         llvm_stack[i].lvar_address_index = -1;
         llvm_stack[i].lvar_stored = FALSE;
         llvm_stack[i].constant_int_value = FALSE;
@@ -4516,7 +4631,6 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
     for(i=real_param_num; i<var_num; i++) {
         LVALUE llvm_value;
         llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(64, 0, true));
-        llvm_stack[i].vm_stack = TRUE;
         llvm_stack[i].lvar_address_index = -1;
         llvm_stack[i].lvar_stored = FALSE;
         llvm_stack[i].constant_int_value = FALSE;
@@ -4714,16 +4828,19 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                Builder.CreateStore(llvm_value->value, stack_value);
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(llvm_value, 64);
+
+                Builder.CreateAlignedStore(llvm_value2.value, stack_value, 8);
 
                 Function* entry_exception_object_fun = TheModule->getFunction("entry_exception_object");
 
-                LVALUE llvm_value2;
-                llvm_value2 = trunc_value(llvm_value, 32);
+                LVALUE llvm_value3;
+                llvm_value3 = trunc_value(llvm_value, 32);
 
                 std::vector<Value*> params2;
 
-                Value* param1 = llvm_value2.value;
+                Value* param1 = llvm_value3.value;
                 params2.push_back(param1);
 
                 std::string info_value_name("info");
@@ -4880,11 +4997,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 Builder.CreateAlignedStore(llvm_value2.value, value_for_andand_oror[num_value_for_andand_oror], 8);
 
-                LVALUE llvm_value3;
-                llvm_value3 = trunc_value(llvm_value, 32);
-
-                *llvm_value = llvm_value3;
-
                 num_value_for_andand_oror++;
 
                 MASSERT(num_value_for_andand_oror >= ANDAND_OROR_MAX);
@@ -4910,7 +5022,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateLoad(value_for_andand_oror[num_value_for_andand_oror], "value_for_andand_oror");
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -4960,7 +5071,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE llvm_value;
                 get_llvm_value_from_lvar_with_offset(&llvm_value, llvm_stack, index);
 
-                trunc_vm_stack_value2(&llvm_value, size);
+                trunc_variable(&llvm_value, size);
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -4976,7 +5087,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE llvm_value;
                 Value* add_value = ConstantInt::get(TheContext, llvm::APInt(64, index, true)); 
                 llvm_value.value = Builder.CreateGEP(lvar_value, add_value, "gepaddtmp");
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = index;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -4993,7 +5103,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                     LVALUE llvm_value;
                     llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(8, value, true)); 
-                    llvm_value.vm_stack = FALSE;
                     llvm_value.lvar_address_index = -1;
                     llvm_value.lvar_stored = FALSE;
                     llvm_value.constant_int_value = TRUE;
@@ -5010,7 +5119,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                     LVALUE llvm_value;
                     llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(8, value, false)); 
-                    llvm_value.vm_stack = FALSE;
                     llvm_value.lvar_address_index = -1;
                     llvm_value.lvar_stored = FALSE;
                     llvm_value.constant_int_value = TRUE;
@@ -5027,7 +5135,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                     LVALUE llvm_value;
                     llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(16, value, true)); 
-                    llvm_value.vm_stack = FALSE;
                     llvm_value.lvar_address_index = -1;
                     llvm_value.lvar_stored = FALSE;
                     llvm_value.constant_int_value = TRUE;
@@ -5044,7 +5151,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                     LVALUE llvm_value;
                     llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(16, value, false)); 
-                    llvm_value.vm_stack = FALSE;
                     llvm_value.lvar_address_index = -1;
                     llvm_value.lvar_stored = FALSE;
                     llvm_value.constant_int_value = TRUE;
@@ -5060,7 +5166,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(32, value, true)); 
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = TRUE;
@@ -5076,7 +5181,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(32, value, false)); 
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = TRUE;
@@ -5100,7 +5204,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(64, lvalue, true)); 
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = TRUE;
@@ -5124,7 +5227,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(64, lvalue, false)); 
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = TRUE;
@@ -5139,7 +5241,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(32, value, true)); 
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = TRUE;
@@ -5163,7 +5264,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(64, lvalue, false)); 
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -5181,7 +5281,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = ConstantFP::get(TheContext, llvm::APFloat(value1)); 
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -5205,7 +5304,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = ConstantFP::get(TheContext, llvm::APFloat(lvalue)); 
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -5222,12 +5320,11 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                trunc_vm_stack_value(lvalue, inst);
-                trunc_vm_stack_value(rvalue, inst);
+                trunc_value_from_inst(lvalue, inst);
+                trunc_value_from_inst(rvalue, inst);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateAdd(lvalue->value, rvalue->value, "addtmp", true, false);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -5246,12 +5343,11 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                trunc_vm_stack_value(lvalue, inst);
-                trunc_vm_stack_value(rvalue, inst);
+                trunc_value_from_inst(lvalue, inst);
+                trunc_value_from_inst(rvalue, inst);
 
                 LVALUE llvm_value;
                 llvm_value.value  = Builder.CreateAdd(lvalue->value, rvalue->value, "addtmp", false, true);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -5266,12 +5362,13 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                trunc_vm_stack_value(lvalue, inst);
-                trunc_vm_stack_value(rvalue, inst);
+                trunc_value_from_inst(lvalue, inst);
+
+                LVALUE rvalue2;
+                rvalue2 = trunc_value(rvalue, 64);
 
                 LVALUE llvm_value;
-                llvm_value.value = Builder.CreateGEP(lvalue->value, rvalue->value, "addtmp");
-                llvm_value.vm_stack = FALSE;
+                llvm_value.value = Builder.CreateGEP(lvalue->value, rvalue2.value, "addtmp");
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -5290,12 +5387,11 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                trunc_vm_stack_value(lvalue, inst);
-                trunc_vm_stack_value(rvalue, inst);
+                trunc_value_from_inst(lvalue, inst);
+                trunc_value_from_inst(rvalue, inst);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", true, false);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -5317,7 +5413,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateSub(lvalue->value, rvalue2.value, "subtmp");
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -5339,16 +5434,18 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp");
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
 
-                llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, PointerType::get(IntegerType::get(TheContext, 8), 0));
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 64);
+
+                //llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, PointerType::get(IntegerType::get(TheContext, 8), 0));
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
-                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value2);
                 }
                 break;
 
@@ -5360,12 +5457,11 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                trunc_vm_stack_value(lvalue, inst);
-                trunc_vm_stack_value(rvalue, inst);
+                trunc_value_from_inst(lvalue, inst);
+                trunc_value_from_inst(rvalue, inst);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", false, true);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -5383,12 +5479,11 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                trunc_vm_stack_value(lvalue, inst);
-                trunc_vm_stack_value(rvalue, inst);
+                trunc_value_from_inst(lvalue, inst);
+                trunc_value_from_inst(rvalue, inst);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateMul(lvalue->value, rvalue->value, "multmp", true, false);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -5406,12 +5501,11 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                trunc_vm_stack_value(lvalue, inst);
-                trunc_vm_stack_value(rvalue, inst);
+                trunc_value_from_inst(lvalue, inst);
+                trunc_value_from_inst(rvalue, inst);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateMul(lvalue->value, rvalue->value, "multmp", false, true);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -5429,8 +5523,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                trunc_vm_stack_value(lvalue, inst);
-                trunc_vm_stack_value(rvalue, inst);
+                trunc_value_from_inst(lvalue, inst);
+                trunc_value_from_inst(rvalue, inst);
 
                 int value_size;
                 if(inst == OP_BDIV) {
@@ -5450,7 +5544,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateSDiv(lvalue->value, rvalue->value, "divtmp", false);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -5468,8 +5561,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                trunc_vm_stack_value(lvalue, inst);
-                trunc_vm_stack_value(rvalue, inst);
+                trunc_value_from_inst(lvalue, inst);
+                trunc_value_from_inst(rvalue, inst);
 
                 int value_size;
                 if(inst == OP_UBDIV) {
@@ -5489,7 +5582,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateUDiv(lvalue->value, rvalue->value, "divtmp", false);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -5507,8 +5599,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                trunc_vm_stack_value(lvalue, inst);
-                trunc_vm_stack_value(rvalue, inst);
+                trunc_value_from_inst(lvalue, inst);
+                trunc_value_from_inst(rvalue, inst);
 
                 int value_size;
                 if(inst == OP_BMOD) {
@@ -5528,7 +5620,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateSRem(lvalue->value, rvalue->value, "remtmp");
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -5546,8 +5637,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                trunc_vm_stack_value(lvalue, inst);
-                trunc_vm_stack_value(rvalue, inst);
+                trunc_value_from_inst(lvalue, inst);
+                trunc_value_from_inst(rvalue, inst);
 
                 int value_size;
 
@@ -5568,7 +5659,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateURem(lvalue->value, rvalue->value, "remtmp");
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -5586,12 +5676,11 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                trunc_vm_stack_value(lvalue, inst);
-                trunc_vm_stack_value(rvalue, inst);
+                trunc_value_from_inst(lvalue, inst);
+                trunc_value_from_inst(rvalue, inst);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateShl(lvalue->value, rvalue->value, "lshifttmp", true, false);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -5609,12 +5698,11 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                trunc_vm_stack_value(lvalue, inst);
-                trunc_vm_stack_value(rvalue, inst);
+                trunc_value_from_inst(lvalue, inst);
+                trunc_value_from_inst(rvalue, inst);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateShl(lvalue->value, rvalue->value, "lshifttmp", false, true);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -5632,12 +5720,11 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                trunc_vm_stack_value(lvalue, inst);
-                trunc_vm_stack_value(rvalue, inst);
+                trunc_value_from_inst(lvalue, inst);
+                trunc_value_from_inst(rvalue, inst);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateAShr(lvalue->value, rvalue->value, "rshifttmp", false);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -5655,12 +5742,11 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                trunc_vm_stack_value(lvalue, inst);
-                trunc_vm_stack_value(rvalue, inst);
+                trunc_value_from_inst(lvalue, inst);
+                trunc_value_from_inst(rvalue, inst);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateLShr(lvalue->value, rvalue->value, "rshifttmp", false);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -5682,12 +5768,11 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                trunc_vm_stack_value(lvalue, inst);
-                trunc_vm_stack_value(rvalue, inst);
+                trunc_value_from_inst(lvalue, inst);
+                trunc_value_from_inst(rvalue, inst);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateAnd(lvalue->value, rvalue->value, "andtmp");
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -5709,12 +5794,11 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                trunc_vm_stack_value(lvalue, inst);
-                trunc_vm_stack_value(rvalue, inst);
+                trunc_value_from_inst(lvalue, inst);
+                trunc_value_from_inst(rvalue, inst);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateXor(lvalue->value, rvalue->value, "xortmp");
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -5736,12 +5820,11 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                trunc_vm_stack_value(lvalue, inst);
-                trunc_vm_stack_value(rvalue, inst);
+                trunc_value_from_inst(lvalue, inst);
+                trunc_value_from_inst(rvalue, inst);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateOr(lvalue->value, rvalue->value, "ortmp");
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -5755,15 +5838,13 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
             case OP_BCOMPLEMENT:
             case OP_UBCOMPLEMENT: {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
-                trunc_vm_stack_value(lvalue, inst);
+                trunc_value_from_inst(lvalue, inst);
 
                 LVALUE rvalue;
                 rvalue.value = ConstantInt::get(Type::getInt8Ty(TheContext), (uint8_t)0xFF);
-                rvalue.vm_stack = FALSE;
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateXor(lvalue->value, rvalue.value, "xortmp");
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -5777,15 +5858,13 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
             case OP_SCOMPLEMENT:
             case OP_USCOMPLEMENT: {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
-                trunc_vm_stack_value(lvalue, inst);
+                trunc_value_from_inst(lvalue, inst);
 
                 LVALUE rvalue;
                 rvalue.value = ConstantInt::get(Type::getInt16Ty(TheContext), (uint16_t)0xFFFF);
-                rvalue.vm_stack = FALSE;
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateXor(lvalue->value, rvalue.value, "xortmp");
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -5799,15 +5878,13 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
             case OP_ICOMPLEMENT:
             case OP_UICOMPLEMENT: {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
-                trunc_vm_stack_value(lvalue, inst);
+                trunc_value_from_inst(lvalue, inst);
 
                 LVALUE rvalue;
                 rvalue.value = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)0xFFFFFFFF);
-                rvalue.vm_stack = FALSE;
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateXor(lvalue->value, rvalue.value, "xortmp");
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -5821,15 +5898,13 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
             case OP_LCOMPLEMENT:
             case OP_ULCOMPLEMENT: {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
-                trunc_vm_stack_value(lvalue, inst);
+                trunc_value_from_inst(lvalue, inst);
 
                 LVALUE rvalue;
                 rvalue.value = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)0xFFFFFFFFFFFFFFFF);
-                rvalue.vm_stack = FALSE;
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateXor(lvalue->value, rvalue.value, "xortmp");
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -5845,12 +5920,11 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                trunc_vm_stack_value(lvalue, inst);
-                trunc_vm_stack_value(rvalue, inst);
+                trunc_value_from_inst(lvalue, inst);
+                trunc_value_from_inst(rvalue, inst);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateFAdd(lvalue->value, rvalue->value, "faddtmp");
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -5866,12 +5940,11 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                trunc_vm_stack_value(lvalue, inst);
-                trunc_vm_stack_value(rvalue, inst);
+                trunc_value_from_inst(lvalue, inst);
+                trunc_value_from_inst(rvalue, inst);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateFSub(lvalue->value, rvalue->value, "fsubtmp");
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -5887,12 +5960,11 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                trunc_vm_stack_value(lvalue, inst);
-                trunc_vm_stack_value(rvalue, inst);
+                trunc_value_from_inst(lvalue, inst);
+                trunc_value_from_inst(rvalue, inst);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateFMul(lvalue->value, rvalue->value, "fmulttmp");
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -5908,8 +5980,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                trunc_vm_stack_value(lvalue, inst);
-                trunc_vm_stack_value(rvalue, inst);
+                trunc_value_from_inst(lvalue, inst);
+                trunc_value_from_inst(rvalue, inst);
 
                 BOOL value_is_float = inst == OP_FDIV;
                 BOOL value_is_double = inst == OP_DDIV;
@@ -5918,7 +5990,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateFDiv(lvalue->value, rvalue->value, "fdivtmp");
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -5943,12 +6014,11 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                trunc_vm_stack_value(lvalue, inst);
-                trunc_vm_stack_value(rvalue, inst);
+                trunc_value_from_inst(lvalue, inst);
+                trunc_value_from_inst(rvalue, inst);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateICmpEQ(lvalue->value, rvalue->value, "eqtmpx");
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -5972,12 +6042,11 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                trunc_vm_stack_value(lvalue, inst);
-                trunc_vm_stack_value(rvalue, inst);
+                trunc_value_from_inst(lvalue, inst);
+                trunc_value_from_inst(rvalue, inst);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateICmpNE(lvalue->value, rvalue->value, "noteqtmp");
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -5995,12 +6064,11 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                trunc_vm_stack_value(lvalue, inst);
-                trunc_vm_stack_value(rvalue, inst);
+                trunc_value_from_inst(lvalue, inst);
+                trunc_value_from_inst(rvalue, inst);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateICmpSGT(lvalue->value, rvalue->value, "gttmp");
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -6020,12 +6088,11 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                trunc_vm_stack_value(lvalue, inst);
-                trunc_vm_stack_value(rvalue, inst);
+                trunc_value_from_inst(lvalue, inst);
+                trunc_value_from_inst(rvalue, inst);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateICmpUGT(lvalue->value, rvalue->value, "ugttmp");
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -6043,12 +6110,11 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                trunc_vm_stack_value(lvalue, inst);
-                trunc_vm_stack_value(rvalue, inst);
+                trunc_value_from_inst(lvalue, inst);
+                trunc_value_from_inst(rvalue, inst);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateICmpSLT(lvalue->value, rvalue->value, "letmp");
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -6068,12 +6134,11 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                trunc_vm_stack_value(lvalue, inst);
-                trunc_vm_stack_value(rvalue, inst);
+                trunc_value_from_inst(lvalue, inst);
+                trunc_value_from_inst(rvalue, inst);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateICmpULT(lvalue->value, rvalue->value, "uletmp");
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -6091,12 +6156,11 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                trunc_vm_stack_value(lvalue, inst);
-                trunc_vm_stack_value(rvalue, inst);
+                trunc_value_from_inst(lvalue, inst);
+                trunc_value_from_inst(rvalue, inst);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateICmpSGE(lvalue->value, rvalue->value, "gteqtmp");
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -6116,12 +6180,11 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                trunc_vm_stack_value(lvalue, inst);
-                trunc_vm_stack_value(rvalue, inst);
+                trunc_value_from_inst(lvalue, inst);
+                trunc_value_from_inst(rvalue, inst);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateICmpUGE(lvalue->value, rvalue->value, "ugeqtmp");
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -6139,12 +6202,11 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                trunc_vm_stack_value(lvalue, inst);
-                trunc_vm_stack_value(rvalue, inst);
+                trunc_value_from_inst(lvalue, inst);
+                trunc_value_from_inst(rvalue, inst);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateICmpSLE(lvalue->value, rvalue->value, "lteqtmp");
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -6164,12 +6226,11 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                trunc_vm_stack_value(lvalue, inst);
-                trunc_vm_stack_value(rvalue, inst);
+                trunc_value_from_inst(lvalue, inst);
+                trunc_value_from_inst(rvalue, inst);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateICmpULE(lvalue->value, rvalue->value, "lteqtmp");
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -6185,12 +6246,11 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                trunc_vm_stack_value(lvalue, inst);
-                trunc_vm_stack_value(rvalue, inst);
+                trunc_value_from_inst(lvalue, inst);
+                trunc_value_from_inst(rvalue, inst);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateFCmpOEQ(lvalue->value, rvalue->value, "eqtmp");
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -6206,12 +6266,11 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                trunc_vm_stack_value(lvalue, inst);
-                trunc_vm_stack_value(rvalue, inst);
+                trunc_value_from_inst(lvalue, inst);
+                trunc_value_from_inst(rvalue, inst);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateFCmpONE(lvalue->value, rvalue->value, "noteqtmp");
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -6227,12 +6286,11 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                trunc_vm_stack_value(lvalue, inst);
-                trunc_vm_stack_value(rvalue, inst);
+                trunc_value_from_inst(lvalue, inst);
+                trunc_value_from_inst(rvalue, inst);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateFCmpOGT(lvalue->value, rvalue->value, "gttmp");
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -6248,12 +6306,11 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                trunc_vm_stack_value(lvalue, inst);
-                trunc_vm_stack_value(rvalue, inst);
+                trunc_value_from_inst(lvalue, inst);
+                trunc_value_from_inst(rvalue, inst);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateFCmpOLT(lvalue->value, rvalue->value, "letmp");
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -6269,12 +6326,11 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                trunc_vm_stack_value(lvalue, inst);
-                trunc_vm_stack_value(rvalue, inst);
+                trunc_value_from_inst(lvalue, inst);
+                trunc_value_from_inst(rvalue, inst);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateFCmpOGE(lvalue->value, rvalue->value, "gteqtmp");
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -6290,12 +6346,11 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                trunc_vm_stack_value(lvalue, inst);
-                trunc_vm_stack_value(rvalue, inst);
+                trunc_value_from_inst(lvalue, inst);
+                trunc_value_from_inst(rvalue, inst);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateFCmpOLE(lvalue->value, rvalue->value, "leeqtmp");
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -6310,6 +6365,9 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
+                trunc_value_from_inst(lvalue, inst);
+                trunc_value_from_inst(rvalue, inst);
+
                 Function* function = TheModule->getFunction("regex_equals");
 
                 std::vector<Value*> params2;
@@ -6318,7 +6376,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(function, params2);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -6333,6 +6390,9 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
+                trunc_value_from_inst(lvalue, inst);
+                trunc_value_from_inst(rvalue, inst);
+
                 Function* function = TheModule->getFunction("regex_equals");
 
                 std::vector<Value*> params2;
@@ -6342,7 +6402,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(function, params2);
                 llvm_value.value = Builder.CreateICmpEQ(llvm_value.value, ConstantInt::get(TheContext, llvm::APInt(32, 0, true)), "bool_value_reverse");
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -6360,11 +6419,13 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 Function* fun = TheModule->getFunction("get_string_object_of_object_name");
 
                 std::vector<Value*> params2;
-                params2.push_back(value->value);
+
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(value, 32);
+                params2.push_back(llvm_value2.value);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -6378,10 +6439,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params3;
 
-                LVALUE llvm_value2;
-                llvm_value2 = trunc_value(&llvm_value, 32);
+                LVALUE llvm_value3;
+                llvm_value3 = trunc_value(&llvm_value, 32);
 
-                Value* param1 = llvm_value2.value;
+                Value* param1 = llvm_value3.value;
                 params3.push_back(param1);
 
                 (void)Builder.CreateCall(fun2, params3);
@@ -6415,14 +6476,16 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 params2.clear();
 
-                params2.push_back(value->value);
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(value, 32);
+
+                params2.push_back(llvm_value2.value);
 
                 Value* param2 = klass_value;
                 params2.push_back(param2);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -6437,18 +6500,11 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                trunc_vm_stack_value(lvalue, inst);
-                trunc_vm_stack_value(rvalue, inst);
-
-                LVALUE lvalue2;
-                lvalue2 = trunc_value(lvalue, 1);
-
-                LVALUE rvalue2;
-                rvalue2 = trunc_value(rvalue, 1);
+                trunc_value_from_inst(lvalue, inst);
+                trunc_value_from_inst(rvalue, inst);
 
                 LVALUE llvm_value;
-                llvm_value.value = Builder.CreateAnd(lvalue2.value, rvalue2.value, "ANDAND");
-                llvm_value.vm_stack = FALSE;
+                llvm_value.value = Builder.CreateAnd(lvalue->value, rvalue->value, "ANDAND");
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -6463,18 +6519,11 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* rvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                trunc_vm_stack_value(lvalue, inst);
-                trunc_vm_stack_value(rvalue, inst);
-
-                LVALUE lvalue2;
-                lvalue2 = trunc_value(lvalue, 1);
-
-                LVALUE rvalue2;
-                rvalue2 = trunc_value(rvalue, 1);
+                trunc_value_from_inst(lvalue, inst);
+                trunc_value_from_inst(rvalue, inst);
 
                 LVALUE llvm_value;
-                llvm_value.value = Builder.CreateOr(lvalue2.value, rvalue2.value, "OROR");
-                llvm_value.vm_stack = FALSE;
+                llvm_value.value = Builder.CreateOr(lvalue->value, rvalue->value, "OROR");
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -6488,15 +6537,13 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
             case OP_LOGICAL_DENIAL: {
                 LVALUE* lvalue = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                trunc_vm_stack_value(lvalue, inst);
+                trunc_value_from_inst(lvalue, inst);
 
                 LVALUE rvalue;
                 rvalue.value = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)0);
-                rvalue.vm_stack = FALSE;
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateICmpEQ(lvalue->value, rvalue.value, "LOGICAL_DIANEAL");
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -6662,7 +6709,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 Value* param6 = params[constant_value_name];
                 params2.push_back(param6);
 
-                Value* param7 = object_value->value;
+                LVALUE object_value2;
+                object_value2 = trunc_value(object_value, 32);
+
+                Value* param7 = object_value2.value;
                 params2.push_back(param7);
 
                 Value* result = Builder.CreateCall(fun, params2);
@@ -6915,13 +6965,14 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                     std::vector<Value*> params2;
                     params2.push_back(klass_value);
 
-                    params2.push_back(array_num_value->value);
+                    LVALUE array_num_value2 = trunc_value(array_num_value, 32);
+
+                    params2.push_back(array_num_value2.value);
 
                     Value* value = Builder.CreateCall(function, params2);
 
                     LVALUE llvm_value;
                     llvm_value.value = value;
-                    llvm_value.vm_stack = TRUE;
                     llvm_value.lvar_address_index = -1;
                     llvm_value.lvar_stored = FALSE;
                     llvm_value.constant_int_value = FALSE;
@@ -6953,7 +7004,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                     LVALUE llvm_value;
                     llvm_value.value = value;
-                    llvm_value.vm_stack = TRUE;
                     llvm_value.lvar_address_index = -1;
                     llvm_value.lvar_stored = FALSE;
                     llvm_value.constant_int_value = FALSE;
@@ -7009,8 +7059,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 Value* param4 = params[info_value_name];
                 params2.push_back(param4);
 
+                LVALUE value2 = trunc_value(value, 32);
+
                 Value* param5; // CLObject
-                param5 = Builder.CreateCast(Instruction::Trunc, value->value, Type::getInt32Ty(TheContext));
+                param5 = Builder.CreateCast(Instruction::Trunc, value2.value, Type::getInt32Ty(TheContext));
                 params2.push_back(param5);
 
                 Value* param6 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)field_index);
@@ -7026,7 +7078,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = result1;
-                llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -7034,7 +7085,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
-                trunc_vm_stack_value2(&llvm_value, size);
+                trunc_variable(&llvm_value, size);
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -7086,7 +7137,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = result1;
-                llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -7125,7 +7175,9 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 Value* param4 = params[info_value_name];
                 params2.push_back(param4);
 
-                Value* param5 = obj->value;
+                LVALUE obj2 = trunc_value(obj, 32);
+
+                Value* param5 = obj2.value;
                 params2.push_back(param5);
 
                 LVALUE value2;
@@ -7194,13 +7246,12 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = result1;
-                llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
 
-                trunc_vm_stack_value2(&llvm_value, size);
+                trunc_variable(&llvm_value, size);
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -7254,7 +7305,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = result1;
-                llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -7329,11 +7379,13 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 address->value = Builder.CreateCast(Instruction::BitCast, address->value, PointerType::get(IntegerType::get(TheContext, 32), 0));
 
-                Builder.CreateAlignedStore(value->value, address->value, 4);
+                LVALUE value2 = trunc_value(value, 32);
+
+                Builder.CreateAlignedStore(value2.value, address->value, 4);
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
 
-                push_value_to_stack_ptr(&llvm_stack_ptr, value);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &value2);
 
                 /// lvar of vm stack to lvar of llvm stack ///
                 lvar_of_vm_to_lvar_of_llvm(params, current_block, llvm_stack, var_num);
@@ -7350,11 +7402,13 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 address->value = Builder.CreateCast(Instruction::BitCast, address->value, PointerType::get(Type::getFloatTy(TheContext), 0));
 
-                Builder.CreateAlignedStore(value->value, address->value, 4);
+                LVALUE value2 = trunc_value_to_float_or_double(value, 32);
+
+                Builder.CreateAlignedStore(value2.value, address->value, 4);
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
 
-                push_value_to_stack_ptr(&llvm_stack_ptr, value);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &value2);
 
                 /// lvar of vm stack to lvar of llvm stack ///
                 lvar_of_vm_to_lvar_of_llvm(params, current_block, llvm_stack, var_num);
@@ -7371,11 +7425,13 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 address->value = Builder.CreateCast(Instruction::BitCast, address->value, PointerType::get(IntegerType::get(TheContext, 8), 0));
 
-                Builder.CreateAlignedStore(value->value, address->value, 1);
+                LVALUE value2 = trunc_value_to_float_or_double(value, 8);
+
+                Builder.CreateAlignedStore(value2.value, address->value, 1);
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
 
-                push_value_to_stack_ptr(&llvm_stack_ptr, value);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &value2);
 
                 /// lvar of vm stack to lvar of llvm stack ///
                 lvar_of_vm_to_lvar_of_llvm(params, current_block, llvm_stack, var_num);
@@ -7391,13 +7447,15 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* address = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
+                LVALUE value2 = trunc_value_to_float_or_double(value, 16);
+
                 address->value = Builder.CreateCast(Instruction::BitCast, address->value, PointerType::get(IntegerType::get(TheContext, 16), 0));
 
-                Builder.CreateAlignedStore(value->value, address->value, 2);
+                Builder.CreateAlignedStore(value2.value, address->value, 2);
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
 
-                push_value_to_stack_ptr(&llvm_stack_ptr, value);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &value2);
 
                 /// lvar of vm stack to lvar of llvm stack ///
                 lvar_of_vm_to_lvar_of_llvm(params, current_block, llvm_stack, var_num);
@@ -7419,7 +7477,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateAlignedLoad(address->value, 4, "llvm_value");
-                llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -7444,13 +7501,13 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateAlignedLoad(address->value, 4, "llvm_value");
-                llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
                 
-                llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getFloatTy(TheContext));
+                llvm_value.value = Builder.CreateCast(Instruction::BitCast, llvm_value.value, Type::getFloatTy(TheContext));
+                //llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getFloatTy(TheContext));
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7470,7 +7527,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateAlignedLoad(address->value, 1, "llvm_value");
-                llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -7496,7 +7552,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateAlignedLoad(address->value, 2, "llvm_value");
-                llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -7522,7 +7577,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateAlignedLoad(address->value, 8, "llvm_value");
-                llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -7543,17 +7597,16 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 /// go ///
                 LVALUE* address = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                address->value = Builder.CreateCast(Instruction::BitCast, address->value, PointerType::get(IntegerType::get(TheContext, 64), 0));
+                address->value = Builder.CreateCast(Instruction::BitCast, address->value, PointerType::get(IntegerType::get(TheContext, 8), 0));
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateAlignedLoad(address->value, 8, "llvm_value");
-                llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
 
-                llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, PointerType::get(IntegerType::get(TheContext, 64), 0));
+                llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, PointerType::get(IntegerType::get(TheContext, 8), 0));
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7572,13 +7625,12 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateAlignedLoad(address->value, 8, "llvm_value");
-                llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
 
-                llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getDoubleTy(TheContext));
+                llvm_value.value = Builder.CreateCast(Instruction::BitCast, llvm_value.value, Type::getDoubleTy(TheContext));
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7613,10 +7665,14 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 Value* param4 = params[info_value_name];
                 params2.push_back(param4);
 
-                Value* param5 = array->value;
+                LVALUE array2 = trunc_value(array, 32);
+
+                Value* param5 = array2.value;
                 params2.push_back(param5);
 
-                Value* param6 = element_num->value;
+                LVALUE element_num2 = trunc_value(element_num, 32);
+
+                Value* param6 = element_num2.value;
                 params2.push_back(param6);
 
                 Value* result = Builder.CreateCall(fun, params2);
@@ -7632,13 +7688,12 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = result1;
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
 
-                trunc_vm_stack_value2(&llvm_value, size);
+                trunc_variable(&llvm_value, size);
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -7669,15 +7724,15 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 Value* param4 = params[info_value_name];
                 params2.push_back(param4);
 
-                Value* param5 = array->value;
+                LVALUE array2 = trunc_value(array, 32);
+                Value* param5 = array2.value;
                 params2.push_back(param5);
 
-                Value* param6 = element_num->value;
+                LVALUE element_num2 = trunc_value(element_num, 32);
+                Value* param6 = element_num2.value;
                 params2.push_back(param6);
 
-                LVALUE value2;
-                value2 = trunc_value(value, 64);
-
+                LVALUE value2 = trunc_value(value, 64);
                 Value* param7 = value2.value;
                 params2.push_back(param7);
 
@@ -7698,13 +7753,15 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 LVALUE* address = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
+                LVALUE value2 = trunc_value(value, 64);
+
                 address->value = Builder.CreateCast(Instruction::BitCast, address->value, PointerType::get(IntegerType::get(TheContext, 64), 0));
 
-                Builder.CreateAlignedStore(value->value, address->value, 8);
+                Builder.CreateAlignedStore(value2.value, address->value, 8);
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
 
-                push_value_to_stack_ptr(&llvm_stack_ptr, value);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &value2);
 
                 /// lvar of vm stack to lvar of llvm stack ///
                 lvar_of_vm_to_lvar_of_llvm(params, current_block, llvm_stack, var_num);
@@ -7717,11 +7774,13 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 address->value = Builder.CreateCast(Instruction::BitCast, address->value, PointerType::get(Type::getDoubleTy(TheContext), 0));
 
-                Builder.CreateAlignedStore(value->value, address->value, 8);
+                LVALUE value2 = trunc_value_to_float_or_double(value, 64);
+
+                Builder.CreateAlignedStore(value2.value, address->value, 8);
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
 
-                push_value_to_stack_ptr(&llvm_stack_ptr, value);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &value2);
 
                 /// lvar of vm stack to lvar of llvm stack ///
                 lvar_of_vm_to_lvar_of_llvm(params, current_block, llvm_stack, var_num);
@@ -7734,11 +7793,13 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 address->value = Builder.CreateCast(Instruction::BitCast, address->value, PointerType::get(PointerType::get(IntegerType::get(TheContext, 8), 0), 0));
 
-                Builder.CreateAlignedStore(value->value, address->value, 8);
+                LVALUE value2 = trunc_value(value, 8);
+
+                Builder.CreateAlignedStore(value2.value, address->value, 8);
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
 
-                push_value_to_stack_ptr(&llvm_stack_ptr, value);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &value2);
 
                 /// lvar of vm stack to lvar of llvm stack ///
                 lvar_of_vm_to_lvar_of_llvm(params, current_block, llvm_stack, var_num);
@@ -7751,7 +7812,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCast(Instruction::SExt, value->value, Type::getInt32Ty(TheContext), "value2");
-                llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -7769,7 +7829,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCast(Instruction::ZExt, value->value, Type::getInt32Ty(TheContext), "value2");
-                llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -7793,7 +7852,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCast(Instruction::ZExt, value->value, Type::getInt32Ty(TheContext), "value2");
-                llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -7823,7 +7881,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCast(Instruction::Trunc, value->value, Type::getInt32Ty(TheContext), "value2");
-                llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -7841,7 +7898,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCast(Instruction::FPToSI, value->value, Type::getInt32Ty(TheContext), "value2");
-                llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -7861,7 +7917,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCast(Instruction::FPToUI, value->value, Type::getInt32Ty(TheContext), "value2");
-                llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -7880,7 +7935,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCast(Instruction::PtrToInt, value->value, Type::getInt32Ty(TheContext), "value2");
-                llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -7914,7 +7968,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCast(Instruction::Trunc, value->value, Type::getInt8Ty(TheContext), "value2");
-                llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -7932,7 +7985,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCast(Instruction::FPToSI, value->value, Type::getInt8Ty(TheContext), "value2");
-                llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -7950,7 +8002,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCast(Instruction::FPToUI, value->value, Type::getInt8Ty(TheContext), "value2");
-                llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -7968,7 +8019,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCast(Instruction::PtrToInt, value->value, Type::getInt8Ty(TheContext), "value2");
-                llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -7994,7 +8044,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCast(Instruction::Trunc, value->value, Type::getInt16Ty(TheContext), "value2");
-                llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -8012,7 +8061,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCast(Instruction::FPToSI, value->value, Type::getInt16Ty(TheContext), "value2");
-                llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -8030,7 +8078,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCast(Instruction::FPToUI, value->value, Type::getInt16Ty(TheContext), "value2");
-                llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -8047,7 +8094,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCast(Instruction::SExt, value->value, Type::getInt16Ty(TheContext), "value2");
-                llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -8064,7 +8110,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCast(Instruction::ZExt, value->value, Type::getInt16Ty(TheContext), "value2");
-                llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -8082,7 +8127,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCast(Instruction::ZExt, value->value, Type::getInt16Ty(TheContext), "value2");
-                llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -8104,7 +8148,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCast(Instruction::PtrToInt, value->value, Type::getInt16Ty(TheContext), "value2");
-                llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -8123,7 +8166,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCast(Instruction::SExt, value->value, Type::getInt64Ty(TheContext), "value2");
-                llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -8150,7 +8192,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCast(Instruction::ZExt, value->value, Type::getInt64Ty(TheContext), "value2");
-                llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -8174,7 +8215,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCast(Instruction::FPToSI, value->value, Type::getInt64Ty(TheContext), "value2");
-                llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -8192,7 +8232,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCast(Instruction::FPToUI, value->value, Type::getInt64Ty(TheContext), "value2");
-                llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -8210,7 +8249,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCast(Instruction::PtrToInt, value->value, Type::getInt64Ty(TheContext), "value2");
-                llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -8242,7 +8280,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCast(Instruction::SIToFP, value->value, Type::getFloatTy(TheContext));
-                llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -8263,7 +8300,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCast(Instruction::UIToFP, value->value, Type::getFloatTy(TheContext));
-                llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -8280,7 +8316,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCast(Instruction::FPTrunc, value->value, Type::getFloatTy(TheContext));
-                llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -8300,7 +8335,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCast(Instruction::SIToFP, value->value, Type::getDoubleTy(TheContext));
-                llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -8321,7 +8355,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCast(Instruction::UIToFP, value->value, Type::getDoubleTy(TheContext));
-                llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -8338,7 +8371,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCast(Instruction::FPExt, value->value, Type::getDoubleTy(TheContext));
-                llvm_value.vm_stack = value->vm_stack;
                 llvm_value.lvar_address_index = value->lvar_address_index;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -8369,7 +8401,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -8406,7 +8437,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -8445,7 +8475,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -8482,7 +8511,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -8516,7 +8544,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -8550,7 +8577,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -8587,7 +8613,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -8624,7 +8649,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -8661,7 +8685,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -8695,7 +8718,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -8745,7 +8767,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -8796,7 +8817,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -8847,7 +8867,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -8899,7 +8918,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -8952,7 +8970,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -9003,7 +9020,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -9054,7 +9070,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -9105,7 +9120,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -9155,7 +9169,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -9205,7 +9218,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -9254,7 +9266,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -9305,7 +9316,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -9356,7 +9366,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -9406,7 +9415,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -9445,7 +9453,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -9484,7 +9491,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -9523,7 +9529,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -9573,7 +9578,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -9623,7 +9627,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -9662,7 +9665,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -9701,7 +9703,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -9738,7 +9739,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -9777,7 +9777,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -9807,7 +9806,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -9844,7 +9842,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -9874,7 +9871,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -9916,7 +9912,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 Value* param4 = params[info_value_name];
                 params2.push_back(param4);
 
-                Value* param5 = array->value;
+                LVALUE array2 = trunc_value(array, 32);
+                Value* param5 = array2.value;
                 params2.push_back(param5);
 
                 Value* param6 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)class_name);
@@ -9933,7 +9930,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = result1;
-                llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -9941,9 +9937,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
-                trunc_vm_stack_value2(&llvm_value, 4);
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
 
-                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value2);
                 }
                 break;
 
@@ -9962,7 +9959,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -9970,9 +9966,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
-                trunc_vm_stack_value2(&llvm_value, 4);
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
 
-                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value2);
                 }
                 break;
 
@@ -9991,7 +9988,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -10018,7 +10014,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -10045,7 +10040,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -10072,7 +10066,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -10099,7 +10092,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -10126,7 +10118,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -10153,7 +10144,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -10181,7 +10171,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -10208,7 +10197,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -10235,7 +10223,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -10262,7 +10249,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(function, params2);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -10306,7 +10292,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(function, params2);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -10344,7 +10329,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(function, params2);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -10419,7 +10403,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = result1;
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -10501,7 +10484,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = result1;
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -10580,7 +10562,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = result1;
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -10659,7 +10640,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = result1;
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -10738,7 +10718,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = result1;
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -10817,7 +10796,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = result1;
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -10896,7 +10874,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = result1;
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -10963,7 +10940,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = result1;
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -11049,7 +11025,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = result1;
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -11141,7 +11116,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.vm_stack = FALSE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
@@ -11220,7 +11194,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(function, params2);
-                llvm_value.vm_stack = TRUE;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
