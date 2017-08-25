@@ -691,7 +691,6 @@ with_log
 with_optimize
 with_interpreter
 with_jit
-with_all_jit_compile
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1324,7 +1323,6 @@ Optional Packages:
   --with-optimize           with optimize(-O in CFLAGS)
   --with-interpreter        with interpreter
   --with-jit                with jit
-  --with-all-jit-compile    with all jit compile for debug
 
 Some influential environment variables:
   CC          C compiler command
@@ -3636,14 +3634,6 @@ else
 fi
 
 
-# Check whether --with-all-jit-compile was given.
-if test "${with_all_jit_compile+set}" = set; then :
-  withval=$with_all_jit_compile;  ENABLE_ALL_JIT_COMPILE=1
-else
-   ENABLE_ALL_JIT_COMPILE=0
-fi
-
-
 ##############################################################
 # check cpu type
 ##############################################################
@@ -3783,11 +3773,6 @@ fi
 if test $ENABLE_OPTIMIZE = 1
 then
     CFLAGS="$CFLAGS -O3"
-fi
-if test $ENABLE_ALL_JIT_COMPILE = 1
-then
-    CFLAGS="$CFLAGS -DALL_JIT_COMPILE"
-    CXXFLAGS="$CXXFLAGS -DALL_JIT_COMPILE"
 fi
 
 if test $ENABLE_INTERPRETER = 1
@@ -4088,17 +4073,21 @@ then
     CXX=clang++
     if test $DEBUGGING = 1
     then
-        CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs core mcjit native` -DMDEBUG -g'" $CXXFLAGS"
+        CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs all` -lffi -DMDEBUG -g'" $CXXFLAGS"
+        #CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs core mcjit native` -DMDEBUG -g'" $CXXFLAGS"
     else
-        CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs core mcjit native` -O3'" $CXXFLAGS"
+        CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs all` -lffi -O3'" $CXXFLAGS"
+        #CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs core mcjit native` -O3'" $CXXFLAGS"
     fi
 else
     CXX=g++
     if test $DEBUGGING = 1
     then
-        CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs core mcjit native` -DMDEBUG -g'" $CXXFLAGS"
+        CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs all` -lffi -DMDEBUG -g'" $CXXFLAGS"
+        #CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs core mcjit native` -DMDEBUG -g'" $CXXFLAGS"
     else
-        CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs core mcjit native` -O3'" $CXXFLAGS"
+        CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs all` -lffi -O3'" $CXXFLAGS"
+        #CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs core mcjit native` -O3'" $CXXFLAGS"
     fi
 fi
 

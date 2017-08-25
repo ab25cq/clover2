@@ -142,10 +142,87 @@ namespace {
                     clEnumValEnd));
 }
 
+//===----------------------------------------------------------------------===//
+// Object cache
+//
+// This object cache implementation writes cached objects to disk to the
+// directory specified by CacheDir, using a filename provided in the module
+// descriptor. The cache tries to load a saved object using that path if the
+// file exists. CacheDir defaults to "", in which case objects are cached
+// alongside their originating bitcodes.
+//
+class LLIObjectCache : public ObjectCache 
+{
+    public:
+        LLIObjectCache(const std::string& CacheDir) : CacheDir(CacheDir) {
+            // Add trailing '/' to cache dir if necessary.
+            if (!this->CacheDir.empty() &&
+                    this->CacheDir[this->CacheDir.size() - 1] != '/')
+                this->CacheDir += '/';
+        }
+        ~LLIObjectCache() override {}
+
+        void notifyObjectCompiled(const Module *M, MemoryBufferRef Obj) override {
+            const std::string ModuleID = M->getModuleIdentifier();
+            std::string CacheName;
+            if (!getCacheFilename(ModuleID, CacheName))
+                return;
+            if (!CacheDir.empty()) { // Create user-defined cache dir.
+                SmallString<128> dir(sys::path::parent_path(CacheName));
+                sys::fs::create_directories(Twine(dir));
+            }
+            std::error_code EC;
+            raw_fd_ostream outfile(CacheName, EC, sys::fs::F_None);
+            outfile.write(Obj.getBufferStart(), Obj.getBufferSize());
+            outfile.close();
+        }
+
+        std::unique_ptr<MemoryBuffer> getObject(const Module* M) override {
+            const std::string ModuleID = M->getModuleIdentifier();
+            std::string CacheName;
+            if (!getCacheFilename(ModuleID, CacheName))
+                return nullptr;
+            // Load the object from the cache filename
+            ErrorOr<std::unique_ptr<MemoryBuffer>> IRObjectBuffer =
+                MemoryBuffer::getFile(CacheName.c_str(), -1, false);
+            // If the file isn't there, that's OK.
+            if (!IRObjectBuffer)
+                return nullptr;
+            // MCJIT will want to write into this buffer, and we don't want that
+            // because the file has probably just been mmapped.  Instead we make
+            // a copy.  The filed-based buffer will be released when it goes
+            // out of scope.
+            return MemoryBuffer::getMemBufferCopy(IRObjectBuffer.get()->getBuffer());
+        }
+
+    private:
+        std::string CacheDir;
+
+        bool getCacheFilename(const std::string &ModID, std::string &CacheName) {
+            std::string Prefix("file:");
+            size_t PrefixLength = Prefix.length();
+            if (ModID.substr(0, PrefixLength) != Prefix)
+                return false;
+            std::string CacheSubdir = ModID.substr(PrefixLength);
+#if defined(_WIN32)
+            // Transform "X:\foo" => "/X\foo" for convenience.
+            if (isalpha(CacheSubdir[0]) && CacheSubdir[1] == ':') {
+                CacheSubdir[1] = CacheSubdir[0];
+                CacheSubdir[0] = '/';
+            }
+#endif
+            CacheName = CacheDir + CacheSubdir;
+            size_t pos = CacheName.rfind('.');
+            CacheName.replace(pos, CacheName.length() - pos, ".o");
+            return true;
+        }
+};
+
+static ExecutionEngine *EE = nullptr;
+static LLIObjectCache *CacheManager = nullptr;
+
 int llvm_load_module_from_bc_file(char* file_name, sCLClass* klass)
 {
-    ExecutionEngine* EE = nullptr;
-
     LLVMContext& context = getGlobalContext();
 
     // Load the bitcode...
@@ -238,56 +315,71 @@ int llvm_load_module_from_bc_file(char* file_name, sCLClass* klass)
     EE->RegisterJITEventListener(
             JITEventListener::createIntelJITEventListener());
 
+    if (StringRef(file_name).endswith(".bc")) {
+        file_name[strlen(file_name) - 3] = '\0';
+    }
+
     // Run static constructors.
     EE->finalizeObject();
     EE->runStaticConstructorsDestructors(false);
 
     klass->RTDyldMM = RTDyldMM;
     klass->mModule = Mod;
-    klass->EE = EE;
 
     return 0;
 }
 
-static BOOL llvm_call_method_from_module(Module* module, RTDyldMemoryManager* RTDyldMM, ExecutionEngine* EE, char* method_path2, CLVALUE* stack_ptr, CLVALUE* lvar, sVMInfo* info, CLVALUE* stack, CLVALUE** stack_ptr_address, int var_num, sConst* constant, sByteCode* code)
+static BOOL llvm_call_method_from_module(Module* module, RTDyldMemoryManager* RTDyldMM, char* method_path2, CLVALUE* stack_ptr, CLVALUE* lvar, sVMInfo* info, CLVALUE* stack, CLVALUE** stack_ptr_address, int var_num, sConst* constant, sByteCode* code)
 {
-    Function* fun = module->getFunction(method_path2);
+    std::vector<llvm::GenericValue> args(8);
 
-    fJITMethodType fun2 = (fJITMethodType)EE->getFunctionAddress(fun->getName().str());
+    args[0].PointerVal = stack_ptr;
+    args[1].PointerVal = lvar;
+    args[2].PointerVal = info;
+    args[3].PointerVal = stack;
+    args[4].PointerVal = stack_ptr_address;
+    args[6].IntVal = var_num;
+    args[7].PointerVal = constant;
+    args[8].PointerVal = code;
 
-    if(fun2) {
-        BOOL result = fun2(stack_ptr, lvar, info, stack, stack_ptr_address, var_num, constant, code);
-
-        return result;
+    Function *fun = module->getFunction(method_path2);
+    if (!fun) {
+        errs() << '\'' << method_path2 << "\' function not found in module.\n";
+        return -1;
     }
-    else {
-        fprintf(stderr, "%s function is not found\n", method_path2);
-        return FALSE;
-    }
+
+printf("fun %p\n", fun);
+
+    // Reset errno to zero on entry to main.
+    errno = 0;
+
+/*
+    // Trigger compilation separately so code regions that need to be
+    // invalidated will be known.
+    (void)EE->getPointerToFunction(fun);
+*/
+
+    // Clear instruction cache before code will be executed.
+    if (RTDyldMM)
+        static_cast<SectionMemoryManager*>(RTDyldMM)->invalidateInstructionCache();
+
+    GenericValue result = EE->runFunction(fun, args);
+
+    return result.IntVal.getBoolValue() == true;
 }
 
-static void llvm_finalize_ee()
+static void llvm_finalize_module()
 {
-    sClassTable* p = gHeadClassTable;
-
-    while(p) {
-        sCLClass* klass = p->mItem;
-        
-        ExecutionEngine* ee = (ExecutionEngine*)klass->EE;
-
-        if(ee) {
-            ee->runStaticConstructorsDestructors(true);
-            delete ee;
-        }
-
-        p = p->mNextClass;
-    }
+    // Run static destructors.
+    EE->runStaticConstructorsDestructors(true);
 }
 
 extern "C" 
 {
 struct sCLVALUEAndBoolResult gCLValueAndBoolStructMemory;
 struct sPointerAndBoolResult gCLPointerAndBoolStructMemory;
+
+sCLClass* get_class_with_load_and_initialize_in_jit(char* class_name);
 
 CLObject* gJITObjects;
 int gNumJITObjects;
@@ -355,7 +447,7 @@ struct sCLVALUEAndBoolResult* get_field_from_object(CLVALUE** stack_ptr, CLVALUE
     sCLClass* klass = object_pointer->mClass;
 
     if(klass == NULL) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(37)");
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(4)");
         result->result1.mLongValue = 0;
         result->result2 = 0;
         return result;
@@ -475,10 +567,10 @@ BOOL call_invoke_dynamic_method(int offset, int offset2, int num_params, int sta
         char* class_name = CONS_str(constant, offset);
         char* method_name = CONS_str(constant, offset2);
 
-        sCLClass* klass = get_class_with_load_and_initialize(class_name);
+        sCLClass* klass = get_class_with_load_and_initialize_in_jit(class_name);
 
         if(klass == NULL) {
-            entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(38)");
+            entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(3)");
             return FALSE;
         }
 
@@ -563,7 +655,7 @@ BOOL store_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info
     sCLClass* klass = object_pointer->mClass;
 
     if(klass == NULL) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(39)");
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(6)");
         return FALSE;
     }
 
@@ -583,10 +675,10 @@ struct sCLVALUEAndBoolResult* load_class_field(CLVALUE** stack_ptr, CLVALUE* sta
 
     char* class_name = CONS_str(constant, offset);
 
-    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+    sCLClass* klass = get_class_with_load_and_initialize_in_jit(class_name);
 
     if(klass == NULL) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(40)");
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(7)");
         result->result1.mLongValue = 0;
         result->result2 = FALSE;
         return result;
@@ -611,10 +703,10 @@ BOOL store_class_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo
 {
     char* class_name = CONS_str(constant, offset);
 
-    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+    sCLClass* klass = get_class_with_load_and_initialize_in_jit(class_name);
 
     if(klass == NULL) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(41)");
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(9)");
         return FALSE;
     }
 
@@ -754,10 +846,10 @@ struct sCLVALUEAndBoolResult* run_create_array(CLVALUE** stack_ptr, CLVALUE* sta
 
     char* class_name = CONS_str(constant, class_name_offset);
 
-    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+    sCLClass* klass = get_class_with_load_and_initialize_in_jit(class_name);
 
     if(klass == NULL) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(42)");
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(11)");
         result->result1.mLongValue = 0;
         result->result2 = FALSE;
         return result;
@@ -790,10 +882,10 @@ struct sCLVALUEAndBoolResult* run_create_carray(CLVALUE** stack_ptr, CLVALUE* st
 
     char* class_name = CONS_str(constant, class_name_offset);
 
-    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+    sCLClass* klass = get_class_with_load_and_initialize_in_jit(class_name);
 
     if(klass == NULL) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(43)");
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(12)");
         result->result1.mLongValue = 0;
         result->result2 = FALSE;
         return result;
@@ -834,10 +926,10 @@ struct sCLVALUEAndBoolResult* run_create_equalable_carray(CLVALUE** stack_ptr, C
 
     char* class_name = CONS_str(constant, class_name_offset);
 
-    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+    sCLClass* klass = get_class_with_load_and_initialize_in_jit(class_name);
 
     if(klass == NULL) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(44)");
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(12)");
         result->result1.mLongValue = 0;
         result->result2 = FALSE;
         return result;
@@ -878,10 +970,10 @@ struct sCLVALUEAndBoolResult* run_create_sortable_carray(CLVALUE** stack_ptr, CL
 
     char* class_name = CONS_str(constant, class_name_offset);
 
-    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+    sCLClass* klass = get_class_with_load_and_initialize_in_jit(class_name);
 
     if(klass == NULL) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(45)");
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(12)");
         result->result1.mLongValue = 0;
         result->result2 = FALSE;
         return result;
@@ -922,10 +1014,10 @@ struct sCLVALUEAndBoolResult* run_create_list(CLVALUE** stack_ptr, CLVALUE* stac
 
     char* class_name = CONS_str(constant, class_name_offset);
 
-    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+    sCLClass* klass = get_class_with_load_and_initialize_in_jit(class_name);
 
     if(klass == NULL) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(46)");
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(13)");
         result->result1.mLongValue = 0;
         result->result2 = FALSE;
         return result;
@@ -966,10 +1058,10 @@ struct sCLVALUEAndBoolResult* run_create_sortable_list(CLVALUE** stack_ptr, CLVA
 
     char* class_name = CONS_str(constant, class_name_offset);
 
-    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+    sCLClass* klass = get_class_with_load_and_initialize_in_jit(class_name);
 
     if(klass == NULL) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(47)");
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(13)");
         result->result1.mLongValue = 0;
         result->result2 = FALSE;
         return result;
@@ -1010,10 +1102,10 @@ struct sCLVALUEAndBoolResult* run_create_equalable_list(CLVALUE** stack_ptr, CLV
 
     char* class_name = CONS_str(constant, class_name_offset);
 
-    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+    sCLClass* klass = get_class_with_load_and_initialize_in_jit(class_name);
 
     if(klass == NULL) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(48)");
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(13)");
         result->result1.mLongValue = 0;
         result->result2 = FALSE;
         return result;
@@ -1089,19 +1181,19 @@ struct sCLVALUEAndBoolResult* run_create_hash(CLVALUE** stack_ptr, CLVALUE* stac
     char* class_name = CONS_str(constant, class_name_offset);
     char* class_name2 = CONS_str(constant, class_name_offset2);
 
-    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+    sCLClass* klass = get_class_with_load_and_initialize_in_jit(class_name);
 
     if(klass == NULL) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(49)");
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(14)");
         result->result1.mLongValue = 0;
         result->result2 = FALSE;
         return result;
     }
 
-    sCLClass* klass2 = get_class_with_load_and_initialize(class_name2);
+    sCLClass* klass2 = get_class_with_load_and_initialize_in_jit(class_name2);
 
     if(klass2 == NULL) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(50)");
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(15)");
         result->result1.mLongValue = 0;
         result->result2 = FALSE;
         return result;
@@ -1173,7 +1265,7 @@ struct sPointerAndBoolResult* run_load_field_address(CLVALUE** stack_ptr, CLVALU
     sCLClass* klass = object_pointer->mClass;
 
     if(klass == NULL) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(51)");
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(5)");
         result->result1 = NULL;
         result->result2 = FALSE;
         return result;
@@ -1199,10 +1291,10 @@ struct sPointerAndBoolResult* run_load_class_field_address(CLVALUE** stack_ptr, 
 
     char* class_name = CONS_str(constant, offset);
 
-    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+    sCLClass* klass = get_class_with_load_and_initialize_in_jit(class_name);
 
     if(klass == NULL) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(52)");
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(8)");
         result->result1 = NULL;
         result->result2 = FALSE;
         return result;
@@ -1449,10 +1541,10 @@ struct sCLVALUEAndBoolResult* run_array_to_carray_cast(CLVALUE** stack_ptr, CLVA
 {
     struct sCLVALUEAndBoolResult* result = &gCLValueAndBoolStructMemory;
 
-    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+    sCLClass* klass = get_class_with_load_and_initialize_in_jit(class_name);
 
     if(klass == NULL) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(53)");
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(10)");
         result->result1.mIntValue = 0;
         result->result2 = FALSE;
         return result;
@@ -1501,15 +1593,6 @@ struct sCLVALUEAndBoolResult* run_array_to_carray_cast(CLVALUE** stack_ptr, CLVA
     return result;
 }
 
-void show_method_parametor_address(CLVALUE* stack_ptr, CLVALUE* lvar, sVMInfo* info, CLVALUE* stack, CLVALUE** stack_ptr_address, int var_num, sConst* constant, sByteCode* code)
-{
-    printf("stack_ptr %p lvar %p info %p stack %p stack_ptr_address %p var_num %d constant %p code %p\n", stack_ptr, lvar, info, stack, stack_ptr_address, var_num, constant, code);
-}
-
-////////////////////////////////////////
-// JIT main
-////////////////////////////////////////
-
 static BOOL search_for_bc_file(char* class_name, char* class_bc_file_name, size_t class_bc_file_name_size)
 {
     char* home = getenv("HOME");
@@ -1554,15 +1637,19 @@ BOOL load_bc_file(sCLClass* klass)
     return TRUE;
 }
 
-sCLClass* get_class_with_load_and_initialize_in_jit(sConst* constant, int offset)
+sCLClass* get_class_with_load_and_initialize_in_jit(char* class_name)
 {
-    char* class_name = CONS_str(constant, offset);
-
-    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+    sCLClass* klass = get_class_with_load_and_initialize_in_jit(class_name);
 
     if(klass == NULL) {
-        fprintf(stderr, "class not found error %s(54)\n", class_name);
+        fprintf(stderr, "class not found error %s\n", class_name);
         return NULL;
+    }
+
+    if(klass->mModule == NULL) {
+        if(!load_bc_file(klass)) {
+            return NULL;
+        }
     }
 
     return klass;
@@ -1571,21 +1658,6 @@ sCLClass* get_class_with_load_and_initialize_in_jit(sConst* constant, int offset
 BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sCLMethod* method, sVMInfo* info, CLVALUE** stack_ptr)
 {
     int num_jit_objects = gNumJITObjects;
-
-    klass->mMethodCallCount++;
-
-if(strcmp(CLASS_NAME(klass), "JITTest") == 0) {
-klass->mMethodCallCount = 1000;
-}
-else {
-klass->mMethodCallCount = 0;
-}
-
-    if(klass->mMethodCallCount > 100) {
-        if(!load_bc_file(klass)) {
-            return FALSE;
-        }
-    }
 
     if(klass->mModule != NULL && strcmp(METHOD_NAME2(klass, method), "initialize") != 0 && strcmp(METHOD_NAME2(klass, method), "finalize") != 0 && !(method->mFlags & METHOD_FLAGS_NATIVE)) 
     {
@@ -1601,12 +1673,15 @@ klass->mMethodCallCount = 0;
         info->current_var_num = var_num;
         info->stack_id = stack_id;
 
-        if(!llvm_call_method_from_module((Module*)klass->mModule, (RTDyldMemoryManager*)klass->RTDyldMM, (ExecutionEngine*)klass->EE, method_path2, stack_ptr, lvar, info, stack, &stack_ptr, var_num, constant, code)) 
+printf("llvm_call_method_from_module %s.%s\n", CLASS_NAME(klass), METHOD_NAME2(klass, method));
+        if(!llvm_call_method_from_module((Module*)klass->mModule, (RTDyldMemoryManager*)klass->RTDyldMM, method_path2, stack_ptr, lvar, info, stack, &stack_ptr, var_num, constant, code)) 
         {
+printf("llvm_call_method_from_module %s.%s is false\n", CLASS_NAME(klass), METHOD_NAME2(klass, method));
             remove_stack_to_stack_list(stack, &stack_ptr);
             gNumJITObjects = num_jit_objects;
             return FALSE;
         }
+printf("llvm_call_method_from_module %s.%s is true\n", CLASS_NAME(klass), METHOD_NAME2(klass, method));
 
         remove_stack_to_stack_list(stack, &stack_ptr);
     }
@@ -1641,7 +1716,10 @@ void jit_init_on_runtime()
 
 void jit_final_on_runtime()
 {
-    llvm_finalize_ee();
+    llvm_finalize_module();
+    delete EE;
+    if (CacheManager)
+        delete CacheManager;
     llvm_shutdown();
     free_jit_objects();
 }

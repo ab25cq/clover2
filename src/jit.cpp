@@ -940,6 +940,21 @@ static void cast_llvm_value_from_inst(LVALUE* llvm_value, int inst)
     }
 }
 
+static Value* llvm_create_string(char* str)
+{
+    Constant* str_constant = ConstantDataArray::getString(TheModule->getContext(), str, true);
+
+    GlobalVariable* gvar = new GlobalVariable(*TheModule, ArrayType::get(IntegerType::get(TheContext, 8), strlen(str)+1), true, GlobalValue::PrivateLinkage, 0, "global_string");
+    gvar->setAlignment(1);
+
+    gvar->setInitializer(str_constant);
+
+    Value* value = Builder.CreateCast(Instruction::BitCast, gvar, PointerType::get(IntegerType::get(TheContext, 8), 0));
+
+    return value;
+}
+
+
 static LVALUE* get_stack_ptr_value_from_index(LVALUE* llvm_stack_ptr, int index)
 {
     return llvm_stack_ptr + index;
@@ -1196,12 +1211,6 @@ static void if_value_is_null_ret_zero(Value* value, int value_bit, std::map<std:
     *current_block = entry_ifend;
 }
 
-static Value* get_value_from_char_array(char* str)
-{
-    Constant* str_constant = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)str);
-    return ConstantExpr::getIntToPtr(str_constant, PointerType::get(IntegerType::get(TheContext,8), 0));
-}
-
 static void store_value_to_lvar_with_offset(std::map<std::string, Value*>& params, BasicBlock* current_block, int index, LVALUE* llvm_value)
 {
     std::string lvar_arg_name("lvar");
@@ -1318,10 +1327,10 @@ static void call_entry_exception_object_with_class_name2(std::map<std::string, V
     Value* param4 = params[info_value_name];
     params2.push_back(param4);
 
-    Value* param5 = get_value_from_char_array(class_name);
+    Value* param5 = llvm_create_string(class_name);
     params2.push_back(param5);
 
-    Value* param6 = get_value_from_char_array(message);
+    Value* param6 = llvm_create_string(message);
     params2.push_back(param6);
 
     (void)Builder.CreateCall(entry_exception_object_fun, params2);
@@ -1405,21 +1414,6 @@ static void finish_method_call(Value* result, std::map<std::string, Value *> par
     Builder.SetInsertPoint(then_block2);
 
     if(*try_catch_label_name == nullptr) {
-/*
-        Function* catch_function = TheModule->getFunction("catch_function");
-
-        std::vector<Value*> params2;
-
-        std::string info_value_name("info");
-        Value* info_value = params[info_value_name];
-        params2.push_back(info_value);
-
-        Value* try_code = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)code);
-        params2.push_back(try_code);
-
-        Builder.CreateCall(catch_function, params2);
-*/
-
         Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 0, true));
         Builder.CreateRet(ret_value);
     }
@@ -1432,21 +1426,6 @@ static void finish_method_call(Value* result, std::map<std::string, Value *> par
         }
 
         if(label == nullptr) {
-/*
-            Function* catch_function = TheModule->getFunction("catch_function");
-
-            std::vector<Value*> params2;
-
-            std::string info_value_name("info");
-            Value* info_value = params[info_value_name];
-            params2.push_back(info_value);
-
-            Value* try_code = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)code);
-            params2.push_back(try_code);
-
-            Builder.CreateCall(catch_function, params2);
-*/
-
             Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 0, true));
             Builder.CreateRet(ret_value);
         }
@@ -1752,14 +1731,6 @@ static void llvm_lvar_to_vm_lvar(LVALUE* llvm_stack,std::map<std::string, Value*
 /////////////////////////////////////////////////////////////////////////////
 /// JIT debug functions
 /////////////////////////////////////////////////////////////////////////////
-static Value* llvm_make_str_value(char* str)
-{
-    Constant* str_constant = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)str);
-    Value* value = ConstantExpr::getIntToPtr(str_constant, PointerType::get(IntegerType::get(TheContext,8), 0));
-
-    return value;
-}
-
 void show_stack_stat(CLVALUE** stack_ptr, CLVALUE* stack)
 {
     printf("stack_ptr %p\n", stack_ptr);
@@ -4460,13 +4431,48 @@ static void create_internal_functions()
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_array_to_carray_cast", TheModule);
 
+    /// show_method_parametor_address ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param1_type);
+
+    param2_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param2_type);
+
+    param3_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param3_type);
+
+    param4_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param4_type);
+
+    param5_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param5_type);
+
+    param6_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param6_type);
+
+    param7_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param7_type);
+
+    param8_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param8_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "show_method_parametor_address", TheModule);
+
     /// get_class_with_load_and_initialize_in_jit ///
     type_params.clear();
     
     result_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
 
-    param1_type = PointerType::get(IntegerType::get(TheContext, 8), 0);
+    param1_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
     type_params.push_back(param1_type);
+
+    param2_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param2_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "get_class_with_load_and_initialize_in_jit", TheModule);
@@ -4678,10 +4684,10 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
         pc+=sizeof(int);
 
 //#ifdef MDEBUG
-if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
+//if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 //call_show_inst_in_jit(inst);
 //show_inst_in_jit(inst);
-}
+//}
 //#endif
 
         switch(inst) {
@@ -4863,6 +4869,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 int catch_label_name_offset = *(int*)pc;
                 pc += sizeof(int);
+                
+                try_catch_label_name = CONS_str(constant, catch_label_name_offset);
 
                 Function* try_fun = TheModule->getFunction("try_function");
 
@@ -4974,8 +4982,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 StructType* vm_info_struct_type = get_vm_info_struct_type();
 
                 Value* sname_field = Builder.CreateStructGEP(vm_info_struct_type, vminfo_value, 3);
-                Constant* str_constant = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)sname);
-                Value* sname_value = ConstantExpr::getIntToPtr(str_constant, PointerType::get(IntegerType::get(TheContext,8), 0));
+                Value* sname_value = llvm_create_string(sname);
                 Builder.CreateStore(sname_value, sname_field, "sname_store");
 
                 Value* sline_field = Builder.CreateStructGEP(vm_info_struct_type, vminfo_value, 4);
@@ -6460,9 +6467,12 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params2;
 
-                Constant* str_constant = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)class_name);
-                Value* param1 = ConstantExpr::getIntToPtr(str_constant, PointerType::get(IntegerType::get(TheContext,8), 0));
+                std::string constant_value_name("constant");
+                Value* param1 = params[constant_value_name];
                 params2.push_back(param1);
+
+                Value* param2 = ConstantInt::get(TheContext, llvm::APInt(32, offset, true));
+                params2.push_back(param2);
 
                 Value* klass_value = Builder.CreateCall(load_class_fun, params2);
 
@@ -6478,11 +6488,9 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE llvm_value2;
                 llvm_value2 = trunc_value(value, 32);
-
                 params2.push_back(llvm_value2.value);
 
-                Value* param2 = klass_value;
-                params2.push_back(param2);
+                params2.push_back(klass_value);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
@@ -6579,12 +6587,14 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 /// load class in runtime ///
                 Function* load_class_fun = TheModule->getFunction("get_class_with_load_and_initialize_in_jit");
-
                 std::vector<Value*> params2;
 
-                Constant* str_constant = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)class_name);
-                Value* param1 = ConstantExpr::getIntToPtr(str_constant, PointerType::get(IntegerType::get(TheContext,8), 0));
+                std::string constant_value_name("constant");
+                Value* param1 = params[constant_value_name];
                 params2.push_back(param1);
+
+                Value* param2 = ConstantInt::get(TheContext, llvm::APInt(32, offset, true));
+                params2.push_back(param2);
 
                 Value* klass_value = Builder.CreateCall(load_class_fun, params2);
 
@@ -6604,7 +6614,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 param1 = klass_value;
                 params2.push_back(param1);
 
-                Value* param2 = ConstantInt::get(Type::getInt32Ty(TheContext), APInt(32, method_index, true));
+                param2 = ConstantInt::get(Type::getInt32Ty(TheContext), APInt(32, method_index, true));
                 params2.push_back(param2);
 
                 std::string stack_value_name("stack");
@@ -6948,9 +6958,12 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 std::vector<Value*> params2;
 
-                Constant* str_constant = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)class_name);
-                Value* param1 = ConstantExpr::getIntToPtr(str_constant, PointerType::get(IntegerType::get(TheContext,8), 0));
+                std::string constant_value_name("constant");
+                Value* param1 = params[constant_value_name];
                 params2.push_back(param1);
+
+                Value* param2 = ConstantInt::get(TheContext, llvm::APInt(32, offset, true));
+                params2.push_back(param2);
 
                 Value* klass_value = Builder.CreateCall(load_class_fun, params2);
 
@@ -9913,8 +9926,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 Value* param5 = array2.value;
                 params2.push_back(param5);
 
-                Constant* str_constant = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)class_name);
-                Value* param6 = ConstantExpr::getIntToPtr(str_constant, PointerType::get(IntegerType::get(TheContext,8), 0));
+                Value* param6 = llvm_create_string(class_name);
                 params2.push_back(param6);
 
                 Value* result = Builder.CreateCall(fun, params2);
@@ -10241,8 +10253,8 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 Function* function = TheModule->getFunction("create_string_object");
 
                 std::vector<Value*> params2;
-                Constant* str_constant = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)str);
-                Value* param1 = ConstantExpr::getIntToPtr(str_constant, PointerType::get(IntegerType::get(TheContext,8), 0));
+
+                Value* param1 = llvm_create_string(str);
                 params2.push_back(param1);
 
                 LVALUE llvm_value;
@@ -10281,8 +10293,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 Function* function = TheModule->getFunction("create_buffer_object");
 
                 std::vector<Value*> params2;
-                Constant* str_constant = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)str);
-                Value* param1 = ConstantExpr::getIntToPtr(str_constant, PointerType::get(IntegerType::get(TheContext,8), 0));
+                Value* param1 = llvm_create_string(str);
                 params2.push_back(param1);
 
                 Value* param2 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)size);
@@ -10321,8 +10332,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 Function* function = TheModule->getFunction("create_path_object");
 
                 std::vector<Value*> params2;
-                Constant* str_constant = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)buf);
-                Value* param1 = ConstantExpr::getIntToPtr(str_constant, PointerType::get(IntegerType::get(TheContext,8), 0));
+                Value* param1 = llvm_create_string(buf);
                 params2.push_back(param1);
 
                 LVALUE llvm_value;
@@ -11170,8 +11180,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 Function* function = TheModule->getFunction("create_regex_object");
 
                 std::vector<Value*> params2;
-                Constant* str_constant = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)regex_str);
-                Value* param1 = ConstantExpr::getIntToPtr(str_constant, PointerType::get(IntegerType::get(TheContext,8), 0));
+                Value* param1 = llvm_create_string(regex_str);
                 params2.push_back(param1);
                 Value* param2 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)global);
                 params2.push_back(param2);
@@ -11295,23 +11304,14 @@ static BOOL compile_jit_methods(sCLClass* klass)
         std::string err_str;
         raw_string_ostream err_ostream(err_str);
 
-///    if(verifyModule(*TheModule, &err_ostream)) {
-//
+        verifyModule(*TheModule);
+        llvm::WriteBitcodeToFile(TheModule, output_stream, true);
+        output_stream.flush();
+
 /*
-if(strcmp(CLASS_NAME(klass), "EqualableArray") == 0) {
+if(strcmp(CLASS_NAME(klass), "Clover") == 0) {
 TheModule->dump();
 }
-*/
-
-        llvm::WriteBitcodeToFile(TheModule, output_stream);
-        output_stream.flush();
-/*
-        }
-        else {
-            errs() << module_name << "\n";
-            errs() << "assembly parsed, but does not verify as correct\n";
-            errs() << err_ostream.str();
-        }
 */
     }
 

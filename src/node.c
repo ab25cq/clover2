@@ -6608,9 +6608,17 @@ static BOOL compile_inherit_call(unsigned int node, sCompileInfo* info)
         param_types[i] = info->type;
     }
 
+    sNodeType* generics_types;
+    if(info->pinfo->klass) {
+        generics_types = get_generics_type_of_inner_class(info->pinfo);
+    }
+    else {
+        generics_types = NULL;
+    }
+
     /// search for the method ///
     sNodeType* result_type;
-    int method_index2 = search_for_method(klass, method_name, param_types, num_params, class_method, method_index-1, NULL, NULL, &result_type);
+    int method_index2 = search_for_method(klass, method_name, param_types, num_params, class_method, method_index-1, generics_types, NULL, &result_type);
 
     if(method_index2 == -1) {
         compile_err_msg(info, "method not found(1)");

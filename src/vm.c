@@ -588,13 +588,6 @@ static BOOL load_class_with_initialize(char* class_name)
         if(!initialize_class(klass)) {
             return FALSE;
         }
-
-#ifdef ENABLE_JIT
-        if(!load_bc_file(klass)) {
-            fprintf(stderr, "Clover2 can't load %s. bc file not found error %s.bc\n", class_name, class_name);
-            return NULL;
-        }
-#endif
     }
 
     return TRUE;
@@ -762,13 +755,6 @@ sCLClass* get_class_with_load_and_initialize(char* class_name)
         if(!initialize_class(result)) {
             return NULL;
         }
-
-#ifdef ENABLE_JIT
-        if(!load_bc_file(result)) {
-            fprintf(stderr, "Clover2 can't load %s. bc file not found error %s.bc\n", class_name, class_name);
-            return NULL;
-        }
-#endif
     }
 
     return result;

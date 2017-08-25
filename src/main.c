@@ -36,12 +36,8 @@ static void set_signal()
     sigprocmask(SIG_BLOCK, &signal_set, NULL);
 }
 
-char* const * gEnvp = NULL;
-
 int main(int argc, char** argv, char* const * envp)
 {
-    gEnvp = envp;
-
     int i;
 
     CHECKML_BEGIN;
