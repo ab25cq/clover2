@@ -1220,6 +1220,7 @@ class JITTest
         array_:byte[] = null;
         System.wcstombs(&array_, aaaa.buffer);
 
+
         result:Buffer = new Buffer(array_.length.to_ulong);
         for(i:int = 0; i<array_.length-1; i++) {
             result.append(array_[i]);
@@ -1586,6 +1587,7 @@ class JITTest
         offset:int = 0;
 
         buffer:Buffer = self.toBuffer(aaa);
+/*
         ovec_max:int = 16;
         ovec:PcreOVec = new PcreOVec(ovec_max);
 
@@ -1626,6 +1628,7 @@ class JITTest
                 break;
             }
         }
+*/
 
         return result;
     }

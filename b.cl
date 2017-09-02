@@ -102,6 +102,7 @@ Clover.test("jit test59", a.run59() == 777);
 
 Clover.test("jit test60", a.run60() == 245);
 Clover.test("jit test61", a.run61() == 245l);
+a.run62().toString().println();
 Clover.test("jit test62", a.run62() == 245.1);
 Clover.test("jit test63", a.run63() == 5);
 Clover.test("jit test64", a.run64() == 111);
@@ -339,6 +340,9 @@ Clover.test("jit test-split", a.split(/\n/).equals( equalable_list { "ABC" }) );
 
 a.split2(p"/etc/group".read().toString(), /\n/);
 
+/*
+a.split2(p"/etc/group".read().toString(), /\n/);
+
 zz:Array<Integer> = a.run70_7();
 
 Clover.test("jit test-items", a.items(zz, 0) == 1 && a.items(zz, 1) == 2 && a.items(zz, 2) == 3);
@@ -367,3 +371,4 @@ Clover.test("jit test-file7", File.read("c.txt").equals(b"abc\ndef\n"));
 
 p"d.txt".write(b"GGG\n");
 Clover.test("jit test-file8", p"d.txt".read().equals(b"GGG\n"));
+*/

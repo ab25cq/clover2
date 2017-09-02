@@ -1,425 +1,660 @@
-; ModuleID = 'Module ClassF'
-
-@gSigInt = external global i32
-
-declare i32 @create_string_object(i8*)
-
-declare i32 @create_byte(i8)
-
-declare i32 @create_ubyte(i8)
-
-declare i32 @create_short(i16)
-
-declare i32 @create_ushort(i16)
-
-declare i32 @create_integer(i32)
-
-declare i32 @create_uinteger(i32)
-
-declare i32 @create_long(i64)
-
-declare i32 @create_ulong(i64)
-
-declare i32 @create_float(float)
-
-declare i32 @create_double(double)
-
-declare i32 @create_pointer(i8*)
-
-declare i32 @create_char(i32)
-
-declare i32 @create_bool(i32)
-
-declare i32 @create_buffer_object(i8*, i32)
-
-declare i32 @create_path_object(i8*)
-
-declare i32 @create_object(i64*)
-
-declare i32 @create_regex_object(i8*, i32, i32, i32, i32, i32, i32, i32, i32)
-
-declare i32 @create_array_object(i64*, i32)
-
-declare void @show_inst_in_jit(i32)
-
-declare void @show_number_in_jit(i32)
-
-declare void @show_str_in_jit(i8*)
-
-declare void @show_stack_stat(i64*)
-
-declare i32 @show_stack_in_jit(i64*, i64*, i32, i64*)
-
-declare i32 @call_invoke_method(i64*, i64*, i64*, i32, i64**, i64*, i64*)
-
-declare void @push_jit_object(i32)
-
-declare void @try_function(i64*, i32, i64*)
-
-declare void @catch_function(i64*, i64*)
-
-declare i8* @get_try_catch_label_name(i64*)
-
-declare void @entry_exception_object(i32, i64*)
-
-declare i64 @get_field_from_object(i64**, i64*, i32, i64*, i32, i32)
-
-declare i32 @regex_equals(i32, i32)
-
-declare i32 @get_string_object_of_object_name(i32)
-
-declare i32 @object_implements_interface(i32, i64*)
-
-declare i32 @call_invoke_virtual_method(i32, i32, i64*, i32, i64**, i64*, i64*, i64*, i32)
-
-declare i32 @call_invoke_dynamic_method(i32, i32, i32, i32, i32, i32, i64*, i32, i64**, i64*, i64*, i64*)
-
-declare i32 @invoke_block_in_jit(i32, i64*, i32, i64**, i64*)
-
-declare i32 @store_field(i64**, i64*, i32, i64*, i32, i64, i32)
-
-declare i64 @load_class_field(i64**, i64*, i32, i64*, i32, i32, i64*)
-
-declare i64 @run_load_class_field_address(i64**, i64*, i32, i64*, i32, i32, i64*)
-
-declare i32 @store_class_field(i64**, i64*, i32, i64*, i32, i32, i64*, i64)
-
-declare i64 @load_element(i64**, i64*, i32, i64*, i32, i32)
-
-declare i32 @run_store_element(i64**, i64*, i32, i64*, i32, i32, i64)
-
-declare i32 @get_array_length(i32)
-
-declare i32 @get_regex_global(i32)
-
-declare i32 @get_regex_ignorecase(i32)
-
-declare i32 @get_regex_multiline(i32)
-
-declare i32 @get_regex_extended(i32)
-
-declare i32 @get_regex_dotall(i32)
-
-declare i32 @get_regex_anchored(i32)
-
-declare i32 @get_regex_dollar_endonly(i32)
-
-declare i32 @get_regex_ungreedy(i32)
-
-declare i32 @get_regex_multiline.1(i32)
-
-declare i32 @char_uppercase(i32)
-
-declare i32 @char_lowercase(i32)
-
-declare i64 @run_create_array(i64**, i64*, i32, i64*, i8*, i32)
-
-declare i64 @run_create_carray(i64**, i64*, i32, i64*, i32, i8*)
-
-declare i64 @run_create_equalable_carray(i64**, i64*, i32, i64*, i32, i8*)
-
-declare i64 @run_create_sortable_carray(i64**, i64*, i32, i64*, i32, i8*)
-
-declare i64 @run_create_list(i64**, i64*, i32, i64*, i32, i8*)
-
-declare i64 @run_create_sortable_list(i64**, i64*, i32, i64*, i32, i8*)
-
-declare i64 @run_create_equalable_list(i64**, i64*, i32, i64*, i32, i8*)
-
-declare i64 @run_create_tuple(i64**, i64*, i32, i64*, i32)
-
-declare i64 @run_create_hash(i64**, i64*, i32, i64*, i32, i8*, i8*)
-
-declare i32 @run_create_block_object(i64**, i64*, i64*, i32, i32, i32, i32, i32, i32, i32, i64*)
-
-declare i32 @run_int_to_string_cast(i32)
-
-declare i32 @run_long_to_string_cast(i64)
-
-declare i32 @run_uint_to_string_cast(i32)
-
-declare i32 @run_ulong_to_string_cast(i64)
-
-declare i32 @run_float_to_string_cast(float)
-
-declare i32 @run_double_to_string_cast(double)
-
-declare i32 @run_bool_to_string_cast(i32)
-
-declare i32 @run_regex_to_string_cast(i32)
-
-declare i32 @run_pointer_to_string_cast(i64*)
-
-declare i32 @run_char_to_string_cast(i32)
-
-declare i8 @run_cbyte_to_byte_cast(i32)
-
-declare i16 @run_cshort_to_short_cast(i32)
-
-declare i32 @run_integer_to_int_cast(i32)
-
-declare i32 @run_cfloat_to_int_cast(i32)
-
-declare i32 @run_cdouble_to_int_cast(i32)
-
-declare i64 @run_clong_to_long_cast(i32)
-
-declare i8 @run_cubyte_to_ubyte_cast(i32)
-
-declare i16 @run_cushort_to_ushort_cast(i32)
-
-declare i64 @run_culong_to_ulong_cast(i32)
-
-declare i8* @run_cpointer_to_pointer_cast(i32)
-
-declare i32 @run_uinteger_to_uint_cast(i32)
-
-declare float @run_cfloat_to_float_cast(i32)
-
-declare double @run_cdouble_to_double_cast(i32)
-
-declare i32 @entry_exception_object_with_class_name2(i64*, i64*, i32, i64*, i8*, i8*)
-
-declare i8** @run_load_field_address(i64**, i64*, i32, i64*, i32, i32)
-
-declare i64 @run_array_to_carray_cast(i64**, i64*, i32, i64*, i32, i8*)
-
-declare i64* @get_class_with_load_and_initialize_in_jit(i8*)
-
-define i32 @"ClassF.method()$$0"(i64* %stack_ptr, i64* %lvar, i64* %info, i64* %stack, i64** %stack_ptr_address, i32 %var_num) {
-entry:
-  %"lvar$0$" = alloca i64
-  %stack_offset_value = load i64, i64* %stack, align 8
-  store i64 0, i64* %"lvar$0$"
-  store i64 %stack_offset_value, i64* %"lvar$0$", align 8
-  store i64 1, i64* %stack, align 8
-  ret i32 1
-
-entry_after_return:                               ; No predecessors!
-  ret i32 1
-}
-
-define i32 @"ClassF.method2()$$1"(i64* %stack_ptr, i64* %lvar, i64* %info, i64* %stack, i64** %stack_ptr_address, i32 %var_num) {
-entry:
-  %"lvar$0$" = alloca i64
-  %stack_offset_value = load i64, i64* %stack, align 8
-  store i64 0, i64* %"lvar$0$"
-  store i64 %stack_offset_value, i64* %"lvar$0$", align 8
-  store i64 1066192077, i64* %stack, align 8
-  ret i32 1
-
-entry_after_return:                               ; No predecessors!
-  ret i32 1
-}
-
-define i32 @"ClassF.method3()$$2"(i64* %stack_ptr, i64* %lvar, i64* %info, i64* %stack, i64** %stack_ptr_address, i32 %var_num) {
-entry:
-  %"lvar$0$" = alloca i64
-  %stack_offset_value = load i64, i64* %stack, align 8
-  store i64 0, i64* %"lvar$0$"
-  store i64 %stack_offset_value, i64* %"lvar$0$", align 8
-  store i64 4607632778762754458, i64* %stack, align 8
-  ret i32 1
-
-entry_after_return:                               ; No predecessors!
-  ret i32 1
-}
-
-define i32 @"ClassF.method4(int)$$3"(i64* %stack_ptr, i64* %lvar, i64* %info, i64* %stack, i64** %stack_ptr_address, i32 %var_num) {
-entry:
-  %"lvar$1$" = alloca i64
-  %"lvar$0$" = alloca i64
-  %stack_offset_value = load i64, i64* %stack, align 8
-  store i64 0, i64* %"lvar$0$"
-  store i64 %stack_offset_value, i64* %"lvar$0$", align 8
-  %stack_offset_address_value = getelementptr i64, i64* %stack, i64 1
-  %stack_offset_value1 = load i64, i64* %stack_offset_address_value, align 8
-  store i64 0, i64* %"lvar$1$"
-  store i64 %stack_offset_value1, i64* %"lvar$1$", align 8
-  store i64 1, i64* %stack, align 8
-  ret i32 1
-
-entry_after_return:                               ; No predecessors!
-  ret i32 1
-}
-
-define i32 @"ClassF.method5(int)$$4"(i64* %stack_ptr, i64* %lvar, i64* %info, i64* %stack, i64** %stack_ptr_address, i32 %var_num) {
-entry:
-  %"lvar$1$" = alloca i64
-  %"lvar$0$" = alloca i64
-  %stack_offset_value = load i64, i64* %stack, align 8
-  store i64 0, i64* %"lvar$0$"
-  store i64 %stack_offset_value, i64* %"lvar$0$", align 8
-  %stack_offset_address_value = getelementptr i64, i64* %stack, i64 1
-  %stack_offset_value1 = load i64, i64* %stack_offset_address_value, align 8
-  store i64 0, i64* %"lvar$1$"
-  store i64 %stack_offset_value1, i64* %"lvar$1$", align 8
-  %lvar2 = load i64, i64* %"lvar$1$"
-  %0 = trunc i64 %lvar2 to i32
-  %1 = zext i32 %0 to i64
-  store i64 %1, i64* %stack, align 8
-  ret i32 1
-
-entry_after_return:                               ; No predecessors!
-  ret i32 1
-}
-
-define i32 @"ClassF.method6()$$5"(i64* %stack_ptr, i64* %lvar, i64* %info, i64* %stack, i64** %stack_ptr_address, i32 %var_num) {
-entry:
-  %"lvar$0$" = alloca i64
-  %stack_offset_value = load i64, i64* %stack, align 8
-  store i64 0, i64* %"lvar$0$"
-  store i64 %stack_offset_value, i64* %"lvar$0$", align 8
-  store i64 3, i64* %stack, align 8
-  ret i32 1
-
-entry_after_return:                               ; No predecessors!
-  ret i32 1
-}
-
-define i32 @"ClassF.method7(int,int)$$6"(i64* %stack_ptr, i64* %lvar, i64* %info, i64* %stack, i64** %stack_ptr_address, i32 %var_num) {
-entry:
-  %"lvar$2$" = alloca i64
-  %"lvar$1$" = alloca i64
-  %"lvar$0$" = alloca i64
-  %stack_offset_value = load i64, i64* %stack, align 8
-  store i64 0, i64* %"lvar$0$"
-  store i64 %stack_offset_value, i64* %"lvar$0$", align 8
-  %stack_offset_address_value = getelementptr i64, i64* %stack, i64 1
-  %stack_offset_value1 = load i64, i64* %stack_offset_address_value, align 8
-  store i64 0, i64* %"lvar$1$"
-  store i64 %stack_offset_value1, i64* %"lvar$1$", align 8
-  %stack_offset_address_value2 = getelementptr i64, i64* %stack, i64 2
-  %stack_offset_value3 = load i64, i64* %stack_offset_address_value2, align 8
-  store i64 0, i64* %"lvar$2$"
-  store i64 %stack_offset_value3, i64* %"lvar$2$", align 8
-  %lvar4 = load i64, i64* %"lvar$1$"
-  %0 = trunc i64 %lvar4 to i32
-  %lvar5 = load i64, i64* %"lvar$2$"
-  %1 = trunc i64 %lvar5 to i32
-  %addtmp = add nuw i32 %0, %1
-  %2 = zext i32 %addtmp to i64
-  store i64 %2, i64* %stack, align 8
-  ret i32 1
-
-entry_after_return:                               ; No predecessors!
-  ret i32 1
-}
-
-define i32 @"ClassF.method8(double,double)$$7"(i64* %stack_ptr, i64* %lvar, i64* %info, i64* %stack, i64** %stack_ptr_address, i32 %var_num) {
-entry:
-  %"lvar$2$" = alloca i64
-  %"lvar$1$" = alloca i64
-  %"lvar$0$" = alloca i64
-  %stack_offset_value = load i64, i64* %stack, align 8
-  store i64 0, i64* %"lvar$0$"
-  store i64 %stack_offset_value, i64* %"lvar$0$", align 8
-  %stack_offset_address_value = getelementptr i64, i64* %stack, i64 1
-  %stack_offset_value1 = load i64, i64* %stack_offset_address_value, align 8
-  store i64 0, i64* %"lvar$1$"
-  store i64 %stack_offset_value1, i64* %"lvar$1$", align 8
-  %stack_offset_address_value2 = getelementptr i64, i64* %stack, i64 2
-  %stack_offset_value3 = load i64, i64* %stack_offset_address_value2, align 8
-  store i64 0, i64* %"lvar$2$"
-  store i64 %stack_offset_value3, i64* %"lvar$2$", align 8
-  %lvar4 = load i64, i64* %"lvar$1$"
-  %0 = uitofp i64 %lvar4 to double
-  %lvar5 = load i64, i64* %"lvar$2$"
-  %1 = uitofp i64 %lvar5 to double
-  %faddtmp = fadd double %0, %1
-  %2 = bitcast double %faddtmp to i64
-  store i64 %2, i64* %stack, align 8
-  ret i32 1
-
-entry_after_return:                               ; No predecessors!
-  ret i32 1
-}
-
-define i32 @"ClassF.method9(double)$$8"(i64* %stack_ptr, i64* %lvar, i64* %info, i64* %stack, i64** %stack_ptr_address, i32 %var_num) {
-entry:
-  %"lvar$1$" = alloca i64
-  %"lvar$0$" = alloca i64
-  %stack_offset_value = load i64, i64* %stack, align 8
-  store i64 0, i64* %"lvar$0$"
-  store i64 %stack_offset_value, i64* %"lvar$0$", align 8
-  %stack_offset_address_value = getelementptr i64, i64* %stack, i64 1
-  %stack_offset_value1 = load i64, i64* %stack_offset_address_value, align 8
-  store i64 0, i64* %"lvar$1$"
-  store i64 %stack_offset_value1, i64* %"lvar$1$", align 8
-  %lvar2 = load i64, i64* %"lvar$1$"
-  %0 = uitofp i64 %lvar2 to double
-  %faddtmp = fadd double %0, 3.100000e+00
-  %1 = bitcast double %faddtmp to i64
-  store i64 %1, i64* %stack, align 8
-  ret i32 1
-
-entry_after_return:                               ; No predecessors!
-  ret i32 1
-}
-
-define i32 @"ClassF.method10()$$9"(i64* %stack_ptr, i64* %lvar, i64* %info, i64* %stack, i64** %stack_ptr_address, i32 %var_num) {
-entry:
-  %"lvar$0$" = alloca i64
-  %stack_offset_value = load i64, i64* %stack, align 8
-  store i64 0, i64* %"lvar$0$"
-  store i64 %stack_offset_value, i64* %"lvar$0$", align 8
-  %lvar1 = load i64, i64* %"lvar$0$"
-  %0 = trunc i64 %lvar1 to i32
-  %1 = call i64* @get_class_with_load_and_initialize_in_jit()
-  %ifcond = icmp eq i64* %1, i32 0
-  br i1 %ifcond, label %then_block, label %entry_ifend
-
-then_block:                                       ; preds = %entry
-  ret i32 0
-
-entry_ifend:                                      ; preds = %entry
-  %lvar2 = load i64, i64* %"lvar$0$"
-  %lvar_offset_value = getelementptr i64, i64* %lvar, i64 0
-  store i64 0, i64* %lvar_offset_value, align 8
-  store i64 %lvar2, i64* %lvar_offset_value, align 8
-  %loaded_stack_ptr_address_value = load i64*, i64** %stack_ptr_address, align 8
-  store i64 0, i64* %loaded_stack_ptr_address_value, align 8
-  %2 = zext i32 %0 to i64
-  store i64 %2, i64* %loaded_stack_ptr_address_value, align 8
-  %loaded_stack_ptr_address_value3 = load i64*, i64** %stack_ptr_address
-  %inc_ptr_value = getelementptr i64, i64* %loaded_stack_ptr_address_value3, i64 1
-  store i64* %inc_ptr_value, i64** %stack_ptr_address
-  %loaded_stack_ptr_address_value4 = load i64*, i64** %stack_ptr_address, align 8
-  store i64 0, i64* %loaded_stack_ptr_address_value4, align 8
-  store i64 4607182418800017408, i64* %loaded_stack_ptr_address_value4, align 8
-  %loaded_stack_ptr_address_value5 = load i64*, i64** %stack_ptr_address
-  %inc_ptr_value6 = getelementptr i64, i64* %loaded_stack_ptr_address_value5, i64 1
-  store i64* %inc_ptr_value6, i64** %stack_ptr_address
-  %3 = call i32 @call_invoke_method(i64* %1, i64 26161088, i64* %stack, i32 %var_num, i64** %stack_ptr_address, i64* %info, i64* inttoptr (i64 26162232 to i64*))
-  %ifcond7 = icmp ne i32 %3, 1
-  br i1 %ifcond7, label %then_block8, label %entry_ifend9
-
-then_block8:                                      ; preds = %entry_ifend
-  %4 = call i8* @get_try_catch_label_name(i64* %info)
-  %catchcond = icmp ne i8* %4, i32 0
-  br i1 %catchcond, label %then_block_b, label %entry_ifend_b
-
-entry_ifend9:                                     ; preds = %entry_ifend
-  %stack_offset_value10 = load i64, i64* %stack, align 8
-  store i64 0, i64* %"lvar$0$"
-  store i64 %stack_offset_value10, i64* %"lvar$0$", align 8
-  %loaded_stack_ptr_address_value11 = load i64*, i64** %stack_ptr_address
-  %stack_pointer_offset_value = getelementptr i64, i64* %loaded_stack_ptr_address_value11, i64 -1
-  %stack_pointer_offset_value12 = load i64, i64* %stack_pointer_offset_value, align 8
-  call void @push_jit_object(i64 %stack_pointer_offset_value12)
-  %loaded_stack_ptr_address_value13 = load i64*, i64** %stack_ptr_address
-  %dec_ptr_value = getelementptr i64, i64* %loaded_stack_ptr_address_value13, i64 1
-  store i64* %dec_ptr_value, i64** %stack_ptr_address
-  store i64 %stack_pointer_offset_value12, i64* %stack, align 8
-  ret i32 1
-
-then_block_b:                                     ; preds = %then_block8
-  ret i32 0
-
-entry_ifend_b:                                    ; preds = %then_block8
-  ret i32 0
-
-entry_after_return:                               ; No predecessors!
-  ret i32 1
-}
-module_name Module ClassF passed
+==6737== Memcheck, a memory error detector
+==6737== Copyright (C) 2002-2015, and GNU GPL'd, by Julian Seward et al.
+==6737== Using Valgrind-3.11.0 and LibVEX; rerun with -h for copyright info
+==6737== Command: clover2 b.clo
+==6737== 
+jit test...OK
+jit test2...OK
+jit test3
+HELLO WORLD
+jit test4...OK
+jit test5...OK
+jit test6...OK
+jit test7...OK
+jit test8...OK
+jit test9...OK
+jit test10...OK
+jit test11...OK
+jit test12...OK
+jit test13...OK
+jit test14...OK
+jit test15...OK
+jit test16...OK
+jit test17...OK
+jit test18...OK
+jit test19...OK
+jit test20...OK
+jit test21...OK
+jit test22...OK
+jit test23...OK
+jit test24...OK
+jit test25...OK
+jit test26...OK
+jit test27...OK
+jit test28...OK
+jit test29...OK
+jit test30...OK
+jit test31...OK
+jit test32...OK
+jit test32...OK
+jit test33...OK
+jit test34...OK
+jit test35...OK
+jit test36...OK
+jit test37...OK
+jit test38...OK
+jit test39...OK
+jit test40...OK
+jit test41...OK
+jit test42...OK
+jit test43...OK
+jit test44...OK
+jit test45...OK
+jit test46...OK
+jit test47...OK
+jit test48...OK
+jit test49...OK
+jit test49.5...OK
+jit test50...OK
+jit test51...OK
+jit test52...OK
+jit test53...OK
+jit test53.5...OK
+jit test55...OK
+jit test57...OK
+jit test58...OK
+jit test59...OK
+jit test60...OK
+jit test61...OK
+245.100000
+jit test62...OK
+jit test63...OK
+jit test64...OK
+jit test65...OK
+jit test66...OK
+jit test67...OK
+jit test68...OK
+jit test69...OK
+jit test70...OK
+jit test70.5...OK
+jit test70.7...OK
+jit test70.5...OK
+jit test70.7...OK
+jit test71...OK
+jit test71.1...OK
+jit test71.2...OK
+jit test71.3...OK
+jit test71.4...OK
+jit test72...OK
+jit test72.5...OK
+jit test72.6...OK
+jit test72.7...OK
+jit test72.8...OK
+jit test72.9...OK
+jit test72.a...OK
+jit test73...OK
+jit test74...OK
+jit test75...OK
+jit test76...OK
+jit test77...OK
+jit test78...OK
+jit test78.1...OK
+jit test78.2...OK
+jit test78.3...OK
+jit test79...OK
+jit test80...OK
+jit test80.1...OK
+jit test81...OK
+jit test82...OK
+jit test82.1...OK
+jit test82.2...OK
+jit test82.3...OK
+jit test82.4...OK
+jit test82.5...OK
+jit test83...OK
+jit test84...OK
+jit test85...OK
+jit test86...OK
+jit test87...OK
+jit test87.1...OK
+jit test87.2...OK
+jit test88...OK
+jit test90...OK
+jit test90.1...OK
+jit test90.2...OK
+jit test91...OK
+jit test92...OK
+jit test92.1...OK
+jit test93.1...OK
+jit test93.2...OK
+jit test93.3...OK
+jit test93.4...OK
+jit test93.5...OK
+jit test93.6...OK
+jit test94...OK
+jit test95...OK
+jit test95_1...OK
+jit test95_2...OK
+jit test95_3...OK
+jit test95_5...OK
+jit test95_6...OK
+jit test95_7...OK
+jit test95_8...OK
+jit test95_9...OK
+jit test95_10...OK
+jit test95_11...OK
+jit test95_12...OK
+jit test95_13...OK
+jit test95_14...OK
+jit test95_15...OK
+jit test95_16...OK
+jit test95_17...OK
+jit test95_18...OK
+jit test95_20...OK
+jit test96...OK
+jit test96_1...OK
+jit test96_2...OK
+jit test96_3...OK
+jit test96_4...OK
+jit test96_5...OK
+jit test96_6...OK
+jit test96_7...OK
+jit test97...OK
+jit test98...OK
+jit test98_1...OK
+jit test98_2...OK
+jit test98_3...OK
+jit test98_4...OK
+jit test98_5...OK
+jit test98_6...OK
+jit test98_7...OK
+jit test98_8...OK
+jit test98_9...OK
+jit test98_10...OK
+jit test98_11...OK
+jit test98_12...OK
+jit test98_13...OK
+jit test98_14...OK
+jit test98_15...OK
+jit test98_16...OK
+jit test98_17...OK
+jit test98_18...OK
+jit test98_19...OK
+jit test99...OK
+jit test99_1...OK
+jit test99_3...OK
+jit test99_4...OK
+jit test99_5...OK
+jit test100...OK
+jit test101...OK
+jit test102...OK
+jit test103...OK
+jit test 104...123
+123
+123
+OK
+jit test 105...1
+2
+3
+OK
+jit test 106...OK
+jit test107...OK
+jit test108...OK
+jit test108.1...OK
+jit test109...OK
+jit test110...OK
+jit test111...OK
+HELLO JIT with mixin-layers
+jit test112...OK
+jit test113...OK
+jit test114...OK
+jit test115...OK
+jit test116...OK
+jit test116_5...OK
+jit test116_6...OK
+jit test116_9...OK
+jit test117...OK
+jit test-reverse...OK
+jit test-insert...OK
+jit test-toBuffer...OK
+jit test-indexOf...OK
+jit test-insert2...OK
+jit test-add...OK
+jit test-subBuffer...OK
+jit test-scan...OK
+==6737== Invalid read of size 1
+==6737==    at 0x59CF99: System_mbstowcs (class_system.c:638)
+==6737==    by 0x57F8DB: invoke_method (vm.c:442)
+==6737==    by 0xB46690F: ???
+==6737==    by 0x7427977: ???
+==6737==    by 0x1: ???
+==6737==    by 0x7AF0E7F: ???
+==6737==    by 0x131: ???
+==6737==    by 0xFFEFFE0FF: ???
+==6737==  Address 0x771a55f is 1 bytes before a block of size 0 alloc'd
+==6737==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==6737==    by 0x57B12D: debug_calloc (debug.c:224)
+==6737==    by 0x597B1A: create_buffer_object (string.c:62)
+==6737==    by 0xB466D4E: ???
+==6737== 
+jit test-sub...OK
+==6737== Invalid read of size 1
+==6737==    at 0x59CF99: System_mbstowcs (class_system.c:638)
+==6737==    by 0x57F8DB: invoke_method (vm.c:442)
+==6737==    by 0xB46690F: ???
+==6737==    by 0x7427987: ???
+==6737==    by 0x1: ???
+==6737==    by 0x7AF0EE3: ???
+==6737==    by 0x138: ???
+==6737==    by 0xFFEFFE0FF: ???
+==6737==  Address 0x714677f is 1 bytes before a block of size 0 alloc'd
+==6737==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==6737==    by 0x57B12D: debug_calloc (debug.c:224)
+==6737==    by 0x597B1A: create_buffer_object (string.c:62)
+==6737==    by 0xB466D4E: ???
+==6737== 
+jit test-sub2...OK
+jit test-sub2-5...OK
+==6737== Invalid read of size 1
+==6737==    at 0x59CF99: System_mbstowcs (class_system.c:638)
+==6737==    by 0x57F8DB: invoke_method (vm.c:442)
+==6737==    by 0xB46690F: ???
+==6737==    by 0x74279D7: ???
+==6737==    by 0x1: ???
+==6737==    by 0x7AF0F5F: ???
+==6737==    by 0x13B: ???
+==6737==    by 0xFFEFFE0FF: ???
+==6737==  Address 0x746eecf is 1 bytes before a block of size 0 alloc'd
+==6737==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==6737==    by 0x57B12D: debug_calloc (debug.c:224)
+==6737==    by 0x597B1A: create_buffer_object (string.c:62)
+==6737==    by 0xB466D4E: ???
+==6737== 
+==6737== Invalid read of size 1
+==6737==    at 0x59CF99: System_mbstowcs (class_system.c:638)
+==6737==    by 0x57F8DB: invoke_method (vm.c:442)
+==6737==    by 0xB46690F: ???
+==6737==    by 0x7427A27: ???
+==6737==    by 0x1: ???
+==6737==    by 0x7AF0F5F: ???
+==6737==    by 0x13B: ???
+==6737==    by 0xFFEFFE0FF: ???
+==6737==  Address 0x724cb7f is 1 bytes before a block of size 0 alloc'd
+==6737==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==6737==    by 0x57B12D: debug_calloc (debug.c:224)
+==6737==    by 0x597B1A: create_buffer_object (string.c:62)
+==6737==    by 0xB466D4E: ???
+==6737== 
+==6737== Invalid read of size 1
+==6737==    at 0x59CF99: System_mbstowcs (class_system.c:638)
+==6737==    by 0x57F8DB: invoke_method (vm.c:442)
+==6737==    by 0xB46690F: ???
+==6737==    by 0x7427A77: ???
+==6737==    by 0x1: ???
+==6737==    by 0x7AF0F5F: ???
+==6737==    by 0x13B: ???
+==6737==    by 0xFFEFFE0FF: ???
+==6737==  Address 0x77303af is 1 bytes before a block of size 0 alloc'd
+==6737==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==6737==    by 0x57B12D: debug_calloc (debug.c:224)
+==6737==    by 0x597B1A: create_buffer_object (string.c:62)
+==6737==    by 0xB466D4E: ???
+==6737== 
+jit test-sub3...OK
+jit test-sub4...OK
+jit test-scan...OK
+jit test subString...OK
+==6737== Invalid read of size 1
+==6737==    at 0x59CF99: System_mbstowcs (class_system.c:638)
+==6737==    by 0x57F8DB: invoke_method (vm.c:442)
+==6737==    by 0xB46690F: ???
+==6737==    by 0x7427A07: ???
+==6737==    by 0x1: ???
+==6737==    by 0x7AF1097: ???
+==6737==    by 0x141: ???
+==6737==    by 0xFFEFFE0FF: ???
+==6737==  Address 0x758d50f is 1 bytes before a block of size 0 alloc'd
+==6737==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==6737==    by 0x57B12D: debug_calloc (debug.c:224)
+==6737==    by 0x597B1A: create_buffer_object (string.c:62)
+==6737==    by 0xB466D4E: ???
+==6737== 
+jit test-sub5...OK
+==6737== Invalid read of size 1
+==6737==    at 0x59CF99: System_mbstowcs (class_system.c:638)
+==6737==    by 0x57F8DB: invoke_method (vm.c:442)
+==6737==    by 0xB46690F: ???
+==6737==    by 0x7427A87: ???
+==6737==    by 0x1: ???
+==6737==    by 0x7AF11AB: ???
+==6737==    by 0x148: ???
+==6737==    by 0xFFEFFE0FF: ???
+==6737==  Address 0x746ddcf is 1 bytes before a block of size 0 alloc'd
+==6737==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==6737==    by 0x57B12D: debug_calloc (debug.c:224)
+==6737==    by 0x597B1A: create_buffer_object (string.c:62)
+==6737==    by 0xB466D4E: ???
+==6737== 
+jit test-sub6...OK
+jit test-match...OK
+jit test-match2...OK
+jit test-list...OK
+jit test-split...OK
+==6737== Invalid write of size 8
+==6737==    at 0x4C3453F: memset (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==6737==    by 0x57FA55: invoke_method (vm.c:472)
+==6737==    by 0x981592C: ???
+==6737==    by 0x2E74736554544949: ???
+==6737==    by 0x7265666675426F73: ???
+==6737==    by 0x29676E6972745327: ???
+==6737==    by 0x3033322423: ???
+==6737==    by 0x1007: ???
+==6737==    by 0x14000000000: ???
+==6737==    by 0x7BEE57F: ???
+==6737==    by 0x8D8AEDF: ???
+==6737==    by 0x7BEE57F: ???
+==6737==  Address 0x7429830 is 0 bytes after a block of size 8,192 alloc'd
+==6737==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==6737==    by 0x57B12D: debug_calloc (debug.c:224)
+==6737==    by 0x597103: eval_file (script.c:73)
+==6737==    by 0x57A8B8: main (main.c:50)
+==6737== 
+==6737== Invalid write of size 8
+==6737==    at 0xB4658ED: ???
+==6737==    by 0x612E726566667541: ???
+==6737==    by 0x796228646E65706F: ???
+==6737==    by 0x352424296573: ???
+==6737==  Address 0x7429830 is 0 bytes after a block of size 8,192 alloc'd
+==6737==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==6737==    by 0x57B12D: debug_calloc (debug.c:224)
+==6737==    by 0x597103: eval_file (script.c:73)
+==6737==    by 0x57A8B8: main (main.c:50)
+==6737== 
+==6737== Invalid read of size 8
+==6737==    at 0xB46592F: ???
+==6737==    by 0x612E726566667541: ???
+==6737==    by 0x796228646E65706F: ???
+==6737==    by 0x352424296573: ???
+==6737==  Address 0x7429830 is 0 bytes after a block of size 8,192 alloc'd
+==6737==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==6737==    by 0x57B12D: debug_calloc (debug.c:224)
+==6737==    by 0x597103: eval_file (script.c:73)
+==6737==    by 0x57A8B8: main (main.c:50)
+==6737== 
+==6737== Invalid write of size 8
+==6737==    at 0x98158EF: ???
+==6737==    by 0x2E74736554544949: ???
+==6737==    by 0x7265666675426F73: ???
+==6737==    by 0x29676E6972745327: ???
+==6737==    by 0x3033322423: ???
+==6737==    by 0x1007: ???
+==6737==    by 0x14000000000: ???
+==6737==    by 0x7BEE57F: ???
+==6737==    by 0x8D8AEDF: ???
+==6737==    by 0x7BEE57F: ???
+==6737==    by 0x7BEE7AF: ???
+==6737==    by 0x7BEE57F: ???
+==6737==  Address 0x7429830 is 0 bytes after a block of size 8,192 alloc'd
+==6737==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==6737==    by 0x57B12D: debug_calloc (debug.c:224)
+==6737==    by 0x597103: eval_file (script.c:73)
+==6737==    by 0x57A8B8: main (main.c:50)
+==6737== 
+==6737== Invalid write of size 8
+==6737==    at 0x98158FE: ???
+==6737==    by 0x2E74736554544949: ???
+==6737==    by 0x7265666675426F73: ???
+==6737==    by 0x29676E6972745327: ???
+==6737==    by 0x3033322423: ???
+==6737==    by 0x1007: ???
+==6737==    by 0x14000000000: ???
+==6737==    by 0x7BEE57F: ???
+==6737==    by 0x8D8AEDF: ???
+==6737==    by 0x7BEE57F: ???
+==6737==    by 0x7BEE7AF: ???
+==6737==    by 0x7BEE57F: ???
+==6737==  Address 0x7429830 is 0 bytes after a block of size 8,192 alloc'd
+==6737==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==6737==    by 0x57B12D: debug_calloc (debug.c:224)
+==6737==    by 0x597103: eval_file (script.c:73)
+==6737==    by 0x57A8B8: main (main.c:50)
+==6737== 
+==6737== Invalid read of size 8
+==6737==    at 0xB465631: ???
+==6737==    by 0x7C3B56F: ???
+==6737==    by 0xAF96B2C9994C8FFF: ???
+==6737==    by 0x7C3B62F: ???
+==6737==    by 0x7C3B2EF: ???
+==6737==    by 0x7C3B56F: ???
+==6737==    by 0x7429827: ???
+==6737==    by 0xFFEFF7A3F: ???
+==6737==    by 0x5B6: ???
+==6737==    by 0xB4655FF: ???
+==6737==    by 0x16: ???
+==6737==    by 0x1101: ???
+==6737==  Address 0x7429830 is 0 bytes after a block of size 8,192 alloc'd
+==6737==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==6737==    by 0x57B12D: debug_calloc (debug.c:224)
+==6737==    by 0x597103: eval_file (script.c:73)
+==6737==    by 0x57A8B8: main (main.c:50)
+==6737== 
+==6737== Invalid write of size 8
+==6737==    at 0xB4658DB: ???
+==6737==    by 0x612E726566667541: ???
+==6737==    by 0x796228646E65706F: ???
+==6737==    by 0x352424296573: ???
+==6737==  Address 0x7429830 is 0 bytes after a block of size 8,192 alloc'd
+==6737==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==6737==    by 0x57B12D: debug_calloc (debug.c:224)
+==6737==    by 0x597103: eval_file (script.c:73)
+==6737==    by 0x57A8B8: main (main.c:50)
+==6737== 
+==6737== Invalid write of size 8
+==6737==    at 0xB4658E4: ???
+==6737==    by 0x612E726566667541: ???
+==6737==    by 0x796228646E65706F: ???
+==6737==    by 0x352424296573: ???
+==6737==  Address 0x7429838 is 8 bytes after a block of size 8,192 alloc'd
+==6737==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==6737==    by 0x57B12D: debug_calloc (debug.c:224)
+==6737==    by 0x597103: eval_file (script.c:73)
+==6737==    by 0x57A8B8: main (main.c:50)
+==6737== 
+==6737== Invalid read of size 8
+==6737==    at 0xB46590B: ???
+==6737==    by 0x612E726566667541: ???
+==6737==    by 0x796228646E65706F: ???
+==6737==    by 0x352424296573: ???
+==6737==  Address 0x7429830 is 0 bytes after a block of size 8,192 alloc'd
+==6737==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==6737==    by 0x57B12D: debug_calloc (debug.c:224)
+==6737==    by 0x597103: eval_file (script.c:73)
+==6737==    by 0x57A8B8: main (main.c:50)
+==6737== 
+==6737== Invalid read of size 8
+==6737==    at 0xB46591D: ???
+==6737==    by 0x612E726566667541: ???
+==6737==    by 0x796228646E65706F: ???
+==6737==    by 0x352424296573: ???
+==6737==  Address 0x7429838 is 8 bytes after a block of size 8,192 alloc'd
+==6737==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==6737==    by 0x57B12D: debug_calloc (debug.c:224)
+==6737==    by 0x597103: eval_file (script.c:73)
+==6737==    by 0x57A8B8: main (main.c:50)
+==6737== 
+==6737== Invalid write of size 8
+==6737==    at 0x98158D7: ???
+==6737==    by 0x2E74736554544949: ???
+==6737==    by 0x7265666675426F73: ???
+==6737==    by 0x29676E6972745327: ???
+==6737==    by 0x3033322423: ???
+==6737==    by 0x1007: ???
+==6737==    by 0x14000000000: ???
+==6737==    by 0x7BEE57F: ???
+==6737==    by 0x8D8AEDF: ???
+==6737==    by 0x7BEE57F: ???
+==6737==    by 0x7BEE7AF: ???
+==6737==    by 0x7BEE57F: ???
+==6737==  Address 0x7429838 is 8 bytes after a block of size 8,192 alloc'd
+==6737==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==6737==    by 0x57B12D: debug_calloc (debug.c:224)
+==6737==    by 0x597103: eval_file (script.c:73)
+==6737==    by 0x57A8B8: main (main.c:50)
+==6737== 
+==6737== Invalid write of size 8
+==6737==    at 0x98158E0: ???
+==6737==    by 0x2E74736554544949: ???
+==6737==    by 0x7265666675426F73: ???
+==6737==    by 0x29676E6972745327: ???
+==6737==    by 0x3033322423: ???
+==6737==    by 0x1007: ???
+==6737==    by 0x14000000000: ???
+==6737==    by 0x7BEE57F: ???
+==6737==    by 0x8D8AEDF: ???
+==6737==    by 0x7BEE57F: ???
+==6737==    by 0x7BEE7AF: ???
+==6737==    by 0x7BEE57F: ???
+==6737==  Address 0x7429838 is 8 bytes after a block of size 8,192 alloc'd
+==6737==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==6737==    by 0x57B12D: debug_calloc (debug.c:224)
+==6737==    by 0x597103: eval_file (script.c:73)
+==6737==    by 0x57A8B8: main (main.c:50)
+==6737== 
+==6737== Invalid read of size 8
+==6737==    at 0xB46561F: ???
+==6737==    by 0x7C3B56F: ???
+==6737==    by 0xAF96B2C9994C8FFF: ???
+==6737==    by 0x7C3B62F: ???
+==6737==    by 0x7C3B2EF: ???
+==6737==    by 0x7C3B56F: ???
+==6737==    by 0x7429837: ???
+==6737==    by 0xFFEFF7A3F: ???
+==6737==    by 0x7C3B2EF: ???
+==6737==    by 0xB4655FF: ???
+==6737==    by 0x16: ???
+==6737==    by 0x1101: ???
+==6737==  Address 0x7429838 is 8 bytes after a block of size 8,192 alloc'd
+==6737==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==6737==    by 0x57B12D: debug_calloc (debug.c:224)
+==6737==    by 0x597103: eval_file (script.c:73)
+==6737==    by 0x57A8B8: main (main.c:50)
+==6737== 
+==6737== Invalid write of size 8
+==6737==    at 0xB4658D3: ???
+==6737==    by 0x612E726566667541: ???
+==6737==    by 0x796228646E65706F: ???
+==6737==    by 0x352424296573: ???
+==6737==  Address 0x7429838 is 8 bytes after a block of size 8,192 alloc'd
+==6737==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==6737==    by 0x57B12D: debug_calloc (debug.c:224)
+==6737==    by 0x597103: eval_file (script.c:73)
+==6737==    by 0x57A8B8: main (main.c:50)
+==6737== 
+==6737== Invalid read of size 8
+==6737==    at 0xB4658F5: ???
+==6737==    by 0x612E726566667541: ???
+==6737==    by 0x796228646E65706F: ???
+==6737==    by 0x352424296573: ???
+==6737==  Address 0x7429838 is 8 bytes after a block of size 8,192 alloc'd
+==6737==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==6737==    by 0x57B12D: debug_calloc (debug.c:224)
+==6737==    by 0x597103: eval_file (script.c:73)
+==6737==    by 0x57A8B8: main (main.c:50)
+==6737== 
+==6737== Invalid write of size 8
+==6737==    at 0xB4659A2: ???
+==6737==    by 0x612E726566667541: ???
+==6737==    by 0x796228646E65706F: ???
+==6737==    by 0x352424296573: ???
+==6737==  Address 0x7429838 is 8 bytes after a block of size 8,192 alloc'd
+==6737==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==6737==    by 0x57B12D: debug_calloc (debug.c:224)
+==6737==    by 0x597103: eval_file (script.c:73)
+==6737==    by 0x57A8B8: main (main.c:50)
+==6737== 
+==6737== Invalid read of size 8
+==6737==    at 0x57FADD: invoke_method (vm.c:492)
+==6737==    by 0x981592C: ???
+==6737==    by 0x2E74736554544949: ???
+==6737==    by 0x7265666675426F73: ???
+==6737==    by 0x29676E6972745327: ???
+==6737==    by 0x3033322423: ???
+==6737==    by 0x1007: ???
+==6737==    by 0x14000000000: ???
+==6737==    by 0x7BEE57F: ???
+==6737==    by 0x8D8AEDF: ???
+==6737==    by 0x7BEE57F: ???
+==6737==    by 0x7BEE7AF: ???
+==6737==  Address 0x7429838 is 8 bytes after a block of size 8,192 alloc'd
+==6737==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==6737==    by 0x57B12D: debug_calloc (debug.c:224)
+==6737==    by 0x597103: eval_file (script.c:73)
+==6737==    by 0x57A8B8: main (main.c:50)
+==6737== 
+==6737== Invalid write of size 8
+==6737==    at 0x57FAE0: invoke_method (vm.c:492)
+==6737==    by 0x981592C: ???
+==6737==    by 0x2E74736554544949: ???
+==6737==    by 0x7265666675426F73: ???
+==6737==    by 0x29676E6972745327: ???
+==6737==    by 0x3033322423: ???
+==6737==    by 0x1007: ???
+==6737==    by 0x14000000000: ???
+==6737==    by 0x7BEE57F: ???
+==6737==    by 0x8D8AEDF: ???
+==6737==    by 0x7BEE57F: ???
+==6737==    by 0x7BEE7AF: ???
+==6737==  Address 0x7429838 is 8 bytes after a block of size 8,192 alloc'd
+==6737==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==6737==    by 0x57B12D: debug_calloc (debug.c:224)
+==6737==    by 0x597103: eval_file (script.c:73)
+==6737==    by 0x57A8B8: main (main.c:50)
+==6737== 
+==6737== Invalid read of size 4
+==6737==    at 0x98157E7: ???
+==6737==  Address 0x7429838 is 8 bytes after a block of size 8,192 alloc'd
+==6737==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==6737==    by 0x57B12D: debug_calloc (debug.c:224)
+==6737==    by 0x597103: eval_file (script.c:73)
+==6737==    by 0x57A8B8: main (main.c:50)
+==6737== 
+==6737== Invalid read of size 8
+==6737==    at 0x57ADE1: release_entry (debug.c:128)
+==6737==    by 0x57B39A: debug_free (debug.c:293)
+==6737==    by 0x57F13A: sByteCode_free (code.c:21)
+==6737==    by 0x57D3AF: free_class (klass.c:796)
+==6737==    by 0x57D246: class_final (klass.c:1025)
+==6737==    by 0x57AA06: clover2_final (main.c:22)
+==6737==    by 0x57A903: main (main.c:56)
+==6737==  Address 0x62 is not stack'd, malloc'd or (recently) free'd
+==6737== 
+==6737== 
+==6737== Process terminating with default action of signal 11 (SIGSEGV)
+==6737==  Access not within mapped region at address 0x62
+==6737==    at 0x57ADE1: release_entry (debug.c:128)
+==6737==    by 0x57B39A: debug_free (debug.c:293)
+==6737==    by 0x57F13A: sByteCode_free (code.c:21)
+==6737==    by 0x57D3AF: free_class (klass.c:796)
+==6737==    by 0x57D246: class_final (klass.c:1025)
+==6737==    by 0x57AA06: clover2_final (main.c:22)
+==6737==    by 0x57A903: main (main.c:56)
+==6737==  If you believe this happened as a result of a stack
+==6737==  overflow in your program's main thread (unlikely but
+==6737==  possible), you can try to increase the size of the
+==6737==  main thread stack using the --main-stacksize= flag.
+==6737==  The main thread stack size used in this run was 8388608.
+==6737== 
+==6737== HEAP SUMMARY:
+==6737==     in use at exit: 32,313,854 bytes in 201,118 blocks
+==6737==   total heap usage: 1,464,122 allocs, 1,263,004 frees, 627,964,902 bytes allocated
+==6737== 
+==6737== LEAK SUMMARY:
+==6737==    definitely lost: 6,200 bytes in 2 blocks
+==6737==    indirectly lost: 317,246 bytes in 111 blocks
+==6737==      possibly lost: 6,691,220 bytes in 50,012 blocks
+==6737==    still reachable: 25,299,188 bytes in 150,993 blocks
+==6737==         suppressed: 0 bytes in 0 blocks
+==6737== Rerun with --leak-check=full to see details of leaked memory
+==6737== 
+==6737== For counts of detected and suppressed errors, rerun with: -v
+==6737== ERROR SUMMARY: 3921 errors from 27 contexts (suppressed: 0 from 0)

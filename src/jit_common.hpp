@@ -76,6 +76,7 @@ struct LVALUEStruct {
     BOOL lvar_stored;
     BOOL constant_int_value;
     BOOL constant_float_value;
+    BOOL float_value;
 };
 
 void InitializeModuleAndPassManager(char* class_name);

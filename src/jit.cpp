@@ -156,8 +156,8 @@ static LVALUE trunc_value(LVALUE* llvm_value, int size)
                 break;
 
             case 64:
-                result.value = Builder.CreateCast(Instruction::FPExt, llvm_value->value, Type::getDoubleTy(TheContext));
-                result.value = Builder.CreateCast(Instruction::BitCast, result.value, Type::getInt64Ty(TheContext));
+                result.value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, Type::getInt32Ty(TheContext));
+                result.value = Builder.CreateCast(Instruction::ZExt, result.value, Type::getInt64Ty(TheContext));
                 break;
         }
     }
@@ -405,7 +405,7 @@ static void trunc_variable(LVALUE* llvm_value, int size)
             break;
 
         case 32:
-            llvm_value->value = Builder.CreateCast(Instruction::UIToFP, llvm_value->value, Type::getDoubleTy(TheContext));
+            llvm_value->value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, Type::getDoubleTy(TheContext));
             break;
 
         case 64:
@@ -969,6 +969,7 @@ static void dec_stack_ptr(LVALUE** llvm_stack_ptr, int value)
         (*llvm_stack_ptr)->lvar_stored = FALSE;
         (*llvm_stack_ptr)->constant_int_value = FALSE;
         (*llvm_stack_ptr)->constant_float_value = FALSE;
+        (*llvm_stack_ptr)->float_value = FALSE;
 
         (*llvm_stack_ptr)--;
     }
@@ -978,6 +979,7 @@ static void dec_stack_ptr(LVALUE** llvm_stack_ptr, int value)
     (*llvm_stack_ptr)->lvar_stored = FALSE;
     (*llvm_stack_ptr)->constant_int_value = FALSE;
     (*llvm_stack_ptr)->constant_float_value = FALSE;
+    (*llvm_stack_ptr)->float_value = FALSE;
 }
 
 static void push_value_to_stack_ptr(LVALUE** llvm_stack_ptr, LVALUE* value)
@@ -1008,6 +1010,7 @@ static void store_llvm_value_to_lvar_with_offset(LVALUE* llvm_stack, int index, 
     llvm_stack[index].lvar_stored = TRUE;
     llvm_stack[index].constant_int_value = FALSE;
     llvm_stack[index].constant_float_value = FALSE;
+    llvm_stack[index].float_value = FALSE;
 }
 
 static void get_llvm_value_from_lvar_with_offset(LVALUE* result, LVALUE* llvm_stack, int index)
@@ -1020,6 +1023,7 @@ static void get_llvm_value_from_lvar_with_offset(LVALUE* result, LVALUE* llvm_st
     result->lvar_stored = llvm_value->lvar_stored;
     result->constant_int_value = FALSE;
     result->constant_float_value = FALSE;
+    result->float_value = FALSE;
 }
 
 static LVALUE get_vm_stack_ptr_value_from_index_with_aligned(std::map<std::string, Value*>& params, BasicBlock* current_block, int index, int align)
@@ -1063,6 +1067,7 @@ static LVALUE get_vm_stack_ptr_value_from_index_with_aligned(std::map<std::strin
     result.lvar_stored = FALSE;
     result.constant_int_value = FALSE;
     result.constant_float_value = FALSE;
+    result.float_value= FALSE;
 
     return result;
 }
@@ -1154,6 +1159,7 @@ static LVALUE get_stack_value_from_index_with_aligned(std::map<std::string, Valu
     result.lvar_stored = FALSE;
     result.constant_int_value = FALSE;
     result.constant_float_value = FALSE;
+    result.float_value= FALSE;
 
     return result;
 }
@@ -1261,6 +1267,7 @@ static LVALUE get_lvar_value_from_offset(std::map<std::string, Value*>& params, 
     result.lvar_stored = TRUE;
     result.constant_int_value = FALSE;
     result.constant_float_value = FALSE;
+    result.float_value = FALSE;
 
     return result;
 }
@@ -2811,7 +2818,7 @@ void show_inst_in_jit(int opecode)
 
 void show_number_in_jit(int number)
 {
-    printf("%d(%p)\n", number, number);
+    printf("%d(%p) %f\n", number, number);
 }
 
 void call_show_number_in_jit(int number)
@@ -4623,6 +4630,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
         llvm_stack[i].lvar_stored = FALSE;
         llvm_stack[i].constant_int_value = FALSE;
         llvm_stack[i].constant_float_value = FALSE;
+        llvm_stack[i].float_value = FALSE;
     }
 
     /// parametor from VM stack ptr ///
@@ -4641,6 +4649,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
         llvm_stack[i].lvar_stored = FALSE;
         llvm_stack[i].constant_int_value = FALSE;
         llvm_stack[i].constant_float_value = FALSE;
+        llvm_stack[i].float_value = FALSE;
 
         store_llvm_value_to_lvar_with_offset(llvm_stack, i, &llvm_value);
     }
@@ -5033,6 +5042,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -5098,6 +5108,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -5114,6 +5125,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                     llvm_value.lvar_stored = FALSE;
                     llvm_value.constant_int_value = TRUE;
                     llvm_value.constant_float_value = FALSE;
+                    llvm_value.float_value = FALSE;
 
                     push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -5130,6 +5142,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                     llvm_value.lvar_stored = FALSE;
                     llvm_value.constant_int_value = TRUE;
                     llvm_value.constant_float_value = FALSE;
+                    llvm_value.float_value = FALSE;
 
                     push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -5146,6 +5159,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                     llvm_value.lvar_stored = FALSE;
                     llvm_value.constant_int_value = TRUE;
                     llvm_value.constant_float_value = FALSE;
+                    llvm_value.float_value = FALSE;
 
                     push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -5162,6 +5176,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                     llvm_value.lvar_stored = FALSE;
                     llvm_value.constant_int_value = TRUE;
                     llvm_value.constant_float_value = FALSE;
+                    llvm_value.float_value = FALSE;
 
                     push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -5177,6 +5192,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = TRUE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -5192,6 +5208,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = TRUE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -5215,6 +5232,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = TRUE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -5238,6 +5256,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = TRUE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -5252,6 +5271,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = TRUE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -5275,6 +5295,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, PointerType::get(IntegerType::get(TheContext, 64), 0));
 
@@ -5292,6 +5313,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = TRUE;
+                llvm_value.float_value = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -5315,6 +5337,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = TRUE;
+                llvm_value.float_value = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -5336,6 +5359,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5359,6 +5383,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5380,6 +5405,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5403,6 +5429,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5424,6 +5451,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, PointerType::get(IntegerType::get(TheContext, 8), 0));
 
@@ -5445,6 +5473,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 LVALUE llvm_value2;
                 llvm_value2 = trunc_value(&llvm_value, 64);
@@ -5473,6 +5502,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5495,6 +5525,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5517,6 +5548,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5555,6 +5587,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5593,6 +5626,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5631,6 +5665,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5670,6 +5705,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5692,6 +5728,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5714,6 +5751,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5736,6 +5774,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5758,6 +5797,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5784,6 +5824,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5810,6 +5851,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5836,6 +5878,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5856,6 +5899,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5876,6 +5920,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5897,6 +5942,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
 
+                llvm_value.float_value = FALSE;
                 dec_stack_ptr(&llvm_stack_ptr, 1);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -5916,6 +5962,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5936,6 +5983,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = TRUE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5956,6 +6004,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = TRUE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -5976,6 +6025,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = TRUE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -6001,6 +6051,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = TRUE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -6030,6 +6081,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -6058,6 +6110,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -6080,6 +6133,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -6104,6 +6158,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -6126,6 +6181,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -6150,6 +6206,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -6172,6 +6229,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -6196,6 +6254,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -6218,6 +6277,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -6242,6 +6302,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -6262,6 +6323,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -6282,6 +6344,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -6302,6 +6365,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -6322,6 +6386,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -6342,6 +6407,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -6362,6 +6428,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -6387,6 +6454,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -6413,6 +6481,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -6437,6 +6506,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -6498,6 +6568,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -6517,6 +6588,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -6536,6 +6608,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 2);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -6556,6 +6629,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -6990,6 +7064,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                     llvm_value.lvar_stored = FALSE;
                     llvm_value.constant_int_value = FALSE;
                     llvm_value.constant_float_value = FALSE;
+                    llvm_value.float_value = FALSE;
 
                     dec_stack_ptr(&llvm_stack_ptr, 1);
                     push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -7021,6 +7096,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                     llvm_value.lvar_stored = FALSE;
                     llvm_value.constant_int_value = FALSE;
                     llvm_value.constant_float_value = FALSE;
+                    llvm_value.float_value = FALSE;
 
                     push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
 
@@ -7092,6 +7168,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7151,6 +7228,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7260,6 +7338,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 trunc_variable(&llvm_value, size);
 
@@ -7319,6 +7398,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -7491,6 +7571,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
                 
                 llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt32Ty(TheContext));
 
@@ -7515,6 +7596,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
                 
                 llvm_value.value = Builder.CreateCast(Instruction::BitCast, llvm_value.value, Type::getFloatTy(TheContext));
                 //llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getFloatTy(TheContext));
@@ -7541,6 +7623,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt8Ty(TheContext));
 
@@ -7566,6 +7649,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt16Ty(TheContext));
 
@@ -7591,6 +7675,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt64Ty(TheContext));
 
@@ -7615,6 +7700,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, PointerType::get(IntegerType::get(TheContext, 8), 0));
 
@@ -7639,6 +7725,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 llvm_value.value = Builder.CreateCast(Instruction::BitCast, llvm_value.value, Type::getDoubleTy(TheContext));
 
@@ -7702,6 +7789,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 trunc_variable(&llvm_value, size);
 
@@ -7826,6 +7914,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7843,6 +7932,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7866,6 +7956,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7895,6 +7986,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7912,6 +8004,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7931,6 +8024,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7949,6 +8043,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7982,6 +8077,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -7999,6 +8095,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8016,6 +8113,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8033,6 +8131,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8058,6 +8157,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8075,6 +8175,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8092,6 +8193,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8108,6 +8210,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8124,6 +8227,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8141,6 +8245,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8162,6 +8267,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8180,6 +8286,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8206,6 +8313,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8229,6 +8337,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8246,6 +8355,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8263,6 +8373,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8294,6 +8405,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8314,6 +8426,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8330,6 +8443,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8349,6 +8463,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8369,6 +8484,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8385,6 +8501,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8415,6 +8532,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
 
@@ -8451,6 +8569,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
 
@@ -8489,6 +8608,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
 
@@ -8525,6 +8645,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
 
@@ -8558,6 +8679,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
 
@@ -8591,6 +8713,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
 
@@ -8627,6 +8750,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
 
@@ -8663,6 +8787,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
 
@@ -8699,6 +8824,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
 
@@ -8732,6 +8858,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
 
@@ -8781,6 +8908,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8831,6 +8959,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8881,6 +9010,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8932,6 +9062,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -8984,6 +9115,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -9034,6 +9166,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -9084,6 +9217,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -9134,6 +9268,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -9184,6 +9319,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
 
+                llvm_value.float_value = FALSE;
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -9232,6 +9368,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -9280,6 +9417,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -9330,6 +9468,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -9380,6 +9519,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -9429,6 +9569,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 cast_llvm_value_from_inst(&llvm_value, inst);
 
@@ -9467,6 +9608,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 cast_llvm_value_from_inst(&llvm_value, inst);
 
@@ -9505,6 +9647,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -9543,6 +9686,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -9592,6 +9736,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -9641,6 +9786,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -9679,6 +9825,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -9717,6 +9864,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -9753,6 +9901,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, PointerType::get(IntegerType::get(TheContext, 64), 0));
 
@@ -9791,6 +9940,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -9820,6 +9970,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -9856,6 +10007,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -9885,6 +10037,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -9944,6 +10097,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -9973,6 +10127,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -10002,6 +10157,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -10028,6 +10184,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -10054,6 +10211,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -10080,6 +10238,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -10106,6 +10265,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -10132,6 +10292,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -10158,6 +10319,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -10185,6 +10347,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -10211,6 +10374,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -10237,6 +10401,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -10263,6 +10428,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
 
@@ -10305,6 +10471,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
 
@@ -10341,6 +10508,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
 
@@ -10415,6 +10583,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 /// dec llvm stack pointer ///
                 dec_stack_ptr(&llvm_stack_ptr, num_elements);
@@ -10496,6 +10665,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 /// dec llvm stack pointer ///
                 dec_stack_ptr(&llvm_stack_ptr, num_elements);
@@ -10574,6 +10744,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 /// dec llvm stack pointer ///
                 dec_stack_ptr(&llvm_stack_ptr, num_elements);
@@ -10652,6 +10823,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 /// dec llvm stack pointer ///
                 dec_stack_ptr(&llvm_stack_ptr, num_elements);
@@ -10730,6 +10902,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 /// dec llvm stack pointer ///
                 dec_stack_ptr(&llvm_stack_ptr, num_elements);
@@ -10808,6 +10981,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 /// dec llvm stack pointer ///
                 dec_stack_ptr(&llvm_stack_ptr, num_elements);
@@ -10886,6 +11060,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 /// dec llvm stack pointer ///
                 dec_stack_ptr(&llvm_stack_ptr, num_elements);
@@ -10952,6 +11127,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 /// dec llvm stack pointer ///
                 dec_stack_ptr(&llvm_stack_ptr, num_elements);
@@ -11037,6 +11213,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 /// dec llvm stack pointer ///
                 dec_stack_ptr(&llvm_stack_ptr, num_elements*2);
@@ -11128,6 +11305,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 /// vm stack_ptr to llvm stack ///
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -11205,6 +11383,7 @@ static BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* 
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
 
@@ -11309,7 +11488,7 @@ static BOOL compile_jit_methods(sCLClass* klass)
         output_stream.flush();
 
 /*
-if(strcmp(CLASS_NAME(klass), "Clover") == 0) {
+if(strcmp(CLASS_NAME(klass), "JITTest") == 0) {
 TheModule->dump();
 }
 */

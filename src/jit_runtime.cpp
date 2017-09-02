@@ -1574,12 +1574,7 @@ BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClas
 
     klass->mMethodCallCount++;
 
-if(strcmp(CLASS_NAME(klass), "JITTest") == 0) {
 klass->mMethodCallCount = 1000;
-}
-else {
-klass->mMethodCallCount = 0;
-}
 
     if(klass->mMethodCallCount > 100) {
         if(!load_bc_file(klass)) {
@@ -1595,7 +1590,7 @@ klass->mMethodCallCount = 0;
         CLVALUE* stack_ptr = stack + var_num;
         CLVALUE* lvar = stack;
 
-        long stack_id = append_stack_to_stack_list(stack, &stack_ptr);
+        sCLStack* stack_id = append_stack_to_stack_list(stack, &stack_ptr);
 
         info->current_stack = stack;        // for invoking_block in native method
         info->current_var_num = var_num;
@@ -1603,12 +1598,12 @@ klass->mMethodCallCount = 0;
 
         if(!llvm_call_method_from_module((Module*)klass->mModule, (RTDyldMemoryManager*)klass->RTDyldMM, (ExecutionEngine*)klass->EE, method_path2, stack_ptr, lvar, info, stack, &stack_ptr, var_num, constant, code)) 
         {
-            remove_stack_to_stack_list(stack, &stack_ptr);
+            remove_stack_to_stack_list(stack_id);
             gNumJITObjects = num_jit_objects;
             return FALSE;
         }
 
-        remove_stack_to_stack_list(stack, &stack_ptr);
+        remove_stack_to_stack_list(stack_id);
     }
     else {
         BOOL result = vm(code, constant, stack, var_num, klass, info);

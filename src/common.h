@@ -59,7 +59,8 @@
 #define HASH_VALUE_ELEMENT_MAX ARRAY_VALUE_ELEMENT_MAX
 #define TYPEDEF_MAX 64
 #define CLASS_NUM_MAX 512
-#define CLOVER_STACK_SIZE 512
+#define CLOVER_STACK_SIZE 1024
+//#define CLOVER_STACK_SIZE 512
 #define METHOD_CHAIN_MAX 128
 
 /// CLVALUE ///
@@ -129,6 +130,27 @@ void append_buffer_to_constant_pool_and_code(sConst* constant, sByteCode* code, 
 int append_wstr_to_constant_pool(sConst* constant, char* str, BOOL no_output);
 void append_str_to_constant_pool_and_code(sConst* constant, sByteCode* code, char* str, BOOL no_output);
 
+/// stack.c ///
+struct sCLStackStruct {
+    CLVALUE* mStack;
+    CLVALUE** mStackPtr;
+
+    struct sCLStackStruct* mNextStack;
+};
+
+typedef struct sCLStackStruct sCLStack;
+
+void stack_init();
+void stack_final();
+
+sCLStack* append_stack_to_stack_list(CLVALUE* stack_mem, CLVALUE** stack_ptr);
+BOOL remove_stack_to_stack_list(sCLStack* stack);
+BOOL check_variables_existance_on_stack(sCLStack* stack_id);
+
+extern sCLStack* gHeadStack;
+extern CLVALUE* gGlobalStack;
+extern CLVALUE* gGlobalStackPtr;
+
 /// klass.c ///
 #define CLASS_FLAGS_PRIMITIVE 0x01
 #define CLASS_FLAGS_INTERFACE 0x02
@@ -183,7 +205,7 @@ struct sVMInfoStruct {
     char** try_pc;
     sByteCode* try_code;
 
-    long stack_id;
+    sCLStack* stack_id;
     char exception_message[EXCEPTION_MESSAGE_MAX];
 };
 
@@ -1660,28 +1682,6 @@ BOOL is_void_type(sCLType* cl_type, sCLClass* klass);
 sCLClass* get_class_from_cl_type(sCLType* cl_type, sCLClass* klass);
 BOOL is_this_class_with_class_name(sCLClass* klass, char* class_name);
 
-/// stack.c ///
-struct sCLStackStruct {
-    CLVALUE* mStack;
-    CLVALUE** mStackPtr;
-
-    int mStackID;
-
-    struct sCLStackStruct* mNextStack;
-};
-
-typedef struct sCLStackStruct sCLStack;
-
-void stack_init();
-void stack_final();
-
-long append_stack_to_stack_list(CLVALUE* stack, CLVALUE** stack_ptr);
-BOOL remove_stack_to_stack_list(CLVALUE* stack, CLVALUE** stack_ptr);
-BOOL check_variables_existance_on_stack(long stack_id);
-
-extern sCLStack* gHeadStack;
-extern CLVALUE* gGlobalStack;
-extern CLVALUE* gGlobalStackPtr;
 
 /// heap.c ///
 struct sCLHeapMemStruct {
@@ -1766,7 +1766,7 @@ struct sBlockObjectStruct
     CLVALUE* mParentStack;
     int mParentVarNum;
     int mBlockVarNum;
-    int mStackID;
+    sCLStack* mStackID;
     BOOL mLambda;
 };
 
@@ -1774,7 +1774,7 @@ typedef struct sBlockObjectStruct sBlockObject;
 
 #define CLBLOCK(obj) (sBlockObject*)(get_object_pointer((obj)))
 
-CLObject create_block_object(sByteCode* codes, sConst* constant, CLVALUE* parent_stack, int parent_var_num, int block_var_num, long stack_id, BOOL lambda);
+CLObject create_block_object(sByteCode* codes, sConst* constant, CLVALUE* parent_stack, int parent_var_num, int block_var_num, sCLStack* stack_id, BOOL lambda);
 
 /// regex.c ///
 struct sRegexObjectStruct
