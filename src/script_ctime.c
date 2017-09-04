@@ -10,7 +10,7 @@ BOOL read_source(char* fname, sBuf* source)
     }
 
     while(1) {
-        char buf[BUFSIZ];
+        char buf[BUFSIZ+1];
         int size = read(f, buf, BUFSIZ);
 
         if(size == 0) {

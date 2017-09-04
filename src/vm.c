@@ -796,13 +796,13 @@ void boxing_primitive_value_to_object(CLVALUE object, CLVALUE* result, sCLClass*
             result->mObjectValue = obj;
         }
         else if(is_this_class_with_class_name(klass, "long")) {
-            long value = object.mLongValue;
-            CLObject obj = create_long((long)value);
+            clint64 value = object.mLongValue;
+            CLObject obj = create_long((clint64)value);
             result->mObjectValue = obj;
         }
         else if(is_this_class_with_class_name(klass, "ulong")) {
-            unsigned long value = object.mULongValue;
-            CLObject obj = create_ulong((unsigned long)value);
+            unsigned clint64 value = object.mULongValue;
+            CLObject obj = create_ulong((unsigned clint64)value);
             result->mObjectValue = obj;
         }
         else if(is_this_class_with_class_name(klass, "float")) {
@@ -1214,7 +1214,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     int value2 = *(int*)pc;
                     pc += sizeof(int);
 
-                    long lvalue;
+                    clint64 lvalue;
 
                     memcpy(&lvalue, &value1, sizeof(int));
                     memcpy((char*)&lvalue + sizeof(int), &value2, sizeof(int));
@@ -1236,7 +1236,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     int value2 = *(int*)pc;
                     pc += sizeof(int);
 
-                    unsigned long lvalue;
+                    unsigned clint64 lvalue;
 
                     memcpy(&lvalue, &value1, sizeof(int));
                     memcpy((char*)&lvalue + sizeof(int), &value2, sizeof(int));
@@ -1278,6 +1278,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     stack_ptr++;
 
                     vm_mutex_off();
+
                 }
                 break;
 
@@ -2425,10 +2426,10 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    long left = (stack_ptr-2)->mLongValue;
-                    long right = (stack_ptr-1)->mLongValue;
+                    clint64 left = (stack_ptr-2)->mLongValue;
+                    clint64 right = (stack_ptr-1)->mLongValue;
 
-                    long result = left + right;
+                    clint64 result = left + right;
 
                     stack_ptr-=2;
                     stack_ptr->mLongValue = result;
@@ -2442,10 +2443,10 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    long left = (stack_ptr-2)->mLongValue;
-                    long right = (stack_ptr-1)->mLongValue;
+                    clint64 left = (stack_ptr-2)->mLongValue;
+                    clint64 right = (stack_ptr-1)->mLongValue;
 
-                    long result = left - right;
+                    clint64 result = left - right;
 
                     stack_ptr-=2;
                     stack_ptr->mLongValue = result;
@@ -2459,10 +2460,10 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    long left = (stack_ptr-2)->mLongValue;
-                    long right = (stack_ptr-1)->mLongValue;
+                    clint64 left = (stack_ptr-2)->mLongValue;
+                    clint64 right = (stack_ptr-1)->mLongValue;
 
-                    long result = left * right;
+                    clint64 result = left * right;
 
                     stack_ptr-=2;
                     stack_ptr->mLongValue = result;
@@ -2476,8 +2477,8 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    long left = (stack_ptr-2)->mLongValue;
-                    long right = (stack_ptr-1)->mLongValue;
+                    clint64 left = (stack_ptr-2)->mLongValue;
+                    clint64 right = (stack_ptr-1)->mLongValue;
 
                     if(right == 0) {
                         vm_mutex_off();
@@ -2486,7 +2487,7 @@ if(stack_ptr != lvar + var_num + 1) {
                         return FALSE;
                     }
 
-                    long result = left / right;
+                    clint64 result = left / right;
 
                     stack_ptr-=2;
                     stack_ptr->mLongValue = result;
@@ -2500,8 +2501,8 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    long left = (stack_ptr-2)->mLongValue;
-                    long right = (stack_ptr-1)->mLongValue;
+                    clint64 left = (stack_ptr-2)->mLongValue;
+                    clint64 right = (stack_ptr-1)->mLongValue;
 
                     if(right == 0) {
                         vm_mutex_off();
@@ -2510,7 +2511,7 @@ if(stack_ptr != lvar + var_num + 1) {
                         return FALSE;
                     }
 
-                    long result = left % right;
+                    clint64 result = left % right;
 
                     stack_ptr-=2;
                     stack_ptr->mLongValue = result;
@@ -2524,10 +2525,10 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    long left = (stack_ptr-2)->mLongValue;
-                    long right = (stack_ptr-1)->mLongValue;
+                    clint64 left = (stack_ptr-2)->mLongValue;
+                    clint64 right = (stack_ptr-1)->mLongValue;
 
-                    long result = left << right;
+                    clint64 result = left << right;
 
                     stack_ptr-=2;
                     stack_ptr->mLongValue = result;
@@ -2541,10 +2542,10 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    long left = (stack_ptr-2)->mLongValue;
-                    long right = (stack_ptr-1)->mLongValue;
+                    clint64 left = (stack_ptr-2)->mLongValue;
+                    clint64 right = (stack_ptr-1)->mLongValue;
 
-                    long result = left >> right;
+                    clint64 result = left >> right;
 
                     stack_ptr-=2;
                     stack_ptr->mLongValue = result;
@@ -2558,10 +2559,10 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    long left = (stack_ptr-2)->mLongValue;
-                    long right = (stack_ptr-1)->mLongValue;
+                    clint64 left = (stack_ptr-2)->mLongValue;
+                    clint64 right = (stack_ptr-1)->mLongValue;
 
-                    long result = left & right;
+                    clint64 result = left & right;
 
                     stack_ptr-=2;
                     stack_ptr->mLongValue = result;
@@ -2575,10 +2576,10 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    long left = (stack_ptr-2)->mLongValue;
-                    long right = (stack_ptr-1)->mLongValue;
+                    clint64 left = (stack_ptr-2)->mLongValue;
+                    clint64 right = (stack_ptr-1)->mLongValue;
 
-                    long result = left ^ right;
+                    clint64 result = left ^ right;
 
                     stack_ptr-=2;
                     stack_ptr->mLongValue = result;
@@ -2592,10 +2593,10 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    long left = (stack_ptr-2)->mLongValue;
-                    long right = (stack_ptr-1)->mLongValue;
+                    clint64 left = (stack_ptr-2)->mLongValue;
+                    clint64 right = (stack_ptr-1)->mLongValue;
 
-                    long result = left | right;
+                    clint64 result = left | right;
 
                     stack_ptr-=2;
                     stack_ptr->mLongValue = result;
@@ -2609,10 +2610,10 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    unsigned long left = (stack_ptr-2)->mULongValue;
-                    unsigned long right = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 left = (stack_ptr-2)->mULongValue;
+                    unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
-                    unsigned long result = left + right;
+                    unsigned clint64 result = left + right;
 
                     stack_ptr-=2;
                     stack_ptr->mULongValue = result;
@@ -2626,10 +2627,10 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    unsigned long left = (stack_ptr-2)->mULongValue;
-                    unsigned long right = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 left = (stack_ptr-2)->mULongValue;
+                    unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
-                    unsigned long result = left - right;
+                    unsigned clint64 result = left - right;
 
                     stack_ptr-=2;
                     stack_ptr->mULongValue = result;
@@ -2643,10 +2644,10 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    unsigned long left = (stack_ptr-2)->mULongValue;
-                    unsigned long right = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 left = (stack_ptr-2)->mULongValue;
+                    unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
-                    unsigned long result = left * right;
+                    unsigned clint64 result = left * right;
 
                     stack_ptr-=2;
                     stack_ptr->mULongValue = result;
@@ -2660,8 +2661,8 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    unsigned long left = (stack_ptr-2)->mULongValue;
-                    unsigned long right = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 left = (stack_ptr-2)->mULongValue;
+                    unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
                     if(right == 0) {
                         vm_mutex_off();
@@ -2670,7 +2671,7 @@ if(stack_ptr != lvar + var_num + 1) {
                         return FALSE;
                     }
 
-                    unsigned long result = left / right;
+                    unsigned clint64 result = left / right;
 
                     stack_ptr-=2;
                     stack_ptr->mULongValue = result;
@@ -2684,8 +2685,8 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    unsigned long left = (stack_ptr-2)->mULongValue;
-                    unsigned long right = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 left = (stack_ptr-2)->mULongValue;
+                    unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
                     if(right == 0) {
                         vm_mutex_off();
@@ -2694,7 +2695,7 @@ if(stack_ptr != lvar + var_num + 1) {
                         return FALSE;
                     }
 
-                    unsigned long result = left % right;
+                    unsigned clint64 result = left % right;
 
                     stack_ptr-=2;
                     stack_ptr->mULongValue = result;
@@ -2708,10 +2709,10 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    unsigned long left = (stack_ptr-2)->mULongValue;
-                    unsigned long right = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 left = (stack_ptr-2)->mULongValue;
+                    unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
-                    unsigned long result = left << right;
+                    unsigned clint64 result = left << right;
 
                     stack_ptr-=2;
                     stack_ptr->mULongValue = result;
@@ -2725,10 +2726,10 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    unsigned long left = (stack_ptr-2)->mULongValue;
-                    unsigned long right = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 left = (stack_ptr-2)->mULongValue;
+                    unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
-                    unsigned long result = left >> right;
+                    unsigned clint64 result = left >> right;
 
                     stack_ptr-=2;
                     stack_ptr->mULongValue = result;
@@ -2742,10 +2743,10 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    unsigned long left = (stack_ptr-2)->mULongValue;
-                    unsigned long right = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 left = (stack_ptr-2)->mULongValue;
+                    unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
-                    unsigned long result = left | right;
+                    unsigned clint64 result = left | right;
 
                     stack_ptr-=2;
                     stack_ptr->mULongValue = result;
@@ -2759,10 +2760,10 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    unsigned long left = (stack_ptr-2)->mULongValue;
-                    unsigned long right = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 left = (stack_ptr-2)->mULongValue;
+                    unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
-                    unsigned long result = left ^ right;
+                    unsigned clint64 result = left ^ right;
 
                     stack_ptr-=2;
                     stack_ptr->mULongValue = result;
@@ -2776,10 +2777,10 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    unsigned long left = (stack_ptr-2)->mULongValue;
-                    unsigned long right = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 left = (stack_ptr-2)->mULongValue;
+                    unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
-                    unsigned long result = left | right;
+                    unsigned clint64 result = left | right;
 
                     stack_ptr-=2;
                     stack_ptr->mULongValue = result;
@@ -2877,7 +2878,7 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    long value = (stack_ptr-1)->mLongValue;
+                    clint64 value = (stack_ptr-1)->mLongValue;
 
                     value = ~value;
 
@@ -2891,7 +2892,7 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
                     value = ~value;
 
@@ -3056,7 +3057,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     vm_mutex_on();
 
                     char* left = (stack_ptr-2)->mPointerValue;
-                    unsigned long right = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
                     char* result = left + right;
 
@@ -3073,7 +3074,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     vm_mutex_on();
 
                     char* left = (stack_ptr-2)->mPointerValue;
-                    unsigned long right = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
                     char* result = left - right;
 
@@ -3092,7 +3093,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     char* left = (stack_ptr-2)->mPointerValue;
                     char* right = (stack_ptr-1)->mPointerValue;
 
-                    unsigned long result = left - right;
+                    unsigned clint64 result = left - right;
 
                     stack_ptr-=2;
                     stack_ptr->mULongValue = result;
@@ -3752,8 +3753,8 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    long left = (stack_ptr-2)->mLongValue;
-                    long right = (stack_ptr-1)->mLongValue;
+                    clint64 left = (stack_ptr-2)->mLongValue;
+                    clint64 right = (stack_ptr-1)->mLongValue;
 
                     BOOL result = left == right;
 
@@ -3769,8 +3770,8 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    long left = (stack_ptr-2)->mLongValue;
-                    long right = (stack_ptr-1)->mLongValue;
+                    clint64 left = (stack_ptr-2)->mLongValue;
+                    clint64 right = (stack_ptr-1)->mLongValue;
 
                     BOOL result = left != right;
 
@@ -3786,8 +3787,8 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    long left = (stack_ptr-2)->mLongValue;
-                    long right = (stack_ptr-1)->mLongValue;
+                    clint64 left = (stack_ptr-2)->mLongValue;
+                    clint64 right = (stack_ptr-1)->mLongValue;
 
                     BOOL result = left > right;
 
@@ -3803,8 +3804,8 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    long left = (stack_ptr-2)->mLongValue;
-                    long right = (stack_ptr-1)->mLongValue;
+                    clint64 left = (stack_ptr-2)->mLongValue;
+                    clint64 right = (stack_ptr-1)->mLongValue;
 
                     BOOL result = left < right;
 
@@ -3820,8 +3821,8 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    long left = (stack_ptr-2)->mLongValue;
-                    long right = (stack_ptr-1)->mLongValue;
+                    clint64 left = (stack_ptr-2)->mLongValue;
+                    clint64 right = (stack_ptr-1)->mLongValue;
 
                     BOOL result = left >= right;
 
@@ -3837,8 +3838,8 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    long left = (stack_ptr-2)->mLongValue;
-                    long right = (stack_ptr-1)->mLongValue;
+                    clint64 left = (stack_ptr-2)->mLongValue;
+                    clint64 right = (stack_ptr-1)->mLongValue;
 
                     BOOL result = left <= right;
 
@@ -3854,8 +3855,8 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    unsigned long left = (stack_ptr-2)->mULongValue;
-                    unsigned long right = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 left = (stack_ptr-2)->mULongValue;
+                    unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
                     BOOL result = left == right;
 
@@ -3871,8 +3872,8 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    unsigned long left = (stack_ptr-2)->mULongValue;
-                    unsigned long right = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 left = (stack_ptr-2)->mULongValue;
+                    unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
                     BOOL result = left != right;
 
@@ -3888,8 +3889,8 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    unsigned long left = (stack_ptr-2)->mULongValue;
-                    unsigned long right = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 left = (stack_ptr-2)->mULongValue;
+                    unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
                     BOOL result = left > right;
 
@@ -3905,8 +3906,8 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    unsigned long left = (stack_ptr-2)->mULongValue;
-                    unsigned long right = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 left = (stack_ptr-2)->mULongValue;
+                    unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
                     BOOL result = left < right;
 
@@ -3922,8 +3923,8 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    unsigned long left = (stack_ptr-2)->mULongValue;
-                    unsigned long right = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 left = (stack_ptr-2)->mULongValue;
+                    unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
                     BOOL result = left >= right;
 
@@ -3939,8 +3940,8 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    unsigned long left = (stack_ptr-2)->mULongValue;
-                    unsigned long right = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 left = (stack_ptr-2)->mULongValue;
+                    unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
                     BOOL result = left <= right;
 
@@ -5269,7 +5270,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     CLVALUE address = *(stack_ptr-2);
                     CLVALUE value = *(stack_ptr-1);
 
-                    *(long*)address.mPointerValue = value.mLongValue;
+                    *(clint64*)address.mPointerValue = value.mLongValue;
 
                     stack_ptr-=2;
 
@@ -5287,7 +5288,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     CLVALUE address = *(stack_ptr-2);
                     CLVALUE value = *(stack_ptr-1);
 
-                    *(unsigned long*)address.mPointerValue = value.mULongValue;
+                    *(unsigned clint64*)address.mPointerValue = value.mULongValue;
 
                     stack_ptr-=2;
 
@@ -5509,7 +5510,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     CLVALUE address = *(stack_ptr-1);
                     stack_ptr--;
 
-                    long value = *(long*)address.mPointerValue;
+                    clint64 value = *(clint64*)address.mPointerValue;
 
                     stack_ptr->mLongValue = value;
                     stack_ptr++;
@@ -5525,7 +5526,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     CLVALUE address = *(stack_ptr-1);
                     stack_ptr--;
 
-                    unsigned long value = *(unsigned long*)address.mPointerValue;
+                    unsigned clint64 value = *(unsigned clint64*)address.mPointerValue;
 
                     stack_ptr->mULongValue = value;
                     stack_ptr++;
@@ -6657,7 +6658,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (long)(stack_ptr-1)->mByteValue;
+                    clint64 value = (clint64)(stack_ptr-1)->mByteValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6669,7 +6670,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (long)(stack_ptr-1)->mUByteValue;
+                    clint64 value = (clint64)(stack_ptr-1)->mUByteValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6681,7 +6682,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (long)(stack_ptr-1)->mShortValue;
+                    clint64 value = (clint64)(stack_ptr-1)->mShortValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6693,7 +6694,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (long)(stack_ptr-1)->mUShortValue;
+                    clint64 value = (clint64)(stack_ptr-1)->mUShortValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6705,7 +6706,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (long)(stack_ptr-1)->mIntValue;
+                    clint64 value = (clint64)(stack_ptr-1)->mIntValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6717,7 +6718,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (long)(stack_ptr-1)->mUIntValue;
+                    clint64 value = (clint64)(stack_ptr-1)->mUIntValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6729,7 +6730,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (long)(stack_ptr-1)->mULongValue;
+                    clint64 value = (clint64)(stack_ptr-1)->mULongValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6741,7 +6742,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (long)(stack_ptr-1)->mFloatValue;
+                    clint64 value = (clint64)(stack_ptr-1)->mFloatValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6753,7 +6754,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (long)(stack_ptr-1)->mDoubleValue;
+                    clint64 value = (clint64)(stack_ptr-1)->mDoubleValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6765,7 +6766,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (long)(stack_ptr-1)->mPointerValue;
+                    clint64 value = (clint64)(stack_ptr-1)->mPointerValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6777,7 +6778,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (long)(stack_ptr-1)->mCharValue;
+                    clint64 value = (clint64)(stack_ptr-1)->mCharValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6793,7 +6794,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    long value = (long)obj_data->mFields[0].mByteValue;
+                    clint64 value = (clint64)obj_data->mFields[0].mByteValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6809,7 +6810,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    long value = (long)obj_data->mFields[0].mUByteValue;
+                    clint64 value = (clint64)obj_data->mFields[0].mUByteValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6825,7 +6826,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    long value = (long)obj_data->mFields[0].mShortValue;
+                    clint64 value = (clint64)obj_data->mFields[0].mShortValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6841,7 +6842,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    long value = (long)obj_data->mFields[0].mUShortValue;
+                    clint64 value = (clint64)obj_data->mFields[0].mUShortValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6857,7 +6858,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    long value = (long)obj_data->mFields[0].mIntValue;
+                    clint64 value = (clint64)obj_data->mFields[0].mIntValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6873,7 +6874,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    long value = (long)obj_data->mFields[0].mUIntValue;
+                    clint64 value = (clint64)obj_data->mFields[0].mUIntValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6889,7 +6890,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    long value = (long)obj_data->mFields[0].mLongValue;
+                    clint64 value = (clint64)obj_data->mFields[0].mLongValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6905,7 +6906,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    long value = (long)obj_data->mFields[0].mULongValue;
+                    clint64 value = (clint64)obj_data->mFields[0].mULongValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6921,7 +6922,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    long value = (long)obj_data->mFields[0].mFloatValue;
+                    clint64 value = (clint64)obj_data->mFields[0].mFloatValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6937,7 +6938,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    long value = (long)obj_data->mFields[0].mDoubleValue;
+                    clint64 value = (clint64)obj_data->mFields[0].mDoubleValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6953,7 +6954,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    long value = (long)obj_data->mFields[0].mPointerValue;
+                    clint64 value = (clint64)obj_data->mFields[0].mPointerValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6969,7 +6970,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    long value = (long)obj_data->mFields[0].mCharValue;
+                    clint64 value = (clint64)obj_data->mFields[0].mCharValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6985,7 +6986,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    long value = (long)obj_data->mFields[0].mBoolValue;
+                    clint64 value = (clint64)obj_data->mFields[0].mBoolValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -8020,7 +8021,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (unsigned long)(stack_ptr-1)->mByteValue;
+                    unsigned clint64 value = (unsigned clint64)(stack_ptr-1)->mByteValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8032,7 +8033,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (unsigned long)(stack_ptr-1)->mUByteValue;
+                    unsigned clint64 value = (unsigned clint64)(stack_ptr-1)->mUByteValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8044,7 +8045,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (unsigned long)(stack_ptr-1)->mShortValue;
+                    unsigned clint64 value = (unsigned clint64)(stack_ptr-1)->mShortValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8056,7 +8057,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (unsigned long)(stack_ptr-1)->mUShortValue;
+                    unsigned clint64 value = (unsigned clint64)(stack_ptr-1)->mUShortValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8068,7 +8069,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (unsigned long)(stack_ptr-1)->mIntValue;
+                    unsigned clint64 value = (unsigned clint64)(stack_ptr-1)->mIntValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8080,7 +8081,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (unsigned long)(stack_ptr-1)->mUIntValue;
+                    unsigned clint64 value = (unsigned clint64)(stack_ptr-1)->mUIntValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8092,7 +8093,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (unsigned long)(stack_ptr-1)->mLongValue;
+                    unsigned clint64 value = (unsigned clint64)(stack_ptr-1)->mLongValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8104,7 +8105,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (unsigned long)(stack_ptr-1)->mFloatValue;
+                    unsigned clint64 value = (unsigned clint64)(stack_ptr-1)->mFloatValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8116,7 +8117,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (unsigned long)(stack_ptr-1)->mDoubleValue;
+                    unsigned clint64 value = (unsigned clint64)(stack_ptr-1)->mDoubleValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8128,7 +8129,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (unsigned long)(stack_ptr-1)->mPointerValue;
+                    unsigned clint64 value = (unsigned clint64)(stack_ptr-1)->mPointerValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8140,7 +8141,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (unsigned long)(stack_ptr-1)->mCharValue;
+                    unsigned clint64 value = (unsigned clint64)(stack_ptr-1)->mCharValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8157,7 +8158,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    unsigned long value = (unsigned long)obj_data->mFields[0].mByteValue;
+                    unsigned clint64 value = (unsigned clint64)obj_data->mFields[0].mByteValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8173,7 +8174,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    unsigned long value = (unsigned long)obj_data->mFields[0].mUByteValue;
+                    unsigned clint64 value = (unsigned clint64)obj_data->mFields[0].mUByteValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8189,7 +8190,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    unsigned long value = (unsigned long)obj_data->mFields[0].mShortValue;
+                    unsigned clint64 value = (unsigned clint64)obj_data->mFields[0].mShortValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8205,7 +8206,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    unsigned long value = (unsigned long)obj_data->mFields[0].mUShortValue;
+                    unsigned clint64 value = (unsigned clint64)obj_data->mFields[0].mUShortValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8221,7 +8222,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    unsigned long value = (unsigned long)obj_data->mFields[0].mIntValue;
+                    unsigned clint64 value = (unsigned clint64)obj_data->mFields[0].mIntValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8237,7 +8238,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    unsigned long value = (unsigned long)obj_data->mFields[0].mUIntValue;
+                    unsigned clint64 value = (unsigned clint64)obj_data->mFields[0].mUIntValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8253,7 +8254,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    unsigned long value = (unsigned long)obj_data->mFields[0].mLongValue;
+                    unsigned clint64 value = (unsigned clint64)obj_data->mFields[0].mLongValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8269,7 +8270,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    unsigned long value = (unsigned long)obj_data->mFields[0].mULongValue;
+                    unsigned clint64 value = (unsigned clint64)obj_data->mFields[0].mULongValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8285,7 +8286,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    unsigned long value = (unsigned long)obj_data->mFields[0].mFloatValue;
+                    unsigned clint64 value = (unsigned clint64)obj_data->mFields[0].mFloatValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8301,7 +8302,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    unsigned long value = (unsigned long)obj_data->mFields[0].mDoubleValue;
+                    unsigned clint64 value = (unsigned clint64)obj_data->mFields[0].mDoubleValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8317,7 +8318,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    unsigned long value = (unsigned long)obj_data->mFields[0].mPointerValue;
+                    unsigned clint64 value = (unsigned clint64)obj_data->mFields[0].mPointerValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8333,7 +8334,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    unsigned long value = (unsigned long)obj_data->mFields[0].mCharValue;
+                    unsigned clint64 value = (unsigned clint64)obj_data->mFields[0].mCharValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8349,7 +8350,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    unsigned long value = (unsigned long)obj_data->mFields[0].mBoolValue;
+                    unsigned clint64 value = (unsigned clint64)obj_data->mFields[0].mBoolValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -9492,10 +9493,10 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (stack_ptr-1)->mLongValue;
+                    clint64 value = (stack_ptr-1)->mLongValue;
 
                     char buf[32];
-                    snprintf(buf, 32, "%ld", value);
+                    snprintf(buf, 32, "%lld", value);
 
                     CLObject str = create_string_object(buf);
 
@@ -9560,10 +9561,10 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
                     char buf[32];
-                    snprintf(buf, 32, "%lu", value);
+                    snprintf(buf, 32, "%llu", value);
 
                     CLObject str = create_string_object(buf);
 
@@ -9767,7 +9768,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (stack_ptr-1)->mLongValue;
+                    clint64 value = (stack_ptr-1)->mLongValue;
 
                     CLObject obj = create_integer((int)value);
 
@@ -9781,7 +9782,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
                     CLObject obj = create_integer((int)value);
 
@@ -9949,7 +9950,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (stack_ptr-1)->mLongValue;
+                    clint64 value = (stack_ptr-1)->mLongValue;
 
                     CLObject obj = create_uinteger((unsigned int)value);
 
@@ -9963,7 +9964,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
                     CLObject obj = create_uinteger((unsigned int)value);
 
@@ -10131,7 +10132,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (stack_ptr-1)->mLongValue;
+                    clint64 value = (stack_ptr-1)->mLongValue;
 
                     CLObject obj = create_byte((char)value);
 
@@ -10145,7 +10146,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
                     CLObject obj = create_byte((char)value);
 
@@ -10313,7 +10314,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (stack_ptr-1)->mLongValue;
+                    clint64 value = (stack_ptr-1)->mLongValue;
 
                     CLObject obj = create_ubyte((unsigned char)value);
 
@@ -10327,7 +10328,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
                     CLObject obj = create_ubyte((unsigned char)value);
 
@@ -10495,7 +10496,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (stack_ptr-1)->mLongValue;
+                    clint64 value = (stack_ptr-1)->mLongValue;
 
                     CLObject obj = create_short((short)value);
 
@@ -10509,7 +10510,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
                     CLObject obj = create_short((short)value);
 
@@ -10677,7 +10678,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (stack_ptr-1)->mLongValue;
+                    clint64 value = (stack_ptr-1)->mLongValue;
 
                     CLObject obj = create_ushort((unsigned short)value);
 
@@ -10691,7 +10692,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
                     CLObject obj = create_ushort((unsigned short)value);
 
@@ -10777,7 +10778,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char value = (stack_ptr-1)->mByteValue;
 
-                    CLObject obj = create_long((long)value);
+                    CLObject obj = create_long((clint64)value);
 
                     (stack_ptr-1)->mObjectValue = obj;
 
@@ -10791,7 +10792,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned char value = (stack_ptr-1)->mUByteValue;
 
-                    CLObject obj = create_long((long)value);
+                    CLObject obj = create_long((clint64)value);
 
                     (stack_ptr-1)->mObjectValue = obj;
 
@@ -10805,7 +10806,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     short value = (stack_ptr-1)->mShortValue;
 
-                    CLObject obj = create_long((long)value);
+                    CLObject obj = create_long((clint64)value);
 
                     (stack_ptr-1)->mObjectValue = obj;
 
@@ -10819,7 +10820,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned short value = (stack_ptr-1)->mUShortValue;
 
-                    CLObject obj = create_long((long)value);
+                    CLObject obj = create_long((clint64)value);
 
                     (stack_ptr-1)->mObjectValue = obj;
 
@@ -10833,7 +10834,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     int value = (stack_ptr-1)->mIntValue;
 
-                    CLObject obj = create_long((long)value);
+                    CLObject obj = create_long((clint64)value);
 
                     (stack_ptr-1)->mObjectValue = obj;
 
@@ -10847,7 +10848,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned int value = (stack_ptr-1)->mUIntValue;
 
-                    CLObject obj = create_long((long)value);
+                    CLObject obj = create_long((clint64)value);
 
                     (stack_ptr-1)->mObjectValue = obj;
 
@@ -10859,9 +10860,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (stack_ptr-1)->mLongValue;
+                    clint64 value = (stack_ptr-1)->mLongValue;
 
-                    CLObject obj = create_long((long)value);
+                    CLObject obj = create_long((clint64)value);
 
                     (stack_ptr-1)->mObjectValue = obj;
 
@@ -10873,9 +10874,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
-                    CLObject obj = create_long((long)value);
+                    CLObject obj = create_long((clint64)value);
 
                     (stack_ptr-1)->mObjectValue = obj;
 
@@ -10889,7 +10890,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     float value = (stack_ptr-1)->mFloatValue;
 
-                    CLObject obj = create_long((long)value);
+                    CLObject obj = create_long((clint64)value);
 
                     (stack_ptr-1)->mObjectValue = obj;
 
@@ -10903,7 +10904,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     double value = (stack_ptr-1)->mDoubleValue;
 
-                    CLObject obj = create_long((long)value);
+                    CLObject obj = create_long((clint64)value);
 
                     (stack_ptr-1)->mObjectValue = obj;
 
@@ -10917,7 +10918,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     wchar_t value = (stack_ptr-1)->mCharValue;
 
-                    CLObject obj = create_long((long)value);
+                    CLObject obj = create_long((clint64)value);
 
                     (stack_ptr-1)->mObjectValue = obj;
 
@@ -10931,7 +10932,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char* value = (stack_ptr-1)->mPointerValue;
 
-                    CLObject obj = create_long((long)value);
+                    CLObject obj = create_long((clint64)value);
 
                     (stack_ptr-1)->mObjectValue = obj;
 
@@ -10945,7 +10946,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     BOOL value = (stack_ptr-1)->mBoolValue;
 
-                    CLObject obj = create_long((long)value);
+                    CLObject obj = create_long((clint64)value);
 
                     (stack_ptr-1)->mObjectValue = obj;
 
@@ -10959,7 +10960,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char value = (stack_ptr-1)->mByteValue;
 
-                    CLObject obj = create_ulong((unsigned long)value);
+                    CLObject obj = create_ulong((unsigned clint64)value);
 
                     (stack_ptr-1)->mObjectValue = obj;
 
@@ -10973,7 +10974,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned char value = (stack_ptr-1)->mUByteValue;
 
-                    CLObject obj = create_ulong((unsigned long)value);
+                    CLObject obj = create_ulong((unsigned clint64)value);
 
                     (stack_ptr-1)->mObjectValue = obj;
 
@@ -10987,7 +10988,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     short value = (stack_ptr-1)->mShortValue;
 
-                    CLObject obj = create_ulong((unsigned long)value);
+                    CLObject obj = create_ulong((unsigned clint64)value);
 
                     (stack_ptr-1)->mObjectValue = obj;
 
@@ -11001,7 +11002,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned short value = (stack_ptr-1)->mUShortValue;
 
-                    CLObject obj = create_ulong((unsigned long)value);
+                    CLObject obj = create_ulong((unsigned clint64)value);
 
                     (stack_ptr-1)->mObjectValue = obj;
 
@@ -11015,7 +11016,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     int value = (stack_ptr-1)->mIntValue;
 
-                    CLObject obj = create_ulong((unsigned long)value);
+                    CLObject obj = create_ulong((unsigned clint64)value);
 
                     (stack_ptr-1)->mObjectValue = obj;
 
@@ -11029,7 +11030,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned int value = (stack_ptr-1)->mUIntValue;
 
-                    CLObject obj = create_ulong((unsigned long)value);
+                    CLObject obj = create_ulong((unsigned clint64)value);
 
                     (stack_ptr-1)->mObjectValue = obj;
 
@@ -11041,9 +11042,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (stack_ptr-1)->mLongValue;
+                    clint64 value = (stack_ptr-1)->mLongValue;
 
-                    CLObject obj = create_ulong((unsigned long)value);
+                    CLObject obj = create_ulong((unsigned clint64)value);
 
                     (stack_ptr-1)->mObjectValue = obj;
 
@@ -11055,9 +11056,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
-                    CLObject obj = create_ulong((unsigned long)value);
+                    CLObject obj = create_ulong((unsigned clint64)value);
 
                     (stack_ptr-1)->mObjectValue = obj;
 
@@ -11071,7 +11072,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     float value = (stack_ptr-1)->mFloatValue;
 
-                    CLObject obj = create_ulong((unsigned long)value);
+                    CLObject obj = create_ulong((unsigned clint64)value);
 
                     (stack_ptr-1)->mObjectValue = obj;
 
@@ -11085,7 +11086,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     double value = (stack_ptr-1)->mDoubleValue;
 
-                    CLObject obj = create_ulong((unsigned long)value);
+                    CLObject obj = create_ulong((unsigned clint64)value);
 
                     (stack_ptr-1)->mObjectValue = obj;
 
@@ -11099,7 +11100,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     wchar_t value = (stack_ptr-1)->mCharValue;
 
-                    CLObject obj = create_ulong((unsigned long)value);
+                    CLObject obj = create_ulong((unsigned clint64)value);
 
                     (stack_ptr-1)->mObjectValue = obj;
 
@@ -11113,7 +11114,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char* value = (stack_ptr-1)->mPointerValue;
 
-                    CLObject obj = create_ulong((unsigned long)value);
+                    CLObject obj = create_ulong((unsigned clint64)value);
 
                     (stack_ptr-1)->mObjectValue = obj;
 
@@ -11127,7 +11128,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     BOOL value = (stack_ptr-1)->mBoolValue;
 
-                    CLObject obj = create_ulong((unsigned long)value);
+                    CLObject obj = create_ulong((unsigned clint64)value);
 
                     (stack_ptr-1)->mObjectValue = obj;
 
@@ -11223,7 +11224,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (stack_ptr-1)->mLongValue;
+                    clint64 value = (stack_ptr-1)->mLongValue;
 
                     CLObject obj = create_float((float)value);
 
@@ -11237,7 +11238,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
                     CLObject obj = create_float((float)value);
 
@@ -11391,7 +11392,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (stack_ptr-1)->mLongValue;
+                    clint64 value = (stack_ptr-1)->mLongValue;
 
                     CLObject obj = create_double((double)value);
 
@@ -11405,7 +11406,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
                     CLObject obj = create_double((double)value);
 
@@ -11559,7 +11560,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (stack_ptr-1)->mLongValue;
+                    clint64 value = (stack_ptr-1)->mLongValue;
 
                     CLObject obj = create_pointer((char*)value);
 
@@ -11573,7 +11574,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
                     CLObject obj = create_pointer((char*)value);
 
@@ -11714,7 +11715,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (stack_ptr-1)->mLongValue;
+                    clint64 value = (stack_ptr-1)->mLongValue;
 
                     CLObject obj = create_char((wchar_t)value);
 
@@ -11728,7 +11729,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
                     CLObject obj = create_char((wchar_t)value);
 
@@ -11896,7 +11897,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (stack_ptr-1)->mLongValue;
+                    clint64 value = (stack_ptr-1)->mLongValue;
 
                     CLObject obj = create_bool((BOOL)value);
 
@@ -11910,7 +11911,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
                     CLObject obj = create_bool((BOOL)value);
 

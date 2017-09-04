@@ -112,7 +112,7 @@ static BOOL class_compiler(char* fname)
 int main(int argc, char** argv)
 {
     int i;
-    
+
     setlocale(LC_ALL, "");
 
     BOOL no_load_fudamental_classes = FALSE;

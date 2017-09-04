@@ -1172,7 +1172,7 @@ static BOOL compile_uint_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_long_value(long value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)
+unsigned int sNodeTree_create_long_value(clint64 value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)
 {
     unsigned node = alloc_node();
 
@@ -1204,7 +1204,7 @@ static BOOL compile_long_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_ulong_value(unsigned long value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)
+unsigned int sNodeTree_create_ulong_value(unsigned clint64 value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)
 {
     unsigned node = alloc_node();
 
@@ -4308,7 +4308,7 @@ static void decrement_operand_core(unsigned int node, sCompileInfo* info, unsign
 {
     if(!with_value) {
         append_opecode_to_code(info->code, ldc_operand, info->no_output);
-        if(ldc_operand == OP_LDCLONG || ldc_operand == OP_LDCULONG) {
+        if(ldc_operand == OP_LDCLONG || ldc_operand == OP_LDCULONG || ldc_operand == OP_LDCPOINTER) {
             append_int_value_to_code(info->code, 1, info->no_output);
             append_int_value_to_code(info->code, 0, info->no_output);
         }
@@ -6701,11 +6701,11 @@ void show_node(unsigned int node)
             break;
 
         case kNodeTypeLongValue:
-            printf("long value %ld\n", gNodes[node].uValue.mLongValue);
+            printf("long value %lld\n", gNodes[node].uValue.mLongValue);
             break;
 
         case kNodeTypeULongValue:
-            printf("long value %lu\n", gNodes[node].uValue.mULongValue);
+            printf("long value %llu\n", gNodes[node].uValue.mULongValue);
             break;
 
         case kNodeTypeFloatValue:

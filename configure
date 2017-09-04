@@ -3770,6 +3770,16 @@ then
     CFLAGS="$CFLAGS -L /opt/local/lib"
 fi
 
+if test -d /usr/include/i386-linux-gnu/
+then
+    CFLAGS="$CFLAGS -I /usr/include/i386-linux-gnu//"
+fi
+
+if test -d /usr/lib/i386-linux-gnu/
+then
+    CFLAGS="$CFLAGS -L /usr/lib/i386-linux-gnu/"
+fi
+
 if test $ENABLE_OPTIMIZE = 1
 then
     CFLAGS="$CFLAGS -O3"
@@ -3794,6 +3804,8 @@ fi
 
 
 
+export CFLAGS
+
 ##########################################################
 # Libs
 ##########################################################
@@ -3807,6 +3819,8 @@ ac_fn_c_check_header_mongrel "$LINENO" "readline/readline.h" "ac_cv_header_readl
 if test "x$ac_cv_header_readline_readline_h" = xyes; then :
   $as_echo "#define HAVE_READLINE_H 1" >>confdefs.h
 
+else
+  exit
 fi
 
 
@@ -3842,6 +3856,8 @@ fi
 $as_echo "$ac_cv_lib_readline_main" >&6; }
 if test "x$ac_cv_lib_readline_main" = xyes; then :
    LIBS="$LIBS -lreadline";
+else
+  exit
 fi
 ac_cv_lib_readline=ac_cv_lib_readline_main
 
@@ -4027,6 +4043,8 @@ fi
 $as_echo "$ac_cv_lib_rt_main" >&6; }
 if test "x$ac_cv_lib_rt_main" = xyes; then :
    LIBS="$LIBS -lrt";
+else
+  exit
 fi
 ac_cv_lib_rt=ac_cv_lib_rt_main
 

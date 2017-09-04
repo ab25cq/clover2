@@ -1,4 +1,5 @@
 #include "common.h"
+
 #include <wchar.h>
 #include <errno.h>
 #include <time.h>
@@ -872,7 +873,7 @@ BOOL System_strtol(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int base_value = base->mIntValue;
 
     /// go ///
-    long result = strtol(str_value, NULL, base_value);
+    clint64 result = strtol(str_value, NULL, base_value);
 
     (*stack_ptr)->mLongValue = result;
     (*stack_ptr)++;
@@ -894,7 +895,7 @@ BOOL System_strtoul(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int base_value = base->mIntValue;
 
     /// go ///
-    unsigned long result = strtol(str_value, NULL, base_value);
+    unsigned clint64 result = strtol(str_value, NULL, base_value);
 
     (*stack_ptr)->mULongValue = result;
     (*stack_ptr)++;
@@ -931,7 +932,7 @@ BOOL System_rand(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 BOOL System_time(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     /// go ///
-    unsigned long result = time(NULL);
+    unsigned clint64 result = time(NULL);
 
     (*stack_ptr)->mULongValue = result;
     (*stack_ptr)++;

@@ -119,6 +119,16 @@ then
     CFLAGS="$CFLAGS -L /opt/local/lib"
 fi
 
+if test -d /usr/include/i386-linux-gnu/
+then
+    CFLAGS="$CFLAGS -I /usr/include/i386-linux-gnu//"
+fi
+
+if test -d /usr/lib/i386-linux-gnu/
+then
+    CFLAGS="$CFLAGS -L /usr/lib/i386-linux-gnu/"
+fi
+
 if test $ENABLE_OPTIMIZE = 1
 then
     CFLAGS="$CFLAGS -O3"
@@ -143,6 +153,8 @@ fi
 
 AC_SUBST(OS)
 
+export CFLAGS
+
 ##########################################################
 # Libs
 ##########################################################
@@ -152,8 +164,8 @@ INSTALL="/usr/bin/install -c"
 #AC_CHECK_HEADER(pthread.h, [AC_DEFINE(HAVE_PTHREAD_H, 1)], [ exit ])
 #AC_HAVE_LIBRARY(pthread, [ LIBS="$LIBS -lpthread"; ], [ exit ])
 
-AC_CHECK_HEADER(readline/readline.h, [AC_DEFINE(HAVE_READLINE_H, 1)], [])
-AC_HAVE_LIBRARY(readline, [ LIBS="$LIBS -lreadline"; ], [])
+AC_CHECK_HEADER(readline/readline.h, [AC_DEFINE(HAVE_READLINE_H, 1)], [exit])
+AC_HAVE_LIBRARY(readline, [ LIBS="$LIBS -lreadline"; ], [exit])
 
 if test "$OS" != FREEBSD
 then
@@ -172,7 +184,7 @@ fi
 AC_CHECK_HEADER(pcre.h, [AC_DEFINE(HAVE_PCRE_H,1)], [exit])
 AC_HAVE_LIBRARY(pcre, [ LIBS="$LIBS -lpcre"; ], [exit])
 
-AC_HAVE_LIBRARY(rt, [ LIBS="$LIBS -lrt"; ], [])
+AC_HAVE_LIBRARY(rt, [ LIBS="$LIBS -lrt"; ], [exit])
 
 AC_SUBST(LIBS)
 

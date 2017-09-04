@@ -5,6 +5,8 @@
 #define _GNU_SOURCE
 #endif
 
+#include "config.h"
+
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -26,7 +28,10 @@
 #ifndef __USE_BSD
 #define __USE_BSD
 #endif
+
 #include <termios.h>
+
+#define clint64 long long      // for 32 bit cpu
 
 #include "macros.h"
 
@@ -70,11 +75,11 @@ union CLVALUEUnion {
     unsigned int mUIntValue;
     unsigned char mUByteValue;
     unsigned short mUShortValue;
-    unsigned long mULongValue;
+    unsigned clint64 mULongValue;
     int mIntValue;
     char mByteValue;
     short mShortValue;
-    long mLongValue;
+    clint64 mLongValue;
     CLObject mObjectValue;
     wchar_t mCharValue;
     float mFloatValue;
@@ -101,7 +106,7 @@ void sByteCode_free(sByteCode* code);
 void append_value_to_code(sByteCode* code, void* data, size_t size, BOOL no_output);
 void append_opecode_to_code(sByteCode* code, unsigned int op, BOOL no_output);
 void append_int_value_to_code(sByteCode* code, int value, BOOL no_output);
-void append_long_value_to_code(sByteCode* code, long value, BOOL no_output);
+void append_long_value_to_code(sByteCode* code, clint64 value, BOOL no_output);
 void append_double_value_to_code(sByteCode* code, double value, BOOL no_output);
 void append_float_value_to_code(sByteCode* code, float value, BOOL no_output);
 
@@ -214,7 +219,7 @@ typedef struct sVMInfoStruct sVMInfo;
 typedef BOOL (*fNativeMethod)(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 struct sCLMethodStruct {
-    long mFlags;
+    clint64 mFlags;
     int mNameOffset;
     int mPathOffset;
     int mMethodNameAndParamsOffset;
@@ -245,7 +250,7 @@ typedef struct sCLMethodStruct sCLMethod;
 #define FIELD_FLAGS_PROTECTED 0x02
 
 struct sCLFieldStruct {
-    long mFlags;
+    clint64 mFlags;
     int mNameOffset;
 
     sCLType* mResultType;
@@ -256,7 +261,7 @@ typedef struct sCLFieldStruct sCLField;
 typedef void (*fFreeFun)(CLObject self);
 
 struct sCLClassStruct {
-    long mFlags;
+    clint64 mFlags;
 
     int mGenericsParamClassNum;   // -1 is none generics param 
     int mNumGenerics;
@@ -545,8 +550,8 @@ struct sNodeTreeStruct
         unsigned short mUShortValue;
         int mIntValue;
         unsigned int mUIntValue;
-        long mLongValue;
-        unsigned long mULongValue;
+        clint64 mLongValue;
+        unsigned clint64 mULongValue;
         char mVarName[VAR_NAME_MAX];
 
         struct {
@@ -707,8 +712,8 @@ unsigned int sNodeTree_create_short_value(short value, unsigned int left, unsign
 unsigned int sNodeTree_create_ushort_value(unsigned short value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
 unsigned int sNodeTree_create_int_value(int value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
 unsigned int sNodeTree_create_uint_value(unsigned int value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
-unsigned int sNodeTree_create_long_value(long value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
-unsigned int sNodeTree_create_ulong_value(unsigned long value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
+unsigned int sNodeTree_create_long_value(clint64 value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
+unsigned int sNodeTree_create_ulong_value(unsigned clint64 value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
 unsigned int sNodeTree_create_store_variable(char* var_name, sNodeType* node_type, int right, sCLClass* klass, sParserInfo* info);
 unsigned int sNodeTree_create_assign_field(char* var_name, unsigned int left_node, unsigned int right_node, sParserInfo* info);
 unsigned int sNodeTree_create_load_variable(char* var_name, sParserInfo* info);
@@ -1823,8 +1828,8 @@ CLObject create_short(short value);
 CLObject create_ushort(unsigned short value);
 
 /// long.c ///
-CLObject create_long(long value);
-CLObject create_ulong(unsigned long value);
+CLObject create_long(clint64 value);
+CLObject create_ulong(unsigned clint64 value);
 
 /// float.c ///
 CLObject create_float(float value);
@@ -1961,8 +1966,8 @@ short get_value_from_Short(CLObject object);
 unsigned short get_value_from_UShort(CLObject object);
 int get_value_from_Integer(CLObject object);
 unsigned int get_value_from_UInteger(CLObject object);
-long get_value_from_Long(CLObject object);
-unsigned long get_value_from_ULong(CLObject object);
+clint64 get_value_from_Long(CLObject object);
+unsigned clint64 get_value_from_ULong(CLObject object);
 wchar_t get_value_from_Char(CLObject object);
 float get_value_from_Float(CLObject object);
 double get_value_from_Double(CLObject object);

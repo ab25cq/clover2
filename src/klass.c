@@ -182,9 +182,9 @@ static BOOL read_int_from_file(int fd, int* n)
     return read_from_file(fd, n, sizeof(int));
 }
 
-static BOOL read_long_from_file(int fd, long* n)
+static BOOL read_long_from_file(int fd, clint64* n)
 {
-    return read_from_file(fd, n, sizeof(long long));
+    return read_from_file(fd, n, sizeof(clint64));
 }
 
 static BOOL read_const_from_file(int fd, sConst* constant, char* class_name)
@@ -194,7 +194,7 @@ static BOOL read_const_from_file(int fd, sConst* constant, char* class_name)
         return FALSE;
     }
 
-    sConst_init_with_size(constant, len);
+    sConst_init_with_size(constant, len+1);
     constant->mLen = len;
 
     if(!read_from_file(fd, constant->mConst, len)) {
@@ -294,7 +294,7 @@ static BOOL read_code_from_file(int fd, sByteCode* code)
 static BOOL read_methods_from_file(int fd, sCLMethod** methods, int* num_methods, int* size_methods, sCLClass* klass)
 {
     int n;
-    long l;
+    clint64 l;
 
     if(!read_int_from_file(fd, &n)) {
         return FALSE;
@@ -399,7 +399,7 @@ static BOOL read_methods_from_file(int fd, sCLMethod** methods, int* num_methods
 static BOOL read_fields_from_file(int fd, sCLField** fields, int* num_fields, int* size_fields, sCLClass* klass)
 {
     int n;
-    long l;
+    clint64 l;
 
     if(!read_int_from_file(fd, &n)) {
         return FALSE;
@@ -458,7 +458,7 @@ static sCLClass* read_class_from_file(char* class_name, int fd)
     }
     klass->mGenericsParamClassNum = n;
 
-    long l;
+    clint64 l;
     if(!read_long_from_file(fd, &l)) {
         MFREE(klass);
         return NULL;

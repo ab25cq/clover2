@@ -341,7 +341,7 @@ static BOOL get_hex_number(unsigned int* node, sParserInfo* info)
     *p = 0;
     skip_spaces_and_lf(info);
 
-    unsigned long value = strtol(buf, NULL, 0);
+    unsigned clint64 value = strtol(buf, NULL, 0);
 
     if(*info->p == 'y') {
         info->p++;
@@ -411,7 +411,7 @@ static BOOL get_oct_number(unsigned int* node, sParserInfo* info)
     *p = 0;
     skip_spaces_and_lf(info);
 
-    unsigned long value = strtoul(buf, NULL, 0);
+    unsigned clint64 value = strtoul(buf, NULL, 0);
 
     if(*info->p == 'y') {
         info->p++;
