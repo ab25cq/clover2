@@ -98,4 +98,92 @@ void init_jit_objects();
 void free_jit_objects();
 BOOL jit_compile_all_classes();
 
+extern LLVMContext TheContext;
+extern IRBuilder<> Builder;
+extern Module* TheModule;
+extern std::unique_ptr<legacy::FunctionPassManager> TheFPM;
+extern std::map<std::string, BasicBlock*> TheLabels;
+
+#define MAX_COND_JUMP 128
+
+BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2);
+BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name);
+BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name);
+BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name);
+BOOL compile_to_native_code5(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name);
+BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name);
+BOOL compile_to_native_code7(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name);
+BOOL compile_to_native_code8(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name);
+BOOL compile_to_native_code9(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name);
+BOOL compile_to_native_code10(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name);
+BOOL compile_to_native_code11(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name);
+BOOL compile_to_native_code12(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name);
+
+/// jit_debug.h ///
+void show_stack_for_llvm_stack(LVALUE* llvm_stack, LVALUE* llvm_stack_ptr, int var_num);
+void show_number_in_jit(int number);
+void call_show_number_in_jit(int number);
+void call_show_value_in_jit(Value* value);
+void show_str_in_jit(char* str);
+void call_show_str_in_jit(Value* value);
+void call_show_stack_stat(std::map<std::string, Value *> params);
+void call_show_inst_in_jit(int opecode);
+void call_show_stack(std::map<std::string, Value *> params);
+void show_stack_for_llvm_stack(LVALUE* llvm_stack, LVALUE* llvm_stack_ptr, int var_num);
+void show_stack_stat(CLVALUE** stack_ptr, CLVALUE* stack);
+BOOL show_stack_in_jit(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info);
+void show_inst_in_jit(int opecode);
+
+/// jit_sub.cpp ///
+LVALUE trunc_value(LVALUE* llvm_value, int size);
+LVALUE trunc_value_to_float_or_double(LVALUE* llvm_value, int size);
+LVALUE trunc_value_to_pointer(LVALUE* llvm_value);
+void trunc_variable(LVALUE* llvm_value, int size);
+void cast_llvm_value_from_inst(LVALUE* llvm_value, int inst);
+Value* llvm_create_string(char* str);
+LVALUE* get_stack_ptr_value_from_index(LVALUE* llvm_stack_ptr, int index);
+void dec_stack_ptr(LVALUE** llvm_stack_ptr, int value);
+void push_value_to_stack_ptr(LVALUE** llvm_stack_ptr, LVALUE* value);
+void insert_value_to_stack_ptr_with_offset(LVALUE** llvm_stack_ptr, LVALUE* value, int offset);
+void store_llvm_value_to_lvar_with_offset(LVALUE* llvm_stack, int index, LVALUE* llvm_value);
+void get_llvm_value_from_lvar_with_offset(LVALUE* result, LVALUE* llvm_stack, int index);
+LVALUE get_vm_stack_ptr_value_from_index_with_aligned(std::map<std::string, Value*>& params, BasicBlock* current_block, int index, int align);
+void inc_vm_stack_ptr(std::map<std::string, Value*>& params, BasicBlock* current_block, int value);
+void push_value_to_vm_stack_ptr_with_aligned(std::map<std::string, Value*>& params, BasicBlock* current_block, LVALUE* llvm_value);
+LVALUE get_stack_value_from_index_with_aligned(std::map<std::string, Value*>& params, BasicBlock* current_block, int index, int align);
+void llvm_stack_to_vm_stack(LVALUE* llvm_stack_ptr, std::map<std::string, Value*> params, BasicBlock* current_block, int num);
+void if_value_is_zero_ret_zero(Value* value, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block);
+void if_value_is_null_ret_zero(Value* value, int value_bit, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block);
+void store_value_to_lvar_with_offset(std::map<std::string, Value*>& params, BasicBlock* current_block, int index, LVALUE* llvm_value);
+void dec_vm_stack_ptr(std::map<std::string, Value*>& params, BasicBlock* current_block, int value);
+LVALUE get_lvar_value_from_offset(std::map<std::string, Value*>& params, BasicBlock* current_block, int offset);
+StructType* get_vm_info_struct_type();
+AllocaInst* create_entry_block_alloca(Function* function, int index);
+void call_entry_exception_object_with_class_name2(std::map<std::string, Value *> params, char* class_name, char* message);
+void if_value_is_zero_entry_exception_object(Value* value, int value_size, BOOL value_is_float, BOOL value_is_double, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block, char* class_name, char* message);
+void vm_lvar_to_llvm_lvar(LVALUE* llvm_stack,std::map<std::string, Value*>& params, BasicBlock* current_block, int var_num);
+void finish_method_call(Value* result, std::map<std::string, Value *> params, BasicBlock** current_block, Function* function, char** try_catch_label_name, sByteCode* code, int real_param_num, int var_num, LVALUE* llvm_stack, LVALUE* llvm_stack_ptr);
+void lvar_of_vm_to_lvar_of_llvm(std::map<std::string, Value *> params, BasicBlock* current_block, LVALUE* llvm_stack, int var_num);
+void lvar_of_llvm_to_lvar_of_vm(std::map<std::string, Value *> params, BasicBlock* current_block, LVALUE* llvm_stack, int var_num);
+void trunc_value_from_inst(LVALUE* value, int inst);
+void store_value_to_vm_lvar(std::map<std::string, Value*>& params, BasicBlock* current_block, int offset, LVALUE* llvm_value);
+void llvm_lvar_to_vm_lvar(LVALUE* llvm_stack,std::map<std::string, Value*>& params, BasicBlock* current_block, int var_num);
+
+
+/// jit declare.cpp ///
+extern GlobalVariable* gSigIntValue;
+extern StructType* gCLValueAndBoolStruct;
+extern StructType* gPointerAndBoolStruct;
+
+void create_internal_functions();
+void create_internal_functions2();
+Function* create_llvm_function(const std::string& name);
+
+/// jit_compile_method.cpp ///
+BOOL jit_compile_all_classes();
+
+/// jit_runtime.cpp ///
+extern struct sCLVALUEAndBoolResult gCLValueAndBoolStructMemory;
+extern struct sPointerAndBoolResult gCLPointerAndBoolStructMemory;
 }
+

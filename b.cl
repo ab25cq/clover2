@@ -57,8 +57,7 @@ Clover.test("jit test32", a.run32() == 1y);
 Clover.test("jit test32", a.run32() == 1y);
 Clover.test("jit test33", a.run33() == 3y);
 Clover.test("jit test34", a.run34() == 6y);
-Clover.test("jit test35", a.run35() == 3l);
-
+Clover.test("jit teyst35", a.run35() == 3l);
 Clover.test("jit test36", a.run36() == 0xfe);
 Clover.test("jit test37", a.run37() == 0xfffffffe);
 Clover.test("jit test38", a.run38() == 2.2f);

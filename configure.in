@@ -203,25 +203,7 @@ fi
 
 AC_SUBST(CC)
 
-#if which clang++-5.0 > /dev/null
-#then
-#    CXX=clang++-5.0
-#    if test $DEBUGGING = 1
-#    then
-#        CXXFLAGS='`llvm-config-5.0 --cxxflags --ldflags --system-libs --libs core mcjit native` -DMDEBUG -g'" $CXXFLAGS"
-#    else
-#        CXXFLAGS='`llvm-config-5.0 --cxxflags --ldflags --system-libs --libs core mcjit native` -O3'" $CXXFLAGS"
-#    fi
-#if which clang++-4.0 > /dev/null
-#then
-#    CXX=clang++-4.0
-#    if test $DEBUGGING = 1
-#    then
-#        CXXFLAGS='`llvm-config-4.0 --cxxflags --ldflags --system-libs --libs core mcjit native` -DMDEBUG -g'" $CXXFLAGS"
-#    else
-#        CXXFLAGS='`llvm-config-4.0 --cxxflags --ldflags --system-libs --libs core mcjit native` -O3'" $CXXFLAGS"
-#    fi
-#else
+CXXFLAGS="-I . "
 
 if which clang++ > /dev/null
 then
@@ -229,20 +211,16 @@ then
     if test $DEBUGGING = 1
     then
         CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs all` -lffi -DMDEBUG -g'" $CXXFLAGS"
-        #CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs core mcjit native` -DMDEBUG -g'" $CXXFLAGS"
     else
         CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs all` -lffi -O3'" $CXXFLAGS"
-        #CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs core mcjit native` -O3'" $CXXFLAGS"
     fi
 else
     CXX=g++
     if test $DEBUGGING = 1
     then
         CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs all` -lffi -DMDEBUG -g'" $CXXFLAGS"
-        #CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs core mcjit native` -DMDEBUG -g'" $CXXFLAGS"
     else
         CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs all` -lffi -O3'" $CXXFLAGS"
-        #CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs core mcjit native` -O3'" $CXXFLAGS"
     fi
 fi
 
@@ -256,8 +234,8 @@ then
     CFLAGS="$CFLAGS -DENABLE_JIT"
     OBJS="src/vm.o src/script.o src/object.o src/array.o src/string.o src/block.o src/regex.o src/integer.o src/byte.o src/short.o src/long.o src/float.o src/pointer.o src/char.o src/bool.o src/hash.o src/list.o src/tuple.o src/carray.o src/type.o src/stack.o src/heap.o src/exception.o src/native_method.o src/class_system.o src/class_clover.o src/clover_to_clang.o"
     COMPILER_OBJS="src/parser.o src/node_type.o src/node.o src/cast.o src/vtable.o src/script_ctime.o src/node_block.o src/node_block_type.o src/class_compiler.o src/klass_compile_time.o src/method_compiler.o src/module.o"
-    JIT_OBJS="src/jit.o"
-    JIT_RUNTIME_OBJS="src/jit_runtime.o"
+    JIT_OBJS="src/jit.o src/jit2.o src/jit3.o src/jit4.o src/jit5.o src/jit6.o src/jit7.o src/jit8.o src/jit9.o src/jit10.o src/jit11.o src/jit12.o src/jit_compile_method.o src/jit_debug.o src/jit_debug2.o src/jit_declare.o src/jit_declare2.o src/jit_sub.o src/jit_sub2.o"
+    JIT_RUNTIME_OBJS="src/jit_runtime.o src/jit_runtime2.o"
     JIT=1
 else
     OBJS="src/vm.o src/script.o src/object.o src/array.o src/string.o src/block.o src/regex.o src/integer.o src/byte.o src/short.o src/long.o src/float.o src/pointer.o src/char.o src/bool.o src/hash.o src/list.o src/tuple.o src/carray.o src/type.o src/stack.o src/heap.o src/exception.o src/native_method.o src/class_system.o src/class_clover.o src/clover_to_clang.o"
