@@ -3552,7 +3552,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     int left = (stack_ptr-2)->mIntValue;
                     int right = (stack_ptr-1)->mIntValue;
 
-                    BOOL result = left == right;
+                    BOOL result = (left == right);
 
                     stack_ptr-=2;
                     stack_ptr->mBoolValue = result;
