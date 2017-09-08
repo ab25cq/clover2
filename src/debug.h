@@ -15,12 +15,13 @@ ALLOC void* xmalloc(size_t size);
 ALLOC char* xstrdup(char* str);
 ALLOC void* xrealloc(void* ptr, size_t size);
 ALLOC void* xcalloc(size_t count, size_t size);
+void xfree(void* ptr);
 
 #   define MMALLOC(o) xmalloc(o)
 #   define MSTRDUP(o) xstrdup(o)
 #   define MREALLOC(o, o2) xrealloc(o, o2)
 #   define MCALLOC(o, o2) xcalloc(o, o2)
-#   define MFREE(o) free(o)
+#   define MFREE(o) xfree(o)
 
 #   define MASSERT(o)
 

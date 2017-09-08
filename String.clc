@@ -858,10 +858,14 @@ class Buffer
         len: size_t = buf.len;
 
         if(self.len + len >= self.size) {
+println("AAA");
             new_size:size_t = (self.len+len+1) * 2;
             self.buffer = System.realloc(self.buffer, new_size);
             self.size = new_size;
         }
+else {
+println("BBB");
+}
 
         System.memcpy(self.buffer + self.len, buf.buffer, len);
         self.len += len;

@@ -1217,15 +1217,20 @@ printf("(%lld)\n", array { a.to_long() } );
     }
 
     def toBuffer():  Buffer throws Exception {
+/*
         aaaa:String = "ABC";
         array_:byte[] = null;
         System.wcstombs(&array_, aaaa.buffer);
+*/
 
 
+        result:Buffer = null;
+/*
         result:Buffer = new Buffer(array_.length.to_ulong);
         for(i:int = 0; i<array_.length-1; i++) {
             result.append(array_[i]);
         }
+*/
 
         # no null-terminated Buffer will be returened
 

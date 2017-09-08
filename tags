@@ -7,7 +7,7 @@
 ALLOC	src/macros.h	17;"	d
 ANDAND_OROR_MAX	src/jit.cpp	53;"	d	file:
 ANG	Makefile	/^	if locale -a | grep ja_JP.utf8; then export LANG="ja_JP_utf8"; export LC_ALL="ja_JP.utf8"; .\/cclover2 code\/char.cl && .\/clover2 code\/char.clo; else export LANG="C.UTF-8"; export LC_ALL="C.UTF-8"; .\/cclover2 code\/char.cl && .\/clover2 code\/char.clo; fi$/;"	m
-ARRAY_SIZE	src/debug.c	107;"	d	file:
+ARRAY_SIZE	src/debug.c	112;"	d	file:
 ARRAY_VALUE_ELEMENT_MAX	src/common.h	61;"	d
 Args	toy.cpp	/^  std::vector<std::string> Args;$/;"	m	class:__anon25::PrototypeAST	file:
 Args	toy.cpp	/^  std::vector<std::unique_ptr<ExprAST>> Args;$/;"	m	class:__anon25::CallExprAST	file:
@@ -23,9 +23,9 @@ Body	toy.cpp	/^  std::unique_ptr<ExprAST> Start, End, Step, Body;$/;"	m	class:__
 CC	Makefile	/^CC=clang$/;"	m
 CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -I\/home\/ab25cq\/include -L\/home\/ab25cq\/lib -fPIC -rdynamic -I\/usr\/local\/include -L \/usr\/local\/lib -g -DMDEBUG -Werror -Qunused-arguments -DENABLE_JIT$/;"	m
 CHECKML_BEGIN	src/debug.h	11;"	d
-CHECKML_BEGIN	src/debug.h	38;"	d
+CHECKML_BEGIN	src/debug.h	39;"	d
 CHECKML_END	src/debug.h	12;"	d
-CHECKML_END	src/debug.h	39;"	d
+CHECKML_END	src/debug.h	40;"	d
 CLASS_FLAGS_ALLOCATED	src/common.h	163;"	d
 CLASS_FLAGS_DYNAMIC_CLASS	src/common.h	164;"	d
 CLASS_FLAGS_INTERFACE	src/common.h	161;"	d
@@ -125,12 +125,12 @@ LogErrorP	toy.cpp	/^std::unique_ptr<PrototypeAST> LogErrorP(const char *Str) {$/
 LogErrorV	toy.cpp	/^Value *LogErrorV(const char *Str) {$/;"	f
 MACROS_H	src/macros.h	2;"	d
 MANAGED	src/macros.h	21;"	d
-MASSERT	src/debug.h	25;"	d
-MASSERT	src/debug.h	47;"	d
+MASSERT	src/debug.h	26;"	d
+MASSERT	src/debug.h	48;"	d
 MAX_CODES	src/interpreter.c	1385;"	d	file:
 MAX_COND_JUMP	src/jit_common.hpp	107;"	d
-MCALLOC	src/debug.h	22;"	d
-MCALLOC	src/debug.h	42;"	d
+MCALLOC	src/debug.h	23;"	d
+MCALLOC	src/debug.h	43;"	d
 MCJIT	lli.cpp	/^  enum class JITKind { MCJIT, OrcMCJITReplacement, OrcLazy };$/;"	m	class:__anon24::JITKind	file:
 MCJIT	src/jit_runtime.cpp	/^    enum class JITKind { MCJIT, OrcMCJITReplacement, OrcLazy };$/;"	m	class:__anon1::JITKind	file:
 METHOD_CHAIN_MAX	src/common.h	69;"	d
@@ -143,18 +143,18 @@ METHOD_NUM_MAX	src/common.h	58;"	d
 METHOD_PATH	src/common.h	314;"	d
 METHOD_PATH_MAX	src/common.h	57;"	d
 METHOD_VAR_NUM_MAX	src/common.h	54;"	d
-MFREE	src/debug.h	23;"	d
-MFREE	src/debug.h	45;"	d
-MMALLOC	src/debug.h	19;"	d
-MMALLOC	src/debug.h	41;"	d
-MREALLOC	src/debug.h	21;"	d
-MREALLOC	src/debug.h	44;"	d
-MSTRDUP	src/debug.h	20;"	d
-MSTRDUP	src/debug.h	43;"	d
+MFREE	src/debug.h	24;"	d
+MFREE	src/debug.h	46;"	d
+MMALLOC	src/debug.h	20;"	d
+MMALLOC	src/debug.h	42;"	d
+MREALLOC	src/debug.h	22;"	d
+MREALLOC	src/debug.h	45;"	d
+MSTRDUP	src/debug.h	21;"	d
+MSTRDUP	src/debug.h	44;"	d
 MainLoop	toy.cpp	/^static void MainLoop() {$/;"	f	file:
 ModuleHandleT	KaleidoscopeJIT.h	/^  typedef CompileLayerT::ModuleSetHandleT ModuleHandleT;$/;"	t	class:llvm::orc::KaleidoscopeJIT
 ModuleHandles	KaleidoscopeJIT.h	/^  std::vector<ModuleHandleT> ModuleHandles;$/;"	m	class:llvm::orc::KaleidoscopeJIT
-NAME_SIZE	src/debug.c	92;"	d	file:
+NAME_SIZE	src/debug.c	97;"	d	file:
 NATIVE_METHOD_HASH_SIZE	src/native_method.c	3;"	d	file:
 NODE_TYPE_PAGE_SIZE	src/node_block_type.c	8;"	d	file:
 NODE_TYPE_PAGE_SIZE	src/node_type.c	8;"	d	file:
@@ -1115,25 +1115,17 @@ arrange_alignment	src/code.c	/^static void arrange_alignment(sByteCode* code)$/;
 arrange_alignment	src/constant.c	/^static void arrange_alignment(sConst* self)$/;"	f	file:
 arrange_stack	src/node.c	/^void arrange_stack(sCompileInfo* cinfo)$/;"	f
 array_mark_fun	src/array.c	/^void array_mark_fun(CLObject self, unsigned char* mark_flg)$/;"	f
-as_fn_append	config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	configure	/^  as_fn_append ()$/;"	f
-as_fn_arith	config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	configure	/^  as_fn_arith ()$/;"	f
-as_fn_error	config.status	/^as_fn_error ()$/;"	f
 as_fn_error	configure	/^as_fn_error ()$/;"	f
-as_fn_executable_p	config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	configure	/^as_fn_executable_p ()$/;"	f
-as_fn_exit	config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	configure	/^as_fn_exit ()$/;"	f
 as_fn_failure	configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
-as_fn_mkdir_p	config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	configure	/^as_fn_mkdir_p ()$/;"	f
 as_fn_ret_failure	configure	/^as_fn_ret_failure () { return 1; }$/;"	f
 as_fn_ret_success	configure	/^as_fn_ret_success () { return 0; }$/;"	f
-as_fn_set_status	config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	configure	/^as_fn_set_status ()$/;"	f
 as_fn_success	configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
-as_fn_unset	config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	configure	/^as_fn_unset ()$/;"	f
 assign_operator	src/parser.c	/^static BOOL assign_operator(unsigned int* node, sParserInfo* info)$/;"	f	file:
 binary_operator	src/node.c	/^static BOOL binary_operator(unsigned int node, sNodeType* left_type, sNodeType* right_type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, int float_operand, int double_operand, int pointer_operand, int null_operand, int char_operand, int bool_operand, int regex_operand, char* op_string, sCompileInfo* info)$/;"	f	file:
@@ -2403,6 +2395,7 @@ write_class_to_buffer	src/klass_compile_time.c	/^static void write_class_to_buff
 write_class_to_class_file	src/klass_compile_time.c	/^BOOL write_class_to_class_file(sCLClass* klass)$/;"	f
 write_code_and_constant_to_file	src/script_ctime.c	/^static BOOL write_code_and_constant_to_file(sByteCode* code, sConst* constant, int var_num, char* fname)$/;"	f	file:
 xcalloc	src/debug.c	/^ALLOC void* xcalloc(size_t count, size_t size)$/;"	f
+xfree	src/debug.c	/^void xfree(void* ptr)$/;"	f
 xmalloc	src/debug.c	/^ALLOC void* xmalloc(size_t size)$/;"	f
 xrealloc	src/debug.c	/^ALLOC void* xrealloc(void* ptr, size_t size)$/;"	f
 xstrdup	src/debug.c	/^ALLOC char* xstrdup(char* str)$/;"	f
