@@ -159,7 +159,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             int value2 = *(int*)(*pc);
             (*pc) += sizeof(int);
 
-            long lvalue;
+            clint64 lvalue;
 
             memcpy(&lvalue, &value1, sizeof(int));
             memcpy((char*)&lvalue + sizeof(int), &value2, sizeof(int));
@@ -183,7 +183,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             int value2 = *(int*)(*pc);
             (*pc) += sizeof(int);
 
-            long lvalue;
+            clint64 lvalue;
 
             memcpy(&lvalue, &value1, sizeof(int));
             memcpy((char*)&lvalue + sizeof(int), &value2, sizeof(int));
@@ -222,7 +222,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             int value2 = *(int*)(*pc);
             (*pc) += sizeof(int);
 
-            long lvalue;
+            clint64 lvalue;
 
             memcpy(&lvalue, &value1, sizeof(int));
             memcpy((char*)&lvalue + sizeof(int), &value2, sizeof(int));

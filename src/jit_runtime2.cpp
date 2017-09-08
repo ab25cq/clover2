@@ -457,7 +457,7 @@ CLObject run_int_to_string_cast(int n)
     return str;
 }
 
-CLObject run_long_to_string_cast(long l)
+CLObject run_long_to_string_cast(clint64 l)
 {
     char buf[32];
     snprintf(buf, 32, "%ld", l);
@@ -477,7 +477,7 @@ CLObject run_uint_to_string_cast(unsigned int n)
     return str;
 }
 
-CLObject run_ulong_to_string_cast(long l)
+CLObject run_ulong_to_string_cast(clint64 l)
 {
     char buf[32];
     snprintf(buf, 32, "%lu", l);
@@ -605,20 +605,20 @@ unsigned short run_cushort_to_ushort_cast(CLObject obj)
     return value;
 }
 
-long run_clong_to_long_cast(CLObject obj)
+clint64 run_clong_to_long_cast(CLObject obj)
 {
     sCLObject* obj_data = CLOBJECT(obj);
 
-    long value = (long)obj_data->mFields[0].mLongValue;
+    clint64 value = (clint64)obj_data->mFields[0].mLongValue;
 
     return value;
 }
 
-unsigned long run_culong_to_ulong_cast(CLObject obj)
+unsigned clint64 run_culong_to_ulong_cast(CLObject obj)
 {
     sCLObject* obj_data = CLOBJECT(obj);
 
-    unsigned long value = (unsigned long)obj_data->mFields[0].mLongValue;
+    unsigned clint64 value = (unsigned clint64)obj_data->mFields[0].mLongValue;
 
     return value;
 }

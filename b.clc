@@ -790,6 +790,7 @@ class JITTest
     }
     def run98_13(): long {
         a :Long = new Long(123);
+printf("(%lld)\n", array { a.to_long() } );
         return a;
     }
     def run98_14(): byte {

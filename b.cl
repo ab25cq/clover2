@@ -244,6 +244,9 @@ Clover.test("jit test98_9", a.run98_9() == 123y);
 Clover.test("jit test98_10", a.run98_10() == 123);
 Clover.test("jit test98_11", a.run98_11() == -1s);
 Clover.test("jit test98_12", a.run98_12() == -1y);
+
+printf("a.run98_13() %ld\n", array { a.run98_13() });
+
 Clover.test("jit test98_13", a.run98_13() == 123l);
 Clover.test("jit test98_14", a.run98_14() == 123y);
 Clover.test("jit test98_15", a.run98_15() == 123.0);
@@ -337,9 +340,9 @@ Clover.test("jit test-list", equalable_list {1,2,3,1,2,3}.deleteWithRange(2,4).e
 
 Clover.test("jit test-split", a.split(/\n/).equals( equalable_list { "ABC" }) );
 
+/*
 a.split2(p"/etc/group".read().toString(), /\n/);
 
-/*
 a.split2(p"/etc/group".read().toString(), /\n/);
 
 zz:Array<Integer> = a.run70_7();

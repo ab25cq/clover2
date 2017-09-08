@@ -3756,6 +3756,9 @@ if(stack_ptr != lvar + var_num + 1) {
                     clint64 left = (stack_ptr-2)->mLongValue;
                     clint64 right = (stack_ptr-1)->mLongValue;
 
+
+printf("left %lld right %lld\n", left, right);
+
                     BOOL result = left == right;
 
                     stack_ptr-=2;
