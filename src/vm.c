@@ -469,6 +469,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
         int new_var_num = method->mVarNum;
 
         /// initialize local var except params ///
+printf("%s.%s real_param_num %d\n", CLASS_NAME(klass), METHOD_NAME2(klass, method), real_param_num);
         memset(lvar + real_param_num, 0, sizeof(CLVALUE)* (new_var_num - real_param_num));
 
 #ifdef ENABLE_JIT

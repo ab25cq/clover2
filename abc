@@ -1,11 +1,69 @@
-==32727== Memcheck, a memory error detector
-==32727== Copyright (C) 2002-2015, and GNU GPL'd, by Julian Seward et al.
-==32727== Using Valgrind-3.11.0 and LibVEX; rerun with -h for copyright info
-==32727== Command: ./clover2 b.clo
-==32727== 
+==534== Memcheck, a memory error detector
+==534== Copyright (C) 2002-2015, and GNU GPL'd, by Julian Seward et al.
+==534== Using Valgrind-3.12.0.SVN and LibVEX; rerun with -h for copyright info
+==534== Command: ./clover2 b.clo
+==534== 
 jit test...OK
 jit test2...OK
+System.initialize real_param_num 0
+System.initialize real_param_num 0
+System.initialize real_param_num 0
+Hash.initialize real_param_num 0
+Command.initialize real_param_num 0
+EqualableList.initialize real_param_num 3
+EqualableList.add real_param_num 2
+ListItem.initialize real_param_num 4
+EqualableList.add real_param_num 2
+ListItem.initialize real_param_num 4
+EqualableList.add real_param_num 2
+ListItem.initialize real_param_num 4
+EqualableList.add real_param_num 2
+ListItem.initialize real_param_num 4
+EqualableList.add real_param_num 2
+ListItem.initialize real_param_num 4
+EqualableList.add real_param_num 2
+ListItem.initialize real_param_num 4
+EqualableList.add real_param_num 2
+ListItem.initialize real_param_num 4
+EqualableList.add real_param_num 2
+ListItem.initialize real_param_num 4
+EqualableList.add real_param_num 2
+ListItem.initialize real_param_num 4
+EqualableList.add real_param_num 2
+ListItem.initialize real_param_num 4
+EqualableList.add real_param_num 2
+ListItem.initialize real_param_num 4
+EqualableList.add real_param_num 2
+ListItem.initialize real_param_num 4
+EqualableList.add real_param_num 2
+ListItem.initialize real_param_num 4
+EqualableList.add real_param_num 2
+ListItem.initialize real_param_num 4
+EqualableList.add real_param_num 2
+ListItem.initialize real_param_num 4
+EqualableList.add real_param_num 2
+ListItem.initialize real_param_num 4
+EqualableList.add real_param_num 2
+ListItem.initialize real_param_num 4
+EqualableList.add real_param_num 2
+ListItem.initialize real_param_num 4
+Clover.initialize real_param_num 0
+Clover.initialize real_param_num 0
+EqualableList.initialize real_param_num 1
+JITTest.initialize real_param_num 1
+JITTest.run real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run2 real_param_num 1
+String.equals real_param_num 2
+String.length real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+Global.println real_param_num 1
 jit test3
+JITTest.run3 real_param_num 1
 HELLO WORLD
 jit test4...OK
 jit test5...OK
@@ -13,8 +71,49 @@ jit test6...OK
 jit test7...OK
 jit test8...OK
 jit test9...OK
-jit test10...OK
-jit test11...OK
+JITTest.run4 real_param_num 1
+JITTestClassA.classMethod real_param_num 0
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run5 real_param_num 1
+JITTestClassA.classMethod real_param_num 2
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run6 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run7 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run8 real_param_num 1
+JITTest.method real_param_num 1
+String.append real_param_num 2
+String.length real_param_num 1
+String.equals real_param_num 2
+String.length real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run9 real_param_num 1
+JITTestClassA.initialize real_param_num 2
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+Global.print real_param_num 1
+jit test10...JITTest.run10 real_param_num 1
+Exception.initialize real_param_num 2
+Global.println real_param_num 1
+OK
+JITTest.run11 real_param_num 1
+Global.print real_param_num 1
+jit test11...JITTest.method2 real_param_num 1
+Exception.initialize real_param_num 2
+Global.println real_param_num 1
+OK
 jit test12...OK
 jit test13...OK
 jit test14...OK
@@ -48,7 +147,141 @@ jit test40...OK
 jit test41...OK
 jit test42...OK
 jit test43...OK
-jit test44...OK
+JITTest.run12 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run13 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run14 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run15 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run16 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run17 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run18 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run19 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run20 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run21 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run22 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run23 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run24 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run25 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run26 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run27 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run28 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run29 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run30 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run31 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run32 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run32 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run33 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run34 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run35 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run36 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run37 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run38 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run39 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run40 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run41 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run42 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run43 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run44 real_param_num 1
+Clover.test real_param_num 2
+String.appjit test44...OK
 jit test45...OK
 jit test46...OK
 jit test47...OK
@@ -59,13 +292,96 @@ jit test50...OK
 jit test51...OK
 jit test52...OK
 jit test53...OK
-jit test53.5...OK
+end real_param_num 2
+String.length real_param_num 1
+JITTest.run45 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run46 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run47 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run48 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run49 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run49_5 real_param_num 2
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run50 real_param_num 1
+String.equals real_param_num 2
+String.length real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run51 real_param_num 1
+String.equals real_param_num 2
+String.length real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run52 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run53 real_param_num 1
+JITTestClassA.initialize real_param_num 1
+JITTestClassA.method real_param_num 2
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+Global.print real_param_num 1
+jit test53.5...JITTest.run53_5 real_param_num 1
+JITTestClassA.initialize real_param_num 1
+JITTestClassA.method2 real_param_num 1
+Exception.initialize real_param_num 2
+Global.println real_param_num 1
+OK
 jit test55...OK
 jit test57...OK
 jit test58...OK
 jit test59...OK
 jit test60...OK
 jit test61...OK
+JITTest.run55 real_param_num 4
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run56 real_param_num 1
+JITTest.run57 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run58 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run59 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run60 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run61 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run62 real_param_num 1
+Double.toString real_param_num 1
+String.println real_param_num 1
+Global.println real_param_num 1
 245.100000
 jit test62...OK
 jit test63...OK
@@ -83,544 +399,147 @@ jit test70.7...OK
 jit test71...OK
 jit test71.1...OK
 jit test71.2...OK
-jit test71.3...OK
-jit test71.4...OK
-jit test72...OK
-jit test72.5...OK
-jit test72.6...OK
-jit test72.7...OK
-jit test72.8...OK
-jit test72.9...OK
-jit test72.a...OK
-jit test73...OK
-jit test74...OK
-jit test75...OK
-jit test76...OK
-jit test77...OK
-jit test78...OK
-jit test78.1...OK
-jit test78.2...OK
-jit test78.3...OK
-jit test79...OK
-jit test80...OK
-jit test80.1...OK
-jit test81...OK
-jit test82...OK
-jit test82.1...OK
-jit test82.2...OK
-jit test82.3...OK
-jit test82.4...OK
-jit test82.5...OK
-jit test83...OK
-jit test84...OK
-jit test85...OK
-jit test86...OK
-jit test87...OK
-jit test87.1...OK
-jit test87.2...OK
-jit test88...OK
-jit test90...OK
-jit test90.1...OK
-jit test90.2...OK
-jit test91...OK
-jit test92...OK
-jit test92.1...OK
-jit test93.1...OK
-jit test93.2...OK
-jit test93.3...OK
-jit test93.4...OK
-jit test93.5...OK
-jit test93.6...OK
-jit test94...OK
-jit test95...OK
-jit test95_1...OK
-jit test95_2...OK
-jit test95_3...OK
-jit test95_5...OK
-jit test95_6...OK
-jit test95_7...OK
-jit test95_8...OK
-jit test95_9...OK
-jit test95_10...OK
-jit test95_11...OK
-jit test95_12...OK
-jit test95_13...OK
-jit test95_14...OK
-jit test95_15...OK
-jit test95_16...OK
-jit test95_17...OK
-jit test95_18...OK
-jit test95_20...OK
-jit test96...OK
-jit test96_1...OK
-jit test96_2...OK
-jit test96_3...OK
-jit test96_4...OK
-jit test96_5...OK
-jit test96_6...OK
-jit test96_7...OK
-jit test97...OK
-jit test98...OK
-jit test98_1...OK
-jit test98_2...OK
-jit test98_3...OK
-jit test98_4...OK
-jit test98_5...OK
-jit test98_6...OK
-jit test98_7...OK
-jit test98_8...OK
-jit test98_9...OK
-jit test98_10...OK
-jit test98_11...OK
-jit test98_12...OK
-(1463)
-a.run98_13() 123
-(1448)
-jit test98_13...OK
-jit test98_14...OK
-jit test98_15...OK
-jit test98_16...OK
-jit test98_17...OK
-jit test98_18...OK
-jit test98_19...OK
-jit test99...OK
-jit test99_1...OK
-jit test99_3...OK
-jit test99_4...OK
-jit test99_5...OK
-jit test100...OK
-jit test101...OK
-jit test102...OK
-jit test103...OK
-jit test 104...123
-123
-123
-OK
-jit test 105...1
-2
-3
-OK
-jit test 106...OK
-jit test107...OK
-jit test108...OK
-jit test108.1...OK
-jit test109...OK
-jit test110...OK
-jit test111...OK
-HELLO JIT with mixin-layers
-jit test112...OK
-jit test113...OK
-jit test114...OK
-jit test115...OK
-jit test116...OK
-jit test116_5...OK
-jit test116_6...OK
-jit test116_9...OK
-jit test117...OK
-jit test-reverse...OK
-jit test-insert...OK
-jit test-toBuffer...OK
-jit test-indexOf...OK
-jit test-insert2...OK
-jit test-add...OK
-jit test-subBuffer...OK
-AAA
-BBB
-AAA
-BBB
-AAA
-BBB
-jit test-scan...OK
-AAA
-BBB
-AAA
-BBB
-jit test-sub...OK
-AAA
-BBB
-AAA
-BBB
-jit test-sub2...OK
-AAA
-BBB
-AAA
-BBB
-jit test-sub2-5...OK
-AAA
-BBB
-AAA
-BBB
-AAA
-BBB
-AAA
-BBB
-jit test-sub3...OK
-AAA
-BBB
-AAA
-BBB
-jit test-sub4...OK
-AAA
-BBB
-AAA
-BBB
-AAA
-BBB
-jit test-scan...OK
-jit test subString...OK
-AAA
-BBB
-AAA
-BBB
-AAA
-BBB
-AAA
-BBB
-jit test-sub5...OK
-AAA
-BBB
-AAA
-BBB
-AAA
-BBB
-AAA
-BBB
-AAA
-BBB
-jit test-sub6...OK
-jit test-match...OK
-AAA
-BBB
-jit test-match2...OK
-jit test-list...OK
-AAA
-BBB
-jit test-split...OK
-AAA
-BBB
-==32727== Invalid write of size 8
-==32727==    at 0x4C3453F: memset (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==32727==    by 0x57FA85: invoke_method (vm.c:472)
-==32727==    by 0x9815ADC: ???
-==32727==    by 0x2E74736554544949: ???
-==32727==    by 0x7265666675426F73: ???
-==32727==    by 0x29676E6972745327: ???
-==32727==    by 0x3033322423: ???
-==32727==    by 0x1007: ???
-==32727==    by 0x14000000000: ???
-==32727==    by 0x8CD78CF: ???
-==32727==    by 0x9A1EF0F: ???
-==32727==    by 0x8CD78CF: ???
-==32727==  Address 0x72e7000 is 0 bytes after a block of size 8,192 alloc'd
-==32727==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==32727==    by 0x57B15D: debug_calloc (debug.c:224)
-==32727==    by 0x597133: eval_file (script.c:73)
-==32727==    by 0x57A8E8: main (main.c:50)
-==32727== 
-==32727== Invalid write of size 8
-==32727==    at 0xB4658ED: ???
-==32727==    by 0x612E726566667541: ???
-==32727==    by 0x796228646E65706F: ???
-==32727==    by 0x352424296573: ???
-==32727==  Address 0x72e7000 is 0 bytes after a block of size 8,192 alloc'd
-==32727==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==32727==    by 0x57B15D: debug_calloc (debug.c:224)
-==32727==    by 0x597133: eval_file (script.c:73)
-==32727==    by 0x57A8E8: main (main.c:50)
-==32727== 
-==32727== Invalid read of size 8
-==32727==    at 0xB46592F: ???
-==32727==    by 0x612E726566667541: ???
-==32727==    by 0x796228646E65706F: ???
-==32727==    by 0x352424296573: ???
-==32727==  Address 0x72e7000 is 0 bytes after a block of size 8,192 alloc'd
-==32727==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==32727==    by 0x57B15D: debug_calloc (debug.c:224)
-==32727==    by 0x597133: eval_file (script.c:73)
-==32727==    by 0x57A8E8: main (main.c:50)
-==32727== 
-==32727== Invalid write of size 8
-==32727==    at 0x9815A9F: ???
-==32727==    by 0x2E74736554544949: ???
-==32727==    by 0x7265666675426F73: ???
-==32727==    by 0x29676E6972745327: ???
-==32727==    by 0x3033322423: ???
-==32727==    by 0x1007: ???
-==32727==    by 0x14000000000: ???
-==32727==    by 0x8CD78CF: ???
-==32727==    by 0x9A1EF0F: ???
-==32727==    by 0x8CD78CF: ???
-==32727==    by 0x8CD7AFF: ???
-==32727==    by 0x8CD78CF: ???
-==32727==  Address 0x72e7000 is 0 bytes after a block of size 8,192 alloc'd
-==32727==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==32727==    by 0x57B15D: debug_calloc (debug.c:224)
-==32727==    by 0x597133: eval_file (script.c:73)
-==32727==    by 0x57A8E8: main (main.c:50)
-==32727== 
-==32727== Invalid write of size 8
-==32727==    at 0x9815AAE: ???
-==32727==    by 0x2E74736554544949: ???
-==32727==    by 0x7265666675426F73: ???
-==32727==    by 0x29676E6972745327: ???
-==32727==    by 0x3033322423: ???
-==32727==    by 0x1007: ???
-==32727==    by 0x14000000000: ???
-==32727==    by 0x8CD78CF: ???
-==32727==    by 0x9A1EF0F: ???
-==32727==    by 0x8CD78CF: ???
-==32727==    by 0x8CD7AFF: ???
-==32727==    by 0x8CD78CF: ???
-==32727==  Address 0x72e7000 is 0 bytes after a block of size 8,192 alloc'd
-==32727==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==32727==    by 0x57B15D: debug_calloc (debug.c:224)
-==32727==    by 0x597133: eval_file (script.c:73)
-==32727==    by 0x57A8E8: main (main.c:50)
-==32727== 
-==32727== Invalid read of size 8
-==32727==    at 0xB465631: ???
-==32727==    by 0x759B4EF: ???
-==32727==    by 0xA9821930F217EBFF: ???
-==32727==    by 0x759B5AF: ???
-==32727==    by 0x759B26F: ???
-==32727==    by 0x759B4EF: ???
-==32727==    by 0x72E6FF7: ???
-==32727==    by 0xFFEFF7A1F: ???
-==32727==    by 0x5BB: ???
-==32727==    by 0xB4655FF: ???
-==32727==    by 0x16: ???
-==32727==    by 0x1101: ???
-==32727==  Address 0x72e7000 is 0 bytes after a block of size 8,192 alloc'd
-==32727==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==32727==    by 0x57B15D: debug_calloc (debug.c:224)
-==32727==    by 0x597133: eval_file (script.c:73)
-==32727==    by 0x57A8E8: main (main.c:50)
-==32727== 
-==32727== Invalid write of size 8
-==32727==    at 0xB4658DB: ???
-==32727==    by 0x612E726566667541: ???
-==32727==    by 0x796228646E65706F: ???
-==32727==    by 0x352424296573: ???
-==32727==  Address 0x72e7000 is 0 bytes after a block of size 8,192 alloc'd
-==32727==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==32727==    by 0x57B15D: debug_calloc (debug.c:224)
-==32727==    by 0x597133: eval_file (script.c:73)
-==32727==    by 0x57A8E8: main (main.c:50)
-==32727== 
-==32727== Invalid write of size 8
-==32727==    at 0xB4658E4: ???
-==32727==    by 0x612E726566667541: ???
-==32727==    by 0x796228646E65706F: ???
-==32727==    by 0x352424296573: ???
-==32727==  Address 0x72e7008 is 8 bytes after a block of size 8,192 alloc'd
-==32727==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==32727==    by 0x57B15D: debug_calloc (debug.c:224)
-==32727==    by 0x597133: eval_file (script.c:73)
-==32727==    by 0x57A8E8: main (main.c:50)
-==32727== 
-==32727== Invalid read of size 8
-==32727==    at 0xB46590B: ???
-==32727==    by 0x612E726566667541: ???
-==32727==    by 0x796228646E65706F: ???
-==32727==    by 0x352424296573: ???
-==32727==  Address 0x72e7000 is 0 bytes after a block of size 8,192 alloc'd
-==32727==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==32727==    by 0x57B15D: debug_calloc (debug.c:224)
-==32727==    by 0x597133: eval_file (script.c:73)
-==32727==    by 0x57A8E8: main (main.c:50)
-==32727== 
-==32727== Invalid read of size 8
-==32727==    at 0xB46591D: ???
-==32727==    by 0x612E726566667541: ???
-==32727==    by 0x796228646E65706F: ???
-==32727==    by 0x352424296573: ???
-==32727==  Address 0x72e7008 is 8 bytes after a block of size 8,192 alloc'd
-==32727==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==32727==    by 0x57B15D: debug_calloc (debug.c:224)
-==32727==    by 0x597133: eval_file (script.c:73)
-==32727==    by 0x57A8E8: main (main.c:50)
-==32727== 
-==32727== Invalid write of size 8
-==32727==    at 0x9815A87: ???
-==32727==    by 0x2E74736554544949: ???
-==32727==    by 0x7265666675426F73: ???
-==32727==    by 0x29676E6972745327: ???
-==32727==    by 0x3033322423: ???
-==32727==    by 0x1007: ???
-==32727==    by 0x14000000000: ???
-==32727==    by 0x8CD78CF: ???
-==32727==    by 0x9A1EF0F: ???
-==32727==    by 0x8CD78CF: ???
-==32727==    by 0x8CD7AFF: ???
-==32727==    by 0x8CD78CF: ???
-==32727==  Address 0x72e7008 is 8 bytes after a block of size 8,192 alloc'd
-==32727==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==32727==    by 0x57B15D: debug_calloc (debug.c:224)
-==32727==    by 0x597133: eval_file (script.c:73)
-==32727==    by 0x57A8E8: main (main.c:50)
-==32727== 
-==32727== Invalid write of size 8
-==32727==    at 0x9815A90: ???
-==32727==    by 0x2E74736554544949: ???
-==32727==    by 0x7265666675426F73: ???
-==32727==    by 0x29676E6972745327: ???
-==32727==    by 0x3033322423: ???
-==32727==    by 0x1007: ???
-==32727==    by 0x14000000000: ???
-==32727==    by 0x8CD78CF: ???
-==32727==    by 0x9A1EF0F: ???
-==32727==    by 0x8CD78CF: ???
-==32727==    by 0x8CD7AFF: ???
-==32727==    by 0x8CD78CF: ???
-==32727==  Address 0x72e7008 is 8 bytes after a block of size 8,192 alloc'd
-==32727==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==32727==    by 0x57B15D: debug_calloc (debug.c:224)
-==32727==    by 0x597133: eval_file (script.c:73)
-==32727==    by 0x57A8E8: main (main.c:50)
-==32727== 
-==32727== Invalid read of size 8
-==32727==    at 0xB46561F: ???
-==32727==    by 0x759B4EF: ???
-==32727==    by 0xA9821930F217EBFF: ???
-==32727==    by 0x759B5AF: ???
-==32727==    by 0x759B26F: ???
-==32727==    by 0x759B4EF: ???
-==32727==    by 0x72E7007: ???
-==32727==    by 0xFFEFF7A1F: ???
-==32727==    by 0x759B26F: ???
-==32727==    by 0xB4655FF: ???
-==32727==    by 0x16: ???
-==32727==    by 0x1101: ???
-==32727==  Address 0x72e7008 is 8 bytes after a block of size 8,192 alloc'd
-==32727==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==32727==    by 0x57B15D: debug_calloc (debug.c:224)
-==32727==    by 0x597133: eval_file (script.c:73)
-==32727==    by 0x57A8E8: main (main.c:50)
-==32727== 
-==32727== Invalid write of size 8
-==32727==    at 0xB4658D3: ???
-==32727==    by 0x612E726566667541: ???
-==32727==    by 0x796228646E65706F: ???
-==32727==    by 0x352424296573: ???
-==32727==  Address 0x72e7008 is 8 bytes after a block of size 8,192 alloc'd
-==32727==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==32727==    by 0x57B15D: debug_calloc (debug.c:224)
-==32727==    by 0x597133: eval_file (script.c:73)
-==32727==    by 0x57A8E8: main (main.c:50)
-==32727== 
-==32727== Invalid read of size 8
-==32727==    at 0xB4658F5: ???
-==32727==    by 0x612E726566667541: ???
-==32727==    by 0x796228646E65706F: ???
-==32727==    by 0x352424296573: ???
-==32727==  Address 0x72e7008 is 8 bytes after a block of size 8,192 alloc'd
-==32727==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==32727==    by 0x57B15D: debug_calloc (debug.c:224)
-==32727==    by 0x597133: eval_file (script.c:73)
-==32727==    by 0x57A8E8: main (main.c:50)
-==32727== 
-==32727== Invalid write of size 8
-==32727==    at 0xB4659A2: ???
-==32727==    by 0x612E726566667541: ???
-==32727==    by 0x796228646E65706F: ???
-==32727==    by 0x352424296573: ???
-==32727==  Address 0x72e7008 is 8 bytes after a block of size 8,192 alloc'd
-==32727==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==32727==    by 0x57B15D: debug_calloc (debug.c:224)
-==32727==    by 0x597133: eval_file (script.c:73)
-==32727==    by 0x57A8E8: main (main.c:50)
-==32727== 
-==32727== Invalid read of size 8
-==32727==    at 0x57FB0D: invoke_method (vm.c:492)
-==32727==    by 0x9815ADC: ???
-==32727==    by 0x2E74736554544949: ???
-==32727==    by 0x7265666675426F73: ???
-==32727==    by 0x29676E6972745327: ???
-==32727==    by 0x3033322423: ???
-==32727==    by 0x1007: ???
-==32727==    by 0x14000000000: ???
-==32727==    by 0x8CD78CF: ???
-==32727==    by 0x9A1EF0F: ???
-==32727==    by 0x8CD78CF: ???
-==32727==    by 0x8CD7AFF: ???
-==32727==  Address 0x72e7008 is 8 bytes after a block of size 8,192 alloc'd
-==32727==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==32727==    by 0x57B15D: debug_calloc (debug.c:224)
-==32727==    by 0x597133: eval_file (script.c:73)
-==32727==    by 0x57A8E8: main (main.c:50)
-==32727== 
-==32727== Invalid write of size 8
-==32727==    at 0x57FB10: invoke_method (vm.c:492)
-==32727==    by 0x9815ADC: ???
-==32727==    by 0x2E74736554544949: ???
-==32727==    by 0x7265666675426F73: ???
-==32727==    by 0x29676E6972745327: ???
-==32727==    by 0x3033322423: ???
-==32727==    by 0x1007: ???
-==32727==    by 0x14000000000: ???
-==32727==    by 0x8CD78CF: ???
-==32727==    by 0x9A1EF0F: ???
-==32727==    by 0x8CD78CF: ???
-==32727==    by 0x8CD7AFF: ???
-==32727==  Address 0x72e7008 is 8 bytes after a block of size 8,192 alloc'd
-==32727==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==32727==    by 0x57B15D: debug_calloc (debug.c:224)
-==32727==    by 0x597133: eval_file (script.c:73)
-==32727==    by 0x57A8E8: main (main.c:50)
-==32727== 
-==32727== Invalid read of size 4
-==32727==    at 0x9815997: ???
-==32727==  Address 0x72e7008 is 8 bytes after a block of size 8,192 alloc'd
-==32727==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==32727==    by 0x57B15D: debug_calloc (debug.c:224)
-==32727==    by 0x597133: eval_file (script.c:73)
-==32727==    by 0x57A8E8: main (main.c:50)
-==32727== 
-
-valgrind: m_mallocfree.c:303 (get_bszB_as_is): Assertion 'bszB_lo == bszB_hi' failed.
-valgrind: Heap block lo/hi size mismatch: lo = 58, hi = 0.
-This is probably caused by your program erroneously writing past the
-end of a heap block and corrupting heap metadata.  If you fix any
-invalid writes reported by Memcheck, this assertion failure will
-probably go away.  Please try that before reporting this as a bug.
-
-
-host stacktrace:
-==32727==    at 0x38083F48: ??? (in /usr/lib/valgrind/memcheck-amd64-linux)
-==32727==    by 0x38084064: ??? (in /usr/lib/valgrind/memcheck-amd64-linux)
-==32727==    by 0x380841F1: ??? (in /usr/lib/valgrind/memcheck-amd64-linux)
-==32727==    by 0x38091431: ??? (in /usr/lib/valgrind/memcheck-amd64-linux)
-==32727==    by 0x38050D13: ??? (in /usr/lib/valgrind/memcheck-amd64-linux)
-==32727==    by 0x38050EDB: ??? (in /usr/lib/valgrind/memcheck-amd64-linux)
-==32727==    by 0x380510A9: ??? (in /usr/lib/valgrind/memcheck-amd64-linux)
-==32727==    by 0x380D4F7B: ??? (in /usr/lib/valgrind/memcheck-amd64-linux)
-==32727==    by 0x380E3946: ??? (in /usr/lib/valgrind/memcheck-amd64-linux)
-
-sched status:
-  running_tid=1
-
-Thread 1: status = VgTs_Runnable (lwpid 32727)
-==32727==    at 0x4C2E0EF: operator new(unsigned long) (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==32727==    by 0x929B0A: void* llvm::object_creator<llvm::sys::SmartMutex<false> >() (in /home/ab25cq/repo/clover2/clover2)
-==32727==    by 0xF4FB22: llvm::ManagedStaticBase::RegisterManagedStatic(void* (*)(), void (*)(void*)) const (in /home/ab25cq/repo/clover2/clover2)
-==32727==    by 0xBD716F: (anonymous namespace)::GDBJITRegistrationListener::~GDBJITRegistrationListener() (in /home/ab25cq/repo/clover2/clover2)
-==32727==    by 0xBD72BD: llvm::object_deleter<(anonymous namespace)::GDBJITRegistrationListener>::call(void*) (in /home/ab25cq/repo/clover2/clover2)
-==32727==    by 0xF4FB6C: llvm::ManagedStaticBase::destroy() const (in /home/ab25cq/repo/clover2/clover2)
-==32727==    by 0xF4FBA4: llvm::llvm_shutdown() (in /home/ab25cq/repo/clover2/clover2)
-==32727==    by 0x5A62E6: jit_final_on_runtime (jit_runtime.cpp:918)
-==32727==    by 0x57AA3D: clover2_final (main.c:24)
-==32727==    by 0x57A933: main (main.c:56)
-
-
-Note: see also the FAQ in the source distribution.
-It contains workarounds to several common problems.
-In particular, if Valgrind aborted or crashed after
-identifying problems in your program, there's a good chance
-that fixing those problems will prevent Valgrind aborting or
-crashing, especially if it happened in m_mallocfree.c.
-
-If that doesn't help, please report this bug to: www.valgrind.org
-
-In the bug report, send all the above text, the valgrind
-version, and what OS and version you are using.  Thanks.
-
+==534== 
+==534== Process terminating with default action of signal 2 (SIGINT)
+==534==    at 0x402E87A: operator new(unsigned int) (vg_replace_malloc.c:328)
+==534==    by 0x85C8024: void llvm::Calculate<llvm::MachineFunction, llvm::MachineBasicBlock*>(llvm::DominatorTreeBase<llvm::GraphTraits<llvm::MachineBasicBlock*>::NodeType>&, llvm::MachineFunction&) (in /home/ab25cq/repo/clover2/clover2)
+==534==    by 0x85C9A7E: llvm::MachineDominatorTree::runOnMachineFunction(llvm::MachineFunction&) (in /home/ab25cq/repo/clover2/clover2)
+==534==    by 0x8B8CE1A: llvm::FPPassManager::runOnFunction(llvm::Function&) (in /home/ab25cq/repo/clover2/clover2)
+==534==    by 0x8B8D164: llvm::FPPassManager::runOnModule(llvm::Module&) (in /home/ab25cq/repo/clover2/clover2)
+==534==    by 0x8B8D4C9: llvm::legacy::PassManagerImpl::run(llvm::Module&) (in /home/ab25cq/repo/clover2/clover2)
+==534==    by 0x8B8D6AE: llvm::legacy::PassManager::run(llvm::Module&) (in /home/ab25cq/repo/clover2/clover2)
+==534==    by 0x852BDB8: llvm::MCJIT::emitObject(llvm::Module*) (in /home/ab25cq/repo/clover2/clover2)
+==534==    by 0x852C2D8: llvm::MCJIT::generateCodeForModule(llvm::Module*) (in /home/ab25cq/repo/clover2/clover2)
+==534==    by 0x8528CCF: llvm::MCJIT::finalizeObject() (in /home/ab25cq/repo/clover2/clover2)
+==534==    by 0x81BDA93: llvm_load_module_from_bc_file(char*, sCLClassStruct*) (jit_runtime.cpp:242)
+==534==    by 0x81BEF3A: load_bc_file (jit_runtime.cpp:825)
+JITTest.run62 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run63 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run64 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run65 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run66 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run67 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run68 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run69 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run70 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run70_5 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run70_7 real_param_num 1
+Array.initialize real_param_num 2
+Array.items real_param_num 2
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run70_5 real_param_num 1
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run70_7 real_param_num 1
+Array.initialize real_param_num 2
+Array.items real_param_num 2
+Array.items real_param_num 2
+Array.items real_param_num 2
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run71 real_param_num 1
+EqualableArray.initialize real_param_num 2
+EqualableArray.initialize real_param_num 2
+EqualableArray.equals real_param_num 2
+Integer.equals real_param_num 2
+Integer.equals real_param_num 2
+Integer.equals real_param_num 2
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run71_1 real_param_num 1
+List.initialize real_param_num 3
+List.add real_param_num 2
+ListItem.initialize real_param_num 4
+List.add real_param_num 2
+ListItem.initialize real_param_num 4
+List.add real_param_num 2
+ListItem.initialize real_param_num 4
+List.items real_param_num 2
+List.items real_param_num 2
+List.items real_param_num 2
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run71_2 real_param_num 1
+EqualableList.initialize real_param_num 3
+EqualableList.add real_param_num 2
+ListItem.initialize real_param_num 4
+EqualableList.add real_param_num 2
+ListItem.initialize real_param_num 4
+EqualableList.add real_param_num 2
+ListItem.initialize real_param_num 4
+EqualableList.initialize real_param_num 3
+EqualableList.add real_param_num 2
+ListItem.initialize real_param_num 4
+EqualableList.add real_param_num 2
+ListItem.initialize real_param_num 4
+EqualableList.add real_param_num 2
+ListItem.initialize real_param_num 4
+EqualableList.equals real_param_num 2
+EqualableList.items real_param_num 2
+EqualableList.items real_param_num 2
+Integer.equals real_param_num 2
+EqualableList.items real_param_num 2
+EqualableList.items real_param_num 2
+Integer.equals real_param_num 2
+EqualableList.items real_param_num 2
+EqualableList.items real_param_num 2
+Integer.equals real_param_num 2
+Clover.test real_param_num 2
+String.append real_param_num 2
+String.length real_param_num 1
+JITTest.run71_3 real_param_num 1
+Tuple2.initialize real_param_num 3
+==534== 
+==534== HEAP SUMMARY:
+==534==     in use at exit: 17,134,393 bytes in 168,730 blocks
+==534==   total heap usage: 1,279,410 allocs, 1,110,680 frees, 430,014,869 bytes allocated
+==534== 
+==534== LEAK SUMMARY:
+==534==    definitely lost: 0 bytes in 0 blocks
+==534==    indirectly lost: 0 bytes in 0 blocks
+==534==      possibly lost: 2,828,624 bytes in 35,046 blocks
+==534==    still reachable: 14,305,769 bytes in 133,684 blocks
+==534==                       of which reachable via heuristic:
+==534==                         newarray           : 22,100 bytes in 6 blocks
+==534==                         multipleinheritance: 296 bytes in 2 blocks
+==534==         suppressed: 0 bytes in 0 blocks
+==534== Rerun with --leak-check=full to see details of leaked memory
+==534== 
+==534== For counts of detected and suppressed errors, rerun with: -v
+==534== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)

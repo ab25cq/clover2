@@ -926,10 +926,8 @@ class Buffer
     }
 
     def toString():String throws Exception {
-Global.println("AAA");
         wcs:char[] = null;
         System.mbstowcs(&wcs, self.buffer, self.len, true);
-Global.println("BBB");
         return new String(wcs);
     }
 
