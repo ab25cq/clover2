@@ -340,8 +340,8 @@ Clover.test("jit test-list", equalable_list {1,2,3,1,2,3}.deleteWithRange(2,4).e
 
 Clover.test("jit test-split", a.split(/\n/).equals( equalable_list { "ABC" }) );
 
-/*
 a.split2(p"/etc/group".read().toString(), /\n/);
+/*
 
 a.split2(p"/etc/group".read().toString(), /\n/);
 

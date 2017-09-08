@@ -636,7 +636,8 @@ BOOL System_mbstowcs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     BOOL append_null_terminated_value = append_null_terminated->mBoolValue;
 
     BOOL already_null_terminated = FALSE;
-    if(src_value[size_value-1] == '\0') {
+
+    if(size_value > 0 && src_value[size_value-1] == '\0') {
         already_null_terminated = TRUE;
     }
 
