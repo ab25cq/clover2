@@ -116,5 +116,12 @@ BOOL compile_method(sCLMethod* method, sParserParam* params, int num_params, sPa
     add_code_to_method(method, cinfo2.code, var_num);
     cinfo->err_num += cinfo2.err_num;
 
+sCLClass* klass = info->klass;
+if(strcmp(CLASS_NAME(klass), "JITTest") == 0 
+    && strcmp(METHOD_NAME2(klass, method), "toBuffer") == 0) 
+{
+    printf("method VAR NUM %d\n", var_num);
+}
+
     return TRUE;
 }
