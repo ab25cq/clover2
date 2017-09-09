@@ -59,12 +59,6 @@ static BOOL compile_jit_methods(sCLClass* klass)
         verifyModule(*TheModule);
         llvm::WriteBitcodeToFile(TheModule, output_stream, true);
         output_stream.flush();
-
-/*
-if(strcmp(CLASS_NAME(klass), "JITTest") == 0) {
-TheModule->dump();
-}
-*/
     }
 
     delete TheModule;

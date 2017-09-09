@@ -390,7 +390,7 @@ class File
             throw new Exception("File is not opened");
         }
 
-        result:Buffer = new Buffer(size);
+        result:Buffer = new Buffer(size+1.to_ulong);
         System.read(self.fd, result, size);
         return result;
     }
@@ -425,7 +425,7 @@ class File
 
         size:size_t = self.to_stat().size();
 
-        result:Buffer = new Buffer(size);
+        result:Buffer = new Buffer(size+1.to_ulong);
         System.read(self.fd, result, size);
         return result;
     }

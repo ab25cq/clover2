@@ -44,7 +44,7 @@ BOOL compile_to_native_code11(sByteCode* code, sConst* constant, sCLClass* klass
             Value* result = Builder.CreateCall(fun, params2);
 
             Value* result1 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 0);
-            result1  = Builder.CreateAlignedLoad(result1,  4);
+            result1  = Builder.CreateAlignedLoad(result1,  8);
             Value* result2 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 1);
             result2  = Builder.CreateAlignedLoad(result2,  4);
 

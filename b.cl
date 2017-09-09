@@ -342,8 +342,15 @@ Clover.test("jit test-list", equalable_list {1,2,3,1,2,3}.deleteWithRange(2,4).e
 Clover.test("jit test-split", a.split(/\n/).equals( equalable_list { "ABC" }) );
 */
 
-a.split2(p"/etc/group".read().toString(), /\n/);
+#b:String = p"/etc/group".read().toString();
+
+#printf("b.len %d b.size %d b.buffer.length %d\n", array { b.len, b.size, b.buffer.length } );
+
+a.for_test();
+
+
 /*
+a.split2(p"/etc/group".read().toString(), /\n/);
 
 a.split2(p"/etc/group".read().toString(), /\n/);
 

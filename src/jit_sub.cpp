@@ -354,7 +354,7 @@ void trunc_variable(LVALUE* llvm_value, int size)
 {
     switch(size) {
         case 1:
-            llvm_value->value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt8Ty(TheContext));
+            llvm_value->value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt8Ty(TheContext), "XXX");
 
             break;
 

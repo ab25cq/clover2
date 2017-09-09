@@ -2592,6 +2592,21 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
 
         info->type = create_node_type_with_class_name("Anonymous");
     }
+    else if(strcmp(method_name, "ID") == 0) {
+        //// go ///
+        if(num_params != 0) {
+            compile_err_msg(info, "ID method doesn't require params");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        info->type = create_node_type_with_class_name("int");
+        
+        return TRUE;
+    }
     /// normal methods ///
     else {
         if(!call_normal_method(node, info, object_type, generics_types, klass, param_types, num_params, method_name, params, num_method_chains, max_method_chains))

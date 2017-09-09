@@ -84,6 +84,7 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
             finish_method_call(result, params, current_block, *function, try_catch_label_name, code, real_param_num, var_num, llvm_stack, *llvm_stack_ptr);
             
 
+/*
             /// the pointer of lvar syncs to llvm stack ///
             for(i=0; i<real_param_num; i++) {
                 LVALUE* llvm_value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -i-1);
@@ -93,6 +94,7 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
                     llvm_value->lvar_address_index = -1;
                 }
             }
+*/
 
             /// VM stack to llvm stack ///
             vm_lvar_to_llvm_lvar(llvm_stack, params, *current_block, var_num);
@@ -175,6 +177,7 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
 
             finish_method_call(result, params, current_block, *function, try_catch_label_name, code, num_real_params-1, var_num, llvm_stack, *llvm_stack_ptr);
             
+/*
             /// the pointer of lvar syncs to llvm stack ///
             int i;
             for(i=0; i<num_real_params-1; i++) {
@@ -184,6 +187,7 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
                     store_llvm_value_to_lvar_with_offset(llvm_stack, llvm_value->lvar_address_index, &llvm_value_of_vm_stack);
                 }
             }
+*/
 
             /// VM stack to llvm stack ///
             vm_lvar_to_llvm_lvar(llvm_stack, params, *current_block, var_num);
@@ -290,6 +294,7 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
 
             finish_method_call(result, params, current_block, *function, try_catch_label_name, code, num_real_params-1, var_num, llvm_stack, *llvm_stack_ptr);
             
+/*
             /// the pointer of lvar syncs to llvm stack ///
             int i;
             for(i=0; i<num_real_params-1; i++) {
@@ -299,6 +304,7 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
                     store_llvm_value_to_lvar_with_offset(llvm_stack, llvm_value->lvar_address_index, &llvm_value_of_vm_stack);
                 }
             }
+*/
 
             /// VM stack to llvm stack ///
             vm_lvar_to_llvm_lvar(llvm_stack, params, *current_block, var_num);
@@ -529,7 +535,7 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* result = Builder.CreateCall(get_field_fun, params2);
 
             Value* result1 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 0);
-            result1  = Builder.CreateAlignedLoad(result1,  4);
+            result1  = Builder.CreateAlignedLoad(result1,  8);
             Value* result2 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 1);
             result2  = Builder.CreateAlignedLoad(result2,  4);
             if_value_is_zero_ret_zero(result2, params, *function, current_block);
@@ -698,7 +704,7 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* result = Builder.CreateCall(fun, params2);
 
             Value* result1 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 0);
-            result1  = Builder.CreateAlignedLoad(result1,  4);
+            result1  = Builder.CreateAlignedLoad(result1,  8);
             Value* result2 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 1);
             result2  = Builder.CreateAlignedLoad(result2,  4);
 

@@ -1,3138 +1,1098 @@
-==1701== Memcheck, a memory error detector
-==1701== Copyright (C) 2002-2015, and GNU GPL'd, by Julian Seward et al.
-==1701== Using Valgrind-3.11.0 and LibVEX; rerun with -h for copyright info
-==1701== Command: clover2 b.clo
-==1701== 
-jit test...OK
-jit test2...OK
-System.initialize real_param_num 0
-System.initialize real_param_num 0
-System.initialize real_param_num 0
-Hash.initialize real_param_num 0
-Command.initialize real_param_num 0
-EqualableList.initialize real_param_num 3
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-Clover.initialize real_param_num 0
-Clover.initialize real_param_num 0
-EqualableList.initialize real_param_num 1
-JITTest.initialize real_param_num 1
-JITTest.run real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run2 real_param_num 1
-String.equals real_param_num 2
-String.length real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-Global.println real_param_num 1
-jit test3
-JITTest.run3 real_param_num 1
-HELLO WORLD
-jit test4...OK
-jit test5...OK
-jit test6...OK
-jit test7...OK
-jit test8...OK
-jit test9...OK
-JITTest.run4 real_param_num 1
-JITTestClassA.classMethod real_param_num 0
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run5 real_param_num 1
-JITTestClassA.classMethod real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run6 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run7 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run8 real_param_num 1
-JITTest.method real_param_num 1
-String.append real_param_num 2
-String.length real_param_num 1
-String.equals real_param_num 2
-String.length real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run9 real_param_num 1
-JITTestClassA.initialize real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-Global.print real_param_num 1
-jit test10...JITTest.run10 real_param_num 1
-Exception.initialize real_param_num 2
-Global.println real_param_num 1
-OK
-JITTest.run11 real_param_num 1
-Global.print real_param_num 1
-jit test11...JITTest.method2 real_param_num 1
-Exception.initialize real_param_num 2
-Global.println real_param_num 1
-OK
-jit test12...OK
-jit test13...OK
-jit test14...OK
-jit test15...OK
-jit test16...OK
-jit test17...OK
-jit test18...OK
-jit test19...OK
-jit test20...OK
-jit test21...OK
-jit test22...OK
-jit test23...OK
-jit test24...OK
-jit test25...OK
-jit test26...OK
-jit test27...OK
-jit test28...OK
-jit test29...OK
-jit test30...OK
-jit test31...OK
-jit test32...OK
-jit test32...OK
-jit test33...OK
-jit test34...OK
-jit teyst35...OK
-jit test36...OK
-jit test37...OK
-jit test38...OK
-jit test39...OK
-jit test40...OK
-jit test41...OK
-jit test42...OK
-jit test43...OK
-JITTest.run12 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run13 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run14 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run15 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run16 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run17 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run18 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run19 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run20 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run21 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run22 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run23 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run24 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run25 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run26 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run27 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run28 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run29 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run30 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run31 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run32 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run32 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run33 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run34 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run35 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run36 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run37 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run38 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run39 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run40 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run41 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run42 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run43 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run44 real_param_num 1
-Clover.test real_param_num 2
-String.appjit test44...OK
-jit test45...OK
-jit test46...OK
-jit test47...OK
-jit test48...OK
-jit test49...OK
-jit test49.5...OK
-jit test50...OK
-jit test51...OK
-jit test52...OK
-jit test53...OK
-end real_param_num 2
-String.length real_param_num 1
-JITTest.run45 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run46 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run47 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run48 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run49 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run49_5 real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run50 real_param_num 1
-String.equals real_param_num 2
-String.length real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run51 real_param_num 1
-String.equals real_param_num 2
-String.length real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run52 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run53 real_param_num 1
-JITTestClassA.initialize real_param_num 1
-JITTestClassA.method real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-Global.print real_param_num 1
-jit test53.5...JITTest.run53_5 real_param_num 1
-JITTestClassA.initialize real_param_num 1
-JITTestClassA.method2 real_param_num 1
-Exception.initialize real_param_num 2
-Global.println real_param_num 1
-OK
-jit test55...OK
-jit test57...OK
-jit test58...OK
-jit test59...OK
-jit test60...OK
-jit test61...OK
-JITTest.run55 real_param_num 4
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run56 real_param_num 1
-JITTest.run57 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run58 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run59 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run60 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run61 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run62 real_param_num 1
-Double.toString real_param_num 1
-String.println real_param_num 1
-Global.println real_param_num 1
-245.100000
-jit test62...OK
-jit test63...OK
-jit test64...OK
-jit test65...OK
-jit test66...OK
-jit test67...OK
-jit test68...OK
-jit test69...OK
-jit test70...OK
-jit test70.5...OK
-jit test70.7...OK
-jit test70.5...OK
-jit test70.7...OK
-jit test71...OK
-jit test71.1...OK
-jit test71.2...OK
-jit test71.3...OK
-JITTest.run62 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run63 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run64 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run65 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run66 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run67 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run68 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run69 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run70 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run70_5 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run70_7 real_param_num 1
-Array.initialize real_param_num 2
-Array.items real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run70_5 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run70_7 real_param_num 1
-Array.initialize real_param_num 2
-Array.items real_param_num 2
-Array.items real_param_num 2
-Array.items real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run71 real_param_num 1
-EqualableArray.initialize real_param_num 2
-EqualableArray.initialize real_param_num 2
-EqualableArray.equals real_param_num 2
-Integer.equals real_param_num 2
-Integer.equals real_param_num 2
-Integer.equals real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run71_1 real_param_num 1
-List.initialize real_param_num 3
-List.add real_param_num 2
-ListItem.initialize real_param_num 4
-List.add real_param_num 2
-ListItem.initialize real_param_num 4
-List.add real_param_num 2
-ListItem.initialize real_param_num 4
-List.items real_param_num 2
-List.items real_param_num 2
-List.items real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run71_2 real_param_num 1
-EqualableList.initialize real_param_num 3
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.initialize real_param_num 3
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.equals real_param_num 2
-EqualableList.items real_param_num 2
-EqualableList.items real_param_num 2
-Integer.equals real_param_num 2
-EqualableList.items real_param_num 2
-EqualableList.items real_param_num 2
-Integer.equals real_param_num 2
-EqualableList.items real_param_num 2
-EqualableList.items real_param_num 2
-Integer.equals real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run71_3 real_param_num 1
-Tuple2.initialize real_param_num 3
-String.equals real_param_num 2
-String.length real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run71_4 real_param_num 1
-Hash.initialize real_param_num 4
-Hash.put real_param_num 3
-Hash.rehash real_param_num 1
-String.getHashKey real_param_num 1
-HashItem.initialize real_param_num 3
-Hash.put real_param_num 3
-String.getHashKey real_param_num 1
-HashItem.initialize real_param_num 3
-Hash.initialize real_param_num 4
-Hashjit test71.4...OK
-jit test72...OK
-jit test72.5...OK
-jit test72.6...OK
-jit test72.7...OK
-jit test72.8...OK
-jit test72.9...OK
-jit test72.a...OK
-jit test73...OK
-jit test74...OK
-jit test75...OK
-jit test76...OK
-jit test77...OK
-jit test78...OK
-jit test78.1...OK
-jit test78.2...OK
-jit test78.3...OK
-jit test79...OK
-jit test80...OK
-jit test80.1...OK
-jit test81...OK
-jit test82...OK
-jit test82.1...OK
-jit test82.2...OK
-jit test82.3...OK
-jit test82.4...OK
-jit test82.5...OK
-.put real_param_num 3
-Hash.rehash real_param_num 1
-String.getHashKey real_param_num 1
-HashItem.initialize real_param_num 3
-Hash.put real_param_num 3
-String.getHashKey real_param_num 1
-HashItem.initialize real_param_num 3
-Hash.equals real_param_num 2
-Hash.each real_param_num 2
-Hash.containes real_param_num 3
-Hash.get real_param_num 2
-String.getHashKey real_param_num 1
-String.equals real_param_num 2
-String.length real_param_num 1
-Integer.equals real_param_num 2
-Hash.containes real_param_num 3
-Hash.get real_param_num 2
-String.getHashKey real_param_num 1
-String.equals real_param_num 2
-String.length real_param_num 1
-Integer.equals real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run72 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run72_5 real_param_num 1
-JITTestClassA.initialize real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run72_6 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run72_7 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run72_8 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run72_9 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run72_a real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run73 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run74 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run75 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run76 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run77 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run78 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run78_1 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run78_2 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run78_3 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run79 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run80 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run80_1 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run81 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run82 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run82_1 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run82_2 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run82_3 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run82_4 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run82_5 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run83 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_jit test83...OK
-jit test84...OK
-jit test85...OK
-jit test86...OK
-jit test87...OK
-jit test87.1...OK
-jit test87.2...OK
-jit test88...OK
-jit test90...OK
-jit test90.1...OK
-jit test90.2...OK
-jit test91...OK
-jit test92...OK
-jit test92.1...OK
-jit test93.1...OK
-jit test93.2...OK
-jit test93.3...OK
-jit test93.4...OK
-jit test93.5...OK
-jit test93.6...OK
-jit test94...OK
-jit test95...OK
-jit test95_1...OK
-jit test95_2...OK
-jit test95_3...OK
-jit test95_5...OK
-jit test95_6...OK
-jit test95_7...OK
-param_num 1
-JITTest.run84 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run85 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run86 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run87 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run87_1 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run87_2 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run88 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run90 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run90_1 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run90_2 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run91 real_param_num 2
-Pointer.equals real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run92 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run92_1 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run93_1 real_param_num 1
-String.equals real_param_num 2
-String.length real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run93_2 real_param_num 1
-String.equals real_param_num 2
-String.length real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run93_3 real_param_num 1
-String.equals real_param_num 2
-String.length real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run93_4 real_param_num 1
-String.equals real_param_num 2
-String.length real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run93_5 real_param_num 1
-String.equals real_param_num 2
-String.length real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run93_6 real_param_num 1
-String.equals real_param_num 2
-String.length real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run94 real_param_num 1
-String.equals real_param_num 2
-String.length real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run95 real_param_num 1
-String.equals real_param_num 2
-String.length real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run95_1 real_param_num 1
-String.equals real_param_num 2
-String.length real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run95_2 real_param_num 1
-String.equals real_param_num 2
-String.length real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run95_3 real_param_num 1
-String.equals real_param_num 2
-String.length real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run95_5 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run95_6 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run95_7 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run95_8 real_param_num 1
-Clover.tejit test95_8...OK
-jit test95_9...OK
-jit test95_10...OK
-jit test95_11...OK
-jit test95_12...OK
-jit test95_13...OK
-jit test95_14...OK
-jit test95_15...OK
-jit test95_16...OK
-jit test95_17...OK
-jit test95_18...OK
-jit test95_20...OK
-jit test96...OK
-jit test96_1...OK
-jit test96_2...OK
-jit test96_3...OK
-jit test96_4...OK
-jit test96_5...OK
-jit test96_6...OK
-jit test96_7...OK
-jit test97...OK
-jit test98...OK
-jit test98_1...OK
-jit test98_2...OK
-jit test98_3...OK
-jit test98_4...OK
-jit test98_5...OK
-jit test98_6...OK
-st real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run95_9 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run95_10 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run95_11 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run95_12 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run95_13 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run95_14 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run95_15 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run95_16 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run95_17 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run95_18 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run95_20 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run96 real_param_num 1
-Integer.initialize real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run96_1 real_param_num 1
-Integer.initialize real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run96_2 real_param_num 1
-Integer.initialize real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run96_3 real_param_num 1
-Integer.initialize real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run96_4 real_param_num 1
-Integer.initialize real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run96_5 real_param_num 1
-Integer.initialize real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run96_6 real_param_num 1
-UInteger.initialize real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run96_7 real_param_num 1
-UInteger.initialize real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run97 real_param_num 1
-Integer.initialize real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run98 real_param_num 1
-Integer.initialize real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run98_1 real_param_num 1
-Byte.initialize real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run98_2 real_param_num 1
-Byte.initialize real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run98_3 real_param_num 1
-Byte.initialize real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run98_4 real_param_num 1
-Byte.initialize real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run98_5 real_param_num 1
-UByte.initialize real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run98_6 real_param_num 1
-Byte.initialize real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run98_7 real_param_num 1
-UByte.initialize real_param_num 2
-Clover.test real_param_num 2
-Strinjit test98_7...OK
-jit test98_8...OK
-jit test98_9...OK
-jit test98_10...OK
-jit test98_11...OK
-jit test98_12...OK
-g.append real_param_num 2
-String.length real_param_num 1
-JITTest.run98_8 real_param_num 1
-Short.initialize real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run98_9 real_param_num 1
-Short.initialize real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run98_10 real_param_num 1
-Short.initialize real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run98_11 real_param_num 1
-Short.initialize real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run98_12 real_param_num 1
-Short.initialize real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run98_13 real_param_num 1
-Long.initialize real_param_num 2
-Array.initialize real_param_num 2
-Global.printf real_param_num 2
-(1463)
-Array.initialize real_param_num 2
-Global.printf real_param_num 2
-a.run98_13() 123
-JITTest.run98_13 real_param_num 1
-Long.initialize real_param_num 2
-Array.initialize real_param_num 2
-Global.printf real_param_num 2
-(1448)
-jit test98_13...OK
-jit test98_14...OK
-jit test98_15...OK
-jit test98_16...OK
-jit test98_17...OK
-jit test98_18...OK
-jit test98_19...OK
-jit test99...OK
-jit test99_1...OK
-jit test99_3...OK
-jit test99_4...OK
-jit test99_5...OK
-jit test100...OK
-jit test101...OK
-jit test102...OK
-jit test103...OK
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run98_14 real_param_num 1
-Long.initialize real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run98_15 real_param_num 1
-Long.initialize real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run98_16 real_param_num 1
-Long.initialize real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run98_17 real_param_num 1
-Long.initialize real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run98_18 real_param_num 1
-Char.initialize real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run98_19 real_param_num 1
-Char.initialize real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run99 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run99_1 real_param_num 1
-Float.initialize real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run99_3 real_param_num 1
-Float.initialize real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run99_4 real_param_num 1
-Double.initialize real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run99_5 real_param_num 1
-Double.initialize real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run100 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run101 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run102 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run103 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-Global.print real_param_num 1
-jit test 104...JITTest.run104 real_param_num 2
-String.println real_param_num 1
-Global.println real_param_num 1
-123
-String.println real_param_num 1
-Global.println real_param_num 1
-123
-String.println real_param_num 1
-Global.println real_param_num 1
-123
-Global.println real_param_num 1
-OK
-Global.print real_param_num 1
-jit test 105...JITTest.run105 real_param_num 1
-Array.initialize real_param_num 2
-Array.each real_param_num 2
-Integer.toString real_param_num 1
-String.println real_param_num 1
-Global.println real_param_num 1
-1
-Integer.toString real_param_num 1
-String.println real_param_num 1
-Global.println real_param_num 1
-2
-Integer.toString real_param_num 1
-String.println real_param_num 1
-Global.println real_param_num 1
-3
-Global.println real_param_num 1
-OK
-jit test 106...OK
-jit test107...OK
-jit test108...OK
-jit test108.1...OK
-jit test109...OK
-jit test110...OK
-jit test111...OK
-JITTest.run106 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-String.equals real_param_num 2
-String.length real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run108 real_param_num 1
-String.initialize real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run108_1 real_param_num 1
-String.initialize real_param_num 2
-String.equals real_param_num 2
-String.length real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run109 real_param_num 3
-String.length real_param_num 1
-String.equals real_param_num 2
-String.length real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run110 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run111 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run112 real_param_num 1
-JITTest.run112 real_param_num 1
-Global.println real_param_num 1
-HELLO JIT with mixin-layers
-jit test112...OK
-jit test113...OK
-jit test114...OK
-jit test115...OK
-jit test116...OK
-jit test116_5...OK
-jit test116_6...OK
-jit test116_9...OK
-jit test117...OK
-jit test-reverse...OK
-jit test-insert...OK
-jit test-toBuffer...OK
-jit test-indexOf...OK
-jit test-insert2...OK
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run113 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run114 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run115 real_param_num 1
-Array.initialize real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run116 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run116_5 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run116_6 real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run116_9 real_param_num 1
-JITTest.initialize real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.run117 real_param_num 1
-Array.initialize real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.reverse real_param_num 1
-String.initialize real_param_num 2
-String.equals real_param_num 2
-String.length real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.insert real_param_num 3
-String.length real_param_num 1
-String.equals real_param_num 2
-String.length real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.toBuffer real_param_num 1
-Buffer.initialize real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.equals real_param_num 2
-Buffer.chars real_param_num 2
-Buffer.chars real_param_num 2
-Buffer.chars real_param_num 2
-Buffer.chars real_param_num 2
-Buffer.chars real_param_num 2
-Buffer.chars real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.indexOf real_param_num 3
-String.toBuffer real_param_num 1
-Buffer.initialize real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-PcreOVec.initialize real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.insert2 real_param_num 3
-EqualableList.initialize real_param_num 3
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.initialize real_param_num 3
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.equals real_param_num 2
-EqualableList.items real_param_num 2
-EqualableList.items real_param_num 2
-Integer.equals real_param_num 2
-EqualableList.items real_param_num 2
-EqualableList.items real_param_num 2
-Integer.equals real_param_num 2
-EqualableList.items real_param_num 2
-EqualableList.items real_param_num 2
-Integer.equals real_param_num 2
-EqualableList.items real_param_num 2
-EqualableList.items real_param_num 2
-Integer.equals real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.add real_param_num 2
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-EqualableList.initialize real_param_num 3
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-ListItem.initialize real_param_num 4
-EqualableList.initijit test-add...OK
-jit test-subBuffer...OK
-jit test-scan...OK
-jit test-sub...OK
-alize real_param_num 3
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.equals real_param_num 2
-EqualableList.items real_param_num 2
-EqualableList.items real_param_num 2
-Integer.equals real_param_num 2
-EqualableList.items real_param_num 2
-EqualableList.items real_param_num 2
-Integer.equals real_param_num 2
-EqualableList.items real_param_num 2
-EqualableList.items real_param_num 2
-Integer.equals real_param_num 2
-EqualableList.items real_param_num 2
-EqualableList.items real_param_num 2
-Integer.equals real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.subBuffer real_param_num 3
-Buffer.initialize real_param_num 2
-Buffer.equals real_param_num 2
-Buffer.chars real_param_num 2
-Buffer.chars real_param_num 2
-Buffer.chars real_param_num 2
-Buffer.chars real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.scan real_param_num 2
-EqualableList.initialize real_param_num 1
-String.toBuffer real_param_num 1
-Buffer.initialize real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-PcreOVec.initialize real_param_num 2
-Buffer.subBuffer real_param_num 3
-Buffer.initialize real_param_num 2
-Buffer.toString real_param_num 1
-String.initialize real_param_num 2
-String.setValue real_param_num 2
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-Buffer.subBuffer real_param_num 3
-Buffer.initialize real_param_num 2
-Buffer.toString real_param_num 1
-String.initialize real_param_num 2
-String.setValue real_param_num 2
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-Buffer.subBuffer real_param_num 3
-Buffer.initialize real_param_num 2
-Buffer.toString real_param_num 1
-String.initialize real_param_num 2
-String.setValue real_param_num 2
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.initialize real_param_num 3
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.equals real_param_num 2
-EqualableList.items real_param_num 2
-EqualableList.items real_param_num 2
-String.equals real_param_num 2
-String.length real_param_num 1
-EqualableList.items real_param_num 2
-EqualableList.items real_param_num 2
-String.equals real_param_num 2
-String.length real_param_num 1
-EqualableList.items real_param_num 2
-EqualableList.items real_param_num 2
-String.equals real_param_num 2
-String.length real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.sub real_param_num 4
-String.initialize real_param_num 1
-String.toBuffer real_param_num 1
-Buffer.initialize real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-PcreOVec.initialize real_param_num 2
-Buffer.subBuffer real_param_num 3
-Buffer.toString real_param_num 1
-String.initialize real_param_num 2
-String.setValue real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-String.append real_param_num 2
-String.length real_param_num 1
-Buffer.subBuffer real_param_num 3
-Buffer.initialize real_param_num 2
-Buffer.toString real_param_num 1
-String.initialize real_param_num 2
-String.setValue real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-String.equals real_param_num 2
-String.length real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.buffer_initialize real_param_num 2
-Buffer.initialize real_param_num 1
-JITTest.buffer_initialize2 real_param_num 3
-Buffer.initialize real_param_num 1
-String.sub real_param_num 3
-String.sub real_param_num 4
-String.inijit test-sub2...OK
-jit test-sub2-5...OK
-jit test-sub3...OK
-tialize real_param_num 1
-String.toBuffer real_param_num 1
-Buffer.initialize real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-PcreOVec.initialize real_param_num 2
-Buffer.subBuffer real_param_num 3
-Buffer.toString real_param_num 1
-String.initialize real_param_num 2
-String.setValue real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-String.append real_param_num 2
-String.length real_param_num 1
-Buffer.subBuffer real_param_num 3
-Buffer.initialize real_param_num 2
-Buffer.toString real_param_num 1
-String.initialize real_param_num 2
-String.setValue real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-String.equals real_param_num 2
-String.length real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.sub real_param_num 4
-String.initialize real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-String.toBuffer real_param_num 1
-Buffer.initialize real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-PcreOVec.initialize real_param_num 2
-Buffer.subBuffer real_param_num 3
-Buffer.toString real_param_num 1
-String.initialize real_param_num 2
-String.setValue real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-String.append real_param_num 2
-String.length real_param_num 1
-Buffer.subBuffer real_param_num 3
-Buffer.initialize real_param_num 2
-Buffer.toString real_param_num 1
-String.initialize real_param_num 2
-String.setValue real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-String.equals real_param_num 2
-String.length real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-String.sub real_param_num 3
-String.sub real_param_num 4
-String.initialize real_param_num 1
-String.toBuffer real_param_num 1
-Buffer.initialize real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-PcreOVec.initialize real_param_num 2
-Buffer.subBuffer real_param_num 3
-Buffer.toString real_param_num 1
-String.initialize real_param_num 2
-String.setValue real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-String.append real_param_num 2
-String.length real_param_num 1
-Buffer.subBuffer real_param_num 3
-Buffer.toString real_param_num 1
-String.initialize real_param_num 2
-String.setValue real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-String.append real_param_num 2
-String.length real_param_num 1
-Buffer.subBuffer real_param_num 3
-Buffer.toString real_param_num 1
-String.initialize real_param_num 2
-String.setValue real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-String.append real_param_num 2
-String.length real_param_num 1
-Buffer.subBuffer real_param_num 3
-Buffer.toString real_param_num 1
-String.initialize real_param_num 2
-String.setValue real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-String.equals real_param_num 2
-String.length real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-String.sub real_param_num 3
-String.sub real_param_num 4
-String.initialize real_param_num 1
-String.toBuffer real_param_num 1
-Buffer.initialize real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-PcreOVec.initialize real_param_num 2
-Buffer.subBuffer real_param_num 3
-Buffer.toString real_param_num 1
-String.initialize real_param_num 2
-String.setValue real_jit test-sub4...OK
-jit test-scan...OK
-jit test subString...OK
-param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-String.append real_param_num 2
-String.length real_param_num 1
-Buffer.subBuffer real_param_num 3
-Buffer.initialize real_param_num 2
-Buffer.toString real_param_num 1
-String.initialize real_param_num 2
-String.setValue real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-String.equals real_param_num 2
-String.length real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-String.scan real_param_num 2
-EqualableList.initialize real_param_num 1
-String.toBuffer real_param_num 1
-Buffer.initialize real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-PcreOVec.initialize real_param_num 2
-Buffer.subBuffer real_param_num 3
-Buffer.initialize real_param_num 2
-Buffer.toString real_param_num 1
-String.initialize real_param_num 2
-String.setValue real_param_num 2
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-Buffer.subBuffer real_param_num 3
-Buffer.initialize real_param_num 2
-Buffer.toString real_param_num 1
-String.initialize real_param_num 2
-String.setValue real_param_num 2
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-Buffer.subBuffer real_param_num 3
-Buffer.initialize real_param_num 2
-Buffer.toString real_param_num 1
-String.initialize real_param_num 2
-String.setValue real_param_num 2
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.initialize real_param_num 3
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.equals real_param_num 2
-EqualableList.items real_param_num 2
-EqualableList.items real_param_num 2
-String.equals real_param_num 2
-String.length real_param_num 1
-EqualableList.items real_param_num 2
-EqualableList.items real_param_num 2
-String.equals real_param_num 2
-String.length real_param_num 1
-EqualableList.items real_param_num 2
-EqualableList.items real_param_num 2
-String.equals real_param_num 2
-String.length real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-String.subString real_param_num 3
-String.initialize real_param_num 2
-String.chars real_param_num 2
-String.chars real_param_num 2
-String.equals real_param_num 2
-String.length real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-EqualableList.initialize real_param_num 1
-String.sub real_param_num 4
-String.initialize real_param_num 1
-String.toBuffer real_param_num 1
-Buffer.initialize real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-PcreOVec.initialize real_param_num 2
-Buffer.subBuffer real_param_num 3
-Buffer.initialize real_param_num 2
-Buffer.toString real_param_num 1
-String.initialize real_param_num 2
-String.setValue real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-String.append real_param_num 2
-String.length real_param_num 1
-Buffer.subBuffer real_param_num 3
-Buffer.initialize real_param_num 2
-Buffer.toString real_param_num 1
-String.initialize real_param_num 2
-String.setValue real_param_num 2
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-Buffer.subBuffer real_param_num 3
-Buffer.initialize real_param_num 2
-Buffer.toString real_param_num 1
-String.initialize real_param_num 2
-Sjit test-sub5...OK
-jit test-sub6...OK
-jit test-match...OK
-tring.setValue real_param_num 2
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-Buffer.subBuffer real_param_num 3
-Buffer.toString real_param_num 1
-String.initialize real_param_num 2
-String.setValue real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-String.equals real_param_num 2
-String.length real_param_num 1
-EqualableList.length real_param_num 1
-EqualableList.items real_param_num 2
-String.equals real_param_num 2
-String.length real_param_num 1
-EqualableList.items real_param_num 2
-String.equals real_param_num 2
-String.length real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-String.sub real_param_num 3
-EqualableList.initialize real_param_num 1
-String.sub real_param_num 4
-String.initialize real_param_num 1
-String.toBuffer real_param_num 1
-Buffer.initialize real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-PcreOVec.initialize real_param_num 2
-Buffer.subBuffer real_param_num 3
-Buffer.initialize real_param_num 2
-Buffer.toString real_param_num 1
-String.initialize real_param_num 2
-String.setValue real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-Buffer.subBuffer real_param_num 3
-Buffer.initialize real_param_num 2
-Buffer.toString real_param_num 1
-String.initialize real_param_num 2
-String.setValue real_param_num 2
-EqualableList.clear real_param_num 1
-Buffer.subBuffer real_param_num 3
-Buffer.initialize real_param_num 2
-Buffer.toString real_param_num 1
-String.initialize real_param_num 2
-String.setValue real_param_num 2
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-Buffer.subBuffer real_param_num 3
-Buffer.initialize real_param_num 2
-Buffer.toString real_param_num 1
-String.initialize real_param_num 2
-String.setValue real_param_num 2
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.items real_param_num 2
-EqualableList.items real_param_num 2
-Array.initialize real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-Buffer.subBuffer real_param_num 3
-Buffer.toString real_param_num 1
-String.initialize real_param_num 2
-String.setValue real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-String.equals real_param_num 2
-String.length real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-String.match real_param_num 2
-PcreOVec.initialize real_param_num 2
-String.toBuffer real_param_num 1
-Buffer.initialize real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-String.match real_param_num 2
-PcreOVec.initialize real_param_num 2
-String.toBuffer real_param_num 1
-Buffer.initialize real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-String.match real_param_num 2
-PcreOVec.initialize real_param_num 2
-String.toBuffer real_param_num 1
-Buffer.initialize real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-EqualableList.initialize real_param_num 1
-String.match real_param_num 3
-PcreOVec.initialize real_param_num 2
-String.toBuffer real_param_num 1
-Buffer.initialize real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.subBuffer real_param_num 3
-Buffer.initialize real_param_num 2
-Buffer.toString real_parajit test-match2...OK
-jit test-list...OK
-jit test-split...OK
-m_num 1
-String.initialize real_param_num 2
-String.setValue real_param_num 2
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.length real_param_num 1
-EqualableList.items real_param_num 2
-String.equals real_param_num 2
-String.length real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-EqualableList.initialize real_param_num 3
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.deleteWithRange real_param_num 3
-EqualableList.initialize real_param_num 1
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.initialize real_param_num 3
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.equals real_param_num 2
-EqualableList.items real_param_num 2
-EqualableList.items real_param_num 2
-Integer.equals real_param_num 2
-EqualableList.items real_param_num 2
-EqualableList.items real_param_num 2
-Integer.equals real_param_num 2
-EqualableList.items real_param_num 2
-EqualableList.items real_param_num 2
-Integer.equals real_param_num 2
-EqualableList.items real_param_num 2
-EqualableList.items real_param_num 2
-Integer.equals real_param_num 2
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-JITTest.split real_param_num 2
-EqualableList.initialize real_param_num 1
-String.toBuffer real_param_num 1
-Buffer.initialize real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-PcreOVec.initialize real_param_num 2
-Buffer.subBuffer real_param_num 3
-Buffer.initialize real_param_num 2
-Buffer.toString real_param_num 1
-String.initialize real_param_num 2
-String.setValue real_param_num 2
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.initialize real_param_num 3
-EqualableList.add real_param_num 2
-ListItem.initialize real_param_num 4
-EqualableList.equals real_param_num 2
-EqualableList.items real_param_num 2
-EqualableList.items real_param_num 2
-String.equals real_param_num 2
-String.length real_param_num 1
-Clover.test real_param_num 2
-String.append real_param_num 2
-String.length real_param_num 1
-Path.read real_param_num 1
-File.read real_param_num 1
-File.initialize real_param_num 2
-File.initialize real_param_num 4
-File.read real_param_num 1
-File.to_stat real_param_num 1
-stat.initialize real_param_num 2
-stat.initialize real_param_num 3
-stat.size real_param_num 1
-Buffer.initialize real_param_num 2
-File.close real_param_num 1
-Buffer.toString real_param_num 1
-File.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-Buffer.finalize real_param_num 1
-String.initialize real_param_num 2
-String.setValue real_param_num 2
-JITTest.split2 real_param_num 3
-EqualableList.initialize real_param_num 1
-JITTest.toBuffer real_param_num 2
-Buffer.finalize real_param_num 1
-Buffer.initialize real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_para==1701== Invalid write of size 8
-==1701==    at 0x4C3453F: memset (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==1701==    by 0x57FAE1: invoke_method (vm.c:473)
-==1701==    by 0x9815ADC: ???
-==1701==    by 0x2E74736554544949: ???
-==1701==    by 0x7265666675426F73: ???
-==1701==    by 0x29676E6972745327: ???
-==1701==    by 0x3033322423: ???
-==1701==  Address 0x75147c0 is 0 bytes after a block of size 8,192 alloc'd
-==1701==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==1701==    by 0x57B15D: debug_calloc (debug.c:224)
-==1701==    by 0x597183: eval_file (script.c:73)
-==1701==    by 0x57A8E8: main (main.c:50)
-==1701== 
-==1701== Invalid write of size 8
-==1701==    at 0xB4658ED: ???
-==1701==    by 0x612E726566667541: ???
-==1701==    by 0x796228646E65706F: ???
-==1701==    by 0x352424296573: ???
-==1701==    by 0x751287F: ???
-==1701==    by 0x1ED: ???
-==1701==    by 0x751287F: ???
-==1701==    by 0xFFEFF7B7F: ???
-==1701==    by 0x6A5D898: printf (printf.c:33)
-==1701==    by 0x57FB0E: invoke_method (vm.c:476)
-==1701==    by 0xFFEFFE25F: ???
-==1701==    by 0xFFEFF7C77: ???
-==1701==  Address 0x75147c0 is 0 bytes after a block of size 8,192 alloc'd
-==1701==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==1701==    by 0x57B15D: debug_calloc (debug.c:224)
-==1701==    by 0x597183: eval_file (script.c:73)
-==1701==    by 0x57A8E8: main (main.c:50)
-==1701== 
-==1701== Invalid read of size 8
-==1701==    at 0xB46592F: ???
-==1701==    by 0x612E726566667541: ???
-==1701==    by 0x796228646E65706F: ???
-==1701==    by 0x352424296573: ???
-==1701==    by 0x751287F: ???
-==1701==    by 0x1ED: ???
-==1701==    by 0x751287F: ???
-==1701==    by 0xFFEFF7B7F: ???
-==1701==    by 0x6A5D898: printf (printf.c:33)
-==1701==    by 0x57FB0E: invoke_method (vm.c:476)
-==1701==    by 0xFFEFFE25F: ???
-==1701==    by 0xFFEFF7C77: ???
-==1701==  Address 0x75147c0 is 0 bytes after a block of size 8,192 alloc'd
-==1701==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==1701==    by 0x57B15D: debug_calloc (debug.c:224)
-==1701==    by 0x597183: eval_file (script.c:73)
-==1701==    by 0x57A8E8: main (main.c:50)
-==1701== 
-==1701== Invalid write of size 8
-==1701==    at 0x9815A9F: ???
-==1701==    by 0x2E74736554544949: ???
-==1701==    by 0x7265666675426F73: ???
-==1701==    by 0x29676E6972745327: ???
-==1701==    by 0x3033322423: ???
-==1701==  Address 0x75147c0 is 0 bytes after a block of size 8,192 alloc'd
-==1701==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==1701==    by 0x57B15D: debug_calloc (debug.c:224)
-==1701==    by 0x597183: eval_file (script.c:73)
-==1701==    by 0x57A8E8: main (main.c:50)
-==1701== 
-==1701== Invalid write of size 8
-==1701==    at 0x9815AAE: ???
-==1701==    by 0x2E74736554544949: ???
-==1701==    by 0x7265666675426F73: ???
-==1701==    by 0x29676E6972745327: ???
-==1701==    by 0x3033322423: ???
-==1701==  Address 0x75147c0 is 0 bytes after a block of size 8,192 alloc'd
-==1701==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==1701==    by 0x57B15D: debug_calloc (debug.c:224)
-==1701==    by 0x597183: eval_file (script.c:73)
-==1701==    by 0x57A8E8: main (main.c:50)
-==1701== 
-==1701== Invalid read of size 8
-==1701==    at 0xB465631: ???
-==1701==    by 0x739D7CF: ???
-==1701==    by 0xD0D73B428BE915FF: ???
-==1701==    by 0x739D88F: ???
-==1701==    by 0x739D54F: ???
-==1701==    by 0x739D7CF: ???
-==1701==    by 0x75147B7: ???
-==1701==    by 0xFFEFF7A6F: ???
-==1701==    by 0x5B6: ???
-==1701==    by 0xB4655FF: ???
-==1701==    by 0x16: ???
-==1701==    by 0x1101: ???
-==1701==  Address 0x75147c0 is 0 bytes after a block of size 8,192 alloc'd
-==1701==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==1701==    by 0x57B15D: debug_calloc (debug.c:224)
-==1701==    by 0x597183: eval_file (script.c:73)
-==1701==    by 0x57A8E8: main (main.c:50)
-==1701== 
-==1701== Invalid write of size 8
-==1701==    at 0xB4658DB: ???
-==1701==    by 0x612E726566667541: ???
-==1701==    by 0x796228646E65706F: ???
-==1701==    by 0x352424296573: ???
-==1701==    by 0x751287F: ???
-==1701==    by 0x1EE: ???
-==1701==    by 0x751287F: ???
-==1701==    by 0xFFEFF7B7F: ???
-==1701==    by 0x6A5D898: printf (printf.c:33)
-==1701==    by 0x57FB0E: invoke_method (vm.c:476)
-==1701==    by 0xFFEFFE25F: ???
-==1701==    by 0xFFEFF7C77: ???
-==1701==  Address 0x75147c0 is 0 bytes after a block of size 8,192 alloc'd
-==1701==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==1701==    by 0x57B15D: debug_calloc (debug.c:224)
-==1701==    by 0x597183: eval_file (script.c:73)
-==1701==    by 0x57A8E8: main (main.c:50)
-==1701== 
-==1701== Invalid write of size 8
-==1701==    at 0xB4658E4: ???
-==1701==    by 0x612E726566667541: ???
-==1701==    by 0x796228646E65706F: ???
-==1701==    by 0x352424296573: ???
-==1701==    by 0x751287F: ???
-==1701==    by 0x1EE: ???
-==1701==    by 0x751287F: ???
-==1701==    by 0xFFEFF7B7F: ???
-==1701==    by 0x6A5D898: printf (printf.c:33)
-==1701==    by 0x57FB0E: invoke_method (vm.c:476)
-==1701==    by 0xFFEFFE25F: ???
-==1701==    by 0xFFEFF7C77: ???
-==1701==  Address 0x75147c8 is 8 bytes after a block of size 8,192 alloc'd
-==1701==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==1701==    by 0x57B15D: debug_calloc (debug.c:224)
-==1701==    by 0x597183: eval_file (script.c:73)
-==1701==    by 0x57A8E8: main (main.c:50)
-==1701== 
-==1701== Invalid read of size 8
-==1701==    at 0xB46590B: ???
-==1701==    by 0x612E726566667541: ???
-==1701==    by 0x796228646E65706F: ???
-==1701==    by 0x352424296573: ???
-==1701==    by 0x751287F: ???
-==1701==    by 0x1EE: ???
-==1701==    by 0x751287F: ???
-==1701==    by 0xFFEFF7B7F: ???
-==1701==    by 0x6A5D898: printf (printf.c:33)
-==1701==    by 0x57FB0E: invoke_method (vm.c:476)
-==1701==    by 0xFFEFFE25F: ???
-==1701==    by 0xFFEFF7C77: ???
-==1701==  Address 0x75147c0 is 0 bytes after a block of size 8,192 alloc'd
-==1701==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==1701==    by 0x57B15D: debug_calloc (debug.c:224)
-==1701==    by 0x597183: eval_file (script.c:73)
-==1701==    by 0x57A8E8: main (main.c:50)
-==1701== 
-==1701== Invalid read of size 8
-==1701==    at 0xB46591D: ???
-==1701==    by 0x612E726566667541: ???
-==1701==    by 0x796228646E65706F: ???
-==1701==    by 0x352424296573: ???
-==1701==    by 0x751287F: ???
-==1701==    by 0x1EE: ???
-==1701==    by 0x751287F: ???
-==1701==    by 0xFFEFF7B7F: ???
-==1701==    by 0x6A5D898: printf (printf.c:33)
-==1701==    by 0x57FB0E: invoke_method (vm.c:476)
-==1701==    by 0xFFEFFE25F: ???
-==1701==    by 0xFFEFF7C77: ???
-==1701==  Address 0x75147c8 is 8 bytes after a block of size 8,192 alloc'd
-==1701==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==1701==    by 0x57B15D: debug_calloc (debug.c:224)
-==1701==    by 0x597183: eval_file (script.c:73)
-==1701==    by 0x57A8E8: main (main.c:50)
-==1701== 
-==1701== Invalid write of size 8
-==1701==    at 0x9815A87: ???
-==1701==    by 0x2E74736554544949: ???
-==1701==    by 0x7265666675426F73: ???
-==1701==    by 0x29676E6972745327: ???
-==1701==    by 0x3033322423: ???
-==1701==  Address 0x75147c8 is 8 bytes after a block of size 8,192 alloc'd
-==1701==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==1701==    by 0x57B15D: debug_calloc (debug.c:224)
-==1701==    by 0x597183: eval_file (script.c:73)
-==1701==    by 0x57A8E8: main (main.c:50)
-==1701== 
-==1701== Invalid write of size 8
-==1701==    at 0x9815A90: ???
-==1701==    by 0x2E74736554544949: ???
-==1701==    by 0x7265666675426F73: ???
-==1701==    by 0x29676E6972745327: ???
-==1701==    by 0x3033322423: ???
-==1701==  Address 0x75147c8 is 8 bytes after a block of size 8,192 alloc'd
-==1701==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==1701==    by 0x57B15D: debug_calloc (debug.c:224)
-==1701==    by 0x597183: eval_file (script.c:73)
-==1701==    by 0x57A8E8: main (main.c:50)
-==1701== 
-==1701== Invalid read of size 8
-==1701==    at 0xB46561F: ???
-==1701==    by 0x739D7CF: ???
-==1701==    by 0xD0D73B428BE915FF: ???
-==1701==    by 0x739D88F: ???
-==1701==    by 0x739D54F: ???
-==1701==    by 0x739D7CF: ???
-==1701==    by 0x75147C7: ???
-==1701==    by 0xFFEFF7A6F: ???
-==1701==    by 0x739D54F: ???
-==1701==    by 0xB4655FF: ???
-==1701==    by 0x16: ???
-==1701==    by 0x1101: ???
-==1701==  Address 0x75147c8 is 8 bytes after a block of size 8,192 alloc'd
-==1701==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==1701==    by 0x57B15D: debug_calloc (debug.c:224)
-==1701==    by 0x597183: eval_file (script.c:73)
-==1701==    by 0x57A8E8: main (main.c:50)
-==1701== 
-==1701== Invalid write of size 8
-==1701==    at 0xB4658D3: ???
-==1701==    by 0x612E726566667541: ???
-==1701==    by 0x796228646E65706F: ???
-==1701==    by 0x352424296573: ???
-==1701==    by 0x751287F: ???
-==1701==    by 0x1EF: ???
-==1701==    by 0x751287F: ???
-==1701==    by 0xFFEFF7B7F: ???
-==1701==    by 0x6A5D898: printf (printf.c:33)
-==1701==    by 0x57FB0E: invoke_method (vm.c:476)
-==1701==    by 0xFFEFFE25F: ???
-==1701==    by 0xFFEFF7C77: ???
-==1701==  Address 0x75147c8 is 8 bytes after a block of size 8,192 alloc'd
-==1701==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==1701==    by 0x57B15D: debug_calloc (debug.c:224)
-==1701==    by 0x597183: eval_file (script.c:73)
-==1701==    by 0x57A8E8: main (main.c:50)
-==1701== 
-==1701== Invalid read of size 8
-==1701==    at 0xB4658F5: ???
-==1701==    by 0x612E726566667541: ???
-==1701==    by 0x796228646E65706F: ???
-==1701==    by 0x352424296573: ???
-==1701==    by 0x751287F: ???
-==1701==    by 0x1EF: ???
-==1701==    by 0x751287F: ???
-==1701==    by 0xFFEFF7B7F: ???
-==1701==    by 0x6A5D898: printf (printf.c:33)
-==1701==    by 0x57FB0E: invoke_method (vm.c:476)
-==1701==    by 0xFFEFFE25F: ???
-==1701==    by 0xFFEFF7C77: ???
-==1701==  Address 0x75147c8 is 8 bytes after a block of size 8,192 alloc'd
-==1701==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==1701==    by 0x57B15D: debug_calloc (debug.c:224)
-==1701==    by 0x597183: eval_file (script.c:73)
-==1701==    by 0x57A8E8: main (main.c:50)
-==1701== 
-==1701== Invalid write of size 8
-==1701==    at 0xB4659A2: ???
-==1701==    by 0x612E726566667541: ???
-==1701==    by 0x796228646E65706F: ???
-==1701==    by 0x352424296573: ???
-==1701==    by 0x751287F: ???
-==1701==    by 0x1EF: ???
-==1701==    by 0x751287F: ???
-==1701==    by 0xFFEFF7B7F: ???
-==1701==    by 0x6A5D898: printf (printf.c:33)
-==1701==    by 0x57FB0E: invoke_method (vm.c:476)
-==1701==    by 0xFFEFFE25F: ???
-==1701==    by 0xFFEFF7C77: ???
-==1701==  Address 0x75147c8 is 8 bytes after a block of size 8,192 alloc'd
-==1701==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==1701==    by 0x57B15D: debug_calloc (debug.c:224)
-==1701==    by 0x597183: eval_file (script.c:73)
-==1701==    by 0x57A8E8: main (main.c:50)
-==1701== 
-==1701== Invalid read of size 8
-==1701==    at 0x57FB69: invoke_method (vm.c:493)
-==1701==    by 0x9815ADC: ???
-==1701==    by 0x2E74736554544949: ???
-==1701==    by 0x7265666675426F73: ???
-==1701==    by 0x29676E6972745327: ???
-==1701==    by 0x3033322423: ???
-==1701==  Address 0x75147c8 is 8 bytes after a block of size 8,192 alloc'd
-==1701==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==1701==    by 0x57B15D: debug_calloc (debug.c:224)
-==1701==    by 0x597183: eval_file (script.c:73)
-==1701==    by 0x57A8E8: main (main.c:50)
-==1701== 
-==1701== Invalid write of size 8
-==1701==    at 0x57FB6C: invoke_method (vm.c:493)
-==1701==    by 0x9815ADC: ???
-==1701==    by 0x2E74736554544949: ???
-==1701==    by 0x7265666675426F73: ???
-==1701==    by 0x29676E6972745327: ???
-==1701==    by 0x3033322423: ???
-==1701==  Address 0x75147c8 is 8 bytes after a block of size 8,192 alloc'd
-==1701==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==1701==    by 0x57B15D: debug_calloc (debug.c:224)
-==1701==    by 0x597183: eval_file (script.c:73)
-==1701==    by 0x57A8E8: main (main.c:50)
-==1701== 
-==1701== Invalid read of size 4
-==1701==    at 0x9815997: ???
-==1701==  Address 0x75147c8 is 8 bytes after a block of size 8,192 alloc'd
-==1701==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
-==1701==    by 0x57B15D: debug_calloc (debug.c:224)
-==1701==    by 0x597183: eval_file (script.c:73)
-==1701==    by 0x57A8E8: main (main.c:50)
-==1701== 
-m_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_nu==1701== Conditional jump or move depends on uninitialised value(s)
-==1701==    at 0xB4656F1: ???
-==1701==    by 0x739D7CF: ???
-==1701==    by 0xD0D73B428BE915FF: ???
-==1701==    by 0x739D88F: ???
-==1701==    by 0x739D54F: ???
-==1701==    by 0x739D7CF: ???
-==1701==    by 0x7514A57: ???
-==1701==    by 0x2C: ???
-==1701==    by 0x5B6: ???
-==1701==    by 0x2C: ???
-==1701== 
-==1701== Use of uninitialised value of size 8
-==1701==    at 0xB4658F1: ???
-==1701==    by 0x612E726566667541: ???
-==1701==    by 0x796228646E65706F: ???
-==1701==    by 0x352424296573: ???
-==1701==    by 0x751287F: ???
-==1701==    by 0x218: ???
-==1701==    by 0x751287F: ???
-==1701==    by 0xFFEFF7B7F: ???
-==1701==    by 0x6A5D898: printf (printf.c:33)
-==1701==    by 0x57FB0E: invoke_method (vm.c:476)
-==1701==    by 0xFFEFFE25F: ???
-==1701==    by 0xFFEFF7C77: ???
-==1701== 
-m 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-==1701== Invalid read of size 1
-==1701==    at 0xDDB408: llvm::BasicBlock::dropAllReferences() (in /home/ab25cq/bin/clover2)
-==1701==    by 0xE26F17: llvm::Function::dropAllReferences() (in /home/ab25cq/bin/clover2)
-==1701==    by 0xEF805F: llvm::Module::dropAllReferences() (in /home/ab25cq/bin/clover2)
-==1701==    by 0xEF81E3: llvm::Module::~Module() (in /home/ab25cq/bin/clover2)
-==1701==    by 0xED4B55: llvm::LLVMContextImpl::~LLVMContextImpl() (in /home/ab25cq/bin/clover2)
-==1701==    by 0xED03F3: llvm::LLVMContext::~LLVMContext() (in /home/ab25cq/bin/clover2)
-==1701==    by 0xED041D: llvm::object_deleter<llvm::LLVMContext>::call(void*) (in /home/ab25cq/bin/clover2)
-==1701==    by 0xF4FBBC: llvm::ManagedStaticBase::destroy() const (in /home/ab25cq/bin/clover2)
-==1701==    by 0xF4FBF4: llvm::llvm_shutdown() (in /home/ab25cq/bin/clover2)
-==1701==    by 0x5A6336: jit_final_on_runtime (jit_runtime.cpp:918)
-==1701==    by 0x57AA3D: clover2_final (main.c:24)
-==1701==    by 0x57A933: main (main.c:56)
-==1701==  Address 0x1f is not stack'd, malloc'd or (recently) free'd
-==1701== 
-==1701== 
-==1701== Process terminating with default action of signal 11 (SIGSEGV)
-==1701==  Access not within mapped region at address 0x1F
-==1701==    at 0xDDB408: llvm::BasicBlock::dropAllReferences() (in /home/ab25cq/bin/clover2)
-==1701==    by 0xE26F17: llvm::Function::dropAllReferences() (in /home/ab25cq/bin/clover2)
-==1701==    by 0xEF805F: llvm::Module::dropAllReferences() (in /home/ab25cq/bin/clover2)
-==1701==    by 0xEF81E3: llvm::Module::~Module() (in /home/ab25cq/bin/clover2)
-==1701==    by 0xED4B55: llvm::LLVMContextImpl::~LLVMContextImpl() (in /home/ab25cq/bin/clover2)
-==1701==    by 0xED03F3: llvm::LLVMContext::~LLVMContext() (in /home/ab25cq/bin/clover2)
-==1701==    by 0xED041D: llvm::object_deleter<llvm::LLVMContext>::call(void*) (in /home/ab25cq/bin/clover2)
-==1701==    by 0xF4FBBC: llvm::ManagedStaticBase::destroy() const (in /home/ab25cq/bin/clover2)
-==1701==    by 0xF4FBF4: llvm::llvm_shutdown() (in /home/ab25cq/bin/clover2)
-==1701==    by 0x5A6336: jit_final_on_runtime (jit_runtime.cpp:918)
-==1701==    by 0x57AA3D: clover2_final (main.c:24)
-==1701==    by 0x57A933: main (main.c:56)
-==1701==  If you believe this happened as a result of a stack
-==1701==  overflow in your program's main thread (unlikely but
-==1701==  possible), you can try to increase the size of the
-==1701==  main thread stack using the --main-stacksize= flag.
-==1701==  The main thread stack size used in this run was 8388608.
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.append real_param_num 2
-Buffer.finalize real_param_num 1
-==1701== 
-==1701== HEAP SUMMARY:
-==1701==     in use at exit: 26,983,552 bytes in 178,624 blocks
-==1701==   total heap usage: 1,464,953 allocs, 1,286,329 frees, 628,446,429 bytes allocated
-==1701== 
-==1701== LEAK SUMMARY:
-==1701==    definitely lost: 65,218 bytes in 72 blocks
-==1701==    indirectly lost: 8,406,681 bytes in 3,077 blocks
-==1701==      possibly lost: 7,263,227 bytes in 45,855 blocks
-==1701==    still reachable: 11,248,426 bytes in 129,620 blocks
-==1701==         suppressed: 0 bytes in 0 blocks
-==1701== Rerun with --leak-check=full to see details of leaked memory
-==1701== 
-==1701== For counts of detected and suppressed errors, rerun with: -v
-==1701== Use --track-origins=yes to see where uninitialised values come from
-==1701== ERROR SUMMARY: 3647 errors from 22 contexts (suppressed: 0 from 0)
+==13031== Memcheck, a memory error detector
+==13031== Copyright (C) 2002-2015, and GNU GPL'd, by Julian Seward et al.
+==13031== Using Valgrind-3.11.0 and LibVEX; rerun with -h for copyright info
+==13031== Command: ./clover2 b.clo
+==13031== 
+Buffer.toString 1299
+len 775 num 774 MB_LEN_MAX 16 size 12400
+114
+111
+111
+116
+58
+120
+58
+48
+58
+10
+100
+97
+101
+109
+111
+110
+58
+120
+58
+49
+58
+10
+98
+105
+110
+58
+120
+58
+50
+58
+10
+115
+121
+115
+58
+120
+58
+51
+58
+10
+97
+100
+109
+58
+120
+58
+52
+58
+115
+121
+115
+108
+111
+103
+44
+97
+98
+50
+53
+99
+113
+10
+116
+116
+121
+58
+120
+58
+53
+58
+10
+100
+105
+115
+107
+58
+120
+58
+54
+58
+10
+108
+112
+58
+120
+58
+55
+58
+10
+109
+97
+105
+108
+58
+120
+58
+56
+58
+10
+110
+101
+119
+115
+58
+120
+58
+57
+58
+10
+117
+117
+99
+112
+58
+120
+58
+49
+48
+58
+10
+109
+97
+110
+58
+120
+58
+49
+50
+58
+10
+112
+114
+111
+120
+121
+58
+120
+58
+49
+51
+58
+10
+107
+109
+101
+109
+58
+120
+58
+49
+53
+58
+10
+100
+105
+97
+108
+111
+117
+116
+58
+120
+58
+50
+48
+58
+10
+102
+97
+120
+58
+120
+58
+50
+49
+58
+10
+118
+111
+105
+99
+101
+58
+120
+58
+50
+50
+58
+10
+99
+100
+114
+111
+109
+58
+120
+58
+50
+52
+58
+97
+98
+50
+53
+99
+113
+10
+102
+108
+111
+112
+112
+121
+58
+120
+58
+50
+53
+58
+10
+116
+97
+112
+101
+58
+120
+58
+50
+54
+58
+10
+115
+117
+100
+111
+58
+120
+58
+50
+55
+58
+97
+98
+50
+53
+99
+113
+10
+97
+117
+100
+105
+111
+58
+120
+58
+50
+57
+58
+10
+100
+105
+112
+58
+120
+58
+51
+48
+58
+97
+98
+50
+53
+99
+113
+10
+119
+119
+119
+45
+100
+97
+116
+97
+58
+120
+58
+51
+51
+58
+10
+98
+97
+99
+107
+117
+112
+58
+120
+58
+51
+52
+58
+10
+111
+112
+101
+114
+97
+116
+111
+114
+58
+120
+58
+51
+55
+58
+10
+108
+105
+115
+116
+58
+120
+58
+51
+56
+58
+10
+105
+114
+99
+58
+120
+58
+51
+57
+58
+10
+115
+114
+99
+58
+120
+58
+52
+48
+58
+10
+103
+110
+97
+116
+115
+58
+120
+58
+52
+49
+58
+10
+115
+104
+97
+100
+111
+119
+58
+120
+58
+52
+50
+58
+10
+117
+116
+109
+112
+58
+120
+58
+52
+51
+58
+10
+118
+105
+100
+101
+111
+58
+120
+58
+52
+52
+58
+10
+115
+97
+115
+108
+58
+120
+58
+52
+53
+58
+10
+112
+108
+117
+103
+100
+101
+118
+58
+120
+58
+52
+54
+58
+97
+98
+50
+53
+99
+113
+10
+115
+116
+97
+102
+102
+58
+120
+58
+53
+48
+58
+10
+103
+97
+109
+101
+115
+58
+120
+58
+54
+48
+58
+10
+117
+115
+101
+114
+115
+58
+120
+58
+49
+48
+48
+58
+10
+110
+111
+103
+114
+111
+117
+112
+58
+120
+58
+54
+53
+53
+51
+52
+58
+10
+115
+121
+115
+116
+101
+109
+100
+45
+106
+111
+117
+114
+110
+97
+108
+58
+120
+58
+49
+48
+49
+58
+10
+==13031== Invalid write of size 8
+==13031==    at 0x9C055E4: ???
+==13031==    by 0x905: ???
+==13031==    by 0x8E577F: ??? (in /home/ab25cq/repo/clover2/clover2)
+==13031==    by 0x80E1A1F: ???
+==13031==    by 0x7EF95EF: ???
+==13031==    by 0x9C0557F: ???
+==13031==    by 0xFFEFF7D1F: ???
+==13031==    by 0x16D02F7: ???
+==13031==    by 0x5A61E3: llvm_call_method_from_module (jit_runtime.cpp:259)
+==13031==    by 0x5A61E3: jit (jit_runtime.cpp:877)
+==13031==    by 0x57FAB2: invoke_method (vm.c:475)
+==13031==    by 0x42215D0: ???
+==13031==    by 0x76FCB77: ???
+==13031==  Address 0x76fcb80 is 0 bytes after a block of size 8,192 alloc'd
+==13031==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==13031==    by 0x57B15D: debug_calloc (debug.c:229)
+==13031==    by 0x597133: eval_file (script.c:73)
+==13031==    by 0x57A8E8: main (main.c:50)
+==13031== 
+==13031== Invalid write of size 8
+==13031==    at 0x9C055ED: ???
+==13031==    by 0x905: ???
+==13031==    by 0x8E577F: ??? (in /home/ab25cq/repo/clover2/clover2)
+==13031==    by 0x80E1A1F: ???
+==13031==    by 0x7EF95EF: ???
+==13031==    by 0x9C0557F: ???
+==13031==    by 0xFFEFF7D1F: ???
+==13031==    by 0x16D02F7: ???
+==13031==    by 0x5A61E3: llvm_call_method_from_module (jit_runtime.cpp:259)
+==13031==    by 0x5A61E3: jit (jit_runtime.cpp:877)
+==13031==    by 0x57FAB2: invoke_method (vm.c:475)
+==13031==    by 0x42215D0: ???
+==13031==    by 0x76FCB77: ???
+==13031==  Address 0x76fcb80 is 0 bytes after a block of size 8,192 alloc'd
+==13031==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==13031==    by 0x57B15D: debug_calloc (debug.c:229)
+==13031==    by 0x597133: eval_file (script.c:73)
+==13031==    by 0x57A8E8: main (main.c:50)
+==13031== 
+==13031== Invalid read of size 8
+==13031==    at 0x9C272EF: ???
+==13031==    by 0x6EE308F: ???
+==13031==    by 0x8E577F: ??? (in /home/ab25cq/repo/clover2/clover2)
+==13031==    by 0x80E1C3F: ???
+==13031==    by 0x7983E9F: ???
+==13031==    by 0x9C272CF: ???
+==13031==    by 0xFFEFF7ABF: ???
+==13031==    by 0x16D02F7: ???
+==13031==    by 0x5A61E3: llvm_call_method_from_module (jit_runtime.cpp:259)
+==13031==    by 0x5A61E3: jit (jit_runtime.cpp:877)
+==13031==    by 0x57FAB2: invoke_method (vm.c:475)
+==13031==    by 0x9C05614: ???
+==13031==    by 0x905: ???
+==13031==  Address 0x76fcb80 is 0 bytes after a block of size 8,192 alloc'd
+==13031==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==13031==    by 0x57B15D: debug_calloc (debug.c:229)
+==13031==    by 0x597133: eval_file (script.c:73)
+==13031==    by 0x57A8E8: main (main.c:50)
+==13031== 
+==13031== Invalid write of size 8
+==13031==    at 0x9C27324: ???
+==13031==    by 0x905: ???
+==13031==    by 0x8E577F: ??? (in /home/ab25cq/repo/clover2/clover2)
+==13031==    by 0x80E1C3F: ???
+==13031==    by 0x7983E9F: ???
+==13031==    by 0x9C272CF: ???
+==13031==    by 0xFFEFF7ABF: ???
+==13031==    by 0x16D02F7: ???
+==13031==    by 0x5A61E3: llvm_call_method_from_module (jit_runtime.cpp:259)
+==13031==    by 0x5A61E3: jit (jit_runtime.cpp:877)
+==13031==    by 0x57FAB2: invoke_method (vm.c:475)
+==13031==    by 0x9C05614: ???
+==13031==    by 0x905: ???
+==13031==  Address 0x76fcb80 is 0 bytes after a block of size 8,192 alloc'd
+==13031==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==13031==    by 0x57B15D: debug_calloc (debug.c:229)
+==13031==    by 0x597133: eval_file (script.c:73)
+==13031==    by 0x57A8E8: main (main.c:50)
+==13031== 
+==13031== Invalid write of size 8
+==13031==    at 0x9C2732C: ???
+==13031==    by 0x905: ???
+==13031==    by 0x8E577F: ??? (in /home/ab25cq/repo/clover2/clover2)
+==13031==    by 0x80E1C3F: ???
+==13031==    by 0x7983E9F: ???
+==13031==    by 0x9C272CF: ???
+==13031==    by 0xFFEFF7ABF: ???
+==13031==    by 0x16D02F7: ???
+==13031==    by 0x5A61E3: llvm_call_method_from_module (jit_runtime.cpp:259)
+==13031==    by 0x5A61E3: jit (jit_runtime.cpp:877)
+==13031==    by 0x57FAB2: invoke_method (vm.c:475)
+==13031==    by 0x9C05614: ???
+==13031==    by 0x905: ???
+==13031==  Address 0x76fcb80 is 0 bytes after a block of size 8,192 alloc'd
+==13031==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==13031==    by 0x57B15D: debug_calloc (debug.c:229)
+==13031==    by 0x597133: eval_file (script.c:73)
+==13031==    by 0x57A8E8: main (main.c:50)
+==13031== 
+==13031== Invalid write of size 8
+==13031==    at 0x9C27334: ???
+==13031==    by 0x905: ???
+==13031==    by 0x8E577F: ??? (in /home/ab25cq/repo/clover2/clover2)
+==13031==    by 0x80E1C3F: ???
+==13031==    by 0x7983E9F: ???
+==13031==    by 0x9C272CF: ???
+==13031==    by 0xFFEFF7ABF: ???
+==13031==    by 0x16D02F7: ???
+==13031==    by 0x5A61E3: llvm_call_method_from_module (jit_runtime.cpp:259)
+==13031==    by 0x5A61E3: jit (jit_runtime.cpp:877)
+==13031==    by 0x57FAB2: invoke_method (vm.c:475)
+==13031==    by 0x9C05614: ???
+==13031==    by 0x905: ???
+==13031==  Address 0x76fcb88 is 8 bytes after a block of size 8,192 alloc'd
+==13031==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==13031==    by 0x57B15D: debug_calloc (debug.c:229)
+==13031==    by 0x597133: eval_file (script.c:73)
+==13031==    by 0x57A8E8: main (main.c:50)
+==13031== 
+==13031== Invalid write of size 8
+==13031==    at 0x9C2733D: ???
+==13031==    by 0x905: ???
+==13031==    by 0x8E577F: ??? (in /home/ab25cq/repo/clover2/clover2)
+==13031==    by 0x80E1C3F: ???
+==13031==    by 0x7983E9F: ???
+==13031==    by 0x9C272CF: ???
+==13031==    by 0xFFEFF7ABF: ???
+==13031==    by 0x16D02F7: ???
+==13031==    by 0x5A61E3: llvm_call_method_from_module (jit_runtime.cpp:259)
+==13031==    by 0x5A61E3: jit (jit_runtime.cpp:877)
+==13031==    by 0x57FAB2: invoke_method (vm.c:475)
+==13031==    by 0x9C05614: ???
+==13031==    by 0x905: ???
+==13031==  Address 0x76fcb88 is 8 bytes after a block of size 8,192 alloc'd
+==13031==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==13031==    by 0x57B15D: debug_calloc (debug.c:229)
+==13031==    by 0x597133: eval_file (script.c:73)
+==13031==    by 0x57A8E8: main (main.c:50)
+==13031== 
+==13031== Invalid read of size 4
+==13031==    at 0x59B600: System_println (class_system.c:221)
+==13031==    by 0x57F90B: invoke_method (vm.c:442)
+==13031==    by 0x9C27364: ???
+==13031==    by 0x905: ???
+==13031==    by 0x8E577F: ??? (in /home/ab25cq/repo/clover2/clover2)
+==13031==    by 0x80E1C3F: ???
+==13031==    by 0x7983E9F: ???
+==13031==    by 0x9C272CF: ???
+==13031==    by 0xFFEFF7ABF: ???
+==13031==    by 0x16D02F7: ???
+==13031==    by 0x5A61E3: llvm_call_method_from_module (jit_runtime.cpp:259)
+==13031==    by 0x5A61E3: jit (jit_runtime.cpp:877)
+==13031==    by 0x57FAB2: invoke_method (vm.c:475)
+==13031==  Address 0x76fcb88 is 8 bytes after a block of size 8,192 alloc'd
+==13031==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==13031==    by 0x57B15D: debug_calloc (debug.c:229)
+==13031==    by 0x597133: eval_file (script.c:73)
+==13031==    by 0x57A8E8: main (main.c:50)
+==13031== 
+115
+==13031== Invalid write of size 4
+==13031==    at 0x57F986: invoke_method (vm.c:452)
+==13031==    by 0x9C27364: ???
+==13031==    by 0x905: ???
+==13031==    by 0x8E577F: ??? (in /home/ab25cq/repo/clover2/clover2)
+==13031==    by 0x80E1C3F: ???
+==13031==    by 0x7983E9F: ???
+==13031==    by 0x9C272CF: ???
+==13031==    by 0xFFEFF7ABF: ???
+==13031==    by 0x16D02F7: ???
+==13031==    by 0x5A61E3: llvm_call_method_from_module (jit_runtime.cpp:259)
+==13031==    by 0x5A61E3: jit (jit_runtime.cpp:877)
+==13031==    by 0x57FAB2: invoke_method (vm.c:475)
+==13031==    by 0x9C05614: ???
+==13031==  Address 0x76fcb88 is 8 bytes after a block of size 8,192 alloc'd
+==13031==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==13031==    by 0x57B15D: debug_calloc (debug.c:229)
+==13031==    by 0x597133: eval_file (script.c:73)
+==13031==    by 0x57A8E8: main (main.c:50)
+==13031== 
+==13031== Invalid read of size 8
+==13031==    at 0x9C2737D: ???
+==13031==    by 0x905: ???
+==13031==    by 0x8E577F: ??? (in /home/ab25cq/repo/clover2/clover2)
+==13031==    by 0x80E1C3F: ???
+==13031==    by 0x7983E9F: ???
+==13031==    by 0x9C272CF: ???
+==13031==    by 0xFFEFF7ABF: ???
+==13031==    by 0x16D02F7: ???
+==13031==    by 0x5A61E3: llvm_call_method_from_module (jit_runtime.cpp:259)
+==13031==    by 0x5A61E3: jit (jit_runtime.cpp:877)
+==13031==    by 0x57FAB2: invoke_method (vm.c:475)
+==13031==    by 0x9C05614: ???
+==13031==    by 0x905: ???
+==13031==  Address 0x76fcb80 is 0 bytes after a block of size 8,192 alloc'd
+==13031==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==13031==    by 0x57B15D: debug_calloc (debug.c:229)
+==13031==    by 0x597133: eval_file (script.c:73)
+==13031==    by 0x57A8E8: main (main.c:50)
+==13031== 
+==13031== Invalid read of size 4
+==13031==    at 0x9C27390: ???
+==13031==    by 0x905: ???
+==13031==    by 0x8E577F: ??? (in /home/ab25cq/repo/clover2/clover2)
+==13031==    by 0x80E1C3F: ???
+==13031==    by 0x7983E9F: ???
+==13031==    by 0x9C272CF: ???
+==13031==    by 0xFFEFF7ABF: ???
+==13031==    by 0x16D02F7: ???
+==13031==    by 0x5A61E3: llvm_call_method_from_module (jit_runtime.cpp:259)
+==13031==    by 0x5A61E3: jit (jit_runtime.cpp:877)
+==13031==    by 0x57FAB2: invoke_method (vm.c:475)
+==13031==    by 0x9C05614: ???
+==13031==    by 0x905: ???
+==13031==  Address 0x76fcb88 is 8 bytes after a block of size 8,192 alloc'd
+==13031==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==13031==    by 0x57B15D: debug_calloc (debug.c:229)
+==13031==    by 0x597133: eval_file (script.c:73)
+==13031==    by 0x57A8E8: main (main.c:50)
+==13031== 
+==13031== Invalid write of size 8
+==13031==    at 0x9C273A4: ???
+==13031==    by 0x905: ???
+==13031==    by 0x8E577F: ??? (in /home/ab25cq/repo/clover2/clover2)
+==13031==    by 0x80E1C3F: ???
+==13031==    by 0x7983E9F: ???
+==13031==    by 0x9C272CF: ???
+==13031==    by 0xFFEFF7ABF: ???
+==13031==    by 0x16D02F7: ???
+==13031==    by 0x5A61E3: llvm_call_method_from_module (jit_runtime.cpp:259)
+==13031==    by 0x5A61E3: jit (jit_runtime.cpp:877)
+==13031==    by 0x57FAB2: invoke_method (vm.c:475)
+==13031==    by 0x9C05614: ???
+==13031==    by 0x905: ???
+==13031==  Address 0x76fcb80 is 0 bytes after a block of size 8,192 alloc'd
+==13031==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==13031==    by 0x57B15D: debug_calloc (debug.c:229)
+==13031==    by 0x597133: eval_file (script.c:73)
+==13031==    by 0x57A8E8: main (main.c:50)
+==13031== 
+==13031== Invalid read of size 8
+==13031==    at 0x57FB0D: invoke_method (vm.c:492)
+==13031==    by 0x9C05614: ???
+==13031==    by 0x905: ???
+==13031==    by 0x8E577F: ??? (in /home/ab25cq/repo/clover2/clover2)
+==13031==    by 0x80E1A1F: ???
+==13031==    by 0x7EF95EF: ???
+==13031==    by 0x9C0557F: ???
+==13031==    by 0xFFEFF7D1F: ???
+==13031==    by 0x16D02F7: ???
+==13031==    by 0x5A61E3: llvm_call_method_from_module (jit_runtime.cpp:259)
+==13031==    by 0x5A61E3: jit (jit_runtime.cpp:877)
+==13031==    by 0x57FAB2: invoke_method (vm.c:475)
+==13031==    by 0x42215D0: ???
+==13031==  Address 0x76fcb80 is 0 bytes after a block of size 8,192 alloc'd
+==13031==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==13031==    by 0x57B15D: debug_calloc (debug.c:229)
+==13031==    by 0x597133: eval_file (script.c:73)
+==13031==    by 0x57A8E8: main (main.c:50)
+==13031== 
+==13031== Invalid write of size 8
+==13031==    at 0x57FB10: invoke_method (vm.c:492)
+==13031==    by 0x9C05614: ???
+==13031==    by 0x905: ???
+==13031==    by 0x8E577F: ??? (in /home/ab25cq/repo/clover2/clover2)
+==13031==    by 0x80E1A1F: ???
+==13031==    by 0x7EF95EF: ???
+==13031==    by 0x9C0557F: ???
+==13031==    by 0xFFEFF7D1F: ???
+==13031==    by 0x16D02F7: ???
+==13031==    by 0x5A61E3: llvm_call_method_from_module (jit_runtime.cpp:259)
+==13031==    by 0x5A61E3: jit (jit_runtime.cpp:877)
+==13031==    by 0x57FAB2: invoke_method (vm.c:475)
+==13031==    by 0x42215D0: ???
+==13031==  Address 0x76fcb80 is 0 bytes after a block of size 8,192 alloc'd
+==13031==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==13031==    by 0x57B15D: debug_calloc (debug.c:229)
+==13031==    by 0x597133: eval_file (script.c:73)
+==13031==    by 0x57A8E8: main (main.c:50)
+==13031== 
+==13031== Invalid read of size 4
+==13031==    at 0x9C05640: ???
+==13031==    by 0x905: ???
+==13031==    by 0x8E577F: ??? (in /home/ab25cq/repo/clover2/clover2)
+==13031==    by 0x80E1A1F: ???
+==13031==    by 0x7EF95EF: ???
+==13031==    by 0x9C0557F: ???
+==13031==    by 0xFFEFF7D1F: ???
+==13031==    by 0x16D02F7: ???
+==13031==    by 0x5A61E3: llvm_call_method_from_module (jit_runtime.cpp:259)
+==13031==    by 0x5A61E3: jit (jit_runtime.cpp:877)
+==13031==    by 0x57FAB2: invoke_method (vm.c:475)
+==13031==    by 0x42215D0: ???
+==13031==    by 0x76FCB7F: ???
+==13031==  Address 0x76fcb80 is 0 bytes after a block of size 8,192 alloc'd
+==13031==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==13031==    by 0x57B15D: debug_calloc (debug.c:229)
+==13031==    by 0x597133: eval_file (script.c:73)
+==13031==    by 0x57A8E8: main (main.c:50)
+==13031== 
+==13031== Invalid write of size 8
+==13031==    at 0x422159C: ???
+==13031==    by 0x519: ???
+==13031==    by 0x512: ???
+==13031==    by 0x50A: ???
+==13031==    by 0x4008E4EDE: ???
+==13031==    by 0xFFEFFE1FF: ???
+==13031==    by 0x50A: ???
+==13031==    by 0x512: ???
+==13031==    by 0x519: ???
+==13031==    by 0x1FA: ???
+==13031==    by 0x8E577F: ??? (in /home/ab25cq/repo/clover2/clover2)
+==13031==    by 0x7FF06AF: ???
+==13031==  Address 0x76fcb88 is 8 bytes after a block of size 8,192 alloc'd
+==13031==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==13031==    by 0x57B15D: debug_calloc (debug.c:229)
+==13031==    by 0x597133: eval_file (script.c:73)
+==13031==    by 0x57A8E8: main (main.c:50)
+==13031== 
+==13031== Invalid write of size 8
+==13031==    at 0x42215A5: ???
+==13031==    by 0x519: ???
+==13031==    by 0x512: ???
+==13031==    by 0x50A: ???
+==13031==    by 0x4008E4EDE: ???
+==13031==    by 0xFFEFFE1FF: ???
+==13031==    by 0x50A: ???
+==13031==    by 0x512: ???
+==13031==    by 0x519: ???
+==13031==    by 0x1FA: ???
+==13031==    by 0x8E577F: ??? (in /home/ab25cq/repo/clover2/clover2)
+==13031==    by 0x7FF06AF: ???
+==13031==  Address 0x76fcb88 is 8 bytes after a block of size 8,192 alloc'd
+==13031==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==13031==    by 0x57B15D: debug_calloc (debug.c:229)
+==13031==    by 0x597133: eval_file (script.c:73)
+==13031==    by 0x57A8E8: main (main.c:50)
+==13031== 
+==13031== Invalid read of size 8
+==13031==    at 0x9C0559F: ???
+==13031==    by 0x6EEB07F: ???
+==13031==    by 0x8E577F: ??? (in /home/ab25cq/repo/clover2/clover2)
+==13031==    by 0x80E21BF: ???
+==13031==    by 0x7EF95EF: ???
+==13031==    by 0x9C0557F: ???
+==13031==    by 0xFFEFF7D1F: ???
+==13031==    by 0x16D02F7: ???
+==13031==    by 0x5A61E3: llvm_call_method_from_module (jit_runtime.cpp:259)
+==13031==    by 0x5A61E3: jit (jit_runtime.cpp:877)
+==13031==    by 0x57FAB2: invoke_method (vm.c:475)
+==13031==    by 0x42215D0: ???
+==13031==    by 0x76FCB87: ???
+==13031==  Address 0x76fcb88 is 8 bytes after a block of size 8,192 alloc'd
+==13031==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==13031==    by 0x57B15D: debug_calloc (debug.c:229)
+==13031==    by 0x597133: eval_file (script.c:73)
+==13031==    by 0x57A8E8: main (main.c:50)
+==13031== 
+==13031== Invalid write of size 8
+==13031==    at 0x9C055D4: ???
+==13031==    by 0x907: ???
+==13031==    by 0x8E577F: ??? (in /home/ab25cq/repo/clover2/clover2)
+==13031==    by 0x80E21BF: ???
+==13031==    by 0x7EF95EF: ???
+==13031==    by 0x9C0557F: ???
+==13031==    by 0xFFEFF7D1F: ???
+==13031==    by 0x16D02F7: ???
+==13031==    by 0x5A61E3: llvm_call_method_from_module (jit_runtime.cpp:259)
+==13031==    by 0x5A61E3: jit (jit_runtime.cpp:877)
+==13031==    by 0x57FAB2: invoke_method (vm.c:475)
+==13031==    by 0x42215D0: ???
+==13031==    by 0x76FCB87: ???
+==13031==  Address 0x76fcb88 is 8 bytes after a block of size 8,192 alloc'd
+==13031==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==13031==    by 0x57B15D: debug_calloc (debug.c:229)
+==13031==    by 0x597133: eval_file (script.c:73)
+==13031==    by 0x57A8E8: main (main.c:50)
+==13031== 
+==13031== Invalid write of size 8
+==13031==    at 0x9C055DC: ???
+==13031==    by 0x907: ???
+==13031==    by 0x8E577F: ??? (in /home/ab25cq/repo/clover2/clover2)
+==13031==    by 0x80E21BF: ???
+==13031==    by 0x7EF95EF: ???
+==13031==    by 0x9C0557F: ???
+==13031==    by 0xFFEFF7D1F: ???
+==13031==    by 0x16D02F7: ???
+==13031==    by 0x5A61E3: llvm_call_method_from_module (jit_runtime.cpp:259)
+==13031==    by 0x5A61E3: jit (jit_runtime.cpp:877)
+==13031==    by 0x57FAB2: invoke_method (vm.c:475)
+==13031==    by 0x42215D0: ???
+==13031==    by 0x76FCB87: ???
+==13031==  Address 0x76fcb88 is 8 bytes after a block of size 8,192 alloc'd
+==13031==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==13031==    by 0x57B15D: debug_calloc (debug.c:229)
+==13031==    by 0x597133: eval_file (script.c:73)
+==13031==    by 0x57A8E8: main (main.c:50)
+==13031== 
+==13031== Invalid write of size 8
+==13031==    at 0x9C055E4: ???
+==13031==    by 0x907: ???
+==13031==    by 0x8E577F: ??? (in /home/ab25cq/repo/clover2/clover2)
+==13031==    by 0x80E21BF: ???
+==13031==    by 0x7EF95EF: ???
+==13031==    by 0x9C0557F: ???
+==13031==    by 0xFFEFF7D1F: ???
+==13031==    by 0x16D02F7: ???
+==13031==    by 0x5A61E3: llvm_call_method_from_module (jit_runtime.cpp:259)
+==13031==    by 0x5A61E3: jit (jit_runtime.cpp:877)
+==13031==    by 0x57FAB2: invoke_method (vm.c:475)
+==13031==    by 0x42215D0: ???
+==13031==    by 0x76FCB87: ???
+==13031==  Address 0x76fcb90 is 16 bytes after a block of size 8,192 alloc'd
+==13031==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==13031==    by 0x57B15D: debug_calloc (debug.c:229)
+==13031==    by 0x597133: eval_file (script.c:73)
+==13031==    by 0x57A8E8: main (main.c:50)
+==13031== 
+==13031== Invalid write of size 8
+==13031==    at 0x9C055ED: ???
+==13031==    by 0x907: ???
+==13031==    by 0x8E577F: ??? (in /home/ab25cq/repo/clover2/clover2)
+==13031==    by 0x80E21BF: ???
+==13031==    by 0x7EF95EF: ???
+==13031==    by 0x9C0557F: ???
+==13031==    by 0xFFEFF7D1F: ???
+==13031==    by 0x16D02F7: ???
+==13031==    by 0x5A61E3: llvm_call_method_from_module (jit_runtime.cpp:259)
+==13031==    by 0x5A61E3: jit (jit_runtime.cpp:877)
+==13031==    by 0x57FAB2: invoke_method (vm.c:475)
+==13031==    by 0x42215D0: ???
+==13031==    by 0x76FCB87: ???
+==13031==  Address 0x76fcb90 is 16 bytes after a block of size 8,192 alloc'd
+==13031==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==13031==    by 0x57B15D: debug_calloc (debug.c:229)
+==13031==    by 0x597133: eval_file (script.c:73)
+==13031==    by 0x57A8E8: main (main.c:50)
+==13031== 
+==13031== Invalid read of size 8
+==13031==    at 0x9C272EF: ???
+==13031==    by 0x6EE308F: ???
+==13031==    by 0x8E577F: ??? (in /home/ab25cq/repo/clover2/clover2)
+==13031==    by 0x80E23DF: ???
+==13031==    by 0x7983E9F: ???
+==13031==    by 0x9C272CF: ???
+==13031==    by 0xFFEFF7ABF: ???
+==13031==    by 0x16D02F7: ???
+==13031==    by 0x5A61E3: llvm_call_method_from_module (jit_runtime.cpp:259)
+==13031==    by 0x5A61E3: jit (jit_runtime.cpp:877)
+==13031==    by 0x57FAB2: invoke_method (vm.c:475)
+==13031==    by 0x9C05614: ???
+==13031==    by 0x907: ???
+==13031==  Address 0x76fcb90 is 16 bytes after a block of size 8,192 alloc'd
+==13031==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==13031==    by 0x57B15D: debug_calloc (debug.c:229)
+==13031==    by 0x597133: eval_file (script.c:73)
+==13031==    by 0x57A8E8: main (main.c:50)
+==13031== 
+==13031== Invalid write of size 8
+==13031==    at 0x9C27324: ???
+==13031==    by 0x907: ???
+==13031==    by 0x8E577F: ??? (in /home/ab25cq/repo/clover2/clover2)
+==13031==    by 0x80E23DF: ???
+==13031==    by 0x7983E9F: ???
+==13031==    by 0x9C272CF: ???
+==13031==    by 0xFFEFF7ABF: ???
+==13031==    by 0x16D02F7: ???
+==13031==    by 0x5A61E3: llvm_call_method_from_module (jit_runtime.cpp:259)
+==13031==    by 0x5A61E3: jit (jit_runtime.cpp:877)
+==13031==    by 0x57FAB2: invoke_method (vm.c:475)
+==13031==    by 0x9C05614: ???
+==13031==    by 0x907: ???
+==13031==  Address 0x76fcb90 is 16 bytes after a block of size 8,192 alloc'd
+==13031==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==13031==    by 0x57B15D: debug_calloc (debug.c:229)
+==13031==    by 0x597133: eval_file (script.c:73)
+==13031==    by 0x57A8E8: main (main.c:50)
+==13031== 
+==13031== Invalid write of size 8
+==13031==    at 0x9C2732C: ???
+==13031==    by 0x907: ???
+==13031==    by 0x8E577F: ??? (in /home/ab25cq/repo/clover2/clover2)
+==13031==    by 0x80E23DF: ???
+==13031==    by 0x7983E9F: ???
+==13031==    by 0x9C272CF: ???
+==13031==    by 0xFFEFF7ABF: ???
+==13031==    by 0x16D02F7: ???
+==13031==    by 0x5A61E3: llvm_call_method_from_module (jit_runtime.cpp:259)
+==13031==    by 0x5A61E3: jit (jit_runtime.cpp:877)
+==13031==    by 0x57FAB2: invoke_method (vm.c:475)
+==13031==    by 0x9C05614: ???
+==13031==    by 0x907: ???
+==13031==  Address 0x76fcb90 is 16 bytes after a block of size 8,192 alloc'd
+==13031==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==13031==    by 0x57B15D: debug_calloc (debug.c:229)
+==13031==    by 0x597133: eval_file (script.c:73)
+==13031==    by 0x57A8E8: main (main.c:50)
+==13031== 
+==13031== Invalid write of size 8
+==13031==    at 0x9C27334: ???
+==13031==    by 0x907: ???
+==13031==    by 0x8E577F: ??? (in /home/ab25cq/repo/clover2/clover2)
+==13031==    by 0x80E23DF: ???
+==13031==    by 0x7983E9F: ???
+==13031==    by 0x9C272CF: ???
+==13031==    by 0xFFEFF7ABF: ???
+==13031==    by 0x16D02F7: ???
+==13031==    by 0x5A61E3: llvm_call_method_from_module (jit_runtime.cpp:259)
+==13031==    by 0x5A61E3: jit (jit_runtime.cpp:877)
+==13031==    by 0x57FAB2: invoke_method (vm.c:475)
+==13031==    by 0x9C05614: ???
+==13031==    by 0x907: ???
+==13031==  Address 0x76fcb98 is 24 bytes after a block of size 8,192 in arena "client"
+==13031== 
+
+valgrind: m_mallocfree.c:303 (get_bszB_as_is): Assertion 'bszB_lo == bszB_hi' failed.
+valgrind: Heap block lo/hi size mismatch: lo = 8256, hi = 0.
+This is probably caused by your program erroneously writing past the
+end of a heap block and corrupting heap metadata.  If you fix any
+invalid writes reported by Memcheck, this assertion failure will
+probably go away.  Please try that before reporting this as a bug.
+
+
+host stacktrace:
+==13031==    at 0x38083F48: ??? (in /usr/lib/valgrind/memcheck-amd64-linux)
+==13031==    by 0x38084064: ??? (in /usr/lib/valgrind/memcheck-amd64-linux)
+==13031==    by 0x380841F1: ??? (in /usr/lib/valgrind/memcheck-amd64-linux)
+==13031==    by 0x38091A9C: ??? (in /usr/lib/valgrind/memcheck-amd64-linux)
+==13031==    by 0x3807D673: ??? (in /usr/lib/valgrind/memcheck-amd64-linux)
+==13031==    by 0x3807BF03: ??? (in /usr/lib/valgrind/memcheck-amd64-linux)
+==13031==    by 0x380800DA: ??? (in /usr/lib/valgrind/memcheck-amd64-linux)
+==13031==    by 0x3807B49A: ??? (in /usr/lib/valgrind/memcheck-amd64-linux)
+==13031==    by 0x8070C16FE: ???
+==13031==    by 0x803541F2F: ???
+==13031==    by 0x80200831F: ???
+==13031==    by 0xFFEFF795F: ???
+==13031==    by 0x80200831F: ???
+==13031==    by 0x1BFF: ???
+==13031==    by 0x8094679AF: ???
+==13031==    by 0xFFEFF79CF: ???
+==13031==    by 0xBFC0: ???
+
+sched status:
+  running_tid=1
+
+Thread 1: status = VgTs_Runnable (lwpid 13031)
+==13031==    at 0x9C2733D: ???
+==13031==    by 0x907: ???
+==13031==    by 0x8E577F: ??? (in /home/ab25cq/repo/clover2/clover2)
+==13031==    by 0x80E23DF: ???
+==13031==    by 0x7983E9F: ???
+==13031==    by 0x9C272CF: ???
+==13031==    by 0xFFEFF7ABF: ???
+==13031==    by 0x16D02F7: ???
+==13031==    by 0x5A61E3: llvm_call_method_from_module (jit_runtime.cpp:259)
+==13031==    by 0x5A61E3: jit (jit_runtime.cpp:877)
+==13031==    by 0x57FAB2: invoke_method (vm.c:475)
+==13031==    by 0x9C05614: ???
+==13031==    by 0x907: ???
+==13031==    by 0x8E577F: ??? (in /home/ab25cq/repo/clover2/clover2)
+==13031==    by 0x80E21BF: ???
+==13031==    by 0x7EF95EF: ???
+==13031==    by 0x9C0557F: ???
+==13031==    by 0xFFEFF7D1F: ???
+==13031==    by 0x16D02F7: ???
+==13031==    by 0x5A61E3: llvm_call_method_from_module (jit_runtime.cpp:259)
+==13031==    by 0x5A61E3: jit (jit_runtime.cpp:877)
+==13031==    by 0x57FAB2: invoke_method (vm.c:475)
+==13031==    by 0x42215D0: ???
+==13031==    by 0x76FCB8F: ???
+
+
+Note: see also the FAQ in the source distribution.
+It contains workarounds to several common problems.
+In particular, if Valgrind aborted or crashed after
+identifying problems in your program, there's a good chance
+that fixing those problems will prevent Valgrind aborting or
+crashing, especially if it happened in m_mallocfree.c.
+
+If that doesn't help, please report this bug to: www.valgrind.org
+
+In the bug report, send all the above text, the valgrind
+version, and what OS and version you are using.  Thanks.
+

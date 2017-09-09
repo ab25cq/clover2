@@ -631,7 +631,7 @@ BOOL System_mbstowcs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     /// clover variable to c variable ///
     char* src_value = src->mPointerValue;
     size_t size_value = size->mULongValue;
-    wchar_t* wcs = MCALLOC(1, sizeof(wchar_t)*(size_value));
+    wchar_t* wcs = MCALLOC(1, sizeof(wchar_t)*(size_value+1));
     CLVALUE* dest_value = (CLVALUE*)dest->mPointerValue;
     BOOL append_null_terminated_value = append_null_terminated->mBoolValue;
 
@@ -655,7 +655,7 @@ BOOL System_mbstowcs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     MASSERT(klass != NULL);
 
-    if(already_null_terminated || append_null_terminated) {
+    if(append_null_terminated) {
         CLObject object = create_array_object(klass, size_wcs+1);
         sCLObject* object_data = CLOBJECT(object);
 
@@ -699,16 +699,16 @@ BOOL System_wcstombs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     sCLObject* object_data = CLOBJECT(src_value);
     int len = object_data->mArrayNum;
 
-    wchar_t* wcs = MCALLOC(1, sizeof(wchar_t)*(len));
-    size_t size = sizeof(char)*MB_LEN_MAX*(len);
-    char* mbs = MCALLOC(1, size);
+    wchar_t* wcs = MCALLOC(1, sizeof(wchar_t)*(len+1));
+    size_t size = sizeof(char)*MB_LEN_MAX*len;
+    char* mbs = MCALLOC(1, size+MB_LEN_MAX);
 
     int i;
     for(i=0; i<len; i++) {
         wcs[i] = object_data->mFields[i].mCharValue;
     }
     BOOL null_terminated = FALSE;
-    if(wcs[len-1] == '\0') {
+    if(len > 0 && wcs[len-1] == '\0') {
         null_terminated = TRUE;
     }
 

@@ -858,14 +858,10 @@ class Buffer
         len: size_t = buf.len;
 
         if(self.len + len >= self.size) {
-println("AAA");
             new_size:size_t = (self.len+len+1) * 2;
             self.buffer = System.realloc(self.buffer, new_size);
             self.size = new_size;
         }
-else {
-println("BBB");
-}
 
         System.memcpy(self.buffer + self.len, buf.buffer, len);
         self.len += len;
@@ -932,7 +928,9 @@ println("BBB");
     def toString():String throws Exception {
         wcs:char[] = null;
         System.mbstowcs(&wcs, self.buffer, self.len, true);
-        return new String(wcs);
+        result:String = new String(wcs);
+printf("Buffer.toString %d\n", array { result.ID().toInteger });
+        return result;
     }
 
     def subBuffer(start:int, end:int): Buffer {

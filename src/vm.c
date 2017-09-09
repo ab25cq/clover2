@@ -468,9 +468,6 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
         CLVALUE* new_stack = lvar;
         int new_var_num = method->mVarNum;
 
-if(strcmp(CLASS_NAME(klass), "JITTest") == 0 && strcmp(METHOD_NAME2(klass, method), "toBuffer") == 0) {
-printf("real_param_num %d new_var_num %d\n", real_param_num, new_var_num);
-}
         /// initialize local var except params ///
         memset(lvar + real_param_num, 0, sizeof(CLVALUE)* (new_var_num - real_param_num));
 
@@ -4397,7 +4394,6 @@ if(stack_ptr != lvar + var_num + 1) {
                     vm_mutex_off();
                 }
                 break;
-
 
             case OP_OBJ_IDENTIFY:
                 {

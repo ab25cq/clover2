@@ -24,9 +24,9 @@ void jit_init()
     Type* field_type2 = IntegerType::get(TheContext, 32);
     fields.push_back(field_type2);
 
-    if(gCLValueAndBoolStruct->isOpaque()) {
+    //if(gCLValueAndBoolStruct->isOpaque()) {
         gCLValueAndBoolStruct->setBody(fields, false);
-    }
+    //}
 
     /// CLVALUE and BOOL Struct type ///
     fields.clear();
@@ -38,9 +38,9 @@ void jit_init()
     field_type2 = IntegerType::get(TheContext, 32);
     fields.push_back(field_type2);
 
-    if(gPointerAndBoolStruct->isOpaque()) {
+    //if(gPointerAndBoolStruct->isOpaque()) {
         gPointerAndBoolStruct->setBody(fields, false);
-    }
+    //}
 }
 
 void jit_final()

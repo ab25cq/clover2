@@ -1,4 +1,5 @@
 
+/*
 interface JITTestInterface
 {
     def method(value:int):int;
@@ -51,6 +52,7 @@ class JITTestClassA
         return block_(a,b);
     }
 }
+*/
 
 class JITTest 
 {
@@ -62,6 +64,7 @@ class JITTest
         self.len = 10;
     }
 
+/*
     def run(): int {
         return 3+1;
     }
@@ -1567,7 +1570,33 @@ class JITTest
 
         return aaa.items[index];
     }
+*/
 
+    def for_test():Buffer {
+        abc:String = p"/etc/group".read().toString();
+        array_:byte[] = { 1y 2y, 3y};
+        array_2:byte[] = null
+        System.wcstombs(&array_2, abc.buffer);
+
+for(i:=0 ;i<array_2.length; i++) {
+i.toString.println();
+#array_[i].toString.println();
+}
+/*
+
+        result:Buffer = new Buffer(array_.length.to_ulong);
+        for(i:int = 0; i<array_.length-1; i++) {
+printf("i %d %d\n", array { i, array_[i] });
+            result.append(array_[i]);
+        }
+println("END");
+
+        return result;
+*/
+        return null;
+    }
+
+/*
     def toBuffer(aaa:String):  Buffer throws Exception {
         array_:byte[] = null;
         System.wcstombs(&array_, aaa.buffer);
@@ -1585,10 +1614,7 @@ class JITTest
         result:EqualableList<String> = new EqualableList<String>();
         offset:int = 0;
 
-println("toBuffer");
         buffer:Buffer = self.toBuffer(aaa);
-println("toBuffer end");
-/*
         ovec_max:int = 16;
         ovec:PcreOVec = new PcreOVec(ovec_max);
 
@@ -1629,7 +1655,6 @@ println("toBuffer end");
                 break;
             }
         }
-*/
 
         return result;
     }
@@ -1714,4 +1739,5 @@ println("toBuffer end");
 
         return result;
     }
+*/
 }
