@@ -1576,11 +1576,11 @@ class JITTest
         abc:String = p"/etc/group".read().toString();
         array_:byte[] = { 1y 2y, 3y};
         array_2:byte[] = null
-        array_2 = System.wcstombs2(abc.buffer);
+        System.wcstombs(&array_2, abc.buffer);
 
-for(i:=0 ;i<700; i++) {
+for(i:=0 ;i<array_2.length; i++) {
 #i.toString.println();
-array_2[i].toString.println();
+array_[i].toString.println();
 }
 /*
 

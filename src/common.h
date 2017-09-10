@@ -1867,6 +1867,7 @@ BOOL System_memcpy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_memcmp(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_mbstowcs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_wcstombs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_wcstombs2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_atof(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_atoi(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_strtod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
@@ -2025,6 +2026,8 @@ int gSizeJITObjects;
 void jit_init_on_runtime();
 void jit_final_on_runtime();
 BOOL load_bc_file(sCLClass* klass);
+
+void push_jit_object(CLObject obj);
 #endif
 
 #endif

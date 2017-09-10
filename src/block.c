@@ -32,6 +32,10 @@ CLObject create_block_object(sByteCode* codes, sConst* constant, CLVALUE* parent
     object_data->mStackID = stack_id;
     object_data->mLambda = lambda;
 
+#ifdef ENABLE_JIT
+    push_jit_object(obj);
+#endif
+
     return obj;
 }
 

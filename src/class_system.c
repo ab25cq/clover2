@@ -746,12 +746,81 @@ BOOL System_wcstombs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
         }
     }
 
+printf("wcstombs %d\n", object);
+
     dest_value->mObjectValue = object;
 
     MFREE(wcs);
     MFREE(mbs);
 
     (*stack_ptr)->mIntValue = num;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_wcstombs2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* src = lvar;
+
+    /// clover variable to c variable ///
+    CLObject src_value = src->mObjectValue;
+    sCLObject* object_data = CLOBJECT(src_value);
+    int len = object_data->mArrayNum;
+
+    wchar_t* wcs = MCALLOC(1, sizeof(wchar_t)*(len+1));
+    size_t size = sizeof(char)*MB_LEN_MAX*len;
+    char* mbs = MCALLOC(1, size+MB_LEN_MAX);
+
+    int i;
+    for(i=0; i<len; i++) {
+        wcs[i] = object_data->mFields[i].mCharValue;
+    }
+    BOOL null_terminated = FALSE;
+    if(len > 0 && wcs[len-1] == '\0') {
+        null_terminated = TRUE;
+    }
+
+    /// go ///
+    int num = wcstombs(mbs, wcs, size);
+
+    if(num < 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "wcstombs returns -1");
+        MFREE(wcs);
+        MFREE(mbs);
+        return FALSE;
+    }
+
+    /// make result ///
+    sCLClass* klass = get_class("byte");
+
+    MASSERT(klass != NULL);
+
+    CLObject object;
+    if(null_terminated) {
+        object = create_array_object(klass, num+1);
+        sCLObject* object_data2 = CLOBJECT(object);
+
+        for(i=0; i<num; i++) {
+            object_data2->mFields[i].mByteValue = mbs[i];
+        }
+        object_data2->mFields[i].mByteValue = '\0';
+    }
+    else {
+        object = create_array_object(klass, num);
+        sCLObject* object_data2 = CLOBJECT(object);
+
+        for(i=0; i<num; i++) {
+            object_data2->mFields[i].mByteValue = mbs[i];
+        }
+    }
+
+printf("wcstombs %d\n", object);
+
+    MFREE(wcs);
+    MFREE(mbs);
+
+    (*stack_ptr)->mObjectValue = object;
     (*stack_ptr)++;
 
     return TRUE;

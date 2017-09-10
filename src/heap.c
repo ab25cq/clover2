@@ -197,6 +197,7 @@ static void compaction(unsigned char* mark_flg)
 
             /// this is not a marked object ///
             if(!mark_flg[i]) {
+printf("free %d %s\n", obj, CLASS_NAME(klass));
                 int top_of_free_handle;
 
                 gCLHeap.mHandles[i].mOffset = -1;
