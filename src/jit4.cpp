@@ -79,6 +79,13 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* param6 = params[info_value_name];
             params2.push_back(param6);
 
+/*
+Value* XXX = params[stack_ptr_address_name];
+Value* loaded_stack_ptr_address_value = Builder.CreateLoad(XXX, "loaded_stack_ptr_address_value");
+call_show_value_in_jit(loaded_stack_ptr_address_value);
+*/
+
+
             Value* result = Builder.CreateCall(fun, params2);
 
             finish_method_call(result, params, current_block, *function, try_catch_label_name, code, real_param_num, var_num, llvm_stack, *llvm_stack_ptr);
@@ -121,6 +128,11 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
 
             /// delete result from vm stack ///
             dec_vm_stack_ptr(params, *current_block, 1);
+/*
+XXX = params[stack_ptr_address_name];
+loaded_stack_ptr_address_value = Builder.CreateLoad(XXX, "loaded_stack_ptr_address_value");
+call_show_value_in_jit(loaded_stack_ptr_address_value);
+*/
             }
             break;
 

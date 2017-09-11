@@ -133,30 +133,23 @@ LVALUE get_vm_stack_ptr_value_from_index_with_aligned(std::map<std::string, Valu
     return result;
 }
 
-void inc_vm_stack_ptr(std::map<std::string, Value*>& params, BasicBlock* current_block, int value)
+void inc_vm_stack_ptr(std::map<std::string, Value*> params, BasicBlock* current_block, int value)
 {
     std::string stack_ptr_address_name("stack_ptr_address");
     Value* stack_ptr_address_value = params[stack_ptr_address_name];
 
-    Value* loaded_stack_ptr_address_value = Builder.CreateLoad(stack_ptr_address_value, "loaded_stack_ptr_address_value");
+//call_show_value_in_jit(stack_ptr_address_value);
 
-/*
-    Value* lvalue = loaded_stack_ptr_address_value;
-    Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(64, 8*value, true));
-    Value* inc_ptr_value = Builder.CreateAdd(lvalue, rvalue, "inc_ptr_value", false, false);
-*/
+    Value* loaded_stack_ptr_address_value = Builder.CreateLoad(stack_ptr_address_value, "loaded_stack_ptr_address_value");
 
     Value* lvalue = loaded_stack_ptr_address_value;
     Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(64, value, true));
-    Value* inc_ptr_value = Builder.CreateGEP(lvalue, rvalue, "inc_ptr_value");
-
-    std::string stack_ptr_arg_name("stack_ptr");
-    params[stack_ptr_arg_name] = inc_ptr_value;
+    Value* inc_ptr_value = Builder.CreateGEP(lvalue, rvalue, "inc_ptr_value(1)");
 
     Builder.CreateStore(inc_ptr_value, stack_ptr_address_value);
 }
 
-void push_value_to_vm_stack_ptr_with_aligned(std::map<std::string, Value*>& params, BasicBlock* current_block, LVALUE* llvm_value)
+void push_value_to_vm_stack_ptr_with_aligned(std::map<std::string, Value*> params, BasicBlock* current_block, LVALUE* llvm_value)
 {
     Builder.SetInsertPoint(current_block);
 

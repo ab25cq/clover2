@@ -29,7 +29,8 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
             LVALUE llvm_value;
-            llvm_value.value = Builder.CreateCast(Instruction::ZExt, value->value, Type::getInt32Ty(TheContext), "value2");
+            llvm_value.value = Builder.CreateCast(Instruction::SExt, value->value, Type::getInt32Ty(TheContext), "value2");
+            //llvm_value.value = Builder.CreateCast(Instruction::ZExt, value->value, Type::getInt32Ty(TheContext), "value2");
             llvm_value.lvar_address_index = value->lvar_address_index;
             llvm_value.lvar_stored = FALSE;
             llvm_value.constant_int_value = FALSE;
@@ -53,7 +54,8 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
             LVALUE llvm_value;
-            llvm_value.value = Builder.CreateCast(Instruction::ZExt, value->value, Type::getInt32Ty(TheContext), "value2");
+            llvm_value.value = Builder.CreateCast(Instruction::SExt, value->value, Type::getInt32Ty(TheContext), "value2");
+            //llvm_value.value = Builder.CreateCast(Instruction::ZExt, value->value, Type::getInt32Ty(TheContext), "value2");
             llvm_value.lvar_address_index = value->lvar_address_index;
             llvm_value.lvar_stored = FALSE;
             llvm_value.constant_int_value = FALSE;
@@ -324,7 +326,8 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
             LVALUE llvm_value;
-            llvm_value.value = Builder.CreateCast(Instruction::ZExt, value->value, Type::getInt16Ty(TheContext), "value2");
+            llvm_value.value = Builder.CreateCast(Instruction::SExt, value->value, Type::getInt16Ty(TheContext), "value2");
+            //llvm_value.value = Builder.CreateCast(Instruction::ZExt, value->value, Type::getInt16Ty(TheContext), "value2");
             llvm_value.lvar_address_index = value->lvar_address_index;
             llvm_value.lvar_stored = FALSE;
             llvm_value.constant_int_value = FALSE;
@@ -342,7 +345,8 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
             LVALUE llvm_value;
-            llvm_value.value = Builder.CreateCast(Instruction::ZExt, value->value, Type::getInt16Ty(TheContext), "value2");
+            llvm_value.value = Builder.CreateCast(Instruction::SExt, value->value, Type::getInt16Ty(TheContext), "value2");
+            //llvm_value.value = Builder.CreateCast(Instruction::ZExt, value->value, Type::getInt16Ty(TheContext), "value2");
             llvm_value.lvar_address_index = value->lvar_address_index;
             llvm_value.lvar_stored = FALSE;
             llvm_value.constant_int_value = FALSE;
@@ -410,7 +414,8 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
             LVALUE llvm_value;
-            llvm_value.value = Builder.CreateCast(Instruction::ZExt, value->value, Type::getInt64Ty(TheContext), "value2");
+            llvm_value.value = Builder.CreateCast(Instruction::SExt, value->value, Type::getInt64Ty(TheContext), "value2");
+            //llvm_value.value = Builder.CreateCast(Instruction::ZExt, value->value, Type::getInt64Ty(TheContext), "value2");
             llvm_value.lvar_address_index = value->lvar_address_index;
             llvm_value.lvar_stored = FALSE;
             llvm_value.constant_int_value = FALSE;

@@ -915,7 +915,7 @@ void jit_init_on_runtime()
 void jit_final_on_runtime()
 {
     llvm_finalize_ee();
-    llvm_shutdown();
+    //llvm_shutdown();
     free_jit_objects();
 }
 

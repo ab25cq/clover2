@@ -19,17 +19,12 @@ void show_stack_for_llvm_stack(LVALUE* llvm_stack, LVALUE* llvm_stack_ptr, int v
     }
 }
 
-void show_number_in_jit(int number)
-{
-    printf("%d(%p) %f\n", number, number);
-}
-
-void call_show_number_in_jit(int number)
+void call_show_number_in_jit(clint64 number)
 {
     Function* show_number = TheModule->getFunction("show_number_in_jit");
 
     std::vector<Value*> params2;
-    Value* param1 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)number);
+    Value* param1 = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)number);
     params2.push_back(param1);
 
     Value* result = Builder.CreateCall(show_number, params2);
@@ -39,8 +34,19 @@ void call_show_value_in_jit(Value* value)
 {
     Function* show_number = TheModule->getFunction("show_number_in_jit");
 
+    LVALUE llvm_value;
+    llvm_value.value = value;
+    llvm_value.lvar_address_index = -1;
+    llvm_value.lvar_stored = FALSE;
+    llvm_value.constant_int_value = FALSE;
+    llvm_value.constant_float_value = FALSE;
+    llvm_value.float_value = FALSE;
+
+    LVALUE llvm_value2;
+    llvm_value2 = trunc_value(&llvm_value, 64);
+
     std::vector<Value*> params2;
-    Value* param1 = value;
+    Value* param1 = llvm_value2.value;
     params2.push_back(param1);
 
     Value* result = Builder.CreateCall(show_number, params2);

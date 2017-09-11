@@ -127,7 +127,8 @@ LVALUE trunc_value(LVALUE* llvm_value, int size)
 
             case 64:
                 result.value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, Type::getInt32Ty(TheContext));
-                result.value = Builder.CreateCast(Instruction::ZExt, result.value, Type::getInt64Ty(TheContext));
+                result.value = Builder.CreateCast(Instruction::SExt, result.value, Type::getInt64Ty(TheContext));
+                //result.value = Builder.CreateCast(Instruction::ZExt, result.value, Type::getInt64Ty(TheContext));
                 break;
         }
     }
@@ -187,7 +188,8 @@ LVALUE trunc_value(LVALUE* llvm_value, int size)
 
             case 8:
                 if(llvm_type->isIntegerTy(1)) {
-                    result.value = Builder.CreateCast(Instruction::ZExt, llvm_value->value, Type::getInt8Ty(TheContext));
+                    result.value = Builder.CreateCast(Instruction::SExt, llvm_value->value, Type::getInt8Ty(TheContext));
+                    //result.value = Builder.CreateCast(Instruction::ZExt, llvm_value->value, Type::getInt8Ty(TheContext));
                 }
                 else if(!llvm_type->isIntegerTy(8)) {
                     result.value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt8Ty(TheContext));
@@ -196,7 +198,8 @@ LVALUE trunc_value(LVALUE* llvm_value, int size)
 
             case 16:
                 if(llvm_type->isIntegerTy(1) || llvm_type->isIntegerTy(8)) {
-                    result.value = Builder.CreateCast(Instruction::ZExt, llvm_value->value, Type::getInt16Ty(TheContext));
+                    result.value = Builder.CreateCast(Instruction::SExt, llvm_value->value, Type::getInt16Ty(TheContext));
+                    //result.value = Builder.CreateCast(Instruction::ZExt, llvm_value->value, Type::getInt16Ty(TheContext));
                 }
                 else if(llvm_type->isIntegerTy(16)) {
                 }
@@ -207,7 +210,8 @@ LVALUE trunc_value(LVALUE* llvm_value, int size)
 
             case 32:
                 if(llvm_type->isIntegerTy(1) ||llvm_type->isIntegerTy(8) || llvm_type->isIntegerTy(16)) {
-                    result.value = Builder.CreateCast(Instruction::ZExt, llvm_value->value, Type::getInt32Ty(TheContext));
+                    result.value = Builder.CreateCast(Instruction::SExt, llvm_value->value, Type::getInt32Ty(TheContext));
+                    //result.value = Builder.CreateCast(Instruction::ZExt, llvm_value->value, Type::getInt32Ty(TheContext));
                 }
                 else {
                     result.value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt32Ty(TheContext));
@@ -216,7 +220,8 @@ LVALUE trunc_value(LVALUE* llvm_value, int size)
 
             case 64:
                 if(!llvm_type->isIntegerTy(64)) {
-                    result.value = Builder.CreateCast(Instruction::ZExt, llvm_value->value, Type::getInt64Ty(TheContext));
+                    result.value = Builder.CreateCast(Instruction::SExt, llvm_value->value, Type::getInt64Ty(TheContext));
+                    //result.value = Builder.CreateCast(Instruction::ZExt, llvm_value->value, Type::getInt64Ty(TheContext));
                 }
                 break;
         }
@@ -354,7 +359,7 @@ void trunc_variable(LVALUE* llvm_value, int size)
 {
     switch(size) {
         case 1:
-            llvm_value->value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt8Ty(TheContext), "XXX");
+            llvm_value->value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt8Ty(TheContext));
 
             break;
 
@@ -636,7 +641,8 @@ void cast_llvm_value_from_inst(LVALUE* llvm_value, int inst)
         case OP_CBYTE_TO_USHORT_CAST:
         case OP_CUBYTE_TO_SHORT_CAST:
         case OP_CUBYTE_TO_USHORT_CAST:
-            llvm_value->value = Builder.CreateCast(Instruction::ZExt, llvm_value->value, Type::getInt16Ty(TheContext), "value2");
+            llvm_value->value = Builder.CreateCast(Instruction::SExt, llvm_value->value, Type::getInt16Ty(TheContext), "value2");
+            //llvm_value->value = Builder.CreateCast(Instruction::ZExt, llvm_value->value, Type::getInt16Ty(TheContext), "value2");
             break;
 
         case OP_CBYTE_TO_UINT_CAST:
@@ -651,7 +657,8 @@ void cast_llvm_value_from_inst(LVALUE* llvm_value, int inst)
         case OP_CUSHORT_TO_CHAR_CAST:
         case OP_CFLOAT_TO_CHAR_CAST:
         case OP_CDOUBLE_TO_CHAR_CAST:
-            llvm_value->value = Builder.CreateCast(Instruction::ZExt, llvm_value->value, Type::getInt32Ty(TheContext), "value2");
+            llvm_value->value = Builder.CreateCast(Instruction::SExt, llvm_value->value, Type::getInt32Ty(TheContext), "value2");
+            //llvm_value->value = Builder.CreateCast(Instruction::ZExt, llvm_value->value, Type::getInt32Ty(TheContext), "value2");
             break;
 
         case OP_CBYTE_TO_ULONG_CAST:
@@ -667,7 +674,8 @@ void cast_llvm_value_from_inst(LVALUE* llvm_value, int inst)
         case OP_CCHAR_TO_LONG_CAST : 
         case OP_CFLOAT_TO_ULONG_CAST :
         case OP_CDOUBLE_TO_ULONG_CAST :
-            llvm_value->value = Builder.CreateCast(Instruction::ZExt, llvm_value->value, Type::getInt64Ty(TheContext), "value2");
+            llvm_value->value = Builder.CreateCast(Instruction::SExt, llvm_value->value, Type::getInt64Ty(TheContext), "value2");
+            //llvm_value->value = Builder.CreateCast(Instruction::ZExt, llvm_value->value, Type::getInt64Ty(TheContext), "value2");
             break;
 
 

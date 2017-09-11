@@ -1573,9 +1573,8 @@ class JITTest
 */
 
     def for_test():Buffer {
-        #abc:String = p"/etc/group".read().toString();
-        abc:String = "
-root:x:0:
+        #abc:String = "p"/etc/group".read().toString();
+        abc:String = "root:x:0:
 daemon:x:1:
 bin:x:2:
 sys:x:3:
@@ -1629,13 +1628,13 @@ mlocate:x:112:
 ssh:x:113:
 ab25cq:x:1000:
 lpadmin:x:114:ab25cq
-sambashare:x:115:ab25cq
-";
+sambashare:x:115:ab25cq";
 
+abc.println();
         array_:byte[] = null
         array_ = System.wcstombs2(abc.buffer);
-        result:Buffer = new Buffer((array_.length+1).to_ulong);
 
+        result:Buffer = new Buffer((array_.length+1).to_ulong);
         for(i:int = 0; i<array_.length-1; i++) {
             result.append(array_[i]);
         }

@@ -1,31 +1,243 @@
-src/array.c:CLObject create_array_object(sCLClass* klass, int array_num)
-src/block.c:CLObject create_block_object(sByteCode* codes, sConst* constant, CLVALUE* parent_stack, int parent_var_num, int block_var_num, sCLStack* stack_id, BOOL lambda)
-src/bool.c:CLObject create_bool(BOOL value)
-src/byte.c:CLObject create_byte(char value)
-src/byte.c:CLObject create_ubyte(unsigned char value)
-src/carray.c:CLObject create_carray_object()
-src/carray.c:CLObject create_equalable_carray_object()
-src/carray.c:CLObject create_sortable_carray_object()
-src/carray.c:CLObject create_carray_object_with_elements(int num_elements, CLObject* elements)
-src/carray.c:CLObject create_equalable_carray_object_with_elements(int num_elements, CLObject* elements)
-src/carray.c:CLObject create_sortable_carray_object_with_elements(int num_elements, CLObject* elements)
-src/char.c:CLObject create_char(wchar_t value)
-src/float.c:CLObject create_float(float value)
-src/float.c:CLObject create_double(double value)
-src/hash.c:CLObject create_hash_object()
-src/integer.c:CLObject create_integer(int value)
-src/integer.c:CLObject create_uinteger(unsigned int value)
-src/list.c:CLObject create_list_object()
-src/list.c:CLObject create_sortable_list_object()
-src/list.c:CLObject create_equalable_list_object()
-src/long.c:CLObject create_long(clint64 value)
-src/long.c:CLObject create_ulong(unsigned clint64 value)
-src/object.c:CLObject create_object(sCLClass* klass)
-src/pointer.c:CLObject create_pointer(char* value)
-src/regex.c:CLObject create_regex_object(char* regex, BOOL global, BOOL ignore_case, BOOL multiline, BOOL extended, BOOL dotall, BOOL anchored, BOOL dollar_endonly, BOOL ungreedy)
-src/short.c:CLObject create_short(short value)
-src/short.c:CLObject create_ushort(unsigned short value)
-src/string.c:CLObject create_string_object(char* str)
-src/string.c:CLObject create_buffer_object(char* buffer, size_t size)
-src/string.c:CLObject create_path_object(char* path)
-src/tuple.c:CLObject create_tuple_object(int num_elements)
+==15598== Memcheck, a memory error detector
+==15598== Copyright (C) 2002-2015, and GNU GPL'd, by Julian Seward et al.
+==15598== Using Valgrind-3.11.0 and LibVEX; rerun with -h for copyright info
+==15598== Command: clover2 b.clo
+==15598== 
+==15598== Invalid write of size 8
+==15598==    at 0x4C3453F: memset (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==15598==    by 0x57FB15: invoke_method (vm.c:472)
+==15598==    by 0x42205DE: ???
+==15598==  Address 0x705d9c0 is 0 bytes after a block of size 8,192 alloc'd
+==15598==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==15598==    by 0x57B1ED: debug_calloc (debug.c:229)
+==15598==    by 0x5971C3: eval_file (script.c:73)
+==15598==    by 0x57A978: main (main.c:50)
+==15598== 
+==15598== Invalid write of size 8
+==15598==    at 0x42228E4: ???
+==15598==    by 0x612E726566667541: ???
+==15598==    by 0x796228646E65706F: ???
+==15598==    by 0x352424296573: ???
+==15598==    by 0x3805129F: ??? (in /usr/lib/valgrind/memcheck-amd64-linux)
+==15598==    by 0x9142F7F: ???
+==15598==  Address 0x705d9c0 is 0 bytes after a block of size 8,192 alloc'd
+==15598==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==15598==    by 0x57B1ED: debug_calloc (debug.c:229)
+==15598==    by 0x5971C3: eval_file (script.c:73)
+==15598==    by 0x57A978: main (main.c:50)
+==15598== 
+==15598== Invalid write of size 8
+==15598==    at 0x42228ED: ???
+==15598==    by 0x612E726566667541: ???
+==15598==    by 0x796228646E65706F: ???
+==15598==    by 0x352424296573: ???
+==15598==    by 0x3805129F: ??? (in /usr/lib/valgrind/memcheck-amd64-linux)
+==15598==    by 0x9142F7F: ???
+==15598==  Address 0x705d9c8 is 8 bytes after a block of size 8,192 alloc'd
+==15598==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==15598==    by 0x57B1ED: debug_calloc (debug.c:229)
+==15598==    by 0x5971C3: eval_file (script.c:73)
+==15598==    by 0x57A978: main (main.c:50)
+==15598== 
+==15598== Invalid read of size 8
+==15598==    at 0x422291D: ???
+==15598==    by 0x612E726566667541: ???
+==15598==    by 0x796228646E65706F: ???
+==15598==    by 0x352424296573: ???
+==15598==    by 0x3805129F: ??? (in /usr/lib/valgrind/memcheck-amd64-linux)
+==15598==    by 0x9142F7F: ???
+==15598==  Address 0x705d9c0 is 0 bytes after a block of size 8,192 alloc'd
+==15598==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==15598==    by 0x57B1ED: debug_calloc (debug.c:229)
+==15598==    by 0x5971C3: eval_file (script.c:73)
+==15598==    by 0x57A978: main (main.c:50)
+==15598== 
+==15598== Invalid read of size 8
+==15598==    at 0x422292F: ???
+==15598==    by 0x612E726566667541: ???
+==15598==    by 0x796228646E65706F: ???
+==15598==    by 0x352424296573: ???
+==15598==    by 0x3805129F: ??? (in /usr/lib/valgrind/memcheck-amd64-linux)
+==15598==    by 0x9142F7F: ???
+==15598==  Address 0x705d9c8 is 8 bytes after a block of size 8,192 alloc'd
+==15598==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==15598==    by 0x57B1ED: debug_calloc (debug.c:229)
+==15598==    by 0x5971C3: eval_file (script.c:73)
+==15598==    by 0x57A978: main (main.c:50)
+==15598== 
+==15598== Invalid write of size 8
+==15598==    at 0x422058D: ???
+==15598==  Address 0x705d9c0 is 0 bytes after a block of size 8,192 alloc'd
+==15598==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==15598==    by 0x57B1ED: debug_calloc (debug.c:229)
+==15598==    by 0x5971C3: eval_file (script.c:73)
+==15598==    by 0x57A978: main (main.c:50)
+==15598== 
+==15598== Invalid write of size 8
+==15598==    at 0x4220597: ???
+==15598==  Address 0x705d9c0 is 0 bytes after a block of size 8,192 alloc'd
+==15598==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==15598==    by 0x57B1ED: debug_calloc (debug.c:229)
+==15598==    by 0x5971C3: eval_file (script.c:73)
+==15598==    by 0x57A978: main (main.c:50)
+==15598== 
+==15598== Invalid write of size 8
+==15598==    at 0x42205A6: ???
+==15598==  Address 0x705d9c8 is 8 bytes after a block of size 8,192 alloc'd
+==15598==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==15598==    by 0x57B1ED: debug_calloc (debug.c:229)
+==15598==    by 0x5971C3: eval_file (script.c:73)
+==15598==    by 0x57A978: main (main.c:50)
+==15598== 
+==15598== Invalid write of size 8
+==15598==    at 0x42205B2: ???
+==15598==  Address 0x705d9c8 is 8 bytes after a block of size 8,192 alloc'd
+==15598==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==15598==    by 0x57B1ED: debug_calloc (debug.c:229)
+==15598==    by 0x5971C3: eval_file (script.c:73)
+==15598==    by 0x57A978: main (main.c:50)
+==15598== 
+==15598== Invalid read of size 8
+==15598==    at 0x422261F: ???
+==15598==    by 0x7D64F1F: ???
+==15598==    by 0xDFAEE9C97E6387FF: ???
+==15598==    by 0x7D64FDF: ???
+==15598==    by 0x7D64C9F: ???
+==15598==    by 0x7D64F1F: ???
+==15598==    by 0x705D9BF: ???
+==15598==    by 0xFFEFF7CEF: ???
+==15598==    by 0x7D64C9F: ???
+==15598==    by 0x42225FF: ???
+==15598==    by 0x16: ???
+==15598==    by 0x1101: ???
+==15598==  Address 0x705d9c0 is 0 bytes after a block of size 8,192 alloc'd
+==15598==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==15598==    by 0x57B1ED: debug_calloc (debug.c:229)
+==15598==    by 0x5971C3: eval_file (script.c:73)
+==15598==    by 0x57A978: main (main.c:50)
+==15598== 
+==15598== Invalid read of size 8
+==15598==    at 0x4222631: ???
+==15598==    by 0x7D64F1F: ???
+==15598==    by 0xDFAEE9C97E6387FF: ???
+==15598==    by 0x7D64FDF: ???
+==15598==    by 0x7D64C9F: ???
+==15598==    by 0x7D64F1F: ???
+==15598==    by 0x705D9BF: ???
+==15598==    by 0xFFEFF7CEF: ???
+==15598==    by 0x50D: ???
+==15598==    by 0x42225FF: ???
+==15598==    by 0x16: ???
+==15598==    by 0x1101: ???
+==15598==  Address 0x705d9c8 is 8 bytes after a block of size 8,192 alloc'd
+==15598==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==15598==    by 0x57B1ED: debug_calloc (debug.c:229)
+==15598==    by 0x5971C3: eval_file (script.c:73)
+==15598==    by 0x57A978: main (main.c:50)
+==15598== 
+==15598== Invalid write of size 8
+==15598==    at 0x42228D3: ???
+==15598==    by 0x612E726566667541: ???
+==15598==    by 0x796228646E65706F: ???
+==15598==    by 0x352424296573: ???
+==15598==    by 0x3805129F: ??? (in /usr/lib/valgrind/memcheck-amd64-linux)
+==15598==    by 0x9142F7F: ???
+==15598==  Address 0x705d9c0 is 0 bytes after a block of size 8,192 alloc'd
+==15598==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==15598==    by 0x57B1ED: debug_calloc (debug.c:229)
+==15598==    by 0x5971C3: eval_file (script.c:73)
+==15598==    by 0x57A978: main (main.c:50)
+==15598== 
+==15598== Invalid write of size 8
+==15598==    at 0x42228DB: ???
+==15598==    by 0x612E726566667541: ???
+==15598==    by 0x796228646E65706F: ???
+==15598==    by 0x352424296573: ???
+==15598==    by 0x3805129F: ??? (in /usr/lib/valgrind/memcheck-amd64-linux)
+==15598==    by 0x9142F7F: ???
+==15598==  Address 0x705d9c8 is 8 bytes after a block of size 8,192 alloc'd
+==15598==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==15598==    by 0x57B1ED: debug_calloc (debug.c:229)
+==15598==    by 0x5971C3: eval_file (script.c:73)
+==15598==    by 0x57A978: main (main.c:50)
+==15598== 
+==15598== Invalid read of size 8
+==15598==    at 0x42228F5: ???
+==15598==    by 0x612E726566667541: ???
+==15598==    by 0x796228646E65706F: ???
+==15598==    by 0x352424296573: ???
+==15598==    by 0x3805129F: ??? (in /usr/lib/valgrind/memcheck-amd64-linux)
+==15598==    by 0x9142F7F: ???
+==15598==  Address 0x705d9c0 is 0 bytes after a block of size 8,192 alloc'd
+==15598==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==15598==    by 0x57B1ED: debug_calloc (debug.c:229)
+==15598==    by 0x5971C3: eval_file (script.c:73)
+==15598==    by 0x57A978: main (main.c:50)
+==15598== 
+==15598== Invalid read of size 8
+==15598==    at 0x422290B: ???
+==15598==    by 0x612E726566667541: ???
+==15598==    by 0x796228646E65706F: ???
+==15598==    by 0x352424296573: ???
+==15598==    by 0x3805129F: ??? (in /usr/lib/valgrind/memcheck-amd64-linux)
+==15598==    by 0x9142F7F: ???
+==15598==  Address 0x705d9c8 is 8 bytes after a block of size 8,192 alloc'd
+==15598==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==15598==    by 0x57B1ED: debug_calloc (debug.c:229)
+==15598==    by 0x5971C3: eval_file (script.c:73)
+==15598==    by 0x57A978: main (main.c:50)
+==15598== 
+==15598== Invalid write of size 8
+==15598==    at 0x42229A2: ???
+==15598==    by 0x612E726566667541: ???
+==15598==    by 0x796228646E65706F: ???
+==15598==    by 0x352424296573: ???
+==15598==    by 0x3805129F: ??? (in /usr/lib/valgrind/memcheck-amd64-linux)
+==15598==    by 0x9142F7F: ???
+==15598==  Address 0x705d9c0 is 0 bytes after a block of size 8,192 alloc'd
+==15598==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==15598==    by 0x57B1ED: debug_calloc (debug.c:229)
+==15598==    by 0x5971C3: eval_file (script.c:73)
+==15598==    by 0x57A978: main (main.c:50)
+==15598== 
+==15598== Invalid read of size 8
+==15598==    at 0x57FB9D: invoke_method (vm.c:492)
+==15598==    by 0x42205DE: ???
+==15598==  Address 0x705d9c0 is 0 bytes after a block of size 8,192 alloc'd
+==15598==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==15598==    by 0x57B1ED: debug_calloc (debug.c:229)
+==15598==    by 0x5971C3: eval_file (script.c:73)
+==15598==    by 0x57A978: main (main.c:50)
+==15598== 
+==15598== Invalid write of size 8
+==15598==    at 0x57FBA0: invoke_method (vm.c:492)
+==15598==    by 0x42205DE: ???
+==15598==  Address 0x705d9c0 is 0 bytes after a block of size 8,192 alloc'd
+==15598==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==15598==    by 0x57B1ED: debug_calloc (debug.c:229)
+==15598==    by 0x5971C3: eval_file (script.c:73)
+==15598==    by 0x57A978: main (main.c:50)
+==15598== 
+==15598== Invalid read of size 4
+==15598==    at 0x422049C: ???
+==15598==  Address 0x705d9c0 is 0 bytes after a block of size 8,192 alloc'd
+==15598==    at 0x4C2FB55: calloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==15598==    by 0x57B1ED: debug_calloc (debug.c:229)
+==15598==    by 0x5971C3: eval_file (script.c:73)
+==15598==    by 0x57A978: main (main.c:50)
+==15598== 
+==15598== 
+==15598== HEAP SUMMARY:
+==15598==     in use at exit: 7,699,400 bytes in 53,166 blocks
+==15598==   total heap usage: 350,777 allocs, 297,611 frees, 157,151,033 bytes allocated
+==15598== 
+==15598== LEAK SUMMARY:
+==15598==    definitely lost: 21,776 bytes in 10 blocks
+==15598==    indirectly lost: 1,902,737 bytes in 681 blocks
+==15598==      possibly lost: 2,188,556 bytes in 16,191 blocks
+==15598==    still reachable: 3,586,331 bytes in 36,284 blocks
+==15598==         suppressed: 0 bytes in 0 blocks
+==15598== Rerun with --leak-check=full to see details of leaked memory
+==15598== 
+==15598== For counts of detected and suppressed errors, rerun with: -v
+==15598== ERROR SUMMARY: 5366 errors from 19 contexts (suppressed: 0 from 0)

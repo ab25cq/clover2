@@ -278,7 +278,7 @@ void create_internal_functions()
     
     result_type = Type::getVoidTy(TheContext);
 
-    param1_type = IntegerType::get(TheContext, 32);
+    param1_type = IntegerType::get(TheContext, 64);
     type_params.push_back(param1_type);
 
     function_type = FunctionType::get(result_type, type_params, false);

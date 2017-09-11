@@ -121,8 +121,8 @@ BOOL compile_to_native_code12(sByteCode* code, sConst* constant, sCLClass* klass
 
 /// jit_debug.h ///
 void show_stack_for_llvm_stack(LVALUE* llvm_stack, LVALUE* llvm_stack_ptr, int var_num);
-void show_number_in_jit(int number);
-void call_show_number_in_jit(int number);
+void show_number_in_jit(clint64 number);
+void call_show_number_in_jit(clint64 number);
 void call_show_value_in_jit(Value* value);
 void show_str_in_jit(char* str);
 void call_show_str_in_jit(Value* value);
@@ -148,8 +148,8 @@ void insert_value_to_stack_ptr_with_offset(LVALUE** llvm_stack_ptr, LVALUE* valu
 void store_llvm_value_to_lvar_with_offset(LVALUE* llvm_stack, int index, LVALUE* llvm_value);
 void get_llvm_value_from_lvar_with_offset(LVALUE* result, LVALUE* llvm_stack, int index);
 LVALUE get_vm_stack_ptr_value_from_index_with_aligned(std::map<std::string, Value*>& params, BasicBlock* current_block, int index, int align);
-void inc_vm_stack_ptr(std::map<std::string, Value*>& params, BasicBlock* current_block, int value);
-void push_value_to_vm_stack_ptr_with_aligned(std::map<std::string, Value*>& params, BasicBlock* current_block, LVALUE* llvm_value);
+void inc_vm_stack_ptr(std::map<std::string, Value*> params, BasicBlock* current_block, int value);
+void push_value_to_vm_stack_ptr_with_aligned(std::map<std::string, Value*> params, BasicBlock* current_block, LVALUE* llvm_value);
 LVALUE get_stack_value_from_index_with_aligned(std::map<std::string, Value*>& params, BasicBlock* current_block, int index, int align);
 void llvm_stack_to_vm_stack(LVALUE* llvm_stack_ptr, std::map<std::string, Value*> params, BasicBlock* current_block, int num);
 void if_value_is_zero_ret_zero(Value* value, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block);

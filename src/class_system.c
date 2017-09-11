@@ -746,8 +746,6 @@ BOOL System_wcstombs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
         }
     }
 
-printf("wcstombs %d\n", object);
-
     dest_value->mObjectValue = object;
 
     MFREE(wcs);
@@ -814,8 +812,6 @@ BOOL System_wcstombs2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
             object_data2->mFields[i].mByteValue = mbs[i];
         }
     }
-
-printf("wcstombs %d\n", object);
 
     MFREE(wcs);
     MFREE(mbs);
