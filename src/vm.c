@@ -471,8 +471,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
         /// initialize local var except params ///
         memset(lvar + real_param_num, 0, sizeof(CLVALUE)* (new_var_num - real_param_num));
 
-//static int num = 0;
-//printf("stack_ptr (%d) %p\n", num, *stack_ptr);
+printf("stack_ptr %d\n", *stack_ptr);
 
 #ifdef ENABLE_JIT
         if(!jit(code, constant, new_stack, new_var_num, klass, method, info, stack_ptr))
@@ -495,7 +494,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
         **stack_ptr = *new_stack;
         (*stack_ptr)++;
 
-//printf("stack_ptr2(%d) %p\n", num++, *stack_ptr);
+printf("stack_ptr %d\n", *stack_ptr);
     }
 
     return TRUE;

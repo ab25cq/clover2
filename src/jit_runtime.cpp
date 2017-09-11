@@ -848,6 +848,7 @@ sCLClass* get_class_with_load_and_initialize_in_jit(sConst* constant, int offset
 
 BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sCLMethod* method, sVMInfo* info, CLVALUE** stack_ptr)
 {
+printf("jit stack1 %p %d\n", stack, stack);
     int num_jit_objects = gNumJITObjects;
 
     klass->mMethodCallCount++;
@@ -893,6 +894,7 @@ klass->mMethodCallCount = 1000;
     }
 
     gNumJITObjects = num_jit_objects;
+printf("jit stack2 %p %d\n", stack, stack);
 
     return TRUE;
 }
