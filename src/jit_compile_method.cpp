@@ -59,6 +59,14 @@ static BOOL compile_jit_methods(sCLClass* klass)
         verifyModule(*TheModule);
         llvm::WriteBitcodeToFile(TheModule, output_stream, true);
         output_stream.flush();
+
+        /// llvm-as ///
+        char command[1024];
+        snprintf(command, 1024, "/usr/bin/llc %s.bc", CLASS_NAME(klass));
+        system(command);
+
+        snprintf(command, 1024, "/usr/bin/clang -o %s.o -c %s.s", CLASS_NAME(klass), CLASS_NAME(klass));
+        system(command);
     }
 
     delete TheModule;
