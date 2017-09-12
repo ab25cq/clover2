@@ -69,13 +69,13 @@ BOOL remove_stack_to_stack_list(sCLStack* stack)
     return FALSE;
 }
 
-BOOL check_variables_existance_on_stack(sCLStack* stack_id)
+BOOL check_variables_existance_on_stack(CLVALUE* stack, CLVALUE* stack_ptr)
 {
     BOOL result = FALSE;
     sCLStack* it = gHeadStack;
 
     while(it) {
-        if(it  == stack_id) {
+        if(it->mStack == stack && stack_ptr < it->mStackPtr) {
             result = TRUE;
             break;
         }

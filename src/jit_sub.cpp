@@ -371,7 +371,8 @@ void trunc_variable(LVALUE* llvm_value, int size)
             break;
 
         case 16:
-            llvm_value->value = Builder.CreateCast(Instruction::UIToFP, llvm_value->value, Type::getFloatTy(TheContext));
+            llvm_value->value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt32Ty(TheContext));
+            llvm_value->value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, Type::getFloatTy(TheContext));
             break;
 
         case 32:
