@@ -155,7 +155,6 @@ void llvm_stack_to_vm_stack(LVALUE* llvm_stack_ptr, std::map<std::string, Value*
 void if_value_is_zero_ret_zero(Value* value, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block);
 void if_value_is_null_ret_zero(Value* value, int value_bit, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block);
 void store_value_to_lvar_with_offset(std::map<std::string, Value*>& params, BasicBlock* current_block, int index, LVALUE* llvm_value);
-void dec_vm_stack_ptr(std::map<std::string, Value*>& params, BasicBlock* current_block, int value);
 LVALUE get_lvar_value_from_offset(std::map<std::string, Value*>& params, BasicBlock* current_block, int offset);
 StructType* get_vm_info_struct_type();
 AllocaInst* create_entry_block_alloca(Function* function, int index);

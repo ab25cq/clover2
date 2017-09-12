@@ -1,6 +1,5 @@
 a:JITTest = new JITTest();
 
-/*
 b:int = a.run();
 Clover.test("jit test", b == 4);
 
@@ -340,18 +339,10 @@ Clover.test("jit test-match2", "ABC".match(/^A(.)C/, group_strings3) && group_st
 Clover.test("jit test-list", equalable_list {1,2,3,1,2,3}.deleteWithRange(2,4).equals(equalable_list {1,2,2,3}));
 
 Clover.test("jit test-split", a.split(/\n/).equals( equalable_list { "ABC" }) );
-*/
 
-#b:String = p"/etc/group".read().toString();
-
-#printf("b.len %d b.size %d b.buffer.length %d\n", array { b.len, b.size, b.buffer.length } );
-
-a.for_test();
-
-
-/*
 a.split2(p"/etc/group".read().toString(), /\n/);
 
+/*
 a.split2(p"/etc/group".read().toString(), /\n/);
 
 zz:Array<Integer> = a.run70_7();

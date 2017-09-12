@@ -102,14 +102,14 @@ InitializeModuleAndPassManager	toy.cpp	/^static void InitializeModuleAndPassMana
 JIT	Makefile	/^JIT=1$/;"	m
 JITKind	lli.cpp	/^  enum class JITKind { MCJIT, OrcMCJITReplacement, OrcLazy };$/;"	c	namespace:__anon24	file:
 JITKind	src/jit_runtime.cpp	/^    enum class JITKind { MCJIT, OrcMCJITReplacement, OrcLazy };$/;"	c	namespace:__anon1	file:
-JIT_OBJS	Makefile	/^JIT_OBJS=src\/jit.o src\/jit2.o src\/jit3.o src\/jit4.o src\/jit5.o src\/jit6.o src\/jit7.o src\/jit8.o src\/jit9.o src\/jit10.o src\/jit11.o src\/jit12.o src\/jit_compile_method.o src\/jit_debug.o src\/jit_debug2.o src\/jit_declare.o src\/jit_declare2.o src\/jit_sub.o src\/jit_sub2.o$/;"	m
+JIT_OBJS	Makefile	/^JIT_OBJS=src\/jit.o src\/jit2.o src\/jit3.o src\/jit4.o src\/jit5.o src\/jit6.o src\/jit7.o src\/jit8.o src\/jit9.o src\/jit10.o src\/jit11.o src\/jit12.o src\/jit_compile_method.o src\/jit_debug.o src\/jit_declare.o src\/jit_declare2.o src\/jit_sub.o src\/jit_sub2.o$/;"	m
 JIT_RUNTIME_OBJS	Makefile	/^JIT_RUNTIME_OBJS=src\/jit_runtime.o src\/jit_runtime2.o src\/jit_debug_runtime.o$/;"	m
 KaleidoscopeJIT	KaleidoscopeJIT.h	/^  KaleidoscopeJIT()$/;"	f	class:llvm::orc::KaleidoscopeJIT
 KaleidoscopeJIT	KaleidoscopeJIT.h	/^class KaleidoscopeJIT {$/;"	c	namespace:llvm::orc
 LABEL_NAME_MAX	src/node.c	106;"	d	file:
-LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM	src/class_system.c	1702;"	d	file:
-LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM	src/class_system.c	1158;"	d	file:
-LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM	src/class_system.c	1066;"	d	file:
+LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM	src/class_system.c	1637;"	d	file:
+LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM	src/class_system.c	1093;"	d	file:
+LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM	src/class_system.c	1001;"	d	file:
 LHS	toy.cpp	/^  std::unique_ptr<ExprAST> LHS, RHS;$/;"	m	class:__anon25::BinaryExprAST	file:
 LIBS	Makefile	/^LIBS= -lutil -lreadline -ldl -lm -lpcre -lrt$/;"	m
 LIST_VALUE_ELEMENT_MAX	src/common.h	62;"	d
@@ -533,6 +533,7 @@ OP_IOR	src/common.h	910;"	d
 OP_IRSHIFT	src/common.h	907;"	d
 OP_ISUB	src/common.h	902;"	d
 OP_IXOR	src/common.h	909;"	d
+OP_JIT_POP	src/common.h	833;"	d
 OP_LABEL	src/common.h	832;"	d
 OP_LADD	src/common.h	923;"	d
 OP_LAND	src/common.h	930;"	d
@@ -1036,7 +1037,6 @@ System_unsetenv	src/class_system.c	/^BOOL System_unsetenv(CLVALUE** stack_ptr, C
 System_utime	src/class_system.c	/^BOOL System_utime(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_waitpid	src/class_system.c	/^BOOL System_waitpid(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_wcstombs	src/class_system.c	/^BOOL System_wcstombs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
-System_wcstombs2	src/class_system.c	/^BOOL System_wcstombs2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_write	src/class_system.c	/^BOOL System_write(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 TM	KaleidoscopeJIT.h	/^  std::unique_ptr<TargetMachine> TM;$/;"	m	class:llvm::orc::KaleidoscopeJIT
 TRUE	src/macros.h	9;"	d
@@ -1383,7 +1383,6 @@ debug_malloc	src/debug.c	/^ALLOC void* debug_malloc(size_t size, const char* fil
 debug_realloc	src/debug.c	/^ALLOC void* debug_realloc(void* memory, size_t size, const char* file_name, int line, const char* func_name)$/;"	f
 debug_strdup	src/debug.c	/^ALLOC char* debug_strdup(char* str, const char* file_name, int line, const char* func_name)$/;"	f
 dec_stack_ptr	src/jit_sub2.cpp	/^void dec_stack_ptr(LVALUE** llvm_stack_ptr, int value)$/;"	f
-dec_vm_stack_ptr	src/jit_sub2.cpp	/^void dec_vm_stack_ptr(std::map<std::string, Value*>& params, BasicBlock* current_block, int value)$/;"	f
 decrement_operand_core	src/node.c	/^static void decrement_operand_core(unsigned int node, sCompileInfo* info, unsigned int lnode, int add_operand, int sub_operand, int ldc_operand, BOOL monadic, BOOL with_value)$/;"	f	file:
 decrement_operand_core_for_field	src/node.c	/^static BOOL decrement_operand_core_for_field(unsigned int node, sCompileInfo* info, unsigned int lnode, int add_operand, int sub_operand, int ldc_operand, BOOL monadic, BOOL with_value)$/;"	f	file:
 delete_all_object	src/heap.c	/^static void delete_all_object()$/;"	f	file:
@@ -2315,15 +2314,15 @@ set_signal_for_interpreter	src/interpreter.c	/^static void set_signal_for_interp
 sharedstatedir	Makefile	/^sharedstatedir=${prefix}\/com$/;"	m
 show_exception_message	src/exception.c	/^void show_exception_message(char* message)$/;"	f
 show_inst	src/vm.c	/^static void show_inst(unsigned inst)$/;"	f	file:
-show_inst_in_jit	src/jit_debug2.cpp	/^void show_inst_in_jit(int opecode)$/;"	f
+show_inst_in_jit	src/jit_debug_runtime.cpp	/^void show_inst_in_jit(int opecode)$/;"	f
 show_method_parametor_address	src/jit_runtime2.cpp	/^void show_method_parametor_address(CLVALUE* stack_ptr, CLVALUE* lvar, sVMInfo* info, CLVALUE* stack, CLVALUE** stack_ptr_address, int var_num, sConst* constant, sByteCode* code)$/;"	f
 show_node	src/node.c	/^void show_node(unsigned int node)$/;"	f
 show_number_in_jit	src/jit_debug_runtime.cpp	/^void show_number_in_jit(clint64 number)$/;"	f
 show_stack	src/vm.c	/^void show_stack(CLVALUE* stack, CLVALUE* stack_ptr, CLVALUE* lvar, int var_num)$/;"	f
 show_stack_for_llvm_stack	src/jit_debug.cpp	/^void show_stack_for_llvm_stack(LVALUE* llvm_stack, LVALUE* llvm_stack_ptr, int var_num)$/;"	f
-show_stack_in_jit	src/jit_debug.cpp	/^BOOL show_stack_in_jit(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info)$/;"	f
-show_stack_stat	src/jit_debug.cpp	/^void show_stack_stat(CLVALUE** stack_ptr, CLVALUE* stack)$/;"	f
-show_str_in_jit	src/jit_debug.cpp	/^void show_str_in_jit(char* str)$/;"	f
+show_stack_in_jit	src/jit_debug_runtime.cpp	/^BOOL show_stack_in_jit(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info)$/;"	f
+show_stack_stat	src/jit_debug_runtime.cpp	/^void show_stack_stat(CLVALUE** stack_ptr, CLVALUE* stack)$/;"	f
+show_str_in_jit	src/jit_debug_runtime.cpp	/^void show_str_in_jit(char* str)$/;"	f
 show_vtable	src/vtable.c	/^void show_vtable(sVarTable* table)$/;"	f
 sig_int	src/interpreter.c	/^static void sig_int()$/;"	f	file:
 single_operator	src/node.c	/^static BOOL single_operator(sNodeType* type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, sCompileInfo* info)$/;"	f	file:

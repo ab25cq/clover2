@@ -202,7 +202,7 @@ BOOL compile_to_native_code12(sByteCode* code, sConst* constant, sCLClass* klass
             (void)Builder.CreateCall(fun2, params3);
 
             /// delete vm stack ///
-            dec_vm_stack_ptr(params, *current_block, num_elements);
+            inc_vm_stack_ptr(params, *current_block, -num_elements);
             }
             break;
 

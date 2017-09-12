@@ -1,5 +1,4 @@
 
-/*
 interface JITTestInterface
 {
     def method(value:int):int;
@@ -52,7 +51,6 @@ class JITTestClassA
         return block_(a,b);
     }
 }
-*/
 
 class JITTest 
 {
@@ -64,7 +62,6 @@ class JITTest
         self.len = 10;
     }
 
-/*
     def run(): int {
         return 3+1;
     }
@@ -1570,80 +1567,7 @@ class JITTest
 
         return aaa.items[index];
     }
-*/
 
-    def for_test():Buffer {
-        #abc:String = p"/etc/group".read().toString();
-        abc:String = "
-root:x:0:
-daemon:x:1:
-bin:x:2:
-sys:x:3:
-adm:x:4:syslog,ab25cq
-tty:x:5:
-disk:x:6:
-lp:x:7:
-mail:x:8:
-news:x:9:
-uucp:x:10:
-man:x:12:
-proxy:x:13:
-kmem:x:15:
-dialout:x:20:
-fax:x:21:
-voice:x:22:
-cdrom:x:24:ab25cq
-floppy:x:25:
-tape:x:26:
-sudo:x:27:ab25cq
-audio:x:29:
-dip:x:30:ab25cq
-www-data:x:33:
-backup:x:34:
-operator:x:37:
-list:x:38:
-irc:x:39:
-src:x:40:
-gnats:x:41:
-shadow:x:42:
-utmp:x:43:
-video:x:44:
-sasl:x:45:
-plugdev:x:46:ab25cq
-staff:x:50:
-games:x:60:
-users:x:100:
-nogroup:x:65534:
-systemd-journal:x:101:
-systemd-timesync:x:102:
-systemd-network:x:103:
-systemd-resolve:x:104:
-systemd-bus-proxy:x:105:
-input:x:106:
-crontab:x:107:
-syslog:x:108:
-netdev:x:109:
-messagebus:x:110:
-uuidd:x:111:
-mlocate:x:112:
-ssh:x:113:
-ab25cq:x:1000:
-lpadmin:x:114:ab25cq
-sambashare:x:115:ab25cq
-";
-
-        array_:byte[] = null
-        array_ = System.wcstombs2(abc.buffer);
-        result:Buffer = new Buffer((array_.length+1).to_ulong);
-
-        for(i:int = 0; i<array_.length-1; i++) {
-            result.append(array_[i]);
-        }
-
-        return result;
-    }
-
-/*
     def toBuffer(aaa:String):  Buffer throws Exception {
         array_:byte[] = null;
         System.wcstombs(&array_, aaa.buffer);
@@ -1786,5 +1710,4 @@ sambashare:x:115:ab25cq
 
         return result;
     }
-*/
 }

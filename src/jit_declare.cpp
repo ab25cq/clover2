@@ -311,7 +311,7 @@ void create_internal_functions()
     
     result_type = IntegerType::get(TheContext, 32);
 
-    param1_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
     type_params.push_back(param1_type);
 
     param2_type = PointerType::get(IntegerType::get(TheContext, 64), 0);

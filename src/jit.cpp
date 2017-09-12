@@ -157,12 +157,11 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
         unsigned int inst = *(unsigned int*)pc;
         pc+=sizeof(int);
 
-//#ifdef MDEBUG
-//if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
-//call_show_inst_in_jit(inst);
-//show_inst_in_jit(inst);
-//}
-//#endif
+/*
+if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
+    call_show_inst_in_jit(inst);
+}
+*/
 
         switch(inst) {
             case OP_POP:
@@ -533,6 +532,10 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
                 }
                 break;
 
+            case OP_JIT_POP: {
+                inc_vm_stack_ptr(params, current_block, -1);
+                }
+                break;
 
             default:
                 if(!compile_to_native_code2(code, constant, klass, method, method_path2, inst, &pc, &llvm_stack_ptr, llvm_stack, params, &current_block, &function, var_num, &try_catch_label_name))
@@ -582,12 +585,13 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
                 break;
         }
 
+/*
 #ifdef MDEBUG
 if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
-    //show_stack_for_llvm_stack(llvm_stack, llvm_stack_ptr, var_num);
-    //call_show_stack(params);
+    call_show_stack(params);
 }
 #endif
+*/
     }
 
     // Finish off the function.

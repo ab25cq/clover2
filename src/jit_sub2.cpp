@@ -138,8 +138,6 @@ void inc_vm_stack_ptr(std::map<std::string, Value*> params, BasicBlock* current_
     std::string stack_ptr_address_name("stack_ptr_address");
     Value* stack_ptr_address_value = params[stack_ptr_address_name];
 
-//call_show_value_in_jit(stack_ptr_address_value);
-
     Value* loaded_stack_ptr_address_value = Builder.CreateLoad(stack_ptr_address_value, "loaded_stack_ptr_address_value");
 
     Value* lvalue = loaded_stack_ptr_address_value;
@@ -283,25 +281,6 @@ void store_value_to_lvar_with_offset(std::map<std::string, Value*>& params, Basi
     Builder.CreateAlignedStore(llvm_value2.value, lvar_offset_value, 8);
 }
 
-void dec_vm_stack_ptr(std::map<std::string, Value*>& params, BasicBlock* current_block, int value)
-{
-    std::string stack_ptr_address_name("stack_ptr_address");
-    Value* stack_ptr_address_value = params[stack_ptr_address_name];
-
-    Value* loaded_stack_ptr_address_value = Builder.CreateLoad(stack_ptr_address_value, "loaded_stack_ptr_address_value");
-
-/*
-    Value* lvalue = loaded_stack_ptr_address_value;
-    Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(64, 8*value, true));
-    Value* dec_ptr_value = Builder.CreateSub(lvalue, rvalue, "dec_ptr_value", true, true);
-*/
-
-    Value* lvalue = loaded_stack_ptr_address_value;
-    Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(64, value, true));
-    Value* dec_ptr_value = Builder.CreateGEP(lvalue, rvalue, "dec_ptr_value");
-
-    Builder.CreateStore(dec_ptr_value, stack_ptr_address_value);
-}
 
 LVALUE get_lvar_value_from_offset(std::map<std::string, Value*>& params, BasicBlock* current_block, int offset)
 {

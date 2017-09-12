@@ -24,7 +24,6 @@ class System
     def strtoul(str:String, base:int): native static ulong;
     def mbstowcs(dest:pointer@wchar[], src:pointer@utf8-string-memory, size:size_t, append_null_terminated:bool): static native int throws Exception;
     def wcstombs(dest:pointer@byte[], src:char[]): static native int throws Exception;
-def wcstombs2(src:char[]): static native byte[];
 
     MB_LEN_MAX:static int;
 

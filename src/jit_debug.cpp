@@ -52,11 +52,6 @@ void call_show_value_in_jit(Value* value)
     Value* result = Builder.CreateCall(show_number, params2);
 }
 
-void show_str_in_jit(char* str)
-{
-    printf("%s\n", str);
-}
-
 void call_show_str_in_jit(Value* value)
 {
     Function* show_str = TheModule->getFunction("show_str_in_jit");
@@ -102,17 +97,15 @@ void call_show_stack(std::map<std::string, Value *> params)
 {
     Function* show_stack_fun = TheModule->getFunction("show_stack_in_jit");
 
+    std::vector<Value*> params2;
+
     std::string stack_ptr_address_name("stack_ptr_address");
     Value* stack_ptr_address_value = params[stack_ptr_address_name];
-
-    Value* loaded_stack_ptr_address_value = Builder.CreateLoad(stack_ptr_address_value, "loaded_stack_ptr_address_value");
-    std::string stack_name("stack");
-    Value* stack_value = params[stack_name];
-
-    std::vector<Value*> params2;
     Value* param1 = stack_ptr_address_value;
     params2.push_back(param1);
 
+    std::string stack_name("stack");
+    Value* stack_value = params[stack_name];
     Value* param2 = stack_value;
     params2.push_back(param2);
 
@@ -127,30 +120,7 @@ void call_show_stack(std::map<std::string, Value *> params)
     Value* result = Builder.CreateCall(show_stack_fun, params2);
 }
 
-void show_stack_stat(CLVALUE** stack_ptr, CLVALUE* stack)
-{
-    printf("stack_ptr %p\n", stack_ptr);
-    printf("*stack_ptr %p\n", *stack_ptr);
-    printf("stack_ptr - stack %d\n", (int)(*stack_ptr - stack));
-}
 
-BOOL show_stack_in_jit(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info)
-{
-    printf("var_num %d\n", var_num);
-    show_stack_stat(stack_ptr, stack);
-
-    int i;
-    for(i=0; i<10; i++) {
-        if(*stack_ptr == stack + i) {
-            printf("! stack [%d] %d(%lld) on %p\n", i, stack[i].mIntValue, stack[i].mULongValue, stack + i);
-        }
-        else {
-            printf("  stack [%d] %d(%lld) on %p\n", i, stack[i].mIntValue, stack[i].mULongValue, stack + i);
-        }
-    }
-
-    return TRUE;
-}
 
 
 }

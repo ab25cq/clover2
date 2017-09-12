@@ -830,16 +830,16 @@ extern BOOL gSigInt;
 #define OP_MARK_SOURCE_CODE_POSITION 15
 #define OP_SIGINT 16
 #define OP_LABEL 17
+#define OP_JIT_POP 18
 
+#define OP_VALUE_FOR_ANDAND_OROR 19
+#define OP_STORE_VALUE_FOR_ANDAND_OROR 20
+#define OP_LOAD_VALUE_FOR_ANDAND_OROR 21
 
-#define OP_VALUE_FOR_ANDAND_OROR 18
-#define OP_STORE_VALUE_FOR_ANDAND_OROR 19
-#define OP_LOAD_VALUE_FOR_ANDAND_OROR 20
+#define OP_STORE 22
+#define OP_LOAD 23
 
-#define OP_STORE 21
-#define OP_LOAD 22
-
-#define OP_LOAD_ADDRESS 23
+#define OP_LOAD_ADDRESS 24
 
 #define OP_LDCBYTE 25
 #define OP_LDCUBYTE 26
@@ -1867,7 +1867,6 @@ BOOL System_memcpy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_memcmp(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_mbstowcs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_wcstombs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
-BOOL System_wcstombs2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_atof(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_atoi(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_strtod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);

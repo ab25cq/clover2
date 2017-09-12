@@ -471,8 +471,6 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
         /// initialize local var except params ///
         memset(lvar + real_param_num, 0, sizeof(CLVALUE)* (new_var_num - real_param_num));
 
-printf("stack_ptr %d\n", *stack_ptr);
-
 #ifdef ENABLE_JIT
         if(!jit(code, constant, new_stack, new_var_num, klass, method, info, stack_ptr))
         {
@@ -493,8 +491,6 @@ printf("stack_ptr %d\n", *stack_ptr);
         *stack_ptr = lvar;      // see OP_RETURN
         **stack_ptr = *new_stack;
         (*stack_ptr)++;
-
-printf("stack_ptr %d\n", *stack_ptr);
     }
 
     return TRUE;
@@ -1077,6 +1073,10 @@ if(stack_ptr != lvar + var_num + 1) {
                 pc += sizeof(int);
 
                 /// nothing to do, this opecode is for Just In Time Compile
+                }
+                break;
+
+            case OP_JIT_POP: {
                 }
                 break;
 
