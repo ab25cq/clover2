@@ -120,130 +120,128 @@ install:
 	$(INSTALL) -m 644 stat.clcl ~/.clover2
 
 	if test $(JIT) = 1;then llvm-dis Clover.bc && $(INSTALL) -m 644 Clover.bc ~/.clover2; fi
-	if test -e libClover.so; then $(INSTALL) -m 755 libClover.so libClover.so.1.0.0; fi
+	if test -e libClover.so; then $(INSTALL) -m 755 libClover.so.1.0.0 ~/.clover2; cp -a libClover.so ~/.clover2; fi
 
 	if test $(JIT) = 1;then llvm-dis Global.bc && $(INSTALL) -m 644 Global.bc ~/.clover2; fi
-	if test -e libGlobal.so; then $(INSTALL) -m 755 libGlobal.so libGlobal.so.1.0.0; fi
+	if test -e libGlobal.so; then $(INSTALL) -m 755 libGlobal.so.1.0.0 ~/.clover2/; cp -a libGlobal.so ~/.cloer2; fi
 
 	if test $(JIT) = 1;then llvm-dis String.bc && $(INSTALL) -m 644 String.bc ~/.clover2; fi
-	if test -e libString.so; then $(INSTALL) -m 755 libString.so libString.so.1.0.0; fi
+	if test -e libString.so; then $(INSTALL) -m 755 libString.so.1.0.0 ~/.clover2; cp -a libString.so ~/.clover2; fi
 
 	if test $(JIT) = 1;then llvm-dis Buffer.bc && $(INSTALL) -m 644 Buffer.bc ~/.clover2; fi
-	if test -e libBuffer.so; then $(INSTALL) -m 755 libBuffer.so libBuffer.so.1.0.0; fi
+	if test -e libBuffer.so; then $(INSTALL) -m 755 libBuffer.so.1.0.0 ~/.clover2; cp -a libBuffer.so ~/.clover2; fi
 
 	if test $(JIT) = 1;then llvm-dis Byte.bc && $(INSTALL) -m 644 Byte.bc ~/.clover2; fi
-	if test -e libByte.so; then $(INSTALL) -m 755 libByte.so libByte.so.1.0.0; fi
+	if test -e libByte.so; then $(INSTALL) -m 755 libByte.so.1.0.0 ~/.clover2; cp -a libByte.so ~/.clover2; fi
 
 	if test $(JIT) = 1;then llvm-dis UByte.bc && $(INSTALL) -m 644 UByte.bc ~/.clover2; fi
-	if test -e libUByte.so; then $(INSTALL) -m 755 libUByte.so libUByte.so.1.0.0; fi
+	if test -e libUByte.so; then $(INSTALL) -m 755 libUByte.so.1.0.0 ~/.clover2; cp -a libUByte.so ~/.clover2; fi
 
 	if test $(JIT) = 1;then llvm-dis Short.bc && $(INSTALL) -m 644 Short.bc ~/.clover2; fi
-	if test -e libShort.so; then $(INSTALL) -m 755 libShort.so libShort.so.1.0.0; fi
+	if test -e libShort.so; then $(INSTALL) -m 755 libShort.so.1.0.0 ~/.clover2; cp -a libShort.so ~/.clover2; fi
 
 	if test $(JIT) = 1;then llvm-dis UShort.bc && $(INSTALL) -m 644 UShort.bc ~/.clover2; fi
-	if test -e libUShort.so; then $(INSTALL) -m 755 libUShort.so libUShort.so.1.0.0; fi
+	if test -e libUShort.so; then $(INSTALL) -m 755 libUShort.so.1.0.0 ~/.clover2; cp -a libUShort.so ~/.clover2; fi
 
 	if test $(JIT) = 1;then llvm-dis Integer.bc && $(INSTALL) -m 644 Integer.bc ~/.clover2; fi
-	if test -e libInteger.so; then $(INSTALL) -m 755 libInteger.so libInteger.so.1.0.0; fi
+	if test -e libInteger.so; then $(INSTALL) -m 755 libInteger.so.1.0.0 ~/.clover2; cp -a libInteger.so ~/.clover2; fi
 
 	if test $(JIT) = 1;then llvm-dis UInteger.bc && $(INSTALL) -m 644 UInteger.bc ~/.clover2; fi
-	if test -e libUInteger.so; then $(INSTALL) -m 755 libUInteger.so libUInteger.so.1.0.0; fi
+	if test -e libUInteger.so; then $(INSTALL) -m 755 libUInteger.so.1.0.0 ~/.clover2; cp -a libUInteger.so ~/.clover2; fi
 
 	if test $(JIT) = 1;then llvm-dis Long.bc && $(INSTALL) -m 644 Long.bc ~/.clover2; fi
-	if test -e libLong.so; then $(INSTALL) -m 755 libLong.so libLong.so.1.0.0; fi
+	if test -e libLong.so; then $(INSTALL) -m 755 libLong.so.1.0.0 ~/.clover2; cp -a libLong.so ~/.clover2; fi
 
 	if test $(JIT) = 1;then llvm-dis ULong.bc && $(INSTALL) -m 644 ULong.bc ~/.clover2; fi
-	if test -e libULong.so; then $(INSTALL) -m 755 libULong.so libULong.so.1.0.0; fi
-
+	if test -e libULong.so; then $(INSTALL) -m 755 libULong.so.1.0.0 ~/.clover2; cp -a libULong.so ~/.clover2; fi
 	if test $(JIT) = 1;then llvm-dis Float.bc && $(INSTALL) -m 644 Float.bc ~/.clover2; fi
-	if test -e libFloat.so; then $(INSTALL) -m 755 libFloat.so libFloat.so.1.0.0; fi
-
+	if test -e libFloat.so; then $(INSTALL) -m 755 libFloat.so.1.0.0 ~/.clover2; cp -a libFloat.so ~/.clover2; fi
 	if test $(JIT) = 1;then llvm-dis Double.bc && $(INSTALL) -m 644 Double.bc ~/.clover2; fi
-	if test -e libDouble.so; then $(INSTALL) -m 755 libDouble.so libDouble.so.1.0.0; fi
+	if test -e libDouble.so; then $(INSTALL) -m 755 libDouble.so.1.0.0 ~/.clover2; cp -a libDouble.so ~/.clover2; fi
 
 	if test $(JIT) = 1;then llvm-dis Pointer.bc && $(INSTALL) -m 644 Pointer.bc ~/.clover2; fi
-	if test -e libPointer.so; then $(INSTALL) -m 755 libPointer.so libPointer.so.1.0.0; fi
+	if test -e libPointer.so; then $(INSTALL) -m 755 libPointer.so.1.0.0 ~/.clover2; cp -a libPointer.so ~/.clover2; fi
 
 	if test $(JIT) = 1;then llvm-dis Char.bc && $(INSTALL) -m 644 Char.bc ~/.clover2; fi
-	if test -e libChar.so; then $(INSTALL) -m 755 libChar.so libChar.so.1.0.0; fi
+	if test -e libChar.so; then $(INSTALL) -m 755 libChar.so.1.0.0; cp -a libChar.so ~/.clover2; fi
 
 	if test $(JIT) = 1;then llvm-dis Bool.bc && $(INSTALL) -m 644 Bool.bc ~/.clover2; fi
-	if test -e libBool.so; then $(INSTALL) -m 755 libBool.so libBool.so.1.0.0; fi
+	if test -e libBool.so; then $(INSTALL) -m 755 libBool.so.1.0.0; cp -a libBool.so ~/.clover2; fi
 
 	if test $(JIT) = 1;then llvm-dis Array.bc && $(INSTALL) -m 644 Array.bc ~/.clover2; fi
-	if test -e libArray.so; then $(INSTALL) -m 755 libArray.so libArray.so.1.0.0; fi
+	if test -e libArray.so; then $(INSTALL) -m 755 libArray.so.1.0.0 ~/.clover2; cp -a libArray.so ~/.clover2; fi
 
 	if test $(JIT) = 1;then llvm-dis EqualableArray.bc && $(INSTALL) -m 644 EqualableArray.bc ~/.clover2; fi
-	if test -e libEqualableArray.so; then $(INSTALL) -m 755 libEqualableArray.so libEqualableArray.so.1.0.0; fi
+	if test -e libEqualableArray.so; then $(INSTALL) -m 755 libEqualableArray.so.1.0.0; cp -a libEqualableArray.so ~/.clover2/; fi
 
 	if test $(JIT) = 1;then llvm-dis SortableArray.bc && $(INSTALL) -m 644 SortableArray.bc ~/.clover2; fi
-	if test -e libSortableArray.so; then $(INSTALL) -m 755 libSortableArray.so libSortableArray.so.1.0.0; fi
+	if test -e libSortableArray.so; then $(INSTALL) -m 755 libSortableArray.so.1.0.0 ~/.clover2; cp -a libSortableArray.so ~/.clover2; fi
 
 	if test $(JIT) = 1;then llvm-dis Hash.bc && $(INSTALL) -m 644 Hash.bc ~/.clover2; fi
-	if test -e libHash.so; then $(INSTALL) -m 755 libHash.so libHash.so.1.0.0; fi
+	if test -e libHash.so; then $(INSTALL) -m 755 libHash.so.1.0.0 ~/.clover2; cp -a libHash.so ~/.clover2; fi
 
 	if test $(JIT) = 1;then llvm-dis List.bc && $(INSTALL) -m 644 List.bc ~/.clover2; fi
-	if test -e libList.so; then $(INSTALL) -m 755 libList.so libList.so.1.0.0; fi
+	if test -e libList.so; then $(INSTALL) -m 755 libList.so.1.0.0 ~/.clover2; cp -a libList.so ~/.clover2; fi
 
 	if test $(JIT) = 1;then llvm-dis EqualableList.bc && $(INSTALL) -m 644 EqualableList.bc ~/.clover2; fi
-	if test -e libEqualableList.so; then $(INSTALL) -m 755 libEqualableList.so libEqualableList.so.1.0.0; fi
+	if test -e libEqualableList.so; then $(INSTALL) -m 755 libEqualableList.so.1.0.0 ~/.clover2; cp -a libEqualableList.so ~/.clover2; fi
 
 	if test $(JIT) = 1;then llvm-dis SortableList.bc && $(INSTALL) -m 644 SortableList.bc ~/.clover2; fi
-	if test -e libSortableList.so; then $(INSTALL) -m 755 libSortableList.so libSortableList.so.1.0.0; fi
+	if test -e libSortableList.so; then $(INSTALL) -m 755 libSortableList.so.1.0.0 ~/.clover2; cp -a libSortableList.so ~/.clover2; fi
 
 	if test $(JIT) = 1;then llvm-dis Tuple1.bc && $(INSTALL) -m 644 Tuple1.bc ~/.clover2; fi
-	if test -e libTuple1.so; then $(INSTALL) -m 755 libTuple1.so libTuple1.so.1.0.0; fi
+	if test -e libTuple1.so; then $(INSTALL) -m 755 libTuple1.so.1.0.0 ~/.clover2; cp -a libTuple1.so ~/.clover2; fi
 
 	if test $(JIT) = 1;then llvm-dis Tuple2.bc && $(INSTALL) -m 644 Tuple2.bc ~/.clover2; fi
-	if test -e libTuple2.so; then $(INSTALL) -m 755 libTuple2.so libTuple2.so.1.0.0; fi
+	if test -e libTuple2.so; then $(INSTALL) -m 755 libTuple2.so.1.0.0 ~/.clover2; cp -a libTuple2.so ~/.clover2; fi
 
 	if test $(JIT) = 1;then llvm-dis Tuple3.bc && $(INSTALL) -m 644 Tuple3.bc ~/.clover2; fi
-	if test -e libTuple3.so; then $(INSTALL) -m 755 libTuple3.so libTuple3.so.1.0.0; fi
+	if test -e libTuple3.so; then $(INSTALL) -m 755 libTuple3.so.1.0.0 ~/.clover2; cp -a libTuple3.so ~/.clover2; fi
 
 	if test $(JIT) = 1;then llvm-dis Tuple4.bc && $(INSTALL) -m 644 Tuple4.bc ~/.clover2; fi
-	if test -e libTuple4.so; then $(INSTALL) -m 755 libTuple4.so libTuple4.so.1.0.0; fi
+	if test -e libTuple4.so; then $(INSTALL) -m 755 libTuple4.so.1.0.0 ~/.clover2; cp -a libTuple4.so ~/.clover2; fi
 
 	if test $(JIT) = 1;then llvm-dis Tuple5.bc && $(INSTALL) -m 644 Tuple5.bc ~/.clover2; fi
-	if test -e libTuple5.so; then $(INSTALL) -m 755 libTuple5.so libTuple5.so.1.0.0; fi
+	if test -e libTuple5.so; then $(INSTALL) -m 755 libTuple5.so.1.0.0 ~/.clover2; cp -a libTuple5.so ~/.clover2; fi
 
 	if test $(JIT) = 1;then llvm-dis Tuple6.bc && $(INSTALL) -m 644 Tuple6.bc ~/.clover2; fi
-	if test -e libTuple6.so; then $(INSTALL) -m 755 libTuple6.so libTuple6.so.1.0.0; fi
+	if test -e libTuple6.so; then $(INSTALL) -m 755 libTuple6.so.1.0.0 ~/.clover2; cp -a libTuple6.so ~/.clover2; fi
 
 	if test $(JIT) = 1;then llvm-dis Tuple7.bc && $(INSTALL) -m 644 Tuple7.bc ~/.clover2; fi
-	if test -e libTuple7.so; then $(INSTALL) -m 755 libTuple7.so libTuple7.so.1.0.0; fi
+	if test -e libTuple7.so; then $(INSTALL) -m 755 libTuple7.so.1.0.0 ~/.clover2; cp -a libTuple7.so ~/.clover2; fi
 
 	if test $(JIT) = 1;then llvm-dis Tuple8.bc && $(INSTALL) -m 644 Tuple8.bc ~/.clover2; fi
-	if test -e libTuple8.so; then $(INSTALL) -m 755 libTuple8.so libTuple8.so.1.0.0; fi
+	if test -e libTuple8.so; then $(INSTALL) -m 755 libTuple8.so.1.0.0 ~/.clover2; cp -a libTuple8.so ~/.clover2; fi
 
 	if test $(JIT) = 1;then llvm-dis Tuple9.bc && $(INSTALL) -m 644 Tuple9.bc ~/.clover2; fi
-	if test -e libTuple9.so; then $(INSTALL) -m 755 libTuple9.so libTuple9.so.1.0.0; fi
+	if test -e libTuple9.so; then $(INSTALL) -m 755 libTuple9.so.1.0.0 ~/.clover2; cp -a libTuple9.so ~/.clover2; fi
 
 	if test $(JIT) = 1;then llvm-dis Tuple10.bc && $(INSTALL) -m 644 Tuple10.bc ~/.clover2; fi
-	if test -e libTuple10.so; then $(INSTALL) -m 755 libTuple10.so libTuple10.so.1.0.0; fi
+	if test -e libTuple10.so; then $(INSTALL) -m 755 libTuple10.so.1.0.0 ~/.clover2; cp -a libTuple10.so ~/.clover2; fi
 
 	if test $(JIT) = 1;then llvm-dis File.bc && $(INSTALL) -m 644 File.bc ~/.clover2; fi
-	if test -e libFile.so; then $(INSTALL) -m 755 libFile.so libFile.so.1.0.0; fi
+	if test -e libFile.so; then $(INSTALL) -m 755 libFile.so.1.0.0 ~/.clover2; cp -a libFile.so ~/.clover2; fi
 
 	if test $(JIT) = 1;then llvm-dis Path.bc && $(INSTALL) -m 644 Path.bc ~/.clover2; fi
-	if test -e libPath.so; then $(INSTALL) -m 755 libPath.so libPath.so.1.0.0; fi
+	if test -e libPath.so; then $(INSTALL) -m 755 libPath.so.1.0.0 ~/.clover2; cp -a libPath.so ~/.clover2; fi
 
 	if test $(JIT) = 1;then llvm-dis Directory.bc && $(INSTALL) -m 644 Directory.bc ~/.clover2; fi
-	if test -e libDirectory.so; then $(INSTALL) -m 755 libDirectory.so libDirectory.so.1.0.0; fi
+	if test -e libDirectory.so; then $(INSTALL) -m 755 libDirectory.so.1.0.0 ~/.clover2; cp -a libDirectory.so ~/.clover2; fi
 
 	if test $(JIT) = 1;then llvm-dis Job.bc && $(INSTALL) -m 644 Job.bc ~/.clover2; fi
-	if test -e libJob.so; then $(INSTALL) -m 755 libJob.so libJob.so.1.0.0; fi
+	if test -e libJob.so; then $(INSTALL) -m 755 libJob.so.1.0.0 ~/.clover2; cp -a libJob.so ~/.clover2; fi
 
 	if test $(JIT) = 1;then llvm-dis Command.bc && $(INSTALL) -m 644 Command.bc ~/.clover2; fi
-	if test -e libCommand.so; then $(INSTALL) -m 755 libCommand.so libCommand.so.1.0.0; fi
+	if test -e libCommand.so; then $(INSTALL) -m 755 libCommand.so.1.0.0 ~/.clover2; cp -a libCommand.so ~/.clover2; fi
 
 	if test $(JIT) = 1;then llvm-dis tm.bc && $(INSTALL) -m 644 tm.bc ~/.clover2; fi
-	if test -e libtm.so; then $(INSTALL) -m 755 libtm.so libtm.so.1.0.0; fi
+	if test -e libtm.so; then $(INSTALL) -m 755 libtm.so.1.0.0 ~/.clover2; cp -a libtm.so ~/.clover2; fi
 
 	if test $(JIT) = 1;then llvm-dis timespec.bc && $(INSTALL) -m 644 timespec.bc ~/.clover2; fi
-	if test -e libtimespec.so; then $(INSTALL) -m 755 libtimespec.so libtimespec.so.1.0.0; fi
+	if test -e libtimespec.so; then $(INSTALL) -m 755 libtimespec.so.1.0.0 ~/.clover2; cp -a libtimespec.so ~/.clover2; fi
 
 	if test $(JIT) = 1;then llvm-dis stat.bc && $(INSTALL) -m 644 stat.bc ~/.clover2; fi
-	if test -e libstat.so; then $(INSTALL) -m 755 libstat.so libstat.so.1.0.0; fi
+	if test -e libstat.so; then $(INSTALL) -m 755 libstat.so.1.0.0 ~/.clover2; cp -a libstat.so ~/.clover2; fi
 
 	$(INSTALL) -m 644 MArrayImplement.clm ~/.clover2
 	$(INSTALL) -m 644 MEqualableArrayImplement.clm ~/.clover2

@@ -71,7 +71,7 @@ static BOOL compile_jit_methods(sCLClass* klass)
         snprintf(command, 1024, "/usr/bin/gcc -shared -Wl,-soname=lib%s.so.1 -o lib%s.so.1.0.0 %s.o", CLASS_NAME(klass), CLASS_NAME(klass), CLASS_NAME(klass));
         system(command);
 
-        snprintf(command, 1024, "ln -s lib%s.so.1.0.0 lib%s.so", CLASS_NAME(klass), CLASS_NAME(klass));
+        snprintf(command, 1024, "ln -fs lib%s.so.1.0.0 lib%s.so", CLASS_NAME(klass), CLASS_NAME(klass));
         system(command);
     }
 
