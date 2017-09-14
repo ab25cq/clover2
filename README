@@ -23,7 +23,7 @@ list {m,a,i,n,.,c}
 
 詳しくはwikiを見てください https://github.com/ab25cq/clover2/wiki
 
-7. LLVMでJITします。何度かメソッドが呼ばれると実行時にコンパイルされて高速化されます。
+7. LLVMでJITします。
 
 Yet another compiler and a Virtual Machine.
 
