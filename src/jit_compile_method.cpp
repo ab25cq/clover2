@@ -13,7 +13,7 @@ static BOOL compile_jit_methods(sCLClass* klass)
     
     //TheFPM->add(createInstructionCombiningPass());
     TheFPM->add(createReassociatePass());
-    TheFPM->add(createGVNPass());
+    //TheFPM->add(createGVNPass());
     TheFPM->add(createCFGSimplificationPass());
     TheFPM->doInitialization();
 
