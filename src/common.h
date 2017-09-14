@@ -295,9 +295,6 @@ struct sCLClassStruct {
 
     struct sCLClassStruct* mBoxingClass; // This requires on the run time 
     struct sCLClassStruct* mUnboxingClass; // This requires on the run time
-    void* mModule;          // This requires on the run time 
-    void* RTDyldMM;         // This requires on the run time
-    void* EE;               // This requires on the run time
     void* mDynamicLibrary;  // This requires on the run time
 
     fFreeFun mFreeFun;
