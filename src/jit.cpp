@@ -416,12 +416,12 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 break;
 
             case OP_SIGINT: {
-                Value* sig_int_value = Builder.CreateLoad(gSigIntValue, "sig_int_value");
+                Value* sig_int_value = Builder.CreateAlignedLoad(gSigIntValue, 4, "sig_int_value");
 
                 BasicBlock* then_block = BasicBlock::Create(TheContext, "sigint_then_block", function);
                 BasicBlock* else_block = BasicBlock::Create(TheContext, "entry_after_sigint", function);
 
-                Value* value = Builder.CreateCast(Instruction::Trunc, sig_int_value, Type::getInt8Ty(TheContext));
+                Value* value = Builder.CreateCast(Instruction::Trunc, sig_int_value, Type::getInt1Ty(TheContext));
 
                 Builder.CreateCondBr(value, then_block, else_block);
 
