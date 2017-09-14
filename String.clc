@@ -928,7 +928,8 @@ class Buffer
     def toString():String throws Exception {
         wcs:char[] = null;
         System.mbstowcs(&wcs, self.buffer, self.len, true);
-        return new String(wcs);
+        result:String = new String(wcs);
+        return result;
     }
 
     def subBuffer(start:int, end:int): Buffer {

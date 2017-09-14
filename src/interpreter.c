@@ -1498,9 +1498,6 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
 
 static void clover2_init()
 {
-#ifdef ENABLE_JIT
-    jit_init();
-#endif
     native_method_init();
     class_init();
     heap_init(128, 128);
@@ -1516,9 +1513,6 @@ static void clover2_final()
     stack_final();
     heap_final();
     class_final();
-#ifdef ENABLE_JIT
-    jit_final();
-#endif
 }
 
 static void compiler_init(BOOL no_load_fudamental_classes)

@@ -57,8 +57,7 @@ Clover.test("jit test32", a.run32() == 1y);
 Clover.test("jit test32", a.run32() == 1y);
 Clover.test("jit test33", a.run33() == 3y);
 Clover.test("jit test34", a.run34() == 6y);
-Clover.test("jit test35", a.run35() == 3l);
-
+Clover.test("jit teyst35", a.run35() == 3l);
 Clover.test("jit test36", a.run36() == 0xfe);
 Clover.test("jit test37", a.run37() == 0xfffffffe);
 Clover.test("jit test38", a.run38() == 2.2f);
@@ -102,6 +101,7 @@ Clover.test("jit test59", a.run59() == 777);
 
 Clover.test("jit test60", a.run60() == 245);
 Clover.test("jit test61", a.run61() == 245l);
+a.run62().toString().println();
 Clover.test("jit test62", a.run62() == 245.1);
 Clover.test("jit test63", a.run63() == 5);
 Clover.test("jit test64", a.run64() == 111);
@@ -244,6 +244,9 @@ Clover.test("jit test98_9", a.run98_9() == 123y);
 Clover.test("jit test98_10", a.run98_10() == 123);
 Clover.test("jit test98_11", a.run98_11() == -1s);
 Clover.test("jit test98_12", a.run98_12() == -1y);
+
+printf("a.run98_13() %ld\n", array { a.run98_13() });
+
 Clover.test("jit test98_13", a.run98_13() == 123l);
 Clover.test("jit test98_14", a.run98_14() == 123y);
 Clover.test("jit test98_15", a.run98_15() == 123.0);
@@ -347,7 +350,6 @@ Clover.test("jit test-closure1", a.closure_test1() == 100);
 Clover.test("jit test-closure2", a.closure_test2() == 40);
 
 Clover.test("jit test-closure3", a.closure_test3().equals("ABC"));
-
 
 Clover.test("jit test-file", p"/bin".to_stat().groupName().equals("root"));
 Clover.test("jit test-file2", p"/bin".to_stat().userName().equals("root"));

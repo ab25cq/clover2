@@ -744,6 +744,7 @@ static BOOL parse_class(sParserInfo* info, sCompileInfo* cinfo, BOOL interface, 
             if(!parse_class_on_compile_code(info, cinfo, interface)) {
                 return FALSE;
             }
+
             break;
     }
 

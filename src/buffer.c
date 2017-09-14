@@ -72,8 +72,8 @@ void sBuf_append_int(sBuf* self, int value)
     sBuf_append(self, &value, sizeof(int));
 }
 
-void sBuf_append_long(sBuf* self, long value)
+void sBuf_append_long(sBuf* self, long long value)
 {
-    sBuf_append(self, &value, sizeof(long));
+    sBuf_append(self, &value, sizeof(long long));
 }
 

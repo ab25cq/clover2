@@ -449,6 +449,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
 
         if(is_void_type(method->mResultType, klass)) {
             *stack_ptr = lvar;
+            (*stack_ptr)->mLongValue = 0;    // zero clear for jit
             (*stack_ptr)->mIntValue = 0;
             (*stack_ptr)++;
         }
@@ -522,13 +523,13 @@ BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_pa
     }
     else {
         /// check variable existance ///
-        if(!check_variables_existance_on_stack(object_data->mStackID))
+        if(!check_variables_existance_on_stack(stack, *stack_ptr))
         {
             /// copy back variables to parent ///
             object_data = CLBLOCK(block_object);
             memcpy(object_data->mParentStack, new_stack, sizeof(CLVALUE)*object_data->mParentVarNum);
 
-            entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "Parent variables doesn't exist");
+            entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "Parent variables doesn't exist. ID is %p", object_data->mStackID);
             return FALSE;
         }
 
@@ -717,6 +718,7 @@ BOOL call_finalize_method_on_free_object(sCLClass* klass, CLObject self)
         sVMInfo info;
         memset(&info, 0, sizeof(sVMInfo));
 
+        stack_ptr->mLongValue = 0;    // zero clear for jit
         stack_ptr->mObjectValue = self;
         stack_ptr++;
 
@@ -768,66 +770,79 @@ void boxing_primitive_value_to_object(CLVALUE object, CLVALUE* result, sCLClass*
         if(is_this_class_with_class_name(klass, "byte")) {
             char value = object.mByteValue;
             CLObject obj = create_byte((char)value);
+            result->mLongValue = 0;                 // zero clear for jit
             result->mObjectValue = obj;
         }
         else if(is_this_class_with_class_name(klass, "ubyte")) {
             unsigned char value = object.mUByteValue;
             CLObject obj = create_ubyte((unsigned char)value);
+            result->mLongValue = 0;                 // zero clear for jit
             result->mObjectValue = obj;
         }
         else if(is_this_class_with_class_name(klass, "short")) {
             short value = object.mShortValue;
             CLObject obj = create_short((short)value);
+            result->mLongValue = 0;                 // zero clear for jit
             result->mObjectValue = obj;
         }
         else if(is_this_class_with_class_name(klass, "ushort")) {
             unsigned short value = object.mUShortValue;
             CLObject obj = create_ushort((unsigned short)value);
+            result->mLongValue = 0;                 // zero clear for jit
             result->mObjectValue = obj;
         }
         else if(is_this_class_with_class_name(klass, "int")) {
             int value = object.mIntValue;
             CLObject obj = create_integer((int)value);
+            result->mLongValue = 0;                 // zero clear for jit
             result->mObjectValue = obj;
         }
         else if(is_this_class_with_class_name(klass, "uint")) {
             unsigned int value = object.mUIntValue;
             CLObject obj = create_uinteger(value);
+            result->mLongValue = 0;                 // zero clear for jit
             result->mObjectValue = obj;
         }
         else if(is_this_class_with_class_name(klass, "long")) {
-            long value = object.mLongValue;
-            CLObject obj = create_long((long)value);
+            clint64 value = object.mLongValue;
+            CLObject obj = create_long((clint64)value);
+            result->mLongValue = 0;                 // zero clear for jit
             result->mObjectValue = obj;
         }
         else if(is_this_class_with_class_name(klass, "ulong")) {
-            unsigned long value = object.mULongValue;
-            CLObject obj = create_ulong((unsigned long)value);
+            unsigned clint64 value = object.mULongValue;
+            CLObject obj = create_ulong((unsigned clint64)value);
+            result->mLongValue = 0;                 // zero clear for jit
             result->mObjectValue = obj;
         }
         else if(is_this_class_with_class_name(klass, "float")) {
             float value = object.mFloatValue;
             CLObject obj = create_float((float)value);
+            result->mLongValue = 0;                 // zero clear for jit
             result->mObjectValue = obj;
         }
         else if(is_this_class_with_class_name(klass, "double")) {
             double value = object.mDoubleValue;
             CLObject obj = create_double((double)value);
+            result->mLongValue = 0;                 // zero clear for jit
             result->mObjectValue = obj;
         }
         else if(is_this_class_with_class_name(klass, "pointer")) {
             char* value = object.mPointerValue;
             CLObject obj = create_pointer((char*)value);
+            result->mLongValue = 0;                 // zero clear for jit
             result->mObjectValue = obj;
         }
         else if(is_this_class_with_class_name(klass, "char")) {
             wchar_t value = object.mCharValue;
             CLObject obj = create_char((wchar_t)value);
+            result->mLongValue = 0;                 // zero clear for jit
             result->mObjectValue = obj;
         }
         else if(is_this_class_with_class_name(klass, "bool")) {
             BOOL value = object.mBoolValue;
             CLObject obj = create_bool((BOOL)value);
+            result->mLongValue = 0;                 // zero clear for jit
             result->mObjectValue = obj;
         }
     }
@@ -847,7 +862,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
     CLVALUE* stack_ptr = stack + var_num;
     CLVALUE* lvar = stack;
 
-    long stack_id = append_stack_to_stack_list(stack, &stack_ptr);
+    sCLStack* stack_id = append_stack_to_stack_list(stack, &stack_ptr);
 
     while(pc - code->mCodes < code->mLen) {
         unsigned int inst = *(unsigned int*)pc;
@@ -956,7 +971,7 @@ show_inst(inst);
 
             case OP_RETURN:
                 *stack = *(stack_ptr-1);
-                remove_stack_to_stack_list(stack, &stack_ptr);
+                remove_stack_to_stack_list(stack_id);
 #ifdef MDEBUG
 if(stack_ptr != lvar + var_num + 1) {
     fprintf(stderr, "invalid stack1\n");
@@ -967,7 +982,7 @@ if(stack_ptr != lvar + var_num + 1) {
 
             case OP_THROW: {
                 *stack = *(stack_ptr-1);
-                remove_stack_to_stack_list(stack, &stack_ptr);
+                remove_stack_to_stack_list(stack_id);
 
                 CLObject exception = stack->mObjectValue;
 
@@ -1020,6 +1035,18 @@ if(stack_ptr != lvar + var_num + 1) {
                 vm_mutex_off();
                 break;
 
+            case OP_CATCH_STORE: {
+                vm_mutex_on();
+
+                int index = *(int*)pc;
+                pc += sizeof(int);
+
+                lvar[index] = *(stack_ptr-1);
+
+                vm_mutex_off();
+                }
+                break;
+
             case OP_HEAD_OF_EXPRESSION:
                 vm_mutex_on();
 
@@ -1049,7 +1076,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     gSigInt = FALSE;
                     vm_mutex_off();
                     entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Signal Interrupt");
-                    remove_stack_to_stack_list(stack, &stack_ptr);
+                    remove_stack_to_stack_list(stack_id);
                     return FALSE;
                 }
 
@@ -1061,6 +1088,10 @@ if(stack_ptr != lvar + var_num + 1) {
                 pc += sizeof(int);
 
                 /// nothing to do, this opecode is for Just In Time Compile
+                }
+                break;
+
+            case OP_JIT_POP: {
                 }
                 break;
 
@@ -1101,6 +1132,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     int index = *(int*)pc;
                     pc += sizeof(int);
 
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mPointerValue = (char*)&lvar[index];
                     stack_ptr++;
 
@@ -1115,6 +1147,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     int value = *(int*)pc;
                     pc += sizeof(int);
 
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mByteValue = (char)value;
                     stack_ptr++;
 
@@ -1129,6 +1162,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     int value = *(int*)pc;
                     pc += sizeof(int);
 
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUByteValue = (unsigned char)value;
                     stack_ptr++;
 
@@ -1143,6 +1177,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     int value = *(int*)pc;
                     pc += sizeof(int);
 
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mShortValue = (short)value;
                     stack_ptr++;
 
@@ -1157,6 +1192,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     int value = *(int*)pc;
                     pc += sizeof(int);
 
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUShortValue = (unsigned short)value;
                     stack_ptr++;
 
@@ -1171,6 +1207,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     int value = *(int*)pc;
                     pc += sizeof(int);
 
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mIntValue = value;
                     stack_ptr++;
 
@@ -1185,6 +1222,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     unsigned int value = *(unsigned int*)pc;
                     pc += sizeof(int);
 
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUIntValue = value;
                     stack_ptr++;
 
@@ -1202,7 +1240,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     int value2 = *(int*)pc;
                     pc += sizeof(int);
 
-                    long lvalue;
+                    clint64 lvalue;
 
                     memcpy(&lvalue, &value1, sizeof(int));
                     memcpy((char*)&lvalue + sizeof(int), &value2, sizeof(int));
@@ -1224,7 +1262,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     int value2 = *(int*)pc;
                     pc += sizeof(int);
 
-                    unsigned long lvalue;
+                    unsigned clint64 lvalue;
 
                     memcpy(&lvalue, &value1, sizeof(int));
                     memcpy((char*)&lvalue + sizeof(int), &value2, sizeof(int));
@@ -1240,6 +1278,7 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mIntValue = 0;
                     stack_ptr++;
 
@@ -1262,10 +1301,12 @@ if(stack_ptr != lvar + var_num + 1) {
                     memcpy(&lvalue, &value1, sizeof(int));
                     memcpy((char*)&lvalue + sizeof(int), &value2, sizeof(int));
 
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mPointerValue = lvalue;
                     stack_ptr++;
 
                     vm_mutex_off();
+
                 }
                 break;
 
@@ -1276,6 +1317,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     float value1 = *(float*)pc;
                     pc += sizeof(float);
 
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mFloatValue = value1;
                     stack_ptr++;
 
@@ -1315,6 +1357,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     char result = left + right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mByteValue = result;
                     stack_ptr++;
 
@@ -1332,6 +1375,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     char result = left - right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mByteValue = result;
                     stack_ptr++;
 
@@ -1349,6 +1393,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     char result = left * right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mByteValue = result;
                     stack_ptr++;
 
@@ -1366,13 +1411,14 @@ if(stack_ptr != lvar + var_num + 1) {
                     if(right == 0) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     char result = left / right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mByteValue = result;
                     stack_ptr++;
 
@@ -1390,13 +1436,14 @@ if(stack_ptr != lvar + var_num + 1) {
                     if(right == 0) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     char result = left % right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mByteValue = result;
                     stack_ptr++;
 
@@ -1414,6 +1461,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     char result = left << right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mByteValue = result;
                     stack_ptr++;
 
@@ -1431,6 +1479,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     char result = left >> right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mByteValue = result;
                     stack_ptr++;
 
@@ -1448,6 +1497,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     char result = left & right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mByteValue = result;
                     stack_ptr++;
 
@@ -1465,6 +1515,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     char result = left ^ right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mByteValue = result;
                     stack_ptr++;
 
@@ -1482,6 +1533,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     char result = left | right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mByteValue = result;
                     stack_ptr++;
 
@@ -1499,6 +1551,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     unsigned char result = left + right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUByteValue = result;
                     stack_ptr++;
 
@@ -1516,6 +1569,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     unsigned char result = left - right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUByteValue = result;
                     stack_ptr++;
 
@@ -1533,6 +1587,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     unsigned char result = left * right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUByteValue = result;
                     stack_ptr++;
 
@@ -1550,13 +1605,14 @@ if(stack_ptr != lvar + var_num + 1) {
                     if(right == 0) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     unsigned char result = left / right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUByteValue = result;
                     stack_ptr++;
 
@@ -1574,13 +1630,14 @@ if(stack_ptr != lvar + var_num + 1) {
                     if(right == 0) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     unsigned char result = left % right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUByteValue = result;
                     stack_ptr++;
 
@@ -1598,6 +1655,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     unsigned char result = left << right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUByteValue = result;
                     stack_ptr++;
 
@@ -1615,6 +1673,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     unsigned char result = left >> right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUByteValue = result;
                     stack_ptr++;
 
@@ -1632,6 +1691,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     unsigned char result = left & right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUByteValue = result;
                     stack_ptr++;
 
@@ -1649,6 +1709,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     unsigned char result = left ^ right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUByteValue = result;
                     stack_ptr++;
 
@@ -1666,6 +1727,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     unsigned char result = left | right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUByteValue = result;
                     stack_ptr++;
 
@@ -1683,6 +1745,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     short result = left + right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mShortValue = result;
                     stack_ptr++;
 
@@ -1700,6 +1763,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     short result = left - right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mShortValue = result;
                     stack_ptr++;
 
@@ -1717,6 +1781,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     short result = left * right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mShortValue = result;
                     stack_ptr++;
 
@@ -1734,13 +1799,14 @@ if(stack_ptr != lvar + var_num + 1) {
                     if(right == 0) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     short result = left / right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mShortValue = result;
                     stack_ptr++;
 
@@ -1758,13 +1824,14 @@ if(stack_ptr != lvar + var_num + 1) {
                     if(right == 0) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     short result = left % right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mShortValue = result;
                     stack_ptr++;
 
@@ -1782,6 +1849,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     short result = left << right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mShortValue = result;
                     stack_ptr++;
 
@@ -1799,6 +1867,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     short result = left >> right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mShortValue = result;
                     stack_ptr++;
 
@@ -1816,6 +1885,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     short result = left & right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mShortValue = result;
                     stack_ptr++;
 
@@ -1833,6 +1903,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     short result = left ^ right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mShortValue = result;
                     stack_ptr++;
 
@@ -1850,6 +1921,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     short result = left | right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mShortValue = result;
                     stack_ptr++;
 
@@ -1867,6 +1939,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     unsigned short result = left + right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUShortValue = result;
                     stack_ptr++;
 
@@ -1884,6 +1957,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     unsigned short result = left - right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUShortValue = result;
                     stack_ptr++;
 
@@ -1901,6 +1975,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     unsigned short result = left * right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUShortValue = result;
                     stack_ptr++;
 
@@ -1918,13 +1993,14 @@ if(stack_ptr != lvar + var_num + 1) {
                     if(right == 0) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     unsigned short result = left / right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUShortValue = result;
                     stack_ptr++;
 
@@ -1942,13 +2018,14 @@ if(stack_ptr != lvar + var_num + 1) {
                     if(right == 0) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     unsigned short result = left % right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUShortValue = result;
                     stack_ptr++;
 
@@ -1966,6 +2043,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     unsigned short result = left << right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUShortValue = result;
                     stack_ptr++;
 
@@ -1983,6 +2061,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     unsigned short result = left >> right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUShortValue = result;
                     stack_ptr++;
 
@@ -2000,6 +2079,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     unsigned short result = left & right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUShortValue = result;
                     stack_ptr++;
 
@@ -2017,6 +2097,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     unsigned short result = left ^ right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUShortValue = result;
                     stack_ptr++;
 
@@ -2034,6 +2115,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     unsigned short result = left | right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUShortValue = result;
                     stack_ptr++;
 
@@ -2051,6 +2133,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     int result = left + right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mIntValue = result;
                     stack_ptr++;
 
@@ -2068,6 +2151,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     int result = left - right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mIntValue = result;
                     stack_ptr++;
 
@@ -2085,6 +2169,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     int result = left * right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mIntValue = result;
                     stack_ptr++;
 
@@ -2102,13 +2187,14 @@ if(stack_ptr != lvar + var_num + 1) {
                     if(right == 0) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     int result = left / right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mIntValue = result;
                     stack_ptr++;
 
@@ -2126,13 +2212,14 @@ if(stack_ptr != lvar + var_num + 1) {
                     if(right == 0) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     int result = left % right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mIntValue = result;
                     stack_ptr++;
 
@@ -2150,6 +2237,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     int result = left << right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mIntValue = result;
                     stack_ptr++;
 
@@ -2167,6 +2255,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     int result = left >> right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mIntValue = result;
                     stack_ptr++;
 
@@ -2184,6 +2273,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     int result = left & right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mIntValue = result;
                     stack_ptr++;
 
@@ -2201,6 +2291,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     int result = left ^ right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mIntValue = result;
                     stack_ptr++;
 
@@ -2218,6 +2309,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     int result = left | right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mIntValue = result;
                     stack_ptr++;
 
@@ -2235,6 +2327,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     unsigned int result = left + right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUIntValue = result;
                     stack_ptr++;
 
@@ -2252,6 +2345,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     unsigned int result = left - right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUIntValue = result;
                     stack_ptr++;
 
@@ -2269,6 +2363,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     unsigned int result = left * right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUIntValue = result;
                     stack_ptr++;
 
@@ -2286,13 +2381,14 @@ if(stack_ptr != lvar + var_num + 1) {
                     if(right == 0) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     unsigned int result = left / right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUIntValue = result;
                     stack_ptr++;
 
@@ -2310,13 +2406,14 @@ if(stack_ptr != lvar + var_num + 1) {
                     if(right == 0) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     unsigned int result = left % right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUIntValue = result;
                     stack_ptr++;
 
@@ -2334,6 +2431,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     unsigned int result = left << right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUIntValue = result;
                     stack_ptr++;
 
@@ -2351,6 +2449,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     unsigned int result = left >> right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUIntValue = result;
                     stack_ptr++;
 
@@ -2368,6 +2467,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     unsigned int result = left & right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUIntValue = result;
                     stack_ptr++;
 
@@ -2385,6 +2485,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     unsigned int result = left ^ right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUIntValue = result;
                     stack_ptr++;
 
@@ -2402,6 +2503,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     unsigned int result = left | right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUIntValue = result;
                     stack_ptr++;
 
@@ -2413,10 +2515,10 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    long left = (stack_ptr-2)->mLongValue;
-                    long right = (stack_ptr-1)->mLongValue;
+                    clint64 left = (stack_ptr-2)->mLongValue;
+                    clint64 right = (stack_ptr-1)->mLongValue;
 
-                    long result = left + right;
+                    clint64 result = left + right;
 
                     stack_ptr-=2;
                     stack_ptr->mLongValue = result;
@@ -2430,10 +2532,10 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    long left = (stack_ptr-2)->mLongValue;
-                    long right = (stack_ptr-1)->mLongValue;
+                    clint64 left = (stack_ptr-2)->mLongValue;
+                    clint64 right = (stack_ptr-1)->mLongValue;
 
-                    long result = left - right;
+                    clint64 result = left - right;
 
                     stack_ptr-=2;
                     stack_ptr->mLongValue = result;
@@ -2447,10 +2549,10 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    long left = (stack_ptr-2)->mLongValue;
-                    long right = (stack_ptr-1)->mLongValue;
+                    clint64 left = (stack_ptr-2)->mLongValue;
+                    clint64 right = (stack_ptr-1)->mLongValue;
 
-                    long result = left * right;
+                    clint64 result = left * right;
 
                     stack_ptr-=2;
                     stack_ptr->mLongValue = result;
@@ -2464,17 +2566,17 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    long left = (stack_ptr-2)->mLongValue;
-                    long right = (stack_ptr-1)->mLongValue;
+                    clint64 left = (stack_ptr-2)->mLongValue;
+                    clint64 right = (stack_ptr-1)->mLongValue;
 
                     if(right == 0) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
-                    long result = left / right;
+                    clint64 result = left / right;
 
                     stack_ptr-=2;
                     stack_ptr->mLongValue = result;
@@ -2488,17 +2590,17 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    long left = (stack_ptr-2)->mLongValue;
-                    long right = (stack_ptr-1)->mLongValue;
+                    clint64 left = (stack_ptr-2)->mLongValue;
+                    clint64 right = (stack_ptr-1)->mLongValue;
 
                     if(right == 0) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
-                    long result = left % right;
+                    clint64 result = left % right;
 
                     stack_ptr-=2;
                     stack_ptr->mLongValue = result;
@@ -2512,10 +2614,10 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    long left = (stack_ptr-2)->mLongValue;
-                    long right = (stack_ptr-1)->mLongValue;
+                    clint64 left = (stack_ptr-2)->mLongValue;
+                    clint64 right = (stack_ptr-1)->mLongValue;
 
-                    long result = left << right;
+                    clint64 result = left << right;
 
                     stack_ptr-=2;
                     stack_ptr->mLongValue = result;
@@ -2529,10 +2631,10 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    long left = (stack_ptr-2)->mLongValue;
-                    long right = (stack_ptr-1)->mLongValue;
+                    clint64 left = (stack_ptr-2)->mLongValue;
+                    clint64 right = (stack_ptr-1)->mLongValue;
 
-                    long result = left >> right;
+                    clint64 result = left >> right;
 
                     stack_ptr-=2;
                     stack_ptr->mLongValue = result;
@@ -2546,10 +2648,10 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    long left = (stack_ptr-2)->mLongValue;
-                    long right = (stack_ptr-1)->mLongValue;
+                    clint64 left = (stack_ptr-2)->mLongValue;
+                    clint64 right = (stack_ptr-1)->mLongValue;
 
-                    long result = left & right;
+                    clint64 result = left & right;
 
                     stack_ptr-=2;
                     stack_ptr->mLongValue = result;
@@ -2563,10 +2665,10 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    long left = (stack_ptr-2)->mLongValue;
-                    long right = (stack_ptr-1)->mLongValue;
+                    clint64 left = (stack_ptr-2)->mLongValue;
+                    clint64 right = (stack_ptr-1)->mLongValue;
 
-                    long result = left ^ right;
+                    clint64 result = left ^ right;
 
                     stack_ptr-=2;
                     stack_ptr->mLongValue = result;
@@ -2580,10 +2682,10 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    long left = (stack_ptr-2)->mLongValue;
-                    long right = (stack_ptr-1)->mLongValue;
+                    clint64 left = (stack_ptr-2)->mLongValue;
+                    clint64 right = (stack_ptr-1)->mLongValue;
 
-                    long result = left | right;
+                    clint64 result = left | right;
 
                     stack_ptr-=2;
                     stack_ptr->mLongValue = result;
@@ -2597,10 +2699,10 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    unsigned long left = (stack_ptr-2)->mULongValue;
-                    unsigned long right = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 left = (stack_ptr-2)->mULongValue;
+                    unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
-                    unsigned long result = left + right;
+                    unsigned clint64 result = left + right;
 
                     stack_ptr-=2;
                     stack_ptr->mULongValue = result;
@@ -2614,10 +2716,10 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    unsigned long left = (stack_ptr-2)->mULongValue;
-                    unsigned long right = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 left = (stack_ptr-2)->mULongValue;
+                    unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
-                    unsigned long result = left - right;
+                    unsigned clint64 result = left - right;
 
                     stack_ptr-=2;
                     stack_ptr->mULongValue = result;
@@ -2631,10 +2733,10 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    unsigned long left = (stack_ptr-2)->mULongValue;
-                    unsigned long right = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 left = (stack_ptr-2)->mULongValue;
+                    unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
-                    unsigned long result = left * right;
+                    unsigned clint64 result = left * right;
 
                     stack_ptr-=2;
                     stack_ptr->mULongValue = result;
@@ -2648,17 +2750,17 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    unsigned long left = (stack_ptr-2)->mULongValue;
-                    unsigned long right = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 left = (stack_ptr-2)->mULongValue;
+                    unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
                     if(right == 0) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
-                    unsigned long result = left / right;
+                    unsigned clint64 result = left / right;
 
                     stack_ptr-=2;
                     stack_ptr->mULongValue = result;
@@ -2672,17 +2774,17 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    unsigned long left = (stack_ptr-2)->mULongValue;
-                    unsigned long right = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 left = (stack_ptr-2)->mULongValue;
+                    unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
                     if(right == 0) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
-                    unsigned long result = left % right;
+                    unsigned clint64 result = left % right;
 
                     stack_ptr-=2;
                     stack_ptr->mULongValue = result;
@@ -2696,10 +2798,10 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    unsigned long left = (stack_ptr-2)->mULongValue;
-                    unsigned long right = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 left = (stack_ptr-2)->mULongValue;
+                    unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
-                    unsigned long result = left << right;
+                    unsigned clint64 result = left << right;
 
                     stack_ptr-=2;
                     stack_ptr->mULongValue = result;
@@ -2713,10 +2815,10 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    unsigned long left = (stack_ptr-2)->mULongValue;
-                    unsigned long right = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 left = (stack_ptr-2)->mULongValue;
+                    unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
-                    unsigned long result = left >> right;
+                    unsigned clint64 result = left >> right;
 
                     stack_ptr-=2;
                     stack_ptr->mULongValue = result;
@@ -2730,10 +2832,10 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    unsigned long left = (stack_ptr-2)->mULongValue;
-                    unsigned long right = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 left = (stack_ptr-2)->mULongValue;
+                    unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
-                    unsigned long result = left | right;
+                    unsigned clint64 result = left | right;
 
                     stack_ptr-=2;
                     stack_ptr->mULongValue = result;
@@ -2747,10 +2849,10 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    unsigned long left = (stack_ptr-2)->mULongValue;
-                    unsigned long right = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 left = (stack_ptr-2)->mULongValue;
+                    unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
-                    unsigned long result = left ^ right;
+                    unsigned clint64 result = left ^ right;
 
                     stack_ptr-=2;
                     stack_ptr->mULongValue = result;
@@ -2764,10 +2866,10 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    unsigned long left = (stack_ptr-2)->mULongValue;
-                    unsigned long right = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 left = (stack_ptr-2)->mULongValue;
+                    unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
-                    unsigned long result = left | right;
+                    unsigned clint64 result = left | right;
 
                     stack_ptr-=2;
                     stack_ptr->mULongValue = result;
@@ -2785,6 +2887,7 @@ if(stack_ptr != lvar + var_num + 1) {
 
                     value = ~value;
 
+                    (stack_ptr-1)->mLongValue = 0; // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
                     vm_mutex_off();
@@ -2799,6 +2902,7 @@ if(stack_ptr != lvar + var_num + 1) {
 
                     value = ~value;
 
+                    (stack_ptr-1)->mLongValue = 0; // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
                     vm_mutex_off();
@@ -2813,6 +2917,7 @@ if(stack_ptr != lvar + var_num + 1) {
 
                     value = ~value;
 
+                    (stack_ptr-1)->mLongValue = 0; // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
                     vm_mutex_off();
@@ -2827,6 +2932,7 @@ if(stack_ptr != lvar + var_num + 1) {
 
                     value = ~value;
 
+                    (stack_ptr-1)->mLongValue = 0; // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
                     vm_mutex_off();
@@ -2841,6 +2947,7 @@ if(stack_ptr != lvar + var_num + 1) {
 
                     value = ~value;
 
+                    (stack_ptr-1)->mLongValue = 0; // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
                     vm_mutex_off();
@@ -2855,6 +2962,7 @@ if(stack_ptr != lvar + var_num + 1) {
 
                     value = ~value;
 
+                    (stack_ptr-1)->mLongValue = 0; // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
                     vm_mutex_off();
@@ -2865,7 +2973,7 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    long value = (stack_ptr-1)->mLongValue;
+                    clint64 value = (stack_ptr-1)->mLongValue;
 
                     value = ~value;
 
@@ -2879,7 +2987,7 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
                     value = ~value;
 
@@ -2899,6 +3007,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     float result = left + right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mFloatValue = result;
                     stack_ptr++;
 
@@ -2916,6 +3025,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     float result = left - right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mFloatValue = result;
                     stack_ptr++;
 
@@ -2933,6 +3043,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     float result = left * right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mFloatValue = result;
                     stack_ptr++;
 
@@ -2950,13 +3061,14 @@ if(stack_ptr != lvar + var_num + 1) {
                     if(right == 0.0f) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     float result = left / right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mFloatValue = result;
                     stack_ptr++;
 
@@ -3025,7 +3137,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     if(right == 0.0) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
@@ -3044,11 +3156,12 @@ if(stack_ptr != lvar + var_num + 1) {
                     vm_mutex_on();
 
                     char* left = (stack_ptr-2)->mPointerValue;
-                    unsigned long right = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
                     char* result = left + right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mPointerValue = result;
                     stack_ptr++;
 
@@ -3061,11 +3174,12 @@ if(stack_ptr != lvar + var_num + 1) {
                     vm_mutex_on();
 
                     char* left = (stack_ptr-2)->mPointerValue;
-                    unsigned long right = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
                     char* result = left - right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mPointerValue = result;
                     stack_ptr++;
 
@@ -3080,7 +3194,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     char* left = (stack_ptr-2)->mPointerValue;
                     char* right = (stack_ptr-1)->mPointerValue;
 
-                    unsigned long result = left - right;
+                    unsigned clint64 result = left - right;
 
                     stack_ptr-=2;
                     stack_ptr->mULongValue = result;
@@ -3100,6 +3214,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     wchar_t result = left + right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mCharValue = result;
                     stack_ptr++;
 
@@ -3117,6 +3232,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     wchar_t result = left - right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mCharValue = result;
                     stack_ptr++;
 
@@ -3134,6 +3250,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left == right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3151,6 +3268,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left != right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3168,6 +3286,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left > right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3185,6 +3304,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left < right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3202,6 +3322,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left >= right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3219,6 +3340,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left <= right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3236,6 +3358,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left == right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3253,6 +3376,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left != right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3270,6 +3394,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left > right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3287,6 +3412,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left < right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3304,6 +3430,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left >= right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3321,6 +3448,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left <= right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3338,6 +3466,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left == right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3355,6 +3484,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left != right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3372,6 +3502,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left > right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3389,6 +3520,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left < right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3406,6 +3538,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left >= right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3423,6 +3556,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left <= right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3440,6 +3574,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left == right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3457,6 +3592,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left != right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3474,6 +3610,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left > right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3491,6 +3628,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left < right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3508,6 +3646,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left >= right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3525,6 +3664,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left <= right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3539,9 +3679,10 @@ if(stack_ptr != lvar + var_num + 1) {
                     int left = (stack_ptr-2)->mIntValue;
                     int right = (stack_ptr-1)->mIntValue;
 
-                    BOOL result = left == right;
+                    BOOL result = (left == right);
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3559,6 +3700,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left != right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3576,6 +3718,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left > right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3593,6 +3736,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left < right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3610,6 +3754,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left >= right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3627,6 +3772,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left <= right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3644,6 +3790,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left == right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3661,6 +3808,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left != right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3678,6 +3826,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left > right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3695,6 +3844,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left < right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3712,6 +3862,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left >= right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3729,6 +3880,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left <= right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3740,12 +3892,13 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    long left = (stack_ptr-2)->mLongValue;
-                    long right = (stack_ptr-1)->mLongValue;
+                    clint64 left = (stack_ptr-2)->mLongValue;
+                    clint64 right = (stack_ptr-1)->mLongValue;
 
                     BOOL result = left == right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3757,12 +3910,13 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    long left = (stack_ptr-2)->mLongValue;
-                    long right = (stack_ptr-1)->mLongValue;
+                    clint64 left = (stack_ptr-2)->mLongValue;
+                    clint64 right = (stack_ptr-1)->mLongValue;
 
                     BOOL result = left != right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3774,12 +3928,13 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    long left = (stack_ptr-2)->mLongValue;
-                    long right = (stack_ptr-1)->mLongValue;
+                    clint64 left = (stack_ptr-2)->mLongValue;
+                    clint64 right = (stack_ptr-1)->mLongValue;
 
                     BOOL result = left > right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3791,12 +3946,13 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    long left = (stack_ptr-2)->mLongValue;
-                    long right = (stack_ptr-1)->mLongValue;
+                    clint64 left = (stack_ptr-2)->mLongValue;
+                    clint64 right = (stack_ptr-1)->mLongValue;
 
                     BOOL result = left < right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3808,12 +3964,13 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    long left = (stack_ptr-2)->mLongValue;
-                    long right = (stack_ptr-1)->mLongValue;
+                    clint64 left = (stack_ptr-2)->mLongValue;
+                    clint64 right = (stack_ptr-1)->mLongValue;
 
                     BOOL result = left >= right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3825,12 +3982,13 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    long left = (stack_ptr-2)->mLongValue;
-                    long right = (stack_ptr-1)->mLongValue;
+                    clint64 left = (stack_ptr-2)->mLongValue;
+                    clint64 right = (stack_ptr-1)->mLongValue;
 
                     BOOL result = left <= right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3842,12 +4000,13 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    unsigned long left = (stack_ptr-2)->mULongValue;
-                    unsigned long right = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 left = (stack_ptr-2)->mULongValue;
+                    unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
                     BOOL result = left == right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3859,12 +4018,13 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    unsigned long left = (stack_ptr-2)->mULongValue;
-                    unsigned long right = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 left = (stack_ptr-2)->mULongValue;
+                    unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
                     BOOL result = left != right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3876,12 +4036,13 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    unsigned long left = (stack_ptr-2)->mULongValue;
-                    unsigned long right = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 left = (stack_ptr-2)->mULongValue;
+                    unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
                     BOOL result = left > right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3893,12 +4054,13 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    unsigned long left = (stack_ptr-2)->mULongValue;
-                    unsigned long right = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 left = (stack_ptr-2)->mULongValue;
+                    unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
                     BOOL result = left < right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3910,12 +4072,13 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    unsigned long left = (stack_ptr-2)->mULongValue;
-                    unsigned long right = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 left = (stack_ptr-2)->mULongValue;
+                    unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
                     BOOL result = left >= right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3927,12 +4090,13 @@ if(stack_ptr != lvar + var_num + 1) {
                 {
                     vm_mutex_on();
 
-                    unsigned long left = (stack_ptr-2)->mULongValue;
-                    unsigned long right = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 left = (stack_ptr-2)->mULongValue;
+                    unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
                     BOOL result = left <= right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3950,6 +4114,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left == right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3967,6 +4132,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left != right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -3984,6 +4150,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left > right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -4001,6 +4168,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left < right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -4018,6 +4186,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left >= right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -4035,6 +4204,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left <= right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -4052,6 +4222,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left == right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -4069,6 +4240,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left != right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -4086,6 +4258,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left > right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -4103,6 +4276,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left < right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -4120,6 +4294,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left >= right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -4137,6 +4312,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left <= right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -4154,6 +4330,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left == right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -4171,6 +4348,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left != right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -4188,6 +4366,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left > right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -4205,6 +4384,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left < right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -4222,6 +4402,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left >= right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -4239,6 +4420,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left <= right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -4256,6 +4438,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left == right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -4273,6 +4456,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left != right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -4290,6 +4474,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left > right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -4307,6 +4492,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left < right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -4324,6 +4510,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left >= right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -4341,6 +4528,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left <= right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -4358,6 +4546,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = regex_equals(left, right);
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -4375,13 +4564,13 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = !regex_equals(left, right);
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
                     vm_mutex_off();
                 }
                 break;
-
 
             case OP_OBJ_IDENTIFY:
                 {
@@ -4393,6 +4582,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left == right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -4409,7 +4599,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     if(left == 0) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(1)");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
@@ -4418,6 +4608,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     CLObject result = create_string_object(CLASS_NAME(object_data->mClass));
 
                     stack_ptr--;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mObjectValue = result;
                     stack_ptr++;
 
@@ -4439,7 +4630,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     if(klass == NULL) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(1)");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
@@ -4448,13 +4639,14 @@ if(stack_ptr != lvar + var_num + 1) {
                     if(left == 0) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(2)");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     BOOL result = object_implements_interface(left, klass);
 
                     stack_ptr--;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -4472,6 +4664,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left && right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -4489,6 +4682,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = left || right;
 
                     stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -4504,6 +4698,7 @@ if(stack_ptr != lvar + var_num + 1) {
                     BOOL result = !value;
 
                     stack_ptr--;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
 
@@ -4527,14 +4722,14 @@ if(stack_ptr != lvar + var_num + 1) {
                     if(klass == NULL) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(2)");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     if(method_index < 0 || method_index >= klass->mNumMethods) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "OP_INVOKE_METHOD: Method not found");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
@@ -4548,7 +4743,7 @@ if(stack_ptr != lvar + var_num + 1) {
                         }
                         else {
                             vm_mutex_off();
-                            remove_stack_to_stack_list(stack, &stack_ptr);
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -4587,7 +4782,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     if(method == NULL) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "OP_INVOKE_VIRTUAL_METHOD: Method not found");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
                     else {
@@ -4599,7 +4794,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                             }
                             else {
                                 vm_mutex_off();
-                                remove_stack_to_stack_list(stack, &stack_ptr);
+                                remove_stack_to_stack_list(stack_id);
                                 return FALSE;
                             }
                         }
@@ -4647,7 +4842,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                         if(klass->mCallingMethodIndex == -1) {
                             vm_mutex_off();
                             entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "OP_INVOKE_DYNAMIC_METHOD: Method not found(1)");
-                            remove_stack_to_stack_list(stack, &stack_ptr);
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
 
@@ -4664,17 +4859,22 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                         CLObject carray = create_carray_object_with_elements(num_params, elements);
 
+                        gGlobalStackPtr->mLongValue = 0;   // zero clear for jit
                         gGlobalStackPtr->mObjectValue = carray;
                         gGlobalStackPtr++;
 
                         stack_ptr-=num_params;
 
+                        stack_ptr->mLongValue = 0;              // zero clear for jit
                         stack_ptr->mObjectValue = create_string_object(method_name);
                         stack_ptr++;
+                        stack_ptr->mLongValue = 0;              // zero clear for jit
                         stack_ptr->mObjectValue = carray;
                         stack_ptr++;
+                        stack_ptr->mLongValue = 0;              // zero clear for jit
                         stack_ptr->mIntValue = num_method_chains;
                         stack_ptr++;
+                        stack_ptr->mLongValue = 0;              // zero clear for jit
                         stack_ptr->mIntValue = max_method_chains;
                         stack_ptr++;
 
@@ -4688,7 +4888,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                             }
                             else {
                                 vm_mutex_off();
-                                remove_stack_to_stack_list(stack, &stack_ptr);
+                                remove_stack_to_stack_list(stack_id);
                                 return FALSE;
                             }
                         }
@@ -4703,14 +4903,14 @@ show_stack(stack, stack_ptr, lvar, var_num);
                         if(klass == NULL) {
                             vm_mutex_off();
                             entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(3)");
-                            remove_stack_to_stack_list(stack, &stack_ptr);
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
 
                         if(klass->mCallingClassMethodIndex == -1) {
                             vm_mutex_off();
                             entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "OP_INVOKE_DYNAMIC_METHOD: Method not found(2)");
-                            remove_stack_to_stack_list(stack, &stack_ptr);
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
 
@@ -4727,17 +4927,22 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                         CLObject carray = create_carray_object_with_elements(num_params, elements);
 
+                        gGlobalStackPtr->mLongValue = 0;                // zero clear for jit
                         gGlobalStackPtr->mObjectValue = carray;
                         gGlobalStackPtr++;
 
                         stack_ptr-=num_params;
 
+                        stack_ptr->mLongValue = 0;      // zero clera for jit
                         stack_ptr->mObjectValue = create_string_object(method_name);
                         stack_ptr++;
+                        stack_ptr->mLongValue = 0;              // zero clear for jit
                         stack_ptr->mObjectValue = carray;
                         stack_ptr++;
+                        stack_ptr->mLongValue = 0;              // zero clear for jit
                         stack_ptr->mIntValue = num_method_chains;
                         stack_ptr++;
+                        stack_ptr->mLongValue = 0;              // zero clear for jit
                         stack_ptr->mIntValue = max_method_chains;
                         stack_ptr++;
 
@@ -4751,7 +4956,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                             }
                             else {
                                 vm_mutex_off();
-                                remove_stack_to_stack_list(stack, &stack_ptr);
+                                remove_stack_to_stack_list(stack_id);
                                 return FALSE;
                             }
                         }
@@ -4773,7 +4978,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     if(!invoke_block(block_object, stack, var_num, num_params, &stack_ptr, info)) 
                     {
                         vm_mutex_off();
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
@@ -4805,7 +5010,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     if(klass == NULL) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(3)");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
@@ -4814,11 +5019,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                         stack_ptr--;
 
                         CLObject array = create_array_object(klass, array_num);
+                        stack_ptr->mLongValue = 0;              // zero clear for jit
                         stack_ptr->mObjectValue = array;
                         stack_ptr++;
                     }
                     else {
                         CLObject obj = create_object(klass);
+                        stack_ptr->mLongValue = 0;              // zero clear for jit
                         stack_ptr->mObjectValue = obj;
                         stack_ptr++;
                     }
@@ -4843,7 +5050,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     if(obj == 0) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
@@ -4853,14 +5060,14 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     if(klass == NULL) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(4)");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     if(field_index < 0 || field_index >= klass->mNumFields) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "field index is invalid");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
@@ -4885,7 +5092,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     if(obj == 0) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(4)");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
@@ -4895,18 +5102,19 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     if(klass == NULL) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(5)");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     if(field_index < 0 || field_index >= klass->mNumFields) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "field index is invalid");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     char* value = (char*)&object_pointer->mFields[field_index];
+                    stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mPointerValue = value;
                     stack_ptr++;
 
@@ -4927,7 +5135,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     if(obj == 0) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(5)");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
@@ -4937,14 +5145,14 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     if(klass == NULL) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(6)");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     if(field_index < 0 || field_index >= klass->mNumFields) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "field index is invalid");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
@@ -4977,14 +5185,14 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     if(klass == NULL) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(7)");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     if(field_index < 0 || field_index >= klass->mNumClassFields) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "field index is invalid");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
@@ -5014,20 +5222,21 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     if(klass == NULL) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(8)");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     if(field_index < 0 || field_index >= klass->mNumClassFields) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "field index is invalid");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     sCLField* field = klass->mClassFields + field_index;
                     char* value = (char*)&field->mValue;
 
+                    stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mPointerValue = value;
                     stack_ptr++;
 
@@ -5052,14 +5261,14 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     if(klass == NULL) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(9)");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     if(field_index < 0 || field_index >= klass->mNumClassFields) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "field index is invalid");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
@@ -5086,7 +5295,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     if(array == 0) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(7)");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
@@ -5095,7 +5304,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     if(element_num < 0 || element_num >= object_pointer->mArrayNum) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "element index is invalid");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
@@ -5118,7 +5327,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     if(array == 0) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(8)");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
@@ -5127,7 +5336,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     if(element_num < 0 || element_num >= object_pointer->mArrayNum) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "element index is invalid");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
@@ -5149,6 +5358,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLVALUE* pointer = (CLVALUE*)address.mPointerValue;
 
+                    pointer->mLongValue = 0;              // zero clear for jit
                     pointer->mIntValue = value.mIntValue;
 
                     stack_ptr-=2;
@@ -5257,7 +5467,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     CLVALUE address = *(stack_ptr-2);
                     CLVALUE value = *(stack_ptr-1);
 
-                    *(long*)address.mPointerValue = value.mLongValue;
+                    *(clint64*)address.mPointerValue = value.mLongValue;
 
                     stack_ptr-=2;
 
@@ -5275,7 +5485,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     CLVALUE address = *(stack_ptr-2);
                     CLVALUE value = *(stack_ptr-1);
 
-                    *(unsigned long*)address.mPointerValue = value.mULongValue;
+                    *(unsigned clint64*)address.mPointerValue = value.mULongValue;
 
                     stack_ptr-=2;
 
@@ -5403,6 +5613,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     int value = *(int*)address.mPointerValue;
 
+                    stack_ptr->mLongValue = 0;           // zero clear for jit
                     stack_ptr->mIntValue = value;
                     stack_ptr++;
 
@@ -5419,6 +5630,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned int value = *(unsigned  int*)address.mPointerValue;
 
+                    stack_ptr->mLongValue = 0;           // zero clear for jit
                     stack_ptr->mUIntValue = value;
                     stack_ptr++;
 
@@ -5435,6 +5647,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char value = *(char*)address.mPointerValue;
 
+                    stack_ptr->mLongValue = 0;           // zero clear for jit
                     stack_ptr->mByteValue = value;
                     stack_ptr++;
 
@@ -5451,6 +5664,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned char value = *(unsigned char*)address.mPointerValue;
 
+                    stack_ptr->mLongValue = 0;           // zero clear for jit
                     stack_ptr->mUByteValue = value;
                     stack_ptr++;
 
@@ -5467,6 +5681,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     short value = *(short*)address.mPointerValue;
 
+                    stack_ptr->mLongValue = 0;           // zero clear for jit
                     stack_ptr->mShortValue = value;
                     stack_ptr++;
 
@@ -5483,6 +5698,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned short value = *(unsigned short*)address.mPointerValue;
 
+                    stack_ptr->mLongValue = 0;           // zero clear for jit
                     stack_ptr->mUShortValue = value;
                     stack_ptr++;
 
@@ -5497,7 +5713,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     CLVALUE address = *(stack_ptr-1);
                     stack_ptr--;
 
-                    long value = *(long*)address.mPointerValue;
+                    clint64 value = *(clint64*)address.mPointerValue;
 
                     stack_ptr->mLongValue = value;
                     stack_ptr++;
@@ -5513,7 +5729,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     CLVALUE address = *(stack_ptr-1);
                     stack_ptr--;
 
-                    unsigned long value = *(unsigned long*)address.mPointerValue;
+                    unsigned clint64 value = *(unsigned clint64*)address.mPointerValue;
 
                     stack_ptr->mULongValue = value;
                     stack_ptr++;
@@ -5531,6 +5747,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     float value = *(float*)address.mPointerValue;
 
+                    stack_ptr->mLongValue = 0;           // zero clear for jit
                     stack_ptr->mFloatValue = value;
                     stack_ptr++;
 
@@ -5563,6 +5780,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char* value = *(char**)address.mPointerValue;
 
+                    stack_ptr->mLongValue = 0;           // zero clear for jit
                     stack_ptr->mPointerValue = value;
                     stack_ptr++;
 
@@ -5579,6 +5797,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     wchar_t value = *(wchar_t*)address.mPointerValue;
 
+                    stack_ptr->mLongValue = 0;           // zero clear for jit
                     stack_ptr->mCharValue = value;
                     stack_ptr++;
 
@@ -5595,6 +5814,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     BOOL value = *(BOOL*)address.mPointerValue;
 
+                    stack_ptr->mLongValue = 0;           // zero clear for jit
                     stack_ptr->mBoolValue = value;
                     stack_ptr++;
 
@@ -5611,6 +5831,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject value = *(CLObject*)address.mPointerValue;
 
+                    stack_ptr->mLongValue = 0;           // zero clear for jit
                     stack_ptr->mObjectValue = value;
                     stack_ptr++;
 
@@ -5624,6 +5845,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char value = (char)(stack_ptr-1)->mUByteValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
                     vm_mutex_off();
@@ -5636,6 +5858,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char value = (char)(stack_ptr-1)->mShortValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
                     vm_mutex_off();
@@ -5648,6 +5871,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char value = (char)(stack_ptr-1)->mUShortValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
                     vm_mutex_off();
@@ -5660,6 +5884,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char value = (char)(stack_ptr-1)->mIntValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
                     vm_mutex_off();
@@ -5672,6 +5897,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char value = (char)(stack_ptr-1)->mUIntValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
                     vm_mutex_off();
@@ -5684,6 +5910,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char value = (char)(stack_ptr-1)->mLongValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
                     vm_mutex_off();
@@ -5696,6 +5923,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char value = (char)(stack_ptr-1)->mULongValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
                     vm_mutex_off();
@@ -5708,6 +5936,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char value = (char)(stack_ptr-1)->mFloatValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
                     vm_mutex_off();
@@ -5720,6 +5949,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char value = (char)(stack_ptr-1)->mDoubleValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
                     vm_mutex_off();
@@ -5732,6 +5962,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char value = (char)(stack_ptr-1)->mPointerValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
                     vm_mutex_off();
@@ -5744,6 +5975,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char value = (char)(stack_ptr-1)->mCharValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
                     vm_mutex_off();
@@ -5760,6 +5992,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char value = (char)obj_data->mFields[0].mByteValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
                     vm_mutex_off();
@@ -5776,6 +6009,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char value = (char)obj_data->mFields[0].mUByteValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
                     vm_mutex_off();
@@ -5792,6 +6026,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char value = (char)obj_data->mFields[0].mShortValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
                     vm_mutex_off();
@@ -5808,6 +6043,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char value = (char)obj_data->mFields[0].mUShortValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
                     vm_mutex_off();
@@ -5824,6 +6060,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char value = (char)obj_data->mFields[0].mIntValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
                     vm_mutex_off();
@@ -5840,6 +6077,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char value = (char)obj_data->mFields[0].mUIntValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
                     vm_mutex_off();
@@ -5856,6 +6094,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char value = (char)obj_data->mFields[0].mLongValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
                     vm_mutex_off();
@@ -5872,6 +6111,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char value = (char)obj_data->mFields[0].mULongValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
                     vm_mutex_off();
@@ -5888,6 +6128,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char value = (char)obj_data->mFields[0].mFloatValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
                     vm_mutex_off();
@@ -5904,6 +6145,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char value = (char)obj_data->mFields[0].mDoubleValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
                     vm_mutex_off();
@@ -5920,6 +6162,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char value = (char)obj_data->mFields[0].mPointerValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
                     vm_mutex_off();
@@ -5936,6 +6179,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char value = (char)obj_data->mFields[0].mCharValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
                     vm_mutex_off();
@@ -5952,6 +6196,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char value = (char)obj_data->mFields[0].mBoolValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
                     vm_mutex_off();
@@ -5965,6 +6210,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     short value = (short)(stack_ptr-1)->mByteValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
                     vm_mutex_off();
@@ -5977,6 +6223,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     short value = (short)(stack_ptr-1)->mUByteValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
                     vm_mutex_off();
@@ -5989,6 +6236,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     short value = (short)(stack_ptr-1)->mUShortValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
                     vm_mutex_off();
@@ -6001,6 +6249,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     short value = (short)(stack_ptr-1)->mIntValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
                     vm_mutex_off();
@@ -6013,6 +6262,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     short value = (short)(stack_ptr-1)->mUIntValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
                     vm_mutex_off();
@@ -6025,6 +6275,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     short value = (short)(stack_ptr-1)->mLongValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
                     vm_mutex_off();
@@ -6037,6 +6288,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     short value = (short)(stack_ptr-1)->mULongValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
                     vm_mutex_off();
@@ -6049,6 +6301,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     short value = (short)(stack_ptr-1)->mFloatValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
                     vm_mutex_off();
@@ -6061,6 +6314,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     short value = (short)(stack_ptr-1)->mDoubleValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
                     vm_mutex_off();
@@ -6073,6 +6327,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     short value = (short)(stack_ptr-1)->mPointerValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
                     vm_mutex_off();
@@ -6085,6 +6340,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     short value = (short)(stack_ptr-1)->mCharValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
                     vm_mutex_off();
@@ -6102,6 +6358,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     short value = (short)obj_data->mFields[0].mByteValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
                     vm_mutex_off();
@@ -6118,6 +6375,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     short value = (short)obj_data->mFields[0].mUByteValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
                     vm_mutex_off();
@@ -6134,6 +6392,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     short value = (short)obj_data->mFields[0].mShortValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
                     vm_mutex_off();
@@ -6150,6 +6409,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     short value = (short)obj_data->mFields[0].mUShortValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
                     vm_mutex_off();
@@ -6166,6 +6426,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     short value = (short)obj_data->mFields[0].mIntValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
                     vm_mutex_off();
@@ -6182,6 +6443,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     short value = (short)obj_data->mFields[0].mUIntValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
                     vm_mutex_off();
@@ -6198,6 +6460,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     short value = (short)obj_data->mFields[0].mLongValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
                     vm_mutex_off();
@@ -6214,6 +6477,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     short value = (short)obj_data->mFields[0].mULongValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
                     vm_mutex_off();
@@ -6230,6 +6494,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     short value = (short)obj_data->mFields[0].mFloatValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
                     vm_mutex_off();
@@ -6246,6 +6511,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     short value = (short)obj_data->mFields[0].mDoubleValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
                     vm_mutex_off();
@@ -6262,6 +6528,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     short value = (short)obj_data->mFields[0].mPointerValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
                     vm_mutex_off();
@@ -6278,6 +6545,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     short value = (short)obj_data->mFields[0].mCharValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
                     vm_mutex_off();
@@ -6294,6 +6562,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     short value = (short)obj_data->mFields[0].mBoolValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
                     vm_mutex_off();
@@ -6306,6 +6575,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     int value = (int)(stack_ptr-1)->mByteValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
                     vm_mutex_off();
@@ -6318,6 +6588,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     int value = (int)(stack_ptr-1)->mUByteValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
                     vm_mutex_off();
@@ -6330,6 +6601,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     int value = (int)(stack_ptr-1)->mShortValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
                     vm_mutex_off();
@@ -6342,6 +6614,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     int value = (int)(stack_ptr-1)->mUShortValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
                     vm_mutex_off();
@@ -6354,6 +6627,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     int value = (int)(stack_ptr-1)->mUIntValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
                     vm_mutex_off();
@@ -6366,6 +6640,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     int value = (int)(stack_ptr-1)->mLongValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
                     vm_mutex_off();
@@ -6378,6 +6653,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     int value = (int)(stack_ptr-1)->mULongValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
                     vm_mutex_off();
@@ -6390,6 +6666,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     int value = (int)(stack_ptr-1)->mFloatValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
                     vm_mutex_off();
@@ -6402,6 +6679,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     int value = (int)(stack_ptr-1)->mDoubleValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
                     vm_mutex_off();
@@ -6414,6 +6692,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     int value = (int)(stack_ptr-1)->mPointerValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
                     vm_mutex_off();
@@ -6426,6 +6705,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     int value = (int)(stack_ptr-1)->mCharValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
                     vm_mutex_off();
@@ -6443,6 +6723,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     int value = (int)obj_data->mFields[0].mByteValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
                     vm_mutex_off();
@@ -6459,6 +6740,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     int value = (int)obj_data->mFields[0].mUByteValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
                     vm_mutex_off();
@@ -6475,6 +6757,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     int value = (int)obj_data->mFields[0].mShortValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
                     vm_mutex_off();
@@ -6491,6 +6774,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     int value = (int)obj_data->mFields[0].mUShortValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
                     vm_mutex_off();
@@ -6507,6 +6791,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     int value = (int)obj_data->mFields[0].mIntValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
                     vm_mutex_off();
@@ -6523,6 +6808,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     int value = (int)obj_data->mFields[0].mUIntValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
                     vm_mutex_off();
@@ -6539,6 +6825,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     int value = (int)obj_data->mFields[0].mLongValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
                     vm_mutex_off();
@@ -6555,6 +6842,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     int value = (int)obj_data->mFields[0].mULongValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
                     vm_mutex_off();
@@ -6571,6 +6859,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     int value = (int)obj_data->mFields[0].mFloatValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
                     vm_mutex_off();
@@ -6587,6 +6876,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     int value = (int)obj_data->mFields[0].mDoubleValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
                     vm_mutex_off();
@@ -6603,6 +6893,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     int value = (int)obj_data->mFields[0].mPointerValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
                     vm_mutex_off();
@@ -6619,6 +6910,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     int value = (int)obj_data->mFields[0].mCharValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
                     vm_mutex_off();
@@ -6635,6 +6927,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     int value = (int)obj_data->mFields[0].mBoolValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
                     vm_mutex_off();
@@ -6645,7 +6938,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (long)(stack_ptr-1)->mByteValue;
+                    clint64 value = (clint64)(stack_ptr-1)->mByteValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6657,7 +6950,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (long)(stack_ptr-1)->mUByteValue;
+                    clint64 value = (clint64)(stack_ptr-1)->mUByteValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6669,7 +6962,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (long)(stack_ptr-1)->mShortValue;
+                    clint64 value = (clint64)(stack_ptr-1)->mShortValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6681,7 +6974,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (long)(stack_ptr-1)->mUShortValue;
+                    clint64 value = (clint64)(stack_ptr-1)->mUShortValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6693,7 +6986,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (long)(stack_ptr-1)->mIntValue;
+                    clint64 value = (clint64)(stack_ptr-1)->mIntValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6705,7 +6998,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (long)(stack_ptr-1)->mUIntValue;
+                    clint64 value = (clint64)(stack_ptr-1)->mUIntValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6717,7 +7010,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (long)(stack_ptr-1)->mULongValue;
+                    clint64 value = (clint64)(stack_ptr-1)->mULongValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6729,7 +7022,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (long)(stack_ptr-1)->mFloatValue;
+                    clint64 value = (clint64)(stack_ptr-1)->mFloatValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6741,7 +7034,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (long)(stack_ptr-1)->mDoubleValue;
+                    clint64 value = (clint64)(stack_ptr-1)->mDoubleValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6753,7 +7046,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (long)(stack_ptr-1)->mPointerValue;
+                    clint64 value = (clint64)(stack_ptr-1)->mPointerValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6765,7 +7058,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (long)(stack_ptr-1)->mCharValue;
+                    clint64 value = (clint64)(stack_ptr-1)->mCharValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6781,7 +7074,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    long value = (long)obj_data->mFields[0].mByteValue;
+                    clint64 value = (clint64)obj_data->mFields[0].mByteValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6797,7 +7090,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    long value = (long)obj_data->mFields[0].mUByteValue;
+                    clint64 value = (clint64)obj_data->mFields[0].mUByteValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6813,7 +7106,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    long value = (long)obj_data->mFields[0].mShortValue;
+                    clint64 value = (clint64)obj_data->mFields[0].mShortValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6829,7 +7122,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    long value = (long)obj_data->mFields[0].mUShortValue;
+                    clint64 value = (clint64)obj_data->mFields[0].mUShortValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6845,7 +7138,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    long value = (long)obj_data->mFields[0].mIntValue;
+                    clint64 value = (clint64)obj_data->mFields[0].mIntValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6861,7 +7154,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    long value = (long)obj_data->mFields[0].mUIntValue;
+                    clint64 value = (clint64)obj_data->mFields[0].mUIntValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6877,7 +7170,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    long value = (long)obj_data->mFields[0].mLongValue;
+                    clint64 value = (clint64)obj_data->mFields[0].mLongValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6893,7 +7186,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    long value = (long)obj_data->mFields[0].mULongValue;
+                    clint64 value = (clint64)obj_data->mFields[0].mULongValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6909,7 +7202,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    long value = (long)obj_data->mFields[0].mFloatValue;
+                    clint64 value = (clint64)obj_data->mFields[0].mFloatValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6925,7 +7218,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    long value = (long)obj_data->mFields[0].mDoubleValue;
+                    clint64 value = (clint64)obj_data->mFields[0].mDoubleValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6941,7 +7234,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    long value = (long)obj_data->mFields[0].mPointerValue;
+                    clint64 value = (clint64)obj_data->mFields[0].mPointerValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6957,7 +7250,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    long value = (long)obj_data->mFields[0].mCharValue;
+                    clint64 value = (clint64)obj_data->mFields[0].mCharValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6973,7 +7266,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    long value = (long)obj_data->mFields[0].mBoolValue;
+                    clint64 value = (clint64)obj_data->mFields[0].mBoolValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
@@ -6987,6 +7280,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned char value = (unsigned char)(stack_ptr-1)->mByteValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
                     vm_mutex_off();
@@ -6999,6 +7293,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned char value = (unsigned char)(stack_ptr-1)->mShortValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
                     vm_mutex_off();
@@ -7011,6 +7306,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned char value = (unsigned char)(stack_ptr-1)->mUShortValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
                     vm_mutex_off();
@@ -7022,6 +7318,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     vm_mutex_on();
 
                     unsigned char value = (unsigned char)(stack_ptr-1)->mIntValue;
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
                     vm_mutex_off();
@@ -7034,6 +7331,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned char value = (unsigned char)(stack_ptr-1)->mUIntValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
                     vm_mutex_off();
@@ -7046,6 +7344,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned char value = (unsigned char)(stack_ptr-1)->mLongValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
                     vm_mutex_off();
@@ -7058,6 +7357,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned char value = (unsigned char)(stack_ptr-1)->mULongValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
                     vm_mutex_off();
@@ -7070,6 +7370,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned char value = (unsigned char)(stack_ptr-1)->mFloatValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
                     vm_mutex_off();
@@ -7082,6 +7383,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned char value = (unsigned char)(stack_ptr-1)->mDoubleValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
                     vm_mutex_off();
@@ -7094,6 +7396,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned char value = (unsigned char)(stack_ptr-1)->mPointerValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
                     vm_mutex_off();
@@ -7106,6 +7409,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned char value = (unsigned char)(stack_ptr-1)->mCharValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
                     vm_mutex_off();
@@ -7122,6 +7426,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned char value = (unsigned char)obj_data->mFields[0].mByteValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
                     vm_mutex_off();
@@ -7138,6 +7443,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned char value = (unsigned char)obj_data->mFields[0].mUByteValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
                     vm_mutex_off();
@@ -7154,6 +7460,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned char value = (unsigned char)obj_data->mFields[0].mShortValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
                     vm_mutex_off();
@@ -7170,6 +7477,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned char value = (unsigned char)obj_data->mFields[0].mUShortValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
                     vm_mutex_off();
@@ -7186,6 +7494,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned char value = (unsigned char)obj_data->mFields[0].mIntValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
                     vm_mutex_off();
@@ -7202,6 +7511,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned char value = (unsigned char)obj_data->mFields[0].mUIntValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
                     vm_mutex_off();
@@ -7218,6 +7528,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned char value = (unsigned char)obj_data->mFields[0].mLongValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
                     vm_mutex_off();
@@ -7234,6 +7545,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned char value = (unsigned char)obj_data->mFields[0].mULongValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
                     vm_mutex_off();
@@ -7250,6 +7562,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned char value = (unsigned char)obj_data->mFields[0].mFloatValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
                     vm_mutex_off();
@@ -7266,6 +7579,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned char value = (unsigned char)obj_data->mFields[0].mDoubleValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
                     vm_mutex_off();
@@ -7282,6 +7596,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned char value = (unsigned char)obj_data->mFields[0].mPointerValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
                     vm_mutex_off();
@@ -7298,6 +7613,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned char value = (unsigned char)obj_data->mFields[0].mCharValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
                     vm_mutex_off();
@@ -7314,6 +7630,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned char value = (unsigned char)obj_data->mFields[0].mBoolValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
                     vm_mutex_off();
@@ -7326,6 +7643,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned short value = (unsigned short)(stack_ptr-1)->mByteValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
                     vm_mutex_off();
@@ -7338,6 +7656,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned short value = (unsigned short)(stack_ptr-1)->mUByteValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
                     vm_mutex_off();
@@ -7350,6 +7669,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned short value = (unsigned short)(stack_ptr-1)->mShortValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
                     vm_mutex_off();
@@ -7362,6 +7682,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned short value = (unsigned short)(stack_ptr-1)->mIntValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
                     vm_mutex_off();
@@ -7374,6 +7695,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned short value = (unsigned short)(stack_ptr-1)->mUIntValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
                     vm_mutex_off();
@@ -7386,6 +7708,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned short value = (unsigned short)(stack_ptr-1)->mLongValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
                     vm_mutex_off();
@@ -7398,6 +7721,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned short value = (unsigned short)(stack_ptr-1)->mULongValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
                     vm_mutex_off();
@@ -7410,6 +7734,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned short value = (unsigned short)(stack_ptr-1)->mFloatValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
                     vm_mutex_off();
@@ -7422,6 +7747,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned short value = (unsigned short)(stack_ptr-1)->mDoubleValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
                     vm_mutex_off();
@@ -7434,6 +7760,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned short value = (unsigned short)(stack_ptr-1)->mPointerValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
                     vm_mutex_off();
@@ -7446,6 +7773,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned short value = (unsigned short)(stack_ptr-1)->mCharValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
                     vm_mutex_off();
@@ -7462,6 +7790,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned short value = (unsigned short)obj_data->mFields[0].mByteValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
                     vm_mutex_off();
@@ -7478,6 +7807,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned short value = (unsigned short)obj_data->mFields[0].mUByteValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
                     vm_mutex_off();
@@ -7494,6 +7824,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned short value = (unsigned short)obj_data->mFields[0].mShortValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
                     vm_mutex_off();
@@ -7510,6 +7841,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned short value = (unsigned short)obj_data->mFields[0].mUShortValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
                     vm_mutex_off();
@@ -7526,6 +7858,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned short value = (unsigned short)obj_data->mFields[0].mIntValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
                     vm_mutex_off();
@@ -7542,6 +7875,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned short value = (unsigned short)obj_data->mFields[0].mUIntValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
                     vm_mutex_off();
@@ -7558,6 +7892,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned short value = (unsigned short)obj_data->mFields[0].mLongValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
                     vm_mutex_off();
@@ -7574,6 +7909,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned short value = (unsigned short)obj_data->mFields[0].mULongValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
                     vm_mutex_off();
@@ -7590,6 +7926,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned short value = (unsigned short)obj_data->mFields[0].mFloatValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
                     vm_mutex_off();
@@ -7606,6 +7943,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned short value = (unsigned short)obj_data->mFields[0].mDoubleValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
                     vm_mutex_off();
@@ -7622,6 +7960,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned short value = (unsigned short)obj_data->mFields[0].mPointerValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
                     vm_mutex_off();
@@ -7638,6 +7977,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned short value = (unsigned short)obj_data->mFields[0].mCharValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
                     vm_mutex_off();
@@ -7654,6 +7994,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned short value = (unsigned short)obj_data->mFields[0].mBoolValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
                     vm_mutex_off();
@@ -7667,6 +8008,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned int value = (unsigned int)(stack_ptr-1)->mByteValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
                     vm_mutex_off();
@@ -7679,6 +8021,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned int value = (unsigned int)(stack_ptr-1)->mUByteValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
                     vm_mutex_off();
@@ -7691,6 +8034,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned int value = (unsigned int)(stack_ptr-1)->mShortValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
                     vm_mutex_off();
@@ -7703,6 +8047,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned int value = (unsigned int)(stack_ptr-1)->mUShortValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
                     vm_mutex_off();
@@ -7715,6 +8060,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned int value = (unsigned int)(stack_ptr-1)->mIntValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
                     vm_mutex_off();
@@ -7728,6 +8074,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned int value = (unsigned int)(stack_ptr-1)->mLongValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
                     vm_mutex_off();
@@ -7740,6 +8087,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned int value = (unsigned int)(stack_ptr-1)->mULongValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
                     vm_mutex_off();
@@ -7752,6 +8100,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned int value = (unsigned int)(stack_ptr-1)->mFloatValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
                     vm_mutex_off();
@@ -7764,6 +8113,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned int value = (unsigned int)(stack_ptr-1)->mDoubleValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
                     vm_mutex_off();
@@ -7776,6 +8126,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned int value = (unsigned int)(stack_ptr-1)->mPointerValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
                     vm_mutex_off();
@@ -7788,6 +8139,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned int value = (unsigned int)(stack_ptr-1)->mCharValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
                     vm_mutex_off();
@@ -7804,6 +8156,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned int value = (unsigned int)obj_data->mFields[0].mByteValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
                     vm_mutex_off();
@@ -7820,6 +8173,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned int value = (unsigned int)obj_data->mFields[0].mUByteValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
                     vm_mutex_off();
@@ -7836,6 +8190,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned int value = (unsigned int)obj_data->mFields[0].mShortValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
                     vm_mutex_off();
@@ -7852,6 +8207,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned int value = (unsigned int)obj_data->mFields[0].mUShortValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
                     vm_mutex_off();
@@ -7868,6 +8224,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned int value = (unsigned int)obj_data->mFields[0].mIntValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
                     vm_mutex_off();
@@ -7884,6 +8241,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned int value = (unsigned int)obj_data->mFields[0].mUIntValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
                     vm_mutex_off();
@@ -7900,6 +8258,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned int value = (unsigned int)obj_data->mFields[0].mLongValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
                     vm_mutex_off();
@@ -7916,6 +8275,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned int value = (unsigned int)obj_data->mFields[0].mULongValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
                     vm_mutex_off();
@@ -7932,6 +8292,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned int value = (unsigned int)obj_data->mFields[0].mFloatValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
                     vm_mutex_off();
@@ -7948,6 +8309,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned int value = (unsigned int)obj_data->mFields[0].mDoubleValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
                     vm_mutex_off();
@@ -7964,6 +8326,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned int value = (unsigned int)obj_data->mFields[0].mPointerValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
                     vm_mutex_off();
@@ -7980,6 +8343,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned int value = (unsigned int)obj_data->mFields[0].mCharValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
                     vm_mutex_off();
@@ -7996,6 +8360,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned int value = (unsigned int)obj_data->mFields[0].mBoolValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
                     vm_mutex_off();
@@ -8008,7 +8373,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (unsigned long)(stack_ptr-1)->mByteValue;
+                    unsigned clint64 value = (unsigned clint64)(stack_ptr-1)->mByteValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8020,7 +8385,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (unsigned long)(stack_ptr-1)->mUByteValue;
+                    unsigned clint64 value = (unsigned clint64)(stack_ptr-1)->mUByteValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8032,7 +8397,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (unsigned long)(stack_ptr-1)->mShortValue;
+                    unsigned clint64 value = (unsigned clint64)(stack_ptr-1)->mShortValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8044,7 +8409,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (unsigned long)(stack_ptr-1)->mUShortValue;
+                    unsigned clint64 value = (unsigned clint64)(stack_ptr-1)->mUShortValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8056,7 +8421,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (unsigned long)(stack_ptr-1)->mIntValue;
+                    unsigned clint64 value = (unsigned clint64)(stack_ptr-1)->mIntValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8068,7 +8433,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (unsigned long)(stack_ptr-1)->mUIntValue;
+                    unsigned clint64 value = (unsigned clint64)(stack_ptr-1)->mUIntValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8080,7 +8445,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (unsigned long)(stack_ptr-1)->mLongValue;
+                    unsigned clint64 value = (unsigned clint64)(stack_ptr-1)->mLongValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8092,7 +8457,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (unsigned long)(stack_ptr-1)->mFloatValue;
+                    unsigned clint64 value = (unsigned clint64)(stack_ptr-1)->mFloatValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8104,7 +8469,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (unsigned long)(stack_ptr-1)->mDoubleValue;
+                    unsigned clint64 value = (unsigned clint64)(stack_ptr-1)->mDoubleValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8116,7 +8481,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (unsigned long)(stack_ptr-1)->mPointerValue;
+                    unsigned clint64 value = (unsigned clint64)(stack_ptr-1)->mPointerValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8128,7 +8493,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (unsigned long)(stack_ptr-1)->mCharValue;
+                    unsigned clint64 value = (unsigned clint64)(stack_ptr-1)->mCharValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8145,7 +8510,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    unsigned long value = (unsigned long)obj_data->mFields[0].mByteValue;
+                    unsigned clint64 value = (unsigned clint64)obj_data->mFields[0].mByteValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8161,7 +8526,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    unsigned long value = (unsigned long)obj_data->mFields[0].mUByteValue;
+                    unsigned clint64 value = (unsigned clint64)obj_data->mFields[0].mUByteValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8177,7 +8542,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    unsigned long value = (unsigned long)obj_data->mFields[0].mShortValue;
+                    unsigned clint64 value = (unsigned clint64)obj_data->mFields[0].mShortValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8193,7 +8558,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    unsigned long value = (unsigned long)obj_data->mFields[0].mUShortValue;
+                    unsigned clint64 value = (unsigned clint64)obj_data->mFields[0].mUShortValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8209,7 +8574,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    unsigned long value = (unsigned long)obj_data->mFields[0].mIntValue;
+                    unsigned clint64 value = (unsigned clint64)obj_data->mFields[0].mIntValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8225,7 +8590,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    unsigned long value = (unsigned long)obj_data->mFields[0].mUIntValue;
+                    unsigned clint64 value = (unsigned clint64)obj_data->mFields[0].mUIntValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8241,7 +8606,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    unsigned long value = (unsigned long)obj_data->mFields[0].mLongValue;
+                    unsigned clint64 value = (unsigned clint64)obj_data->mFields[0].mLongValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8257,7 +8622,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    unsigned long value = (unsigned long)obj_data->mFields[0].mULongValue;
+                    unsigned clint64 value = (unsigned clint64)obj_data->mFields[0].mULongValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8273,7 +8638,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    unsigned long value = (unsigned long)obj_data->mFields[0].mFloatValue;
+                    unsigned clint64 value = (unsigned clint64)obj_data->mFields[0].mFloatValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8289,7 +8654,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    unsigned long value = (unsigned long)obj_data->mFields[0].mDoubleValue;
+                    unsigned clint64 value = (unsigned clint64)obj_data->mFields[0].mDoubleValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8305,7 +8670,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    unsigned long value = (unsigned long)obj_data->mFields[0].mPointerValue;
+                    unsigned clint64 value = (unsigned clint64)obj_data->mFields[0].mPointerValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8321,7 +8686,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    unsigned long value = (unsigned long)obj_data->mFields[0].mCharValue;
+                    unsigned clint64 value = (unsigned clint64)obj_data->mFields[0].mCharValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8337,7 +8702,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
-                    unsigned long value = (unsigned long)obj_data->mFields[0].mBoolValue;
+                    unsigned clint64 value = (unsigned clint64)obj_data->mFields[0].mBoolValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
@@ -8352,6 +8717,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     float value = (float)(stack_ptr-1)->mByteValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mFloatValue = value;
 
                     vm_mutex_off();
@@ -8364,6 +8730,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     float value = (float)(stack_ptr-1)->mUByteValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mFloatValue = value;
 
                     vm_mutex_off();
@@ -8376,6 +8743,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     float value = (float)(stack_ptr-1)->mShortValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mFloatValue = value;
 
                     vm_mutex_off();
@@ -8388,6 +8756,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     float value = (float)(stack_ptr-1)->mUShortValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mFloatValue = value;
 
                     vm_mutex_off();
@@ -8400,6 +8769,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     float value = (float)(stack_ptr-1)->mIntValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mFloatValue = value;
 
                     vm_mutex_off();
@@ -8412,6 +8782,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     float value = (float)(stack_ptr-1)->mUIntValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mFloatValue = value;
 
                     vm_mutex_off();
@@ -8424,6 +8795,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     float value = (float)(stack_ptr-1)->mLongValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mFloatValue = value;
 
                     vm_mutex_off();
@@ -8436,6 +8808,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     float value = (float)(stack_ptr-1)->mULongValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mFloatValue = value;
 
                     vm_mutex_off();
@@ -8448,6 +8821,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     float value = (float)(stack_ptr-1)->mDoubleValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mFloatValue = value;
 
                     vm_mutex_off();
@@ -8460,6 +8834,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     float value = (float)(stack_ptr-1)->mCharValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mFloatValue = value;
 
                     vm_mutex_off();
@@ -8477,6 +8852,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     float value = (float)obj_data->mFields[0].mByteValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mFloatValue = value;
 
                     vm_mutex_off();
@@ -8493,6 +8869,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     float value = (float)obj_data->mFields[0].mUByteValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mFloatValue = value;
 
                     vm_mutex_off();
@@ -8509,6 +8886,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     float value = (float)obj_data->mFields[0].mShortValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mFloatValue = value;
 
                     vm_mutex_off();
@@ -8525,6 +8903,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     float value = (float)obj_data->mFields[0].mUShortValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mFloatValue = value;
 
                     vm_mutex_off();
@@ -8541,6 +8920,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     float value = (float)obj_data->mFields[0].mIntValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mFloatValue = value;
 
                     vm_mutex_off();
@@ -8557,6 +8937,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     float value = (float)obj_data->mFields[0].mUIntValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mFloatValue = value;
 
                     vm_mutex_off();
@@ -8573,6 +8954,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     float value = (float)obj_data->mFields[0].mLongValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mFloatValue = value;
 
                     vm_mutex_off();
@@ -8589,6 +8971,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     float value = (float)obj_data->mFields[0].mULongValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mFloatValue = value;
 
                     vm_mutex_off();
@@ -8605,6 +8988,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     float value = (float)obj_data->mFields[0].mFloatValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mFloatValue = value;
 
                     vm_mutex_off();
@@ -8621,6 +9005,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     float value = (float)obj_data->mFields[0].mDoubleValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mFloatValue = value;
 
                     vm_mutex_off();
@@ -8638,6 +9023,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     float value = (float)obj_data->mFields[0].mCharValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mFloatValue = value;
 
                     vm_mutex_off();
@@ -8654,6 +9040,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     float value = (float)obj_data->mFields[0].mBoolValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mFloatValue = value;
 
                     vm_mutex_off();
@@ -8981,6 +9368,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char* value = (char*)(stack_ptr-1)->mByteValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mPointerValue = value;
 
                     vm_mutex_off();
@@ -8993,6 +9381,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char* value = (char*)(stack_ptr-1)->mUByteValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mPointerValue = value;
 
                     vm_mutex_off();
@@ -9005,6 +9394,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char* value = (char*)(stack_ptr-1)->mShortValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mPointerValue = value;
 
                     vm_mutex_off();
@@ -9017,6 +9407,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char* value = (char*)(stack_ptr-1)->mUShortValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mPointerValue = value;
 
                     vm_mutex_off();
@@ -9029,6 +9420,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char* value = (char*)(stack_ptr-1)->mIntValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mPointerValue = value;
 
                     vm_mutex_off();
@@ -9041,6 +9433,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char* value = (char*)(stack_ptr-1)->mUIntValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mPointerValue = value;
 
                     vm_mutex_off();
@@ -9053,6 +9446,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char* value = (char*)(stack_ptr-1)->mLongValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mPointerValue = value;
 
                     vm_mutex_off();
@@ -9065,6 +9459,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char* value = (char*)(stack_ptr-1)->mULongValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mPointerValue = value;
 
                     vm_mutex_off();
@@ -9077,6 +9472,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char* value = (char*)(stack_ptr-1)->mCharValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mPointerValue = value;
 
                     vm_mutex_off();
@@ -9089,6 +9485,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     wchar_t value = (wchar_t)(stack_ptr-1)->mByteValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
                     vm_mutex_off();
@@ -9101,6 +9498,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     wchar_t value = (wchar_t)(stack_ptr-1)->mUByteValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
                     vm_mutex_off();
@@ -9113,6 +9511,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     wchar_t value = (wchar_t)(stack_ptr-1)->mShortValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
                     vm_mutex_off();
@@ -9125,6 +9524,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     wchar_t value = (wchar_t)(stack_ptr-1)->mUShortValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
                     vm_mutex_off();
@@ -9138,6 +9538,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     wchar_t value = (wchar_t)(stack_ptr-1)->mIntValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
                     vm_mutex_off();
@@ -9150,6 +9551,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     wchar_t value = (wchar_t)(stack_ptr-1)->mUIntValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
                     vm_mutex_off();
@@ -9162,6 +9564,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     wchar_t value = (wchar_t)(stack_ptr-1)->mLongValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
                     vm_mutex_off();
@@ -9174,6 +9577,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     wchar_t value = (wchar_t)(stack_ptr-1)->mULongValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
                     vm_mutex_off();
@@ -9187,6 +9591,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     wchar_t value = (wchar_t)(stack_ptr-1)->mFloatValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
                     vm_mutex_off();
@@ -9199,6 +9604,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     wchar_t value = (wchar_t)(stack_ptr-1)->mDoubleValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
                     vm_mutex_off();
@@ -9211,6 +9617,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     wchar_t value = (wchar_t)(stack_ptr-1)->mPointerValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
                     vm_mutex_off();
@@ -9227,6 +9634,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     wchar_t value = (wchar_t)obj_data->mFields[0].mByteValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
                     vm_mutex_off();
@@ -9243,6 +9651,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     wchar_t value = (wchar_t)obj_data->mFields[0].mUByteValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
                     vm_mutex_off();
@@ -9259,6 +9668,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     wchar_t value = (wchar_t)obj_data->mFields[0].mShortValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
                     vm_mutex_off();
@@ -9275,6 +9685,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     wchar_t value = (wchar_t)obj_data->mFields[0].mUShortValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
                     vm_mutex_off();
@@ -9291,6 +9702,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     wchar_t value = (wchar_t)obj_data->mFields[0].mIntValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
                     vm_mutex_off();
@@ -9307,6 +9719,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     wchar_t value = (wchar_t)obj_data->mFields[0].mUIntValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
                     vm_mutex_off();
@@ -9323,6 +9736,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     wchar_t value = (wchar_t)obj_data->mFields[0].mLongValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
                     vm_mutex_off();
@@ -9339,6 +9753,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     wchar_t value = (wchar_t)obj_data->mFields[0].mULongValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
                     vm_mutex_off();
@@ -9355,6 +9770,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     wchar_t value = (wchar_t)obj_data->mFields[0].mFloatValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
                     vm_mutex_off();
@@ -9371,6 +9787,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     wchar_t value = (wchar_t)obj_data->mFields[0].mDoubleValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
                     vm_mutex_off();
@@ -9387,6 +9804,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     wchar_t value = (wchar_t)obj_data->mFields[0].mPointerValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
                     vm_mutex_off();
@@ -9403,6 +9821,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     wchar_t value = (wchar_t)obj_data->mFields[0].mCharValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
                     vm_mutex_off();
@@ -9419,6 +9838,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     wchar_t value = (wchar_t)obj_data->mFields[0].mBoolValue;
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
                     vm_mutex_off();
@@ -9436,6 +9856,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject str = create_string_object(buf);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = str;
 
                     vm_mutex_off();
@@ -9453,6 +9874,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject str = create_string_object(buf);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = str;
 
                     vm_mutex_off();
@@ -9470,6 +9892,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject str = create_string_object(buf);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = str;
 
                     vm_mutex_off();
@@ -9480,13 +9903,14 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (stack_ptr-1)->mLongValue;
+                    clint64 value = (stack_ptr-1)->mLongValue;
 
                     char buf[32];
-                    snprintf(buf, 32, "%ld", value);
+                    snprintf(buf, 32, "%lld", value);
 
                     CLObject str = create_string_object(buf);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = str;
 
                     vm_mutex_off();
@@ -9504,6 +9928,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject str = create_string_object(buf);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = str;
 
                     vm_mutex_off();
@@ -9521,6 +9946,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject str = create_string_object(buf);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = str;
 
                     vm_mutex_off();
@@ -9538,6 +9964,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject str = create_string_object(buf);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = str;
 
                     vm_mutex_off();
@@ -9548,13 +9975,14 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
                     char buf[32];
-                    snprintf(buf, 32, "%lu", value);
+                    snprintf(buf, 32, "%llu", value);
 
                     CLObject str = create_string_object(buf);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = str;
 
                     vm_mutex_off();
@@ -9572,6 +10000,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject str = create_string_object(buf);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = str;
 
                     vm_mutex_off();
@@ -9589,6 +10018,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject str = create_string_object(buf);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = str;
 
                     vm_mutex_off();
@@ -9611,6 +10041,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject str = create_string_object(buf);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = str;
 
                     vm_mutex_off();
@@ -9627,6 +10058,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject str = create_string_object(object_data->mRegexString);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = str;
 
                     vm_mutex_off();
@@ -9644,6 +10076,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject str = create_string_object(buf);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = str;
 
                     vm_mutex_off();
@@ -9661,6 +10094,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject str = create_string_object(buf);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = str;
 
                     vm_mutex_off();
@@ -9675,6 +10109,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_integer((int)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -9689,6 +10124,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_integer((int)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -9703,6 +10139,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_integer((int)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -9717,6 +10154,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_integer((int)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -9731,6 +10169,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_integer(value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -9745,6 +10184,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_integer((int)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -9755,10 +10195,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (stack_ptr-1)->mLongValue;
+                    clint64 value = (stack_ptr-1)->mLongValue;
 
                     CLObject obj = create_integer((int)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -9769,10 +10210,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
                     CLObject obj = create_integer((int)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -9787,6 +10229,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_integer((int)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -9801,6 +10244,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_integer((int)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -9815,6 +10259,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_integer((int)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -9829,6 +10274,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_integer((int)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -9843,6 +10289,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_integer((int)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -9857,6 +10304,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_uinteger((unsigned int)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -9871,6 +10319,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_uinteger((unsigned int)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -9885,6 +10334,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_uinteger((unsigned int)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -9899,6 +10349,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_uinteger((unsigned int)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -9913,6 +10364,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_uinteger((unsigned int)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -9927,6 +10379,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_uinteger(value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -9937,10 +10390,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (stack_ptr-1)->mLongValue;
+                    clint64 value = (stack_ptr-1)->mLongValue;
 
                     CLObject obj = create_uinteger((unsigned int)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -9951,10 +10405,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
                     CLObject obj = create_uinteger((unsigned int)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -9969,6 +10424,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_uinteger((unsigned int)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -9983,6 +10439,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_uinteger((unsigned int)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -9997,6 +10454,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_uinteger((unsigned int)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10011,6 +10469,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_uinteger((unsigned int)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10025,6 +10484,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_uinteger((unsigned int)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10039,6 +10499,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_byte((char)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10053,6 +10514,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_byte((char)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10067,6 +10529,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_byte((char)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10081,6 +10544,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_byte((char)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10095,6 +10559,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_byte((char)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10109,6 +10574,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_byte((char)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10119,10 +10585,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (stack_ptr-1)->mLongValue;
+                    clint64 value = (stack_ptr-1)->mLongValue;
 
                     CLObject obj = create_byte((char)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10133,10 +10600,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
                     CLObject obj = create_byte((char)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10151,6 +10619,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_byte((char)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10165,6 +10634,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_byte((char)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10179,6 +10649,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_byte((char)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10193,6 +10664,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_byte((char)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10207,6 +10679,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_byte((char)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10221,6 +10694,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_ubyte((unsigned char)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10235,6 +10709,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_ubyte((unsigned char)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10249,6 +10724,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_ubyte((unsigned char)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10263,6 +10739,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_ubyte((unsigned char)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10277,6 +10754,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_ubyte((unsigned char)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10291,6 +10769,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_ubyte((unsigned char)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10301,10 +10780,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (stack_ptr-1)->mLongValue;
+                    clint64 value = (stack_ptr-1)->mLongValue;
 
                     CLObject obj = create_ubyte((unsigned char)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10315,10 +10795,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
                     CLObject obj = create_ubyte((unsigned char)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10333,6 +10814,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_ubyte((unsigned char)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10347,6 +10829,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_ubyte((unsigned char)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10361,6 +10844,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_ubyte((unsigned char)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10375,6 +10859,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_ubyte((unsigned char)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10389,6 +10874,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_ubyte((unsigned char)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10403,6 +10889,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_short((short)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10417,6 +10904,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_short((short)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10431,6 +10919,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_short((short)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10445,6 +10934,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_short((short)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10459,6 +10949,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_short((short)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10473,6 +10964,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_short((short)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10483,10 +10975,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (stack_ptr-1)->mLongValue;
+                    clint64 value = (stack_ptr-1)->mLongValue;
 
                     CLObject obj = create_short((short)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10497,10 +10990,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
                     CLObject obj = create_short((short)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10515,6 +11009,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_short((short)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10529,6 +11024,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_short((short)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10543,6 +11039,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_short((short)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10557,6 +11054,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_short((short)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10571,6 +11069,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_short((short)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10585,6 +11084,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_ushort((unsigned short)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10599,6 +11099,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_ushort((unsigned short)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10613,6 +11114,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_ushort((unsigned short)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10627,6 +11129,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_ushort((unsigned short)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10641,6 +11144,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_ushort((unsigned short)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10655,6 +11159,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_ushort((unsigned short)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10665,10 +11170,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (stack_ptr-1)->mLongValue;
+                    clint64 value = (stack_ptr-1)->mLongValue;
 
                     CLObject obj = create_ushort((unsigned short)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10679,10 +11185,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
                     CLObject obj = create_ushort((unsigned short)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10697,6 +11204,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_ushort((unsigned short)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10711,6 +11219,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_ushort((unsigned short)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10725,6 +11234,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_ushort((unsigned short)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10739,6 +11249,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_ushort((unsigned short)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10753,6 +11264,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_ushort((unsigned short)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10765,8 +11277,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char value = (stack_ptr-1)->mByteValue;
 
-                    CLObject obj = create_long((long)value);
+                    CLObject obj = create_long((clint64)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10779,8 +11292,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned char value = (stack_ptr-1)->mUByteValue;
 
-                    CLObject obj = create_long((long)value);
+                    CLObject obj = create_long((clint64)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10793,8 +11307,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     short value = (stack_ptr-1)->mShortValue;
 
-                    CLObject obj = create_long((long)value);
+                    CLObject obj = create_long((clint64)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10807,8 +11322,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned short value = (stack_ptr-1)->mUShortValue;
 
-                    CLObject obj = create_long((long)value);
+                    CLObject obj = create_long((clint64)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10821,8 +11337,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     int value = (stack_ptr-1)->mIntValue;
 
-                    CLObject obj = create_long((long)value);
+                    CLObject obj = create_long((clint64)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10835,8 +11352,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned int value = (stack_ptr-1)->mUIntValue;
 
-                    CLObject obj = create_long((long)value);
+                    CLObject obj = create_long((clint64)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10847,10 +11365,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (stack_ptr-1)->mLongValue;
+                    clint64 value = (stack_ptr-1)->mLongValue;
 
-                    CLObject obj = create_long((long)value);
+                    CLObject obj = create_long((clint64)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10861,10 +11380,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
-                    CLObject obj = create_long((long)value);
+                    CLObject obj = create_long((clint64)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10877,8 +11397,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     float value = (stack_ptr-1)->mFloatValue;
 
-                    CLObject obj = create_long((long)value);
+                    CLObject obj = create_long((clint64)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10891,8 +11412,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     double value = (stack_ptr-1)->mDoubleValue;
 
-                    CLObject obj = create_long((long)value);
+                    CLObject obj = create_long((clint64)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10905,8 +11427,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     wchar_t value = (stack_ptr-1)->mCharValue;
 
-                    CLObject obj = create_long((long)value);
+                    CLObject obj = create_long((clint64)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10919,8 +11442,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char* value = (stack_ptr-1)->mPointerValue;
 
-                    CLObject obj = create_long((long)value);
+                    CLObject obj = create_long((clint64)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10933,8 +11457,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     BOOL value = (stack_ptr-1)->mBoolValue;
 
-                    CLObject obj = create_long((long)value);
+                    CLObject obj = create_long((clint64)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10947,8 +11472,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char value = (stack_ptr-1)->mByteValue;
 
-                    CLObject obj = create_ulong((unsigned long)value);
+                    CLObject obj = create_ulong((unsigned clint64)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10961,8 +11487,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned char value = (stack_ptr-1)->mUByteValue;
 
-                    CLObject obj = create_ulong((unsigned long)value);
+                    CLObject obj = create_ulong((unsigned clint64)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10975,8 +11502,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     short value = (stack_ptr-1)->mShortValue;
 
-                    CLObject obj = create_ulong((unsigned long)value);
+                    CLObject obj = create_ulong((unsigned clint64)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -10989,8 +11517,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned short value = (stack_ptr-1)->mUShortValue;
 
-                    CLObject obj = create_ulong((unsigned long)value);
+                    CLObject obj = create_ulong((unsigned clint64)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11003,8 +11532,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     int value = (stack_ptr-1)->mIntValue;
 
-                    CLObject obj = create_ulong((unsigned long)value);
+                    CLObject obj = create_ulong((unsigned clint64)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11017,8 +11547,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     unsigned int value = (stack_ptr-1)->mUIntValue;
 
-                    CLObject obj = create_ulong((unsigned long)value);
+                    CLObject obj = create_ulong((unsigned clint64)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11029,10 +11560,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (stack_ptr-1)->mLongValue;
+                    clint64 value = (stack_ptr-1)->mLongValue;
 
-                    CLObject obj = create_ulong((unsigned long)value);
+                    CLObject obj = create_ulong((unsigned clint64)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11043,10 +11575,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
-                    CLObject obj = create_ulong((unsigned long)value);
+                    CLObject obj = create_ulong((unsigned clint64)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11059,8 +11592,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     float value = (stack_ptr-1)->mFloatValue;
 
-                    CLObject obj = create_ulong((unsigned long)value);
+                    CLObject obj = create_ulong((unsigned clint64)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11073,8 +11607,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     double value = (stack_ptr-1)->mDoubleValue;
 
-                    CLObject obj = create_ulong((unsigned long)value);
+                    CLObject obj = create_ulong((unsigned clint64)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11087,8 +11622,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     wchar_t value = (stack_ptr-1)->mCharValue;
 
-                    CLObject obj = create_ulong((unsigned long)value);
+                    CLObject obj = create_ulong((unsigned clint64)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11101,8 +11637,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char* value = (stack_ptr-1)->mPointerValue;
 
-                    CLObject obj = create_ulong((unsigned long)value);
+                    CLObject obj = create_ulong((unsigned clint64)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11115,8 +11652,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     BOOL value = (stack_ptr-1)->mBoolValue;
 
-                    CLObject obj = create_ulong((unsigned long)value);
+                    CLObject obj = create_ulong((unsigned clint64)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11131,6 +11669,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_float((float)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11145,6 +11684,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_float((float)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11159,6 +11699,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_float((float)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11173,6 +11714,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_float((float)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11187,6 +11729,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_float((float)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11201,6 +11744,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_float((float)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11211,10 +11755,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (stack_ptr-1)->mLongValue;
+                    clint64 value = (stack_ptr-1)->mLongValue;
 
                     CLObject obj = create_float((float)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11225,10 +11770,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
                     CLObject obj = create_float((float)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11243,6 +11789,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_float((float)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11257,6 +11804,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_float((float)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11271,6 +11819,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_float((float)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11285,6 +11834,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_float((float)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11299,6 +11849,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_double((double)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11313,6 +11864,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_double((double)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11327,6 +11879,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_double((double)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11341,6 +11894,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_double((double)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11355,6 +11909,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_double((double)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11369,6 +11924,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_double((double)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11379,10 +11935,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (stack_ptr-1)->mLongValue;
+                    clint64 value = (stack_ptr-1)->mLongValue;
 
                     CLObject obj = create_double((double)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11393,10 +11950,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
                     CLObject obj = create_double((double)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11411,6 +11969,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_double((double)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11425,6 +11984,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_double((double)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11439,6 +11999,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_double((double)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11453,6 +12014,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_double((double)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11467,6 +12029,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_pointer((char*)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11481,6 +12044,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_pointer((char*)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11495,6 +12059,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_pointer((char*)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11509,6 +12074,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_pointer((char*)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11523,6 +12089,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_pointer((char*)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11537,6 +12104,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_pointer((char*)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11547,10 +12115,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (stack_ptr-1)->mLongValue;
+                    clint64 value = (stack_ptr-1)->mLongValue;
 
                     CLObject obj = create_pointer((char*)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11561,10 +12130,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
                     CLObject obj = create_pointer((char*)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11580,6 +12150,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_pointer((char*)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11594,6 +12165,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_pointer((char*)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11608,6 +12180,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_pointer((char*)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11622,6 +12195,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_char((wchar_t)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11636,6 +12210,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_char((wchar_t)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11650,6 +12225,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_char((wchar_t)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11664,6 +12240,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_char((wchar_t)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11678,6 +12255,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_char((wchar_t)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11692,6 +12270,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_char((wchar_t)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11702,10 +12281,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (stack_ptr-1)->mLongValue;
+                    clint64 value = (stack_ptr-1)->mLongValue;
 
                     CLObject obj = create_char((wchar_t)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11716,10 +12296,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
                     CLObject obj = create_char((wchar_t)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11734,6 +12315,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_char((wchar_t)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11748,6 +12330,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_char((wchar_t)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11762,6 +12345,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_char((wchar_t)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11776,6 +12360,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_char((wchar_t)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11790,6 +12375,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_char((wchar_t)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11804,6 +12390,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_bool((BOOL)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11818,6 +12405,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_bool((BOOL)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11832,6 +12420,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_bool((BOOL)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11846,6 +12435,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_bool((BOOL)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11860,6 +12450,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_bool((BOOL)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11874,6 +12465,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_bool((BOOL)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11884,10 +12476,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    long value = (stack_ptr-1)->mLongValue;
+                    clint64 value = (stack_ptr-1)->mLongValue;
 
                     CLObject obj = create_bool((BOOL)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11898,10 +12491,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 {
                     vm_mutex_on();
 
-                    unsigned long value = (stack_ptr-1)->mULongValue;
+                    unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
                     CLObject obj = create_bool((BOOL)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11916,6 +12510,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_bool((BOOL)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11930,6 +12525,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_bool((BOOL)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11944,6 +12540,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_bool((BOOL)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11958,6 +12555,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_bool((BOOL)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11972,6 +12570,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject obj = create_bool((BOOL)value);
 
+                    (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
                     vm_mutex_off();
@@ -11991,7 +12590,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 if(klass == NULL) {
                     vm_mutex_off();
                     entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(10)");
-                    remove_stack_to_stack_list(stack, &stack_ptr);
+                    remove_stack_to_stack_list(stack_id);
                     return FALSE;
                 }
 
@@ -12004,6 +12603,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                 CLObject new_array = create_object(klass2);
 
+                stack_ptr->mLongValue = 0;       // zero clear for jit
                 stack_ptr->mObjectValue = new_array;   // push object
                 stack_ptr++;
 
@@ -12017,6 +12617,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                 sCLObject* new_array_data = CLOBJECT(new_array);
 
+                new_array_data->mFields[0].mLongValue = 0;
                 new_array_data->mFields[0].mObjectValue = new_primitive_array;
 
                 /// boxing element ///
@@ -12032,6 +12633,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 }
 
                 stack_ptr-=2;
+                stack_ptr->mLongValue = 0;
                 stack_ptr->mObjectValue = new_array;
                 stack_ptr++;
 
@@ -12047,6 +12649,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     sCLObject* array_data = CLOBJECT(array);
                     stack_ptr--;
 
+                    stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mIntValue = array_data->mArrayNum;
                     stack_ptr++;
 
@@ -12062,6 +12665,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     sRegexObject* regex_object = CLREGEX(regex);
                     stack_ptr--;
 
+                    stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mBoolValue = regex_object->mGlobal;
                     stack_ptr++;
 
@@ -12077,6 +12681,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     sRegexObject* regex_object = CLREGEX(regex);
                     stack_ptr--;
 
+                    stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mBoolValue = regex_object->mIgnoreCase;
                     stack_ptr++;
 
@@ -12092,6 +12697,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     sRegexObject* regex_object = CLREGEX(regex);
                     stack_ptr--;
 
+                    stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mBoolValue = regex_object->mMultiline;
                     stack_ptr++;
 
@@ -12107,6 +12713,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     sRegexObject* regex_object = CLREGEX(regex);
                     stack_ptr--;
 
+                    stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mBoolValue = regex_object->mExtended;
                     stack_ptr++;
 
@@ -12122,6 +12729,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     sRegexObject* regex_object = CLREGEX(regex);
                     stack_ptr--;
 
+                    stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mBoolValue = regex_object->mDotAll;
                     stack_ptr++;
 
@@ -12137,6 +12745,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     sRegexObject* regex_object = CLREGEX(regex);
                     stack_ptr--;
 
+                    stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mBoolValue = regex_object->mAnchored;
                     stack_ptr++;
 
@@ -12152,6 +12761,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     sRegexObject* regex_object = CLREGEX(regex);
                     stack_ptr--;
 
+                    stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mBoolValue = regex_object->mDollarEndOnly;
                     stack_ptr++;
 
@@ -12167,6 +12777,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     sRegexObject* regex_object = CLREGEX(regex);
                     stack_ptr--;
 
+                    stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mBoolValue = regex_object->mUngreedy;
                     stack_ptr++;
 
@@ -12185,6 +12796,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                         result = c - 'a' + 'A';
                     }
 
+                    (stack_ptr-1)->mLongValue = 0;              // zero clear for jit
                     (stack_ptr-1)->mCharValue = result;
 
                     vm_mutex_off();
@@ -12202,6 +12814,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                         result = c - 'A' + 'a';
                     }
 
+                    (stack_ptr-1)->mLongValue = 0;              // zero clear for jit
                     (stack_ptr-1)->mCharValue = result;
 
                     vm_mutex_off();
@@ -12219,6 +12832,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject string_object = create_string_object(str);
 
+                    stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = string_object;
                     stack_ptr++;
 
@@ -12240,6 +12854,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject buffer_object = create_buffer_object(buf, size);
 
+                    stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = buffer_object;
                     stack_ptr++;
 
@@ -12258,6 +12873,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject path_object = create_path_object(buf);
 
+                    stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = path_object;
                     stack_ptr++;
 
@@ -12282,11 +12898,12 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     if(klass == NULL) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(11)");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     CLObject array_object = create_array_object(klass, num_elements);
+                    stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = array_object; // push object
                     stack_ptr++;
 
@@ -12300,6 +12917,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     stack_ptr--; // pop_object
 
                     stack_ptr-=num_elements;
+                    stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = array_object;
                     stack_ptr++;
 
@@ -12324,11 +12942,12 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     if(klass == NULL) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(12)");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     CLObject array_object = create_carray_object();
+                    stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = array_object; // push object
                     stack_ptr++;
 
@@ -12343,13 +12962,14 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     if(!initialize_carray_object(array_object, num_elements, items, stack, var_num, &stack_ptr, info, klass))
                     {
                         vm_mutex_off();
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     stack_ptr--; // pop_object
 
                     stack_ptr-=num_elements;
+                    stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = array_object;
                     stack_ptr++;
 
@@ -12374,11 +12994,12 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     if(klass == NULL) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(12)");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     CLObject array_object = create_equalable_carray_object();
+                    stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = array_object; // push object
                     stack_ptr++;
 
@@ -12393,13 +13014,14 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     if(!initialize_equalable_carray_object(array_object, num_elements, items, stack, var_num, &stack_ptr, info, klass))
                     {
                         vm_mutex_off();
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     stack_ptr--; // pop_object
 
                     stack_ptr-=num_elements;
+                    stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = array_object;
                     stack_ptr++;
 
@@ -12424,11 +13046,12 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     if(klass == NULL) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(12)");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     CLObject array_object = create_sortable_carray_object();
+                    stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = array_object; // push object
                     stack_ptr++;
 
@@ -12443,13 +13066,14 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     if(!initialize_sortable_carray_object(array_object, num_elements, items, stack, var_num, &stack_ptr, info, klass))
                     {
                         vm_mutex_off();
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     stack_ptr--; // pop_object
 
                     stack_ptr-=num_elements;
+                    stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = array_object;
                     stack_ptr++;
 
@@ -12474,11 +13098,12 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     if(klass == NULL) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(13)");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     CLObject list_object = create_list_object();
+                    stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = list_object; // push object
                     stack_ptr++;
 
@@ -12493,13 +13118,14 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     if(!initialize_list_object(list_object, num_elements, items, stack, var_num, &stack_ptr, info, klass))
                     {
                         vm_mutex_off();
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     stack_ptr--; // pop_object
 
                     stack_ptr-=num_elements;
+                    stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = list_object;
                     stack_ptr++;
 
@@ -12524,11 +13150,12 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     if(klass == NULL) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(13)");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     CLObject list_object = create_sortable_list_object();
+                    stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = list_object; // push object
                     stack_ptr++;
 
@@ -12543,13 +13170,14 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     if(!initialize_sortable_list_object(list_object, num_elements, items, stack, var_num, &stack_ptr, info, klass))
                     {
                         vm_mutex_off();
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     stack_ptr--; // pop_object
 
                     stack_ptr-=num_elements;
+                    stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = list_object;
                     stack_ptr++;
 
@@ -12574,11 +13202,12 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     if(klass == NULL) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(13)");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     CLObject list_object = create_equalable_list_object();
+                    stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = list_object; // push object
                     stack_ptr++;
 
@@ -12593,13 +13222,14 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     if(!initialize_equalable_list_object(list_object, num_elements, items, stack, var_num, &stack_ptr, info, klass))
                     {
                         vm_mutex_off();
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     stack_ptr--; // pop_object
 
                     stack_ptr-=num_elements;
+                    stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = list_object;
                     stack_ptr++;
 
@@ -12615,6 +13245,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     pc += sizeof(int);
 
                     CLObject tuple_object = create_tuple_object(num_elements);
+                    stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = tuple_object; // push object
                     stack_ptr++;
 
@@ -12629,13 +13260,14 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     if(!initialize_tuple_object(tuple_object, num_elements, items, stack, var_num, &stack_ptr, info))
                     {
                         vm_mutex_off();
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     stack_ptr--; // pop_object
 
                     stack_ptr-=num_elements;
+                    stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = tuple_object;
                     stack_ptr++;
 
@@ -12660,7 +13292,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     if(klass == NULL) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(14)");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
@@ -12674,7 +13306,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     if(klass2 == NULL) {
                         vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(15)");
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
@@ -12692,19 +13324,21 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     }
 
                     CLObject hash_object = create_hash_object();
+                    stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = hash_object; // push object
                     stack_ptr++;
 
                     if(!initialize_hash_object(hash_object, num_elements, keys, items, stack, var_num, &stack_ptr, info, klass, klass2))
                     {
                         vm_mutex_off();
-                        remove_stack_to_stack_list(stack, &stack_ptr);
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     stack_ptr--; // pop_object
 
                     stack_ptr-=num_elements*2;
+                    stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = hash_object;
                     stack_ptr++;
 
@@ -12757,6 +13391,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject block_object = create_block_object(&codes2, &constant2, parent_stack, parent_var_num, block_var_num, stack_id, lambda);
 
+                    stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = block_object;
                     stack_ptr++;
 
@@ -12799,6 +13434,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject regex_object = create_regex_object(str, global, ignore_case, multiline, extended, dotall, anchored, dollar_endonly, ungreedy);
 
+                    stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = regex_object;
                     stack_ptr++;
 
@@ -12811,7 +13447,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 #endif
     }
 
-    remove_stack_to_stack_list(stack, &stack_ptr);
+    remove_stack_to_stack_list(stack_id);
 
 #ifdef MDEBUG
 if(stack_ptr != lvar + var_num) {

@@ -11,7 +11,7 @@ static unsigned int object_size()
     return size;
 }
 
-CLObject create_block_object(sByteCode* codes, sConst* constant, CLVALUE* parent_stack, int parent_var_num, int block_var_num, long stack_id, BOOL lambda)
+CLObject create_block_object(sByteCode* codes, sConst* constant, CLVALUE* parent_stack, int parent_var_num, int block_var_num, sCLStack* stack_id, BOOL lambda)
 {
     int size = object_size();
 
@@ -31,6 +31,10 @@ CLObject create_block_object(sByteCode* codes, sConst* constant, CLVALUE* parent
     object_data->mBlockVarNum = block_var_num;
     object_data->mStackID = stack_id;
     object_data->mLambda = lambda;
+
+#ifdef ENABLE_JIT
+    push_jit_object(obj);
+#endif
 
     return obj;
 }

@@ -5,6 +5,8 @@
 #define _GNU_SOURCE
 #endif
 
+#include "config.h"
+
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -17,6 +19,7 @@
 #include <stdarg.h>
 #include <locale.h>
 #include <pcre.h>
+#include <dlfcn.h>
 #ifndef __USE_XOPEN
 #define __USE_XOPEN
 #endif
@@ -26,7 +29,10 @@
 #ifndef __USE_BSD
 #define __USE_BSD
 #endif
+
 #include <termios.h>
+
+#define clint64 long long      // for 32 bit cpu
 
 #include "macros.h"
 
@@ -59,7 +65,8 @@
 #define HASH_VALUE_ELEMENT_MAX ARRAY_VALUE_ELEMENT_MAX
 #define TYPEDEF_MAX 64
 #define CLASS_NUM_MAX 512
-#define CLOVER_STACK_SIZE 512
+#define CLOVER_STACK_SIZE 1024
+//#define CLOVER_STACK_SIZE 512
 #define METHOD_CHAIN_MAX 128
 
 /// CLVALUE ///
@@ -69,11 +76,11 @@ union CLVALUEUnion {
     unsigned int mUIntValue;
     unsigned char mUByteValue;
     unsigned short mUShortValue;
-    unsigned long mULongValue;
+    unsigned clint64 mULongValue;
     int mIntValue;
     char mByteValue;
     short mShortValue;
-    long mLongValue;
+    clint64 mLongValue;
     CLObject mObjectValue;
     wchar_t mCharValue;
     float mFloatValue;
@@ -100,7 +107,7 @@ void sByteCode_free(sByteCode* code);
 void append_value_to_code(sByteCode* code, void* data, size_t size, BOOL no_output);
 void append_opecode_to_code(sByteCode* code, unsigned int op, BOOL no_output);
 void append_int_value_to_code(sByteCode* code, int value, BOOL no_output);
-void append_long_value_to_code(sByteCode* code, long value, BOOL no_output);
+void append_long_value_to_code(sByteCode* code, clint64 value, BOOL no_output);
 void append_double_value_to_code(sByteCode* code, double value, BOOL no_output);
 void append_float_value_to_code(sByteCode* code, float value, BOOL no_output);
 
@@ -128,6 +135,27 @@ int append_str_to_constant_pool(sConst* constant, char* str, BOOL no_output);
 void append_buffer_to_constant_pool_and_code(sConst* constant, sByteCode* code, char* buf, int size, BOOL no_output);
 int append_wstr_to_constant_pool(sConst* constant, char* str, BOOL no_output);
 void append_str_to_constant_pool_and_code(sConst* constant, sByteCode* code, char* str, BOOL no_output);
+
+/// stack.c ///
+struct sCLStackStruct {
+    CLVALUE* mStack;
+    CLVALUE** mStackPtr;
+
+    struct sCLStackStruct* mNextStack;
+};
+
+typedef struct sCLStackStruct sCLStack;
+
+void stack_init();
+void stack_final();
+
+sCLStack* append_stack_to_stack_list(CLVALUE* stack_mem, CLVALUE** stack_ptr);
+BOOL remove_stack_to_stack_list(sCLStack* stack);
+BOOL check_variables_existance_on_stack(CLVALUE* stack, CLVALUE* stack_ptr);
+
+extern sCLStack* gHeadStack;
+extern CLVALUE* gGlobalStack;
+extern CLVALUE* gGlobalStackPtr;
 
 /// klass.c ///
 #define CLASS_FLAGS_PRIMITIVE 0x01
@@ -183,7 +211,7 @@ struct sVMInfoStruct {
     char** try_pc;
     sByteCode* try_code;
 
-    long stack_id;
+    sCLStack* stack_id;
     char exception_message[EXCEPTION_MESSAGE_MAX];
 };
 
@@ -192,7 +220,7 @@ typedef struct sVMInfoStruct sVMInfo;
 typedef BOOL (*fNativeMethod)(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 struct sCLMethodStruct {
-    long mFlags;
+    clint64 mFlags;
     int mNameOffset;
     int mPathOffset;
     int mMethodNameAndParamsOffset;
@@ -213,8 +241,7 @@ struct sCLMethodStruct {
     
     int mVarNum;
 
-    int mMethodCallCount;
-    BOOL mJITCompiled;
+    void* mJITDynamicSym;       // this requires runtime
 };
 
 typedef struct sCLMethodStruct sCLMethod;
@@ -223,7 +250,7 @@ typedef struct sCLMethodStruct sCLMethod;
 #define FIELD_FLAGS_PROTECTED 0x02
 
 struct sCLFieldStruct {
-    long mFlags;
+    clint64 mFlags;
     int mNameOffset;
 
     sCLType* mResultType;
@@ -234,7 +261,7 @@ typedef struct sCLFieldStruct sCLField;
 typedef void (*fFreeFun)(CLObject self);
 
 struct sCLClassStruct {
-    long mFlags;
+    clint64 mFlags;
 
     int mGenericsParamClassNum;   // -1 is none generics param 
     int mNumGenerics;
@@ -268,6 +295,10 @@ struct sCLClassStruct {
 
     struct sCLClassStruct* mBoxingClass; // This requires on the run time 
     struct sCLClassStruct* mUnboxingClass; // This requires on the run time
+    void* mModule;          // This requires on the run time 
+    void* RTDyldMM;         // This requires on the run time
+    void* EE;               // This requires on the run time
+    void* mDynamicLibrary;  // This requires on the run time
 
     fFreeFun mFreeFun;
 
@@ -298,7 +329,7 @@ sCLClass* load_class(char* class_name);
 sCLMethod* search_for_method_from_virtual_method_table(sCLClass* klass, char* method_name_and_params);
 BOOL is_valid_class(sCLClass* klass);
 BOOL put_class_to_table(char* class_name, sCLClass* klass);
-BOOL jit_compile_all_class(sCLClass* klass);
+BOOL jit_compile_all_classes();
 
 struct sClassTableStruct
 {
@@ -519,8 +550,8 @@ struct sNodeTreeStruct
         unsigned short mUShortValue;
         int mIntValue;
         unsigned int mUIntValue;
-        long mLongValue;
-        unsigned long mULongValue;
+        clint64 mLongValue;
+        unsigned clint64 mULongValue;
         char mVarName[VAR_NAME_MAX];
 
         struct {
@@ -681,8 +712,8 @@ unsigned int sNodeTree_create_short_value(short value, unsigned int left, unsign
 unsigned int sNodeTree_create_ushort_value(unsigned short value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
 unsigned int sNodeTree_create_int_value(int value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
 unsigned int sNodeTree_create_uint_value(unsigned int value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
-unsigned int sNodeTree_create_long_value(long value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
-unsigned int sNodeTree_create_ulong_value(unsigned long value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
+unsigned int sNodeTree_create_long_value(clint64 value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
+unsigned int sNodeTree_create_ulong_value(unsigned clint64 value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
 unsigned int sNodeTree_create_store_variable(char* var_name, sNodeType* node_type, int right, sCLClass* klass, sParserInfo* info);
 unsigned int sNodeTree_create_assign_field(char* var_name, unsigned int left_node, unsigned int right_node, sParserInfo* info);
 unsigned int sNodeTree_create_load_variable(char* var_name, sParserInfo* info);
@@ -794,20 +825,21 @@ extern BOOL gSigInt;
 #define OP_TRY 10
 #define OP_TRY_END 11
 #define OP_CATCH_POP 12
-#define OP_HEAD_OF_EXPRESSION 13
-#define OP_MARK_SOURCE_CODE_POSITION 14
-#define OP_SIGINT 15
-#define OP_LABEL 16
+#define OP_CATCH_STORE 13
+#define OP_HEAD_OF_EXPRESSION 14
+#define OP_MARK_SOURCE_CODE_POSITION 15
+#define OP_SIGINT 16
+#define OP_LABEL 17
+#define OP_JIT_POP 18
 
+#define OP_VALUE_FOR_ANDAND_OROR 19
+#define OP_STORE_VALUE_FOR_ANDAND_OROR 20
+#define OP_LOAD_VALUE_FOR_ANDAND_OROR 21
 
-#define OP_VALUE_FOR_ANDAND_OROR 17
-#define OP_STORE_VALUE_FOR_ANDAND_OROR 18
-#define OP_LOAD_VALUE_FOR_ANDAND_OROR 19
+#define OP_STORE 22
+#define OP_LOAD 23
 
-#define OP_STORE 20
-#define OP_LOAD 21
-
-#define OP_LOAD_ADDRESS 22
+#define OP_LOAD_ADDRESS 24
 
 #define OP_LDCBYTE 25
 #define OP_LDCUBYTE 26
@@ -1655,28 +1687,6 @@ BOOL is_void_type(sCLType* cl_type, sCLClass* klass);
 sCLClass* get_class_from_cl_type(sCLType* cl_type, sCLClass* klass);
 BOOL is_this_class_with_class_name(sCLClass* klass, char* class_name);
 
-/// stack.c ///
-struct sCLStackStruct {
-    CLVALUE* mStack;
-    CLVALUE** mStackPtr;
-
-    int mStackID;
-
-    struct sCLStackStruct* mNextStack;
-};
-
-typedef struct sCLStackStruct sCLStack;
-
-void stack_init();
-void stack_final();
-
-long append_stack_to_stack_list(CLVALUE* stack, CLVALUE** stack_ptr);
-BOOL remove_stack_to_stack_list(CLVALUE* stack, CLVALUE** stack_ptr);
-BOOL check_variables_existance_on_stack(long stack_id);
-
-extern sCLStack* gHeadStack;
-extern CLVALUE* gGlobalStack;
-extern CLVALUE* gGlobalStackPtr;
 
 /// heap.c ///
 struct sCLHeapMemStruct {
@@ -1761,7 +1771,7 @@ struct sBlockObjectStruct
     CLVALUE* mParentStack;
     int mParentVarNum;
     int mBlockVarNum;
-    int mStackID;
+    sCLStack* mStackID;
     BOOL mLambda;
 };
 
@@ -1769,7 +1779,7 @@ typedef struct sBlockObjectStruct sBlockObject;
 
 #define CLBLOCK(obj) (sBlockObject*)(get_object_pointer((obj)))
 
-CLObject create_block_object(sByteCode* codes, sConst* constant, CLVALUE* parent_stack, int parent_var_num, int block_var_num, long stack_id, BOOL lambda);
+CLObject create_block_object(sByteCode* codes, sConst* constant, CLVALUE* parent_stack, int parent_var_num, int block_var_num, sCLStack* stack_id, BOOL lambda);
 
 /// regex.c ///
 struct sRegexObjectStruct
@@ -1818,8 +1828,8 @@ CLObject create_short(short value);
 CLObject create_ushort(unsigned short value);
 
 /// long.c ///
-CLObject create_long(long value);
-CLObject create_ulong(unsigned long value);
+CLObject create_long(clint64 value);
+CLObject create_ulong(unsigned clint64 value);
 
 /// float.c ///
 CLObject create_float(float value);
@@ -1956,8 +1966,8 @@ short get_value_from_Short(CLObject object);
 unsigned short get_value_from_UShort(CLObject object);
 int get_value_from_Integer(CLObject object);
 unsigned int get_value_from_UInteger(CLObject object);
-long get_value_from_Long(CLObject object);
-unsigned long get_value_from_ULong(CLObject object);
+clint64 get_value_from_Long(CLObject object);
+unsigned clint64 get_value_from_ULong(CLObject object);
 wchar_t get_value_from_Char(CLObject object);
 float get_value_from_Float(CLObject object);
 double get_value_from_Double(CLObject object);
@@ -2010,6 +2020,13 @@ BOOL compile_jit_method(sCLClass* klass, sCLMethod* method);
 CLObject* gJITObjects;
 int gNumJITObjects;
 int gSizeJITObjects;
+
+/// jit_runtime.cpp ///
+void jit_init_on_runtime();
+void jit_final_on_runtime();
+BOOL load_bc_file(sCLClass* klass);
+
+void push_jit_object(CLObject obj);
 #endif
 
 #endif

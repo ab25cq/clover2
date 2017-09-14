@@ -1,6 +1,6 @@
 #include "common.h"
 
-CLObject create_long(long value)
+CLObject create_long(clint64 value)
 {
     sCLClass* klass = get_class("Long");
     CLObject obj = create_object(klass);
@@ -12,7 +12,7 @@ CLObject create_long(long value)
     return obj;
 }
 
-CLObject create_ulong(unsigned long value)
+CLObject create_ulong(unsigned clint64 value)
 {
     sCLClass* klass = get_class("ULong");
     CLObject obj = create_object(klass);

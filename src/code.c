@@ -62,7 +62,7 @@ void append_float_value_to_code(sByteCode* code, float value, BOOL no_output)
     append_value_to_code(code, &value, sizeof(float), no_output);
 }
 
-void append_long_value_to_code(sByteCode* code, long value, BOOL no_output)
+void append_long_value_to_code(sByteCode* code, clint64 value, BOOL no_output)
 {
     int n1, n2;
 

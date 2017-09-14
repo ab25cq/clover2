@@ -24,7 +24,6 @@ AC_ARG_WITH(log,                [  --with-log                create log ], [ LOG
 AC_ARG_WITH(optimize,           [  --with-optimize           with optimize(-O in CFLAGS) ], [ ENABLE_OPTIMIZE=1 ], [ ENABLE_OPTIMIZE=0 ])
 AC_ARG_WITH(interpreter,        [  --with-interpreter        with interpreter ], [ ENABLE_INTERPRETER=1 ], [ ENABLE_INTERPRETER=0])
 AC_ARG_WITH(jit,                [  --with-jit                with jit ], [ ENABLE_JIT=1 ], [ ENABLE_JIT=0])
-AC_ARG_WITH(all-jit-compile,    [  --with-all-jit-compile    with all jit compile for debug], [ ENABLE_ALL_JIT_COMPILE=1 ], [ ENABLE_ALL_JIT_COMPILE=0])
 
 ##############################################################
 # check cpu type
@@ -120,14 +119,19 @@ then
     CFLAGS="$CFLAGS -L /opt/local/lib"
 fi
 
+if test -d /usr/include/i386-linux-gnu/
+then
+    CFLAGS="$CFLAGS -I /usr/include/i386-linux-gnu//"
+fi
+
+if test -d /usr/lib/i386-linux-gnu/
+then
+    CFLAGS="$CFLAGS -L /usr/lib/i386-linux-gnu/"
+fi
+
 if test $ENABLE_OPTIMIZE = 1
 then
     CFLAGS="$CFLAGS -O3"
-fi
-if test $ENABLE_ALL_JIT_COMPILE = 1
-then
-    CFLAGS="$CFLAGS -DALL_JIT_COMPILE"
-    CXXFLAGS="$CXXFLAGS -DALL_JIT_COMPILE"
 fi
 
 if test $ENABLE_INTERPRETER = 1
@@ -149,6 +153,8 @@ fi
 
 AC_SUBST(OS)
 
+export CFLAGS
+
 ##########################################################
 # Libs
 ##########################################################
@@ -158,8 +164,8 @@ INSTALL="/usr/bin/install -c"
 #AC_CHECK_HEADER(pthread.h, [AC_DEFINE(HAVE_PTHREAD_H, 1)], [ exit ])
 #AC_HAVE_LIBRARY(pthread, [ LIBS="$LIBS -lpthread"; ], [ exit ])
 
-AC_CHECK_HEADER(readline/readline.h, [AC_DEFINE(HAVE_READLINE_H, 1)], [])
-AC_HAVE_LIBRARY(readline, [ LIBS="$LIBS -lreadline"; ], [])
+AC_CHECK_HEADER(readline/readline.h, [AC_DEFINE(HAVE_READLINE_H, 1)], [exit])
+AC_HAVE_LIBRARY(readline, [ LIBS="$LIBS -lreadline"; ], [exit])
 
 if test "$OS" != FREEBSD
 then
@@ -178,14 +184,17 @@ fi
 AC_CHECK_HEADER(pcre.h, [AC_DEFINE(HAVE_PCRE_H,1)], [exit])
 AC_HAVE_LIBRARY(pcre, [ LIBS="$LIBS -lpcre"; ], [exit])
 
-AC_HAVE_LIBRARY(rt, [ LIBS="$LIBS -lrt"; ], [])
+AC_HAVE_LIBRARY(rt, [ LIBS="$LIBS -lrt"; ], [exit])
 
 AC_SUBST(LIBS)
 
-if which clang-4.0 > /dev/null
-then
-    CC=clang-4.0
-elif which clang > /dev/null
+#if which clang-5.0 > /dev/null
+#then
+#    CC=clang-5.0
+#if which clang-4.0 > /dev/null
+#then
+#    CC=clang-4.0
+if which clang > /dev/null
 then
     CC=clang
 else
@@ -194,22 +203,24 @@ fi
 
 AC_SUBST(CC)
 
-if which clang++-4.0 > /dev/null
+CXXFLAGS="-I . "
+
+if which clang++ > /dev/null
 then
-    CXX=clang++-4.0
+    CXX=clang++
     if test $DEBUGGING = 1
     then
-        CXXFLAGS='`llvm-config-4.0 --cxxflags --ldflags --system-libs --libs core mcjit native` -DMDEBUG -g'" $CXXFLAGS"
+        CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs all` -lffi -DMDEBUG -g'" $CXXFLAGS"
     else
-        CXXFLAGS='`llvm-config-4.0 --cxxflags --ldflags --system-libs --libs core mcjit native` -O3'" $CXXFLAGS"
+        CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs all` -lffi -O3'" $CXXFLAGS"
     fi
 else
-    CXX=clang+
+    CXX=g++
     if test $DEBUGGING = 1
     then
-        CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs core mcjit native` -DMDEBUG -g'" $CXXFLAGS"
+        CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs all` -lffi -DMDEBUG -g'" $CXXFLAGS"
     else
-        CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs core mcjit native` -O3'" $CXXFLAGS"
+        CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs all` -lffi -O3'" $CXXFLAGS"
     fi
 fi
 
@@ -223,8 +234,8 @@ then
     CFLAGS="$CFLAGS -DENABLE_JIT"
     OBJS="src/vm.o src/script.o src/object.o src/array.o src/string.o src/block.o src/regex.o src/integer.o src/byte.o src/short.o src/long.o src/float.o src/pointer.o src/char.o src/bool.o src/hash.o src/list.o src/tuple.o src/carray.o src/type.o src/stack.o src/heap.o src/exception.o src/native_method.o src/class_system.o src/class_clover.o src/clover_to_clang.o"
     COMPILER_OBJS="src/parser.o src/node_type.o src/node.o src/cast.o src/vtable.o src/script_ctime.o src/node_block.o src/node_block_type.o src/class_compiler.o src/klass_compile_time.o src/method_compiler.o src/module.o"
-    JIT_OBJS="src/jit.o src/jit_sub.o"
-    JIT_RUNTIME_OBJS="src/jit_runtime.o"
+    JIT_OBJS="src/jit.o src/jit2.o src/jit3.o src/jit4.o src/jit5.o src/jit6.o src/jit7.o src/jit8.o src/jit9.o src/jit10.o src/jit11.o src/jit12.o src/jit_compile_method.o src/jit_debug.o src/jit_declare.o src/jit_declare2.o src/jit_sub.o src/jit_sub2.o"
+    JIT_RUNTIME_OBJS="src/jit_runtime.o src/jit_runtime2.o src/jit_debug_runtime.o"
     JIT=1
 else
     OBJS="src/vm.o src/script.o src/object.o src/array.o src/string.o src/block.o src/regex.o src/integer.o src/byte.o src/short.o src/long.o src/float.o src/pointer.o src/char.o src/bool.o src/hash.o src/list.o src/tuple.o src/carray.o src/type.o src/stack.o src/heap.o src/exception.o src/native_method.o src/class_system.o src/class_clover.o src/clover_to_clang.o"

@@ -108,14 +108,14 @@ unsigned int get_value_from_UInteger(CLObject object)
     return object_data->mFields[0].mUIntValue;
 }
 
-long get_value_from_Long(CLObject object)
+clint64 get_value_from_Long(CLObject object)
 {
     sCLObject* object_data = CLOBJECT(object);
 
     return object_data->mFields[0].mLongValue;
 }
 
-unsigned long get_value_from_ULong(CLObject object)
+unsigned clint64 get_value_from_ULong(CLObject object)
 {
     sCLObject* object_data = CLOBJECT(object);
 

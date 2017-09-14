@@ -72,6 +72,11 @@ ALLOC void* xcalloc(size_t count, size_t size)
     return buf;
 }
 
+void xfree(void* ptr)
+{
+    free(ptr);
+}
+
 #else
 
 static char* xstrncpy(char* des, char* src, int size)
@@ -288,6 +293,7 @@ ALLOC char* debug_strdup(char* str, const char* file_name, int line, const char*
 //////////////////////////////////////////////////////////////////////
 // free for memory leak chekcing
 //////////////////////////////////////////////////////////////////////
+
 void debug_free(void* memory, const char* file_name, int line, const char* func_name)
 {
     release_entry(memory, file_name, line, func_name);

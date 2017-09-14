@@ -3,7 +3,6 @@
 sCLStack* gHeadStack;
 CLVALUE* gGlobalStack;
 CLVALUE* gGlobalStackPtr;
-int gNumStackID;
 
 static void create_global_stack_and_append_it_to_stack_list()
 {
@@ -17,7 +16,6 @@ void stack_init()
 {
     gHeadStack = NULL;
     create_global_stack_and_append_it_to_stack_list();
-    gNumStackID = 0;
 }
 
 void stack_final()
@@ -32,7 +30,7 @@ void stack_final()
     MFREE(gGlobalStack);
 }
 
-long append_stack_to_stack_list(CLVALUE* stack_mem, CLVALUE** stack_ptr)
+sCLStack* append_stack_to_stack_list(CLVALUE* stack_mem, CLVALUE** stack_ptr)
 {
     sCLStack* stack = MCALLOC(1, sizeof(sCLStack));
 
@@ -42,19 +40,17 @@ long append_stack_to_stack_list(CLVALUE* stack_mem, CLVALUE** stack_ptr)
     stack->mNextStack = gHeadStack;
     gHeadStack = stack;
 
-    stack->mStackID = gNumStackID++;
-
-    return stack->mStackID;
+    return stack;
 }
 
-BOOL remove_stack_to_stack_list(CLVALUE* stack, CLVALUE** stack_ptr)
+BOOL remove_stack_to_stack_list(sCLStack* stack)
 {
     sCLStack* it = gHeadStack;
     sCLStack* it_before = gHeadStack;
 
     while(it) {
-        if(it->mStack == stack) {
-            if(it_before == gHeadStack) {
+        if(it == stack) {
+            if(it == gHeadStack) {
                 gHeadStack = it->mNextStack;
                 MFREE(it);
             }
@@ -73,15 +69,14 @@ BOOL remove_stack_to_stack_list(CLVALUE* stack, CLVALUE** stack_ptr)
     return FALSE;
 }
 
-BOOL check_variables_existance_on_stack(long stack_id)
+BOOL check_variables_existance_on_stack(CLVALUE* stack, CLVALUE* stack_ptr)
 {
-    return TRUE;
 /*
     BOOL result = FALSE;
     sCLStack* it = gHeadStack;
 
     while(it) {
-        if(it->mStackID == stack_id) {
+        if(it->mStack == stack && stack_ptr < (*it->mStackPtr)) {
             result = TRUE;
             break;
         }
@@ -91,4 +86,5 @@ BOOL check_variables_existance_on_stack(long stack_id)
 
     return result;
 */
+    return TRUE;
 }

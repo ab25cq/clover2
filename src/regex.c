@@ -52,6 +52,10 @@ CLObject create_regex_object(char* regex, BOOL global, BOOL ignore_case, BOOL mu
     object_data->mDollarEndOnly = dollar_endonly;
     object_data->mUngreedy = ungreedy;
 
+#ifdef ENABLE_JIT
+    push_jit_object(obj);
+#endif
+
     return obj;
 }
 

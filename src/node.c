@@ -454,10 +454,11 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
             }
             break;
 
-        case kOpSub:
+        case kOpSub: {
             if(!binary_operator(node, left_type, right_type, OP_BSUB, OP_UBSUB, OP_SSUB, OP_USSUB, OP_ISUB, OP_UISUB, OP_LSUB, OP_ULSUB, OP_FSUB, OP_DSUB, OP_PSUB, -1, OP_CSUB, -1, -1, "-", info))
             {
                 return FALSE;
+            }
             }
             break;
             
@@ -1171,7 +1172,7 @@ static BOOL compile_uint_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_long_value(long value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)
+unsigned int sNodeTree_create_long_value(clint64 value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)
 {
     unsigned node = alloc_node();
 
@@ -1203,7 +1204,7 @@ static BOOL compile_long_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_ulong_value(unsigned long value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)
+unsigned int sNodeTree_create_ulong_value(unsigned clint64 value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)
 {
     unsigned node = alloc_node();
 
@@ -2591,6 +2592,21 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
 
         info->type = create_node_type_with_class_name("Anonymous");
     }
+    else if(strcmp(method_name, "ID") == 0) {
+        //// go ///
+        if(num_params != 0) {
+            compile_err_msg(info, "ID method doesn't require params");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        info->type = create_node_type_with_class_name("int");
+        
+        return TRUE;
+    }
     /// normal methods ///
     else {
         if(!call_normal_method(node, info, object_type, generics_types, klass, param_types, num_params, method_name, params, num_method_chains, max_method_chains))
@@ -2956,7 +2972,7 @@ static BOOL compile_try_expression(unsigned int node, sCompileInfo* info)
     int var_index = get_variable_index(catch_block_var_table, var_name);
     MASSERT(var_index != -1);
 
-    append_opecode_to_code(info->code, OP_STORE, info->no_output);
+    append_opecode_to_code(info->code, OP_CATCH_STORE, info->no_output);
     append_int_value_to_code(info->code, var_index, info->no_output);
 
     append_opecode_to_code(info->code, OP_CATCH_POP, info->no_output); // for none JIT code
@@ -4307,7 +4323,7 @@ static void decrement_operand_core(unsigned int node, sCompileInfo* info, unsign
 {
     if(!with_value) {
         append_opecode_to_code(info->code, ldc_operand, info->no_output);
-        if(ldc_operand == OP_LDCLONG || ldc_operand == OP_LDCULONG) {
+        if(ldc_operand == OP_LDCLONG || ldc_operand == OP_LDCULONG || ldc_operand == OP_LDCPOINTER) {
             append_int_value_to_code(info->code, 1, info->no_output);
             append_int_value_to_code(info->code, 0, info->no_output);
         }
@@ -6607,9 +6623,17 @@ static BOOL compile_inherit_call(unsigned int node, sCompileInfo* info)
         param_types[i] = info->type;
     }
 
+    sNodeType* generics_types;
+    if(info->pinfo->klass) {
+        generics_types = get_generics_type_of_inner_class(info->pinfo);
+    }
+    else {
+        generics_types = NULL;
+    }
+
     /// search for the method ///
     sNodeType* result_type;
-    int method_index2 = search_for_method(klass, method_name, param_types, num_params, class_method, method_index-1, NULL, NULL, &result_type);
+    int method_index2 = search_for_method(klass, method_name, param_types, num_params, class_method, method_index-1, generics_types, NULL, &result_type);
 
     if(method_index2 == -1) {
         compile_err_msg(info, "method not found(1)");
@@ -6692,11 +6716,11 @@ void show_node(unsigned int node)
             break;
 
         case kNodeTypeLongValue:
-            printf("long value %ld\n", gNodes[node].uValue.mLongValue);
+            printf("long value %lld\n", gNodes[node].uValue.mLongValue);
             break;
 
         case kNodeTypeULongValue:
-            printf("long value %lu\n", gNodes[node].uValue.mULongValue);
+            printf("long value %llu\n", gNodes[node].uValue.mULongValue);
             break;
 
         case kNodeTypeFloatValue:

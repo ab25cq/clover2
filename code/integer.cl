@@ -26,7 +26,7 @@ Clover.test("Byte test3", f.toByte().getValue() == -1);
 
 g:Float = new Float(100);
 
-Clover.test("Float test1", g.getValue() == 100);
+Clover.test("Float test1", g.getValue() == 100.0f);
 
 h:Bool = new Bool(true);
 

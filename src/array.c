@@ -34,6 +34,10 @@ CLObject create_array_object(sCLClass* klass, int array_num)
 
     CLObject obj = alloc_heap_mem(size, klass, array_num);
 
+#ifdef ENABLE_JIT
+    push_jit_object(obj);
+#endif
+
     return obj;
 }
 
