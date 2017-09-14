@@ -8,11 +8,11 @@ ALLOC	src/macros.h	17;"	d
 ANDAND_OROR_MAX	src/jit.cpp	53;"	d	file:
 ANG	Makefile	/^	if locale -a | grep ja_JP.utf8; then export LANG="ja_JP_utf8"; export LC_ALL="ja_JP.utf8"; .\/cclover2 code\/char.cl && .\/clover2 code\/char.clo; else export LANG="C.UTF-8"; export LC_ALL="C.UTF-8"; .\/cclover2 code\/char.cl && .\/clover2 code\/char.clo; fi$/;"	m
 ARRAY_SIZE	src/debug.c	112;"	d	file:
-ARRAY_VALUE_ELEMENT_MAX	src/common.h	61;"	d
+ARRAY_VALUE_ELEMENT_MAX	src/common.h	62;"	d
 Args	toy.cpp	/^  std::vector<std::string> Args;$/;"	m	class:__anon25::PrototypeAST	file:
 Args	toy.cpp	/^  std::vector<std::unique_ptr<ExprAST>> Args;$/;"	m	class:__anon25::CallExprAST	file:
 BOOL	src/macros.h	5;"	d
-BREAK_NUM_MAX	src/common.h	52;"	d
+BREAK_NUM_MAX	src/common.h	53;"	d
 BUFFER_H	src/buffer.h	2;"	d
 BYTE_CODE_INIT_SIZE	src/code.c	3;"	d	file:
 BinaryExprAST	toy.cpp	/^  BinaryExprAST(char Op, std::unique_ptr<ExprAST> LHS,$/;"	f	class:__anon25::BinaryExprAST
@@ -26,29 +26,29 @@ CHECKML_BEGIN	src/debug.h	11;"	d
 CHECKML_BEGIN	src/debug.h	39;"	d
 CHECKML_END	src/debug.h	12;"	d
 CHECKML_END	src/debug.h	40;"	d
-CLASS_FLAGS_ALLOCATED	src/common.h	163;"	d
-CLASS_FLAGS_DYNAMIC_CLASS	src/common.h	164;"	d
-CLASS_FLAGS_INTERFACE	src/common.h	161;"	d
-CLASS_FLAGS_MODIFIED	src/common.h	162;"	d
-CLASS_FLAGS_PRIMITIVE	src/common.h	160;"	d
+CLASS_FLAGS_ALLOCATED	src/common.h	164;"	d
+CLASS_FLAGS_DYNAMIC_CLASS	src/common.h	165;"	d
+CLASS_FLAGS_INTERFACE	src/common.h	162;"	d
+CLASS_FLAGS_MODIFIED	src/common.h	163;"	d
+CLASS_FLAGS_PRIMITIVE	src/common.h	161;"	d
 CLASS_NAME	src/common.h	312;"	d
-CLASS_NAME_MAX	src/common.h	48;"	d
-CLASS_NUM_MAX	src/common.h	66;"	d
-CLASS_VERSION_MAX	src/common.h	56;"	d
+CLASS_NAME_MAX	src/common.h	49;"	d
+CLASS_NUM_MAX	src/common.h	67;"	d
+CLASS_VERSION_MAX	src/common.h	57;"	d
 CLBLOCK	src/common.h	1780;"	d
 CLHEAPMEM	src/common.h	1701;"	d
 CLOBJECT	src/common.h	1748;"	d
-CLOVER_STACK_SIZE	src/common.h	67;"	d
+CLOVER_STACK_SIZE	src/common.h	68;"	d
 CLObject	src/common.h	/^typedef unsigned int CLObject;$/;"	t
 CLREGEX	src/common.h	1804;"	d
 CLVALUE	src/common.h	/^typedef union CLVALUEUnion CLVALUE;$/;"	t	typeref:union:CLVALUEUnion
 CLVALUEUnion	src/common.h	/^union CLVALUEUnion {$/;"	u
-CL_MODULE_HASH_SIZE	src/common.h	59;"	d
-CL_MODULE_NAME_MAX	src/common.h	60;"	d
+CL_MODULE_HASH_SIZE	src/common.h	60;"	d
+CL_MODULE_NAME_MAX	src/common.h	61;"	d
 COMMON_H	src/common.h	2;"	d
 COMMON_OBJS	Makefile	/^COMMON_OBJS=src\/buffer.o src\/debug.o src\/xfunc.o src\/klass.o src\/constant.o src\/code.o src\/alignment.o src\/utf.o$/;"	m
 COMPILER_OBJS	Makefile	/^COMPILER_OBJS=src\/parser.o src\/node_type.o src\/node.o src\/cast.o src\/vtable.o src\/script_ctime.o src\/node_block.o src\/node_block_type.o src\/class_compiler.o src\/klass_compile_time.o src\/method_compiler.o src\/module.o$/;"	m
-CONS_str	src/common.h	123;"	d
+CONS_str	src/common.h	124;"	d
 CXX	Makefile	/^CXX=clang++$/;"	m
 CXXFLAGS	Makefile	/^CXXFLAGS=`llvm-config --cxxflags --ldflags --system-libs --libs all` -lffi -O3 -I . $/;"	m
 CacheDir	lli.cpp	/^  std::string CacheDir;$/;"	m	class:LLIObjectCache	file:
@@ -68,8 +68,8 @@ DO_NOTHING_ATEXIT	lli.cpp	61;"	d	file:
 DUMMY_ARRAY_SIZE	src/common.h	1734;"	d
 EE	lli.cpp	/^static ExecutionEngine *EE = nullptr;$/;"	v	file:
 EE	src/common.h	/^    void* EE;               \/\/ This requires on the run time$/;"	m	struct:sCLClassStruct
-ELIF_NUM_MAX	src/common.h	51;"	d
-EXCEPTION_MESSAGE_MAX	src/common.h	200;"	d
+ELIF_NUM_MAX	src/common.h	52;"	d
+EXCEPTION_MESSAGE_MAX	src/common.h	201;"	d
 Else	toy.cpp	/^  std::unique_ptr<ExprAST> Cond, Then, Else;$/;"	m	class:__anon25::IfExprAST	file:
 End	toy.cpp	/^  std::unique_ptr<ExprAST> Start, End, Step, Body;$/;"	m	class:__anon25::ForExprAST	file:
 ExprAST	toy.cpp	/^class ExprAST {$/;"	c	namespace:__anon25	file:
@@ -83,9 +83,9 @@ ForExprAST	toy.cpp	/^class ForExprAST : public ExprAST {$/;"	c	namespace:__anon2
 FunctionAST	toy.cpp	/^  FunctionAST(std::unique_ptr<PrototypeAST> Proto,$/;"	f	class:__anon25::FunctionAST
 FunctionAST	toy.cpp	/^class FunctionAST {$/;"	c	namespace:__anon25	file:
 FunctionProtos	toy.cpp	/^static std::map<std::string, std::unique_ptr<PrototypeAST>> FunctionProtos;$/;"	v	file:
-GENERICS_TYPES_MAX	src/common.h	55;"	d
+GENERICS_TYPES_MAX	src/common.h	56;"	d
 GetTokPrecedence	toy.cpp	/^static int GetTokPrecedence() {$/;"	f	file:
-HASH_VALUE_ELEMENT_MAX	src/common.h	64;"	d
+HASH_VALUE_ELEMENT_MAX	src/common.h	65;"	d
 HAVE_ICONV_H	config.h	3;"	d
 HAVE_ICONV_H	config.h	5;"	d
 HAVE_MATH_H	config.h	2;"	d
@@ -112,7 +112,7 @@ LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM	src/class_system.c	1093;"	d	file:
 LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM	src/class_system.c	1001;"	d	file:
 LHS	toy.cpp	/^  std::unique_ptr<ExprAST> LHS, RHS;$/;"	m	class:__anon25::BinaryExprAST	file:
 LIBS	Makefile	/^LIBS= -lutil -lreadline -ldl -lm -lpcre -lrt$/;"	m
-LIST_VALUE_ELEMENT_MAX	src/common.h	62;"	d
+LIST_VALUE_ELEMENT_MAX	src/common.h	63;"	d
 LLIObjectCache	lli.cpp	/^  LLIObjectCache(const std::string& CacheDir) : CacheDir(CacheDir) {$/;"	f	class:LLIObjectCache
 LLIObjectCache	lli.cpp	/^class LLIObjectCache : public ObjectCache {$/;"	c	file:
 LLVMValue	src/common.h	/^    void* LLVMValue;$/;"	m	union:CLVALUEUnion
@@ -128,21 +128,21 @@ MANAGED	src/macros.h	21;"	d
 MASSERT	src/debug.h	26;"	d
 MASSERT	src/debug.h	48;"	d
 MAX_CODES	src/interpreter.c	1385;"	d	file:
-MAX_COND_JUMP	src/jit_common.hpp	107;"	d
+MAX_COND_JUMP	src/jit_common.hpp	109;"	d
 MCALLOC	src/debug.h	23;"	d
 MCALLOC	src/debug.h	43;"	d
 MCJIT	lli.cpp	/^  enum class JITKind { MCJIT, OrcMCJITReplacement, OrcLazy };$/;"	m	class:__anon24::JITKind	file:
 MCJIT	src/jit_runtime.cpp	/^    enum class JITKind { MCJIT, OrcMCJITReplacement, OrcLazy };$/;"	m	class:__anon1::JITKind	file:
-METHOD_CHAIN_MAX	src/common.h	69;"	d
-METHOD_FLAGS_CLASS_METHOD	src/common.h	199;"	d
-METHOD_FLAGS_NATIVE	src/common.h	198;"	d
+METHOD_CHAIN_MAX	src/common.h	70;"	d
+METHOD_FLAGS_CLASS_METHOD	src/common.h	200;"	d
+METHOD_FLAGS_NATIVE	src/common.h	199;"	d
 METHOD_NAME2	src/common.h	313;"	d
 METHOD_NAME_AND_PARAMS	src/common.h	316;"	d
-METHOD_NAME_MAX	src/common.h	50;"	d
-METHOD_NUM_MAX	src/common.h	58;"	d
+METHOD_NAME_MAX	src/common.h	51;"	d
+METHOD_NUM_MAX	src/common.h	59;"	d
 METHOD_PATH	src/common.h	314;"	d
-METHOD_PATH_MAX	src/common.h	57;"	d
-METHOD_VAR_NUM_MAX	src/common.h	54;"	d
+METHOD_PATH_MAX	src/common.h	58;"	d
+METHOD_VAR_NUM_MAX	src/common.h	55;"	d
 MFREE	src/debug.h	24;"	d
 MFREE	src/debug.h	46;"	d
 MMALLOC	src/debug.h	20;"	d
@@ -904,7 +904,7 @@ ObjectLayer	KaleidoscopeJIT.h	/^  ObjLayerT ObjectLayer;$/;"	m	class:llvm::orc::
 Op	toy.cpp	/^  char Op;$/;"	m	class:__anon25::BinaryExprAST	file:
 OrcMCJITReplacement	lli.cpp	/^  enum class JITKind { MCJIT, OrcMCJITReplacement, OrcLazy };$/;"	m	class:__anon24::JITKind	file:
 OrcMCJITReplacement	src/jit_runtime.cpp	/^    enum class JITKind { MCJIT, OrcMCJITReplacement, OrcLazy };$/;"	m	class:__anon1::JITKind	file:
-PARAMS_MAX	src/common.h	53;"	d
+PARAMS_MAX	src/common.h	54;"	d
 PARSE_PHASE_ADD_GENERICS_TYPES	src/common.h	1644;"	d
 PARSE_PHASE_ADD_METHODS_AND_FIELDS	src/common.h	1645;"	d
 PARSE_PHASE_ADD_SUPER_CLASSES	src/common.h	1642;"	d
@@ -1040,8 +1040,8 @@ System_wcstombs	src/class_system.c	/^BOOL System_wcstombs(CLVALUE** stack_ptr, C
 System_write	src/class_system.c	/^BOOL System_write(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 TM	KaleidoscopeJIT.h	/^  std::unique_ptr<TargetMachine> TM;$/;"	m	class:llvm::orc::KaleidoscopeJIT
 TRUE	src/macros.h	9;"	d
-TUPLE_VALUE_ELEMENT_MAX	src/common.h	63;"	d
-TYPEDEF_MAX	src/common.h	65;"	d
+TUPLE_VALUE_ELEMENT_MAX	src/common.h	64;"	d
+TYPEDEF_MAX	src/common.h	66;"	d
 TheContext	src/jit.cpp	/^LLVMContext TheContext;$/;"	v
 TheContext	toy.cpp	/^static LLVMContext TheContext;$/;"	v	file:
 TheFPM	src/jit.cpp	/^std::unique_ptr<legacy::FunctionPassManager> TheFPM;$/;"	v
@@ -1052,7 +1052,7 @@ TheModule	src/jit.cpp	/^Module* TheModule;$/;"	v
 TheModule	toy.cpp	/^static std::unique_ptr<Module> TheModule;$/;"	v	file:
 Then	toy.cpp	/^  std::unique_ptr<ExprAST> Cond, Then, Else;$/;"	m	class:__anon25::IfExprAST	file:
 Token	toy.cpp	/^enum Token {$/;"	g	file:
-VAR_NAME_MAX	src/common.h	49;"	d
+VAR_NAME_MAX	src/common.h	50;"	d
 Val	toy.cpp	/^  double Val;$/;"	m	class:__anon25::NumberExprAST	file:
 VarName	toy.cpp	/^  std::string VarName;$/;"	m	class:__anon25::ForExprAST	file:
 VariableExprAST	toy.cpp	/^  VariableExprAST(const std::string &Name) : Name(Name) {}$/;"	f	class:__anon25::VariableExprAST
@@ -1060,11 +1060,11 @@ VariableExprAST	toy.cpp	/^class VariableExprAST : public ExprAST {$/;"	c	namespa
 XFUNC_H	src/xfunc.h	2;"	d
 _GNU_SOURCE	src/common.h	5;"	d
 _GNU_SOURCE	src/interpreter.c	3;"	d	file:
-_USE_MISC	src/common.h	26;"	d
+_USE_MISC	src/common.h	27;"	d
 __64BIT_CPU__	config.h	12;"	d
 __LINUX__	config.h	10;"	d
-__USE_BSD	src/common.h	29;"	d
-__USE_XOPEN	src/common.h	23;"	d
+__USE_BSD	src/common.h	30;"	d
+__USE_XOPEN	src/common.h	24;"	d
 _t_malloc_entry	src/debug.c	/^struct _t_malloc_entry$/;"	s	file:
 ac_fn_c_check_header_compile	configure	/^ac_fn_c_check_header_compile ()$/;"	f
 ac_fn_c_check_header_mongrel	configure	/^ac_fn_c_check_header_mongrel ()$/;"	f
@@ -1210,7 +1210,7 @@ class_identify_with_class_name	src/node_type.c	/^BOOL class_identify_with_class_
 class_init	src/klass.c	/^void class_init()$/;"	f
 class_init_on_compile_time	src/klass.c	/^void class_init_on_compile_time()$/;"	f
 class_init_on_runtime	src/vm.c	/^BOOL class_init_on_runtime()$/;"	f
-clint64	src/common.h	34;"	d
+clint64	src/common.h	35;"	d
 clone_node	src/node.c	/^unsigned int clone_node(unsigned int node)$/;"	f
 clone_node_block_type	src/node_block_type.c	/^ALLOC sNodeBlockType* clone_node_block_type(sNodeBlockType* block)$/;"	f
 clone_node_type	src/node_type.c	/^sNodeType* clone_node_type(sNodeType* node_type)$/;"	f
@@ -1699,6 +1699,7 @@ llvm	KaleidoscopeJIT.h	/^namespace llvm {$/;"	n
 llvm_call_method_from_module	src/jit_runtime.cpp	/^static BOOL llvm_call_method_from_module(Module* module, RTDyldMemoryManager* RTDyldMM, ExecutionEngine* EE, char* method_path2, CLVALUE* stack_ptr, CLVALUE* lvar, sVMInfo* info, CLVALUE* stack, CLVALUE** stack_ptr_address, int var_num, sConst* constant, sByteCode* code)$/;"	f	file:
 llvm_create_string	src/jit_sub2.cpp	/^Value* llvm_create_string(char* str)$/;"	f
 llvm_finalize_ee	src/jit_runtime.cpp	/^static void llvm_finalize_ee()$/;"	f	file:
+llvm_load_dynamic_library	src/jit_runtime.cpp	/^static void llvm_load_dynamic_library(sCLClass* klass)$/;"	f	file:
 llvm_load_module_from_bc_file	src/jit_runtime.cpp	/^int llvm_load_module_from_bc_file(char* file_name, sCLClass* klass)$/;"	f
 llvm_lvar_to_vm_lvar	src/jit_sub2.cpp	/^void llvm_lvar_to_vm_lvar(LVALUE* llvm_stack,std::map<std::string, Value*>& params, BasicBlock* current_block, int var_num)$/;"	f
 llvm_stack_to_vm_stack	src/jit_sub2.cpp	/^void llvm_stack_to_vm_stack(LVALUE* llvm_stack_ptr, std::map<std::string, Value*> params, BasicBlock* current_block, int num)$/;"	f
@@ -1772,6 +1773,7 @@ mDotAll	src/common.h	/^            BOOL mDotAll;$/;"	m	struct:sNodeTreeStruct::_
 mDotAll	src/common.h	/^    BOOL mDotAll;$/;"	m	struct:sRegexObjectStruct
 mDoubleValue	src/common.h	/^        double mDoubleValue;$/;"	m	union:sNodeTreeStruct::__anon4
 mDoubleValue	src/common.h	/^    double mDoubleValue;$/;"	m	union:CLVALUEUnion
+mDynamicLibrary	src/common.h	/^    void* mDynamicLibrary;  \/\/ This requires on the run time$/;"	m	struct:sCLClassStruct
 mElifExpressionNodes	src/common.h	/^            unsigned int mElifExpressionNodes[ELIF_NUM_MAX];$/;"	m	struct:sNodeTreeStruct::__anon4::__anon6
 mElifNodeBlocks	src/common.h	/^            MANAGED sNodeBlock* mElifNodeBlocks[ELIF_NUM_MAX];$/;"	m	struct:sNodeTreeStruct::__anon4::__anon6
 mElifNum	src/common.h	/^            int mElifNum;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon6
@@ -1819,7 +1821,7 @@ mIntValue	src/common.h	/^        int mIntValue;$/;"	m	union:sNodeTreeStruct::__a
 mIntValue	src/common.h	/^    int mIntValue;$/;"	m	union:CLVALUEUnion
 mInterface	src/common.h	/^    sCLClass* mInterface[GENERICS_TYPES_MAX];$/;"	m	struct:sGenericsParamInfoStruct
 mItem	src/common.h	/^    sCLClass* mItem;$/;"	m	struct:sClassTableStruct
-mJITCompiled	src/common.h	/^    BOOL mJITCompiled;$/;"	m	struct:sCLMethodStruct
+mJITDynamicSym	src/common.h	/^    void* mJITDynamicSym;       \/\/ this requires runtime$/;"	m	struct:sCLMethodStruct
 mLVTable	src/common.h	/^    sVarTable* mLVTable;$/;"	m	struct:sNodeBlockStruct
 mLambda	src/common.h	/^            BOOL mLambda;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon15
 mLambda	src/common.h	/^    BOOL mLambda;$/;"	m	struct:sBlockObjectStruct
@@ -1842,8 +1844,6 @@ mMemB	src/heap.c	/^    unsigned char* mMemB;$/;"	m	struct:sCLHeapManager_	file:
 mMemLen	src/heap.c	/^    unsigned int mMemLen;$/;"	m	struct:sCLHeapManager_	file:
 mMemSize	src/heap.c	/^    unsigned int mMemSize;$/;"	m	struct:sCLHeapManager_	file:
 mMemory	src/debug.c	/^    void* mMemory;$/;"	m	struct:_t_malloc_entry	file:
-mMethodCallCount	src/common.h	/^    int mMethodCallCount;   \/\/ This requires on the run time$/;"	m	struct:sCLClassStruct
-mMethodCallCount	src/common.h	/^    int mMethodCallCount;$/;"	m	struct:sCLMethodStruct
 mMethodIndex	src/common.h	/^            int mMethodIndex;$/;"	m	struct:sNodeTreeStruct::__anon4::__anon17
 mMethodIndex	src/common.h	/^    int mMethodIndex;$/;"	m	struct:sCLMethodStruct
 mMethodIndexOnCompileTime	src/common.h	/^    int mMethodIndexOnCompileTime;                  \/\/ This requires on the compile time$/;"	m	struct:sCLClassStruct
@@ -2299,6 +2299,7 @@ save_module_to_file	src/module.c	/^static BOOL save_module_to_file(sCLModule* se
 search_for_bc_file	src/jit_runtime.cpp	/^static BOOL search_for_bc_file(char* class_name, char* class_bc_file_name, size_t class_bc_file_name_size)$/;"	f	file:
 search_for_class_field	src/klass_compile_time.c	/^int search_for_class_field(sCLClass* klass, char* field_name)$/;"	f
 search_for_class_file	src/klass.c	/^static BOOL search_for_class_file(char* class_name, char* class_file_name, size_t class_file_name_size)$/;"	f	file:
+search_for_dl_file	src/jit_runtime.cpp	/^static BOOL search_for_dl_file(char* class_name, char* dynamic_library_path, size_t dynamic_library_path_size)$/;"	f	file:
 search_for_field	src/klass_compile_time.c	/^int search_for_field(sCLClass* klass, char* field_name)$/;"	f
 search_for_method	src/klass_compile_time.c	/^int search_for_method(sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, int start_point, sNodeType* left_generics_type, sNodeType* right_generics_type, sNodeType** result_type)$/;"	f
 search_for_method_from_virtual_method_table	src/klass.c	/^sCLMethod* search_for_method_from_virtual_method_table(sCLClass* klass, char* method_name_and_params)$/;"	f

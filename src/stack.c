@@ -71,11 +71,12 @@ BOOL remove_stack_to_stack_list(sCLStack* stack)
 
 BOOL check_variables_existance_on_stack(CLVALUE* stack, CLVALUE* stack_ptr)
 {
+/*
     BOOL result = FALSE;
     sCLStack* it = gHeadStack;
 
     while(it) {
-        if(it->mStack == stack && stack_ptr < it->mStackPtr) {
+        if(it->mStack == stack && stack_ptr < (*it->mStackPtr)) {
             result = TRUE;
             break;
         }
@@ -84,4 +85,6 @@ BOOL check_variables_existance_on_stack(CLVALUE* stack, CLVALUE* stack_ptr)
     }
 
     return result;
+*/
+    return TRUE;
 }

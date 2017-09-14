@@ -19,6 +19,7 @@
 #include <stdarg.h>
 #include <locale.h>
 #include <pcre.h>
+#include <dlfcn.h>
 #ifndef __USE_XOPEN
 #define __USE_XOPEN
 #endif
@@ -239,6 +240,8 @@ struct sCLMethodStruct {
     } uCode;
     
     int mVarNum;
+
+    void* mJITDynamicSym;       // this requires runtime
 };
 
 typedef struct sCLMethodStruct sCLMethod;
@@ -295,14 +298,13 @@ struct sCLClassStruct {
     void* mModule;          // This requires on the run time 
     void* RTDyldMM;         // This requires on the run time
     void* EE;               // This requires on the run time
+    void* mDynamicLibrary;  // This requires on the run time
 
     fFreeFun mFreeFun;
 
     int mTypedefClassName1Offsets[TYPEDEF_MAX];
     int mTypedefClassName2Offsets[TYPEDEF_MAX];
     int mNumTypedef;
-
-    void* mDynamicLibrary;
 };
 
 typedef struct sCLClassStruct sCLClass;

@@ -682,6 +682,7 @@ static sCLClass* load_class_from_class_file(char* class_name, char* class_file_n
     klass->mModule = NULL;
     klass->RTDyldMM = NULL;
     klass->EE = NULL;
+    klass->mDynamicLibrary = NULL;
 
     klass->mFreeFun = NULL;
 
@@ -764,6 +765,7 @@ sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_clas
     klass->mModule = NULL;
     klass->RTDyldMM = NULL;
     klass->EE = NULL;
+    klass->mDynamicLibrary = NULL;
 
     klass->mFreeFun = NULL;
     klass->mNumTypedef = 0;

@@ -892,15 +892,14 @@ BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClas
         llvm_load_dynamic_library(klass);
     }
 
-    fJITMethodType fun2 = NULL;
-    if(klass->mDynamicLibrary) {
+    if(klass->mDynamicLibrary && method->mJITDynamicSym == NULL) {
         char method_path2[METHOD_NAME_MAX + 128];
         create_method_path_for_jit(klass, method, method_path2, METHOD_NAME_MAX + 128);
 
-        fun2 = (fJITMethodType)dlsym(klass->mDynamicLibrary, method_path2);
+        method->mJITDynamicSym = dlsym(klass->mDynamicLibrary, method_path2);
     }
 
-    if(fun2 != NULL && strcmp(METHOD_NAME2(klass, method), "initialize") != 0 && strcmp(METHOD_NAME2(klass, method), "finalize") != 0 && !(method->mFlags & METHOD_FLAGS_NATIVE)) 
+    if(method->mJITDynamicSym && strcmp(METHOD_NAME2(klass, method), "initialize") != 0 && strcmp(METHOD_NAME2(klass, method), "finalize") != 0 && !(method->mFlags & METHOD_FLAGS_NATIVE)) 
     {
         CLVALUE* stack_ptr = stack + var_num;
         CLVALUE* lvar = stack;
@@ -912,6 +911,7 @@ BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClas
         info->stack_id = stack_id;
 
         CLVALUE** stack_ptr_address = &stack_ptr;
+        fJITMethodType fun2 = (fJITMethodType)method->mJITDynamicSym;
 
         BOOL result = fun2(stack_ptr, lvar, info, stack, stack_ptr_address, var_num, constant, code);
 
