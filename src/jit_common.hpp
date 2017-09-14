@@ -65,6 +65,8 @@ using namespace llvm::orc;
 extern "C" 
 {
 
+#include <dlfcn.h>
+
 inline void create_method_path_for_jit(sCLClass* klass, sCLMethod* method, char* result, int size_result)
 {
     snprintf(result, size_result, "%s.%s$$%d", CLASS_NAME(klass), METHOD_NAME_AND_PARAMS(klass, method), method->mMethodIndex);

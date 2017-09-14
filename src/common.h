@@ -239,9 +239,6 @@ struct sCLMethodStruct {
     } uCode;
     
     int mVarNum;
-
-    int mMethodCallCount;
-    BOOL mJITCompiled;
 };
 
 typedef struct sCLMethodStruct sCLMethod;
@@ -298,13 +295,14 @@ struct sCLClassStruct {
     void* mModule;          // This requires on the run time 
     void* RTDyldMM;         // This requires on the run time
     void* EE;               // This requires on the run time
-    int mMethodCallCount;   // This requires on the run time
 
     fFreeFun mFreeFun;
 
     int mTypedefClassName1Offsets[TYPEDEF_MAX];
     int mTypedefClassName2Offsets[TYPEDEF_MAX];
     int mNumTypedef;
+
+    void* mDynamicLibrary;
 };
 
 typedef struct sCLClassStruct sCLClass;

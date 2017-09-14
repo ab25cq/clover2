@@ -832,6 +832,44 @@ BOOL load_bc_file(sCLClass* klass)
     return TRUE;
 }
 
+static BOOL search_for_dl_file(char* class_name, char* dynamic_library_path, size_t dynamic_library_path_size)
+{
+    char* home = getenv("HOME");
+
+    /// .clover directory ///
+    if(home) {
+        snprintf(dynamic_library_path, dynamic_library_path_size, "%s/.clover2/lib%s.so", home, class_name);
+
+        if(access(dynamic_library_path, F_OK) == 0) {
+            return TRUE;
+        }
+    }
+
+    char* cwd = getenv("PWD");
+
+    /// current working directory ///
+    if(cwd) {
+        snprintf(dynamic_library_path, dynamic_library_path_size, "%s/lib%s.so", cwd, class_name);
+
+        if(access(dynamic_library_path, F_OK) == 0) {
+            return TRUE;
+        }
+    }
+
+    return FALSE;
+}
+
+static void llvm_load_dynamic_library(sCLClass* klass)
+{
+    char* class_name = CLASS_NAME(klass);
+
+    char class_dynamic_library_path[PATH_MAX+1];
+    if(search_for_dl_file(class_name, class_dynamic_library_path, PATH_MAX)) 
+    {
+        klass->mDynamicLibrary = dlopen(class_dynamic_library_path, RTLD_LAZY);
+    }
+}
+
 sCLClass* get_class_with_load_and_initialize_in_jit(sConst* constant, int offset)
 {
     char* class_name = CONS_str(constant, offset);
@@ -850,21 +888,20 @@ BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClas
 {
     int num_jit_objects = gNumJITObjects;
 
-    klass->mMethodCallCount++;
-
-klass->mMethodCallCount = 1000;
-
-    if(klass->mMethodCallCount > 100) {
-        if(!load_bc_file(klass)) {
-            return FALSE;
-        }
+    if(klass->mDynamicLibrary == NULL) {
+        llvm_load_dynamic_library(klass);
     }
 
-    if(klass->mModule != NULL && strcmp(METHOD_NAME2(klass, method), "initialize") != 0 && strcmp(METHOD_NAME2(klass, method), "finalize") != 0 && !(method->mFlags & METHOD_FLAGS_NATIVE)) 
-    {
+    fJITMethodType fun2 = NULL;
+    if(klass->mDynamicLibrary) {
         char method_path2[METHOD_NAME_MAX + 128];
         create_method_path_for_jit(klass, method, method_path2, METHOD_NAME_MAX + 128);
 
+        fun2 = (fJITMethodType)dlsym(klass->mDynamicLibrary, method_path2);
+    }
+
+    if(fun2 != NULL && strcmp(METHOD_NAME2(klass, method), "initialize") != 0 && strcmp(METHOD_NAME2(klass, method), "finalize") != 0 && !(method->mFlags & METHOD_FLAGS_NATIVE)) 
+    {
         CLVALUE* stack_ptr = stack + var_num;
         CLVALUE* lvar = stack;
 
@@ -874,8 +911,11 @@ klass->mMethodCallCount = 1000;
         info->current_var_num = var_num;
         info->stack_id = stack_id;
 
-        if(!llvm_call_method_from_module((Module*)klass->mModule, (RTDyldMemoryManager*)klass->RTDyldMM, (ExecutionEngine*)klass->EE, method_path2, stack_ptr, lvar, info, stack, &stack_ptr, var_num, constant, code)) 
-        {
+        CLVALUE** stack_ptr_address = &stack_ptr;
+
+        BOOL result = fun2(stack_ptr, lvar, info, stack, stack_ptr_address, var_num, constant, code);
+
+        if(!result) {
             remove_stack_to_stack_list(stack_id);
             gNumJITObjects = num_jit_objects;
             return FALSE;
