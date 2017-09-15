@@ -231,13 +231,9 @@ struct sCLMethodStruct {
 
     sCLType* mResultType;
 
-    union {
-        sByteCode mByteCodes;
-        struct {
-            fNativeMethod mNativeMethod;
-            char* mNativeFunName;
-        };
-    } uCode;
+    sByteCode mByteCodes;
+    fNativeMethod mNativeMethod;
+    char* mNativeFunName;
     
     int mVarNum;
 
@@ -340,9 +336,6 @@ struct sClassTableStruct
 typedef struct sClassTableStruct sClassTable;
 
 extern sClassTable* gHeadClassTable;
-
-typedef fNativeMethod (*fGetNativeMethod)(char* path, char** native_method_name);
-extern fGetNativeMethod gGetNativeMethod;
 
 /// node_type.c ///
 struct sNodeBlockTypeStruct;
@@ -1669,6 +1662,7 @@ void native_method_init();
 void native_method_final();
 
 fNativeMethod get_native_method(char* path, char** fun_name);
+void put_fun_to_hash_for_native_method(char* path, char* fun_name, fNativeMethod fun);
 
 /// exception.c ///
 void entry_exception_object_with_class_name(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, char* class_name, char* msg, ...);
@@ -1947,6 +1941,10 @@ BOOL System_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_getenv(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_setenv(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_unsetenv(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_dlopen(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_dlclose(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_dlsym(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_put_fun_to_hash_for_native_method(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 /// alignment.c ///
 void alignment(unsigned int* size);

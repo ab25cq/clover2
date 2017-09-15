@@ -563,40 +563,51 @@ BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClas
 {
     int num_jit_objects = gNumJITObjects;
 
-    if(klass->mDynamicLibrary == NULL) {
-        llvm_load_dynamic_library(klass);
-    }
-
-    if(klass->mDynamicLibrary && method->mJITDynamicSym == NULL) {
-        char method_path2[METHOD_NAME_MAX + 128];
-        create_method_path_for_jit(klass, method, method_path2, METHOD_NAME_MAX + 128);
-
-        method->mJITDynamicSym = dlsym(klass->mDynamicLibrary, method_path2);
-    }
-
-    if(method->mJITDynamicSym && strcmp(METHOD_NAME2(klass, method), "initialize") != 0 && strcmp(METHOD_NAME2(klass, method), "finalize") != 0 && !(method->mFlags & METHOD_FLAGS_NATIVE)) 
+    if(strcmp(METHOD_NAME2(klass, method), "initialize") != 0 && strcmp(METHOD_NAME2(klass, method), "finalize") != 0 && !(method->mFlags & METHOD_FLAGS_NATIVE))
     {
-        CLVALUE* stack_ptr = stack + var_num;
-        CLVALUE* lvar = stack;
-
-        sCLStack* stack_id = append_stack_to_stack_list(stack, &stack_ptr);
-
-        info->current_stack = stack;        // for invoking_block in native method
-        info->current_var_num = var_num;
-        info->stack_id = stack_id;
-
-        CLVALUE** stack_ptr_address = &stack_ptr;
-        fJITMethodType fun2 = (fJITMethodType)method->mJITDynamicSym;
-
-        BOOL result = fun2(stack_ptr, lvar, info, stack, stack_ptr_address, var_num, constant, code);
-
-        if(!result) {
-            remove_stack_to_stack_list(stack_id);
-            gNumJITObjects = num_jit_objects;
-            return FALSE;
+        if(klass->mDynamicLibrary == NULL) {
+            llvm_load_dynamic_library(klass);
         }
 
-        remove_stack_to_stack_list(stack_id);
+        if(klass->mDynamicLibrary && method->mJITDynamicSym == NULL) {
+            char method_path2[METHOD_NAME_MAX + 128];
+            create_method_path_for_jit(klass, method, method_path2, METHOD_NAME_MAX + 128);
+
+            method->mJITDynamicSym = dlsym(klass->mDynamicLibrary, method_path2);
+        }
+
+        if(method->mJITDynamicSym) 
+        {
+            CLVALUE* stack_ptr = stack + var_num;
+            CLVALUE* lvar = stack;
+
+            sCLStack* stack_id = append_stack_to_stack_list(stack, &stack_ptr);
+
+            info->current_stack = stack;        // for invoking_block in native method
+            info->current_var_num = var_num;
+            info->stack_id = stack_id;
+
+            CLVALUE** stack_ptr_address = &stack_ptr;
+            fJITMethodType fun2 = (fJITMethodType)method->mJITDynamicSym;
+
+            BOOL result = fun2(stack_ptr, lvar, info, stack, stack_ptr_address, var_num, constant, code);
+
+            if(!result) {
+                remove_stack_to_stack_list(stack_id);
+                gNumJITObjects = num_jit_objects;
+                return FALSE;
+            }
+
+            remove_stack_to_stack_list(stack_id);
+        }
+        else {
+            BOOL result = vm(code, constant, stack, var_num, klass, info);
+
+            if(!result) {
+                gNumJITObjects = num_jit_objects;
+                return FALSE;
+            }
+        }
     }
     else {
         BOOL result = vm(code, constant, stack, var_num, klass, info);
@@ -619,12 +630,6 @@ void jit_init_on_runtime()
 
     gCLPointerAndBoolStructMemory.result1 = NULL;
     gCLPointerAndBoolStructMemory.result2 = FALSE;
-
-/*
-    InitializeNativeTarget();
-    InitializeNativeTargetAsmPrinter();
-    InitializeNativeTargetAsmParser();
-*/
 
     init_jit_objects();
 }

@@ -1090,7 +1090,17 @@ BOOL System_initialize_file_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* 
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+61].mValue.mIntValue = CLOCK_THREAD_CPUTIME_ID;
 #endif
 
-#define LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM (LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+62)
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+62].mValue.mIntValue = RTLD_LAZY;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+63].mValue.mIntValue = RTLD_NOW;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+64].mValue.mIntValue = RTLD_GLOBAL;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+65].mValue.mIntValue = RTLD_LOCAL;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+66].mValue.mIntValue = RTLD_NODELETE;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+67].mValue.mIntValue = RTLD_NOLOAD;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+68].mValue.mIntValue = RTLD_DEEPBIND;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+69].mValue.mPointerValue = RTLD_DEFAULT;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+70].mValue.mPointerValue = RTLD_NEXT;
+
+#define LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM (LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+71)
 
     return TRUE;
 }
@@ -2850,6 +2860,99 @@ BOOL System_unsetenv(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     }
 
     MFREE(name_value);
+
+    return TRUE;
+}
+
+BOOL System_dlopen(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* path = lvar;
+    CLVALUE* flags = lvar + 1;
+
+    /// Clover to c value ///
+    char* path_value = ALLOC string_object_to_char_array(path->mObjectValue);
+    int flags_value = flags->mIntValue;
+
+    /// go ///
+    void* result = dlopen(path_value, flags_value);
+
+    if(result == NULL) {
+        MFREE(path_value);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "dlopen(3) is faield. The error is %s", dlerror());
+        return FALSE;
+    }
+
+    (*stack_ptr)->mPointerValue = result;
+    (*stack_ptr)++;
+
+    MFREE(path_value);
+
+    return TRUE;
+}
+
+BOOL System_dlclose(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* handle = lvar;
+
+    /// Clover to c value ///
+    void* handle_value = handle->mPointerValue;
+
+    /// go ///
+    int result = dlclose(handle_value);
+
+    if(result != 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "dlclose(3) is faield. The error is %s", dlerror());
+        return FALSE;
+    }
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_dlsym(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* handle = lvar;
+    CLVALUE* symbol = lvar + 1;
+
+    /// Clover to c value ///
+    void* handle_value = handle->mPointerValue;
+    char* symbol_value = ALLOC string_object_to_char_array(symbol->mObjectValue);
+
+    /// go ///
+    void* result = dlsym(handle_value, symbol_value);
+
+    if(result == NULL) {
+        MFREE(symbol_value);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "dlsym(3) is faield. The error is %s", dlerror());
+        return FALSE;
+    }
+
+    (*stack_ptr)->mPointerValue = result;
+    (*stack_ptr)++;
+
+    MFREE(symbol_value);
+
+    return TRUE;
+}
+
+BOOL System_put_fun_to_hash_for_native_method(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* path = lvar;
+    CLVALUE* fun_name = lvar + 1;
+    CLVALUE* native_method = lvar + 2;
+
+    /// Clover to c value ///
+    char* path_value = ALLOC string_object_to_char_array(path->mObjectValue);
+    char* fun_name_value = ALLOC string_object_to_char_array(fun_name->mObjectValue);
+    fNativeMethod native_method_value = (fNativeMethod)native_method->mPointerValue;
+
+    /// go ///
+    put_fun_to_hash_for_native_method(path_value, fun_name_value, native_method_value);
+
+    MFREE(path_value);
+    MFREE(fun_name_value);
 
     return TRUE;
 }

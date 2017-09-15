@@ -318,7 +318,7 @@ BOOL add_class_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL p
 
 void add_code_to_method(sCLMethod* method, sByteCode* code, int var_num)
 {
-    method->uCode.mByteCodes = *code;
+    method->mByteCodes = *code;
     method->mVarNum = var_num;
 }
 
@@ -592,7 +592,7 @@ static void append_methods_to_buffer(sBuf* buf, sCLMethod* methods, sCLClass* kl
         append_cl_type_to_buffer(buf, method->mResultType);
 
         if(!(method->mFlags & METHOD_FLAGS_NATIVE)) {
-            append_byte_codes_to_buffer(buf, &method->uCode.mByteCodes);
+            append_byte_codes_to_buffer(buf, &method->mByteCodes);
             sBuf_append_int(buf, method->mVarNum);
         }
     }

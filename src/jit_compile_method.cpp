@@ -32,7 +32,7 @@ static BOOL compile_jit_methods(sCLClass* klass)
                 char method_path2[METHOD_NAME_MAX + 128];
                 create_method_path_for_jit(klass, method, method_path2, METHOD_NAME_MAX + 128);
 
-                sByteCode* code = &method->uCode.mByteCodes;
+                sByteCode* code = &method->mByteCodes;
                 sConst* constant = &klass->mConst;
 
                 if(!compile_to_native_code(code, constant, klass, method, method_path2)) {

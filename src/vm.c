@@ -431,15 +431,25 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
     if(method->mFlags & METHOD_FLAGS_NATIVE) {
         CLVALUE* lvar = *stack_ptr - method->mNumParams;
 
-        if(method->uCode.mNativeMethod == NULL) {
-            entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "Native method not found");
-            return FALSE;
+        if(method->mNativeMethod == NULL) {
+            char* path = CONS_str(&klass->mConst, method->mPathOffset);
+
+            char* fun_name;
+            fNativeMethod native_method = get_native_method(path, &fun_name);
+
+            if(native_method == NULL) {
+                entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "Native method not found");
+                return FALSE;
+            }
+
+            method->mNativeMethod = native_method;
+            method->mNativeFunName = fun_name;
         }
 
         info->current_stack = stack;        // for invoking_block in native method
         info->current_var_num = var_num;
 
-        if(!method->uCode.mNativeMethod(stack_ptr, lvar, info)) {
+        if(!method->mNativeMethod(stack_ptr, lvar, info)) {
             CLVALUE result = *(*stack_ptr - 1); // see OP_TRY
             *stack_ptr = lvar;
             **stack_ptr = result;
@@ -464,7 +474,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
         int real_param_num = method->mNumParams + (method->mFlags & METHOD_FLAGS_CLASS_METHOD ? 0:1);
         CLVALUE* lvar = *stack_ptr - real_param_num;
 
-        sByteCode* code = &method->uCode.mByteCodes;
+        sByteCode* code = &method->mByteCodes;
         sConst* constant = &klass->mConst;
         CLVALUE* new_stack = lvar;
         int new_var_num = method->mVarNum;

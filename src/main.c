@@ -16,10 +16,10 @@ static void clover2_init()
 static void clover2_final()
 {
     class_final_on_runtime();
-    native_method_final();
-    stack_final();
     heap_final();
+    stack_final();
     class_final();
+    native_method_final();
 #ifdef ENABLE_JIT
     jit_final_on_runtime();
 #endif

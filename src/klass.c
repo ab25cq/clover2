@@ -8,8 +8,6 @@ sClassTable* gHeadClassTable = NULL;
 
 static sClassTable gClassTable[CLASS_NUM_MAX];
 
-fGetNativeMethod gGetNativeMethod = NULL;
-
 unsigned int get_hash_key(char* name, unsigned int max)
 {
     unsigned int result = 0;
@@ -359,26 +357,15 @@ static BOOL read_methods_from_file(int fd, sCLMethod** methods, int* num_methods
             return FALSE;
         }
 
+        method->mNativeMethod = NULL;   // Native methods are loaded on the calling time
+        method->mNativeFunName = NULL;
+
         if(method->mFlags & METHOD_FLAGS_NATIVE) {
-            char* path = CONS_str(&klass->mConst, method->mPathOffset);
-
-            if(gGetNativeMethod) { // if running Virtual Matchine,  gGetNativeMethod is not NULL
-                char* fun_name;
-                fNativeMethod native_method = gGetNativeMethod(path, &fun_name);
-
-                if(native_method == NULL) {
-                    fprintf(stderr, "%s is not found\n", path);
-                    return FALSE;
-                }
-
-                method->uCode.mNativeMethod = native_method;
-                method->uCode.mNativeFunName = fun_name;
-            }
+            memset(&method->mByteCodes, 0, sizeof(sByteCode));
 
             method->mVarNum = 0;
-        }
-        else {
-            if(!read_code_from_file(fd, &method->uCode.mByteCodes)) {
+        } else {
+            if(!read_code_from_file(fd, &method->mByteCodes)) {
                 return FALSE;
             }
 
@@ -783,8 +770,8 @@ static void free_class(sCLClass* klass)
 
         free_cl_type(method->mResultType);
 
-        if(!(method->mFlags & METHOD_FLAGS_NATIVE) && method->uCode.mByteCodes.mCodes) {
-            sByteCode_free(&method->uCode.mByteCodes);
+        if(!(method->mFlags & METHOD_FLAGS_NATIVE) && method->mByteCodes.mCodes != NULL) {
+            sByteCode_free(&method->mByteCodes);
         }
     }
     MFREE(klass->mMethods);

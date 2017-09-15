@@ -75,6 +75,17 @@ class System
     CLOCK_PROCESS_CPUTIME_ID: static int;
     CLOCK_THREAD_CPUTIME_ID: static int;
 
+    RTLD_LAZY:static int;
+    RTLD_NOW:static int;
+    RTLD_GLOBAL:static int;
+    RTLD_LOCAL:static int;
+    RTLD_NODELETE:static int;
+    RTLD_NOLOAD:static int;
+    RTLD_DEEPBIND:static int;
+
+    RTLD_DEFAULT: static pointer;
+    RTLD_NEXT: static pointer;
+
     def initialize_file_system(): static native;
 
     def initialize(): static {
@@ -122,6 +133,12 @@ class System
     def clock_getres(clk_id:clockid_t, res:timespec): static native throws Exception;
     def clock_gettime(clk_id:clockid_t, tp:timespec): static native throws Exception;
     def clock_settime(clk_id:clockid_t, tp:timespec): static native throws Exception;
+
+    def dlopen(path:String, flags:int): static native pointer throws Exception;
+    def dlclose(handle:pointer): static native int throws Exception;
+    def dlsym(handle:pointer, symbol:String): static native pointer throws Exception;
+
+    def put_fun_to_hash_for_native_method(path:String, fun_name:String, native_method:pointer): static native;
 }
 
 class timespec

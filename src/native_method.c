@@ -1,6 +1,6 @@
 #include "common.h"
 
-#define NATIVE_METHOD_HASH_SIZE 256
+#define NATIVE_METHOD_HASH_SIZE 1024
 
 struct sNativeMethodHashItem {
     char* mPath;
@@ -26,7 +26,7 @@ static unsigned int get_hash_key_for_native_method(char* path)
     return key % NATIVE_METHOD_HASH_SIZE;
 }
 
-static void put_fun_to_hash_for_native_method(char* path, char* fun_name, fNativeMethod fun)
+void put_fun_to_hash_for_native_method(char* path, char* fun_name, fNativeMethod fun)
 {
     unsigned int key, key2;
 
@@ -65,20 +65,24 @@ fNativeMethod get_native_method(char* path, char** fun_name)
 
     while(1) {
         if(gNativeMethodHash[key2].mPath == NULL) {
+            (*fun_name) = NULL;
             return NULL;
         }
-        else if(strcmp(gNativeMethodHash[key2].mPath, path) == 0) {
-            (*fun_name) = gNativeMethodHash[key2].mFunName;
-            return gNativeMethodHash[key2].mFun;
-        }
         else {
-            key2++;
-
-            if(key2 >= NATIVE_METHOD_HASH_SIZE) {
-                key2 = 0;
+            if(strcmp(gNativeMethodHash[key2].mPath, path) == 0) {
+                (*fun_name) = gNativeMethodHash[key2].mFunName;
+                return gNativeMethodHash[key2].mFun;
             }
-            else if(key2 == key) {
-                return NULL;
+            else {
+                key2++;
+
+                if(key2 >= NATIVE_METHOD_HASH_SIZE) {
+                    key2 = 0;
+                }
+                else if(key2 == key) {
+                    (*fun_name) = NULL;
+                    return NULL;
+                }
             }
         }
     }
@@ -196,12 +200,16 @@ static sNativeMethod gNativeMethods[] = {
     { "System.clock_getres(int,timespec)", "System_clock_getres", System_clock_getres },
     { "System.clock_gettime(int,timespec)", "System_clock_gettime", System_clock_gettime },
     { "System.clock_settime(int,timespec)", "System_clock_settime", System_clock_settime },
+    { "System.dlopen(String,int)", "System_dlopen", System_dlopen },
+    { "System.dlclose(pointer)", "System_dlclose", System_dlclose },
+    { "System.dlsym(pointer,String)", "System_dlsym", System_dlsym },
     { "System.system(String)", "System_system", System_system },
     { "System.getenv(String)", "System_getenv", System_getenv },
     { "System.setenv(String,String,int)", "System_setenv", System_setenv },
     { "System.unsetenv(String)", "System_unsetenv", System_unsetenv },
+    { "System.put_fun_to_hash_for_native_method(String,String,pointer)", "System_put_fun_to_hash_for_native_method", System_put_fun_to_hash_for_native_method },
 
-    { "", 0 }  // sentinel
+    { "", "", 0 }  // sentinel
 };
 
 
@@ -209,7 +217,7 @@ void native_method_init()
 {
     sNativeMethod* p;
 
-    memset(gNativeMethodHash, 0, sizeof(gNativeMethodHash));
+    memset(gNativeMethodHash, 0, sizeof(struct sNativeMethodHashItem)*NATIVE_METHOD_HASH_SIZE);
 
     p = gNativeMethods;
 
@@ -217,8 +225,6 @@ void native_method_init()
         put_fun_to_hash_for_native_method((char*)p->mPath, p->mFunName, p->mFun);
         p++;
     }
-
-    gGetNativeMethod = get_native_method;
 }
 
 void native_method_final()
