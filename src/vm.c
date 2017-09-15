@@ -1091,10 +1091,6 @@ if(stack_ptr != lvar + var_num + 1) {
                 }
                 break;
 
-            case OP_JIT_POP: {
-                }
-                break;
-
             case OP_STORE:
                 {
                     vm_mutex_on();

@@ -532,11 +532,6 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 }
                 break;
 
-            case OP_JIT_POP: {
-                inc_vm_stack_ptr(params, current_block, -1);
-                }
-                break;
-
             default:
                 if(!compile_to_native_code2(code, constant, klass, method, method_path2, inst, &pc, &llvm_stack_ptr, llvm_stack, params, &current_block, &function, var_num, &try_catch_label_name))
                 {

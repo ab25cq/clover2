@@ -166,8 +166,8 @@ OP_BYTE_TO_UINT_CAST	src/common.h	1264;"	d
 OP_BYTE_TO_ULONG_CAST	src/common.h	1290;"	d
 OP_BYTE_TO_USHORT_CAST	src/common.h	1238;"	d
 OP_CADD	src/common.h	965;"	d
-OP_CATCH_POP	src/common.h	824;"	d
-OP_CATCH_STORE	src/common.h	825;"	d
+OP_CATCH_POP	src/common.h	825;"	d
+OP_CATCH_STORE	src/common.h	826;"	d
 OP_CBOOL_TO_BYTE_CAST	src/common.h	1132;"	d
 OP_CBOOL_TO_CHAR_CAST	src/common.h	1398;"	d
 OP_CBOOL_TO_DOUBLE_CAST	src/common.h	1362;"	d
@@ -268,8 +268,8 @@ OP_CLONG_TO_UINT_CAST	src/common.h	1282;"	d
 OP_CLONG_TO_ULONG_CAST	src/common.h	1308;"	d
 OP_CLONG_TO_USHORT_CAST	src/common.h	1256;"	d
 OP_CNOTEQ	src/common.h	1046;"	d
-OP_COND_JUMP	src/common.h	817;"	d
-OP_COND_NOT_JUMP	src/common.h	818;"	d
+OP_COND_JUMP	src/common.h	818;"	d
+OP_COND_NOT_JUMP	src/common.h	819;"	d
 OP_CPOINTER_TO_BYTE_CAST	src/common.h	1130;"	d
 OP_CPOINTER_TO_CHAR_CAST	src/common.h	1396;"	d
 OP_CPOINTER_TO_INT_CAST	src/common.h	1182;"	d
@@ -371,7 +371,7 @@ OP_DOUBLE_TO_UINT_CAST	src/common.h	1272;"	d
 OP_DOUBLE_TO_ULONG_CAST	src/common.h	1298;"	d
 OP_DOUBLE_TO_USHORT_CAST	src/common.h	1246;"	d
 OP_DSUB	src/common.h	957;"	d
-OP_DUPE	src/common.h	816;"	d
+OP_DUPE	src/common.h	817;"	d
 OP_FADD	src/common.h	951;"	d
 OP_FDIV	src/common.h	954;"	d
 OP_FEQ	src/common.h	1024;"	d
@@ -414,8 +414,8 @@ OP_GET_REGEX_GLOBAL	src/common.h	1597;"	d
 OP_GET_REGEX_IGNORE_CASE	src/common.h	1598;"	d
 OP_GET_REGEX_MULTILINE	src/common.h	1599;"	d
 OP_GET_REGEX_UNGREEDY	src/common.h	1604;"	d
-OP_GOTO	src/common.h	819;"	d
-OP_HEAD_OF_EXPRESSION	src/common.h	826;"	d
+OP_GOTO	src/common.h	820;"	d
+OP_HEAD_OF_EXPRESSION	src/common.h	827;"	d
 OP_IADD	src/common.h	898;"	d
 OP_IAND	src/common.h	905;"	d
 OP_ICOMPLEMENT	src/common.h	946;"	d
@@ -474,8 +474,7 @@ OP_IOR	src/common.h	907;"	d
 OP_IRSHIFT	src/common.h	904;"	d
 OP_ISUB	src/common.h	899;"	d
 OP_IXOR	src/common.h	906;"	d
-OP_JIT_POP	src/common.h	830;"	d
-OP_LABEL	src/common.h	829;"	d
+OP_LABEL	src/common.h	830;"	d
 OP_LADD	src/common.h	920;"	d
 OP_LAND	src/common.h	927;"	d
 OP_LCOMPLEMENT	src/common.h	948;"	d
@@ -553,7 +552,7 @@ OP_LOR	src/common.h	929;"	d
 OP_LRSHIFT	src/common.h	926;"	d
 OP_LSUB	src/common.h	921;"	d
 OP_LXOR	src/common.h	928;"	d
-OP_MARK_SOURCE_CODE_POSITION	src/common.h	827;"	d
+OP_MARK_SOURCE_CODE_POSITION	src/common.h	828;"	d
 OP_NEW	src/common.h	1068;"	d
 OP_OBJ_IDENTIFY	src/common.h	1055;"	d
 OP_OROR	src/common.h	1060;"	d
@@ -585,15 +584,15 @@ OP_POINTER_TO_UINTEGER_CAST	src/common.h	1440;"	d
 OP_POINTER_TO_UINT_CAST	src/common.h	1273;"	d
 OP_POINTER_TO_ULONG_CAST	src/common.h	1299;"	d
 OP_POINTER_TO_USHORT_CAST	src/common.h	1247;"	d
-OP_POP	src/common.h	813;"	d
-OP_POP_N	src/common.h	814;"	d
+OP_POP	src/common.h	814;"	d
+OP_POP_N	src/common.h	815;"	d
 OP_PPSUB	src/common.h	963;"	d
 OP_PSUB	src/common.h	962;"	d
 OP_REGEQ	src/common.h	1052;"	d
 OP_REGEX_TO_STRING_CAST	src/common.h	1411;"	d
 OP_REGNOTEQ	src/common.h	1053;"	d
-OP_RETURN	src/common.h	820;"	d
-OP_REVERSE	src/common.h	815;"	d
+OP_RETURN	src/common.h	821;"	d
+OP_REVERSE	src/common.h	816;"	d
 OP_SADD	src/common.h	876;"	d
 OP_SAND	src/common.h	883;"	d
 OP_SCOMPLEMENT	src/common.h	944;"	d
@@ -626,7 +625,7 @@ OP_SHORT_TO_UINTEGER_CAST	src/common.h	1431;"	d
 OP_SHORT_TO_UINT_CAST	src/common.h	1266;"	d
 OP_SHORT_TO_ULONG_CAST	src/common.h	1292;"	d
 OP_SHORT_TO_USHORT_CAST	src/common.h	1240;"	d
-OP_SIGINT	src/common.h	828;"	d
+OP_SIGINT	src/common.h	829;"	d
 OP_SLE	src/common.h	985;"	d
 OP_SLEEQ	src/common.h	987;"	d
 OP_SLSHIFT	src/common.h	881;"	d
@@ -656,9 +655,9 @@ OP_STORE_VALUE_TO_UINT_ADDRESS	src/common.h	1079;"	d
 OP_STORE_VALUE_TO_ULONG_ADDRESS	src/common.h	1085;"	d
 OP_STORE_VALUE_TO_USHORT_ADDRESS	src/common.h	1083;"	d
 OP_SXOR	src/common.h	884;"	d
-OP_THROW	src/common.h	821;"	d
-OP_TRY	src/common.h	822;"	d
-OP_TRY_END	src/common.h	823;"	d
+OP_THROW	src/common.h	822;"	d
+OP_TRY	src/common.h	823;"	d
+OP_TRY_END	src/common.h	824;"	d
 OP_UBADD	src/common.h	865;"	d
 OP_UBAND	src/common.h	872;"	d
 OP_UBCOMPLEMENT	src/common.h	943;"	d
@@ -994,7 +993,7 @@ append_byte_codes_to_buffer	src/klass_compile_time.c	/^static void append_byte_c
 append_character_to_module	src/module.c	/^void append_character_to_module(sCLModule* self, char c)$/;"	f
 append_cl_block_type	src/klass_compile_time.c	/^static void append_cl_block_type(sBuf* buf, sCLBlockType* cl_block_type)$/;"	f	file:
 append_cl_type_to_buffer	src/klass_compile_time.c	/^static void append_cl_type_to_buffer(sBuf* buf, sCLType* cl_type)$/;"	f	file:
-append_class_name_to_constant_pool_and_code	src/node.c	/^static void append_class_name_to_constant_pool_and_code(sCompileInfo* info, sCLClass* klass)$/;"	f	file:
+append_class_name_to_constant_pool_and_code	src/node.c	/^void append_class_name_to_constant_pool_and_code(sCompileInfo* info, sCLClass* klass)$/;"	f
 append_const_to_buffer	src/klass_compile_time.c	/^static void append_const_to_buffer(sBuf* buf, sConst* constant, sCLClass* klass)$/;"	f	file:
 append_double_value_to_code	src/code.c	/^void append_double_value_to_code(sByteCode* code, double value, BOOL no_output)$/;"	f
 append_double_value_to_constant_pool	src/constant.c	/^int append_double_value_to_constant_pool(sConst* constant, double n, BOOL no_output)$/;"	f
@@ -1019,25 +1018,17 @@ arrange_alignment	src/code.c	/^static void arrange_alignment(sByteCode* code)$/;
 arrange_alignment	src/constant.c	/^static void arrange_alignment(sConst* self)$/;"	f	file:
 arrange_stack	src/node.c	/^void arrange_stack(sCompileInfo* cinfo)$/;"	f
 array_mark_fun	src/array.c	/^void array_mark_fun(CLObject self, unsigned char* mark_flg)$/;"	f
-as_fn_append	config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	configure	/^  as_fn_append ()$/;"	f
-as_fn_arith	config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	configure	/^  as_fn_arith ()$/;"	f
-as_fn_error	config.status	/^as_fn_error ()$/;"	f
 as_fn_error	configure	/^as_fn_error ()$/;"	f
-as_fn_executable_p	config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	configure	/^as_fn_executable_p ()$/;"	f
-as_fn_exit	config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	configure	/^as_fn_exit ()$/;"	f
 as_fn_failure	configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
-as_fn_mkdir_p	config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	configure	/^as_fn_mkdir_p ()$/;"	f
 as_fn_ret_failure	configure	/^as_fn_ret_failure () { return 1; }$/;"	f
 as_fn_ret_success	configure	/^as_fn_ret_success () { return 0; }$/;"	f
-as_fn_set_status	config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	configure	/^as_fn_set_status ()$/;"	f
 as_fn_success	configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
-as_fn_unset	config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	configure	/^as_fn_unset ()$/;"	f
 assign_operator	src/parser.c	/^static BOOL assign_operator(unsigned int* node, sParserInfo* info)$/;"	f	file:
 binary_operator	src/node.c	/^static BOOL binary_operator(unsigned int node, sNodeType* left_type, sNodeType* right_type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, int float_operand, int double_operand, int pointer_operand, int null_operand, int char_operand, int bool_operand, int regex_operand, char* op_string, sCompileInfo* info)$/;"	f	file:

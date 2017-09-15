@@ -173,7 +173,7 @@ unsigned int clone_node(unsigned int node)
     return result;
 }
 
-static void append_class_name_to_constant_pool_and_code(sCompileInfo* info, sCLClass* klass)
+void append_class_name_to_constant_pool_and_code(sCompileInfo* info, sCLClass* klass)
 {
     char class_name[CLASS_NAME_MAX];
     xstrncpy(class_name, CLASS_NAME(klass), CLASS_NAME_MAX);
@@ -2234,7 +2234,6 @@ struct sCastMethods gCastMethods[] = {
     { "to_bool", "bool" },
     { NULL, NULL },
 };
-
 
 static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType* object_type, sNodeType* generics_types, sCLClass* klass, sNodeType* param_types[PARAMS_MAX], int num_params, char* method_name, unsigned int params[PARAMS_MAX], int num_method_chains, int max_method_chains)
 {

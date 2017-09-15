@@ -701,6 +701,7 @@ unsigned int clone_node(unsigned int node);
 
 BOOL compile(unsigned int node, sCompileInfo* info);
 void arrange_stack(sCompileInfo* cinfo);
+void append_class_name_to_constant_pool_and_code(sCompileInfo* info, sCLClass* klass);
 
 unsigned int sNodeTree_create_operand(enum eOperand operand, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
 unsigned int sNodeTree_create_byte_value(char value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
@@ -827,7 +828,6 @@ extern BOOL gSigInt;
 #define OP_MARK_SOURCE_CODE_POSITION 15
 #define OP_SIGINT 16
 #define OP_LABEL 17
-#define OP_JIT_POP 18
 
 #define OP_VALUE_FOR_ANDAND_OROR 19
 #define OP_STORE_VALUE_FOR_ANDAND_OROR 20

@@ -1464,6 +1464,104 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
                 return FALSE;
             }
 
+            sCLClass* klass = cinfo.type->mClass;
+
+            /// toString and println ///
+            if(klass->mFlags & CLASS_FLAGS_PRIMITIVE) {
+                cast_right_type_to_String(&cinfo.type, &cinfo);
+
+                if(type_identify_with_class_name(cinfo.type, "String")) {
+                    sCLClass* string_class = get_class("String");
+
+                    MASSERT(string_class != NULL);
+
+                    /// chomp ///
+                    sNodeType* result_type = NULL;
+                    int method_index = search_for_method(string_class, "chomp", NULL, 0, FALSE, string_class->mNumMethods-1, NULL, NULL, &result_type);
+
+                    if(method_index != -1) {
+                        append_opecode_to_code(cinfo.code, OP_INVOKE_METHOD, cinfo.no_output);
+
+                        append_class_name_to_constant_pool_and_code(&cinfo, string_class);
+                        append_int_value_to_code(cinfo.code, method_index, cinfo.no_output);
+
+                        cinfo.stack_num--;
+                        cinfo.stack_num++;
+
+                        cinfo.type = result_type;
+                    }
+
+                    /// println ///
+                    method_index = search_for_method(string_class, "println", NULL, 0, FALSE, string_class->mNumMethods-1, NULL, NULL, &result_type);
+
+                    if(method_index != -1) {
+                        append_opecode_to_code(cinfo.code, OP_INVOKE_METHOD, cinfo.no_output);
+
+                        append_class_name_to_constant_pool_and_code(&cinfo, string_class);
+                        append_int_value_to_code(cinfo.code, method_index, cinfo.no_output);
+
+                        cinfo.stack_num--;
+                        cinfo.stack_num++;
+
+                        cinfo.type = result_type;
+                    }
+                }
+            }
+            else {
+                sNodeType* result_type = NULL;
+                int method_index = search_for_method(klass, "toString", NULL, 0, FALSE, klass->mNumMethods-1, NULL, NULL, &result_type);
+
+                if(method_index != -1) {
+                    append_opecode_to_code(cinfo.code, OP_INVOKE_METHOD, cinfo.no_output);
+
+                    append_class_name_to_constant_pool_and_code(&cinfo, klass);
+                    append_int_value_to_code(cinfo.code, method_index, cinfo.no_output);
+
+                    cinfo.stack_num--;
+                    cinfo.stack_num++;
+
+                    cinfo.type = result_type;
+
+                    /// println ///
+                    sCLClass* string_class = get_class("String");
+
+                    MASSERT(string_class != NULL);
+
+                    /// chomp ///
+                    sNodeType* result_type = NULL;
+                    int method_index = search_for_method(string_class, "chomp", NULL, 0, FALSE, string_class->mNumMethods-1, NULL, NULL, &result_type);
+
+                    if(method_index != -1) {
+                        append_opecode_to_code(cinfo.code, OP_INVOKE_METHOD, cinfo.no_output);
+
+                        append_class_name_to_constant_pool_and_code(&cinfo, string_class);
+                        append_int_value_to_code(cinfo.code, method_index, cinfo.no_output);
+
+                        cinfo.stack_num--;
+                        cinfo.stack_num++;
+
+                        cinfo.type = result_type;
+                    }
+
+                    /// println ///
+                    result_type = NULL;
+                    method_index = search_for_method(string_class, "println", NULL, 0, FALSE, string_class->mNumMethods-1, NULL, NULL, &result_type);
+
+                    if(method_index != -1) {
+                        append_opecode_to_code(cinfo.code, OP_INVOKE_METHOD, cinfo.no_output);
+
+                        append_class_name_to_constant_pool_and_code(&cinfo, string_class);
+                        append_int_value_to_code(cinfo.code, method_index, cinfo.no_output);
+
+                        cinfo.stack_num--;
+                        cinfo.stack_num++;
+
+                        cinfo.type = result_type;
+                    }
+                }
+            }
+
+            /// end of line ///
             arrange_stack(&cinfo);
 
 #ifdef ENABLE_INTERPRETER
@@ -1573,13 +1671,6 @@ int main(int argc, char** argv)
     gStack = stack;
     gLVTable = lv_table;
 
-    /// initialize tmp_output ///
-    compiler_init(FALSE);
-    if(!eval_str("tmp_output:String = null;", "iclover2", lv_table, stack)) {
-        fprintf(stderr, "compile or runtime error\n");
-    }
-    compiler_final();
-
     while(1) {
         compiler_init(FALSE);
 
@@ -1606,53 +1697,13 @@ int main(int argc, char** argv)
             line[strlen(line)-1] = '\0';
         }
 
-        /// clone lv_table ///
-        sVarTable* lv_table2 = clone_var_table(lv_table);
-
-        /// get type ///
-        sNodeType* type_ = NULL;
-        (void)get_type(line, "iclover2", lv_table2, stack, &type_);
-
-        if(type_ != NULL) {
-            sCLClass* klass = type_->mClass;
-
-            sNodeType* result_type = NULL;
-            int method_index = search_for_method(klass, "toString", NULL, 0, FALSE, klass->mNumMethods-1, NULL, NULL, &result_type);
-
-            /// eval ///
-            if((method_index == -1 || !type_identify_with_class_name(result_type, "String")) && !(klass->mFlags & CLASS_FLAGS_PRIMITIVE))
-            {
-                if(!eval_str(line, "iclover2", lv_table, stack)) {
-                    fprintf(stderr, "compile or runtime error\n");
-                }
-            }
-            else if(type_identify_with_class_name(type_, "Null")) {
-                if(!eval_str(line, "iclover2", lv_table, stack)) {
-                    fprintf(stderr, "compile or runtime error\n");
-                }
-
-                puts("null");
-            }
-            else {
-                int len = strlen(line) + 128;
-                char* line2 = MCALLOC(1, sizeof(char)*len);
-
-                snprintf(line2, len, "tmp_output = (%s).toString(); if(!tmp_output.equals(\"\")) { tmp_output.chomp().println() }", line);
-
-                if(!eval_str(line2, "iclover2", lv_table, stack)) {
-                    fprintf(stderr, "compile or runtime error\n");
-                }
-
-                MFREE(line2);
-            }
-
-            add_history(line);
-        }
-        else {
+        if(!eval_str(line, "iclover2", lv_table, stack)) {
             fprintf(stderr, "compile or runtime error\n");
         }
 
         compiler_final();
+
+        add_history(line);
 
         free(line);
     }
