@@ -581,6 +581,7 @@ static BOOL initialize_class(sCLClass* klass)
         memset(&info, 0, sizeof(sVMInfo));
 
         if(!invoke_method(klass, initialize_method, stack, 0, &stack_ptr, &info)) {
+            show_exception_message(info.exception_message);
             MFREE(stack);
             return FALSE;
         }

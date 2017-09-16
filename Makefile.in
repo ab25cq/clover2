@@ -343,5 +343,5 @@ test:
 	./cclover2 code/anonymous.cl && ./clover2 code/anonymous.clo
 	gcc -shared -Wl,-soname=libExtTest.so.1 -o libExtTest.so.1.0.0 -I src/ -I . -fPIC ext/hello.c
 	ln -fs libExtTest.so.1.0.0 libExtTest.so
-	./cclover2 -class code/ext.clc && ./cclover2 code/ext.cl && ./clover2 code/ext.clo
+	./cclover2 -class ext.clc && ./cclover2 ext.cl && ./clover2 ext.clo
 
