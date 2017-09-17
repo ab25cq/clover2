@@ -707,6 +707,7 @@ static BOOL finalize_class(sCLClass* klass)
         memset(&info, 0, sizeof(sVMInfo));
 
         if(!invoke_method(klass, finalize_method, stack, 0, &stack_ptr, &info)) {
+            show_exception_message(info.exception_message);
             MFREE(stack);
             return FALSE;
         }
@@ -734,6 +735,7 @@ BOOL call_finalize_method_on_free_object(sCLClass* klass, CLObject self)
         stack_ptr++;
 
         if(!invoke_method(klass, finalize_method, stack, 0, &stack_ptr, &info)) {
+            show_exception_message(info.exception_message);
             MFREE(stack);
             return FALSE;
         }

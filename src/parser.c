@@ -1577,6 +1577,55 @@ static BOOL parse_block_object(unsigned int* node, sParserInfo* info, BOOL lambd
     return TRUE;
 }
 
+static BOOL parse_function(unsigned int* node, sParserInfo* info, BOOL lambda)
+{
+    /// function name ///
+    char fun_name[VAR_NAME_MAX];
+
+    if(!parse_word(fun_name, VAR_NAME_MAX, info, TRUE)) {
+        return FALSE;
+    }
+
+    expect_next_character_with_one_forward("(", info);
+
+    sNodeType* node_type = NULL;
+    check_already_added_variable(info->lv_table, fun_name, info);
+    add_variable_to_table(info->lv_table, fun_name, node_type);
+
+    /// params ///
+    sParserParam params[PARAMS_MAX];
+    int num_params = 0;
+
+    /// parse_params ///
+    sVarTable* new_table = NULL;
+
+    if(!parse_params_and_entry_to_lvtable(params, &num_params, info, &new_table, info->lv_table)) {
+        return FALSE;
+    }
+
+    sNodeType* result_type = NULL;
+    if(*info->p == ':') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        if(!parse_type(&result_type, info)) {
+            return FALSE;
+        }
+    }
+    else {
+        result_type = create_node_type_with_class_name("Null");
+    }
+
+    sNodeBlock* node_block = NULL;
+    if(!parse_block(ALLOC &node_block, info, new_table, TRUE)) {
+        return FALSE;
+    }
+
+    *node = sNodeTree_create_function(fun_name, params, num_params, result_type, MANAGED node_block, lambda, info);
+
+    return TRUE;
+}
+
 static BOOL parse_normal_block(unsigned int* node, sParserInfo* info)
 {
     sNodeBlock* node_block = NULL;
@@ -2395,6 +2444,11 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
         }
+        else if(strcmp(buf, "def") == 0) {
+            if(!parse_function(node, info, FALSE)) {
+                return FALSE;
+            }
+        }
         else if(strcmp(buf, "inherit") == 0) {
             if(!parse_iniherit(node, info)) {
                 return FALSE;
@@ -2688,7 +2742,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             else {
                 *node = sNodeTree_create_load_variable(buf, info);
 
-                /// lamda call ///
+                /// lambda call ///
                 if(*info->p == '(') {
                     unsigned int params[PARAMS_MAX];
                     int num_params = 0;
