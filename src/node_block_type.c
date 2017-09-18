@@ -83,7 +83,7 @@ ALLOC sNodeBlockType* clone_node_block_type(sNodeBlockType* block)
 
 BOOL substitution_posibility_for_node_block_type(sNodeBlockType* left_block, sNodeBlockType* right_block, sNodeType* left_generics_types, sNodeType* right_generics_types)
 {
-    if(type_identify(left_block->mResultType, right_block->mResultType)) {
+    if(substitution_posibility(left_block->mResultType, right_block->mResultType, NULL, NULL)) {
         if(left_block->mNumParams == right_block->mNumParams) {
             int i;
             for(i=0; i<left_block->mNumParams; i++) {

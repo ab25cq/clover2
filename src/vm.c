@@ -864,6 +864,35 @@ void boxing_primitive_value_to_object(CLVALUE object, CLVALUE* result, sCLClass*
     }
 }
 
+void Self_convertion_of_method_name_and_params(char* method_name_and_params, char* method_name_and_params2, char* class_name)
+{
+    char* p = method_name_and_params;
+    char* p2 = method_name_and_params2;
+
+    char* result = strstr(p, "(");
+
+    memcpy(p2, p, result -p);
+    p2 += result -p;
+    p = result;
+
+    while(1) {
+        char* result = strstr(p, class_name);
+
+        if(result == NULL) {
+            memcpy(p2, p, strlen(p));
+            p2[strlen(p)] = '\0';
+            break;
+        }
+
+        memcpy(p2, p, result - p);
+        p2 += result - p;
+        memcpy(p2, "Self", 4);
+        p2 += 4;
+
+        p = result + strlen(class_name);
+    }
+}
+
 BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sVMInfo* info)
 {
 #ifdef ENABLE_JIT
@@ -4772,7 +4801,6 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     int num_real_params = *(int*)pc;
                     pc += sizeof(int);
 
-
                     int offset = *(int*)pc;
                     pc += sizeof(int);
 
@@ -4786,11 +4814,15 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     char* method_name_and_params = CONS_str(constant, offset);
 
-                    sCLMethod* method = search_for_method_from_virtual_method_table(klass, method_name_and_params);
+                    char method_name_and_params2[METHOD_NAME_MAX + num_real_params * CLASS_NAME_MAX + 128];
+                    Self_convertion_of_method_name_and_params(method_name_and_params, method_name_and_params2, CLASS_NAME(klass));
+
+
+                    sCLMethod* method = search_for_method_from_virtual_method_table(klass, method_name_and_params2);
 
                     if(method == NULL) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "OP_INVOKE_VIRTUAL_METHOD: Method not found");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "OP_INVOKE_VIRTUAL_METHOD: Method not found(%s.%s)", CLASS_NAME(klass), method_name_and_params);
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }

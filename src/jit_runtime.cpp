@@ -111,7 +111,7 @@ BOOL call_invoke_method(sCLClass* klass, int method_index, CLVALUE* stack, int v
     return invoke_method(klass, method, stack, var_num, stack_ptr, info);
 }
 
-BOOL call_invoke_virtual_method(int offset, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sConst* constant, CLObject object)
+BOOL call_invoke_virtual_method(int offset, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sConst* constant, CLObject object, int num_real_params)
 {
     /// go ///
     sCLObject* object_data = CLOBJECT(object);
@@ -122,7 +122,10 @@ BOOL call_invoke_virtual_method(int offset, CLVALUE* stack, int var_num, CLVALUE
 
     char* method_name_and_params = CONS_str(constant, offset);
 
-    sCLMethod* method = search_for_method_from_virtual_method_table(klass, method_name_and_params);
+    char method_name_and_params2[METHOD_NAME_MAX + num_real_params * CLASS_NAME_MAX + 128];
+    Self_convertion_of_method_name_and_params(method_name_and_params, method_name_and_params2, CLASS_NAME(klass));
+
+    sCLMethod* method = search_for_method_from_virtual_method_table(klass, method_name_and_params2);
 
     if(method == NULL) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "OP_INVOKE_VIRTUAL_METHOD: Method not found");

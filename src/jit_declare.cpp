@@ -515,6 +515,9 @@ void create_internal_functions()
     param7_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param7_type);
 
+    param8_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param8_type);
+
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "call_invoke_virtual_method", TheModule);
 

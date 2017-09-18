@@ -345,4 +345,5 @@ test:
 	ln -fs libExtTest.so.1.0.0 libExtTest.so
 	./cclover2 -class ext.clc && ./cclover2 ext.cl && ./clover2 ext.clo
 	./cclover2 code/fun.cl && ./clover2 code/fun.clo
+	./cclover2 code/type_inference.cl && ./clover2 code/type_inference.clo
 

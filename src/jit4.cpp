@@ -174,6 +174,9 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* param7 = object_value2.value;
             params2.push_back(param7);
 
+            Value* param8 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_real_params);
+            params2.push_back(param1);
+
             Value* result = Builder.CreateCall(fun, params2);
 
             finish_method_call(result, params, current_block, *function, try_catch_label_name, code, num_real_params-1, var_num, llvm_stack, *llvm_stack_ptr);

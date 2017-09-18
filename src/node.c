@@ -2755,20 +2755,21 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
     /// compile expression ///
     unsigned int expression_node = gNodes[node].mLeft;
 
-    sNodeType* result_value_type;
+    sNodeType* value_result_type;
     if(expression_node != 0) {
         if(!compile(expression_node, info)) {
             return FALSE;
         }
-        result_value_type = info->type;
+        value_result_type = info->type;
     }
     else {
-        result_value_type = NULL;
+        value_result_type = NULL;
     }
 
     sCLClass* klass = info->pinfo->klass;
     sCLMethod* method = info->method;
 
+    /// check return statnment in not method or block object ///
     if(method == NULL && info->block_result_type == NULL) {
         compile_err_msg(info, "Return expression should be in a method definition or in a block object");
         info->err_num++;
@@ -2778,9 +2779,10 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
-    if(info->block_result_type == NULL && klass && (!(method->mFlags & METHOD_FLAGS_CLASS_METHOD) && strcmp(CONS_str(&klass->mConst, method->mNameOffset), "initialize") == 0)) 
+    /// check return statment in initialize method ///
+    if(info->block_result_type == NULL && klass && (!(method->mFlags & METHOD_FLAGS_CLASS_METHOD) && strcmp(CONS_str(&klass->mConst, method->mNameOffset), "initialize") == 0) && (!(method->mFlags & METHOD_FLAGS_CLASS_METHOD) && strcmp(CONS_str(&klass->mConst, method->mNameOffset), "finalize") == 0))
     {
-        compile_err_msg(info, "There is in the initialize method");
+        compile_err_msg(info, "There is in the initialize or finalize method");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -2788,14 +2790,21 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
+    /// result type ///
     sNodeType* result_type = NULL;
-    if(info->block_result_type) {
+    if(info->block_result_type && type_identify_with_class_name(info->block_result_type, "Null") && expression_node != 0)
+    {
+        result_type = value_result_type;
+        info->block_result_type = value_result_type; // hand over to compile_block_object
+    }
+    else if(info->block_result_type) {
         result_type = info->block_result_type;
     }
     else { // info->method != NULL
         result_type = create_node_type_from_cl_type(info->method->mResultType, info->pinfo->klass);
     }
 
+    /// check result type ///
     sNodeType* result_type2 = NULL;
     solve_generics_for_variable(result_type, &result_type2, info->pinfo->klass);
 
@@ -2815,10 +2824,10 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
         info->stack_num++;
     }
     else {
-        cast_right_type_to_left_type(result_type2, &result_value_type, info);
+        cast_right_type_to_left_type(result_type2, &value_result_type, info);
 
-        if(!substitution_posibility(result_type2, result_value_type, NULL, NULL)) {
-            compile_err_msg(info, "Invalid type of return value(2). Left type is %s. Right type is %s.", CLASS_NAME(result_type2->mClass), CLASS_NAME(result_value_type->mClass));
+        if(!substitution_posibility(result_type2, value_result_type, NULL, NULL)) {
+            compile_err_msg(info, "Invalid type of return value(2). Left type is %s. Right type is %s.", CLASS_NAME(result_type2->mClass), CLASS_NAME(value_result_type->mClass));
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
@@ -3033,7 +3042,7 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
-    sCLClass* klass = info->type->mClass;;
+    sCLClass* klass = info->type->mClass;
     char* field_name = gNodes[node].uValue.mVarName;
     BOOL array = info->type->mArray;
     sNodeType* generics_types = info->type;
@@ -3051,6 +3060,7 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
 
     sCLClass* regex_class = get_class("regex");
     sCLClass* char_class = get_class("char");
+    BOOL anonymous_class = type_identify_with_class_name(info->type, "Anonymous");
 
     /// special field ///
     if(array && strcmp(field_name, "length") == 0) {
@@ -3117,94 +3127,94 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
     else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || strcmp(CLASS_NAME(klass), "regex") == 0) && strcmp(field_name, "toString") == 0) {
         cast_right_type_to_String(&info->type, info);
     }
-    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "toByte") == 0) {
+    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "toByte") == 0) {
         cast_right_type_to_Byte(&info->type, info);
     }
-    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "toUByte") == 0) {
+    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "toUByte") == 0) {
         cast_right_type_to_UByte(&info->type, info);
     }
-    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "toShort") == 0) {
+    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "toShort") == 0) {
         cast_right_type_to_Short(&info->type, info);
     }
-    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "toUShort") == 0) {
+    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "toUShort") == 0) {
         cast_right_type_to_UShort(&info->type, info);
     }
-    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "toInteger") == 0) {
+    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "toInteger") == 0) {
         cast_right_type_to_Integer(&info->type, info);
     }
-    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "toUInteger") == 0) {
+    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "toUInteger") == 0) {
         cast_right_type_to_UInteger(&info->type, info);
     }
-    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "toLong") == 0) {
+    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "toLong") == 0) {
         cast_right_type_to_Long(&info->type, info);
     }
-    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "toULong") == 0) {
+    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "toULong") == 0) {
         cast_right_type_to_ULong(&info->type, info);
     }
-    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "toFloat") == 0) {
+    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "toFloat") == 0) {
         cast_right_type_to_Float(&info->type, info);
     }
-    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "toDouble") == 0) {
+    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "toDouble") == 0) {
         cast_right_type_to_Double(&info->type, info);
     }
-    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "toPointer") == 0) {
+    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "toPointer") == 0) {
         cast_right_type_to_Pointer(&info->type, info);
     }
-    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "toChar") == 0) {
+    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "toChar") == 0) {
         cast_right_type_to_Char(&info->type, info);
     }
-    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "toBool") == 0) {
+    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "toBool") == 0) {
         cast_right_type_to_Bool(&info->type, info);
     }
-    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "to_byte") == 0)
+    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "to_byte") == 0)
     {
         cast_right_type_to_byte(&info->type, info);
     }
-    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "to_ubyte") == 0)
+    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "to_ubyte") == 0)
     {
         cast_right_type_to_ubyte(&info->type, info);
     }
-    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "to_short") == 0)
+    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "to_short") == 0)
     {
         cast_right_type_to_short(&info->type, info);
     }
-    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "to_ushort") == 0)
+    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "to_ushort") == 0)
     {
         cast_right_type_to_ushort(&info->type, info);
     }
-    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "to_int") == 0)
+    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "to_int") == 0)
     {
         cast_right_type_to_int(&info->type, info);
     }
-    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "to_uint") == 0)
+    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "to_uint") == 0)
     {
         cast_right_type_to_uint(&info->type, info);
     }
-    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "to_long") == 0)
+    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "to_long") == 0)
     {
         cast_right_type_to_long(&info->type, info);
     }
-    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "to_ulong") == 0) 
+    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "to_ulong") == 0) 
     {
         cast_right_type_to_ulong(&info->type, info);
     }
-    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "to_float") == 0) 
+    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "to_float") == 0) 
     {
         cast_right_type_to_float(&info->type, info);
     }
-    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "to_double") == 0) 
+    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "to_double") == 0) 
     {
         cast_right_type_to_double(&info->type, info);
     }
-    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "to_char") == 0) 
+    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "to_char") == 0) 
     {
         cast_right_type_to_char(&info->type, info);
     }
-    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "to_pointer") == 0) 
+    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "to_pointer") == 0) 
     {
         cast_right_type_to_pointer(&info->type, info);
     }
-    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "to_bool") == 0) 
+    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "to_bool") == 0) 
     {
         cast_right_type_to_bool(&info->type, info);
     }
@@ -6223,6 +6233,13 @@ BOOL compile_block_object(unsigned int node, sCompileInfo* info)
         return FALSE;
     }
 
+    /// type inference ///
+    sNodeType* type_inference = NULL;
+    if(type_identify_with_class_name(result_type, "Null") && !type_identify_with_class_name(info->block_result_type, "Null"))
+    {
+        type_inference = info->block_result_type;
+    }
+
     info->code = codes_before;
     info->constant = constant_before;
     info->block_result_type = block_result_type_before;
@@ -6267,7 +6284,13 @@ BOOL compile_block_object(unsigned int node, sCompileInfo* info)
     sNodeBlockType* node_block_type = alloc_node_block_type();
 
     node_block_type->mNumParams = num_params;
-    node_block_type->mResultType = result_type;
+    if(type_inference)
+    {
+        node_block_type->mResultType = type_inference;
+    }
+    else {
+        node_block_type->mResultType = result_type;
+    }
     for(i=0; i<num_params; i++) {
         node_block_type->mParams[i] = params[i]->mType;
     }

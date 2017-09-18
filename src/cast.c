@@ -138,6 +138,10 @@ void cast_right_type_to_byte(sNodeType** right_type, sCompileInfo* info)
         append_opecode_to_code(info->code, OP_CBOOL_TO_BYTE_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("byte");
     }
+    else if(type_identify_with_class_name(*right_type, "Anonymous")) {
+        //append_opecode_to_code(info->code, OP_CBYTE_TO_BYTE_CAST, info->no_output);
+        *right_type = create_node_type_with_class_name("byte");
+    }
 }
 
 void cast_right_type_to_short(sNodeType** right_type, sCompileInfo* info)
@@ -276,6 +280,10 @@ void cast_right_type_to_short(sNodeType** right_type, sCompileInfo* info)
     else if(type_identify_with_class_name(*right_type, "Bool"))
     {
         append_opecode_to_code(info->code, OP_CBOOL_TO_SHORT_CAST, info->no_output);
+        *right_type = create_node_type_with_class_name("short");
+    }
+    else if(type_identify_with_class_name(*right_type, "Anonymous")) {
+        //append_opecode_to_code(info->code, OP_CSHORT_TO_SHORT_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("short");
     }
 }
@@ -417,6 +425,10 @@ void cast_right_type_to_int(sNodeType** right_type, sCompileInfo* info)
         append_opecode_to_code(info->code, OP_CBOOL_TO_INT_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("int");
     }
+    else if(type_identify_with_class_name(*right_type, "Anonymous")) {
+        //append_opecode_to_code(info->code, OP_INTEGER_TO_INT_CAST, info->no_output);
+        *right_type = create_node_type_with_class_name("int");
+    }
 }
 
 void cast_right_type_to_long(sNodeType** right_type, sCompileInfo* info)
@@ -555,6 +567,10 @@ void cast_right_type_to_long(sNodeType** right_type, sCompileInfo* info)
     else if(type_identify_with_class_name(*right_type, "Bool"))
     {
         append_opecode_to_code(info->code, OP_CBOOL_TO_LONG_CAST, info->no_output);
+        *right_type = create_node_type_with_class_name("long");
+    }
+    else if(type_identify_with_class_name(*right_type, "Anonymous")) {
+        //append_opecode_to_code(info->code, OP_CLONG_TO_LONG_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("long");
     }
 }
@@ -698,6 +714,10 @@ void cast_right_type_to_ubyte(sNodeType** right_type, sCompileInfo* info)
         append_opecode_to_code(info->code, OP_CBOOL_TO_UBYTE_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("ubyte");
     }
+    else if(type_identify_with_class_name(*right_type, "Anonymous")) {
+        //append_opecode_to_code(info->code, OP_CUBYTE_TO_UBYTE_CAST, info->no_output);
+        *right_type = create_node_type_with_class_name("ubyte");
+    }
 }
 
 void cast_right_type_to_ushort(sNodeType** right_type, sCompileInfo* info)
@@ -838,6 +858,10 @@ void cast_right_type_to_ushort(sNodeType** right_type, sCompileInfo* info)
         append_opecode_to_code(info->code, OP_CBOOL_TO_USHORT_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("ushort");
     }
+    else if(type_identify_with_class_name(*right_type, "Anonymous")) {
+        //append_opecode_to_code(info->code, OP_CUSHORT_TO_USHORT_CAST, info->no_output);
+        *right_type = create_node_type_with_class_name("ushort");
+    }
 }
 
 void cast_right_type_to_uint(sNodeType** right_type, sCompileInfo* info)
@@ -975,6 +999,10 @@ void cast_right_type_to_uint(sNodeType** right_type, sCompileInfo* info)
     else if(type_identify_with_class_name(*right_type, "Bool"))
     {
         append_opecode_to_code(info->code, OP_CBOOL_TO_UINT_CAST, info->no_output);
+        *right_type = create_node_type_with_class_name("uint");
+    }
+    else if(type_identify_with_class_name(*right_type, "Anonymous")) {
+        //append_opecode_to_code(info->code, OP_UINTEGER_TO_UINT_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("uint");
     }
 }
@@ -1117,6 +1145,10 @@ void cast_right_type_to_ulong(sNodeType** right_type, sCompileInfo* info)
         append_opecode_to_code(info->code, OP_CBOOL_TO_ULONG_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("ulong");
     }
+    else if(type_identify_with_class_name(*right_type, "Anonymous")) {
+        //append_opecode_to_code(info->code, OP_CULONG_TO_ULONG_CAST, info->no_output);
+        *right_type = create_node_type_with_class_name("ulong");
+    }
 }
 
 void cast_right_type_to_float(sNodeType** right_type, sCompileInfo* info)
@@ -1248,6 +1280,10 @@ void cast_right_type_to_float(sNodeType** right_type, sCompileInfo* info)
         append_opecode_to_code(info->code, OP_CBOOL_TO_FLOAT_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("float");
     }
+    else if(type_identify_with_class_name(*right_type, "Anonymous")) {
+        //append_opecode_to_code(info->code, OP_CFLOAT_TO_FLOAT_CAST, info->no_output);
+        *right_type = create_node_type_with_class_name("float");
+    }
 }
 
 void cast_right_type_to_double(sNodeType** right_type, sCompileInfo* info)
@@ -1377,6 +1413,10 @@ void cast_right_type_to_double(sNodeType** right_type, sCompileInfo* info)
     else if(type_identify_with_class_name(*right_type, "Bool"))
     {
         append_opecode_to_code(info->code, OP_CBOOL_TO_DOUBLE_CAST, info->no_output);
+        *right_type = create_node_type_with_class_name("double");
+    }
+    else if(type_identify_with_class_name(*right_type, "Anonymous")) {
+        //append_opecode_to_code(info->code, OP_CDOUBLE_TO_DOUBLE_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("double");
     }
 }
@@ -1514,6 +1554,10 @@ void cast_right_type_to_char(sNodeType** right_type, sCompileInfo* info)
     else if(type_identify_with_class_name(*right_type, "Bool"))
     {
         append_opecode_to_code(info->code, OP_CBOOL_TO_CHAR_CAST, info->no_output);
+        *right_type = create_node_type_with_class_name("char");
+    }
+    else if(type_identify_with_class_name(*right_type, "Anonymous")) {
+        //append_opecode_to_code(info->code, OP_CCHAR_TO_CHAR_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("char");
     }
 }
@@ -1717,6 +1761,11 @@ void cast_right_type_to_bool(sNodeType** right_type, sCompileInfo* info)
         append_opecode_to_code(info->code, OP_CBOOL_TO_INT_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("bool");
     }
+    else if(type_identify_with_class_name(*right_type, "Anonymous"))
+    {
+        //append_opecode_to_code(info->code, OP_CBOOL_TO_INT_CAST, info->no_output);
+        *right_type = create_node_type_with_class_name("bool");
+    }
 }
 
 void cast_right_type_to_String(sNodeType** right_type, sCompileInfo* info)
@@ -1795,6 +1844,10 @@ void cast_right_type_to_String(sNodeType** right_type, sCompileInfo* info)
     else if(type_identify_with_class_name(*right_type, "regex"))
     {
         append_opecode_to_code(info->code, OP_REGEX_TO_STRING_CAST, info->no_output);
+        *right_type = create_node_type_with_class_name("String");
+    }
+    else if(type_identify_with_class_name(*right_type, "Anonymous"))
+    {
         *right_type = create_node_type_with_class_name("String");
     }
 }
@@ -1877,6 +1930,10 @@ void cast_right_type_to_Byte(sNodeType** right_type, sCompileInfo* info)
 
         *right_type = create_node_type_with_class_name("Byte");
     }
+    else if(type_identify_with_class_name(*right_type, "Anonymous"))
+    {
+        *right_type = create_node_type_with_class_name("Byte");
+    }
 }
 
 void cast_right_type_to_UByte(sNodeType** right_type, sCompileInfo* info)
@@ -1955,6 +2012,10 @@ void cast_right_type_to_UByte(sNodeType** right_type, sCompileInfo* info)
     {
         append_opecode_to_code(info->code, OP_BOOL_TO_CUBYTE_CAST, info->no_output);
 
+        *right_type = create_node_type_with_class_name("UByte");
+    }
+    else if(type_identify_with_class_name(*right_type, "Anonymous"))
+    {
         *right_type = create_node_type_with_class_name("UByte");
     }
 }
@@ -2037,6 +2098,10 @@ void cast_right_type_to_Short(sNodeType** right_type, sCompileInfo* info)
 
         *right_type = create_node_type_with_class_name("Short");
     }
+    else if(type_identify_with_class_name(*right_type, "Anonymous"))
+    {
+        *right_type = create_node_type_with_class_name("Short");
+    }
 }
 
 void cast_right_type_to_UShort(sNodeType** right_type, sCompileInfo* info)
@@ -2117,6 +2182,10 @@ void cast_right_type_to_UShort(sNodeType** right_type, sCompileInfo* info)
 
         *right_type = create_node_type_with_class_name("UShort");
     }
+    else if(type_identify_with_class_name(*right_type, "Anonymous"))
+    {
+        *right_type = create_node_type_with_class_name("UShort");
+    }
 }
 
 void cast_right_type_to_Integer(sNodeType** right_type, sCompileInfo* info)
@@ -2190,6 +2259,10 @@ void cast_right_type_to_Integer(sNodeType** right_type, sCompileInfo* info)
     else if(type_identify_with_class_name(*right_type, "bool"))
     {
         append_opecode_to_code(info->code, OP_BOOL_TO_INTEGER_CAST, info->no_output);
+        *right_type = create_node_type_with_class_name("Integer");
+    }
+    else if(type_identify_with_class_name(*right_type, "Anonymous"))
+    {
         *right_type = create_node_type_with_class_name("Integer");
     }
 }
@@ -2267,6 +2340,10 @@ void cast_right_type_to_UInteger(sNodeType** right_type, sCompileInfo* info)
         append_opecode_to_code(info->code, OP_BOOL_TO_UINTEGER_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("UInteger");
     }
+    else if(type_identify_with_class_name(*right_type, "Anonymous"))
+    {
+        *right_type = create_node_type_with_class_name("UInteger");
+    }
 }
 
 void cast_right_type_to_Long(sNodeType** right_type, sCompileInfo* info)
@@ -2340,6 +2417,10 @@ void cast_right_type_to_Long(sNodeType** right_type, sCompileInfo* info)
     else if(type_identify_with_class_name(*right_type, "bool"))
     {
         append_opecode_to_code(info->code, OP_BOOL_TO_CLONG_CAST, info->no_output);
+        *right_type = create_node_type_with_class_name("Long");
+    }
+    else if(type_identify_with_class_name(*right_type, "Anonymous"))
+    {
         *right_type = create_node_type_with_class_name("Long");
     }
 }
@@ -2417,6 +2498,10 @@ void cast_right_type_to_ULong(sNodeType** right_type, sCompileInfo* info)
         append_opecode_to_code(info->code, OP_BOOL_TO_CULONG_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("ULong");
     }
+    else if(type_identify_with_class_name(*right_type, "Anonymous"))
+    {
+        *right_type = create_node_type_with_class_name("ULong");
+    }
 }
 
 void cast_right_type_to_Float(sNodeType** right_type, sCompileInfo* info)
@@ -2485,6 +2570,10 @@ void cast_right_type_to_Float(sNodeType** right_type, sCompileInfo* info)
     else if(type_identify_with_class_name(*right_type, "bool"))
     {
         append_opecode_to_code(info->code, OP_BOOL_TO_CFLOAT_CAST, info->no_output);
+        *right_type = create_node_type_with_class_name("Float");
+    }
+    else if(type_identify_with_class_name(*right_type, "Anonymous"))
+    {
         *right_type = create_node_type_with_class_name("Float");
     }
 }
@@ -2557,6 +2646,10 @@ void cast_right_type_to_Double(sNodeType** right_type, sCompileInfo* info)
         append_opecode_to_code(info->code, OP_BOOL_TO_CDOUBLE_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("Double");
     }
+    else if(type_identify_with_class_name(*right_type, "Anonymous"))
+    {
+        *right_type = create_node_type_with_class_name("Double");
+    }
 }
 
 void cast_right_type_to_Pointer(sNodeType** right_type, sCompileInfo* info)
@@ -2620,6 +2713,10 @@ void cast_right_type_to_Pointer(sNodeType** right_type, sCompileInfo* info)
     else if(type_identify_with_class_name(*right_type, "bool"))
     {
         append_opecode_to_code(info->code, OP_BOOL_TO_CPOINTER_CAST, info->no_output);
+        *right_type = create_node_type_with_class_name("Pointer");
+    }
+    else if(type_identify_with_class_name(*right_type, "Anonymous"))
+    {
         *right_type = create_node_type_with_class_name("Pointer");
     }
 }
@@ -2697,6 +2794,10 @@ void cast_right_type_to_Char(sNodeType** right_type, sCompileInfo* info)
         append_opecode_to_code(info->code, OP_BOOL_TO_CCHAR_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("Char");
     }
+    else if(type_identify_with_class_name(*right_type, "Anonymous"))
+    {
+        *right_type = create_node_type_with_class_name("Char");
+    }
 }
 
 void cast_right_type_to_Bool(sNodeType** right_type, sCompileInfo* info)
@@ -2770,6 +2871,10 @@ void cast_right_type_to_Bool(sNodeType** right_type, sCompileInfo* info)
     else if(type_identify_with_class_name(*right_type, "bool"))
     {
         append_opecode_to_code(info->code, OP_BOOL_TO_CBOOL_CAST, info->no_output);
+        *right_type = create_node_type_with_class_name("Bool");
+    }
+    else if(type_identify_with_class_name(*right_type, "Anonymous"))
+    {
         *right_type = create_node_type_with_class_name("Bool");
     }
 }
