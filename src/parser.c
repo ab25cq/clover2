@@ -148,6 +148,64 @@ BOOL expect_next_character(char* characters, sParserInfo* info)
     return TRUE;
 }
 
+static BOOL parse_params_and_entry_to_lvtable(sParserParam* params, int* num_params, sParserInfo* info, sVarTable** new_table, sVarTable* parent_lv_table, int character_type);
+
+static BOOL parse_simple_lambda_params(unsigned int* node, sParserInfo* info, BOOL lambda)
+{
+    sParserParam params[PARAMS_MAX];
+    int num_params = 0;
+
+    /// parse_params ///
+    sNodeType* result_type = NULL;
+    sVarTable* new_table = NULL;
+
+    if(*info->p == '|') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        if(lambda) {
+            if(!parse_params_and_entry_to_lvtable(params, &num_params, info, &new_table, NULL, 1)) {
+                return FALSE;
+            }
+        }
+        else {
+            if(!parse_params_and_entry_to_lvtable(params, &num_params, info, &new_table, info->lv_table, 1)) {
+                return FALSE;
+            }
+        }
+
+        if(*info->p == ':') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            if(!parse_type(&result_type, info)) {
+                return FALSE;
+            }
+        }
+        else {
+            result_type = create_node_type_with_class_name("Null");
+        }
+    }
+    else {
+        result_type = create_node_type_with_class_name("Null");
+        if(lambda) {
+            new_table = init_block_vtable(NULL);
+        }
+        else {
+            new_table = init_block_vtable(info->lv_table);
+        }
+    }
+
+    sNodeBlock* node_block = NULL;
+    if(!parse_block(ALLOC &node_block, info, new_table, TRUE)) {
+        return FALSE;
+    }
+
+    *node = sNodeTree_create_block_object(params, num_params, result_type, MANAGED node_block, lambda, info);
+
+    return TRUE;
+}
+
 static BOOL parse_method_params(int* num_params, unsigned int* params, sParserInfo* info)
 {
     *num_params = 0;
@@ -201,6 +259,31 @@ static BOOL parse_method_params(int* num_params, unsigned int* params, sParserIn
                     break;
                 }
             }
+        }
+    }
+
+    /// simple lambda params ///
+    if(*info->p == '{') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        unsigned int node = 0;
+        if(!parse_simple_lambda_params(&node, info, FALSE)) {
+            return FALSE;
+        }
+
+        if(node == 0) {
+            parser_err_msg(info, "require expression");
+            info->err_num++;
+            return TRUE;
+        }
+
+        params[*num_params] = node;
+        (*num_params)++;
+
+        if(*num_params >= PARAMS_MAX) {
+            parser_err_msg(info, "overflow parametor number for method call");
+            return FALSE;
         }
     }
 
@@ -479,6 +562,7 @@ static BOOL if_expression(unsigned int* node, sParserInfo* info)
     }
 
     expect_next_character_with_one_forward(")", info);
+    expect_next_character_with_one_forward("{", info);
 
     sNodeBlock* if_node_block = NULL;
     if(!parse_block(ALLOC &if_node_block, info, NULL, FALSE)) {
@@ -510,6 +594,8 @@ static BOOL if_expression(unsigned int* node, sParserInfo* info)
         }
 
         if(strcmp(buf, "else") == 0) {
+            expect_next_character_with_one_forward("{", info);
+
             if(!parse_block(ALLOC &else_node_block, info, NULL, FALSE)) {
                 return FALSE;
             }
@@ -530,6 +616,7 @@ static BOOL if_expression(unsigned int* node, sParserInfo* info)
             }
 
             expect_next_character_with_one_forward(")", info);
+            expect_next_character_with_one_forward("{", info);
 
             if(!parse_block(ALLOC &elif_node_blocks[elif_num], info, NULL, FALSE)) {
                 return FALSE;
@@ -571,6 +658,7 @@ static BOOL while_expression(unsigned int* node, sParserInfo* info)
     }
 
     expect_next_character_with_one_forward(")", info);
+    expect_next_character_with_one_forward("{", info);
 
     sNodeBlock* while_node_block = NULL;
     if(!parse_block(ALLOC &while_node_block, info, NULL, FALSE)) {
@@ -627,6 +715,7 @@ static BOOL for_expression(unsigned int* node, sParserInfo* info)
     }
 
     expect_next_character_with_one_forward(")", info);
+    expect_next_character_with_one_forward("{", info);
 
     sNodeBlock* for_node_block = NULL;
     if(!parse_block(ALLOC &for_node_block, info, NULL, FALSE)) {
@@ -733,9 +822,10 @@ static BOOL parse_param(sParserParam* param, sParserInfo* info)
     return TRUE;
 }
 
-BOOL parse_params(sParserParam* params, int* num_params, sParserInfo* info)
+/// character_type --> 0: () 1: ||
+BOOL parse_params(sParserParam* params, int* num_params, sParserInfo* info, int character_type)
 {
-    if(*info->p == ')') {
+    if((character_type == 0 && *info->p == ')') || (character_type == 1 && *info->p == '|')) {
         info->p++;
         skip_spaces_and_lf(info);
 
@@ -760,7 +850,7 @@ BOOL parse_params(sParserParam* params, int* num_params, sParserInfo* info)
             info->p++;
             skip_spaces_and_lf(info);
         }
-        else if(*info->p == ')') {
+        else if((character_type == 0 && *info->p == ')') || (character_type == 1 && *info->p == '|')) {
             info->p++;
             skip_spaces_and_lf(info);
             break;
@@ -771,7 +861,7 @@ BOOL parse_params(sParserParam* params, int* num_params, sParserInfo* info)
             break;
         }
         else {
-            parser_err_msg(info, "Unexpected character(%c). It is required to ',' or ')' character", *info->p);
+            parser_err_msg(info, "Unexpected character(%c). It is required to ',' or ')' or '|' character", *info->p);
             if(*info->p == '\n') {
                 info->sline++;
             }
@@ -784,9 +874,9 @@ BOOL parse_params(sParserParam* params, int* num_params, sParserInfo* info)
     return TRUE;
 }
 
-static BOOL parse_params_and_entry_to_lvtable(sParserParam* params, int* num_params, sParserInfo* info, sVarTable** new_table, sVarTable* parent_lv_table)
+static BOOL parse_params_and_entry_to_lvtable(sParserParam* params, int* num_params, sParserInfo* info, sVarTable** new_table, sVarTable* parent_lv_table, int character_type)
 {
-    if(!parse_params(params, num_params, info)) {
+    if(!parse_params(params, num_params, info, character_type)) {
         return FALSE;
     }
 
@@ -806,6 +896,8 @@ static BOOL parse_params_and_entry_to_lvtable(sParserParam* params, int* num_par
 
 static BOOL try_expression(unsigned int* node, sParserInfo* info)
 {
+    expect_next_character_with_one_forward("{", info);
+
     /// try ///
     sNodeBlock* try_node_block = NULL;
     if(!parse_block(ALLOC &try_node_block, info, NULL, FALSE)) {
@@ -823,7 +915,7 @@ static BOOL try_expression(unsigned int* node, sParserInfo* info)
     /// parse_params ///
     sVarTable* new_table = NULL;
 
-    if(!parse_params_and_entry_to_lvtable(params, &num_params, info, &new_table, info->lv_table)) {
+    if(!parse_params_and_entry_to_lvtable(params, &num_params, info, &new_table, info->lv_table, 0)) {
         return FALSE;
     }
 
@@ -831,6 +923,8 @@ static BOOL try_expression(unsigned int* node, sParserInfo* info)
         parser_err_msg(info, "Require the type of a catch param should be a exception type");
         info->err_num++;
     }
+
+    expect_next_character_with_one_forward("{", info);
 
     sNodeBlock* catch_node_block = NULL;
     if(!parse_block(ALLOC &catch_node_block, info, new_table, FALSE)) {
@@ -1544,12 +1638,12 @@ static BOOL parse_block_object(unsigned int* node, sParserInfo* info, BOOL lambd
     sVarTable* new_table = NULL;
 
     if(lambda) {
-        if(!parse_params_and_entry_to_lvtable(params, &num_params, info, &new_table, NULL)) {
+        if(!parse_params_and_entry_to_lvtable(params, &num_params, info, &new_table, NULL, 0)) {
             return FALSE;
         }
     }
     else {
-        if(!parse_params_and_entry_to_lvtable(params, &num_params, info, &new_table, info->lv_table)) {
+        if(!parse_params_and_entry_to_lvtable(params, &num_params, info, &new_table, info->lv_table, 0)) {
             return FALSE;
         }
     }
@@ -1566,6 +1660,8 @@ static BOOL parse_block_object(unsigned int* node, sParserInfo* info, BOOL lambd
     else {
         result_type = create_node_type_with_class_name("Null");
     }
+
+    expect_next_character_with_one_forward("{", info);
 
     sNodeBlock* node_block = NULL;
     if(!parse_block(ALLOC &node_block, info, new_table, TRUE)) {
@@ -1599,7 +1695,7 @@ static BOOL parse_function(unsigned int* node, sParserInfo* info, BOOL lambda)
     /// parse_params ///
     sVarTable* new_table = NULL;
 
-    if(!parse_params_and_entry_to_lvtable(params, &num_params, info, &new_table, info->lv_table)) {
+    if(!parse_params_and_entry_to_lvtable(params, &num_params, info, &new_table, info->lv_table, 0)) {
         return FALSE;
     }
 
@@ -1616,6 +1712,8 @@ static BOOL parse_function(unsigned int* node, sParserInfo* info, BOOL lambda)
         result_type = create_node_type_with_class_name("Null");
     }
 
+    expect_next_character_with_one_forward("{", info);
+
     sNodeBlock* node_block = NULL;
     if(!parse_block(ALLOC &node_block, info, new_table, TRUE)) {
         return FALSE;
@@ -1628,6 +1726,8 @@ static BOOL parse_function(unsigned int* node, sParserInfo* info, BOOL lambda)
 
 static BOOL parse_normal_block(unsigned int* node, sParserInfo* info)
 {
+    expect_next_character_with_one_forward("{", info);
+
     sNodeBlock* node_block = NULL;
     if(!parse_block(ALLOC &node_block, info, NULL, FALSE)) {
         return FALSE;

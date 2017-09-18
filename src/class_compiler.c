@@ -213,7 +213,7 @@ static BOOL parse_method_name_and_params(char* method_name, int method_name_max,
     expect_next_character_with_one_forward("(", info);
 
     /// parse_params ///
-    if(!parse_params(params, num_params, info)) {
+    if(!parse_params(params, num_params, info, 0)) {
         return FALSE;
     }
 

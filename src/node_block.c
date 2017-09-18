@@ -32,7 +32,7 @@ static void append_node_to_node_block(sNodeBlock* node_block, unsigned int node)
 
 BOOL parse_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* new_table, BOOL block_object)
 {
-    expect_next_character_with_one_forward("{", info);
+    //expect_next_character_with_one_forward("{", info);
 
     *node_block = sNodeBlock_alloc();
 
