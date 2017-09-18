@@ -2578,6 +2578,21 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
         
         return TRUE;
     }
+    else if(strcmp(method_name, "ID") == 0) {
+        //// go ///
+        if(num_params != 0) {
+            compile_err_msg(info, "ID method doesn't require params");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        info->type = create_node_type_with_class_name("int");
+        
+        return TRUE;
+    }
     else if(strcmp(method_name, "toAnonymous") == 0) {
         //// go ///
         if(num_params != 0) {
@@ -2591,10 +2606,10 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
 
         info->type = create_node_type_with_class_name("Anonymous");
     }
-    else if(strcmp(method_name, "ID") == 0) {
+    else if(type_identify_with_class_name(object_type, "Anonymous") && strcmp(method_name, "cast") == 0) {
         //// go ///
-        if(num_params != 0) {
-            compile_err_msg(info, "ID method doesn't require params");
+        if(!(num_params == 1 && gNodes[params[0]].mNodeType == kNodeTypeString)) {
+            compile_err_msg(info, "cast method require one String Constant param");
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
@@ -2602,7 +2617,9 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
             return TRUE;
         }
 
-        info->type = create_node_type_with_class_name("int");
+        char* class_name = gNodes[params[0]].uValue.mString;
+
+        info->type = create_node_type_with_class_name(class_name);
         
         return TRUE;
     }
@@ -3060,7 +3077,6 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
 
     sCLClass* regex_class = get_class("regex");
     sCLClass* char_class = get_class("char");
-    BOOL anonymous_class = type_identify_with_class_name(info->type, "Anonymous");
 
     /// special field ///
     if(array && strcmp(field_name, "length") == 0) {
@@ -3127,94 +3143,97 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
     else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || strcmp(CLASS_NAME(klass), "regex") == 0) && strcmp(field_name, "toString") == 0) {
         cast_right_type_to_String(&info->type, info);
     }
-    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "toByte") == 0) {
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "toString") == 0) {
+        cast_right_type_to_String(&info->type, info);
+    }
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE)&& strcmp(field_name, "toByte") == 0) {
         cast_right_type_to_Byte(&info->type, info);
     }
-    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "toUByte") == 0) {
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE)&& strcmp(field_name, "toUByte") == 0) {
         cast_right_type_to_UByte(&info->type, info);
     }
-    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "toShort") == 0) {
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "toShort") == 0) {
         cast_right_type_to_Short(&info->type, info);
     }
-    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "toUShort") == 0) {
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "toUShort") == 0) {
         cast_right_type_to_UShort(&info->type, info);
     }
-    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "toInteger") == 0) {
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "toInteger") == 0) {
         cast_right_type_to_Integer(&info->type, info);
     }
-    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "toUInteger") == 0) {
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE)&& strcmp(field_name, "toUInteger") == 0) {
         cast_right_type_to_UInteger(&info->type, info);
     }
-    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "toLong") == 0) {
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE)&& strcmp(field_name, "toLong") == 0) {
         cast_right_type_to_Long(&info->type, info);
     }
-    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "toULong") == 0) {
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE)&& strcmp(field_name, "toULong") == 0) {
         cast_right_type_to_ULong(&info->type, info);
     }
-    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "toFloat") == 0) {
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE)&& strcmp(field_name, "toFloat") == 0) {
         cast_right_type_to_Float(&info->type, info);
     }
-    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "toDouble") == 0) {
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE)&& strcmp(field_name, "toDouble") == 0) {
         cast_right_type_to_Double(&info->type, info);
     }
-    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "toPointer") == 0) {
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "toPointer") == 0) {
         cast_right_type_to_Pointer(&info->type, info);
     }
-    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "toChar") == 0) {
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE)&& strcmp(field_name, "toChar") == 0) {
         cast_right_type_to_Char(&info->type, info);
     }
-    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "toBool") == 0) {
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "toBool") == 0) {
         cast_right_type_to_Bool(&info->type, info);
     }
-    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "to_byte") == 0)
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "to_byte") == 0)
     {
         cast_right_type_to_byte(&info->type, info);
     }
-    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "to_ubyte") == 0)
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "to_ubyte") == 0)
     {
         cast_right_type_to_ubyte(&info->type, info);
     }
-    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "to_short") == 0)
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "to_short") == 0)
     {
         cast_right_type_to_short(&info->type, info);
     }
-    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "to_ushort") == 0)
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "to_ushort") == 0)
     {
         cast_right_type_to_ushort(&info->type, info);
     }
-    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "to_int") == 0)
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "to_int") == 0)
     {
         cast_right_type_to_int(&info->type, info);
     }
-    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "to_uint") == 0)
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "to_uint") == 0)
     {
         cast_right_type_to_uint(&info->type, info);
     }
-    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "to_long") == 0)
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "to_long") == 0)
     {
         cast_right_type_to_long(&info->type, info);
     }
-    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "to_ulong") == 0) 
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "to_ulong") == 0) 
     {
         cast_right_type_to_ulong(&info->type, info);
     }
-    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "to_float") == 0) 
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "to_float") == 0) 
     {
         cast_right_type_to_float(&info->type, info);
     }
-    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "to_double") == 0) 
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "to_double") == 0) 
     {
         cast_right_type_to_double(&info->type, info);
     }
-    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "to_char") == 0) 
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "to_char") == 0) 
     {
         cast_right_type_to_char(&info->type, info);
     }
-    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "to_pointer") == 0) 
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "to_pointer") == 0) 
     {
         cast_right_type_to_pointer(&info->type, info);
     }
-    else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || anonymous_class) && strcmp(field_name, "to_bool") == 0) 
+    else if((klass->mFlags & CLASS_FLAGS_PRIMITIVE) && strcmp(field_name, "to_bool") == 0) 
     {
         cast_right_type_to_bool(&info->type, info);
     }

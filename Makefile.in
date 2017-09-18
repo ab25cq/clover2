@@ -346,4 +346,6 @@ test:
 	./cclover2 -class ext.clc && ./cclover2 ext.cl && ./clover2 ext.clo
 	./cclover2 code/fun.cl && ./clover2 code/fun.clo
 	./cclover2 code/type_inference.cl && ./clover2 code/type_inference.clo
+	./cclover2 code/list3.cl && ./clover2 code/list3.clo
+	./cclover2 code/anonymous2.cl && ./clover2 code/anonymous2.clo
 

@@ -866,6 +866,8 @@ void boxing_primitive_value_to_object(CLVALUE object, CLVALUE* result, sCLClass*
 
 void Self_convertion_of_method_name_and_params(char* method_name_and_params, char* method_name_and_params2, char* class_name)
 {
+//    strcpy(method_name_and_params2, method_name_and_params);
+
     char* p = method_name_and_params;
     char* p2 = method_name_and_params2;
 
