@@ -1,7 +1,5 @@
-a:int = 1;
-b:ulong = 1l;
+a:= 1;
+b:= 2;
 
-a = b;
 
-a.className().println();
-
+equalable
