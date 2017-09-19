@@ -51,7 +51,7 @@ static BOOL parse_generics_params(sParserInfo* info, sCompileInfo* cinfo)
         while(1) {
             if(isalpha(*info->p)) {
                 int num_generics_params = info->generics_info.mNumParams;
-                if(!parse_word(info->generics_info.mParamNames[num_generics_params], VAR_NAME_MAX, info, TRUE)) 
+                if(!parse_word(info->generics_info.mParamNames[num_generics_params], VAR_NAME_MAX, info, TRUE, FALSE)) 
                 {
                     return FALSE;
                 }
@@ -99,7 +99,7 @@ static BOOL parse_generics_params(sParserInfo* info, sCompileInfo* cinfo)
 static BOOL parse_class_name_and_attributes(char* class_name, int class_name_size, sParserInfo* info, sCompileInfo* cinfo)
 {
     /// class name ///
-    if(!parse_word(class_name, VAR_NAME_MAX, info, TRUE)) {
+    if(!parse_word(class_name, VAR_NAME_MAX, info, TRUE, FALSE)) {
         return FALSE;
     }
 
@@ -117,7 +117,7 @@ static BOOL parse_class_name_and_attributes(char* class_name, int class_name_siz
         while(1) {
             char buf[VAR_NAME_MAX];
 
-            if(!parse_word(buf, VAR_NAME_MAX, info, TRUE)) {
+            if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
                 return FALSE;
             }
 
@@ -170,7 +170,7 @@ static BOOL parse_throws(sParserInfo* info, sCompileInfo* cinfo, BOOL* throw_exi
 
     char buf[32];
     
-    if(!parse_word(buf, 32, info, FALSE)) {
+    if(!parse_word(buf, 32, info, FALSE, FALSE)) {
         return FALSE;
     }
 
@@ -206,7 +206,7 @@ static BOOL parse_throws(sParserInfo* info, sCompileInfo* cinfo, BOOL* throw_exi
 static BOOL parse_method_name_and_params(char* method_name, int method_name_max, sParserParam* params, int* num_params, sNodeType** result_type, BOOL* native_, BOOL* static_, sParserInfo* info, sCompileInfo* cinfo)
 {
     /// method name ///
-    if(!parse_word(method_name, method_name_max, info, TRUE)) {
+    if(!parse_word(method_name, method_name_max, info, TRUE, FALSE)) {
         return FALSE;
     }
 
@@ -229,7 +229,7 @@ static BOOL parse_method_name_and_params(char* method_name, int method_name_max,
 
             char buf[32];
 
-            if(!parse_word(buf, 32, info, FALSE)) {
+            if(!parse_word(buf, 32, info, FALSE, FALSE)) {
                 return FALSE;
             }
 
@@ -289,7 +289,7 @@ static BOOL parse_field_attributes_and_type(BOOL* private_, BOOL* protected_, BO
 
         char buf[32];
 
-        if(!parse_word(buf, 32, info, FALSE)) {
+        if(!parse_word(buf, 32, info, FALSE, FALSE)) {
             return FALSE;
         }
 
@@ -323,14 +323,14 @@ static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOO
     BOOL static_ = FALSE;
 
     char buf[VAR_NAME_MAX];
-    if(!parse_word(buf, VAR_NAME_MAX, info, TRUE)) {
+    if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
         return FALSE;
     }
 
     if(strcmp(buf, "include") == 0) {
         char module_name[CLASS_NAME_MAX+1];
 
-        if(!parse_word(module_name, CLASS_NAME_MAX, info, TRUE)) {
+        if(!parse_word(module_name, CLASS_NAME_MAX, info, TRUE, FALSE)) {
             return FALSE;
         }
 
@@ -413,12 +413,12 @@ static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOO
         char class_name1[CLASS_NAME_MAX+1];
         char class_name2[CLASS_NAME_MAX+1];
 
-        if(!parse_word(class_name1, CLASS_NAME_MAX, info, TRUE)) {
+        if(!parse_word(class_name1, CLASS_NAME_MAX, info, TRUE, FALSE)) {
             return FALSE;
         }
         skip_spaces_and_lf(info);
 
-        if(!parse_word(class_name2, CLASS_NAME_MAX, info, TRUE)) {
+        if(!parse_word(class_name2, CLASS_NAME_MAX, info, TRUE, FALSE)) {
             return FALSE;
         }
         skip_spaces_and_lf(info);
@@ -514,7 +514,7 @@ BOOL parse_methods_and_fields_on_compile_time(sParserInfo* info, sCompileInfo* c
 {
     char buf[VAR_NAME_MAX];
 
-    if(!parse_word(buf, VAR_NAME_MAX, info, TRUE)) {
+    if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
         return FALSE;
     }
 
@@ -522,7 +522,7 @@ BOOL parse_methods_and_fields_on_compile_time(sParserInfo* info, sCompileInfo* c
     if(strcmp(buf, "include") == 0) {
         char module_name[CLASS_NAME_MAX+1];
 
-        if(!parse_word(module_name, CLASS_NAME_MAX, info, TRUE)) {
+        if(!parse_word(module_name, CLASS_NAME_MAX, info, TRUE, FALSE)) {
             return FALSE;
         }
 
@@ -625,12 +625,12 @@ BOOL parse_methods_and_fields_on_compile_time(sParserInfo* info, sCompileInfo* c
         char class_name1[CLASS_NAME_MAX+1];
         char class_name2[CLASS_NAME_MAX+1];
 
-        if(!parse_word(class_name1, CLASS_NAME_MAX, info, TRUE)) {
+        if(!parse_word(class_name1, CLASS_NAME_MAX, info, TRUE, FALSE)) {
             return FALSE;
         }
         skip_spaces_and_lf(info);
 
-        if(!parse_word(class_name2, CLASS_NAME_MAX, info, TRUE)) {
+        if(!parse_word(class_name2, CLASS_NAME_MAX, info, TRUE, FALSE)) {
             return FALSE;
         }
         skip_spaces_and_lf(info);
@@ -754,7 +754,7 @@ static BOOL parse_class(sParserInfo* info, sCompileInfo* cinfo, BOOL interface, 
 static BOOL parse_module(sParserInfo* info, sCompileInfo* cinfo)
 {
     char module_name[CLASS_NAME_MAX];
-    if(!parse_word(module_name, CLASS_NAME_MAX, info, TRUE)) {
+    if(!parse_word(module_name, CLASS_NAME_MAX, info, TRUE, FALSE)) {
         return FALSE;
     }
 
@@ -909,7 +909,7 @@ static BOOL parse_class_source(sParserInfo* info, sCompileInfo* cinfo)
     while(*info->p) {
         char buf[VAR_NAME_MAX+1];
 
-        if(!parse_word(buf, VAR_NAME_MAX, info, TRUE)) {
+        if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
             return FALSE;
         }
 

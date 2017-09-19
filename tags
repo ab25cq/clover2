@@ -1913,6 +1913,7 @@ parse_class_on_alloc_classes_phase	src/class_compiler.c	/^static BOOL parse_clas
 parse_class_on_compile_code	src/class_compiler.c	/^static BOOL parse_class_on_compile_code(sParserInfo* info, sCompileInfo* cinfo, BOOL interface)$/;"	f	file:
 parse_class_source	src/class_compiler.c	/^static BOOL parse_class_source(sParserInfo* info, sCompileInfo* cinfo)$/;"	f	file:
 parse_class_type	src/parser.c	/^BOOL parse_class_type(sCLClass** klass, sParserInfo* info)$/;"	f
+parse_command_method_params	src/parser.c	/^static BOOL parse_command_method_params(int* num_params, unsigned int* params, sParserInfo* info)$/;"	f	file:
 parse_equalable_carray_value	src/parser.c	/^static BOOL parse_equalable_carray_value(unsigned int* node, sParserInfo* info) $/;"	f	file:
 parse_equalable_list_value	src/parser.c	/^static BOOL parse_equalable_list_value(unsigned int* node, sParserInfo* info) $/;"	f	file:
 parse_field_attributes_and_type	src/class_compiler.c	/^static BOOL parse_field_attributes_and_type(BOOL* private_, BOOL* protected_, BOOL* static_, sNodeType** result_type, sParserInfo* info, sCompileInfo* cinfo)$/;"	f	file:
@@ -1938,7 +1939,7 @@ parse_throws	src/class_compiler.c	/^static BOOL parse_throws(sParserInfo* info, 
 parse_tuple_value	src/parser.c	/^static BOOL parse_tuple_value(unsigned int* node, sParserInfo* info) $/;"	f	file:
 parse_type	src/parser.c	/^BOOL parse_type(sNodeType** result_type, sParserInfo* info)$/;"	f
 parse_type_for_new	src/parser.c	/^BOOL parse_type_for_new(sNodeType** result_type, unsigned int* array_num, sParserInfo* info)$/;"	f
-parse_word	src/parser.c	/^BOOL parse_word(char* buf, int buf_size, sParserInfo* info, BOOL print_out_err_msg)$/;"	f
+parse_word	src/parser.c	/^BOOL parse_word(char* buf, int buf_size, sParserInfo* info, BOOL print_out_err_msg, BOOL no_skip_lf)$/;"	f
 parser_err_msg	src/parser.c	/^void parser_err_msg(sParserInfo* info, const char* msg, ...)$/;"	f
 parser_param_to_cl_param	src/klass_compile_time.c	/^static void parser_param_to_cl_param(sParserParam* param, sCLParam* type, sCLClass* klass)$/;"	f	file:
 pinfo	src/common.h	/^    sParserInfo* pinfo;$/;"	m	struct:sCompileInfoStruct
@@ -2210,6 +2211,7 @@ single_operator	src/node.c	/^static BOOL single_operator(sNodeType* type, int by
 skip_block	src/class_compiler.c	/^static BOOL skip_block(sParserInfo* info)$/;"	f	file:
 skip_curly	src/interpreter.c	/^static void skip_curly(char** p, char** head, char** comma, char** semi_colon) $/;"	f	file:
 skip_paren	src/interpreter.c	/^static void skip_paren(char** p, char** head, char** comma, char** semi_colon)$/;"	f	file:
+skip_spaces	src/parser.c	/^void skip_spaces(sParserInfo* info)$/;"	f
 skip_spaces_and_lf	src/parser.c	/^void skip_spaces_and_lf(sParserInfo* info)$/;"	f
 sline	src/common.h	/^    int sline;$/;"	m	struct:sCompileInfoStruct
 sline	src/common.h	/^    int sline;$/;"	m	struct:sParserInfoStruct

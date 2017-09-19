@@ -22,5 +22,3 @@ Clover.test("simple block test3", str.equals("123"));
 
 str = "";
 equalable_list { 1,2,3 }.map() {|n:Integer|:Anonymous return n.toString(); }.each() {|n:Anonymous| str.append(n.cast("String")); }.toString().println();
-
-

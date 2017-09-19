@@ -1,5 +1,1 @@
-a:= 1;
-b:= 2;
-
-
-equalable
+ls -al

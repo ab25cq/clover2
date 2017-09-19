@@ -26,7 +26,14 @@ void skip_spaces_and_lf(sParserInfo* info)
     }
 }
 
-BOOL parse_word(char* buf, int buf_size, sParserInfo* info, BOOL print_out_err_msg)
+void skip_spaces(sParserInfo* info)
+{
+    while(*info->p == ' ' || *info->p == '\t') {
+        info->p++;
+    }
+}
+
+BOOL parse_word(char* buf, int buf_size, sParserInfo* info, BOOL print_out_err_msg, BOOL no_skip_lf)
 {
     buf[0] = 0;
 
@@ -46,7 +53,12 @@ BOOL parse_word(char* buf, int buf_size, sParserInfo* info, BOOL print_out_err_m
     }
 
     *p2 = 0;
-    skip_spaces_and_lf(info);
+    if(no_skip_lf) {
+        skip_spaces(info);
+    }
+    else {
+        skip_spaces_and_lf(info);
+    }
 
     if(*info->p == 0 && buf[0] == 0) {
         if(print_out_err_msg) {
@@ -284,6 +296,47 @@ static BOOL parse_method_params(int* num_params, unsigned int* params, sParserIn
         if(*num_params >= PARAMS_MAX) {
             parser_err_msg(info, "overflow parametor number for method call");
             return FALSE;
+        }
+    }
+
+    return TRUE;
+}
+
+static BOOL parse_command_method_params(int* num_params, unsigned int* params, sParserInfo* info)
+{
+    *num_params = 0;
+
+    if(*info->p == ';' || *info->p == '\n') {
+        info->p++;
+        skip_spaces_and_lf(info);
+    }
+    else if(*info->p != '\0') {
+        while(1) {
+            sBuf param;
+
+            sBuf_init(&param);
+
+            while(*info->p != ' ' && *info->p != '\t' && *info->p != '\n' && *info->p != ';' && *info->p != '\0') 
+            {
+                sBuf_append_char(&param, *info->p);
+                info->p++;
+            }
+            skip_spaces_and_lf(info);
+
+            unsigned int node = 0;
+            node = sNodeTree_create_string_value(MANAGED param.mBuf, info);
+
+            params[*num_params] = node;
+            (*num_params)++;
+
+            if(*num_params >= PARAMS_MAX) {
+                parser_err_msg(info, "overflow parametor number for method call");
+                return FALSE;
+            }
+
+            if(*info->p == '\0' || *info->p == '\n' || *info->p == ';') {
+                break;
+            }
         }
     }
 
@@ -589,7 +642,7 @@ static BOOL if_expression(unsigned int* node, sParserInfo* info)
         if(!isalpha(*info->p)) {
             break;
         }
-        if(!parse_word(buf, VAR_NAME_MAX, info, TRUE)) {
+        if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
             return FALSE;
         }
 
@@ -794,7 +847,7 @@ static BOOL expect_next_word(char* word, sParserInfo* info)
 {
     char buf[32];
 
-    if(!parse_word(buf, 32, info, TRUE)) {
+    if(!parse_word(buf, 32, info, TRUE, FALSE)) {
         return FALSE;
     }
 
@@ -809,7 +862,7 @@ static BOOL expect_next_word(char* word, sParserInfo* info)
 static BOOL parse_param(sParserParam* param, sParserInfo* info)
 {
     /// variable name ///
-    if(!parse_word(param->mName, VAR_NAME_MAX, info, TRUE)) {
+    if(!parse_word(param->mName, VAR_NAME_MAX, info, TRUE, FALSE)) {
         return FALSE;
     }
 
@@ -940,7 +993,7 @@ BOOL parse_class_type(sCLClass** klass, sParserInfo* info)
 {
     char class_name[CLASS_NAME_MAX];
 
-    if(!parse_word(class_name, CLASS_NAME_MAX, info, TRUE)) {
+    if(!parse_word(class_name, CLASS_NAME_MAX, info, TRUE, FALSE)) {
         return FALSE;
     }
 
@@ -963,7 +1016,7 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
 {
     char type_name[CLASS_NAME_MAX];
 
-    if(!parse_word(type_name, CLASS_NAME_MAX, info, TRUE)) {
+    if(!parse_word(type_name, CLASS_NAME_MAX, info, TRUE, FALSE)) {
         return FALSE;
     }
 
@@ -1134,7 +1187,7 @@ BOOL parse_type_for_new(sNodeType** result_type, unsigned int* array_num, sParse
 {
     char type_name[CLASS_NAME_MAX];
 
-    if(!parse_word(type_name, CLASS_NAME_MAX, info, TRUE)) {
+    if(!parse_word(type_name, CLASS_NAME_MAX, info, TRUE, FALSE)) {
         return FALSE;
     }
 
@@ -1431,7 +1484,7 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info, int* nu
             if(isalpha(*info->p)) {
                 char buf[METHOD_NAME_MAX];
 
-                if(!parse_word(buf, METHOD_NAME_MAX, info, TRUE)) {
+                if(!parse_word(buf, METHOD_NAME_MAX, info, TRUE, FALSE)) {
                     return FALSE;
                 }
                 skip_spaces_and_lf(info);
@@ -1678,7 +1731,7 @@ static BOOL parse_function(unsigned int* node, sParserInfo* info, BOOL lambda)
     /// function name ///
     char fun_name[VAR_NAME_MAX];
 
-    if(!parse_word(fun_name, VAR_NAME_MAX, info, TRUE)) {
+    if(!parse_word(fun_name, VAR_NAME_MAX, info, TRUE, FALSE)) {
         return FALSE;
     }
 
@@ -2472,60 +2525,84 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         int sline_before = info->sline;
 
         /// name ///
-        if(!parse_word(buf, VAR_NAME_MAX, info, TRUE)) {
+        if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, TRUE)) {
             return FALSE;
         }
 
         if(strcmp(buf, "if") == 0) {
+            skip_spaces_and_lf(info);
+
             if(!if_expression(node, info)) {
                 return FALSE;
             }
         }
         else if(strcmp(buf, "while") == 0) {
+            skip_spaces_and_lf(info);
+
             if(!while_expression(node, info)) {
                 return FALSE;
             }
 
         }
         else if(strcmp(buf, "for") == 0) {
+            skip_spaces_and_lf(info);
+
             if(!for_expression(node, info)) {
                 return FALSE;
             }
 
         }
         else if(strcmp(buf, "break") == 0) {
+            skip_spaces_and_lf(info);
+
             *node = sNodeTree_break_expression(info);
         }
         else if(strcmp(buf, "true") == 0) {
+            skip_spaces_and_lf(info);
+
             *node = sNodeTree_true_expression(info);
         }
         else if(strcmp(buf, "false") == 0) {
+            skip_spaces_and_lf(info);
+
             *node = sNodeTree_false_expression(info);
         }
         else if(strcmp(buf, "null") == 0) {
+            skip_spaces_and_lf(info);
+
             *node = sNodeTree_null_expression(info);
         }
         else if(strcmp(buf, "throw") == 0) {
+            skip_spaces_and_lf(info);
+
             if(!throw_expression(node, info)) {
                 return FALSE;
             }
         }
         else if(strcmp(buf, "try") == 0) {
+            skip_spaces_and_lf(info);
+
             if(!try_expression(node, info)) {
                 return FALSE;
             }
         }
         else if(strcmp(buf, "return") == 0) {
+            skip_spaces_and_lf(info);
+
             if(!return_expression(node, info)) {
                 return FALSE;
             }
         }
         else if(strcmp(buf, "new") == 0) {
+            skip_spaces_and_lf(info);
+
             if(!new_expression(node, info)) {
                 return FALSE;
             }
         }
         else if(strcmp(buf, "closure") == 0 && *info->p == '(') {
+            skip_spaces_and_lf(info);
+
             expect_next_character_with_one_forward("(", info);
 
             if(!parse_block_object(node, info, FALSE)) {
@@ -2533,6 +2610,8 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             }
         }
         else if(strcmp(buf, "lambda") == 0 && *info->p == '(') {
+            skip_spaces_and_lf(info);
+
             expect_next_character_with_one_forward("(", info);
 
             if(!parse_block_object(node, info, TRUE)) {
@@ -2540,21 +2619,29 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             }
         }
         else if(strcmp(buf, "block") == 0 && *info->p == '{') {
+            skip_spaces_and_lf(info);
+
             if(!parse_normal_block(node, info)) {
                 return FALSE;
             }
         }
         else if(strcmp(buf, "def") == 0) {
+            skip_spaces_and_lf(info);
+
             if(!parse_function(node, info, FALSE)) {
                 return FALSE;
             }
         }
         else if(strcmp(buf, "inherit") == 0) {
+            skip_spaces_and_lf(info);
+
             if(!parse_iniherit(node, info)) {
                 return FALSE;
             }
         }
         else if(strcmp(buf, "list") == 0 && *info->p == '{') {
+            skip_spaces_and_lf(info);
+
             expect_next_character_with_one_forward("{", info);
 
             if(!parse_list_value(node, info)) {
@@ -2562,6 +2649,8 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             }
         }
         else if(strcmp(buf, "equalable_list") == 0 && *info->p == '{') {
+            skip_spaces_and_lf(info);
+
             expect_next_character_with_one_forward("{", info);
 
             if(!parse_equalable_list_value(node, info)) {
@@ -2569,6 +2658,8 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             }
         }
         else if(strcmp(buf, "sortable_list") == 0 && *info->p == '{') {
+            skip_spaces_and_lf(info);
+
             expect_next_character_with_one_forward("{", info);
 
             if(!parse_sortable_list_value(node, info)) {
@@ -2576,6 +2667,8 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             }
         }
         else if(strcmp(buf, "tuple") == 0 && *info->p == '{') {
+            skip_spaces_and_lf(info);
+
             expect_next_character_with_one_forward("{", info);
 
             if(!parse_tuple_value(node, info)) {
@@ -2583,6 +2676,8 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             }
         }
         else if(strcmp(buf, "hash") == 0 && *info->p == '{') {
+            skip_spaces_and_lf(info);
+
             expect_next_character_with_one_forward("{", info);
 
             if(!parse_hash_value(node, info)) {
@@ -2590,6 +2685,8 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             }
         }
         else if(strcmp(buf, "array") == 0 && *info->p == '{') {
+            skip_spaces_and_lf(info);
+
             expect_next_character_with_one_forward("{", info);
 
             if(!parse_carray_value(node, info)) {
@@ -2597,6 +2694,8 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             }
         }
         else if(strcmp(buf, "equalable_array") == 0 && *info->p == '{') {
+            skip_spaces_and_lf(info);
+
             expect_next_character_with_one_forward("{", info);
 
             if(!parse_equalable_carray_value(node, info)) {
@@ -2604,6 +2703,8 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             }
         }
         else if(strcmp(buf, "sortable_array") == 0 && *info->p == '{') {
+            skip_spaces_and_lf(info);
+
             expect_next_character_with_one_forward("{", info);
 
             if(!parse_sortable_carray_value(node, info)) {
@@ -2613,6 +2714,8 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
         /// add variable ///
         else if(*info->p == ':') {
+            skip_spaces_and_lf(info);
+
             info->p++;
             skip_spaces_and_lf(info);
 
@@ -2666,6 +2769,8 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         }
         /// substitution ///
         else if(*info->p == '=' && *(info->p+1) != '=') {
+            skip_spaces_and_lf(info);
+
             info->p++;
             skip_spaces_and_lf(info);
 
@@ -2686,6 +2791,8 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             }
         }
         else if(is_assign_operator(info)) {
+            skip_spaces_and_lf(info);
+
             *node = sNodeTree_create_load_variable(buf, info);
 
             /// go ///
@@ -2706,6 +2813,8 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
             /// class name ///
             if(klass) {
+                skip_spaces_and_lf(info);
+
                 info->p = p_before;
                 info->sline = sline_before;
 
@@ -2723,7 +2832,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     char buf[METHOD_NAME_MAX];
 
                     /// name ///
-                    if(!parse_word(buf, METHOD_NAME_MAX, info, TRUE)) {
+                    if(!parse_word(buf, METHOD_NAME_MAX, info, TRUE, FALSE)) {
                         return FALSE;
                     }
 
@@ -2792,6 +2901,8 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             /// global class ///
             else if(method_name_existance(global_klass, buf))
             {
+                skip_spaces_and_lf(info);
+
                 unsigned int params[PARAMS_MAX];
                 int num_params = 0;
 
@@ -2812,7 +2923,36 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     return FALSE;
                 }
             }
+            else if(get_variable_index(info->lv_table, buf) == -1 && *info->p != '(') {
+                /// Command class method call ///
+                unsigned int params[PARAMS_MAX];
+                int num_params = 0;
+
+                if(!parse_command_method_params(&num_params, params, info)) {
+                    return FALSE;
+                }
+
+                sCLClass* command_klass = get_class("Command");
+
+                MASSERT(command_klass != NULL);
+
+                sNodeType* command_klass_type = alloc_node_type();
+
+                command_klass_type->mClass = command_klass;
+                command_klass_type->mNumGenericsTypes = 0;
+
+                *node = sNodeTree_create_class_method_call(command_klass_type, buf, params, num_params, info);
+                max_method_chains_node[num_method_chains] = *node;
+                num_method_chains++;
+
+                if(num_method_chains >= METHOD_CHAIN_MAX) {
+                    parser_err_msg(info, "overflow method chain");
+                    return FALSE;
+                }
+            }
             else if(get_variable_index(info->lv_table, buf) == -1 && *info->p == '(') {
+                skip_spaces_and_lf(info);
+
                 /// Command class method call ///
                 unsigned int params[PARAMS_MAX];
                 int num_params = 0;
@@ -2840,6 +2980,8 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 }
             }
             else {
+                skip_spaces_and_lf(info);
+
                 *node = sNodeTree_create_load_variable(buf, info);
 
                 /// lambda call ///
@@ -3101,7 +3243,7 @@ static BOOL expression_implements(unsigned int* node, sParserInfo* info)
             char buf[VAR_NAME_MAX+1];
 
             /// name ///
-            if(!parse_word(buf, VAR_NAME_MAX, info, TRUE)) {
+            if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
                 return FALSE;
             }
 
