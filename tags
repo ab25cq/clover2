@@ -15,7 +15,7 @@ BREAK_NUM_MAX	src/common.h	53;"	d
 BUFFER_H	src/buffer.h	2;"	d
 BYTE_CODE_INIT_SIZE	src/code.c	3;"	d	file:
 CC	Makefile	/^CC=clang$/;"	m
-CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -I\/home\/ab25cq\/include -L\/home\/ab25cq\/lib -fPIC -rdynamic -I\/usr\/local\/include -L \/usr\/local\/lib -O3 -DENABLE_INTERPRETER -Qunused-arguments -DENABLE_JIT$/;"	m
+CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -I\/home\/ab25cq\/include -L\/home\/ab25cq\/lib -fPIC -rdynamic -I\/usr\/local\/include -L \/usr\/local\/lib -O3 -DENABLE_INTERPRETER -Qunused-arguments$/;"	m
 CHECKML_BEGIN	src/debug.h	11;"	d
 CHECKML_BEGIN	src/debug.h	39;"	d
 CHECKML_END	src/debug.h	12;"	d
@@ -64,9 +64,9 @@ HAVE_MATH_H	config.h	2;"	d
 HAVE_PCRE_H	config.h	6;"	d
 INSTALL	Makefile	/^INSTALL=\/usr\/bin\/install -c$/;"	m
 INTERPRETER	Makefile	/^INTERPRETER=iclover2$/;"	m
-JIT	Makefile	/^JIT=1$/;"	m
-JIT_OBJS	Makefile	/^JIT_OBJS=src\/jit.o src\/jit2.o src\/jit3.o src\/jit4.o src\/jit5.o src\/jit6.o src\/jit7.o src\/jit8.o src\/jit9.o src\/jit10.o src\/jit11.o src\/jit12.o src\/jit_compile_method.o src\/jit_debug.o src\/jit_declare.o src\/jit_declare2.o src\/jit_sub.o src\/jit_sub2.o$/;"	m
-JIT_RUNTIME_OBJS	Makefile	/^JIT_RUNTIME_OBJS=src\/jit_runtime.o src\/jit_runtime2.o src\/jit_debug_runtime.o$/;"	m
+JIT	Makefile	/^JIT=0$/;"	m
+JIT_OBJS	Makefile	/^JIT_OBJS=$/;"	m
+JIT_RUNTIME_OBJS	Makefile	/^JIT_RUNTIME_OBJS=$/;"	m
 LABEL_NAME_MAX	src/node.c	106;"	d	file:
 LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM	src/class_system.c	1647;"	d	file:
 LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM	src/class_system.c	1103;"	d	file:
@@ -81,7 +81,7 @@ MACROS_H	src/macros.h	2;"	d
 MANAGED	src/macros.h	21;"	d
 MASSERT	src/debug.h	26;"	d
 MASSERT	src/debug.h	48;"	d
-MAX_CODES	src/interpreter.c	1385;"	d	file:
+MAX_CODES	src/interpreter.c	1499;"	d	file:
 MAX_COND_JUMP	src/jit_common.hpp	109;"	d
 MCALLOC	src/debug.h	23;"	d
 MCALLOC	src/debug.h	43;"	d
@@ -1221,6 +1221,7 @@ compiler_final	src/compiler.c	/^static void compiler_final()$/;"	f	file:
 compiler_final	src/interpreter.c	/^static void compiler_final()$/;"	f	file:
 compiler_init	src/compiler.c	/^static void compiler_init(BOOL no_load_fudamental_classes)$/;"	f	file:
 compiler_init	src/interpreter.c	/^static void compiler_init(BOOL no_load_fudamental_classes)$/;"	f	file:
+complete_for_filename	src/interpreter.c	/^char** complete_for_filename(const char* text, int start, int end)$/;"	f
 constant	src/common.h	/^    sConst* constant;$/;"	m	struct:sCompileInfoStruct
 constant_float_value	src/jit_common.hpp	/^    BOOL constant_float_value;$/;"	m	struct:LVALUEStruct
 constant_int_value	src/jit_common.hpp	/^    BOOL constant_int_value;$/;"	m	struct:LVALUEStruct
@@ -1324,6 +1325,7 @@ fFreeFun	src/common.h	/^typedef void (*fFreeFun)(CLObject self);$/;"	t
 fJITMethodType	src/jit_common.hpp	/^typedef BOOL (*fJITMethodType)(CLVALUE* stack_ptr, CLVALUE* lvar, sVMInfo* info, CLVALUE* stack, CLVALUE** stack_ptr_address, int var_num, sConst* constant, sByteCode* code);$/;"	t
 fNativeMethod	src/common.h	/^typedef BOOL (*fNativeMethod)(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);$/;"	t
 file_completion	src/interpreter.c	/^static void file_completion(char* line)$/;"	f	file:
+file_name_completion	src/interpreter.c	/^char* file_name_completion(const char* text, int stat)$/;"	f
 final_vtable	src/vtable.c	/^void final_vtable()$/;"	f
 finalize_class	src/vm.c	/^static BOOL finalize_class(sCLClass* klass)$/;"	f	file:
 finish_method_call	src/jit_sub2.cpp	/^void finish_method_call(Value* result, std::map<std::string, Value *> params, BasicBlock** current_block, Function* function, char** try_catch_label_name, sByteCode* code, int real_param_num, int var_num, LVALUE* llvm_stack, LVALUE* llvm_stack_ptr)$/;"	f
@@ -1347,6 +1349,7 @@ gCastMethods	src/node.c	/^struct sCastMethods gCastMethods[] = {$/;"	v	typeref:s
 gClassTable	src/klass.c	/^static sClassTable gClassTable[CLASS_NUM_MAX];$/;"	v	file:
 gCodes	src/interpreter.c	/^static sByteCode gCodes[MAX_CODES];$/;"	v	file:
 gConst	src/interpreter.c	/^static sConst gConst[MAX_CODES];$/;"	v	file:
+gFileNameIndex	src/interpreter.c	/^static int gFileNameIndex = 0;$/;"	v	file:
 gGlobalStack	src/stack.c	/^CLVALUE* gGlobalStack;$/;"	v
 gGlobalStackPtr	src/stack.c	/^CLVALUE* gGlobalStackPtr;$/;"	v
 gHeadClassTable	src/klass.c	/^sClassTable* gHeadClassTable = NULL;$/;"	v

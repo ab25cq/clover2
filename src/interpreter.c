@@ -758,6 +758,14 @@ void command_completion(char* line, char** candidates, int num_candidates)
                                             size *= 2;
                                             gCandidates = MREALLOC(gCandidates, sizeof(char*)*size);
                                         }
+
+                                        snprintf(candidate, PATH_MAX, "%s", entry->d_name);
+                                        gCandidates[n++] = MANAGED MSTRDUP(candidate);
+
+                                        if(n >= size) {
+                                            size *= 2;
+                                            gCandidates = MREALLOC(gCandidates, sizeof(char*)*size);
+                                        }
                                     }
                                 }
                             }
@@ -822,6 +830,42 @@ void get_global_method_names(char** candidates, int *num_candidates)
     }
 }
 
+char* on_complete(const char* text, int a);
+
+static int gFileNameIndex = 0;
+
+char* file_name_completion(const char* text, int stat)
+{
+    char* result = NULL;
+
+    switch(gFileNameIndex) {
+        case 0:
+            result = strdup("AAA");
+            break;
+
+        case 1:
+            result = strdup("ABC");
+            break;
+
+        case 2:
+            result = strdup("ABD");
+            break;
+    }
+
+    gFileNameIndex++;
+
+    return result;
+}
+
+char** complete_for_filename(const char* text, int start, int end)
+{
+    char* p = (char*)text + 3;
+    printf("AAA ABC ABD\n");
+    
+    gFileNameIndex = 0;
+    return rl_completion_matches(p, file_name_completion);
+}
+
 static int my_complete_internal(int count, int key)
 {
     gInputingMethod = FALSE;
@@ -858,6 +902,53 @@ static int my_complete_internal(int count, int key)
         }
     }
 
+    /// Is Command line ///
+    BOOL inputing_command_line = FALSE;
+    char* head_of_param = "";
+    p = line;
+    while(*p) {
+        if(*p == ' ' || *p == '\t') {
+            p++;
+        }
+        else if(isalnum(*p) || *p == '-') {
+            /// Command name ///
+            while(isalnum(*p) || *p == '-') {
+                p++;
+            }
+
+            if(*p == ' ' || *p == '\t') {
+                while(*p == ' ' || *p == '\t') {
+                    p++;
+                }
+
+                if(*p != '(') {
+                    inputing_command_line = TRUE;
+
+                    /// params ////
+                    while(*p) {
+                        head_of_param = p;
+                        while(!(*p == ' ' || *p == '\t' || *p == '\0')) {
+                            p++;
+                        }
+                        while(*p == ' ' || *p == '\t') {
+                            p++;
+                        }
+                    }
+                    break;
+                }
+                else {
+                    break;
+                }
+            }
+            else {
+                break;
+            }
+        }
+        else {
+            break;
+        }
+    }
+
     /// Is expression void ? ///
     BOOL expression_is_void = TRUE;
 
@@ -883,7 +974,14 @@ static int my_complete_internal(int count, int key)
     }
 
     /// command name completion ///
-    if(expression_is_void) {
+    if(!in_double_quote && !in_single_quote && inputing_command_line) {
+        rl_basic_word_break_characters = " \t\n";
+        rl_completer_word_break_characters = " \t\n";
+        rl_attempted_completion_function = complete_for_filename;
+    }
+    else if(expression_is_void) {
+        rl_completion_entry_function = on_complete;
+
         const int num_words = 23;
         char* words[num_words] = {
             "if(",
@@ -930,6 +1028,8 @@ static int my_complete_internal(int count, int key)
     }
     /// inputing method name ///
     else if(!in_double_quote && !in_single_quote && *p == '.') {
+        rl_completion_entry_function = on_complete;
+
         /// class method ? ///
         char* p2 = p;
         p2--;
@@ -1002,6 +1102,8 @@ static int my_complete_internal(int count, int key)
     }
     /// file completion ///
     else {
+        rl_completion_entry_function = on_complete;
+
         file_completion(line);
     }
 
@@ -1094,6 +1196,18 @@ char* on_complete(const char* text, int a)
     }
     else if(gInputingPath) {
         rl_completion_append_character = '"';
+
+        char* p = text2 + strlen(text2) -1;
+
+        while(p >= text2) {
+            if(*p == ' ' || *p == '\t') {
+                MFREE(text2);
+                text2 = MSTRDUP(p + 1);
+                break;
+            }
+
+            p--;
+        }
     }
 
     /// sort ///
@@ -1643,7 +1757,6 @@ int main(int argc, char** argv)
     set_signal_for_interpreter();
 
     rl_basic_word_break_characters = "\t\n";
-    //rl_attempted_completion_function = on_complete;
     rl_completion_entry_function = on_complete;
 
     char history_path[PATH_MAX];
