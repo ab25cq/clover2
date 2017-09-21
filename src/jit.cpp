@@ -282,15 +282,22 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 break;
 
             case OP_RETURN: {
-                std::string stack_param_name("stack");
-                Value* stack_value = params[stack_param_name];
-
                 LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
                 LVALUE llvm_value2;
                 llvm_value2 = trunc_value(llvm_value, 64);
 
-                Builder.CreateAlignedStore(llvm_value2.value, stack_value, 8);
+                std::string stack_param_name("stack");
+                Value* stack_value = params[stack_param_name];
+
+                std::string var_num_param_name("var_num");
+                Value* var_num_value = params[var_num_param_name];
+
+                Value* lvalue = stack_value;
+                Value* rvalue = var_num_value;
+                Value* store_address_value = Builder.CreateGEP(lvalue, rvalue, "store_address_value");
+
+                Builder.CreateAlignedStore(llvm_value2.value, store_address_value, 8);
 
                 Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 1, true));
                 Builder.CreateRet(ret_value);

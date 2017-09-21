@@ -30,7 +30,7 @@ void show_stack(CLVALUE* stack, CLVALUE* stack_ptr, CLVALUE* lvar, int var_num)
     }
 }
 
-#ifdef VM_LOG
+//#ifdef VM_LOG
 static void show_inst(unsigned inst)
 {
     switch(inst) {
@@ -412,7 +412,7 @@ static void show_inst(unsigned inst)
     }
 }
 
-#endif
+//#endif
 
 void vm_mutex_on()
 {
@@ -500,7 +500,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
 #endif
 
         *stack_ptr = lvar;      // see OP_RETURN
-        **stack_ptr = *new_stack;
+        **stack_ptr = *(new_stack+new_var_num);
         (*stack_ptr)++;
     }
 
@@ -560,9 +560,9 @@ BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_pa
         /// copy back variables to parent ///
         object_data = CLBLOCK(block_object);
         memcpy(object_data->mParentStack, new_stack, sizeof(CLVALUE)*object_data->mParentVarNum);
-    } 
+    }
 
-    **stack_ptr = *new_stack;
+    **stack_ptr = *(new_stack + new_var_num);
     (*stack_ptr)++;
 
     return TRUE;
@@ -1014,7 +1014,7 @@ show_inst(inst);
                 break;
 
             case OP_RETURN:
-                *stack = *(stack_ptr-1);
+                *(stack+var_num) = *(stack_ptr-1);
                 remove_stack_to_stack_list(stack_id);
 #ifdef MDEBUG
 if(stack_ptr != lvar + var_num + 1) {
@@ -5017,6 +5017,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     pc += sizeof(int);
 
                     CLObject block_object = (stack_ptr-num_params-1)->mObjectValue;
+
 
                     if(!invoke_block(block_object, stack, var_num, num_params, &stack_ptr, info)) 
                     {
