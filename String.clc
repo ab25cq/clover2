@@ -198,7 +198,7 @@ class String
     def println(): {
         println(self);
     }
-    def printlnWithoutNullString(): {
+    def printlnWithoutNullString() {
         if(self.len != 0) {
             println(self);
         }

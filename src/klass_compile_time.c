@@ -223,9 +223,7 @@ BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* param
 
     char method_path[METHOD_PATH_MAX+1];
     create_method_path(method_path, METHOD_PATH_MAX, &klass->mMethods[num_methods], klass);
-
     klass->mMethods[num_methods].mPathOffset = append_str_to_constant_pool(&klass->mConst, method_path, FALSE);
-
     node_type_to_cl_type(result_type, ALLOC &klass->mMethods[num_methods].mResultType, klass);
 
     int size_method_name_and_params = METHOD_NAME_MAX + PARAMS_MAX * CLASS_NAME_MAX + 256;

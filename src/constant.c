@@ -32,6 +32,11 @@ int sConst_append(sConst* self, void* data, size_t size, BOOL no_output)
     if(!no_output) {
         arrange_alignment(self);
 
+        void* data2;
+
+        data2 = MCALLOC(1, size);        // prevent deleting from bellow REALLOC
+        memcpy(data2, data, size);
+
         if(self->mSize <= self->mLen + size + 1) {
             int new_size = (self->mLen + size + 1) * 2;
             char* new_constant = MCALLOC(1, new_size);
@@ -45,10 +50,10 @@ int sConst_append(sConst* self, void* data, size_t size, BOOL no_output)
 
         int result = self->mLen;
 
-//printf("self->mSize %d self->mLen %d data (%s) size (%ld)\n", self->mSize, self->mLen, data, size);
-
-        memcpy(self->mConst + self->mLen, data, size);
+        memcpy(self->mConst + self->mLen, data2, size);
         self->mLen += size;
+
+        MFREE(data2);
 
         return result;
     }
@@ -75,7 +80,9 @@ int append_double_value_to_constant_pool(sConst* constant, double n, BOOL no_out
 int append_str_to_constant_pool(sConst* constant, char* str, BOOL no_output)
 {
     size_t len = strlen(str);
-    return sConst_append(constant, str, len+1, no_output);
+    int result = sConst_append(constant, str, len+1, no_output);
+
+    return result;
 }
 
 int append_wstr_to_constant_pool(sConst* constant, char* str, BOOL no_output)
