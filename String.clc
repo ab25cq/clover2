@@ -198,6 +198,11 @@ class String
     def println(): {
         println(self);
     }
+    def printlnWithoutNullString(): {
+        if(self.len != 0) {
+            println(self);
+        }
+    }
 
     def match(regex_:regex): bool {
         ovec_max:int = 16;

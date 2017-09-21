@@ -710,7 +710,16 @@ static void file_completion_command_line(char* text)
 
     gInputingCommandPath = TRUE;
 
-    char* p = text;
+    char* p = (char*)text + strlen(text);
+    while(p >= text) {
+        if(*p == ' ' || *p == '\t') {
+            p++;
+            break;
+        }
+        else {
+            p--;
+        }
+    }
 
     if(*p == 0) {
         result_opendir = opendir(".");
@@ -762,6 +771,7 @@ static void file_completion_command_line(char* text)
             char* dirname_;
 
             dirname_ = dirname(text2);
+
             result_opendir = opendir(dirname_);
 
             if(strcmp(dirname_, ".") == 0) {
@@ -804,7 +814,7 @@ static void file_completion_command_line(char* text)
                 struct stat stat_;
                 len = strlen(path) + strlen(result_readdir->d_name) + 2 + 1 + 1;
 
-                candidate = xmalloc(len);
+                candidate = MMALLOC(len);
 
                 xstrncpy(candidate, path, len);
                 xstrncat(candidate, result_readdir->d_name, len);
@@ -822,7 +832,7 @@ static void file_completion_command_line(char* text)
                     }
                 }
                 else {
-                    xfree(candidate);
+                    MFREE(candidate);
                 }
             }
         }
@@ -1112,6 +1122,8 @@ static int my_complete_internal(int count, int key)
         rl_completion_entry_function = on_complete;
 
         file_completion_command_line(line);
+
+        rl_completer_word_break_characters = "\t ";
     }
     else if(expression_is_void) {
         rl_completion_entry_function = on_complete;
@@ -1231,14 +1243,14 @@ static int my_complete_internal(int count, int key)
         }
 
         rl_completer_word_break_characters = "\t\n.({";
-
-        gInputingMethod = TRUE;
     }
     /// file completion ///
     else {
         rl_completion_entry_function = on_complete;
 
         file_completion(line);
+
+        rl_completer_word_break_characters = "\t ";
     }
 
     MFREE(source);
@@ -1320,8 +1332,9 @@ char* on_complete(const char* text, int a)
 
         while(p >= text2) {
             if(*p == '(') {
+                char* tmp = MSTRDUP(p + 1);
                 MFREE(text2);
-                text2 = MSTRDUP(p + 1);
+                text2 = tmp;
                 break;
             }
 
@@ -1335,8 +1348,9 @@ char* on_complete(const char* text, int a)
 
         while(p >= text2) {
             if(*p == ' ' || *p == '\t') {
+                char* tmp = MSTRDUP(p + 1);
                 MFREE(text2);
-                text2 = MSTRDUP(p + 1);
+                text2 = tmp;
                 break;
             }
 
@@ -1344,25 +1358,20 @@ char* on_complete(const char* text, int a)
         }
     }
     else if(gInputingCommandPath) {
-        rl_completion_append_character = 0;
+        rl_completion_append_character = ' ';
 
-printf("text2 (%s)\n", text2);
-sleep(1);
-
-        char* p = text2 + strlen(text2);
+        char* p = text2 + strlen(text2) - 1;
 
         while(p >= text2) {
-            if(*p == ' ' || *p == '\t' || *p == '/') {
+            if(*p == ' ' || *p == '\t') {
+                char* tmp = MSTRDUP(p + 1);
                 MFREE(text2);
-                text2 = MSTRDUP(p + 1);
+                text2 = tmp;
                 break;
             }
 
             p--;
         }
-
-printf("text2 (%s)\n", text2);
-sleep(1);
     }
 
     /// sort ///
@@ -1412,7 +1421,7 @@ sleep(1);
 
             candidate = *candidates2;
 
-            flg_field = strstr(candidate, "(") == NULL;
+            flg_field = strstr(candidate, "(") == NULL && !gInputingCommandPath;
 
             if(rl_completion_append_character == '(') {
                 parenthesis = strstr(candidate, "(");
@@ -1450,8 +1459,16 @@ sleep(1);
                     rl_insert_text(appended_chars2);
                 }
             }
-            else if(rl_completion_append_character == 0) {
-                rl_insert_text(appended_chars2);
+            else if(rl_completion_append_character == ' ') {
+                int len;
+
+                len = strlen(candidate);
+                if(candidate[len-1] != '/') {
+                    appended_chars2[0] = rl_completion_append_character;
+                    appended_chars2[1] = 0;
+
+                    rl_insert_text(appended_chars2);
+                }
             }
             else if(flg_field) {
                 appended_chars2[0] = '.';
@@ -1459,10 +1476,7 @@ sleep(1);
 
                 rl_insert_text(appended_chars2);
             }
-            else if(rl_completion_append_character != 0) {
-                appended_chars2[0] = rl_completion_append_character;
-                appended_chars2[1] = 0;
-
+            else {
                 rl_insert_text(appended_chars2);
             }
 
@@ -1764,7 +1778,7 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
                     }
 
                     /// println ///
-                    method_index = search_for_method(string_class, "println", NULL, 0, FALSE, string_class->mNumMethods-1, NULL, NULL, &result_type);
+                    method_index = search_for_method(string_class, "printlnWithoutNullString", NULL, 0, FALSE, string_class->mNumMethods-1, NULL, NULL, &result_type);
 
                     if(method_index != -1) {
                         append_opecode_to_code(cinfo.code, OP_INVOKE_METHOD, cinfo.no_output);
@@ -1817,7 +1831,7 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
 
                     /// println ///
                     result_type = NULL;
-                    method_index = search_for_method(string_class, "println", NULL, 0, FALSE, string_class->mNumMethods-1, NULL, NULL, &result_type);
+                    method_index = search_for_method(string_class, "printlnWithoutNullString", NULL, 0, FALSE, string_class->mNumMethods-1, NULL, NULL, &result_type);
 
                     if(method_index != -1) {
                         append_opecode_to_code(cinfo.code, OP_INVOKE_METHOD, cinfo.no_output);

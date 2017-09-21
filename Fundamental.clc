@@ -604,7 +604,6 @@ class Float
     }
 
     def getValue(): float {
-System.println(self.value.toString);
         return self.value;
     }
 
