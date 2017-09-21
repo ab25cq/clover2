@@ -3810,6 +3810,7 @@ export CFLAGS
 # Libs
 ##########################################################
 CC=gcc
+
 INSTALL="/usr/bin/install -c"
 
 #AC_CHECK_HEADER(pthread.h, [AC_DEFINE(HAVE_PTHREAD_H, 1)], [ exit ])
@@ -4051,17 +4052,20 @@ ac_cv_lib_rt=ac_cv_lib_rt_main
 
 
 
-#if which clang-5.0 > /dev/null
-#then
-#    CC=clang-5.0
-#if which clang-4.0 > /dev/null
-#then
-#    CC=clang-4.0
 if which clang > /dev/null
 then
     CC=clang
+    if which ccache > /dev/null
+    then
+        CC="ccache clang"
+    fi
 else
     CC=gcc
+
+    if which ccache > /dev/null
+    then
+        CC="ccache gcc"
+    fi
 fi
 
 
@@ -4071,6 +4075,10 @@ CXXFLAGS="-I . "
 if which clang++ > /dev/null
 then
     CXX=clang++
+    if which ccache > /dev/null
+    then
+        CXX="ccache clang++"
+    fi
     if test $DEBUGGING = 1
     then
         CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs all` -lffi -DMDEBUG -g'" $CXXFLAGS"
@@ -4079,6 +4087,11 @@ then
     fi
 else
     CXX=g++
+    if which ccache > /dev/null
+    then
+        CXX="ccache g++"
+    fi
+
     if test $DEBUGGING = 1
     then
         CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs all` -lffi -DMDEBUG -g'" $CXXFLAGS"

@@ -556,6 +556,7 @@ int gNumCandidates = 0;
 
 BOOL gInputingMethod = FALSE;
 BOOL gInputingPath = FALSE;
+BOOL gInputingCommandPath = FALSE;
 
 CLVALUE* gStack = NULL;
 sVarTable* gLVTable = NULL;
@@ -700,6 +701,138 @@ static void file_completion(char* line)
     }
 
     rl_completer_word_break_characters = "\t\n\"";
+}
+
+static void file_completion_command_line(char* text)
+{
+    DIR* result_opendir;
+    char path[PATH_MAX];
+
+    gInputingCommandPath = TRUE;
+
+    char* p = text;
+
+    if(*p == 0) {
+        result_opendir = opendir(".");
+        path[0] = 0;
+    }
+    else {
+        char* text2 = MSTRDUP(p);
+
+        if(text2[0] == '~') {
+            char text3[PATH_MAX];
+            char* home;
+
+            home = getenv("HOME");
+
+            if(home) {
+                if(text2[1] == '/') {
+                    snprintf(text3, PATH_MAX, "%s/%s", home, text2 + 2);
+                }
+                else {
+                    snprintf(text3, PATH_MAX, "%s/%s", home, text2 + 1);
+                }
+
+                rl_delete_text(rl_point-strlen(text2), rl_point);
+                rl_point -=strlen(text2);
+                rl_insert_text(text3);
+
+                result_opendir = opendir(text3);
+
+                xstrncpy(path, text3, PATH_MAX);
+            }
+            else {
+                result_opendir = opendir(text2);
+
+                xstrncpy(path, text2, PATH_MAX);
+            }
+        }
+
+        if(text2[0] == '.' && text2[1] == '/') {
+            result_opendir = opendir(".");
+
+            xstrncpy(path, "./", PATH_MAX);
+        }
+        else if(text2[strlen(text2)-1] == '/') {
+            result_opendir = opendir(text2);
+
+            xstrncpy(path, text2, PATH_MAX);
+        }
+        else {
+            char* dirname_;
+
+            dirname_ = dirname(text2);
+            result_opendir = opendir(dirname_);
+
+            if(strcmp(dirname_, ".") == 0) {
+                path[0] = 0;
+            }
+            else {
+                xstrncpy(path, dirname_, PATH_MAX);
+
+                if(dirname_[strlen(dirname_)-1] != '/' ) {
+                    xstrncat(path, "/", PATH_MAX);
+                }
+            }
+        }
+
+        MFREE(text2);
+    }
+
+    if(result_opendir) {
+        int n;
+        int size;
+
+        n = 0;
+        size = 128;
+
+        gCandidates = MCALLOC(1, sizeof(char*)*size);
+
+        while(1) {
+            struct dirent* result_readdir;
+            int len;
+            char* candidate;
+
+            result_readdir = readdir(result_opendir);
+
+            if(result_readdir == NULL) {
+                break;
+            }
+
+            if(strcmp(result_readdir->d_name, ".") != 0 && strcmp(result_readdir->d_name, "..") != 0)
+            {
+                struct stat stat_;
+                len = strlen(path) + strlen(result_readdir->d_name) + 2 + 1 + 1;
+
+                candidate = xmalloc(len);
+
+                xstrncpy(candidate, path, len);
+                xstrncat(candidate, result_readdir->d_name, len);
+
+                if(stat(candidate, &stat_) == 0) {
+                    if(S_ISDIR(stat_.st_mode)) {
+                        xstrncat(candidate, "/", len);
+                    }
+
+                    gCandidates[n++] = MANAGED candidate;
+
+                    if(n >= size) {
+                        size *= 2;
+                        gCandidates = MREALLOC(gCandidates, sizeof(char*)*size);
+                    }
+                }
+                else {
+                    xfree(candidate);
+                }
+            }
+        }
+
+        gCandidates[n] = NULL;
+
+        gNumCandidates = n;
+
+        closedir(result_opendir);
+    }
 }
 
 /// get program name from PATH environment variable ///
@@ -870,6 +1003,7 @@ static int my_complete_internal(int count, int key)
 {
     gInputingMethod = FALSE;
     gInputingPath = FALSE;
+    gInputingCommandPath = FALSE;
     gCandidates = NULL;
     gNumCandidates = 0;
 
@@ -975,9 +1109,9 @@ static int my_complete_internal(int count, int key)
 
     /// command name completion ///
     if(!in_double_quote && !in_single_quote && inputing_command_line) {
-        rl_basic_word_break_characters = " \t\n";
-        rl_completer_word_break_characters = " \t\n";
-        rl_attempted_completion_function = complete_for_filename;
+        rl_completion_entry_function = on_complete;
+
+        file_completion_command_line(line);
     }
     else if(expression_is_void) {
         rl_completion_entry_function = on_complete;
@@ -1209,6 +1343,27 @@ char* on_complete(const char* text, int a)
             p--;
         }
     }
+    else if(gInputingCommandPath) {
+        rl_completion_append_character = 0;
+
+printf("text2 (%s)\n", text2);
+sleep(1);
+
+        char* p = text2 + strlen(text2);
+
+        while(p >= text2) {
+            if(*p == ' ' || *p == '\t' || *p == '/') {
+                MFREE(text2);
+                text2 = MSTRDUP(p + 1);
+                break;
+            }
+
+            p--;
+        }
+
+printf("text2 (%s)\n", text2);
+sleep(1);
+    }
 
     /// sort ///
     sort_candidates();
@@ -1294,6 +1449,9 @@ char* on_complete(const char* text, int a)
 
                     rl_insert_text(appended_chars2);
                 }
+            }
+            else if(rl_completion_append_character == 0) {
+                rl_insert_text(appended_chars2);
             }
             else if(flg_field) {
                 appended_chars2[0] = '.';
