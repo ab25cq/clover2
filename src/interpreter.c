@@ -1326,6 +1326,7 @@ char* on_complete(const char* text, int a)
     char* text2 = MSTRDUP((char*)text);
 
     if(gInputingMethod) {
+puts("gInputingMethod");
         rl_completion_append_character = '(';
 
         char* p = text2 + strlen(text2) -1;
@@ -1342,6 +1343,7 @@ char* on_complete(const char* text, int a)
         }
     }
     else if(gInputingPath) {
+puts("gInputingPath");
         rl_completion_append_character = '"';
 
         char* p = text2 + strlen(text2) -1;
@@ -1358,6 +1360,7 @@ char* on_complete(const char* text, int a)
         }
     }
     else if(gInputingCommandPath) {
+puts("gInputingCommandPath");
         rl_completion_append_character = ' ';
 
         char* p = text2 + strlen(text2) - 1;
