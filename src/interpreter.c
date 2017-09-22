@@ -494,7 +494,23 @@ static char* get_one_expression(char* source)
     BOOL squort = FALSE;
     BOOL dquort = FALSE;
 
-    char* p = source;
+    char* p = source + strlen(source);
+
+    while(p >= source) {
+        if(*p == ';') {
+            break;
+        }
+        
+        p--;
+    }
+
+    p++;
+
+    while(*p == ' ' || *p == '\t') {
+        p++;
+    }
+
+    head = p;
 
     while(*p) {
         if(!squort && !dquort && *p == '(') {
@@ -565,8 +581,6 @@ static void file_completion(char* line)
 {
     DIR* result_opendir;
     char path[PATH_MAX];
-
-    gInputingPath = TRUE;
 
     char* p = (char*)line + strlen(line);
     while(p >= line) {
@@ -707,8 +721,6 @@ static void file_completion_command_line(char* text)
 {
     DIR* result_opendir;
     char path[PATH_MAX];
-
-    gInputingCommandPath = TRUE;
 
     char* p = (char*)text + strlen(text);
     while(p >= text) {
@@ -933,7 +945,6 @@ void command_completion(char* line, char** candidates, int num_candidates)
 
     gCandidates[n] = NULL;
     gNumCandidates = n;
-    gInputingMethod = TRUE;
 }
 
 void get_class_names(char** candidates, int *num_candidates)
@@ -1123,6 +1134,7 @@ static int my_complete_internal(int count, int key)
 
         file_completion_command_line(line);
 
+        gInputingCommandPath = TRUE;
         rl_completer_word_break_characters = "\t ";
     }
     else if(expression_is_void) {
@@ -1170,6 +1182,7 @@ static int my_complete_internal(int count, int key)
         command_completion(line, candidates, num_candidates);
         MFREE(candidates);
 
+        gInputingMethod = TRUE;
         rl_completer_word_break_characters = "\t\n.({ ";
     }
     /// inputing method name ///
@@ -1242,6 +1255,7 @@ static int my_complete_internal(int count, int key)
             gNumCandidates = num_methods;
         }
 
+        gInputingMethod = TRUE;
         rl_completer_word_break_characters = "\t\n.({";
     }
     /// file completion ///
@@ -1250,6 +1264,7 @@ static int my_complete_internal(int count, int key)
 
         file_completion(line);
 
+        gInputingPath = TRUE;
         rl_completer_word_break_characters = "\t ";
     }
 
@@ -1326,7 +1341,6 @@ char* on_complete(const char* text, int a)
     char* text2 = MSTRDUP((char*)text);
 
     if(gInputingMethod) {
-puts("gInputingMethod");
         rl_completion_append_character = '(';
 
         char* p = text2 + strlen(text2) -1;
@@ -1343,13 +1357,12 @@ puts("gInputingMethod");
         }
     }
     else if(gInputingPath) {
-puts("gInputingPath");
         rl_completion_append_character = '"';
 
         char* p = text2 + strlen(text2) -1;
 
         while(p >= text2) {
-            if(*p == ' ' || *p == '\t') {
+            if(*p == ' ' || *p == '\t' || *p == '"') {
                 char* tmp = MSTRDUP(p + 1);
                 MFREE(text2);
                 text2 = tmp;
@@ -1360,7 +1373,6 @@ puts("gInputingPath");
         }
     }
     else if(gInputingCommandPath) {
-puts("gInputingCommandPath");
         rl_completion_append_character = ' ';
 
         char* p = text2 + strlen(text2) - 1;
@@ -1472,6 +1484,12 @@ puts("gInputingCommandPath");
 
                     rl_insert_text(appended_chars2);
                 }
+            }
+            else if(rl_completion_append_character == '(') {
+                appended_chars2[0] = rl_completion_append_character;
+                appended_chars2[1] = 0;
+
+                rl_insert_text(appended_chars2);
             }
             else if(flg_field) {
                 appended_chars2[0] = '.';
