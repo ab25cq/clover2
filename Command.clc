@@ -786,6 +786,24 @@ dynamic_class Command
         }
     }
 
+    def cd(path:String):static {
+        path.toPath().chdir();
+    }
+    
+    def fg(job_num:int):static {
+        if(job_num >= 0 && job_num < Clover.jobs.length()) {
+            Clover.jobs.items(job_num).forground();
+        }
+    }
+    
+    def fg():static {
+        Command.fg(0);
+    }
+    
+    def jobs():static EqualableList<Job> {
+        return Clover.jobs;
+    }
+
     def toString():String {
         return self.data;
     }
