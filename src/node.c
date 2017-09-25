@@ -64,11 +64,11 @@ void free_nodes()
                     break;
 
                 case kNodeTypeString:
-                    MFREE(gNodes[i].uValue.mString);
+                    MFREE(gNodes[i].uValue.sString.mString);
                     break;
 
                 case kNodeTypePath:
-                    MFREE(gNodes[i].uValue.mString);
+                    MFREE(gNodes[i].uValue.sString.mString);
                     break;
 
                 case kNodeTypeBuffer:
@@ -2617,7 +2617,7 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
             return TRUE;
         }
 
-        char* class_name = gNodes[params[0]].uValue.mString;
+        char* class_name = gNodes[params[0]].uValue.sString.mString;
 
         info->type = create_node_type_with_class_name(class_name);
         
@@ -5221,7 +5221,7 @@ BOOL compile_char_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_string_value(MANAGED char* value, sParserInfo* info)
+unsigned int sNodeTree_create_string_value(MANAGED char* value, unsigned int* string_expressions, int* string_expression_offsets, int string_expression_index, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
@@ -5236,14 +5236,20 @@ unsigned int sNodeTree_create_string_value(MANAGED char* value, sParserInfo* inf
 
     gNodes[node].mType = NULL;
 
-    gNodes[node].uValue.mString = MANAGED value;
+    gNodes[node].uValue.sString.mString = MANAGED value;
+    int i;
+    for(i=0; i<string_expression_index; i++) {
+        gNodes[node].uValue.sString.mStringExpressions[i] = string_expressions[i];
+        gNodes[node].uValue.sString.mStringExpressionOffsets[i] = string_expression_offsets[i];
+    }
+    gNodes[node].uValue.sString.mStringExpressionIndex = string_expression_index;
 
     return node;
 }
 
 BOOL compile_string_value(unsigned int node, sCompileInfo* info)
 {
-    char* str = gNodes[node].uValue.mString;
+    char* str = gNodes[node].uValue.sString.mString;
 
     append_opecode_to_code(info->code, OP_CREATE_STRING, info->no_output);
     append_str_to_constant_pool_and_code(info->constant, info->code, str, info->no_output);
@@ -5308,14 +5314,14 @@ unsigned int sNodeTree_create_path_value(MANAGED char* value, int len, sParserIn
 
     gNodes[node].mType = NULL;
 
-    gNodes[node].uValue.mString = MANAGED value;
+    gNodes[node].uValue.sString.mString = MANAGED value;
 
     return node;
 }
 
 BOOL compile_path_value(unsigned int node, sCompileInfo* info)
 {
-    char* buf = gNodes[node].uValue.mString;
+    char* buf = gNodes[node].uValue.sString.mString;
 
     append_opecode_to_code(info->code, OP_CREATE_PATH, info->no_output);
     append_str_to_constant_pool_and_code(info->constant, info->code, buf, info->no_output);

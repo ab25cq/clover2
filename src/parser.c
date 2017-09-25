@@ -324,7 +324,7 @@ static BOOL parse_command_method_params(int* num_params, unsigned int* params, s
             skip_spaces_and_lf(info);
 
             unsigned int node = 0;
-            node = sNodeTree_create_string_value(MANAGED param.mBuf, info);
+            node = sNodeTree_create_string_value(MANAGED param.mBuf, NULL, NULL, 0, info);
 
             params[*num_params] = node;
             (*num_params)++;
@@ -2232,14 +2232,97 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         sBuf value;
         sBuf_init(&value);
 
+        unsigned int string_expressions[STRING_EXPRESSION_MAX];
+        memset(string_expressions, 0, sizeof(unsigned int)*STRING_EXPRESSION_MAX);
+
+        int string_expression_offsets[STRING_EXPRESSION_MAX];
+        memset(string_expression_offsets, 0, sizeof(int)*STRING_EXPRESSION_MAX);
+
+        int string_expression_index = 0;
+
         while(1) {
             if(*info->p == '"') {
                 info->p++;
                 break;
             }
+            else if(*info->p == '#' && *(info->p+1) == '{') {
+                info->p+=2;
+
+                sBuf expression_str;
+                sBuf_init(&expression_str);
+
+                int nest = 0;
+
+                while(*info->p) {
+                    if(*info->p == '{') {
+                        sBuf_append_char(&expression_str, *info->p);
+                        info->p++;
+
+                        nest++;
+                    }
+                    else if(*info->p == '}') {
+                        if(nest == 0) {
+                            info->p++;
+                            break;
+                        }
+                        else {
+                            sBuf_append_char(&expression_str, *info->p);
+                            info->p++;
+
+                            nest--;
+                        }
+                    }
+                    else {
+                        sBuf_append_char(&expression_str, *info->p);
+                        info->p++;
+                    }
+                }
+
+                sParserInfo info2;
+
+                memset(&info2, 0, sizeof(sParserInfo));
+
+                info2.p = expression_str.mBuf;
+                info2.sname = "string expression";
+                info2.sline = 1;
+                info2.lv_table = info->lv_table;
+                info2.parse_phase = info->parse_phase;
+                info2.klass = info->klass;
+                info2.generics_info = info->generics_info;
+                info2.cinfo = info->cinfo;
+                info2.included_source = info->included_source;
+                info2.get_type_for_interpreter = info->get_type_for_interpreter;
+
+                unsigned int node = 0;
+                if(!expression(&node, &info2)) {
+                    MFREE(value.mBuf);
+                    MFREE(expression_str.mBuf);
+                    return FALSE;
+                }
+
+                string_expressions[string_expression_index] = node;
+                string_expression_offsets[string_expression_index] = value.mLen;
+
+                string_expression_index++;
+
+                if(string_expression_index >= STRING_EXPRESSION_MAX) {
+                    parser_err_msg(info, "overflow string expression number");
+                    MFREE(value.mBuf);
+                    MFREE(expression_str.mBuf);
+                    return FALSE;
+                }
+
+                MFREE(expression_str.mBuf);
+            }
             else if(*info->p == '\\') {
                 info->p++;
+
                 switch(*info->p) {
+                    case '0':
+                        sBuf_append_char(&value, '\0');
+                        info->p++;
+                        break;
+
                     case 'n':
                         sBuf_append_char(&value, '\n');
                         info->p++;
@@ -2285,7 +2368,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
         skip_spaces_and_lf(info);
 
-        *node = sNodeTree_create_string_value(MANAGED value.mBuf, info);
+        *node = sNodeTree_create_string_value(MANAGED value.mBuf, string_expressions, string_expression_offsets, string_expression_index, info);
     }
     else if((*info->p == 'B' || *info->p == 'b') && *(info->p+1) == '"') {
         info->p+=2;
@@ -2301,6 +2384,11 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             else if(*info->p == '\\') {
                 info->p++;
                 switch(*info->p) {
+                    case '0':
+                        sBuf_append_char(&value, '\0');
+                        info->p++;
+                        break;
+
                     case 'n':
                         sBuf_append_char(&value, '\n');
                         info->p++;
@@ -2323,11 +2411,6 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
                     case '\\':
                         sBuf_append_char(&value, '\\');
-                        info->p++;
-                        break;
-
-                    case '0':
-                        sBuf_append_char(&value, '\0');
                         info->p++;
                         break;
 
@@ -2367,6 +2450,11 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             else if(*info->p == '\\') {
                 info->p++;
                 switch(*info->p) {
+                    case '0':
+                        sBuf_append_char(&value, '\0');
+                        info->p++;
+                        break;
+
                     case 'n':
                         sBuf_append_char(&value, '\n');
                         info->p++;
@@ -2389,11 +2477,6 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
                     case '\\':
                         sBuf_append_char(&value, '\\');
-                        info->p++;
-                        break;
-
-                    case '0':
-                        sBuf_append_char(&value, '\0');
                         info->p++;
                         break;
 
