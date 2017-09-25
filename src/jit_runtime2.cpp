@@ -728,4 +728,39 @@ void show_method_parametor_address(CLVALUE* stack_ptr, CLVALUE* lvar, sVMInfo* i
 {
     printf("stack_ptr %p lvar %p info %p stack %p stack_ptr_address %p var_num %d constant %p code %p\n", stack_ptr, lvar, info, stack, stack_ptr_address, var_num, constant, code);
 }
+
+CLObject run_op_string_with_string_expression(char* str, int* string_expression_offsets, int num_string_expression, CLVALUE** stack_ptr)
+{
+    CLObject string_expression_object[STRING_EXPRESSION_MAX];
+
+    sBuf buf;
+    sBuf_init(&buf);
+
+    int offset_before = 0;
+
+    int i;
+    for(i=0; i<num_string_expression; i++) {
+        int offset = string_expression_offsets[i];
+        string_expression_object[i] = ((*stack_ptr) - num_string_expression + i)->mObjectValue;
+
+        sBuf_append(&buf, str + offset_before, offset - offset_before);
+
+        char* str2 = ALLOC string_object_to_char_array(string_expression_object[i]);
+        sBuf_append_str(&buf, str2);
+        MFREE(str2);
+
+        offset_before = offset;
+    }
+
+    sBuf_append(&buf, str + offset_before, strlen(str) - offset_before);
+
+    (*stack_ptr) -= num_string_expression;
+
+    CLObject string_object = create_string_object(buf.mBuf);
+
+    MFREE(buf.mBuf);
+
+    return string_object;
+}
+
 }

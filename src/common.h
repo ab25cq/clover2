@@ -601,7 +601,7 @@ struct sNodeTreeStruct
             char* mString;
             unsigned int mStringExpressions[STRING_EXPRESSION_MAX];
             int mStringExpressionOffsets[STRING_EXPRESSION_MAX];
-            int mStringExpressionIndex;
+            int mNumStringExpression;
         } sString;
 
         struct {
@@ -751,7 +751,7 @@ unsigned int sNodeTree_create_load_array_element(unsigned int array, unsigned in
 unsigned int sNodeTree_create_store_array_element(unsigned int array, unsigned int index_ndoe, unsigned int right_node, sParserInfo* info);
 unsigned int sNodeTree_create_character_value(wchar_t c, sParserInfo* info);
 
-unsigned int sNodeTree_create_string_value(MANAGED char* value, unsigned int* string_expressions, int* string_expression_offsets, int string_expression_index, sParserInfo* info);
+unsigned int sNodeTree_create_string_value(MANAGED char* value, unsigned int* string_expressions, int* string_expression_offsets, int num_string_expression, sParserInfo* info);
 unsigned int sNodeTree_create_buffer_value(MANAGED char* value, int len, sParserInfo* info);
 unsigned int sNodeTree_try_expression(MANAGED sNodeBlock* try_node_block, MANAGED sNodeBlock* catch_node_block, char* exception_var_name, sParserInfo* info);
 

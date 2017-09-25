@@ -350,4 +350,5 @@ test:
 	./cclover2 code/anonymous2.cl && ./clover2 code/anonymous2.clo
 	./cclover2 code/block4.cl && ./clover2 code/block4.clo
 	./cclover2 code/block5.cl && ./clover2 code/block5.clo
+	./cclover2 -class code/string3.clc && ./cclover2 code/string3.cl && ./clover2 code/string3.clo
 

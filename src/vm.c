@@ -12872,13 +12872,59 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     int offset = *(int*)pc;
                     pc += sizeof(int);
 
+                    int num_string_expression = *(int*)pc;
+                    pc += sizeof(int);
+
                     char* str = CONS_str(constant, offset);
 
-                    CLObject string_object = create_string_object(str);
+                    if(num_string_expression == 0) {
+                        CLObject string_object = create_string_object(str);
 
-                    stack_ptr->mLongValue = 0;              // zero clear for jit
-                    stack_ptr->mObjectValue = string_object;
-                    stack_ptr++;
+                        stack_ptr->mLongValue = 0;              // zero clear for jit
+                        stack_ptr->mObjectValue = string_object;
+                        stack_ptr++;
+                    }
+                    else {
+                        int string_expression_offsets[STRING_EXPRESSION_MAX];
+                        CLObject string_expression_object[STRING_EXPRESSION_MAX];
+
+                        int i;
+                        for(i=0; i<num_string_expression; i++) {
+                            string_expression_offsets[i] = *(int*)pc;
+                            pc += sizeof(int);
+
+                            string_expression_object[i] = (stack_ptr - num_string_expression + i)->mObjectValue;
+                        }
+
+                        sBuf buf;
+                        sBuf_init(&buf);
+
+                        int offset_before = 0;
+
+                        for(i=0; i<num_string_expression; i++) {
+                            int offset = string_expression_offsets[i];
+
+                            sBuf_append(&buf, str + offset_before, offset - offset_before);
+
+                            char* str2 = ALLOC string_object_to_char_array(string_expression_object[i]);
+                            sBuf_append_str(&buf, str2);
+                            MFREE(str2);
+
+                            offset_before = offset;
+                        }
+
+                        sBuf_append(&buf, str + offset_before, strlen(str) - offset_before);
+
+                        stack_ptr -= num_string_expression;
+
+                        CLObject string_object = create_string_object(buf.mBuf);
+
+                        stack_ptr->mLongValue = 0;              // zero clear for jit
+                        stack_ptr->mObjectValue = string_object;
+                        stack_ptr++;
+
+                        MFREE(buf.mBuf);
+                    }
 
                     vm_mutex_off();
                 }

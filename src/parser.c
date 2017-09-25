@@ -2238,7 +2238,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         int string_expression_offsets[STRING_EXPRESSION_MAX];
         memset(string_expression_offsets, 0, sizeof(int)*STRING_EXPRESSION_MAX);
 
-        int string_expression_index = 0;
+        int num_string_expression = 0;
 
         while(1) {
             if(*info->p == '"') {
@@ -2300,12 +2300,12 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     return FALSE;
                 }
 
-                string_expressions[string_expression_index] = node;
-                string_expression_offsets[string_expression_index] = value.mLen;
+                string_expressions[num_string_expression] = node;
+                string_expression_offsets[num_string_expression] = value.mLen;
 
-                string_expression_index++;
+                num_string_expression++;
 
-                if(string_expression_index >= STRING_EXPRESSION_MAX) {
+                if(num_string_expression >= STRING_EXPRESSION_MAX) {
                     parser_err_msg(info, "overflow string expression number");
                     MFREE(value.mBuf);
                     MFREE(expression_str.mBuf);
@@ -2368,7 +2368,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
         skip_spaces_and_lf(info);
 
-        *node = sNodeTree_create_string_value(MANAGED value.mBuf, string_expressions, string_expression_offsets, string_expression_index, info);
+        *node = sNodeTree_create_string_value(MANAGED value.mBuf, string_expressions, string_expression_offsets, num_string_expression, info);
     }
     else if((*info->p == 'B' || *info->p == 'b') && *(info->p+1) == '"') {
         info->p+=2;

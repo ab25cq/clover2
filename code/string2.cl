@@ -65,3 +65,4 @@ Clover.test("string2 test34", "abcabc".indexOf(/c/, 2) == 5);
 Clover.test("String2 test35", "abc".insert(1,"A").equals("aAbc"));
 Clover.test("String2 test36", "abc".subString(-1,-1).equals("c"));
 Clover.test("String2 test37", "ABC".subString(-2, -1).equals("BC"));
+

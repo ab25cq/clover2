@@ -5221,7 +5221,7 @@ BOOL compile_char_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_string_value(MANAGED char* value, unsigned int* string_expressions, int* string_expression_offsets, int string_expression_index, sParserInfo* info)
+unsigned int sNodeTree_create_string_value(MANAGED char* value, unsigned int* string_expressions, int* string_expression_offsets, int num_string_expression, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
@@ -5238,11 +5238,11 @@ unsigned int sNodeTree_create_string_value(MANAGED char* value, unsigned int* st
 
     gNodes[node].uValue.sString.mString = MANAGED value;
     int i;
-    for(i=0; i<string_expression_index; i++) {
+    for(i=0; i<num_string_expression; i++) {
         gNodes[node].uValue.sString.mStringExpressions[i] = string_expressions[i];
         gNodes[node].uValue.sString.mStringExpressionOffsets[i] = string_expression_offsets[i];
     }
-    gNodes[node].uValue.sString.mStringExpressionIndex = string_expression_index;
+    gNodes[node].uValue.sString.mNumStringExpression = num_string_expression;
 
     return node;
 }
@@ -5251,10 +5251,37 @@ BOOL compile_string_value(unsigned int node, sCompileInfo* info)
 {
     char* str = gNodes[node].uValue.sString.mString;
 
+    int num_string_expression = gNodes[node].uValue.sString.mNumStringExpression;
+    
+    unsigned int* string_expressions = gNodes[node].uValue.sString.mStringExpressions;
+    int* string_expression_offsets = gNodes[node].uValue.sString.mStringExpressionOffsets;
+
+    int i;
+
+    for(i=0; i<num_string_expression; i++) {
+        if(!compile(string_expressions[i], info)) {
+            return FALSE;
+        }
+
+        if(info->type == NULL || !type_identify_with_class_name(info->type, "String")) {
+            compile_err_msg(info, "String expression requires String object");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+    }
+
     append_opecode_to_code(info->code, OP_CREATE_STRING, info->no_output);
     append_str_to_constant_pool_and_code(info->constant, info->code, str, info->no_output);
+    append_int_value_to_code(info->code, num_string_expression, info->no_output);
+    for(i=0; i<num_string_expression; i++) {
+        append_int_value_to_code(info->code, string_expression_offsets[i], info->no_output);
+    }
 
     info->stack_num++;
+    info->stack_num -= num_string_expression;
 
     info->type = create_node_type_with_class_name("String");
 
