@@ -3086,6 +3086,14 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         info->p++;
         skip_spaces_and_lf(info);
 
+        unsigned int string_expressions[STRING_EXPRESSION_MAX];
+        memset(string_expressions, 0, sizeof(unsigned int)*STRING_EXPRESSION_MAX);
+
+        int string_expression_offsets[STRING_EXPRESSION_MAX];
+        memset(string_expression_offsets, 0, sizeof(int)*STRING_EXPRESSION_MAX);
+
+        int num_string_expression = 0;
+
         sBuf regex;
         sBuf_init(&regex);
 
@@ -3095,16 +3103,89 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 skip_spaces_and_lf(info);
                 break;
             }
+            else if(*info->p == '#' && *(info->p+1) == '{') {
+                info->p+=2;
+
+                sBuf expression_str;
+                sBuf_init(&expression_str);
+
+                int nest = 0;
+
+                while(*info->p) {
+                    if(*info->p == '{') {
+                        sBuf_append_char(&expression_str, *info->p);
+                        info->p++;
+
+                        nest++;
+                    }
+                    else if(*info->p == '}') {
+                        if(nest == 0) {
+                            info->p++;
+                            break;
+                        }
+                        else {
+                            sBuf_append_char(&expression_str, *info->p);
+                            info->p++;
+
+                            nest--;
+                        }
+                    }
+                    else {
+                        sBuf_append_char(&expression_str, *info->p);
+                        info->p++;
+                    }
+                }
+
+                sParserInfo info2;
+
+                memset(&info2, 0, sizeof(sParserInfo));
+
+                info2.p = expression_str.mBuf;
+                info2.sname = "string expression";
+                info2.sline = 1;
+                info2.lv_table = info->lv_table;
+                info2.parse_phase = info->parse_phase;
+                info2.klass = info->klass;
+                info2.generics_info = info->generics_info;
+                info2.cinfo = info->cinfo;
+                info2.included_source = info->included_source;
+                info2.get_type_for_interpreter = info->get_type_for_interpreter;
+
+                unsigned int node = 0;
+                if(!expression(&node, &info2)) {
+                    MFREE(regex.mBuf);
+                    MFREE(expression_str.mBuf);
+                    return FALSE;
+                }
+
+                string_expressions[num_string_expression] = node;
+                string_expression_offsets[num_string_expression] = regex.mLen;
+
+                num_string_expression++;
+
+                if(num_string_expression >= STRING_EXPRESSION_MAX) {
+                    parser_err_msg(info, "overflow string expression number");
+                    MFREE(regex.mBuf);
+                    MFREE(expression_str.mBuf);
+                    return FALSE;
+                }
+
+                MFREE(expression_str.mBuf);
+            }
             else if(*info->p == '\0') {
-                parser_err_msg(info, "Require / to close regex");
+                parser_err_msg(info, "close \" to make string value");
                 info->err_num++;
                 break;
             }
             else {
-                sBuf_append_char(&regex, *info->p);
+                if(*info->p == '\n') info->sline++;
+
+                sBuf_append_char(&value, *info->p);
                 info->p++;
             }
         }
+
+        skip_spaces_and_lf(info);
 
         BOOL global = FALSE;
         BOOL ignore_case = FALSE;
@@ -3154,7 +3235,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
         skip_spaces_and_lf(info);
 
-        *node = sNodeTree_create_regex(MANAGED regex.mBuf, global, ignore_case, multiline, extended, dotall, anchored, dollar_endonly, ungreedy, info);
+        *node = sNodeTree_create_regex(MANAGED regex.mBuf, global, ignore_case, multiline, extended, dotall, anchored, dollar_endonly, ungreedy, string_expressions, string_expression_offsets, num_string_expression, info);
     }
     else if(*info->p == '(') {
         info->p++;
