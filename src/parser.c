@@ -3180,7 +3180,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             else {
                 if(*info->p == '\n') info->sline++;
 
-                sBuf_append_char(&value, *info->p);
+                sBuf_append_char(&regex, *info->p);
                 info->p++;
             }
         }

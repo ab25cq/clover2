@@ -13565,10 +13565,10 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                         stack_ptr -= num_string_expression;
 
-                        CLObject string_object = create_string_object(buf.mBuf);
+                        CLObject regex_object = create_regex_object(buf.mBuf, global, ignore_case, multiline, extended, dotall, anchored, dollar_endonly, ungreedy);
 
                         stack_ptr->mLongValue = 0;              // zero clear for jit
-                        stack_ptr->mObjectValue = string_object;
+                        stack_ptr->mObjectValue = regex_object;
                         stack_ptr++;
 
                         MFREE(buf.mBuf);
