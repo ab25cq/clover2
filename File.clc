@@ -699,16 +699,20 @@ class Directory
         return Directory.glob(".", pattern, 0);
     }
 
-    def globWithPath(path:String, flags:int):static SortableList<String> throws Exception 
+    def globWithOnePath(path:String, flags:int):static SortableList<String> throws Exception 
     {
         dir:String = System.dirname(path);
-        pattern:String = path.subString(dir.length()+1, -1);
-printf("dir %s pattern %s\n", array { dir, pattern });
-        return Directory.glob(dir, pattern, flags);
+        if(dir.equals(".")) {
+            return sortable_list { path };
+        }
+        else {
+            pattern:String = path.subString(dir.length()+1, -1);
+            return Directory.glob(dir, pattern, flags);
+        }
     }
 
-    def globWithPath(path:String):static SortableList<String> throws Exception {
-        return Directory.globWithPath(path, 0);
+    def globWithOnePath(path:String):static SortableList<String> throws Exception {
+        return Directory.globWithOnePath(path, 0);
     }
 }
 

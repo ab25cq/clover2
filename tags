@@ -15,7 +15,7 @@ BREAK_NUM_MAX	src/common.h	53;"	d
 BUFFER_H	src/buffer.h	2;"	d
 BYTE_CODE_INIT_SIZE	src/code.c	3;"	d	file:
 CC	Makefile	/^CC=ccache clang$/;"	m
-CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -I\/home\/ab25cq\/include -L\/home\/ab25cq\/lib -fPIC -rdynamic -I\/usr\/local\/include -L \/usr\/local\/lib -O3 -DENABLE_INTERPRETER -Qunused-arguments -DENABLE_JIT$/;"	m
+CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -I\/home\/ab25cq\/include -L\/home\/ab25cq\/lib -fPIC -rdynamic -I\/usr\/local\/include -L \/usr\/local\/lib -O3 -DENABLE_INTERPRETER -Qunused-arguments$/;"	m
 CHECKML_BEGIN	src/debug.h	11;"	d
 CHECKML_BEGIN	src/debug.h	39;"	d
 CHECKML_END	src/debug.h	12;"	d
@@ -64,9 +64,9 @@ HAVE_MATH_H	config.h	2;"	d
 HAVE_PCRE_H	config.h	6;"	d
 INSTALL	Makefile	/^INSTALL=\/usr\/bin\/install -c$/;"	m
 INTERPRETER	Makefile	/^INTERPRETER=iclover2$/;"	m
-JIT	Makefile	/^JIT=1$/;"	m
-JIT_OBJS	Makefile	/^JIT_OBJS=src\/jit.o src\/jit2.o src\/jit3.o src\/jit4.o src\/jit5.o src\/jit6.o src\/jit7.o src\/jit8.o src\/jit9.o src\/jit10.o src\/jit11.o src\/jit12.o src\/jit_compile_method.o src\/jit_debug.o src\/jit_declare.o src\/jit_declare2.o src\/jit_sub.o src\/jit_sub2.o$/;"	m
-JIT_RUNTIME_OBJS	Makefile	/^JIT_RUNTIME_OBJS=src\/jit_runtime.o src\/jit_runtime2.o src\/jit_debug_runtime.o$/;"	m
+JIT	Makefile	/^JIT=0$/;"	m
+JIT_OBJS	Makefile	/^JIT_OBJS=$/;"	m
+JIT_RUNTIME_OBJS	Makefile	/^JIT_RUNTIME_OBJS=$/;"	m
 LABEL_NAME_MAX	src/node.c	106;"	d	file:
 LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM	src/class_system.c	1647;"	d	file:
 LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM	src/class_system.c	1103;"	d	file:
@@ -1026,17 +1026,25 @@ arrange_alignment	src/code.c	/^static void arrange_alignment(sByteCode* code)$/;
 arrange_alignment	src/constant.c	/^static void arrange_alignment(sConst* self)$/;"	f	file:
 arrange_stack	src/node.c	/^void arrange_stack(sCompileInfo* cinfo)$/;"	f
 array_mark_fun	src/array.c	/^void array_mark_fun(CLObject self, unsigned char* mark_flg)$/;"	f
+as_fn_append	config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	configure	/^  as_fn_append ()$/;"	f
+as_fn_arith	config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	configure	/^  as_fn_arith ()$/;"	f
+as_fn_error	config.status	/^as_fn_error ()$/;"	f
 as_fn_error	configure	/^as_fn_error ()$/;"	f
+as_fn_executable_p	config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	configure	/^as_fn_executable_p ()$/;"	f
+as_fn_exit	config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	configure	/^as_fn_exit ()$/;"	f
 as_fn_failure	configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
+as_fn_mkdir_p	config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	configure	/^as_fn_mkdir_p ()$/;"	f
 as_fn_ret_failure	configure	/^as_fn_ret_failure () { return 1; }$/;"	f
 as_fn_ret_success	configure	/^as_fn_ret_success () { return 0; }$/;"	f
+as_fn_set_status	config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	configure	/^as_fn_set_status ()$/;"	f
 as_fn_success	configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
+as_fn_unset	config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	configure	/^as_fn_unset ()$/;"	f
 assign_operator	src/parser.c	/^static BOOL assign_operator(unsigned int* node, sParserInfo* info)$/;"	f	file:
 binary_operator	src/node.c	/^static BOOL binary_operator(unsigned int node, sNodeType* left_type, sNodeType* right_type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, int float_operand, int double_operand, int pointer_operand, int null_operand, int char_operand, int bool_operand, int regex_operand, char* op_string, sCompileInfo* info)$/;"	f	file:

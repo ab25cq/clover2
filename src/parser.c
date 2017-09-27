@@ -326,6 +326,17 @@ static BOOL parse_command_method_params(int* num_params, unsigned int* params, s
             unsigned int node = 0;
             node = sNodeTree_create_string_value(MANAGED param.mBuf, NULL, NULL, 0, info);
 
+            sNodeType* directory_class = create_node_type_with_class_name("Directory");
+
+            MASSERT(directory_class != NULL);
+
+            unsigned int params2[PARAMS_MAX];
+            int num_params2 = 1;
+
+            params2[0] = node;
+
+            node = sNodeTree_create_class_method_call(directory_class, "globWithOnePath", params2, num_params2, info);
+
             params[*num_params] = node;
             (*num_params)++;
 
@@ -3152,6 +3163,14 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 info->p++;
                 skip_spaces_and_lf(info);
                 break;
+            }
+            else if(*info->p == '\\' && *(info->p+1) == '\\' && *(info->p+2) == '{') {
+                sBuf_append_char(&regex, *info->p);
+                info->p++;
+                sBuf_append_char(&regex, *info->p);
+                info->p++;
+                sBuf_append_char(&regex, *info->p);
+                info->p++;
             }
             else if(*info->p == '\\' && *(info->p+1) == '{') {
                 info->p+=2;
