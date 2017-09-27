@@ -759,6 +759,101 @@ void create_internal_functions()
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_op_string_with_string_expression", TheModule);
 
+    /// run_op_buffer_with_string_expression ///
+    type_params.clear();
+    
+    result_type = IntegerType::get(TheContext, 32);
+
+    param1_type = PointerType::get(IntegerType::get(TheContext, 8), 0);
+    type_params.push_back(param1_type);
+
+/*
+    Type* element_type = IntegerType::getInt32Ty(TheContext);
+    ArrayType* array_type = ArrayType::get(element_type, STRING_EXPRESSION_MAX);
+
+    param2_type = array_type;
+*/
+    param2_type = PointerType::get(IntegerType::get(TheContext, 32), 0);
+    type_params.push_back(param2_type);
+
+    param3_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param3_type);
+
+    param4_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param4_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_op_buffer_with_string_expression", TheModule);
+    /// run_op_path_with_string_expression ///
+    type_params.clear();
+    
+    result_type = IntegerType::get(TheContext, 32);
+
+    param1_type = PointerType::get(IntegerType::get(TheContext, 8), 0);
+    type_params.push_back(param1_type);
+
+/*
+    Type* element_type = IntegerType::getInt32Ty(TheContext);
+    ArrayType* array_type = ArrayType::get(element_type, STRING_EXPRESSION_MAX);
+
+    param2_type = array_type;
+*/
+    param2_type = PointerType::get(IntegerType::get(TheContext, 32), 0);
+    type_params.push_back(param2_type);
+
+    param3_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param3_type);
+
+    param4_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param4_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_op_path_with_string_expression", TheModule);
+
+    /// run_op_regex_with_string_expression ///
+    type_params.clear();
+    
+    result_type = IntegerType::get(TheContext, 32);
+
+    param1_type = PointerType::get(IntegerType::get(TheContext, 8), 0);
+    type_params.push_back(param1_type);
+
+    param2_type = PointerType::get(IntegerType::get(TheContext, 32), 0);
+    type_params.push_back(param2_type);
+
+    param3_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param3_type);
+
+    param4_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param4_type);
+
+    param5_type = IntegerType::get(TheContext, 32);  // global
+    type_params.push_back(param5_type);
+
+    param6_type = IntegerType::get(TheContext, 32);  // ignore case
+    type_params.push_back(param6_type);
+
+    param7_type = IntegerType::get(TheContext, 32);  // multiline
+    type_params.push_back(param7_type);
+
+    param8_type = IntegerType::get(TheContext, 32);  // exteneded
+    type_params.push_back(param8_type);
+
+    param9_type = IntegerType::get(TheContext, 32);  // dotall
+    type_params.push_back(param9_type);
+
+    param10_type = IntegerType::get(TheContext, 32);  // anchored
+    type_params.push_back(param10_type);
+
+    param11_type = IntegerType::get(TheContext, 32);  // dollar_endonly
+    type_params.push_back(param11_type);
+
+    param12_type = IntegerType::get(TheContext, 32);  // ungreedy
+    type_params.push_back(param12_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_op_regex_with_string_expression", TheModule);
+
     /// run_store_element ///
     type_params.clear();
     

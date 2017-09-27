@@ -4,4 +4,19 @@ class StringTest3
         a:int = 123;
         return "abc\{a.toString()}def";
     }
+
+    def run2():static Buffer {
+        a:int = 123;
+        return B"abc\{a.toString()}def";
+    }
+
+    def run3():static Path {
+        a:int = 123;
+        return p"abc\{a.toString()}def";
+    }
+
+    def run4():static regex {
+        a:int = 123;
+        return /abc\{a.toString()}def/;
+    }
 }

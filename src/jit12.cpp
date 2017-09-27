@@ -117,39 +117,105 @@ BOOL compile_to_native_code12(sByteCode* code, sConst* constant, sCLClass* klass
             int size = *(int*)(*pc);
             (*pc) += sizeof(int);
 
+            int num_string_expression = *(int*)(*pc);
+            (*pc) += sizeof(int);
+
             char* str = CONS_str(constant, offset);
 
-            Function* function = TheModule->getFunction("create_buffer_object");
+            if(num_string_expression == 0) {
+                Function* function = TheModule->getFunction("create_buffer_object");
 
-            std::vector<Value*> params2;
-            Value* param1 = llvm_create_string(str);
-            params2.push_back(param1);
+                std::vector<Value*> params2;
+                Value* param1 = llvm_create_string(str);
+                params2.push_back(param1);
 
-            Value* param2 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)size);
-            params2.push_back(param2);
+                Value* param2 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)size);
+                params2.push_back(param2);
 
-            LVALUE llvm_value;
-            llvm_value.value = Builder.CreateCall(function, params2);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
-            llvm_value.constant_int_value = FALSE;
-            llvm_value.constant_float_value = FALSE;
-            llvm_value.float_value = FALSE;
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateCall(function, params2);
+                llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
-            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+                push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
 
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
+                /// push object to jit objects ///
+                Function* fun2 = TheModule->getFunction("push_jit_object");
 
-            std::vector<Value*> params3;
+                std::vector<Value*> params3;
 
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
 
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
+                param1 = llvm_value2.value;
+                params3.push_back(param1);
 
-            (void)Builder.CreateCall(fun2, params3);
+                (void)Builder.CreateCall(fun2, params3);
+            }
+            else {
+                int string_expression_offsets[STRING_EXPRESSION_MAX];
+
+                int i;
+                for(i=0; i<num_string_expression; i++) {
+                    string_expression_offsets[i] = *(int*)(*pc);
+                    (*pc) += sizeof(int);
+                }
+
+                Type* element_type = IntegerType::getInt32Ty(TheContext);
+                ArrayType* array_type = ArrayType::get(element_type, STRING_EXPRESSION_MAX);
+
+                IRBuilder<> builder(&(*function)->getEntryBlock(), (*function)->getEntryBlock().begin());
+                Value* string_expression_offsets_value = builder.CreateAlloca(array_type, 0, "string_expression_offsets");
+
+                for(i=0; i<num_string_expression; i++) {
+                    Value* lvalue = string_expression_offsets_value;
+                    Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(32, i));
+                    Value* element_address_value = Builder.CreateGEP(lvalue, rvalue);
+
+                    element_address_value = Builder.CreateCast(Instruction::BitCast, element_address_value, PointerType::get(IntegerType::get(TheContext, 32), 0));
+
+                    Value* element_value = ConstantInt::get(TheContext, llvm::APInt(32, string_expression_offsets[i], "element_value"));
+                    Builder.CreateAlignedStore(element_value, element_address_value, 4);
+                }
+
+                llvm_stack_to_vm_stack(*llvm_stack_ptr, params, *current_block, num_string_expression);
+
+                Function* function = TheModule->getFunction("run_op_buffer_with_string_expression");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = llvm_create_string(str);
+                params2.push_back(param1);
+                
+                Value* param2 = string_expression_offsets_value;
+                param2 = Builder.CreateCast(Instruction::BitCast, param2, PointerType::get(IntegerType::get(TheContext, 32), 0));
+
+                params2.push_back(param2);
+
+                Value* param3 = ConstantInt::get(TheContext, llvm::APInt(32, num_string_expression, true));
+                params2.push_back(param3);
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param4 = params[stack_ptr_address_name];
+                params2.push_back(param4);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateCall(function, params2);
+                llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
+
+                /// dec llvm stack pointer ///
+                dec_stack_ptr(llvm_stack_ptr, num_string_expression);
+
+                /// vm stack_ptr to llvm stack ///
+                push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
             }
             break;
 
@@ -157,36 +223,102 @@ BOOL compile_to_native_code12(sByteCode* code, sConst* constant, sCLClass* klass
             int offset = *(int*)(*pc);
             (*pc) += sizeof(int);
 
-            char* buf = CONS_str(constant, offset);
+            int num_string_expression = *(int*)(*pc);
+            (*pc) += sizeof(int);
 
-            Function* function = TheModule->getFunction("create_path_object");
+            char* str = CONS_str(constant, offset);
 
-            std::vector<Value*> params2;
-            Value* param1 = llvm_create_string(buf);
-            params2.push_back(param1);
+            if(num_string_expression == 0) {
+                Function* function = TheModule->getFunction("create_path_object");
 
-            LVALUE llvm_value;
-            llvm_value.value = Builder.CreateCall(function, params2);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
-            llvm_value.constant_int_value = FALSE;
-            llvm_value.constant_float_value = FALSE;
-            llvm_value.float_value = FALSE;
+                std::vector<Value*> params2;
+                Value* param1 = llvm_create_string(str);
+                params2.push_back(param1);
 
-            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateCall(function, params2);
+                llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
+                push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
 
-            std::vector<Value*> params3;
+                /// push object to jit objects ///
+                Function* fun2 = TheModule->getFunction("push_jit_object");
 
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
+                std::vector<Value*> params3;
 
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
 
-            (void)Builder.CreateCall(fun2, params3);
+                param1 = llvm_value2.value;
+                params3.push_back(param1);
+
+                (void)Builder.CreateCall(fun2, params3);
+            }
+            else {
+                int string_expression_offsets[STRING_EXPRESSION_MAX];
+
+                int i;
+                for(i=0; i<num_string_expression; i++) {
+                    string_expression_offsets[i] = *(int*)(*pc);
+                    (*pc) += sizeof(int);
+                }
+
+                Type* element_type = IntegerType::getInt32Ty(TheContext);
+                ArrayType* array_type = ArrayType::get(element_type, STRING_EXPRESSION_MAX);
+
+                IRBuilder<> builder(&(*function)->getEntryBlock(), (*function)->getEntryBlock().begin());
+                Value* string_expression_offsets_value = builder.CreateAlloca(array_type, 0, "string_expression_offsets");
+
+                for(i=0; i<num_string_expression; i++) {
+                    Value* lvalue = string_expression_offsets_value;
+                    Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(32, i));
+                    Value* element_address_value = Builder.CreateGEP(lvalue, rvalue);
+
+                    element_address_value = Builder.CreateCast(Instruction::BitCast, element_address_value, PointerType::get(IntegerType::get(TheContext, 32), 0));
+
+                    Value* element_value = ConstantInt::get(TheContext, llvm::APInt(32, string_expression_offsets[i], "element_value"));
+                    Builder.CreateAlignedStore(element_value, element_address_value, 4);
+                }
+
+                llvm_stack_to_vm_stack(*llvm_stack_ptr, params, *current_block, num_string_expression);
+
+                Function* function = TheModule->getFunction("run_op_path_with_string_expression");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = llvm_create_string(str);
+                params2.push_back(param1);
+                
+                Value* param2 = string_expression_offsets_value;
+                param2 = Builder.CreateCast(Instruction::BitCast, param2, PointerType::get(IntegerType::get(TheContext, 32), 0));
+
+                params2.push_back(param2);
+
+                Value* param3 = ConstantInt::get(TheContext, llvm::APInt(32, num_string_expression, true));
+                params2.push_back(param3);
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param4 = params[stack_ptr_address_name];
+                params2.push_back(param4);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateCall(function, params2);
+                llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
+
+                /// dec llvm stack pointer ///
+                dec_stack_ptr(llvm_stack_ptr, num_string_expression);
+
+                /// vm stack_ptr to llvm stack ///
+                push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
             }
             break;
 
@@ -1016,52 +1148,135 @@ BOOL compile_to_native_code12(sByteCode* code, sConst* constant, sCLClass* klass
             BOOL ungreedy = *(int*)(*pc);
             (*pc) += sizeof(int);
 
-            char* regex_str = CONS_str(constant, offset);
+            int num_string_expression = *(int*)(*pc);
+            (*pc) += sizeof(int);
 
-            Function* function = TheModule->getFunction("create_regex_object");
+            char* str = CONS_str(constant, offset);
 
-            std::vector<Value*> params2;
-            Value* param1 = llvm_create_string(regex_str);
-            params2.push_back(param1);
-            Value* param2 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)global);
-            params2.push_back(param2);
-            Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)ignore_case);
-            params2.push_back(param3);
-            Value* param4 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)multiline);
-            params2.push_back(param4);
-            Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)extended);
-            params2.push_back(param5);
-            Value* param6 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)dotall);
-            params2.push_back(param6);
-            Value* param7 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)anchored);
-            params2.push_back(param7);
-            Value* param8 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)dollar_endonly);
-            params2.push_back(param8);
-            Value* param9 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)ungreedy);
-            params2.push_back(param9);
+            if(num_string_expression == 0) {
+                Function* function = TheModule->getFunction("create_regex_object");
 
-            LVALUE llvm_value;
-            llvm_value.value = Builder.CreateCall(function, params2);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
-            llvm_value.constant_int_value = FALSE;
-            llvm_value.constant_float_value = FALSE;
-            llvm_value.float_value = FALSE;
+                std::vector<Value*> params2;
+                Value* param1 = llvm_create_string(str);
+                params2.push_back(param1);
+                Value* param2 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)global);
+                params2.push_back(param2);
+                Value* param3 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)ignore_case);
+                params2.push_back(param3);
+                Value* param4 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)multiline);
+                params2.push_back(param4);
+                Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)extended);
+                params2.push_back(param5);
+                Value* param6 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)dotall);
+                params2.push_back(param6);
+                Value* param7 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)anchored);
+                params2.push_back(param7);
+                Value* param8 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)dollar_endonly);
+                params2.push_back(param8);
+                Value* param9 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)ungreedy);
+                params2.push_back(param9);
 
-            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateCall(function, params2);
+                llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
 
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
+                push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
 
-            std::vector<Value*> params3;
+                /// push object to jit objects ///
+                Function* fun2 = TheModule->getFunction("push_jit_object");
 
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
+                std::vector<Value*> params3;
 
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
+                LVALUE llvm_value2;
+                llvm_value2 = trunc_value(&llvm_value, 32);
 
-            (void)Builder.CreateCall(fun2, params3);
+                param1 = llvm_value2.value;
+                params3.push_back(param1);
+
+                (void)Builder.CreateCall(fun2, params3);
+            }
+            else {
+                int string_expression_offsets[STRING_EXPRESSION_MAX];
+
+                int i;
+                for(i=0; i<num_string_expression; i++) {
+                    string_expression_offsets[i] = *(int*)(*pc);
+                    (*pc) += sizeof(int);
+                }
+
+                Type* element_type = IntegerType::getInt32Ty(TheContext);
+                ArrayType* array_type = ArrayType::get(element_type, STRING_EXPRESSION_MAX);
+
+                IRBuilder<> builder(&(*function)->getEntryBlock(), (*function)->getEntryBlock().begin());
+                Value* string_expression_offsets_value = builder.CreateAlloca(array_type, 0, "string_expression_offsets");
+
+                for(i=0; i<num_string_expression; i++) {
+                    Value* lvalue = string_expression_offsets_value;
+                    Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(32, i));
+                    Value* element_address_value = Builder.CreateGEP(lvalue, rvalue);
+
+                    element_address_value = Builder.CreateCast(Instruction::BitCast, element_address_value, PointerType::get(IntegerType::get(TheContext, 32), 0));
+
+                    Value* element_value = ConstantInt::get(TheContext, llvm::APInt(32, string_expression_offsets[i], "element_value"));
+                    Builder.CreateAlignedStore(element_value, element_address_value, 4);
+                }
+
+                llvm_stack_to_vm_stack(*llvm_stack_ptr, params, *current_block, num_string_expression);
+
+                Function* function = TheModule->getFunction("run_op_regex_with_string_expression");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = llvm_create_string(str);
+                params2.push_back(param1);
+                
+                Value* param2 = string_expression_offsets_value;
+                param2 = Builder.CreateCast(Instruction::BitCast, param2, PointerType::get(IntegerType::get(TheContext, 32), 0));
+
+                params2.push_back(param2);
+
+                Value* param3 = ConstantInt::get(TheContext, llvm::APInt(32, num_string_expression, true));
+                params2.push_back(param3);
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param4 = params[stack_ptr_address_name];
+                params2.push_back(param4);
+
+                Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)global);
+                params2.push_back(param5);
+                Value* param6 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)ignore_case);
+                params2.push_back(param6);
+                Value* param7 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)multiline);
+                params2.push_back(param7);
+                Value* param8 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)extended);
+                params2.push_back(param8);
+                Value* param9 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)dotall);
+                params2.push_back(param9);
+                Value* param10 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)anchored);
+                params2.push_back(param10);
+                Value* param11 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)dollar_endonly);
+                params2.push_back(param11);
+                Value* param12 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)ungreedy);
+                params2.push_back(param12);
+
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateCall(function, params2);
+                llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
+
+                /// dec llvm stack pointer ///
+                dec_stack_ptr(llvm_stack_ptr, num_string_expression);
+
+                /// vm stack_ptr to llvm stack ///
+                push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
             }
             break;
     }

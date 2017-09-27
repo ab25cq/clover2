@@ -895,6 +895,26 @@ void Self_convertion_of_method_name_and_params(char* method_name_and_params, cha
     }
 }
 
+static void string_expression(char* str, sBuf* buf, int* string_expression_offsets, CLObject* string_expression_object, int num_string_expression)
+{
+    int offset_before = 0;
+
+    int i;
+    for(i=0; i<num_string_expression; i++) {
+        int offset = string_expression_offsets[i];
+
+        sBuf_append(buf, str + offset_before, offset - offset_before);
+
+        char* str2 = ALLOC string_object_to_char_array(string_expression_object[i]);
+        sBuf_append_str(buf, str2);
+        MFREE(str2);
+
+        offset_before = offset;
+    }
+
+    sBuf_append(buf, str + offset_before, strlen(str) - offset_before);
+}
+
 BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sVMInfo* info)
 {
 #ifdef ENABLE_JIT
@@ -12899,21 +12919,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                         sBuf buf;
                         sBuf_init(&buf);
 
-                        int offset_before = 0;
-
-                        for(i=0; i<num_string_expression; i++) {
-                            int offset = string_expression_offsets[i];
-
-                            sBuf_append(&buf, str + offset_before, offset - offset_before);
-
-                            char* str2 = ALLOC string_object_to_char_array(string_expression_object[i]);
-                            sBuf_append_str(&buf, str2);
-                            MFREE(str2);
-
-                            offset_before = offset;
-                        }
-
-                        sBuf_append(&buf, str + offset_before, strlen(str) - offset_before);
+                        string_expression(str, &buf, string_expression_offsets, string_expression_object, num_string_expression);
 
                         stack_ptr -= num_string_expression;
 
@@ -12940,13 +12946,46 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     int size = *(int*)pc;
                     pc += sizeof(int);
 
-                    char* buf = CONS_str(constant, offset);
+                    int num_string_expression = *(int*)pc;
+                    pc += sizeof(int);
 
-                    CLObject buffer_object = create_buffer_object(buf, size);
+                    char* str = CONS_str(constant, offset);
 
-                    stack_ptr->mLongValue = 0;              // zero clear for jit
-                    stack_ptr->mObjectValue = buffer_object;
-                    stack_ptr++;
+                    if(num_string_expression == 0) {
+                        CLObject buffer_object = create_buffer_object(str, size);
+
+                        stack_ptr->mLongValue = 0;              // zero clear for jit
+                        stack_ptr->mObjectValue = buffer_object;
+                        stack_ptr++;
+                    }
+                    else {
+                        int string_expression_offsets[STRING_EXPRESSION_MAX];
+                        CLObject string_expression_object[STRING_EXPRESSION_MAX];
+
+                        int i;
+                        for(i=0; i<num_string_expression; i++) {
+                            string_expression_offsets[i] = *(int*)pc;
+                            pc += sizeof(int);
+
+                            string_expression_object[i] = (stack_ptr - num_string_expression + i)->mObjectValue;
+                        }
+
+                        sBuf buf;
+                        sBuf_init(&buf);
+
+                        string_expression(str, &buf, string_expression_offsets, string_expression_object, num_string_expression);
+
+                        stack_ptr -= num_string_expression;
+
+
+                        CLObject buffer_object = create_buffer_object(buf.mBuf, buf.mLen);
+
+                        stack_ptr->mLongValue = 0;              // zero clear for jit
+                        stack_ptr->mObjectValue = buffer_object;
+                        stack_ptr++;
+
+                        MFREE(buf.mBuf);
+                    }
 
                     vm_mutex_off();
                 }
@@ -12959,13 +12998,45 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     int offset = *(int*)pc;
                     pc += sizeof(int);
 
-                    char* buf = CONS_str(constant, offset);
+                    int num_string_expression = *(int*)pc;
+                    pc += sizeof(int);
 
-                    CLObject path_object = create_path_object(buf);
+                    char* str = CONS_str(constant, offset);
 
-                    stack_ptr->mLongValue = 0;              // zero clear for jit
-                    stack_ptr->mObjectValue = path_object;
-                    stack_ptr++;
+                    if(num_string_expression == 0) {
+                        CLObject path_object = create_path_object(str);
+
+                        stack_ptr->mLongValue = 0;              // zero clear for jit
+                        stack_ptr->mObjectValue = path_object;
+                        stack_ptr++;
+                    }
+                    else {
+                        int string_expression_offsets[STRING_EXPRESSION_MAX];
+                        CLObject string_expression_object[STRING_EXPRESSION_MAX];
+
+                        int i;
+                        for(i=0; i<num_string_expression; i++) {
+                            string_expression_offsets[i] = *(int*)pc;
+                            pc += sizeof(int);
+
+                            string_expression_object[i] = (stack_ptr - num_string_expression + i)->mObjectValue;
+                        }
+
+                        sBuf buf;
+                        sBuf_init(&buf);
+
+                        string_expression(str, &buf, string_expression_offsets, string_expression_object, num_string_expression);
+
+                        stack_ptr -= num_string_expression;
+
+                        CLObject path_object = create_path_object(buf.mBuf);
+
+                        stack_ptr->mLongValue = 0;              // zero clear for jit
+                        stack_ptr->mObjectValue = path_object;
+                        stack_ptr++;
+
+                        MFREE(buf.mBuf);
+                    }
 
                     vm_mutex_off();
                 }
@@ -13520,13 +13591,45 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     BOOL ungreedy = *(int*)pc;
                     pc += sizeof(int);
 
+                    int num_string_expression = *(int*)pc;
+                    pc += sizeof(int);
+
                     char* str = CONS_str(constant, offset);
 
-                    CLObject regex_object = create_regex_object(str, global, ignore_case, multiline, extended, dotall, anchored, dollar_endonly, ungreedy);
+                    if(num_string_expression == 0) {
+                        CLObject regex_object = create_regex_object(str, global, ignore_case, multiline, extended, dotall, anchored, dollar_endonly, ungreedy);
 
-                    stack_ptr->mLongValue = 0;              // zero clear for jit
-                    stack_ptr->mObjectValue = regex_object;
-                    stack_ptr++;
+                        stack_ptr->mLongValue = 0;              // zero clear for jit
+                        stack_ptr->mObjectValue = regex_object;
+                        stack_ptr++;
+                    }
+                    else {
+                        int string_expression_offsets[STRING_EXPRESSION_MAX];
+                        CLObject string_expression_object[STRING_EXPRESSION_MAX];
+
+                        int i;
+                        for(i=0; i<num_string_expression; i++) {
+                            string_expression_offsets[i] = *(int*)pc;
+                            pc += sizeof(int);
+
+                            string_expression_object[i] = (stack_ptr - num_string_expression + i)->mObjectValue;
+                        }
+
+                        sBuf buf;
+                        sBuf_init(&buf);
+
+                        string_expression(str, &buf, string_expression_offsets, string_expression_object, num_string_expression);
+
+                        stack_ptr -= num_string_expression;
+
+                        CLObject regex_object = create_regex_object(buf.mBuf, global, ignore_case, multiline, extended, dotall, anchored, dollar_endonly, ungreedy);
+
+                        stack_ptr->mLongValue = 0;              // zero clear for jit
+                        stack_ptr->mObjectValue = regex_object;
+                        stack_ptr++;
+
+                        MFREE(buf.mBuf);
+                    }
 
                     vm_mutex_off();
                 }

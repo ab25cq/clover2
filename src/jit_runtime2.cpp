@@ -763,4 +763,106 @@ CLObject run_op_string_with_string_expression(char* str, int* string_expression_
     return string_object;
 }
 
+CLObject run_op_buffer_with_string_expression(char* str, int* string_expression_offsets, int num_string_expression, CLVALUE** stack_ptr)
+{
+    CLObject string_expression_object[STRING_EXPRESSION_MAX];
+
+    sBuf buf;
+    sBuf_init(&buf);
+
+    int offset_before = 0;
+
+    int i;
+    for(i=0; i<num_string_expression; i++) {
+        int offset = string_expression_offsets[i];
+        string_expression_object[i] = ((*stack_ptr) - num_string_expression + i)->mObjectValue;
+
+        sBuf_append(&buf, str + offset_before, offset - offset_before);
+
+        char* str2 = ALLOC string_object_to_char_array(string_expression_object[i]);
+        sBuf_append_str(&buf, str2);
+        MFREE(str2);
+
+        offset_before = offset;
+    }
+
+    sBuf_append(&buf, str + offset_before, strlen(str) - offset_before);
+
+    (*stack_ptr) -= num_string_expression;
+
+    CLObject buffer_object = create_buffer_object(buf.mBuf, buf.mLen);
+
+    MFREE(buf.mBuf);
+
+    return buffer_object;
+}
+
+CLObject run_op_path_with_string_expression(char* str, int* string_expression_offsets, int num_string_expression, CLVALUE** stack_ptr)
+{
+    CLObject string_expression_object[STRING_EXPRESSION_MAX];
+
+    sBuf buf;
+    sBuf_init(&buf);
+
+    int offset_before = 0;
+
+    int i;
+    for(i=0; i<num_string_expression; i++) {
+        int offset = string_expression_offsets[i];
+        string_expression_object[i] = ((*stack_ptr) - num_string_expression + i)->mObjectValue;
+
+        sBuf_append(&buf, str + offset_before, offset - offset_before);
+
+        char* str2 = ALLOC string_object_to_char_array(string_expression_object[i]);
+        sBuf_append_str(&buf, str2);
+        MFREE(str2);
+
+        offset_before = offset;
+    }
+
+    sBuf_append(&buf, str + offset_before, strlen(str) - offset_before);
+
+    (*stack_ptr) -= num_string_expression;
+
+    CLObject path_object = create_path_object(buf.mBuf);
+
+    MFREE(buf.mBuf);
+
+    return path_object;
+}
+
+CLObject run_op_regex_with_string_expression(char* str, int* string_expression_offsets, int num_string_expression, CLVALUE** stack_ptr, BOOL global, BOOL ignore_case, BOOL multiline, BOOL extended, BOOL dotall, BOOL anchored, BOOL dollar_endonly, BOOL ungreedy)
+{
+    CLObject string_expression_object[STRING_EXPRESSION_MAX];
+
+    sBuf buf;
+    sBuf_init(&buf);
+
+    int offset_before = 0;
+
+    int i;
+    for(i=0; i<num_string_expression; i++) {
+        int offset = string_expression_offsets[i];
+        string_expression_object[i] = ((*stack_ptr) - num_string_expression + i)->mObjectValue;
+
+        sBuf_append(&buf, str + offset_before, offset - offset_before);
+
+        char* str2 = ALLOC string_object_to_char_array(string_expression_object[i]);
+        sBuf_append_str(&buf, str2);
+        MFREE(str2);
+
+        offset_before = offset;
+    }
+
+    sBuf_append(&buf, str + offset_before, strlen(str) - offset_before);
+
+    (*stack_ptr) -= num_string_expression;
+
+    CLObject regex_object = create_regex_object(buf.mBuf, global, ignore_case, multiline, extended, dotall, anchored, dollar_endonly, ungreedy);
+
+    MFREE(buf.mBuf);
+
+    return regex_object;
+}
+
 }
