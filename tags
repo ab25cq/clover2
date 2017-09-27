@@ -4,8 +4,10 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.8	//
+-soname	Makefile	/^	gcc -shared -Wl,-soname=libExtTest.so.1 -o libExtTest.so.1.0.0 -I src\/ -I . -fPIC ext\/hello.c$/;"	m
 ALLOC	src/macros.h	17;"	d
 ANDAND_OROR_MAX	src/jit.cpp	53;"	d	file:
+ANG	Makefile	/^	if locale -a | grep ja_JP.utf8; then export LANG="ja_JP_utf8"; export LC_ALL="ja_JP.utf8"; .\/cclover2 code\/char.cl && .\/clover2 code\/char.clo; else export LANG="C.UTF-8"; export LC_ALL="C.UTF-8"; .\/cclover2 code\/char.cl && .\/clover2 code\/char.clo; fi$/;"	m
 ARRAY_SIZE	src/debug.c	112;"	d	file:
 ARRAY_VALUE_ELEMENT_MAX	src/common.h	62;"	d
 BOOL	src/macros.h	5;"	d

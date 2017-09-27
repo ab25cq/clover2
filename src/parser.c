@@ -2245,7 +2245,8 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 info->p++;
                 break;
             }
-            else if(*info->p == '#' && *(info->p+1) == '{') {
+            /// string expression ///
+            else if(*info->p == '\\' && *(info->p+1) == '{') {
                 info->p+=2;
 
                 sBuf expression_str;
@@ -3103,7 +3104,8 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 skip_spaces_and_lf(info);
                 break;
             }
-            else if(*info->p == '#' && *(info->p+1) == '{') {
+/*
+            else if(*info->p == '\\' && *(info->p+1) == '{') {
                 info->p+=2;
 
                 sBuf expression_str;
@@ -3172,6 +3174,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
                 MFREE(expression_str.mBuf);
             }
+*/
             else if(*info->p == '\0') {
                 parser_err_msg(info, "close \" to make string value");
                 info->err_num++;
@@ -3235,7 +3238,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
         skip_spaces_and_lf(info);
 
-        *node = sNodeTree_create_regex(MANAGED regex.mBuf, global, ignore_case, multiline, extended, dotall, anchored, dollar_endonly, ungreedy, string_expressions, string_expression_offsets, num_string_expression, info);
+        *node = sNodeTree_create_regex(MANAGED regex.mBuf, global, ignore_case, multiline, extended, dotall, anchored, dollar_endonly, ungreedy, info);
     }
     else if(*info->p == '(') {
         info->p++;

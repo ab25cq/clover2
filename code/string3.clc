@@ -2,6 +2,6 @@ class StringTest3
 {
     def run():static String {
         a:int = 123;
-        return "abc#{a.toString()}def";
+        return "abc\{a.toString()}def";
     }
 }

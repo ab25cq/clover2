@@ -6690,7 +6690,7 @@ BOOL compile_block_call(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_regex(MANAGED char* regex_str, BOOL global, BOOL ignore_case, BOOL multiline, BOOL extended, BOOL dotall, BOOL anchored, BOOL dollar_endonly, BOOL ungreedy, unsigned int* string_expressions, int* string_expression_offsets, int num_string_expression, sParserInfo* info)
+unsigned int sNodeTree_create_regex(MANAGED char* regex_str, BOOL global, BOOL ignore_case, BOOL multiline, BOOL extended, BOOL dotall, BOOL anchored, BOOL dollar_endonly, BOOL ungreedy, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
@@ -6715,13 +6715,6 @@ unsigned int sNodeTree_create_regex(MANAGED char* regex_str, BOOL global, BOOL i
     gNodes[node].uValue.sRegex.mDollarEndOnly = dollar_endonly;
     gNodes[node].uValue.sRegex.mUngreedy = ungreedy;
 
-    int i;
-    for(i=0; i<num_string_expression; i++) {
-        gNodes[node].uValue.sRegex.mStringExpressions[i] = string_expressions[i];
-        gNodes[node].uValue.sRegex.mStringExpressionOffsets[i] = string_expression_offsets[i];
-    }
-    gNodes[node].uValue.sRegex.mNumStringExpression = num_string_expression;
-
     return node;
 }
 
@@ -6737,29 +6730,6 @@ static BOOL compile_regex(unsigned int node, sCompileInfo* info)
     BOOL dollar_endonly = gNodes[node].uValue.sRegex.mDollarEndOnly;
     BOOL ungreedy = gNodes[node].uValue.sRegex.mUngreedy;
 
-    int num_string_expression = gNodes[node].uValue.sString.mNumStringExpression;
-    
-    unsigned int* string_expressions = gNodes[node].uValue.sString.mStringExpressions;
-    int* string_expression_offsets = gNodes[node].uValue.sString.mStringExpressionOffsets;
-
-    int i;
-
-    for(i=0; i<num_string_expression; i++) {
-        if(!compile(string_expressions[i], info)) {
-            return FALSE;
-        }
-
-        if(info->type == NULL || !type_identify_with_class_name(info->type, "String")) {
-            compile_err_msg(info, "String expression requires String object");
-            info->err_num++;
-
-            info->type = create_node_type_with_class_name("int"); // dummy
-
-            return TRUE;
-        }
-    }
-
-
     append_opecode_to_code(info->code, OP_CREATE_REGEX, info->no_output);
     append_str_to_constant_pool_and_code(info->constant, info->code, str, info->no_output);
     append_int_value_to_code(info->code, global, info->no_output);
@@ -6771,20 +6741,13 @@ static BOOL compile_regex(unsigned int node, sCompileInfo* info)
     append_int_value_to_code(info->code, dollar_endonly, info->no_output);
     append_int_value_to_code(info->code, ungreedy, info->no_output);
 
-    append_int_value_to_code(info->code, num_string_expression, info->no_output);
-    for(i=0; i<num_string_expression; i++) {
-        append_int_value_to_code(info->code, string_expression_offsets[i], info->no_output);
-    }
-
     info->stack_num++;
-
-    info->stack_num++;
-    info->stack_num -= num_string_expression;
 
     info->type = create_node_type_with_class_name("regex");
 
     return TRUE;
 }
+
 
 unsigned int sNodeTree_create_implements(unsigned int lnode, char* interface_name, sParserInfo* info)
 {

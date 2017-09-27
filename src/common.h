@@ -666,10 +666,6 @@ struct sNodeTreeStruct
             BOOL mAnchored;
             BOOL mDollarEndOnly;
             BOOL mUngreedy;
-
-            unsigned int mStringExpressions[STRING_EXPRESSION_MAX];
-            int mStringExpressionOffsets[STRING_EXPRESSION_MAX];
-            int mNumStringExpression;
         } sRegex;
 
         float mFloatValue;
@@ -771,7 +767,7 @@ unsigned int sNodeTree_create_tuple_value(int num_elements, unsigned int tuple_e
 unsigned int sNodeTree_create_or_or(unsigned int left_node, unsigned int right_node, sParserInfo* info);
 unsigned int sNodeTree_create_and_and(unsigned int left_node, unsigned int right_node, sParserInfo* info);
 unsigned int sNodeTree_create_hash_value(int num_elements, unsigned int hash_keys[], unsigned int hash_items[], sParserInfo* info);
-unsigned int sNodeTree_create_regex(MANAGED char* regex_str, BOOL global, BOOL ignore_case, BOOL multiline, BOOL extended, BOOL dotall, BOOL anchored, BOOL dollar_endonly, BOOL ungreedy, unsigned int* string_expressions, int* string_expression_offsets, int num_string_expression, sParserInfo* info);
+unsigned int sNodeTree_create_regex(MANAGED char* regex_str, BOOL global, BOOL ignore_case, BOOL multiline, BOOL extended, BOOL dotall, BOOL anchored, BOOL dollar_endonly, BOOL ungreedy, sParserInfo* info);
 unsigned int sNodeTree_create_carray_value(int num_elements, unsigned int array_elements[], sParserInfo* info);
 unsigned int sNodeTree_create_equalable_carray_value(int num_elements, unsigned int array_elements[], sParserInfo* info);
 unsigned int sNodeTree_create_sortable_carray_value(int num_elements, unsigned int array_elements[], sParserInfo* info);
