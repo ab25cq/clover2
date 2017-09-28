@@ -22,7 +22,7 @@ class System
     def strcasecmp(str1:String, str2:String): native static int;
     def strtol(str:String, base:int): native static long;
     def strtoul(str:String, base:int): native static ulong;
-    def mbstowcs(dest:pointer@wchar[], src:pointer@utf8-string-memory, size:size_t, append_null_terminated:bool): static native int throws Exception;
+    def mbstowcs(dest:pointer@wchar[], src:pointer@utf8-string-memory, size:size_t): static native int throws Exception;
     def wcstombs(dest:pointer@byte[], src:char[]): static native int throws Exception;
 
     MB_LEN_MAX:static int;
@@ -936,7 +936,7 @@ class Buffer
 
     def toString():String throws Exception {
         wcs:char[] = null;
-        System.mbstowcs(&wcs, self.buffer, self.len, true);
+        System.mbstowcs(&wcs, self.buffer, self.len);
         result:String = new String(wcs);
         return result;
     }

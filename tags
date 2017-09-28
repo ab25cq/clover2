@@ -68,9 +68,9 @@ JIT	Makefile	/^JIT=0$/;"	m
 JIT_OBJS	Makefile	/^JIT_OBJS=$/;"	m
 JIT_RUNTIME_OBJS	Makefile	/^JIT_RUNTIME_OBJS=$/;"	m
 LABEL_NAME_MAX	src/node.c	106;"	d	file:
-LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM	src/class_system.c	1647;"	d	file:
-LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM	src/class_system.c	1103;"	d	file:
-LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM	src/class_system.c	1001;"	d	file:
+LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM	src/class_system.c	1632;"	d	file:
+LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM	src/class_system.c	1088;"	d	file:
+LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM	src/class_system.c	986;"	d	file:
 LIBS	Makefile	/^LIBS= -lutil -lreadline -ldl -lm -lpcre -lrt$/;"	m
 LIST_VALUE_ELEMENT_MAX	src/common.h	63;"	d
 LLVMValue	src/common.h	/^    void* LLVMValue;$/;"	m	union:CLVALUEUnion

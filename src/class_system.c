@@ -626,23 +626,22 @@ BOOL System_mbstowcs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* dest = lvar;
     CLVALUE* src = lvar+1;
     CLVALUE* size = lvar+2;
-    CLVALUE* append_null_terminated = lvar+3;
 
     /// clover variable to c variable ///
     char* src_value = src->mPointerValue;
     size_t size_value = size->mULongValue;
     wchar_t* wcs = MCALLOC(1, sizeof(wchar_t)*(size_value+1));
     CLVALUE* dest_value = (CLVALUE*)dest->mPointerValue;
-    BOOL append_null_terminated_value = append_null_terminated->mBoolValue;
 
-    BOOL already_null_terminated = FALSE;
+    char* src_value2 = MCALLOC(1, size_value+1);
 
-    if(size_value > 0 && src_value[size_value-1] == '\0') {
-        already_null_terminated = TRUE;
-    }
+    memcpy(src_value2, src_value, size_value);
+    src_value2[size_value] = '\0';
 
     /// go ///
-    int size_wcs = mbstowcs(wcs, src_value, size_value);
+    int size_wcs = mbstowcs(wcs, src_value2, size_value+16);
+
+    MFREE(src_value2);
 
     if(size_wcs < 0) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "invalid multi byte string");
@@ -655,35 +654,21 @@ BOOL System_mbstowcs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     MASSERT(klass != NULL);
 
-    if(append_null_terminated) {
-        CLObject object = create_array_object(klass, size_wcs+1);
-        sCLObject* object_data = CLOBJECT(object);
+    CLObject object = create_array_object(klass, size_wcs+1);
+    sCLObject* object_data = CLOBJECT(object);
 
-        int i;
-        for(i=0; i<size_wcs; i++) {
-            object_data->mFields[i].mCharValue = wcs[i];
-        }
-        object_data->mFields[i].mCharValue = '\0';
-
-        dest_value->mObjectValue = object;
+    int i;
+    for(i=0; i<size_wcs; i++) {
+        object_data->mFields[i].mCharValue = wcs[i];
     }
-    else {
-        CLObject object = create_array_object(klass, size_wcs);
-        sCLObject* object_data = CLOBJECT(object);
+    object_data->mFields[i].mCharValue = '\0';
 
-        int i;
-        for(i=0; i<size_wcs; i++) {
-            object_data->mFields[i].mCharValue = wcs[i];
-        }
-
-        dest_value->mObjectValue = object;
-    }
+    dest_value->mObjectValue = object;
 
     MFREE(wcs);
 
     (*stack_ptr)->mIntValue = size_wcs;
     (*stack_ptr)++;
-
 
     return TRUE;
 }

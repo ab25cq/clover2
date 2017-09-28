@@ -316,36 +316,38 @@ static BOOL parse_command_method_params(int* num_params, unsigned int* params, s
 
             sBuf_init(&param);
 
-            while(*info->p != ' ' && *info->p != '\t' && *info->p != '\n' && *info->p != ';' && *info->p != '\0') 
+            while(*info->p != ' ' && *info->p != '\t' && *info->p != '\n' && *info->p != ';' && *info->p != '\0' && *info->p != '|' & *info->p != '&') 
             {
                 sBuf_append_char(&param, *info->p);
                 info->p++;
             }
-            skip_spaces_and_lf(info);
+            skip_spaces(info);
 
-            unsigned int node = 0;
-            node = sNodeTree_create_string_value(MANAGED param.mBuf, NULL, NULL, 0, info);
+            if(param.mLen > 0) {
+                unsigned int node = 0;
+                node = sNodeTree_create_string_value(MANAGED param.mBuf, NULL, NULL, 0, info);
 
-            sNodeType* directory_class = create_node_type_with_class_name("Directory");
+                sNodeType* directory_class = create_node_type_with_class_name("Directory");
 
-            MASSERT(directory_class != NULL);
+                MASSERT(directory_class != NULL);
 
-            unsigned int params2[PARAMS_MAX];
-            int num_params2 = 1;
+                unsigned int params2[PARAMS_MAX];
+                int num_params2 = 1;
 
-            params2[0] = node;
+                params2[0] = node;
 
-            node = sNodeTree_create_class_method_call(directory_class, "globWithOnePath", params2, num_params2, info);
+                node = sNodeTree_create_class_method_call(directory_class, "globWithOnePath", params2, num_params2, info);
 
-            params[*num_params] = node;
-            (*num_params)++;
+                params[*num_params] = node;
+                (*num_params)++;
 
-            if(*num_params >= PARAMS_MAX) {
-                parser_err_msg(info, "overflow parametor number for method call");
-                return FALSE;
+                if(*num_params >= PARAMS_MAX) {
+                    parser_err_msg(info, "overflow parametor number for method call");
+                    return FALSE;
+                }
             }
 
-            if(*info->p == '\0' || *info->p == '\n' || *info->p == ';') {
+            if(*info->p == '\0' || *info->p == '\n' || *info->p == ';' || *info->p == '|' || *info->p == '&') {
                 break;
             }
         }
@@ -3067,8 +3069,8 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     return FALSE;
                 }
             }
+            /// shell mode ///
             else if(get_variable_index(info->lv_table, buf) == -1 && *info->p != '(') {
-                /// Command class method call ///
                 unsigned int params[PARAMS_MAX];
                 int num_params = 0;
 
@@ -3092,6 +3094,50 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 if(num_method_chains >= METHOD_CHAIN_MAX) {
                     parser_err_msg(info, "overflow method chain");
                     return FALSE;
+                }
+
+                while(1) {
+                    if(*info->p == '|') {
+                        info->p++;
+                        skip_spaces_and_lf(info);
+
+                        char buf[VAR_NAME_MAX];
+
+                        /// name ///
+                        if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, TRUE)) {
+                            return FALSE;
+                        }
+
+                        unsigned int params[PARAMS_MAX];
+                        int num_params = 0;
+
+                        if(!parse_command_method_params(&num_params, params, info)) {
+                            return FALSE;
+                        }
+
+                        *node = sNodeTree_create_method_call(*node, buf, params, num_params, num_method_chains, info);
+                        max_method_chains_node[num_method_chains] = *node;
+
+                        num_method_chains++;
+
+                        if(num_method_chains >= METHOD_CHAIN_MAX) {
+                            parser_err_msg(info, "overflow method chain");
+                            return FALSE;
+                        }
+                    }
+                    else if(*info->p == ';' || *info->p == '\n') {
+                        info->p++;
+                        skip_spaces_and_lf(info);
+                        break;
+                    }
+                    else if(*info->p == '\0') {
+                        break;
+                    }
+                    else {
+                        parser_err_msg(info, "unexpected character (%c)", *info->p);
+                        info->p++;
+                        break;
+                    }
                 }
             }
             else if(get_variable_index(info->lv_table, buf) == -1 && *info->p == '(') {
