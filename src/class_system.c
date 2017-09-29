@@ -1742,7 +1742,7 @@ BOOL System_execvp(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
             MFREE(params_value[i]);
         }
         MFREE(params_value);
-        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "execvp(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "execvp(2) is faield. The error is %s. The errnor is %d.", strerror(errno), errno);
         return FALSE;
     }
 

@@ -1,0 +1,6 @@
+
+ls | lでiclover2が落ちるバグを修正する。
+
+make && make install && make testを動かす。
+
+./configure --prefix=$HOME --with-optmizeを動かす。
