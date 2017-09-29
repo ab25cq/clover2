@@ -481,6 +481,7 @@ struct sParserInfoStruct
     struct sCompileInfoStruct* cinfo;
     BOOL included_source;
     BOOL get_type_for_interpreter;
+    BOOL next_command_is_to_bool;
 };
 
 typedef struct sParserInfoStruct sParserInfo;

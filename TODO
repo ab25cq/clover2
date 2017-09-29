@@ -1,6 +1,6 @@
 
-ls | lでiclover2が落ちるバグを修正する。
+シェルモードで./configure --prefix=$HOME --with-optmizeを動かす。
 
-make && make install && make testを動かす。
+シェルモードでegrep "sParser info" src/*.cを動かす
 
-./configure --prefix=$HOME --with-optmizeを動かす。
+シェルモードでegrep sParser\ info src/*.cを動かす

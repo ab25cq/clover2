@@ -1753,6 +1753,7 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
     info.cinfo = &cinfo;
 
     while(*info.p) {
+        info.next_command_is_to_bool = FALSE;
         unsigned int node = 0;
         if(!expression(&node, &info)) {
             return FALSE;

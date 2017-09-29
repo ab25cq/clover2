@@ -370,7 +370,16 @@ dynamic_class Command
 
                 list_.each(closure(item2:Object) {
                     if(item2.className().equals("String")) {
-                        params2.add(item2.toAnonymous());
+                        str:String = item2.toAnonymous();
+                        if(str.equals("--controlling-terminal")) {
+                            controlling_terminal_flag = true;
+                        }
+                        elif(str.equals("--getting-stderr")) {
+                            getting_stderr_flag = true;
+                        }
+                        else {
+                            params2.add(str);
+                        }
                     }
                 });
             }
@@ -379,7 +388,16 @@ dynamic_class Command
 
                 list_.each(closure(item2:IEqualable) {
                     if(item2.className().equals("String")) {
-                        params2.add(item2.toAnonymous());
+                        str:String = item2.toAnonymous();
+                        if(str.equals("--controlling-terminal")) {
+                            controlling_terminal_flag = true;
+                        }
+                        elif(str.equals("--getting-stderr")) {
+                            getting_stderr_flag = true;
+                        }
+                        else {
+                            params2.add(str);
+                        }
                     }
                 });
             }
@@ -388,7 +406,16 @@ dynamic_class Command
 
                 list_.each(closure(item2:ISortable) {
                     if(item2.className().equals("String")) {
-                        params2.add(item2.toAnonymous());
+                        str:String = item2.toAnonymous();
+                        if(str.equals("--controlling-terminal")) {
+                            controlling_terminal_flag = true;
+                        }
+                        elif(str.equals("--getting-stderr")) {
+                            getting_stderr_flag = true;
+                        }
+                        else {
+                            params2.add(str);
+                        }
                     }
                 });
             }
@@ -397,7 +424,16 @@ dynamic_class Command
 
                 array_.each(closure(item2:Object) {
                     if(item2.className().equals("String")) {
-                        params2.add(item2.toAnonymous());
+                        str:String = item2.toAnonymous();
+                        if(str.equals("--controlling-terminal")) {
+                            controlling_terminal_flag = true;
+                        }
+                        elif(str.equals("--getting-stderr")) {
+                            getting_stderr_flag = true;
+                        }
+                        else {
+                            params2.add(str);
+                        }
                     }
                 });
             }
@@ -406,7 +442,16 @@ dynamic_class Command
 
                 array_.each(closure(item2:IEqualable) {
                     if(item2.className().equals("String")) {
-                        params2.add(item2.toAnonymous());
+                        str:String = item2.toAnonymous();
+                        if(str.equals("--controlling-terminal")) {
+                            controlling_terminal_flag = true;
+                        }
+                        elif(str.equals("--getting-stderr")) {
+                            getting_stderr_flag = true;
+                        }
+                        else {
+                            params2.add(str);
+                        }
                     }
                 });
             }
@@ -415,7 +460,16 @@ dynamic_class Command
 
                 array_.each(closure(item2:ISortable) {
                     if(item2.className().equals("String")) {
-                        params2.add(item2.toAnonymous());
+                        str:String = item2.toAnonymous();
+                        if(str.equals("--controlling-terminal")) {
+                            controlling_terminal_flag = true;
+                        }
+                        elif(str.equals("--getting-stderr")) {
+                            getting_stderr_flag = true;
+                        }
+                        else {
+                            params2.add(str);
+                        }
                     }
                 });
             }
@@ -459,7 +513,16 @@ dynamic_class Command
 
                 list_.each(closure(item2:Object) {
                     if(item2.className().equals("String")) {
-                        params2.add(item2.toAnonymous());
+                        str:String = item2.toAnonymous();
+                        if(str.equals("--controlling-terminal")) {
+                            controlling_terminal_flag = true;
+                        }
+                        elif(str.equals("--getting-stderr")) {
+                            getting_stderr_flag = true;
+                        }
+                        else {
+                            params2.add(str);
+                        }
                     }
                 });
             }
@@ -468,7 +531,16 @@ dynamic_class Command
 
                 list_.each(closure(item2:IEqualable) {
                     if(item2.className().equals("String")) {
-                        params2.add(item2.toAnonymous());
+                        str:String = item2.toAnonymous();
+                        if(str.equals("--controlling-terminal")) {
+                            controlling_terminal_flag = true;
+                        }
+                        elif(str.equals("--getting-stderr")) {
+                            getting_stderr_flag = true;
+                        }
+                        else {
+                            params2.add(str);
+                        }
                     }
                 });
             }
@@ -477,7 +549,16 @@ dynamic_class Command
 
                 list_.each(closure(item2:ISortable) {
                     if(item2.className().equals("String")) {
-                        params2.add(item2.toAnonymous());
+                        str:String = item2.toAnonymous();
+                        if(str.equals("--controlling-terminal")) {
+                            controlling_terminal_flag = true;
+                        }
+                        elif(str.equals("--getting-stderr")) {
+                            getting_stderr_flag = true;
+                        }
+                        else {
+                            params2.add(str);
+                        }
                     }
                 });
             }
@@ -486,7 +567,16 @@ dynamic_class Command
 
                 array_.each(closure(item2:Object) {
                     if(item2.className().equals("String")) {
-                        params2.add(item2.toAnonymous());
+                        str:String = item2.toAnonymous();
+                        if(str.equals("--controlling-terminal")) {
+                            controlling_terminal_flag = true;
+                        }
+                        elif(str.equals("--getting-stderr")) {
+                            getting_stderr_flag = true;
+                        }
+                        else {
+                            params2.add(str);
+                        }
                     }
                 });
             }
@@ -495,7 +585,16 @@ dynamic_class Command
 
                 array_.each(closure(item2:IEqualable) {
                     if(item2.className().equals("String")) {
-                        params2.add(item2.toAnonymous());
+                        str:String = item2.toAnonymous();
+                        if(str.equals("--controlling-terminal")) {
+                            controlling_terminal_flag = true;
+                        }
+                        elif(str.equals("--getting-stderr")) {
+                            getting_stderr_flag = true;
+                        }
+                        else {
+                            params2.add(str);
+                        }
                     }
                 });
             }
@@ -504,7 +603,16 @@ dynamic_class Command
 
                 array_.each(closure(item2:ISortable) {
                     if(item2.className().equals("String")) {
-                        params2.add(item2.toAnonymous());
+                        str:String = item2.toAnonymous();
+                        if(str.equals("--controlling-terminal")) {
+                            controlling_terminal_flag = true;
+                        }
+                        elif(str.equals("--getting-stderr")) {
+                            getting_stderr_flag = true;
+                        }
+                        else {
+                            params2.add(str);
+                        }
                     }
                 });
             }

@@ -3097,7 +3097,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 }
 
                 while(1) {
-                    if(*info->p == '|') {
+                    if(*info->p == '|' && *(info->p+1) != '|') {
                         info->p++;
                         skip_spaces_and_lf(info);
 
@@ -3124,6 +3124,39 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                             parser_err_msg(info, "overflow method chain");
                             return FALSE;
                         }
+                    }
+                    else if(info->next_command_is_to_bool || (*info->p == '&' && *(info->p+1) == '&') || (*info->p == '|' && *(info->p+1) == '|')) 
+                    {
+                        unsigned int params[PARAMS_MAX];
+                        int num_params = 0;
+
+                        if(gNodes[*node].mNodeType == kNodeTypeClassMethodCall) {
+                            int string_node = sNodeTree_create_string_value(MANAGED MSTRDUP("--controlling-terminal"), NULL, NULL, 0, info);
+
+                            int num_params = gNodes[*node].uValue.sClassMethodCall.mNumParams;
+                            gNodes[*node].uValue.sClassMethodCall.mParams[num_params] = string_node;
+                            gNodes[*node].uValue.sClassMethodCall.mNumParams++;
+                        }
+                        else if(gNodes[*node].mNodeType == kNodeTypeMethodCall) {
+                            int string_node = sNodeTree_create_string_value(MANAGED MSTRDUP("--controlling-terminal"), NULL, NULL, 0, info);
+
+                            int num_params = gNodes[*node].uValue.sMethodCall.mNumParams;
+                            gNodes[*node].uValue.sMethodCall.mParams[num_params] = string_node;
+                            gNodes[*node].uValue.sMethodCall.mNumParams++;
+                        }
+
+                        *node = sNodeTree_create_method_call(*node, "toBool", NULL, 0, num_method_chains, info);
+                        max_method_chains_node[num_method_chains] = *node;
+
+                        num_method_chains++;
+
+                        if(num_method_chains >= METHOD_CHAIN_MAX) {
+                            parser_err_msg(info, "overflow method chain");
+                            return FALSE;
+                        }
+                        
+                        info->next_command_is_to_bool = TRUE;
+                        break;
                     }
                     else if(*info->p == ';' || *info->p == '\n') {
                         info->p++;
