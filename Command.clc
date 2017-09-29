@@ -624,7 +624,6 @@ dynamic_class Command
             try {
                 System.execvp(method_name, params);
             } catch(e:Exception) {
-System.write(2, b"catch\n", 6.to_ulong);
                 buffer:Buffer = e.message.append("\n").toBuffer();
                 System.write(2, buffer, buffer.len);
                 System.exit(2);

@@ -81,7 +81,7 @@ MACROS_H	src/macros.h	2;"	d
 MANAGED	src/macros.h	21;"	d
 MASSERT	src/debug.h	26;"	d
 MASSERT	src/debug.h	48;"	d
-MAX_CODES	src/interpreter.c	1692;"	d	file:
+MAX_CODES	src/interpreter.c	1693;"	d	file:
 MAX_COND_JUMP	src/jit_common.hpp	110;"	d
 MCALLOC	src/debug.h	23;"	d
 MCALLOC	src/debug.h	43;"	d

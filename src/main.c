@@ -32,6 +32,7 @@ static void set_signal()
 
     sigemptyset(&signal_set);
     sigaddset(&signal_set, SIGTTOU);
+    sigaddset(&signal_set, SIGPIPE);
 
     sigprocmask(SIG_BLOCK, &signal_set, NULL);
 }
