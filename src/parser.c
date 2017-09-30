@@ -316,10 +316,35 @@ static BOOL parse_command_method_params(int* num_params, unsigned int* params, s
 
             sBuf_init(&param);
 
-            while(*info->p != ' ' && *info->p != '\t' && *info->p != '\n' && *info->p != ';' && *info->p != '\0' && *info->p != '|' & *info->p != '&') 
-            {
-                sBuf_append_char(&param, *info->p);
-                info->p++;
+            BOOL squort = FALSE;
+            BOOL dquort = FALSE;
+
+            while(1) {
+                if(*info->p == '\\') {
+                    info->p++;
+                    sBuf_append_char(&param, *info->p);
+                    info->p++;
+                }
+                else if(!squort && *info->p == '"') {
+                    info->p++;
+                    dquort = !dquort;
+                }
+                else if(!dquort && *info->p == '\'') {
+                    info->p++;
+                    squort = !squort;
+                }
+                else if(squort || dquort) {
+                    sBuf_append_char(&param, *info->p);
+                    info->p++;
+                }
+                else if(*info->p == ' ' || *info->p == '\t' || *info->p == '\n' || *info->p == ';' || *info->p == '\0' || *info->p == '|' || *info->p == '&') 
+                {
+                    break;
+                }
+                else {
+                    sBuf_append_char(&param, *info->p);
+                    info->p++;
+                }
             }
             skip_spaces(info);
 
@@ -347,7 +372,8 @@ static BOOL parse_command_method_params(int* num_params, unsigned int* params, s
                 }
             }
 
-            if(*info->p == '\0' || *info->p == '\n' || *info->p == ';' || *info->p == '|' || *info->p == '&') {
+            if(*info->p == '\0' || *info->p == '\n' || *info->p == ';' || *info->p == '|' || *info->p == '&') 
+            {
                 break;
             }
         }

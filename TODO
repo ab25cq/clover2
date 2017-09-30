@@ -1,6 +1,6 @@
 
-シェルモードで./configure --prefix=$HOME --with-optmizeを動かす。
+./configure --prefix=$HOME --with-optmize
 
-シェルモードでegrep "sParser info" src/*.cを動かす
+delegate wo tukuru
 
-シェルモードでegrep sParser\ info src/*.cを動かす
+split no bagu

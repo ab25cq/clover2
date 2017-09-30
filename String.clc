@@ -521,7 +521,9 @@ class String
                 str.append(self.buffer[i]);
             }
         }
-
+        if(str.length() != 0) {
+            result.add(str);
+        }
 
         return result;
     }
@@ -570,6 +572,11 @@ class String
             else {
                 break;
             }
+        }
+
+        if(offset < buffer.length()) {
+            str:String = buffer.subBuffer(offset, -1).toString();
+            result.add(str);
         }
 
         return result;
@@ -625,6 +632,12 @@ class String
                 result.add(block_(str, group_strings));
                 break;
             }
+        }
+
+        if(offset < buffer.length()) {
+            str:String = buffer.subBuffer(offset, -1).toString();
+            group_strings:EqualableList<String> = new EqualableList<String>();
+            result.add(block_(str, group_strings));
         }
 
         return result;
@@ -972,6 +985,9 @@ class Buffer
         return result;
     }
 
+    def length(): size_t {
+        return self.len;
+    }
 }
 
 module MPrintOutObject
