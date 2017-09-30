@@ -320,7 +320,47 @@ static BOOL parse_command_method_params(int* num_params, unsigned int* params, s
             BOOL dquort = FALSE;
 
             while(1) {
-                if(*info->p == '\\') {
+                if(*info->p == '$') {
+                    info->p++;
+
+                    sBuf env_name;
+                    sBuf_init(&env_name);
+
+                    if(*info->p == '{') {
+                        info->p++;
+
+                        while(1) {
+                            if(*info->p == '}') {
+                                info->p++;
+                                break;
+                            }
+                            else if(*info->p == '\0') {
+                                parser_err_msg(info, "require } to close ${ENV}");
+                                info->err_num++;
+                                break;
+                            }
+                            else {
+                                sBuf_append_char(&env_name, *info->p);
+                                info->p++;
+                            }
+                        }
+                    }
+                    else {
+                        while(isalnum(*info->p) || *info->p == '_') {
+                            sBuf_append_char(&env_name, *info->p);
+                            info->p++;
+                        }
+                    }
+
+                    char* env = getenv(env_name.mBuf);
+
+                    if(env) {
+                        sBuf_append(&param, env, strlen(env));
+                    }
+
+                    MFREE(env_name.mBuf);
+                }
+                else if(*info->p == '\\') {
                     info->p++;
                     sBuf_append_char(&param, *info->p);
                     info->p++;
