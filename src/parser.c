@@ -33,6 +33,70 @@ void skip_spaces(sParserInfo* info)
     }
 }
 
+static BOOL parse_word_and_slash(char* buf, int buf_size, sParserInfo* info, BOOL print_out_err_msg, BOOL no_skip_lf)
+{
+    buf[0] = 0;
+
+    char* p2 = buf;
+
+    if(*info->p == '.' && *(info->p +1) == '/') {
+        *p2++ = *info->p;
+        info->p++;
+        *p2++ = *info->p;
+        info->p++;
+    }
+    else if(*info->p == '.' && *(info->p +1) == '.' && *(info->p + 2) == '/') 
+    {
+        *p2++ = *info->p;
+        info->p++;
+        *p2++ = *info->p;
+        info->p++;
+        *p2++ = *info->p;
+        info->p++;
+    }
+
+    if(isalpha(*info->p)) {
+        while(isalnum(*info->p) || *info->p == '_' || *info->p == '/') {
+            if(p2 - buf < buf_size-1) {
+                *p2++ = *info->p;
+                info->p++;
+            }
+            else {
+                parser_err_msg(info, "length of word is too long");
+                return FALSE;
+            }
+        }
+    }
+
+    *p2 = 0;
+    if(no_skip_lf) {
+        skip_spaces(info);
+    }
+    else {
+        skip_spaces_and_lf(info);
+    }
+
+    if(*info->p == 0 && buf[0] == 0) {
+        if(print_out_err_msg) {
+            parser_err_msg(info, "require word(alphabet or number). this is the end of source");
+        }
+        return FALSE;
+    }
+
+    if(buf[0] == 0) {
+        if(print_out_err_msg) {
+            parser_err_msg(info, "require word(alphabet or _ or number). this is (%c)", *info->p);
+            info->err_num++;
+        }
+
+        if(*info->p == '\n') info->sline++;
+
+        info->p++;
+    }
+
+    return TRUE;
+}
+
 BOOL parse_word(char* buf, int buf_size, sParserInfo* info, BOOL print_out_err_msg, BOOL no_skip_lf)
 {
     buf[0] = 0;
@@ -2731,17 +2795,18 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             return FALSE;
         }
     }
-    else if(isalpha(*info->p)) {
+    else if(isalpha(*info->p) || *info->p == '.') {
         char buf[VAR_NAME_MAX];
 
         char* p_before = info->p;
         int sline_before = info->sline;
 
         /// name ///
-        if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, TRUE)) {
+        if(!parse_word_and_slash(buf, VAR_NAME_MAX, info, TRUE, TRUE)) {
             return FALSE;
         }
 
+        BOOL including_slash = strstr(buf, "/") != NULL;
         if(strcmp(buf, "if") == 0) {
             skip_spaces_and_lf(info);
 
@@ -3137,7 +3202,8 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 }
             }
             /// shell mode ///
-            else if(get_variable_index(info->lv_table, buf) == -1 && *info->p != '(') {
+            else if(including_slash || (get_variable_index(info->lv_table, buf) == -1 && *info->p != '(')) 
+            {
                 unsigned int params[PARAMS_MAX];
                 int num_params = 0;
 

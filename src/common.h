@@ -1914,6 +1914,7 @@ BOOL System_pipe(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_fork(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_dup2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_execvp(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_execv(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_waitpid(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_WIFEXITED(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_WEXITSTATUS(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);

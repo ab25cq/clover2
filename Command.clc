@@ -201,6 +201,7 @@ class System
     def fork(block_:lambda()): static native pid_t throws Exception;
     def dup2(fd1:int, fd2:int): static native int throws Exception;
     def execvp(method_name:String, params:List<String>): static native throws Exception;
+    def execv(method_name:String, params:List<String>): static native throws Exception;
     def waitpid(pid:pid_t, status:pointer@wait_status, option:wait_option): static native pid_t;
 
     def WIFEXITED(status:wait_status): static native bool;
@@ -326,7 +327,7 @@ dynamic_class Command
     controllingTerminalPrograms: static EqualableList<String>;
 
     def initialize() : static {
-        Command.controllingTerminalPrograms = equalable_list { "git", "man", "make", "ls", "bash", "zsh", "yash", "vim", "less", "top", "htop", "lv", "htop", "emacs", "nano", "vi", "fd", "mc" };
+        Command.controllingTerminalPrograms = equalable_list { "git", "man", "make", "ls", "bash", "zsh", "yash", "vim", "less", "top", "htop", "lv", "htop", "emacs", "nano", "vi", "fd", "mc", "./configure" };
     }
 
     def initialize() {
@@ -657,7 +658,12 @@ dynamic_class Command
             System.close(child2parent_write_fd_err);
 
             try {
-                System.execvp(method_name, params);
+                if(method_name.chars(0) == '/') {
+                    System.execv(method_name, params);
+                }
+                else {
+                    System.execvp(method_name, params);
+                }
             } catch(e:Exception) {
                 buffer:Buffer = e.message.append("\n").toBuffer();
                 System.write(2, buffer, buffer.len);
@@ -713,7 +719,8 @@ dynamic_class Command
         if(Directory.isGlobString(arg)) {
             dir:String = System.dirname(arg);
             if(dir.equals(".")) {
-                return sortable_list { arg };
+                pattern:String = arg;
+                return Directory.glob(dir, pattern, 0);
             }
             else {
                 pattern:String = arg.subString(dir.length()+1, -1);
@@ -746,7 +753,12 @@ dynamic_class Command
             System.close(child2parent_write_fd);
 
             try {
-                System.execvp(method_name, params);
+                if(method_name.chars(0) == '/') {
+                    System.execv(method_name, params);
+                }
+                else {
+                    System.execvp(method_name, params);
+                }
             } catch(e:Exception) {
                 buffer:Buffer = e.message.append("\n").toBuffer();
                 System.write(2, buffer, buffer.len);
@@ -800,7 +812,12 @@ dynamic_class Command
             System.tcsetpgrp(0, pid);
 
             try {
-                System.execvp(method_name, params);
+                if(method_name.chars(0) == '/') {
+                    System.execv(method_name, params);
+                }
+                else {
+                    System.execvp(method_name, params);
+                }
             } catch(e:Exception) {
                 buffer:Buffer = e.message.append("\n").toBuffer();
                 System.write(2, buffer, buffer.len);
@@ -862,7 +879,12 @@ dynamic_class Command
             System.close(parent2child_read_fd);
 
             try {
-                System.execvp(method_name, params);
+                if(method_name.chars(0) == '/') {
+                    System.execv(method_name, params);
+                }
+                else {
+                    System.execvp(method_name, params);
+                }
             } catch(e:Exception) {
                 buffer:Buffer = e.message.append("\n").toBuffer();
                 System.write(2, buffer, buffer.len);

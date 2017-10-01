@@ -1754,6 +1754,46 @@ BOOL System_execvp(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     return TRUE;
 }
 
+BOOL System_execv(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* method_name = lvar;
+    CLVALUE* params = lvar+1;
+
+    /// Clover to c value ///
+    char* method_name_value = ALLOC string_object_to_char_array(method_name->mObjectValue);
+    int num_elements = 0;
+    CLObject* params_objects = ALLOC list_to_array(params->mObjectValue, &num_elements);
+    char** params_value = ALLOC MCALLOC(1, sizeof(char*)*(num_elements+2));
+    int i;
+    params_value[0] = method_name_value;
+    for(i=0; i<num_elements; i++) {
+        CLObject string_object = params_objects[i];
+        params_value[i+1] = ALLOC string_object_to_char_array(string_object);
+    }
+    params_value[i+1] = NULL;
+    MFREE(params_objects);
+
+    /// go ///
+    int result = execv(method_name_value, params_value);
+
+    if(result < 0) {
+        int i;
+        for(i=0; i<num_elements+1; i++) {
+            MFREE(params_value[i]);
+        }
+        MFREE(params_value);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "execv(2) is faield. The error is %s. The errnor is %d.", strerror(errno), errno);
+        return FALSE;
+    }
+
+    for(i=0; i<num_elements+1; i++) {
+        MFREE(params_value[i]);
+    }
+    MFREE(params_value);
+
+    return TRUE;
+}
+
 BOOL System_waitpid(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* pid = lvar;

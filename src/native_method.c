@@ -152,6 +152,7 @@ static sNativeMethod gNativeMethods[] = {
     { "System.fork(lambda)", "System_fork", System_fork },
     { "System.dup2(int,int)", "System_dup2", System_dup2 },
     { "System.execvp(String,List)", "System_execvp", System_execvp },
+    { "System.execv(String,List)", "System_execv", System_execv },
     { "System.waitpid(int,pointer,int)", "System_waitpid", System_waitpid },
     { "System.WIFEXITED(int)", "System_WIFEXITED", System_WIFEXITED },
     { "System.WEXITSTATUS(int)", "System_WEXITSTATUS", System_WEXITSTATUS },
