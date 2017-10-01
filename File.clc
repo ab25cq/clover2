@@ -714,6 +714,17 @@ class Directory
     def globWithOnePath(path:String):static SortableList<String> throws Exception {
         return Directory.globWithOnePath(path, 0);
     }
+
+    def isGlobString(str:String):static bool {
+        for(i:=0; i<str.length(); i++) {
+            c:char = str.chars(i);
+            if(c == '*' || c == '?' || c == '[' || c == ']') {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
 
 class Clover 

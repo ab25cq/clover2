@@ -709,6 +709,22 @@ dynamic_class Command
         return new Command(child_output.toString(), System.WEXITSTATUS(status));
     }
 
+    def expandArg(arg:String):static SortableList<String> {
+        if(Directory.isGlobString(arg)) {
+            dir:String = System.dirname(arg);
+            if(dir.equals(".")) {
+                return sortable_list { arg };
+            }
+            else {
+                pattern:String = arg.subString(dir.length()+1, -1);
+                return Directory.glob(dir, pattern, 0);
+            }
+        }
+        else {
+            return sortable_list { arg };
+        }
+    }
+
     def executeCommand(method_name:String, params:List<String>, pipe_data:String) : static Command throws Exception
     {
         child2parent_write_fd:int = 0;

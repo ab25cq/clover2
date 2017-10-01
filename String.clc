@@ -582,6 +582,53 @@ class String
         return result;
     }
 
+    def split(separator:regex, block_:lambda(String):String):  EqualableList<String> {
+        result:EqualableList<String> = new EqualableList<String>();
+        offset:int = 0;
+
+        buffer:Buffer = self.toBuffer();
+        ovec_max:int = 16;
+        ovec:PcreOVec = new PcreOVec(ovec_max);
+
+        while(true) {
+            regex_result:int = System.pcre_exec(separator, buffer, offset, ovec_max, ovec);
+
+            ### match and no group strings ###
+            if(regex_result == 1) {
+                str:String = buffer.subBuffer(offset, ovec.start[0]).toString();
+                result.add(block_(str));
+
+                if(offset == ovec.end[0]) {
+                    offset++;
+                }
+                else {
+                    offset = ovec.end[0];
+                }
+            }
+            ### group strings ###
+            elif(regex_result > 1) {
+                str:String = buffer.subBuffer(offset, ovec.start[0]).toString();
+
+                result.add(block_(str));
+
+                if(offset == ovec.end[0]) {
+                    offset++;
+                }
+                else {
+                    offset = ovec.end[0];
+                }
+            }
+            ### no match ###
+            else {
+                str:String = buffer.subBuffer(offset, -1).toString();
+                result.add(block_(str));
+                break;
+            }
+        }
+
+        return result;
+    }
+
     def split(separator:regex, block_:lambda(String,EqualableList<String>):String):  EqualableList<String> {
         result:EqualableList<String> = new EqualableList<String>();
         offset:int = 0;
@@ -632,12 +679,6 @@ class String
                 result.add(block_(str, group_strings));
                 break;
             }
-        }
-
-        if(offset < buffer.length()) {
-            str:String = buffer.subBuffer(offset, -1).toString();
-            group_strings:EqualableList<String> = new EqualableList<String>();
-            result.add(block_(str, group_strings));
         }
 
         return result;

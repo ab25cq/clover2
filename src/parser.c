@@ -320,7 +320,7 @@ static BOOL parse_command_method_params(int* num_params, unsigned int* params, s
             BOOL dquort = FALSE;
 
             while(1) {
-                if(*info->p == '$') {
+                if(!squort && *info->p == '$') {
                     info->p++;
 
                     sBuf env_name;
@@ -392,16 +392,16 @@ static BOOL parse_command_method_params(int* num_params, unsigned int* params, s
                 unsigned int node = 0;
                 node = sNodeTree_create_string_value(MANAGED param.mBuf, NULL, NULL, 0, info);
 
-                sNodeType* directory_class = create_node_type_with_class_name("Directory");
+                sNodeType* command_class = create_node_type_with_class_name("Command");
 
-                MASSERT(directory_class != NULL);
+                MASSERT(command_class != NULL);
 
                 unsigned int params2[PARAMS_MAX];
                 int num_params2 = 1;
 
                 params2[0] = node;
 
-                node = sNodeTree_create_class_method_call(directory_class, "globWithOnePath", params2, num_params2, info);
+                node = sNodeTree_create_class_method_call(command_class, "expandArg", params2, num_params2, info);
 
                 params[*num_params] = node;
                 (*num_params)++;
@@ -412,7 +412,8 @@ static BOOL parse_command_method_params(int* num_params, unsigned int* params, s
                 }
             }
 
-            if(*info->p == '\0' || *info->p == '\n' || *info->p == ';' || *info->p == '|' || *info->p == '&') 
+            if(*info->p == '\0' || *info->p == '\n' || *info->p == ';' 
+                || *info->p == '|' || *info->p == '&') 
             {
                 break;
             }
