@@ -315,6 +315,14 @@ static BOOL parse_method_params(int* num_params, unsigned int* params, sParserIn
                     return FALSE;
                 }
 
+                if(*info->p == '@') {
+                    info->p++;
+                    while(isalnum(*info->p) || *info->p == '_') {
+                        info->p++;
+                    }
+                    skip_spaces_and_lf(info);
+                }
+
                 if(*info->p == ',') {
                     info->p++;
                     skip_spaces_and_lf(info);
@@ -1355,6 +1363,7 @@ BOOL parse_type_for_new(sNodeType** result_type, unsigned int* array_num, sParse
     if(*result_type == NULL || (*result_type)->mClass == NULL) {
         parser_err_msg(info, "%s is not defined class", type_name);
         info->err_num++;
+        return TRUE;
     }
 
     *array_num = 0;

@@ -4828,6 +4828,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject object = (stack_ptr-num_real_params)->mObjectValue;
 
+                    if(object == 0) {
+                        vm_mutex_off();
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-1)");
+                        remove_stack_to_stack_list(stack_id);
+                        return FALSE;
+                    }
+
                     sCLObject* object_data = CLOBJECT(object);
 
                     sCLClass* klass = object_data->mClass;
