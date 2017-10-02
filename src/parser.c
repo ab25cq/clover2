@@ -1109,31 +1109,34 @@ static BOOL try_expression(unsigned int* node, sParserInfo* info)
         return FALSE;
     }
 
-    /// catch ///
-    expect_next_word("catch", info);
-
-    expect_next_character_with_one_forward("(", info);
-
+    sNodeBlock* catch_node_block = NULL;
     sParserParam params[PARAMS_MAX];
     int num_params = 0;
+    params[0].mName[0] = '\0';
 
-    /// parse_params ///
-    sVarTable* new_table = NULL;
+    if(info->err_num == 0) { // for interpreter completion
+        /// catch ///
+        expect_next_word("catch", info);
 
-    if(!parse_params_and_entry_to_lvtable(params, &num_params, info, &new_table, info->lv_table, 0)) {
-        return FALSE;
-    }
+        expect_next_character_with_one_forward("(", info);
 
-    if(num_params != 1 || !is_exception_type(params[0].mType)) {
-        parser_err_msg(info, "Require the type of a catch param should be a exception type");
-        info->err_num++;
-    }
+        /// parse_params ///
+        sVarTable* new_table = NULL;
 
-    expect_next_character_with_one_forward("{", info);
+        if(!parse_params_and_entry_to_lvtable(params, &num_params, info, &new_table, info->lv_table, 0)) {
+            return FALSE;
+        }
 
-    sNodeBlock* catch_node_block = NULL;
-    if(!parse_block(ALLOC &catch_node_block, info, new_table, FALSE)) {
-        return FALSE;
+        if(num_params != 1 || !is_exception_type(params[0].mType)) {
+            parser_err_msg(info, "Require the type of a catch param should be a exception type");
+            info->err_num++;
+        }
+
+        expect_next_character_with_one_forward("{", info);
+
+        if(!parse_block(ALLOC &catch_node_block, info, new_table, FALSE)) {
+            return FALSE;
+        }
     }
 
     *node = sNodeTree_try_expression(MANAGED try_node_block, MANAGED catch_node_block, params[0].mName, info);

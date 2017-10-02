@@ -340,17 +340,21 @@ static BOOL get_type(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
 
     info.cinfo = &cinfo;
 
-    unsigned int node = 0;
-    (void)expression(&node, &info);
+    while(*info.p) {
+        unsigned int node = 0;
+        (void)expression(&node, &info);
 
-    if(*info.p == ';') {
-        info.p++;
-        skip_spaces_and_lf(&info);
+        if(node != 0) {
+            (void)compile(node, &cinfo);
+
+            *type_ = cinfo.type;
+
+            if(*info.p == ';') {
+                info.p++;
+                skip_spaces_and_lf(&info);
+            }
+        }
     }
-
-    (void)compile(node, &cinfo);
-
-    *type_ = cinfo.type;
 
     sByteCode_free(&code);
     sConst_free(&constant);
@@ -544,6 +548,11 @@ static char* get_one_expression(char* source)
         }
         else if(*p == '|' && *(p+1) == '|') {
             p+=2;
+
+            head = p;
+        }
+        else if(*p == '|') {
+            p++;
 
             head = p;
         }
@@ -1059,7 +1068,6 @@ static int my_complete_internal(int count, int key)
 
     /// Is Command line ///
     BOOL inputing_command_line = FALSE;
-    char* head_of_param = "";
     p = line;
     while(*p) {
         if(*p == ' ' || *p == '\t') {
@@ -1081,7 +1089,6 @@ static int my_complete_internal(int count, int key)
 
                     /// params ////
                     while(*p) {
-                        head_of_param = p;
                         while(!(*p == ' ' || *p == '\t' || *p == '\0')) {
                             p++;
                         }
@@ -1218,8 +1225,9 @@ static int my_complete_internal(int count, int key)
 
         /// normal method ///
         if(klass == NULL) {
-            /// get one expression ///
-            char* line2 = get_one_expression(line);
+            char* line2 = MCALLOC(1, sizeof(char)*(rl_point+1));
+            memcpy(line2, rl_line_buffer, rl_point);
+            line2[rl_point] = '\0';
 
             /// get type ///
             sNodeType* type_ = NULL;
@@ -1247,6 +1255,8 @@ static int my_complete_internal(int count, int key)
                     }
                 }
             }
+
+            MFREE(line2);
         }
         /// class method ///
         else {
@@ -1438,7 +1448,7 @@ char* on_complete(const char* text, int a)
 
             flg_field = strstr(candidate, "(") == NULL && !gInputingCommandPath;
 
-            if(rl_completion_append_character == '(') {
+            if(gInputingMethod) {
                 parenthesis = strstr(candidate, "(");
 
                 if(parenthesis) {
@@ -1463,7 +1473,7 @@ char* on_complete(const char* text, int a)
             MFREE(appended_chars);
 
             /// path completion ///
-            if(rl_completion_append_character == '"') {
+            if(gInputingPath) {
                 int len;
 
                 len = strlen(candidate);
@@ -1474,10 +1484,8 @@ char* on_complete(const char* text, int a)
                     rl_insert_text(appended_chars2);
                 }
             }
-            else if(rl_completion_append_character == ' ') {
-                int len;
-
-                len = strlen(candidate);
+            else if(gInputingCommandPath) {
+                int len = strlen(candidate);
                 if(candidate[len-1] != '/') {
                     appended_chars2[0] = rl_completion_append_character;
                     appended_chars2[1] = 0;
@@ -1485,11 +1493,15 @@ char* on_complete(const char* text, int a)
                     rl_insert_text(appended_chars2);
                 }
             }
-            else if(rl_completion_append_character == '(') {
-                appended_chars2[0] = rl_completion_append_character;
-                appended_chars2[1] = 0;
+            else if(gInputingMethod) {
+                int len = strlen(candidate);
 
-                rl_insert_text(appended_chars2);
+                if(candidate[len-1] == '(') {
+                    appended_chars2[0] = rl_completion_append_character;
+                    appended_chars2[1] = 0;
+
+                    rl_insert_text(appended_chars2);
+                }
             }
             else if(flg_field) {
                 appended_chars2[0] = '.';

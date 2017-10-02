@@ -482,6 +482,7 @@ struct sParserInfoStruct
     BOOL included_source;
     BOOL get_type_for_interpreter;
     BOOL next_command_is_to_bool;
+    BOOL exist_block_object_err;
 };
 
 typedef struct sParserInfoStruct sParserInfo;
@@ -502,6 +503,7 @@ struct sNodeBlockStruct
     unsigned int mNumNodes;
 
     sVarTable* mLVTable;
+    BOOL mErrBlock;
 };
 
 typedef struct sNodeBlockStruct sNodeBlock;

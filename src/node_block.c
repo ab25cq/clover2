@@ -8,6 +8,7 @@ static sNodeBlock* sNodeBlock_alloc()
     block->mNumNodes = 0;
     block->mNodes = MCALLOC(1, sizeof(unsigned int)*block->mSizeNodes);
     block->mLVTable = NULL;
+    block->mErrBlock = FALSE;
 
     return block;
 }
@@ -81,6 +82,13 @@ BOOL parse_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* ne
         else if(*info->p == '\0') {
             parser_err_msg(info, "require } before the source end");
             info->err_num++;
+
+            (*node_block)->mErrBlock = TRUE;
+
+            if(!block_object) {
+                set_max_block_var_num(info->lv_table, old_vtable);
+            }
+            (*node_block)->mLVTable = info->lv_table;
 
             info->lv_table = old_vtable;
             return TRUE;
