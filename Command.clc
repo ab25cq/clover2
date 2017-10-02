@@ -936,6 +936,13 @@ dynamic_class Command
     def cd(path:String):static {
         path.toPath().chdir();
     }
+
+    def cd(arg:SortableList<String>):static {
+        if(arg.length() > 0) {
+            path := arg.items(0);
+            Command.cd(path);
+        }
+    }
     
     def fg(job_num:int):static {
         if(job_num >= 0 && job_num < Clover.jobs.length()) {
