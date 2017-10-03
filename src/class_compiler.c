@@ -989,6 +989,7 @@ BOOL compile_class_source(char* fname, char* source)
         info.parse_phase = i;
         info.p = source;
         info.sline = 1;
+        info.exist_block_object_err = FALSE;
 
         reset_method_index_on_compile_time();
 

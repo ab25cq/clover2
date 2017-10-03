@@ -309,7 +309,7 @@ static ALLOC char* line_buffer_from_head_to_cursor_point()
     return result;
 }
 
-static BOOL get_type(char* source, char* fname, sVarTable* lv_table, CLVALUE* stack, sNodeType** type_)
+static BOOL get_type(char* source, char* fname, sVarTable* lv_table, CLVALUE* stack, sNodeType** type_, sVarTable** result_lv_table)
 {
     sParserInfo info;
 
@@ -341,8 +341,12 @@ static BOOL get_type(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
     info.cinfo = &cinfo;
 
     while(*info.p) {
+        info.exist_block_object_err = FALSE;
+
         unsigned int node = 0;
         (void)expression(&node, &info);
+
+        *result_lv_table = info.lv_table;
 
         if(node != 0) {
             (void)compile(node, &cinfo);
@@ -410,6 +414,30 @@ static void skip_paren(char** p, char** head, char** comma, char** semi_colon)
             (*p)++;
             *comma = *p;
         }
+        else if(!squort && !dquort && **p == '&' && *(*p+1) == '&') {
+            (*p)+=2;
+
+            *head = *p;
+        }
+        else if(!squort && !dquort && **p == '|' && *(*p+1) == '|') {
+            (*p)+=2;
+
+            *head = *p;
+        }
+        else if(!squort && !dquort && **p == '|') {
+            (*p)++;
+
+            *head = *p;
+        }
+        else if(!squort && !dquort && strstr(*p, "return") == *p) {
+            (*p) += strlen("return");
+
+            while(**p == ' ' || **p == '\t') {
+                (*p)++;
+            }
+
+            *head = *p;
+        }
         else if(**p == '\'') {
             (*p)++;
             squort = !squort;
@@ -475,6 +503,30 @@ static void skip_curly(char** p, char** head, char** comma, char** semi_colon)
             (*p)++;
 
             *semi_colon = *p;
+        }
+        else if(!squort && !dquort && **p == '&' && *(*p+1) == '&') {
+            (*p)+=2;
+
+            *head = *p;
+        }
+        else if(!squort && !dquort && **p == '|' && *(*p+1) == '|') {
+            (*p)+=2;
+
+            *head = *p;
+        }
+        else if(!squort && !dquort && **p == '|') {
+            (*p)++;
+
+            *head = *p;
+        }
+        else if(!squort && !dquort && strstr(*p, "return") == *p) {
+            (*p) += strlen("return");
+
+            while(**p == ' ' || **p == '\t') {
+                (*p)++;
+            }
+
+            *head = *p;
         }
         else if(**p == '\'') {
             (*p)++;
@@ -553,6 +605,15 @@ static char* get_one_expression(char* source)
         }
         else if(*p == '|') {
             p++;
+
+            head = p;
+        }
+        else if(strstr(p, "return") == p) {
+            p += strlen("return");
+
+            while(*p == ' ' || *p == '\t') {
+                p++;
+            }
 
             head = p;
         }
@@ -993,6 +1054,38 @@ void get_global_method_names(char** candidates, int *num_candidates)
     }
 }
 
+void local_variable_completion(char** candidates, int *num_candidates, int max_candidates)
+{
+    char* line2 = MCALLOC(1, sizeof(char)*(rl_point+1));
+    memcpy(line2, rl_line_buffer, rl_point);
+    line2[rl_point] = '\0';
+
+    /// get type ///
+    sVarTable* lv_table;
+    sNodeType* type_ = NULL;
+    sVarTable* tmp_lv_table = clone_var_table(gLVTable);
+    (void)get_type(line2, "iclover2", tmp_lv_table, gStack, &type_, &lv_table);
+
+    sVarTable* table = lv_table;
+
+    while(table) {
+        int j;
+        for(j=0; j<LOCAL_VARIABLE_MAX; j++) {
+            sVar* var = table->mLocalVariables + j;
+            if(var->mName[0] != '\0') {
+                if(*num_candidates < max_candidates) {
+                    candidates[*num_candidates] = MANAGED MSTRDUP(var->mName);
+                    (*num_candidates)++;
+                }
+            }
+        }
+
+        table = table->mParent;
+    }
+
+    MFREE(line2);
+}
+
 char* on_complete(const char* text, int a);
 
 static int gFileNameIndex = 0;
@@ -1018,15 +1111,6 @@ char* file_name_completion(const char* text, int stat)
     gFileNameIndex++;
 
     return result;
-}
-
-char** complete_for_filename(const char* text, int start, int end)
-{
-    char* p = (char*)text + 3;
-    printf("AAA ABC ABD\n");
-    
-    gFileNameIndex = 0;
-    return rl_completion_matches(p, file_name_completion);
 }
 
 static int my_complete_internal(int count, int key)
@@ -1136,15 +1220,7 @@ static int my_complete_internal(int count, int key)
     }
 
     /// command name completion ///
-    if(!in_double_quote && !in_single_quote && inputing_command_line) {
-        rl_completion_entry_function = on_complete;
-
-        file_completion_command_line(line);
-
-        gInputingCommandPath = TRUE;
-        rl_completer_word_break_characters = "\t ";
-    }
-    else if(expression_is_void) {
+    if(expression_is_void) {
         rl_completion_entry_function = on_complete;
 
         const int num_words = 23;
@@ -1175,7 +1251,8 @@ static int my_complete_internal(int count, int key)
         };
 
         int num_candidates = 0;
-        char** candidates = MCALLOC(1, sizeof(char*)*(CLASS_NUM_MAX+METHOD_NUM_MAX+128));
+        int max_candidates = CLASS_NUM_MAX + METHOD_NUM_MAX + 128 + LOCAL_VARIABLE_MAX * 3;
+        char** candidates = MCALLOC(1, sizeof(char*)*max_candidates);
 
         int i;
         for(i=0; i<num_words; i++) {
@@ -1186,11 +1263,20 @@ static int my_complete_internal(int count, int key)
         
         get_class_names(candidates, &num_candidates);
         get_global_method_names(candidates, &num_candidates);
+        local_variable_completion(candidates, &num_candidates, max_candidates);
         command_completion(line, candidates, num_candidates);
         MFREE(candidates);
 
         gInputingMethod = TRUE;
         rl_completer_word_break_characters = "\t\n.({ ";
+    }
+    else if(!in_double_quote && !in_single_quote && inputing_command_line) {
+        rl_completion_entry_function = on_complete;
+
+        file_completion_command_line(line);
+
+        gInputingCommandPath = TRUE;
+        rl_completer_word_break_characters = "\t ";
     }
     /// inputing method name ///
     else if(!in_double_quote && !in_single_quote && *p == '.') {
@@ -1231,7 +1317,9 @@ static int my_complete_internal(int count, int key)
 
             /// get type ///
             sNodeType* type_ = NULL;
-            (void)get_type(line2, "iclover2", gLVTable, gStack, &type_);
+            sVarTable* result_lv_table;
+            sVarTable* tmp_lv_table = clone_var_table(gLVTable);
+            (void)get_type(line2, "iclover2", tmp_lv_table, gStack, &type_, &result_lv_table);
 
             if(type_) {
                 klass = type_->mClass;
@@ -1767,6 +1855,8 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
     while(*info.p) {
         info.next_command_is_to_bool = FALSE;
         unsigned int node = 0;
+        info.exist_block_object_err = FALSE;
+
         if(!expression(&node, &info)) {
             return FALSE;
         }

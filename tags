@@ -81,7 +81,7 @@ MACROS_H	src/macros.h	2;"	d
 MANAGED	src/macros.h	21;"	d
 MASSERT	src/debug.h	26;"	d
 MASSERT	src/debug.h	48;"	d
-MAX_CODES	src/interpreter.c	1705;"	d	file:
+MAX_CODES	src/interpreter.c	1793;"	d	file:
 MAX_COND_JUMP	src/jit_common.hpp	110;"	d
 MCALLOC	src/debug.h	23;"	d
 MCALLOC	src/debug.h	43;"	d
@@ -1027,25 +1027,17 @@ arrange_alignment	src/code.c	/^static void arrange_alignment(sByteCode* code)$/;
 arrange_alignment	src/constant.c	/^static void arrange_alignment(sConst* self)$/;"	f	file:
 arrange_stack	src/node.c	/^void arrange_stack(sCompileInfo* cinfo)$/;"	f
 array_mark_fun	src/array.c	/^void array_mark_fun(CLObject self, unsigned char* mark_flg)$/;"	f
-as_fn_append	config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	configure	/^  as_fn_append ()$/;"	f
-as_fn_arith	config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	configure	/^  as_fn_arith ()$/;"	f
-as_fn_error	config.status	/^as_fn_error ()$/;"	f
 as_fn_error	configure	/^as_fn_error ()$/;"	f
-as_fn_executable_p	config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	configure	/^as_fn_executable_p ()$/;"	f
-as_fn_exit	config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	configure	/^as_fn_exit ()$/;"	f
 as_fn_failure	configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
-as_fn_mkdir_p	config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	configure	/^as_fn_mkdir_p ()$/;"	f
 as_fn_ret_failure	configure	/^as_fn_ret_failure () { return 1; }$/;"	f
 as_fn_ret_success	configure	/^as_fn_ret_success () { return 0; }$/;"	f
-as_fn_set_status	config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	configure	/^as_fn_set_status ()$/;"	f
 as_fn_success	configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
-as_fn_unset	config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	configure	/^as_fn_unset ()$/;"	f
 assign_operator	src/parser.c	/^static BOOL assign_operator(unsigned int* node, sParserInfo* info)$/;"	f	file:
 binary_operator	src/node.c	/^static BOOL binary_operator(unsigned int node, sNodeType* left_type, sNodeType* right_type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, int float_operand, int double_operand, int pointer_operand, int null_operand, int char_operand, int bool_operand, int regex_operand, char* op_string, sCompileInfo* info)$/;"	f	file:
@@ -1223,7 +1215,6 @@ compiler_final	src/compiler.c	/^static void compiler_final()$/;"	f	file:
 compiler_final	src/interpreter.c	/^static void compiler_final()$/;"	f	file:
 compiler_init	src/compiler.c	/^static void compiler_init(BOOL no_load_fudamental_classes)$/;"	f	file:
 compiler_init	src/interpreter.c	/^static void compiler_init(BOOL no_load_fudamental_classes)$/;"	f	file:
-complete_for_filename	src/interpreter.c	/^char** complete_for_filename(const char* text, int start, int end)$/;"	f
 constant	src/common.h	/^    sConst* constant;$/;"	m	struct:sCompileInfoStruct
 constant_float_value	src/jit_common.hpp	/^    BOOL constant_float_value;$/;"	m	struct:LVALUEStruct
 constant_int_value	src/jit_common.hpp	/^    BOOL constant_int_value;$/;"	m	struct:LVALUEStruct
@@ -1438,7 +1429,7 @@ get_stack_value_from_index_with_aligned	src/jit_sub2.cpp	/^LVALUE get_stack_valu
 get_string_object_of_object_name	src/jit_runtime.cpp	/^CLObject get_string_object_of_object_name(CLObject object)$/;"	f
 get_sum_of_parent_var_num	src/vtable.c	/^static int get_sum_of_parent_var_num(sVarTable* table)$/;"	f	file:
 get_try_catch_label_name	src/jit_runtime.cpp	/^char* get_try_catch_label_name(sVMInfo* info)$/;"	f
-get_type	src/interpreter.c	/^static BOOL get_type(char* source, char* fname, sVarTable* lv_table, CLVALUE* stack, sNodeType** type_)$/;"	f	file:
+get_type	src/interpreter.c	/^static BOOL get_type(char* source, char* fname, sVarTable* lv_table, CLVALUE* stack, sNodeType** type_, sVarTable** result_lv_table)$/;"	f	file:
 get_type_for_interpreter	src/common.h	/^    BOOL get_type_for_interpreter;$/;"	m	struct:sParserInfoStruct
 get_value_from_Bool	src/clover_to_clang.c	/^BOOL get_value_from_Bool(CLObject object)$/;"	f
 get_value_from_Byte	src/clover_to_clang.c	/^char get_value_from_Byte(CLObject object)$/;"	f
@@ -1605,6 +1596,7 @@ load_element	src/jit_runtime.cpp	/^struct sCLVALUEAndBoolResult* load_element(CL
 load_fundamental_classes_on_compile_time	src/klass.c	/^static void load_fundamental_classes_on_compile_time()$/;"	f	file:
 load_fundamental_classes_on_runtime	src/vm.c	/^static BOOL load_fundamental_classes_on_runtime()$/;"	f	file:
 load_module_from_file	src/module.c	/^BOOL load_module_from_file(ALLOC sCLModule** self, char* module_name)$/;"	f
+local_variable_completion	src/interpreter.c	/^void local_variable_completion(char** candidates, int *num_candidates, int max_candidates)$/;"	f
 lv_table	src/common.h	/^    sVarTable* lv_table;$/;"	m	struct:sCompileInfoStruct
 lv_table	src/common.h	/^    sVarTable* lv_table;$/;"	m	struct:sParserInfoStruct
 lvar_address_index	src/jit_common.hpp	/^    int lvar_address_index;$/;"	m	struct:LVALUEStruct

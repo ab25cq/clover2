@@ -379,8 +379,6 @@ static BOOL parse_command_method_params(int* num_params, unsigned int* params, s
     *num_params = 0;
 
     if(*info->p == ';' || *info->p == '\n') {
-        info->p++;
-        skip_spaces_and_lf(info);
     }
     else if(*info->p != '\0') {
         while(1) {
@@ -2385,6 +2383,7 @@ static BOOL parse_string_expression(unsigned int* string_expressions, int* strin
     info2.cinfo = info->cinfo;
     info2.included_source = info->included_source;
     info2.get_type_for_interpreter = info->get_type_for_interpreter;
+    info2.exist_block_object_err = FALSE;
 
     unsigned int node = 0;
     if(!expression(&node, &info2)) {
@@ -2807,7 +2806,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             return FALSE;
         }
     }
-    else if(isalpha(*info->p) || *info->p == '.') {
+    else if(isalpha(*info->p) || (*info->p == '.' && *(info->p+1) == '/') || (*info->p == '.' && *(info->p+1) == '.' && *(info->p+2) == '/')) {
         char buf[VAR_NAME_MAX];
 
         char* p_before = info->p;
@@ -3312,7 +3311,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                         break;
                     }
                     else {
-                        parser_err_msg(info, "unexpected character (%c)", *info->p);
+                        parser_err_msg(info, "unexpected character (%c) 1", *info->p);
                         info->p++;
                         break;
                     }

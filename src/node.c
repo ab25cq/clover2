@@ -1842,7 +1842,7 @@ static BOOL compile_for_expression(unsigned int node, sCompileInfo* info)
     append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
     info->stack_num++;
 
-    if(info->pinfo->err_num == 0) {
+    if(info->pinfo->err_num == 0) { // for interpreter completion
         info->type = create_node_type_with_class_name("Null");
     }
     else {
@@ -2117,7 +2117,7 @@ static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)
             }
         }
         else {
-            if(info->pinfo->err_num == 0) { // for interpreter completion
+            if(info->pinfo->exist_block_object_err == FALSE) { // for interpreter completion
                 compile_err_msg(info, "method not found(1)");
                 info->err_num++;
 
@@ -6397,8 +6397,6 @@ BOOL compile_block_object(unsigned int node, sCompileInfo* info)
 
     sNodeType* block_result_type_before = info->block_result_type;
     info->block_result_type = result_type;
-
-    int err_num_saved = info->pinfo->err_num; // for interpreter completion
 
     if(!compile_block(node_block, info)) {
         sByteCode_free(&codes);

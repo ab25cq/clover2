@@ -90,7 +90,7 @@ BOOL parse_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* ne
             }
             (*node_block)->mLVTable = info->lv_table;
 
-            info->lv_table = old_vtable;
+            //info->lv_table = old_vtable;   // for interpreter completion
             return TRUE;
         }
     }
