@@ -1231,28 +1231,35 @@ static int my_complete_internal(int count, int key)
             class_name_completion = TRUE;
             break;
         }
+        else if(strstr(p, "new") == p) {
+            class_name_completion = TRUE;
+            break;
+        }
         else {
             break;
         }
     }
 
-/*
     if(!in_double_quote && !in_single_quote && class_name_completion) {
         int num_candidates = 0;
-        int max_candidates = CLASS_NUM_MAX + METHOD_NUM_MAX + 128 + LOCAL_VARIABLE_MAX * 3;
+        int max_candidates = CLASS_NUM_MAX + 128;
         char** candidates = MCALLOC(1, sizeof(char*)*max_candidates);
 
-        int i;
-        for(i=0; i<num_words; i++) {
-            candidates[i] = MANAGED MSTRDUP(words[i]);
-        }
-
-        num_candidates += num_words;
-        
         get_class_names(candidates, &num_candidates);
+
+        int size = 128 + num_candidates;
+        gCandidates = MCALLOC(1, sizeof(char*)*size);
+        int i;
+        for(i=0; i<num_candidates; i++) {
+            gCandidates[i] = candidates[i];
+        }
+        gCandidates[i] = NULL;
+        gNumCandidates = i;
+
+        gInputingMethod = TRUE;
+        rl_completer_word_break_characters = "\t :";
     }
-*/
-    if(!in_double_quote && !in_single_quote 
+    else if(!in_double_quote && !in_single_quote 
         && inputing_command_line) 
     {
         rl_completion_entry_function = on_complete;
