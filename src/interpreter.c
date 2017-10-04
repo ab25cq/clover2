@@ -1219,8 +1219,50 @@ static int my_complete_internal(int count, int key)
         }
     }
 
-    /// command name completion ///
-    if(expression_is_void) {
+    /// is class name completion ? ///
+    BOOL class_name_completion = FALSE;
+
+    p = line + strlen(line) -1;
+    while(p >= line) {
+        if(isalnum(*p) || *p == '_' || *p == ' ' || *p == '\t') {
+            p--;
+        }
+        else if(*p == ':') {
+            class_name_completion = TRUE;
+            break;
+        }
+        else {
+            break;
+        }
+    }
+
+/*
+    if(!in_double_quote && !in_single_quote && class_name_completion) {
+        int num_candidates = 0;
+        int max_candidates = CLASS_NUM_MAX + METHOD_NUM_MAX + 128 + LOCAL_VARIABLE_MAX * 3;
+        char** candidates = MCALLOC(1, sizeof(char*)*max_candidates);
+
+        int i;
+        for(i=0; i<num_words; i++) {
+            candidates[i] = MANAGED MSTRDUP(words[i]);
+        }
+
+        num_candidates += num_words;
+        
+        get_class_names(candidates, &num_candidates);
+    }
+*/
+    if(!in_double_quote && !in_single_quote 
+        && inputing_command_line) 
+    {
+        rl_completion_entry_function = on_complete;
+
+        file_completion_command_line(line);
+
+        gInputingCommandPath = TRUE;
+        rl_completer_word_break_characters = "\t ";
+    }
+    else if(expression_is_void) {
         rl_completion_entry_function = on_complete;
 
         const int num_words = 23;
@@ -1269,14 +1311,6 @@ static int my_complete_internal(int count, int key)
 
         gInputingMethod = TRUE;
         rl_completer_word_break_characters = "\t\n.({ ";
-    }
-    else if(!in_double_quote && !in_single_quote && inputing_command_line) {
-        rl_completion_entry_function = on_complete;
-
-        file_completion_command_line(line);
-
-        gInputingCommandPath = TRUE;
-        rl_completer_word_break_characters = "\t ";
     }
     /// inputing method name ///
     else if(!in_double_quote && !in_single_quote && *p == '.') {
