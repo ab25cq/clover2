@@ -608,8 +608,22 @@ static char* get_one_expression(char* source)
 
             head = p;
         }
+        else if(*p == '=' || *p == '<') {
+            p++;
+
+            head = p;
+        }
         else if(strstr(p, "return") == p) {
             p += strlen("return");
+
+            while(*p == ' ' || *p == '\t') {
+                p++;
+            }
+
+            head = p;
+        }
+        else if(strstr(p, "new") == p) {
+            p += strlen("new");
 
             while(*p == ' ' || *p == '\t') {
                 p++;
@@ -1227,7 +1241,7 @@ static int my_complete_internal(int count, int key)
         if(isalnum(*p) || *p == '_' || *p == ' ' || *p == '\t') {
             p--;
         }
-        else if(*p == ':') {
+        else if(*p == ':' || *p == '<') {
             class_name_completion = TRUE;
             break;
         }
@@ -1257,7 +1271,7 @@ static int my_complete_internal(int count, int key)
         gNumCandidates = i;
 
         gInputingMethod = TRUE;
-        rl_completer_word_break_characters = "\t :";
+        rl_completer_word_break_characters = "\t :<";
     }
     else if(!in_double_quote && !in_single_quote 
         && inputing_command_line) 
@@ -1317,7 +1331,7 @@ static int my_complete_internal(int count, int key)
         MFREE(candidates);
 
         gInputingMethod = TRUE;
-        rl_completer_word_break_characters = "\t\n.({ ";
+        rl_completer_word_break_characters = "\t\n.({ =";
     }
     /// inputing method name ///
     else if(!in_double_quote && !in_single_quote && *p == '.') {

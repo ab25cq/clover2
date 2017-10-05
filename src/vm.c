@@ -13655,7 +13655,7 @@ if(stack_ptr != lvar + var_num) {
     fprintf(stderr, "invalid stack3\n");
     fprintf(stderr, "var_num %d\n", var_num);
     if(klass) { fprintf(stderr, "class name %s\n", CLASS_NAME(klass)); }
-    fprintf(stderr, "stack_ptr - lvar - var_num %ld\n", stack_ptr - (lvar + var_num));
+    fprintf(stderr, "stack_ptr - lvar - var_num %lld\n", (long long int)(stack_ptr - (lvar + var_num)));
     exit(3);
 }
 #endif
