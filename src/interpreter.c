@@ -1238,7 +1238,7 @@ static int my_complete_internal(int count, int key)
 
     p = source + strlen(source) -1;
     while(p >= source) {
-        if(isalnum(*p) || *p == '_' || *p == ' ' || *p == '\t') {
+        if(isalnum(*p) || *p == '_' || *p == ' ' || *p == '\t' || *p == ',') {
             p--;
         }
         else if(*p == ':' || *p == '<') {
@@ -1271,7 +1271,7 @@ static int my_complete_internal(int count, int key)
         gNumCandidates = i;
 
         gInputingMethod = TRUE;
-        rl_completer_word_break_characters = "\t :<";
+        rl_completer_word_break_characters = "\t :<,";
     }
     else if(!in_double_quote && !in_single_quote 
         && inputing_command_line) 
