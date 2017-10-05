@@ -2717,84 +2717,82 @@ static BOOL compile_new_operator(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
-    if(info->pinfo->err_num == 0) {
-        sNodeType* generics_types2;
-        solve_generics_for_variable(generics_types, &generics_types2, info->pinfo->klass);
+    sNodeType* generics_types2;
+    solve_generics_for_variable(generics_types, &generics_types2, info->pinfo->klass);
 
-        sCLClass* klass = generics_types2->mClass;
-        unsigned int array_num = gNodes[node].uValue.sNewOperator.mArrayNum;
+    sCLClass* klass = generics_types2->mClass;
+    unsigned int array_num = gNodes[node].uValue.sNewOperator.mArrayNum;
 
-        if(array_num > 0) {
-            if(!compile(array_num, info)) {
-                return FALSE;
-            }
+    if(array_num > 0) {
+        if(!compile(array_num, info)) {
+            return FALSE;
+        }
+    }
+
+    append_opecode_to_code(info->code, OP_NEW, info->no_output);
+    append_class_name_to_constant_pool_and_code(info, klass);
+    append_int_value_to_code(info->code, array_num ? 1:0, info->no_output);
+
+    info->stack_num++;
+
+    if(array_num > 0) {
+        int num_params = gNodes[node].uValue.sNewOperator.mNumParams;
+
+        if(num_params > 0) {
+            compile_err_msg(info, "Array can't create with initialize method");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+
         }
 
-        append_opecode_to_code(info->code, OP_NEW, info->no_output);
-        append_class_name_to_constant_pool_and_code(info, klass);
-        append_int_value_to_code(info->code, array_num ? 1:0, info->no_output);
+        info->type = generics_types2;
+        info->type->mArray = TRUE;
 
-        info->stack_num++;
+        info->stack_num--;
+    }
+    else {
+        sNodeType* param_types[PARAMS_MAX];
 
-        if(array_num > 0) {
-            int num_params = gNodes[node].uValue.sNewOperator.mNumParams;
+        int num_params = gNodes[node].uValue.sNewOperator.mNumParams;
 
-            if(num_params > 0) {
-                compile_err_msg(info, "Array can't create with initialize method");
+        char* method_name = "initialize";
+
+        unsigned int params[PARAMS_MAX];
+
+        memcpy(params, gNodes[node].uValue.sNewOperator.mParams, sizeof(unsigned int)*PARAMS_MAX);
+
+        info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
+
+        if(!compile_params(klass, method_name, num_params, params, param_types, generics_types2, info, node)) {
+            return FALSE;
+        }
+
+        if(!info->pinfo->exist_block_object_err) { // for interpreter completion
+            sNodeType* result_type;
+            int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, &result_type);
+
+            if(method_index == -1) {
+                compile_err_msg(info, "method not found(3)");
                 info->err_num++;
+
+                err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
 
                 info->type = create_node_type_with_class_name("int"); // dummy
 
                 return TRUE;
-
             }
+
+            append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
+            append_class_name_to_constant_pool_and_code(info, klass);
+            append_int_value_to_code(info->code, method_index, info->no_output);
+
+            info->stack_num-=num_params+1;
+            info->stack_num++;
 
             info->type = generics_types2;
-            info->type->mArray = TRUE;
-
-            info->stack_num--;
-        }
-        else {
-            sNodeType* param_types[PARAMS_MAX];
-
-            int num_params = gNodes[node].uValue.sNewOperator.mNumParams;
-
-            char* method_name = "initialize";
-
-            unsigned int params[PARAMS_MAX];
-
-            memcpy(params, gNodes[node].uValue.sNewOperator.mParams, sizeof(unsigned int)*PARAMS_MAX);
-
-            info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
-
-            if(!compile_params(klass, method_name, num_params, params, param_types, generics_types2, info, node)) {
-                return FALSE;
-            }
-
-            if(!info->pinfo->exist_block_object_err) { // for interpreter completion
-                sNodeType* result_type;
-                int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, &result_type);
-
-                if(method_index == -1) {
-                    compile_err_msg(info, "method not found(3)");
-                    info->err_num++;
-
-                    err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
-
-                    info->type = create_node_type_with_class_name("int"); // dummy
-
-                    return TRUE;
-                }
-
-                append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
-                append_class_name_to_constant_pool_and_code(info, klass);
-                append_int_value_to_code(info->code, method_index, info->no_output);
-
-                info->stack_num-=num_params+1;
-                info->stack_num++;
-
-                info->type = generics_types2;
-            }
         }
     }
 

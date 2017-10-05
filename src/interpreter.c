@@ -1236,8 +1236,8 @@ static int my_complete_internal(int count, int key)
     /// is class name completion ? ///
     BOOL class_name_completion = FALSE;
 
-    p = line + strlen(line) -1;
-    while(p >= line) {
+    p = source + strlen(source) -1;
+    while(p >= source) {
         if(isalnum(*p) || *p == '_' || *p == ' ' || *p == '\t') {
             p--;
         }

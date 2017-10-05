@@ -1428,16 +1428,11 @@ BOOL parse_type_for_new(sNodeType** result_type, unsigned int* array_num, sParse
 
         sCLClass* right_type = (*result_type)->mGenericsTypes[i]->mClass;
         sCLClass* right_type2;
-        if(left_type && right_type) {
-            solve_generics_for_variable_to_class(right_type, &right_type2, info->klass);
 
-            if(!check_implemented_methods_for_interface(left_type, right_type2)) {
-                parser_err_msg(info, "%s is not implemented %s interface" , CLASS_NAME(right_type2), CLASS_NAME(left_type));
-                info->err_num++;
-            }
-        }
-        else {
-            parser_err_msg(info, "invalid class name");
+        solve_generics_for_variable_to_class(right_type, &right_type2, info->klass);
+
+        if(!check_implemented_methods_for_interface(left_type, right_type2)) {
+            parser_err_msg(info, "%s is not implemented %s interface" , CLASS_NAME(right_type2), CLASS_NAME(left_type));
             info->err_num++;
         }
     }
