@@ -18,6 +18,8 @@ Clover.test("String test7", c.equals("GHI111"));
 
 Clover.test("String test8", "ABC".append("123").equals("ABC123"));
 Clover.test("String test9", !"AAAA".equals("BBBBBBBBBBBBBBBBB"));
+
+"ABC".subString(1,3).println();
 Clover.test("String test10", "ABC".subString(1,3).equals("BC"));
 Clover.test("String test11", "ABC".insert(1, "111").equals("A111BC"));
 Clover.test("String test12", "ABC".insert(-1, "111").equals("ABC111"));

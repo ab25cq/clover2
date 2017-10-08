@@ -428,6 +428,15 @@ void new_vm_mutex()
 
 BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info)
 {
+    sCLClass* running_class = info->running_class;
+    sCLMethod* running_method = info->running_method;
+
+    info->running_class = klass;
+    info->running_method = method;
+#ifdef VM_LOG
+    printf("invoke_method %s.%s start\n", CLASS_NAME(klass), METHOD_NAME2(klass, method));
+#endif
+    
     if(method->mFlags & METHOD_FLAGS_NATIVE) {
         CLVALUE* lvar = *stack_ptr - method->mNumParams;
 
@@ -439,6 +448,8 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
 
             if(native_method == NULL) {
                 entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "Native method not found");
+//                info->running_class = running_class;
+//                info->running_method = running_method;
                 return FALSE;
             }
 
@@ -454,6 +465,8 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             *stack_ptr = lvar;
             **stack_ptr = result;
             (*stack_ptr)++;
+            //info->running_class = running_class;
+            //info->running_method = running_method;
             return FALSE;
         }
 
@@ -488,6 +501,8 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             *stack_ptr = lvar;
             **stack_ptr = *(new_stack + new_var_num);
             (*stack_ptr)++;
+            //info->running_class = running_class;
+            //info->running_method = running_method;
             return FALSE;
         }
 #else
@@ -495,6 +510,8 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             *stack_ptr = lvar;
             **stack_ptr = *(new_stack + new_var_num);
             (*stack_ptr)++;
+            //info->running_class = running_class;
+            //info->running_method = running_method;
             return FALSE;
         }
 #endif
@@ -503,6 +520,9 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
         **stack_ptr = *(new_stack+new_var_num);
         (*stack_ptr)++;
     }
+
+    info->running_class = running_class;
+    info->running_method = running_method;
 
     return TRUE;
 }
@@ -1036,12 +1056,6 @@ show_inst(inst);
             case OP_RETURN:
                 *(stack+var_num) = *(stack_ptr-1);
                 remove_stack_to_stack_list(stack_id);
-#ifdef MDEBUG
-if(stack_ptr != lvar + var_num + 1) {
-    fprintf(stderr, "invalid stack1\n");
-    exit(3);
-}
-#endif
                 return TRUE;
 
             case OP_THROW: {
@@ -1051,12 +1065,6 @@ if(stack_ptr != lvar + var_num + 1) {
                 CLObject exception = stack->mObjectValue;
 
                 entry_exception_object(exception, info);
-#ifdef MDEBUG
-if(stack_ptr != lvar + var_num + 1) {
-    fprintf(stderr, "invalid stack2\n");
-    exit(3);
-}
-#endif
                 }
                 return FALSE;
 

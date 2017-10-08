@@ -13,7 +13,12 @@ void entry_exception_object_with_class_name(CLVALUE** stack_ptr, CLVALUE* stack,
 
     char msg3[1024];
 
-    snprintf(msg3, 1024, "%s %d: %s", info->sname, info->sline, msg2);
+    if(info->running_class && info->running_method) {
+        snprintf(msg3, 1024, "%s %d: %s at %s.%s", info->sname, info->sline, msg2, CLASS_NAME(info->running_class), METHOD_NAME2(info->running_class, info->running_method));
+    }
+    else {
+        snprintf(msg3, 1024, "%s %d: %s", info->sname, info->sline, msg2);
+    }
 
     xstrncpy(info->exception_message, msg3, EXCEPTION_MESSAGE_MAX); // for show_exception_message 
 
@@ -43,7 +48,12 @@ void entry_exception_object_with_class_name2(CLVALUE** stack_ptr, CLVALUE* stack
 
     char msg3[1024];
 
-    snprintf(msg3, 1024, "%s %d: %s", info->sname, info->sline, msg);
+    if(info->running_class && info->running_method) {
+        snprintf(msg3, 1024, "%s %d: %s at %s.%s", info->sname, info->sline, msg, CLASS_NAME(info->running_class), METHOD_NAME2(info->running_class, info->running_method));
+    }
+    else {
+        snprintf(msg3, 1024, "%s %d: %s", info->sname, info->sline, msg);
+    }
 
     xstrncpy(info->exception_message, msg3, EXCEPTION_MESSAGE_MAX); // for show_exception_message 
 
@@ -75,7 +85,12 @@ void entry_exception_object(CLObject exception, sVMInfo* info)
 
     char* str = ALLOC string_object_to_char_array(message);
 
-    snprintf(info->exception_message, EXCEPTION_MESSAGE_MAX, "%s %d: %s\n", info->sname, info->sline, str);
+    if(info->running_class && info->running_method) {
+        snprintf(info->exception_message, EXCEPTION_MESSAGE_MAX, "%s %d: %s at %s.%s\n", info->sname, info->sline, str, CLASS_NAME(info->running_class), METHOD_NAME2(info->running_class, info->running_method));
+    }
+    else {
+        snprintf(info->exception_message, EXCEPTION_MESSAGE_MAX, "%s %d: %s\n", info->sname, info->sline, str);
+    }
 
     MFREE(str);
 }

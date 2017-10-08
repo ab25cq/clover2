@@ -103,6 +103,7 @@ void free_nodes()
     }
 }
 
+
 #define LABEL_NAME_MAX 512
 
 static void create_label_name(char* prefix, char* result, size_t result_size, int num)
@@ -202,6 +203,50 @@ static void compile_err_msg(sCompileInfo* info, const char* msg, ...)
 
     if(!info->pinfo->get_type_for_interpreter) {
         fprintf(stderr, "%s %d: %s\n", info->sname, info->sline, msg2);
+    }
+}
+
+void arrange_stack(sCompileInfo* cinfo)
+{
+    if(cinfo->no_pop_next) {
+        cinfo->no_pop_next = FALSE;
+    }
+    else if(cinfo->stack_num < 0) {
+        compile_err_msg(cinfo, "Unexpected error. Stack pointer is invalid(stack number is %d)", cinfo->stack_num);
+        cinfo->err_num++;
+    }
+    else if(cinfo->stack_num == 0) {
+    }
+    else if(cinfo->stack_num == 1) {
+        append_opecode_to_code(cinfo->code, OP_POP, cinfo->no_output);
+    }
+    else {
+        append_opecode_to_code(cinfo->code, OP_POP_N, cinfo->no_output);
+        append_int_value_to_code(cinfo->code, cinfo->stack_num, cinfo->no_output);
+    }
+
+    cinfo->stack_num = 0;
+}
+
+void arrange_stack_except_top(sCompileInfo* cinfo)
+{
+    if(cinfo->no_pop_next) {
+        cinfo->no_pop_next = FALSE;
+    }
+    else if(cinfo->stack_num < 0) {
+        compile_err_msg(cinfo, "Unexpected error. Stack pointer is invalid(stack number is %d)", cinfo->stack_num);
+        cinfo->err_num++;
+    }
+    else if(cinfo->stack_num == 0 || cinfo->stack_num == 1) {
+    }
+    else {
+        int i;
+        for(i=0; i<cinfo->stack_num-1; i++) {
+            append_opecode_to_code(cinfo->code, OP_REVERSE, cinfo->no_output);
+            append_opecode_to_code(cinfo->code, OP_POP, cinfo->no_output);
+        }
+
+        cinfo->stack_num = 1;
     }
 }
 
@@ -1506,9 +1551,18 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
     }
 
     sNodeBlock* if_block = gNodes[node].uValue.sIf.mIfNodeBlock;
+/*
+    if(!compile_block_with_result(if_block, info)) {
+        return FALSE;
+    }
+
+    info->stack_num--;
+*/
     if(!compile_block(if_block, info)) {
         return FALSE;
     }
+
+    sNodeType* if_result_type = info->type;
 
     append_opecode_to_code(info->code, OP_GOTO, info->no_output);
     int end_points[ELIF_NUM_MAX+1];
@@ -1559,8 +1613,21 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
             append_str_to_constant_pool_and_code(info->constant, info->code, label_name, info->no_output);
 
             sNodeBlock* elif_block = gNodes[node].uValue.sIf.mElifNodeBlocks[j];
+            /*
+            if(!compile_block_with_result(elif_block, info)) {
+                return FALSE;
+            }
+
+            info->stack_num--;
+            */
             if(!compile_block(elif_block, info)) {
                 return FALSE;
+            }
+
+            sNodeType* elif_result_type = info->type;
+
+            if(!type_identify(if_result_type, elif_result_type)) {
+                if_result_type = create_node_type_with_class_name("Anonymous");
             }
 
             append_opecode_to_code(info->code, OP_GOTO, info->no_output);
@@ -1586,8 +1653,22 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
         append_opecode_to_code(info->code, OP_LABEL, info->no_output);
         append_str_to_constant_pool_and_code(info->constant, info->code, label_name_else, info->no_output);
 
+/*
+        if(!compile_block_with_result(else_node_block, info)) {
+            return FALSE;
+        }
+
+        info->stack_num--;
+*/
+
         if(!compile_block(else_node_block, info)) {
             return FALSE;
+        }
+
+        sNodeType* else_result_type = info->type;
+
+        if(!type_identify(if_result_type, else_result_type)) {
+            if_result_type = create_node_type_with_class_name("Anonymous");
         }
 
         append_opecode_to_code(info->code, OP_GOTO, info->no_output);
@@ -1604,10 +1685,14 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
 
     append_opecode_to_code(info->code, OP_LABEL, info->no_output);
     append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
-    append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
-    info->stack_num++;
 
     if(info->pinfo->err_num == 0) { // for interpreter completion
+        /*
+        info->type = if_result_type;
+        info->stack_num++;
+        */
+        append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
+        info->stack_num++;
         info->type = create_node_type_with_class_name("Null");
     }
 
@@ -1712,10 +1797,10 @@ static BOOL compile_while_expression(unsigned int node, sCompileInfo* info)
     append_opecode_to_code(info->code, OP_LABEL, info->no_output);
     append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
 
-    append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
-    info->stack_num++;
-
     if(info->pinfo->err_num == 0) { // for interpreter completion
+        append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
+        info->stack_num++;
+
         info->type = create_node_type_with_class_name("Null");
     }
 
@@ -1839,10 +1924,9 @@ static BOOL compile_for_expression(unsigned int node, sCompileInfo* info)
         *(int*)(info->code->mCodes + break_points[i]) = info->code->mLen;
     }
 
-    append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
-    info->stack_num++;
-
     if(info->pinfo->err_num == 0) { // for interpreter completion
+        append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
+        info->stack_num++;
         info->type = create_node_type_with_class_name("Null");
     }
     else {
@@ -1970,8 +2054,7 @@ unsigned int sNodeTree_null_expression(sParserInfo* info)
 
 static BOOL compile_null_expression(unsigned int node, sCompileInfo* info)
 {
-    append_opecode_to_code(info->code, OP_LDCINT, info->no_output);
-    append_int_value_to_code(info->code, 0, info->no_output);
+    append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
     info->stack_num++;
 
     info->type = create_node_type_with_class_name("Null");
@@ -2615,9 +2698,7 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
 
         info->stack_num--;
 
-        append_opecode_to_code(info->code, OP_LDCINT, info->no_output);
-        append_int_value_to_code(info->code, 0, info->no_output);
-
+        append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
         info->stack_num++;
 
         info->type = create_node_type_with_class_name("Null");
@@ -2914,10 +2995,18 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
 
     append_opecode_to_code(info->code, OP_RETURN, info->no_output);
 
-    info->stack_num = 0;   // no pop 
+    info->stack_num = 0;
 
     info->type = create_node_type_with_class_name("Null");
-    
+
+/*
+    append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
+    info->stack_num++;
+*/
+
+    //info->no_pop_next = TRUE;
+    //info->stack_num = 0;   // no pop 
+
     return TRUE;
 }
 
@@ -2971,11 +3060,32 @@ static BOOL compile_throw_expression(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
+    if(info->stack_num != 1) {
+        compile_err_msg(info, "Invalid stack num in the throw expression");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
     append_opecode_to_code(info->code, OP_THROW, info->no_output);
 
-    info->stack_num = 0;   // no pop 
+    info->stack_num = 0;
 
     info->type = create_node_type_with_class_name("Null");
+
+/*
+    append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
+    info->stack_num++;
+*/
+
+    info->type = create_node_type_with_class_name("Null");
+
+    //info->no_pop_next = TRUE;
+    //info->stack_num = 0;   // no pop 
+
+    //info->type = create_node_type_with_class_name("Null");
     
     return TRUE;
 }
@@ -3061,12 +3171,12 @@ static BOOL compile_try_expression(unsigned int node, sCompileInfo* info)
         append_opecode_to_code(info->code, OP_LABEL, info->no_output);
         append_str_to_constant_pool_and_code(info->constant, info->code, label_name, info->no_output);
 
-        append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
-        info->stack_num++;
-    }
+        if(info->pinfo->err_num == 0) { // for interpreter completion
+            append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
+            info->stack_num++;
 
-    if(info->pinfo->err_num == 0) { // for interpreter completion
-        info->type = create_node_type_with_class_name("Null");
+            info->type = create_node_type_with_class_name("Null");
+        }
     }
 
     return TRUE;
@@ -6701,10 +6811,9 @@ static BOOL compile_normal_block(unsigned int node, sCompileInfo* info)
         return FALSE;
     }
 
-    append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
-    info->stack_num++;
-
     if(info->pinfo->err_num == 0) { // for interpreter completion
+        append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
+        info->stack_num++;
         info->type = create_node_type_with_class_name("Null");
     }
 
@@ -7763,25 +7872,6 @@ BOOL compile(unsigned int node, sCompileInfo* info)
     }
 
     return TRUE;
-}
-
-void arrange_stack(sCompileInfo* cinfo)
-{
-    if(cinfo->stack_num < 0) {
-        compile_err_msg(cinfo, "Unexpected error. Stack pointer is invalid(stack number is %d)", cinfo->stack_num);
-        cinfo->err_num++;
-    }
-    else if(cinfo->stack_num == 0) {
-    }
-    else if(cinfo->stack_num == 1) {
-        append_opecode_to_code(cinfo->code, OP_POP, cinfo->no_output);
-    }
-    else {
-        append_opecode_to_code(cinfo->code, OP_POP_N, cinfo->no_output);
-        append_int_value_to_code(cinfo->code, cinfo->stack_num, cinfo->no_output);
-    }
-
-    cinfo->stack_num = 0;
 }
 
 BOOL check_node_is_variable(unsigned int node)

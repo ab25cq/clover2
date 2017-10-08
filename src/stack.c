@@ -88,3 +88,4 @@ BOOL check_variables_existance_on_stack(CLVALUE* stack, CLVALUE* stack_ptr)
 */
     return TRUE;
 }
+

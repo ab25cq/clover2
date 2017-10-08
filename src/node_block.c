@@ -121,11 +121,14 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info)
 
         append_opecode_to_code(info->code, OP_HEAD_OF_EXPRESSION, info->no_output);
 
+        int stack_num = info->stack_num;
+
         if(!compile(node, info)) {
             info->lv_table = old_table;
             info->stack_num = stack_num_before;
             return FALSE;
         }
+
         arrange_stack(info);
 
 #ifdef ENABLE_INTERPRETER
@@ -134,6 +137,66 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info)
     }
 
     info->stack_num = stack_num_before;
+
+    info->lv_table = old_table;
+
+    return TRUE;
+}
+
+BOOL compile_block_with_result(sNodeBlock* block, sCompileInfo* info)
+{
+    sVarTable* old_table = info->lv_table;
+    info->lv_table = block->mLVTable;
+
+    int stack_num_before = info->stack_num;
+    info->stack_num = 0;
+
+    int i;
+    for(i=0; i<block->mNumNodes; i++) {
+        unsigned int node = block->mNodes[i];
+
+        info->sname = gNodes[node].mSName;
+        info->sline = gNodes[node].mLine;
+
+        append_opecode_to_code(info->code, OP_HEAD_OF_EXPRESSION, info->no_output);
+
+        if(!compile(node, info)) {
+            info->lv_table = old_table;
+            info->stack_num = stack_num_before;
+            return FALSE;
+        }
+
+        if(i == block->mNumNodes-1) {
+            if(info->stack_num == 0) {
+                append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
+                info->stack_num++;
+
+                info->type = create_node_type_with_class_name("Null");
+            }
+            else {
+                arrange_stack_except_top(info);
+            }
+        }
+        else {
+            arrange_stack(info);
+        }
+
+#ifdef ENABLE_INTERPRETER
+        append_opecode_to_code(info->code, OP_SIGINT, info->no_output);
+#endif
+    }
+
+    if(info->stack_num == 0) {
+        info->stack_num = stack_num_before;
+
+        append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
+        info->type = create_node_type_with_class_name("Null");
+        info->stack_num++;
+    }
+    else {
+        info->stack_num = stack_num_before;
+        info->stack_num++;
+    }
 
     info->lv_table = old_table;
 
