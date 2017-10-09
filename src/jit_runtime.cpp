@@ -593,7 +593,9 @@ BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClas
             CLVALUE** stack_ptr_address = &stack_ptr;
             fJITMethodType fun2 = (fJITMethodType)method->mJITDynamicSym;
 
-            BOOL result = fun2(stack_ptr, lvar, info, stack, stack_ptr_address, var_num, constant, code);
+            CLVALUE** global_stack_ptr_address = &gGlobalStackPtr;
+
+            BOOL result = fun2(stack_ptr, lvar, info, stack, stack_ptr_address, var_num, constant, code, global_stack_ptr_address);
 
             if(!result) {
                 remove_stack_to_stack_list(stack_id);

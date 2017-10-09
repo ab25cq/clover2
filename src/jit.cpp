@@ -295,7 +295,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 Value* lvalue = stack_value;
                 Value* rvalue = var_num_value;
-                Value* store_address_value = Builder.CreateGEP(lvalue, rvalue, "store_address_value");
+                Value* store_address_value = Builder.CreateGEP(lvalue, rvalue, "store_address_value_LLLLL");
 
                 Builder.CreateAlignedStore(llvm_value2.value, store_address_value, 8);
 
@@ -508,6 +508,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
                 LVALUE llvm_value;
+                //llvm_value.value = value_for_andand_oror[num_value_for_andand_oror];
                 llvm_value.value = Builder.CreateLoad(value_for_andand_oror[num_value_for_andand_oror], "value_for_andand_oror");
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
@@ -538,6 +539,74 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 current_block = label;
                 }
                 break;
+
+            case OP_STORE_VALUE_TO_GLOBAL: {
+                LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                /// trunc ///
+                LVALUE llvm_value;
+                llvm_value = trunc_value(value, 64);
+
+                std::string global_stack_ptr_address_name("global_stack_ptr_address");
+                Value* global_stack_ptr_address_value = params[global_stack_ptr_address_name];
+
+                Value* loaded_global_stack_ptr_address_value = Builder.CreateAlignedLoad(global_stack_ptr_address_value, 8, "loaded_global_stack_ptr_address");
+
+                /// zero clear///
+                Value* zero = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)0);
+                Builder.CreateAlignedStore(zero, loaded_global_stack_ptr_address_value, 8);
+
+                /// store ///
+                Builder.CreateAlignedStore(llvm_value.value, loaded_global_stack_ptr_address_value, 8);
+
+                /// inc pointer ///
+                Value* lvalue = loaded_global_stack_ptr_address_value;
+                Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(64, 1, true));
+                Value* inc_ptr_value = Builder.CreateGEP(lvalue, rvalue, "inc_ptr_value");
+
+                Builder.CreateStore(inc_ptr_value, global_stack_ptr_address_value);
+
+                dec_stack_ptr(&llvm_stack_ptr, 1);
+                }
+                break;
+
+            case OP_POP_VALUE_FROM_GLOBAL: {
+                int size = *(int*)pc;
+                pc += sizeof(int);
+
+                /// load from global stack ptr ///
+                std::string global_stack_ptr_address_name("global_stack_ptr_address");
+                Value* global_stack_ptr_address_value = params[global_stack_ptr_address_name];
+
+                Value* loaded_global_stack_ptr_address_value = Builder.CreateAlignedLoad(global_stack_ptr_address_value, 8, "loaded_global_stack_ptr_address");
+
+                int index = 1;
+
+                Value* lvalue = loaded_global_stack_ptr_address_value;
+                Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(64, -index, true));
+                Value* dec_ptr_value = Builder.CreateGEP(lvalue, rvalue, "dec_ptr_value");
+
+                //Value* dec_ptr_value2 = Builder.CreateCast(Instruction::IntToPtr, dec_ptr_value, PointerType::get(IntegerType::get(TheContext, 8), 0));
+
+
+    
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateAlignedLoad(dec_ptr_value, 8, "value");
+                llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
+                llvm_value.constant_int_value = FALSE;
+                llvm_value.constant_float_value = FALSE;
+                llvm_value.float_value = FALSE;
+
+                trunc_variable(&llvm_value, size);
+
+                /// dec global stack ptr ///
+                Builder.CreateAlignedStore(dec_ptr_value, global_stack_ptr_address_value, 8);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
 
             default:
                 if(!compile_to_native_code2(code, constant, klass, method, method_path2, inst, &pc, &llvm_stack_ptr, llvm_stack, params, &current_block, &function, var_num, &try_catch_label_name))

@@ -86,7 +86,7 @@ void InitializeModuleAndPassManager(char* class_name);
 
 typedef struct LVALUEStruct LVALUE;
 
-typedef BOOL (*fJITMethodType)(CLVALUE* stack_ptr, CLVALUE* lvar, sVMInfo* info, CLVALUE* stack, CLVALUE** stack_ptr_address, int var_num, sConst* constant, sByteCode* code);
+typedef BOOL (*fJITMethodType)(CLVALUE* stack_ptr, CLVALUE* lvar, sVMInfo* info, CLVALUE* stack, CLVALUE** stack_ptr_address, int var_num, sConst* constant, sByteCode* code, CLVALUE** global_stack_ptr_address);
 
 /// jit.cpp ///
 struct sCLVALUEAndBoolResult {
