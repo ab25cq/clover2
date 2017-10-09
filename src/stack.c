@@ -6,7 +6,7 @@ CLVALUE* gGlobalStackPtr;
 
 static void create_global_stack_and_append_it_to_stack_list()
 {
-    gGlobalStack = MCALLOC(1, sizeof(CLVALUE)*256);
+    gGlobalStack = MCALLOC(1, sizeof(CLVALUE)*GLOBAL_STACK_MAX);
     gGlobalStackPtr = gGlobalStack;
 
     append_stack_to_stack_list(gGlobalStack, &gGlobalStackPtr);

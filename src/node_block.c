@@ -173,8 +173,19 @@ BOOL compile_block_with_result(sNodeBlock* block, sCompileInfo* info)
 
                 info->type = create_node_type_with_class_name("Null");
             }
+            else if(info->stack_num < 0) {
+                compile_err_msg(info, "Unexpected error. Stack pointer is invalid(stack number is %d)", info->stack_num);
+                info->err_num++;
+            }
+            else if(info->stack_num == 1) {
+            }
             else {
-                arrange_stack_except_top(info);
+                int i;
+                for(i=0; i<info->stack_num-1; i++) {
+                    append_opecode_to_code(info->code, OP_REVERSE, info->no_output);
+                    append_opecode_to_code(info->code, OP_POP, info->no_output);
+                    info->stack_num--;
+                }
             }
         }
         else {
@@ -186,18 +197,8 @@ BOOL compile_block_with_result(sNodeBlock* block, sCompileInfo* info)
 #endif
     }
 
-    if(info->stack_num == 0) {
-        info->stack_num = stack_num_before;
-
-        append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
-        info->type = create_node_type_with_class_name("Null");
-        info->stack_num++;
-    }
-    else {
-        info->stack_num = stack_num_before;
-        info->stack_num++;
-    }
-
+    info->stack_num = stack_num_before;
+    info->stack_num++;
     info->lv_table = old_table;
 
     return TRUE;

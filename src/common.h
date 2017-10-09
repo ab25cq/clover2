@@ -69,6 +69,7 @@
 //#define CLOVER_STACK_SIZE 512
 #define METHOD_CHAIN_MAX 128
 #define STRING_EXPRESSION_MAX 32
+#define GLOBAL_STACK_MAX 256
 
 /// CLVALUE ///
 typedef unsigned int CLObject;
@@ -719,6 +720,7 @@ void free_nodes();
 void show_node(unsigned int node);
 unsigned int clone_node(unsigned int node);
 
+void compile_err_msg(sCompileInfo* info, const char* msg, ...);
 BOOL compile(unsigned int node, sCompileInfo* info);
 void append_class_name_to_constant_pool_and_code(sCompileInfo* info, sCLClass* klass);
 
@@ -791,7 +793,6 @@ unsigned int sNodeTree_create_path_value(MANAGED char* value, int len, unsigned 
 unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED sNodeBlock* node_block, BOOL lambda, sParserInfo* info);
 
 void arrange_stack(sCompileInfo* cinfo);
-void arrange_stack_except_top(sCompileInfo* cinfo);
 
 /// node_block.c ///
 BOOL compile_block(sNodeBlock* block, sCompileInfo* info);
@@ -861,34 +862,37 @@ extern BOOL gSigInt;
 #define OP_STORE_VALUE_FOR_ANDAND_OROR 20
 #define OP_LOAD_VALUE_FOR_ANDAND_OROR 21
 
-#define OP_STORE 22
-#define OP_LOAD 23
+#define OP_STORE_VALUE_TO_GLOBAL 22
+#define OP_POP_VALUE_FROM_GLOBAL 23
 
-#define OP_LOAD_ADDRESS 24
+#define OP_STORE 24
+#define OP_LOAD 25
 
-#define OP_LDCBYTE 25
-#define OP_LDCUBYTE 26
-#define OP_LDCSHORT 27
-#define OP_LDCUSHORT 28
-#define OP_LDCINT 29
-#define OP_LDCUINT 30
-#define OP_LDCLONG 31
-#define OP_LDCULONG 32
-#define OP_LDCNULL 33
-#define OP_LDCPOINTER 34
-#define OP_LDCFLOAT 35
-#define OP_LDCDOUBLE 36
+#define OP_LOAD_ADDRESS 26
 
-#define OP_BADD 40
-#define OP_BSUB 41
-#define OP_BMULT 42
-#define OP_BDIV 43
-#define OP_BMOD 44
-#define OP_BLSHIFT 45
-#define OP_BRSHIFT 46
-#define OP_BAND 47
-#define OP_BXOR 48
-#define OP_BOR 49
+#define OP_LDCBYTE 30
+#define OP_LDCUBYTE 31
+#define OP_LDCSHORT 32
+#define OP_LDCUSHORT 33
+#define OP_LDCINT 34
+#define OP_LDCUINT 35
+#define OP_LDCLONG 36
+#define OP_LDCULONG 37
+#define OP_LDCNULL 38
+#define OP_LDCPOINTER 39
+#define OP_LDCFLOAT 40
+#define OP_LDCDOUBLE 41
+
+#define OP_BADD 50
+#define OP_BSUB 51
+#define OP_BMULT 52
+#define OP_BDIV 53
+#define OP_BMOD 54
+#define OP_BLSHIFT 55
+#define OP_BRSHIFT 56
+#define OP_BAND 57
+#define OP_BXOR 58
+#define OP_BOR 59
 
 #define OP_UBADD 80
 #define OP_UBSUB 81

@@ -66,6 +66,14 @@ static void show_inst(unsigned inst)
             puts("OP_LABEL");
             break;
 
+        case OP_STORE_VALUE_TO_GLOBAL:
+            puts("OP_STORE_VALUE_TO_GLOBAL");
+            break;
+
+        case OP_POP_VALUE_FROM_GLOBAL:
+            puts("OP_POP_VALUE_FROM_GLOBAL");
+            break;
+
         case OP_RETURN :
             puts("OP_RETURN");
             break;
@@ -431,6 +439,8 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
     sCLClass* running_class = info->running_class;
     sCLMethod* running_method = info->running_method;
 
+    CLVALUE* gloal_stack_ptr = gGlobalStackPtr;
+
     info->running_class = klass;
     info->running_method = method;
 #ifdef VM_LOG
@@ -450,6 +460,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
                 entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "Native method not found");
 //                info->running_class = running_class;
 //                info->running_method = running_method;
+                gGlobalStackPtr = gloal_stack_ptr;
                 return FALSE;
             }
 
@@ -467,6 +478,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             (*stack_ptr)++;
             //info->running_class = running_class;
             //info->running_method = running_method;
+            gGlobalStackPtr = gloal_stack_ptr;
             return FALSE;
         }
 
@@ -503,6 +515,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             (*stack_ptr)++;
             //info->running_class = running_class;
             //info->running_method = running_method;
+            gGlobalStackPtr = gloal_stack_ptr;
             return FALSE;
         }
 #else
@@ -512,6 +525,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             (*stack_ptr)++;
             //info->running_class = running_class;
             //info->running_method = running_method;
+            gGlobalStackPtr = gloal_stack_ptr;
             return FALSE;
         }
 #endif
@@ -523,6 +537,8 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
 
     info->running_class = running_class;
     info->running_method = running_method;
+
+    gGlobalStackPtr = gloal_stack_ptr;
 
     return TRUE;
 }
@@ -1159,7 +1175,47 @@ show_inst(inst);
                 int offset = *(int*)pc;
                 pc += sizeof(int);
 
+#ifdef VM_LOG
+    char* label_name = CONS_str(constant, offset);
+    printf("label name %s\n", label_name);
+#endif
+
                 /// nothing to do, this opecode is for Just In Time Compile
+                }
+                break;
+
+            case OP_STORE_VALUE_TO_GLOBAL: {
+                CLVALUE value = *(stack_ptr-1);
+                stack_ptr--;
+
+                *gGlobalStackPtr = value;
+                gGlobalStackPtr++;
+
+                if(gGlobalStackPtr - gGlobalStack >= GLOBAL_STACK_MAX) {
+                    vm_mutex_off();
+                    entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "global stack ptr is overflow");
+                    remove_stack_to_stack_list(stack_id);
+                    return FALSE;
+                }
+                }
+                break;
+
+            case OP_POP_VALUE_FROM_GLOBAL: {
+                int size = *(int*)pc;
+                pc += sizeof(int);
+
+                if(gGlobalStackPtr <= gGlobalStack) {
+                    vm_mutex_off();
+                    entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "global stack ptr is overflow");
+                    remove_stack_to_stack_list(stack_id);
+                    return FALSE;
+                }
+
+                CLVALUE value = *(gGlobalStackPtr-1);
+                gGlobalStackPtr--;
+
+                *stack_ptr = value;
+                stack_ptr++;
                 }
                 break;
 
@@ -5145,7 +5201,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(field_index < 0 || field_index >= klass->mNumFields) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "field index is invalid");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "field index is invalid(1). Field index is %d", field_index);
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
@@ -5187,7 +5243,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(field_index < 0 || field_index >= klass->mNumFields) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "field index is invalid");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "field index is invalid(2). Field index is %d", field_index);
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
@@ -5230,7 +5286,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(field_index < 0 || field_index >= klass->mNumFields) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "field index is invalid");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "field index is invalid(3). Field index is %d", field_index);
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
@@ -5270,7 +5326,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(field_index < 0 || field_index >= klass->mNumClassFields) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "field index is invalid");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "field index is invalid(4). Field index is %d", field_index);
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
@@ -5307,7 +5363,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(field_index < 0 || field_index >= klass->mNumClassFields) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "field index is invalid");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "field index is invalid(55555). Field index is %d", field_index);
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
@@ -5346,7 +5402,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(field_index < 0 || field_index >= klass->mNumClassFields) {
                         vm_mutex_off();
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "field index is invalid");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "field index is invalid(6). Field index is %d", field_index);
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }

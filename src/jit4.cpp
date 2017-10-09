@@ -625,11 +625,19 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* param5 = obj2.value;
             params2.push_back(param5);
 
+
+
+
+
             LVALUE value2;
             value2 = trunc_value(value, 64);
 
             Value* param6 = value2.value;
             params2.push_back(param6);
+
+
+
+
 
             Value* param7 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)field_index);
             params2.push_back(param7);
