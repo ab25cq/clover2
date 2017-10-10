@@ -6761,15 +6761,22 @@ static BOOL compile_normal_block(unsigned int node, sCompileInfo* info)
     sNodeBlock* node_block = gNodes[node].uValue.mBlock;
 
     /// compile block ///
+/*
     if(!compile_block(node_block, info)) {
         return FALSE;
     }
+*/
+    if(!compile_block_with_result(node_block, info)) {
+        return FALSE;
+    }
 
+/*
     if(info->pinfo->err_num == 0) { // for interpreter completion
         append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
         info->stack_num++;
         info->type = create_node_type_with_class_name("Null");
     }
+*/
 
     return TRUE;
 }

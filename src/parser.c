@@ -1953,7 +1953,7 @@ static BOOL parse_array_value(unsigned int* node, sParserInfo* info)
     unsigned int array_elements[ARRAY_VALUE_ELEMENT_MAX];
     memset(array_elements, 0, sizeof(unsigned int)*ARRAY_VALUE_ELEMENT_MAX);
 
-    if(*info->p == '}') {
+    if(*info->p == ']') {
         info->p++;
         skip_spaces_and_lf(info);
     }
@@ -1974,7 +1974,7 @@ static BOOL parse_array_value(unsigned int* node, sParserInfo* info)
                 info->p++;
                 skip_spaces_and_lf(info);
             }
-            else if(*info->p == '}') {
+            else if(*info->p == ']') {
                 info->p++;
                 skip_spaces_and_lf(info);
                 break;
@@ -2799,11 +2799,18 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             *node = sNodeTree_create_character_value(c, info);
         }
     }
-    else if(*info->p == '{') {
+    else if(*info->p == '[') {
         info->p++;
         skip_spaces_and_lf(info);
 
         if(!parse_array_value(node, info)) {
+            return FALSE;
+        }
+    }
+    else if(*info->p == '{') {
+        skip_spaces_and_lf(info);
+
+        if(!parse_normal_block(node, info)) {
             return FALSE;
         }
     }
@@ -2905,13 +2912,6 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             expect_next_character_with_one_forward("(", info);
 
             if(!parse_block_object(node, info, TRUE)) {
-                return FALSE;
-            }
-        }
-        else if(strcmp(buf, "block") == 0 && *info->p == '{') {
-            skip_spaces_and_lf(info);
-
-            if(!parse_normal_block(node, info)) {
                 return FALSE;
             }
         }

@@ -15,3 +15,7 @@ e := 888;
 Clover.test("if test2", a == 999 && b == 1000 && c == 3 && e == 888);
 
 Clover.test("if test3", KotlinTest.method3(1, "DEF").equals("DEF"));
+
+f:= { "ABC" }
+
+Clover.test("block", f.equals("ABC"));
