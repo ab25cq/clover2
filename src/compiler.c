@@ -132,6 +132,12 @@ int main(int argc, char** argv)
         }
     }
 
+    char* ext_sname = strstr(sname, ".");
+
+    if(strcmp(ext_sname, ".clc") == 0) {
+        clc_compile = TRUE;
+    }
+
     compiler_init(no_load_fudamental_classes);
 
     if(clc_compile) {
