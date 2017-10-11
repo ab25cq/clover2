@@ -2806,6 +2806,9 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         }
     }
     else if(*info->p == '{') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
         if(!parse_normal_block(node, info)) {
             return FALSE;
         }
