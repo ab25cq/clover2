@@ -1934,8 +1934,6 @@ static BOOL parse_function(unsigned int* node, sParserInfo* info, BOOL lambda)
 
 static BOOL parse_normal_block(unsigned int* node, sParserInfo* info)
 {
-    expect_next_character_with_one_forward("{", info);
-
     sNodeBlock* node_block = NULL;
     if(!parse_block(ALLOC &node_block, info, NULL, FALSE)) {
         return FALSE;
@@ -2808,8 +2806,6 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         }
     }
     else if(*info->p == '{') {
-        skip_spaces_and_lf(info);
-
         if(!parse_normal_block(node, info)) {
             return FALSE;
         }
@@ -2824,6 +2820,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         if(!parse_word_and_slash(buf, VAR_NAME_MAX, info, TRUE, TRUE)) {
             return FALSE;
         }
+        skip_spaces_and_lf(info);
 
         BOOL including_slash = strstr(buf, "/") != NULL;
         if(strcmp(buf, "if") == 0) {

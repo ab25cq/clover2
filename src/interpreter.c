@@ -1182,7 +1182,7 @@ static int my_complete_internal(int count, int key)
                     p++;
                 }
 
-                if(*p != '(') {
+                if(*p != '(' && *p != '{') {
                     inputing_command_line = TRUE;
 
                     /// params ////

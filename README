@@ -21,9 +21,9 @@ list {m,a,i,n,.,c}
 
 とless外部コマンドで表示される。 メソッド名や外部コマンド名、ファイル名の補完もされます。
 
-詳しくはwikiを見てください https://github.com/ab25cq/clover2/wiki
-
 7. LLVMでJITします。
+
+インストール方法については詳しくはwikiを見てください https://github.com/ab25cq/clover2/wiki
 
 Yet another compiler and a Virtual Machine.
 
