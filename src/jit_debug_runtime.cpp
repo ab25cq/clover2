@@ -1071,9 +1071,8 @@ void show_stack_stat(CLVALUE** stack_ptr, CLVALUE* stack)
 BOOL show_stack_in_jit(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info)
 {
     printf("var_num %d\n", var_num);
-    show_stack_stat(stack_ptr, stack);
+    //show_stack_stat(stack_ptr, stack);
 
-/*
     int i;
     for(i=0; i<10; i++) {
         if(*stack_ptr == stack + i) {
@@ -1083,7 +1082,6 @@ BOOL show_stack_in_jit(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo
             printf("  stack [%d] %d(%lld) on %p\n", i, stack[i].mIntValue, stack[i].mULongValue, stack + i);
         }
     }
-*/
 
     return TRUE;
 }

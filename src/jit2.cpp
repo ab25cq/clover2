@@ -13,6 +13,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             LVALUE* llvm_value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
             store_llvm_value_to_lvar_with_offset(llvm_stack, index, llvm_value);
+
             }
             break;
 

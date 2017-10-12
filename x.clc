@@ -1,33 +1,30 @@
-module MEquals
+class ClassToStringTest
 {
-    def equals(right:SELF): bool {
-        return self.field == right.field;
-    }
-}
+    head: int;
+    tail: int;
+    number: int;
 
-interface IEquals
-{
-    def equals(right:Self): bool;
-}
-
-class ClassA
-{
-    field:int;
-
-    def initialize(num:int) {
-        self.field = num;
+    def initialize() {
+        self.number = 0;
+        self.head = 1;
+        self.tail = 2;
     }
 
-    include MEquals;
-}
-
-class ClassB
-{
-    field:float;
-
-    def initialize(num:float) {
-        self.field = num;
+    def toString(): String {
+        if(self.head == 0) {
+            return "Null list";
+        }
+        else {
+            result:String = "";
+            if(self.number.toString.identifyWith(null)) {
+                println("!!!!!!!!");
+            }
+            else {
+                result.append(self.number.toString);
+            }
+            result.append(" length list of ");
+            return result;
+        }
     }
 
-    include MEquals;
 }

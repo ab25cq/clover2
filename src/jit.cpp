@@ -159,7 +159,9 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
 
 /*
 if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
-    call_show_inst_in_jit(inst);
+    if(strcmp(METHOD_NAME2(klass, method), "initialize") != 0 && strcmp(METHOD_NAME2(klass, method), "finalize") != 0) {
+call_show_inst_in_jit(inst);
+    }
 }
 */
 
@@ -657,11 +659,14 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
         }
 
 /*
-#ifdef MDEBUG
-if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
-    call_show_stack(params);
+if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT && strcmp(METHOD_NAME2(klass, method), "initialize") != 0 && strcmp(METHOD_NAME2(klass, method), "finalize") != 0) {
+    LVALUE* p = llvm_stack;
+
+    while(p < llvm_stack_ptr) {
+        call_show_value_in_jit(p->value);
+        p++;
+    }
 }
-#endif
 */
     }
 

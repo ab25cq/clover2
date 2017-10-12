@@ -15,7 +15,7 @@ BREAK_NUM_MAX	src/common.h	53;"	d
 BUFFER_H	src/buffer.h	2;"	d
 BYTE_CODE_INIT_SIZE	src/code.c	3;"	d	file:
 CC	Makefile	/^CC=ccache clang$/;"	m
-CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -I\/home\/ab25cq\/include -L\/home\/ab25cq\/lib -fPIC -rdynamic -I\/usr\/local\/include -L \/usr\/local\/lib -O3 -DENABLE_INTERPRETER -Qunused-arguments$/;"	m
+CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -I\/home\/ab25cq\/include -L\/home\/ab25cq\/lib -fPIC -rdynamic -I\/usr\/local\/include -L \/usr\/local\/lib -O3 -DENABLE_INTERPRETER -Qunused-arguments -DENABLE_JIT$/;"	m
 CHECKML_BEGIN	src/debug.h	11;"	d
 CHECKML_BEGIN	src/debug.h	39;"	d
 CHECKML_END	src/debug.h	12;"	d
@@ -65,9 +65,9 @@ HAVE_MATH_H	config.h	2;"	d
 HAVE_PCRE_H	config.h	6;"	d
 INSTALL	Makefile	/^INSTALL=\/usr\/bin\/install -c$/;"	m
 INTERPRETER	Makefile	/^INTERPRETER=iclover2$/;"	m
-JIT	Makefile	/^JIT=0$/;"	m
-JIT_OBJS	Makefile	/^JIT_OBJS=$/;"	m
-JIT_RUNTIME_OBJS	Makefile	/^JIT_RUNTIME_OBJS=$/;"	m
+JIT	Makefile	/^JIT=1$/;"	m
+JIT_OBJS	Makefile	/^JIT_OBJS=src\/jit.o src\/jit2.o src\/jit3.o src\/jit4.o src\/jit5.o src\/jit6.o src\/jit7.o src\/jit8.o src\/jit9.o src\/jit10.o src\/jit11.o src\/jit12.o src\/jit_compile_method.o src\/jit_debug.o src\/jit_declare.o src\/jit_declare2.o src\/jit_sub.o src\/jit_sub2.o$/;"	m
+JIT_RUNTIME_OBJS	Makefile	/^JIT_RUNTIME_OBJS=src\/jit_runtime.o src\/jit_runtime2.o src\/jit_debug_runtime.o$/;"	m
 LABEL_NAME_MAX	src/node.c	107;"	d	file:
 LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM	src/class_system.c	1632;"	d	file:
 LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM	src/class_system.c	1088;"	d	file:
