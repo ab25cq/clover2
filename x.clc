@@ -16,12 +16,9 @@ class ClassToStringTest
         }
         else {
             result:String = "";
-            if(self.number.toString.identifyWith(null)) {
-                println("!!!!!!!!");
-            }
-            else {
-                result.append(self.number.toString);
-            }
+
+            xxx := self.number.toString;
+            #result.append(self.number.toString);
             result.append(" length list of ");
             return result;
         }
