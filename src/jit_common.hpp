@@ -73,15 +73,12 @@ inline void create_method_path_for_jit(sCLClass* klass, sCLMethod* method, char*
     snprintf(result, size_result, "%s.%s$$%d", CLASS_NAME(klass), METHOD_NAME_AND_PARAMS(klass, method), method->mMethodIndex);
 }
 
-enum eLVALUEKind { kLVKindNone, kLVKindInt1, kLVKindInt8, kLVKindUInt8, kLVLAUEInt16, kLVKindUInt16, kLVKindInt32, kLVKindUInt32, kLVKindInt64, kLVKindUInt64, kLVKindMemory };
+enum eLVALUEKind { kLVKindNone, kLVKindInt1, kLVKindInt8, kLVKindUInt8, kLVLAUEInt16, kLVKindUInt16, kLVKindInt32, kLVKindUInt32, kLVKindInt64, kLVKindUInt64, kLVKindMemory, kLVKindAddress, kLVKindConstantInt8, kLVKindConstantUInt8, kLVKindConstantInt16, kLVKindConstatUInt16, kLVKindConstant32, kLVKindConstantUInt32, kLVKindConstantInt64, kLVKindConstantUInt64, kLVKindConstantFloat, kLVKindConstantDouble };
 
 struct LVALUEStruct {
     Value* value;
     int lvar_address_index;
     BOOL lvar_stored;
-    BOOL constant_int_value;
-    BOOL constant_float_value;
-    BOOL float_value;
     enum eLVALUEKind kind;
 };
 
