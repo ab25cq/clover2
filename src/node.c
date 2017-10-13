@@ -1510,6 +1510,7 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
 
     append_opecode_to_code(info->code, OP_COND_JUMP, info->no_output);
     append_int_value_to_code(info->code, sizeof(int)*5, info->no_output);
+
     info->stack_num--;
 
     append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);

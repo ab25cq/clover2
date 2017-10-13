@@ -52,6 +52,20 @@ void call_show_value_in_jit(Value* value)
     Value* result = Builder.CreateCall(show_number, params2);
 }
 
+void call_show_value_in_jit2(LVALUE* llvm_value)
+{
+    Function* show_number = TheModule->getFunction("show_number_in_jit");
+
+    LVALUE llvm_value2;
+    llvm_value2 = trunc_value(llvm_value, 64);
+
+    std::vector<Value*> params2;
+    Value* param1 = llvm_value2.value;
+    params2.push_back(param1);
+
+    Value* result = Builder.CreateCall(show_number, params2);
+}
+
 void call_show_str_in_jit(Value* value)
 {
     Function* show_str = TheModule->getFunction("show_str_in_jit");
@@ -93,34 +107,47 @@ void call_show_inst_in_jit(int opecode)
     Value* result = Builder.CreateCall(show_inst, params2);
 }
 
-void call_show_stack(std::map<std::string, Value *> params)
+void show_llvm_stack(LVALUE* llvm_stack, LVALUE* llvm_stack_ptr, int var_num, std::map<std::string, Value*>& params, BasicBlock* current_block)
 {
-    Function* show_stack_fun = TheModule->getFunction("show_stack_in_jit");
+    /// var ///
+    int i;
+    for(i=0; i<var_num; i++) {
+        LVALUE llvm_value;
+        get_llvm_value_from_lvar_with_offset(&llvm_value, llvm_stack, i);
 
-    std::vector<Value*> params2;
+        Function* fun = TheModule->getFunction("show_number_in_jit");
 
-    std::string stack_ptr_address_name("stack_ptr_address");
-    Value* stack_ptr_address_value = params[stack_ptr_address_name];
-    Value* param1 = stack_ptr_address_value;
-    params2.push_back(param1);
+        std::vector<Value*> params2;
+        Value* param1 = llvm_value.value;
+        params2.push_back(param1);
 
-    std::string stack_name("stack");
-    Value* stack_value = params[stack_name];
-    Value* param2 = stack_value;
-    params2.push_back(param2);
+        Value* result = Builder.CreateCall(fun, params2);
+    }
 
-    std::string var_num_value_name("var_num");
-    Value* param3 = params[var_num_value_name];
-    params2.push_back(param3);
+    /// stack ///
+    int stack_num = llvm_stack_ptr - llvm_stack - var_num;
 
-    std::string info_value_name("info");
-    Value* param4 = params[info_value_name];
-    params2.push_back(param4);
+    char buf[128];
+    snprintf(buf, 128, "stack num %d", stack_num);
 
-    Value* result = Builder.CreateCall(show_stack_fun, params2);
+    call_show_str_in_jit(llvm_create_string(buf));
+
+/*
+    for(i=0; i<stack_num; i++) {
+        LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1-i);
+
+        Function* fun = TheModule->getFunction("show_number_in_jit2");
+
+        LVALUE llvm_value2;
+        llvm_value2 = trunc_value(llvm_value, 32);
+
+        std::vector<Value*> params2;
+        Value* param1 = llvm_value2.value;
+        params2.push_back(param1);
+
+        Value* result = Builder.CreateCall(fun, params2);
+    }
+*/
 }
-
-
-
 
 }

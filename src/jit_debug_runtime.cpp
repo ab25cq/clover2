@@ -8,6 +8,11 @@ void show_number_in_jit(clint64 number)
     printf("%ld(%p)\n", number, number);
 }
 
+void show_number_in_jit2(int number)
+{
+    printf("%d\n", number);
+}
+
 void show_inst_in_jit(int opecode)
 {
     switch(opecode) {
@@ -1066,24 +1071,6 @@ void show_stack_stat(CLVALUE** stack_ptr, CLVALUE* stack)
     printf("stack_ptr %p\n", *stack_ptr);
     printf("stack %p\n", *stack);
     printf("stack_ptr - stack %d\n", (int)((*stack_ptr) - stack));
-}
-
-BOOL show_stack_in_jit(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info)
-{
-    printf("var_num %d\n", var_num);
-    //show_stack_stat(stack_ptr, stack);
-
-    int i;
-    for(i=0; i<10; i++) {
-        if(*stack_ptr == stack + i) {
-            printf("! stack [%d] %d(%lld) on %p\n", i, stack[i].mIntValue, stack[i].mULongValue, stack + i);
-        }
-        else {
-            printf("  stack [%d] %d(%lld) on %p\n", i, stack[i].mIntValue, stack[i].mULongValue, stack + i);
-        }
-    }
-
-    return TRUE;
 }
 
 void show_str_in_jit(char* str)

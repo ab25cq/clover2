@@ -284,6 +284,17 @@ void create_internal_functions()
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "show_number_in_jit", TheModule);
 
+    /// show_number_in_jit2 ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "show_number_in_jit2", TheModule);
+
     /// show_str_in_jit ///
     type_params.clear();
     
@@ -305,26 +316,6 @@ void create_internal_functions()
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "show_stack_stat", TheModule);
-
-    /// show_stack_in_jit ///
-    type_params.clear();
-    
-    result_type = IntegerType::get(TheContext, 32);
-
-    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
-    type_params.push_back(param1_type);
-
-    param2_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
-    type_params.push_back(param2_type);
-
-    param3_type = IntegerType::get(TheContext, 32);
-    type_params.push_back(param3_type);
-
-    param4_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
-    type_params.push_back(param4_type);
-
-    function_type = FunctionType::get(result_type, type_params, false);
-    Function::Create(function_type, Function::ExternalLinkage, "show_stack_in_jit", TheModule);
 
     /// call_invoke_method ///
     type_params.clear();

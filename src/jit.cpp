@@ -115,6 +115,7 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
         llvm_stack[i].constant_int_value = FALSE;
         llvm_stack[i].constant_float_value = FALSE;
         llvm_stack[i].float_value = FALSE;
+        llvm_stack[i].kind = kLVKindNone;
 
         store_llvm_value_to_lvar_with_offset(llvm_stack, i, &llvm_value);
     }
@@ -157,13 +158,11 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
         unsigned int inst = *(unsigned int*)pc;
         pc+=sizeof(int);
 
-/*
 if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
     if(strcmp(METHOD_NAME2(klass, method), "initialize") != 0 && strcmp(METHOD_NAME2(klass, method), "finalize") != 0) {
 call_show_inst_in_jit(inst);
     }
 }
-*/
 
         switch(inst) {
             case OP_POP:
@@ -510,13 +509,13 @@ call_show_inst_in_jit(inst);
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
                 LVALUE llvm_value;
-                //llvm_value.value = value_for_andand_oror[num_value_for_andand_oror];
                 llvm_value.value = Builder.CreateLoad(value_for_andand_oror[num_value_for_andand_oror], "value_for_andand_oror");
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
                 llvm_value.float_value = FALSE;
+                llvm_value.kind = kLVKindMemory;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -599,6 +598,7 @@ call_show_inst_in_jit(inst);
                 llvm_value.constant_int_value = FALSE;
                 llvm_value.constant_float_value = FALSE;
                 llvm_value.float_value = FALSE;
+                llvm_value.kind = kLVKindMemory;
 
                 trunc_variable(&llvm_value, size);
 
@@ -658,16 +658,9 @@ call_show_inst_in_jit(inst);
                 break;
         }
 
-/*
-if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT && strcmp(METHOD_NAME2(klass, method), "initialize") != 0 && strcmp(METHOD_NAME2(klass, method), "finalize") != 0) {
-    LVALUE* p = llvm_stack;
-
-    while(p < llvm_stack_ptr) {
-        call_show_value_in_jit(p->value);
-        p++;
-    }
+if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT && inst != OP_RETURN && inst != OP_THROW) {
+show_llvm_stack(llvm_stack, llvm_stack_ptr, var_num, params, current_block);
 }
-*/
     }
 
     // Finish off the function.

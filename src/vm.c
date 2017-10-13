@@ -436,6 +436,7 @@ void new_vm_mutex()
 
 BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info)
 {
+printf("invoke_method %s.%s\n", CLASS_NAME(klass), METHOD_NAME2(klass, method));
     sCLClass* running_class = info->running_class;
     sCLMethod* running_method = info->running_method;
 

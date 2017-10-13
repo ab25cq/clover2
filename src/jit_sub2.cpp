@@ -78,16 +78,7 @@ void get_llvm_value_from_lvar_with_offset(LVALUE* result, LVALUE* llvm_stack, in
 {
     LVALUE* llvm_value = llvm_stack + index;
 
-
-
-
-
     result->value = Builder.CreateLoad(llvm_value->value, "lvar"); // load from allocated value
-
-
-
-
-
 
     result->lvar_address_index = llvm_value->lvar_address_index;
     result->lvar_stored = llvm_value->lvar_stored;
@@ -230,6 +221,10 @@ void llvm_stack_to_vm_stack(LVALUE* llvm_stack_ptr, std::map<std::string, Value*
     int i;
     for(i=0; i<num; i++) {
         LVALUE* llvm_value = llvm_stack_ptr + i - num;
+
+call_show_number_in_jit(i);
+call_show_value_in_jit(llvm_value->value);
+
         push_value_to_vm_stack_ptr_with_aligned(params, current_block, llvm_value);
     }
 }

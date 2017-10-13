@@ -1069,10 +1069,10 @@ call_invoke_virtual_method	src/jit_runtime.cpp	/^BOOL call_invoke_virtual_method
 call_normal_method	src/node.c	/^static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType* object_type, sNodeType* generics_types, sCLClass* klass, sNodeType* param_types[PARAMS_MAX], int num_params, char* method_name, unsigned int params[PARAMS_MAX], int num_method_chains, int max_method_chains)$/;"	f	file:
 call_show_inst_in_jit	src/jit_debug.cpp	/^void call_show_inst_in_jit(int opecode)$/;"	f
 call_show_number_in_jit	src/jit_debug.cpp	/^void call_show_number_in_jit(clint64 number)$/;"	f
-call_show_stack	src/jit_debug.cpp	/^void call_show_stack(std::map<std::string, Value *> params)$/;"	f
 call_show_stack_stat	src/jit_debug.cpp	/^void call_show_stack_stat(std::map<std::string, Value *> params)$/;"	f
 call_show_str_in_jit	src/jit_debug.cpp	/^void call_show_str_in_jit(Value* value)$/;"	f
 call_show_value_in_jit	src/jit_debug.cpp	/^void call_show_value_in_jit(Value* value)$/;"	f
+call_show_value_in_jit2	src/jit_debug.cpp	/^void call_show_value_in_jit2(LVALUE* llvm_value)$/;"	f
 cast_llvm_value_from_inst	src/jit_sub.cpp	/^void cast_llvm_value_from_inst(LVALUE* llvm_value, int inst) $/;"	f
 cast_right_type_to_Array	src/cast.c	/^void cast_right_type_to_Array(sNodeType** right_type, sCompileInfo* info)$/;"	f
 cast_right_type_to_Bool	src/cast.c	/^void cast_right_type_to_Bool(sNodeType** right_type, sCompileInfo* info)$/;"	f
@@ -2230,12 +2230,13 @@ sharedstatedir	Makefile	/^sharedstatedir=${prefix}\/com$/;"	m
 show_exception_message	src/exception.c	/^void show_exception_message(char* message)$/;"	f
 show_inst	src/vm.c	/^static void show_inst(unsigned inst)$/;"	f	file:
 show_inst_in_jit	src/jit_debug_runtime.cpp	/^void show_inst_in_jit(int opecode)$/;"	f
+show_llvm_stack	src/jit_debug.cpp	/^void show_llvm_stack(LVALUE* llvm_stack, LVALUE* llvm_stack_ptr, int var_num, std::map<std::string, Value*>& params, BasicBlock* current_block)$/;"	f
 show_method_parametor_address	src/jit_runtime2.cpp	/^void show_method_parametor_address(CLVALUE* stack_ptr, CLVALUE* lvar, sVMInfo* info, CLVALUE* stack, CLVALUE** stack_ptr_address, int var_num, sConst* constant, sByteCode* code)$/;"	f
 show_node	src/node.c	/^void show_node(unsigned int node)$/;"	f
 show_number_in_jit	src/jit_debug_runtime.cpp	/^void show_number_in_jit(clint64 number)$/;"	f
+show_number_in_jit2	src/jit_debug_runtime.cpp	/^void show_number_in_jit2(int number)$/;"	f
 show_stack	src/vm.c	/^void show_stack(CLVALUE* stack, CLVALUE* stack_ptr, CLVALUE* lvar, int var_num)$/;"	f
 show_stack_for_llvm_stack	src/jit_debug.cpp	/^void show_stack_for_llvm_stack(LVALUE* llvm_stack, LVALUE* llvm_stack_ptr, int var_num)$/;"	f
-show_stack_in_jit	src/jit_debug_runtime.cpp	/^BOOL show_stack_in_jit(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info)$/;"	f
 show_stack_stat	src/jit_debug_runtime.cpp	/^void show_stack_stat(CLVALUE** stack_ptr, CLVALUE* stack)$/;"	f
 show_str_in_jit	src/jit_debug_runtime.cpp	/^void show_str_in_jit(char* str)$/;"	f
 show_vtable	src/vtable.c	/^void show_vtable(sVarTable* table)$/;"	f

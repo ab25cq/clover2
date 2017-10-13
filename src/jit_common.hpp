@@ -73,6 +73,8 @@ inline void create_method_path_for_jit(sCLClass* klass, sCLMethod* method, char*
     snprintf(result, size_result, "%s.%s$$%d", CLASS_NAME(klass), METHOD_NAME_AND_PARAMS(klass, method), method->mMethodIndex);
 }
 
+enum eLVALUEKind { kLVKindNone, kLVKindInt1, kLVKindInt8, kLVKindUInt8, kLVLAUEInt16, kLVKindUInt16, kLVKindInt32, kLVKindUInt32, kLVKindInt64, kLVKindUInt64, kLVKindMemory };
+
 struct LVALUEStruct {
     Value* value;
     int lvar_address_index;
@@ -80,6 +82,7 @@ struct LVALUEStruct {
     BOOL constant_int_value;
     BOOL constant_float_value;
     BOOL float_value;
+    enum eLVALUEKind kind;
 };
 
 void InitializeModuleAndPassManager(char* class_name);
@@ -127,15 +130,15 @@ void show_stack_for_llvm_stack(LVALUE* llvm_stack, LVALUE* llvm_stack_ptr, int v
 void show_number_in_jit(clint64 number);
 void call_show_number_in_jit(clint64 number);
 void call_show_value_in_jit(Value* value);
+void call_show_value_in_jit2(LVALUE* llvm_value);
 void show_str_in_jit(char* str);
 void call_show_str_in_jit(Value* value);
 void call_show_stack_stat(std::map<std::string, Value *> params);
 void call_show_inst_in_jit(int opecode);
-void call_show_stack(std::map<std::string, Value *> params);
 void show_stack_for_llvm_stack(LVALUE* llvm_stack, LVALUE* llvm_stack_ptr, int var_num);
 void show_stack_stat(CLVALUE** stack_ptr, CLVALUE* stack);
-BOOL show_stack_in_jit(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info);
 void show_inst_in_jit(int opecode);
+void show_llvm_stack(LVALUE* llvm_stack, LVALUE* llvm_stack_ptr, int var_num, std::map<std::string, Value*>& params, BasicBlock* current_block);
 
 /// jit_sub.cpp ///
 LVALUE trunc_value(LVALUE* llvm_value, int size);

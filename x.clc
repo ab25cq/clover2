@@ -11,17 +11,13 @@ class ClassToStringTest
     }
 
     def toString(): String {
-        if(self.head == 0) {
-            return "Null list";
-        }
-        else {
-            result:String = "";
+        result:String = "";
 
-            xxx := self.number.toString;
-            #result.append(self.number.toString);
-            result.append(" length list of ");
-            return result;
-        }
+        #xxx := self.number.toString;
+        #result.append(xxx);
+        result.append(self.number.toString);
+        result.append(" length list of ");
+        return result;
     }
 
 }
