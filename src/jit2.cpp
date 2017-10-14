@@ -366,46 +366,54 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             }
             break;
 
-        case OP_UBADD: 
-        case OP_USADD:
-        case OP_UIADD:
-        case OP_ULADD: 
+        case OP_UIADD: {
+            LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -2);
+            LVALUE* rvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            lvalue = trunc_value(lvalue, 32);
+            rvalue = trunc_value(rvalue, 32);
+
+            LVALUE llvm_value;
+            llvm_value.value  = Builder.CreateAdd(lvalue->value, rvalue->value, "usaddtmp", false, true);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindUInt32;
+
+            dec_stack_ptr(llvm_stack_ptr, 2);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_ULADD: {
+            LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -2);
+            LVALUE* rvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            lvalue = trunc_value(lvalue, 64);
+            rvalue = trunc_value(rvalue, 64);
+
+            LVALUE llvm_value;
+            llvm_value.value  = Builder.CreateAdd(lvalue->value, rvalue->value, "usaddtmp", false, true);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindUInt64;
+
+            dec_stack_ptr(llvm_stack_ptr, 2);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
         case OP_CADD: {
             LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -2);
             LVALUE* rvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
-            trunc_value_from_inst(lvalue, inst);
-            trunc_value_from_inst(rvalue, inst);
+            lvalue = trunc_value(lvalue, 32);
+            rvalue = trunc_value(rvalue, 32);
 
             LVALUE llvm_value;
-            llvm_value.value  = Builder.CreateAdd(lvalue->value, rvalue->value, "addtmp", false, true);
+            llvm_value.value  = Builder.CreateAdd(lvalue->value, rvalue->value, "usaddtmp", false, true);
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
-            llvm_value.constant_int_value = FALSE;
-            llvm_value.constant_float_value = FALSE;
-            llvm_value.float_value = FALSE;
-
-            switch(inst) {
-                case OP_UBADD:
-                    llvm_value.kind = kLVKindUInt8;
-                    break;
-
-                case OP_USADD:
-                    llvm_value.kind = kLVKindUInt16;
-                    break;
-
-                case OP_UIADD: 
-                    llvm_value.kind = kLVKindUInt32;
-                    break;
-
-                case OP_ULADD:
-                    llvm_value.kind = kLVKindUInt64;
-                    break;
-
-                case OP_CADD:
-                    llvm_value.kind = kLVKindUInt32;
-                    break;
-            }
+            llvm_value.kind = kLVKindUInt32;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -416,7 +424,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -2);
             LVALUE* rvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
-            trunc_value_from_inst(lvalue, inst);
+            *lvalue = trunc_value_to_pointer(lvalue);
 
             LVALUE rvalue2;
             rvalue2 = trunc_value(rvalue, 64);
@@ -425,52 +433,79 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.value = Builder.CreateGEP(lvalue->value, rvalue2.value, "addtmp");
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
-            llvm_value.constant_int_value = FALSE;
-            llvm_value.constant_float_value = FALSE;
-            llvm_value.float_value = FALSE;
             llvm_value.kind = kLVKindAddress;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
             }
             break;
-            break;
 
-        case OP_BSUB:
-        case OP_SSUB:
-        case OP_ISUB:
-        case OP_LSUB: {
+        case OP_BSUB: {
             LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -2);
             LVALUE* rvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
-            trunc_value_from_inst(lvalue, inst);
-            trunc_value_from_inst(rvalue, inst);
+            lvalue = trunc_value(lvalue, 8);
+            rvalue = trunc_value(rvalue, 8);
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", true, false);
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
-            llvm_value.constant_int_value = FALSE;
-            llvm_value.constant_float_value = FALSE;
-            llvm_value.float_value = FALSE;
+            llvm_value.kind = kLVKindInt8;
 
-            switch(inst) {
-                case OP_BSUB:
-                    llvm_value.kind = kLVKindInt8;
-                    break;
-
-                case OP_SSUB:
-                    llvm_value.kind = kLVKindInt16;
-                    break;
-
-                case OP_ISUB: 
-                    llvm_value.kind = kLVKindInt32;
-                    break;
-
-                case OP_LSUB:
-                    llvm_value.kind = kLVKindInt64;
-                    break;
+            dec_stack_ptr(llvm_stack_ptr, 2);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
             }
+            break;
+
+        case OP_SSUB:
+            LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -2);
+            LVALUE* rvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            lvalue = trunc_value(lvalue, 16);
+            rvalue = trunc_value(rvalue, 16);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", true, false);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt16;
+
+            dec_stack_ptr(llvm_stack_ptr, 2);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_ISUB:
+            LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -2);
+            LVALUE* rvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            lvalue = trunc_value(lvalue, 32);
+            rvalue = trunc_value(rvalue, 32);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", true, false);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt32;
+
+            dec_stack_ptr(llvm_stack_ptr, 2);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_LSUB: {
+            LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -2);
+            LVALUE* rvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            lvalue = trunc_value(lvalue, 64);
+            rvalue = trunc_value(rvalue, 64);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", true, false);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt64;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -528,95 +563,204 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             }
             break;
 
-        case OP_UBSUB: 
-        case OP_USSUB:
-        case OP_UISUB:
-        case OP_ULSUB: 
-        case OP_CSUB: {
+        case OP_UBSUB: {
             LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -2);
             LVALUE* rvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
-            trunc_value_from_inst(lvalue, inst);
-            trunc_value_from_inst(rvalue, inst);
+            *lvalue = trunc_value(lvalue, 8);
+            *rvalue = trunc_value(rvalue, 8);
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", false, true);
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
-            llvm_value.constant_int_value = FALSE;
-            llvm_value.constant_float_value = FALSE;
-            llvm_value.float_value = FALSE;
-
-            switch(inst) {
-                case OP_UBSUB: 
-                    llvm_value.kind = kLVKindUInt8;
-                    break;
-
-                case OP_USSUB:
-                    llvm_value.kind = kLVKindUInt16;
-                    break;
-
-                case OP_UISUB:
-                    llvm_value.kind = kLVKindUInt32;
-                    break;
-
-                case OP_ULSUB: 
-                    llvm_value.kind = kLVKindUInt64;
-                    break;
-
-                case OP_CSUB:
-                    llvm_value.kind = kLVKindUInt32;
-                    break;
-            }
+            llvm_value.kind = kLVKindUInt8;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
             }
             break;
 
-        case OP_BMULT:
-        case OP_SMULT:
-        case OP_IMULT: 
-        case OP_LMULT: {
+        case OP_USSUB: {
             LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -2);
             LVALUE* rvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
-            trunc_value_from_inst(lvalue, inst);
-            trunc_value_from_inst(rvalue, inst);
+            *lvalue = trunc_value(lvalue, 16);
+            *rvalue = trunc_value(rvalue, 16);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", false, true);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindUInt16;
+
+            dec_stack_ptr(llvm_stack_ptr, 2);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_UISUB: {
+            LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -2);
+            LVALUE* rvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            *lvalue = trunc_value(lvalue, 32);
+            *rvalue = trunc_value(rvalue, 32);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", false, true);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindUInt32;
+
+            dec_stack_ptr(llvm_stack_ptr, 2);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_ULSUB: {
+            LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -2);
+            LVALUE* rvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            *lvalue = trunc_value(lvalue, 64);
+            *rvalue = trunc_value(rvalue, 64);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", false, true);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindUInt64;
+
+            dec_stack_ptr(llvm_stack_ptr, 2);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CSUB: {
+            LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -2);
+            LVALUE* rvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            *lvalue = trunc_value(lvalue, 32);
+            *rvalue = trunc_value(rvalue, 32);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", false, true);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindUInt32;
+
+            dec_stack_ptr(llvm_stack_ptr, 2);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_BMULT: {
+            LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -2);
+            LVALUE* rvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            *lvalue = trunc_value(lvalue, 8);
+            *rvalue = trunc_value(rvalue, 8);
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateMul(lvalue->value, rvalue->value, "multmp", true, false);
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
-            llvm_value.constant_int_value = FALSE;
-            llvm_value.constant_float_value = FALSE;
-            llvm_value.float_value = FALSE;
-
-            switch(inst) {
-                case OP_BMULT: 
-                    llvm_value.kind = kLVKindInt8;
-                    break;
-
-                case OP_SMULT:
-                    llvm_value.kind = kLVKindInt16;
-                    break;
-
-                case OP_IMULT:
-                    llvm_value.kind = kLVKindInt32;
-                    break;
-
-                case OP_LMULT: 
-                    llvm_value.kind = kLVKindInt64;
-                    break;
-            }
+            llvm_value.kind = kLVKindInt8;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
             }
             break;
 
-        case OP_UBMULT: 
-        case OP_USMULT:
+        case OP_SMULT: {
+            LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -2);
+            LVALUE* rvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            *lvalue = trunc_value(lvalue, 16);
+            *rvalue = trunc_value(rvalue, 16);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateMul(lvalue->value, rvalue->value, "multmp", true, false);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt16;
+
+            dec_stack_ptr(llvm_stack_ptr, 2);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_IMULT: {
+            LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -2);
+            LVALUE* rvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            *lvalue = trunc_value(lvalue, 32);
+            *rvalue = trunc_value(rvalue, 32);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateMul(lvalue->value, rvalue->value, "multmp", true, false);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt32;
+
+            dec_stack_ptr(llvm_stack_ptr, 2);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_LMULT: {
+            LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -2);
+            LVALUE* rvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            *lvalue = trunc_value(lvalue, 64);
+            *rvalue = trunc_value(rvalue, 64);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateMul(lvalue->value, rvalue->value, "multmp", true, false);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt64;
+
+            dec_stack_ptr(llvm_stack_ptr, 2);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_UBMULT: {
+            LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -2);
+            LVALUE* rvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            *lvalue = trunc_value(lvalue, 8);
+            *rvalue = trunc_value(rvalue, 8);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateMul(lvalue->value, rvalue->value, "multmp", false, true);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt8;
+
+            dec_stack_ptr(llvm_stack_ptr, 2);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_USMULT: {
+            LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -2);
+            LVALUE* rvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            *lvalue = trunc_value(lvalue, 16);
+            *rvalue = trunc_value(rvalue, 16);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateMul(lvalue->value, rvalue->value, "multmp", false, true);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt16;
+
+            dec_stack_ptr(llvm_stack_ptr, 2);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
         case OP_UIMULT:
         case OP_ULMULT: {
             LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -2);
