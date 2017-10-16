@@ -272,18 +272,6 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* result = Builder.CreateCall(fun, params2);
 
             finish_method_call(result, params, current_block, *function, try_catch_label_name, code, num_real_params-1, var_num, llvm_stack, *llvm_stack_ptr);
-            
-/*
-            /// the pointer of lvar syncs to llvm stack ///
-            int i;
-            for(i=0; i<num_real_params-1; i++) {
-                LVALUE* llvm_value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -i-1);
-                if(llvm_value->lvar_address_index != -1) {
-                    LVALUE llvm_value_of_vm_stack = get_stack_value_from_index_with_aligned(params, *current_block, llvm_value->lvar_address_index, 8);
-                    store_llvm_value_to_lvar_with_offset(llvm_stack, llvm_value->lvar_address_index, &llvm_value_of_vm_stack);
-                }
-            }
-*/
 
             /// VM stack to llvm stack ///
             vm_lvar_to_llvm_lvar(llvm_stack, params, *current_block, var_num);
@@ -419,9 +407,7 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
                 llvm_value.value = value;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
-                llvm_value.constant_int_value = FALSE;
-                llvm_value.constant_float_value = FALSE;
-                llvm_value.float_value = FALSE;
+                llvm_value.kind = kLVKindInt32;
 
                 dec_stack_ptr(llvm_stack_ptr, 1);
                 push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -451,9 +437,7 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
                 llvm_value.value = value;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
-                llvm_value.constant_int_value = FALSE;
-                llvm_value.constant_float_value = FALSE;
-                llvm_value.float_value = FALSE;
+                llvm_value.kind = kLVKindInt32;
 
                 push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
 
@@ -583,9 +567,7 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.value = result1;
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
-            llvm_value.constant_int_value = FALSE;
-            llvm_value.constant_float_value = FALSE;
-            llvm_value.float_value = FALSE;
+            llvm_value.kind = kLVKindPointer8;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -625,19 +607,11 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* param5 = obj2.value;
             params2.push_back(param5);
 
-
-
-
-
             LVALUE value2;
             value2 = trunc_value(value, 64);
 
             Value* param6 = value2.value;
             params2.push_back(param6);
-
-
-
-
 
             Value* param7 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)field_index);
             params2.push_back(param7);
@@ -701,9 +675,7 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.value = result1;
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
-            llvm_value.constant_int_value = FALSE;
-            llvm_value.constant_float_value = FALSE;
-            llvm_value.float_value = FALSE;
+            llvm_value.kind = kLVKindInt64;
 
             trunc_variable(&llvm_value, size);
 
@@ -761,9 +733,7 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.value = result1;
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
-            llvm_value.constant_int_value = FALSE;
-            llvm_value.constant_float_value = FALSE;
-            llvm_value.float_value = FALSE;
+            llvm_value.kind = kLVKindPointer8;
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
             }

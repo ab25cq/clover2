@@ -1,7 +1,5 @@
-JIT de list { 1, 2, 3 }.toString().println(); ga segmentation fault
+JITでlist { 1, 2, 3 }.toString().println(); がセグメントフォルトする。
 
-list { 1, 2, 3 }.[TAB] de hokann ga dekinai
+delegateを作る。
 
-delegate wo tukuru
-
-
+trunc_valueをLLVM kindに対応する。
