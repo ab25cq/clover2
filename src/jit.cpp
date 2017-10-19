@@ -627,7 +627,7 @@ call_show_inst_in_jit(inst);
                 {
                     return FALSE;
                 }
-                if(!compile_to_native_code11(code, constant, klass, method, method_path2, inst, &pc, &llvm_stack_ptr, llvm_stack, params, &current_block, &function, var_num, &try_catch_label_name))
+                if(!compile_to_native_code6(code, constant, klass, method, method_path2, inst, &pc, &llvm_stack_ptr, llvm_stack, params, &current_block, &function, var_num, &try_catch_label_name))
                 {
                     return FALSE;
                 }
