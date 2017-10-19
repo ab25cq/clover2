@@ -120,9 +120,7 @@ BOOL compile_to_native_code5(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.value = Builder.CreateAlignedLoad(address->value, 4, "llvm_value");
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
-            llvm_value.constant_int_value = FALSE;
-            llvm_value.constant_float_value = FALSE;
-            llvm_value.float_value = FALSE;
+            llvm_value.kind = kLVKindInt32;
             
             llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt32Ty(TheContext));
 
@@ -145,9 +143,7 @@ BOOL compile_to_native_code5(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.value = Builder.CreateAlignedLoad(address->value, 4, "llvm_value");
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
-            llvm_value.constant_int_value = FALSE;
-            llvm_value.constant_float_value = FALSE;
-            llvm_value.float_value = FALSE;
+            llvm_value.kind = kLVKindInt32;
             
             llvm_value.value = Builder.CreateCast(Instruction::BitCast, llvm_value.value, Type::getFloatTy(TheContext));
             //llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getFloatTy(TheContext));
@@ -172,9 +168,7 @@ BOOL compile_to_native_code5(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.value = Builder.CreateAlignedLoad(address->value, 1, "llvm_value");
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
-            llvm_value.constant_int_value = FALSE;
-            llvm_value.constant_float_value = FALSE;
-            llvm_value.float_value = FALSE;
+            llvm_value.kind = kLVKindInt8;
 
             llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt8Ty(TheContext));
 
@@ -198,9 +192,7 @@ BOOL compile_to_native_code5(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.value = Builder.CreateAlignedLoad(address->value, 2, "llvm_value");
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
-            llvm_value.constant_int_value = FALSE;
-            llvm_value.constant_float_value = FALSE;
-            llvm_value.float_value = FALSE;
+            llvm_value.kind = kLVKindInt16;
 
             llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt16Ty(TheContext));
 
@@ -224,9 +216,7 @@ BOOL compile_to_native_code5(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.value = Builder.CreateAlignedLoad(address->value, 8, "llvm_value");
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
-            llvm_value.constant_int_value = FALSE;
-            llvm_value.constant_float_value = FALSE;
-            llvm_value.float_value = FALSE;
+            llvm_value.kind = kLVKindInt64;
 
             llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt64Ty(TheContext));
 
@@ -249,9 +239,7 @@ BOOL compile_to_native_code5(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.value = Builder.CreateAlignedLoad(address->value, 8, "llvm_value");
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
-            llvm_value.constant_int_value = FALSE;
-            llvm_value.constant_float_value = FALSE;
-            llvm_value.float_value = FALSE;
+            llvm_value.kind = kLVKindPointer8;
 
             llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, PointerType::get(IntegerType::get(TheContext, 8), 0));
 
@@ -274,9 +262,7 @@ BOOL compile_to_native_code5(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.value = Builder.CreateAlignedLoad(address->value, 8, "llvm_value");
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
-            llvm_value.constant_int_value = FALSE;
-            llvm_value.constant_float_value = FALSE;
-            llvm_value.float_value = FALSE;
+            llvm_value.kind = kLVKindPointerDouble;
 
             llvm_value.value = Builder.CreateCast(Instruction::BitCast, llvm_value.value, Type::getDoubleTy(TheContext));
 
@@ -326,7 +312,7 @@ BOOL compile_to_native_code5(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* result = Builder.CreateCall(fun, params2);
 
             Value* result1 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 0);
-            result1 = Builder.CreateAlignedLoad(result1,  8, "YYY");
+            result1 = Builder.CreateAlignedLoad(result1,  8);
             Value* result2 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 1);
             result2  = Builder.CreateAlignedLoad(result2,  4);
 
@@ -338,9 +324,7 @@ BOOL compile_to_native_code5(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.value = result1;
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
-            llvm_value.constant_int_value = FALSE;
-            llvm_value.constant_float_value = FALSE;
-            llvm_value.float_value = FALSE;
+            llvm_value.kind = kLVKindInt64;
 
             trunc_variable(&llvm_value, size);
 
