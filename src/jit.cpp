@@ -93,9 +93,7 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
 
         llvm_stack[i].lvar_address_index = -1;
         llvm_stack[i].lvar_stored = FALSE;
-        llvm_stack[i].constant_int_value = FALSE;
-        llvm_stack[i].constant_float_value = FALSE;
-        llvm_stack[i].float_value = FALSE;
+        llvm_stack[i].kind = kLVKindMemory;
     }
 
     /// parametor from VM stack ptr ///
@@ -112,10 +110,7 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
         llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(64, 0, true));
         llvm_stack[i].lvar_address_index = -1;
         llvm_stack[i].lvar_stored = FALSE;
-        llvm_stack[i].constant_int_value = FALSE;
-        llvm_stack[i].constant_float_value = FALSE;
-        llvm_stack[i].float_value = FALSE;
-        llvm_stack[i].kind = kLVKindNone;
+        llvm_stack[i].kind = kLVKindInt64;
 
         store_llvm_value_to_lvar_with_offset(llvm_stack, i, &llvm_value);
     }
@@ -512,9 +507,6 @@ call_show_inst_in_jit(inst);
                 llvm_value.value = Builder.CreateLoad(value_for_andand_oror[num_value_for_andand_oror], "value_for_andand_oror");
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
-                llvm_value.constant_int_value = FALSE;
-                llvm_value.constant_float_value = FALSE;
-                llvm_value.float_value = FALSE;
                 llvm_value.kind = kLVKindMemory;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
@@ -595,9 +587,6 @@ call_show_inst_in_jit(inst);
                 llvm_value.value = Builder.CreateAlignedLoad(dec_ptr_value, 8, "value");
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
-                llvm_value.constant_int_value = FALSE;
-                llvm_value.constant_float_value = FALSE;
-                llvm_value.float_value = FALSE;
                 llvm_value.kind = kLVKindMemory;
 
                 trunc_variable(&llvm_value, size);

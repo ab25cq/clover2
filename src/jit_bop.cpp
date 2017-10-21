@@ -214,7 +214,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, PointerType::get(IntegerType::get(TheContext, 64), 0));
 
-            llvm_value.kind = kLVKindPointer;
+            llvm_value.kind = kLVKindPointer64;
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
             }
@@ -260,8 +260,8 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -2);
             LVALUE* rvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
-            lvalue = trunc_value(lvalue, 8);
-            rvalue = trunc_value(rvalue, 8);
+            *lvalue = trunc_value(lvalue, 8);
+            *rvalue = trunc_value(rvalue, 8);
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateAdd(lvalue->value, rvalue->value, "baddtmp", true, false);
@@ -273,15 +273,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
             }
             break;
-            }
-            break;
 
-        case OP_SADD:
+        case OP_SADD: {
             LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -2);
             LVALUE* rvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
-            lvalue = trunc_value(lvalue, 16);
-            rvalue = trunc_value(rvalue, 16);
+            *lvalue = trunc_value(lvalue, 16);
+            *rvalue = trunc_value(rvalue, 16);
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateAdd(lvalue->value, rvalue->value, "saddtmp", true, false);
@@ -298,8 +296,8 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -2);
             LVALUE* rvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
-            lvalue = trunc_value(lvalue, 32);
-            rvalue = trunc_value(rvalue, 32);
+            *lvalue = trunc_value(lvalue, 32);
+            *rvalue = trunc_value(rvalue, 32);
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateAdd(lvalue->value, rvalue->value, "iaddtmp", true, false);
@@ -316,8 +314,8 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -2);
             LVALUE* rvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
-            lvalue = trunc_value(lvalue, 64);
-            rvalue = trunc_value(rvalue, 64);
+            *lvalue = trunc_value(lvalue, 64);
+            *rvalue = trunc_value(rvalue, 64);
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateAdd(lvalue->value, rvalue->value, "laddtmp", true, false);
@@ -458,7 +456,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             }
             break;
 
-        case OP_SSUB:
+        case OP_SSUB: {
             LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -2);
             LVALUE* rvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
@@ -476,7 +474,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             }
             break;
 
-        case OP_ISUB:
+        case OP_ISUB: {
             LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -2);
             LVALUE* rvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
