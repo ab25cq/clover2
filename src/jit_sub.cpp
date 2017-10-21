@@ -11,7 +11,8 @@ LVALUE trunc_value(LVALUE* llvm_value, int size)
     Type::TypeID type_id = llvm_type->getTypeID();
 
     /// Constant Int ///
-    if(llvm_value->constant_int_value) {
+    if(llvm_value->kind == kLVKindConstantInt8 || llvm_value->kind == kLVKindConstantUInt8 || llvm_value->kind == kLVKindConstantInt16 || llvm_value->kind == kLVKindConstantUInt16 || llvm_value->kind == kLVKindConstantInt32 || llvm_value->kind == kLVKindConstantUInt32 || llvm_value->kind == kLVKindConstantInt64 || llvm_value->kind == kLVKindConstantInt64 || llvm_value->kind == kLVKindConstantUInt64) 
+    {
         ConstantInt* constant_int_value = dynamic_cast<ConstantInt*>(llvm_value->value);
         APInt apint_value = constant_int_value->getValue();
 
@@ -65,7 +66,7 @@ LVALUE trunc_value(LVALUE* llvm_value, int size)
                 break;
         }
     }
-    else if(llvm_value->constant_float_value) {
+    else if(llvm_value->kind == kLVKindConstantFloat || llvm_value->kind == kLVKindConstantDouble) {
         ConstantFP* constant_float_value = dynamic_cast<ConstantFP*>(llvm_value->value);
         const APFloat apfloat_value = constant_float_value->getValueAPF();
 
@@ -234,7 +235,8 @@ LVALUE trunc_value_to_float_or_double(LVALUE* llvm_value, int size)
     Type::TypeID type_id = llvm_type->getTypeID();
 
     /// Constant Int ///
-    if(llvm_value->constant_int_value) {
+    if(llvm_value->kind == kLVKindConstantInt8 || llvm_value->kind == kLVKindConstantUInt8 || llvm_value->kind == kLVKindConstantInt16 || llvm_value->kind == kLVKindConstantUInt16 || llvm_value->kind == kLVKindConstantInt32 || llvm_value->kind == kLVKindConstantUInt32 || llvm_value->kind == kLVKindConstantInt64 || llvm_value->kind == kLVKindConstantInt64 || llvm_value->kind == kLVKindConstantUInt64) 
+    {
         ConstantInt* constant_int_value = dynamic_cast<ConstantInt*>(llvm_value->value);
         APInt apint_value = constant_int_value->getValue();
 
@@ -261,7 +263,7 @@ LVALUE trunc_value_to_float_or_double(LVALUE* llvm_value, int size)
                 break;
         }
     }
-    else if(llvm_value->constant_float_value) {
+    else if(llvm_value->kind == kLVKindConstantFloat || llvm_value->kind == kLVKindConstantDouble) {
     }
     /// Memory ///
     else if(type_id == Type::TypeID::FloatTyID) {
@@ -317,7 +319,8 @@ LVALUE trunc_value_to_pointer(LVALUE* llvm_value)
     Type::TypeID type_id = llvm_type->getTypeID();
 
     /// Constant Int ///
-    if(llvm_value->constant_int_value) {
+    if(llvm_value->kind == kLVKindConstantInt8 || llvm_value->kind == kLVKindConstantUInt8 || llvm_value->kind == kLVKindConstantInt16 || llvm_value->kind == kLVKindConstantUInt16 || llvm_value->kind == kLVKindConstantInt32 || llvm_value->kind == kLVKindConstantUInt32 || llvm_value->kind == kLVKindConstantInt64 || llvm_value->kind == kLVKindConstantInt64 || llvm_value->kind == kLVKindConstantUInt64) 
+    {
         ConstantInt* constant_int_value = dynamic_cast<ConstantInt*>(llvm_value->value);
         APInt apint_value = constant_int_value->getValue();
 
@@ -326,7 +329,7 @@ LVALUE trunc_value_to_pointer(LVALUE* llvm_value)
 
         result.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value->value, PointerType::get(IntegerType::get(TheContext, 8), 0));
     }
-    else if(llvm_value->constant_float_value) {
+    else if(llvm_value->kind == kLVKindConstantFloat || llvm_value->kind == kLVKindConstantDouble) {
         ConstantFP* constant_float_value = dynamic_cast<ConstantFP*>(llvm_value->value);
         const APFloat apfloat_value = constant_float_value->getValueAPF();
 
@@ -948,9 +951,7 @@ void dec_stack_ptr(LVALUE** llvm_stack_ptr, int value)
         (*llvm_stack_ptr)->value = 0;
         (*llvm_stack_ptr)->lvar_address_index = -1;
         (*llvm_stack_ptr)->lvar_stored = FALSE;
-        (*llvm_stack_ptr)->constant_int_value = FALSE;
-        (*llvm_stack_ptr)->constant_float_value = FALSE;
-        (*llvm_stack_ptr)->float_value = FALSE;
+        (*llvm_stack_ptr)->kind = kLVKindNone;
 
         (*llvm_stack_ptr)--;
     }
@@ -958,9 +959,7 @@ void dec_stack_ptr(LVALUE** llvm_stack_ptr, int value)
     (*llvm_stack_ptr)->value = 0;
     (*llvm_stack_ptr)->lvar_address_index = -1;
     (*llvm_stack_ptr)->lvar_stored = FALSE;
-    (*llvm_stack_ptr)->constant_int_value = FALSE;
-    (*llvm_stack_ptr)->constant_float_value = FALSE;
-    (*llvm_stack_ptr)->float_value = FALSE;
+    (*llvm_stack_ptr)->kind = kLVKindNone;
 }
 
 void push_value_to_stack_ptr(LVALUE** llvm_stack_ptr, LVALUE* value)
@@ -989,9 +988,7 @@ void store_llvm_value_to_lvar_with_offset(LVALUE* llvm_stack, int index, LVALUE*
 
     llvm_stack[index].lvar_address_index = llvm_value->lvar_address_index;
     llvm_stack[index].lvar_stored = TRUE;
-    llvm_stack[index].constant_int_value = FALSE;
-    llvm_stack[index].constant_float_value = FALSE;
-    llvm_stack[index].float_value = FALSE;
+    llvm_stack[index].kind = llvm_stack->kind;
 }
 
 void get_llvm_value_from_lvar_with_offset(LVALUE* result, LVALUE* llvm_stack, int index)
@@ -1002,9 +999,7 @@ void get_llvm_value_from_lvar_with_offset(LVALUE* result, LVALUE* llvm_stack, in
 
     result->lvar_address_index = llvm_value->lvar_address_index;
     result->lvar_stored = llvm_value->lvar_stored;
-    result->constant_int_value = FALSE;
-    result->constant_float_value = FALSE;
-    result->float_value = FALSE;
+    result->kind = llvm_value->kind;
 }
 
 LVALUE get_vm_stack_ptr_value_from_index_with_aligned(std::map<std::string, Value*>& params, BasicBlock* current_block, int index, int align)
@@ -1202,27 +1197,6 @@ void store_value_to_lvar_with_offset(std::map<std::string, Value*>& params, Basi
     llvm_value2 = trunc_value(llvm_value, 64);
 
     Builder.CreateAlignedStore(llvm_value2.value, lvar_offset_value, 8);
-}
-
-
-LVALUE get_lvar_value_from_offset(std::map<std::string, Value*>& params, BasicBlock* current_block, int offset)
-{
-    std::string lvar_arg_name("lvar");
-    Value* lvar_value = params[lvar_arg_name];
-
-    Value* lvalue = lvar_value;
-    Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(64, 8*offset, true));
-    Value* offset_lvar = Builder.CreateAdd(lvalue, rvalue, "offset_lvar", true, true);
-
-    LVALUE result;
-    result.value = Builder.CreateAlignedLoad(offset_lvar, 8, "offset_lvar");
-    result.lvar_address_index = -1;
-    result.lvar_stored = TRUE;
-    result.constant_int_value = FALSE;
-    result.constant_float_value = FALSE;
-    result.float_value = FALSE;
-
-    return result;
 }
 
 StructType* get_vm_info_struct_type()

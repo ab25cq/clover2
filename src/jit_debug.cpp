@@ -30,20 +30,12 @@ void call_show_number_in_jit(clint64 number)
     Value* result = Builder.CreateCall(show_number, params2);
 }
 
-void call_show_value_in_jit(Value* value)
+void call_show_value_in_jit(LVALUE* llvm_value)
 {
     Function* show_number = TheModule->getFunction("show_number_in_jit");
 
-    LVALUE llvm_value;
-    llvm_value.value = value;
-    llvm_value.lvar_address_index = -1;
-    llvm_value.lvar_stored = FALSE;
-    llvm_value.constant_int_value = FALSE;
-    llvm_value.constant_float_value = FALSE;
-    llvm_value.float_value = FALSE;
-
     LVALUE llvm_value2;
-    llvm_value2 = trunc_value(&llvm_value, 64);
+    llvm_value2 = trunc_value(llvm_value, 64);
 
     std::vector<Value*> params2;
     Value* param1 = llvm_value2.value;

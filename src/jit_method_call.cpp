@@ -507,9 +507,7 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.value = result1;
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
-            llvm_value.constant_int_value = FALSE;
-            llvm_value.constant_float_value = FALSE;
-            llvm_value.float_value = FALSE;
+            llvm_value.kind = kLVKindInt64;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 

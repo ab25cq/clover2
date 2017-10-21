@@ -1364,7 +1364,6 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindObject;
 
-            llvm_value.float_value = FALSE;
             dec_stack_ptr(llvm_stack_ptr, 1);
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);

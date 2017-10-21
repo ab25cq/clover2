@@ -121,7 +121,7 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
 void show_stack_for_llvm_stack(LVALUE* llvm_stack, LVALUE* llvm_stack_ptr, int var_num);
 void show_number_in_jit(clint64 number);
 void call_show_number_in_jit(clint64 number);
-void call_show_value_in_jit(Value* value);
+void call_show_value_in_jit(LVALUE* llvm_value);
 void call_show_value_in_jit2(LVALUE* llvm_value);
 void show_str_in_jit(char* str);
 void call_show_str_in_jit(Value* value);
@@ -153,7 +153,6 @@ void llvm_stack_to_vm_stack(LVALUE* llvm_stack_ptr, std::map<std::string, Value*
 void if_value_is_zero_ret_zero(Value* value, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block);
 void if_value_is_null_ret_zero(Value* value, int value_bit, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block);
 void store_value_to_lvar_with_offset(std::map<std::string, Value*>& params, BasicBlock* current_block, int index, LVALUE* llvm_value);
-LVALUE get_lvar_value_from_offset(std::map<std::string, Value*>& params, BasicBlock* current_block, int offset);
 StructType* get_vm_info_struct_type();
 AllocaInst* create_entry_block_alloca(Function* function, int index);
 void call_entry_exception_object_with_class_name2(std::map<std::string, Value *> params, char* class_name, char* message);
