@@ -15,8 +15,10 @@ class ClassToStringTest
 
         #xxx := self.number.toString;
         #result.append(xxx);
+        #a:String = self.number.toString;
+        #result.append(a);
         result.append(self.number.toString);
-        result.append(" length list of ");
+        #result.append(" length list of ");
         return result;
     }
 

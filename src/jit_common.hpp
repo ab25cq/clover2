@@ -73,7 +73,7 @@ inline void create_method_path_for_jit(sCLClass* klass, sCLMethod* method, char*
     snprintf(result, size_result, "%s.%s$$%d", CLASS_NAME(klass), METHOD_NAME_AND_PARAMS(klass, method), method->mMethodIndex);
 }
 
-enum eLVALUEKind { kLVKindNone, kLVKindInt1, kLVKindInt8, kLVKindUInt8, kLVKindInt16, kLVKindUInt16, kLVKindInt32, kLVKindUInt32, kLVKindInt64, kLVKindUInt64, kLVKindMemory, kLVKindAddress, kLVKindConstantInt8, kLVKindConstantUInt8, kLVKindConstantInt16, kLVKindConstantUInt16, kLVKindConstantInt32, kLVKindConstantUInt32, kLVKindConstantInt64, kLVKindConstantUInt64, kLVKindConstantFloat, kLVKindConstantDouble, kLVKindFloat, kLVKindDouble, kLVKindPointer8, kLVKindPointer32, kLVKindPointer64, kLVKindPointerDouble, kLVKindObject };
+enum eLVALUEKind { kLVKindNone, kLVKindInt1, kLVKindInt8, kLVKindUInt8, kLVKindInt16, kLVKindUInt16, kLVKindInt32, kLVKindUInt32, kLVKindInt64, kLVKindUInt64, kLVKindMemory, kLVKindAddress, kLVKindConstantInt1, kLVKindConstantInt8, kLVKindConstantUInt8, kLVKindConstantInt16, kLVKindConstantUInt16, kLVKindConstantInt32, kLVKindConstantUInt32, kLVKindConstantInt64, kLVKindConstantUInt64, kLVKindConstantFloat, kLVKindConstantDouble, kLVKindFloat, kLVKindDouble, kLVKindPointer8, kLVKindPointer32, kLVKindPointer64, kLVKindPointerDouble, kLVKindObject };
 
 struct LVALUEStruct {
     Value* value;
@@ -131,6 +131,7 @@ void show_stack_for_llvm_stack(LVALUE* llvm_stack, LVALUE* llvm_stack_ptr, int v
 void show_stack_stat(CLVALUE** stack_ptr, CLVALUE* stack);
 void show_inst_in_jit(int opecode);
 void show_llvm_stack(LVALUE* llvm_stack, LVALUE* llvm_stack_ptr, int var_num, std::map<std::string, Value*>& params, BasicBlock* current_block);
+void show_llvm_value(LVALUE* llvm_value);
 
 /// jit_sub.cpp ///
 LVALUE trunc_value(LVALUE* llvm_value, int size);

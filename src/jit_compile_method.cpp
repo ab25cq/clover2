@@ -62,17 +62,52 @@ static BOOL compile_jit_methods(sCLClass* klass)
 
         /// llvm-as ///
         char command[1024];
+        int result;
+
+        snprintf(command, 1024, "/usr/bin/llvm-dis %s.bc", CLASS_NAME(klass));
+        puts(command);
+        result = system(command);
+
+        if(result != 0) {
+            fprintf(stderr, "llvm-dis is faield\n");
+            return FALSE;
+        }
+
         snprintf(command, 1024, "/usr/bin/llc -relocation-model=pic %s.bc", CLASS_NAME(klass));
-        system(command);
+        puts(command);
+        result = system(command);
+
+        if(result != 0) {
+            fprintf(stderr, "llvm-dis is faield\n");
+            return FALSE;
+        }
 
         snprintf(command, 1024, "/usr/bin/clang -o %s.o -c %s.s", CLASS_NAME(klass), CLASS_NAME(klass));
-        system(command);
+        puts(command);
+        result = system(command);
+
+        if(result != 0) {
+            fprintf(stderr, "clang is faield\n");
+            return FALSE;
+        }
 
         snprintf(command, 1024, "/usr/bin/gcc -shared -Wl,-soname=lib%s.so.1 -o lib%s.so.1.0.0 %s.o", CLASS_NAME(klass), CLASS_NAME(klass), CLASS_NAME(klass));
-        system(command);
+        puts(command);
+        result = system(command);
+
+        if(result != 0) {
+            fprintf(stderr, "clang is faield\n");
+            return FALSE;
+        }
 
         snprintf(command, 1024, "ln -fs lib%s.so.1.0.0 lib%s.so", CLASS_NAME(klass), CLASS_NAME(klass));
-        system(command);
+        puts(command);
+        result = system(command);
+
+        if(result != 0) {
+            fprintf(stderr, "ln -fs is faield\n");
+            return FALSE;
+        }
     }
 
     delete TheModule;

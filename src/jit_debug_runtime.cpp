@@ -3,14 +3,39 @@
 extern "C"
 {
 
-void show_number_in_jit(clint64 number)
-{
-    printf("%ld(%p)\n", number, number);
-}
-
-void show_number_in_jit2(int number)
+void show_int8(char number)
 {
     printf("%d\n", number);
+}
+
+void show_int16(short number)
+{
+    printf("%d\n", number);
+}
+
+void show_int32(int number)
+{
+    printf("%d\n", number);
+}
+
+void show_int64(clint64 number)
+{
+    printf("%lld\n", number);
+}
+
+void show_float(float number)
+{
+    printf("%f\n", number);
+}
+
+void show_double(double number)
+{
+    printf("%lf\n", number);
+}
+
+void show_str_in_jit(char* str)
+{
+    printf("%s\n", str);
 }
 
 void show_inst_in_jit(int opecode)
@@ -1071,11 +1096,6 @@ void show_stack_stat(CLVALUE** stack_ptr, CLVALUE* stack)
     printf("stack_ptr %p\n", *stack_ptr);
     printf("stack %p\n", *stack);
     printf("stack_ptr - stack %d\n", (int)((*stack_ptr) - stack));
-}
-
-void show_str_in_jit(char* str)
-{
-    printf("%s\n", str);
 }
 
 }

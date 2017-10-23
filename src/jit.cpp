@@ -623,7 +623,36 @@ call_show_inst_in_jit(inst);
                 break;
         }
 
-if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT && inst != OP_RETURN && inst != OP_THROW) {
+if(inst != OP_HEAD_OF_EXPRESSION 
+    && inst != OP_SIGINT 
+    && inst != OP_RETURN 
+    && inst != OP_THROW 
+/*
+    && inst != OP_ARRAY_TO_CARRAY_CAST
+    && inst != OP_CREATE_ARRAY
+    && inst != OP_CREATE_CARRAY
+    && inst != OP_CREATE_SORTABLE_CARRAY
+    && inst != OP_CREATE_EQUALABLE_CARRAY
+    && inst != OP_CREATE_LIST
+    && inst != OP_CREATE_SORTALBE_LIST
+    && inst != OP_CREATE_EQUALABLE_LIST
+    && inst != OP_CREATE_TUPLE
+    && inst != OP_CREATE_HASH
+    && inst != OP_ARRAY_TO_CARRAY_CAST
+    && inst != OP_CREATE_ARRAY
+    && inst != OP_CREATE_CARRAY
+    && inst != OP_LOAD_ELEMENT
+    && inst != OP_STORE_ELEMENT
+    && inst != OP_INVOKE_BLOCK
+    && inst != OP_LOAD_FIELD
+    && inst != OP_LOAD_FIELD_ADDRESS
+    && inst != OP_STORE_FIELD
+    && inst != OP_LOAD_CLASS_FIELD
+    && inst != OP_LOAD_CLASS_FIELD_ADDRESS
+    && inst != OP_STORE_CLASS_FIELD)
+*/
+)
+{
 show_llvm_stack(llvm_stack, llvm_stack_ptr, var_num, params, current_block);
 }
     }

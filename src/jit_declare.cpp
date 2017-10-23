@@ -273,18 +273,29 @@ void create_internal_functions()
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "show_inst_in_jit", TheModule);
 
-    /// show_number_in_jit ///
+    /// show_int8 ///
     type_params.clear();
     
     result_type = Type::getVoidTy(TheContext);
 
-    param1_type = IntegerType::get(TheContext, 64);
+    param1_type = IntegerType::get(TheContext, 8);
     type_params.push_back(param1_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
-    Function::Create(function_type, Function::ExternalLinkage, "show_number_in_jit", TheModule);
+    Function::Create(function_type, Function::ExternalLinkage, "show_int8", TheModule);
 
-    /// show_number_in_jit2 ///
+    /// show_int16 ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = IntegerType::get(TheContext, 16);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "show_int16", TheModule);
+
+    /// show_int32 ///
     type_params.clear();
     
     result_type = Type::getVoidTy(TheContext);
@@ -293,7 +304,40 @@ void create_internal_functions()
     type_params.push_back(param1_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
-    Function::Create(function_type, Function::ExternalLinkage, "show_number_in_jit2", TheModule);
+    Function::Create(function_type, Function::ExternalLinkage, "show_int32", TheModule);
+
+    /// show_int64 ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = IntegerType::get(TheContext, 64);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "show_int64", TheModule);
+
+    /// show_float ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = Type::getFloatTy(TheContext);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "show_float", TheModule);
+
+    /// show_double ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = Type::getDoubleTy(TheContext);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "show_double", TheModule);
 
     /// show_str_in_jit ///
     type_params.clear();

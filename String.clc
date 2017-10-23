@@ -75,6 +75,71 @@ class Global
 
 class String
 {
+    def append(str: String):  String {
+println("1");
+self.len;
+println("2");
+        len:int = str.length();
+println("2");
+
+        if(self.len+len+1 < self.size) {
+println("3");
+            for(i:int=self.len; i<self.len + len; i++) {
+                self.buffer[i] = str.buffer[i-self.len];
+            }
+println("4");
+            self.buffer[i] = '\0';
+println("5");
+
+            self.len += len;
+        }
+        else {
+            new_size:int = (self.len + len + 1) * 2;
+            new_buffer:char[] = new char[new_size];
+
+            for(i:int = 0; i<self.len; i++) {
+                new_buffer[i] = self.buffer[i];
+            }
+            for(i=self.len; i<self.len + len; i++) {
+                new_buffer[i] = str.buffer[i-self.len];
+            }
+            new_buffer[i] = '\0';
+
+            self.buffer = new_buffer;
+            self.len += len;
+            self.size = new_size;
+        }
+
+        return self;
+    }
+
+    def append(c:char):  String {
+        len:int = 1;
+
+        if(self.len+len+1 < self.size) {
+            self.buffer[self.len] = c;
+            self.buffer[self.len+1] = '\0';
+
+            self.len += len;
+        }
+        else {
+            new_size:int = (self.len + len + 1) * 2;
+            new_buffer:char[] = new char[new_size];
+
+            for(i:int = 0; i<self.len; i++) {
+                new_buffer[i] = self.buffer[i];
+            }
+            new_buffer[i] = c;
+            new_buffer[i+1] = '\0';
+
+            self.buffer = new_buffer;
+            self.len += len;
+            self.size = new_size;
+        }
+
+        return self;
+    }
+
     def printf(format:String): {
         printf(format, array { self });
     }
