@@ -1101,8 +1101,6 @@ CLObject run_int_to_string_cast(int n)
 
     CLObject str = create_string_object(buf);
 
-printf("str %d\n", str);
-
     return str;
 }
 

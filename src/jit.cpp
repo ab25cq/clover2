@@ -155,7 +155,7 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
 
 if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
     if(strcmp(METHOD_NAME2(klass, method), "initialize") != 0 && strcmp(METHOD_NAME2(klass, method), "finalize") != 0) {
-call_show_inst_in_jit(inst);
+//call_show_inst_in_jit(inst);
     }
 }
 
@@ -291,7 +291,7 @@ call_show_inst_in_jit(inst);
 
                 Value* lvalue = stack_value;
                 Value* rvalue = var_num_value;
-                Value* store_address_value = Builder.CreateGEP(lvalue, rvalue, "store_address_value_LLLLL");
+                Value* store_address_value = Builder.CreateGEP(lvalue, rvalue, "store_address_value");
 
                 Builder.CreateAlignedStore(llvm_value2.value, store_address_value, 8);
 
@@ -598,6 +598,255 @@ call_show_inst_in_jit(inst);
                 }
                 break;
 
+            case OP_STORE: {
+                int index = *(int*)pc;
+                pc += sizeof(int);
+
+                LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                store_llvm_value_to_lvar_with_offset(llvm_stack, index, llvm_value);
+                }
+                break;
+
+            case OP_LOAD: {
+                int index = *(int*)pc;
+                pc += sizeof(int);
+
+                int size = *(int*)pc;
+                pc += sizeof(int);
+
+                LVALUE llvm_value;
+                get_llvm_value_from_lvar_with_offset(&llvm_value, llvm_stack, index);
+
+                trunc_variable(&llvm_value, size);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_LOAD_ADDRESS: {
+                int index = *(int*)pc;
+                pc += sizeof(int);
+
+                std::string lvar_arg_name("lvar");
+                Value* lvar_value = params[lvar_arg_name];
+
+                LVALUE llvm_value;
+                Value* add_value = ConstantInt::get(TheContext, llvm::APInt(64, index, true)); 
+                llvm_value.value = Builder.CreateGEP(lvar_value, add_value, "gepaddtmp");
+                llvm_value.lvar_address_index = index;
+                llvm_value.lvar_stored = FALSE;
+                llvm_value.kind = kLVKindAddress;
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_LDCBYTE: 
+                {
+                    int value = *(int*)pc;
+                    pc += sizeof(int);
+
+                    LVALUE llvm_value;
+                    llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(8, value, true)); 
+                    llvm_value.lvar_address_index = -1;
+                    llvm_value.lvar_stored = FALSE;
+                    llvm_value.kind = kLVKindConstantInt8;
+
+                    push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_LDCUBYTE: 
+                {
+                    int value = *(int*)pc;
+                    pc += sizeof(int);
+
+                    LVALUE llvm_value;
+                    llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(8, value, false)); 
+                    llvm_value.lvar_address_index = -1;
+                    llvm_value.lvar_stored = FALSE;
+                    llvm_value.kind = kLVKindConstantUInt8;
+
+                    push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_LDCSHORT: 
+                {
+                    int value = *(int*)pc;
+                    pc += sizeof(int);
+
+                    LVALUE llvm_value;
+                    llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(16, value, true)); 
+                    llvm_value.lvar_address_index = -1;
+                    llvm_value.lvar_stored = FALSE;
+                    llvm_value.kind = kLVKindConstantInt16;
+
+                    push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_LDCUSHORT: 
+                {
+                    int value = *(int*)pc;
+                    pc += sizeof(int);
+
+                    LVALUE llvm_value;
+                    llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(16, value, false)); 
+                    llvm_value.lvar_address_index = -1;
+                    llvm_value.lvar_stored = FALSE;
+                    llvm_value.kind = kLVKindConstantUInt16;
+
+                    push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_LDCINT: {
+                int value = *(int*)pc;
+                pc += sizeof(int);
+
+                LVALUE llvm_value;
+                llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(32, value, true)); 
+                llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
+                llvm_value.kind = kLVKindConstantInt32;
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_LDCUINT: {
+                unsigned int value = *(unsigned int*)pc;
+                pc += sizeof(int);
+
+                LVALUE llvm_value;
+                llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(32, value, false)); 
+                llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
+                llvm_value.kind = kLVKindConstantUInt32;
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_LDCLONG: {
+                int value1 = *(int*)pc;
+                pc += sizeof(int);
+
+                int value2 = *(int*)pc;
+                pc += sizeof(int);
+
+                clint64 lvalue;
+
+                memcpy(&lvalue, &value1, sizeof(int));
+                memcpy((char*)&lvalue + sizeof(int), &value2, sizeof(int));
+
+                LVALUE llvm_value;
+                llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(64, lvalue, true)); 
+                llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
+                llvm_value.kind = kLVKindConstantInt64;
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_LDCULONG: {
+                int value1 = *(int*)pc;
+                pc += sizeof(int);
+
+                int value2 = *(int*)pc;
+                pc += sizeof(int);
+
+                clint64 lvalue;
+
+                memcpy(&lvalue, &value1, sizeof(int));
+                memcpy((char*)&lvalue + sizeof(int), &value2, sizeof(int));
+
+                LVALUE llvm_value;
+                llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(64, lvalue, false)); 
+                llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
+                llvm_value.kind = kLVKindConstantUInt64;
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_LDCNULL: {
+                int value = 0;
+
+                LVALUE llvm_value;
+                llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(32, value, true)); 
+                llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
+                llvm_value.kind = kLVKindConstantInt32;
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_LDCPOINTER: {
+                int value1 = *(int*)pc;
+                pc += sizeof(int);
+
+                int value2 = *(int*)pc;
+                pc += sizeof(int);
+
+                clint64 lvalue;
+
+                memcpy(&lvalue, &value1, sizeof(int));
+                memcpy((char*)&lvalue + sizeof(int), &value2, sizeof(int));
+
+                LVALUE llvm_value;
+                llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(64, lvalue, false)); 
+                llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
+
+                llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, PointerType::get(IntegerType::get(TheContext, 64), 0));
+
+                llvm_value.kind = kLVKindPointer64;
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_LDCFLOAT: {
+                float value1 = *(float*)pc;
+                pc += sizeof(float);
+
+                LVALUE llvm_value;
+                llvm_value.value = ConstantFP::get(TheContext, llvm::APFloat(value1)); 
+                llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
+                llvm_value.kind = kLVKindConstantFloat;
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_LDCDOUBLE: {
+                int value1 = *(int*)pc;
+                pc += sizeof(int);
+
+                int value2 = *(int*)pc;
+                pc += sizeof(int);
+
+                double lvalue;
+
+                memcpy(&lvalue, &value1, sizeof(int));
+                memcpy((char*)&lvalue + sizeof(int), &value2, sizeof(int));
+
+                LVALUE llvm_value;
+                llvm_value.value = ConstantFP::get(TheContext, llvm::APFloat(lvalue)); 
+                llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
+                llvm_value.kind = kLVKindConstantDouble;
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
 
             default:
                 if(!compile_to_native_code2(code, constant, klass, method, method_path2, inst, &pc, &llvm_stack_ptr, llvm_stack, params, &current_block, &function, var_num, &try_catch_label_name))
@@ -623,38 +872,16 @@ call_show_inst_in_jit(inst);
                 break;
         }
 
+/*
 if(inst != OP_HEAD_OF_EXPRESSION 
     && inst != OP_SIGINT 
     && inst != OP_RETURN 
     && inst != OP_THROW 
-/*
-    && inst != OP_ARRAY_TO_CARRAY_CAST
-    && inst != OP_CREATE_ARRAY
-    && inst != OP_CREATE_CARRAY
-    && inst != OP_CREATE_SORTABLE_CARRAY
-    && inst != OP_CREATE_EQUALABLE_CARRAY
-    && inst != OP_CREATE_LIST
-    && inst != OP_CREATE_SORTALBE_LIST
-    && inst != OP_CREATE_EQUALABLE_LIST
-    && inst != OP_CREATE_TUPLE
-    && inst != OP_CREATE_HASH
-    && inst != OP_ARRAY_TO_CARRAY_CAST
-    && inst != OP_CREATE_ARRAY
-    && inst != OP_CREATE_CARRAY
-    && inst != OP_LOAD_ELEMENT
-    && inst != OP_STORE_ELEMENT
-    && inst != OP_INVOKE_BLOCK
-    && inst != OP_LOAD_FIELD
-    && inst != OP_LOAD_FIELD_ADDRESS
-    && inst != OP_STORE_FIELD
-    && inst != OP_LOAD_CLASS_FIELD
-    && inst != OP_LOAD_CLASS_FIELD_ADDRESS
-    && inst != OP_STORE_CLASS_FIELD)
-*/
 )
 {
 show_llvm_stack(llvm_stack, llvm_stack_ptr, var_num, params, current_block);
 }
+*/
     }
 
     // Finish off the function.

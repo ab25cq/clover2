@@ -1720,11 +1720,6 @@ void llvm_lvar_to_vm_lvar(LVALUE* llvm_stack,std::map<std::string, Value*>& para
     for(i=0; i<var_num; i++) {
         LVALUE llvm_value;
         get_llvm_value_from_lvar_with_offset(&llvm_value, llvm_stack, i);
-char buf[128];
-snprintf(buf, 128, "llvm_lvar_to_vm_lvar i %d", i);
-call_show_str_in_jit(llvm_create_string(buf));
-
-show_llvm_value(&llvm_value);
 
         if(llvm_value.lvar_stored) {
             store_value_to_vm_lvar(params, current_block, i, &llvm_value);
