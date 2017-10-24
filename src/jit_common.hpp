@@ -73,13 +73,13 @@ inline void create_method_path_for_jit(sCLClass* klass, sCLMethod* method, char*
     snprintf(result, size_result, "%s.%s$$%d", CLASS_NAME(klass), METHOD_NAME_AND_PARAMS(klass, method), method->mMethodIndex);
 }
 
+enum eLVALUEKind { kLVKindNone, kLVKindInt1, kLVKindInt8, kLVKindUInt8, kLVKindInt16, kLVKindUInt16, kLVKindInt32, kLVKindUInt32, kLVKindInt64, kLVKindUInt64, kLVKindMemory, kLVKindAddress, kLVKindConstantInt1, kLVKindConstantInt8, kLVKindConstantUInt8, kLVKindConstantInt16, kLVKindConstantUInt16, kLVKindConstantInt32, kLVKindConstantUInt32, kLVKindConstantInt64, kLVKindConstantUInt64, kLVKindConstantFloat, kLVKindConstantDouble, kLVKindFloat, kLVKindDouble, kLVKindPointer8, kLVKindPointer32, kLVKindPointer64, kLVKindPointerDouble, kLVKindObject };
+
 struct LVALUEStruct {
     Value* value;
     int lvar_address_index;
     BOOL lvar_stored;
-    BOOL constant_int_value;
-    BOOL constant_float_value;
-    BOOL float_value;
+    enum eLVALUEKind kind;
 };
 
 void InitializeModuleAndPassManager(char* class_name);
@@ -115,27 +115,23 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
 BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name);
 BOOL compile_to_native_code5(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name);
 BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name);
-BOOL compile_to_native_code7(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name);
-BOOL compile_to_native_code8(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name);
-BOOL compile_to_native_code9(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name);
-BOOL compile_to_native_code10(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name);
-BOOL compile_to_native_code11(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name);
-BOOL compile_to_native_code12(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name);
+
 
 /// jit_debug.h ///
 void show_stack_for_llvm_stack(LVALUE* llvm_stack, LVALUE* llvm_stack_ptr, int var_num);
 void show_number_in_jit(clint64 number);
 void call_show_number_in_jit(clint64 number);
-void call_show_value_in_jit(Value* value);
+void call_show_value_in_jit(LVALUE* llvm_value);
+void call_show_value_in_jit2(LVALUE* llvm_value);
 void show_str_in_jit(char* str);
 void call_show_str_in_jit(Value* value);
 void call_show_stack_stat(std::map<std::string, Value *> params);
 void call_show_inst_in_jit(int opecode);
-void call_show_stack(std::map<std::string, Value *> params);
 void show_stack_for_llvm_stack(LVALUE* llvm_stack, LVALUE* llvm_stack_ptr, int var_num);
 void show_stack_stat(CLVALUE** stack_ptr, CLVALUE* stack);
-BOOL show_stack_in_jit(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info);
 void show_inst_in_jit(int opecode);
+void show_llvm_stack(LVALUE* llvm_stack, LVALUE* llvm_stack_ptr, int var_num, std::map<std::string, Value*>& params, BasicBlock* current_block);
+void show_llvm_value(LVALUE* llvm_value);
 
 /// jit_sub.cpp ///
 LVALUE trunc_value(LVALUE* llvm_value, int size);
@@ -158,7 +154,6 @@ void llvm_stack_to_vm_stack(LVALUE* llvm_stack_ptr, std::map<std::string, Value*
 void if_value_is_zero_ret_zero(Value* value, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block);
 void if_value_is_null_ret_zero(Value* value, int value_bit, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block);
 void store_value_to_lvar_with_offset(std::map<std::string, Value*>& params, BasicBlock* current_block, int index, LVALUE* llvm_value);
-LVALUE get_lvar_value_from_offset(std::map<std::string, Value*>& params, BasicBlock* current_block, int offset);
 StructType* get_vm_info_struct_type();
 AllocaInst* create_entry_block_alloca(Function* function, int index);
 void call_entry_exception_object_with_class_name2(std::map<std::string, Value *> params, char* class_name, char* message);

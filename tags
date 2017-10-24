@@ -66,8 +66,8 @@ HAVE_PCRE_H	config.h	6;"	d
 INSTALL	Makefile	/^INSTALL=\/usr\/bin\/install -c$/;"	m
 INTERPRETER	Makefile	/^INTERPRETER=iclover2$/;"	m
 JIT	Makefile	/^JIT=1$/;"	m
-JIT_OBJS	Makefile	/^JIT_OBJS=src\/jit.o src\/jit2.o src\/jit3.o src\/jit4.o src\/jit5.o src\/jit6.o src\/jit7.o src\/jit8.o src\/jit9.o src\/jit10.o src\/jit11.o src\/jit12.o src\/jit_compile_method.o src\/jit_debug.o src\/jit_declare.o src\/jit_declare2.o src\/jit_sub.o src\/jit_sub2.o$/;"	m
-JIT_RUNTIME_OBJS	Makefile	/^JIT_RUNTIME_OBJS=src\/jit_runtime.o src\/jit_runtime2.o src\/jit_debug_runtime.o$/;"	m
+JIT_OBJS	Makefile	/^JIT_OBJS=src\/jit.o src\/jit_bop.o src\/jit_eqop.o src\/jit_method_call.o src\/jit_load_address.o src\/jit_cast.o src\/jit_compile_method.o src\/jit_debug.o src\/jit_declare.o src\/jit_sub.o$/;"	m
+JIT_RUNTIME_OBJS	Makefile	/^JIT_RUNTIME_OBJS=src\/jit_runtime.o src\/jit_debug_runtime.o$/;"	m
 LABEL_NAME_MAX	src/node.c	107;"	d	file:
 LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM	src/class_system.c	1632;"	d	file:
 LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM	src/class_system.c	1088;"	d	file:
@@ -1061,6 +1061,7 @@ boxing_to_lapper_class	src/node_type.c	/^void boxing_to_lapper_class(sNodeType**
 break_point_label_name	src/common.h	/^    char* break_point_label_name;$/;"	m	struct:sCompileInfoStruct
 break_points	src/common.h	/^    int* break_points;$/;"	m	struct:sCompileInfoStruct
 c_termios_to_clover_termios	src/clover_to_clang.c	/^void c_termios_to_clover_termios(struct termios* terminfo_value, CLObject terminfo_object)$/;"	f
+call_entry_exception_object_with_class_name2	src/jit_sub.cpp	/^void call_entry_exception_object_with_class_name2(std::map<std::string, Value *> params, char* class_name, char* message)$/;"	f
 call_entry_exception_object_with_class_name2	src/jit_sub2.cpp	/^void call_entry_exception_object_with_class_name2(std::map<std::string, Value *> params, char* class_name, char* message)$/;"	f
 call_finalize_method_on_free_object	src/vm.c	/^BOOL call_finalize_method_on_free_object(sCLClass* klass, CLObject self)$/;"	f
 call_invoke_dynamic_method	src/jit_runtime.cpp	/^BOOL call_invoke_dynamic_method(int offset, int offset2, int num_params, int static_, int num_method_chains, int max_method_chains, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sByteCode* code, sConst* constant)$/;"	f
@@ -1068,11 +1069,8 @@ call_invoke_method	src/jit_runtime.cpp	/^BOOL call_invoke_method(sCLClass* klass
 call_invoke_virtual_method	src/jit_runtime.cpp	/^BOOL call_invoke_virtual_method(int offset, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sConst* constant, CLObject object, int num_real_params)$/;"	f
 call_normal_method	src/node.c	/^static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType* object_type, sNodeType* generics_types, sCLClass* klass, sNodeType* param_types[PARAMS_MAX], int num_params, char* method_name, unsigned int params[PARAMS_MAX], int num_method_chains, int max_method_chains)$/;"	f	file:
 call_show_inst_in_jit	src/jit_debug.cpp	/^void call_show_inst_in_jit(int opecode)$/;"	f
-call_show_number_in_jit	src/jit_debug.cpp	/^void call_show_number_in_jit(clint64 number)$/;"	f
-call_show_stack	src/jit_debug.cpp	/^void call_show_stack(std::map<std::string, Value *> params)$/;"	f
 call_show_stack_stat	src/jit_debug.cpp	/^void call_show_stack_stat(std::map<std::string, Value *> params)$/;"	f
 call_show_str_in_jit	src/jit_debug.cpp	/^void call_show_str_in_jit(Value* value)$/;"	f
-call_show_value_in_jit	src/jit_debug.cpp	/^void call_show_value_in_jit(Value* value)$/;"	f
 cast_llvm_value_from_inst	src/jit_sub.cpp	/^void cast_llvm_value_from_inst(LVALUE* llvm_value, int inst) $/;"	f
 cast_right_type_to_Array	src/cast.c	/^void cast_right_type_to_Array(sNodeType** right_type, sCompileInfo* info)$/;"	f
 cast_right_type_to_Bool	src/cast.c	/^void cast_right_type_to_Bool(sNodeType** right_type, sCompileInfo* info)$/;"	f
@@ -1207,10 +1205,15 @@ compile_to_native_code10	src/jit10.cpp	/^BOOL compile_to_native_code10(sByteCode
 compile_to_native_code11	src/jit11.cpp	/^BOOL compile_to_native_code11(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name)$/;"	f
 compile_to_native_code12	src/jit12.cpp	/^BOOL compile_to_native_code12(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name)$/;"	f
 compile_to_native_code2	src/jit2.cpp	/^BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name)$/;"	f
+compile_to_native_code2	src/jit_bop.cpp	/^BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name)$/;"	f
 compile_to_native_code3	src/jit3.cpp	/^BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name)$/;"	f
+compile_to_native_code3	src/jit_eqop.cpp	/^BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name)$/;"	f
 compile_to_native_code4	src/jit4.cpp	/^BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name)$/;"	f
+compile_to_native_code4	src/jit_method_call.cpp	/^BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name)$/;"	f
 compile_to_native_code5	src/jit5.cpp	/^BOOL compile_to_native_code5(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name)$/;"	f
+compile_to_native_code5	src/jit_load_address.cpp	/^BOOL compile_to_native_code5(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name)$/;"	f
 compile_to_native_code6	src/jit6.cpp	/^BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name)$/;"	f
+compile_to_native_code6	src/jit_cast.cpp	/^BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name)$/;"	f
 compile_to_native_code7	src/jit7.cpp	/^BOOL compile_to_native_code7(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name)$/;"	f
 compile_to_native_code8	src/jit8.cpp	/^BOOL compile_to_native_code8(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name)$/;"	f
 compile_to_native_code9	src/jit9.cpp	/^BOOL compile_to_native_code9(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name)$/;"	f
@@ -1228,8 +1231,6 @@ compiler_final	src/interpreter.c	/^static void compiler_final()$/;"	f	file:
 compiler_init	src/compiler.c	/^static void compiler_init(BOOL no_load_fudamental_classes)$/;"	f	file:
 compiler_init	src/interpreter.c	/^static void compiler_init(BOOL no_load_fudamental_classes)$/;"	f	file:
 constant	src/common.h	/^    sConst* constant;$/;"	m	struct:sCompileInfoStruct
-constant_float_value	src/jit_common.hpp	/^    BOOL constant_float_value;$/;"	m	struct:LVALUEStruct
-constant_int_value	src/jit_common.hpp	/^    BOOL constant_int_value;$/;"	m	struct:LVALUEStruct
 create_array_object	src/array.c	/^CLObject create_array_object(sCLClass* klass, int array_num)$/;"	f
 create_block_object	src/block.c	/^CLObject create_block_object(sByteCode* codes, sConst* constant, CLVALUE* parent_stack, int parent_var_num, int block_var_num, sCLStack* stack_id, BOOL lambda)$/;"	f
 create_bool	src/bool.c	/^CLObject create_bool(BOOL value)$/;"	f
@@ -1240,6 +1241,7 @@ create_carray_object_with_elements	src/carray.c	/^CLObject create_carray_object_
 create_char	src/char.c	/^CLObject create_char(wchar_t value)$/;"	f
 create_cl_type	src/klass.c	/^ALLOC sCLType* create_cl_type(sCLClass* klass, sCLClass* klass2)$/;"	f
 create_double	src/float.c	/^CLObject create_double(double value)$/;"	f
+create_entry_block_alloca	src/jit_sub.cpp	/^AllocaInst* create_entry_block_alloca(Function* function, int index)$/;"	f
 create_entry_block_alloca	src/jit_sub2.cpp	/^AllocaInst* create_entry_block_alloca(Function* function, int index)$/;"	f
 create_equalable_carray_object	src/carray.c	/^CLObject create_equalable_carray_object()$/;"	f
 create_equalable_carray_object_with_elements	src/carray.c	/^CLObject create_equalable_carray_object_with_elements(int num_elements, CLObject* elements)$/;"	f
@@ -1250,6 +1252,7 @@ create_global_stack_and_append_it_to_stack_list	src/stack.c	/^static void create
 create_hash_object	src/hash.c	/^CLObject create_hash_object()$/;"	f
 create_integer	src/integer.c	/^CLObject create_integer(int value)$/;"	f
 create_internal_functions	src/jit_declare.cpp	/^void create_internal_functions()$/;"	f
+create_internal_functions2	src/jit_declare.cpp	/^void create_internal_functions2()$/;"	f
 create_internal_functions2	src/jit_declare2.cpp	/^void create_internal_functions2()$/;"	f
 create_label_name	src/node.c	/^static void create_label_name(char* prefix, char* result, size_t result_size, int num)$/;"	f	file:
 create_label_name2	src/node.c	/^static void create_label_name2(char* prefix, char* result, size_t result_size, int num, int num2)$/;"	f	file:
@@ -1290,6 +1293,7 @@ debug_init	src/debug.c	/^void debug_init()$/;"	f
 debug_malloc	src/debug.c	/^ALLOC void* debug_malloc(size_t size, const char* file_name, int line, const char* func_name)$/;"	f
 debug_realloc	src/debug.c	/^ALLOC void* debug_realloc(void* memory, size_t size, const char* file_name, int line, const char* func_name)$/;"	f
 debug_strdup	src/debug.c	/^ALLOC char* debug_strdup(char* str, const char* file_name, int line, const char* func_name)$/;"	f
+dec_stack_ptr	src/jit_sub.cpp	/^void dec_stack_ptr(LVALUE** llvm_stack_ptr, int value)$/;"	f
 dec_stack_ptr	src/jit_sub2.cpp	/^void dec_stack_ptr(LVALUE** llvm_stack_ptr, int value)$/;"	f
 decrement_operand_core	src/node.c	/^static void decrement_operand_core(unsigned int node, sCompileInfo* info, unsigned int lnode, int add_operand, int sub_operand, int ldc_operand, BOOL monadic, BOOL with_value)$/;"	f	file:
 decrement_operand_core_for_field	src/node.c	/^static BOOL decrement_operand_core_for_field(unsigned int node, sCompileInfo* info, unsigned int lnode, int add_operand, int sub_operand, int ldc_operand, BOOL monadic, BOOL with_value)$/;"	f	file:
@@ -1297,6 +1301,7 @@ delete_all_object	src/heap.c	/^static void delete_all_object()$/;"	f	file:
 delete_comment	src/script_ctime.c	/^BOOL delete_comment(sBuf* source, sBuf* source2)$/;"	f
 display_candidates	src/interpreter.c	/^void display_candidates(char** candidates)$/;"	f
 docdir	Makefile	/^docdir=${datarootdir}\/doc$/;"	m
+eLVALUEKind	src/jit_common.hpp	/^enum eLVALUEKind { kLVKindNone, kLVKindInt1, kLVKindInt8, kLVKindUInt8, kLVKindInt16, kLVKindUInt16, kLVKindInt32, kLVKindUInt32, kLVKindInt64, kLVKindUInt64, kLVKindMemory, kLVKindAddress, kLVKindConstantInt1, kLVKindConstantInt8, kLVKindConstantUInt8, kLVKindConstantInt16, kLVKindConstantUInt16, kLVKindConstantInt32, kLVKindConstantUInt32, kLVKindConstantInt64, kLVKindConstantUInt64, kLVKindConstantFloat, kLVKindConstantDouble, kLVKindFloat, kLVKindDouble, kLVKindPointer8, kLVKindPointer32, kLVKindPointer64, kLVKindPointerDouble, kLVKindObject };$/;"	g
 eNodeType	src/common.h	/^enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeUByteValue, kNodeTypeShortValue, kNodeTypeUShortValue, kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand, kNodeTypeIncrementWithValueOperand, kNodeTypeDecrementWithValueOperand, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand, kNodeTypeLoadArrayElement, kNodeTypeStoreArrayElement, kNodeTypeChar, kNodeTypeString, kNodeTypeBuffer, kNodeTypeThrow, kNodeTypeTry, kNodeTypeBlockObject, kNodeTypeFunction, kNodeTypeBlockCall, kNodeTypeConditional, kNodeTypeNormalBlock, kNodeTypeArrayValue, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeHashValue, kNodeTypeRegex, kNodeTypeListValue, kNodeTypeSortableListValue, kNodeTypeEqualableListValue, kNodeTypeTupleValue, kNodeTypeCArrayValue, kNodeTypeEqualableCArrayValue, kNodeTypeSortableCArrayValue, kNodeTypeImplements, kNodeTypeGetAddress, kNodeTypeInheritCall, kNodeTypeFloatValue, kNodeTypeDoubleValue, kNodeTypePath };$/;"	g
 eOperand	src/common.h	/^enum eOperand { kOpAdd, kOpSub , kOpComplement, kOpLogicalDenial, kOpMult, kOpDiv, kOpMod, kOpLeftShift, kOpRightShift, kOpComparisonEqual, kOpComparisonNotEqual,kOpComparisonGreaterEqual, kOpComparisonLesserEqual, kOpComparisonGreater, kOpComparisonLesser, kOpAnd, kOpXor, kOpOr };$/;"	g
 entry_exception_object	src/exception.c	/^void entry_exception_object(CLObject exception, sVMInfo* info)$/;"	f
@@ -1335,8 +1340,8 @@ file_completion_command_line	src/interpreter.c	/^static void file_completion_com
 file_name_completion	src/interpreter.c	/^char* file_name_completion(const char* text, int stat)$/;"	f
 final_vtable	src/vtable.c	/^void final_vtable()$/;"	f
 finalize_class	src/vm.c	/^static BOOL finalize_class(sCLClass* klass)$/;"	f	file:
+finish_method_call	src/jit_sub.cpp	/^void finish_method_call(Value* result, std::map<std::string, Value *> params, BasicBlock** current_block, Function* function, char** try_catch_label_name, sByteCode* code, int real_param_num, int var_num, LVALUE* llvm_stack, LVALUE* llvm_stack_ptr)$/;"	f
 finish_method_call	src/jit_sub2.cpp	/^void finish_method_call(Value* result, std::map<std::string, Value *> params, BasicBlock** current_block, Function* function, char** try_catch_label_name, sByteCode* code, int real_param_num, int var_num, LVALUE* llvm_stack, LVALUE* llvm_stack_ptr)$/;"	f
-float_value	src/jit_common.hpp	/^    BOOL float_value;$/;"	m	struct:LVALUEStruct
 for_expression	src/parser.c	/^static BOOL for_expression(unsigned int* node, sParserInfo* info)$/;"	f	file:
 free_cl_block_type	src/klass.c	/^static void free_cl_block_type(sCLBlockType* block_type)$/;"	f	file:
 free_cl_type	src/klass.c	/^void free_cl_type(sCLType* cl_type)$/;"	f
@@ -1415,6 +1420,7 @@ get_global_method_names	src/interpreter.c	/^void get_global_method_names(char** 
 get_hash_key	src/klass.c	/^unsigned int get_hash_key(char* name, unsigned int max)$/;"	f
 get_hash_key_for_native_method	src/native_method.c	/^static unsigned int get_hash_key_for_native_method(char* path)$/;"	f	file:
 get_hex_number	src/parser.c	/^static BOOL get_hex_number(unsigned int* node, sParserInfo* info)$/;"	f	file:
+get_llvm_value_from_lvar_with_offset	src/jit_sub.cpp	/^void get_llvm_value_from_lvar_with_offset(LVALUE* result, LVALUE* llvm_stack, int index)$/;"	f
 get_llvm_value_from_lvar_with_offset	src/jit_sub2.cpp	/^void get_llvm_value_from_lvar_with_offset(LVALUE* result, LVALUE* llvm_stack, int index)$/;"	f
 get_lvar_value_from_offset	src/jit_sub2.cpp	/^LVALUE get_lvar_value_from_offset(std::map<std::string, Value*>& params, BasicBlock* current_block, int offset)$/;"	f
 get_method_names_with_arguments	src/interpreter.c	/^ALLOC ALLOC char** get_method_names_with_arguments(sCLClass* klass, BOOL class_method, int* num_methods)$/;"	f
@@ -1436,7 +1442,9 @@ get_regex_ignorecase	src/jit_runtime.cpp	/^BOOL get_regex_ignorecase(CLObject re
 get_regex_multiline	src/jit_runtime.cpp	/^BOOL get_regex_multiline(CLObject regex)$/;"	f
 get_regex_ungreedy	src/jit_runtime.cpp	/^BOOL get_regex_ungreedy(CLObject regex)$/;"	f
 get_size_from_buffer_object	src/clover_to_clang.c	/^int get_size_from_buffer_object(CLObject buffer)$/;"	f
+get_stack_ptr_value_from_index	src/jit_sub.cpp	/^LVALUE* get_stack_ptr_value_from_index(LVALUE* llvm_stack_ptr, int index)$/;"	f
 get_stack_ptr_value_from_index	src/jit_sub2.cpp	/^LVALUE* get_stack_ptr_value_from_index(LVALUE* llvm_stack_ptr, int index)$/;"	f
+get_stack_value_from_index_with_aligned	src/jit_sub.cpp	/^LVALUE get_stack_value_from_index_with_aligned(std::map<std::string, Value*>& params, BasicBlock* current_block, int index, int align)$/;"	f
 get_stack_value_from_index_with_aligned	src/jit_sub2.cpp	/^LVALUE get_stack_value_from_index_with_aligned(std::map<std::string, Value*>& params, BasicBlock* current_block, int index, int align)$/;"	f
 get_string_object_of_object_name	src/jit_runtime.cpp	/^CLObject get_string_object_of_object_name(CLObject object)$/;"	f
 get_sum_of_parent_var_num	src/vtable.c	/^static int get_sum_of_parent_var_num(sVarTable* table)$/;"	f	file:
@@ -1462,14 +1470,20 @@ get_variable_from_index	src/vtable.c	/^sVar* get_variable_from_index(sVarTable* 
 get_variable_from_table	src/vtable.c	/^sVar* get_variable_from_table(sVarTable* table, char* name)$/;"	f
 get_variable_from_this_table_only	src/vtable.c	/^static sVar* get_variable_from_this_table_only(sVarTable* table, char* name)$/;"	f	file:
 get_variable_index	src/vtable.c	/^int get_variable_index(sVarTable* table, char* name)$/;"	f
+get_vm_info_struct_type	src/jit_sub.cpp	/^StructType* get_vm_info_struct_type()$/;"	f
 get_vm_info_struct_type	src/jit_sub2.cpp	/^StructType* get_vm_info_struct_type()$/;"	f
+get_vm_stack_ptr_value_from_index_with_aligned	src/jit_sub.cpp	/^LVALUE get_vm_stack_ptr_value_from_index_with_aligned(std::map<std::string, Value*>& params, BasicBlock* current_block, int index, int align)$/;"	f
 get_vm_stack_ptr_value_from_index_with_aligned	src/jit_sub2.cpp	/^LVALUE get_vm_stack_ptr_value_from_index_with_aligned(std::map<std::string, Value*>& params, BasicBlock* current_block, int index, int align)$/;"	f
 heap_final	src/heap.c	/^void heap_final()$/;"	f
 heap_init	src/heap.c	/^void heap_init(int heap_size, int size_hadles)$/;"	f
 if_expression	src/parser.c	/^static BOOL if_expression(unsigned int* node, sParserInfo* info)$/;"	f	file:
+if_value_is_null_ret_zero	src/jit_sub.cpp	/^void if_value_is_null_ret_zero(Value* value, int value_bit, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block)$/;"	f
 if_value_is_null_ret_zero	src/jit_sub2.cpp	/^void if_value_is_null_ret_zero(Value* value, int value_bit, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block)$/;"	f
+if_value_is_zero_entry_exception_object	src/jit_sub.cpp	/^void if_value_is_zero_entry_exception_object(Value* value, int value_size, BOOL value_is_float, BOOL value_is_double, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block, char* class_name, char* message)$/;"	f
 if_value_is_zero_entry_exception_object	src/jit_sub2.cpp	/^void if_value_is_zero_entry_exception_object(Value* value, int value_size, BOOL value_is_float, BOOL value_is_double, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block, char* class_name, char* message)$/;"	f
+if_value_is_zero_ret_zero	src/jit_sub.cpp	/^void if_value_is_zero_ret_zero(Value* value, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block)$/;"	f
 if_value_is_zero_ret_zero	src/jit_sub2.cpp	/^void if_value_is_zero_ret_zero(Value* value, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block)$/;"	f
+inc_vm_stack_ptr	src/jit_sub.cpp	/^void inc_vm_stack_ptr(std::map<std::string, Value*> params, BasicBlock* current_block, int value)$/;"	f
 inc_vm_stack_ptr	src/jit_sub2.cpp	/^void inc_vm_stack_ptr(std::map<std::string, Value*> params, BasicBlock* current_block, int value)$/;"	f
 include_file	src/class_compiler.c	/^static BOOL include_file(sParserInfo* info, sCompileInfo* cinfo)$/;"	f	file:
 included_source	src/common.h	/^    BOOL included_source;$/;"	m	struct:sParserInfoStruct
@@ -1493,6 +1507,7 @@ initialize_sortable_carray_object	src/carray.c	/^BOOL initialize_sortable_carray
 initialize_sortable_list_object	src/list.c	/^BOOL initialize_sortable_list_object(CLObject list_object, int num_elements, CLObject* items, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sCLClass* class_items)$/;"	f
 initialize_tuple_object	src/tuple.c	/^BOOL initialize_tuple_object(CLObject tuple_object, int num_elements, CLObject* items, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info)$/;"	f
 inputing_block_or_paren	src/interpreter.c	/^static BOOL inputing_block_or_paren()$/;"	f	file:
+insert_value_to_stack_ptr_with_offset	src/jit_sub.cpp	/^void insert_value_to_stack_ptr_with_offset(LVALUE** llvm_stack_ptr, LVALUE* value, int offset)$/;"	f
 insert_value_to_stack_ptr_with_offset	src/jit_sub2.cpp	/^void insert_value_to_stack_ptr_with_offset(LVALUE** llvm_stack_ptr, LVALUE* value, int offset)$/;"	f
 interpreter_final	src/interpreter.c	/^static void interpreter_final()$/;"	f	file:
 interpreter_init	src/interpreter.c	/^static void interpreter_init()$/;"	f	file:
@@ -1511,6 +1526,36 @@ jit_final	src/jit.cpp	/^void jit_final()$/;"	f
 jit_final_on_runtime	src/jit_runtime.cpp	/^void jit_final_on_runtime()$/;"	f
 jit_init	src/jit.cpp	/^void jit_init()$/;"	f
 jit_init_on_runtime	src/jit_runtime.cpp	/^void jit_init_on_runtime()$/;"	f
+kLVKindAddress	src/jit_common.hpp	/^enum eLVALUEKind { kLVKindNone, kLVKindInt1, kLVKindInt8, kLVKindUInt8, kLVKindInt16, kLVKindUInt16, kLVKindInt32, kLVKindUInt32, kLVKindInt64, kLVKindUInt64, kLVKindMemory, kLVKindAddress, kLVKindConstantInt1, kLVKindConstantInt8, kLVKindConstantUInt8, kLVKindConstantInt16, kLVKindConstantUInt16, kLVKindConstantInt32, kLVKindConstantUInt32, kLVKindConstantInt64, kLVKindConstantUInt64, kLVKindConstantFloat, kLVKindConstantDouble, kLVKindFloat, kLVKindDouble, kLVKindPointer8, kLVKindPointer32, kLVKindPointer64, kLVKindPointerDouble, kLVKindObject };$/;"	e	enum:eLVALUEKind
+kLVKindConstantDouble	src/jit_common.hpp	/^enum eLVALUEKind { kLVKindNone, kLVKindInt1, kLVKindInt8, kLVKindUInt8, kLVKindInt16, kLVKindUInt16, kLVKindInt32, kLVKindUInt32, kLVKindInt64, kLVKindUInt64, kLVKindMemory, kLVKindAddress, kLVKindConstantInt1, kLVKindConstantInt8, kLVKindConstantUInt8, kLVKindConstantInt16, kLVKindConstantUInt16, kLVKindConstantInt32, kLVKindConstantUInt32, kLVKindConstantInt64, kLVKindConstantUInt64, kLVKindConstantFloat, kLVKindConstantDouble, kLVKindFloat, kLVKindDouble, kLVKindPointer8, kLVKindPointer32, kLVKindPointer64, kLVKindPointerDouble, kLVKindObject };$/;"	e	enum:eLVALUEKind
+kLVKindConstantFloat	src/jit_common.hpp	/^enum eLVALUEKind { kLVKindNone, kLVKindInt1, kLVKindInt8, kLVKindUInt8, kLVKindInt16, kLVKindUInt16, kLVKindInt32, kLVKindUInt32, kLVKindInt64, kLVKindUInt64, kLVKindMemory, kLVKindAddress, kLVKindConstantInt1, kLVKindConstantInt8, kLVKindConstantUInt8, kLVKindConstantInt16, kLVKindConstantUInt16, kLVKindConstantInt32, kLVKindConstantUInt32, kLVKindConstantInt64, kLVKindConstantUInt64, kLVKindConstantFloat, kLVKindConstantDouble, kLVKindFloat, kLVKindDouble, kLVKindPointer8, kLVKindPointer32, kLVKindPointer64, kLVKindPointerDouble, kLVKindObject };$/;"	e	enum:eLVALUEKind
+kLVKindConstantInt1	src/jit_common.hpp	/^enum eLVALUEKind { kLVKindNone, kLVKindInt1, kLVKindInt8, kLVKindUInt8, kLVKindInt16, kLVKindUInt16, kLVKindInt32, kLVKindUInt32, kLVKindInt64, kLVKindUInt64, kLVKindMemory, kLVKindAddress, kLVKindConstantInt1, kLVKindConstantInt8, kLVKindConstantUInt8, kLVKindConstantInt16, kLVKindConstantUInt16, kLVKindConstantInt32, kLVKindConstantUInt32, kLVKindConstantInt64, kLVKindConstantUInt64, kLVKindConstantFloat, kLVKindConstantDouble, kLVKindFloat, kLVKindDouble, kLVKindPointer8, kLVKindPointer32, kLVKindPointer64, kLVKindPointerDouble, kLVKindObject };$/;"	e	enum:eLVALUEKind
+kLVKindConstantInt16	src/jit_common.hpp	/^enum eLVALUEKind { kLVKindNone, kLVKindInt1, kLVKindInt8, kLVKindUInt8, kLVKindInt16, kLVKindUInt16, kLVKindInt32, kLVKindUInt32, kLVKindInt64, kLVKindUInt64, kLVKindMemory, kLVKindAddress, kLVKindConstantInt1, kLVKindConstantInt8, kLVKindConstantUInt8, kLVKindConstantInt16, kLVKindConstantUInt16, kLVKindConstantInt32, kLVKindConstantUInt32, kLVKindConstantInt64, kLVKindConstantUInt64, kLVKindConstantFloat, kLVKindConstantDouble, kLVKindFloat, kLVKindDouble, kLVKindPointer8, kLVKindPointer32, kLVKindPointer64, kLVKindPointerDouble, kLVKindObject };$/;"	e	enum:eLVALUEKind
+kLVKindConstantInt32	src/jit_common.hpp	/^enum eLVALUEKind { kLVKindNone, kLVKindInt1, kLVKindInt8, kLVKindUInt8, kLVKindInt16, kLVKindUInt16, kLVKindInt32, kLVKindUInt32, kLVKindInt64, kLVKindUInt64, kLVKindMemory, kLVKindAddress, kLVKindConstantInt1, kLVKindConstantInt8, kLVKindConstantUInt8, kLVKindConstantInt16, kLVKindConstantUInt16, kLVKindConstantInt32, kLVKindConstantUInt32, kLVKindConstantInt64, kLVKindConstantUInt64, kLVKindConstantFloat, kLVKindConstantDouble, kLVKindFloat, kLVKindDouble, kLVKindPointer8, kLVKindPointer32, kLVKindPointer64, kLVKindPointerDouble, kLVKindObject };$/;"	e	enum:eLVALUEKind
+kLVKindConstantInt64	src/jit_common.hpp	/^enum eLVALUEKind { kLVKindNone, kLVKindInt1, kLVKindInt8, kLVKindUInt8, kLVKindInt16, kLVKindUInt16, kLVKindInt32, kLVKindUInt32, kLVKindInt64, kLVKindUInt64, kLVKindMemory, kLVKindAddress, kLVKindConstantInt1, kLVKindConstantInt8, kLVKindConstantUInt8, kLVKindConstantInt16, kLVKindConstantUInt16, kLVKindConstantInt32, kLVKindConstantUInt32, kLVKindConstantInt64, kLVKindConstantUInt64, kLVKindConstantFloat, kLVKindConstantDouble, kLVKindFloat, kLVKindDouble, kLVKindPointer8, kLVKindPointer32, kLVKindPointer64, kLVKindPointerDouble, kLVKindObject };$/;"	e	enum:eLVALUEKind
+kLVKindConstantInt8	src/jit_common.hpp	/^enum eLVALUEKind { kLVKindNone, kLVKindInt1, kLVKindInt8, kLVKindUInt8, kLVKindInt16, kLVKindUInt16, kLVKindInt32, kLVKindUInt32, kLVKindInt64, kLVKindUInt64, kLVKindMemory, kLVKindAddress, kLVKindConstantInt1, kLVKindConstantInt8, kLVKindConstantUInt8, kLVKindConstantInt16, kLVKindConstantUInt16, kLVKindConstantInt32, kLVKindConstantUInt32, kLVKindConstantInt64, kLVKindConstantUInt64, kLVKindConstantFloat, kLVKindConstantDouble, kLVKindFloat, kLVKindDouble, kLVKindPointer8, kLVKindPointer32, kLVKindPointer64, kLVKindPointerDouble, kLVKindObject };$/;"	e	enum:eLVALUEKind
+kLVKindConstantUInt16	src/jit_common.hpp	/^enum eLVALUEKind { kLVKindNone, kLVKindInt1, kLVKindInt8, kLVKindUInt8, kLVKindInt16, kLVKindUInt16, kLVKindInt32, kLVKindUInt32, kLVKindInt64, kLVKindUInt64, kLVKindMemory, kLVKindAddress, kLVKindConstantInt1, kLVKindConstantInt8, kLVKindConstantUInt8, kLVKindConstantInt16, kLVKindConstantUInt16, kLVKindConstantInt32, kLVKindConstantUInt32, kLVKindConstantInt64, kLVKindConstantUInt64, kLVKindConstantFloat, kLVKindConstantDouble, kLVKindFloat, kLVKindDouble, kLVKindPointer8, kLVKindPointer32, kLVKindPointer64, kLVKindPointerDouble, kLVKindObject };$/;"	e	enum:eLVALUEKind
+kLVKindConstantUInt32	src/jit_common.hpp	/^enum eLVALUEKind { kLVKindNone, kLVKindInt1, kLVKindInt8, kLVKindUInt8, kLVKindInt16, kLVKindUInt16, kLVKindInt32, kLVKindUInt32, kLVKindInt64, kLVKindUInt64, kLVKindMemory, kLVKindAddress, kLVKindConstantInt1, kLVKindConstantInt8, kLVKindConstantUInt8, kLVKindConstantInt16, kLVKindConstantUInt16, kLVKindConstantInt32, kLVKindConstantUInt32, kLVKindConstantInt64, kLVKindConstantUInt64, kLVKindConstantFloat, kLVKindConstantDouble, kLVKindFloat, kLVKindDouble, kLVKindPointer8, kLVKindPointer32, kLVKindPointer64, kLVKindPointerDouble, kLVKindObject };$/;"	e	enum:eLVALUEKind
+kLVKindConstantUInt64	src/jit_common.hpp	/^enum eLVALUEKind { kLVKindNone, kLVKindInt1, kLVKindInt8, kLVKindUInt8, kLVKindInt16, kLVKindUInt16, kLVKindInt32, kLVKindUInt32, kLVKindInt64, kLVKindUInt64, kLVKindMemory, kLVKindAddress, kLVKindConstantInt1, kLVKindConstantInt8, kLVKindConstantUInt8, kLVKindConstantInt16, kLVKindConstantUInt16, kLVKindConstantInt32, kLVKindConstantUInt32, kLVKindConstantInt64, kLVKindConstantUInt64, kLVKindConstantFloat, kLVKindConstantDouble, kLVKindFloat, kLVKindDouble, kLVKindPointer8, kLVKindPointer32, kLVKindPointer64, kLVKindPointerDouble, kLVKindObject };$/;"	e	enum:eLVALUEKind
+kLVKindConstantUInt8	src/jit_common.hpp	/^enum eLVALUEKind { kLVKindNone, kLVKindInt1, kLVKindInt8, kLVKindUInt8, kLVKindInt16, kLVKindUInt16, kLVKindInt32, kLVKindUInt32, kLVKindInt64, kLVKindUInt64, kLVKindMemory, kLVKindAddress, kLVKindConstantInt1, kLVKindConstantInt8, kLVKindConstantUInt8, kLVKindConstantInt16, kLVKindConstantUInt16, kLVKindConstantInt32, kLVKindConstantUInt32, kLVKindConstantInt64, kLVKindConstantUInt64, kLVKindConstantFloat, kLVKindConstantDouble, kLVKindFloat, kLVKindDouble, kLVKindPointer8, kLVKindPointer32, kLVKindPointer64, kLVKindPointerDouble, kLVKindObject };$/;"	e	enum:eLVALUEKind
+kLVKindDouble	src/jit_common.hpp	/^enum eLVALUEKind { kLVKindNone, kLVKindInt1, kLVKindInt8, kLVKindUInt8, kLVKindInt16, kLVKindUInt16, kLVKindInt32, kLVKindUInt32, kLVKindInt64, kLVKindUInt64, kLVKindMemory, kLVKindAddress, kLVKindConstantInt1, kLVKindConstantInt8, kLVKindConstantUInt8, kLVKindConstantInt16, kLVKindConstantUInt16, kLVKindConstantInt32, kLVKindConstantUInt32, kLVKindConstantInt64, kLVKindConstantUInt64, kLVKindConstantFloat, kLVKindConstantDouble, kLVKindFloat, kLVKindDouble, kLVKindPointer8, kLVKindPointer32, kLVKindPointer64, kLVKindPointerDouble, kLVKindObject };$/;"	e	enum:eLVALUEKind
+kLVKindFloat	src/jit_common.hpp	/^enum eLVALUEKind { kLVKindNone, kLVKindInt1, kLVKindInt8, kLVKindUInt8, kLVKindInt16, kLVKindUInt16, kLVKindInt32, kLVKindUInt32, kLVKindInt64, kLVKindUInt64, kLVKindMemory, kLVKindAddress, kLVKindConstantInt1, kLVKindConstantInt8, kLVKindConstantUInt8, kLVKindConstantInt16, kLVKindConstantUInt16, kLVKindConstantInt32, kLVKindConstantUInt32, kLVKindConstantInt64, kLVKindConstantUInt64, kLVKindConstantFloat, kLVKindConstantDouble, kLVKindFloat, kLVKindDouble, kLVKindPointer8, kLVKindPointer32, kLVKindPointer64, kLVKindPointerDouble, kLVKindObject };$/;"	e	enum:eLVALUEKind
+kLVKindInt1	src/jit_common.hpp	/^enum eLVALUEKind { kLVKindNone, kLVKindInt1, kLVKindInt8, kLVKindUInt8, kLVKindInt16, kLVKindUInt16, kLVKindInt32, kLVKindUInt32, kLVKindInt64, kLVKindUInt64, kLVKindMemory, kLVKindAddress, kLVKindConstantInt1, kLVKindConstantInt8, kLVKindConstantUInt8, kLVKindConstantInt16, kLVKindConstantUInt16, kLVKindConstantInt32, kLVKindConstantUInt32, kLVKindConstantInt64, kLVKindConstantUInt64, kLVKindConstantFloat, kLVKindConstantDouble, kLVKindFloat, kLVKindDouble, kLVKindPointer8, kLVKindPointer32, kLVKindPointer64, kLVKindPointerDouble, kLVKindObject };$/;"	e	enum:eLVALUEKind
+kLVKindInt16	src/jit_common.hpp	/^enum eLVALUEKind { kLVKindNone, kLVKindInt1, kLVKindInt8, kLVKindUInt8, kLVKindInt16, kLVKindUInt16, kLVKindInt32, kLVKindUInt32, kLVKindInt64, kLVKindUInt64, kLVKindMemory, kLVKindAddress, kLVKindConstantInt1, kLVKindConstantInt8, kLVKindConstantUInt8, kLVKindConstantInt16, kLVKindConstantUInt16, kLVKindConstantInt32, kLVKindConstantUInt32, kLVKindConstantInt64, kLVKindConstantUInt64, kLVKindConstantFloat, kLVKindConstantDouble, kLVKindFloat, kLVKindDouble, kLVKindPointer8, kLVKindPointer32, kLVKindPointer64, kLVKindPointerDouble, kLVKindObject };$/;"	e	enum:eLVALUEKind
+kLVKindInt32	src/jit_common.hpp	/^enum eLVALUEKind { kLVKindNone, kLVKindInt1, kLVKindInt8, kLVKindUInt8, kLVKindInt16, kLVKindUInt16, kLVKindInt32, kLVKindUInt32, kLVKindInt64, kLVKindUInt64, kLVKindMemory, kLVKindAddress, kLVKindConstantInt1, kLVKindConstantInt8, kLVKindConstantUInt8, kLVKindConstantInt16, kLVKindConstantUInt16, kLVKindConstantInt32, kLVKindConstantUInt32, kLVKindConstantInt64, kLVKindConstantUInt64, kLVKindConstantFloat, kLVKindConstantDouble, kLVKindFloat, kLVKindDouble, kLVKindPointer8, kLVKindPointer32, kLVKindPointer64, kLVKindPointerDouble, kLVKindObject };$/;"	e	enum:eLVALUEKind
+kLVKindInt64	src/jit_common.hpp	/^enum eLVALUEKind { kLVKindNone, kLVKindInt1, kLVKindInt8, kLVKindUInt8, kLVKindInt16, kLVKindUInt16, kLVKindInt32, kLVKindUInt32, kLVKindInt64, kLVKindUInt64, kLVKindMemory, kLVKindAddress, kLVKindConstantInt1, kLVKindConstantInt8, kLVKindConstantUInt8, kLVKindConstantInt16, kLVKindConstantUInt16, kLVKindConstantInt32, kLVKindConstantUInt32, kLVKindConstantInt64, kLVKindConstantUInt64, kLVKindConstantFloat, kLVKindConstantDouble, kLVKindFloat, kLVKindDouble, kLVKindPointer8, kLVKindPointer32, kLVKindPointer64, kLVKindPointerDouble, kLVKindObject };$/;"	e	enum:eLVALUEKind
+kLVKindInt8	src/jit_common.hpp	/^enum eLVALUEKind { kLVKindNone, kLVKindInt1, kLVKindInt8, kLVKindUInt8, kLVKindInt16, kLVKindUInt16, kLVKindInt32, kLVKindUInt32, kLVKindInt64, kLVKindUInt64, kLVKindMemory, kLVKindAddress, kLVKindConstantInt1, kLVKindConstantInt8, kLVKindConstantUInt8, kLVKindConstantInt16, kLVKindConstantUInt16, kLVKindConstantInt32, kLVKindConstantUInt32, kLVKindConstantInt64, kLVKindConstantUInt64, kLVKindConstantFloat, kLVKindConstantDouble, kLVKindFloat, kLVKindDouble, kLVKindPointer8, kLVKindPointer32, kLVKindPointer64, kLVKindPointerDouble, kLVKindObject };$/;"	e	enum:eLVALUEKind
+kLVKindMemory	src/jit_common.hpp	/^enum eLVALUEKind { kLVKindNone, kLVKindInt1, kLVKindInt8, kLVKindUInt8, kLVKindInt16, kLVKindUInt16, kLVKindInt32, kLVKindUInt32, kLVKindInt64, kLVKindUInt64, kLVKindMemory, kLVKindAddress, kLVKindConstantInt1, kLVKindConstantInt8, kLVKindConstantUInt8, kLVKindConstantInt16, kLVKindConstantUInt16, kLVKindConstantInt32, kLVKindConstantUInt32, kLVKindConstantInt64, kLVKindConstantUInt64, kLVKindConstantFloat, kLVKindConstantDouble, kLVKindFloat, kLVKindDouble, kLVKindPointer8, kLVKindPointer32, kLVKindPointer64, kLVKindPointerDouble, kLVKindObject };$/;"	e	enum:eLVALUEKind
+kLVKindNone	src/jit_common.hpp	/^enum eLVALUEKind { kLVKindNone, kLVKindInt1, kLVKindInt8, kLVKindUInt8, kLVKindInt16, kLVKindUInt16, kLVKindInt32, kLVKindUInt32, kLVKindInt64, kLVKindUInt64, kLVKindMemory, kLVKindAddress, kLVKindConstantInt1, kLVKindConstantInt8, kLVKindConstantUInt8, kLVKindConstantInt16, kLVKindConstantUInt16, kLVKindConstantInt32, kLVKindConstantUInt32, kLVKindConstantInt64, kLVKindConstantUInt64, kLVKindConstantFloat, kLVKindConstantDouble, kLVKindFloat, kLVKindDouble, kLVKindPointer8, kLVKindPointer32, kLVKindPointer64, kLVKindPointerDouble, kLVKindObject };$/;"	e	enum:eLVALUEKind
+kLVKindObject	src/jit_common.hpp	/^enum eLVALUEKind { kLVKindNone, kLVKindInt1, kLVKindInt8, kLVKindUInt8, kLVKindInt16, kLVKindUInt16, kLVKindInt32, kLVKindUInt32, kLVKindInt64, kLVKindUInt64, kLVKindMemory, kLVKindAddress, kLVKindConstantInt1, kLVKindConstantInt8, kLVKindConstantUInt8, kLVKindConstantInt16, kLVKindConstantUInt16, kLVKindConstantInt32, kLVKindConstantUInt32, kLVKindConstantInt64, kLVKindConstantUInt64, kLVKindConstantFloat, kLVKindConstantDouble, kLVKindFloat, kLVKindDouble, kLVKindPointer8, kLVKindPointer32, kLVKindPointer64, kLVKindPointerDouble, kLVKindObject };$/;"	e	enum:eLVALUEKind
+kLVKindPointer32	src/jit_common.hpp	/^enum eLVALUEKind { kLVKindNone, kLVKindInt1, kLVKindInt8, kLVKindUInt8, kLVKindInt16, kLVKindUInt16, kLVKindInt32, kLVKindUInt32, kLVKindInt64, kLVKindUInt64, kLVKindMemory, kLVKindAddress, kLVKindConstantInt1, kLVKindConstantInt8, kLVKindConstantUInt8, kLVKindConstantInt16, kLVKindConstantUInt16, kLVKindConstantInt32, kLVKindConstantUInt32, kLVKindConstantInt64, kLVKindConstantUInt64, kLVKindConstantFloat, kLVKindConstantDouble, kLVKindFloat, kLVKindDouble, kLVKindPointer8, kLVKindPointer32, kLVKindPointer64, kLVKindPointerDouble, kLVKindObject };$/;"	e	enum:eLVALUEKind
+kLVKindPointer64	src/jit_common.hpp	/^enum eLVALUEKind { kLVKindNone, kLVKindInt1, kLVKindInt8, kLVKindUInt8, kLVKindInt16, kLVKindUInt16, kLVKindInt32, kLVKindUInt32, kLVKindInt64, kLVKindUInt64, kLVKindMemory, kLVKindAddress, kLVKindConstantInt1, kLVKindConstantInt8, kLVKindConstantUInt8, kLVKindConstantInt16, kLVKindConstantUInt16, kLVKindConstantInt32, kLVKindConstantUInt32, kLVKindConstantInt64, kLVKindConstantUInt64, kLVKindConstantFloat, kLVKindConstantDouble, kLVKindFloat, kLVKindDouble, kLVKindPointer8, kLVKindPointer32, kLVKindPointer64, kLVKindPointerDouble, kLVKindObject };$/;"	e	enum:eLVALUEKind
+kLVKindPointer8	src/jit_common.hpp	/^enum eLVALUEKind { kLVKindNone, kLVKindInt1, kLVKindInt8, kLVKindUInt8, kLVKindInt16, kLVKindUInt16, kLVKindInt32, kLVKindUInt32, kLVKindInt64, kLVKindUInt64, kLVKindMemory, kLVKindAddress, kLVKindConstantInt1, kLVKindConstantInt8, kLVKindConstantUInt8, kLVKindConstantInt16, kLVKindConstantUInt16, kLVKindConstantInt32, kLVKindConstantUInt32, kLVKindConstantInt64, kLVKindConstantUInt64, kLVKindConstantFloat, kLVKindConstantDouble, kLVKindFloat, kLVKindDouble, kLVKindPointer8, kLVKindPointer32, kLVKindPointer64, kLVKindPointerDouble, kLVKindObject };$/;"	e	enum:eLVALUEKind
+kLVKindPointerDouble	src/jit_common.hpp	/^enum eLVALUEKind { kLVKindNone, kLVKindInt1, kLVKindInt8, kLVKindUInt8, kLVKindInt16, kLVKindUInt16, kLVKindInt32, kLVKindUInt32, kLVKindInt64, kLVKindUInt64, kLVKindMemory, kLVKindAddress, kLVKindConstantInt1, kLVKindConstantInt8, kLVKindConstantUInt8, kLVKindConstantInt16, kLVKindConstantUInt16, kLVKindConstantInt32, kLVKindConstantUInt32, kLVKindConstantInt64, kLVKindConstantUInt64, kLVKindConstantFloat, kLVKindConstantDouble, kLVKindFloat, kLVKindDouble, kLVKindPointer8, kLVKindPointer32, kLVKindPointer64, kLVKindPointerDouble, kLVKindObject };$/;"	e	enum:eLVALUEKind
+kLVKindUInt16	src/jit_common.hpp	/^enum eLVALUEKind { kLVKindNone, kLVKindInt1, kLVKindInt8, kLVKindUInt8, kLVKindInt16, kLVKindUInt16, kLVKindInt32, kLVKindUInt32, kLVKindInt64, kLVKindUInt64, kLVKindMemory, kLVKindAddress, kLVKindConstantInt1, kLVKindConstantInt8, kLVKindConstantUInt8, kLVKindConstantInt16, kLVKindConstantUInt16, kLVKindConstantInt32, kLVKindConstantUInt32, kLVKindConstantInt64, kLVKindConstantUInt64, kLVKindConstantFloat, kLVKindConstantDouble, kLVKindFloat, kLVKindDouble, kLVKindPointer8, kLVKindPointer32, kLVKindPointer64, kLVKindPointerDouble, kLVKindObject };$/;"	e	enum:eLVALUEKind
+kLVKindUInt32	src/jit_common.hpp	/^enum eLVALUEKind { kLVKindNone, kLVKindInt1, kLVKindInt8, kLVKindUInt8, kLVKindInt16, kLVKindUInt16, kLVKindInt32, kLVKindUInt32, kLVKindInt64, kLVKindUInt64, kLVKindMemory, kLVKindAddress, kLVKindConstantInt1, kLVKindConstantInt8, kLVKindConstantUInt8, kLVKindConstantInt16, kLVKindConstantUInt16, kLVKindConstantInt32, kLVKindConstantUInt32, kLVKindConstantInt64, kLVKindConstantUInt64, kLVKindConstantFloat, kLVKindConstantDouble, kLVKindFloat, kLVKindDouble, kLVKindPointer8, kLVKindPointer32, kLVKindPointer64, kLVKindPointerDouble, kLVKindObject };$/;"	e	enum:eLVALUEKind
+kLVKindUInt64	src/jit_common.hpp	/^enum eLVALUEKind { kLVKindNone, kLVKindInt1, kLVKindInt8, kLVKindUInt8, kLVKindInt16, kLVKindUInt16, kLVKindInt32, kLVKindUInt32, kLVKindInt64, kLVKindUInt64, kLVKindMemory, kLVKindAddress, kLVKindConstantInt1, kLVKindConstantInt8, kLVKindConstantUInt8, kLVKindConstantInt16, kLVKindConstantUInt16, kLVKindConstantInt32, kLVKindConstantUInt32, kLVKindConstantInt64, kLVKindConstantUInt64, kLVKindConstantFloat, kLVKindConstantDouble, kLVKindFloat, kLVKindDouble, kLVKindPointer8, kLVKindPointer32, kLVKindPointer64, kLVKindPointerDouble, kLVKindObject };$/;"	e	enum:eLVALUEKind
+kLVKindUInt8	src/jit_common.hpp	/^enum eLVALUEKind { kLVKindNone, kLVKindInt1, kLVKindInt8, kLVKindUInt8, kLVKindInt16, kLVKindUInt16, kLVKindInt32, kLVKindUInt32, kLVKindInt64, kLVKindUInt64, kLVKindMemory, kLVKindAddress, kLVKindConstantInt1, kLVKindConstantInt8, kLVKindConstantUInt8, kLVKindConstantInt16, kLVKindConstantUInt16, kLVKindConstantInt32, kLVKindConstantUInt32, kLVKindConstantInt64, kLVKindConstantUInt64, kLVKindConstantFloat, kLVKindConstantDouble, kLVKindFloat, kLVKindDouble, kLVKindPointer8, kLVKindPointer32, kLVKindPointer64, kLVKindPointerDouble, kLVKindObject };$/;"	e	enum:eLVALUEKind
 kNodeTypeAndAnd	src/common.h	/^enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeUByteValue, kNodeTypeShortValue, kNodeTypeUShortValue, kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand, kNodeTypeIncrementWithValueOperand, kNodeTypeDecrementWithValueOperand, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand, kNodeTypeLoadArrayElement, kNodeTypeStoreArrayElement, kNodeTypeChar, kNodeTypeString, kNodeTypeBuffer, kNodeTypeThrow, kNodeTypeTry, kNodeTypeBlockObject, kNodeTypeFunction, kNodeTypeBlockCall, kNodeTypeConditional, kNodeTypeNormalBlock, kNodeTypeArrayValue, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeHashValue, kNodeTypeRegex, kNodeTypeListValue, kNodeTypeSortableListValue, kNodeTypeEqualableListValue, kNodeTypeTupleValue, kNodeTypeCArrayValue, kNodeTypeEqualableCArrayValue, kNodeTypeSortableCArrayValue, kNodeTypeImplements, kNodeTypeGetAddress, kNodeTypeInheritCall, kNodeTypeFloatValue, kNodeTypeDoubleValue, kNodeTypePath };$/;"	e	enum:eNodeType
 kNodeTypeArrayValue	src/common.h	/^enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeUByteValue, kNodeTypeShortValue, kNodeTypeUShortValue, kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand, kNodeTypeIncrementWithValueOperand, kNodeTypeDecrementWithValueOperand, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand, kNodeTypeLoadArrayElement, kNodeTypeStoreArrayElement, kNodeTypeChar, kNodeTypeString, kNodeTypeBuffer, kNodeTypeThrow, kNodeTypeTry, kNodeTypeBlockObject, kNodeTypeFunction, kNodeTypeBlockCall, kNodeTypeConditional, kNodeTypeNormalBlock, kNodeTypeArrayValue, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeHashValue, kNodeTypeRegex, kNodeTypeListValue, kNodeTypeSortableListValue, kNodeTypeEqualableListValue, kNodeTypeTupleValue, kNodeTypeCArrayValue, kNodeTypeEqualableCArrayValue, kNodeTypeSortableCArrayValue, kNodeTypeImplements, kNodeTypeGetAddress, kNodeTypeInheritCall, kNodeTypeFloatValue, kNodeTypeDoubleValue, kNodeTypePath };$/;"	e	enum:eNodeType
 kNodeTypeAssignVariable	src/common.h	/^enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeUByteValue, kNodeTypeShortValue, kNodeTypeUShortValue, kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand, kNodeTypeIncrementWithValueOperand, kNodeTypeDecrementWithValueOperand, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand, kNodeTypeLoadArrayElement, kNodeTypeStoreArrayElement, kNodeTypeChar, kNodeTypeString, kNodeTypeBuffer, kNodeTypeThrow, kNodeTypeTry, kNodeTypeBlockObject, kNodeTypeFunction, kNodeTypeBlockCall, kNodeTypeConditional, kNodeTypeNormalBlock, kNodeTypeArrayValue, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeHashValue, kNodeTypeRegex, kNodeTypeListValue, kNodeTypeSortableListValue, kNodeTypeEqualableListValue, kNodeTypeTupleValue, kNodeTypeCArrayValue, kNodeTypeEqualableCArrayValue, kNodeTypeSortableCArrayValue, kNodeTypeImplements, kNodeTypeGetAddress, kNodeTypeInheritCall, kNodeTypeFloatValue, kNodeTypeDoubleValue, kNodeTypePath };$/;"	e	enum:eNodeType
@@ -1593,12 +1638,16 @@ kOpOr	src/common.h	/^enum eOperand { kOpAdd, kOpSub , kOpComplement, kOpLogicalD
 kOpRightShift	src/common.h	/^enum eOperand { kOpAdd, kOpSub , kOpComplement, kOpLogicalDenial, kOpMult, kOpDiv, kOpMod, kOpLeftShift, kOpRightShift, kOpComparisonEqual, kOpComparisonNotEqual,kOpComparisonGreaterEqual, kOpComparisonLesserEqual, kOpComparisonGreater, kOpComparisonLesser, kOpAnd, kOpXor, kOpOr };$/;"	e	enum:eOperand
 kOpSub	src/common.h	/^enum eOperand { kOpAdd, kOpSub , kOpComplement, kOpLogicalDenial, kOpMult, kOpDiv, kOpMod, kOpLeftShift, kOpRightShift, kOpComparisonEqual, kOpComparisonNotEqual,kOpComparisonGreaterEqual, kOpComparisonLesserEqual, kOpComparisonGreater, kOpComparisonLesser, kOpAnd, kOpXor, kOpOr };$/;"	e	enum:eOperand
 kOpXor	src/common.h	/^enum eOperand { kOpAdd, kOpSub , kOpComplement, kOpLogicalDenial, kOpMult, kOpDiv, kOpMod, kOpLeftShift, kOpRightShift, kOpComparisonEqual, kOpComparisonNotEqual,kOpComparisonGreaterEqual, kOpComparisonLesserEqual, kOpComparisonGreater, kOpComparisonLesser, kOpAnd, kOpXor, kOpOr };$/;"	e	enum:eOperand
+kind	src/jit_common.hpp	/^    enum eLVALUEKind kind;$/;"	m	struct:LVALUEStruct	typeref:enum:LVALUEStruct::eLVALUEKind
 klass	src/common.h	/^    sCLClass* klass;$/;"	m	struct:sParserInfoStruct
 line_buffer_from_head_to_cursor_point	src/interpreter.c	/^static ALLOC char* line_buffer_from_head_to_cursor_point()$/;"	f	file:
 list_to_array	src/clover_to_clang.c	/^ALLOC CLObject* list_to_array(CLObject list, int* num_elements)$/;"	f
+llvm_create_string	src/jit_sub.cpp	/^Value* llvm_create_string(char* str)$/;"	f
 llvm_create_string	src/jit_sub2.cpp	/^Value* llvm_create_string(char* str)$/;"	f
 llvm_load_dynamic_library	src/jit_runtime.cpp	/^static void llvm_load_dynamic_library(sCLClass* klass)$/;"	f	file:
+llvm_lvar_to_vm_lvar	src/jit_sub.cpp	/^void llvm_lvar_to_vm_lvar(LVALUE* llvm_stack,std::map<std::string, Value*>& params, BasicBlock* current_block, int var_num)$/;"	f
 llvm_lvar_to_vm_lvar	src/jit_sub2.cpp	/^void llvm_lvar_to_vm_lvar(LVALUE* llvm_stack,std::map<std::string, Value*>& params, BasicBlock* current_block, int var_num)$/;"	f
+llvm_stack_to_vm_stack	src/jit_sub.cpp	/^void llvm_stack_to_vm_stack(LVALUE* llvm_stack_ptr, std::map<std::string, Value*> params, BasicBlock* current_block, int num)$/;"	f
 llvm_stack_to_vm_stack	src/jit_sub2.cpp	/^void llvm_stack_to_vm_stack(LVALUE* llvm_stack_ptr, std::map<std::string, Value*> params, BasicBlock* current_block, int num)$/;"	f
 load_class	src/klass.c	/^sCLClass* load_class(char* class_name)$/;"	f
 load_class_field	src/jit_runtime.cpp	/^struct sCLVALUEAndBoolResult* load_class_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index, int offset, sConst* constant)$/;"	f
@@ -1612,7 +1661,9 @@ local_variable_completion	src/interpreter.c	/^void local_variable_completion(cha
 lv_table	src/common.h	/^    sVarTable* lv_table;$/;"	m	struct:sCompileInfoStruct
 lv_table	src/common.h	/^    sVarTable* lv_table;$/;"	m	struct:sParserInfoStruct
 lvar_address_index	src/jit_common.hpp	/^    int lvar_address_index;$/;"	m	struct:LVALUEStruct
+lvar_of_llvm_to_lvar_of_vm	src/jit_sub.cpp	/^void lvar_of_llvm_to_lvar_of_vm(std::map<std::string, Value *> params, BasicBlock* current_block, LVALUE* llvm_stack, int var_num)$/;"	f
 lvar_of_llvm_to_lvar_of_vm	src/jit_sub2.cpp	/^void lvar_of_llvm_to_lvar_of_vm(std::map<std::string, Value *> params, BasicBlock* current_block, LVALUE* llvm_stack, int var_num)$/;"	f
+lvar_of_vm_to_lvar_of_llvm	src/jit_sub.cpp	/^void lvar_of_vm_to_lvar_of_llvm(std::map<std::string, Value *> params, BasicBlock* current_block, LVALUE* llvm_stack, int var_num)$/;"	f
 lvar_of_vm_to_lvar_of_llvm	src/jit_sub2.cpp	/^void lvar_of_vm_to_lvar_of_llvm(std::map<std::string, Value *> params, BasicBlock* current_block, LVALUE* llvm_stack, int var_num)$/;"	f
 lvar_stored	src/jit_common.hpp	/^    BOOL lvar_stored;$/;"	m	struct:LVALUEStruct
 mAnchored	src/common.h	/^            BOOL mAnchored;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon21
@@ -1974,7 +2025,9 @@ prefix	Makefile	/^prefix=\/home\/ab25cq$/;"	m
 print_node_type	src/node_type.c	/^void print_node_type(sNodeType* node_type)$/;"	f
 prototypes	configure	/^   function prototypes and stuff, but not '\\xHH' hex character constants.$/;"	f
 push_jit_object	src/jit_runtime.cpp	/^void push_jit_object(CLObject obj)$/;"	f
+push_value_to_stack_ptr	src/jit_sub.cpp	/^void push_value_to_stack_ptr(LVALUE** llvm_stack_ptr, LVALUE* value)$/;"	f
 push_value_to_stack_ptr	src/jit_sub2.cpp	/^void push_value_to_stack_ptr(LVALUE** llvm_stack_ptr, LVALUE* value)$/;"	f
+push_value_to_vm_stack_ptr_with_aligned	src/jit_sub.cpp	/^void push_value_to_vm_stack_ptr_with_aligned(std::map<std::string, Value*> params, BasicBlock* current_block, LVALUE* llvm_value)$/;"	f
 push_value_to_vm_stack_ptr_with_aligned	src/jit_sub2.cpp	/^void push_value_to_vm_stack_ptr_with_aligned(std::map<std::string, Value*> params, BasicBlock* current_block, LVALUE* llvm_value)$/;"	f
 put_class_to_table	src/klass.c	/^BOOL put_class_to_table(char* class_name, sCLClass* klass)$/;"	f
 put_fun_to_hash_for_native_method	src/native_method.c	/^void put_fun_to_hash_for_native_method(char* path, char* fun_name, fNativeMethod fun)$/;"	f
@@ -2004,46 +2057,85 @@ result1	src/jit_common.hpp	/^    char* result1;$/;"	m	struct:sPointerAndBoolResu
 result2	src/jit_common.hpp	/^    BOOL result2;$/;"	m	struct:sCLVALUEAndBoolResult
 result2	src/jit_common.hpp	/^    BOOL result2;$/;"	m	struct:sPointerAndBoolResult
 return_expression	src/parser.c	/^static BOOL return_expression(unsigned int* node, sParserInfo* info)$/;"	f	file:
+run_array_to_carray_cast	src/jit_runtime.cpp	/^struct sCLVALUEAndBoolResult* run_array_to_carray_cast(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, CLObject array, char* class_name)$/;"	f
 run_array_to_carray_cast	src/jit_runtime2.cpp	/^struct sCLVALUEAndBoolResult* run_array_to_carray_cast(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, CLObject array, char* class_name)$/;"	f
+run_bool_to_string_cast	src/jit_runtime.cpp	/^CLObject run_bool_to_string_cast(BOOL b)$/;"	f
 run_bool_to_string_cast	src/jit_runtime2.cpp	/^CLObject run_bool_to_string_cast(BOOL b)$/;"	f
+run_cbyte_to_byte_cast	src/jit_runtime.cpp	/^char run_cbyte_to_byte_cast(CLObject obj)$/;"	f
 run_cbyte_to_byte_cast	src/jit_runtime2.cpp	/^char run_cbyte_to_byte_cast(CLObject obj)$/;"	f
+run_cdouble_to_double_cast	src/jit_runtime.cpp	/^double run_cdouble_to_double_cast(CLObject obj)$/;"	f
 run_cdouble_to_double_cast	src/jit_runtime2.cpp	/^double run_cdouble_to_double_cast(CLObject obj)$/;"	f
+run_cdouble_to_int_cast	src/jit_runtime.cpp	/^int run_cdouble_to_int_cast(CLObject obj)$/;"	f
 run_cdouble_to_int_cast	src/jit_runtime2.cpp	/^int run_cdouble_to_int_cast(CLObject obj)$/;"	f
+run_cfloat_to_float_cast	src/jit_runtime.cpp	/^float run_cfloat_to_float_cast(CLObject obj)$/;"	f
 run_cfloat_to_float_cast	src/jit_runtime2.cpp	/^float run_cfloat_to_float_cast(CLObject obj)$/;"	f
+run_cfloat_to_int_cast	src/jit_runtime.cpp	/^int run_cfloat_to_int_cast(CLObject obj)$/;"	f
 run_cfloat_to_int_cast	src/jit_runtime2.cpp	/^int run_cfloat_to_int_cast(CLObject obj)$/;"	f
+run_char_to_string_cast	src/jit_runtime.cpp	/^CLObject run_char_to_string_cast(wchar_t c)$/;"	f
 run_char_to_string_cast	src/jit_runtime2.cpp	/^CLObject run_char_to_string_cast(wchar_t c)$/;"	f
+run_clong_to_long_cast	src/jit_runtime.cpp	/^clint64 run_clong_to_long_cast(CLObject obj)$/;"	f
 run_clong_to_long_cast	src/jit_runtime2.cpp	/^clint64 run_clong_to_long_cast(CLObject obj)$/;"	f
+run_cpointer_to_pointer_cast	src/jit_runtime.cpp	/^char* run_cpointer_to_pointer_cast(CLObject obj)$/;"	f
 run_cpointer_to_pointer_cast	src/jit_runtime2.cpp	/^char* run_cpointer_to_pointer_cast(CLObject obj)$/;"	f
 run_create_array	src/jit_runtime.cpp	/^struct sCLVALUEAndBoolResult* run_create_array(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, int class_name_offset, sConst* constant)$/;"	f
+run_create_block_object	src/jit_runtime.cpp	/^CLObject run_create_block_object(CLVALUE** stack_ptr, CLVALUE* stack, sConst* constant, int code_offset, int code_len, int constant_offset, int constant_len, int block_var_num, int parent_var_num, BOOL lambda, sVMInfo* info)$/;"	f
 run_create_block_object	src/jit_runtime2.cpp	/^CLObject run_create_block_object(CLVALUE** stack_ptr, CLVALUE* stack, sConst* constant, int code_offset, int code_len, int constant_offset, int constant_len, int block_var_num, int parent_var_num, BOOL lambda, sVMInfo* info)$/;"	f
+run_create_carray	src/jit_runtime.cpp	/^struct sCLVALUEAndBoolResult* run_create_carray(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, int class_name_offset, sConst* constant)$/;"	f
 run_create_carray	src/jit_runtime2.cpp	/^struct sCLVALUEAndBoolResult* run_create_carray(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, int class_name_offset, sConst* constant)$/;"	f
+run_create_equalable_carray	src/jit_runtime.cpp	/^struct sCLVALUEAndBoolResult* run_create_equalable_carray(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, int class_name_offset, sConst* constant)$/;"	f
 run_create_equalable_carray	src/jit_runtime2.cpp	/^struct sCLVALUEAndBoolResult* run_create_equalable_carray(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, int class_name_offset, sConst* constant)$/;"	f
+run_create_equalable_list	src/jit_runtime.cpp	/^struct sCLVALUEAndBoolResult* run_create_equalable_list(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, int class_name_offset, sConst* constant)$/;"	f
 run_create_equalable_list	src/jit_runtime2.cpp	/^struct sCLVALUEAndBoolResult* run_create_equalable_list(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, int class_name_offset, sConst* constant)$/;"	f
+run_create_hash	src/jit_runtime.cpp	/^struct sCLVALUEAndBoolResult* run_create_hash(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, int class_name_offset, int class_name_offset2, sConst* constant)$/;"	f
 run_create_hash	src/jit_runtime2.cpp	/^struct sCLVALUEAndBoolResult* run_create_hash(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, int class_name_offset, int class_name_offset2, sConst* constant)$/;"	f
+run_create_list	src/jit_runtime.cpp	/^struct sCLVALUEAndBoolResult* run_create_list(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, int class_name_offset, sConst* constant)$/;"	f
 run_create_list	src/jit_runtime2.cpp	/^struct sCLVALUEAndBoolResult* run_create_list(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, int class_name_offset, sConst* constant)$/;"	f
+run_create_sortable_carray	src/jit_runtime.cpp	/^struct sCLVALUEAndBoolResult* run_create_sortable_carray(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, int class_name_offset, sConst* constant)$/;"	f
 run_create_sortable_carray	src/jit_runtime2.cpp	/^struct sCLVALUEAndBoolResult* run_create_sortable_carray(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, int class_name_offset, sConst* constant)$/;"	f
+run_create_sortable_list	src/jit_runtime.cpp	/^struct sCLVALUEAndBoolResult* run_create_sortable_list(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, int class_name_offset, sConst* constant)$/;"	f
 run_create_sortable_list	src/jit_runtime2.cpp	/^struct sCLVALUEAndBoolResult* run_create_sortable_list(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, int class_name_offset, sConst* constant)$/;"	f
+run_create_tuple	src/jit_runtime.cpp	/^struct sCLVALUEAndBoolResult* run_create_tuple(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements)$/;"	f
 run_create_tuple	src/jit_runtime2.cpp	/^struct sCLVALUEAndBoolResult* run_create_tuple(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements)$/;"	f
+run_cshort_to_short_cast	src/jit_runtime.cpp	/^short run_cshort_to_short_cast(CLObject obj)$/;"	f
 run_cshort_to_short_cast	src/jit_runtime2.cpp	/^short run_cshort_to_short_cast(CLObject obj)$/;"	f
+run_cubyte_to_ubyte_cast	src/jit_runtime.cpp	/^unsigned char run_cubyte_to_ubyte_cast(CLObject obj)$/;"	f
 run_cubyte_to_ubyte_cast	src/jit_runtime2.cpp	/^unsigned char run_cubyte_to_ubyte_cast(CLObject obj)$/;"	f
+run_culong_to_ulong_cast	src/jit_runtime.cpp	/^unsigned clint64 run_culong_to_ulong_cast(CLObject obj)$/;"	f
 run_culong_to_ulong_cast	src/jit_runtime2.cpp	/^unsigned clint64 run_culong_to_ulong_cast(CLObject obj)$/;"	f
+run_cushort_to_ushort_cast	src/jit_runtime.cpp	/^unsigned short run_cushort_to_ushort_cast(CLObject obj)$/;"	f
 run_cushort_to_ushort_cast	src/jit_runtime2.cpp	/^unsigned short run_cushort_to_ushort_cast(CLObject obj)$/;"	f
+run_double_to_string_cast	src/jit_runtime.cpp	/^CLObject run_double_to_string_cast(double d)$/;"	f
 run_double_to_string_cast	src/jit_runtime2.cpp	/^CLObject run_double_to_string_cast(double d)$/;"	f
+run_float_to_string_cast	src/jit_runtime.cpp	/^CLObject run_float_to_string_cast(float f)$/;"	f
 run_float_to_string_cast	src/jit_runtime2.cpp	/^CLObject run_float_to_string_cast(float f)$/;"	f
+run_int_to_string_cast	src/jit_runtime.cpp	/^CLObject run_int_to_string_cast(int n)$/;"	f
 run_int_to_string_cast	src/jit_runtime2.cpp	/^CLObject run_int_to_string_cast(int n)$/;"	f
+run_integer_to_int_cast	src/jit_runtime.cpp	/^int run_integer_to_int_cast(CLObject obj)$/;"	f
 run_integer_to_int_cast	src/jit_runtime2.cpp	/^int run_integer_to_int_cast(CLObject obj)$/;"	f
+run_load_class_field_address	src/jit_runtime.cpp	/^struct sPointerAndBoolResult* run_load_class_field_address(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index, int offset, sConst* constant)$/;"	f
 run_load_class_field_address	src/jit_runtime2.cpp	/^struct sPointerAndBoolResult* run_load_class_field_address(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index, int offset, sConst* constant)$/;"	f
+run_load_field_address	src/jit_runtime.cpp	/^struct sPointerAndBoolResult* run_load_field_address(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index, CLObject obj)$/;"	f
 run_load_field_address	src/jit_runtime2.cpp	/^struct sPointerAndBoolResult* run_load_field_address(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index, CLObject obj)$/;"	f
+run_long_to_string_cast	src/jit_runtime.cpp	/^CLObject run_long_to_string_cast(clint64 l)$/;"	f
 run_long_to_string_cast	src/jit_runtime2.cpp	/^CLObject run_long_to_string_cast(clint64 l)$/;"	f
+run_op_buffer_with_string_expression	src/jit_runtime.cpp	/^CLObject run_op_buffer_with_string_expression(char* str, int* string_expression_offsets, int num_string_expression, CLVALUE** stack_ptr)$/;"	f
 run_op_buffer_with_string_expression	src/jit_runtime2.cpp	/^CLObject run_op_buffer_with_string_expression(char* str, int* string_expression_offsets, int num_string_expression, CLVALUE** stack_ptr)$/;"	f
+run_op_path_with_string_expression	src/jit_runtime.cpp	/^CLObject run_op_path_with_string_expression(char* str, int* string_expression_offsets, int num_string_expression, CLVALUE** stack_ptr)$/;"	f
 run_op_path_with_string_expression	src/jit_runtime2.cpp	/^CLObject run_op_path_with_string_expression(char* str, int* string_expression_offsets, int num_string_expression, CLVALUE** stack_ptr)$/;"	f
+run_op_regex_with_string_expression	src/jit_runtime.cpp	/^CLObject run_op_regex_with_string_expression(char* str, int* string_expression_offsets, int num_string_expression, CLVALUE** stack_ptr, BOOL global, BOOL ignore_case, BOOL multiline, BOOL extended, BOOL dotall, BOOL anchored, BOOL dollar_endonly, BOOL ungreedy)$/;"	f
 run_op_regex_with_string_expression	src/jit_runtime2.cpp	/^CLObject run_op_regex_with_string_expression(char* str, int* string_expression_offsets, int num_string_expression, CLVALUE** stack_ptr, BOOL global, BOOL ignore_case, BOOL multiline, BOOL extended, BOOL dotall, BOOL anchored, BOOL dollar_endonly, BOOL ungreedy)$/;"	f
+run_op_string_with_string_expression	src/jit_runtime.cpp	/^CLObject run_op_string_with_string_expression(char* str, int* string_expression_offsets, int num_string_expression, CLVALUE** stack_ptr)$/;"	f
 run_op_string_with_string_expression	src/jit_runtime2.cpp	/^CLObject run_op_string_with_string_expression(char* str, int* string_expression_offsets, int num_string_expression, CLVALUE** stack_ptr)$/;"	f
+run_pointer_to_string_cast	src/jit_runtime.cpp	/^CLObject run_pointer_to_string_cast(char* p)$/;"	f
 run_pointer_to_string_cast	src/jit_runtime2.cpp	/^CLObject run_pointer_to_string_cast(char* p)$/;"	f
+run_regex_to_string_cast	src/jit_runtime.cpp	/^CLObject run_regex_to_string_cast(CLObject regex)$/;"	f
 run_regex_to_string_cast	src/jit_runtime2.cpp	/^CLObject run_regex_to_string_cast(CLObject regex)$/;"	f
 run_store_element	src/jit_runtime.cpp	/^BOOL run_store_element(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, CLObject array, int element_num, CLVALUE value)$/;"	f
+run_uint_to_string_cast	src/jit_runtime.cpp	/^CLObject run_uint_to_string_cast(unsigned int n)$/;"	f
 run_uint_to_string_cast	src/jit_runtime2.cpp	/^CLObject run_uint_to_string_cast(unsigned int n)$/;"	f
+run_uinteger_to_uint_cast	src/jit_runtime.cpp	/^unsigned int run_uinteger_to_uint_cast(CLObject obj)$/;"	f
 run_uinteger_to_uint_cast	src/jit_runtime2.cpp	/^unsigned int run_uinteger_to_uint_cast(CLObject obj)$/;"	f
+run_ulong_to_string_cast	src/jit_runtime.cpp	/^CLObject run_ulong_to_string_cast(clint64 l)$/;"	f
 run_ulong_to_string_cast	src/jit_runtime2.cpp	/^CLObject run_ulong_to_string_cast(clint64 l)$/;"	f
 running_class	src/common.h	/^    struct sCLClassStruct* running_class;$/;"	m	struct:sVMInfoStruct	typeref:struct:sVMInfoStruct::sCLClassStruct
 running_method	src/common.h	/^    struct sCLMethodStruct* running_method;$/;"	m	struct:sVMInfoStruct	typeref:struct:sVMInfoStruct::sCLMethodStruct
@@ -2227,15 +2319,22 @@ set_method_index_to_class	src/klass_compile_time.c	/^void set_method_index_to_cl
 set_signal	src/main.c	/^static void set_signal()$/;"	f	file:
 set_signal_for_interpreter	src/interpreter.c	/^static void set_signal_for_interpreter() $/;"	f	file:
 sharedstatedir	Makefile	/^sharedstatedir=${prefix}\/com$/;"	m
+show_double	src/jit_debug_runtime.cpp	/^void show_double(double number)$/;"	f
 show_exception_message	src/exception.c	/^void show_exception_message(char* message)$/;"	f
+show_float	src/jit_debug_runtime.cpp	/^void show_float(float number)$/;"	f
 show_inst	src/vm.c	/^static void show_inst(unsigned inst)$/;"	f	file:
 show_inst_in_jit	src/jit_debug_runtime.cpp	/^void show_inst_in_jit(int opecode)$/;"	f
+show_int16	src/jit_debug_runtime.cpp	/^void show_int16(short number)$/;"	f
+show_int32	src/jit_debug_runtime.cpp	/^void show_int32(int number)$/;"	f
+show_int64	src/jit_debug_runtime.cpp	/^void show_int64(clint64 number)$/;"	f
+show_int8	src/jit_debug_runtime.cpp	/^void show_int8(char number)$/;"	f
+show_llvm_stack	src/jit_debug.cpp	/^void show_llvm_stack(LVALUE* llvm_stack, LVALUE* llvm_stack_ptr, int var_num, std::map<std::string, Value*>& params, BasicBlock* current_block)$/;"	f
+show_llvm_value	src/jit_debug.cpp	/^void show_llvm_value(LVALUE* llvm_value)$/;"	f
+show_method_parametor_address	src/jit_runtime.cpp	/^void show_method_parametor_address(CLVALUE* stack_ptr, CLVALUE* lvar, sVMInfo* info, CLVALUE* stack, CLVALUE** stack_ptr_address, int var_num, sConst* constant, sByteCode* code)$/;"	f
 show_method_parametor_address	src/jit_runtime2.cpp	/^void show_method_parametor_address(CLVALUE* stack_ptr, CLVALUE* lvar, sVMInfo* info, CLVALUE* stack, CLVALUE** stack_ptr_address, int var_num, sConst* constant, sByteCode* code)$/;"	f
 show_node	src/node.c	/^void show_node(unsigned int node)$/;"	f
-show_number_in_jit	src/jit_debug_runtime.cpp	/^void show_number_in_jit(clint64 number)$/;"	f
 show_stack	src/vm.c	/^void show_stack(CLVALUE* stack, CLVALUE* stack_ptr, CLVALUE* lvar, int var_num)$/;"	f
 show_stack_for_llvm_stack	src/jit_debug.cpp	/^void show_stack_for_llvm_stack(LVALUE* llvm_stack, LVALUE* llvm_stack_ptr, int var_num)$/;"	f
-show_stack_in_jit	src/jit_debug_runtime.cpp	/^BOOL show_stack_in_jit(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info)$/;"	f
 show_stack_stat	src/jit_debug_runtime.cpp	/^void show_stack_stat(CLVALUE** stack_ptr, CLVALUE* stack)$/;"	f
 show_str_in_jit	src/jit_debug_runtime.cpp	/^void show_str_in_jit(char* str)$/;"	f
 show_vtable	src/vtable.c	/^void show_vtable(sVarTable* table)$/;"	f
@@ -2262,8 +2361,11 @@ stack_init	src/stack.c	/^void stack_init()$/;"	f
 stack_num	src/common.h	/^    int stack_num;$/;"	m	struct:sCompileInfoStruct
 store_class_field	src/jit_runtime.cpp	/^BOOL store_class_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index, int offset, sConst* constant, CLVALUE value)$/;"	f
 store_field	src/jit_runtime.cpp	/^BOOL store_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, CLObject obj, CLVALUE value, int field_index)$/;"	f
+store_llvm_value_to_lvar_with_offset	src/jit_sub.cpp	/^void store_llvm_value_to_lvar_with_offset(LVALUE* llvm_stack, int index, LVALUE* llvm_value)$/;"	f
 store_llvm_value_to_lvar_with_offset	src/jit_sub2.cpp	/^void store_llvm_value_to_lvar_with_offset(LVALUE* llvm_stack, int index, LVALUE* llvm_value)$/;"	f
+store_value_to_lvar_with_offset	src/jit_sub.cpp	/^void store_value_to_lvar_with_offset(std::map<std::string, Value*>& params, BasicBlock* current_block, int index, LVALUE* llvm_value)$/;"	f
 store_value_to_lvar_with_offset	src/jit_sub2.cpp	/^void store_value_to_lvar_with_offset(std::map<std::string, Value*>& params, BasicBlock* current_block, int index, LVALUE* llvm_value)$/;"	f
+store_value_to_vm_lvar	src/jit_sub.cpp	/^void store_value_to_vm_lvar(std::map<std::string, Value*>& params, BasicBlock* current_block, int offset, LVALUE* llvm_value)$/;"	f
 store_value_to_vm_lvar	src/jit_sub2.cpp	/^void store_value_to_vm_lvar(std::map<std::string, Value*>& params, BasicBlock* current_block, int offset, LVALUE* llvm_value)$/;"	f
 string_expression	src/vm.c	/^static void string_expression(char* str, sBuf* buf, int* string_expression_offsets, CLObject* string_expression_object, int num_string_expression)$/;"	f	file:
 string_object_to_char_array	src/clover_to_clang.c	/^ALLOC char* string_object_to_char_array(CLObject string_object)$/;"	f
@@ -2276,6 +2378,7 @@ t_malloc_entry	src/debug.c	/^typedef struct _t_malloc_entry t_malloc_entry;$/;"	
 this_module_is_modified	src/module.c	/^void this_module_is_modified(sCLModule* self)$/;"	f
 throw_expression	src/parser.c	/^static BOOL throw_expression(unsigned int* node, sParserInfo* info)$/;"	f	file:
 trunc_value	src/jit_sub.cpp	/^LVALUE trunc_value(LVALUE* llvm_value, int size)$/;"	f
+trunc_value_from_inst	src/jit_sub.cpp	/^void trunc_value_from_inst(LVALUE* value, int inst) $/;"	f
 trunc_value_from_inst	src/jit_sub2.cpp	/^void trunc_value_from_inst(LVALUE* value, int inst) $/;"	f
 trunc_value_to_float_or_double	src/jit_sub.cpp	/^LVALUE trunc_value_to_float_or_double(LVALUE* llvm_value, int size)$/;"	f
 trunc_value_to_pointer	src/jit_sub.cpp	/^LVALUE trunc_value_to_pointer(LVALUE* llvm_value)$/;"	f
@@ -2298,6 +2401,7 @@ utf32_index_to_utf8_index	src/utf.c	/^int utf32_index_to_utf8_index(char* str, i
 utf8_index_to_utf32_index	src/utf.c	/^int utf8_index_to_utf32_index(char* str, int utf8_index)$/;"	f
 value	src/jit_common.hpp	/^    Value* value;$/;"	m	struct:LVALUEStruct
 vm	src/vm.c	/^BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sVMInfo* info)$/;"	f
+vm_lvar_to_llvm_lvar	src/jit_sub.cpp	/^void vm_lvar_to_llvm_lvar(LVALUE* llvm_stack,std::map<std::string, Value*>& params, BasicBlock* current_block, int var_num)$/;"	f
 vm_lvar_to_llvm_lvar	src/jit_sub2.cpp	/^void vm_lvar_to_llvm_lvar(LVALUE* llvm_stack,std::map<std::string, Value*>& params, BasicBlock* current_block, int var_num)$/;"	f
 vm_mutex_off	src/vm.c	/^void vm_mutex_off()$/;"	f
 vm_mutex_on	src/vm.c	/^void vm_mutex_on()$/;"	f
