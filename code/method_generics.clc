@@ -1,0 +1,29 @@
+
+interface MethodGenericsInteface 
+{
+    def append(a:Self):Self;
+}
+
+class MethodGenericsInteger
+{
+    field:int;
+
+    def initialize(value:int) {
+        self.field = value;
+    }
+
+    def append(value:MethodGenericsInteger): MethodGenericsInteger {
+        return new MethodGenericsInteger(self.value + value.value);
+    }
+}
+
+
+class MethodGenerics
+{
+    def initialize() {
+    }
+
+    def <T:MethodGenericsInteface> method(a:T, b:T) : static T {
+        return a.append(b);
+    }
+}
