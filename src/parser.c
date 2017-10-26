@@ -1169,6 +1169,8 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
 {
     char type_name[CLASS_NAME_MAX];
 
+    *result_type = NULL;
+
     if(!parse_word(type_name, CLASS_NAME_MAX, info, TRUE, FALSE)) {
         return FALSE;
     }
@@ -1181,7 +1183,14 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
         }
     }
 
-    if(i == info->generics_info.mNumParams) {
+    for(i=0; i<info->method_generics_info.mNumParams; i++) {
+        if(strcmp(type_name, info->method_generics_info.mParamNames[i]) == 0) {
+            *result_type = create_node_type_with_method_generics_number(i);
+            break;
+        }
+    }
+
+    if(*result_type == NULL) {
         if(strcmp(type_name, "SELF") == 0) {
             *result_type = create_node_type_with_class_pointer(info->klass);
         }

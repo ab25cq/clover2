@@ -265,6 +265,7 @@ struct sCLClassStruct {
     clint64 mFlags;
 
     int mGenericsParamClassNum;   // -1 is none generics param 
+    int mMethodGenericsParamClassNum;  // -1 is none geenrics param
     int mNumGenerics;
 
     int mGenericsParamTypeOffsets[GENERICS_TYPES_MAX];
@@ -320,7 +321,7 @@ void class_final();
 
 sCLClass* get_class(char* name);
 unsigned int get_hash_key(char* name, unsigned int max);
-sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_class_num, int generics_number, sCLClass** type_of_generics_params, BOOL interface, BOOL dynamic_class);
+sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_class_num, int method_generics_param_class_num, int generics_number, sCLClass** type_of_generics_params, BOOL interface, BOOL dynamic_class);
 ALLOC sCLType* create_cl_type(sCLClass* klass, sCLClass* klass2);
 void free_cl_type(sCLType* cl_type);
 sCLClass* load_class(char* class_name);
@@ -363,6 +364,7 @@ sNodeType* alloc_node_type();
 sNodeType* clone_node_type(sNodeType* node_type);
 sNodeType* create_node_type_with_class_name(char* class_name);
 sNodeType* create_node_type_with_generics_number(int generics_num);
+sNodeType* create_node_type_with_method_generics_number(int generics_num);
 sNodeType* create_node_type_from_cl_type(sCLType* cl_type, sCLClass* klass);
 sNodeType* create_node_type_with_class_pointer(sCLClass* klass);
 BOOL is_exception_type(sNodeType* exception_type);
@@ -482,6 +484,7 @@ struct sParserInfoStruct
     int parse_phase;
     sCLClass* klass;
     sGenericsParamInfo generics_info;
+    sGenericsParamInfo method_generics_info;
     struct sCompileInfoStruct* cinfo;
     BOOL included_source;
     BOOL get_type_for_interpreter;

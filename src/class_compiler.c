@@ -40,9 +40,9 @@ static BOOL skip_block(sParserInfo* info)
     return TRUE;
 }
 
-static BOOL parse_generics_params(sParserInfo* info, sCompileInfo* cinfo)
+static BOOL parse_generics_params(sGenericsParamInfo* ginfo, sParserInfo* info, sCompileInfo* cinfo)
 {
-    info->generics_info.mNumParams = 0;
+    ginfo->mNumParams = 0;
 
     if(*info->p == '<') {
         info->p++;
@@ -50,8 +50,8 @@ static BOOL parse_generics_params(sParserInfo* info, sCompileInfo* cinfo)
 
         while(1) {
             if(isalpha(*info->p)) {
-                int num_generics_params = info->generics_info.mNumParams;
-                if(!parse_word(info->generics_info.mParamNames[num_generics_params], VAR_NAME_MAX, info, TRUE, FALSE)) 
+                int num_generics_params = ginfo->mNumParams;
+                if(!parse_word(ginfo->mParamNames[num_generics_params], VAR_NAME_MAX, info, TRUE, FALSE)) 
                 {
                     return FALSE;
                 }
@@ -64,15 +64,15 @@ static BOOL parse_generics_params(sParserInfo* info, sCompileInfo* cinfo)
                 }
 
                 if(interface && !(interface->mFlags & CLASS_FLAGS_INTERFACE)) {
-                    parser_err_msg(info, "This is not interface(%s)\n", CLASS_NAME(info->generics_info.mInterface[num_generics_params]));
+                    parser_err_msg(info, "This is not interface(%s)\n", CLASS_NAME(ginfo->mInterface[num_generics_params]));
                     info->err_num++;
                 }
 
-                info->generics_info.mInterface[num_generics_params] = interface;
+                ginfo->mInterface[num_generics_params] = interface;
 
-                info->generics_info.mNumParams++;
+                ginfo->mNumParams++;
 
-                if(info->generics_info.mNumParams >= GENERICS_TYPES_MAX) {
+                if(ginfo->mNumParams >= GENERICS_TYPES_MAX) {
                     parser_err_msg(info, "overflow generics params number");
                     return FALSE;
                 }
@@ -104,10 +104,13 @@ static BOOL parse_class_name_and_attributes(char* class_name, int class_name_siz
     }
 
     /// generics ///
-    if(!parse_generics_params(info, cinfo)) 
+    sGenericsParamInfo ginfo;
+    if(!parse_generics_params(&ginfo, info, cinfo)) 
     {
         return FALSE;
     }
+
+    info->generics_info = ginfo;   // struct copy
 
     /// class attribute ///
     if(*info->p == ':') {
@@ -147,7 +150,7 @@ static BOOL parse_class_on_alloc_classes_phase(sParserInfo* info, sCompileInfo* 
     info->klass = get_class(class_name);
 
     if(info->klass == NULL) {
-        info->klass = alloc_class(class_name, FALSE, -1, info->generics_info.mNumParams, info->generics_info.mInterface, interface, dynamic_class);
+        info->klass = alloc_class(class_name, FALSE, -1, -1, info->generics_info.mNumParams, info->generics_info.mInterface, interface, dynamic_class);
         info->klass->mFlags |= CLASS_FLAGS_ALLOCATED;
     }
 
@@ -205,6 +208,19 @@ static BOOL parse_throws(sParserInfo* info, sCompileInfo* cinfo, BOOL* throw_exi
 
 static BOOL parse_method_name_and_params(char* method_name, int method_name_max, sParserParam* params, int* num_params, sNodeType** result_type, BOOL* native_, BOOL* static_, sParserInfo* info, sCompileInfo* cinfo)
 {
+    /// method generics ///
+    if(*info->p == '<') {
+        sGenericsParamInfo ginfo;
+        if(!parse_generics_params(&ginfo, info, cinfo)) 
+        {
+            return FALSE;
+        }
+        info->method_generics_info = ginfo;   // struct copy
+    }
+    else {
+        memset(&info->method_generics_info, 0, sizeof(sGenericsParamInfo));
+    }
+
     /// method name ///
     if(!parse_word(method_name, method_name_max, info, TRUE, FALSE)) {
         return FALSE;

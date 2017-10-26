@@ -619,6 +619,7 @@ static void write_class_to_buffer(sCLClass* klass, sBuf* buf)
         sBuf_append_int(buf, klass->mGenericsParamTypeOffsets[i]);
     }
     sBuf_append_int(buf, klass->mGenericsParamClassNum);
+    sBuf_append_int(buf, klass->mMethodGenericsParamClassNum);
     sBuf_append_long(buf, klass->mFlags);
     append_const_to_buffer(buf, &klass->mConst,klass);
     sBuf_append_int(buf, klass->mClassNameOffset);

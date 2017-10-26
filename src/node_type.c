@@ -128,6 +128,15 @@ sNodeType* create_node_type_with_generics_number(int generics_num)
     return create_node_type_with_class_name(class_name);
 }
 
+sNodeType* create_node_type_with_method_generics_number(int generics_num)
+{
+    char class_name[CLASS_NAME_MAX+1];
+
+    snprintf(class_name, CLASS_NAME_MAX, "MethodGenericsParametorClass%d", generics_num);
+
+    return create_node_type_with_class_name(class_name);
+}
+
 sNodeType* create_node_type_from_cl_type(sCLType* cl_type, sCLClass* klass)
 {
     sNodeType* node_type = alloc_node_type();

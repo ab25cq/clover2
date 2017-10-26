@@ -13,7 +13,7 @@ class MethodGenericsInteger
     }
 
     def append(value:MethodGenericsInteger): MethodGenericsInteger {
-        return new MethodGenericsInteger(self.value + value.value);
+        return new MethodGenericsInteger(self.field + value.field);
     }
 }
 
