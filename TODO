@@ -1,6 +1,3 @@
-JIT de list { 1, 2, 3 }.toString().println(); ga segmentation fault
-
-list { 1, 2, 3 }.[TAB] de hokann ga dekinai
 
 delegate wo tukuru
 
