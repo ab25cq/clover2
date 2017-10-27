@@ -375,6 +375,19 @@ static BOOL read_methods_from_file(int fd, sCLMethod** methods, int* num_methods
 
             method->mVarNum = n;
         }
+
+        if(!read_int_from_file(fd, &n)) {
+            return FALSE;
+        }
+
+        method->mNumGenerics = n;
+        for(j=0; j<method->mNumGenerics; j++) {
+            if(!read_int_from_file(fd, &n)) {
+                return FALSE;
+            }
+
+            method->mGenericsParamTypeOffsets[j] = n;
+        }
     }
 
     return TRUE;

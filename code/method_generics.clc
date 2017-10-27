@@ -23,7 +23,7 @@ class MethodGenerics
     def initialize() {
     }
 
-    def <T:MethodGenericsInteface> method(a:T, b:T) : static T {
+    def <T:MethodGenericsInteface> method(a:T, b:T) : T {
         return a.append(b);
     }
 }

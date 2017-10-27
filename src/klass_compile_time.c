@@ -198,7 +198,7 @@ void set_method_index_to_class(sCLClass* klass)
     }
 }
 
-BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_)
+BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_, sGenericsParamInfo* ginfo)
 {
     if(klass->mNumMethods == klass->mSizeMethods) {
         int new_size = klass->mSizeMethods * 2;
@@ -238,6 +238,12 @@ BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* param
     klass->mMethods[num_methods].mMethodNameAndParamsOffset = append_str_to_constant_pool(&klass->mConst, method_name_and_params, FALSE);
 
     klass->mMethods[num_methods].mMethodIndex = num_methods;
+
+    klass->mMethods[num_methods].mNumGenerics = ginfo->mNumParams;
+    for(i=0; i<ginfo->mNumParams; i++) {
+        char* interface_name = CLASS_NAME(ginfo->mInterface[i]);
+        klass->mMethods[num_methods].mGenericsParamTypeOffsets[i] = append_str_to_constant_pool(&klass->mConst, interface_name, FALSE);
+    }
 
     klass->mNumMethods++;
 
@@ -345,7 +351,24 @@ static BOOL check_method_params(sCLMethod* method, sCLClass* klass, char* method
     return FALSE;
 }
 
-int search_for_method(sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, int start_point, sNodeType* left_generics_type, sNodeType* right_generics_type, sNodeType* method_generics, sNodeType** result_type)
+static sNodeType* get_method_genercs_from_method(sCLClass* klass, sCLMethod* method)
+{
+    sNodeType* result = alloc_node_type();
+
+    result->mClass = NULL;
+
+    int i;
+    for(i=0; i<method->mNumGenerics; i++) {
+        char* interface_name = CONS_str(&klass->mConst, method->mGenericsParamTypeOffsets[i]);
+        result->mGenericsTypes[i] = create_node_type_with_class_name(interface_name);
+    }
+
+    result->mNumGenericsTypes = method->mNumGenerics;
+
+    return result;
+}
+
+int search_for_method(sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, int start_point, sNodeType* left_generics_type, sNodeType* right_generics_type, sNodeType** result_type)
 {
     int i;
 
@@ -354,6 +377,8 @@ int search_for_method(sCLClass* klass, char* method_name, sNodeType** param_type
             sCLMethod* method;
             
             method = klass->mMethods + i;
+
+            sNodeType* method_generics = get_method_genercs_from_method(klass, method);
 
             if(check_method_params(method, klass, method_name, param_types, num_params, search_for_class_method, left_generics_type, right_generics_type, method_generics))
             {
@@ -454,8 +479,15 @@ static BOOL check_same_interface_of_two_methods(sCLMethod* method1, sCLClass* kl
     sNodeType* result_type1 = create_node_type_from_cl_type(method1->mResultType, klass1);
     sNodeType* result_type2 = create_node_type_from_cl_type(method2->mResultType, klass2);
 
-    if(!type_identify(result_type1, result_type2)) {
-        return FALSE;
+    if(!type_identify_with_class_name(result_type1, "Self") && !type_identify_with_class_name(result_type2, "Self"))
+    {
+        if(type_identify_with_class_name(result_type1, "Self")) {
+            result_type1 = create_node_type_with_class_pointer(klass2);
+        }
+
+        if(!type_identify(result_type1, result_type2)) {
+            return FALSE;
+        }
     }
 
     if(method1->mNumParams != method2->mNumParams) {
@@ -592,6 +624,12 @@ static void append_methods_to_buffer(sBuf* buf, sCLMethod* methods, sCLClass* kl
         if(!(method->mFlags & METHOD_FLAGS_NATIVE)) {
             append_byte_codes_to_buffer(buf, &method->mByteCodes);
             sBuf_append_int(buf, method->mVarNum);
+        }
+
+        sBuf_append_int(buf, method->mNumGenerics);
+        for(j=0; j<method->mNumGenerics; j++) {
+            int n = method->mGenericsParamTypeOffsets[j];
+            sBuf_append_int(buf, n);
         }
     }
 }

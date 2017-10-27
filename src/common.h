@@ -243,6 +243,9 @@ struct sCLMethodStruct {
     int mVarNum;
 
     void* mJITDynamicSym;       // this requires runtime
+
+    int mNumGenerics;
+    int mGenericsParamTypeOffsets[GENERICS_TYPES_MAX];
 };
 
 typedef struct sCLMethodStruct sCLMethod;
@@ -1683,13 +1686,13 @@ void Self_convertion_of_method_name_and_params(char* method_name_and_params, cha
 BOOL compile_class_source(char* fname, char* source);
 
 /// klass_compile_time.c ///
-BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_);
+BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_, sGenericsParamInfo* ginfo);
 BOOL add_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type);
 BOOL add_typedef_to_class(sCLClass* klass, char* class_name1, char* class_name2);
 BOOL add_class_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type);
 void add_code_to_method(sCLMethod* method, sByteCode* code, int var_num);
 BOOL write_all_modified_classes();
-int search_for_method(sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, int start_point, sNodeType* left_generics_type, sNodeType* right_generics_type, sNodeType* method_generics_type, sNodeType** result_type);
+int search_for_method(sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, int start_point, sNodeType* left_generics_type, sNodeType* right_generics_type, sNodeType** result_type);
 BOOL search_for_methods_from_method_name(int method_indexes[], int size_method_indexes, int* num_methods, sCLClass* klass, char* method_name, int start_point);
 int search_for_field(sCLClass* klass, char* field_name);
 int search_for_class_field(sCLClass* klass, char* field_name);

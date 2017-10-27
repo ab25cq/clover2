@@ -407,7 +407,8 @@ static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOO
         }
 
         if(info->err_num == 0 && (info->klass->mFlags & CLASS_FLAGS_ALLOCATED)) {
-            if(!add_method_to_class(info->klass, method_name, params, num_params, result_type, native_, static_)) {
+            if(!add_method_to_class(info->klass, method_name, params, num_params, result_type, native_, static_, &info->method_generics_info)) 
+            {
                 fprintf(stderr, "overflow method number\n");
                 return FALSE;
             }
