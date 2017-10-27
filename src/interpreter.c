@@ -1943,7 +1943,7 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
 
                     /// chomp ///
                     sNodeType* result_type = NULL;
-                    int method_index = search_for_method(string_class, "chomp", NULL, 0, FALSE, string_class->mNumMethods-1, NULL, NULL, &result_type);
+                    int method_index = search_for_method(string_class, "chomp", NULL, 0, FALSE, string_class->mNumMethods-1, NULL, NULL, NULL, &result_type);
 
                     if(method_index != -1) {
                         append_opecode_to_code(cinfo.code, OP_INVOKE_METHOD, cinfo.no_output);
@@ -1958,7 +1958,7 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
                     }
 
                     /// println ///
-                    method_index = search_for_method(string_class, "printlnWithoutNullString", NULL, 0, FALSE, string_class->mNumMethods-1, NULL, NULL, &result_type);
+                    method_index = search_for_method(string_class, "printlnWithoutNullString", NULL, 0, FALSE, string_class->mNumMethods-1, NULL, NULL, NULL, &result_type);
 
                     if(method_index != -1) {
                         append_opecode_to_code(cinfo.code, OP_INVOKE_METHOD, cinfo.no_output);
@@ -1975,7 +1975,7 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
             }
             else {
                 sNodeType* result_type = NULL;
-                int method_index = search_for_method(klass, "toString", NULL, 0, FALSE, klass->mNumMethods-1, NULL, NULL, &result_type);
+                int method_index = search_for_method(klass, "toString", NULL, 0, FALSE, klass->mNumMethods-1, NULL, NULL, NULL, &result_type);
 
                 if(method_index != -1) {
                     append_opecode_to_code(cinfo.code, OP_INVOKE_METHOD, cinfo.no_output);
@@ -1995,7 +1995,7 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
 
                     /// chomp ///
                     sNodeType* result_type = NULL;
-                    int method_index = search_for_method(string_class, "chomp", NULL, 0, FALSE, string_class->mNumMethods-1, NULL, NULL, &result_type);
+                    int method_index = search_for_method(string_class, "chomp", NULL, 0, FALSE, string_class->mNumMethods-1, NULL, NULL, NULL, &result_type);
 
                     if(method_index != -1) {
                         append_opecode_to_code(cinfo.code, OP_INVOKE_METHOD, cinfo.no_output);
@@ -2011,7 +2011,7 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
 
                     /// println ///
                     result_type = NULL;
-                    method_index = search_for_method(string_class, "printlnWithoutNullString", NULL, 0, FALSE, string_class->mNumMethods-1, NULL, NULL, &result_type);
+                    method_index = search_for_method(string_class, "printlnWithoutNullString", NULL, 0, FALSE, string_class->mNumMethods-1, NULL, NULL, NULL, &result_type);
 
                     if(method_index != -1) {
                         append_opecode_to_code(cinfo.code, OP_INVOKE_METHOD, cinfo.no_output);

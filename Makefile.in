@@ -58,12 +58,12 @@ $(OBJ): src/*.h Makefile configure
 #########################################################
 install:
 	rm -f ./*.clcl
-	./cclover2 -no-load-fundamental-classes Fundamental.clc
-	./cclover2 -no-load-fundamental-classes Container.clc
-	./cclover2 -no-load-fundamental-classes String.clc
-	./cclover2 -no-load-fundamental-classes File.clc
-	./cclover2 -no-load-fundamental-classes Command.clc
-	./cclover2 -no-load-fundamental-classes MyOwnLibrary.clc
+	./cclover2 -core Fundamental.clc
+	./cclover2 -core Container.clc
+	./cclover2 -core String.clc
+	./cclover2 -core File.clc
+	./cclover2 -core Command.clc
+	./cclover2 -core MyOwnLibrary.clc
 
 	mkdir -p ~/.clover2
 	$(INSTALL) -m 644 PcreOVec.clcl ~/.clover2

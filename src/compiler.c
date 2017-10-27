@@ -124,6 +124,9 @@ int main(int argc, char** argv)
         if(strcmp(argv[i], "-no-load-fundamental-classes") == 0) {
             no_load_fudamental_classes = TRUE;
         }
+        else if(strcmp(argv[i], "-core") == 0) {
+            no_load_fudamental_classes = TRUE;
+        }
         else if(strcmp(argv[i], "-class") == 0) {
             clc_compile = TRUE;
         }
