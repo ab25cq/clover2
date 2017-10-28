@@ -326,19 +326,61 @@ void add_code_to_method(sCLMethod* method, sByteCode* code, int var_num)
     method->mVarNum = var_num;
 }
 
-static BOOL check_method_params(sCLMethod* method, sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, sNodeType* left_generics_type, sNodeType* right_generics_type, sNodeType* method_generics)
+static BOOL determine_method_generics_types(sNodeType* left_param, sNodeType* right_param, sNodeType* method_generics_types[])
+{
+    sCLClass* left_param_class = left_param->mClass;
+
+    int param_class_num = left_param_class->mMethodGenericsParamClassNum;
+
+    if(param_class_num != -1) {
+        method_generics_types[param_class_num] = right_param;
+    }
+
+    int i;
+    for(i=0; i<left_param->mNumGenericsTypes; i++) {
+        if(!determine_method_generics_types(left_param->mGenericsTypes[i], right_param->mGenericsTypes[i], method_generics_types))
+        {
+            return FALSE;
+        }
+    }
+
+    sNodeBlockType* left_block_type = left_param->mBlockType;
+    sNodeBlockType* right_block_type = right_param->mBlockType;
+
+    if(left_block_type != NULL) {
+        for(i=0; i<left_block_type->mNumParams; i++) {
+            if(!determine_method_generics_types(left_block_type->mParams[i], right_block_type->mParams[i], method_generics_types))
+            {
+                return FALSE;
+            }
+        }
+
+        if(!determine_method_generics_types(left_block_type->mResultType, right_block_type->mResultType, method_generics_types))
+        {
+            return FALSE;
+        }
+    }
+
+    return FALSE;
+}
+
+static BOOL check_method_params(sCLMethod* method, sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, sNodeType* left_generics_type, sNodeType* right_generics_type, sNodeType* method_generics, sNodeType* method_generics_types[])
 {
     if(strcmp(METHOD_NAME2(klass, method), method_name) == 0) 
     {
         if((search_for_class_method && (method->mFlags & METHOD_FLAGS_CLASS_METHOD)) || (!search_for_class_method && !(method->mFlags & METHOD_FLAGS_CLASS_METHOD))) 
         {
             if(num_params == method->mNumParams) {
-                int j, k;
+                int j;
 
                 for(j=0; j<num_params; j++ ) {
                     sNodeType* param = create_node_type_from_cl_type(method->mParams[j].mType, klass);
 
                     if(!substitution_posibility(param, param_types[j], left_generics_type, right_generics_type, method_generics)) {
+                        return FALSE;
+                    }
+
+                    if(!determine_method_generics_types(param, param_types[j], method_generics_types)) {
                         return FALSE;
                     }
                 }
@@ -374,19 +416,23 @@ int search_for_method(sCLClass* klass, char* method_name, sNodeType** param_type
 
     if(start_point < klass->mNumMethods) {
         for(i=start_point; i>=0; i--) {           // search for the method in reverse order because we want to get last defined method
-            sCLMethod* method;
+            sNodeType* method_generics_types = alloc_node_type();
             
-            method = klass->mMethods + i;
+            sCLMethod* method = klass->mMethods + i;
 
             sNodeType* method_generics = get_method_genercs_from_method(klass, method);
 
-            if(check_method_params(method, klass, method_name, param_types, num_params, search_for_class_method, left_generics_type, right_generics_type, method_generics))
+            if(check_method_params(method, klass, method_name, param_types, num_params, search_for_class_method, left_generics_type, right_generics_type, method_generics, method_generics_types))
             {
-                sNodeType* result_type2;
-                
-                result_type2 = ALLOC create_node_type_from_cl_type(method->mResultType, klass);
+                sNodeType* result_type2 = ALLOC create_node_type_from_cl_type(method->mResultType, klass);
 
-                if(!solve_generics_types_for_node_type(result_type2, result_type, left_generics_type, TRUE))
+                sNodeType* result_type3;
+                if(!solve_generics_types_for_node_type(result_type2, &result_type3, method_generics_types, FALSE))
+                {
+                    return -1;
+                }
+
+                if(!solve_generics_types_for_node_type(result_type3, result_type, left_generics_type, TRUE))
                 {
                     return -1;
                 }

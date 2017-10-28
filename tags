@@ -1107,7 +1107,7 @@ char_uppercase	src/jit_runtime.cpp	/^wchar_t char_uppercase(wchar_t c)$/;"	f
 check_already_added_variable	src/vtable.c	/^void check_already_added_variable(sVarTable* table, char* name, struct sParserInfoStruct* info)$/;"	f
 check_implemented_methods_for_interface	src/klass_compile_time.c	/^BOOL check_implemented_methods_for_interface(sCLClass* left_class, sCLClass* right_class)$/;"	f
 check_implemented_methods_for_interface_on_runtime	src/object.c	/^static BOOL check_implemented_methods_for_interface_on_runtime(sCLClass* left_class, sCLClass* right_class)$/;"	f	file:
-check_method_params	src/klass_compile_time.c	/^static BOOL check_method_params(sCLMethod* method, sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, sNodeType* left_generics_type, sNodeType* right_generics_type, sNodeType* method_generics)$/;"	f	file:
+check_method_params	src/klass_compile_time.c	/^static BOOL check_method_params(sCLMethod* method, sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, sNodeType* left_generics_type, sNodeType* right_generics_type, sNodeType* method_generics, sNodeType* method_generics_types[])$/;"	f	file:
 check_node_is_variable	src/node.c	/^BOOL check_node_is_variable(unsigned int node)$/;"	f
 check_same_interface_of_two_methods	src/klass_compile_time.c	/^static BOOL check_same_interface_of_two_methods(sCLMethod* method1, sCLClass* klass1, sCLMethod* method2, sCLClass* klass2)$/;"	f	file:
 check_same_interface_of_two_methods	src/object.c	/^static BOOL check_same_interface_of_two_methods(sCLMethod* method1, sCLClass* klass1, sCLMethod* method2, sCLClass* klass2)$/;"	f	file:
@@ -1289,6 +1289,7 @@ decrement_operand_core	src/node.c	/^static void decrement_operand_core(unsigned 
 decrement_operand_core_for_field	src/node.c	/^static BOOL decrement_operand_core_for_field(unsigned int node, sCompileInfo* info, unsigned int lnode, int add_operand, int sub_operand, int ldc_operand, BOOL monadic, BOOL with_value)$/;"	f	file:
 delete_all_object	src/heap.c	/^static void delete_all_object()$/;"	f	file:
 delete_comment	src/script_ctime.c	/^BOOL delete_comment(sBuf* source, sBuf* source2)$/;"	f
+determine_method_generics_types	src/klass_compile_time.c	/^static BOOL determine_method_generics_types(sNodeType* left_param, sNodeType* right_param, sNodeType* method_generics_types[])$/;"	f	file:
 display_candidates	src/interpreter.c	/^void display_candidates(char** candidates)$/;"	f
 docdir	Makefile	/^docdir=${datarootdir}\/doc$/;"	m
 eLVALUEKind	src/jit_common.hpp	/^enum eLVALUEKind { kLVKindNone, kLVKindInt1, kLVKindInt8, kLVKindUInt8, kLVKindInt16, kLVKindUInt16, kLVKindInt32, kLVKindUInt32, kLVKindInt64, kLVKindUInt64, kLVKindMemory, kLVKindAddress, kLVKindConstantInt1, kLVKindConstantInt8, kLVKindConstantUInt8, kLVKindConstantInt16, kLVKindConstantUInt16, kLVKindConstantInt32, kLVKindConstantUInt32, kLVKindConstantInt64, kLVKindConstantUInt64, kLVKindConstantFloat, kLVKindConstantDouble, kLVKindFloat, kLVKindDouble, kLVKindPointer8, kLVKindPointer32, kLVKindPointer64, kLVKindPointerDouble, kLVKindObject };$/;"	g

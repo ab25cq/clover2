@@ -382,7 +382,7 @@ BOOL solve_generics_types_for_node_type(sNodeType* node_type, ALLOC sNodeType** 
 
         for(i=0; i<GENERICS_TYPES_MAX; i++) {
             if(generics_param_class_num == i) {
-                if(i < generics_type->mNumGenericsTypes) {
+                if(i < generics_type->mNumGenericsTypes && generics_type->mGenericsTypes[i]) {
                     *result = ALLOC clone_node_type(generics_type->mGenericsTypes[i]);
                     (*result)->mArray = node_type2->mArray;
                     return TRUE;
@@ -406,6 +406,27 @@ BOOL solve_generics_types_for_node_type(sNodeType* node_type, ALLOC sNodeType** 
         }
 
         (*result)->mBlockType = node_type2->mBlockType;
+
+/*
+        if(node_type2->mBlockType) {
+            sNodeBlockType* block_type = node_type2->mBlockType;
+
+            sNodeBlockType* result_block_type = alloc_node_block_type();
+
+            result_block_type->mNumParams = block_type->mNumParams;
+
+            for(j=0; j<block_type->mNumParams; j++) {
+                (void)solve_generics_types_for_node_type(block_type->mParams[j], &result_block_type->mParams[j], generics_type, TRUE);
+            }
+
+            (void)solve_generics_types_for_node_type(block_type->mResultType, &result_block_type->mResultType, generics_type, TRUE);
+
+            (*result)->mBlockType = result_block_type;
+        }
+        else {
+            (*result)->mBlockType = NULL;
+        }
+*/
         (*result)->mArray = node_type2->mArray;
     }
     else {
