@@ -14,3 +14,11 @@ fun:lambda(int,int):Anonymous = lambda(a:int, b:int):Anonymous { return a+b };
 d: Integer = fun(2,5);
 Clover.test("Anonymous test5", d == 7);
 
+print("Anonymous test6...");
+e:List<Integer> = d.toAnonymous().cast("List<Integer>");
+println("OK");
+
+print("Anonymous test7...");
+f:int[] = d.toAnonymous().cast("int[]");
+println("OK");
+

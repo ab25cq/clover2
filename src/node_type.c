@@ -101,22 +101,108 @@ sNodeType* create_node_type_with_class_pointer(sCLClass* klass)
     return node_type;
 }
 
-sNodeType* create_node_type_with_class_name(char* class_name)
+static void skip_spaces_for_parse_class_name(char** p) 
+{
+    while(**p == ' ' || **p == '\t') {
+        (*p)++;
+    }
+}
+
+static sNodeType* parse_class_name(char** p, char** p2, char* buf)
 {
     sNodeType* node_type = alloc_node_type();
 
-    node_type->mClass = get_class_with_load(class_name);
-
-    if(node_type->mClass == NULL) {
-        node_type->mClass = load_class(class_name);
-    }
-
+    node_type->mClass = NULL;
     node_type->mNumGenericsTypes = 0;
-
     node_type->mArray = FALSE;
     node_type->mBlockType = NULL;
 
+    *p2 = buf;
+
+    while(**p) {
+        if(**p == '<') {
+            (*p)++;
+            skip_spaces_for_parse_class_name(p);
+
+            **p2 = 0;
+
+            node_type->mClass = get_class_with_load(buf);
+
+            if(node_type->mClass == NULL) {
+                node_type->mClass = load_class(buf);
+            }
+
+            while(1) {
+                node_type->mGenericsTypes[node_type->mNumGenericsTypes] = parse_class_name(p, p2, buf);
+                node_type->mNumGenericsTypes++;
+
+                if(node_type->mNumGenericsTypes > GENERICS_TYPES_MAX) {
+                    return NULL;
+                }
+
+                if(**p == ',') {
+                    (*p)++;
+                    skip_spaces_for_parse_class_name(p);
+                }
+                else if(**p == '>') {
+                    (*p)++;
+                    skip_spaces_for_parse_class_name(p);
+                    return node_type;
+                }
+                else {
+                    return NULL;
+                }
+            }
+        }
+        else if(**p == '[') {
+            (*p)++;
+            skip_spaces_for_parse_class_name(p);
+
+            if(**p == ']') {
+                (*p)++;
+                skip_spaces_for_parse_class_name(p);
+
+                node_type->mArray = TRUE;
+            }
+        }
+        else if(**p == '>') {
+            node_type->mClass = get_class_with_load(buf);
+
+            if(node_type->mClass == NULL) {
+                node_type->mClass = load_class(buf);
+            }
+
+            return node_type;
+        }
+        else {
+            **p2 = **p;
+
+            (*p)++;
+            (*p2)++;
+        }
+    }
+
+    if(*p2 - buf > 0) {
+        **p2 = 0;
+
+        node_type->mClass = get_class_with_load(buf);
+
+        if(node_type->mClass == NULL) {
+            node_type->mClass = load_class(buf);
+        }
+    }
+
     return node_type;
+}
+
+sNodeType* create_node_type_with_class_name(char* class_name)
+{
+    char buf[CLASS_NAME_MAX+1];
+
+    char* p = class_name;
+    char* p2 = buf;
+
+    return parse_class_name(&p, &p2, buf);
 }
 
 sNodeType* create_node_type_with_generics_number(int generics_num)
@@ -172,12 +258,12 @@ sNodeType* create_node_type_from_cl_type(sCLType* cl_type, sCLClass* klass)
     return node_type;
 }
 
-BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_generics_types, sNodeType* right_generics_types, sNodeType* method_generics)
+BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_generics_types, sNodeType* right_generics_types, sNodeType* left_method_generics, sNodeType* right_method_generics)
 {
     sNodeType* left2;
 
-    if(method_generics) {
-        if(!solve_generics_types_for_node_type(left, ALLOC &left2, method_generics, FALSE)) 
+    if(left_method_generics) {
+        if(!solve_generics_types_for_node_type(left, ALLOC &left2, left_method_generics, FALSE)) 
         {
             return FALSE;
         }
@@ -188,8 +274,8 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_
 
     sNodeType* right2;
 
-    if(method_generics) {
-        if(!solve_generics_types_for_node_type(right, ALLOC &right2, method_generics, FALSE)) 
+    if(right_method_generics) {
+        if(!solve_generics_types_for_node_type(right, ALLOC &right2, right_method_generics, FALSE)) 
         {
             return FALSE;
         }
@@ -197,6 +283,7 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_
     else {
         right2 = right;
     }
+
 
     sNodeType* left3;
     if(left_generics_types) {
@@ -266,7 +353,7 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_
         if(left3->mClass == right3->mClass && left3->mArray == right3->mArray && left3->mNumGenericsTypes == right3->mNumGenericsTypes) {
             int i;
             for(i=0; i<left3->mNumGenericsTypes; i++) {
-                if(!substitution_posibility(left3->mGenericsTypes[i], right3->mGenericsTypes[i], left_generics_types, right_generics_types, method_generics))
+                if(!substitution_posibility(left3->mGenericsTypes[i], right3->mGenericsTypes[i], left_generics_types, right_generics_types, left_method_generics, right_method_generics))
                 {
                     return FALSE;
                 }
@@ -282,7 +369,7 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_
 
 BOOL substitution_posibility_with_class_name(sNodeType* left, char* right_class_name)
 {
-    return substitution_posibility(left, create_node_type_with_class_name(right_class_name), NULL , NULL, NULL);
+    return substitution_posibility(left, create_node_type_with_class_name(right_class_name), NULL , NULL, NULL, NULL);
 }
 
 BOOL no_cast_types_for_binary_operator(sNodeType* left_type, sNodeType* right_type)
@@ -406,9 +493,8 @@ BOOL solve_generics_types_for_node_type(sNodeType* node_type, ALLOC sNodeType** 
             // if it can not be solved generics, no solve the generics type
         }
 
-        (*result)->mBlockType = node_type2->mBlockType;
+//        (*result)->mBlockType = node_type2->mBlockType;
 
-/*
         if(node_type2->mBlockType) {
             sNodeBlockType* block_type = node_type2->mBlockType;
 
@@ -427,7 +513,7 @@ BOOL solve_generics_types_for_node_type(sNodeType* node_type, ALLOC sNodeType** 
         else {
             (*result)->mBlockType = NULL;
         }
-*/
+
         (*result)->mArray = node_type2->mArray;
     }
     else {

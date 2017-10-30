@@ -1030,25 +1030,17 @@ arrange_alignment	src/code.c	/^static void arrange_alignment(sByteCode* code)$/;
 arrange_alignment	src/constant.c	/^static void arrange_alignment(sConst* self)$/;"	f	file:
 arrange_stack	src/node.c	/^void arrange_stack(sCompileInfo* cinfo)$/;"	f
 array_mark_fun	src/array.c	/^void array_mark_fun(CLObject self, unsigned char* mark_flg)$/;"	f
-as_fn_append	config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	configure	/^  as_fn_append ()$/;"	f
-as_fn_arith	config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	configure	/^  as_fn_arith ()$/;"	f
-as_fn_error	config.status	/^as_fn_error ()$/;"	f
 as_fn_error	configure	/^as_fn_error ()$/;"	f
-as_fn_executable_p	config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	configure	/^as_fn_executable_p ()$/;"	f
-as_fn_exit	config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	configure	/^as_fn_exit ()$/;"	f
 as_fn_failure	configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
-as_fn_mkdir_p	config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	configure	/^as_fn_mkdir_p ()$/;"	f
 as_fn_ret_failure	configure	/^as_fn_ret_failure () { return 1; }$/;"	f
 as_fn_ret_success	configure	/^as_fn_ret_success () { return 0; }$/;"	f
-as_fn_set_status	config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	configure	/^as_fn_set_status ()$/;"	f
 as_fn_success	configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
-as_fn_unset	config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	configure	/^as_fn_unset ()$/;"	f
 assign_operator	src/parser.c	/^static BOOL assign_operator(unsigned int* node, sParserInfo* info)$/;"	f	file:
 binary_operator	src/node.c	/^static BOOL binary_operator(unsigned int node, sNodeType* left_type, sNodeType* right_type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, int float_operand, int double_operand, int pointer_operand, int null_operand, int char_operand, int bool_operand, int regex_operand, char* op_string, sCompileInfo* info)$/;"	f	file:
@@ -1107,7 +1099,7 @@ char_uppercase	src/jit_runtime.cpp	/^wchar_t char_uppercase(wchar_t c)$/;"	f
 check_already_added_variable	src/vtable.c	/^void check_already_added_variable(sVarTable* table, char* name, struct sParserInfoStruct* info)$/;"	f
 check_implemented_methods_for_interface	src/klass_compile_time.c	/^BOOL check_implemented_methods_for_interface(sCLClass* left_class, sCLClass* right_class)$/;"	f
 check_implemented_methods_for_interface_on_runtime	src/object.c	/^static BOOL check_implemented_methods_for_interface_on_runtime(sCLClass* left_class, sCLClass* right_class)$/;"	f	file:
-check_method_params	src/klass_compile_time.c	/^static BOOL check_method_params(sCLMethod* method, sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, sNodeType* left_generics_type, sNodeType* right_generics_type, sNodeType* method_generics, sNodeType* method_generics_types[])$/;"	f	file:
+check_method_params	src/klass_compile_time.c	/^static BOOL check_method_params(sCLMethod* method, sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, sNodeType* left_generics_type, sNodeType* right_generics_type, sNodeType* left_method_generics, sNodeType* right_method_generics, sNodeType* method_generics_types)$/;"	f	file:
 check_node_is_variable	src/node.c	/^BOOL check_node_is_variable(unsigned int node)$/;"	f
 check_same_interface_of_two_methods	src/klass_compile_time.c	/^static BOOL check_same_interface_of_two_methods(sCLMethod* method1, sCLClass* klass1, sCLMethod* method2, sCLClass* klass2)$/;"	f	file:
 check_same_interface_of_two_methods	src/object.c	/^static BOOL check_same_interface_of_two_methods(sCLMethod* method1, sCLClass* klass1, sCLMethod* method2, sCLClass* klass2)$/;"	f	file:
@@ -1289,7 +1281,7 @@ decrement_operand_core	src/node.c	/^static void decrement_operand_core(unsigned 
 decrement_operand_core_for_field	src/node.c	/^static BOOL decrement_operand_core_for_field(unsigned int node, sCompileInfo* info, unsigned int lnode, int add_operand, int sub_operand, int ldc_operand, BOOL monadic, BOOL with_value)$/;"	f	file:
 delete_all_object	src/heap.c	/^static void delete_all_object()$/;"	f	file:
 delete_comment	src/script_ctime.c	/^BOOL delete_comment(sBuf* source, sBuf* source2)$/;"	f
-determine_method_generics_types	src/klass_compile_time.c	/^static BOOL determine_method_generics_types(sNodeType* left_param, sNodeType* right_param, sNodeType* method_generics_types[])$/;"	f	file:
+determine_method_generics_types	src/klass_compile_time.c	/^static BOOL determine_method_generics_types(sNodeType* left_param, sNodeType* right_param, sNodeType* method_generics_types)$/;"	f	file:
 display_candidates	src/interpreter.c	/^void display_candidates(char** candidates)$/;"	f
 docdir	Makefile	/^docdir=${datarootdir}\/doc$/;"	m
 eLVALUEKind	src/jit_common.hpp	/^enum eLVALUEKind { kLVKindNone, kLVKindInt1, kLVKindInt8, kLVKindUInt8, kLVKindInt16, kLVKindUInt16, kLVKindInt32, kLVKindUInt32, kLVKindInt64, kLVKindUInt64, kLVKindMemory, kLVKindAddress, kLVKindConstantInt1, kLVKindConstantInt8, kLVKindConstantUInt8, kLVKindConstantInt16, kLVKindConstantUInt16, kLVKindConstantInt32, kLVKindConstantUInt32, kLVKindConstantInt64, kLVKindConstantUInt64, kLVKindConstantFloat, kLVKindConstantDouble, kLVKindFloat, kLVKindDouble, kLVKindPointer8, kLVKindPointer32, kLVKindPointer64, kLVKindPointerDouble, kLVKindObject };$/;"	g
@@ -1979,6 +1971,7 @@ parse_block	src/node_block.c	/^BOOL parse_block(ALLOC sNodeBlock** node_block, s
 parse_block_object	src/parser.c	/^static BOOL parse_block_object(unsigned int* node, sParserInfo* info, BOOL lambda)$/;"	f	file:
 parse_carray_value	src/parser.c	/^static BOOL parse_carray_value(unsigned int* node, sParserInfo* info) $/;"	f	file:
 parse_class	src/class_compiler.c	/^static BOOL parse_class(sParserInfo* info, sCompileInfo* cinfo, BOOL interface, BOOL dynamic_class)$/;"	f	file:
+parse_class_name	src/node_type.c	/^static sNodeType* parse_class_name(char** p, char** p2, char* buf)$/;"	f	file:
 parse_class_name_and_attributes	src/class_compiler.c	/^static BOOL parse_class_name_and_attributes(char* class_name, int class_name_size, sParserInfo* info, sCompileInfo* cinfo)$/;"	f	file:
 parse_class_on_add_methods_and_fields	src/class_compiler.c	/^static BOOL parse_class_on_add_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOOL interface)$/;"	f	file:
 parse_class_on_alloc_classes_phase	src/class_compiler.c	/^static BOOL parse_class_on_alloc_classes_phase(sParserInfo* info, sCompileInfo* cinfo, BOOL interface, BOOL dynamic_class)$/;"	f	file:
@@ -2304,7 +2297,7 @@ search_for_class_field	src/klass_compile_time.c	/^int search_for_class_field(sCL
 search_for_class_file	src/klass.c	/^static BOOL search_for_class_file(char* class_name, char* class_file_name, size_t class_file_name_size)$/;"	f	file:
 search_for_dl_file	src/jit_runtime.cpp	/^static BOOL search_for_dl_file(char* class_name, char* dynamic_library_path, size_t dynamic_library_path_size)$/;"	f	file:
 search_for_field	src/klass_compile_time.c	/^int search_for_field(sCLClass* klass, char* field_name)$/;"	f
-search_for_method	src/klass_compile_time.c	/^int search_for_method(sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, int start_point, sNodeType* left_generics_type, sNodeType* right_generics_type, sNodeType** result_type)$/;"	f
+search_for_method	src/klass_compile_time.c	/^int search_for_method(sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, int start_point, sNodeType* left_generics_type, sNodeType* right_generics_type, sNodeType* right_method_generics, sNodeType** result_type)$/;"	f
 search_for_method_from_virtual_method_table	src/klass.c	/^sCLMethod* search_for_method_from_virtual_method_table(sCLClass* klass, char* method_name_and_params)$/;"	f
 search_for_methods_from_method_name	src/klass_compile_time.c	/^BOOL search_for_methods_from_method_name(int method_indexes[], int size_method_indexes, int* num_methods, sCLClass* klass, char* method_name, int start_point)$/;"	f
 search_for_module_file_from_module_name	src/module.c	/^static BOOL search_for_module_file_from_module_name(char* module_file, unsigned int module_file_size, char* module_name)$/;"	f	file:
@@ -2342,6 +2335,7 @@ skip_curly	src/interpreter.c	/^static void skip_curly(char** p, char** head, cha
 skip_paren	src/interpreter.c	/^static void skip_paren(char** p, char** head, char** comma, char** semi_colon)$/;"	f	file:
 skip_spaces	src/parser.c	/^void skip_spaces(sParserInfo* info)$/;"	f
 skip_spaces_and_lf	src/parser.c	/^void skip_spaces_and_lf(sParserInfo* info)$/;"	f
+skip_spaces_for_parse_class_name	src/node_type.c	/^static void skip_spaces_for_parse_class_name(char** p) $/;"	f	file:
 sline	src/common.h	/^    int sline;$/;"	m	struct:sCompileInfoStruct
 sline	src/common.h	/^    int sline;$/;"	m	struct:sParserInfoStruct
 sline	src/common.h	/^    int sline;$/;"	m	struct:sVMInfoStruct
@@ -2368,7 +2362,7 @@ store_value_to_vm_lvar	src/jit_sub2.cpp	/^void store_value_to_vm_lvar(std::map<s
 string_expression	src/vm.c	/^static void string_expression(char* str, sBuf* buf, int* string_expression_offsets, CLObject* string_expression_object, int num_string_expression)$/;"	f	file:
 string_object_to_char_array	src/clover_to_clang.c	/^ALLOC char* string_object_to_char_array(CLObject string_object)$/;"	f
 string_object_to_wchar_array	src/clover_to_clang.c	/^ALLOC wchar_t* string_object_to_wchar_array(CLObject string_object)$/;"	f
-substitution_posibility	src/node_type.c	/^BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_generics_types, sNodeType* right_generics_types, sNodeType* method_generics)$/;"	f
+substitution_posibility	src/node_type.c	/^BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_generics_types, sNodeType* right_generics_types, sNodeType* left_method_generics, sNodeType* right_method_generics)$/;"	f
 substitution_posibility_for_node_block_type	src/node_block_type.c	/^BOOL substitution_posibility_for_node_block_type(sNodeBlockType* left_block, sNodeBlockType* right_block, sNodeType* left_generics_types, sNodeType* right_generics_types)$/;"	f
 substitution_posibility_with_class_name	src/node_type.c	/^BOOL substitution_posibility_with_class_name(sNodeType* left, char* right_class_name)$/;"	f
 sysconfdir	Makefile	/^sysconfdir=${prefix}\/etc\/clover2$/;"	m

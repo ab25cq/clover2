@@ -1311,7 +1311,7 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
     sNodeType* left_type = var->mType;
     if(gNodes[node].mType->mClass == NULL || left_type == NULL || right_type == NULL || left_type->mClass == NULL || right_type->mClass == NULL) 
     {
-        compile_err_msg(info, "invalid type");
+        compile_err_msg(info, "invalid type(1)");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -1324,7 +1324,7 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
 
     cast_right_type_to_left_type(left_type2, &right_type, info);
 
-    if(!substitution_posibility(left_type2, right_type, NULL, NULL, NULL)) {
+    if(!substitution_posibility(left_type2, right_type, NULL, NULL, NULL, NULL)) {
         compile_err_msg(info, "The different type between left type and right type(1). Left type is %s. Right type is %s.", CLASS_NAME(left_type2->mClass), CLASS_NAME(right_type->mClass));
         info->err_num++;
 
@@ -2137,8 +2137,10 @@ static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)
         generics_types = klass_type;
     }
 
+    sNodeType* right_method_generics_types = get_methocs_generics_type(info->pinfo);
+
     sNodeType* result_type;
-    int method_index = search_for_method(klass, method_name, param_types, num_params, TRUE, klass->mNumMethods-1, generics_types, NULL, &result_type);
+    int method_index = search_for_method(klass, method_name, param_types, num_params, TRUE, klass->mNumMethods-1, generics_types, NULL, right_method_generics_types, &result_type);
 
     if(method_index == -1) {
         if(klass->mFlags & CLASS_FLAGS_DYNAMIC_CLASS) {
@@ -2354,9 +2356,11 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
         info->stack_num = stack_num_before;
 
         if(!info->pinfo->exist_block_object_err) { // for interpreter completion
+            sNodeType* right_method_generics_types = get_methocs_generics_type(info->pinfo);
+
             /// get method ///
             sNodeType* result_type;
-            int method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types, generics_types, &result_type);
+            int method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types, generics_types, right_method_generics_types, &result_type);
 
             /// Searching for the method can be determined by statically ///
             if(method_index2 != -1) {
@@ -2474,9 +2478,11 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
         }
 
         if(!info->pinfo->exist_block_object_err) { // for interpreter completion
+            sNodeType* right_method_generics_types = get_methocs_generics_type(info->pinfo);
+
             /// get method ///
             sNodeType* result_type;
-            int method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types, generics_types, &result_type);
+            int method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types, generics_types, right_method_generics_types, &result_type);
 
             if(method_index2 == -1) {
                 compile_err_msg(info, "method not found(2)");
@@ -2512,9 +2518,11 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
         }
 
         if(!info->pinfo->exist_block_object_err) { // for interpreter completion
+            sNodeType* right_method_generics_types = get_methocs_generics_type(info->pinfo);
+
             /// get method ///
             sNodeType* result_type;
-            int method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types, generics_types, &result_type);
+            int method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types, generics_types, right_method_generics_types, &result_type);
 
             if(method_index2 == -1) {
                 /// Is cast method ? ////
@@ -2862,8 +2870,10 @@ static BOOL compile_new_operator(unsigned int node, sCompileInfo* info)
         }
 
         if(!info->pinfo->exist_block_object_err) { // for interpreter completion
+            sNodeType* right_method_generics_types = get_methocs_generics_type(info->pinfo);
+
             sNodeType* result_type;
-            int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, &result_type);
+            int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type);
 
             if(method_index == -1) {
                 compile_err_msg(info, "method not found(3)");
@@ -2984,7 +2994,7 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
     else {
         cast_right_type_to_left_type(result_type2, &value_result_type, info);
 
-        if(!substitution_posibility(result_type2, value_result_type, NULL, NULL, NULL)) {
+        if(!substitution_posibility(result_type2, value_result_type, NULL, NULL, NULL, NULL)) {
             compile_err_msg(info, "Invalid type of return value(2). Left type is %s. Right type is %s.", CLASS_NAME(result_type2->mClass), CLASS_NAME(value_result_type->mClass));
             info->err_num++;
 
@@ -3513,7 +3523,7 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
 
     cast_right_type_to_left_type(solved_field_type, &right_type, info);
 
-    if(!substitution_posibility(solved_field_type, right_type, generics_types, NULL, NULL)) {
+    if(!substitution_posibility(solved_field_type, right_type, generics_types, NULL, NULL, NULL)) {
         compile_err_msg(info, "The different type between left type and right type(2). %s and %s", CLASS_NAME(solved_field_type->mClass), CLASS_NAME(right_type->mClass));
         info->err_num++;
 
@@ -3649,7 +3659,7 @@ static BOOL compile_store_class_field(unsigned int node, sCompileInfo* info)
 
     cast_right_type_to_left_type(field_type, &right_type, info);
 
-    if(!substitution_posibility(field_type, right_type, NULL, NULL, NULL)) {
+    if(!substitution_posibility(field_type, right_type, NULL, NULL, NULL, NULL)) {
         compile_err_msg(info, "The different type between left type and right type(3). Left type is %s. Right type is %s.", CLASS_NAME(field_type->mClass), CLASS_NAME(right_type->mClass));
         info->err_num++;
 
@@ -3720,7 +3730,7 @@ BOOL compile_store_value_to_pointer(unsigned int node, sCompileInfo* info)
     sNodeType* right_type = info->type;
 
     if(right_type == NULL 
-        || !substitution_posibility(node_type, right_type, NULL, NULL, NULL))
+        || !substitution_posibility(node_type, right_type, NULL, NULL, NULL, NULL))
     {
         if(right_type == NULL || node_type->mClass == NULL) {
             compile_err_msg(info, "The different type between left type and right type(4). NULL type.");
@@ -4364,7 +4374,7 @@ BOOL compile_increment_operand_with_value(unsigned int node, sCompileInfo* info)
 
     cast_right_type_to_left_type(left_type, &right_type, info);
 
-    if(!substitution_posibility(left_type, right_type, NULL, NULL, NULL)) {
+    if(!substitution_posibility(left_type, right_type, NULL, NULL, NULL, NULL)) {
         compile_err_msg(info, "The different type between left type and right type(5). Left type is %s. Right type is %s.", CLASS_NAME(left_type->mClass), CLASS_NAME(right_type->mClass));
         info->err_num++;
 
@@ -4976,7 +4986,7 @@ BOOL compile_decrement_operand_with_value(unsigned int node, sCompileInfo* info)
 
     cast_right_type_to_left_type(left_type, &right_type, info);
 
-    if(!substitution_posibility(left_type, right_type, NULL, NULL, NULL)) {
+    if(!substitution_posibility(left_type, right_type, NULL, NULL, NULL, NULL)) {
         compile_err_msg(info, "The different type between left type and right type(6). Left type is %s. Right type is %s.", CLASS_NAME(left_type->mClass), CLASS_NAME(right_type->mClass));
         info->err_num++;
 
@@ -5318,7 +5328,7 @@ BOOL compile_store_array_element(unsigned int node, sCompileInfo* info)
 
     cast_right_type_to_left_type(left_type2, &right_type, info);
 
-    if(!substitution_posibility(left_type2, right_type, NULL, NULL, NULL)) {
+    if(!substitution_posibility(left_type2, right_type, NULL, NULL, NULL, NULL)) {
         compile_err_msg(info, "The different type between left type and right type(7). %s and %s", CLASS_NAME(left_type2->mClass), CLASS_NAME(right_type->mClass));
         info->err_num++;
 
@@ -6728,7 +6738,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     sNodeType* left_type = var->mType;
     if(gNodes[node].mType->mClass == NULL || left_type == NULL || right_type == NULL || left_type->mClass == NULL || right_type->mClass == NULL) 
     {
-        compile_err_msg(info, "invalid type");
+        compile_err_msg(info, "invalid type(2)");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -6741,7 +6751,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
 
     cast_right_type_to_left_type(left_type2, &right_type, info);
 
-    if(!substitution_posibility(left_type2, right_type, NULL, NULL, NULL)) {
+    if(!substitution_posibility(left_type2, right_type, NULL, NULL, NULL, NULL)) {
         compile_err_msg(info, "The different type between left type and right type(1). Left type is %s. Right type is %s.", CLASS_NAME(left_type2->mClass), CLASS_NAME(right_type->mClass));
         info->err_num++;
 
@@ -6901,13 +6911,21 @@ BOOL compile_block_call(unsigned int node, sCompileInfo* info)
         if(klass) {
             sNodeType* generics_types = create_generics_types_from_generics_params(klass);
 
-            if(!substitution_posibility(left_type, right_type, generics_types, NULL, NULL)) {
+            sNodeType* method_generics_types;
+            if(info->pinfo->klass) {
+                method_generics_types = get_methocs_generics_type(info->pinfo);
+            }
+            else {
+                method_generics_types = NULL;
+            }
+
+            if(!substitution_posibility(left_type, right_type, generics_types, NULL, method_generics_types, method_generics_types)) {
                 compile_err_msg(info, "Type error for block call");
                 info->err_num++;
             }
         }
         else {
-            if(!substitution_posibility(left_type, right_type, NULL, NULL, NULL)) {
+            if(!substitution_posibility(left_type, right_type, NULL, NULL, NULL, NULL)) {
                 compile_err_msg(info, "Type error for block call");
                 info->err_num++;
             }
@@ -7164,9 +7182,11 @@ static BOOL compile_inherit_call(unsigned int node, sCompileInfo* info)
             generics_types = NULL;
         }
 
+        sNodeType* right_method_generics_types = get_methocs_generics_type(info->pinfo);
+
         /// search for the method ///
         sNodeType* result_type;
-        int method_index2 = search_for_method(klass, method_name, param_types, num_params, class_method, method_index-1, generics_types, NULL, &result_type);
+        int method_index2 = search_for_method(klass, method_name, param_types, num_params, class_method, method_index-1, generics_types, NULL, right_method_generics_types, &result_type);
 
         if(method_index2 == -1) {
             compile_err_msg(info, "method not found(1)");

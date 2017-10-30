@@ -17,6 +17,18 @@ class MethodGenericsInteger
     }
 }
 
+class MethodGenericsInteger2
+{
+    field:int;
+
+    def initialize(value:int) {
+        self.field = value;
+    }
+
+    def append(value:MethodGenericsInteger): MethodGenericsInteger {
+        return new MethodGenericsInteger(self.field + value.field);
+    }
+}
 
 class MethodGenerics
 {
@@ -25,5 +37,19 @@ class MethodGenerics
 
     def <T:MethodGenericsInteface> method(a:T, b:T) : T {
         return a.append(b);
+    }
+
+    def <T:MethodGenericsInteface, R:MethodGenericsInteface> method2(a:T, b:R) : R {
+        return a.append(b);
+    }
+    
+    def <T:Object, R:MethodGenericsInteface> method3(trans:lambda(T):R) : List<R> {
+        result := new List<R>();
+
+        result.add(trans(new Integer(1)));
+        result.add(trans(new Integer(2)));
+        result.add(trans(new Integer(3)));
+
+        return result;
     }
 }
