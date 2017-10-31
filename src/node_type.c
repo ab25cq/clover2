@@ -136,7 +136,7 @@ static sNodeType* parse_class_name(char** p, char** p2, char* buf)
                 node_type->mGenericsTypes[node_type->mNumGenericsTypes] = parse_class_name(p, p2, buf);
                 node_type->mNumGenericsTypes++;
 
-                if(node_type->mNumGenericsTypes > GENERICS_TYPES_MAX) {
+                if(node_type->mNumGenericsTypes >= GENERICS_TYPES_MAX) {
                     return NULL;
                 }
 
@@ -166,6 +166,8 @@ static sNodeType* parse_class_name(char** p, char** p2, char* buf)
             }
         }
         else if(**p == '>') {
+            **p2 = 0;
+
             node_type->mClass = get_class_with_load(buf);
 
             if(node_type->mClass == NULL) {
@@ -283,7 +285,6 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_
     else {
         right2 = right;
     }
-
 
     sNodeType* left3;
     if(left_generics_types) {

@@ -2765,7 +2765,7 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
         char* class_name = gNodes[params[0]].uValue.sString.mString;
 
         info->type = create_node_type_with_class_name(class_name);
-        
+
         return TRUE;
     }
     /// normal methods ///
