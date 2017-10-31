@@ -3015,8 +3015,10 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
 
     append_opecode_to_code(info->code, OP_RETURN, info->no_output);
 
-    info->stack_num = 0;  // no pop
-    info->type = create_node_type_with_class_name("Null");
+    if(info->pinfo->err_num == 0) { // for interpreter completion
+        info->stack_num = 0;  // no pop
+        info->type = create_node_type_with_class_name("Null");
+    }
 
     return TRUE;
 }
