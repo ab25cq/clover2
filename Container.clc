@@ -593,20 +593,6 @@ module MListImplementation
         return self.items(System.rand() % self.number);
     }
 
-    def map(block_:lambda(T):Anonymous): SELF<Anonymous> {
-        result:SELF<Anonymous> = new SELF<Anonymous>();
-
-        it:ListItem<T> = self.head;
-
-        while(!it.identifyWith(null)) {
-            result.add(block_(it.item));
-
-            it = it.next;
-        }
-
-        return result;
-    }
-
     def append(list:SELF<T>):SELF<T> {
         list.each(closure(item:T) {
             self.add(item);
@@ -944,6 +930,20 @@ class List <T:Object>
 {
     include MListImplementation;
 
+    def <T:Object, R:Object> map(trans:lambda(T):R): SELF<R> {
+        result:SELF<R> = new SELF<R>();
+
+        it:ListItem<T> = self.head;
+
+        while(!it.identifyWith(null)) {
+            result.add(trans(it.item));
+
+            it = it.next;
+        }
+
+        return result;
+    }
+
     def toEqualableList():EqualableList<IEqualable> throws Exception {
         result:EqualableList<IEqualable>  = new EqualableList<IEqualable>();
 
@@ -986,6 +986,20 @@ class EqualableList<T:IEqualable>
     include MListImplementation;
     include MEqualableListImplementation;
 
+    def <T:IEqualable, R:IEqualable> map(trans:lambda(T):R): SELF<R> {
+        result:SELF<R> = new SELF<R>();
+
+        it:ListItem<T> = self.head;
+
+        while(!it.identifyWith(null)) {
+            result.add(trans(it.item));
+
+            it = it.next;
+        }
+
+        return result;
+    }
+
     def toSortableList():SortableList<ISortable> throws Exception {
         result:SortableList<ISortable>  = new SortableList<ISortable>();
 
@@ -1009,6 +1023,20 @@ class SortableList<T:ISortable>
 {
     include MListImplementation;
     include MEqualableListImplementation;
+
+    def <T:ISortable, R:ISortable> map(trans:lambda(T):R): SELF<R> {
+        result:SELF<R> = new SELF<R>();
+
+        it:ListItem<T> = self.head;
+
+        while(!it.identifyWith(null)) {
+            result.add(trans(it.item));
+
+            it = it.next;
+        }
+
+        return result;
+    }
 
     def quickSort(list:SortableList<T>, left:int, right:int) {
         l_hold:int = left;

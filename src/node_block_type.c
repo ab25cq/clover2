@@ -115,7 +115,7 @@ BOOL substitution_posibility_for_node_block_type(sNodeBlockType* left_block, sNo
                     right_solved_param = right_block->mParams[i];
                 }
 
-                if(!type_identify(left_solved_param, right_solved_param))
+                if(!substitution_posibility(left_solved_param, right_solved_param, NULL, NULL, NULL, NULL))
                 {
                     return FALSE;
                 }

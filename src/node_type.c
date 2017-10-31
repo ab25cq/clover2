@@ -558,6 +558,18 @@ void solve_generics_for_variable_to_class(sCLClass* klass, sCLClass** result, sP
     }
 }
 
+void solve_method_generics_for_variable_to_class(sCLClass* klass, sCLClass** result, struct sParserInfoStruct* info)
+{
+    sCLClass* generics_class = info->klass;
+    int generics_param_number = klass->mMethodGenericsParamClassNum;
+
+    *result = klass;
+
+    if(generics_param_number != -1) {
+        *result = info->method_generics_info.mInterface[generics_param_number];
+    }
+}
+
 void solve_generics_for_variable(sNodeType* generics_type, sNodeType** generics_type2, sParserInfo* info)
 {
     *generics_type2 = alloc_node_type();

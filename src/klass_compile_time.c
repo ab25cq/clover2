@@ -378,7 +378,8 @@ static BOOL check_method_params(sCLMethod* method, sCLClass* klass, char* method
                 for(j=0; j<num_params; j++ ) {
                     sNodeType* param = create_node_type_from_cl_type(method->mParams[j].mType, klass);
 
-                    if(!substitution_posibility(param, param_types[j], left_generics_type, right_generics_type, left_method_generics, right_method_generics)) {
+                    if(!substitution_posibility(param, param_types[j], left_generics_type, right_generics_type, left_method_generics, right_method_generics)) 
+                    {
                         return FALSE;
                     }
 

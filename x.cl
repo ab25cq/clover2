@@ -1,6 +1,5 @@
 
-#list { 1, 2, 3}.toString().println();
+a:List<String> = list { 1, 2, 3 }.map() { |n:Integer| return n.toString() };
 
-a: = new ClassToStringTest();
+Clover.test("map test", a.items(0).equals("1") && a.items(1).equals("2") && a.items(2).equals("3"));
 
-a.toString().println();
