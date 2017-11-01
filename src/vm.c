@@ -445,6 +445,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
     info->running_method = method;
 #ifdef VM_LOG
     printf("invoke_method %s.%s start\n", CLASS_NAME(klass), METHOD_NAME2(klass, method));
+    printf("method->mMethodIndex %d\n", method->mMethodIndex);
 #endif
     
     if(method->mFlags & METHOD_FLAGS_NATIVE) {

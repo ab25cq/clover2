@@ -4,12 +4,6 @@ class ClassToStringTest
     tail: int;
     number: int;
 
-    def initialize() {
-        self.number = 0;
-        self.head = 1;
-        self.tail = 2;
-    }
-
     def toString(): String {
         if(self.head == 0) {
             return "Null list";
@@ -22,6 +16,12 @@ class ClassToStringTest
             result.append(" length list of ");
             return result;
         }
+    }
+
+    def initialize() {
+        self.number = 0;
+        self.head = 1;
+        self.tail = 2;
     }
 
 }

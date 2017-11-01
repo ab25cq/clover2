@@ -292,6 +292,9 @@ BOOL add_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protect
     klass->mFields[num_fields].mFlags = (private_ ? FIELD_FLAGS_PRIVATE : 0) | (protected_ ? FIELD_FLAGS_PROTECTED:0);
     klass->mFields[num_fields].mNameOffset = append_str_to_constant_pool(&klass->mConst, name, FALSE);
 
+    klass->mFields[num_fields].mNumDelegatedMethod = 0;
+    memset(&klass->mFields[num_fields].mDelegatedMethodIndex, 0, sizeof(int)*METHOD_NUM_MAX);
+
     node_type_to_cl_type(result_type, ALLOC &klass->mFields[num_fields].mResultType, klass);
 
     klass->mNumFields++;

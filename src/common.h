@@ -259,6 +259,9 @@ struct sCLFieldStruct {
 
     sCLType* mResultType;
     CLVALUE mValue;
+
+    int mDelegatedMethodIndex[METHOD_NUM_MAX];  // compile time variable
+    int mNumDelegatedMethod;
 };
 
 typedef struct sCLFieldStruct sCLField;

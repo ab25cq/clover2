@@ -296,7 +296,7 @@ static BOOL parse_method_name_and_params(char* method_name, int method_name_max,
     return TRUE;
 }
 
-static BOOL parse_field_attributes_and_type(BOOL* private_, BOOL* protected_, BOOL* static_, sNodeType** result_type, sParserInfo* info, sCompileInfo* cinfo)
+static BOOL parse_field_attributes_and_type(BOOL* private_, BOOL* protected_, BOOL* static_, BOOL* delegate_, sNodeType** result_type, sParserInfo* info, sCompileInfo* cinfo)
 {
     /// atributes ///
     while(1) {
@@ -315,6 +315,9 @@ static BOOL parse_field_attributes_and_type(BOOL* private_, BOOL* protected_, BO
         else if(strcmp(buf, "protected") == 0) {
             *protected_ = TRUE;
         }
+        else if(strcmp(buf, "delegate") == 0) {
+            *delegate_ = TRUE;
+        }
         else if(strcmp(buf, "static") == 0) {
             *static_ = TRUE;
         }
@@ -328,6 +331,77 @@ static BOOL parse_field_attributes_and_type(BOOL* private_, BOOL* protected_, BO
     /// parse result type ///
     if(!parse_type(result_type, info)) {
         return FALSE;
+    }
+
+    return TRUE;
+}
+
+static BOOL field_delegation(sParserInfo* info, sCompileInfo* cinfo, sCLClass* klass, sCLField* field)
+{
+    sNodeType* field_type = create_node_type_from_cl_type(field->mResultType, klass);
+
+    sCLClass* field_class = field_type->mClass;
+
+    if(info->err_num == 0 && (info->klass->mFlags & CLASS_FLAGS_ALLOCATED)) {
+        field->mNumDelegatedMethod = 0;
+
+        int i;
+        for(i=0; i<field_class->mNumMethods; i++) {
+            sCLMethod* method = field_class->mMethods + i;
+
+            if(!(method->mFlags & METHOD_FLAGS_CLASS_METHOD) && !(method->mFlags & METHOD_FLAGS_NATIVE) && strcmp(METHOD_NAME2(field_class, method), "initialize") != 0 && strcmp(METHOD_NAME2(field_class,method), "finalize") != 0) 
+            {
+                char* method_name = METHOD_NAME2(field_class, method);
+
+                sNodeType* params[PARAMS_MAX];
+                int j;
+                for(j=0; j<method->mNumParams; j++) {
+                    sCLParam* param = method->mParams + j;
+                    params[j] = create_node_type_from_cl_type(param->mType, field_class);
+                }
+
+                sParserParam parser_params[PARAMS_MAX];
+                for(j=0; j<method->mNumParams; j++) {
+                    char param_name[VAR_NAME_MAX];
+                    snprintf(param_name, VAR_NAME_MAX, "param%d", j);
+                    xstrncpy(parser_params[j].mName, param_name, VAR_NAME_MAX);
+                    parser_params[j].mType = params[j];
+                }
+
+                int num_params = method->mNumParams;
+
+                sNodeType* result_type = create_node_type_from_cl_type(method->mResultType, field_class);
+
+                BOOL native_ = FALSE;
+                BOOL static_ = FALSE;
+
+                sGenericsParamInfo method_generics_info;
+
+                method_generics_info.mNumParams = method->mNumGenerics;
+                for(j=0; j<method_generics_info.mNumParams; j++) {
+                    int offset = method->mGenericsParamTypeOffsets[j];
+
+                    char* interface_name = CONS_str(&field_class->mConst, offset);
+                    sCLClass* interface = get_class(interface_name);
+
+                    MASSERT(interface != NULL);
+
+                    method_generics_info.mInterface[j] = interface;
+
+                    xstrncpy(method_generics_info.mParamNames[j], "dummy", VAR_NAME_MAX); // no use in add_method_to_class
+                }
+
+                if(!add_method_to_class(klass, method_name, parser_params, num_params, result_type, native_, static_, &method_generics_info)) 
+                {
+                    fprintf(stderr, "overflow method number\n");
+                    return FALSE;
+                }
+
+                int num_methods = field->mNumDelegatedMethod;
+                field->mDelegatedMethodIndex[num_methods] = klass->mNumMethods -1;  // compile time variable
+                field->mNumDelegatedMethod++;
+            }
+        }
     }
 
     return TRUE;
@@ -458,11 +532,12 @@ static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOO
         BOOL private_ = FALSE;
         BOOL protected_ = FALSE;
         BOOL static_ = FALSE;
+        BOOL delegate_ = FALSE;
         sNodeType* result_type = NULL;
 
         expect_next_character_with_one_forward(":", info);
 
-        if(!parse_field_attributes_and_type(&private_, &protected_, &static_, &result_type, info, cinfo)) {
+        if(!parse_field_attributes_and_type(&private_, &protected_, &static_, &delegate_, &result_type, info, cinfo)) {
             return FALSE;
         }
 
@@ -482,6 +557,21 @@ static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOO
         if(*info->p == ';') {
             info->p++;
             skip_spaces_and_lf(info);
+        }
+
+        if(delegate_) {
+            sCLClass* klass = info->klass;
+            char* field_name = buf;
+
+            int field_index = search_for_field(klass, field_name);
+
+            if(field_index != -1) {
+                sCLField* field = klass->mFields + field_index;
+
+                if(!field_delegation(info, cinfo, klass, field)) {
+                    return FALSE;
+                }
+            }
         }
     }
 
@@ -521,6 +611,101 @@ static BOOL parse_class_on_add_methods_and_fields(sParserInfo* info, sCompileInf
                 skip_spaces_and_lf(info);
                 break;
             }
+        }
+    }
+
+    return TRUE;
+}
+
+static BOOL field_delegation_on_compile_time(sParserInfo* info, sCompileInfo* cinfo, sCLClass* klass, sCLField* field, char* field_name)
+{
+    sNodeType* field_type = create_node_type_from_cl_type(field->mResultType, klass);
+
+    sCLClass* field_class = field_type->mClass;
+
+    if(info->err_num == 0 && (info->klass->mFlags & CLASS_FLAGS_ALLOCATED)) {
+        int i;
+        for(i=0; i<field->mNumDelegatedMethod; i++) {
+            sCLMethod* method = klass->mMethods + field->mDelegatedMethodIndex[i];
+
+printf("filed->mDelegatedMethodIndex[%d] %d\n", i, field->mDelegatedMethodIndex[i]);
+printf("method name %s\n", METHOD_NAME2(klass, method));
+
+            char* method_name = METHOD_NAME2(klass, method);
+
+            sNodeType* params[PARAMS_MAX];
+            int j;
+            for(j=0; j<method->mNumParams; j++) {
+                sCLParam* param = method->mParams + j;
+                params[j] = create_node_type_from_cl_type(param->mType, klass);
+            }
+
+            int num_params = method->mNumParams;
+
+            sGenericsParamInfo method_generics_info;
+
+            method_generics_info.mNumParams = method->mNumGenerics;
+            for(j=0; j<method_generics_info.mNumParams; j++) {
+                int offset = method->mGenericsParamTypeOffsets[j];
+
+                char* interface_name = CONS_str(&klass->mConst, offset);
+                sCLClass* interface = get_class(interface_name);
+
+                MASSERT(interface != NULL);
+
+                method_generics_info.mInterface[j] = interface;
+
+                xstrncpy(method_generics_info.mParamNames[j], "dummy", VAR_NAME_MAX); // no use in add_method_to_class
+            }
+
+            sParserParam parser_params[PARAMS_MAX];
+            for(j=0; j<num_params; j++) {
+                char param_name[VAR_NAME_MAX];
+                snprintf(param_name, VAR_NAME_MAX, "param%d", j);
+                xstrncpy(parser_params[j].mName, param_name, VAR_NAME_MAX);
+                parser_params[j].mType = params[j];
+            }
+
+            sParserInfo info2;
+
+            memset(&info2, 0, sizeof(sParserInfo));
+
+            char source[1024];
+            snprintf(source, 1024, "self.%s.%s(", field_name, method_name);
+            for(j=0; j<num_params; j++) {
+                char param_name[VAR_NAME_MAX];
+                snprintf(param_name, VAR_NAME_MAX, "param%d", j);
+
+                xstrncat(source, param_name, 1024);
+
+                if(j != num_params-1) {
+                    xstrncat(source, ",", 1024);
+                }
+            }
+
+            xstrncat(source, "); }", 1024);
+
+            info2.p = source;
+            info2.sname = "field_delegation";
+            info2.sline = 1;
+            info2.err_num = 0;
+            info2.lv_table = info->lv_table;
+            info2.parse_phase = info->parse_phase;
+            info2.klass = info->klass;
+            info2.generics_info = info->generics_info;
+            info2.method_generics_info = method_generics_info;
+            info2.cinfo = cinfo;
+
+            info2.included_source = FALSE;
+            info2.get_type_for_interpreter = FALSE;
+            info2.next_command_is_to_bool = FALSE;
+            info2.exist_block_object_err = FALSE;
+
+            if(!compile_method(method, parser_params, num_params, &info2, cinfo)) {
+                return FALSE;
+            }
+
+            info->err_num += info2.err_num;
         }
     }
 
@@ -662,17 +847,35 @@ BOOL parse_methods_and_fields_on_compile_time(sParserInfo* info, sCompileInfo* c
         BOOL private_ = FALSE;
         BOOL protected_ = FALSE;
         BOOL static_ = FALSE;
+        BOOL delegate_ = FALSE;
         sNodeType* result_type = NULL;
 
         expect_next_character_with_one_forward(":", info);
 
-        if(!parse_field_attributes_and_type(&private_, &protected_, &static_, &result_type, info, cinfo)) {
+        if(!parse_field_attributes_and_type(&private_, &protected_, &static_, &delegate_, &result_type, info, cinfo)) {
             return FALSE;
         }
 
         if(*info->p == ';') {
             info->p++;
             skip_spaces_and_lf(info);
+        }
+
+        if(info->klass->mFlags & CLASS_FLAGS_ALLOCATED) {
+            if(delegate_) {
+                sCLClass* klass = info->klass;
+                char* field_name = buf;
+
+                int field_index = search_for_field(klass, field_name);
+
+                if(field_index != -1) {
+                    sCLField* field = klass->mFields + field_index;
+
+                    if(!field_delegation_on_compile_time(info, cinfo, klass, field, field_name)) {
+                        return FALSE;
+                    }
+                }
+            }
         }
     }
 

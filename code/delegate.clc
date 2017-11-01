@@ -1,0 +1,25 @@
+
+class DelegateClassA
+{
+    a:int;
+
+    def initialize() {
+        self.a = 123;
+    }
+
+    def show() {
+        println("a is \{self.a.toString()}");
+    }
+    def get(): int {
+        return self.a;
+    }
+}
+
+class DelegateClass
+{
+    field: delegate DelegateClassA;
+
+    def initialize() {
+        self.field = new DelegateClassA();
+    }
+}
