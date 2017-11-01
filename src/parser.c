@@ -1674,7 +1674,7 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info, int* nu
                 }
 
                 /// call methods ///
-                if(*info->p == '(') {
+                if(*info->p == '(' || *info->p == '{') {
                     unsigned int params[PARAMS_MAX];
                     int num_params = 0;
 
