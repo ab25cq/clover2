@@ -15,11 +15,29 @@ class DelegateClassA
     }
 }
 
+class DelegateClassB
+{
+    b:int;
+
+    def initialize() {
+        self.b = 345;
+    }
+
+    def show() {
+        println("b is \{self.b.toString()}");
+    }
+    def get(): int {
+        return self.b;
+    }
+}
+
 class DelegateClass
 {
     field: delegate DelegateClassA;
+    field2: delegate DelegateClassB;
 
     def initialize() {
         self.field = new DelegateClassA();
+        self.field2 = new DelegateClassB();
     }
 }

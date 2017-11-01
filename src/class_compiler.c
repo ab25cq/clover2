@@ -628,9 +628,6 @@ static BOOL field_delegation_on_compile_time(sParserInfo* info, sCompileInfo* ci
         for(i=0; i<field->mNumDelegatedMethod; i++) {
             sCLMethod* method = klass->mMethods + field->mDelegatedMethodIndex[i];
 
-printf("filed->mDelegatedMethodIndex[%d] %d\n", i, field->mDelegatedMethodIndex[i]);
-printf("method name %s\n", METHOD_NAME2(klass, method));
-
             char* method_name = METHOD_NAME2(klass, method);
 
             sNodeType* params[PARAMS_MAX];
@@ -706,6 +703,7 @@ printf("method name %s\n", METHOD_NAME2(klass, method));
             }
 
             info->err_num += info2.err_num;
+            info->klass->mMethodIndexOnCompileTime++;
         }
     }
 
