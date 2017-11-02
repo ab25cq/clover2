@@ -1270,6 +1270,8 @@ static int my_complete_internal(int count, int key)
         gCandidates[i] = NULL;
         gNumCandidates = i;
 
+        MFREE(candidates);
+
         gInputingMethod = TRUE;
         rl_completer_word_break_characters = "\t :<,";
     }
