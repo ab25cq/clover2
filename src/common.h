@@ -379,7 +379,7 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_
 BOOL substitution_posibility_with_class_name(sNodeType* left, char* right_class_name);
 BOOL operand_posibility_with_class_name(sNodeType* left, char* right_class_name, char* op_string);
 BOOL operand_posibility(sNodeType* left, sNodeType* right, char* op_string);
-BOOL solve_generics_types_for_node_type(sNodeType* node_type, ALLOC sNodeType** result, sNodeType* generics_type, BOOL solve_Self);
+BOOL solve_generics_types_for_node_type(sNodeType* node_type, ALLOC sNodeType** result, sNodeType* generics_type, BOOL solve_Self, BOOL solve_method_generics);
 struct sParserInfoStruct;
 void solve_generics_for_variable_to_class(sCLClass* klass, sCLClass** result, struct sParserInfoStruct* info);
 void solve_method_generics_for_variable_to_class(sCLClass* klass, sCLClass** result, struct sParserInfoStruct* info);
@@ -501,6 +501,8 @@ struct sParserInfoStruct
 
 typedef struct sParserInfoStruct sParserInfo;
 
+struct sParserParamStruct;
+BOOL parse_params_and_entry_to_lvtable(struct sParserParamStruct* params, int* num_params, sParserInfo* info, sVarTable** new_table, sVarTable* parent_lv_table, int character_type);
 void parser_err_msg(sParserInfo* info, const char* msg, ...);
 BOOL expression(unsigned int* node, sParserInfo* info);
 void skip_spaces_and_lf(sParserInfo* info);
@@ -518,6 +520,10 @@ struct sNodeBlockStruct
 
     sVarTable* mLVTable;
     BOOL mErrBlock;
+
+    sBuf mSource;
+    char* mSName;
+    int mSLine;
 };
 
 typedef struct sNodeBlockStruct sNodeBlock;
@@ -634,6 +640,9 @@ struct sNodeTreeStruct
             sNodeType* mResultType;
             sNodeBlock* mBlockObjectCode;
             BOOL mLambda;
+            BOOL mOmitResultType;
+            BOOL mOmitParams;
+            sVarTable* mOldTable;
         } sBlockObject;
 
         struct {
@@ -714,6 +723,10 @@ struct sCompileInfoStruct
     int* break_points;
     sCLMethod* method;
     sNodeType* block_result_type;
+    sNodeType* return_type;
+    BOOL in_block;
+    BOOL omit_block_result_type;
+    sNodeType* block_last_type;
     char* sname;
     int sline;
 
@@ -778,7 +791,7 @@ unsigned int sNodeTree_create_string_value(MANAGED char* value, unsigned int* st
 unsigned int sNodeTree_create_buffer_value(MANAGED char* value, int len, unsigned int* string_expressions, int* string_expression_offsets, int num_string_expression, sParserInfo* info);
 unsigned int sNodeTree_try_expression(MANAGED sNodeBlock* try_node_block, MANAGED sNodeBlock* catch_node_block, char* exception_var_name, sParserInfo* info);
 
-unsigned int sNodeTree_create_block_object(sParserParam* params, int num_params, sNodeType* result_type, MANAGED sNodeBlock* node_block, BOOL lambda, sParserInfo* info);
+unsigned int sNodeTree_create_block_object(sParserParam* params, int num_params, sNodeType* result_type, MANAGED sNodeBlock* node_block, BOOL lambda, sParserInfo* info, BOOL omit_result_type, BOOL omit_params, sVarTable* old_table);
 unsigned int sNodeTree_create_block_call(unsigned int block, int num_params, unsigned int params[], sParserInfo* info);
 unsigned int sNodeTree_conditional_expression(unsigned int expression_node, unsigned int true_expression_node, unsigned int false_expression_node, sParserInfo* info);
 unsigned int sNodeTree_create_normal_block(MANAGED sNodeBlock* node_block, sParserInfo* info);
@@ -1696,7 +1709,7 @@ BOOL add_typedef_to_class(sCLClass* klass, char* class_name1, char* class_name2)
 BOOL add_class_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type);
 void add_code_to_method(sCLMethod* method, sByteCode* code, int var_num);
 BOOL write_all_modified_classes();
-int search_for_method(sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, int start_point, sNodeType* left_generics_type, sNodeType* right_generics_type, sNodeType* right_method_generics, sNodeType** result_type);
+int search_for_method(sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, int start_point, sNodeType* left_generics_type, sNodeType* right_generics_type, sNodeType* right_method_generics, sNodeType** result_type, BOOL lazy_lambda_compile, BOOL lazy_labda_compile2, sNodeType** method_generics_types);
 BOOL search_for_methods_from_method_name(int method_indexes[], int size_method_indexes, int* num_methods, sCLClass* klass, char* method_name, int start_point);
 int search_for_field(sCLClass* klass, char* field_name);
 int search_for_class_field(sCLClass* klass, char* field_name);
@@ -1706,6 +1719,7 @@ BOOL parse_params(sParserParam* params, int* num_params, sParserInfo* info, int 
 BOOL check_implemented_methods_for_interface(sCLClass* left_class, sCLClass* right_class);
 BOOL method_name_existance(sCLClass* klass, char* method_name);
 void create_method_name_and_params(char* result, int size_result, sCLClass* klass, char* method_name, sNodeType* param_types[PARAMS_MAX], int num_params);
+BOOL determine_method_generics_types(sNodeType* left_param, sNodeType* right_param, sNodeType* method_generics_types);
 
 /// native_method.c ///
 void native_method_init();

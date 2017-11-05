@@ -930,7 +930,7 @@ class List <T:Object>
 {
     include MListImplementation;
 
-    def <T:Object, R:Object> map(trans:lambda(T):R): SELF<R> {
+    def <R:Object> map(trans:lambda(T):R): SELF<R> {
         result:SELF<R> = new SELF<R>();
 
         it:ListItem<T> = self.head;
@@ -986,7 +986,7 @@ class EqualableList<T:IEqualable>
     include MListImplementation;
     include MEqualableListImplementation;
 
-    def <T:IEqualable, R:IEqualable> map(trans:lambda(T):R): SELF<R> {
+    def <R:IEqualable> map(trans:lambda(T):R): SELF<R> {
         result:SELF<R> = new SELF<R>();
 
         it:ListItem<T> = self.head;
@@ -1024,7 +1024,7 @@ class SortableList<T:ISortable>
     include MListImplementation;
     include MEqualableListImplementation;
 
-    def <T:ISortable, R:ISortable> map(trans:lambda(T):R): SELF<R> {
+    def <R:ISortable> map(trans:lambda(T):R): SELF<R> {
         result:SELF<R> = new SELF<R>();
 
         it:ListItem<T> = self.head;

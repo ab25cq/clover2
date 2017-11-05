@@ -1,0 +1,21 @@
+class ResultTypeTest
+{
+    def initialize() {
+    }
+
+    def get(): int {
+        123;
+    }
+
+    def method() {
+        d:EqualableList<String> = equalable_list { 1, 2, 3 }.map { it.toString() }
+
+        Clover.test("result type test3", d.equals(equalable_list { "1", "2", "3" }));
+    }
+
+    def <T:Object, R:Object> method2(a:T, b:R) {
+        d:EqualableList<String> = equalable_list { 1, 2, 3 }.map { it.toString() }
+
+        Clover.test("result type test4", d.equals(equalable_list { "1", "2", "3" }));
+    }
+}

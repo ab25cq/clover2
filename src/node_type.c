@@ -265,7 +265,7 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_
     sNodeType* left2;
 
     if(left_method_generics) {
-        if(!solve_generics_types_for_node_type(left, ALLOC &left2, left_method_generics, FALSE)) 
+        if(!solve_generics_types_for_node_type(left, ALLOC &left2, left_method_generics, FALSE, TRUE)) 
         {
             return FALSE;
         }
@@ -277,7 +277,7 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_
     sNodeType* right2;
 
     if(right_method_generics) {
-        if(!solve_generics_types_for_node_type(right, ALLOC &right2, right_method_generics, FALSE)) 
+        if(!solve_generics_types_for_node_type(right, ALLOC &right2, right_method_generics, FALSE, TRUE)) 
         {
             return FALSE;
         }
@@ -288,7 +288,7 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_
 
     sNodeType* left3;
     if(left_generics_types) {
-        if(!solve_generics_types_for_node_type(left2, ALLOC &left3, left_generics_types, TRUE)) 
+        if(!solve_generics_types_for_node_type(left2, ALLOC &left3, left_generics_types, TRUE, FALSE)) 
         {
             return FALSE;
         }
@@ -299,7 +299,7 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_
 
     sNodeType* right3;
     if(right_generics_types) {
-        if(!solve_generics_types_for_node_type(right2, ALLOC &right3, right_generics_types, TRUE)) 
+        if(!solve_generics_types_for_node_type(right2, ALLOC &right3, right_generics_types, TRUE, FALSE)) 
         {
             return FALSE;
         }
@@ -354,6 +354,9 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_
         if(left3->mClass == right3->mClass && left3->mArray == right3->mArray && left3->mNumGenericsTypes == right3->mNumGenericsTypes) {
             int i;
             for(i=0; i<left3->mNumGenericsTypes; i++) {
+                if(type_identify_with_class_name(right3->mGenericsTypes[i], "Null")) {  // prevent unintended
+                    return FALSE;
+                }
                 if(!substitution_posibility(left3->mGenericsTypes[i], right3->mGenericsTypes[i], left_generics_types, right_generics_types, left_method_generics, right_method_generics))
                 {
                     return FALSE;
@@ -429,7 +432,7 @@ static void solve_Self_types_for_node_type(sNodeType* node_type, ALLOC sNodeType
         (*result)->mNumGenericsTypes = node_type->mNumGenericsTypes;
 
         for(j=0; j<node_type->mNumGenericsTypes; j++) {
-            (void)solve_generics_types_for_node_type(node_type->mGenericsTypes[j], &(*result)->mGenericsTypes[j], generics_type, TRUE);
+            (void)solve_generics_types_for_node_type(node_type->mGenericsTypes[j], &(*result)->mGenericsTypes[j], generics_type, TRUE, FALSE);
 
             // if it can not be solved generics, no solve the generics type
         }
@@ -442,7 +445,7 @@ static void solve_Self_types_for_node_type(sNodeType* node_type, ALLOC sNodeType
     }
 }
 
-BOOL solve_generics_types_for_node_type(sNodeType* node_type, ALLOC sNodeType** result, sNodeType* generics_type, BOOL solve_Self)
+BOOL solve_generics_types_for_node_type(sNodeType* node_type, ALLOC sNodeType** result, sNodeType* generics_type, BOOL solve_Self, BOOL solve_method_generics)
 {
     int i;
     int j;
@@ -461,7 +464,7 @@ BOOL solve_generics_types_for_node_type(sNodeType* node_type, ALLOC sNodeType** 
     else if(generics_type && generics_type->mNumGenericsTypes > 0) {
         int generics_param_class_num;
 
-        if(node_type2->mClass->mMethodGenericsParamClassNum != -1) {
+        if(solve_method_generics) {
             generics_param_class_num = node_type2->mClass->mMethodGenericsParamClassNum;
         }
         else {
@@ -489,7 +492,7 @@ BOOL solve_generics_types_for_node_type(sNodeType* node_type, ALLOC sNodeType** 
         (*result)->mNumGenericsTypes = node_type2->mNumGenericsTypes;
 
         for(j=0; j<node_type2->mNumGenericsTypes; j++) {
-            (void)solve_generics_types_for_node_type(node_type2->mGenericsTypes[j], &(*result)->mGenericsTypes[j], generics_type, TRUE);
+            (void)solve_generics_types_for_node_type(node_type2->mGenericsTypes[j], &(*result)->mGenericsTypes[j], generics_type, TRUE, solve_method_generics);
 
             // if it can not be solved generics, no solve the generics type
         }
@@ -504,10 +507,10 @@ BOOL solve_generics_types_for_node_type(sNodeType* node_type, ALLOC sNodeType** 
             result_block_type->mNumParams = block_type->mNumParams;
 
             for(j=0; j<block_type->mNumParams; j++) {
-                (void)solve_generics_types_for_node_type(block_type->mParams[j], &result_block_type->mParams[j], generics_type, TRUE);
+                (void)solve_generics_types_for_node_type(block_type->mParams[j], &result_block_type->mParams[j], generics_type, TRUE, solve_method_generics);
             }
 
-            (void)solve_generics_types_for_node_type(block_type->mResultType, &result_block_type->mResultType, generics_type, TRUE);
+            (void)solve_generics_types_for_node_type(block_type->mResultType, &result_block_type->mResultType, generics_type, TRUE, solve_method_generics);
 
             (*result)->mBlockType = result_block_type;
         }

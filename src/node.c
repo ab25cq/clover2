@@ -2140,7 +2140,8 @@ static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)
     sNodeType* right_method_generics_types = get_methocs_generics_type(info->pinfo);
 
     sNodeType* result_type;
-    int method_index = search_for_method(klass, method_name, param_types, num_params, TRUE, klass->mNumMethods-1, generics_types, NULL, right_method_generics_types, &result_type);
+    sNodeType* result_method_generics_types = NULL;
+    int method_index = search_for_method(klass, method_name, param_types, num_params, TRUE, klass->mNumMethods-1, generics_types, NULL, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types);
 
     if(method_index == -1) {
         if(klass->mFlags & CLASS_FLAGS_DYNAMIC_CLASS) {
@@ -2267,7 +2268,7 @@ unsigned int sNodeTree_create_method_call(unsigned int object_node, char* method
     return node;
 }
 
-static BOOL compile_params(sCLClass* klass, char* method_name, int num_params, unsigned int params[PARAMS_MAX], sNodeType* param_types[PARAMS_MAX], sNodeType* generics_types, sCompileInfo* info, unsigned int node)
+static BOOL compile_params(sCLClass* klass, char* method_name, int num_params, unsigned int params[PARAMS_MAX], sNodeType* param_types[PARAMS_MAX], sNodeType* generics_types, sCompileInfo* info, unsigned int node, BOOL lazy_lambda_compile, BOOL* exist_lazy_lamda_compile)
 {
     int size_method_indexes = 128;
     int method_indexes[size_method_indexes];
@@ -2281,33 +2282,42 @@ static BOOL compile_params(sCLClass* klass, char* method_name, int num_params, u
     int i;
     for(i=0; i<num_params; i++) {
         int node2 = params[i];
-        if(!compile(node2, info)) {
-            return FALSE;
+
+        enum eNodeType node2_type = gNodes[node2].mNodeType;
+
+        if(lazy_lambda_compile && i == num_params-1 && node2_type == kNodeTypeBlockObject) {
+            *exist_lazy_lamda_compile = TRUE;
         }
+        else {
+            if(!compile(node2, info)) {
+                return FALSE;
+            }
 
-        param_types[i] = info->type;
+            param_types[i] = info->type;
 
-        int j;
-        for(j=0; j<num_methods; j++) {
-            sCLMethod* method = klass->mMethods + method_indexes[j];
+            /// boxing ///
+            int j;
+            for(j=0; j<num_methods; j++) {
+                sCLMethod* method = klass->mMethods + method_indexes[j];
 
-            if(num_params == method->mNumParams && i < method->mNumParams) {
-                sNodeType* param;
-                sNodeType* solved_param;
+                if(num_params == method->mNumParams && i < method->mNumParams) {
+                    sNodeType* param;
+                    sNodeType* solved_param;
 
-                param = create_node_type_from_cl_type(method->mParams[i].mType, klass);
+                    param = create_node_type_from_cl_type(method->mParams[i].mType, klass);
 
-                if(!solve_generics_types_for_node_type(param, ALLOC &solved_param, generics_types, TRUE)) 
-                {
-                    return FALSE;
-                }
+                    if(!solve_generics_types_for_node_type(param, ALLOC &solved_param, generics_types, TRUE, FALSE)) 
+                    {
+                        return FALSE;
+                    }
 
-                if(boxing_posibility(solved_param, param_types[i])) {
-                    cast_right_type_to_left_type(solved_param, &param_types[i], info);
-                }
+                    if(boxing_posibility(solved_param, param_types[i])) {
+                        cast_right_type_to_left_type(solved_param, &param_types[i], info);
+                    }
 
-                if(type_identify_with_class_name(param_types[i], "Null")) {
-                    param_types[i] = solved_param;
+                    if(type_identify_with_class_name(param_types[i], "Null")) {
+                        param_types[i] = solved_param;
+                    }
                 }
             }
         }
@@ -2348,7 +2358,8 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
 
         info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
 
-        if(!compile_params(klass, method_name, num_params, params, param_types, generics_types, info, node)) {
+        BOOL exist_lazy_lamda_compile = FALSE;
+        if(!compile_params(klass, method_name, num_params, params, param_types, generics_types, info, node, FALSE, &exist_lazy_lamda_compile)) {
             return FALSE;
         }
 
@@ -2360,13 +2371,15 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
 
             /// get method ///
             sNodeType* result_type;
-            int method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types, generics_types, right_method_generics_types, &result_type);
+            sNodeType* result_method_generics_types = NULL;
+            int method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types, generics_types, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types);
 
             /// Searching for the method can be determined by statically ///
             if(method_index2 != -1) {
                 info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
 
-                if(!compile_params(klass, method_name, num_params, params, param_types, generics_types, info, node)) {
+                BOOL exist_lazy_lamda_compile = FALSE;
+                if(!compile_params(klass, method_name, num_params, params, param_types, generics_types, info, node, FALSE, &exist_lazy_lamda_compile)) {
                     return FALSE;
                 }
 
@@ -2447,7 +2460,8 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
         info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
 
         /// compile params ///
-        if(!compile_params(klass, method_name, num_params, params, param_types, generics_types, info, node)) {
+        BOOL exist_lazy_lamda_compile = FALSE;
+        if(!compile_params(klass, method_name, num_params, params, param_types, generics_types, info, node, FALSE, &exist_lazy_lamda_compile)) {
             return FALSE;
         }
 
@@ -2473,7 +2487,8 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
         info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
 
         /// compile params ///
-        if(!compile_params(klass, method_name, num_params, params, param_types, generics_types, info, node)) {
+        BOOL exist_lazy_lamda_compile = FALSE;
+        if(!compile_params(klass, method_name, num_params, params, param_types, generics_types, info, node, FALSE, &exist_lazy_lamda_compile)) {
             return FALSE;
         }
 
@@ -2482,7 +2497,8 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
 
             /// get method ///
             sNodeType* result_type;
-            int method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types, generics_types, right_method_generics_types, &result_type);
+            sNodeType* result_method_generics_types = NULL;
+            int method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types, generics_types, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types);
 
             if(method_index2 == -1) {
                 compile_err_msg(info, "method not found(2)");
@@ -2513,7 +2529,10 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
         info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
 
         /// compile params ///
-        if(!compile_params(klass, method_name, num_params, params, param_types, generics_types, info, node)) {
+        BOOL lazy_lambda_compile = TRUE;
+        BOOL exist_lazy_lamda_compile = FALSE;
+        if(!compile_params(klass, method_name, num_params, params, param_types, generics_types, info, node, lazy_lambda_compile, &exist_lazy_lamda_compile)) 
+        {
             return FALSE;
         }
 
@@ -2522,7 +2541,175 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
 
             /// get method ///
             sNodeType* result_type;
-            int method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types, generics_types, right_method_generics_types, &result_type);
+            sNodeType* result_method_generics_types = NULL;
+            int method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types, generics_types, right_method_generics_types, &result_type, exist_lazy_lamda_compile, FALSE, &result_method_generics_types);
+
+            /// lazy lambda compile ///
+            if(method_index2 != -1 && exist_lazy_lamda_compile) {
+                int node2 = params[num_params-1];
+
+                /// determine block type and block params from getted method ///
+                sCLMethod* method2 = klass->mMethods + method_index2;
+
+                sNodeTree* node_tree = gNodes + node2;
+                BOOL exist_block_result_type = FALSE;
+                sCLParam* param = method2->mParams + method2->mNumParams -1;
+                sNodeType* node_type = create_node_type_from_cl_type(param->mType, klass);
+
+                sNodeBlockType* node_block_type = node_type->mBlockType;
+
+                sNodeType* block_result_type = node_block_type->mResultType;
+                sNodeBlock* node_block = node_tree->uValue.sBlockObject.mBlockObjectCode;
+                int num_block_params = node_block_type->mNumParams;
+
+                if(node_tree->uValue.sBlockObject.mOmitResultType) {
+                    if(!type_identify_with_class_name(block_result_type, "Null")) {
+                        exist_block_result_type = TRUE;
+                    }
+                }
+
+                BOOL omit_params = node_tree->uValue.sBlockObject.mOmitParams;
+
+                if(num_block_params > 0 && omit_params) {
+                    sNodeType* method_generics_types = result_method_generics_types;
+                    sNodeType* generics_types = info->type;
+
+                    sVarTable* old_table = node_tree->uValue.sBlockObject.mOldTable;
+                    sVarTable* new_table = init_block_vtable(old_table);
+
+                    sParserParam block_params[PARAMS_MAX];
+
+                    int i;
+                    for(i=0; i<num_block_params; i++) {
+                        if(i == 0) {
+                            snprintf(block_params[i].mName, VAR_NAME_MAX, "it");
+                        }
+                        else {
+                            snprintf(block_params[i].mName, VAR_NAME_MAX, "it%d", i+1);
+                        }
+
+                        sNodeType* block_param = node_block_type->mParams[i];
+
+                        sNodeType* block_param2 = NULL;
+                        if(method_generics_types) {
+                            if(!solve_generics_types_for_node_type(block_param, ALLOC &block_param2, method_generics_types, FALSE, TRUE))
+                            {
+                                return FALSE;
+                            }
+                        }
+                        else {
+                            block_param2 = block_param;
+                        }
+
+                        sNodeType* block_param3 = NULL;
+                        if(generics_types) {
+                            if(!solve_generics_types_for_node_type(block_param2, ALLOC &block_param3, generics_types, FALSE, FALSE))
+                            {
+                                return FALSE;
+                            }
+                        }
+                        else {
+                            block_param3 = block_param2;
+                        }
+
+                        block_params[i].mType = block_param3;
+
+                        if(!add_variable_to_table(new_table, block_params[i].mName, block_params[i].mType)) 
+                        {
+                            return FALSE;
+                        }
+                    }
+
+                    /// parse_params ///
+                    sParserInfo info2;
+
+                    info2.p = node_block->mSource.mBuf;
+                    info2.sname = node_block->mSName;
+                    info2.sline = node_block->mSLine;
+                    info2.err_num = 0;
+                    info2.lv_table = old_table;
+                    info2.parse_phase = 0;
+                    info2.klass = info->pinfo->klass;
+                    info2.generics_info = info->pinfo->generics_info;
+                    info2.method_generics_info = info->pinfo->method_generics_info;
+                    info2.cinfo = info;
+                    info2.included_source = FALSE;
+                    info2.get_type_for_interpreter = info->pinfo->get_type_for_interpreter;
+                    info2.next_command_is_to_bool = FALSE;
+                    info2.exist_block_object_err = info->pinfo->exist_block_object_err;
+
+                    BOOL lambda = FALSE;
+
+                    sNodeBlock* node_block = NULL;
+                    if(!parse_block(ALLOC &node_block, &info2, new_table, TRUE)) {
+                        return FALSE;
+                    }
+
+                    info->err_num += info2.err_num;
+
+                    BOOL omit_result_type = FALSE;
+                    sNodeType* result_type = block_result_type;
+
+                    sNodeType* result_type2 = NULL;
+                    if(method_generics_types) {
+                        if(!solve_generics_types_for_node_type(result_type, ALLOC &result_type2, method_generics_types, FALSE, TRUE))
+                        {
+                            return FALSE;
+                        }
+                    }
+                    else {
+                        result_type2 = result_type;
+                    }
+
+                    sNodeType* result_type3 = NULL;
+                    if(generics_types) {
+                        if(!solve_generics_types_for_node_type(result_type2, ALLOC &result_type3, generics_types, FALSE, FALSE))
+                        {
+                            return FALSE;
+                        }
+                    }
+                    else {
+                        result_type3 = result_type2;
+                    }
+
+                    node2 = sNodeTree_create_block_object(block_params, num_block_params, result_type3, MANAGED node_block, lambda, &info2, omit_result_type, FALSE, old_table);
+                }
+
+                sNodeType* block_last_type_before = info->block_last_type;
+                info->block_last_type = NULL;
+
+                /// compile ///
+                if(!compile(node2, info)) {
+                    info->block_last_type = block_last_type_before;
+                    return FALSE;
+                }
+
+                if(exist_block_result_type) {
+                    sNodeType* node_type = info->type;
+
+                    if(node_type) {
+                        sNodeBlockType* node_block_type = node_type->mBlockType;
+
+                        if(node_block_type && type_identify_with_class_name(node_block_type->mResultType, "Null"))
+                        {
+                            node_block_type->mResultType = info->block_last_type;
+                        }
+                    }
+
+                    int param_class_num = block_result_type->mClass->mMethodGenericsParamClassNum;
+                    if(param_class_num != -1) {
+                        result_method_generics_types->mGenericsTypes[param_class_num] = info->block_last_type;
+
+                        result_method_generics_types->mNumGenericsTypes = param_class_num +1;
+                    }
+                }
+
+                param_types[num_params-1] = info->type;
+
+                info->block_last_type = block_last_type_before;
+
+                method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types, generics_types, right_method_generics_types, &result_type, FALSE, TRUE, &result_method_generics_types);
+            }
 
             if(method_index2 == -1) {
                 /// Is cast method ? ////
@@ -2635,7 +2822,7 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
     sNodeType* generics_types = info->type;
     sNodeType* generics_types2;
 
-    if(!solve_generics_types_for_node_type(generics_types, ALLOC &generics_types2, method_generics_types, TRUE)) {
+    if(!solve_generics_types_for_node_type(generics_types, ALLOC &generics_types2, method_generics_types, TRUE, TRUE)) {
         return FALSE;
     }
 
@@ -2653,7 +2840,8 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
     /// special methods ///
     if(strcmp(method_name, "identifyWith") == 0) {
         /// compile params ///
-        if(!compile_params(klass, method_name, num_params, params, param_types, generics_types2, info, node)) {
+        BOOL exist_lazy_lamda_compile = FALSE;
+        if(!compile_params(klass, method_name, num_params, params, param_types, generics_types2, info, node, FALSE, &exist_lazy_lamda_compile)) {
             return FALSE;
         }
 
@@ -2865,7 +3053,8 @@ static BOOL compile_new_operator(unsigned int node, sCompileInfo* info)
 
         info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
 
-        if(!compile_params(klass, method_name, num_params, params, param_types, generics_types2, info, node)) {
+        BOOL exist_lazy_lamda_compile = FALSE;
+        if(!compile_params(klass, method_name, num_params, params, param_types, generics_types2, info, node, FALSE, &exist_lazy_lamda_compile)) {
             return FALSE;
         }
 
@@ -2873,7 +3062,8 @@ static BOOL compile_new_operator(unsigned int node, sCompileInfo* info)
             sNodeType* right_method_generics_types = get_methocs_generics_type(info->pinfo);
 
             sNodeType* result_type;
-            int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type);
+            sNodeType* result_method_generics_types = NULL;
+            int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types);
 
             if(method_index == -1) {
                 compile_err_msg(info, "method not found(3)");
@@ -2931,14 +3121,14 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
         value_result_type = info->type;
     }
     else {
-        value_result_type = NULL;
+        value_result_type = create_node_type_with_class_name("Null");
     }
 
     sCLClass* klass = info->pinfo->klass;
     sCLMethod* method = info->method;
 
-    /// check return statnment in not method or block object ///
-    if(method == NULL && info->block_result_type == NULL) {
+    /// check return statment in not method or block object ///
+    if(method == NULL && !info->in_block) {
         compile_err_msg(info, "Return expression should be in a method definition or in a block object");
         info->err_num++;
 
@@ -2948,7 +3138,7 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
     }
 
     /// check return statment in initialize method ///
-    if(info->block_result_type == NULL && klass && (!(method->mFlags & METHOD_FLAGS_CLASS_METHOD) && strcmp(CONS_str(&klass->mConst, method->mNameOffset), "initialize") == 0) && (!(method->mFlags & METHOD_FLAGS_CLASS_METHOD) && strcmp(CONS_str(&klass->mConst, method->mNameOffset), "finalize") == 0))
+    if(!info->in_block && klass && (!(method->mFlags & METHOD_FLAGS_CLASS_METHOD) && strcmp(CONS_str(&klass->mConst, method->mNameOffset), "initialize") == 0) && (!(method->mFlags & METHOD_FLAGS_CLASS_METHOD) && strcmp(CONS_str(&klass->mConst, method->mNameOffset), "finalize") == 0))
     {
         compile_err_msg(info, "There is in the initialize or finalize method");
         info->err_num++;
@@ -2960,12 +3150,12 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
 
     /// result type ///
     sNodeType* result_type = NULL;
-    if(info->block_result_type && type_identify_with_class_name(info->block_result_type, "Null") && expression_node != 0)
-    {
+
+    if(info->omit_block_result_type) {
+        info->return_type = value_result_type; // hand over to compile_block_object
         result_type = value_result_type;
-        info->block_result_type = value_result_type; // hand over to compile_block_object
     }
-    else if(info->block_result_type) {
+    else if(info->in_block) {
         result_type = info->block_result_type;
     }
     else { // info->method != NULL
@@ -2986,6 +3176,7 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
 
         return TRUE;
     }
+
     if(type_identify_with_class_name(result_type2, "Null")) {
         append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
 
@@ -3416,7 +3607,7 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
 
         /// solve generics ///
         sNodeType* solved_field_type;
-        if(!solve_generics_types_for_node_type(field_type, ALLOC &solved_field_type, generics_types, TRUE)) 
+        if(!solve_generics_types_for_node_type(field_type, ALLOC &solved_field_type, generics_types, TRUE, FALSE)) 
         {
             return FALSE;
         }
@@ -3432,6 +3623,7 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
         info->stack_num++;
 
         info->type = solved_field_type;
+
     }
 
     return TRUE;
@@ -3518,7 +3710,7 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
 
     /// solve generics ///
     sNodeType* solved_field_type;
-    if(!solve_generics_types_for_node_type(field_type, ALLOC &solved_field_type, generics_types, TRUE)) 
+    if(!solve_generics_types_for_node_type(field_type, ALLOC &solved_field_type, generics_types, TRUE, FALSE)) 
     {
         return FALSE;
     }
@@ -6448,7 +6640,7 @@ BOOL compile_hash_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_block_object(sParserParam* params, int num_params, sNodeType* result_type, MANAGED sNodeBlock* node_block, BOOL lambda, sParserInfo* info)
+unsigned int sNodeTree_create_block_object(sParserParam* params, int num_params, sNodeType* result_type, MANAGED sNodeBlock* node_block, BOOL lambda, sParserInfo* info, BOOL omit_result_type, BOOL omit_params, sVarTable* old_table)
 {
     unsigned int node = alloc_node();
 
@@ -6472,6 +6664,9 @@ unsigned int sNodeTree_create_block_object(sParserParam* params, int num_params,
     gNodes[node].uValue.sBlockObject.mResultType = result_type;
     gNodes[node].uValue.sBlockObject.mBlockObjectCode = MANAGED node_block;
     gNodes[node].uValue.sBlockObject.mLambda = lambda;
+    gNodes[node].uValue.sBlockObject.mOmitResultType = omit_result_type;
+    gNodes[node].uValue.sBlockObject.mOmitParams = omit_params;
+    gNodes[node].uValue.sBlockObject.mOldTable = old_table;
 
     return node;
 }
@@ -6489,7 +6684,9 @@ BOOL compile_block_object(unsigned int node, sCompileInfo* info)
 
     sNodeType* result_type = gNodes[node].uValue.sBlockObject.mResultType;
     sNodeBlock* node_block = gNodes[node].uValue.sBlockObject.mBlockObjectCode;
+    BOOL omit_result_type = gNodes[node].uValue.sBlockObject.mOmitResultType;
     BOOL lambda = gNodes[node].uValue.sBlockObject.mLambda;
+    sVarTable* old_table = gNodes[node].uValue.sBlockObject.mOldTable;
 
     /// compile block ///
     sByteCode codes;
@@ -6504,8 +6701,17 @@ BOOL compile_block_object(unsigned int node, sCompileInfo* info)
     info->code = &codes;
     info->constant = &constant;
 
+    BOOL in_block_before = info->in_block;
+    info->in_block = TRUE;
+
     sNodeType* block_result_type_before = info->block_result_type;
     info->block_result_type = result_type;
+
+    sNodeType* return_type_before = info->return_type;
+    info->return_type = NULL;
+
+    BOOL omit_block_result_type_before = info->omit_block_result_type;
+    info->omit_block_result_type = omit_result_type;
 
     if(!compile_block(node_block, info)) {
         sByteCode_free(&codes);
@@ -6513,19 +6719,20 @@ BOOL compile_block_object(unsigned int node, sCompileInfo* info)
         info->code = codes_before;
         info->constant = constant_before;
         info->block_result_type = block_result_type_before;
+        info->in_block = in_block_before;
+        info->omit_block_result_type = omit_block_result_type_before;
+        info->return_type = return_type_before;
         return FALSE;
     }
 
-    /// type inference ///
-    sNodeType* type_inference = NULL;
-    if(type_identify_with_class_name(result_type, "Null") && !type_identify_with_class_name(info->block_result_type, "Null"))
-    {
-        type_inference = info->block_result_type;
-    }
-
+    sNodeType* return_type = info->return_type;
+        
     info->code = codes_before;
     info->constant = constant_before;
     info->block_result_type = block_result_type_before;
+    info->in_block = in_block_before;
+    info->omit_block_result_type = omit_block_result_type_before;
+    info->return_type = return_type_before;
 
     /// make block object ///
     append_opecode_to_code(info->code, OP_CREATE_BLOCK_OBJECT, info->no_output);
@@ -6568,9 +6775,14 @@ BOOL compile_block_object(unsigned int node, sCompileInfo* info)
         sNodeBlockType* node_block_type = alloc_node_block_type();
 
         node_block_type->mNumParams = num_params;
-        if(type_inference)
+        if(omit_result_type) 
         {
-            node_block_type->mResultType = type_inference;
+            if(return_type == NULL) {
+                node_block_type->mResultType = create_node_type_with_class_name("Null");
+            }
+            else {
+                node_block_type->mResultType = return_type;
+            }
         }
         else {
             node_block_type->mResultType = result_type;
@@ -6648,6 +6860,9 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     info->code = &codes;
     info->constant = &constant;
 
+    BOOL in_block_before = info->in_block;
+    info->in_block = TRUE;
+
     sNodeType* block_result_type_before = info->block_result_type;
     info->block_result_type = result_type;
 
@@ -6657,8 +6872,12 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
         info->code = codes_before;
         info->constant = constant_before;
         info->block_result_type = block_result_type_before;
+        info->in_block = in_block_before;
         return FALSE;
     }
+
+    info->block_result_type = block_result_type_before;
+    info->in_block = in_block_before;
 
     sNodeType* expresson_type_in_block = info->type;
 
@@ -6806,22 +7025,9 @@ static BOOL compile_normal_block(unsigned int node, sCompileInfo* info)
     sNodeBlock* node_block = gNodes[node].uValue.mBlock;
 
     /// compile block ///
-/*
-    if(!compile_block(node_block, info)) {
-        return FALSE;
-    }
-*/
     if(!compile_block_with_result(node_block, info)) {
         return FALSE;
     }
-
-/*
-    if(info->pinfo->err_num == 0) { // for interpreter completion
-        append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
-        info->stack_num++;
-        info->type = create_node_type_with_class_name("Null");
-    }
-*/
 
     return TRUE;
 }
@@ -7188,7 +7394,8 @@ static BOOL compile_inherit_call(unsigned int node, sCompileInfo* info)
 
         /// search for the method ///
         sNodeType* result_type;
-        int method_index2 = search_for_method(klass, method_name, param_types, num_params, class_method, method_index-1, generics_types, NULL, right_method_generics_types, &result_type);
+        sNodeType* result_method_generics_types = NULL;
+        int method_index2 = search_for_method(klass, method_name, param_types, num_params, class_method, method_index-1, generics_types, NULL, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types);
 
         if(method_index2 == -1) {
             compile_err_msg(info, "method not found(1)");

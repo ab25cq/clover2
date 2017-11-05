@@ -329,16 +329,18 @@ void add_code_to_method(sCLMethod* method, sByteCode* code, int var_num)
     method->mVarNum = var_num;
 }
 
-static BOOL determine_method_generics_types(sNodeType* left_param, sNodeType* right_param, sNodeType* method_generics_types)
+BOOL determine_method_generics_types(sNodeType* left_param, sNodeType* right_param, sNodeType* method_generics_types)
 {
     sCLClass* left_param_class = left_param->mClass;
+    sCLClass* right_param_class = right_param->mClass;
 
-    int param_class_num = left_param_class->mMethodGenericsParamClassNum;
+    int left_param_class_num = left_param_class->mMethodGenericsParamClassNum;
+    int right_param_class_num = right_param_class->mMethodGenericsParamClassNum;
 
-    if(param_class_num != -1) {
-        method_generics_types->mGenericsTypes[param_class_num] = right_param;
+    if(left_param_class_num != -1 && right_param_class_num == -1) {
+        method_generics_types->mGenericsTypes[left_param_class_num] = right_param;
 
-        method_generics_types->mNumGenericsTypes = param_class_num +1;
+        method_generics_types->mNumGenericsTypes = left_param_class_num +1;
     }
 
     int i;
@@ -369,7 +371,7 @@ static BOOL determine_method_generics_types(sNodeType* left_param, sNodeType* ri
     return TRUE;
 }
 
-static BOOL check_method_params(sCLMethod* method, sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, sNodeType* left_generics_type, sNodeType* right_generics_type, sNodeType* left_method_generics, sNodeType* right_method_generics, sNodeType* method_generics_types)
+static BOOL check_method_params(sCLMethod* method, sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, sNodeType* left_generics_type, sNodeType* right_generics_type, sNodeType* left_method_generics, sNodeType* right_method_generics, sNodeType* method_generics_types, BOOL lazy_lambda_compile)
 {
     if(strcmp(METHOD_NAME2(klass, method), method_name) == 0) 
     {
@@ -381,14 +383,21 @@ static BOOL check_method_params(sCLMethod* method, sCLClass* klass, char* method
                 for(j=0; j<num_params; j++ ) {
                     sNodeType* param = create_node_type_from_cl_type(method->mParams[j].mType, klass);
 
-                    if(!substitution_posibility(param, param_types[j], left_generics_type, right_generics_type, left_method_generics, right_method_generics)) 
-                    {
-                        return FALSE;
+                    if(lazy_lambda_compile && j == num_params-1) {
+                        if(!type_identify_with_class_name(param, "lambda")) {
+                            return FALSE;
+                        }
                     }
+                    else {
+                        if(!substitution_posibility(param, param_types[j], left_generics_type, right_generics_type, left_method_generics, right_method_generics)) 
+                        {
+                            return FALSE;
+                        }
 
-                    if(!determine_method_generics_types(param, param_types[j], method_generics_types)) 
-                    {
-                        return FALSE;
+                        if(!determine_method_generics_types(param, param_types[j], method_generics_types)) 
+                        {
+                            return FALSE;
+                        }
                     }
                 }
                 
@@ -417,29 +426,35 @@ static sNodeType* get_method_genercs_from_method(sCLClass* klass, sCLMethod* met
     return result;
 }
 
-int search_for_method(sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, int start_point, sNodeType* left_generics_type, sNodeType* right_generics_type, sNodeType* right_method_generics, sNodeType** result_type)
+int search_for_method(sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, int start_point, sNodeType* left_generics_type, sNodeType* right_generics_type, sNodeType* right_method_generics, sNodeType** result_type, BOOL lazy_lambda_compile, BOOL lazy_lambda_compile2, sNodeType** method_generics_types)
 {
     int i;
+    if(*method_generics_types == NULL) {
+        *method_generics_types = alloc_node_type();
+    }
 
     if(start_point < klass->mNumMethods) {
         for(i=start_point; i>=0; i--) {           // search for the method in reverse order because we want to get last defined method
-            sNodeType* method_generics_types = alloc_node_type();
-            
             sCLMethod* method = klass->mMethods + i;
 
             sNodeType* left_method_generics = get_method_genercs_from_method(klass, method);
 
-            if(check_method_params(method, klass, method_name, param_types, num_params, search_for_class_method, left_generics_type, right_generics_type, left_method_generics, right_method_generics, method_generics_types))
+            if(lazy_lambda_compile2) {
+                right_method_generics = *method_generics_types;
+            }
+
+            if(check_method_params(method, klass, method_name, param_types, num_params, search_for_class_method, left_generics_type, right_generics_type, left_method_generics, right_method_generics, *method_generics_types, lazy_lambda_compile))
             {
                 sNodeType* result_type2 = ALLOC create_node_type_from_cl_type(method->mResultType, klass);
 
                 sNodeType* result_type3;
-                if(!solve_generics_types_for_node_type(result_type2, &result_type3, method_generics_types, FALSE))
+
+                if(!solve_generics_types_for_node_type(result_type2, &result_type3, *method_generics_types, FALSE, TRUE))
                 {
                     return -1;
                 }
 
-                if(!solve_generics_types_for_node_type(result_type3, result_type, left_generics_type, TRUE))
+                if(!solve_generics_types_for_node_type(result_type3, result_type, left_generics_type, TRUE, FALSE))
                 {
                     return -1;
                 }

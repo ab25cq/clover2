@@ -224,7 +224,6 @@ BOOL expect_next_character(char* characters, sParserInfo* info)
     return TRUE;
 }
 
-static BOOL parse_params_and_entry_to_lvtable(sParserParam* params, int* num_params, sParserInfo* info, sVarTable** new_table, sVarTable* parent_lv_table, int character_type);
 
 static BOOL parse_simple_lambda_params(unsigned int* node, sParserInfo* info, BOOL lambda)
 {
@@ -234,6 +233,9 @@ static BOOL parse_simple_lambda_params(unsigned int* node, sParserInfo* info, BO
     /// parse_params ///
     sNodeType* result_type = NULL;
     sVarTable* new_table = NULL;
+    BOOL omit_result_type = FALSE;
+    BOOL omit_params = FALSE;
+    sVarTable* old_table = info->lv_table;
 
     if(*info->p == '|') {
         info->p++;
@@ -259,6 +261,7 @@ static BOOL parse_simple_lambda_params(unsigned int* node, sParserInfo* info, BO
             }
         }
         else {
+            omit_result_type = TRUE;
             result_type = create_node_type_with_class_name("Null");
         }
     }
@@ -270,6 +273,9 @@ static BOOL parse_simple_lambda_params(unsigned int* node, sParserInfo* info, BO
         else {
             new_table = init_block_vtable(info->lv_table);
         }
+
+        omit_params = TRUE;
+        omit_result_type = TRUE;
     }
 
     sNodeBlock* node_block = NULL;
@@ -277,7 +283,7 @@ static BOOL parse_simple_lambda_params(unsigned int* node, sParserInfo* info, BO
         return FALSE;
     }
 
-    *node = sNodeTree_create_block_object(params, num_params, result_type, MANAGED node_block, lambda, info);
+    *node = sNodeTree_create_block_object(params, num_params, result_type, MANAGED node_block, lambda, info, omit_result_type, omit_params, old_table);
 
     return TRUE;
 }
@@ -1077,7 +1083,7 @@ BOOL parse_params(sParserParam* params, int* num_params, sParserInfo* info, int 
     return TRUE;
 }
 
-static BOOL parse_params_and_entry_to_lvtable(sParserParam* params, int* num_params, sParserInfo* info, sVarTable** new_table, sVarTable* parent_lv_table, int character_type)
+BOOL parse_params_and_entry_to_lvtable(struct sParserParamStruct* params, int* num_params, sParserInfo* info, sVarTable** new_table, sVarTable* parent_lv_table, int character_type)
 {
     if(!parse_params(params, num_params, info, character_type)) {
         return FALSE;
@@ -1176,16 +1182,16 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
     }
 
     int i;
-    for(i=0; i<info->generics_info.mNumParams; i++) {
-        if(strcmp(type_name, info->generics_info.mParamNames[i]) == 0) {
-            *result_type = create_node_type_with_generics_number(i);
+    for(i=0; i<info->method_generics_info.mNumParams; i++) {
+        if(strcmp(type_name, info->method_generics_info.mParamNames[i]) == 0) {
+            *result_type = create_node_type_with_method_generics_number(i);
             break;
         }
     }
 
-    for(i=0; i<info->method_generics_info.mNumParams; i++) {
-        if(strcmp(type_name, info->method_generics_info.mParamNames[i]) == 0) {
-            *result_type = create_node_type_with_method_generics_number(i);
+    for(i=0; i<info->generics_info.mNumParams; i++) {
+        if(strcmp(type_name, info->generics_info.mParamNames[i]) == 0) {
+            *result_type = create_node_type_with_generics_number(i);
             break;
         }
     }
@@ -1882,6 +1888,7 @@ static BOOL parse_block_object(unsigned int* node, sParserInfo* info, BOOL lambd
     }
 
     sNodeType* result_type = NULL;
+    BOOL omit_result_type = FALSE;
     if(*info->p == ':') {
         info->p++;
         skip_spaces_and_lf(info);
@@ -1892,6 +1899,7 @@ static BOOL parse_block_object(unsigned int* node, sParserInfo* info, BOOL lambd
     }
     else {
         result_type = create_node_type_with_class_name("Null");
+        omit_result_type = TRUE;
     }
 
     expect_next_character_with_one_forward("{", info);
@@ -1901,7 +1909,7 @@ static BOOL parse_block_object(unsigned int* node, sParserInfo* info, BOOL lambd
         return FALSE;
     }
 
-    *node = sNodeTree_create_block_object(params, num_params, result_type, MANAGED node_block, lambda, info);
+    *node = sNodeTree_create_block_object(params, num_params, result_type, MANAGED node_block, lambda, info, omit_result_type, FALSE, NULL);
 
     return TRUE;
 }
@@ -3239,7 +3247,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 }
             }
             /// shell mode ///
-            else if(including_slash || (get_variable_index(info->lv_table, buf) == -1 && *info->p != '(')) 
+            else if(including_slash || (get_variable_index(info->lv_table, buf) == -1 && *info->p != '(' && *info->p != '.')) 
             {
                 unsigned int params[PARAMS_MAX];
                 int num_params = 0;

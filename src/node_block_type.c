@@ -94,7 +94,7 @@ BOOL substitution_posibility_for_node_block_type(sNodeBlockType* left_block, sNo
                 if(left_generics_types) {
                     sNodeType* param = left_block->mParams[i];
 
-                    if(!solve_generics_types_for_node_type(param, ALLOC &left_solved_param, left_generics_types, TRUE)) 
+                    if(!solve_generics_types_for_node_type(param, ALLOC &left_solved_param, left_generics_types, TRUE, FALSE)) 
                     {
                         return FALSE;
                     }
@@ -106,7 +106,7 @@ BOOL substitution_posibility_for_node_block_type(sNodeBlockType* left_block, sNo
                 if(right_generics_types) {
                     sNodeType* param = right_block->mParams[i];
 
-                    if(!solve_generics_types_for_node_type(param, ALLOC &right_solved_param, left_generics_types, TRUE)) 
+                    if(!solve_generics_types_for_node_type(param, ALLOC &right_solved_param, left_generics_types, TRUE, FALSE)) 
                     {
                         return FALSE;
                     }

@@ -50,11 +50,14 @@ static BOOL parse_generics_params(sGenericsParamInfo* ginfo, sParserInfo* info, 
 
         while(1) {
             if(isalpha(*info->p)) {
-                int num_generics_params = ginfo->mNumParams;
-                if(!parse_word(ginfo->mParamNames[num_generics_params], VAR_NAME_MAX, info, TRUE, FALSE)) 
+                char buf[VAR_NAME_MAX];
+                if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) 
                 {
                     return FALSE;
                 }
+
+                int num_generics_params = ginfo->mNumParams;
+                xstrncpy(ginfo->mParamNames[num_generics_params], buf, VAR_NAME_MAX);
 
                 expect_next_character_with_one_forward(":", info);
 

@@ -9,6 +9,7 @@ static sNodeBlock* sNodeBlock_alloc()
     block->mNodes = MCALLOC(1, sizeof(unsigned int)*block->mSizeNodes);
     block->mLVTable = NULL;
     block->mErrBlock = FALSE;
+    sBuf_init(&block->mSource);
 
     return block;
 }
@@ -16,6 +17,7 @@ static sNodeBlock* sNodeBlock_alloc()
 void sNodeBlock_free(sNodeBlock* block)
 {
     if(block->mNodes) MFREE(block->mNodes);
+    MFREE(block->mSource.mBuf);
     MFREE(block);
 }
 
@@ -44,6 +46,11 @@ BOOL parse_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* ne
     else {
         info->lv_table = init_block_vtable(old_vtable);
     }
+
+    (*node_block)->mSName = info->sname;
+    (*node_block)->mSLine = info->sline;
+
+    char* source_head = info->p;
 
     while(1) {
         if(*info->p == '}') {
@@ -91,9 +98,20 @@ BOOL parse_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* ne
             (*node_block)->mLVTable = info->lv_table;
 
             //info->lv_table = old_vtable;   // for interpreter completion
+
+            char* source_end = info->p;
+
+            sBuf_append(&(*node_block)->mSource, source_head, source_end - source_head);
+            sBuf_append_char(&(*node_block)->mSource, '\0');
+
             return TRUE;
         }
     }
+
+    char* source_end = info->p;
+
+    sBuf_append(&(*node_block)->mSource, source_head, source_end - source_head);
+    sBuf_append_char(&(*node_block)->mSource, '\0');
 
     if(!block_object) {
         set_max_block_var_num(info->lv_table, old_vtable);
@@ -130,6 +148,8 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info)
         }
 
         arrange_stack(info);
+
+        info->block_last_type = info->type;
 
 #ifdef ENABLE_INTERPRETER
         append_opecode_to_code(info->code, OP_SIGINT, info->no_output);
