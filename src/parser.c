@@ -2971,7 +2971,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
         }
-        else if(strcmp(buf, "equalable_list") == 0 && *info->p == '{') {
+        else if((strcmp(buf, "equalable_list") == 0 || strcmp(buf, "elist") == 0) && *info->p == '{') {
             skip_spaces_and_lf(info);
 
             expect_next_character_with_one_forward("{", info);
@@ -2980,7 +2980,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
         }
-        else if(strcmp(buf, "sortable_list") == 0 && *info->p == '{') {
+        else if((strcmp(buf, "sortable_list") == 0 || strcmp(buf, "slist") == 0) && *info->p == '{') {
             skip_spaces_and_lf(info);
 
             expect_next_character_with_one_forward("{", info);
@@ -3016,7 +3016,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
         }
-        else if(strcmp(buf, "equalable_array") == 0 && *info->p == '{') {
+        else if((strcmp(buf, "equalable_array") == 0 || strcmp(buf, "earray") == 0) && *info->p == '{') {
             skip_spaces_and_lf(info);
 
             expect_next_character_with_one_forward("{", info);
@@ -3025,7 +3025,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
         }
-        else if(strcmp(buf, "sortable_array") == 0 && *info->p == '{') {
+        else if((strcmp(buf, "sortable_array") == 0 || strcmp(buf, "sarray") == 0) && *info->p == '{') {
             skip_spaces_and_lf(info);
 
             expect_next_character_with_one_forward("{", info);

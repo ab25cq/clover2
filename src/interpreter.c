@@ -1308,11 +1308,15 @@ static int my_complete_internal(int count, int key)
             "list{",
             "equalable_list{",
             "sortable_list{",
+            "elist{",
+            "slist{",
             "tuple{",
             "hash{",
             "array{",
             "equalable_array{",
             "sortable_array{",
+            "earray{",
+            "sarray{",
         };
 
         int num_candidates = 0;
