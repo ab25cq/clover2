@@ -5617,13 +5617,45 @@ BOOL compile_string_value(unsigned int node, sCompileInfo* info)
             return FALSE;
         }
 
-        if(info->type == NULL || !type_identify_with_class_name(info->type, "String")) {
+        if(info->type == NULL) {
             compile_err_msg(info, "String expression requires String object");
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
 
             return TRUE;
+        }
+
+        sCLClass* klass = info->type->mClass;
+
+        if(!type_identify_with_class_name(info->type, "String")) 
+        {
+            boxing_to_lapper_class(&info->type, info);
+
+            klass = info->type->mClass;
+
+            sNodeType* result_type = NULL;
+            sNodeType* result_method_generics_types = NULL;
+            int method_index = search_for_method(klass, "toString", NULL, 0, FALSE, klass->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, FALSE, &result_method_generics_types);
+
+            if(method_index == -1) {
+                compile_err_msg(info, "String expression requires String object");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+
+            append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
+
+            append_class_name_to_constant_pool_and_code(info, klass);
+            append_int_value_to_code(info->code, method_index, info->no_output);
+
+            info->stack_num--;
+            info->stack_num++;
+
+            info->type = result_type;
         }
     }
 
@@ -5687,13 +5719,54 @@ BOOL compile_buffer_value(unsigned int node, sCompileInfo* info)
             return FALSE;
         }
 
-        if(info->type == NULL || !type_identify_with_class_name(info->type, "String")) {
+        if(info->type == NULL) {
             compile_err_msg(info, "String expression requires String object");
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
 
             return TRUE;
+        }
+
+        if(info->type == NULL) {
+            compile_err_msg(info, "String expression requires String object");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        sCLClass* klass = info->type->mClass;
+
+        if(!type_identify_with_class_name(info->type, "String")) 
+        {
+            boxing_to_lapper_class(&info->type, info);
+
+            klass = info->type->mClass;
+
+            sNodeType* result_type = NULL;
+            sNodeType* result_method_generics_types = NULL;
+            int method_index = search_for_method(klass, "toString", NULL, 0, FALSE, klass->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, FALSE, &result_method_generics_types);
+
+            if(method_index == -1) {
+                compile_err_msg(info, "String expression requires String object");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+
+            append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
+
+            append_class_name_to_constant_pool_and_code(info, klass);
+            append_int_value_to_code(info->code, method_index, info->no_output);
+
+            info->stack_num--;
+            info->stack_num++;
+
+            info->type = result_type;
         }
     }
 
@@ -5757,13 +5830,54 @@ BOOL compile_path_value(unsigned int node, sCompileInfo* info)
             return FALSE;
         }
 
-        if(info->type == NULL || !type_identify_with_class_name(info->type, "String")) {
+        if(info->type == NULL) {
             compile_err_msg(info, "String expression requires String object");
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
 
             return TRUE;
+        }
+
+        if(info->type == NULL) {
+            compile_err_msg(info, "String expression requires String object");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        sCLClass* klass = info->type->mClass;
+
+        if(!type_identify_with_class_name(info->type, "String")) 
+        {
+            boxing_to_lapper_class(&info->type, info);
+
+            klass = info->type->mClass;
+
+            sNodeType* result_type = NULL;
+            sNodeType* result_method_generics_types = NULL;
+            int method_index = search_for_method(klass, "toString", NULL, 0, FALSE, klass->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, FALSE, &result_method_generics_types);
+
+            if(method_index == -1) {
+                compile_err_msg(info, "String expression requires String object");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+
+            append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
+
+            append_class_name_to_constant_pool_and_code(info, klass);
+            append_int_value_to_code(info->code, method_index, info->no_output);
+
+            info->stack_num--;
+            info->stack_num++;
+
+            info->type = result_type;
         }
     }
 
@@ -7212,13 +7326,54 @@ static BOOL compile_regex(unsigned int node, sCompileInfo* info)
             return FALSE;
         }
 
-        if(info->type == NULL || !type_identify_with_class_name(info->type, "String")) {
+        if(info->type == NULL) {
             compile_err_msg(info, "String expression requires String object");
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
 
             return TRUE;
+        }
+
+        if(info->type == NULL) {
+            compile_err_msg(info, "String expression requires String object");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        sCLClass* klass = info->type->mClass;
+
+        if(!type_identify_with_class_name(info->type, "String")) 
+        {
+            boxing_to_lapper_class(&info->type, info);
+
+            klass = info->type->mClass;
+
+            sNodeType* result_type = NULL;
+            sNodeType* result_method_generics_types = NULL;
+            int method_index = search_for_method(klass, "toString", NULL, 0, FALSE, klass->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, FALSE, &result_method_generics_types);
+
+            if(method_index == -1) {
+                compile_err_msg(info, "String expression requires String object");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+
+            append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
+
+            append_class_name_to_constant_pool_and_code(info, klass);
+            append_int_value_to_code(info->code, method_index, info->no_output);
+
+            info->stack_num--;
+            info->stack_num++;
+
+            info->type = result_type;
         }
     }
 

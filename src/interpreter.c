@@ -1288,8 +1288,7 @@ static int my_complete_internal(int count, int key)
     else if(expression_is_void) {
         rl_completion_entry_function = on_complete;
 
-        const int num_words = 23;
-        char* words[num_words] = {
+        char* words[] = {
             "if(",
             "while(",
             "for(",
@@ -1317,7 +1316,12 @@ static int my_complete_internal(int count, int key)
             "sortable_array{",
             "earray{",
             "sarray{",
+            NULL
         };
+        int num_words = 0;
+        while(words[num_words]) {
+            num_words++;
+        }
 
         int num_candidates = 0;
         int max_candidates = CLASS_NUM_MAX + METHOD_NUM_MAX + 128 + LOCAL_VARIABLE_MAX * 3;

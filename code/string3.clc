@@ -19,4 +19,29 @@ class StringTest3
         a:int = 123;
         return /abc\{a.toString()}def/;
     }
+
+    def run5():static String {
+        a:int = 123;
+        return "abc\{a}def";
+    }
+
+    def run6():static Buffer {
+        a:int = 123;
+        return B"abc\{a}def";
+    }
+
+    def run7():static Path {
+        a:int = 123;
+        return p"abc\{a}def";
+    }
+
+    def run8():static regex {
+        a:int = 123;
+        return /abc\{a}def/;
+    }
+
+    def run9():static String {
+        a:Integer = new Integer(123);
+        return "abc\{a}def";
+    }
 }
