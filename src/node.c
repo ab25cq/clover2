@@ -2684,90 +2684,96 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                     return FALSE;
                 }
 
-                if(exist_block_result_type) {
-                    sNodeType* node_type = info->type;
+printf("info->type %s\n", CLASS_NAME(info->type->mClass));
 
-                    if(node_type) {
-                        sNodeBlockType* node_block_type = node_type->mBlockType;
+                if(!info->pinfo->exist_block_object_err) { // for interpreter completion
+                    if(exist_block_result_type) {
+                        sNodeType* node_type = info->type;
 
-                        if(node_block_type && type_identify_with_class_name(node_block_type->mResultType, "Null"))
-                        {
-                            node_block_type->mResultType = info->block_last_type;
+                        if(node_type) {
+                            sNodeBlockType* node_block_type = node_type->mBlockType;
+
+                            if(node_block_type && type_identify_with_class_name(node_block_type->mResultType, "Null"))
+                            {
+                                node_block_type->mResultType = info->block_last_type;
+                            }
+                        }
+
+                        int param_class_num = block_result_type->mClass->mMethodGenericsParamClassNum;
+                        if(param_class_num != -1) {
+                            result_method_generics_types->mGenericsTypes[param_class_num] = info->block_last_type;
+
+                            result_method_generics_types->mNumGenericsTypes = param_class_num +1;
                         }
                     }
 
-                    int param_class_num = block_result_type->mClass->mMethodGenericsParamClassNum;
-                    if(param_class_num != -1) {
-                        result_method_generics_types->mGenericsTypes[param_class_num] = info->block_last_type;
+                    param_types[num_params-1] = info->type;
 
-                        result_method_generics_types->mNumGenericsTypes = param_class_num +1;
-                    }
+                    info->block_last_type = block_last_type_before;
+
+                    method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types, generics_types, right_method_generics_types, &result_type, FALSE, TRUE, &result_method_generics_types);
                 }
-
-                param_types[num_params-1] = info->type;
-
-                info->block_last_type = block_last_type_before;
-
-                method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types, generics_types, right_method_generics_types, &result_type, FALSE, TRUE, &result_method_generics_types);
             }
 
-            if(method_index2 == -1) {
-                /// Is cast method ? ////
-                int cast_method_index = -1;
-                int i;
-                for(i=0; gCastMethods[i].method_name != NULL; i++) {
-                    if(strcmp(method_name, gCastMethods[i].method_name) == 0) {
-                        cast_method_index = i;
-                        break;
+            if(!info->pinfo->exist_block_object_err) { // for interpreter completion
+                if(method_index2 == -1) {
+                    /// Is cast method ? ////
+                    int cast_method_index = -1;
+                    int i;
+                    for(i=0; gCastMethods[i].method_name != NULL; i++) {
+                        if(strcmp(method_name, gCastMethods[i].method_name) == 0) {
+                            cast_method_index = i;
+                            break;
+                        }
                     }
-                }
 
-                /// cast methods ///
-                if(cast_method_index != -1) {
-                    /// check ///
-                    if(num_params != 0) {
-                        compile_err_msg(info, "A cast method doesn't require params");
+                    /// cast methods ///
+                    if(cast_method_index != -1) {
+                        /// check ///
+                        if(num_params != 0) {
+                            compile_err_msg(info, "A cast method doesn't require params");
+                            info->err_num++;
+
+                            info->type = create_node_type_with_class_name("int"); // dummy
+
+                            return TRUE;
+                        }
+
+                        /// go ///
+                        char* cast_type_name = gCastMethods[cast_method_index].type_;
+
+                        sNodeType* left_type = object_type;
+                        sNodeType* right_type = create_node_type_with_class_name(cast_type_name);
+
+                        cast_right_type_to_left_type(left_type, &right_type, info);
+                        info->type = right_type;
+
+                        return TRUE;
+                    }
+                    else {
+                        compile_err_msg(info, "method not found(2)");
                         info->err_num++;
+
+                        err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
 
                         info->type = create_node_type_with_class_name("int"); // dummy
 
                         return TRUE;
                     }
-
-                    /// go ///
-                    char* cast_type_name = gCastMethods[cast_method_index].type_;
-
-                    sNodeType* left_type = object_type;
-                    sNodeType* right_type = create_node_type_with_class_name(cast_type_name);
-
-                    cast_right_type_to_left_type(left_type, &right_type, info);
-                    info->type = right_type;
-
-                    return TRUE;
                 }
-                else {
-                    compile_err_msg(info, "method not found(2)");
-                    info->err_num++;
 
-                    err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
+                sCLMethod* method = klass->mMethods + method_index2;
 
-                    info->type = create_node_type_with_class_name("int"); // dummy
+                append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
 
-                    return TRUE;
-                }
+                append_class_name_to_constant_pool_and_code(info, klass);
+                append_int_value_to_code(info->code, method_index2, info->no_output);
+
+                info->stack_num -= num_params + 1;
+                info->stack_num++;
+
+                info->type = result_type;
             }
-
-            sCLMethod* method = klass->mMethods + method_index2;
-
-            append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
-
-            append_class_name_to_constant_pool_and_code(info, klass);
-            append_int_value_to_code(info->code, method_index2, info->no_output);
-
-            info->stack_num -= num_params + 1;
-            info->stack_num++;
-
-            info->type = result_type;
         }
     }
 
