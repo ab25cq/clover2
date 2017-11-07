@@ -29,12 +29,12 @@ CLASS_NAME	src/common.h	317;"	d
 CLASS_NAME_MAX	src/common.h	49;"	d
 CLASS_NUM_MAX	src/common.h	67;"	d
 CLASS_VERSION_MAX	src/common.h	57;"	d
-CLBLOCK	src/common.h	1835;"	d
+CLBLOCK	src/common.h	1837;"	d
 CLHEAPMEM	src/common.h	1756;"	d
-CLOBJECT	src/common.h	1803;"	d
+CLOBJECT	src/common.h	1805;"	d
 CLOVER_STACK_SIZE	src/common.h	68;"	d
 CLObject	src/common.h	/^typedef unsigned int CLObject;$/;"	t
-CLREGEX	src/common.h	1859;"	d
+CLREGEX	src/common.h	1861;"	d
 CLVALUE	src/common.h	/^typedef union CLVALUEUnion CLVALUE;$/;"	t	typeref:union:CLVALUEUnion
 CLVALUEUnion	src/common.h	/^union CLVALUEUnion {$/;"	u
 CL_MODULE_HASH_SIZE	src/common.h	60;"	d
@@ -47,7 +47,7 @@ CXX	Makefile	/^CXX=ccache clang++$/;"	m
 CXXFLAGS	Makefile	/^CXXFLAGS=`llvm-config --cxxflags --ldflags --system-libs --libs all` -lffi -O3 -I . $/;"	m
 Clover_load	src/class_clover.c	/^BOOL Clover_load(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 DEBUG_H	src/debug.h	2;"	d
-DUMMY_ARRAY_SIZE	src/common.h	1789;"	d
+DUMMY_ARRAY_SIZE	src/common.h	1791;"	d
 ELIF_NUM_MAX	src/common.h	52;"	d
 EXCEPTION_MESSAGE_MAX	src/common.h	203;"	d
 ExtTest_hello	ext/hello.c	/^BOOL ExtTest_hello(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
@@ -1244,7 +1244,7 @@ create_long	src/long.c	/^CLObject create_long(clint64 value)$/;"	f
 create_method_name_and_params	src/klass_compile_time.c	/^void create_method_name_and_params(char* result, int size_result, sCLClass* klass, char* method_name, sNodeType* param_types[PARAMS_MAX], int num_params)$/;"	f
 create_method_path	src/klass_compile_time.c	/^static void create_method_path(char* result, int result_size, sCLMethod* method, sCLClass* klass)$/;"	f	file:
 create_method_path_for_jit	src/jit_common.hpp	/^inline void create_method_path_for_jit(sCLClass* klass, sCLMethod* method, char* result, int size_result)$/;"	f
-create_module	src/module.c	/^sCLModule* create_module(char* module_name)$/;"	f
+create_module	src/module.c	/^sCLModule* create_module(char* module_name, char* sname, int sline)$/;"	f
 create_node_type_from_cl_type	src/node_type.c	/^sNodeType* create_node_type_from_cl_type(sCLType* cl_type, sCLClass* klass)$/;"	f
 create_node_type_with_class_name	src/node_type.c	/^sNodeType* create_node_type_with_class_name(char* class_name)$/;"	f
 create_node_type_with_class_pointer	src/node_type.c	/^sNodeType* create_node_type_with_class_pointer(sCLClass* klass)$/;"	f
@@ -1880,7 +1880,9 @@ mResultType	src/common.h	/^    sCLType* mResultType;$/;"	m	struct:sCLMethodStruc
 mResultType	src/common.h	/^    struct sCLTypeStruct* mResultType;$/;"	m	struct:sCLBlockTypeStruct	typeref:struct:sCLBlockTypeStruct::sCLTypeStruct
 mResultType	src/common.h	/^    struct sNodeTypeStruct* mResultType;$/;"	m	struct:sNodeBlockTypeStruct	typeref:struct:sNodeBlockTypeStruct::sNodeTypeStruct
 mRight	src/common.h	/^    unsigned int mRight;$/;"	m	struct:sNodeTreeStruct
+mSLine	src/common.h	/^    int mSLine;$/;"	m	struct:sCLModuleStruct
 mSLine	src/common.h	/^    int mSLine;$/;"	m	struct:sNodeBlockStruct
+mSName	src/common.h	/^    char mSName[PATH_MAX];$/;"	m	struct:sCLModuleStruct
 mSName	src/common.h	/^    char* mSName;$/;"	m	struct:sNodeBlockStruct
 mSName	src/common.h	/^    char* mSName;$/;"	m	struct:sNodeTreeStruct
 mShortValue	src/common.h	/^        short mShortValue;$/;"	m	union:sNodeTreeStruct::__anon1

@@ -1769,13 +1769,15 @@ struct sCLModuleStruct {
     BOOL mModified;
     char mName[CL_MODULE_NAME_MAX+1];
     sBuf mBody;
+    char mSName[PATH_MAX];
+    int mSLine;
 };
 
 typedef struct sCLModuleStruct sCLModule;
 
 void module_init();
 void module_final();
-sCLModule* create_module(char* module_name);
+sCLModule* create_module(char* module_name, char* sname, int sline);
 void unload_module(char* module_name);
 void append_character_to_module(sCLModule* self, char c);
 void append_str_to_module(sCLModule* self, char* str);

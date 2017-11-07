@@ -443,8 +443,8 @@ static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOO
             int cinfo_err_num_saved = info->cinfo->err_num;
 
             info->p = body;
-            info->sline = 1;
-            info->sname = module_name;
+            info->sline = module->mSLine;
+            info->sname = module->mSName;
 
             while(*info->p) {
                 skip_spaces_and_lf(info);
@@ -745,8 +745,8 @@ BOOL parse_methods_and_fields_on_compile_time(sParserInfo* info, sCompileInfo* c
             int cinfo_err_num_saved = info->cinfo->err_num;
 
             info->p = body;
-            info->sline = 1;
-            info->sname = module_name;
+            info->sline = module->mSLine;
+            info->sname = module->mSName;
 
             while(*info->p) {
                 skip_spaces_and_lf(info);
@@ -980,6 +980,9 @@ static BOOL parse_module(sParserInfo* info, sCompileInfo* cinfo)
     }
 
     if(info->parse_phase == PARSE_PHASE_ALLOC_CLASSES) {
+        char* sname = info->sname;
+        int sline = info->sline;
+
         if(*info->p == '{') {
             info->p++;
             //skip_spaces_and_lf(info);  for module format
@@ -991,7 +994,7 @@ static BOOL parse_module(sParserInfo* info, sCompileInfo* cinfo)
             skip_spaces_and_lf(info);
         }
 
-        sCLModule* module = create_module(module_name);
+        sCLModule* module = create_module(module_name, sname, sline);
         
         if(module == NULL) {
             parser_err_msg(info, "overflow the module table or the same name module exists(%s)", module_name);

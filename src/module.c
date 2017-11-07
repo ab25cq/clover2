@@ -47,7 +47,7 @@ static BOOL append_module_to_table(char* name, sCLModule* module)
 }
 
 // result: (NULL) overflow module table (sCLModule*) success
-sCLModule* create_module(char* module_name)
+sCLModule* create_module(char* module_name, char* sname, int sline)
 {
     sCLModule* self;
 
@@ -56,6 +56,9 @@ sCLModule* create_module(char* module_name)
     sBuf_init(&self->mBody);
 
     xstrncpy(self->mName, module_name, CL_MODULE_NAME_MAX);
+
+    xstrncpy(self->mSName, sname, PATH_MAX);
+    self->mSLine = sline;
 
     if(!append_module_to_table(module_name, self)) {
         return NULL;
@@ -196,6 +199,8 @@ static BOOL save_module_to_file(sCLModule* self)
         return FALSE; 
     }
 
+    fprintf(f, "%s\n", self->mSName);
+    fprintf(f, "%d\n", self->mSLine);
     fprintf(f, "%s", self->mBody.mBuf);
 
     fclose(f);
@@ -236,8 +241,6 @@ static BOOL search_for_module_file_from_module_name(char* module_file, unsigned 
 
 BOOL load_module_from_file(ALLOC sCLModule** self, char* module_name)
 {
-    char buf[BUFSIZ+1];
-    int fd;
     char fname[PATH_MAX];
 
     if(!search_for_module_file_from_module_name(fname, PATH_MAX, module_name))
@@ -246,13 +249,72 @@ BOOL load_module_from_file(ALLOC sCLModule** self, char* module_name)
     }
 
     /// load from file ///
-    *self = create_module(module_name);
+    *self = create_module(module_name, "", 0);
 
-    fd = open(fname, O_RDONLY);
+    int fd = open(fname, O_RDONLY);
 
     if(fd < 0) {
         return FALSE;
     }
+
+    char buf2[PATH_MAX];
+
+    int size = read(fd, buf2, PATH_MAX+128);
+
+    if(size < 0) {
+        close(fd);
+        return FALSE;
+    }
+
+    buf2[size] = 0;
+
+    char* p = buf2;
+
+    char* p2 = (*self)->mSName;
+
+    while(*p) {
+        if(*p == '\n') {
+            break;
+        }
+        else {
+            *p2++ = *p++;
+
+            if(p2 - (*self)->mSName >= PATH_MAX) {
+                close(fd);
+                fprintf(stderr, "overflow file name\n");
+                return FALSE;
+            }
+        }
+    }
+
+    *p2 = '\0';
+
+    char sline_buf[128];
+
+    p2 = sline_buf;
+
+    while(*p) {
+        if(*p == '\n') {
+            break;
+        }
+        else {
+            *p2++ = *p++;
+
+            if(p2 - sline_buf >= 128) {
+                fprintf(stderr, "overflow sline number\n");
+                close(fd);
+                return FALSE;
+            }
+        }
+    }
+
+    *p2 = '\0';
+
+    (*self)->mSLine = atoi(sline_buf);
+
+    append_str_to_module(*self, p);
+
+    char buf[BUFSIZ+1];
 
     while(1) {
         int size;
