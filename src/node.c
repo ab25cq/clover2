@@ -2684,8 +2684,6 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                     return FALSE;
                 }
 
-printf("info->type %s\n", CLASS_NAME(info->type->mClass));
-
                 if(!info->pinfo->exist_block_object_err) { // for interpreter completion
                     if(exist_block_result_type) {
                         sNodeType* node_type = info->type;
