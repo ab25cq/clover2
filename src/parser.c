@@ -1,9 +1,131 @@
 #include "common.h"
+#include <signal.h>
+#include <termios.h>
+#include <sys/ioctl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <stdlib.h>
+#include <time.h>
+#include <limits.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <dirent.h>
+#include <libgen.h>
 
 BOOL gInterpreter = FALSE;
 
 static BOOL expression_substitution(unsigned int* node, sParserInfo* info);
 BOOL parse_type_for_new(sNodeType** result_type, unsigned int* array_num, sParserInfo* info);
+
+char** gCommandNames = NULL;
+int gNumCommandNames = 0;
+
+void parser_init()
+{
+    int size = 128;
+    gCommandNames = MCALLOC(1, sizeof(char*)*size);
+    int i;
+    int n = 0;
+
+    char* env = getenv("PATH");
+    char path[PATH_MAX];
+
+    char* p = path;
+    int len = strlen(env);
+
+    for(i= 0; i<len; i++) {
+        if(env[i] == ':') {
+            *p = '\0';
+
+            if(access(path, F_OK) == 0) {
+                struct stat stat_;
+
+                if(stat(path, &stat_) == 0 && S_ISDIR(stat_.st_mode)) {
+                    DIR* dir = opendir(path);
+
+                    if(dir) {
+                        while(1) {
+                            struct dirent* entry = readdir(dir);
+
+                            if(entry == NULL) {
+                                break;
+                            }
+
+                            if(strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0) 
+                            {
+                                char path2[PATH_MAX];
+                                xstrncpy(path2, path, PATH_MAX);
+
+                                if(path[strlen(path)-1] != '/') {
+                                    xstrncat(path2, "/", PATH_MAX);
+                                }
+                                xstrncat(path2, entry->d_name, PATH_MAX);
+
+                                struct stat stat_;
+                                if(stat(path2, &stat_) == 0) {
+                                    if(stat_.st_mode & S_IXUSR) {
+                                        char candidate[PATH_MAX];
+                                        snprintf(candidate, PATH_MAX, "%s(", entry->d_name);
+                                        gCommandNames[n++] = MANAGED MSTRDUP(candidate);
+
+                                        if(n >= size) {
+                                            size *= 2;
+                                            gCommandNames = MREALLOC(gCommandNames, sizeof(char*)*size);
+                                        }
+
+                                        snprintf(candidate, PATH_MAX, "%s", entry->d_name);
+                                        gCommandNames[n++] = MANAGED MSTRDUP(candidate);
+
+                                        if(n >= size) {
+                                            size *= 2;
+                                            gCommandNames = MREALLOC(gCommandNames, sizeof(char*)*size);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        closedir(dir);
+                    }
+                }
+            }
+
+            p = path;
+        }
+        else {
+            *p++ = env[i];
+
+            if(p - path >= PATH_MAX) {
+                fprintf(stderr, "The element of path in PATH environment variable is too long");
+                return;
+            }
+        }
+    }
+
+    gCommandNames[n] = NULL;
+    gNumCommandNames = n;
+}
+
+void parser_final()
+{
+    int i;
+    for(i=0; i<gNumCommandNames; i++) {
+        MFREE(gCommandNames[i]);
+    }
+    MFREE(gCommandNames);
+}
+
+static BOOL is_command_name(char* name)
+{
+    int i;
+    for(i=0; i<gNumCommandNames; i++) {
+        if(strcmp(gCommandNames[i], name) == 0) {
+            return TRUE;
+        }
+    }
+
+    return FALSE;
+}
 
 void parser_err_msg(sParserInfo* info, const char* msg, ...)
 {
@@ -3247,7 +3369,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 }
             }
             /// shell mode ///
-            else if(including_slash || (get_variable_index(info->lv_table, buf) == -1 && *info->p != '(' && *info->p != '.')) 
+            else if(including_slash || (get_variable_index(info->lv_table, buf) == -1 && is_command_name(buf) && *info->p != '('))
             {
                 unsigned int params[PARAMS_MAX];
                 int num_params = 0;
@@ -3351,7 +3473,8 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     }
                 }
             }
-            else if(get_variable_index(info->lv_table, buf) == -1 && *info->p == '(') {
+            else if(get_variable_index(info->lv_table, buf) == -1 && is_command_name(buf) && *info->p == '(') 
+            {
                 skip_spaces_and_lf(info);
 
                 /// Command class method call ///

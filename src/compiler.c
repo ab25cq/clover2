@@ -9,10 +9,12 @@ static void compiler_init(BOOL no_load_fudamental_classes)
     if(!no_load_fudamental_classes) class_init_on_compile_time();
     init_vtable();
     module_init();
+    parser_init();
 }
 
 static void compiler_final()
 {
+    parser_final();
     module_final();
     free_nodes();
     free_node_block_types();

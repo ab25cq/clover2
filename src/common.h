@@ -501,6 +501,8 @@ struct sParserInfoStruct
 
 typedef struct sParserInfoStruct sParserInfo;
 
+void parser_init();
+void parser_final();
 struct sParserParamStruct;
 BOOL parse_params_and_entry_to_lvtable(struct sParserParamStruct* params, int* num_params, sParserInfo* info, sVarTable** new_table, sVarTable* parent_lv_table, int character_type);
 void parser_err_msg(sParserInfo* info, const char* msg, ...);

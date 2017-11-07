@@ -2138,6 +2138,7 @@ int main(int argc, char** argv)
     init_node_block_types();
     clover2_init();
     interpreter_init();
+    parser_init();
 
     rl_bind_key('\t', my_complete_internal);
     rl_bind_key('\n', my_bind_cr);
@@ -2187,6 +2188,8 @@ int main(int argc, char** argv)
 
         free(line);
     }
+
+    parser_final();
     interpreter_final();
     clover2_final();
     final_vtable();

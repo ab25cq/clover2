@@ -55,10 +55,10 @@ module MEqualableArrayImplement
 {
     def toString():String {
         if(self.items.length == 0) {
-            return "array {}";
+            return "earray {}";
         }
 
-        result:String = "array {";
+        result:String = "earray {";
 
         for(i:int = 0; i<self.items.length; i++) {
             result.append(self.items[i].toString());
@@ -271,6 +271,23 @@ class SortableArray <T:ISortable>
 
     def sort():SortableArray<T>  {
         return self.quickSort(0, self.length()-1);
+    }
+
+    def toString():String {
+        if(self.items.length == 0) {
+            return "sarray {}";
+        }
+
+        result:String = "sarray {";
+
+        for(i:int = 0; i<self.items.length; i++) {
+            result.append(self.items[i].toString());
+            result.append(",");
+        }
+
+        result.replace(-1, '}');
+
+        return result;
     }
 }
 
@@ -856,10 +873,10 @@ module MEqualableListImplementation
     }
     def toString():String {
         if(self.number == 0) {
-            return "list {}";
+            return "elist {}";
         }
 
-        result:String = "list {";
+        result:String = "elist {";
 
         it:ListItem<T> = self.head;
 
@@ -1159,6 +1176,26 @@ class SortableList<T:ISortable>
         list:SortableList<T> = self.mergeSort();
         self.setValue(list);
         return self;
+    }
+    def toString():String {
+        if(self.number == 0) {
+            return "slist {}";
+        }
+
+        result:String = "slist {";
+
+        it:ListItem<T> = self.head;
+
+        while(!it.identifyWith(null)) {
+            result.append(it.item.toString());
+            result.append(",");
+
+            it = it.next;
+        }
+
+        result.replace(-1, '}');
+
+        return result;
     }
 }
 
