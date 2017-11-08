@@ -2569,6 +2569,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                 }
 
                 BOOL omit_params = node_tree->uValue.sBlockObject.mOmitParams;
+                BOOL result_type_boxing = FALSE;
 
                 if(num_block_params > 0 && omit_params) {
                     sNodeType* method_generics_types = result_method_generics_types;
@@ -2672,11 +2673,19 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                         result_type3 = result_type2;
                     }
 
+                    if(result_type3 && result_type3->mClass 
+                        && !(result_type3->mClass->mFlags & CLASS_FLAGS_PRIMITIVE)) 
+                    {
+                        result_type_boxing = TRUE;
+                    }
+
                     node2 = sNodeTree_create_block_object(block_params, num_block_params, result_type3, MANAGED node_block, lambda, &info2, omit_result_type, FALSE, old_table);
                 }
 
                 sNodeType* block_last_type_before = info->block_last_type;
                 info->block_last_type = NULL;
+                BOOL result_type_boxing_before = info->result_type_boxing;
+                info->result_type_boxing = result_type_boxing;
 
                 /// compile ///
                 if(!compile(node2, info)) {
@@ -2708,6 +2717,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                     param_types[num_params-1] = info->type;
 
                     info->block_last_type = block_last_type_before;
+                    info->result_type_boxing = result_type_boxing_before;
 
                     method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types, generics_types, right_method_generics_types, &result_type, FALSE, TRUE, &result_method_generics_types);
                 }

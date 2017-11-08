@@ -147,6 +147,10 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info)
             return FALSE;
         }
 
+        if(info->result_type_boxing) {
+            boxing_to_lapper_class(&info->type, info);
+        }
+
         arrange_stack(info);
 
         info->block_last_type = info->type;

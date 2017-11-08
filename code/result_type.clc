@@ -18,4 +18,8 @@ class ResultTypeTest
 
         Clover.test("result type test4", d.equals(equalable_list { "1", "2", "3" }));
     }
+
+    def method3(block:lambda(int,int):int):int {
+        return block(1, 2);
+    }
 }

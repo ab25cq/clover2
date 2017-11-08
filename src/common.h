@@ -731,6 +731,7 @@ struct sCompileInfoStruct
     sNodeType* block_last_type;
     char* sname;
     int sline;
+    BOOL result_type_boxing;
 
     char* break_point_label_name;
     BOOL no_pop_next;
