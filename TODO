@@ -1,3 +1,5 @@
-JITでメソッドの戻り値でreturn文の省略が出来ない。
+JITでメソッドの戻り値でのreturn文の省略が出来ない。
+
+slist{1,2,3}.map { return it.toString() } が動かない
 
 
