@@ -31,8 +31,10 @@ CLObject create_carray_object_with_elements(int num_elements, CLObject* elements
 {
     CLObject obj = create_carray_object();
 
-    gGlobalStackPtr->mObjectValue = obj;
-    gGlobalStackPtr++;
+    CLVALUE cl_value;
+    cl_value.mLongValue = 0;
+    cl_value.mObjectValue = obj;
+    push_value_to_global_stack(cl_value);
 
     sCLClass* object_class = get_class("Object");
     MASSERT(object_class != NULL);
@@ -48,7 +50,7 @@ CLObject create_carray_object_with_elements(int num_elements, CLObject* elements
         obj_data2->mFields[i].mObjectValue = elements[i];
     }
 
-    gGlobalStackPtr--;
+    pop_global_stack();
 
     return obj;
 }
@@ -88,8 +90,10 @@ CLObject create_equalable_carray_object_with_elements(int num_elements, CLObject
 {
     CLObject obj = create_equalable_carray_object();
 
-    gGlobalStackPtr->mObjectValue = obj;
-    gGlobalStackPtr++;
+    CLVALUE cl_value;
+    cl_value.mLongValue = 0;
+    cl_value.mObjectValue = obj;
+    push_value_to_global_stack(cl_value);
 
     sCLClass* object_class = get_class("Object");
     MASSERT(object_class != NULL);
@@ -105,7 +109,7 @@ CLObject create_equalable_carray_object_with_elements(int num_elements, CLObject
         obj_data2->mFields[i].mObjectValue = elements[i];
     }
 
-    gGlobalStackPtr--;
+    pop_global_stack();
 
     return obj;
 }
@@ -145,8 +149,10 @@ CLObject create_sortable_carray_object_with_elements(int num_elements, CLObject*
 {
     CLObject obj = create_sortable_carray_object();
 
-    gGlobalStackPtr->mObjectValue = obj;
-    gGlobalStackPtr++;
+    CLVALUE cl_value;
+    cl_value.mLongValue = 0;
+    cl_value.mObjectValue = obj;
+    push_value_to_global_stack(cl_value);
 
     sCLClass* object_class = get_class("Object");
     MASSERT(object_class != NULL);
@@ -162,7 +168,7 @@ CLObject create_sortable_carray_object_with_elements(int num_elements, CLObject*
         obj_data2->mFields[i].mObjectValue = elements[i];
     }
 
-    gGlobalStackPtr--;
+    pop_global_stack();
 
     return obj;
 }

@@ -8,12 +8,13 @@ class SortableList<T:ISortable>
                 file_name2: String = file_name.toAnonymous();
 
                 n:int = 1;
-                file_name2.toPath().read().toString().split('\n').each(closure(line:String) {
+                file_name2.toPath().read().toString().split('\n')/*.each(closure(line:String) {
                     if(line.indexOf(reg) != -1) {
                         Global.printf("%s %d: %s\n", array { file_name2, n.toInteger, line });
                     }
                     n++;
                 });
+                */
             }
         });
     }

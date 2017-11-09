@@ -19,8 +19,10 @@ CLObject create_string_object(char* str)
     CLObject obj = create_object(string_class);
 
     /// push object ///
-    gGlobalStackPtr->mObjectValue = obj;
-    gGlobalStackPtr++;
+    CLVALUE cl_value;
+    cl_value.mLongValue = 0;
+    cl_value.mObjectValue = obj;
+    push_value_to_global_stack(cl_value);
 
     /// create char array ///
     sCLClass* char_class = get_class("char");
@@ -42,7 +44,7 @@ CLObject create_string_object(char* str)
     obj_data->mFields[2].mIntValue = wlen;
 
     /// pop object ///
-    gGlobalStackPtr--;
+    pop_global_stack();
 
     MFREE(wstr);
 
@@ -76,8 +78,10 @@ CLObject create_path_object(char* path)
 
     CLObject str_object = create_string_object(path);
 
-    gGlobalStackPtr->mObjectValue = str_object;
-    gGlobalStackPtr++;
+    CLVALUE cl_value;
+    cl_value.mLongValue = 0;
+    cl_value.mObjectValue = str_object;
+    push_value_to_global_stack(cl_value);
 
     CLObject obj = create_object(path_class);
 
@@ -85,7 +89,7 @@ CLObject create_path_object(char* path)
 
     object_data->mFields[0].mObjectValue = str_object;
 
-    gGlobalStackPtr--;
+    pop_global_stack();
 
     return obj;
 }

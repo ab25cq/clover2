@@ -4,7 +4,7 @@ class ResultTypeTest
     }
 
     def get(): int {
-        123;
+        return 123;
     }
 
     def method() {

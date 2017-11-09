@@ -154,6 +154,8 @@ void stack_final();
 sCLStack* append_stack_to_stack_list(CLVALUE* stack_mem, CLVALUE** stack_ptr);
 BOOL remove_stack_to_stack_list(sCLStack* stack);
 BOOL check_variables_existance_on_stack(CLVALUE* stack, CLVALUE* stack_ptr);
+void push_value_to_global_stack(CLVALUE value);
+CLVALUE pop_global_stack();
 
 extern sCLStack* gHeadStack;
 extern CLVALUE* gGlobalStack;

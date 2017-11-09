@@ -3,13 +3,56 @@
 sCLStack* gHeadStack;
 CLVALUE* gGlobalStack;
 CLVALUE* gGlobalStackPtr;
+int gSizeGlobalStack;
 
 static void create_global_stack_and_append_it_to_stack_list()
 {
-    gGlobalStack = MCALLOC(1, sizeof(CLVALUE)*GLOBAL_STACK_MAX);
+    gSizeGlobalStack = GLOBAL_STACK_MAX;
+    gGlobalStack = MCALLOC(1, sizeof(CLVALUE)*gSizeGlobalStack);
     gGlobalStackPtr = gGlobalStack;
 
     append_stack_to_stack_list(gGlobalStack, &gGlobalStackPtr);
+}
+
+void push_value_to_global_stack(CLVALUE value)
+{
+    int num_global_stack = gGlobalStackPtr - gGlobalStack;
+    if(num_global_stack >= gSizeGlobalStack) {
+        CLVALUE* global_stack = gGlobalStack;
+        int new_size = num_global_stack * 2;
+        gGlobalStack = MREALLOC(gGlobalStack, sizeof(CLVALUE)*new_size);
+        memset(gGlobalStack + num_global_stack, 0 , new_size - num_global_stack);
+
+        gGlobalStackPtr = gGlobalStack + num_global_stack;
+
+        sCLStack* it = gHeadStack;
+        while(it) {
+            if(it->mStack == global_stack) {
+                it->mStack = gGlobalStack;
+                it->mStackPtr = &gGlobalStackPtr;
+                break;
+            }
+
+            it = it->mNextStack;
+        }
+
+    }
+
+    *gGlobalStackPtr = value;
+    gGlobalStackPtr++;
+}
+
+CLVALUE pop_global_stack()
+{
+    if(gGlobalStackPtr <= gGlobalStack) {
+        fprintf(stderr, "Invalid global stack. abort\n");
+        exit(2);
+    }
+
+    CLVALUE value = *(gGlobalStackPtr-1);
+    gGlobalStackPtr--;
+
+    return value;
 }
 
 void stack_init()

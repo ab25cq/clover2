@@ -5,3 +5,5 @@ Clover.realtime() {
 
 # wonderwand.net 1.5sec - 2.0sec
 # LOOX u/c30 10sec
+
+# wonderwand.net no jit with optimize 3sec

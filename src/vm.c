@@ -439,7 +439,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
     sCLClass* running_class = info->running_class;
     sCLMethod* running_method = info->running_method;
 
-    CLVALUE* gloal_stack_ptr = gGlobalStackPtr;
+    int num_global_stack = gGlobalStackPtr - gGlobalStack;
 
     info->running_class = klass;
     info->running_method = method;
@@ -461,7 +461,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
                 entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "Native method not found");
 //                info->running_class = running_class;
 //                info->running_method = running_method;
-                gGlobalStackPtr = gloal_stack_ptr;
+                gGlobalStackPtr = gGlobalStack + num_global_stack;
                 return FALSE;
             }
 
@@ -479,7 +479,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             (*stack_ptr)++;
             //info->running_class = running_class;
             //info->running_method = running_method;
-            gGlobalStackPtr = gloal_stack_ptr;
+            gGlobalStackPtr = gGlobalStack + num_global_stack;
             return FALSE;
         }
 
@@ -516,7 +516,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             (*stack_ptr)++;
             //info->running_class = running_class;
             //info->running_method = running_method;
-            gGlobalStackPtr = gloal_stack_ptr;
+            gGlobalStackPtr = gGlobalStack + num_global_stack;
             return FALSE;
         }
 #else
@@ -526,7 +526,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             (*stack_ptr)++;
             //info->running_class = running_class;
             //info->running_method = running_method;
-            gGlobalStackPtr = gloal_stack_ptr;
+            gGlobalStackPtr = gGlobalStack + num_global_stack;
             return FALSE;
         }
 #endif
@@ -539,7 +539,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
     info->running_class = running_class;
     info->running_method = running_method;
 
-    gGlobalStackPtr = gloal_stack_ptr;
+    gGlobalStackPtr = gGlobalStack + num_global_stack;
 
     return TRUE;
 }
@@ -1189,15 +1189,7 @@ show_inst(inst);
                 CLVALUE value = *(stack_ptr-1);
                 stack_ptr--;
 
-                *gGlobalStackPtr = value;
-                gGlobalStackPtr++;
-
-                if(gGlobalStackPtr - gGlobalStack >= GLOBAL_STACK_MAX) {
-                    vm_mutex_off();
-                    entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "global stack ptr is overflow");
-                    remove_stack_to_stack_list(stack_id);
-                    return FALSE;
-                }
+                push_value_to_global_stack(value);
                 }
                 break;
 
@@ -1205,15 +1197,7 @@ show_inst(inst);
                 int size = *(int*)pc;
                 pc += sizeof(int);
 
-                if(gGlobalStackPtr <= gGlobalStack) {
-                    vm_mutex_off();
-                    entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "global stack ptr is overflow");
-                    remove_stack_to_stack_list(stack_id);
-                    return FALSE;
-                }
-
-                CLVALUE value = *(gGlobalStackPtr-1);
-                gGlobalStackPtr--;
+                CLVALUE value = pop_global_stack();
 
                 *stack_ptr = value;
                 stack_ptr++;
@@ -4994,9 +4978,10 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                         CLObject carray = create_carray_object_with_elements(num_params, elements);
 
-                        gGlobalStackPtr->mLongValue = 0;   // zero clear for jit
-                        gGlobalStackPtr->mObjectValue = carray;
-                        gGlobalStackPtr++;
+                        CLVALUE cl_value;
+                        cl_value.mLongValue = 0;
+                        cl_value.mObjectValue = carray;
+                        push_value_to_global_stack(cl_value);
 
                         stack_ptr-=num_params;
 
@@ -5013,7 +4998,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                         stack_ptr->mIntValue = max_method_chains;
                         stack_ptr++;
 
-                        gGlobalStackPtr--;
+                        pop_global_stack();
 
                         if(!invoke_method(klass, method, stack, var_num, &stack_ptr, info)) {
                             if(info->try_code == code && info->try_offset != 0) {
@@ -5062,9 +5047,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                         CLObject carray = create_carray_object_with_elements(num_params, elements);
 
-                        gGlobalStackPtr->mLongValue = 0;                // zero clear for jit
-                        gGlobalStackPtr->mObjectValue = carray;
-                        gGlobalStackPtr++;
+
+                        CLVALUE cl_value;
+                        cl_value.mLongValue = 0;
+                        cl_value.mObjectValue = carray;
+                        push_value_to_global_stack(cl_value);
 
                         stack_ptr-=num_params;
 
@@ -5081,7 +5068,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                         stack_ptr->mIntValue = max_method_chains;
                         stack_ptr++;
 
-                        gGlobalStackPtr--;
+                        pop_global_stack();
 
                         if(!invoke_method(klass, method, stack, var_num, &stack_ptr, info)) {
                             if(info->try_code == code && info->try_offset != 0) {

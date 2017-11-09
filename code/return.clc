@@ -3,6 +3,6 @@ class ClassMethodTest
     def initialize() {
     }
     def get():int {
-        123;
+        return 123;
     }
 }
