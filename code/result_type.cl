@@ -22,3 +22,7 @@ Clover.test("result type test5", slist{1,2,3}.map { it * 3}.equals(slist{3,6,9})
 
 
 Clover.test("result type test6", a.method3 { it + it2 } == 3);
+
+e:SortableList<String> = slist{1,2,3}.map { return it.toString(); }
+
+Clover.test("result type test7", slist{1,2,3}.map { return it.toString() }.equals(slist{"1","2","3"}));

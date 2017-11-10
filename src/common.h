@@ -735,6 +735,9 @@ struct sCompileInfoStruct
     int sline;
     BOOL result_type_boxing;
 
+    BOOL omit_block_result_type2;
+    sNodeType* return_type2;
+
     char* break_point_label_name;
     BOOL no_pop_next;
 };

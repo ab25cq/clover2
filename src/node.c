@@ -2554,7 +2554,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                 sCLMethod* method2 = klass->mMethods + method_index2;
 
                 sNodeTree* node_tree = gNodes + node2;
-                BOOL exist_block_result_type = FALSE;
+                BOOL omit_block_result_type = FALSE;
                 sCLParam* param = method2->mParams + method2->mNumParams -1;
                 sNodeType* node_type = create_node_type_from_cl_type(param->mType, klass);
 
@@ -2566,7 +2566,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
 
                 if(node_tree->uValue.sBlockObject.mOmitResultType) {
                     if(!type_identify_with_class_name(block_result_type, "Null")) {
-                        exist_block_result_type = TRUE;
+                        omit_block_result_type = TRUE;
                     }
                 }
 
@@ -2689,20 +2689,31 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                 BOOL result_type_boxing_before = info->result_type_boxing;
                 info->result_type_boxing = result_type_boxing;
 
+                BOOL omit_block_result_type_before = info->omit_block_result_type;
+                info->omit_block_result_type2 = omit_block_result_type;
+                sNodeType* return_type2_before = info->return_type2;
+                info->return_type2 = NULL;
+
                 /// compile ///
                 if(!compile(node2, info)) {
                     info->block_last_type = block_last_type_before;
+                    info->result_type_boxing = result_type_boxing_before;
+                    info->omit_block_result_type2 = omit_block_result_type_before;
+                    info->return_type2 = return_type2_before;
                     return FALSE;
                 }
 
                 if(!info->pinfo->exist_block_object_err) { // for interpreter completion
-                    if(exist_block_result_type) {
+                    if(omit_block_result_type) {
                         sNodeType* node_type = info->type;
 
                         if(node_type) {
                             sNodeBlockType* node_block_type = node_type->mBlockType;
 
-                            if(node_block_type && type_identify_with_class_name(node_block_type->mResultType, "Null"))
+                            if(node_block_type && info->return_type2 != NULL) {
+                                node_block_type->mResultType = info->return_type2;
+                            }
+                            else if(node_block_type && type_identify_with_class_name(node_block_type->mResultType, "Null"))
                             {
                                 node_block_type->mResultType = info->block_last_type;
                             }
@@ -2720,6 +2731,8 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
 
                     info->block_last_type = block_last_type_before;
                     info->result_type_boxing = result_type_boxing_before;
+                    info->omit_block_result_type2 = omit_block_result_type_before;
+                    info->return_type2 = return_type2_before;
 
                     method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types, generics_types, right_method_generics_types, &result_type, FALSE, TRUE, &result_method_generics_types);
                 }
@@ -3167,7 +3180,11 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
     /// result type ///
     sNodeType* result_type = NULL;
 
-    if(info->omit_block_result_type) {
+    if(info->omit_block_result_type2) {
+        info->return_type = value_result_type;
+        result_type = value_result_type;
+    }
+    else if(info->omit_block_result_type) {
         info->return_type = value_result_type; // hand over to compile_block_object
         result_type = value_result_type;
     }
@@ -6856,6 +6873,8 @@ BOOL compile_block_object(unsigned int node, sCompileInfo* info)
     }
 
     sNodeType* return_type = info->return_type;
+
+    info->return_type2 = info->return_type;
         
     info->code = codes_before;
     info->constant = constant_before;
