@@ -1,4 +1,6 @@
 JITでメソッドの戻り値でのreturn文の省略が出来ない。
 
-
+iclover2
+slist {1,2,3}.map { it.toString() }.map { [TAB]
+de otiru
 

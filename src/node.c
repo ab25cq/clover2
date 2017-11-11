@@ -2738,7 +2738,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                 }
             }
 
-            if(!info->pinfo->exist_block_object_err) { // for interpreter completion
+            if(info->err_num == 0 && info->pinfo->err_num == 0) { // for interpreter completion
                 if(method_index2 == -1) {
                     /// Is cast method ? ////
                     int cast_method_index = -1;
