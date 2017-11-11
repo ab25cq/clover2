@@ -523,7 +523,7 @@ struct sNodeBlockStruct
     unsigned int mNumNodes;
 
     sVarTable* mLVTable;
-    BOOL mErrBlock;
+    BOOL mUnClosedBlock;
 
     sBuf mSource;
     char* mSName;
