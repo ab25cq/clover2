@@ -2151,7 +2151,6 @@ static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)
             int max_method_chains = gNodes[node].mMaxMethodChains;
 
             /// compile params ///
-            BOOL exist_block_object_err = info->pinfo->exist_block_object_err;
             info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
 
             int i;
@@ -2200,8 +2199,6 @@ static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)
 
                 info->type = create_node_type_from_cl_type(method->mResultType, klass);
             }
-
-            info->pinfo->exist_block_object_err = exist_block_object_err;
         }
         else {
             if(info->pinfo->exist_block_object_err == FALSE) { // for interpreter completion
@@ -2217,7 +2214,6 @@ static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)
         }
     }
     else {
-        BOOL exist_block_object_err = info->pinfo->exist_block_object_err;
         info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
 
         /// compile params ///
@@ -2242,8 +2238,6 @@ static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)
 
             info->type = result_type;
         }
-
-        info->pinfo->exist_block_object_err = exist_block_object_err; // for interpreter completion
     }
     
     return TRUE;
@@ -2358,13 +2352,13 @@ struct sCastMethods gCastMethods[] = {
 
 static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType* object_type, sNodeType* generics_types, sCLClass* klass, sNodeType* param_types[PARAMS_MAX], int num_params, char* method_name, unsigned int params[PARAMS_MAX], int num_method_chains, int max_method_chains)
 {
+printf("call_normal_method %s.%s\n", CLASS_NAME(klass), method_name);
     if(klass->mFlags & CLASS_FLAGS_DYNAMIC_CLASS) {
         /// get type of params without generating code ///
         BOOL no_output_before = info->no_output;
         info->no_output = TRUE;
         int stack_num_before = info->stack_num;
 
-        BOOL exist_block_object_err = info->pinfo->exist_block_object_err;
         info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
 
         BOOL exist_lazy_lamda_compile = FALSE;
@@ -2464,8 +2458,6 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                 return TRUE;
             }
         }
-
-        info->pinfo->exist_block_object_err = exist_block_object_err;
     }
     else if(class_identify_with_class_name(klass, "Anonymous")) {
         info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
@@ -2495,7 +2487,6 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
     }
     else if(klass->mFlags & CLASS_FLAGS_INTERFACE)
     {
-        BOOL exist_block_object_err = info->pinfo->exist_block_object_err;
         info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
 
         /// compile params ///
@@ -2704,7 +2695,6 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                 info->omit_block_result_type2 = omit_block_result_type;
                 sNodeType* return_type2_before = info->return_type2;
                 info->return_type2 = NULL;
-                BOOL exist_block_object_err = info->pinfo->exist_block_object_err;
                 info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
 
                 /// compile ///
@@ -2713,7 +2703,6 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                     info->result_type_boxing = result_type_boxing_before;
                     info->omit_block_result_type2 = omit_block_result_type_before;
                     info->return_type2 = return_type2_before;
-                    info->pinfo->exist_block_object_err = exist_block_object_err; // for interpreter completion
                     return FALSE;
                 }
 
@@ -2748,11 +2737,19 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                     info->omit_block_result_type2 = omit_block_result_type_before;
                     info->return_type2 = return_type2_before;
 
+int j;
+for(j=0; j<num_params; j++) {
+printf("param_types %s\n", CLASS_NAME(param_types[j]->mClass));
+}
                     method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types, generics_types, right_method_generics_types, &result_type, FALSE, TRUE, &result_method_generics_types);
                 }
             }
 
+printf("info->pinfo->exist_block_object_err %d\n", info->pinfo->exist_block_object_err);
+printf("klass %s method_name %s\n", CLASS_NAME(klass), method_name);
+printf("method_index2 %d\n", method_index2);
             if(!info->pinfo->exist_block_object_err) { // for interpreter completion
+            //if(info->err_num == 0 && info->pinfo->err_num == 0) { // for interpreter completion
                 if(method_index2 == -1) {
                     /// Is cast method ? ////
                     int cast_method_index = -1;
@@ -2773,6 +2770,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
 
                             info->type = create_node_type_with_class_name("int"); // dummy
 
+puts("return");
                             return TRUE;
                         }
 
@@ -2785,6 +2783,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                         cast_right_type_to_left_type(left_type, &right_type, info);
                         info->type = right_type;
 
+puts("return2");
                         return TRUE;
                     }
                     else {
@@ -2795,6 +2794,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
 
                         info->type = create_node_type_with_class_name("int"); // dummy
 
+puts("return3");
                         return TRUE;
                     }
                 }
@@ -2810,10 +2810,9 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                 info->stack_num++;
 
                 info->type = result_type;
+printf("result_type %s\n", CLASS_NAME(result_type->mClass));
             }
         }
-
-        info->pinfo->exist_block_object_err = exist_block_object_err; // for interpreter completion
     }
 
     return TRUE;
@@ -3008,6 +3007,9 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
             return FALSE;;
         }
     }
+if(info->type && info->type->mClass) 
+printf("info->type %s\n", CLASS_NAME(info->type->mClass));
+printf("call_normal_method end\n");
     
     return TRUE;
 }
@@ -6934,7 +6936,7 @@ BOOL compile_block_object(unsigned int node, sCompileInfo* info)
     info->stack_num++;
 
     /// make info->type ///
-    if(!node_block->mUnClosedBlock) { // for interpreter completion
+    if(info->pinfo->err_num == 0) { // for interpreter completion
         info->type = create_node_type_with_class_name("lambda");
 
         sNodeBlockType* node_block_type = alloc_node_block_type();
@@ -6955,20 +6957,6 @@ BOOL compile_block_object(unsigned int node, sCompileInfo* info)
         for(i=0; i<num_params; i++) {
             node_block_type->mParams[i] = params[i]->mType;
         }
-
-        info->type->mBlockType = node_block_type;
-    }
-    else {
-        info->type = create_node_type_with_class_name("lambda");
-
-        sNodeBlockType* node_block_type = alloc_node_block_type();
-
-        node_block_type->mNumParams = num_params;
-        for(i=0; i<num_params; i++) {
-            node_block_type->mParams[i] = create_node_type_with_class_name("Null");
-        }
-
-        node_block_type->mResultType = create_node_type_with_class_name("Null");
 
         info->type->mBlockType = node_block_type;
     }
