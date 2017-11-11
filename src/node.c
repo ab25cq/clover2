@@ -2538,6 +2538,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
         }
     }
     else {
+        BOOL exist_block_object_err = info->pinfo->exist_block_object_err;
         info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
 
         /// compile params ///
