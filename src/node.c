@@ -2151,7 +2151,6 @@ static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)
             int max_method_chains = gNodes[node].mMaxMethodChains;
 
             /// compile params ///
-            BOOL exist_block_object_err = info->pinfo->exist_block_object_err;
             info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
 
             int i;
@@ -2200,8 +2199,6 @@ static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)
 
                 info->type = create_node_type_from_cl_type(method->mResultType, klass);
             }
-
-            info->pinfo->exist_block_object_err = exist_block_object_err;
         }
         else {
             if(info->pinfo->exist_block_object_err == FALSE) { // for interpreter completion
@@ -2217,7 +2214,6 @@ static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)
         }
     }
     else {
-        BOOL exist_block_object_err = info->pinfo->exist_block_object_err;
         info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
 
         /// compile params ///
@@ -2242,8 +2238,6 @@ static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)
 
             info->type = result_type;
         }
-
-        info->pinfo->exist_block_object_err = exist_block_object_err; // for interpreter completion
     }
     
     return TRUE;
@@ -2364,7 +2358,6 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
         info->no_output = TRUE;
         int stack_num_before = info->stack_num;
 
-        BOOL exist_block_object_err = info->pinfo->exist_block_object_err;
         info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
 
         BOOL exist_lazy_lamda_compile = FALSE;
@@ -2464,8 +2457,6 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                 return TRUE;
             }
         }
-
-        info->pinfo->exist_block_object_err = exist_block_object_err;
     }
     else if(class_identify_with_class_name(klass, "Anonymous")) {
         info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
@@ -2495,7 +2486,6 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
     }
     else if(klass->mFlags & CLASS_FLAGS_INTERFACE)
     {
-        BOOL exist_block_object_err = info->pinfo->exist_block_object_err;
         info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
 
         /// compile params ///
@@ -2538,7 +2528,6 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
         }
     }
     else {
-        BOOL exist_block_object_err = info->pinfo->exist_block_object_err;
         info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
 
         /// compile params ///
@@ -2638,6 +2627,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                     sParserInfo info2;
 
                     info2.p = node_block->mSource.mBuf;
+
                     info2.sname = node_block->mSName;
                     info2.sline = node_block->mSLine;
                     info2.err_num = 0;
@@ -2705,7 +2695,6 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                 info->omit_block_result_type2 = omit_block_result_type;
                 sNodeType* return_type2_before = info->return_type2;
                 info->return_type2 = NULL;
-                BOOL exist_block_object_err = info->pinfo->exist_block_object_err;
                 info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
 
                 /// compile ///
@@ -2714,7 +2703,6 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                     info->result_type_boxing = result_type_boxing_before;
                     info->omit_block_result_type2 = omit_block_result_type_before;
                     info->return_type2 = return_type2_before;
-                    info->pinfo->exist_block_object_err = exist_block_object_err; // for interpreter completion
                     return FALSE;
                 }
 
@@ -2750,6 +2738,16 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                     info->return_type2 = return_type2_before;
 
                     method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types, generics_types, right_method_generics_types, &result_type, FALSE, TRUE, &result_method_generics_types);
+                }
+            }
+            else {
+                if(exist_lazy_lamda_compile) {
+                    int node2 = params[num_params-1];
+
+                    /// compile ///
+                    if(!compile(node2, info)) {
+                        return FALSE;
+                    }
                 }
             }
 
@@ -2813,8 +2811,6 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                 info->type = result_type;
             }
         }
-
-        info->pinfo->exist_block_object_err = exist_block_object_err; // for interpreter completion
     }
 
     return TRUE;
@@ -6959,6 +6955,7 @@ BOOL compile_block_object(unsigned int node, sCompileInfo* info)
 
         info->type->mBlockType = node_block_type;
     }
+/*
     else {
         info->type = create_node_type_with_class_name("lambda");
 
@@ -6973,6 +6970,7 @@ BOOL compile_block_object(unsigned int node, sCompileInfo* info)
 
         info->type->mBlockType = node_block_type;
     }
+*/
 
     sByteCode_free(&codes);
     sConst_free(&constant);

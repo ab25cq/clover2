@@ -58,6 +58,23 @@ BOOL parse_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* ne
             skip_spaces_and_lf(info);
             break;
         }
+        else if(*info->p == '\0') {
+            (*node_block)->mUnClosedBlock = TRUE;
+
+            if(!block_object) {
+                set_max_block_var_num(info->lv_table, old_vtable);
+            }
+            (*node_block)->mLVTable = info->lv_table;
+
+            //info->lv_table = old_vtable;   // for interpreter completion
+
+            char* source_end = info->p;
+
+            sBuf_append(&(*node_block)->mSource, source_head, source_end - source_head);
+            sBuf_append_char(&(*node_block)->mSource, '\0');
+
+            return TRUE;
+        }
 
         unsigned int node = 0;
 
