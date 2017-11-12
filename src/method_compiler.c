@@ -53,6 +53,8 @@ BOOL compile_method(sCLMethod* method, sParserParam* params, int num_params, sPa
     cinfo2.break_points = NULL;
     cinfo2.method = method;
 
+    unsigned int node = 0;
+
     while(1) {
         if(*info->p == '}') {
             info->p++;
@@ -66,7 +68,7 @@ BOOL compile_method(sCLMethod* method, sParserParam* params, int num_params, sPa
             return TRUE;
         }
         else {
-            unsigned int node = 0;
+            node = 0;
             if(!expression(&node, info)) {
                 sByteCode_free(cinfo2.code);
                 return FALSE;
@@ -83,7 +85,17 @@ BOOL compile_method(sCLMethod* method, sParserParam* params, int num_params, sPa
                     return FALSE;
                 }
 
-                if(gNodes[node].mNodeType != kNodeTypeReturn) {
+                if(*info->p == ';') {
+                    info->p++;
+                    skip_spaces_and_lf(info);
+                }
+
+                if(*info->p == '}') {
+                    info->p++;
+                    skip_spaces_and_lf(info);
+                    break;
+                }
+                else if(gNodes[node].mNodeType != kNodeTypeReturn) {
                     arrange_stack(&cinfo2);
 #ifdef ENABLE_INTERPRETER
                     append_opecode_to_code(cinfo2.code, OP_SIGINT, cinfo2.no_output);
@@ -102,13 +114,27 @@ BOOL compile_method(sCLMethod* method, sParserParam* params, int num_params, sPa
     sNodeType* result_type = create_node_type_from_cl_type(method->mResultType, info->klass);
     if(!(method->mFlags & METHOD_FLAGS_CLASS_METHOD) && strcmp(CONS_str(&info->klass->mConst, method->mNameOffset), "initialize") == 0) 
     {
+        arrange_stack(&cinfo2);
+
         append_opecode_to_code(cinfo2.code, OP_LOAD, FALSE);
         append_int_value_to_code(cinfo2.code, 0, FALSE);
         append_int_value_to_code(cinfo2.code, 4, FALSE);
         append_opecode_to_code(cinfo2.code, OP_RETURN, FALSE);
     }
     else if(type_identify_with_class_name(result_type, "Null")) {
+        arrange_stack(&cinfo2);
+
         append_opecode_to_code(cinfo2.code, OP_LDCNULL, FALSE);
+        append_opecode_to_code(cinfo2.code, OP_RETURN, FALSE);
+    }
+    else if(gNodes[node].mNodeType == kNodeTypeReturn) {
+    }
+    else {
+        if(cinfo2.stack_num != 1) {
+            parser_err_msg(info, "require return value");
+            cinfo2.err_num++;
+        }
+
         append_opecode_to_code(cinfo2.code, OP_RETURN, FALSE);
     }
 

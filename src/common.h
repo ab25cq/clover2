@@ -533,6 +533,7 @@ struct sNodeBlockStruct
 typedef struct sNodeBlockStruct sNodeBlock;
 
 void sNodeBlock_free(sNodeBlock* block);
+sNodeBlock* sNodeBlock_clone(sNodeBlock* block);
 BOOL parse_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* new_table, BOOL block_object);
 
 /// node.c ///

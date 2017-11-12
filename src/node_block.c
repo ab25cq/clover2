@@ -21,6 +21,31 @@ void sNodeBlock_free(sNodeBlock* block)
     MFREE(block);
 }
 
+sNodeBlock* sNodeBlock_clone(sNodeBlock* block)
+{
+    sNodeBlock* result = sNodeBlock_alloc();
+
+    result->mNumNodes = block->mNumNodes;
+    result->mSizeNodes = block->mSizeNodes;
+    result->mNodes = MCALLOC(1, sizeof(unsigned int)*block->mSizeNodes);
+
+    int i;
+    for(i=0; i<block->mNumNodes; i++) {
+        result->mNodes[i] = block->mNodes[i];
+    }
+
+    result->mLVTable = clone_var_table(block->mLVTable);
+
+    result->mUnClosedBlock = block->mUnClosedBlock;
+
+    sBuf_clone(&result->mSource, &block->mSource);
+
+    result->mSName = block->mSName;
+    result->mSLine = block->mSLine;
+
+    return result;
+}
+
 static void append_node_to_node_block(sNodeBlock* node_block, unsigned int node)
 {
     if(node_block->mSizeNodes <= node_block->mNumNodes) {

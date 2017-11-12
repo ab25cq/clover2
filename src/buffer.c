@@ -12,7 +12,17 @@ void sBuf_init(sBuf* self)
     self->mBuf = (char*)MMALLOC(sizeof(char)*64);
     self->mSize = 64;
     self->mLen = 0;
-    *(self->mBuf) = 0;
+    *(self->mBuf) = '\0';
+}
+
+void sBuf_clone(sBuf* self, sBuf* buf)
+{
+    self->mSize = buf->mSize;
+    self->mLen = buf->mLen;
+    self->mBuf = MCALLOC(1, buf->mSize);
+
+    memcpy(self->mBuf, buf->mBuf, buf->mLen);
+    self->mBuf[buf->mLen] = '\0';
 }
 
 void sBuf_append(sBuf* self, void* str, size_t size)

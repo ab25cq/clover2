@@ -171,6 +171,81 @@ unsigned int clone_node(unsigned int node)
 
     memcpy(gNodes + result, gNodes + node, sizeof(sNodeTree));
 
+    switch(gNodes[node].mNodeType) {
+        case kNodeTypeIf:
+            {
+            if(gNodes[node].uValue.sIf.mIfNodeBlock) {
+                gNodes[result].uValue.sIf.mIfNodeBlock = sNodeBlock_clone(gNodes[node].uValue.sIf.mIfNodeBlock);
+            }
+            int j;
+            for(j=0; j<gNodes[node].uValue.sIf.mElifNum; j++) {
+                sNodeBlock* node_block = gNodes[node].uValue.sIf.mElifNodeBlocks[j];
+                if(node_block) {
+                    gNodes[result].uValue.sIf.mElifNodeBlocks[j] = sNodeBlock_clone(node_block);
+                }
+            }
+            if(gNodes[node].uValue.sIf.mElseNodeBlock) {
+                gNodes[result].uValue.sIf.mElseNodeBlock = sNodeBlock_clone(gNodes[node].uValue.sIf.mElseNodeBlock);
+            }
+            }
+            break;
+
+        case kNodeTypeWhile:
+            if(gNodes[node].uValue.sWhile.mWhileNodeBlock) {
+                gNodes[result].uValue.sWhile.mWhileNodeBlock = sNodeBlock_clone(gNodes[node].uValue.sWhile.mWhileNodeBlock);
+            }
+            break;
+
+        case kNodeTypeTry:
+            if(gNodes[node].uValue.sTry.mTryNodeBlock) {
+                gNodes[result].uValue.sTry.mTryNodeBlock= sNodeBlock_clone(gNodes[node].uValue.sTry.mTryNodeBlock);
+            }
+            if(gNodes[node].uValue.sTry.mCatchNodeBlock) {
+                gNodes[result].uValue.sTry.mCatchNodeBlock = sNodeBlock_clone(gNodes[node].uValue.sTry.mCatchNodeBlock);
+            }
+            break;
+
+        case kNodeTypeFor:
+            if(gNodes[node].uValue.sFor.mForNodeBlock) {
+                gNodes[result].uValue.sFor.mForNodeBlock = sNodeBlock_clone(gNodes[node].uValue.sFor.mForNodeBlock);
+            }
+            break;
+
+        case kNodeTypeString:
+            gNodes[result].uValue.sString.mString = MSTRDUP(gNodes[node].uValue.sString.mString);
+            break;
+
+        case kNodeTypePath:
+            gNodes[result].uValue.sString.mString = MSTRDUP(gNodes[node].uValue.sString.mString);
+            break;
+
+        case kNodeTypeBuffer: {
+            int len = gNodes[node].uValue.sBuffer.mLen;
+            gNodes[result].uValue.sBuffer.mBuffer = MCALLOC(1, len);
+            memcpy(gNodes[result].uValue.sBuffer.mBuffer, gNodes[node].uValue.sBuffer.mBuffer, len);
+            }
+            break;
+
+        case kNodeTypeBlockObject:
+            if(gNodes[node].uValue.sBlockObject.mBlockObjectCode) {
+                gNodes[result].uValue.sBlockObject.mBlockObjectCode = sNodeBlock_clone(gNodes[node].uValue.sBlockObject.mBlockObjectCode);
+            }
+            break;
+
+        case kNodeTypeNormalBlock:
+            if(gNodes[node].uValue.mBlock) {
+                gNodes[result].uValue.mBlock = sNodeBlock_clone(gNodes[node].uValue.mBlock);
+            }
+            break;
+
+        case kNodeTypeRegex:
+            gNodes[result].uValue.sRegex.mRegexStr = MSTRDUP(gNodes[node].uValue.sRegex.mRegexStr);
+            break;
+
+        default:
+            break;
+    }
+
     return result;
 }
 
@@ -2553,7 +2628,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                 /// determine block type and block params from getted method ///
                 sCLMethod* method2 = klass->mMethods + method_index2;
 
-                sNodeTree* node_tree = gNodes + node2;
+                sNodeTree* node_tree = gNodes + clone_node(node2); // prevent realloc bug
                 BOOL omit_block_result_type = FALSE;
                 sCLParam* param = method2->mParams + method2->mNumParams -1;
                 sNodeType* node_type = create_node_type_from_cl_type(param->mType, klass);
@@ -2682,7 +2757,6 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                     {
                         result_type_boxing = TRUE;
                     }
-
                     node2 = sNodeTree_create_block_object(block_params, num_block_params, result_type3, MANAGED node_block, lambda, &info2, omit_result_type, FALSE, old_table);
                 }
 

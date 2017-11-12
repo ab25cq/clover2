@@ -1,0 +1,268 @@
+==26348== Memcheck, a memory error detector
+==26348== Copyright (C) 2002-2015, and GNU GPL'd, by Julian Seward et al.
+==26348== Using Valgrind-3.12.0 and LibVEX; rerun with -h for copyright info
+==26348== Command: ./cclover2 code/result_type.cl
+==26348== 
+==26348== Invalid read of size 1
+==26348==    at 0x4C30BB2: strlen (vg_replace_strmem.c:454)
+==26348==    by 0x5C5CAB5: vfprintf (in /usr/lib64/libc-2.24.so)
+==26348==    by 0x5C63708: printf (in /usr/lib64/libc-2.24.so)
+==26348==    by 0x4338F8: call_normal_method (node.c:2688)
+==26348==    by 0x42BECB: compile_method_call (node.c:3005)
+==26348==    by 0x41C26A: compile (node.c:8078)
+==26348==    by 0x429495: compile_store_variable (node.c:1297)
+==26348==    by 0x41C0EE: compile (node.c:8018)
+==26348==    by 0x43F810: compile_script (script_ctime.c:216)
+==26348==    by 0x405AA1: compiler (compiler.c:49)
+==26348==    by 0x4056DD: main (compiler.c:156)
+==26348==  Address 0xd751e80 is 315,824 bytes inside a block of size 328,032 free'd
+==26348==    at 0x4C2FC47: realloc (vg_replace_malloc.c:785)
+==26348==    by 0x4063A8: debug_realloc (debug.c:262)
+==26348==    by 0x4312E8: alloc_node (node.c:159)
+==26348==    by 0x42462B: sNodeTree_create_block_object (node.c:6807)
+==26348==    by 0x4338DC: call_normal_method (node.c:2687)
+==26348==    by 0x42BECB: compile_method_call (node.c:3005)
+==26348==    by 0x41C26A: compile (node.c:8078)
+==26348==    by 0x429495: compile_store_variable (node.c:1297)
+==26348==    by 0x41C0EE: compile (node.c:8018)
+==26348==    by 0x43F810: compile_script (script_ctime.c:216)
+==26348==    by 0x405AA1: compiler (compiler.c:49)
+==26348==    by 0x4056DD: main (compiler.c:156)
+==26348==  Block was alloc'd at
+==26348==    at 0x4C2FC47: realloc (vg_replace_malloc.c:785)
+==26348==    by 0x4063A8: debug_realloc (debug.c:262)
+==26348==    by 0x4312E8: alloc_node (node.c:159)
+==26348==    by 0x42178F: sNodeTree_create_string_value (node.c:5628)
+==26348==    by 0x40F4A1: expression_node (parser.c:2692)
+==26348==    by 0x40EE0A: expression_monadic_operator (parser.c:3772)
+==26348==    by 0x40E9FC: expression_implements (parser.c:3785)
+==26348==    by 0x40E73C: expression_mult_div (parser.c:3817)
+==26348==    by 0x40E50C: expression_add_sub (parser.c:3884)
+==26348==    by 0x40E2EC: expression_shift (parser.c:3935)
+==26348==    by 0x40DF8C: expression_comparison_operator (parser.c:3986)
+==26348==    by 0x40DD9C: expression_comparison_equal_operator (parser.c:4069)
+==26348== 
+==26348== Invalid read of size 1
+==26348==    at 0x4C30BC4: strlen (vg_replace_strmem.c:454)
+==26348==    by 0x5C5CAB5: vfprintf (in /usr/lib64/libc-2.24.so)
+==26348==    by 0x5C63708: printf (in /usr/lib64/libc-2.24.so)
+==26348==    by 0x4338F8: call_normal_method (node.c:2688)
+==26348==    by 0x42BECB: compile_method_call (node.c:3005)
+==26348==    by 0x41C26A: compile (node.c:8078)
+==26348==    by 0x429495: compile_store_variable (node.c:1297)
+==26348==    by 0x41C0EE: compile (node.c:8018)
+==26348==    by 0x43F810: compile_script (script_ctime.c:216)
+==26348==    by 0x405AA1: compiler (compiler.c:49)
+==26348==    by 0x4056DD: main (compiler.c:156)
+==26348==  Address 0xd751e81 is 315,825 bytes inside a block of size 328,032 free'd
+==26348==    at 0x4C2FC47: realloc (vg_replace_malloc.c:785)
+==26348==    by 0x4063A8: debug_realloc (debug.c:262)
+==26348==    by 0x4312E8: alloc_node (node.c:159)
+==26348==    by 0x42462B: sNodeTree_create_block_object (node.c:6807)
+==26348==    by 0x4338DC: call_normal_method (node.c:2687)
+==26348==    by 0x42BECB: compile_method_call (node.c:3005)
+==26348==    by 0x41C26A: compile (node.c:8078)
+==26348==    by 0x429495: compile_store_variable (node.c:1297)
+==26348==    by 0x41C0EE: compile (node.c:8018)
+==26348==    by 0x43F810: compile_script (script_ctime.c:216)
+==26348==    by 0x405AA1: compiler (compiler.c:49)
+==26348==    by 0x4056DD: main (compiler.c:156)
+==26348==  Block was alloc'd at
+==26348==    at 0x4C2FC47: realloc (vg_replace_malloc.c:785)
+==26348==    by 0x4063A8: debug_realloc (debug.c:262)
+==26348==    by 0x4312E8: alloc_node (node.c:159)
+==26348==    by 0x42178F: sNodeTree_create_string_value (node.c:5628)
+==26348==    by 0x40F4A1: expression_node (parser.c:2692)
+==26348==    by 0x40EE0A: expression_monadic_operator (parser.c:3772)
+==26348==    by 0x40E9FC: expression_implements (parser.c:3785)
+==26348==    by 0x40E73C: expression_mult_div (parser.c:3817)
+==26348==    by 0x40E50C: expression_add_sub (parser.c:3884)
+==26348==    by 0x40E2EC: expression_shift (parser.c:3935)
+==26348==    by 0x40DF8C: expression_comparison_operator (parser.c:3986)
+==26348==    by 0x40DD9C: expression_comparison_equal_operator (parser.c:4069)
+==26348== 
+==26348== Invalid read of size 1
+==26348==    at 0x4C34F40: __GI_mempcpy (vg_replace_strmem.c:1518)
+==26348==    by 0x5C881D9: _IO_file_xsputn@@GLIBC_2.2.5 (in /usr/lib64/libc-2.24.so)
+==26348==    by 0x5C5C6BB: vfprintf (in /usr/lib64/libc-2.24.so)
+==26348==    by 0x5C63708: printf (in /usr/lib64/libc-2.24.so)
+==26348==    by 0x4338F8: call_normal_method (node.c:2688)
+==26348==    by 0x42BECB: compile_method_call (node.c:3005)
+==26348==    by 0x41C26A: compile (node.c:8078)
+==26348==    by 0x429495: compile_store_variable (node.c:1297)
+==26348==    by 0x41C0EE: compile (node.c:8018)
+==26348==    by 0x43F810: compile_script (script_ctime.c:216)
+==26348==    by 0x405AA1: compiler (compiler.c:49)
+==26348==    by 0x4056DD: main (compiler.c:156)
+==26348==  Address 0xd751e80 is 315,824 bytes inside a block of size 328,032 free'd
+==26348==    at 0x4C2FC47: realloc (vg_replace_malloc.c:785)
+==26348==    by 0x4063A8: debug_realloc (debug.c:262)
+==26348==    by 0x4312E8: alloc_node (node.c:159)
+==26348==    by 0x42462B: sNodeTree_create_block_object (node.c:6807)
+==26348==    by 0x4338DC: call_normal_method (node.c:2687)
+==26348==    by 0x42BECB: compile_method_call (node.c:3005)
+==26348==    by 0x41C26A: compile (node.c:8078)
+==26348==    by 0x429495: compile_store_variable (node.c:1297)
+==26348==    by 0x41C0EE: compile (node.c:8018)
+==26348==    by 0x43F810: compile_script (script_ctime.c:216)
+==26348==    by 0x405AA1: compiler (compiler.c:49)
+==26348==    by 0x4056DD: main (compiler.c:156)
+==26348==  Block was alloc'd at
+==26348==    at 0x4C2FC47: realloc (vg_replace_malloc.c:785)
+==26348==    by 0x4063A8: debug_realloc (debug.c:262)
+==26348==    by 0x4312E8: alloc_node (node.c:159)
+==26348==    by 0x42178F: sNodeTree_create_string_value (node.c:5628)
+==26348==    by 0x40F4A1: expression_node (parser.c:2692)
+==26348==    by 0x40EE0A: expression_monadic_operator (parser.c:3772)
+==26348==    by 0x40E9FC: expression_implements (parser.c:3785)
+==26348==    by 0x40E73C: expression_mult_div (parser.c:3817)
+==26348==    by 0x40E50C: expression_add_sub (parser.c:3884)
+==26348==    by 0x40E2EC: expression_shift (parser.c:3935)
+==26348==    by 0x40DF8C: expression_comparison_operator (parser.c:3986)
+==26348==    by 0x40DD9C: expression_comparison_equal_operator (parser.c:4069)
+==26348== 
+==26348== Invalid read of size 1
+==26348==    at 0x4C34F4E: __GI_mempcpy (vg_replace_strmem.c:1518)
+==26348==    by 0x5C881D9: _IO_file_xsputn@@GLIBC_2.2.5 (in /usr/lib64/libc-2.24.so)
+==26348==    by 0x5C5C6BB: vfprintf (in /usr/lib64/libc-2.24.so)
+==26348==    by 0x5C63708: printf (in /usr/lib64/libc-2.24.so)
+==26348==    by 0x4338F8: call_normal_method (node.c:2688)
+==26348==    by 0x42BECB: compile_method_call (node.c:3005)
+==26348==    by 0x41C26A: compile (node.c:8078)
+==26348==    by 0x429495: compile_store_variable (node.c:1297)
+==26348==    by 0x41C0EE: compile (node.c:8018)
+==26348==    by 0x43F810: compile_script (script_ctime.c:216)
+==26348==    by 0x405AA1: compiler (compiler.c:49)
+==26348==    by 0x4056DD: main (compiler.c:156)
+==26348==  Address 0xd751e82 is 315,826 bytes inside a block of size 328,032 free'd
+==26348==    at 0x4C2FC47: realloc (vg_replace_malloc.c:785)
+==26348==    by 0x4063A8: debug_realloc (debug.c:262)
+==26348==    by 0x4312E8: alloc_node (node.c:159)
+==26348==    by 0x42462B: sNodeTree_create_block_object (node.c:6807)
+==26348==    by 0x4338DC: call_normal_method (node.c:2687)
+==26348==    by 0x42BECB: compile_method_call (node.c:3005)
+==26348==    by 0x41C26A: compile (node.c:8078)
+==26348==    by 0x429495: compile_store_variable (node.c:1297)
+==26348==    by 0x41C0EE: compile (node.c:8018)
+==26348==    by 0x43F810: compile_script (script_ctime.c:216)
+==26348==    by 0x405AA1: compiler (compiler.c:49)
+==26348==    by 0x4056DD: main (compiler.c:156)
+==26348==  Block was alloc'd at
+==26348==    at 0x4C2FC47: realloc (vg_replace_malloc.c:785)
+==26348==    by 0x4063A8: debug_realloc (debug.c:262)
+==26348==    by 0x4312E8: alloc_node (node.c:159)
+==26348==    by 0x42178F: sNodeTree_create_string_value (node.c:5628)
+==26348==    by 0x40F4A1: expression_node (parser.c:2692)
+==26348==    by 0x40EE0A: expression_monadic_operator (parser.c:3772)
+==26348==    by 0x40E9FC: expression_implements (parser.c:3785)
+==26348==    by 0x40E73C: expression_mult_div (parser.c:3817)
+==26348==    by 0x40E50C: expression_add_sub (parser.c:3884)
+==26348==    by 0x40E2EC: expression_shift (parser.c:3935)
+==26348==    by 0x40DF8C: expression_comparison_operator (parser.c:3986)
+==26348==    by 0x40DD9C: expression_comparison_equal_operator (parser.c:4069)
+==26348== 
+==26348== Invalid read of size 1
+==26348==    at 0x4C31C33: strcmp (vg_replace_strmem.c:842)
+==26348==    by 0x445884: check_method_params (klass_compile_time.c:376)
+==26348==    by 0x44567F: search_for_method (klass_compile_time.c:446)
+==26348==    by 0x433C06: call_normal_method (node.c:2742)
+==26348==    by 0x42BECB: compile_method_call (node.c:3005)
+==26348==    by 0x41C26A: compile (node.c:8078)
+==26348==    by 0x429495: compile_store_variable (node.c:1297)
+==26348==    by 0x41C0EE: compile (node.c:8018)
+==26348==    by 0x43F810: compile_script (script_ctime.c:216)
+==26348==    by 0x405AA1: compiler (compiler.c:49)
+==26348==    by 0x4056DD: main (compiler.c:156)
+==26348==  Address 0xd751e80 is 315,824 bytes inside a block of size 328,032 free'd
+==26348==    at 0x4C2FC47: realloc (vg_replace_malloc.c:785)
+==26348==    by 0x4063A8: debug_realloc (debug.c:262)
+==26348==    by 0x4312E8: alloc_node (node.c:159)
+==26348==    by 0x42462B: sNodeTree_create_block_object (node.c:6807)
+==26348==    by 0x4338DC: call_normal_method (node.c:2687)
+==26348==    by 0x42BECB: compile_method_call (node.c:3005)
+==26348==    by 0x41C26A: compile (node.c:8078)
+==26348==    by 0x429495: compile_store_variable (node.c:1297)
+==26348==    by 0x41C0EE: compile (node.c:8018)
+==26348==    by 0x43F810: compile_script (script_ctime.c:216)
+==26348==    by 0x405AA1: compiler (compiler.c:49)
+==26348==    by 0x4056DD: main (compiler.c:156)
+==26348==  Block was alloc'd at
+==26348==    at 0x4C2FC47: realloc (vg_replace_malloc.c:785)
+==26348==    by 0x4063A8: debug_realloc (debug.c:262)
+==26348==    by 0x4312E8: alloc_node (node.c:159)
+==26348==    by 0x42178F: sNodeTree_create_string_value (node.c:5628)
+==26348==    by 0x40F4A1: expression_node (parser.c:2692)
+==26348==    by 0x40EE0A: expression_monadic_operator (parser.c:3772)
+==26348==    by 0x40E9FC: expression_implements (parser.c:3785)
+==26348==    by 0x40E73C: expression_mult_div (parser.c:3817)
+==26348==    by 0x40E50C: expression_add_sub (parser.c:3884)
+==26348==    by 0x40E2EC: expression_shift (parser.c:3935)
+==26348==    by 0x40DF8C: expression_comparison_operator (parser.c:3986)
+==26348==    by 0x40DD9C: expression_comparison_equal_operator (parser.c:4069)
+==26348== 
+==26348== Invalid read of size 1
+==26348==    at 0x4C31C57: strcmp (vg_replace_strmem.c:842)
+==26348==    by 0x445884: check_method_params (klass_compile_time.c:376)
+==26348==    by 0x44567F: search_for_method (klass_compile_time.c:446)
+==26348==    by 0x433C06: call_normal_method (node.c:2742)
+==26348==    by 0x42BECB: compile_method_call (node.c:3005)
+==26348==    by 0x41C26A: compile (node.c:8078)
+==26348==    by 0x429495: compile_store_variable (node.c:1297)
+==26348==    by 0x41C0EE: compile (node.c:8018)
+==26348==    by 0x43F810: compile_script (script_ctime.c:216)
+==26348==    by 0x405AA1: compiler (compiler.c:49)
+==26348==    by 0x4056DD: main (compiler.c:156)
+==26348==  Address 0xd751e81 is 315,825 bytes inside a block of size 328,032 free'd
+==26348==    at 0x4C2FC47: realloc (vg_replace_malloc.c:785)
+==26348==    by 0x4063A8: debug_realloc (debug.c:262)
+==26348==    by 0x4312E8: alloc_node (node.c:159)
+==26348==    by 0x42462B: sNodeTree_create_block_object (node.c:6807)
+==26348==    by 0x4338DC: call_normal_method (node.c:2687)
+==26348==    by 0x42BECB: compile_method_call (node.c:3005)
+==26348==    by 0x41C26A: compile (node.c:8078)
+==26348==    by 0x429495: compile_store_variable (node.c:1297)
+==26348==    by 0x41C0EE: compile (node.c:8018)
+==26348==    by 0x43F810: compile_script (script_ctime.c:216)
+==26348==    by 0x405AA1: compiler (compiler.c:49)
+==26348==    by 0x4056DD: main (compiler.c:156)
+==26348==  Block was alloc'd at
+==26348==    at 0x4C2FC47: realloc (vg_replace_malloc.c:785)
+==26348==    by 0x4063A8: debug_realloc (debug.c:262)
+==26348==    by 0x4312E8: alloc_node (node.c:159)
+==26348==    by 0x42178F: sNodeTree_create_string_value (node.c:5628)
+==26348==    by 0x40F4A1: expression_node (parser.c:2692)
+==26348==    by 0x40EE0A: expression_monadic_operator (parser.c:3772)
+==26348==    by 0x40E9FC: expression_implements (parser.c:3785)
+==26348==    by 0x40E73C: expression_mult_div (parser.c:3817)
+==26348==    by 0x40E50C: expression_add_sub (parser.c:3884)
+==26348==    by 0x40E2EC: expression_shift (parser.c:3935)
+==26348==    by 0x40DF8C: expression_comparison_operator (parser.c:3986)
+==26348==    by 0x40DD9C: expression_comparison_equal_operator (parser.c:4069)
+==26348== 
+! method nameX6 each
+! method nameX7 each
+! method nameX6 map
+! method nameX7 map
+! method nameX6 map
+! method nameX7 map
+! method nameX6 map
+! method nameX7 map
+! method nameX6 method3
+! method nameX7 method3
+! method nameX6 method3
+! method nameX7 method3
+! method nameX6 map
+! method nameX7 map
+! method nameX6 map
+! method nameX7 map
+! method nameX6 map
+! method nameX7 map
+==26348== 
+==26348== HEAP SUMMARY:
+==26348==     in use at exit: 0 bytes in 0 blocks
+==26348==   total heap usage: 14,581 allocs, 14,581 frees, 8,676,226 bytes allocated
+==26348== 
+==26348== All heap blocks were freed -- no leaks are possible
+==26348== 
+==26348== For counts of detected and suppressed errors, rerun with: -v
+==26348== ERROR SUMMARY: 19 errors from 6 contexts (suppressed: 0 from 0)

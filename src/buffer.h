@@ -18,5 +18,6 @@ void sBuf_append_char(sBuf* self, char c);
 void sBuf_append_str(sBuf* self, char* str);
 void sBuf_append_int(sBuf* self, int value);
 void sBuf_append_long(sBuf* self, long long value);
+void sBuf_clone(sBuf* self, sBuf* buf);
 
 #endif

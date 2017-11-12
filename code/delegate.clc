@@ -11,7 +11,7 @@ class DelegateClassA
         println("a is \{self.a.toString()}");
     }
     def get(): int {
-        return self.a;
+        self.a;
     }
 }
 
@@ -27,10 +27,10 @@ class DelegateClassB
         println("b is \{self.b.toString()}");
     }
     def get(): int {
-        return self.b;
+        self.b;
     }
     def plus(a:int, b:int): int {
-        return a + b;
+        a + b;
     }
 }
 
