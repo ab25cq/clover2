@@ -1,6 +1,7 @@
 #include "common.h"
 #include <signal.h>
 
+
 static void clover2_init()
 {
 #ifdef ENABLE_JIT
@@ -40,24 +41,46 @@ static void set_signal()
 int main(int argc, char** argv, char* const * envp)
 {
     int i;
+    int rc = 0;
 
     CHECKML_BEGIN;
     setlocale(LC_ALL, "");
 
     set_signal();
+    char sname[PATH_MAX];
 
     for(i=1; i<argc; i++) {
+        xstrncpy(sname, argv[i], PATH_MAX);
+        char* ext_sname = strstr(sname, ".");
+        if(strcmp(argv[i],"-clean")==0) {
+          system("rm -rf *.clcl *.clo");
+          continue;
+        }
+        if (rc != 0) continue;
+        if(ext_sname == NULL) {
+            xstrncat(sname,".cl", PATH_MAX);
+            ext_sname = strstr(sname, ".");
+        }
+        if(ext_sname != NULL && (strcmp(ext_sname,".cl")==0 || strcmp(ext_sname,".clc")==0)) {
+            char cmd[PATH_MAX+20];
+            sprintf(cmd, "cclover2 %s", sname);
+            int rc1 = system(cmd);
+            if(rc1 != 0) {
+              rc = 1;
+              continue;
+            }
+            if(strcmp(ext_sname,".clc")==0) continue;
+            xstrncpy(ext_sname,".clo", PATH_MAX);
+        }
         clover2_init();
-        if(!eval_file(argv[i], CLOVER_STACK_SIZE)) {
-            fprintf(stderr, "script file(%s) is abort\n", argv[i]);
-            clover2_final();
-            CHECKML_END;
-            exit(1);
+        if(!eval_file(sname, CLOVER_STACK_SIZE)) {
+            fprintf(stderr, "script file(%s) is abort\n", sname);
+            rc = 1;
         }
         clover2_final();
     }
     CHECKML_END;
 
-    return 0;
+    return rc;
 }
 

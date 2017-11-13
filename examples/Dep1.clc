@@ -1,0 +1,6 @@
+class Dep1 {
+  def p():static {
+    Dep2.p();
+  }
+}
+

@@ -152,6 +152,14 @@ static BOOL search_for_class_file(char* class_name, char* class_file_name, size_
         if(access(class_file_name, F_OK) == 0) {
             return TRUE;
         }
+        snprintf(class_file_name, class_file_name_size, "%s/%s.clc", cwd, class_name);        
+        if(access(class_file_name, F_OK) == 0) {
+          snprintf(class_file_name, class_file_name_size, "cclover2 -cycle %s/%s.clc", cwd, class_name);
+          int rc = system(class_file_name);
+          snprintf(class_file_name, class_file_name_size, "%s/%s.clcl", cwd, class_name);
+          if(rc == 0) return TRUE;
+        }
+        snprintf(class_file_name, class_file_name_size, "%s/%s.clcl", cwd, class_name);
     }
 
     return FALSE;
