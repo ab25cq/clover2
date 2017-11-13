@@ -1,6 +1,7 @@
 #include "common.h"
 #include <signal.h>
 
+
 static void clover2_init()
 {
 #ifdef ENABLE_JIT
@@ -51,13 +52,17 @@ int main(int argc, char** argv, char* const * envp)
     for(i=1; i<argc; i++) {
         xstrncpy(sname, argv[i], PATH_MAX);
         char* ext_sname = strstr(sname, ".");
-        if(strcmp(ext_sname,".cl")==0 || strcmp(ext_sname,".clc")==0) {
-          char cmd[PATH_MAX+20];
-          sprintf(cmd, "cclover2 %s", argv[i]);
-          int rc = system(cmd);
-          if(rc != 0) exit(rc);
-          if(strcmp(ext_sname,".clc")==0) continue;
-          strcpy(ext_sname,".clo");
+        if(ext_sname == NULL) {
+            xstrncat(sname,".cl", PATH_MAX);
+            ext_sname = strstr(sname, ".");
+        }
+        if(ext_sname != NULL && (strcmp(ext_sname,".cl")==0 || strcmp(ext_sname,".clc")==0)) {
+            char cmd[PATH_MAX+20];
+            sprintf(cmd, "cclover2 %s", sname);
+            int rc = system(cmd);
+            if(rc != 0) exit(rc);
+            if(strcmp(ext_sname,".clc")==0) continue;
+            xstrncpy(ext_sname,".clo", PATH_MAX);
         }
         clover2_init();
         if(!eval_file(sname, CLOVER_STACK_SIZE)) {

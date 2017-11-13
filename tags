@@ -3,7 +3,7 @@
 !_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
-!_TAG_PROGRAM_VERSION	5.8	//
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
 -soname	Makefile	/^	gcc -shared -Wl,-soname=libExtTest.so.1 -o libExtTest.so.1.0.0 -I src\/ -I . -fPIC ext\/hello.c$/;"	m
 ALLOC	src/macros.h	17;"	d
 ANDAND_OROR_MAX	src/jit.cpp	53;"	d	file:
@@ -14,8 +14,8 @@ BOOL	src/macros.h	5;"	d
 BREAK_NUM_MAX	src/common.h	53;"	d
 BUFFER_H	src/buffer.h	2;"	d
 BYTE_CODE_INIT_SIZE	src/code.c	3;"	d	file:
-CC	Makefile	/^CC=ccache clang$/;"	m
-CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -I\/home\/ab25cq\/include -L\/home\/ab25cq\/lib -fPIC -rdynamic -I\/usr\/local\/include -L \/usr\/local\/lib -O3 -DENABLE_INTERPRETER -Qunused-arguments$/;"	m
+CC	Makefile	/^CC=clang$/;"	m
+CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -I\/home\/sakurai\/include -L\/home\/sakurai\/lib -fPIC -rdynamic -I\/usr\/local\/include -L \/usr\/local\/lib -I \/usr\/include\/i386-linux-gnu\/\/ -L \/usr\/lib\/i386-linux-gnu\/ -O3 -Qunused-arguments$/;"	m
 CHECKML_BEGIN	src/debug.h	11;"	d
 CHECKML_BEGIN	src/debug.h	39;"	d
 CHECKML_END	src/debug.h	12;"	d
@@ -43,7 +43,7 @@ COMMON_H	src/common.h	2;"	d
 COMMON_OBJS	Makefile	/^COMMON_OBJS=src\/buffer.o src\/debug.o src\/xfunc.o src\/klass.o src\/constant.o src\/code.o src\/alignment.o src\/utf.o$/;"	m
 COMPILER_OBJS	Makefile	/^COMPILER_OBJS=src\/parser.o src\/node_type.o src\/node.o src\/cast.o src\/vtable.o src\/script_ctime.o src\/node_block.o src\/node_block_type.o src\/class_compiler.o src\/klass_compile_time.o src\/method_compiler.o src\/module.o$/;"	m
 CONS_str	src/common.h	126;"	d
-CXX	Makefile	/^CXX=ccache clang++$/;"	m
+CXX	Makefile	/^CXX=clang++$/;"	m
 CXXFLAGS	Makefile	/^CXXFLAGS=`llvm-config --cxxflags --ldflags --system-libs --libs all` -lffi -O3 -I . $/;"	m
 Clover_load	src/class_clover.c	/^BOOL Clover_load(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 DEBUG_H	src/debug.h	2;"	d
@@ -64,7 +64,7 @@ HAVE_ICONV_H	config.h	5;"	d
 HAVE_MATH_H	config.h	2;"	d
 HAVE_PCRE_H	config.h	6;"	d
 INSTALL	Makefile	/^INSTALL=\/usr\/bin\/install -c$/;"	m
-INTERPRETER	Makefile	/^INTERPRETER=iclover2$/;"	m
+INTERPRETER	Makefile	/^INTERPRETER=$/;"	m
 JIT	Makefile	/^JIT=0$/;"	m
 JIT_OBJS	Makefile	/^JIT_OBJS=$/;"	m
 JIT_RUNTIME_OBJS	Makefile	/^JIT_RUNTIME_OBJS=$/;"	m
@@ -76,6 +76,7 @@ LIBS	Makefile	/^LIBS= -lutil -lreadline -ldl -lm -lpcre -lrt$/;"	m
 LIST_VALUE_ELEMENT_MAX	src/common.h	63;"	d
 LLVMValue	src/common.h	/^    void* LLVMValue;$/;"	m	union:CLVALUEUnion
 LOCAL_VARIABLE_MAX	src/common.h	430;"	d
+LOCKFILE	src/compiler.c	3;"	d	file:
 LVALUE	src/jit_common.hpp	/^typedef struct LVALUEStruct LVALUE;$/;"	t	typeref:struct:LVALUEStruct
 LVALUEStruct	src/jit_common.hpp	/^struct LVALUEStruct {$/;"	s
 MACROS_H	src/macros.h	2;"	d
@@ -1030,25 +1031,17 @@ arrange_alignment	src/code.c	/^static void arrange_alignment(sByteCode* code)$/;
 arrange_alignment	src/constant.c	/^static void arrange_alignment(sConst* self)$/;"	f	file:
 arrange_stack	src/node.c	/^void arrange_stack(sCompileInfo* cinfo)$/;"	f
 array_mark_fun	src/array.c	/^void array_mark_fun(CLObject self, unsigned char* mark_flg)$/;"	f
-as_fn_append	config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	configure	/^  as_fn_append ()$/;"	f
-as_fn_arith	config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	configure	/^  as_fn_arith ()$/;"	f
-as_fn_error	config.status	/^as_fn_error ()$/;"	f
 as_fn_error	configure	/^as_fn_error ()$/;"	f
-as_fn_executable_p	config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	configure	/^as_fn_executable_p ()$/;"	f
-as_fn_exit	config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	configure	/^as_fn_exit ()$/;"	f
 as_fn_failure	configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
-as_fn_mkdir_p	config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	configure	/^as_fn_mkdir_p ()$/;"	f
 as_fn_ret_failure	configure	/^as_fn_ret_failure () { return 1; }$/;"	f
 as_fn_ret_success	configure	/^as_fn_ret_success () { return 0; }$/;"	f
-as_fn_set_status	config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	configure	/^as_fn_set_status ()$/;"	f
 as_fn_success	configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
-as_fn_unset	config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	configure	/^as_fn_unset ()$/;"	f
 assign_operator	src/parser.c	/^static BOOL assign_operator(unsigned int* node, sParserInfo* info)$/;"	f	file:
 binary_operator	src/node.c	/^static BOOL binary_operator(unsigned int node, sNodeType* left_type, sNodeType* right_type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, int float_operand, int double_operand, int pointer_operand, int null_operand, int char_operand, int bool_operand, int regex_operand, char* op_string, sCompileInfo* info)$/;"	f	file:
@@ -1275,6 +1268,9 @@ create_ushort	src/short.c	/^CLObject create_ushort(unsigned short value)$/;"	f
 create_virtual_method_table	src/klass.c	/^static BOOL create_virtual_method_table(sCLClass* klass)$/;"	f	file:
 current_stack	src/common.h	/^    CLVALUE* current_stack;$/;"	m	struct:sVMInfoStruct
 current_var_num	src/common.h	/^    int current_var_num;$/;"	m	struct:sVMInfoStruct
+cycle_compile	src/compiler.c	/^BOOL cycle_compile = FALSE; \/* 依存チェックモード *\/$/;"	v
+cycle_final	src/compiler.c	/^static void cycle_final()$/;"	f	file:
+cycle_init	src/compiler.c	/^static int cycle_init(char* filename)$/;"	f	file:
 datadir	Makefile	/^datadir=${datarootdir}$/;"	m
 datarootdir	Makefile	/^datarootdir=${prefix}\/share\/clover2$/;"	m
 debug_calloc	src/debug.c	/^ALLOC void* debug_calloc(size_t count, size_t size, const char* file_name, int line, const char* func_name)$/;"	f
@@ -1412,6 +1408,7 @@ get_element_from_Array	src/clover_to_clang.c	/^NULLABLE CLVALUE* get_element_fro
 get_element_from_array	src/clover_to_clang.c	/^NULLABLE CLVALUE* get_element_from_array(CLObject array, int index)$/;"	f
 get_element_number_from_Array	src/clover_to_clang.c	/^int get_element_number_from_Array(CLObject array)$/;"	f
 get_field_from_object	src/jit_runtime.cpp	/^struct sCLVALUEAndBoolResult* get_field_from_object(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, CLObject obj, int field_index)$/;"	f
+get_filename	src/compiler.c	/^static char* get_filename(char* filename) {$/;"	f	file:
 get_generics_type_of_inner_class	src/node.c	/^static sNodeType* get_generics_type_of_inner_class(sParserInfo* pinfo)$/;"	f	file:
 get_global_method_names	src/interpreter.c	/^void get_global_method_names(char** candidates, int *num_candidates)$/;"	f
 get_hash_key	src/klass.c	/^unsigned int get_hash_key(char* name, unsigned int max)$/;"	f
@@ -2042,7 +2039,7 @@ parser_param_to_cl_param	src/klass_compile_time.c	/^static void parser_param_to_
 pinfo	src/common.h	/^    sParserInfo* pinfo;$/;"	m	struct:sCompileInfoStruct
 pop_global_stack	src/stack.c	/^CLVALUE pop_global_stack()$/;"	f
 postposition_operator	src/parser.c	/^static BOOL postposition_operator(unsigned int* node, sParserInfo* info, int* num_method_chains, unsigned int max_method_chains_node[METHOD_CHAIN_MAX])$/;"	f	file:
-prefix	Makefile	/^prefix=\/home\/ab25cq$/;"	m
+prefix	Makefile	/^prefix=\/home\/sakurai$/;"	m
 print_node_type	src/node_type.c	/^void print_node_type(sNodeType* node_type)$/;"	f
 prototypes	configure	/^   function prototypes and stuff, but not '\\xHH' hex character constants.$/;"	f
 push_jit_object	src/jit_runtime.cpp	/^void push_jit_object(CLObject obj)$/;"	f

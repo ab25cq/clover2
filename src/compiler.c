@@ -1,5 +1,60 @@
 #include "common.h"
 
+#define LOCKFILE "./cycle_check.txt"
+
+BOOL cycle_compile = FALSE; /* 依存チェックモード */
+
+/* ファイル名取得 */
+static char* get_filename(char* filename) {
+  char *fname;
+  fname = strrchr(filename,'/'); /* ファイル名取得 */
+  if(fname == NULL) {
+    fname = strrchr(filename,'\\'); /* windows 対応 */
+  }
+  if (fname == NULL) {
+    fname = filename; /* セパレータがなかった */
+  } else {
+    fname++; /* セパレータがあったら１つ戻す */
+  }
+  return fname;
+}
+
+/*
+ * 再帰的呼び出しチェック
+ */
+static int cycle_init(char* filename)
+{
+	FILE *fp;	/* (1)ファイルポインタの宣言 */
+	char s[256];
+  char s2[256];
+  filename = get_filename(filename);
+  if (!cycle_compile) {
+    if ((fp = fopen(LOCKFILE, "w")) == NULL) return 1;
+  } else {
+    strcpy(s2,filename);
+    strcat(s2,"\n");
+    if ((fp = fopen(LOCKFILE, "r")) == NULL) return 1;
+    while (fgets(s, 256, fp) != NULL) {
+      if(strcmp(s,s2)==0) {
+        fclose(fp);
+        return 1;
+      }
+    }
+    fclose(fp);
+    if ((fp = fopen(LOCKFILE, "a")) == NULL) return 1;
+  }
+  fprintf(fp,"%s\n", filename);
+  fclose(fp);
+	return 0;
+}
+
+static void cycle_final()
+{
+  if(!cycle_compile) {
+    remove(LOCKFILE);
+  }
+}
+
 static void compiler_init(BOOL no_load_fudamental_classes)
 {
     init_nodes();
@@ -21,6 +76,7 @@ static void compiler_final()
     free_node_types();
     class_final();
     final_vtable();
+    cycle_final();
 }
 
 static BOOL compiler(char* fname)
@@ -132,15 +188,22 @@ int main(int argc, char** argv)
         else if(strcmp(argv[i], "-class") == 0) {
             clc_compile = TRUE;
         }
+        else if(strcmp(argv[i], "-cycle") == 0) {
+          cycle_compile = TRUE;
+        }
         else {
             xstrncpy(sname, argv[i], PATH_MAX);
         }
     }
-
     char* ext_sname = strstr(sname, ".");
 
-    if(strcmp(ext_sname, ".clc") == 0) {
+    if(ext_sname != NULL && strcmp(ext_sname, ".clc") == 0) {
         clc_compile = TRUE;
+    }
+
+    if (cycle_init(sname) != 0) {
+      fprintf(stderr, "cclover2 cycle check error %s\n", sname);
+      return 1;
     }
 
     compiler_init(no_load_fudamental_classes);
