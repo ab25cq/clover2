@@ -351,6 +351,7 @@ dynamic_class Command
     {
         params2:List<String> = new List<String>();
         controlling_terminal_flag:bool = false;
+        no_controlling_terminal_flag:bool = false;
         getting_stderr_flag:bool = false;
         
         params.each(closure(item:Object) {
@@ -358,6 +359,9 @@ dynamic_class Command
                 str:String = item.toAnonymous();
                 if(str.equals("--controlling-terminal")) {
                     controlling_terminal_flag = true;
+                }
+                elif(str.equals("--no-controlling-terminal")) {
+                    no_controlling_terminal_flag = true;
                 }
                 elif(str.equals("--getting-stderr")) {
                     getting_stderr_flag = true;
@@ -374,6 +378,9 @@ dynamic_class Command
                         str:String = item2.toAnonymous();
                         if(str.equals("--controlling-terminal")) {
                             controlling_terminal_flag = true;
+                        }
+                        elif(str.equals("--no-controlling-terminal")) {
+                            no_controlling_terminal_flag = true;
                         }
                         elif(str.equals("--getting-stderr")) {
                             getting_stderr_flag = true;
@@ -393,6 +400,9 @@ dynamic_class Command
                         if(str.equals("--controlling-terminal")) {
                             controlling_terminal_flag = true;
                         }
+                        elif(str.equals("--no-controlling-terminal")) {
+                            no_controlling_terminal_flag = true;
+                        }
                         elif(str.equals("--getting-stderr")) {
                             getting_stderr_flag = true;
                         }
@@ -410,6 +420,9 @@ dynamic_class Command
                         str:String = item2.toAnonymous();
                         if(str.equals("--controlling-terminal")) {
                             controlling_terminal_flag = true;
+                        }
+                        elif(str.equals("--no-controlling-terminal")) {
+                            no_controlling_terminal_flag = true;
                         }
                         elif(str.equals("--getting-stderr")) {
                             getting_stderr_flag = true;
@@ -429,6 +442,9 @@ dynamic_class Command
                         if(str.equals("--controlling-terminal")) {
                             controlling_terminal_flag = true;
                         }
+                        elif(str.equals("--no-controlling-terminal")) {
+                            no_controlling_terminal_flag = true;
+                        }
                         elif(str.equals("--getting-stderr")) {
                             getting_stderr_flag = true;
                         }
@@ -447,6 +463,9 @@ dynamic_class Command
                         if(str.equals("--controlling-terminal")) {
                             controlling_terminal_flag = true;
                         }
+                        elif(str.equals("--no-controlling-terminal")) {
+                            no_controlling_terminal_flag = true;
+                        }
                         elif(str.equals("--getting-stderr")) {
                             getting_stderr_flag = true;
                         }
@@ -464,6 +483,9 @@ dynamic_class Command
                         str:String = item2.toAnonymous();
                         if(str.equals("--controlling-terminal")) {
                             controlling_terminal_flag = true;
+                        }
+                        elif(str.equals("--no-controlling-terminal")) {
+                            no_controlling_terminal_flag = true;
                         }
                         elif(str.equals("--getting-stderr")) {
                             getting_stderr_flag = true;
@@ -480,7 +502,7 @@ dynamic_class Command
             str:String = null;
             return Command.executeCommandWithGettingStderr(method_name, params2, str);
         }
-        elif(controlling_terminal_flag || (num_method_chains == max_method_chains-1 && Command.controllingTerminalPrograms.indexOf(method_name) != -1)) 
+        elif(controlling_terminal_flag || (num_method_chains == max_method_chains-1 && Command.controllingTerminalPrograms.indexOf(method_name) != -1 && !no_controlling_terminal_flag)) 
         {
             return Command.executeCommandWithControllingTerminal(method_name, params2);
         }
@@ -494,6 +516,7 @@ dynamic_class Command
     {
         params2:List<String> = new List<String>();
         controlling_terminal_flag:bool = false;
+        no_controlling_terminal_flag:bool = false;
         getting_stderr_flag:bool = false;
         
         params.each(closure(item:Object) {
@@ -504,6 +527,9 @@ dynamic_class Command
                 }
                 elif(str.equals("--getting-stderr")) {
                     getting_stderr_flag = true;
+                }
+                elif(str.equals("--no-controlling-terminal")) {
+                    no_controlling_terminal_flag = true;
                 }
                 else {
                     params2.add(str);
@@ -521,6 +547,9 @@ dynamic_class Command
                         elif(str.equals("--getting-stderr")) {
                             getting_stderr_flag = true;
                         }
+                        elif(str.equals("--no-controlling-terminal")) {
+                            no_controlling_terminal_flag = true;
+                        }
                         else {
                             params2.add(str);
                         }
@@ -535,6 +564,9 @@ dynamic_class Command
                         str:String = item2.toAnonymous();
                         if(str.equals("--controlling-terminal")) {
                             controlling_terminal_flag = true;
+                        }
+                        elif(str.equals("--no-controlling-terminal")) {
+                            no_controlling_terminal_flag = true;
                         }
                         elif(str.equals("--getting-stderr")) {
                             getting_stderr_flag = true;
@@ -554,6 +586,9 @@ dynamic_class Command
                         if(str.equals("--controlling-terminal")) {
                             controlling_terminal_flag = true;
                         }
+                        elif(str.equals("--no-controlling-terminal")) {
+                            no_controlling_terminal_flag = true;
+                        }
                         elif(str.equals("--getting-stderr")) {
                             getting_stderr_flag = true;
                         }
@@ -571,6 +606,9 @@ dynamic_class Command
                         str:String = item2.toAnonymous();
                         if(str.equals("--controlling-terminal")) {
                             controlling_terminal_flag = true;
+                        }
+                        elif(str.equals("--no-controlling-terminal")) {
+                            no_controlling_terminal_flag = true;
                         }
                         elif(str.equals("--getting-stderr")) {
                             getting_stderr_flag = true;
@@ -590,6 +628,9 @@ dynamic_class Command
                         if(str.equals("--controlling-terminal")) {
                             controlling_terminal_flag = true;
                         }
+                        elif(str.equals("--no-controlling-terminal")) {
+                            no_controlling_terminal_flag = true;
+                        }
                         elif(str.equals("--getting-stderr")) {
                             getting_stderr_flag = true;
                         }
@@ -608,6 +649,9 @@ dynamic_class Command
                         if(str.equals("--controlling-terminal")) {
                             controlling_terminal_flag = true;
                         }
+                        elif(str.equals("--no-controlling-terminal")) {
+                            no_controlling_terminal_flag = true;
+                        }
                         elif(str.equals("--getting-stderr")) {
                             getting_stderr_flag = true;
                         }
@@ -622,7 +666,7 @@ dynamic_class Command
         if(getting_stderr_flag) {
             return Command.executeCommandWithGettingStderr(method_name, params2, self.data);
         }
-        elif(controlling_terminal_flag || (num_method_chains == max_method_chains-1 && Command.controllingTerminalPrograms.indexOf(method_name) != -1)) 
+        elif(controlling_terminal_flag || (num_method_chains == max_method_chains-1 && Command.controllingTerminalPrograms.indexOf(method_name) != -1 && !no_controlling_terminal_flag)) 
         {
             return Command.executeCommandWithControllingTerminalByPipe(method_name, params2, self.data);
         }
