@@ -3072,6 +3072,35 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
 
         return TRUE;
     }
+    else if(type_identify_with_class_name(object_type, "Anonymous") && strcmp(method_name, "is") == 0) {
+        //// go ///
+        if(!(num_params == 1 && gNodes[params[0]].mNodeType == kNodeTypeString)) {
+            compile_err_msg(info, "is method require one String Constant param");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        char* class_name = gNodes[params[0]].uValue.sString.mString;
+
+        append_opecode_to_code(info->code, OP_OBJ_IS, info->no_output);
+        append_str_to_constant_pool_and_code(info->constant, info->code, class_name, info->no_output);
+
+        info->stack_num-=num_params + 1;
+        info->stack_num++;
+
+        info->type = create_node_type_with_class_name("bool");
+
+        if(gNodes[lnode].mNodeType == kNodeTypeLoadVariable) {
+            sVar* var = get_variable_from_table(info->lv_table, gNodes[lnode].uValue.mVarName);
+
+            var->mType = create_node_type_with_class_name(class_name);
+        }
+
+        return TRUE;
+    }
     /// normal methods ///
     else {
         if(!call_normal_method(node, info, object_type, generics_types2, klass, param_types, num_params, method_name, params, num_method_chains, max_method_chains))
