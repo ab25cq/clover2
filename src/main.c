@@ -41,15 +41,27 @@ int main(int argc, char** argv, char* const * envp)
 {
     int i;
 
+
     CHECKML_BEGIN;
     setlocale(LC_ALL, "");
 
     set_signal();
+    char sname[PATH_MAX];
 
     for(i=1; i<argc; i++) {
+        xstrncpy(sname, argv[i], PATH_MAX);
+        char* ext_sname = strstr(sname, ".");
+        if(strcmp(ext_sname,".cl")==0 || strcmp(ext_sname,".clc")==0) {
+          char cmd[PATH_MAX+20];
+          sprintf(cmd, "cclover2 %s", argv[i]);
+          int rc = system(cmd);
+          if(rc != 0) exit(rc);
+          if(strcmp(ext_sname,".clc")==0) continue;
+          strcpy(ext_sname,".clo");
+        }
         clover2_init();
-        if(!eval_file(argv[i], CLOVER_STACK_SIZE)) {
-            fprintf(stderr, "script file(%s) is abort\n", argv[i]);
+        if(!eval_file(sname, CLOVER_STACK_SIZE)) {
+            fprintf(stderr, "script file(%s) is abort\n", sname);
             clover2_final();
             CHECKML_END;
             exit(1);
