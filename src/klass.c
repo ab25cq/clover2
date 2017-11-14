@@ -136,7 +136,7 @@ static BOOL search_for_class_file(char* class_name, char* class_file_name, size_
 
     /// .clover directory ///
     if(home) {
-        snprintf(class_file_name, class_file_name_size, "%s/.clover2/%s.clcl", home, class_name);
+        snprintf(class_file_name, class_file_name_size, "%s/.clover2/%s.oclcl", home, class_name);
 
         if(access(class_file_name, F_OK) == 0) {
             return TRUE;
@@ -147,7 +147,7 @@ static BOOL search_for_class_file(char* class_name, char* class_file_name, size_
 
     /// current working directory ///
     if(cwd) {
-        snprintf(class_file_name, class_file_name_size, "%s/%s.clcl", cwd, class_name);
+        snprintf(class_file_name, class_file_name_size, "%s/%s.oclcl", cwd, class_name);
 
         if(access(class_file_name, F_OK) == 0) {
             return TRUE;

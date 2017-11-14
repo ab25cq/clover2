@@ -145,7 +145,7 @@ static BOOL write_code_and_constant_to_file(sByteCode* code, sConst* constant, i
 
     *p2 = 0;
 
-    xstrncat(output_fname, ".clo", PATH_MAX);
+    xstrncat(output_fname, ".ocl", PATH_MAX);
 
     FILE* f = fopen(output_fname, "w");
     if(f == NULL) {

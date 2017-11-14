@@ -118,7 +118,7 @@ int main(int argc, char** argv)
     setlocale(LC_ALL, "");
 
     BOOL no_load_fudamental_classes = FALSE;
-    BOOL clc_compile = FALSE;
+    BOOL clcl_compile = FALSE;
     char sname[PATH_MAX];
     xstrncpy(sname, "", PATH_MAX);
 
@@ -130,7 +130,7 @@ int main(int argc, char** argv)
             no_load_fudamental_classes = TRUE;
         }
         else if(strcmp(argv[i], "-class") == 0) {
-            clc_compile = TRUE;
+            clcl_compile = TRUE;
         }
         else {
             xstrncpy(sname, argv[i], PATH_MAX);
@@ -139,13 +139,13 @@ int main(int argc, char** argv)
 
     char* ext_sname = strstr(sname, ".");
 
-    if(strcmp(ext_sname, ".clc") == 0) {
-        clc_compile = TRUE;
+    if(strcmp(ext_sname, ".clcl") == 0) {
+        clcl_compile = TRUE;
     }
 
     compiler_init(no_load_fudamental_classes);
 
-    if(clc_compile) {
+    if(clcl_compile) {
         if(!class_compiler(sname)) {
             fprintf(stderr, "cclover2 can't compile %s\n", argv[i]);
             compiler_final();

@@ -765,7 +765,7 @@ BOOL write_class_to_class_file(sCLClass* klass)
 
     /// write ///
     char file_name[PATH_MAX];
-    snprintf(file_name, PATH_MAX, "%s.clcl", CLASS_NAME(klass));
+    snprintf(file_name, PATH_MAX, "%s.oclcl", CLASS_NAME(klass));
 
     int f = open(file_name, O_WRONLY|O_TRUNC|O_CREAT, 0644);
     int total_size = 0;

@@ -57,67 +57,67 @@ $(OBJ): src/*.h Makefile configure
 # install
 #########################################################
 install:
-	rm -f ./*.clcl
-	./cclover2 -core Fundamental.clc
-	./cclover2 -core Container.clc
-	./cclover2 -core String.clc
-	./cclover2 -core File.clc
-	./cclover2 -core Command.clc
-	./cclover2 -core MyOwnLibrary.clc
+	rm -f ./*.oclcl
+	./cclover2 -core Fundamental.clcl
+	./cclover2 -core Container.clcl
+	./cclover2 -core String.clcl
+	./cclover2 -core File.clcl
+	./cclover2 -core Command.clcl
+	./cclover2 -core MyOwnLibrary.clcl
 
 	mkdir -p ~/.clover2
-	$(INSTALL) -m 644 PcreOVec.clcl ~/.clover2
-	$(INSTALL) -m 644 System.clcl ~/.clover2
-	$(INSTALL) -m 644 Clover.clcl ~/.clover2
-	$(INSTALL) -m 644 Global.clcl ~/.clover2
-	$(INSTALL) -m 644 String.clcl ~/.clover2
-	$(INSTALL) -m 644 Buffer.clcl ~/.clover2
-	$(INSTALL) -m 644 Exception.clcl ~/.clover2
-	$(INSTALL) -m 644 Object.clcl ~/.clover2
-	$(INSTALL) -m 644 Byte.clcl ~/.clover2
-	$(INSTALL) -m 644 UByte.clcl ~/.clover2
-	$(INSTALL) -m 644 Short.clcl ~/.clover2
-	$(INSTALL) -m 644 UShort.clcl ~/.clover2
-	$(INSTALL) -m 644 Integer.clcl ~/.clover2
-	$(INSTALL) -m 644 UInteger.clcl ~/.clover2
-	$(INSTALL) -m 644 Long.clcl ~/.clover2
-	$(INSTALL) -m 644 ULong.clcl ~/.clover2
-	$(INSTALL) -m 644 Float.clcl ~/.clover2
-	$(INSTALL) -m 644 Double.clcl ~/.clover2
-	$(INSTALL) -m 644 Pointer.clcl ~/.clover2
-	$(INSTALL) -m 644 Char.clcl ~/.clover2
-	$(INSTALL) -m 644 Bool.clcl ~/.clover2
-	$(INSTALL) -m 644 Array.clcl ~/.clover2
-	$(INSTALL) -m 644 EqualableArray.clcl ~/.clover2
-	$(INSTALL) -m 644 SortableArray.clcl ~/.clover2
-	$(INSTALL) -m 644 IHashKey.clcl ~/.clover2
-	$(INSTALL) -m 644 IEqualable.clcl ~/.clover2
-	$(INSTALL) -m 644 ISortable.clcl ~/.clover2
-	$(INSTALL) -m 644 HashItem.clcl ~/.clover2
-	$(INSTALL) -m 644 Hash.clcl ~/.clover2
-	$(INSTALL) -m 644 ListItem.clcl ~/.clover2
-	$(INSTALL) -m 644 List.clcl ~/.clover2
-	$(INSTALL) -m 644 EqualableList.clcl ~/.clover2
-	$(INSTALL) -m 644 SortableList.clcl ~/.clover2
-	$(INSTALL) -m 644 Tuple1.clcl ~/.clover2
-	$(INSTALL) -m 644 Tuple2.clcl ~/.clover2
-	$(INSTALL) -m 644 Tuple3.clcl ~/.clover2
-	$(INSTALL) -m 644 Tuple4.clcl ~/.clover2
-	$(INSTALL) -m 644 Tuple5.clcl ~/.clover2
-	$(INSTALL) -m 644 Tuple6.clcl ~/.clover2
-	$(INSTALL) -m 644 Tuple7.clcl ~/.clover2
-	$(INSTALL) -m 644 Tuple8.clcl ~/.clover2
-	$(INSTALL) -m 644 Tuple9.clcl ~/.clover2
-	$(INSTALL) -m 644 Tuple10.clcl ~/.clover2
-	$(INSTALL) -m 644 File.clcl ~/.clover2
-	$(INSTALL) -m 644 Path.clcl ~/.clover2
-	$(INSTALL) -m 644 Directory.clcl ~/.clover2
-	$(INSTALL) -m 644 termios.clcl ~/.clover2
-	$(INSTALL) -m 644 Job.clcl ~/.clover2
-	$(INSTALL) -m 644 Command.clcl ~/.clover2
-	$(INSTALL) -m 644 tm.clcl ~/.clover2
-	$(INSTALL) -m 644 timespec.clcl ~/.clover2
-	$(INSTALL) -m 644 stat.clcl ~/.clover2
+	$(INSTALL) -m 644 PcreOVec.oclcl ~/.clover2
+	$(INSTALL) -m 644 System.oclcl ~/.clover2
+	$(INSTALL) -m 644 Clover.oclcl ~/.clover2
+	$(INSTALL) -m 644 Global.oclcl ~/.clover2
+	$(INSTALL) -m 644 String.oclcl ~/.clover2
+	$(INSTALL) -m 644 Buffer.oclcl ~/.clover2
+	$(INSTALL) -m 644 Exception.oclcl ~/.clover2
+	$(INSTALL) -m 644 Object.oclcl ~/.clover2
+	$(INSTALL) -m 644 Byte.oclcl ~/.clover2
+	$(INSTALL) -m 644 UByte.oclcl ~/.clover2
+	$(INSTALL) -m 644 Short.oclcl ~/.clover2
+	$(INSTALL) -m 644 UShort.oclcl ~/.clover2
+	$(INSTALL) -m 644 Integer.oclcl ~/.clover2
+	$(INSTALL) -m 644 UInteger.oclcl ~/.clover2
+	$(INSTALL) -m 644 Long.oclcl ~/.clover2
+	$(INSTALL) -m 644 ULong.oclcl ~/.clover2
+	$(INSTALL) -m 644 Float.oclcl ~/.clover2
+	$(INSTALL) -m 644 Double.oclcl ~/.clover2
+	$(INSTALL) -m 644 Pointer.oclcl ~/.clover2
+	$(INSTALL) -m 644 Char.oclcl ~/.clover2
+	$(INSTALL) -m 644 Bool.oclcl ~/.clover2
+	$(INSTALL) -m 644 Array.oclcl ~/.clover2
+	$(INSTALL) -m 644 EqualableArray.oclcl ~/.clover2
+	$(INSTALL) -m 644 SortableArray.oclcl ~/.clover2
+	$(INSTALL) -m 644 IHashKey.oclcl ~/.clover2
+	$(INSTALL) -m 644 IEqualable.oclcl ~/.clover2
+	$(INSTALL) -m 644 ISortable.oclcl ~/.clover2
+	$(INSTALL) -m 644 HashItem.oclcl ~/.clover2
+	$(INSTALL) -m 644 Hash.oclcl ~/.clover2
+	$(INSTALL) -m 644 ListItem.oclcl ~/.clover2
+	$(INSTALL) -m 644 List.oclcl ~/.clover2
+	$(INSTALL) -m 644 EqualableList.oclcl ~/.clover2
+	$(INSTALL) -m 644 SortableList.oclcl ~/.clover2
+	$(INSTALL) -m 644 Tuple1.oclcl ~/.clover2
+	$(INSTALL) -m 644 Tuple2.oclcl ~/.clover2
+	$(INSTALL) -m 644 Tuple3.oclcl ~/.clover2
+	$(INSTALL) -m 644 Tuple4.oclcl ~/.clover2
+	$(INSTALL) -m 644 Tuple5.oclcl ~/.clover2
+	$(INSTALL) -m 644 Tuple6.oclcl ~/.clover2
+	$(INSTALL) -m 644 Tuple7.oclcl ~/.clover2
+	$(INSTALL) -m 644 Tuple8.oclcl ~/.clover2
+	$(INSTALL) -m 644 Tuple9.oclcl ~/.clover2
+	$(INSTALL) -m 644 Tuple10.oclcl ~/.clover2
+	$(INSTALL) -m 644 File.oclcl ~/.clover2
+	$(INSTALL) -m 644 Path.oclcl ~/.clover2
+	$(INSTALL) -m 644 Directory.oclcl ~/.clover2
+	$(INSTALL) -m 644 termios.oclcl ~/.clover2
+	$(INSTALL) -m 644 Job.oclcl ~/.clover2
+	$(INSTALL) -m 644 Command.oclcl ~/.clover2
+	$(INSTALL) -m 644 tm.oclcl ~/.clover2
+	$(INSTALL) -m 644 timespec.oclcl ~/.clover2
+	$(INSTALL) -m 644 stat.oclcl ~/.clover2
 
 	if test $(JIT) = 1;then llvm-dis Clover.bc && $(INSTALL) -m 644 Clover.bc ~/.clover2; fi
 	if test -e libClover.so; then $(INSTALL) -m 755 libClover.so.1.0.0 ~/.clover2; cp -a libClover.so ~/.clover2; fi
@@ -279,7 +279,7 @@ permission:
 # clean
 ########################################################
 clean:
-	rm -fR clover2 clover2.dSYM cclover2 cclover2.dSYM iclover2 iclover2.dSYM src/*.o config.log config.status *.stackdump autom4te.cache .DS_Store core.* a.out *.clcl *.bc *.s *.o *.clo code/*.clo *.clm a.c src/*.dwo *.ll *.so.1.0.0 *.so
+	rm -fR clover2 clover2.dSYM cclover2 cclover2.dSYM iclover2 iclover2.dSYM src/*.o config.log config.status *.stackdump autom4te.cache .DS_Store core.* a.out *.oclcl *.bc *.s *.o *.ocl code/*.ocl *.clm a.c src/*.dwo *.ll *.so.1.0.0 *.so
 
 distclean: clean
 	rm -fR  config.h Makefile autom4te.cache
@@ -289,73 +289,74 @@ distclean: clean
 ########################################################
 test:
 	@echo "Compile to test code..."
-	./cclover2 code/operator.clc && ./cclover2 code/operator.cl && ./clover2 code/operator.clo
-	./cclover2 code/generics2.clc && ./cclover2 code/generics2.cl && ./clover2 code/generics2.clo
-	./cclover2 code/generics3.clc && ./cclover2 code/generics3.cl && ./clover2 code/generics3.clo
-	./cclover2 code/block_var_test.cl && ./clover2 code/block_var_test.clo
-	./cclover2 code/user_object.clc && ./cclover2 code/user_object.cl && ./clover2 code/user_object.clo
-	./cclover2 code/pointer.cl && ./clover2 code/pointer.clo
-	./cclover2 code/pointer2.clc && ./cclover2 code/pointer2.cl && ./clover2 code/pointer2.clo
-	./cclover2 code/increment.clc && ./cclover2 code/increment.cl && ./clover2 code/increment.clo
-	./cclover2 code/initialize_test.clc && ./cclover2 code/initialize_test.cl && ./clover2 code/initialize_test.clo
-	./cclover2 code/stack.clc && ./cclover2 code/stack.cl && ./clover2 code/stack.clo
-	./cclover2 code/array.cl && ./clover2 code/array.clo
-	if locale -a | grep ja_JP.utf8; then export LANG="ja_JP_utf8"; export LC_ALL="ja_JP.utf8"; ./cclover2 code/char.cl && ./clover2 code/char.clo; else export LANG="C.UTF-8"; export LC_ALL="C.UTF-8"; ./cclover2 code/char.cl && ./clover2 code/char.clo; fi
-	./cclover2 code/hello_world.cl && ./clover2 code/hello_world.clo
-	./cclover2 code/cast.cl && ./clover2 code/cast.clo
-	./cclover2 code/string.cl && ./clover2 code/string.clo
-	./cclover2 code/interface.clc && ./cclover2 code/interface.cl && ./clover2 code/interface.clo
-	./cclover2 code/null.cl && ./clover2 code/null.clo
-	./cclover2 code/special_field.cl && ./clover2 code/special_field.clo
-	./cclover2 code/self_class.clc && ./cclover2 code/self_class.cl && ./clover2 code/self_class.clo
-	./cclover2 code/module.clc && ./cclover2 code/module.cl && ./clover2 code/module.clo
-	./cclover2 code/generics.clc && ./cclover2 code/generics.cl && ./clover2 code/generics.clo
-	./cclover2 code/variables.cl && ./clover2 code/variables.clo
-	./cclover2 code/block.cl && ./clover2 code/block.clo
-	./cclover2 code/block2.clc && ./cclover2 code/block2.cl && ./clover2 code/block2.clo
-	./cclover2 code/block3.clc && ./cclover2 code/block3.cl && ./clover2 code/block3.clo
-	./cclover2 code/void_result.clc && ./cclover2 code/void_result.cl && ./clover2 code/void_result.clo
-	./cclover2 code/integer.cl && ./clover2 code/integer.clo
-	./cclover2 code/normal_block.cl && ./clover2 code/normal_block.clo
-	./cclover2 code/try.clc && ./cclover2 code/try.cl && ./clover2 code/try.clo
-	./cclover2 code/array2.cl && ./clover2 code/array2.clo
-	./cclover2 code/hash.cl && ./clover2 code/hash.clo
-	./cclover2 code/array4.clc && ./cclover2 code/array4.cl && ./clover2 code/array4.clo
-	./cclover2 code/regex.cl && ./clover2 code/regex.clo
-	./cclover2 code/list.cl && ./clover2 code/list.clo
-	./cclover2 code/tuple.cl && ./clover2 code/tuple.clo
-	./cclover2 code/printf.cl && ./clover2 code/printf.clo
-	./cclover2 code/array5.cl && ./clover2 code/array5.clo
-	./cclover2 code/equalable_array.clc && ./cclover2 code/equalable_array.cl && ./clover2 code/equalable_array.clo
-	./cclover2 code/buffer.cl && ./clover2 code/buffer.clo
-	./cclover2 code/system_test.cl && ./clover2 code/system_test.clo
-	./cclover2 code/inherit.clc && ./cclover2 code/inherit2.clc && ./cclover2 code/inherit.cl && ./clover2 code/inherit.clo
-	./cclover2 code/float.cl && ./clover2 code/float.clo
-	./cclover2 code/number.cl && ./clover2 code/number.clo
-	./cclover2 code/string2.cl && ./clover2 code/string2.clo
-	./cclover2 code/carray.cl && ./clover2 code/carray.clo
-	./cclover2 code/list2.cl && ./clover2 code/list2.clo
-	./cclover2 code/time.cl && ./clover2 code/time.clo
-	./cclover2 code/file.cl && ./clover2 code/file.clo
-	./cclover2 code/dir.cl && ./clover2 code/dir.clo
-	./cclover2 code/command.cl && ./clover2 code/command.clo
-	./cclover2 code/closure.cl && ./clover2 code/closure.clo
-	./cclover2 code/anonymous.cl && ./clover2 code/anonymous.clo
+	./cclover2 code/operator.clcl && ./clover2 code/operator.cl
+	./cclover2 code/generics2.clcl && ./clover2 code/generics2.cl
+	./cclover2 code/generics3.clcl && ./clover2 code/generics3.cl
+	./clover2 code/block_var_test.cl
+	./cclover2 code/user_object.clcl && ./clover2 code/user_object.cl
+	./clover2 code/pointer.cl
+	./cclover2 code/pointer2.clcl && ./clover2 code/pointer2.cl
+	./cclover2 code/increment.clcl && ./clover2 code/increment.cl
+	./cclover2 code/initialize_test.clcl && ./clover2 code/initialize_test.cl
+	./cclover2 code/stack.clcl && ./clover2 code/stack.cl
+	./clover2 code/array.cl
+	if locale -a | grep ja_JP.utf8; then export LANG="ja_JP_utf8"; export LC_ALL="ja_JP.utf8"; ./clover2 code/char.cl; else export LANG="C.UTF-8"; export LC_ALL="C.UTF-8"; ./clover2 code/char.cl; fi
+	./clover2 code/hello_world.cl
+	./clover2 code/cast.cl
+	./clover2 code/string.cl
+	./cclover2 code/interface.clcl && ./clover2 code/interface.cl
+	./clover2 code/null.cl
+	./clover2 code/special_field.cl
+	./cclover2 code/self_class.clcl && ./clover2 code/self_class.cl
+	./cclover2 code/module.clcl && ./clover2 code/module.cl
+	./cclover2 code/generics.clcl && ./clover2 code/generics.cl
+	./clover2 code/variables.cl
+	./clover2 code/block.cl
+	./cclover2 code/block2.clcl && ./clover2 code/block2.cl
+	./cclover2 code/block3.clcl && ./clover2 code/block3.cl
+	./cclover2 code/void_result.clcl && ./clover2 code/void_result.cl
+	./clover2 code/integer.cl
+	./clover2 code/normal_block.cl
+	./cclover2 code/try.clcl && ./clover2 code/try.cl
+	./clover2 code/array2.cl
+	./clover2 code/hash.cl
+	./cclover2 code/array4.clcl && ./clover2 code/array4.cl
+	./clover2 code/regex.cl
+	./clover2 code/list.cl
+	./clover2 code/tuple.cl
+	./clover2 code/printf.cl
+	./clover2 code/array5.cl
+	./cclover2 code/equalable_array.clcl && ./clover2 code/equalable_array.cl
+	./clover2 code/buffer.cl
+	./clover2 code/system_test.cl
+	./cclover2 code/inherit.clcl && ./cclover2 code/inherit2.clcl && ./clover2 code/inherit.cl
+	./clover2 code/float.cl
+	./clover2 code/number.cl
+	./clover2 code/string2.cl
+	./clover2 code/carray.cl
+	./clover2 code/list2.cl
+	./clover2 code/time.cl
+	./clover2 code/file.cl
+	./clover2 code/dir.cl
+	./clover2 code/command.cl
+	./clover2 code/closure.cl
+	./clover2 code/anonymous.cl
 	gcc -shared -Wl,-soname=libExtTest.so.1 -o libExtTest.so.1.0.0 -I src/ -I . -fPIC ext/hello.c
 	ln -fs libExtTest.so.1.0.0 libExtTest.so
-	./cclover2 ext.clc && ./cclover2 ext.cl && ./clover2 ext.clo
-	./cclover2 code/fun.cl && ./clover2 code/fun.clo
-	./cclover2 code/type_inference.cl && ./clover2 code/type_inference.clo
-	./cclover2 code/list3.cl && ./clover2 code/list3.clo
-	./cclover2 code/anonymous2.cl && ./clover2 code/anonymous2.clo
-	./cclover2 code/block4.cl && ./clover2 code/block4.clo
-	./cclover2 code/block5.cl && ./clover2 code/block5.clo
-	./cclover2 code/string3.clc && ./cclover2 code/string3.cl && ./clover2 code/string3.clo
-	./cclover2 code/kotlin.clc && ./cclover2 code/kotlin.cl && ./clover2 code/kotlin.clo
-	./cclover2 code/method_generics.clc && ./cclover2 code/method_generics.cl && ./clover2 code/method_generics.clo
-	./cclover2 code/method_block.cl && ./clover2 code/method_block.clo
-	./cclover2 code/return.clc && ./cclover2 code/return.cl && ./clover2 code/return.clo
-	./cclover2 code/delegate.clc && ./cclover2 code/delegate.cl && ./clover2 code/delegate.clo
-	./cclover2 code/generics4.cl && ./clover2 code/generics4.clo
-	./cclover2 code/result_type.clc && ./cclover2 code/result_type.cl && ./clover2 code/result_type.clo
+	./cclover2 ext.clcl && ./clover2 ext.cl
+	./clover2 code/fun.cl
+	./clover2 code/type_inference.cl
+	./clover2 code/list3.cl
+	./clover2 code/anonymous2.cl
+	./clover2 code/block4.cl
+	./clover2 code/block5.cl
+	./cclover2 code/string3.clcl && ./clover2 code/string3.cl
+	./cclover2 code/kotlin.clcl && ./clover2 code/kotlin.cl
+	./cclover2 code/method_generics.clcl && ./clover2 code/method_generics.cl
+	./clover2 code/method_block.cl
+	./cclover2 code/return.clcl && ./clover2 code/return.cl
+	./cclover2 code/delegate.clcl && ./clover2 code/delegate.cl
+	./clover2 code/generics4.cl
+	./cclover2 code/result_type.clcl && ./clover2 code/result_type.cl
+	./clover2 code/is.cl
 

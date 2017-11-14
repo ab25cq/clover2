@@ -1,4 +1,4 @@
-include "code/inherit.clc"
+include "code/inherit.clcl"
 
 class InheritClassA
 {

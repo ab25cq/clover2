@@ -47,8 +47,43 @@ int main(int argc, char** argv, char* const * envp)
     set_signal();
 
     for(i=1; i<argc; i++) {
+        if(strcmp(argv[i], "-clean") == 0) {
+            system("rm -rf *.oclcl *.ocl");
+            continue;
+        }
+
+        char* p = strstr(argv[i], ".");
+
+        char base_name[PATH_MAX];
+
+        memcpy(base_name, argv[i], p - argv[i]);
+        base_name[p - argv[i]] = '\0';
+
+        char sname[PATH_MAX];
+        snprintf(sname, PATH_MAX, "%s.ocl", base_name);
+
+        if(strcmp(argv[i], sname) != 0) {
+            if(access(sname, R_OK) != 0) {
+                char cmd[PATH_MAX+20];
+                sprintf(cmd, "cclover2 %s", argv[i]);
+                (void)system(cmd);
+            }
+            else {
+                struct stat stat_;
+                struct stat stat_2;
+
+                if(stat(argv[i], &stat_) == 0 && stat(sname, &stat_2) == 0) {
+                    if(stat_.st_mtime >= stat_2.st_mtime) {
+                        char cmd[PATH_MAX+20];
+                        sprintf(cmd, "cclover2 %s", argv[i]);
+                        (void)system(cmd);
+                    }
+                }
+            }
+        }
+
         clover2_init();
-        if(!eval_file(argv[i], CLOVER_STACK_SIZE)) {
+        if(!eval_file(sname, CLOVER_STACK_SIZE)) {
             fprintf(stderr, "script file(%s) is abort\n", argv[i]);
             clover2_final();
             CHECKML_END;
