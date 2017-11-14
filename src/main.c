@@ -54,6 +54,10 @@ int main(int argc, char** argv, char* const * envp)
 
         char* p = strstr(argv[i], ".");
 
+        if(p == NULL) {
+            p = argv[i] + strlen(argv[i]);
+        }
+
         char base_name[PATH_MAX];
 
         memcpy(base_name, argv[i], p - argv[i]);
