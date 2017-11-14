@@ -106,7 +106,7 @@ class System
     def dirname(path:String): static native String;
     def basename(path:String): static native String;
     def opendir(path:String): static native DIR throws Exception;
-    def readdir(dir:DIR): static native String@Nullable;
+    def readdir(dir:DIR): static native String?;
     def closedir(dir:DIR): static native int throws Exception;
     def chmod(path:String, mode:mode_t): static native throws Exception;
     def lchmod(path:String, mode:mode_t): static native throws Exception;
@@ -618,7 +618,7 @@ class Directory
         }
     }
     
-    def readdir(): String@Nullable throws Exception {
+    def readdir(): String? throws Exception {
         if(self.dir == 0.to_pointer) {
             throw new Exception("This directory is not opened");
         }
