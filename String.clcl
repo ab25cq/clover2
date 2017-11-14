@@ -963,7 +963,7 @@ class String
     }
 
     def toBuffer():  Buffer throws Exception {
-        array_:byte[] = null;
+        array_:byte[]? = null;
         System.wcstombs(&array_, self.buffer);
 
         result:Buffer = new Buffer(array_.length.to_ulong);
@@ -1074,7 +1074,7 @@ class Buffer
     }
 
     def toString():String throws Exception {
-        wcs:char[] = null;
+        wcs:char[]? = null;
         System.mbstowcs(&wcs, self.buffer, self.len);
         result:String = new String(wcs);
         return result;

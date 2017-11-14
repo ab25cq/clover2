@@ -499,7 +499,7 @@ dynamic_class Command
         });
 
         if(getting_stderr_flag) {
-            str:String = null;
+            str:String? = null;
             return Command.executeCommandWithGettingStderr(method_name, params2, str);
         }
         elif(controlling_terminal_flag || (num_method_chains == max_method_chains-1 && Command.controllingTerminalPrograms.indexOf(method_name) != -1 && !no_controlling_terminal_flag)) 
@@ -507,7 +507,7 @@ dynamic_class Command
             return Command.executeCommandWithControllingTerminal(method_name, params2);
         }
         else {
-            str:String = null;
+            str:String? = null;
             return Command.executeCommand(method_name, params2, str);
         }
     }

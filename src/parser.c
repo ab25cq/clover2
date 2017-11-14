@@ -1436,6 +1436,14 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
 
     (*result_type)->mNumGenericsTypes = generics_num;
 
+    /// nullable ///
+    if(*info->p == '?') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        (*result_type)->mNullable = TRUE;
+    }
+
     /// anotation ///
     if(*info->p == '@') {
         info->p++;

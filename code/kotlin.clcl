@@ -15,7 +15,7 @@ class KotlinTest
 
         return true;
     }
-    def method3(value:int, value2:String): static String {
+    def method3(value:int, value2:String): static String? {
         if(value2.equals("DEF")) {
             return value2;
         }

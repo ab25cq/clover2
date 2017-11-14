@@ -186,6 +186,7 @@ struct sCLTypeStruct {
     struct sCLTypeStruct* mGenericsTypes[GENERICS_TYPES_MAX];
 
     BOOL mArray;
+    BOOL mNullable;
 
     sCLBlockType* mBlockType;
 };
@@ -361,6 +362,7 @@ struct sNodeTypeStruct {
     int mNumGenericsTypes;
 
     BOOL mArray;
+    BOOL mNullable;
     MANAGED struct sNodeBlockTypeStruct* mBlockType;
 };
 

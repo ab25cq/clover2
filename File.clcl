@@ -371,7 +371,7 @@ class String
 class File
 {
     fd:int;
-    fileName:String;
+    fileName:String?;
 
     def initialize() {
         self.fd = -1;

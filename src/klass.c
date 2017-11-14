@@ -254,8 +254,12 @@ static BOOL read_cl_type_from_file(int fd, sCLType** cl_type)
     if(!read_int_from_file(fd, &n)) {
         return FALSE;
     }
-
     (*cl_type)->mArray = n;
+
+    if(!read_int_from_file(fd, &n)) {
+        return FALSE;
+    }
+    (*cl_type)->mNullable = n;
 
     if(!read_int_from_file(fd, &n)) {
         return FALSE;

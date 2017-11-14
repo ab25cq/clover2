@@ -12,6 +12,7 @@ static void node_type_to_cl_type(sNodeType* node_type, ALLOC sCLType** cl_type, 
     }
 
     (*cl_type)->mArray = node_type->mArray;
+    (*cl_type)->mNullable = node_type->mNullable;
 
     if(node_type->mBlockType) {
         (*cl_type)->mBlockType = MCALLOC(1, sizeof(sCLBlockType));
@@ -47,6 +48,9 @@ static void create_method_path(char* result, int result_size, sCLMethod* method,
         xstrncat(result, CONS_str(&klass->mConst, method->mParams[i].mType->mClassNameOffset), result_size);
         if(method->mParams[i].mType->mArray) {
             xstrncat(result, "[]", result_size);
+        }
+        if(method->mParams[i].mType->mNullable) {
+            xstrncat(result, "?", result_size);
         }
 
         if(i != method->mNumParams-1) xstrncat(result, ",", result_size);
@@ -86,6 +90,7 @@ void create_method_name_and_params(char* result, int size_result, sCLClass* klas
         sNodeType* param_type = param_types[i];
         sCLClass* klass2 = param_type->mClass;
         BOOL array = param_type->mArray;
+        BOOL nullable = param_type->mNullable;
 
         if(klass2 == klass) {
             xstrncat(result, "Self", size_result);
@@ -96,6 +101,10 @@ void create_method_name_and_params(char* result, int size_result, sCLClass* klas
 
         if(array) {
             xstrncat(result, "[]", size_result);
+        }
+
+        if(nullable) {
+            xstrncat(result, "?", size_result);
         }
 
         if(i != num_params-1) {
@@ -648,6 +657,7 @@ static void append_cl_type_to_buffer(sBuf* buf, sCLType* cl_type)
     }
 
     sBuf_append_int(buf, cl_type->mArray);
+    sBuf_append_int(buf, cl_type->mNullable);
 
     if(cl_type->mBlockType) {
         sBuf_append_int(buf, 1);

@@ -22,7 +22,7 @@ interface IHashKey
 
 module MArrayImplement
 {
-    items:T[];
+    items:T[]?;
 
     def initialize() {
         self.items = null;
@@ -293,9 +293,9 @@ class SortableArray <T:ISortable>
 
 class ListItem <T:Object>
 {
-    item: T;
-    next: ListItem<T>;
-    prev: ListItem<T>;
+    item: T?;
+    next: ListItem<T>?;
+    prev: ListItem<T>?;
 
     def initialize() {
         self.item = null;
@@ -312,8 +312,8 @@ class ListItem <T:Object>
 
 module MListImplementation
 {
-    head: ListItem<T>;
-    tail: ListItem<T>;
+    head: ListItem<T>?;
+    tail: ListItem<T>?;
     number: int;
 
     def initialize() {
@@ -355,7 +355,7 @@ module MListImplementation
         }
     }
 
-    def items(index:int):T {
+    def items(index:int):T? {
         if(index < 0) {
             index += self.number;
         }
@@ -405,7 +405,7 @@ module MListImplementation
         return self.add(item);
     }
 
-    def pop():T {
+    def pop():T? {
         if(self.head.identifyWith(null)) {
             return null;
         }
@@ -431,7 +431,7 @@ module MListImplementation
         }
     }
 
-    def shift():T {
+    def shift():T? {
         if(self.head.identifyWith(null)) {
             return null;
         }
@@ -1201,8 +1201,8 @@ class SortableList<T:ISortable>
 
 class HashItem <T:IHashKey, T2:IEqualable>
 {
-    key:T;
-    item:T2;
+    key:T?;
+    item:T2?;
 
     def initialize() {
         self.key = null;
@@ -1323,7 +1323,7 @@ class Hash <T:IHashKey, T2:IEqualable>
         }
     }
 
-    def get(key:T): T2 {
+    def get(key:T): T2? {
         hash_key:uint = key.getHashKey() % self.tableSize;
 
         n:uint = hash_key;
@@ -1346,7 +1346,7 @@ class Hash <T:IHashKey, T2:IEqualable>
         }
     }
 
-    def getKey(item:T2):T {
+    def getKey(item:T2):T? {
         for(i:uint =0; i<self.tableSize; i++) {
             if(!self.table[i].identifyWith(null)) {
                 if(self.table[i].item.equals(item)) {
