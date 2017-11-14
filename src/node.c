@@ -1568,6 +1568,7 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
     create_label_name("label_if_end", label_end_point, LABEL_NAME_MAX, label_num);
 
     /// compile expression ///
+    sVarTable* lv_table = clone_var_table(info->lv_table);
     unsigned int expression_node = gNodes[node].uValue.sIf.mExpressionNode;
 
     if(!compile(expression_node, info)) {
@@ -1609,6 +1610,8 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
         return FALSE;
     }
 
+    restore_var_table(info->lv_table, lv_table);
+
     append_opecode_to_code(info->code, OP_STORE_VALUE_TO_GLOBAL, info->no_output);
     info->stack_num--;
 
@@ -1632,6 +1635,8 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
 
         int j;
         for(j=0; j<gNodes[node].uValue.sIf.mElifNum; j++) {
+            lv_table = clone_var_table(info->lv_table);
+
             /// compile expression ///
             unsigned int elif_expression_node = gNodes[node].uValue.sIf.mElifExpressionNodes[j];
 
@@ -1672,6 +1677,8 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
             if(!compile_block_with_result(elif_block, info)) {
                 return FALSE;
             }
+
+            restore_var_table(info->lv_table, lv_table);
 
             append_opecode_to_code(info->code, OP_STORE_VALUE_TO_GLOBAL, info->no_output);
             info->stack_num--;
@@ -3071,6 +3078,66 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
         info->type = create_node_type_with_class_name(class_name);
 
         return TRUE;
+    }
+    else if(type_identify_with_class_name(object_type, "Anonymous") && strcmp(method_name, "is") == 0) {
+        append_opecode_to_code(info->code, OP_CLASSNAME, info->no_output);
+
+        info->type = create_node_type_with_class_name("String");
+
+        info->stack_num--;
+        info->stack_num++;
+
+        /// compile params ///
+        BOOL exist_lazy_lamda_compile = FALSE;
+        if(!compile_params(klass, method_name, num_params, params, param_types, generics_types2, info, node, FALSE, &exist_lazy_lamda_compile)) {
+            return FALSE;
+        }
+
+        /// String.equals ///
+        sCLClass* string_class = get_class("String");
+        char* method_name = "equals";
+
+        sNodeType* result_type = NULL;
+        sNodeType* result_method_generics_types = NULL;
+        int method_index = search_for_method(string_class, "equals", param_types, num_params, FALSE, string_class->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, FALSE, &result_method_generics_types);
+
+        if(method_index == -1) {
+            compile_err_msg(info, "method not found(4)");
+            info->err_num++;
+
+            err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
+
+        append_class_name_to_constant_pool_and_code(info, string_class);
+        append_int_value_to_code(info->code, method_index, info->no_output);
+
+        info->stack_num-=num_params + 1;
+        info->stack_num++;
+
+        info->type = result_type;
+
+        //// go ///
+        if(!(num_params == 1 && gNodes[params[0]].mNodeType == kNodeTypeString)) {
+            compile_err_msg(info, "is method require one String Constant param");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        char* class_name = gNodes[params[0]].uValue.sString.mString;
+        if(gNodes[lnode].mNodeType == kNodeTypeLoadVariable) {
+            sVar* var = get_variable_from_table(info->lv_table, gNodes[lnode].uValue.mVarName);
+
+            var->mType = create_node_type_with_class_name(class_name);
+        }
     }
     /// normal methods ///
     else {

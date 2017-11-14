@@ -61,6 +61,43 @@ sVarTable* clone_var_table(sVarTable* lv_table)
     return result;
 }
 
+void restore_var_table(sVarTable* left, sVarTable* right)
+{
+    sVarTable* it = left;
+    sVarTable* it2 = right;
+
+    while(it && it2) {
+        sVar* p = it->mLocalVariables;
+
+        while(1) {
+            if(p->mName[0] != 0) {
+                sVar* p2 = it2->mLocalVariables;
+                while(1) {
+                    if(p2->mName[0] != 0 && strcmp(p->mName, p2->mName) == 0) 
+                    {
+                        p->mType = p2->mType;
+                    }
+
+                    p2++;
+
+                    if(p2 == it2->mLocalVariables + LOCAL_VARIABLE_MAX) {
+                        break;
+                    }
+                }
+            }
+
+            p++;
+
+            if(p == it->mLocalVariables + LOCAL_VARIABLE_MAX) {
+                break;
+            }
+        }
+
+        it = it->mParent;
+        it2 = it2->mParent;
+    }
+}
+
 //////////////////////////////////////////////////
 // local variable table
 //////////////////////////////////////////////////

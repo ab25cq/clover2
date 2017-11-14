@@ -449,6 +449,7 @@ sVarTable* init_block_vtable(sVarTable* lv_table);
 
 sVarTable* init_var_table();
 sVarTable* clone_var_table(sVarTable* lv_table);
+void restore_var_table(sVarTable* left, sVarTable* right);
 
 void set_max_block_var_num(sVarTable* new_table, sVarTable* lv_table);
 
@@ -1118,7 +1119,7 @@ extern BOOL gSigInt;
 
 #define OP_OBJ_IDENTIFY 1300
 #define OP_CLASSNAME 1301
-#define OP_IMPLEMENTS 1302
+#define OP_IMPLEMENTS 1303
 
 #define OP_ANDAND 2000
 #define OP_OROR 2001
