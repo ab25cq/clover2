@@ -152,6 +152,7 @@ static BOOL search_for_class_file(char* class_name, char* class_file_name, size_
         if(access(class_file_name, F_OK) == 0) {
             return TRUE;
         }
+        return dependency_compile(cwd,class_name,class_file_name, class_file_name_size);
     }
 
     return FALSE;
@@ -630,7 +631,6 @@ static BOOL ready_for_typedef(sCLClass* klass)
         char* class_name2 = CONS_str(&klass->mConst, klass->mTypedefClassName2Offsets[i]);
 
         sCLClass* klass = get_class_with_load(class_name2);
-
         if(klass) {
             put_class_to_table(class_name1, klass);
         }

@@ -1714,6 +1714,12 @@ void Self_convertion_of_method_name_and_params(char* method_name_and_params, cha
 
 BOOL compile_class_source(char* fname, char* source);
 
+/// cycle.c ///
+void set_dependency_compile();
+BOOL dependency_check(char* fname);
+BOOL dependency_compile(char* cwd, char* class_name, char* class_file_name, size_t class_file_name_size);
+void dependency_final();
+
 /// klass_compile_time.c ///
 BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_, sGenericsParamInfo* ginfo);
 BOOL add_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type);
