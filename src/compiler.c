@@ -149,11 +149,13 @@ int main(int argc, char** argv)
 
     compiler_init(no_load_fudamental_classes);
 
+/*
     if(!dependency_check(sname)) {
       fprintf(stderr, "cclover2 dependency check error %s\n", argv[i]);
       compiler_final();
       return 1;
     }
+*/
 
     if(clcl_compile) {
         if(!class_compiler(sname)) {

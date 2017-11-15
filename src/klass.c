@@ -152,10 +152,35 @@ static BOOL search_for_class_file(char* class_name, char* class_file_name, size_
         if(access(class_file_name, F_OK) == 0) {
             return TRUE;
         }
+    }
+
+    return FALSE;
+/*
+    char* home = getenv("HOME");
+
+    /// .clover directory ///
+    if(home) {
+        snprintf(class_file_name, class_file_name_size, "%s/.clover2/%s.oclcl", home, class_name);
+
+        if(access(class_file_name, F_OK) == 0) {
+            return TRUE;
+        }
+    }
+
+    char* cwd = getenv("PWD");
+
+    /// current working directory ///
+    if(cwd) {
+        snprintf(class_file_name, class_file_name_size, "%s/%s.oclcl", cwd, class_name);
+
+        if(access(class_file_name, F_OK) == 0) {
+            return TRUE;
+        }
         return dependency_compile(cwd,class_name,class_file_name, class_file_name_size);
     }
 
     return FALSE;
+*/
 }
 
 static BOOL read_from_file(int fd, void* buf, size_t size)

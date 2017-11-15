@@ -2,11 +2,11 @@
 
 #define LOCKFILE "./dependency_check.txt"
 
-static BOOL dependency_compile = FALSE; /* 依存チェックモード */
+static BOOL flg_dependency_compile = FALSE; /* 依存チェックモード */
 
 void set_dependency_compile()
 {
-  dependency_compile = TRUE;
+  flg_dependency_compile = TRUE;
 }
 
 /* ファイル名取得 */
@@ -33,7 +33,7 @@ BOOL dependency_init(char* filename)
 	char s[256];
   char s2[256];
   filename = get_filename(filename);
-  if (!dependency_compile) {
+  if (!flg_dependency_compile) {
     if ((fp = fopen(LOCKFILE, "w")) == NULL) return 1;
   } else {
     strcpy(s2,filename);
@@ -71,7 +71,7 @@ BOOL dependency_compile(char* cwd, char* class_name, char* class_file_name, size
 
 void dependency_final()
 {
-  if(!dependency_compile) {
+  if(!flg_dependency_compile) {
     remove(LOCKFILE);
   }
 }
