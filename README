@@ -23,7 +23,7 @@ list {m,a,i,n,.,c}
 
 7. LLVMでJITします。
 
-インストール方法については詳しくはwikiを見てください https://github.com/ab25cq/clover2/wiki
+インストール方法については詳しくはwikiを見てください https://github.com/ab25cq/clover2/wiki#インストール
 
 Yet another compiler and a Virtual Machine.
 
