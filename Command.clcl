@@ -675,7 +675,7 @@ dynamic_class Command
         }
     }
 
-    def executeCommandWithGettingStderr(method_name:String, params:List<String>, pipe_data:String) : static Command throws Exception
+    def executeCommandWithGettingStderr(method_name:String, params:List<String>, pipe_data:String?) : static Command throws Exception
     {
         child2parent_write_fd:int = 0;
         child2parent_read_fd:int = 0;
@@ -776,7 +776,7 @@ dynamic_class Command
         }
     }
 
-    def executeCommand(method_name:String, params:List<String>, pipe_data:String) : static Command throws Exception
+    def executeCommand(method_name:String, params:List<String>, pipe_data:String?) : static Command throws Exception
     {
         child2parent_write_fd:int = 0;
         child2parent_read_fd:int = 0;

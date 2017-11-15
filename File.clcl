@@ -638,7 +638,7 @@ class Directory
         result:SortableList<String> = new SortableList<String>();
 
         while(true) {
-            entry:String = dir.readdir();
+            entry:String? = dir.readdir();
 
             if(entry.identifyWith(null)) {
                 break;
@@ -665,7 +665,7 @@ class Directory
         result:SortableList<String> = new SortableList<String>();
 
         while(true) {
-            entry:String = dir.readdir();
+            entry:String? = dir.readdir();
 
             if(entry.identifyWith(null)) {
                 break;

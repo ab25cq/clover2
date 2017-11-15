@@ -220,7 +220,7 @@ class String
         return regex_result > 0;
     }
 
-    def match(regex_:regex, group_strings:EqualableList<String>):  bool {
+    def match(regex_:regex, group_strings:EqualableList<String>?):  bool {
         ovec_max:int = 16;
         ovec:PcreOVec = new PcreOVec(ovec_max);
 
@@ -248,7 +248,7 @@ class String
         }
     }
 
-    def sub(regex_:regex, replace:String, group_strings:EqualableList<String>):  String {
+    def sub(regex_:regex, replace:String, group_strings:EqualableList<String>?):  String {
         result: String = new String();
         offset:int = 0;
 
@@ -321,7 +321,7 @@ class String
         return self.sub(regex_, replace, new EqualableList<String>());
     }
 
-    def sub(regex_:regex, group_strings:EqualableList<String>, replace:lambda(String,EqualableList<String>):String):  String 
+    def sub(regex_:regex, group_strings:EqualableList<String>?, replace:lambda(String,EqualableList<String>):String):  String 
     {
         result: String = new String();
         offset:int = 0;
@@ -399,7 +399,7 @@ class String
         return result;
     }
 
-    def sub(regex_:regex, group_strings:EqualableList<String>, replace:lambda(String):String):  String 
+    def sub(regex_:regex, group_strings:EqualableList<String>?, replace:lambda(String):String):  String 
     {
         result: String = new String();
         offset:int = 0;
