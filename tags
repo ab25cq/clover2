@@ -3,7 +3,7 @@
 !_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
-!_TAG_PROGRAM_VERSION	5.8	//
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
 -soname	Makefile	/^	gcc -shared -Wl,-soname=libExtTest.so.1 -o libExtTest.so.1.0.0 -I src\/ -I . -fPIC ext\/hello.c$/;"	m
 ALLOC	src/macros.h	17;"	d
 ANDAND_OROR_MAX	src/jit.cpp	53;"	d	file:
@@ -14,8 +14,8 @@ BOOL	src/macros.h	5;"	d
 BREAK_NUM_MAX	src/common.h	53;"	d
 BUFFER_H	src/buffer.h	2;"	d
 BYTE_CODE_INIT_SIZE	src/code.c	3;"	d	file:
-CC	Makefile	/^CC=ccache clang$/;"	m
-CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -I\/home\/ab25cq\/include -L\/home\/ab25cq\/lib -fPIC -rdynamic -I\/usr\/local\/include -L \/usr\/local\/lib -O3 -DENABLE_INTERPRETER -Qunused-arguments$/;"	m
+CC	Makefile	/^CC=clang$/;"	m
+CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -I\/home\/sakurai\/include -L\/home\/sakurai\/lib -fPIC -rdynamic -I\/usr\/local\/include -L \/usr\/local\/lib -I \/usr\/include\/i386-linux-gnu\/\/ -L \/usr\/lib\/i386-linux-gnu\/ -O3 -Qunused-arguments$/;"	m
 CHECKML_BEGIN	src/debug.h	11;"	d
 CHECKML_BEGIN	src/debug.h	39;"	d
 CHECKML_END	src/debug.h	12;"	d
@@ -43,7 +43,7 @@ COMMON_H	src/common.h	2;"	d
 COMMON_OBJS	Makefile	/^COMMON_OBJS=src\/buffer.o src\/debug.o src\/xfunc.o src\/klass.o src\/constant.o src\/code.o src\/alignment.o src\/utf.o$/;"	m
 COMPILER_OBJS	Makefile	/^COMPILER_OBJS=src\/parser.o src\/node_type.o src\/node.o src\/cast.o src\/vtable.o src\/script_ctime.o src\/node_block.o src\/node_block_type.o src\/class_compiler.o src\/klass_compile_time.o src\/method_compiler.o src\/module.o$/;"	m
 CONS_str	src/common.h	126;"	d
-CXX	Makefile	/^CXX=ccache clang++$/;"	m
+CXX	Makefile	/^CXX=clang++$/;"	m
 CXXFLAGS	Makefile	/^CXXFLAGS=`llvm-config --cxxflags --ldflags --system-libs --libs all` -lffi -O3 -I . $/;"	m
 Clover_load	src/class_clover.c	/^BOOL Clover_load(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 DEBUG_H	src/debug.h	2;"	d
@@ -64,7 +64,7 @@ HAVE_ICONV_H	config.h	5;"	d
 HAVE_MATH_H	config.h	2;"	d
 HAVE_PCRE_H	config.h	6;"	d
 INSTALL	Makefile	/^INSTALL=\/usr\/bin\/install -c$/;"	m
-INTERPRETER	Makefile	/^INTERPRETER=iclover2$/;"	m
+INTERPRETER	Makefile	/^INTERPRETER=$/;"	m
 JIT	Makefile	/^JIT=0$/;"	m
 JIT_OBJS	Makefile	/^JIT_OBJS=$/;"	m
 JIT_RUNTIME_OBJS	Makefile	/^JIT_RUNTIME_OBJS=$/;"	m
@@ -2044,7 +2044,7 @@ parser_param_to_cl_param	src/klass_compile_time.c	/^static void parser_param_to_
 pinfo	src/common.h	/^    sParserInfo* pinfo;$/;"	m	struct:sCompileInfoStruct
 pop_global_stack	src/stack.c	/^CLVALUE pop_global_stack()$/;"	f
 postposition_operator	src/parser.c	/^static BOOL postposition_operator(unsigned int* node, sParserInfo* info, int* num_method_chains, unsigned int max_method_chains_node[METHOD_CHAIN_MAX])$/;"	f	file:
-prefix	Makefile	/^prefix=\/home\/ab25cq$/;"	m
+prefix	Makefile	/^prefix=\/home\/sakurai$/;"	m
 print_node_type	src/node_type.c	/^void print_node_type(sNodeType* node_type)$/;"	f
 prototypes	configure	/^   function prototypes and stuff, but not '\\xHH' hex character constants.$/;"	f
 push_jit_object	src/jit_runtime.cpp	/^void push_jit_object(CLObject obj)$/;"	f

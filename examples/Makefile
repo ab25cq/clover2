@@ -1,14 +1,15 @@
-all: hello hello2 fun dep_error
+all: hello hello2 fun
 
 hello:
 	clover2 Hello.cl
 hello2:
-	clover2 Hello2
+	cclover2 Hello2.clcl
+	clover2 Hello2.cl
 fun:
-	clover2 fun
+	clover2 fun.cl
 dep_error:
-	clover2 dep_error -clean
+	clover2 dep_error.cl
 clean:
-	rm -rf *.clcl *.clo
+	rm -rf *.o*
 clean2:
-	clover2 -clean
+	rm -rf *.o*
