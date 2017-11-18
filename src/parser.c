@@ -1443,6 +1443,9 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
 
         (*result_type)->mNullable = TRUE;
     }
+    else {
+        (*result_type)->mNullable = FALSE;
+    }
 
     /// anotation ///
     if(*info->p == '@') {
@@ -3256,10 +3259,16 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             *node = sNodeTree_create_store_variable(buf, NULL, *node, info->klass, info);
         }
         else {
-            sCLClass* klass = get_class(buf);
+            sCLClass* klass;
+            if(buf[0] >= 'A' && buf[0] <= 'Z') {
+                klass = get_class(buf);
 
-            if(klass == NULL) {
-                klass = load_class(buf);
+                if(klass == NULL) {
+                    klass = load_class(buf);
+                }
+            }
+            else {
+                klass = NULL;
             }
 
             sCLClass* global_klass = get_class("Global");

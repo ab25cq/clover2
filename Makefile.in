@@ -243,11 +243,11 @@ install:
 	if test $(JIT) = 1;then llvm-dis stat.bc && $(INSTALL) -m 644 stat.bc ~/.clover2; fi
 	if test -e libstat.so; then $(INSTALL) -m 755 libstat.so.1.0.0 ~/.clover2; cp -a libstat.so ~/.clover2; fi
 
-	$(INSTALL) -m 644 MArrayImplement.clm ~/.clover2
-	$(INSTALL) -m 644 MEqualableArrayImplement.clm ~/.clover2
-	$(INSTALL) -m 644 MEqualableListImplementation.clm ~/.clover2
+	$(INSTALL) -m 644 MArray.clm ~/.clover2
+	$(INSTALL) -m 644 MEqualableArray.clm ~/.clover2
+	$(INSTALL) -m 644 MEqualableList.clm ~/.clover2
 	$(INSTALL) -m 644 MInclude.clm ~/.clover2
-	$(INSTALL) -m 644 MListImplementation.clm ~/.clover2
+	$(INSTALL) -m 644 MList.clm ~/.clover2
 	$(INSTALL) -m 644 MPrintOutObject.clm ~/.clover2
 	$(INSTALL) -m 644 MWrapperClassBase.clm ~/.clover2
 
@@ -341,9 +341,7 @@ test:
 	./clover2 code/command.cl
 	./clover2 code/closure.cl
 	./clover2 code/anonymous.cl
-	gcc -shared -Wl,-soname=libExtTest.so.1 -o libExtTest.so.1.0.0 -I src/ -I . -fPIC ext/hello.c
-	ln -fs libExtTest.so.1.0.0 libExtTest.so
-	./cclover2 ext.clcl && ./clover2 ext.cl
+	if test `uname` != Darwin; then gcc -shared -Wl,-soname=libExtTest.so.1 -o libExtTest.so.1.0.0 -I src/ -I . -I/usr/local/include -fPIC ext/hello.c; ln -fs libExtTest.so.1.0.0 libExtTest.so; ./cclover2 ext.clcl && ./clover2 ext.cl; fi
 	./clover2 code/fun.cl
 	./clover2 code/type_inference.cl
 	./clover2 code/list3.cl
@@ -359,4 +357,5 @@ test:
 	./clover2 code/generics4.cl
 	./cclover2 code/result_type.clcl && ./clover2 code/result_type.cl
 	./clover2 code/is.cl
+	./clover2 code/null_test.cl
 

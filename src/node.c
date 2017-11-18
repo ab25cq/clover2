@@ -3781,7 +3781,7 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
         int field_index = search_for_field(klass, field_name);
 
         if(field_index == -1) {
-            compile_err_msg(info, "There is no field(%s) in this class(%s)", field_name, CLASS_NAME(klass));
+            compile_err_msg(info, "There is no field(%s) in this class(%s)(6)", field_name, CLASS_NAME(klass));
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
@@ -3884,7 +3884,7 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
     int field_index = search_for_field(klass, field_name);
 
     if(field_index == -1) {
-        compile_err_msg(info, "There is no field(%s) in this class(%s)", field_name, CLASS_NAME(klass));
+        compile_err_msg(info, "There is no field(%s) in this class(%s)(1)", field_name, CLASS_NAME(klass));
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -3953,7 +3953,7 @@ static BOOL compile_load_class_field(unsigned int node, sCompileInfo* info)
     int field_index = search_for_class_field(klass, field_name);
 
     if(field_index == -1) {
-        compile_err_msg(info, "There is no field(%s) in this class(%s)", field_name, CLASS_NAME(klass));
+        compile_err_msg(info, "There is no field(%s) in this class(%s)(2)", field_name, CLASS_NAME(klass));
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -4027,7 +4027,7 @@ static BOOL compile_store_class_field(unsigned int node, sCompileInfo* info)
     int field_index = search_for_class_field(klass, field_name);
 
     if(field_index == -1) {
-        compile_err_msg(info, "There is no field(%s) in this class(%s)", field_name, CLASS_NAME(klass));
+        compile_err_msg(info, "There is no field(%s) in this class(%s)(3)", field_name, CLASS_NAME(klass));
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -6152,7 +6152,7 @@ BOOL compile_get_address(unsigned int node, sCompileInfo* info)
         int field_index = search_for_field(klass, field_name);
 
         if(field_index == -1) {
-            compile_err_msg(info, "There is no field(%s) in this class(%s)", field_name, CLASS_NAME(klass));
+            compile_err_msg(info, "There is no field(%s) in this class(%s)(4)", field_name, CLASS_NAME(klass));
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
@@ -6176,7 +6176,7 @@ BOOL compile_get_address(unsigned int node, sCompileInfo* info)
         int field_index = search_for_class_field(klass, field_name);
 
         if(field_index == -1) {
-            compile_err_msg(info, "There is no field(%s) in this class(%s)", field_name, CLASS_NAME(klass));
+            compile_err_msg(info, "There is no field(%s) in this class(%s)(5)", field_name, CLASS_NAME(klass));
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy

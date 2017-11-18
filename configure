@@ -3808,8 +3808,6 @@ ac_fn_c_check_header_mongrel "$LINENO" "readline/readline.h" "ac_cv_header_readl
 if test "x$ac_cv_header_readline_readline_h" = xyes; then :
   $as_echo "#define HAVE_READLINE_H 1" >>confdefs.h
 
-else
-  exit
 fi
 
 
@@ -3845,8 +3843,6 @@ fi
 $as_echo "$ac_cv_lib_readline_main" >&6; }
 if test "x$ac_cv_lib_readline_main" = xyes; then :
    LIBS="$LIBS -lreadline";
-else
-  exit
 fi
 ac_cv_lib_readline=ac_cv_lib_readline_main
 
@@ -3896,8 +3892,6 @@ ac_fn_c_check_header_mongrel "$LINENO" "math.h" "ac_cv_header_math_h" "$ac_inclu
 if test "x$ac_cv_header_math_h" = xyes; then :
   $as_echo "#define HAVE_MATH_H 1" >>confdefs.h
 
-else
-  exit
 fi
 
 
@@ -3933,8 +3927,6 @@ fi
 $as_echo "$ac_cv_lib_m_main" >&6; }
 if test "x$ac_cv_lib_m_main" = xyes; then :
    LIBS="$LIBS -lm";
-else
-  exit
 fi
 ac_cv_lib_m=ac_cv_lib_m_main
 
@@ -3942,8 +3934,6 @@ ac_fn_c_check_header_mongrel "$LINENO" "iconv.h" "ac_cv_header_iconv_h" "$ac_inc
 if test "x$ac_cv_header_iconv_h" = xyes; then :
   $as_echo "#define HAVE_ICONV_H 1" >>confdefs.h
 
-else
-  exit
 fi
 
 
@@ -3957,8 +3947,6 @@ ac_fn_c_check_header_mongrel "$LINENO" "pcre.h" "ac_cv_header_pcre_h" "$ac_inclu
 if test "x$ac_cv_header_pcre_h" = xyes; then :
   $as_echo "#define HAVE_PCRE_H 1" >>confdefs.h
 
-else
-  exit
 fi
 
 
@@ -3994,8 +3982,6 @@ fi
 $as_echo "$ac_cv_lib_pcre_main" >&6; }
 if test "x$ac_cv_lib_pcre_main" = xyes; then :
    LIBS="$LIBS -lpcre";
-else
-  exit
 fi
 ac_cv_lib_pcre=ac_cv_lib_pcre_main
 
@@ -4032,8 +4018,6 @@ fi
 $as_echo "$ac_cv_lib_rt_main" >&6; }
 if test "x$ac_cv_lib_rt_main" = xyes; then :
    LIBS="$LIBS -lrt";
-else
-  exit
 fi
 ac_cv_lib_rt=ac_cv_lib_rt_main
 

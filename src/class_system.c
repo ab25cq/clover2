@@ -11,6 +11,7 @@
 #include <dirent.h>
 #include <utime.h>
 #include <fnmatch.h>
+#include <signal.h>
 
 BOOL System_exit(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
@@ -1037,10 +1038,16 @@ BOOL System_initialize_file_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* 
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+39].mValue.mIntValue = O_TTY_INIT;
 #endif
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+40].mValue.mIntValue = O_CLOEXEC;
+#ifdef O_DIRECT
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+41].mValue.mIntValue = O_DIRECT;
+#endif
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+42].mValue.mIntValue = O_DSYNC;
+#ifdef O_LARGEFILE
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+43].mValue.mIntValue = O_LARGEFILE;
+#endif
+#ifdef O_NOATIME
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+44].mValue.mIntValue = O_NOATIME;
+#endif
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+45].mValue.mIntValue = O_NONBLOCK;
 #ifdef O_PATH
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+46].mValue.mIntValue = O_PATH;
@@ -1081,7 +1088,9 @@ BOOL System_initialize_file_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* 
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+65].mValue.mIntValue = RTLD_LOCAL;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+66].mValue.mIntValue = RTLD_NODELETE;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+67].mValue.mIntValue = RTLD_NOLOAD;
+#ifdef RTLD_DEEPBIND
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+68].mValue.mIntValue = RTLD_DEEPBIND;
+#endif
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+69].mValue.mPointerValue = RTLD_DEFAULT;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+70].mValue.mPointerValue = RTLD_NEXT;
 
@@ -1481,7 +1490,9 @@ BOOL System_initialize_command_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInf
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+28].mValue.mIntValue = INLCR;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+29].mValue.mIntValue = IGNCR;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+30].mValue.mIntValue = ICRNL;
+#ifdef IUCLC
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+31].mValue.mIntValue = IUCLC;
+#endif
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+32].mValue.mIntValue = IXON;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+33].mValue.mIntValue = IXANY;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+34].mValue.mIntValue = IXOFF;
@@ -1490,7 +1501,9 @@ BOOL System_initialize_command_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInf
 
     // c_oflag bits
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+37].mValue.mIntValue = OPOST;
+#ifdef OLCUC
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+38].mValue.mIntValue = OLCUC;
+#endif
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+39].mValue.mIntValue = ONLCR;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+40].mValue.mIntValue = OCRNL;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+41].mValue.mIntValue = ONOCR;
@@ -1521,10 +1534,14 @@ BOOL System_initialize_command_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInf
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+65].mValue.mIntValue = VT0;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+66].mValue.mIntValue = VT1;
 
+#ifdef XTABS
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+67].mValue.mIntValue = XTABS;
+#endif
 
     // c_cflag bit meaning
+#ifdef CBAUD
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+68].mValue.mIntValue = CBAUD;
+#endif
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+69].mValue.mIntValue = B0;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+70].mValue.mIntValue = B50;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+71].mValue.mIntValue = B75;
@@ -1554,30 +1571,62 @@ BOOL System_initialize_command_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInf
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+95].mValue.mIntValue = PARODD;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+96].mValue.mIntValue = HUPCL;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+97].mValue.mIntValue = CLOCAL;
+#ifdef CBAUDEX
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+98].mValue.mIntValue = CBAUDEX;
+#endif
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+99].mValue.mIntValue = B57600;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+100].mValue.mIntValue = B115200;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+101].mValue.mIntValue = B230400;
+#ifdef B460800
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+102].mValue.mIntValue = B460800;
+#endif
+#ifdef B500000
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+103].mValue.mIntValue = B500000;
+#endif
+#ifdef B576000
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+104].mValue.mIntValue = B576000;
+#endif
+#ifdef B921600
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+105].mValue.mIntValue = B921600;
+#endif
+#ifdef B1000000
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+106].mValue.mIntValue = B1000000;
+#endif
+#ifdef B1152000
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+107].mValue.mIntValue = B1152000;
+#endif
+#ifdef B1500000
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+108].mValue.mIntValue = B1500000;
+#endif
+#ifdef B2000000
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+109].mValue.mIntValue = B2000000;
+#endif
+#ifdef B2500000
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+110].mValue.mIntValue = B2500000;
+#endif
+#ifdef B3000000
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+111].mValue.mIntValue = B3000000;
+#endif
+#ifdef B3500000
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+112].mValue.mIntValue = B3500000;
+#endif
+#ifdef B4000000
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+113].mValue.mIntValue = B4000000;
+#endif
+#ifdef CIBAUD
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+114].mValue.mIntValue = CIBAUD;
+#endif
+#ifdef CMSPAR
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+115].mValue.mIntValue = CMSPAR;
+#endif
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+116].mValue.mIntValue = CRTSCTS;
 
     // c_lflag bits
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+117].mValue.mIntValue = ISIG;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+118].mValue.mIntValue = ICANON;
+#ifdef XCASE
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+119].mValue.mIntValue = XCASE;
+#endif
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+120].mValue.mIntValue = ECHO;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+121].mValue.mIntValue = ECHOE;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+122].mValue.mIntValue = ECHOK;
@@ -1618,7 +1667,9 @@ BOOL System_initialize_command_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInf
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+147].mValue.mIntValue = VEOF;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+148].mValue.mIntValue = VTIME;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+149].mValue.mIntValue = VMIN;
+#ifdef VSWTC
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+150].mValue.mIntValue = VSWTC;
+#endif
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+151].mValue.mIntValue = VSTART;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+152].mValue.mIntValue = VSTOP;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+153].mValue.mIntValue = VSUSP;

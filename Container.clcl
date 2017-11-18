@@ -20,7 +20,7 @@ interface IHashKey
     def toString(): String;
 }
 
-module MArrayImplement
+module MArray
 {
     items:T[]?;
 
@@ -51,7 +51,7 @@ module MArrayImplement
     }
 }
 
-module MEqualableArrayImplement
+module MEqualableArray
 {
     def toString():String {
         if(self.items.length == 0) {
@@ -105,7 +105,7 @@ module MEqualableArrayImplement
 
 class Array<T:Object>
 {
-    include MArrayImplement;
+    include MArray;
 
     def toEqualableArray():EqualableArray<IEqualable> throws Exception {
         result:EqualableArray<IEqualable>  = new EqualableArray<IEqualable>(self.items.toAnonymous());
@@ -157,8 +157,8 @@ class Array<T:Object>
 
 class EqualableArray <T:IEqualable>
 {
-    include MArrayImplement;
-    include MEqualableArrayImplement;
+    include MArray;
+    include MEqualableArray;
 
     def toArray():Array<T> {
         return new Array<T>(self.items.toAnonymous());
@@ -189,8 +189,8 @@ class EqualableArray <T:IEqualable>
 
 class SortableArray <T:ISortable>
 {
-    include MArrayImplement;
-    include MEqualableArrayImplement;
+    include MArray;
+    include MEqualableArray;
 
     def equals(right:SortableArray<T>):bool {
         if(self.items.length != right.items.length) {
@@ -310,7 +310,7 @@ class ListItem <T:Object>
     }
 }
 
-module MListImplementation
+module MList
 {
     head: ListItem<T>?;
     tail: ListItem<T>?;
@@ -792,7 +792,7 @@ module MListImplementation
     }
 }
 
-module MEqualableListImplementation
+module MEqualableList
 {
     def equals(right:SELF<T>):bool {
         if(self.number != right.number) {
@@ -945,7 +945,7 @@ module MEqualableListImplementation
 
 class List <T:Object>
 {
-    include MListImplementation;
+    include MList;
 
     def <R:Object> map(trans:lambda(T):R): SELF<R> {
         result:SELF<R> = new SELF<R>();
@@ -1000,8 +1000,8 @@ class List <T:Object>
 
 class EqualableList<T:IEqualable>
 {
-    include MListImplementation;
-    include MEqualableListImplementation;
+    include MList;
+    include MEqualableList;
 
     def <R:IEqualable> map(trans:lambda(T):R): SELF<R> {
         result:SELF<R> = new SELF<R>();
@@ -1038,8 +1038,8 @@ class EqualableList<T:IEqualable>
 
 class SortableList<T:ISortable>
 {
-    include MListImplementation;
-    include MEqualableListImplementation;
+    include MList;
+    include MEqualableList;
 
     def <R:ISortable> map(trans:lambda(T):R): SELF<R> {
         result:SELF<R> = new SELF<R>();

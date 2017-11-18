@@ -2,8 +2,12 @@
 #include <locale.h>
 #define _GNU_SOURCE
 #include <stdio.h>
+
+#ifdef HAVE_READLINE_H
 #include <readline/readline.h>
 #include <readline/history.h>
+#endif
+
 #include <signal.h>
 #include <termios.h>
 #include <sys/ioctl.h>

@@ -338,7 +338,7 @@ class stat
         p"/etc/passwd".read().toString().split(/\n/).each(closure(line:String) {
             fields:EqualableList<String> = line.chomp().split(/:/);
             
-            if(fields.items(2).to_int() == self.st_uid) {
+            if(fields.length() > 2 && fields.items(2).to_int() == self.st_uid) {
                 result = fields.items(0);
             }
         });
@@ -351,8 +351,8 @@ class stat
 
         p"/etc/group".read().toString().split(/\n/).each(closure(line:String) {
             fields:EqualableList<String> = line.chomp().split(/:/);
-            
-            if(fields.items(2).to_int() == self.st_gid) {
+
+            if(fields.length() > 2 && fields.items(2).to_int() == self.st_gid) {
                 result = fields.items(0);
             }
         });
