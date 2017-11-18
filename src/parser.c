@@ -102,6 +102,27 @@ void parser_init()
         }
     }
 
+    gCommandNames[n++] = MANAGED MSTRDUP("cd");
+
+    if(n >= size) {
+        size *= 2;
+        gCommandNames = MREALLOC(gCommandNames, sizeof(char*)*size);
+    }
+
+    gCommandNames[n++] = MANAGED MSTRDUP("jobs");
+
+    if(n >= size) {
+        size *= 2;
+        gCommandNames = MREALLOC(gCommandNames, sizeof(char*)*size);
+    }
+
+    gCommandNames[n++] = MANAGED MSTRDUP("fg");
+
+    if(n >= size) {
+        size *= 2;
+        gCommandNames = MREALLOC(gCommandNames, sizeof(char*)*size);
+    }
+
     gCommandNames[n] = NULL;
     gNumCommandNames = n;
 }
