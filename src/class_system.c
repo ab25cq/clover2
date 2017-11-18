@@ -97,6 +97,12 @@ BOOL System_strlen2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     /// clover params to c params ///
     CLObject array = str->mObjectValue;
+
+    if(array == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     sCLObject* object_data = CLOBJECT(array);
     int len = object_data->mArrayNum;
     
@@ -192,6 +198,12 @@ BOOL System_strdup(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 BOOL System_print(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* str = lvar;
+
+    if(str->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     sCLObject* str_data = CLOBJECT(str->mObjectValue);
 
     CLObject wstr_array_object = str_data->mFields[0].mObjectValue;
@@ -219,6 +231,12 @@ BOOL System_print(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 BOOL System_println(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* str = lvar;
+
+    if(str->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     sCLObject* str_data = CLOBJECT(str->mObjectValue);
 
     CLObject wstr_array_object = str_data->mFields[0].mObjectValue;
@@ -246,9 +264,21 @@ BOOL System_println(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 BOOL System_printToError(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* str = lvar;
+
+    if(str->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     sCLObject* str_data = CLOBJECT(str->mObjectValue);
 
     CLObject wstr_array_object = str_data->mFields[0].mObjectValue;
+
+    if(wstr_array_object == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     sCLObject* wstr_array_object_data = CLOBJECT(wstr_array_object);
 
     int len = wstr_array_object_data->mArrayNum;
@@ -273,9 +303,21 @@ BOOL System_printToError(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 BOOL System_printlnToError(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* str = lvar;
+
+    if(str->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     sCLObject* str_data = CLOBJECT(str->mObjectValue);
 
     CLObject wstr_array_object = str_data->mFields[0].mObjectValue;
+
+    if(wstr_array_object == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     sCLObject* wstr_array_object_data = CLOBJECT(wstr_array_object);
 
     int len = wstr_array_object_data->mArrayNum;
@@ -301,7 +343,7 @@ BOOL System_sleep(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* time = lvar;
 
-    unsigned int result = sleep(lvar->mIntValue);
+    unsigned int result = sleep(time->mIntValue);
 
     (*stack_ptr)->mUIntValue = result;
     (*stack_ptr)++;
@@ -318,7 +360,15 @@ BOOL System_pcre_exec(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* pcre_ovec = (lvar+4);
 
     /// check null pointer exception ///
+    if(regex->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
     if(str->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+    if(pcre_ovec->mObjectValue == 0) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
         return FALSE;
     }
@@ -349,6 +399,15 @@ BOOL System_pcre_exec(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLObject pcre_ovec_start_array = pcre_ovec_object_data->mFields[0].mObjectValue;
     CLObject pcre_ovec_end_array = pcre_ovec_object_data->mFields[1].mObjectValue;
 
+    if(pcre_ovec_start_array == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+    if(pcre_ovec_end_array == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     sCLObject* pcre_ovec_start_array_data = CLOBJECT(pcre_ovec_start_array);
     sCLObject* pcre_ovec_end_array_data = CLOBJECT(pcre_ovec_end_array);
 
@@ -374,6 +433,16 @@ BOOL System_sprintf(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* format = lvar;
     CLVALUE* params = lvar+1;
+
+    if(format->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    if(params->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
 
     char* format_string = ALLOC string_object_to_char_array(format->mObjectValue);
 
@@ -679,9 +748,15 @@ BOOL System_wcstombs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* dest = lvar;
     CLVALUE* src = lvar+1;
 
+    if(src->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// clover variable to c variable ///
     CLVALUE* dest_value = (CLVALUE*)dest->mPointerValue;
     CLObject src_value = src->mObjectValue;
+
     sCLObject* object_data = CLOBJECT(src_value);
     int len = object_data->mArrayNum;
 
@@ -747,8 +822,14 @@ BOOL System_atoi(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* str = lvar;
 
+    if(str->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// Clover to c value ///
     CLObject str_object = str->mObjectValue;
+
     char* str_value = ALLOC string_object_to_char_array(str_object);
 
     /// go ///
@@ -766,8 +847,14 @@ BOOL System_atof(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* str = lvar;
 
+    if(str->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// Clover to c value ///
     CLObject str_object = str->mObjectValue;
+
     char* str_value = ALLOC string_object_to_char_array(str_object);
 
     /// go ///
@@ -785,8 +872,14 @@ BOOL System_strtod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* str = lvar;
 
+    if(str->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// Clover to c value ///
     CLObject str_object = str->mObjectValue;
+
     char* str_value = ALLOC string_object_to_char_array(str_object);
 
     /// go ///
@@ -805,8 +898,19 @@ BOOL System_strcmp(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* str = lvar;
     CLVALUE* str2 = (lvar+1);
 
+    if(str->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// Clover to c value ///
     CLObject str_object = str->mObjectValue;
+
+    if(str2->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     char* str_value = ALLOC string_object_to_char_array(str_object);
 
     CLObject str_object2 = str2->mObjectValue;
@@ -831,6 +935,17 @@ BOOL System_strcasecmp(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     /// Clover to c value ///
     CLObject str_object = str->mObjectValue;
+
+    if(str_object == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    if(str2->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     char* str_value = ALLOC string_object_to_char_array(str_object);
 
     CLObject str_object2 = str2->mObjectValue;
@@ -855,6 +970,12 @@ BOOL System_strtol(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     /// Clover to c value ///
     CLObject str_object = str->mObjectValue;
+
+    if(str_object == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     char* str_value = ALLOC string_object_to_char_array(str_object);
 
     int base_value = base->mIntValue;
@@ -877,6 +998,12 @@ BOOL System_strtoul(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     /// Clover to c value ///
     CLObject str_object = str->mObjectValue;
+
+    if(str_object == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     char* str_value = ALLOC string_object_to_char_array(str_object);
 
     int base_value = base->mIntValue;
@@ -934,6 +1061,11 @@ BOOL System_open(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* mode = (lvar+2);
 
     /// Clover to c value ///
+    if(file_name->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     char* file_name_value = ALLOC string_object_to_char_array(file_name->mObjectValue);
 
     int flags_value = flags->mIntValue;
@@ -1107,6 +1239,12 @@ BOOL System_read(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     /// Clover to c value ///
     int fd_value = fd->mIntValue;
+
+    if(buf->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     void* buf_value = get_pointer_from_buffer_object(buf->mObjectValue);
     size_t size_value = (size_t)size->mULongValue;
 
@@ -1143,6 +1281,12 @@ BOOL System_write(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     /// Clover to c value ///
     int fd_value = fd->mIntValue;
+
+    if(buf->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     void* buf_value = get_pointer_from_buffer_object(buf->mObjectValue);
     size_t size_value = (size_t)size->mULongValue;
 
@@ -1209,6 +1353,11 @@ BOOL System_mktime(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* time = lvar;
 
+    if(time->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// Clover to c value ///
     sCLObject* object_data = CLOBJECT(time->mObjectValue);
 
@@ -1242,6 +1391,16 @@ BOOL System_stat(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* path = lvar;
     CLVALUE* stat_ = lvar + 1;
+
+    if(path->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    if(stat_->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
 
     /// Clover to c value ///
     char* path_value = ALLOC string_object_to_char_array(path->mObjectValue);
@@ -1280,6 +1439,16 @@ BOOL System_lstat(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* path = lvar;
     CLVALUE* stat_ = lvar + 1;
 
+    if(path->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    if(stat_->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// Clover to c value ///
     char* path_value = ALLOC string_object_to_char_array(path->mObjectValue);
 
@@ -1316,6 +1485,11 @@ BOOL System_realpath(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* path = lvar;
 
+    if(path->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// Clover to c value ///
     char* path_value = ALLOC string_object_to_char_array(path->mObjectValue);
 
@@ -1345,6 +1519,11 @@ BOOL System_dirname(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* path = lvar;
 
+    if(path->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// Clover to c value ///
     char* path_value = ALLOC string_object_to_char_array(path->mObjectValue);
 
@@ -1366,6 +1545,11 @@ BOOL System_basename(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* path = lvar;
 
+    if(path->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// Clover to c value ///
     char* path_value = ALLOC string_object_to_char_array(path->mObjectValue);
 
@@ -1386,6 +1570,11 @@ BOOL System_basename(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 BOOL System_opendir(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* path = lvar;
+
+    if(path->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
 
     /// Clover to c value ///
     char* path_value = ALLOC string_object_to_char_array(path->mObjectValue);
@@ -1713,6 +1902,11 @@ BOOL System_fork(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* block_ = lvar;
 
+    if(block_->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// Clover to c value ///
     CLObject block_value = block_->mObjectValue;
 
@@ -1770,6 +1964,15 @@ BOOL System_execvp(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* method_name = lvar;
     CLVALUE* params = lvar+1;
 
+    if(method_name->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+    if(params->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// Clover to c value ///
     char* method_name_value = ALLOC string_object_to_char_array(method_name->mObjectValue);
     int num_elements = 0;
@@ -1809,6 +2012,15 @@ BOOL System_execv(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* method_name = lvar;
     CLVALUE* params = lvar+1;
+
+    if(method_name->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+    if(params->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
 
     /// Clover to c value ///
     char* method_name_value = ALLOC string_object_to_char_array(method_name->mObjectValue);
@@ -2066,6 +2278,11 @@ BOOL System_tcgetattr(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* fd = lvar;
     CLVALUE* terminfo = lvar + 1;
 
+    if(terminfo->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// Clover to C value ///
     int fd_value = fd->mIntValue;
     CLObject terminfo_object = terminfo->mObjectValue;
@@ -2090,6 +2307,11 @@ BOOL System_tcsetattr(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* fd = lvar;
     CLVALUE* optional_actions = lvar + 1;
     CLVALUE* terminfo = lvar + 2;
+
+    if(terminfo->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
 
     /// Clover to C value ///
     int fd_value = fd->mIntValue;
@@ -2192,6 +2414,11 @@ BOOL System_cfmakeraw(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* terminfo = lvar;
 
+    if(terminfo->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// Clover to C value ///
     CLObject terminfo_object = terminfo->mObjectValue;
     struct termios terminfo_value;
@@ -2206,6 +2433,12 @@ BOOL System_cfmakeraw(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 BOOL System_cfgetispeed(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* terminfo = lvar;
+
+    if(terminfo->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
 
     /// Clover to C value ///
     CLObject terminfo_object = terminfo->mObjectValue;
@@ -2225,6 +2458,11 @@ BOOL System_cfgetospeed(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* terminfo = lvar;
 
+    if(terminfo->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// Clover to C value ///
     CLObject terminfo_object = terminfo->mObjectValue;
     struct termios terminfo_value;
@@ -2243,6 +2481,11 @@ BOOL System_cfsetispeed(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* terminfo = lvar;
     CLVALUE* speed = lvar + 1;
+
+    if(terminfo->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
 
     /// Clover to C value ///
     CLObject terminfo_object = terminfo->mObjectValue;
@@ -2267,6 +2510,11 @@ BOOL System_cfsetospeed(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* terminfo = lvar;
     CLVALUE* speed = lvar + 1;
 
+    if(terminfo->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// Clover to C value ///
     CLObject terminfo_object = terminfo->mObjectValue;
     struct termios terminfo_value;
@@ -2289,6 +2537,11 @@ BOOL System_cfsetspeed(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* terminfo = lvar;
     CLVALUE* speed = lvar + 1;
+
+    if(terminfo->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
 
     /// Clover to C value ///
     CLObject terminfo_object = terminfo->mObjectValue;
@@ -2313,6 +2566,11 @@ BOOL System_chmod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* path = lvar;
     CLVALUE* mode = lvar + 1;
 
+    if(path->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// Clover to c value ///
     char* path_value = ALLOC string_object_to_char_array(path->mObjectValue);
     mode_t mode_value = mode->mIntValue;
@@ -2335,6 +2593,11 @@ BOOL System_lchmod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* path = lvar;
     CLVALUE* mode = lvar + 1;
+
+    if(path->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
 
     /// Clover to c value ///
     char* path_value = ALLOC string_object_to_char_array(path->mObjectValue);
@@ -2380,6 +2643,11 @@ BOOL System_chown(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* owner = lvar + 1;
     CLVALUE* group = lvar + 2;
 
+    if(path->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// Clover to c value ///
     char* path_value = ALLOC string_object_to_char_array(path->mObjectValue);
     uid_t owner_value = owner->mIntValue;
@@ -2404,6 +2672,11 @@ BOOL System_lchown(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* path = lvar;
     CLVALUE* owner = lvar + 1;
     CLVALUE* group = lvar + 2;
+
+    if(path->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
 
     /// Clover to c value ///
     char* path_value = ALLOC string_object_to_char_array(path->mObjectValue);
@@ -2450,6 +2723,11 @@ BOOL System_unlink(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* path = lvar;
 
+    if(path->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// Clover to c value ///
     char* path_value = ALLOC string_object_to_char_array(path->mObjectValue);
 
@@ -2472,6 +2750,11 @@ BOOL System_access(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* path = lvar;
     CLVALUE* mode = lvar + 1;
 
+    if(path->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// Clover to c value ///
     char* path_value = ALLOC string_object_to_char_array(path->mObjectValue);
     int mode_value = mode->mIntValue;
@@ -2492,6 +2775,11 @@ BOOL System_utime(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* path = lvar;
     CLVALUE* actime = lvar + 1;
     CLVALUE* modtime = lvar + 2;
+
+    if(path->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
 
     /// Clover to c value ///
     char* path_value = ALLOC string_object_to_char_array(path->mObjectValue);
@@ -2522,6 +2810,16 @@ BOOL System_fnmatch(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* path = lvar + 1;
     CLVALUE* flags = lvar + 2;
 
+    if(pattern->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    if(path->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// Clover to c value ///
     char* pattern_value = ALLOC string_object_to_char_array(pattern->mObjectValue);
     char* path_value = ALLOC string_object_to_char_array(path->mObjectValue);
@@ -2543,6 +2841,16 @@ BOOL System_link(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* old_path = lvar;
     CLVALUE* new_path = lvar + 1;
+
+    if(old_path->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    if(new_path->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
 
     /// Clover to c value ///
     char* old_path_value = ALLOC string_object_to_char_array(old_path->mObjectValue);
@@ -2569,6 +2877,16 @@ BOOL System_symlink(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* old_path = lvar;
     CLVALUE* new_path = lvar + 1;
 
+    if(old_path->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    if(new_path->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// Clover to c value ///
     char* old_path_value = ALLOC string_object_to_char_array(old_path->mObjectValue);
     char* new_path_value = ALLOC string_object_to_char_array(new_path->mObjectValue);
@@ -2592,6 +2910,11 @@ BOOL System_symlink(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 BOOL System_readlink(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* path = lvar;
+
+    if(path->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
 
     /// Clover to c value ///
     char* path_value = ALLOC string_object_to_char_array(path->mObjectValue);
@@ -2621,6 +2944,16 @@ BOOL System_rename(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* old_path = lvar;
     CLVALUE* new_path = lvar + 1;
 
+    if(old_path->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    if(new_path->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// Clover to c value ///
     char* old_path_value = ALLOC string_object_to_char_array(old_path->mObjectValue);
     char* new_path_value = ALLOC string_object_to_char_array(new_path->mObjectValue);
@@ -2645,6 +2978,11 @@ BOOL System_truncate(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* path = lvar;
     CLVALUE* length = lvar + 1;
+
+    if(path->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
 
     /// Clover to c value ///
     char* path_value = ALLOC string_object_to_char_array(path->mObjectValue);
@@ -2688,6 +3026,11 @@ BOOL System_chdir(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* path = lvar;
 
+    if(path->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// Clover to c value ///
     char* path_value = ALLOC string_object_to_char_array(path->mObjectValue);
 
@@ -2727,6 +3070,11 @@ BOOL System_rmdir(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* path = lvar;
 
+    if(path->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// Clover to c value ///
     char* path_value = ALLOC string_object_to_char_array(path->mObjectValue);
 
@@ -2748,6 +3096,11 @@ BOOL System_mkdir(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* path = lvar;
     CLVALUE* mode = lvar + 1;
+
+    if(path->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
 
     /// Clover to c value ///
     char* path_value = ALLOC string_object_to_char_array(path->mObjectValue);
@@ -2771,6 +3124,11 @@ BOOL System_clock_getres(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* clk_id = lvar;
     CLVALUE* tp = lvar + 1;
+
+    if(tp->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
 
     /// Clover to c value ///
     clockid_t clk_id_value = clk_id->mIntValue;
@@ -2797,6 +3155,11 @@ BOOL System_clock_gettime(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* clk_id = lvar;
     CLVALUE* tp = lvar + 1;
 
+    if(tp->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// Clover to c value ///
     clockid_t clk_id_value = clk_id->mIntValue;
     CLObject tp_value = tp->mObjectValue;
@@ -2821,6 +3184,11 @@ BOOL System_clock_settime(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* clk_id = lvar;
     CLVALUE* tp = lvar + 1;
+
+    if(tp->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
 
     /// Clover to c value ///
     clockid_t clk_id_value = clk_id->mIntValue;
@@ -2848,6 +3216,11 @@ BOOL System_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* str = lvar;
 
+    if(str->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// Clover to c value ///
     char* str_value = ALLOC string_object_to_char_array(str->mObjectValue);
 
@@ -2871,6 +3244,11 @@ BOOL System_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 BOOL System_getenv(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* name = lvar;
+
+    if(name->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
 
     /// Clover to c value ///
     char* name_value = ALLOC string_object_to_char_array(name->mObjectValue);
@@ -2898,6 +3276,16 @@ BOOL System_setenv(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* value = lvar + 1;
     CLVALUE* overwrite = lvar + 2;
 
+    if(name->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    if(value->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// Clover to c value ///
     char* name_value = ALLOC string_object_to_char_array(name->mObjectValue);
     char* value_value = ALLOC string_object_to_char_array(value->mObjectValue);
@@ -2923,6 +3311,11 @@ BOOL System_unsetenv(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* name = lvar;
 
+    if(name->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// Clover to c value ///
     char* name_value = ALLOC string_object_to_char_array(name->mObjectValue);
 
@@ -2944,6 +3337,11 @@ BOOL System_dlopen(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* path = lvar;
     CLVALUE* flags = lvar + 1;
+
+    if(path->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
 
     /// Clover to c value ///
     char* path_value = ALLOC string_object_to_char_array(path->mObjectValue);
@@ -2992,6 +3390,11 @@ BOOL System_dlsym(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* handle = lvar;
     CLVALUE* symbol = lvar + 1;
 
+    if(symbol->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// Clover to c value ///
     void* handle_value = handle->mPointerValue;
     char* symbol_value = ALLOC string_object_to_char_array(symbol->mObjectValue);
@@ -3018,6 +3421,16 @@ BOOL System_put_fun_to_hash_for_native_method(CLVALUE** stack_ptr, CLVALUE* lvar
     CLVALUE* path = lvar;
     CLVALUE* fun_name = lvar + 1;
     CLVALUE* native_method = lvar + 2;
+
+    if(path->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    if(fun_name->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
 
     /// Clover to c value ///
     char* path_value = ALLOC string_object_to_char_array(path->mObjectValue);

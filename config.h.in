@@ -3,6 +3,7 @@
 #undef HAVE_NANOSLEEP
 #undef HAVE_ICONV_H
 #undef HAVE_PCRE_H
+#undef HAVE_READLINE_H
 #undef __CYGWIN__
 #undef __SUNOS__
 #undef __DARWIN__
