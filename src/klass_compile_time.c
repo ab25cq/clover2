@@ -275,7 +275,7 @@ BOOL add_typedef_to_class(sCLClass* klass, char* class_name1, char* class_name2)
         return FALSE;
     }
 
-    sCLClass* klass2 = get_class_with_load(class_name2);
+    sCLClass* klass2 = get_class_with_load_on_compile_time(class_name2);
 
     if(klass2) {
         put_class_to_table(class_name1, klass2);
@@ -378,6 +378,74 @@ BOOL determine_method_generics_types(sNodeType* left_param, sNodeType* right_par
     }
 
     return TRUE;
+}
+
+static BOOL search_for_class_file_on_compile_time(char* class_name, char* class_file_name, size_t class_file_name_size)
+{
+    /// ホームディレクトリのClover2のクラスファイルの置き場所にクラスファイルはありますか？ ///
+    char* home = getenv("HOME");
+
+    if(home) {
+        snprintf(class_file_name, class_file_name_size, "%s/.clover2/%s.oclcl", home, class_name);
+
+        if(access(class_file_name, F_OK) == 0) {
+            return TRUE;  // ありました。真を返します
+        }
+    }
+
+    /// カレントワーキングディレクトリにクラスファイルが存在しますか？ ///
+    char* cwd = getenv("PWD");
+
+    if(cwd) {
+        snprintf(class_file_name, class_file_name_size, "%s/%s.oclcl", cwd, class_name);
+
+        if(access(class_file_name, F_OK) == 0) {
+            return TRUE; // 見つかった。
+        }
+        else {
+            /// クラスファイルが無いならクラス名.clclファイルのコンパイルを試してみます ///
+            char path[PATH_MAX];
+
+            snprintf(path, PATH_MAX, "%s/%s.clcl", cwd, class_name);
+
+            if(access(path, F_OK) == 0) {           // クラス名.clclファイルはありますか？
+                /// コンパイル ///
+                char command[PATH_MAX+128];
+
+                snprintf(command, PATH_MAX+128, "cclover2 %s/%s.clcl", cwd, class_name);
+
+                int rc = system(command);
+
+                /// 一応クラスファイルがあるかどうかチェックして、あるなら真を返します ///
+                if(rc == 0) {
+                    snprintf(class_file_name, class_file_name_size, "%s/%s.oclcl", cwd, class_name);
+
+                    if(access(class_file_name, F_OK) == 0) {
+                        return TRUE;
+                    }
+                }
+            }
+        }
+
+        return FALSE;
+    }
+
+    return FALSE; // 失敗。クラスファイルは見つかりませんね、、、。
+}
+
+sCLClass* load_class_on_compile_time(char* class_name)
+{
+    sCLClass* klass = get_class(class_name);
+    if(klass != NULL) {
+        remove_class(class_name);
+    }
+
+    char class_file_name[PATH_MAX+1];
+    if(!search_for_class_file_on_compile_time(class_name, class_file_name, PATH_MAX)) {
+        return NULL;
+    }
+
+    return load_class_from_class_file(class_name, class_file_name);
 }
 
 static BOOL check_method_params(sCLMethod* method, sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, sNodeType* left_generics_type, sNodeType* right_generics_type, sNodeType* left_method_generics, sNodeType* right_method_generics, sNodeType* method_generics_types, BOOL lazy_lambda_compile)
@@ -824,3 +892,87 @@ BOOL write_all_modified_classes()
     return TRUE;
 }
 
+static void load_fundamental_classes_on_compile_time()
+{
+    load_class_on_compile_time("PcreOVec");
+    load_class_on_compile_time("System");
+    load_class_on_compile_time("Global");
+
+    load_class_on_compile_time("Buffer");
+    load_class_on_compile_time("String");
+
+    load_class_on_compile_time("Exception");
+
+    load_class_on_compile_time("Object");
+
+    load_class_on_compile_time("Byte");
+    load_class_on_compile_time("UByte");
+    load_class_on_compile_time("Short");
+    load_class_on_compile_time("UShort");
+    load_class_on_compile_time("Integer");
+    load_class_on_compile_time("UInteger");
+    load_class_on_compile_time("Long");
+    load_class_on_compile_time("ULong");
+
+    load_class_on_compile_time("Float");
+    load_class_on_compile_time("Double");
+
+    load_class_on_compile_time("Pointer");
+    load_class_on_compile_time("Char");
+    load_class_on_compile_time("Bool");
+
+    load_class_on_compile_time("Array");
+    load_class_on_compile_time("EqualableArray");
+    load_class_on_compile_time("SortableArray");
+
+    load_class_on_compile_time("IHashKey");
+    load_class_on_compile_time("IEqualable");
+    load_class_on_compile_time("ISortable");
+
+    load_class_on_compile_time("HashItem");
+    load_class_on_compile_time("Hash");
+
+    load_class_on_compile_time("ListItem");
+    load_class_on_compile_time("List");
+    load_class_on_compile_time("SortableList");
+    load_class_on_compile_time("EqualableList");
+
+    load_class_on_compile_time("Tuple1");
+    load_class_on_compile_time("Tuple2");
+    load_class_on_compile_time("Tuple3");
+    load_class_on_compile_time("Tuple4");
+    load_class_on_compile_time("Tuple5");
+    load_class_on_compile_time("Tuple6");
+    load_class_on_compile_time("Tuple7");
+    load_class_on_compile_time("Tuple8");
+    load_class_on_compile_time("Tuple9");
+    load_class_on_compile_time("Tuple10");
+
+    load_class_on_compile_time("File");
+    load_class_on_compile_time("Path");
+    load_class_on_compile_time("tm");
+    load_class_on_compile_time("stat");
+    load_class_on_compile_time("Directory");
+    load_class_on_compile_time("termios");
+    load_class_on_compile_time("Job");
+    load_class_on_compile_time("Command");
+
+    load_class_on_compile_time("Clover");
+}
+
+void class_init_on_compile_time()
+{
+    load_fundamental_classes_on_compile_time();
+    set_boxing_and_unboxing_classes();
+}
+
+sCLClass* get_class_with_load_on_compile_time(char* class_name)
+{
+    sCLClass* result = get_class(class_name);
+    
+    if(result == NULL) {
+        result = load_class_on_compile_time(class_name);
+    }
+
+    return result;
+}

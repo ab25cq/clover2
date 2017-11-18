@@ -20,7 +20,7 @@ unsigned int get_hash_key(char* name, unsigned int max)
     return result % max;
 }
 
-static void remove_class(char* class_name)
+void remove_class(char* class_name)
 {
     unsigned int hash_key = get_hash_key(class_name, CLASS_NUM_MAX);
     sClassTable* p = gClassTable + hash_key;
@@ -155,32 +155,6 @@ static BOOL search_for_class_file(char* class_name, char* class_file_name, size_
     }
 
     return FALSE;
-/*
-    char* home = getenv("HOME");
-
-    /// .clover directory ///
-    if(home) {
-        snprintf(class_file_name, class_file_name_size, "%s/.clover2/%s.oclcl", home, class_name);
-
-        if(access(class_file_name, F_OK) == 0) {
-            return TRUE;
-        }
-    }
-
-    char* cwd = getenv("PWD");
-
-    /// current working directory ///
-    if(cwd) {
-        snprintf(class_file_name, class_file_name_size, "%s/%s.oclcl", cwd, class_name);
-
-        if(access(class_file_name, F_OK) == 0) {
-            return TRUE;
-        }
-        return dependency_compile(cwd,class_name,class_file_name, class_file_name_size);
-    }
-
-    return FALSE;
-*/
 }
 
 static BOOL read_from_file(int fd, void* buf, size_t size)
@@ -648,6 +622,17 @@ sCLMethod* search_for_method_from_virtual_method_table(sCLClass* klass, char* me
     return NULL;
 }
 
+static sCLClass* get_class_with_load(char* class_name)
+{
+    sCLClass* result = get_class(class_name);
+    
+    if(result == NULL) {
+        result = load_class(class_name);
+    }
+
+    return result;
+}
+
 static BOOL ready_for_typedef(sCLClass* klass)
 {
     int i;
@@ -667,7 +652,7 @@ static BOOL ready_for_typedef(sCLClass* klass)
     return TRUE;
 }
 
-static sCLClass* load_class_from_class_file(char* class_name, char* class_file_name)
+sCLClass* load_class_from_class_file(char* class_name, char* class_file_name)
 {
     /// check the existance of the load class ///
     int fd = open(class_file_name, O_RDONLY);
@@ -719,17 +704,6 @@ static sCLClass* load_class_from_class_file(char* class_name, char* class_file_n
     klass->mFreeFun = NULL;
 
     return klass;
-}
-
-sCLClass* get_class_with_load(char* class_name)
-{
-    sCLClass* result = get_class(class_name);
-    
-    if(result == NULL) {
-        result = load_class(class_name);
-    }
-
-    return result;
 }
 
 sCLClass* load_class(char* class_name)
@@ -907,80 +881,6 @@ void set_boxing_and_unboxing_classes()
     set_boxing_and_unboxing_class("pointer", "Pointer");
     set_boxing_and_unboxing_class("char", "Char");
     set_boxing_and_unboxing_class("bool", "Bool");
-}
-
-static void load_fundamental_classes_on_compile_time()
-{
-    load_class("PcreOVec");
-    load_class("System");
-    load_class("Global");
-
-    load_class("Buffer");
-    load_class("String");
-
-    load_class("Exception");
-
-    load_class("Object");
-
-    load_class("Byte");
-    load_class("UByte");
-    load_class("Short");
-    load_class("UShort");
-    load_class("Integer");
-    load_class("UInteger");
-    load_class("Long");
-    load_class("ULong");
-
-    load_class("Float");
-    load_class("Double");
-
-    load_class("Pointer");
-    load_class("Char");
-    load_class("Bool");
-
-    load_class("Array");
-    load_class("EqualableArray");
-    load_class("SortableArray");
-
-    load_class("IHashKey");
-    load_class("IEqualable");
-    load_class("ISortable");
-
-    load_class("HashItem");
-    load_class("Hash");
-
-    load_class("ListItem");
-    load_class("List");
-    load_class("SortableList");
-    load_class("EqualableList");
-
-    load_class("Tuple1");
-    load_class("Tuple2");
-    load_class("Tuple3");
-    load_class("Tuple4");
-    load_class("Tuple5");
-    load_class("Tuple6");
-    load_class("Tuple7");
-    load_class("Tuple8");
-    load_class("Tuple9");
-    load_class("Tuple10");
-
-    load_class("File");
-    load_class("Path");
-    load_class("tm");
-    load_class("stat");
-    load_class("Directory");
-    load_class("termios");
-    load_class("Job");
-    load_class("Command");
-
-    load_class("Clover");
-}
-
-void class_init_on_compile_time()
-{
-    load_fundamental_classes_on_compile_time();
-    set_boxing_and_unboxing_classes();
 }
 
 void class_init()

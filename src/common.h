@@ -338,6 +338,8 @@ sCLMethod* search_for_method_from_virtual_method_table(sCLClass* klass, char* me
 BOOL is_valid_class(sCLClass* klass);
 BOOL put_class_to_table(char* class_name, sCLClass* klass);
 BOOL jit_compile_all_classes();
+void remove_class(char* class_name);
+sCLClass* load_class_from_class_file(char* class_name, char* class_file_name);
 
 struct sClassTableStruct
 {
@@ -1732,12 +1734,12 @@ BOOL search_for_methods_from_method_name(int method_indexes[], int size_method_i
 int search_for_field(sCLClass* klass, char* field_name);
 int search_for_class_field(sCLClass* klass, char* field_name);
 void add_dependences_with_node_type(sCLClass* klass, sNodeType* node_type);
-sCLClass* get_class_with_load(char* class_name);
 BOOL parse_params(sParserParam* params, int* num_params, sParserInfo* info, int chracter_type);
 BOOL check_implemented_methods_for_interface(sCLClass* left_class, sCLClass* right_class);
 BOOL method_name_existance(sCLClass* klass, char* method_name);
 void create_method_name_and_params(char* result, int size_result, sCLClass* klass, char* method_name, sNodeType* param_types[PARAMS_MAX], int num_params);
 BOOL determine_method_generics_types(sNodeType* left_param, sNodeType* right_param, sNodeType* method_generics_types);
+sCLClass* get_class_with_load_on_compile_time(char* class_name);
 
 /// native_method.c ///
 void native_method_init();

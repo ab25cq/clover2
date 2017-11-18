@@ -1303,7 +1303,7 @@ BOOL parse_class_type(sCLClass** klass, sParserInfo* info)
         *klass = info->klass;
     }
     else {
-        *klass = get_class_with_load(class_name);
+        *klass = get_class_with_load_on_compile_time(class_name);
     }
 
     if(*klass == NULL) {
@@ -1489,7 +1489,7 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
         sCLClass* klass = (*result_type)->mClass;
 
         for(i=0; i<generics_num; i++) {
-            sCLClass* left_type = get_class_with_load(CONS_str(&klass->mConst, klass->mGenericsParamTypeOffsets[i]));
+            sCLClass* left_type = get_class_with_load_on_compile_time(CONS_str(&klass->mConst, klass->mGenericsParamTypeOffsets[i]));
 
             sCLClass* right_type = (*result_type)->mGenericsTypes[i]->mClass;
 
@@ -1606,7 +1606,7 @@ BOOL parse_type_for_new(sNodeType** result_type, unsigned int* array_num, sParse
 
     for(i=0; i<generics_num; i++) {
         int generics_paramType_offset = klass->mGenericsParamTypeOffsets[i];
-        sCLClass* left_type = get_class_with_load(CONS_str(&klass->mConst, generics_paramType_offset));
+        sCLClass* left_type = get_class_with_load_on_compile_time(CONS_str(&klass->mConst, generics_paramType_offset));
 
         sCLClass* right_type = (*result_type)->mGenericsTypes[i]->mClass;
 
@@ -3285,7 +3285,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 klass = get_class(buf);
 
                 if(klass == NULL) {
-                    klass = load_class(buf);
+                    klass = load_class_on_compile_time(buf);
                 }
             }
             else {

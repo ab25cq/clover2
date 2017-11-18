@@ -133,9 +133,6 @@ int main(int argc, char** argv)
         else if(strcmp(argv[i], "-class") == 0) {
             clcl_compile = TRUE;
         }
-        else if(strcmp(argv[i], "-dependency") == 0) {
-          set_dependency_compile();
-        }
         else {
             xstrncpy(sname, argv[i], PATH_MAX);
         }
@@ -148,14 +145,6 @@ int main(int argc, char** argv)
     }
 
     compiler_init(no_load_fudamental_classes);
-
-/*
-    if(!dependency_check(sname)) {
-      fprintf(stderr, "cclover2 dependency check error %s\n", argv[i]);
-      compiler_final();
-      return 1;
-    }
-*/
 
     if(clcl_compile) {
         if(!class_compiler(sname)) {
