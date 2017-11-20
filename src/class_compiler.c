@@ -157,9 +157,7 @@ static BOOL parse_class_on_alloc_classes_phase(sParserInfo* info, sCompileInfo* 
         info->klass->mFlags |= CLASS_FLAGS_ALLOCATED;
     }
 
-    if(!info->included_source) {
-        info->klass->mFlags |= CLASS_FLAGS_MODIFIED;
-    }
+    info->klass->mFlags |= CLASS_FLAGS_MODIFIED;
 
     if(!skip_block(info)) {
         return FALSE;
@@ -1048,12 +1046,27 @@ static BOOL parse_class_source(sParserInfo* info, sCompileInfo* cinfo);
 
 static BOOL include_file(sParserInfo* info, sCompileInfo* cinfo)
 {
-    /// get file name ///
+    /// includeするファイル名を得る ///
     char file_name[PATH_MAX+1];
 
     expect_next_character_with_one_forward("\"", info);
 
     char* p = file_name;
+
+    /// ファイル名を絶対パスにしておく ///
+    if(*info->p != '/') {
+        char* pwd = getenv("PWD");
+
+        if(pwd) {
+            char* p2 = pwd;
+
+            while(*p2) {
+                *p++ = *p2++;
+            }
+
+            *p++ = '/';
+        }
+    }
 
     while(1) {
         if(*info->p == '"') {
@@ -1076,52 +1089,54 @@ static BOOL include_file(sParserInfo* info, sCompileInfo* cinfo)
     }
     *p = '\0';
 
-    /// load source file ///
-    sBuf source;
-    sBuf_init(&source);
+    if(strcmp(info->fname, file_name) != 0) { /// コンパイル中のファイルのincludeは禁止させる
+        /// load source file ///
+        sBuf source;
+        sBuf_init(&source);
 
-    if(!read_source(file_name, &source)) {
-        MFREE(source.mBuf);
-        return FALSE;
-    }
+        if(!read_source(file_name, &source)) {
+            MFREE(source.mBuf);
+            return FALSE;
+        }
 
-    sBuf source2;
-    sBuf_init(&source2);
+        sBuf source2;
+        sBuf_init(&source2);
 
-    if(!delete_comment(&source, &source2)) {
-        MFREE(source.mBuf);
-        MFREE(source2.mBuf);
-        return FALSE;
-    }
+        if(!delete_comment(&source, &source2)) {
+            MFREE(source.mBuf);
+            MFREE(source2.mBuf);
+            return FALSE;
+        }
 
-    char* info_p_before = info->p;
-    info->p = source2.mBuf;
+        char* info_p_before = info->p;
+        info->p = source2.mBuf;
 
-    char* info_sname_before = info->sname;
-    info->sname = file_name;
+        char* info_sname_before = info->sname;
+        info->sname = file_name;
 
-    int info_sline_before = info->sline;
-    info->sline = 1;
+        int info_sline_before = info->sline;
+        info->sline = 1;
 
-    BOOL info_included_source_before = info->included_source;
-    info->included_source = TRUE;
+        BOOL info_included_source_before = info->included_source;
+        info->included_source = TRUE;
 
-    if(!parse_class_source(info, cinfo)) {
+        if(!parse_class_source(info, cinfo)) {
+            info->p = info_p_before;
+            info->sname = info_sname_before;
+            info->sline = info_sline_before;
+            info->included_source = info_included_source_before;
+            MFREE(source.mBuf);
+            return FALSE;
+        }
+
         info->p = info_p_before;
         info->sname = info_sname_before;
         info->sline = info_sline_before;
         info->included_source = info_included_source_before;
+
         MFREE(source.mBuf);
-        return FALSE;
+        MFREE(source2.mBuf);
     }
-
-    info->p = info_p_before;
-    info->sname = info_sname_before;
-    info->sline = info_sline_before;
-    info->included_source = info_included_source_before;
-
-    MFREE(source.mBuf);
-    MFREE(source2.mBuf);
 
     return TRUE;
 }
@@ -1194,6 +1209,12 @@ BOOL compile_class_source(char* fname, char* source)
     info.lv_table = NULL;
     info.parse_phase = 0;
     info.included_source = FALSE;
+
+    char fname2[PATH_MAX+1];
+
+    append_cwd_for_path(fname, fname2);         // ファイル名を絶対パスにしておく
+
+    info.fname = fname2;
 
     sCompileInfo cinfo;
     

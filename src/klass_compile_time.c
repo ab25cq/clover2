@@ -420,6 +420,7 @@ static BOOL search_for_class_file_on_compile_time(char* class_name, char* class_
                 if(rc == 0) {
                     snprintf(class_file_name, class_file_name_size, "%s/%s.oclcl", cwd, class_name);
 
+
                     if(access(class_file_name, F_OK) == 0) {
                         return TRUE;
                     }

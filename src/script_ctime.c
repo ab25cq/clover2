@@ -161,6 +161,26 @@ static BOOL write_code_and_constant_to_file(sByteCode* code, sConst* constant, i
     return TRUE;
 }
 
+/// パスを絶対パスにする（単にカレントディレクトリを追加する簡易版）fname1とfname2のメモリの大きさはPATH_MAX前提
+void append_cwd_for_path(char* fname, char* fname2)
+{
+    if(fname[0] != '/') {
+        char* cwd = getenv("PWD");
+
+        if(cwd) {
+            xstrncpy(fname2, cwd, PATH_MAX);
+            xstrncat(fname2, "/", PATH_MAX);
+            xstrncat(fname2, fname, PATH_MAX);
+        }
+        else {
+            xstrncpy(fname2, fname, PATH_MAX);
+        }
+    }
+    else {
+        xstrncpy(fname2, fname, PATH_MAX);
+    }
+}
+
 BOOL compile_script(char* fname, char* source)
 {
     sParserInfo info;
@@ -172,6 +192,12 @@ BOOL compile_script(char* fname, char* source)
     info.sline = 1;
     info.lv_table = init_var_table();
     info.parse_phase = 0;
+
+    char fname2[PATH_MAX+1];
+
+    append_cwd_for_path(fname, fname2);         // ファイル名を絶対パスにしておく
+
+    info.fname = fname2;
 
     sCompileInfo cinfo;
     

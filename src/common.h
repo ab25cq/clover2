@@ -491,6 +491,7 @@ struct sCompileInfoStruct;
 struct sParserInfoStruct
 {
     char* p;
+    char* fname;
     char* sname;
     int sline;
     int err_num;
@@ -839,6 +840,7 @@ BOOL compile_block_with_result(sNodeBlock* block, sCompileInfo* info);
 BOOL compile_script(char* fname, char* source);
 BOOL read_source(char* fname, sBuf* source);
 BOOL delete_comment(sBuf* source, sBuf* source2);
+void append_cwd_for_path(char* fname, char* fname2);
 
 /// script.c ///
 BOOL eval_file(char* fname, int stack_size);
@@ -1723,6 +1725,7 @@ BOOL dependency_compile(char* cwd, char* class_name, char* class_file_name, size
 void dependency_final();
 
 /// klass_compile_time.c ///
+sCLClass* load_class_on_compile_time(char* class_name);
 BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_, sGenericsParamInfo* ginfo);
 BOOL add_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type);
 BOOL add_typedef_to_class(sCLClass* klass, char* class_name1, char* class_name2);
