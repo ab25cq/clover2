@@ -420,9 +420,44 @@ static BOOL search_for_class_file_on_compile_time(char* class_name, char* class_
                 if(rc == 0) {
                     snprintf(class_file_name, class_file_name_size, "%s/%s.oclcl", cwd, class_name);
 
-
                     if(access(class_file_name, F_OK) == 0) {
                         return TRUE;
+                    }
+                }
+            }
+
+            /// ソースファイルのディレクトリも一応探しておく ///
+            if(strstr(gCompilingSourceFileName, "/")) {  // gCompilingSourceFileNameは絶対パスじゃないこともある
+                char source_path[PATH_MAX];
+
+                char* p = gCompilingSourceFileName + strlen(gCompilingSourceFileName);
+
+                while(*p != '/') {
+                    p--;
+                }
+
+                memcpy(source_path, gCompilingSourceFileName, p - gCompilingSourceFileName);
+                source_path[p - gCompilingSourceFileName] = '\0';
+
+                snprintf(path, PATH_MAX, "%s/%s.clcl", source_path, class_name);
+
+                /// ありゃ、dirname使えばいいのかな、、
+
+                if(access(path, F_OK) == 0) {
+                    /// コンパイル ///
+                    char command[PATH_MAX+128];
+
+                    snprintf(command, PATH_MAX+128, "cclover2 %s/%s.clcl", source_path, class_name);
+
+                    int rc = system(command);
+
+                    /// 一応クラスファイルがあるかどうかチェックして、あるなら真を返します ///
+                    if(rc == 0) {
+                        snprintf(class_file_name, class_file_name_size, "%s/%s.oclcl", cwd, class_name);
+
+                        if(access(class_file_name, F_OK) == 0) {
+                            return TRUE;
+                        }
                     }
                 }
             }

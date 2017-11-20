@@ -57,7 +57,7 @@ $(OBJ): src/*.h Makefile configure
 # install
 #########################################################
 install:
-	rm -f ./*.oclcl
+#	rm -f ./*.oclcl
 #	./cclover2 -core Fundamental.clcl
 #	./cclover2 -core Container.clcl
 #	./cclover2 -core String.clcl
@@ -359,4 +359,5 @@ test:
 	./cclover2 code/result_type.clcl && ./clover2 code/result_type.cl
 	./clover2 code/is.cl
 	./clover2 code/null_test.cl
+	./clover2 code/dependecy.cl
 

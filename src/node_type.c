@@ -110,7 +110,7 @@ static void skip_spaces_for_parse_class_name(char** p)
     }
 }
 
-static sNodeType* parse_class_name(char** p, char** p2, char* buf)
+static sNodeType* parse_class_name(char** p, char** p2, char* buf, sParserInfo* info)
 {
     sNodeType* node_type = alloc_node_type();
 
@@ -136,7 +136,7 @@ static sNodeType* parse_class_name(char** p, char** p2, char* buf)
             }
 
             while(1) {
-                node_type->mGenericsTypes[node_type->mNumGenericsTypes] = parse_class_name(p, p2, buf);
+                node_type->mGenericsTypes[node_type->mNumGenericsTypes] = parse_class_name(p, p2, buf, info);
                 node_type->mNumGenericsTypes++;
 
                 if(node_type->mNumGenericsTypes >= GENERICS_TYPES_MAX) {
@@ -213,7 +213,7 @@ sNodeType* create_node_type_with_class_name(char* class_name)
     char* p = class_name;
     char* p2 = buf;
 
-    return parse_class_name(&p, &p2, buf);
+    return parse_class_name(&p, &p2, buf, NULL);
 }
 
 sNodeType* create_node_type_with_generics_number(int generics_num)

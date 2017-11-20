@@ -1089,7 +1089,7 @@ static BOOL include_file(sParserInfo* info, sCompileInfo* cinfo)
     }
     *p = '\0';
 
-    if(strcmp(info->fname, file_name) != 0) { /// コンパイル中のファイルのincludeは禁止させる
+    if(strcmp(gCompilingSourceFileName, file_name) != 0) { /// コンパイル中のファイルのincludeは禁止させる
         /// load source file ///
         sBuf source;
         sBuf_init(&source);
@@ -1214,7 +1214,7 @@ BOOL compile_class_source(char* fname, char* source)
 
     append_cwd_for_path(fname, fname2);         // ファイル名を絶対パスにしておく
 
-    info.fname = fname2;
+    xstrncpy(gCompilingSourceFileName, fname2, PATH_MAX);  // コンパイル中のソースファイル名を保存
 
     sCompileInfo cinfo;
     

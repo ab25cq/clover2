@@ -181,6 +181,8 @@ void append_cwd_for_path(char* fname, char* fname2)
     }
 }
 
+char gCompilingSourceFileName[PATH_MAX];
+
 BOOL compile_script(char* fname, char* source)
 {
     sParserInfo info;
@@ -194,10 +196,9 @@ BOOL compile_script(char* fname, char* source)
     info.parse_phase = 0;
 
     char fname2[PATH_MAX+1];
-
     append_cwd_for_path(fname, fname2);         // ファイル名を絶対パスにしておく
 
-    info.fname = fname2;
+    xstrncpy(gCompilingSourceFileName, fname2, PATH_MAX);  // コンパイル中のソースファイル名を保存
 
     sCompileInfo cinfo;
     

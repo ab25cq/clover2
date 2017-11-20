@@ -491,7 +491,6 @@ struct sCompileInfoStruct;
 struct sParserInfoStruct
 {
     char* p;
-    char* fname;
     char* sname;
     int sline;
     int err_num;
@@ -508,6 +507,8 @@ struct sParserInfoStruct
 };
 
 typedef struct sParserInfoStruct sParserInfo;
+
+extern char gCompilingSourceFileName[PATH_MAX];
 
 void parser_init();
 void parser_final();
@@ -1725,6 +1726,7 @@ BOOL dependency_compile(char* cwd, char* class_name, char* class_file_name, size
 void dependency_final();
 
 /// klass_compile_time.c ///
+sCLClass* get_class_with_load_on_compile_time(char* class_name);
 sCLClass* load_class_on_compile_time(char* class_name);
 BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_, sGenericsParamInfo* ginfo);
 BOOL add_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type);
@@ -1742,7 +1744,6 @@ BOOL check_implemented_methods_for_interface(sCLClass* left_class, sCLClass* rig
 BOOL method_name_existance(sCLClass* klass, char* method_name);
 void create_method_name_and_params(char* result, int size_result, sCLClass* klass, char* method_name, sNodeType* param_types[PARAMS_MAX], int num_params);
 BOOL determine_method_generics_types(sNodeType* left_param, sNodeType* right_param, sNodeType* method_generics_types);
-sCLClass* get_class_with_load_on_compile_time(char* class_name);
 
 /// native_method.c ///
 void native_method_init();
