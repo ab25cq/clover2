@@ -1171,6 +1171,32 @@ static BOOL parse_param(sParserParam* param, sParserInfo* info)
         return FALSE;
     }
 
+    /// デフォルト引数を得る。デフォルト引数が必要ない場合でもパースは出来てしまうのは内緒 ///
+    if(*info->p == '=') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        char* p = info->p;
+
+        unsigned int node = 0;
+        if(!expression(&node, info)) {
+            return FALSE;
+        }
+
+        char* p2 = info->p;
+
+        if(p2 - p > METHOD_DEFAULT_PARAM_MAX) {
+            parser_err_msg(info, "overflow method default param character");
+            return FALSE;
+        }
+
+        memcpy(param->mDefaultValue, p, p2 - p);
+        param->mDefaultValue[p2 -p] = '\0';
+    }
+    else {
+        param->mDefaultValue[0] = '\0';
+    }
+
     return TRUE;
 }
 

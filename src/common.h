@@ -70,6 +70,7 @@
 #define METHOD_CHAIN_MAX 128
 #define STRING_EXPRESSION_MAX 32
 #define GLOBAL_STACK_MAX 256
+#define METHOD_DEFAULT_PARAM_MAX 1024
 
 /// CLVALUE ///
 typedef unsigned int CLObject;
@@ -552,6 +553,8 @@ struct sParserParamStruct
 {
     char mName[VAR_NAME_MAX];
     sNodeType* mType;
+
+    char mDefaultValue[METHOD_DEFAULT_PARAM_MAX];
 };
 
 typedef struct sParserParamStruct sParserParam;

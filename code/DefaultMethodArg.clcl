@@ -1,0 +1,9 @@
+class DefaultMethodArg
+{
+    def initialize() {
+    }
+
+    def method(a:int, b:int = 1):int {
+        return a + b;
+    }
+}
