@@ -340,6 +340,9 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_
         if(right_class->mFlags & CLASS_FLAGS_INTERFACE) {
             return type_identify(left3, right3);
         }
+        else if(right_class->mFlags & CLASS_FLAGS_PRIMITIVE) {
+            return FALSE;
+        }
         else {
             return check_implemented_methods_for_interface(left_class, right_class);
         }

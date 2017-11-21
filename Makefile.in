@@ -360,4 +360,5 @@ test:
 	./clover2 code/is.cl
 	./clover2 code/null_test.cl
 	./clover2 code/dependecy.cl
+	./clover2 code/object.cl
 

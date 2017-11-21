@@ -3080,7 +3080,6 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
     else if(strcmp(method_name, "is") == 0) {
-//    else if(type_identify_with_class_name(object_type, "Anonymous") && strcmp(method_name, "is") == 0) {
         append_opecode_to_code(info->code, OP_CLASSNAME, info->no_output);
 
         info->type = create_node_type_with_class_name("String");
