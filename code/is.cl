@@ -9,6 +9,3 @@ elif(a.is("String")) {
 else {
 }
 
-b:Long = a;
-
-Clover.test("is test2", true);
