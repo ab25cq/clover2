@@ -1568,7 +1568,7 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
     create_label_name("label_if_end", label_end_point, LABEL_NAME_MAX, label_num);
 
     /// compile expression ///
-    sVarTable* lv_table = clone_var_table(info->lv_table);
+    //sVarTable* lv_table = clone_var_table(info->lv_table);
     unsigned int expression_node = gNodes[node].uValue.sIf.mExpressionNode;
 
     if(!compile(expression_node, info)) {
@@ -1610,7 +1610,7 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
         return FALSE;
     }
 
-    restore_var_table(info->lv_table, lv_table);
+    //restore_var_table(info->lv_table, lv_table);
 
     append_opecode_to_code(info->code, OP_STORE_VALUE_TO_GLOBAL, info->no_output);
     info->stack_num--;
@@ -1635,7 +1635,7 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
 
         int j;
         for(j=0; j<gNodes[node].uValue.sIf.mElifNum; j++) {
-            lv_table = clone_var_table(info->lv_table);
+            //lv_table = clone_var_table(info->lv_table);
 
             /// compile expression ///
             unsigned int elif_expression_node = gNodes[node].uValue.sIf.mElifExpressionNodes[j];
@@ -1678,7 +1678,7 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
                 return FALSE;
             }
 
-            restore_var_table(info->lv_table, lv_table);
+            //restore_var_table(info->lv_table, lv_table);
 
             append_opecode_to_code(info->code, OP_STORE_VALUE_TO_GLOBAL, info->no_output);
             info->stack_num--;
