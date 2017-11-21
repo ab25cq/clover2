@@ -2354,6 +2354,7 @@ unsigned int sNodeTree_create_method_call(unsigned int object_node, char* method
 
 static BOOL compile_params(sCLClass* klass, char* method_name, int num_params, unsigned int params[PARAMS_MAX], sNodeType* param_types[PARAMS_MAX], sNodeType* generics_types, sCompileInfo* info, unsigned int node, BOOL lazy_lambda_compile, BOOL* exist_lazy_lamda_compile)
 {
+    /// 引数のboxingのための準備 ///
     int size_method_indexes = 128;
     int method_indexes[size_method_indexes];
     int num_methods = 0;
@@ -2369,9 +2370,11 @@ static BOOL compile_params(sCLClass* klass, char* method_name, int num_params, u
 
         enum eNodeType node2_type = gNodes[node2].mNodeType;
 
+        /// 最後の引数がブロックならlazy_lambda_compileする。（メソッドブロックの型推論のため)
         if(lazy_lambda_compile && i == num_params-1 && node2_type == kNodeTypeBlockObject) {
             *exist_lazy_lamda_compile = TRUE;
         }
+        /// その他は普通にコンパイルする ///
         else {
             if(!compile(node2, info)) {
                 return FALSE;
@@ -2379,7 +2382,7 @@ static BOOL compile_params(sCLClass* klass, char* method_name, int num_params, u
 
             param_types[i] = info->type;
 
-            /// boxing ///
+            /// 引数をboxingすればメソッドが見つかるならboxingしないといけない ///
             int j;
             for(j=0; j<num_methods; j++) {
                 sCLMethod* method = klass->mMethods + method_indexes[j];
@@ -2395,12 +2398,19 @@ static BOOL compile_params(sCLClass* klass, char* method_name, int num_params, u
                         return FALSE;
                     }
 
-                    if(boxing_posibility(solved_param, param_types[i])) {
-                        cast_right_type_to_left_type(solved_param, &param_types[i], info);
+                    /// メソッド側の引数の型がインターフェースならboxingする。
+                    if(solved_param->mClass->mFlags & CLASS_FLAGS_INTERFACE) {
+                        boxing_to_lapper_class(&param_types[i], info);
                     }
+                    /// メソッド側の引数がユーザークラスで引数がプリミティブ型ならboxingする。
+                    else {
+                        if(boxing_posibility(solved_param, param_types[i])) {
+                            cast_right_type_to_left_type(solved_param, &param_types[i], info);
+                        }
 
-                    if(type_identify_with_class_name(param_types[i], "Null")) {
-                        param_types[i] = solved_param;
+                        if(type_identify_with_class_name(param_types[i], "Null")) {
+                            param_types[i] = solved_param;
+                        }
                     }
                 }
             }
