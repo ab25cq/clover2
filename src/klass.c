@@ -355,6 +355,12 @@ static BOOL read_methods_from_file(int fd, sCLMethod** methods, int* num_methods
             if(!read_cl_type_from_file(fd, &param->mType)) {
                 return FALSE;
             }
+
+            if(!read_int_from_file(fd, &n)) {
+                return FALSE;
+            }
+
+            param->mDefaultValueOffset = n;
         }
 
         if(!read_cl_type_from_file(fd, &method->mResultType)) {

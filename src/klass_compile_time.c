@@ -32,6 +32,7 @@ static void parser_param_to_cl_param(sParserParam* param, sCLParam* type, sCLCla
 {
     type->mNameOffset = append_str_to_constant_pool(&klass->mConst, param->mName, FALSE);
     node_type_to_cl_type(param->mType, ALLOC &type->mType, klass);
+    type->mDefaultValueOffset = append_str_to_constant_pool(&klass->mConst, param->mDefaultValue, FALSE);
 }
 
 static void create_method_path(char* result, int result_size, sCLMethod* method, sCLClass* klass)
@@ -799,6 +800,7 @@ static void append_methods_to_buffer(sBuf* buf, sCLMethod* methods, sCLClass* kl
 
             sBuf_append_int(buf, param->mNameOffset);
             append_cl_type_to_buffer(buf, param->mType);
+            sBuf_append_int(buf, param->mDefaultValueOffset);
         }
 
         append_cl_type_to_buffer(buf, method->mResultType);

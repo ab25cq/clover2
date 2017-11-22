@@ -198,6 +198,8 @@ struct sCLParamStruct {
     int mNameOffset;                // variable name
 
     sCLType* mType;
+
+    int mDefaultValueOffset;
 };
 
 typedef struct sCLParamStruct sCLParam;
