@@ -2387,7 +2387,9 @@ static BOOL compile_params(sCLClass* klass, char* method_name, int num_params, u
             for(j=0; j<num_methods; j++) {
                 sCLMethod* method = klass->mMethods + method_indexes[j];
 
-                if(num_params == method->mNumParams && i < method->mNumParams) {
+                if(num_params == method->mNumParams 
+                    && i < method->mNumParams) 
+                {
                     sNodeType* param;
                     sNodeType* solved_param;
 
@@ -2416,6 +2418,39 @@ static BOOL compile_params(sCLClass* klass, char* method_name, int num_params, u
             }
         }
     }
+
+/*
+    for(i=0; i<num_methods; i++) {
+        sCLMethod* method = klass->mMethods + method_indexes[i];
+
+        if(method->mNumParams > num_params) {
+            int j;
+            for(j=0; j<num_params; j++) {
+                sNodeType* param;
+                sNodeType* solved_param;
+
+                param = create_node_type_from_cl_type(method->mParams[j].mType, klass);
+
+                if(!solve_generics_types_for_node_type(param, ALLOC &solved_param, generics_types, TRUE, FALSE)) 
+                {
+                    return FALSE;
+                }
+
+                if(!substitution_posibility(solved_param, param_types[j]) 
+                {
+                    break:
+                }
+            }
+
+            if(j == num_params) {
+                int k;
+                for(k=num_params; k <method->mNumParams; k++) {
+                }
+                break;
+            }
+        }
+    }
+*/
 
     return TRUE;
 }

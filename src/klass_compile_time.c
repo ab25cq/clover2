@@ -704,6 +704,9 @@ BOOL check_implemented_methods_for_interface(sCLClass* left_class, sCLClass* rig
     if(right_class == anonymous_class) {
         return TRUE;
     }
+    else if(right_class->mFlags & CLASS_FLAGS_PRIMITIVE) {
+        return FALSE;
+    }
     else if(left_class != right_class) {
         int i;
         for(i=0; i<left_class->mNumMethods; i++) {
