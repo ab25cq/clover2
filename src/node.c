@@ -2353,16 +2353,16 @@ unsigned int sNodeTree_create_method_call(unsigned int object_node, char* method
 }
 
 
-/*
 /// メソッドのデフォルト引数 ///
-BOOL compile_params_method_default_value(sCLClass* klass, char* method_name, int num_params, unsigned int params[PARAMS_MAX], sNodeType* param_types[PARAMS_MAX], sNodeType* generics_types, sCompileInfo* info, int size_method_indexes, int method_indexes[], int num_methods)
+BOOL compile_params_method_default_value(sCLClass* klass, char* method_name, int* num_params, unsigned int params[PARAMS_MAX], sNodeType* param_types[PARAMS_MAX], sNodeType* generics_types, sCompileInfo* info, int size_method_indexes, int method_indexes[], int num_methods)
 {
+    int i;
     for(i=0; i<num_methods; i++) {
         sCLMethod* method = klass->mMethods + method_indexes[i];
 
-        if(method->mNumParams > num_params) {
+        if(method->mNumParams > *num_params) {
             int j;
-            for(j=0; j<num_params; j++) {
+            for(j=0; j<*num_params; j++) {
                 sNodeType* param;
                 sNodeType* solved_param;
 
@@ -2373,16 +2373,16 @@ BOOL compile_params_method_default_value(sCLClass* klass, char* method_name, int
                     return FALSE;
                 }
 
-                if(!substitution_posibility(solved_param, param_types[j]) 
+                if(!substitution_posibility(solved_param, param_types[j], NULL, NULL, NULL, NULL))
                 {
-                    break:
+                    break;
                 }
             }
 
             /// 対象のメソッドが見つかった（全部のsubstitution_posibilityが通っている)
-            if(j == num_params) {
+            if(j == *num_params) {
                 int k;
-                for(k=num_params; k < method->mNumParams; k++) {
+                for(k=*num_params; k < method->mNumParams; k++) {
                     sCLParam* param = method->mParams + k;
 
                     char* source = CONS_str(&klass->mConst, param->mDefaultValueOffset);
@@ -2413,6 +2413,10 @@ BOOL compile_params_method_default_value(sCLClass* klass, char* method_name, int
                     if(!compile(node, info)) {
                         return FALSE;
                     }
+
+                    param_types[k] = info->type;
+
+                    (*num_params)++;
                 }
                 break;
             }
@@ -2421,9 +2425,8 @@ BOOL compile_params_method_default_value(sCLClass* klass, char* method_name, int
 
     return TRUE;
 }
-*/
 
-static BOOL compile_params(sCLClass* klass, char* method_name, int num_params, unsigned int params[PARAMS_MAX], sNodeType* param_types[PARAMS_MAX], sNodeType* generics_types, sCompileInfo* info, unsigned int node, BOOL lazy_lambda_compile, BOOL* exist_lazy_lamda_compile)
+static BOOL compile_params(sCLClass* klass, char* method_name, int* num_params, unsigned int params[PARAMS_MAX], sNodeType* param_types[PARAMS_MAX], sNodeType* generics_types, sCompileInfo* info, unsigned int node, BOOL lazy_lambda_compile, BOOL* exist_lazy_lamda_compile)
 {
     /// 引数のboxingのための準備 ///
     int size_method_indexes = 128;
@@ -2436,13 +2439,13 @@ static BOOL compile_params(sCLClass* klass, char* method_name, int num_params, u
     }
 
     int i;
-    for(i=0; i<num_params; i++) {
+    for(i=0; i<*num_params; i++) {
         int node2 = params[i];
 
         enum eNodeType node2_type = gNodes[node2].mNodeType;
 
         /// 最後の引数がブロックならlazy_lambda_compileする。（メソッドブロックの型推論のため)
-        if(lazy_lambda_compile && i == num_params-1 && node2_type == kNodeTypeBlockObject) {
+        if(lazy_lambda_compile && i == *num_params-1 && node2_type == kNodeTypeBlockObject) {
             *exist_lazy_lamda_compile = TRUE;
         }
         /// その他は普通にコンパイルする ///
@@ -2458,7 +2461,7 @@ static BOOL compile_params(sCLClass* klass, char* method_name, int num_params, u
             for(j=0; j<num_methods; j++) {
                 sCLMethod* method = klass->mMethods + method_indexes[j];
 
-                if(num_params == method->mNumParams 
+                if(*num_params == method->mNumParams 
                     && i < method->mNumParams) 
                 {
                     sNodeType* param;
@@ -2537,7 +2540,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
         info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
 
         BOOL exist_lazy_lamda_compile = FALSE;
-        if(!compile_params(klass, method_name, num_params, params, param_types, generics_types, info, node, FALSE, &exist_lazy_lamda_compile)) {
+        if(!compile_params(klass, method_name, &num_params, params, param_types, generics_types, info, node, FALSE, &exist_lazy_lamda_compile)) {
             return FALSE;
         }
 
@@ -2557,7 +2560,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                 info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
 
                 BOOL exist_lazy_lamda_compile = FALSE;
-                if(!compile_params(klass, method_name, num_params, params, param_types, generics_types, info, node, FALSE, &exist_lazy_lamda_compile)) {
+                if(!compile_params(klass, method_name, &num_params, params, param_types, generics_types, info, node, FALSE, &exist_lazy_lamda_compile)) {
                     return FALSE;
                 }
 
@@ -2639,7 +2642,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
 
         /// compile params ///
         BOOL exist_lazy_lamda_compile = FALSE;
-        if(!compile_params(klass, method_name, num_params, params, param_types, generics_types, info, node, FALSE, &exist_lazy_lamda_compile)) {
+        if(!compile_params(klass, method_name, &num_params, params, param_types, generics_types, info, node, FALSE, &exist_lazy_lamda_compile)) {
             return FALSE;
         }
 
@@ -2666,7 +2669,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
 
         /// compile params ///
         BOOL exist_lazy_lamda_compile = FALSE;
-        if(!compile_params(klass, method_name, num_params, params, param_types, generics_types, info, node, FALSE, &exist_lazy_lamda_compile)) {
+        if(!compile_params(klass, method_name, &num_params, params, param_types, generics_types, info, node, FALSE, &exist_lazy_lamda_compile)) {
             return FALSE;
         }
 
@@ -2709,7 +2712,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
         /// compile params ///
         BOOL lazy_lambda_compile = TRUE;
         BOOL exist_lazy_lamda_compile = FALSE;
-        if(!compile_params(klass, method_name, num_params, params, param_types, generics_types, info, node, lazy_lambda_compile, &exist_lazy_lamda_compile)) 
+        if(!compile_params(klass, method_name, &num_params, params, param_types, generics_types, info, node, lazy_lambda_compile, &exist_lazy_lamda_compile)) 
         {
             return FALSE;
         }
@@ -3058,7 +3061,7 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
     if(strcmp(method_name, "identifyWith") == 0) {
         /// compile params ///
         BOOL exist_lazy_lamda_compile = FALSE;
-        if(!compile_params(klass, method_name, num_params, params, param_types, generics_types2, info, node, FALSE, &exist_lazy_lamda_compile)) {
+        if(!compile_params(klass, method_name, &num_params, params, param_types, generics_types2, info, node, FALSE, &exist_lazy_lamda_compile)) {
             return FALSE;
         }
 
@@ -3183,7 +3186,7 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
 
         /// compile params ///
         BOOL exist_lazy_lamda_compile = FALSE;
-        if(!compile_params(klass, method_name, num_params, params, param_types, generics_types2, info, node, FALSE, &exist_lazy_lamda_compile)) {
+        if(!compile_params(klass, method_name, &num_params, params, param_types, generics_types2, info, node, FALSE, &exist_lazy_lamda_compile)) {
             return FALSE;
         }
 
@@ -3331,7 +3334,7 @@ static BOOL compile_new_operator(unsigned int node, sCompileInfo* info)
         info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
 
         BOOL exist_lazy_lamda_compile = FALSE;
-        if(!compile_params(klass, method_name, num_params, params, param_types, generics_types2, info, node, FALSE, &exist_lazy_lamda_compile)) {
+        if(!compile_params(klass, method_name, &num_params, params, param_types, generics_types2, info, node, FALSE, &exist_lazy_lamda_compile)) {
             return FALSE;
         }
 
