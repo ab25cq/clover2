@@ -303,7 +303,7 @@ class ListItem <T:Object>
         self.prev = null;
     }
 
-    def initialize(item:T, prev:ListItem<T>, next:ListItem<T>) {
+    def initialize(item:T?, prev:ListItem<T>?, next:ListItem<T>?) {
         self.item = item;
         self.prev = prev;
         self.next = next;

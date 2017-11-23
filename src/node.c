@@ -2352,6 +2352,77 @@ unsigned int sNodeTree_create_method_call(unsigned int object_node, char* method
     return node;
 }
 
+
+/*
+/// メソッドのデフォルト引数 ///
+BOOL compile_params_method_default_value(sCLClass* klass, char* method_name, int num_params, unsigned int params[PARAMS_MAX], sNodeType* param_types[PARAMS_MAX], sNodeType* generics_types, sCompileInfo* info, int size_method_indexes, int method_indexes[], int num_methods)
+{
+    for(i=0; i<num_methods; i++) {
+        sCLMethod* method = klass->mMethods + method_indexes[i];
+
+        if(method->mNumParams > num_params) {
+            int j;
+            for(j=0; j<num_params; j++) {
+                sNodeType* param;
+                sNodeType* solved_param;
+
+                param = create_node_type_from_cl_type(method->mParams[j].mType, klass);
+
+                if(!solve_generics_types_for_node_type(param, ALLOC &solved_param, generics_types, TRUE, FALSE)) 
+                {
+                    return FALSE;
+                }
+
+                if(!substitution_posibility(solved_param, param_types[j]) 
+                {
+                    break:
+                }
+            }
+
+            /// 対象のメソッドが見つかった（全部のsubstitution_posibilityが通っている)
+            if(j == num_params) {
+                int k;
+                for(k=num_params; k < method->mNumParams; k++) {
+                    sCLParam* param = method->mParams + k;
+
+                    char* source = CONS_str(&klass->mConst, param->mDefaultValueOffset);
+
+                    sParserInfo info2;
+
+                    info2.p = source;
+
+                    info2.sname = info->pinfo->sname;
+                    info2.sline = info->pinfo->sline;
+                    info2.err_num = info->pinfo->err_num;
+                    info2.lv_table = NULL;
+                    info2.parse_phase = info->pinfo->parse_phase;
+                    info2.klass = info->pinfo->klass;
+                    info2.generics_info = info->pinfo->generics_info;
+                    info2.method_generics_info = info->pinfo->method_generics_info;
+                    info2.cinfo = info;
+                    info2.included_source = FALSE;
+                    info2.get_type_for_interpreter = info->pinfo->get_type_for_interpreter;
+                    info2.next_command_is_to_bool = FALSE;
+                    info2.exist_block_object_err = info->pinfo->exist_block_object_err;
+
+                    unsigned int node = 0;
+                    if(!expression(&node, &info2)) {
+                        return FALSE;
+                    }
+
+                    if(!compile(node, info)) {
+                        return FALSE;
+                    }
+                }
+                break;
+            }
+        }
+    }
+
+    return TRUE;
+}
+*/
+
 static BOOL compile_params(sCLClass* klass, char* method_name, int num_params, unsigned int params[PARAMS_MAX], sNodeType* param_types[PARAMS_MAX], sNodeType* generics_types, sCompileInfo* info, unsigned int node, BOOL lazy_lambda_compile, BOOL* exist_lazy_lamda_compile)
 {
     /// 引数のboxingのための準備 ///
@@ -2410,8 +2481,11 @@ static BOOL compile_params(sCLClass* klass, char* method_name, int num_params, u
                             cast_right_type_to_left_type(solved_param, &param_types[i], info);
                         }
 
-                        if(type_identify_with_class_name(param_types[i], "Null")) {
-                            param_types[i] = solved_param;
+                        /// Nullを代入しているなら戻り値はメソッド側の型にする。Null型ではメソッドサーチが通らないため
+                        if(substitution_posibility_with_class_name(solved_param, "Null")) {
+                            if(type_identify_with_class_name(param_types[i], "Null")) {
+                                param_types[i] = solved_param;
+                            }
                         }
                     }
                 }
@@ -2420,35 +2494,10 @@ static BOOL compile_params(sCLClass* klass, char* method_name, int num_params, u
     }
 
 /*
-    for(i=0; i<num_methods; i++) {
-        sCLMethod* method = klass->mMethods + method_indexes[i];
-
-        if(method->mNumParams > num_params) {
-            int j;
-            for(j=0; j<num_params; j++) {
-                sNodeType* param;
-                sNodeType* solved_param;
-
-                param = create_node_type_from_cl_type(method->mParams[j].mType, klass);
-
-                if(!solve_generics_types_for_node_type(param, ALLOC &solved_param, generics_types, TRUE, FALSE)) 
-                {
-                    return FALSE;
-                }
-
-                if(!substitution_posibility(solved_param, param_types[j]) 
-                {
-                    break:
-                }
-            }
-
-            if(j == num_params) {
-                int k;
-                for(k=num_params; k <method->mNumParams; k++) {
-                }
-                break;
-            }
-        }
+    /// メソッドのデフォルト引数 ///
+    if(!compile_params_method_default_value(klass, method_name, num_params, params, param_types, generics_types, info, size_method_indexes, method_indexes, num_methods))
+    {
+        return FALSE;
     }
 */
 
