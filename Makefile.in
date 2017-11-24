@@ -362,4 +362,5 @@ test:
 	./clover2 code/dependecy.cl
 	./clover2 code/object.cl
 	./clover2 code/default_method_arg.cl
+	./clover2 code/enum.cl
 

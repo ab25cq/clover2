@@ -626,6 +626,16 @@ static BOOL initialize_class(sCLClass* klass)
         MFREE(stack);
     }
 
+    /// initialize enum ///
+    int i;
+    for(i=0; i<klass->mNumClassFields; i++) {
+        sCLField* field = klass->mClassFields + i;
+
+        if(field->mInitializeValue != -1) {
+            field->mValue.mIntValue = field->mInitializeValue;
+        }
+    }
+
     return TRUE;
 }
 

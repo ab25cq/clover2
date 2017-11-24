@@ -1,0 +1,10 @@
+class EnumTest
+{
+    enum {
+        Value1, Value2, Value3
+    }
+
+    enum {
+        BValue1, BValue2, BValue3
+    }
+}

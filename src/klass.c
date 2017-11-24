@@ -433,6 +433,11 @@ static BOOL read_fields_from_file(int fd, sCLField** fields, int* num_fields, in
         if(!read_cl_type_from_file(fd, &field->mResultType)) {
             return FALSE;
         }
+
+        if(!read_int_from_file(fd, &n)) {
+            return FALSE;
+        }
+        field->mInitializeValue = n;
     }
 
     return TRUE;

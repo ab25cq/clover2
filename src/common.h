@@ -266,6 +266,8 @@ struct sCLFieldStruct {
     sCLType* mResultType;
     CLVALUE mValue;
 
+    int mInitializeValue; // -1は初期化なし。enum型のためにある。
+
     int mDelegatedMethodIndex[METHOD_NUM_MAX];  // compile time variable
     int mNumDelegatedMethod;
 };
@@ -1736,7 +1738,7 @@ sCLClass* load_class_on_compile_time(char* class_name);
 BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_, sGenericsParamInfo* ginfo);
 BOOL add_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type);
 BOOL add_typedef_to_class(sCLClass* klass, char* class_name1, char* class_name2);
-BOOL add_class_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type);
+BOOL add_class_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type, int initialize_value);
 void add_code_to_method(sCLMethod* method, sByteCode* code, int var_num);
 BOOL write_all_modified_classes();
 int search_for_method(sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, int start_point, sNodeType* left_generics_type, sNodeType* right_generics_type, sNodeType* right_method_generics, sNodeType** result_type, BOOL lazy_lambda_compile, BOOL lazy_labda_compile2, sNodeType** method_generics_types);

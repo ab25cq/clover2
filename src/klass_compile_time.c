@@ -327,7 +327,7 @@ BOOL add_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protect
     return TRUE;
 }
 
-BOOL add_class_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type)
+BOOL add_class_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type, int initialize_value)
 {
     if(klass->mNumClassFields == klass->mSizeClassFields) {
         int new_size = klass->mSizeClassFields * 2;
@@ -340,6 +340,8 @@ BOOL add_class_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL p
 
     klass->mClassFields[num_fields].mFlags = (private_ ? FIELD_FLAGS_PRIVATE : 0) | (protected_ ? FIELD_FLAGS_PROTECTED:0);
     klass->mClassFields[num_fields].mNameOffset = append_str_to_constant_pool(&klass->mConst, name, FALSE);
+
+    klass->mClassFields[num_fields].mInitializeValue = initialize_value;
 
     node_type_to_cl_type(result_type, ALLOC &klass->mClassFields[num_fields].mResultType, klass);
 
@@ -930,6 +932,8 @@ static void append_fields_to_buffer(sBuf* buf, sCLField* fields, int num_fields)
         sBuf_append_int(buf, field->mNameOffset);
 
         append_cl_type_to_buffer(buf, field->mResultType);
+
+        sBuf_append_int(buf, field->mInitializeValue);
     }
 }
 

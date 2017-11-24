@@ -526,6 +526,43 @@ static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOO
             }
         }
     }
+    else if(strcmp(buf, "enum") == 0) {
+        expect_next_character_with_one_forward("{", info);
+
+        int num_enum = 0;
+
+        while(1) {
+            char element_name[VAR_NAME_MAX+1];
+
+            if(!parse_word(element_name, VAR_NAME_MAX, info, TRUE, FALSE)) {
+                return FALSE;
+            }
+
+            BOOL private_ = FALSE;
+            BOOL protected_ = FALSE;
+            sNodeType* field_type = create_node_type_with_class_name("int");
+
+            if(!add_class_field_to_class(info->klass, element_name, private_, protected_, field_type, num_enum++)) 
+            {
+                return FALSE;
+            }
+
+            if(*info->p == ',') {
+                info->p++;
+                skip_spaces_and_lf(info);
+            }
+            else if(*info->p == '}') {
+                info->p++;
+                skip_spaces_and_lf(info);
+                break;
+            }
+            else if(*info->p == '\0') {
+                parser_err_msg(info, "unexpected source end");
+                return FALSE;
+            }
+        }
+
+    }
     /// variable ///
     else {
         BOOL private_ = FALSE;
@@ -542,7 +579,7 @@ static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOO
 
         if(info->err_num == 0 && (info->klass->mFlags & CLASS_FLAGS_ALLOCATED)) {
             if(static_) {
-                if(!add_class_field_to_class(info->klass, buf, private_, protected_, result_type)) {
+                if(!add_class_field_to_class(info->klass, buf, private_, protected_, result_type, -1)) {
                     return FALSE;
                 }
             }
@@ -837,6 +874,31 @@ BOOL parse_methods_and_fields_on_compile_time(sParserInfo* info, sCompileInfo* c
         if(*info->p == ';') {
             info->p++;
             skip_spaces_and_lf(info);
+        }
+    }
+    else if(strcmp(buf, "enum") == 0) {
+        expect_next_character_with_one_forward("{", info);
+
+        while(1) {
+            char element_name[VAR_NAME_MAX+1];
+
+            if(!parse_word(element_name, VAR_NAME_MAX, info, TRUE, FALSE)) {
+                return FALSE;
+            }
+
+            if(*info->p == ',') {
+                info->p++;
+                skip_spaces_and_lf(info);
+            }
+            else if(*info->p == '}') {
+                info->p++;
+                skip_spaces_and_lf(info);
+                break;
+            }
+            else if(*info->p == '\0') {
+                parser_err_msg(info, "unexpected source end");
+                return FALSE;
+            }
         }
     }
     /// variable ///
