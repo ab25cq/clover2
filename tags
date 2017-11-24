@@ -14,7 +14,7 @@ BREAK_NUM_MAX	src/common.h	53;"	d
 BUFFER_H	src/buffer.h	2;"	d
 BYTE_CODE_INIT_SIZE	src/code.c	3;"	d	file:
 CC	Makefile	/^CC=ccache clang$/;"	m
-CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -I\/home\/ab25cq\/include -L\/home\/ab25cq\/lib -fPIC -rdynamic -I\/usr\/local\/include -L \/usr\/local\/lib -O3 -DENABLE_INTERPRETER -Qunused-arguments$/;"	m
+CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -I\/home\/ab25cq\/include -L\/home\/ab25cq\/lib -fPIC -rdynamic -I\/usr\/local\/include -L \/usr\/local\/lib -DENABLE_INTERPRETER -g -DMDEBUG -Werror -Qunused-arguments$/;"	m
 CHECKML_BEGIN	src/debug.h	11;"	d
 CHECKML_BEGIN	src/debug.h	39;"	d
 CHECKML_END	src/debug.h	12;"	d
@@ -43,7 +43,7 @@ COMMON_OBJS	Makefile	/^COMMON_OBJS=src\/buffer.o src\/debug.o src\/xfunc.o src\/
 COMPILER_OBJS	Makefile	/^COMPILER_OBJS=src\/parser.o src\/node_type.o src\/node.o src\/cast.o src\/vtable.o src\/script_ctime.o src\/node_block.o src\/node_block_type.o src\/class_compiler.o src\/klass_compile_time.o src\/method_compiler.o src\/module.o$/;"	m
 CONS_str	src/common.h	127;"	d
 CXX	Makefile	/^CXX=ccache clang++$/;"	m
-CXXFLAGS	Makefile	/^CXXFLAGS=`llvm-config --cxxflags --ldflags --system-libs --libs all` -lffi -O3 -I . $/;"	m
+CXXFLAGS	Makefile	/^CXXFLAGS=`llvm-config --cxxflags --ldflags --system-libs --libs all` -lffi -DMDEBUG -g -I . $/;"	m
 Clover_load	src/class_clover.c	/^BOOL Clover_load(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 DEBUG_H	src/debug.h	2;"	d
 DUMMY_ARRAY_SIZE	src/common.h	1820;"	d
@@ -1188,7 +1188,8 @@ compile_normal_block	src/node.c	/^static BOOL compile_normal_block(unsigned int 
 compile_null_expression	src/node.c	/^static BOOL compile_null_expression(unsigned int node, sCompileInfo* info)$/;"	f	file:
 compile_operand	src/node.c	/^static BOOL compile_operand(unsigned int node, sCompileInfo* info)$/;"	f	file:
 compile_or_or	src/node.c	/^static BOOL compile_or_or(unsigned int node, sCompileInfo* info)$/;"	f	file:
-compile_params	src/node.c	/^static BOOL compile_params(sCLClass* klass, char* method_name, int num_params, unsigned int params[PARAMS_MAX], sNodeType* param_types[PARAMS_MAX], sNodeType* generics_types, sCompileInfo* info, unsigned int node, BOOL lazy_lambda_compile, BOOL* exist_lazy_lamda_compile)$/;"	f	file:
+compile_params	src/node.c	/^static BOOL compile_params(sCLClass* klass, char* method_name, int* num_params, unsigned int params[PARAMS_MAX], sNodeType* param_types[PARAMS_MAX], sNodeType* generics_types, sCompileInfo* info, BOOL lazy_lambda_compile, BOOL* exist_lazy_lamda_compile, BOOL class_method)$/;"	f	file:
+compile_params_method_default_value	src/node.c	/^BOOL compile_params_method_default_value(sCLClass* klass, char* method_name, int* num_params, unsigned int params[PARAMS_MAX], sNodeType* param_types[PARAMS_MAX], sNodeType* generics_types, sCompileInfo* info, int size_method_indexes, int method_indexes[], int num_methods)$/;"	f
 compile_path_value	src/node.c	/^BOOL compile_path_value(unsigned int node, sCompileInfo* info)$/;"	f
 compile_regex	src/node.c	/^static BOOL compile_regex(unsigned int node, sCompileInfo* info)$/;"	f	file:
 compile_return_expression	src/node.c	/^static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)$/;"	f	file:
@@ -2343,12 +2344,12 @@ sWhile	src/common.h	/^        } sWhile;$/;"	m	union:sNodeTreeStruct::__anon1	typ
 save_module_to_file	src/module.c	/^static BOOL save_module_to_file(sCLModule* self)$/;"	f	file:
 search_for_class_field	src/klass_compile_time.c	/^int search_for_class_field(sCLClass* klass, char* field_name)$/;"	f
 search_for_class_file	src/klass.c	/^static BOOL search_for_class_file(char* class_name, char* class_file_name, size_t class_file_name_size)$/;"	f	file:
-search_for_class_file_on_compile_time	src/klass_compile_time.c	/^static BOOL search_for_class_file_on_compile_time(char* class_name, char* class_file_name, size_t class_file_name_size)$/;"	f	file:
+search_for_class_file_on_compile_time	src/klass_compile_time.c	/^static BOOL search_for_class_file_on_compile_time(char* class_name, char* class_file_path, size_t class_file_path_size)$/;"	f	file:
 search_for_dl_file	src/jit_runtime.cpp	/^static BOOL search_for_dl_file(char* class_name, char* dynamic_library_path, size_t dynamic_library_path_size)$/;"	f	file:
 search_for_field	src/klass_compile_time.c	/^int search_for_field(sCLClass* klass, char* field_name)$/;"	f
 search_for_method	src/klass_compile_time.c	/^int search_for_method(sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, int start_point, sNodeType* left_generics_type, sNodeType* right_generics_type, sNodeType* right_method_generics, sNodeType** result_type, BOOL lazy_lambda_compile, BOOL lazy_lambda_compile2, sNodeType** method_generics_types)$/;"	f
 search_for_method_from_virtual_method_table	src/klass.c	/^sCLMethod* search_for_method_from_virtual_method_table(sCLClass* klass, char* method_name_and_params)$/;"	f
-search_for_methods_from_method_name	src/klass_compile_time.c	/^BOOL search_for_methods_from_method_name(int method_indexes[], int size_method_indexes, int* num_methods, sCLClass* klass, char* method_name, int start_point)$/;"	f
+search_for_methods_from_method_name	src/klass_compile_time.c	/^BOOL search_for_methods_from_method_name(int method_indexes[], int size_method_indexes, int* num_methods, sCLClass* klass, char* method_name, int start_point, BOOL class_method)$/;"	f
 search_for_module_file_from_module_name	src/module.c	/^static BOOL search_for_module_file_from_module_name(char* module_file, unsigned int module_file_size, char* module_name)$/;"	f	file:
 set_boxing_and_unboxing_class	src/klass.c	/^static void set_boxing_and_unboxing_class(char* primitive_class_name, char* lapper_class_name)$/;"	f	file:
 set_boxing_and_unboxing_classes	src/klass.c	/^void set_boxing_and_unboxing_classes()$/;"	f

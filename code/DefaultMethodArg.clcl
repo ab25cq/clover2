@@ -6,4 +6,20 @@ class DefaultMethodArg
     def method(a:int, b:int = 1):int {
         return a + b;
     }
+
+    def method2(a:int, b:int = 1, c:int=2): int {
+        return a + b + c;
+    }
+
+    def method3(a:int, b:int = 1, c:int = 2): static int {
+        return a + b + c;
+    }
+
+    def method4(a:int, b:String = "ABC"):String {
+        return sprintf("%s%d", array { b, a });
+    }
+
+    def method5(a:int = 1, b:int = 2): int {
+        return a + b;
+    }
 }

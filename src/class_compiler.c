@@ -394,7 +394,6 @@ static BOOL field_delegation(sParserInfo* info, sCompileInfo* cinfo, sCLClass* k
 
                 if(!add_method_to_class(klass, method_name, parser_params, num_params, result_type, native_, static_, &method_generics_info)) 
                 {
-                    fprintf(stderr, "overflow method number\n");
                     return FALSE;
                 }
 
@@ -484,7 +483,6 @@ static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOO
         if(info->err_num == 0 && (info->klass->mFlags & CLASS_FLAGS_ALLOCATED)) {
             if(!add_method_to_class(info->klass, method_name, params, num_params, result_type, native_, static_, &info->method_generics_info)) 
             {
-                fprintf(stderr, "overflow method number\n");
                 return FALSE;
             }
         }

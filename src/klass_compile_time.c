@@ -1,4 +1,5 @@
 #include "common.h"
+#include <libgen.h>
 
 static void node_type_to_cl_type(sNodeType* node_type, ALLOC sCLType** cl_type, sCLClass* klass)
 {
@@ -222,9 +223,22 @@ BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* param
     klass->mMethods[num_methods].mFlags = (native_ ? METHOD_FLAGS_NATIVE : 0) | (static_ ? METHOD_FLAGS_CLASS_METHOD:0);
     klass->mMethods[num_methods].mNameOffset = append_str_to_constant_pool(&klass->mConst, method_name, FALSE);
 
+    BOOL method_arg_default_value = FALSE;
+
     int i;
     for(i=0; i<num_params; i++) {
         sParserParam* param = params + i;
+
+        /// メソッドパラメータのデフォルトの値があった場合、その後にも無いといけない
+        if(param->mDefaultValue[0] != '\0') {
+            method_arg_default_value = TRUE;
+        }
+        else {
+            if(method_arg_default_value) {
+                fprintf(stderr, "invalid method arg default value\n");
+                return FALSE;
+            }
+        }
 
         parser_param_to_cl_param(param, klass->mMethods[num_methods].mParams + i, klass);
     }
@@ -258,6 +272,7 @@ BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* param
     klass->mNumMethods++;
 
     if(klass->mNumMethods >= METHOD_NUM_MAX) {
+        fprintf(stderr, "overflow method number\n");
         return FALSE;
     }
 
@@ -381,15 +396,15 @@ BOOL determine_method_generics_types(sNodeType* left_param, sNodeType* right_par
     return TRUE;
 }
 
-static BOOL search_for_class_file_on_compile_time(char* class_name, char* class_file_name, size_t class_file_name_size)
+static BOOL search_for_class_file_on_compile_time(char* class_name, char* class_file_path, size_t class_file_path_size)
 {
     /// ホームディレクトリのClover2のクラスファイルの置き場所にクラスファイルはありますか？ ///
     char* home = getenv("HOME");
 
     if(home) {
-        snprintf(class_file_name, class_file_name_size, "%s/.clover2/%s.oclcl", home, class_name);
+        snprintf(class_file_path, class_file_path_size, "%s/.clover2/%s.oclcl", home, class_name);
 
-        if(access(class_file_name, F_OK) == 0) {
+        if(access(class_file_path, F_OK) == 0) {
             return TRUE;  // ありました。真を返します
         }
     }
@@ -398,10 +413,93 @@ static BOOL search_for_class_file_on_compile_time(char* class_name, char* class_
     char* cwd = getenv("PWD");
 
     if(cwd) {
-        snprintf(class_file_name, class_file_name_size, "%s/%s.oclcl", cwd, class_name);
+        snprintf(class_file_path, class_file_path_size, "%s/%s.oclcl", cwd, class_name);
 
-        if(access(class_file_name, F_OK) == 0) {
-            return TRUE; // 見つかった。
+        if(access(class_file_path, F_OK) == 0) {
+            /// ソース・ファイルのパスを得る ///
+            char source_path[PATH_MAX];
+            snprintf(source_path, PATH_MAX, "%s/%s.clcl", cwd, class_name);
+
+            char source_path2[PATH_MAX];
+            if(strstr(gCompilingSourceFileName, "/"))  // gCompilingSourceFileNameは絶対パスじゃないこともある
+            {
+                char* source_dir = dirname(gCompilingSourceFileName);
+
+                snprintf(source_path2, PATH_MAX, "%s/%s.clcl", source_dir, class_name);
+            }
+            else {
+                source_path2[0] = '\0';
+            }
+
+            /// 自動コンパイル機能を行う ///
+            struct stat class_file_path_stat;
+
+            if(stat(class_file_path, &class_file_path_stat) != 0) {
+                return FALSE;
+            }
+
+            if(access(source_path, F_OK) == 0) {
+                struct stat source_path_stat;
+
+                if(stat(source_path, &source_path_stat) != 0) {
+                    return FALSE;
+                }
+
+                /// ソースファイルのほうが新しいならコンパイルする
+                if(class_file_path_stat.st_mtime < source_path_stat.st_mtime) {
+                    /// コンパイル ///
+                    char command[PATH_MAX+128];
+
+                    snprintf(command, PATH_MAX+128, "cclover2 %s/%s.clcl", cwd, class_name);
+
+                    int rc = system(command);
+
+                    /// 一応クラスファイルがあるかどうかチェックして、あるなら真を返します ///
+                    if(rc == 0) {
+                        snprintf(class_file_path, class_file_path_size, "%s/%s.oclcl", cwd, class_name);
+
+                        if(access(class_file_path, F_OK) == 0) {
+                            return TRUE;
+                        }
+                    }
+                }
+                else {
+                    return TRUE;
+                }
+            }
+            else if(access(source_path2, F_OK) == 0) {
+                struct stat source_path_stat;
+
+                if(stat(source_path, &source_path_stat) != 0) {
+                    return FALSE;
+                }
+
+                if(class_file_path_stat.st_mtime < source_path_stat.st_mtime) {
+                    /// コンパイル ///
+                    char command[PATH_MAX+128];
+
+                    char* source_dir = dirname(gCompilingSourceFileName);
+
+                    snprintf(command, PATH_MAX+128, "cclover2 %s/%s.clcl", source_dir, class_name);
+
+                    int rc = system(command);
+
+                    /// 一応クラスファイルがあるかどうかチェックして、あるなら真を返します ///
+                    if(rc == 0) {
+                        snprintf(class_file_path, class_file_path_size, "%s/%s.oclcl", cwd, class_name);
+
+                        if(access(class_file_path, F_OK) == 0) {
+                            return TRUE;
+                        }
+                    }
+                }
+                else {
+                    return TRUE;
+                }
+            }
+            else {
+                return TRUE;
+            }
         }
         else {
             /// クラスファイルが無いならクラス名.clclファイルのコンパイルを試してみます ///
@@ -419,9 +517,9 @@ static BOOL search_for_class_file_on_compile_time(char* class_name, char* class_
 
                 /// 一応クラスファイルがあるかどうかチェックして、あるなら真を返します ///
                 if(rc == 0) {
-                    snprintf(class_file_name, class_file_name_size, "%s/%s.oclcl", cwd, class_name);
+                    snprintf(class_file_path, class_file_path_size, "%s/%s.oclcl", cwd, class_name);
 
-                    if(access(class_file_name, F_OK) == 0) {
+                    if(access(class_file_path, F_OK) == 0) {
                         return TRUE;
                     }
                 }
@@ -454,17 +552,15 @@ static BOOL search_for_class_file_on_compile_time(char* class_name, char* class_
 
                     /// 一応クラスファイルがあるかどうかチェックして、あるなら真を返します ///
                     if(rc == 0) {
-                        snprintf(class_file_name, class_file_name_size, "%s/%s.oclcl", cwd, class_name);
+                        snprintf(class_file_path, class_file_path_size, "%s/%s.oclcl", cwd, class_name);
 
-                        if(access(class_file_name, F_OK) == 0) {
+                        if(access(class_file_path, F_OK) == 0) {
                             return TRUE;
                         }
                     }
                 }
             }
         }
-
-        return FALSE;
     }
 
     return FALSE; // 失敗。クラスファイルは見つかりませんね、、、。
@@ -581,7 +677,7 @@ int search_for_method(sCLClass* klass, char* method_name, sNodeType** param_type
     return -1;
 }
 
-BOOL search_for_methods_from_method_name(int method_indexes[], int size_method_indexes, int* num_methods, sCLClass* klass, char* method_name, int start_point)
+BOOL search_for_methods_from_method_name(int method_indexes[], int size_method_indexes, int* num_methods, sCLClass* klass, char* method_name, int start_point, BOOL class_method)
 {
     int i;
 
@@ -593,7 +689,8 @@ BOOL search_for_methods_from_method_name(int method_indexes[], int size_method_i
             
             method = klass->mMethods + i;
 
-            if(strcmp(METHOD_NAME2(klass, method), method_name) == 0) {
+            if(strcmp(METHOD_NAME2(klass, method), method_name) == 0 && ((method->mFlags & METHOD_FLAGS_CLASS_METHOD) ? 1:0) == class_method) 
+            {
                 method_indexes[*num_methods] = i;
                 (*num_methods)++;
 

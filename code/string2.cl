@@ -1,3 +1,4 @@
+/*
 Clover.test("string2 test1", "ABC".sub(/A/, "B").equals("BBC"));
 Clover.test("string2 test2", "AAA".sub(/A/g, "B").equals("BBB"));
 Clover.test("string2 test3", "AAA".sub(/^A/g, "B").equals("BAA"));
@@ -8,11 +9,12 @@ str:String = "ABCD".sub(/(.)(.)$/, "XX", group_strings);
 
 Clover.test("string2 test5", str.equals("ABXX") && group_strings.length() == 2 && group_strings.items(0).equals("C") && group_strings.items(1).equals("D"));
 
+*/
 str2:String = "ABCD".sub(/(.)(.)$/
             , lambda(match_string:String, group_strings:EqualableList<String>):String { 
                 return System.sprintf("%s%s", array { group_strings.items(0), group_strings.items(0) }); 
             });
-
+/*
 Clover.test("string2 test6", str2.equals("ABCC"));
 
 Clover.test("string2 tset7", "ABC".match(/^A/) && "ABC".match(/C$/) && "ABC".match(/B/));
@@ -65,4 +67,4 @@ Clover.test("string2 test34", "abcabc".indexOf(/c/, 2) == 5);
 Clover.test("String2 test35", "abc".insert(1,"A").equals("aAbc"));
 Clover.test("String2 test36", "abc".subString(-1,-1).equals("c"));
 Clover.test("String2 test37", "ABC".subString(-2, -1).equals("BC"));
-
+*/

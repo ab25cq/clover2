@@ -47,47 +47,68 @@ int main(int argc, char** argv, char* const * envp)
     set_signal();
 
     for(i=1; i<argc; i++) {
+        /// 出力ファイルのクリーン
         if(strcmp(argv[i], "-clean") == 0) {
             system("rm -rf *.oclcl *.ocl");
             continue;
         }
 
-        char* p = strstr(argv[i], ".");
+        char* source = argv[i];
+
+        /// oclファイル名を得る
+
+        char* p = strstr(source, ".");
 
         if(p == NULL) {
-            p = argv[i] + strlen(argv[i]);
+            p = source + strlen(source);
         }
 
         char base_name[PATH_MAX];
 
-        memcpy(base_name, argv[i], p - argv[i]);
-        base_name[p - argv[i]] = '\0';
+        memcpy(base_name, source, p - source);
+        base_name[p - source] = '\0';
 
-        char sname[PATH_MAX];
-        snprintf(sname, PATH_MAX, "%s.ocl", base_name);
+        char object_file_name[PATH_MAX];
+        snprintf(object_file_name, PATH_MAX, "%s.ocl", base_name);
 
-        if(strcmp(argv[i], sname) != 0) {
-            if(access(sname, R_OK) != 0) {
+        /// 自動コンパイル機能 ///
+        if(strcmp(source, object_file_name) != 0) {
+            if(access(object_file_name, R_OK) != 0) {
                 char cmd[PATH_MAX+20];
-                sprintf(cmd, "cclover2 %s", argv[i]);
-                (void)system(cmd);
+                sprintf(cmd, "cclover2 %s", source);
+                int rc = system(cmd);
+
+                if(rc != 0) {
+                    fprintf(stderr, "automatically compile faield\n");
+                    exit(1);
+                }
             }
             else {
-                struct stat stat_;
-                struct stat stat_2;
+                struct stat source_stat;
+                struct stat object_file_stat;
 
-                if(stat(argv[i], &stat_) == 0 && stat(sname, &stat_2) == 0) {
-                    if(stat_.st_mtime >= stat_2.st_mtime) {
+                if(stat(source, &source_stat) == 0 && stat(object_file_name, &object_file_stat) == 0) 
+                {
+                    if(source_stat.st_mtime >= object_file_stat.st_mtime) {
                         char cmd[PATH_MAX+20];
-                        sprintf(cmd, "cclover2 %s", argv[i]);
-                        (void)system(cmd);
+                        sprintf(cmd, "cclover2 %s", source);
+                        int rc = system(cmd);
+
+                        if(rc != 0) {
+                            fprintf(stderr, "automatically compile faield\n");
+                            exit(1);
+                        }
                     }
+                }
+                else {
+                    fprintf(stderr, "automatically compile faield\n");
+                    exit(1);
                 }
             }
         }
 
         clover2_init();
-        if(!eval_file(sname, CLOVER_STACK_SIZE)) {
+        if(!eval_file(object_file_name, CLOVER_STACK_SIZE)) {
             fprintf(stderr, "script file(%s) is abort\n", argv[i]);
             clover2_final();
             CHECKML_END;
