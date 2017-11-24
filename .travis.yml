@@ -1,3 +1,3 @@
 language: c
-script: sudo apt install clang libpcre3-dev -y & ./configure --prefix=$HOME --with-optimize & make && sudo make install && make test
+script: sudo apt install clang libpcre3-dev -y && sudo ./configure --with-optimize && make && sudo make install && make test
 sudo: required
