@@ -138,7 +138,22 @@ int main(int argc, char** argv)
         }
     }
 
-    char* ext_sname = strstr(sname, ".");
+    char* p = sname + strlen(sname);
+
+    while(p >= sname) {
+        if(*p == '.') {
+            break;
+        }
+        else {
+            p--;
+        }
+    }
+
+    if(p < sname) {
+        p = NULL;
+    }
+
+    char* ext_sname = p;
 
     if(ext_sname && strcmp(ext_sname, ".clcl") == 0) {
         clcl_compile = TRUE;
