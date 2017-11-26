@@ -33,7 +33,7 @@ JIT=@JIT@
 ##########################################################
 # main
 ##########################################################
-all: cclover2 clover2 $(INTERPRETER)
+all: cclover2 clover2 $(INTERPRETER) library
 	if which ctags > /dev/null; then if test $(OS) = DARWIN; then ctags src/*.c > /dev/null 2>&1; else ctags -R; fi; fi
 
 cclover2: config.h src/compiler.o $(COMMON_OBJS) $(COMPILER_OBJS) $(JIT_OBJS)
@@ -48,6 +48,10 @@ clover2: config.h src/main.o $(COMMON_OBJS) $(OBJS) $(JIT_RUNTIME_OBJS)
 iclover2: config.h src/interpreter.o $(COMMON_OBJS) $(OBJS) $(COMPILER_OBJS) $(JIT_RUNTIME_OBJS)
 	if test $(JIT) = 1; then $(CXX) -o iclover2 src/interpreter.o $(COMMON_OBJS) $(OBJS) $(COMPILER_OBJS) $(JIT_RUNTIME_OBJS) $(CFLAGS) $(LIBS) $(CXXFLAGS); else $(CC) -o iclover2 src/interpreter.o $(COMMON_OBJS) $(OBJS) $(COMPILER_OBJS) $(CFLAGS) $(LIBS); fi
 
+library:
+#	rm -f ./*.oclcl
+	./cclover2 -core MyOwnLibrary.clcl
+
 #########################################################
 # Object files
 #########################################################
@@ -57,14 +61,6 @@ $(OBJ): src/*.h Makefile configure
 # install
 #########################################################
 install:
-#	rm -f ./*.oclcl
-#	./cclover2 -core Fundamental.clcl
-#	./cclover2 -core Container.clcl
-#	./cclover2 -core String.clcl
-#	./cclover2 -core File.clcl
-#	./cclover2 -core Command.clcl
-	./cclover2 -core MyOwnLibrary.clcl
-
 	mkdir -p ~/.clover2
 	$(INSTALL) -m 644 PcreOVec.oclcl ~/.clover2
 	$(INSTALL) -m 644 System.oclcl ~/.clover2
