@@ -75,7 +75,16 @@ int main(int argc, char** argv, char* const * envp)
         if(strcmp(source, object_file_name) != 0) {
             if(access(object_file_name, R_OK) != 0) {
                 char cmd[PATH_MAX+20];
-                sprintf(cmd, "cclover2 %s", source);
+
+                char command_path[PATH_MAX+1];
+                snprintf(command_path, PATH_MAX, "./cclover2");
+
+                if(access(command_path, X_OK) == 0) {
+                    sprintf(cmd, "./cclover2 %s", source);
+                }
+                else {
+                    sprintf(cmd, "cclover2 %s", source);
+                }
                 int rc = system(cmd);
 
                 if(rc != 0) {
@@ -91,7 +100,16 @@ int main(int argc, char** argv, char* const * envp)
                 {
                     if(source_stat.st_mtime >= object_file_stat.st_mtime) {
                         char cmd[PATH_MAX+20];
-                        sprintf(cmd, "cclover2 %s", source);
+
+                        char command_path[PATH_MAX+1];
+                        snprintf(command_path, PATH_MAX, "./cclover2");
+
+                        if(access(command_path, X_OK) == 0) {
+                            sprintf(cmd, "./cclover2 %s", source);
+                        }
+                        else {
+                            sprintf(cmd, "cclover2 %s", source);
+                        }
                         int rc = system(cmd);
 
                         if(rc != 0) {

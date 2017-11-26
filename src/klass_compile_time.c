@@ -452,7 +452,15 @@ static BOOL search_for_class_file_on_compile_time(char* class_name, char* class_
                     /// コンパイル ///
                     char command[PATH_MAX+128];
 
-                    snprintf(command, PATH_MAX+128, "cclover2 %s/%s.clcl", cwd, class_name);
+                    char command_path[PATH_MAX+1];
+                    snprintf(command_path, PATH_MAX, "./cclover2");
+
+                    if(access(command_path, X_OK) == 0) {
+                        snprintf(command, PATH_MAX+128, "./cclover2 %s/%s.clcl", cwd, class_name);
+                    }
+                    else {
+                        snprintf(command, PATH_MAX+128, "cclover2 %s/%s.clcl", cwd, class_name);
+                    }
 
                     int rc = system(command);
 
@@ -482,7 +490,15 @@ static BOOL search_for_class_file_on_compile_time(char* class_name, char* class_
 
                     char* source_dir = dirname(gCompilingSourceFileName);
 
-                    snprintf(command, PATH_MAX+128, "cclover2 %s/%s.clcl", source_dir, class_name);
+                    char command_path[PATH_MAX+1];
+                    snprintf(command_path, PATH_MAX, "./cclover2");
+
+                    if(access(command_path, X_OK) == 0) {
+                        snprintf(command, PATH_MAX+128, "./cclover2 %s/%s.clcl", source_dir, class_name);
+                    }
+                    else {
+                        snprintf(command, PATH_MAX+128, "cclover2 %s/%s.clcl", source_dir, class_name);
+                    }
 
                     int rc = system(command);
 
@@ -513,7 +529,15 @@ static BOOL search_for_class_file_on_compile_time(char* class_name, char* class_
                 /// コンパイル ///
                 char command[PATH_MAX+128];
 
-                snprintf(command, PATH_MAX+128, "cclover2 %s/%s.clcl", cwd, class_name);
+                char command_path[PATH_MAX+1];
+                snprintf(command_path, PATH_MAX, "./cclover2");
+
+                if(access(command_path, X_OK) == 0) {
+                    snprintf(command, PATH_MAX+128, "./cclover2 %s/%s.clcl", cwd, class_name);
+                }
+                else {
+                    snprintf(command, PATH_MAX+128, "cclover2 %s/%s.clcl", cwd, class_name);
+                }
 
                 int rc = system(command);
 
@@ -548,7 +572,15 @@ static BOOL search_for_class_file_on_compile_time(char* class_name, char* class_
                     /// コンパイル ///
                     char command[PATH_MAX+128];
 
-                    snprintf(command, PATH_MAX+128, "cclover2 %s/%s.clcl", source_path, class_name);
+                    char command_path[PATH_MAX+1];
+                    snprintf(command_path, PATH_MAX, "./cclover2");
+
+                    if(access(command_path, X_OK) == 0) {
+                        snprintf(command, PATH_MAX+128, "./cclover2 %s/%s.clcl", source_path, class_name);
+                    }
+                    else {
+                        snprintf(command, PATH_MAX+128, "cclover2 %s/%s.clcl", source_path, class_name);
+                    }
 
                     int rc = system(command);
 
