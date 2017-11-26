@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/ab25cq/clover2.svg?branch=master)](https://travis-ci.org/ab25cq/clover2)
 
 
-version 3.1.8a
+version 3.1.8b
 
 サポートしている機能
 
