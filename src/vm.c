@@ -458,7 +458,6 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             fNativeMethod native_method = get_native_method(path, &fun_name);
 
             if(native_method == NULL) {
-printf("path %s\n", path);
                 entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "Native method not found");
 //                info->running_class = running_class;
 //                info->running_method = running_method;
