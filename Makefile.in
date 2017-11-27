@@ -51,7 +51,7 @@ iclover2: config.h src/interpreter.o $(COMMON_OBJS) $(OBJS) $(COMPILER_OBJS) $(J
 library:
 #	rm -f ./*.oclcl
 	./cclover2 -core MyOwnLibrary.clcl
-	./cclover2 Parser.clcl
+	./cclover2 CLParser.clcl
 
 #########################################################
 # Object files
@@ -360,4 +360,5 @@ test:
 	./clover2 code/object.cl
 	./clover2 code/default_method_arg.cl
 	./clover2 code/enum.cl
+	./clover2 code/parser.cl
 

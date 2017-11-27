@@ -33,6 +33,7 @@ CLHEAPMEM	src/common.h	1787;"	d
 CLOBJECT	src/common.h	1836;"	d
 CLOVER_STACK_SIZE	src/common.h	68;"	d
 CLObject	src/common.h	/^typedef unsigned int CLObject;$/;"	t
+CLParser_initialize	src/class_parser.c	/^BOOL CLParser_initialize(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 CLREGEX	src/common.h	1892;"	d
 CLVALUE	src/common.h	/^typedef union CLVALUEUnion CLVALUE;$/;"	t	typeref:union:CLVALUEUnion
 CLVALUEUnion	src/common.h	/^union CLVALUEUnion {$/;"	u
@@ -110,7 +111,7 @@ NATIVE_METHOD_HASH_SIZE	src/native_method.c	3;"	d	file:
 NODE_TYPE_PAGE_SIZE	src/node_block_type.c	8;"	d	file:
 NODE_TYPE_PAGE_SIZE	src/node_type.c	8;"	d	file:
 NULLABLE	src/macros.h	25;"	d
-OBJS	Makefile	/^OBJS=src\/vm.o src\/script.o src\/object.o src\/array.o src\/string.o src\/block.o src\/regex.o src\/integer.o src\/byte.o src\/short.o src\/long.o src\/float.o src\/pointer.o src\/char.o src\/bool.o src\/hash.o src\/list.o src\/tuple.o src\/carray.o src\/type.o src\/stack.o src\/heap.o src\/exception.o src\/native_method.o src\/class_system.o src\/class_clover.o src\/clover_to_clang.o$/;"	m
+OBJS	Makefile	/^OBJS=src\/vm.o src\/script.o src\/object.o src\/array.o src\/string.o src\/block.o src\/regex.o src\/integer.o src\/byte.o src\/short.o src\/long.o src\/float.o src\/pointer.o src\/char.o src\/bool.o src\/hash.o src\/list.o src\/tuple.o src\/carray.o src\/type.o src\/stack.o src\/heap.o src\/exception.o src\/native_method.o src\/class_system.o src\/class_parser.o src\/class_clover.o src\/clover_to_clang.o$/;"	m
 OP_ANDAND	src/common.h	1138;"	d
 OP_ARRAY_TO_CARRAY_CAST	src/common.h	1672;"	d
 OP_BADD	src/common.h	933;"	d

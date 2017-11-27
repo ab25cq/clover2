@@ -2122,5 +2122,8 @@ BOOL load_bc_file(sCLClass* klass);
 void push_jit_object(CLObject obj);
 #endif
 
+/// class_parser.c ///
+BOOL CLParser_initialize(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+
 #endif
 

@@ -1,0 +1,59 @@
+
+class CLNodeType
+{
+    className:String;
+
+    genericsTypes:CLNodeType[];
+
+/*
+    array:bpool;
+    nullabyle:bool;
+    blockType:CLBlockType;
+*/
+
+    def initialize(class_name:String) {
+        self.className = class_name;
+        self.genericsTypes = new CLNodeType[CLParser.GENERICS_TYPES_MAX]();
+    }
+}
+
+class CLNodeTree
+{
+    type:int;
+
+    left:CLNodeTree;
+    right:CLNodeTree;
+    middle:CLNodeTree;
+
+    sourceName:String;
+    sourceLine:int;
+}
+
+class CLParser
+{
+    sourceBuffer:Buffer;
+
+    GENERICS_TYPES_MAX:static int;
+    PARAMS_MAX:static int;
+
+    def initialize(): native static;
+
+    def initialize(sname:String) {
+        self.sourceBuffer = File.read(sname);
+    }
+
+    def parse() {
+        p:pointer = self.sourceBuffer.buffer;
+
+        while(p->char != '\0') {
+            println("p \{p->char}");
+            p++;
+        }
+
+println("GENERICS_TYPES_MAX \{CLParser.GENERICS_TYPES_MAX}");
+println("PARAMS_MAX \{CLParser.PARAMS_MAX}");
+    }
+
+    def expression() {
+    }
+}

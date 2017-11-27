@@ -209,6 +209,7 @@ static sNativeMethod gNativeMethods[] = {
     { "System.setenv(String,String,int)", "System_setenv", System_setenv },
     { "System.unsetenv(String)", "System_unsetenv", System_unsetenv },
     { "System.put_fun_to_hash_for_native_method(String,String,pointer)", "System_put_fun_to_hash_for_native_method", System_put_fun_to_hash_for_native_method },
+    { "CLParser.initialize()", "CLParser_initialize", CLParser_initialize },
 
     { "", "", 0 }  // sentinel
 };
