@@ -51,6 +51,7 @@ iclover2: config.h src/interpreter.o $(COMMON_OBJS) $(OBJS) $(COMPILER_OBJS) $(J
 library:
 #	rm -f ./*.oclcl
 	./cclover2 -core MyOwnLibrary.clcl
+	./cclover2 Parser.clcl
 
 #########################################################
 # Object files

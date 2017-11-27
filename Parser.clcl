@@ -1,0 +1,33 @@
+
+class CLNodeTree
+{
+    type:int;
+
+    left:CLNodeTree;
+    right:CLNodeTree;
+    middle:CLNodeTree;
+
+    sourceName:String;
+    sourceLine:int;
+}
+
+class CLParser
+{
+    sourceBuffer:Buffer;
+
+    def initialize(sname:String) {
+        self.sourceBuffer = File.read(sname);
+    }
+
+    def parse() {
+        p:pointer = self.sourceBuffer.buffer;
+
+        while(p->char != '\0') {
+            println("p \{p->char}");
+            p++;
+        }
+    }
+
+    def expression() {
+    }
+}
