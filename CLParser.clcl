@@ -1,14 +1,14 @@
 
-/*
 class CLNodeType
 {
     className:String;
-
     genericsTypes:CLNodeType[];
 
-    array:bpool;
+/*
+    array:bool;
     nullabyle:bool;
     blockType:CLBlockType;
+*/
 
     def initialize(class_name:String) {
         self.className = class_name;
@@ -19,9 +19,28 @@ class CLNodeType
 interface CLNodeTree
 {
     def type():int;
-    def setType(value:int);
+    def type(value:int);
 
-    def source
+    def left(value:CLNodeTree);
+    def left():CLNodeTree;
+
+    def right(value:CLNodeTree);
+    def right():CLNodeTree;
+
+    def middle(value:CLNodeTree);
+    def middle():CLNodeTree;
+
+    def sourceName():String;
+    def sourceName(sname:String);
+
+    def sourceLine():int;
+    def sourceLine(line:int);
+
+    def show();
+
+    enum {
+        IntType, PlusExp
+    }
 }
 
 class CLNodeTreeBase
@@ -34,14 +53,64 @@ class CLNodeTreeBase
 
     sourceName:String;
     sourceLine:int;
+
+    def initialize() {}
 }
 
 class CLNodeTreeInt
 {
-    parent:delegate CLNodeTreeBase;
+    base:delegate CLNodeTreeBase;
     value:int;
 
-    def initialize(value:int, left:CLNodeTree, right:CLNodeTree, middle:CLNodeTree) {
+    def initialize(value:int, sname:String, sline:int) {
+        self.base = new CLNodeTreeBase();
+
+        self.type(CLNodeTree.IntType);
+
+        self.sourceName(sname);
+        self.sourceLine(sline);
+
+        self.value = value;
+    }
+
+    def show() {
+        println("int value \{self.value}");
+    }
+}
+
+class CLNodeTreePlus
+{
+    base:delegate CLNodeTreeBase;
+
+    def initialize(left:CLNodeTree, right:CLNodeTree, sname:String, sline:int) {
+        self.base = new CLNodeTreeBase();
+
+        self.type(CLNodeTree.PlusExp);
+
+        self.left(left);
+        self.right(right);
+
+        self.sourceName(sname);
+        self.sourceLine(sline);
+    }
+
+    def show() {
+        println("plus tree");
+        println("<-- left -->");
+        if(!self.left().identifyWith(null)) {
+            self.left().show();
+        }
+        else {
+            println("null");
+        }
+
+        println("<-- right -->");
+        if(!self.right().identifyWith(null)) {
+            self.right().show();
+        }
+        else {
+            println("null");
+        }
     }
 }
 
@@ -53,34 +122,81 @@ class CLParser
     GENERICS_TYPES_MAX:static int;
     PARAMS_MAX:static int;
 
+    sourceName:String;
+    sourceLine:int;
+
     def initialize(): native static;
 
     def initialize(sname:String) {
-        self.sourceBuffer = File.read(sname);
+        self.sourceName = sname;
     }
 
-    def expressionNode(node:CLNodeTree):bool {
-        if(self.p->byte >= '0' && self.p->byte <= '9') {
-            node = new NodeTreeInt
-        }
-
-        return true;
-    }
-
-    def expresion(node:CLNodeTree):bool {
-    }
-
-    def parse() {
-        self.sourceBuffer.append(0y);
-        self.p = self.sourceBuffer.buffer;
-
-        while(self.p->byte != '\0') {
-            printf("p %d\n", array { self.p->byte });
+    def skipSpacesAndLF() {
+        while(self.p->byte == ' ' || self.p->byte == '\t' || self.p->byte == '\n') {
             self.p++;
         }
     }
 
-    def expression() {
+    def expressionNode():CLNodeTree? {
+        result:CLNodeTree? = null;
+
+        if(self.p->byte >= '0' && self.p->byte <= '9') {
+            value:int = 0;
+            while(self.p->byte >= '0' && self.p->byte <= '9') {
+                value = value * 10 + self.p->byte - '0';
+                self.p++;
+            }
+            self.skipSpacesAndLF();
+
+            result = new CLNodeTreeInt(value, self.sourceName, self.sourceLine);
+        }
+
+        return result;
+    }
+
+    def plusAndMinus(): CLNodeTree? throws Exception {
+        result:CLNodeTree? = self.expressionNode();
+
+        while(true) {
+            if(self.p->byte == '+') {
+                self.p++;
+                self.skipSpacesAndLF();
+
+                right := self.expressionNode();
+
+                if(right.identifyWith(null)) {
+                    throw new Exception("\{self.sourceName} \{self.sourceLine}: Right expression is null.");
+                }
+
+                result = new CLNodeTreePlus(result, right, self.sourceName, self.sourceLine);
+            }
+            else {
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    def expression(): CLNodeTree? throws Exception {
+        result :CLNodeTree? = self.plusAndMinus();
+
+        return result;
+    }
+
+    def parse() {
+        self.sourceBuffer = File.read(self.sourceName);
+        self.sourceBuffer.append(0y);
+
+        self.p = self.sourceBuffer.buffer;
+        self.sourceLine = 1;
+
+        while(self.p->byte != '\0') {
+            exp:CLNodeTree? = self.expression();
+
+            if(!exp.identifyWith(null)) {
+                exp.show();
+            }
+        }
     }
 }
-*/

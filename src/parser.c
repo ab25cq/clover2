@@ -1441,7 +1441,7 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
 
         (*result_type)->mBlockType = node_block_type;
     }
-    else if(*info->p == '<') {
+    else if(*info->p == '<' && *(info->p+1) != '<' && *(info->p+1) != '=') {
         info->p++;
         skip_spaces_and_lf(info);
 
@@ -1579,7 +1579,7 @@ BOOL parse_type_for_new(sNodeType** result_type, unsigned int* array_num, sParse
 
     int generics_num = 0;
 
-    if(*info->p == '<') {
+    if(*info->p == '<' && *(info->p+1) != '<' && *(info->p+1) != '=') {
         info->p++;
         skip_spaces_and_lf(info);
 
@@ -3332,6 +3332,8 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             }
 
             sCLClass* global_klass = get_class("Global");
+
+            MASSERT(global_klass != NULL);
 
             /// クラス名だった ///
             if(klass) {

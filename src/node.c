@@ -1502,6 +1502,14 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
 
     sNodeType* var_type = var->mType;
 
+    if(var_type == NULL) {
+        compile_err_msg(info, "can't get type of %s", gNodes[node].uValue.mVarName);
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+        return TRUE;
+    }
+
     append_opecode_to_code(info->code, OP_LOAD, info->no_output);
     append_int_value_to_code(info->code, var_index, info->no_output);
     int size = get_var_size(var_type);
