@@ -1498,17 +1498,17 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
 
     int var_index = get_variable_index(info->lv_table, gNodes[node].uValue.mVarName);
 
-    MASSERT(var_index != -1);
-
-    sNodeType* var_type = var->mType;
-
-    if(var_type == NULL) {
+    if(var_index == -1 || var == NULL || var->mType == NULL) {
         compile_err_msg(info, "can't get type of %s", gNodes[node].uValue.mVarName);
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
         return TRUE;
     }
+
+    MASSERT(var_index != -1);
+
+    sNodeType* var_type = var->mType;
 
     append_opecode_to_code(info->code, OP_LOAD, info->no_output);
     append_int_value_to_code(info->code, var_index, info->no_output);
@@ -7259,6 +7259,40 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     sNodeBlock* node_block = gNodes[node].uValue.sFunction.mBlockObjectCode;
     BOOL lambda = gNodes[node].uValue.sFunction.mLambda;
 
+    /// make info->type ///
+    sNodeType* lambda_type = create_node_type_with_class_name("lambda");
+
+    sNodeBlockType* node_block_type = alloc_node_block_type();
+
+    node_block_type->mNumParams = num_params;
+    node_block_type->mResultType = result_type;
+    for(i=0; i<num_params; i++) {
+        node_block_type->mParams[i] = params[i]->mType;
+    }
+
+    lambda_type->mBlockType = node_block_type;
+
+    /// store local variable ///
+    sVar* var = get_variable_from_table(info->lv_table, gNodes[node].uValue.sFunction.mName);
+
+    if(var == NULL) {
+        compile_err_msg(info, "undeclared variable %s", gNodes[node].uValue.sFunction.mName);
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+        return TRUE;
+    }
+
+    sNodeType* right_type = lambda_type;
+
+    /// type inference ///
+    if(gNodes[node].mType == NULL) {
+        gNodes[node].mType = right_type;
+    }
+    if(var->mType == NULL) {
+        var->mType = right_type;
+    }
+
     /// compile block ///
     sByteCode codes;
     sConst constant;
@@ -7331,43 +7365,10 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
 
     info->stack_num++;
 
-    /// make info->type ///
-    info->type = create_node_type_with_class_name("lambda");
-
-    sNodeBlockType* node_block_type = alloc_node_block_type();
-
-    node_block_type->mNumParams = num_params;
-    node_block_type->mResultType = result_type;
-    for(i=0; i<num_params; i++) {
-        node_block_type->mParams[i] = params[i]->mType;
-    }
-
-    info->type->mBlockType = node_block_type;
-
     sByteCode_free(&codes);
     sConst_free(&constant);
 
-    /// store local variable ///
-    sVar* var = get_variable_from_table(info->lv_table, gNodes[node].uValue.sFunction.mName);
-
-    if(var == NULL) {
-        compile_err_msg(info, "undeclared variable %s", gNodes[node].uValue.sFunction.mName);
-        info->err_num++;
-
-        info->type = create_node_type_with_class_name("int"); // dummy
-        return TRUE;
-    }
-
-    sNodeType* right_type = info->type;
-
-    /// type inference ///
-    if(gNodes[node].mType == NULL) {
-        gNodes[node].mType = right_type;
-    }
-    if(var->mType == NULL) {
-        var->mType = right_type;
-    }
-
+    /// type check ///
     sNodeType* left_type = var->mType;
     if(gNodes[node].mType->mClass == NULL || left_type == NULL || right_type == NULL || left_type->mClass == NULL || right_type->mClass == NULL) 
     {
@@ -7491,7 +7492,7 @@ BOOL compile_block_call(unsigned int node, sCompileInfo* info)
 
     sNodeType* var_type = info->type;
 
-    if(!type_identify_with_class_name(var_type, "lambda")) {
+    if(var_type == NULL || !type_identify_with_class_name(var_type, "lambda")) {
         compile_err_msg(info, "No block type, clover2 can call block object only");
         info->err_num++;
 
