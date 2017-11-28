@@ -360,5 +360,7 @@ test:
 	./clover2 code/object.cl
 	./clover2 code/default_method_arg.cl
 	./clover2 code/enum.cl
+	./clover2 code/byte.cl
+	./clover2 code/setter_getter.cl
 	./clover2 code/parser.cl
 

@@ -1,15 +1,14 @@
 
+/*
 class CLNodeType
 {
     className:String;
 
     genericsTypes:CLNodeType[];
 
-/*
     array:bpool;
     nullabyle:bool;
     blockType:CLBlockType;
-*/
 
     def initialize(class_name:String) {
         self.className = class_name;
@@ -17,7 +16,15 @@ class CLNodeType
     }
 }
 
-class CLNodeTree
+interface CLNodeTree
+{
+    def type():int;
+    def setType(value:int);
+
+    def source
+}
+
+class CLNodeTreeBase
 {
     type:int;
 
@@ -29,9 +36,19 @@ class CLNodeTree
     sourceLine:int;
 }
 
+class CLNodeTreeInt
+{
+    parent:delegate CLNodeTreeBase;
+    value:int;
+
+    def initialize(value:int, left:CLNodeTree, right:CLNodeTree, middle:CLNodeTree) {
+    }
+}
+
 class CLParser
 {
     sourceBuffer:Buffer;
+    p:pointer;
 
     GENERICS_TYPES_MAX:static int;
     PARAMS_MAX:static int;
@@ -42,16 +59,28 @@ class CLParser
         self.sourceBuffer = File.read(sname);
     }
 
+    def expressionNode(node:CLNodeTree):bool {
+        if(self.p->byte >= '0' && self.p->byte <= '9') {
+            node = new NodeTreeInt
+        }
+
+        return true;
+    }
+
+    def expresion(node:CLNodeTree):bool {
+    }
+
     def parse() {
         self.sourceBuffer.append(0y);
-        p:pointer = self.sourceBuffer.buffer;
+        self.p = self.sourceBuffer.buffer;
 
-        while(p->byte != 0) {
-            printf("p %d\n", array { p->byte });
-            p++;
+        while(self.p->byte != '\0') {
+            printf("p %d\n", array { self.p->byte });
+            self.p++;
         }
     }
 
     def expression() {
     }
 }
+*/

@@ -270,6 +270,7 @@ struct sCLFieldStruct {
 
     int mDelegatedMethodIndex[METHOD_NUM_MAX];  // compile time variable
     int mNumDelegatedMethod;
+    int mNumGetterMethodIndex; 
 };
 
 typedef struct sCLFieldStruct sCLField;

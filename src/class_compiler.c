@@ -407,6 +407,57 @@ static BOOL field_delegation(sParserInfo* info, sCompileInfo* cinfo, sCLClass* k
     return TRUE;
 }
 
+static BOOL setter_and_getter(sParserInfo* info, sCompileInfo* cinfo, sCLClass* klass, sCLField* field, char* field_name, BOOL private_)
+{
+    sNodeType* field_type = create_node_type_from_cl_type(field->mResultType, klass);
+
+    if(info->err_num == 0 && (info->klass->mFlags & CLASS_FLAGS_ALLOCATED)) {
+        /// getter ///
+        char* method_name = field_name;
+
+        sParserParam parser_params[PARAMS_MAX];
+        int num_params = 0;
+
+        sNodeType* result_type = field_type;
+
+        BOOL native_ = FALSE;
+        BOOL static_ = FALSE;
+
+        if(!add_method_to_class(klass, method_name, parser_params, num_params, result_type, native_, static_, NULL))
+        {
+            return FALSE;
+        }
+
+        field->mNumGetterMethodIndex = klass->mNumMethods -1;
+
+        /// setter ///
+        if(!private_) {
+            /// getter ///
+            char* method_name = field_name;
+
+            sParserParam parser_params[PARAMS_MAX];
+            int num_params = 1;
+
+            xstrncpy(parser_params[0].mName, "value", VAR_NAME_MAX);
+            parser_params[0].mType = field_type;
+            parser_params[0].mDefaultValue[0] = '\0';
+
+            sNodeType* result_type = create_node_type_with_class_name("Null");
+
+            BOOL native_ = FALSE;
+            BOOL static_ = FALSE;
+
+            if(!add_method_to_class(klass, method_name, parser_params, num_params, result_type, native_, static_, NULL))
+            {
+                return FALSE;
+            }
+
+        }
+    }
+
+    return TRUE;
+}
+
 static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOOL interface)
 {
     BOOL native_ = FALSE;
@@ -595,12 +646,20 @@ static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOO
             skip_spaces_and_lf(info);
         }
 
+        sCLClass* klass = info->klass;
+        char* field_name = buf;
+
+        int field_index = search_for_field(klass, field_name);
+
+        if(field_index != -1) {
+            sCLField* field = klass->mFields + field_index;
+
+            if(!setter_and_getter(info, cinfo, klass, field, field_name, private_)) {
+                return FALSE;
+            }
+        }
+
         if(delegate_) {
-            sCLClass* klass = info->klass;
-            char* field_name = buf;
-
-            int field_index = search_for_field(klass, field_name);
-
             if(field_index != -1) {
                 sCLField* field = klass->mFields + field_index;
 
@@ -647,6 +706,108 @@ static BOOL parse_class_on_add_methods_and_fields(sParserInfo* info, sCompileInf
                 skip_spaces_and_lf(info);
                 break;
             }
+        }
+    }
+
+    return TRUE;
+}
+
+static BOOL setter_and_getter_on_compile_time(sParserInfo* info, sCompileInfo* cinfo, sCLClass* klass, sCLField* field, char* field_name, BOOL private_)
+{
+    sNodeType* field_type = create_node_type_from_cl_type(field->mResultType, klass);
+
+    if(info->err_num == 0 && (info->klass->mFlags & CLASS_FLAGS_ALLOCATED)) {
+        /// getter ///
+        char* method_name = field_name;
+
+        sParserParam parser_params[PARAMS_MAX];
+        int num_params = 0;
+
+        sNodeType* result_type = field_type;
+
+        BOOL native_ = FALSE;
+        BOOL static_ = FALSE;
+
+        sParserInfo info2;
+
+        memset(&info2, 0, sizeof(sParserInfo));
+
+        char source[1024];
+        snprintf(source, 1024, "self.%s } ", field_name);
+
+        info2.p = source;
+        info2.sname = "getter";
+        info2.sline = 1;
+        info2.err_num = 0;
+        info2.lv_table = info->lv_table;
+        info2.parse_phase = info->parse_phase;
+        info2.klass = info->klass;
+        info2.generics_info = info->generics_info;
+        info2.method_generics_info = info->method_generics_info;
+        info2.cinfo = cinfo;
+
+        info2.included_source = FALSE;
+        info2.get_type_for_interpreter = FALSE;
+        info2.next_command_is_to_bool = FALSE;
+        info2.exist_block_object_err = FALSE;
+
+        sCLMethod* method = klass->mMethods + field->mNumGetterMethodIndex;
+
+        if(!compile_method(method, parser_params, num_params, &info2, cinfo)) {
+            return FALSE;
+        }
+
+        info->err_num += info2.err_num;
+        info->klass->mMethodIndexOnCompileTime++;
+
+        /// setter ///
+        if(!private_) {
+            /// getter ///
+            char* method_name = field_name;
+
+            sParserParam parser_params[PARAMS_MAX];
+            int num_params = 1;
+
+            xstrncpy(parser_params[0].mName, "value", VAR_NAME_MAX);
+            parser_params[0].mType = field_type;
+            parser_params[0].mDefaultValue[0] = '\0';
+
+            sNodeType* result_type = create_node_type_with_class_name("Null");
+
+            BOOL native_ = FALSE;
+            BOOL static_ = FALSE;
+
+            sParserInfo info2;
+
+            memset(&info2, 0, sizeof(sParserInfo));
+
+            char source[1024];
+            snprintf(source, 1024, "self.%s = value; }", field_name);
+
+            info2.p = source;
+            info2.sname = "setter";
+            info2.sline = 1;
+            info2.err_num = 0;
+            info2.lv_table = info->lv_table;
+            info2.parse_phase = info->parse_phase;
+            info2.klass = info->klass;
+            info2.generics_info = info->generics_info;
+            info2.method_generics_info = info->method_generics_info;
+            info2.cinfo = cinfo;
+
+            info2.included_source = FALSE;
+            info2.get_type_for_interpreter = FALSE;
+            info2.next_command_is_to_bool = FALSE;
+            info2.exist_block_object_err = FALSE;
+
+            sCLMethod* method = klass->mMethods + field->mNumGetterMethodIndex + 1;
+
+            if(!compile_method(method, parser_params, num_params, &info2, cinfo)) {
+                return FALSE;
+            }
+
+            info->err_num += info2.err_num;
+            info->klass->mMethodIndexOnCompileTime++;
         }
     }
 
@@ -921,12 +1082,21 @@ BOOL parse_methods_and_fields_on_compile_time(sParserInfo* info, sCompileInfo* c
         }
 
         if(info->klass->mFlags & CLASS_FLAGS_ALLOCATED) {
+            sCLClass* klass = info->klass;
+            char* field_name = buf;
+
+            int field_index = search_for_field(klass, field_name);
+
+            if(field_index != -1) {
+                sCLField* field = klass->mFields + field_index;
+
+                if(!setter_and_getter_on_compile_time(info, cinfo, klass, field, field_name, private_))
+                {
+                    return FALSE;
+                }
+            }
+
             if(delegate_) {
-                sCLClass* klass = info->klass;
-                char* field_name = buf;
-
-                int field_index = search_for_field(klass, field_name);
-
                 if(field_index != -1) {
                     sCLField* field = klass->mFields + field_index;
 

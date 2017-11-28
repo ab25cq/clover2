@@ -263,10 +263,15 @@ BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* param
 
     klass->mMethods[num_methods].mMethodIndex = num_methods;
 
-    klass->mMethods[num_methods].mNumGenerics = ginfo->mNumParams;
-    for(i=0; i<ginfo->mNumParams; i++) {
-        char* interface_name = CLASS_NAME(ginfo->mInterface[i]);
-        klass->mMethods[num_methods].mGenericsParamTypeOffsets[i] = append_str_to_constant_pool(&klass->mConst, interface_name, FALSE);
+    if(ginfo) {
+        klass->mMethods[num_methods].mNumGenerics = ginfo->mNumParams;
+        for(i=0; i<ginfo->mNumParams; i++) {
+            char* interface_name = CLASS_NAME(ginfo->mInterface[i]);
+            klass->mMethods[num_methods].mGenericsParamTypeOffsets[i] = append_str_to_constant_pool(&klass->mConst, interface_name, FALSE);
+        }
+    }
+    else {
+        klass->mMethods[num_methods].mNumGenerics = 0;
     }
 
     klass->mNumMethods++;
