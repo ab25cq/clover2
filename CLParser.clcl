@@ -43,15 +43,13 @@ class CLParser
     }
 
     def parse() {
+        self.sourceBuffer.append(0y);
         p:pointer = self.sourceBuffer.buffer;
 
-        while(p->char != '\0') {
-            println("p \{p->char}");
+        while(p->byte != 0) {
+            printf("p %d\n", array { p->byte });
             p++;
         }
-
-println("GENERICS_TYPES_MAX \{CLParser.GENERICS_TYPES_MAX}");
-println("PARAMS_MAX \{CLParser.PARAMS_MAX}");
     }
 
     def expression() {
