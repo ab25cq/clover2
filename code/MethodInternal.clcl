@@ -1,7 +1,10 @@
 
 class MethodInternal
 {
+    field:int;
+
     def initialize() {
+        field = 234;
     }
 
     def method():int {
@@ -10,5 +13,22 @@ class MethodInternal
 
     def method2(): int {
         return 123;
+    }
+
+    def method3(): int {
+        return field;
+    }
+    def method4(): int {
+        field:int = 345;
+        return field;
+    }
+    def method5(): int {
+        field:int = 345;
+        return self.field;
+    }
+
+    def method6(): int {
+        field *= 2;
+        return field;
     }
 }
