@@ -3447,6 +3447,43 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     return FALSE;
                 }
             }
+/*
+            /// 同一クラス内のフィールド？
+            else if(*node == 0 && info->klass && field_name_existance(info->klass, buf)
+                && *info->p != '(')
+            {
+                skip_spaces_and_lf(info);
+
+                *node = sNodeTree_create_load_variable("self", info);
+
+                *node = sNodeTree_create_fields(buf, *node, info);
+            }
+*/
+            /// 同一クラス内のメソッド？
+            else if(*node == 0 && info->klass && method_name_existance(info->klass, buf) 
+                && *info->p == '(')
+            {
+                skip_spaces_and_lf(info);
+
+                *node = sNodeTree_create_load_variable("self", info);
+
+                unsigned int params[PARAMS_MAX];
+                int num_params = 0;
+
+                if(!parse_method_params(&num_params, params, info)) {
+                    return FALSE;
+                }
+
+                *node = sNodeTree_create_method_call(*node, buf, params, num_params, num_method_chains, info);
+                max_method_chains_node[num_method_chains] = *node;
+
+                num_method_chains++;
+
+                if(num_method_chains >= METHOD_CHAIN_MAX) {
+                    parser_err_msg(info, "overflow method chain");
+                    return FALSE;
+                }
+            }
             /// コマンド名かつローカル変数でなかったらシェルモードに入る ///
             else if(including_slash || (get_variable_index(info->lv_table, buf) == -1 && is_command_name(buf) && *info->p != '('))
             {

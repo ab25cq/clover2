@@ -321,7 +321,7 @@ class String
         return self.sub(regex_, replace, new EqualableList<String>());
     }
 
-    def sub(regex_:regex, group_strings:EqualableList<String>?, replace:lambda(String,EqualableList<String>):String):  String 
+    def sub(regex_:regex, group_strings:EqualableList<String>?, replace_:lambda(String,EqualableList<String>):String):  String 
     {
         result: String = new String();
         offset:int = 0;
@@ -340,7 +340,7 @@ class String
 
                 match_string:String = buffer.subBuffer(ovec.start[0], ovec.end[0]).toString();
 
-                replace_string:String = replace(match_string, new EqualableList<String>());
+                replace_string:String = replace_(match_string, new EqualableList<String>());
                 result.append(replace_string);
 
                 if(offset == ovec.end[0]) {
@@ -372,7 +372,7 @@ class String
                     group_strings.add(match_string);
                 }
 
-                replace_string:String = replace(match_string, group_strings);
+                replace_string:String = replace_(match_string, group_strings);
                 result.append(replace_string);
 
                 if(offset == ovec.end[0]) {
@@ -399,7 +399,7 @@ class String
         return result;
     }
 
-    def sub(regex_:regex, group_strings:EqualableList<String>?, replace:lambda(String):String):  String 
+    def sub(regex_:regex, group_strings:EqualableList<String>?, replace_:lambda(String):String):  String 
     {
         result: String = new String();
         offset:int = 0;
@@ -418,7 +418,7 @@ class String
 
                 match_string:String = buffer.subBuffer(ovec.start[0], ovec.end[0]).toString();
 
-                replace_string:String = replace(match_string);
+                replace_string:String = replace_(match_string);
                 result.append(replace_string);
 
                 if(offset == ovec.end[0]) {
@@ -450,7 +450,7 @@ class String
                     group_strings.add(match_string);
                 }
 
-                replace_string:String = replace(match_string);
+                replace_string:String = replace_(match_string);
                 result.append(replace_string);
 
                 if(offset == ovec.end[0]) {
@@ -477,13 +477,13 @@ class String
         return result;
     }
     
-    def sub(regex_:regex, replace:lambda(String,EqualableList<String>):String):  String {
-        return self.sub(regex_, new EqualableList<String>()@group_strings, replace);
+    def sub(regex_:regex, replace_:lambda(String,EqualableList<String>):String):  String {
+        return self.sub(regex_, new EqualableList<String>()@group_strings, replace_);
     }
 
-    def sub(regex_:regex, replace:lambda(String):String): String
+    def sub(regex_:regex, replace_:lambda(String):String): String
     {
-        return self.sub(regex_, new EqualableList<String>()@group_strings, replace);
+        return self.sub(regex_, new EqualableList<String>()@group_strings, replace_);
     }
 
     def scan(regex_:regex):  EqualableList<String> {

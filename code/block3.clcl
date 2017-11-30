@@ -8,7 +8,7 @@ class LabmdaTest {
     }
 
     def run(a:int, b:int):int {
-        value := self.value;
-        return value(a, b);
+        value_ := self.value;
+        return value_(a, b);
     }
 }

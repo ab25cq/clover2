@@ -1,0 +1,11 @@
+
+class MethodInternal
+{
+    def method():int {
+        return method2();
+    }
+
+    def method2(): int {
+        return 123;
+    }
+}

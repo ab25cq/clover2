@@ -785,6 +785,21 @@ BOOL method_name_existance(sCLClass* klass, char* method_name)
     return FALSE;
 }
 
+BOOL field_name_existance(sCLClass* klass, char* field_name)
+{
+    int i;
+    for(i=0; i<klass->mNumFields; i++) {
+        sCLField* field = klass->mFields + i;
+
+        if(strcmp(FIELD_NAME(klass, field), field_name) == 0) {
+            return TRUE;
+        }
+    }
+
+    return FALSE;
+}
+
+
 static BOOL check_same_interface_of_two_methods(sCLMethod* method1, sCLClass* klass1, sCLMethod* method2, sCLClass* klass2)
 {
     char* name1 = METHOD_NAME2(klass1, method1);

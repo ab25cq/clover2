@@ -1750,6 +1750,7 @@ void add_dependences_with_node_type(sCLClass* klass, sNodeType* node_type);
 BOOL parse_params(sParserParam* params, int* num_params, sParserInfo* info, int chracter_type);
 BOOL check_implemented_methods_for_interface(sCLClass* left_class, sCLClass* right_class);
 BOOL method_name_existance(sCLClass* klass, char* method_name);
+BOOL field_name_existance(sCLClass* klass, char* field_name);
 void create_method_name_and_params(char* result, int size_result, sCLClass* klass, char* method_name, sNodeType* param_types[PARAMS_MAX], int num_params);
 BOOL determine_method_generics_types(sNodeType* left_param, sNodeType* right_param, sNodeType* method_generics_types);
 

@@ -364,4 +364,5 @@ test:
 	./clover2 code/setter_getter.cl
 	./clover2 code/E.cl
 	./clover2 code/parser.cl
+	./clover2 code/method_internal.cl
 
