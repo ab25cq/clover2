@@ -65,10 +65,10 @@ class CLNodeTreeInt
     def initialize(value:int, sname:String, sline:int) {
         self.base = new CLNodeTreeBase();
 
-        self.type(CLNodeTree.IntType);
+        type(CLNodeTree.IntType);
 
-        self.sourceName(sname);
-        self.sourceLine(sline);
+        sourceName(sname);
+        sourceLine(sline);
 
         self.value = value;
     }
@@ -85,28 +85,28 @@ class CLNodeTreePlus
     def initialize(left:CLNodeTree, right:CLNodeTree, sname:String, sline:int) {
         self.base = new CLNodeTreeBase();
 
-        self.type(CLNodeTree.PlusExp);
+        type(CLNodeTree.PlusExp);
 
-        self.left(left);
-        self.right(right);
+        left(left);
+        right(right);
 
-        self.sourceName(sname);
-        self.sourceLine(sline);
+        sourceName(sname);
+        sourceLine(sline);
     }
 
     def show() {
         println("plus tree");
         println("<-- left -->");
-        if(!self.left().identifyWith(null)) {
-            self.left().show();
+        if(!left().identifyWith(null)) {
+            left().show();
         }
         else {
             println("null");
         }
 
         println("<-- right -->");
-        if(!self.right().identifyWith(null)) {
-            self.right().show();
+        if(!right().identifyWith(null)) {
+            right().show();
         }
         else {
             println("null");
@@ -155,14 +155,14 @@ class CLParser
     }
 
     def plusAndMinus(): CLNodeTree? throws Exception {
-        result:CLNodeTree? = self.expressionNode();
+        result:CLNodeTree? = expressionNode();
 
         while(true) {
             if(self.p->byte == '+') {
                 self.p++;
                 self.skipSpacesAndLF();
 
-                right := self.expressionNode();
+                right := expressionNode();
 
                 if(right.identifyWith(null)) {
                     throw new Exception("\{self.sourceName} \{self.sourceLine}: Right expression is null.");
@@ -179,7 +179,7 @@ class CLParser
     }
 
     def expression(): CLNodeTree? throws Exception {
-        result :CLNodeTree? = self.plusAndMinus();
+        result :CLNodeTree? = plusAndMinus();
 
         return result;
     }
@@ -192,7 +192,7 @@ class CLParser
         self.sourceLine = 1;
 
         while(self.p->byte != '\0') {
-            exp:CLNodeTree? = self.expression();
+            exp:CLNodeTree? = expression();
 
             if(!exp.identifyWith(null)) {
                 exp.show();

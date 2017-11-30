@@ -3447,21 +3447,8 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     return FALSE;
                 }
             }
-/*
-            /// 同一クラス内のフィールド？
-            else if(*node == 0 && info->klass && field_name_existance(info->klass, buf)
-                && *info->p != '(')
-            {
-                skip_spaces_and_lf(info);
-
-                *node = sNodeTree_create_load_variable("self", info);
-
-                *node = sNodeTree_create_fields(buf, *node, info);
-            }
-*/
             /// 同一クラス内のメソッド？
-            else if(*node == 0 && info->klass && method_name_existance(info->klass, buf) 
-                && *info->p == '(')
+            else if(info->klass && method_name_existance(info->klass, buf) && *info->p == '(')
             {
                 skip_spaces_and_lf(info);
 
@@ -3484,6 +3471,18 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     return FALSE;
                 }
             }
+/*
+            /// 同一クラス内のフィールド？
+            else if(*node == 0 && info->klass && field_name_existance(info->klass, buf)
+                && *info->p != '(')
+            {
+                skip_spaces_and_lf(info);
+
+                *node = sNodeTree_create_load_variable("self", info);
+
+                *node = sNodeTree_create_fields(buf, *node, info);
+            }
+*/
             /// コマンド名かつローカル変数でなかったらシェルモードに入る ///
             else if(including_slash || (get_variable_index(info->lv_table, buf) == -1 && is_command_name(buf) && *info->p != '('))
             {
@@ -3620,7 +3619,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     return FALSE;
                 }
             }
-            /// 上のものが全部違ったら、ローカル変数で確定 ///
+            /// ローカル変数 ///
             else {
                 skip_spaces_and_lf(info);
 

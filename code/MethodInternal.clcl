@@ -1,6 +1,9 @@
 
 class MethodInternal
 {
+    def initialize() {
+    }
+
     def method():int {
         return method2();
     }
