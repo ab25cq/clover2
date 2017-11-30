@@ -71,6 +71,7 @@
 #define STRING_EXPRESSION_MAX 32
 #define GLOBAL_STACK_MAX 256
 #define METHOD_DEFAULT_PARAM_MAX 1024
+#define METHOD_BLOCK_PARAM_MAX 16
 
 /// CLVALUE ///
 typedef unsigned int CLObject;
@@ -1753,6 +1754,7 @@ BOOL method_name_existance(sCLClass* klass, char* method_name);
 BOOL field_name_existance(sCLClass* klass, char* field_name);
 void create_method_name_and_params(char* result, int size_result, sCLClass* klass, char* method_name, sNodeType* param_types[PARAMS_MAX], int num_params);
 BOOL determine_method_generics_types(sNodeType* left_param, sNodeType* right_param, sNodeType* method_generics_types);
+BOOL is_method_param_name(char* name);
 
 /// native_method.c ///
 void native_method_init();

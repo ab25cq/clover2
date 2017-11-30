@@ -799,6 +799,25 @@ BOOL field_name_existance(sCLClass* klass, char* field_name)
     return FALSE;
 }
 
+BOOL is_method_param_name(char* name)
+{
+    if(strcmp(name, "it") == 0) {
+        return TRUE;
+    }
+
+    int i;
+    for(i=2; i<METHOD_BLOCK_PARAM_MAX; i++) {
+        char buf[128];
+
+        snprintf(buf, 128, "it%d", i);
+
+        if(strcmp(buf, name) == 0) {
+            return TRUE;
+        }
+    }
+
+    return FALSE;
+}
 
 static BOOL check_same_interface_of_two_methods(sCLMethod* method1, sCLClass* klass1, sCLMethod* method2, sCLClass* klass2)
 {

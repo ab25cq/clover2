@@ -2757,6 +2757,12 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
 
                     sParserParam block_params[PARAMS_MAX];
 
+                    if(num_block_params >= METHOD_BLOCK_PARAM_MAX) {
+                        compile_err_msg(info, "overflow method block parametor max");
+                        info->err_num++;
+                        return FALSE;
+                    }
+
                     int i;
                     for(i=0; i<num_block_params; i++) {
                         if(i == 0) {
