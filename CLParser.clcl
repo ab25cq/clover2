@@ -150,6 +150,36 @@ class CLParser
 
             result = new CLNodeTreeInt(value, self.sourceName, self.sourceLine);
         }
+        elif(self.p->byte == '"') {
+            str:String = "";
+
+            while(self.p->byte != '"') {
+                if(self.p->byte == '\0') {
+                    throw new Exception("Unexpected the source end");
+                }
+                elif(self.p->byte == '\\') {
+                    self.p++;
+
+                    if(self.p->byte == 'n') {
+                    }
+                    elif(self.p->byte == 'r') {
+                    }
+                    elif(self.p->byte == '0') {
+                    }
+                    elif(self.p->byte == '{') {
+                    }
+                    elif(self.p->byte == 't') {
+                    }
+                    elif(self.p->byte == 'a') {
+                    }
+                    elif(self.p->byte == '\\') {
+                    }
+                }
+
+                str.append(self.p->byte.to_char);
+                self.p++;
+            }
+        }
 
         return result;
     }

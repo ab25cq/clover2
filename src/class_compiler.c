@@ -5,9 +5,66 @@ static BOOL skip_block(sParserInfo* info)
     if(*info->p == '{') {
         info->p++;
 
+        BOOL dquort = FALSE;
+        BOOL squort = FALSE;
+        int sline = 0;
         int nest = 0;
         while(1) {
-            if(*info->p == '{') {
+            if(dquort) {
+                if(*info->p == '\\') {
+                    info->p++;
+                    if(*info->p == '\0') {
+                        fprintf(stderr, "%s %d: unexpected the source end. close single quote or double quote.", info->sname, sline);
+                        return FALSE;
+                    }
+                    info->p++;
+                }
+                else if(*info->p == '"') {
+                    info->p++;
+                    dquort = !dquort;
+                }
+                else {
+                    info->p++;
+
+                    if(*info->p == '\0') {
+                        fprintf(stderr, "%s %d: unexpected the source end. close single quote or double quote.", info->sname, sline);
+                        return FALSE;
+                    }
+                }
+            }
+            else if(squort) {
+                if(*info->p == '\\') {
+                    info->p++;
+                    if(*info->p == '\0') {
+                        fprintf(stderr, "%s %d: unexpected the source end. close single quote or double quote.", info->sname, sline);
+                        return FALSE;
+                    }
+                    info->p++;
+                }
+                else if(*info->p == '\'') {
+                    info->p++;
+                    squort = !squort;
+                }
+                else {
+                    info->p++;
+
+                    if(*info->p == '\0') {
+                        fprintf(stderr, "%s %d: unexpected the source end. close single quote or double quote.", info->sname, sline);
+                        return FALSE;
+                    }
+                }
+            }
+            else if(*info->p == '\'') {
+                sline = info->sline;
+                info->p++;
+                squort = !squort;
+            }
+            else if(*info->p == '"') {
+                sline = info->sline;
+                info->p++;
+                dquort = !dquort;
+            }
+            else if(*info->p == '{') {
                 info->p++;
 
                 nest++;
