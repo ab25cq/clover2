@@ -1079,6 +1079,119 @@ static BOOL for_expression(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
+static BOOL when_expression(unsigned int* node, sParserInfo* info)
+{
+/*
+    expect_next_character_with_one_forward("(", info);
+
+    /// 式１ ///
+    unsigned int expression_node = 0;
+    if(!expression(&expression_node, info)) {
+        return FALSE;
+    }
+
+    if(expression_node == 0) {
+        parser_err_msg(info, "require expression for when");
+        info->err_num++;
+        return TRUE;
+    }
+
+    expect_next_character_with_one_forward(")", info);
+    expect_next_character_with_one_forward("{", info);
+
+    unsigned int value_nodes[WHEN_VALUE_MAX][WHEN_VALUE_MAX];
+    int num_values[WHEN_VALUE_MAX];
+    int num_value = 0;
+
+    /// 値 ///
+    while(1) {
+        if(*info->p == '}') {
+            info->p++;
+            skip_spaces_and_lf(info);
+            break;
+        }
+
+        if(!expression_node(
+    }
+
+    sNodeBlock* if_node_block = NULL;
+    if(!parse_block(ALLOC &if_node_block, info, NULL, FALSE)) {
+        return FALSE;
+    }
+
+    unsigned int elif_expression_nodes[ELIF_NUM_MAX];
+    memset(elif_expression_nodes, 0, sizeof(unsigned int)*ELIF_NUM_MAX);
+
+    sNodeBlock* elif_node_blocks[ELIF_NUM_MAX];
+    memset(elif_node_blocks, 0, sizeof(sNodeBlock*)*ELIF_NUM_MAX);
+
+    int elif_num = 0;
+
+    sNodeBlock* else_node_block = NULL;
+
+    while(1) {
+        char* saved_p = info->p;
+        int saved_sline = info->sline;
+
+        char buf[VAR_NAME_MAX];
+
+        /// else ///
+        if(!isalpha(*info->p)) {
+            break;
+        }
+        if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
+            return FALSE;
+        }
+
+        if(strcmp(buf, "else") == 0) {
+            expect_next_character_with_one_forward("{", info);
+
+            if(!parse_block(ALLOC &else_node_block, info, NULL, FALSE)) {
+                return FALSE;
+            }
+            break;
+        }
+        else if(strcmp(buf, "elif") == 0) {
+            expect_next_character_with_one_forward("(", info);
+
+            /// expression ///
+            if(!expression(&elif_expression_nodes[elif_num], info)) {
+                return FALSE;
+            }
+
+            if(elif_expression_nodes[elif_num] == 0) {
+                parser_err_msg(info, "require elif expression");
+                info->err_num++;
+                return TRUE;
+            }
+
+            expect_next_character_with_one_forward(")", info);
+            expect_next_character_with_one_forward("{", info);
+
+            if(!parse_block(ALLOC &elif_node_blocks[elif_num], info, NULL, FALSE)) {
+                return FALSE;
+            }
+
+            elif_num++;
+            if(elif_num >= ELIF_NUM_MAX) {
+                parser_err_msg(info, "overflow elif num");
+                info->err_num++;
+                return FALSE;
+            }
+        }
+        else {
+            info->p = saved_p;
+            info->sline = saved_sline;
+            break;
+        }
+    }
+
+    *node = sNodeTree_if_expression(expression_node, MANAGED if_node_block, elif_expression_nodes, elif_node_blocks, elif_num, MANAGED else_node_block, info);
+*/
+
+    return TRUE;
+}
+
 static BOOL return_expression(unsigned int* node, sParserInfo* info)
 {
 /*
@@ -3055,6 +3168,13 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             skip_spaces_and_lf(info);
 
             if(!if_expression(node, info)) {
+                return FALSE;
+            }
+        }
+        else if(strcmp(buf, "when") == 0) {
+            skip_spaces_and_lf(info);
+
+            if(!when_expression(node, info)) {
                 return FALSE;
             }
         }

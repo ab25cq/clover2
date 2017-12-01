@@ -73,6 +73,8 @@
 #define METHOD_DEFAULT_PARAM_MAX 1024
 #define METHOD_BLOCK_PARAM_MAX 16
 
+#define WHEN_VALUE_MAX 64
+
 /// CLVALUE ///
 typedef unsigned int CLObject;
 
