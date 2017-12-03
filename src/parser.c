@@ -1081,7 +1081,6 @@ static BOOL for_expression(unsigned int* node, sParserInfo* info)
 
 static BOOL when_expression(unsigned int* node, sParserInfo* info)
 {
-/*
     expect_next_character_with_one_forward("(", info);
 
     /// 式１ ///
@@ -1098,10 +1097,13 @@ static BOOL when_expression(unsigned int* node, sParserInfo* info)
 
     expect_next_character_with_one_forward(")", info);
     expect_next_character_with_one_forward("{", info);
+    skip_spaces_and_lf(info);
 
-    unsigned int value_nodes[WHEN_VALUE_MAX][WHEN_VALUE_MAX];
-    int num_values[WHEN_VALUE_MAX];
-    int num_value = 0;
+    unsigned int value_nodes[WHEN_BLOCK_MAX][WHEN_BLOCK_MAX];
+    int num_values[WHEN_BLOCK_MAX];
+    sNodeBlock* when_blocks[WHEN_BLOCK_MAX];
+    sNodeBlock* else_block = NULL;
+    int num_when_block = 0;
 
     /// 値 ///
     while(1) {
@@ -1110,84 +1112,86 @@ static BOOL when_expression(unsigned int* node, sParserInfo* info)
             skip_spaces_and_lf(info);
             break;
         }
-
-        if(!expression_node(
-    }
-
-    sNodeBlock* if_node_block = NULL;
-    if(!parse_block(ALLOC &if_node_block, info, NULL, FALSE)) {
-        return FALSE;
-    }
-
-    unsigned int elif_expression_nodes[ELIF_NUM_MAX];
-    memset(elif_expression_nodes, 0, sizeof(unsigned int)*ELIF_NUM_MAX);
-
-    sNodeBlock* elif_node_blocks[ELIF_NUM_MAX];
-    memset(elif_node_blocks, 0, sizeof(sNodeBlock*)*ELIF_NUM_MAX);
-
-    int elif_num = 0;
-
-    sNodeBlock* else_node_block = NULL;
-
-    while(1) {
-        char* saved_p = info->p;
-        int saved_sline = info->sline;
-
-        char buf[VAR_NAME_MAX];
-
-        /// else ///
-        if(!isalpha(*info->p)) {
-            break;
-        }
-        if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
-            return FALSE;
+        else if(*info->p == '\0') {
+            parser_err_msg(info, "Unexpected the source end");
+            info->err_num++;
+            return TRUE;
         }
 
-        if(strcmp(buf, "else") == 0) {
+        if(*info->p == 'e' && *(info->p+1) == 'l' && *(info->p+2) == 's' && *(info->p+3) == 'e') 
+        {
+            info->p+=4;
+            skip_spaces_and_lf(info);
+
             expect_next_character_with_one_forward("{", info);
 
-            if(!parse_block(ALLOC &else_node_block, info, NULL, FALSE)) {
-                return FALSE;
-            }
-            break;
-        }
-        else if(strcmp(buf, "elif") == 0) {
-            expect_next_character_with_one_forward("(", info);
-
-            /// expression ///
-            if(!expression(&elif_expression_nodes[elif_num], info)) {
-                return FALSE;
-            }
-
-            if(elif_expression_nodes[elif_num] == 0) {
-                parser_err_msg(info, "require elif expression");
+            if(else_block != NULL) {
+                parser_err_msg(info, "else block should be one");
                 info->err_num++;
                 return TRUE;
             }
 
-            expect_next_character_with_one_forward(")", info);
-            expect_next_character_with_one_forward("{", info);
-
-            if(!parse_block(ALLOC &elif_node_blocks[elif_num], info, NULL, FALSE)) {
-                return FALSE;
-            }
-
-            elif_num++;
-            if(elif_num >= ELIF_NUM_MAX) {
-                parser_err_msg(info, "overflow elif num");
-                info->err_num++;
+            if(!parse_block(ALLOC &else_block, info, NULL, FALSE)) {
                 return FALSE;
             }
         }
         else {
-            info->p = saved_p;
-            info->sline = saved_sline;
-            break;
+            int num_value = 0;
+
+            while(1) {
+                unsigned int node = 0;
+                if(!expression(&node, info)) {
+                    return FALSE;
+                }
+
+                if(node == 0) {
+                    parser_err_msg(info, "require expression for when");
+                    info->err_num++;
+                    return TRUE;
+                }
+
+                value_nodes[num_when_block][num_value] = node;
+                num_value++;
+
+                if(num_value >= WHEN_BLOCK_MAX) {
+                    parser_err_msg(info, "overflow when value number");
+                    return FALSE;
+                }
+
+                num_values[num_when_block] = num_value;
+
+                if(*info->p == '\0') {
+                    parser_err_msg(info, "Unexpected the source end");
+                    info->err_num++;
+                    return TRUE;
+                }
+                else if(*info->p == ',') {
+                    info->p++;
+                    skip_spaces_and_lf(info);
+                }
+                else if(*info->p == '{') {
+                    info->p++;
+                    skip_spaces_and_lf(info);
+                    break;
+                }
+            }
+
+            sNodeBlock* when_block = NULL;
+            if(!parse_block(ALLOC &when_block, info, NULL, FALSE)) {
+                return FALSE;
+            }
+            when_blocks[num_when_block] = when_block;
+
+            num_when_block++;
+
+            if(num_when_block >= WHEN_BLOCK_MAX) {
+                parser_err_msg(info, "overflow when block number");
+                return FALSE;
+            }
         }
     }
 
-    *node = sNodeTree_if_expression(expression_node, MANAGED if_node_block, elif_expression_nodes, elif_node_blocks, elif_num, MANAGED else_node_block, info);
-*/
+    *node = sNodeTree_when_expression(expression_node, value_nodes, num_values, when_blocks, num_when_block, else_block, info);
 
     return TRUE;
 }

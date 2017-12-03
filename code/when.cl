@@ -1,18 +1,29 @@
-a := 123;
+a := 125;
 
 print("when test...");
 when(a) {
-    0 {
+    1 {
         println("FALSE");
-        System.exit(2);
     }
-
-    123 {
-        println("OK");
+    123,125 {
+        println("TRUE");
     }
-
     else {
         println("FALSE");
-        System.exit(2);
+    }
+}
+
+b := "ABC";
+
+print("when test2...");
+when(b) {
+    "A" {
+        println("FALSE");
+    }
+    "ABC" {
+        println("TRUE");
+    }
+    else {
+        println("FALSE");
     }
 }

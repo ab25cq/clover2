@@ -377,7 +377,7 @@ static BOOL single_operator(sNodeType* type, int byte_operand, int ubyte_operand
     return TRUE;
 }
 
-static BOOL binary_operator(unsigned int node, sNodeType* left_type, sNodeType* right_type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, int float_operand, int double_operand, int pointer_operand, int null_operand, int char_operand, int bool_operand, int regex_operand, char* op_string, sCompileInfo* info)
+static BOOL binary_operator(sNodeType* left_type, sNodeType* right_type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, int float_operand, int double_operand, int pointer_operand, int null_operand, int char_operand, int bool_operand, int regex_operand, char* op_string, sCompileInfo* info)
 {
     if(!no_cast_types_for_binary_operator(left_type, right_type))
     {
@@ -546,14 +546,14 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
 
     switch(gNodes[node].uValue.mOperand) {
         case kOpAdd:
-            if(!binary_operator(node, left_type, right_type, OP_BADD, OP_UBADD, OP_SADD, OP_USADD, OP_IADD, OP_UIADD, OP_LADD, OP_ULADD, OP_FADD, OP_DADD, OP_PADD, -1, OP_CADD, -1, -1, "+", info))
+            if(!binary_operator(left_type, right_type, OP_BADD, OP_UBADD, OP_SADD, OP_USADD, OP_IADD, OP_UIADD, OP_LADD, OP_ULADD, OP_FADD, OP_DADD, OP_PADD, -1, OP_CADD, -1, -1, "+", info))
             {
                 return FALSE;
             }
             break;
 
         case kOpSub: {
-            if(!binary_operator(node, left_type, right_type, OP_BSUB, OP_UBSUB, OP_SSUB, OP_USSUB, OP_ISUB, OP_UISUB, OP_LSUB, OP_ULSUB, OP_FSUB, OP_DSUB, OP_PSUB, -1, OP_CSUB, -1, -1, "-", info))
+            if(!binary_operator(left_type, right_type, OP_BSUB, OP_UBSUB, OP_SSUB, OP_USSUB, OP_ISUB, OP_UISUB, OP_LSUB, OP_ULSUB, OP_FSUB, OP_DSUB, OP_PSUB, -1, OP_CSUB, -1, -1, "-", info))
             {
                 return FALSE;
             }
@@ -561,42 +561,42 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
             break;
             
         case kOpMult:
-            if(!binary_operator(node, left_type, right_type, OP_BMULT, OP_UBMULT, OP_SMULT, OP_USMULT, OP_IMULT, OP_UIMULT, OP_LMULT, OP_ULMULT, OP_FMULT, OP_DMULT, -1, -1, -1, -1, -1, "*", info))
+            if(!binary_operator(left_type, right_type, OP_BMULT, OP_UBMULT, OP_SMULT, OP_USMULT, OP_IMULT, OP_UIMULT, OP_LMULT, OP_ULMULT, OP_FMULT, OP_DMULT, -1, -1, -1, -1, -1, "*", info))
             {
                 return FALSE;
             }
             break;
             
         case kOpDiv:
-            if(!binary_operator(node, left_type, right_type, OP_BDIV, OP_UBDIV, OP_SDIV, OP_USDIV, OP_IDIV, OP_UIDIV, OP_LDIV, OP_ULDIV, OP_FDIV, OP_DDIV, -1, -1, -1, -1, -1, "/", info))
+            if(!binary_operator(left_type, right_type, OP_BDIV, OP_UBDIV, OP_SDIV, OP_USDIV, OP_IDIV, OP_UIDIV, OP_LDIV, OP_ULDIV, OP_FDIV, OP_DDIV, -1, -1, -1, -1, -1, "/", info))
             {
                 return FALSE;
             }
             break;
             
         case kOpMod:
-            if(!binary_operator(node, left_type, right_type, OP_BMOD, OP_UBMOD, OP_SMOD, OP_USMOD, OP_IMOD, OP_UIMOD, OP_LMOD, OP_ULMOD, -1, -1, -1, -1, -1, -1, -1, "%", info))
+            if(!binary_operator(left_type, right_type, OP_BMOD, OP_UBMOD, OP_SMOD, OP_USMOD, OP_IMOD, OP_UIMOD, OP_LMOD, OP_ULMOD, -1, -1, -1, -1, -1, -1, -1, "%", info))
             {
                 return FALSE;
             }
             break;
             
         case kOpLeftShift:
-            if(!binary_operator(node, left_type, right_type, OP_BLSHIFT, OP_UBLSHIFT, OP_SLSHIFT, OP_USLSHIFT, OP_ILSHIFT, OP_UILSHIFT, OP_LLSHIFT, OP_ULLSHIFT, -1, -1, -1, -1, -1, -1, -1, "<<", info))
+            if(!binary_operator(left_type, right_type, OP_BLSHIFT, OP_UBLSHIFT, OP_SLSHIFT, OP_USLSHIFT, OP_ILSHIFT, OP_UILSHIFT, OP_LLSHIFT, OP_ULLSHIFT, -1, -1, -1, -1, -1, -1, -1, "<<", info))
             {
                 return FALSE;
             }
             break;
             
         case kOpRightShift:
-            if(!binary_operator(node, left_type, right_type, OP_BRSHIFT, OP_UBRSHIFT, OP_SRSHIFT, OP_USRSHIFT, OP_IRSHIFT, OP_UIRSHIFT, OP_LRSHIFT, OP_ULRSHIFT, -1, -1, -1, -1, -1, -1, -1, ">>", info))
+            if(!binary_operator(left_type, right_type, OP_BRSHIFT, OP_UBRSHIFT, OP_SRSHIFT, OP_USRSHIFT, OP_IRSHIFT, OP_UIRSHIFT, OP_LRSHIFT, OP_ULRSHIFT, -1, -1, -1, -1, -1, -1, -1, ">>", info))
             {
                 return FALSE;
             }
             break;
             
         case kOpComparisonEqual:
-            if(!binary_operator(node, left_type, right_type, OP_BEQ, OP_UBEQ, OP_SEQ, OP_USEQ, OP_IEQ, OP_UIEQ, OP_LEQ, OP_ULEQ, OP_FEQ, OP_DEQ, OP_PEQ, OP_IEQ, OP_CEQ, OP_IEQ, OP_REGEQ, "==", info))
+            if(!binary_operator(left_type, right_type, OP_BEQ, OP_UBEQ, OP_SEQ, OP_USEQ, OP_IEQ, OP_UIEQ, OP_LEQ, OP_ULEQ, OP_FEQ, OP_DEQ, OP_PEQ, OP_IEQ, OP_CEQ, OP_IEQ, OP_REGEQ, "==", info))
             {
                 return FALSE;
             }
@@ -605,7 +605,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
             break;
             
         case kOpComparisonNotEqual:
-            if(!binary_operator(node, left_type, right_type, OP_BNOTEQ, OP_UBNOTEQ, OP_SNOTEQ, OP_USNOTEQ, OP_INOTEQ, OP_UINOTEQ, OP_LNOTEQ, OP_ULNOTEQ, OP_FNOTEQ, OP_DNOTEQ, OP_PNOTEQ, OP_INOTEQ, OP_CNOTEQ, OP_INOTEQ, OP_REGNOTEQ, "!=", info))
+            if(!binary_operator(left_type, right_type, OP_BNOTEQ, OP_UBNOTEQ, OP_SNOTEQ, OP_USNOTEQ, OP_INOTEQ, OP_UINOTEQ, OP_LNOTEQ, OP_ULNOTEQ, OP_FNOTEQ, OP_DNOTEQ, OP_PNOTEQ, OP_INOTEQ, OP_CNOTEQ, OP_INOTEQ, OP_REGNOTEQ, "!=", info))
             {
                 return FALSE;
             }
@@ -614,7 +614,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
             break;
             
         case kOpComparisonGreaterEqual:
-            if(!binary_operator(node, left_type, right_type, OP_BGTEQ, OP_UBGTEQ, OP_SGTEQ, OP_USGTEQ, OP_IGTEQ, OP_UIGTEQ, OP_LGTEQ, OP_ULGTEQ, OP_FGTEQ, OP_DGTEQ, OP_PGTEQ, -1, OP_CGTEQ, -1, -1, ">=", info))
+            if(!binary_operator(left_type, right_type, OP_BGTEQ, OP_UBGTEQ, OP_SGTEQ, OP_USGTEQ, OP_IGTEQ, OP_UIGTEQ, OP_LGTEQ, OP_ULGTEQ, OP_FGTEQ, OP_DGTEQ, OP_PGTEQ, -1, OP_CGTEQ, -1, -1, ">=", info))
             {
                 return FALSE;
             }
@@ -623,7 +623,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
             break;
             
         case kOpComparisonLesserEqual:
-            if(!binary_operator(node, left_type, right_type, OP_BLEEQ, OP_UBLEEQ, OP_SLEEQ, OP_USLEEQ, OP_ILEEQ, OP_UILEEQ, OP_LLEEQ, OP_ULLEEQ, OP_FLEEQ, OP_DLEEQ, OP_PLEEQ, -1, OP_CLEEQ, -1, -1, "<=", info))
+            if(!binary_operator(left_type, right_type, OP_BLEEQ, OP_UBLEEQ, OP_SLEEQ, OP_USLEEQ, OP_ILEEQ, OP_UILEEQ, OP_LLEEQ, OP_ULLEEQ, OP_FLEEQ, OP_DLEEQ, OP_PLEEQ, -1, OP_CLEEQ, -1, -1, "<=", info))
             {
                 return FALSE;
             }
@@ -632,7 +632,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
             break;
             
         case kOpComparisonGreater:
-            if(!binary_operator(node, left_type, right_type, OP_BGT, OP_UBGT, OP_SGT, OP_USGT, OP_IGT, OP_UIGT, OP_LGT, OP_ULGT, OP_FGT, OP_DGT, OP_PGT, -1, OP_CGT, -1, -1, ">", info))
+            if(!binary_operator(left_type, right_type, OP_BGT, OP_UBGT, OP_SGT, OP_USGT, OP_IGT, OP_UIGT, OP_LGT, OP_ULGT, OP_FGT, OP_DGT, OP_PGT, -1, OP_CGT, -1, -1, ">", info))
             {
                 return FALSE;
             }
@@ -641,7 +641,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
             break;
             
         case kOpComparisonLesser:
-            if(!binary_operator(node, left_type, right_type, OP_BLE, OP_UBLE, OP_SLE, OP_USLE, OP_ILE, OP_UILE, OP_LLE, OP_ULLE, OP_FLE, OP_DLE, OP_PLE, -1, OP_CLE, -1, -1, "<", info))
+            if(!binary_operator(left_type, right_type, OP_BLE, OP_UBLE, OP_SLE, OP_USLE, OP_ILE, OP_UILE, OP_LLE, OP_ULLE, OP_FLE, OP_DLE, OP_PLE, -1, OP_CLE, -1, -1, "<", info))
             {
                 return FALSE;
             }
@@ -650,21 +650,21 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
             break;
             
         case kOpAnd:
-            if(!binary_operator(node, left_type, right_type, OP_BAND, OP_UBAND, OP_SAND, OP_USAND, OP_IAND, OP_UIAND, OP_LAND, OP_ULAND, -1, -1, -1, -1, -1, -1, -1, "&", info))
+            if(!binary_operator(left_type, right_type, OP_BAND, OP_UBAND, OP_SAND, OP_USAND, OP_IAND, OP_UIAND, OP_LAND, OP_ULAND, -1, -1, -1, -1, -1, -1, -1, "&", info))
             {
                 return FALSE;
             }
             break;
             
         case kOpXor:
-            if(!binary_operator(node, left_type, right_type, OP_BXOR, OP_UBXOR, OP_SXOR, OP_USXOR, OP_IXOR, OP_UIXOR, OP_LXOR, OP_ULXOR, -1, -1, -1, -1, -1, -1, -1, "^", info))
+            if(!binary_operator(left_type, right_type, OP_BXOR, OP_UBXOR, OP_SXOR, OP_USXOR, OP_IXOR, OP_UIXOR, OP_LXOR, OP_ULXOR, -1, -1, -1, -1, -1, -1, -1, "^", info))
             {
                 return FALSE;
             }
             break;
             
         case kOpOr:
-            if(!binary_operator(node, left_type, right_type, OP_BOR, OP_UBOR, OP_SOR, OP_USOR, OP_IOR, OP_UIOR, OP_LOR, OP_ULOR, -1, -1, -1, -1, -1, -1, -1, "|", info))
+            if(!binary_operator(left_type, right_type, OP_BOR, OP_UBOR, OP_SOR, OP_USOR, OP_IOR, OP_UIOR, OP_LOR, OP_ULOR, -1, -1, -1, -1, -1, -1, -1, "|", info))
             {
                 return FALSE;
             }
@@ -1764,6 +1764,312 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
         info->stack_num++;
 
         info->type = if_result_type;
+    }
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_when_expression(unsigned int expression_node, unsigned int value_nodes[WHEN_BLOCK_MAX][WHEN_BLOCK_MAX], int num_values[WHEN_BLOCK_MAX], sNodeBlock* when_blocks[WHEN_BLOCK_MAX], int num_when_block, sNodeBlock* else_block, sParserInfo* info)
+{
+    unsigned node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeWhen;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].uValue.sWhen.mExpressionNode = expression_node;
+    gNodes[node].uValue.sWhen.mNumWhenBlock = num_when_block;
+    gNodes[node].uValue.sWhen.mElseBlock = else_block;
+
+    int i;
+    for(i=0; i<num_when_block; i++) {
+        gNodes[node].uValue.sWhen.mWhenBlocks[i] = when_blocks[i];
+
+        gNodes[node].uValue.sWhen.mNumValues[i] = num_values[i];
+
+        int j;
+        for(j=0; j<num_values[i]; j++) {
+            gNodes[node].uValue.sWhen.mValueNodes[i][j] = value_nodes[i][j];
+        }
+    }
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    gNodes[node].mType = NULL;
+
+    return node;
+}
+
+static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
+{
+    unsigned int expression_node = gNodes[node].uValue.sWhen.mExpressionNode;
+    int num_when_block = gNodes[node].uValue.sWhen.mNumWhenBlock;
+    sNodeBlock* else_block = gNodes[node].uValue.sWhen.mElseBlock;
+
+    unsigned int value_nodes[WHEN_BLOCK_MAX][WHEN_BLOCK_MAX];
+
+    int num_values[WHEN_BLOCK_MAX];
+
+    sNodeBlock* when_blocks[WHEN_BLOCK_MAX];
+
+    int i;
+    for(i=0; i<num_when_block; i++) {
+        num_values[i] = gNodes[node].uValue.sWhen.mNumValues[i];
+        when_blocks[i] = gNodes[node].uValue.sWhen.mWhenBlocks[i];
+
+        int j;
+        for(j=0; j<num_values[i]; j++) {
+            value_nodes[i][j] = gNodes[node].uValue.sWhen.mValueNodes[i][j];
+        }
+    }
+
+    char label_end_point[LABEL_NAME_MAX];
+    create_label_name("label_when_end", label_end_point, LABEL_NAME_MAX, gLabelNum++);
+
+    sNodeType* when_result_type = NULL;
+
+    int end_points[WHEN_BLOCK_MAX][WHEN_BLOCK_MAX];
+
+    for(i=0; i<num_when_block; i++) {
+        int j;
+        for(j=0; j<num_values[i]; j++) {
+            /// left value ///
+            if(!compile(expression_node, info)) {
+                return FALSE;
+            }
+
+            sNodeType* left_type = info->type;
+            sCLClass* klass = left_type->mClass;
+
+            if(klass->mFlags & CLASS_FLAGS_PRIMITIVE) {
+                /// right value ///
+                if(!compile(value_nodes[i][j], info)) {
+                    return FALSE;
+                }
+
+                sNodeType* right_type = info->type;
+
+                if(!type_identify(left_type, right_type)) {
+                    compile_err_msg(info, "When value type and when type is the different.");
+                    info->err_num++;
+
+                    info->type = create_node_type_with_class_name("int"); // dummy
+
+                    return TRUE;
+                }
+
+                if(!binary_operator(left_type, right_type, OP_BEQ, OP_UBEQ, OP_SEQ, OP_USEQ, OP_IEQ, OP_UIEQ, OP_LEQ, OP_ULEQ, OP_FEQ, OP_DEQ, OP_PEQ, OP_IEQ, OP_CEQ, OP_IEQ, OP_REGEQ, "==", info))
+                {
+                    return FALSE;
+                }
+
+                info->type = create_node_type_with_class_name("bool");
+            }
+            else {
+                /// check interface ///
+                sCLClass* iequalable = get_class("IEqualable");
+                if(!check_implemented_methods_for_interface(iequalable, klass)) {
+                    compile_err_msg(info, "Require IEqualable implemented for when value classs(%s)", CLASS_NAME(klass));
+                    info->err_num++;
+                }
+
+                if(klass->mFlags & CLASS_FLAGS_DYNAMIC_CLASS) {
+                    compile_err_msg(info, "Dynamic class type can't be when argument");
+                    info->err_num++;
+
+                    info->type = create_node_type_with_class_name("int"); // dummy
+
+                    return TRUE;
+                }
+                else if(class_identify_with_class_name(klass, "Anonymous")) {
+                    compile_err_msg(info, "Anonymous class type can't be when argument");
+                    info->err_num++;
+
+                    info->type = create_node_type_with_class_name("int"); // dummy
+
+                    return TRUE;
+                }
+                else if(klass->mFlags & CLASS_FLAGS_INTERFACE)
+                {
+                    info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
+
+                    /// right value ///
+                    if(!compile(value_nodes[i][j], info)) {
+                        return FALSE;
+                    }
+
+                    sNodeType* right_type = info->type;
+
+                    if(!type_identify(left_type, right_type)) {
+                        compile_err_msg(info, "When value type and when type is the different.");
+                        info->err_num++;
+
+                        info->type = create_node_type_with_class_name("int"); // dummy
+
+                        return TRUE;
+                    }
+
+                    sNodeType* param_types[PARAMS_MAX];
+                    int num_params = 1;
+
+                    char* method_name = "equals";
+
+                    param_types[0] = right_type;
+
+                    if(!info->pinfo->exist_block_object_err) { // for interpreter completion
+                        int num_real_params = num_params + 1;
+
+                        int size_method_name_and_params = METHOD_NAME_MAX + PARAMS_MAX * CLASS_NAME_MAX + 256;
+                        char method_name_and_params[size_method_name_and_params];
+                        create_method_name_and_params(method_name_and_params, size_method_name_and_params, klass, method_name, param_types, num_params);
+
+                        append_opecode_to_code(info->code, OP_INVOKE_VIRTUAL_METHOD, info->no_output);
+                        append_int_value_to_code(info->code, num_real_params, info->no_output);
+                        append_str_to_constant_pool_and_code(info->constant, info->code, method_name_and_params, info->no_output);
+
+                        info->stack_num -= num_params + 1;
+                        info->stack_num++;
+
+                        info->type = create_node_type_with_class_name("bool");
+                    }
+                }
+                else {
+                    info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
+
+                    /// right value ///
+                    if(!compile(value_nodes[i][j], info)) {
+                        return FALSE;
+                    }
+
+                    sNodeType* right_type = info->type;
+
+                    if(!type_identify(left_type, right_type)) {
+                        compile_err_msg(info, "When value type and when type is the different.");
+                        info->err_num++;
+
+                        info->type = create_node_type_with_class_name("int"); // dummy
+
+                        return TRUE;
+                    }
+
+                    sNodeType* param_types[PARAMS_MAX];
+                    int num_params = 1;
+
+                    char* method_name = "equals";
+                    sNodeType* result_type = NULL;
+
+                    param_types[0] = right_type;
+
+                    sNodeType* result_method_generics_types = NULL;
+                    int method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, FALSE, &result_method_generics_types);
+
+                    sCLMethod* method = klass->mMethods + method_index2;
+
+                    append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
+
+                    append_class_name_to_constant_pool_and_code(info, klass);
+                    append_int_value_to_code(info->code, method_index2, info->no_output);
+
+                    info->stack_num -= num_params + 1;
+                    info->stack_num++;
+
+                    info->type = result_type;
+                }
+            }
+
+            append_opecode_to_code(info->code, OP_COND_JUMP, info->no_output);
+            append_int_value_to_code(info->code, sizeof(int)*3, info->no_output);
+
+            info->stack_num--;
+
+            /// block of when expression ///
+            append_opecode_to_code(info->code, OP_GOTO, info->no_output); // if the conditional expression is false, jump to the end of the block
+
+            int goto_point = info->code->mLen;
+            append_int_value_to_code(info->code, 0, info->no_output);
+
+            int label_num = gLabelNum++;
+
+            char label_name_next_when[LABEL_NAME_MAX];
+            create_label_name2("label_name_next_when", label_name_next_when, LABEL_NAME_MAX, label_num, 1);
+
+            append_str_to_constant_pool_and_code(info->constant, info->code, label_name_next_when, info->no_output);
+
+            if(!compile_block_with_result(when_blocks[i], info)) {
+                return FALSE;
+            }
+
+            append_opecode_to_code(info->code, OP_STORE_VALUE_TO_GLOBAL, info->no_output);
+            info->stack_num--;
+
+            when_result_type = info->type;
+
+            append_opecode_to_code(info->code, OP_GOTO, info->no_output);
+            end_points[i][j] = info->code->mLen;
+
+            append_int_value_to_code(info->code, 0, info->no_output);
+
+            append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
+
+            /// next when value ///
+            *(int*)(info->code->mCodes + goto_point) = info->code->mLen;
+
+            append_opecode_to_code(info->code, OP_LABEL, info->no_output);
+            append_str_to_constant_pool_and_code(info->constant, info->code, label_name_next_when, info->no_output);
+        }
+    }
+
+    if(else_block) {
+        if(!compile_block_with_result(else_block, info)) {
+            return FALSE;
+        }
+
+        append_opecode_to_code(info->code, OP_STORE_VALUE_TO_GLOBAL, info->no_output);
+        info->stack_num--;
+
+        when_result_type = info->type;
+    }
+    else {
+        append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
+        info->stack_num++;
+
+        append_opecode_to_code(info->code, OP_STORE_VALUE_TO_GLOBAL, info->no_output);
+        info->stack_num--;
+
+        when_result_type = create_node_type_with_class_name("Null");
+    }
+
+    for(i=0; i<num_when_block; i++) {
+        int j;
+        for(j=0; j<num_values[i]; j++) {
+            *(int*)(info->code->mCodes + end_points[i][j]) = info->code->mLen;
+        }
+    }
+
+    append_opecode_to_code(info->code, OP_LABEL, info->no_output);
+    append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
+
+    if(info->pinfo->err_num == 0) { // for interpreter completion
+        append_opecode_to_code(info->code, OP_POP_VALUE_FROM_GLOBAL, info->no_output);
+
+        if(when_result_type == NULL) {
+            compile_err_msg(info, "When result type is NULL");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        int size = get_var_size(when_result_type);
+
+        append_int_value_to_code(info->code, size, info->no_output);
+        info->stack_num++;
+
+        info->type = when_result_type;
     }
 
     return TRUE;
@@ -7970,6 +8276,10 @@ void show_node(unsigned int node)
             puts("while expression");
             break;
 
+        case kNodeTypeWhen:
+            puts("when expression");
+            break;
+
         case kNodeTypeFor:
             puts("for expression");
             break;
@@ -8267,6 +8577,12 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeIf:
             if(!compile_if_expression(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeWhen:
+            if(!compile_when_expression(node, info)) {
                 return FALSE;
             }
             break;
