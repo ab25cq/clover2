@@ -43,3 +43,19 @@ c := when(123) {
 }
 
 Clover.test("when test3", c.equals("ABC"));
+
+d := when(234) {
+    123 {
+        "ABC";
+    }
+
+    234 {
+        123;
+    }
+
+    else {
+        "GHI";
+    }
+}
+
+Clover.test("when test4", d.cast("int").equals(123));
