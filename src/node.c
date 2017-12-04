@@ -2005,6 +2005,15 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
             append_opecode_to_code(info->code, OP_STORE_VALUE_TO_GLOBAL, info->no_output);
             info->stack_num--;
 
+            if(when_result_type && !type_identify(info->type, when_result_type)) {
+                compile_err_msg(info, "When result type is the diffrent.");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+
             when_result_type = info->type;
 
             append_opecode_to_code(info->code, OP_GOTO, info->no_output);
@@ -2029,6 +2038,15 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
 
         append_opecode_to_code(info->code, OP_STORE_VALUE_TO_GLOBAL, info->no_output);
         info->stack_num--;
+
+        if(when_result_type && !type_identify(info->type, when_result_type)) {
+            compile_err_msg(info, "When result type is the diffrent.");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
 
         when_result_type = info->type;
     }

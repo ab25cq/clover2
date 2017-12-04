@@ -27,3 +27,19 @@ when(b) {
         println("FALSE");
     }
 }
+
+c := when(123) {
+    123 {
+        "ABC";
+    }
+
+    234 {
+        "DEF";
+    }
+
+    else {
+        "GHI";
+    }
+}
+
+Clover.test("when test3", c.equals("ABC"));
