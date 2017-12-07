@@ -218,6 +218,8 @@ struct sVMInfoStruct {
     int current_var_num;
     char* sname;
     int sline;
+    char* sname2;
+    int sline2;
     int try_offset;
     char** try_pc;
     sByteCode* try_code;
@@ -349,6 +351,8 @@ BOOL put_class_to_table(char* class_name, sCLClass* klass);
 BOOL jit_compile_all_classes();
 void remove_class(char* class_name);
 sCLClass* load_class_from_class_file(char* class_name, char* class_file_name);
+
+sCLClass* get_class_with_load(char* class_name);
 
 struct sClassTableStruct
 {
@@ -916,8 +920,9 @@ extern BOOL gSigInt;
 #define OP_CATCH_STORE 13
 #define OP_HEAD_OF_EXPRESSION 14
 #define OP_MARK_SOURCE_CODE_POSITION 15
-#define OP_SIGINT 16
-#define OP_LABEL 17
+#define OP_MARK_SOURCE_CODE_POSITION2 16
+#define OP_SIGINT 17
+#define OP_LABEL 18
 
 #define OP_VALUE_FOR_ANDAND_OROR 19
 #define OP_STORE_VALUE_FOR_ANDAND_OROR 20

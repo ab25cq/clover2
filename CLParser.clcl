@@ -11,8 +11,26 @@ class CLNodeType
 */
 
     def initialize(class_name:String) {
+println("AAA");
         self.className = class_name;
         self.genericsTypes = new CLNodeType[CLParser.GENERICS_TYPES_MAX]();
+println("BBB");
+    }
+
+    def toString(): String {
+        result := "";
+        result.append(self.className);
+
+        result.append("<");
+
+        for(i := 0; i<self.genericsTypes.length; i++) {
+            result.append(self.genericsTypes[i].toString());
+            if(i != self.genericsTypes.length-1) {
+                result.append(",");
+            }
+        }
+
+        result.append(">");
     }
 }
 
@@ -39,7 +57,7 @@ interface CLNodeTree
     def show();
 
     enum {
-        IntType, PlusExp
+        IntType, PlusExp, StringType
     }
 }
 
@@ -114,10 +132,32 @@ class CLNodeTreePlus
     }
 }
 
+class CLNodeTreeString
+{
+    base:delegate CLNodeTreeBase;
+    value:String;
+
+    def initialize(value:String, sname:String, sline:int) {
+        self.base = new CLNodeTreeBase();
+
+        type(CLNodeTree.StringType);
+
+        sourceName(sname);
+        sourceLine(sline);
+
+        self.value = value;
+    }
+
+    def show() {
+        println("string value \{self.value}");
+    }
+}
+
 class CLParser
 {
     sourceBuffer:Buffer;
     p:pointer;
+    type:CLNodeType;
 
     GENERICS_TYPES_MAX:static int;
     PARAMS_MAX:static int;
@@ -146,39 +186,74 @@ class CLParser
                 value = value * 10 + self.p->byte - '0';
                 self.p++;
             }
-            self.skipSpacesAndLF();
+            skipSpacesAndLF();
 
             result = new CLNodeTreeInt(value, self.sourceName, self.sourceLine);
+
+            #self.type = new CLNodeType("int");
         }
         elif(self.p->byte == '"') {
+            self.p++;
             str:String = "";
 
-            while(self.p->byte != '"') {
-                if(self.p->byte == '\0') {
+            while(true) {
+                if(self.p->byte == '"') {
+                    self.p++;
+                    skipSpacesAndLF();
+                    break;
+                }
+                elif(self.p->byte == '\0') {
                     throw new Exception("Unexpected the source end");
                 }
                 elif(self.p->byte == '\\') {
                     self.p++;
 
-                    if(self.p->byte == 'n') {
-                    }
-                    elif(self.p->byte == 'r') {
-                    }
-                    elif(self.p->byte == '0') {
-                    }
-                    elif(self.p->byte == '{') {
-                    }
-                    elif(self.p->byte == 't') {
-                    }
-                    elif(self.p->byte == 'a') {
-                    }
-                    elif(self.p->byte == '\\') {
+                    when(self.p->byte.to_char) {
+                        'n' {
+                            self.p++;
+                            str.append("\n");
+                        }
+                        'r' {
+                            self.p++;
+                            str.append("\r");
+                        }
+                        '0' {
+                            self.p++;
+                            str.append("\0");
+                        }
+                        '{' {
+                            expression();
+
+                            if(self.p->byte == '}') {
+                                self.p++;
+                            }
+                            else {
+                                throw new Exception("require }");
+                            }
+                        }
+                        't' {
+                            self.p++;
+                            str.append("\t");
+                        }
+                        'a' {
+                            self.p++;
+                            str.append("\a");
+                        }
+                        '\\' {
+                            self.p++;
+                            str.append("\\");
+                        }
                     }
                 }
-
-                str.append(self.p->byte.to_char);
-                self.p++;
+                else {
+                    str.append(self.p->byte.to_char);
+                    self.p++;
+                }
             }
+
+            result = new CLNodeTreeString(str, self.sourceName, self.sourceLine);
+
+            #self.type = new CLNodeType("String");
         }
 
         return result;
@@ -190,7 +265,7 @@ class CLParser
         while(true) {
             if(self.p->byte == '+') {
                 self.p++;
-                self.skipSpacesAndLF();
+                skipSpacesAndLF();
 
                 right := expressionNode();
 
@@ -199,6 +274,7 @@ class CLParser
                 }
 
                 result = new CLNodeTreePlus(result, right, self.sourceName, self.sourceLine);
+                #self.type = new CLNodeType("int");
             }
             else {
                 break;
@@ -226,6 +302,11 @@ class CLParser
 
             if(!exp.identifyWith(null)) {
                 exp.show();
+                /*
+                if(!self.type.identifyWith(null)) {
+                    println("exp result type \{self.type\}");
+                }
+                */
             }
         }
     }

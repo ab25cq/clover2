@@ -467,6 +467,30 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 }
                 break;
 
+            case OP_MARK_SOURCE_CODE_POSITION2: {
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+
+                char* sname = CONS_str(constant, offset);
+
+                int sline = *(int*)pc;
+                pc += sizeof(int);
+
+                std::string info_value_name("info");
+                Value* vminfo_value = params[info_value_name];
+
+                StructType* vm_info_struct_type = get_vm_info_struct_type();
+
+                Value* sname_field = Builder.CreateStructGEP(vm_info_struct_type, vminfo_value, 5);
+                Value* sname_value = llvm_create_string(sname);
+                Builder.CreateStore(sname_value, sname_field, "sname_store");
+
+                Value* sline_field = Builder.CreateStructGEP(vm_info_struct_type, vminfo_value, 6);
+                Value* sline_value = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)sline);
+                Builder.CreateStore(sline_value, sline_field, "sline_store");
+                }
+                break;
+
             case OP_VALUE_FOR_ANDAND_OROR: {
                 LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 

@@ -633,7 +633,7 @@ sCLMethod* search_for_method_from_virtual_method_table(sCLClass* klass, char* me
     return NULL;
 }
 
-static sCLClass* get_class_with_load(char* class_name)
+sCLClass* get_class_with_load(char* class_name)
 {
     sCLClass* result = get_class(class_name);
     

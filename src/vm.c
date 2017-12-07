@@ -1168,6 +1168,20 @@ show_inst(inst);
                 }
                 break;
 
+            case OP_MARK_SOURCE_CODE_POSITION2: {
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+
+                char* sname = CONS_str(constant, offset);
+
+                int sline = *(int*)pc;
+                pc += sizeof(int);
+
+                info->sname2 = sname;
+                info->sline2 = sline;
+                }
+                break;
+
             case OP_SIGINT:
                 vm_mutex_on();
 

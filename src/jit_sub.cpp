@@ -1280,16 +1280,24 @@ StructType* get_vm_info_struct_type()
     fields.push_back(field_type4);
     Type* field_type5 = IntegerType::get(TheContext, 32);                       // sline
     fields.push_back(field_type5);
-    Type* field_type6 = IntegerType::get(TheContext, 32);                       // try_offset
+    Type* field_type6 = PointerType::get(IntegerType::get(TheContext, 8), 0); // sname2
     fields.push_back(field_type6);
-    Type* field_type7 = PointerType::get(PointerType::get(IntegerType::get(TheContext, 8), 0), 0); // try_pc
+    Type* field_type7 = IntegerType::get(TheContext, 32);                       // sline2
     fields.push_back(field_type7);
-    Type* field_type8 = PointerType::get(IntegerType::get(TheContext, 64), 0);      // try_code
-    fields.push_back(field_type7);
-    Type* field_type9 = IntegerType::get(TheContext, 64);                           // stack_id
+    Type* field_type8 = IntegerType::get(TheContext, 32);                       // try_offset
+    fields.push_back(field_type8);
+    Type* field_type9 = PointerType::get(PointerType::get(IntegerType::get(TheContext, 8), 0), 0); // try_pc
     fields.push_back(field_type9);
-    Type* field_type10 = ArrayType::get(IntegerType::get(TheContext, 8), EXCEPTION_MESSAGE_MAX);  // exception_message
+    Type* field_type10 = PointerType::get(IntegerType::get(TheContext, 64), 0);      // try_code
     fields.push_back(field_type10);
+    Type* field_type11 = PointerType::get(IntegerType::get(TheContext, 64), 0);      // running_class
+    fields.push_back(field_type11);
+    Type* field_type12 = PointerType::get(IntegerType::get(TheContext, 64), 0);      // running_method
+    fields.push_back(field_type12);
+    Type* field_type13 = IntegerType::get(TheContext, 64);                           // stack_id
+    fields.push_back(field_type13);
+    Type* field_type14 = ArrayType::get(IntegerType::get(TheContext, 8), EXCEPTION_MESSAGE_MAX);  // exception_message
+    fields.push_back(field_type14);
 
     if(result_type->isOpaque()) {
         result_type->setBody(fields, false);

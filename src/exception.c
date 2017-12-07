@@ -14,7 +14,7 @@ void entry_exception_object_with_class_name(CLVALUE** stack_ptr, CLVALUE* stack,
     char msg3[1024];
 
     if(info->running_class && info->running_method) {
-        snprintf(msg3, 1024, "%s %d: %s at %s.%s", info->sname, info->sline, msg2, CLASS_NAME(info->running_class), METHOD_NAME2(info->running_class, info->running_method));
+        snprintf(msg3, 1024, "%s %d: %s at %s.%s(%s %d)", info->sname, info->sline, msg2, CLASS_NAME(info->running_class), METHOD_NAME2(info->running_class, info->running_method), info->sname2, info->sline2);
     }
     else {
         snprintf(msg3, 1024, "%s %d: %s", info->sname, info->sline, msg2);
@@ -49,7 +49,7 @@ void entry_exception_object_with_class_name2(CLVALUE** stack_ptr, CLVALUE* stack
     char msg3[1024];
 
     if(info->running_class && info->running_method) {
-        snprintf(msg3, 1024, "%s %d: %s at %s.%s", info->sname, info->sline, msg, CLASS_NAME(info->running_class), METHOD_NAME2(info->running_class, info->running_method));
+        snprintf(msg3, 1024, "%s %d: %s at %s.%s(%s %d)", info->sname, info->sline, msg, CLASS_NAME(info->running_class), METHOD_NAME2(info->running_class, info->running_method), info->sname2, info->sline2);
     }
     else {
         snprintf(msg3, 1024, "%s %d: %s", info->sname, info->sline, msg);
@@ -86,7 +86,7 @@ void entry_exception_object(CLObject exception, sVMInfo* info)
     char* str = ALLOC string_object_to_char_array(message);
 
     if(info->running_class && info->running_method) {
-        snprintf(info->exception_message, EXCEPTION_MESSAGE_MAX, "%s %d: %s at %s.%s\n", info->sname, info->sline, str, CLASS_NAME(info->running_class), METHOD_NAME2(info->running_class, info->running_method));
+        snprintf(info->exception_message, EXCEPTION_MESSAGE_MAX, "%s %d: %s at %s.%s(%s %d)\n", info->sname, info->sline, str, CLASS_NAME(info->running_class), METHOD_NAME2(info->running_class, info->running_method), info->sname2, info->sline2);
     }
     else {
         snprintf(info->exception_message, EXCEPTION_MESSAGE_MAX, "%s %d: %s\n", info->sname, info->sline, str);

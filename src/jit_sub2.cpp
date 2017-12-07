@@ -311,6 +311,7 @@ LVALUE get_lvar_value_from_offset(std::map<std::string, Value*>& params, BasicBl
     return result;
 }
 
+/*
 StructType* get_vm_info_struct_type()
 {
     StructType* result_type = StructType::create(TheContext, "vm_info_struct");
@@ -342,6 +343,7 @@ StructType* get_vm_info_struct_type()
 
     return result_type;
 }
+*/
 
 AllocaInst* create_entry_block_alloca(Function* function, int index)
 {
