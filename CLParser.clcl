@@ -11,10 +11,8 @@ class CLNodeType
 */
 
     def initialize(class_name:String) {
-println("AAA");
         self.className = class_name;
         self.genericsTypes = new CLNodeType[CLParser.GENERICS_TYPES_MAX]();
-println("BBB");
     }
 
     def toString(): String {

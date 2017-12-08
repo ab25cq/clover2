@@ -1280,7 +1280,7 @@ StructType* get_vm_info_struct_type()
     fields.push_back(field_type4);
     Type* field_type5 = IntegerType::get(TheContext, 32);                       // sline
     fields.push_back(field_type5);
-    Type* field_type6 = PointerType::get(IntegerType::get(TheContext, 8), 0); // sname2
+    Type* field_type6 = PointerType::get(IntegerType::get(TheContext, 8), 0);   // sname2
     fields.push_back(field_type6);
     Type* field_type7 = IntegerType::get(TheContext, 32);                       // sline2
     fields.push_back(field_type7);

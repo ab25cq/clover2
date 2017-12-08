@@ -311,40 +311,6 @@ LVALUE get_lvar_value_from_offset(std::map<std::string, Value*>& params, BasicBl
     return result;
 }
 
-/*
-StructType* get_vm_info_struct_type()
-{
-    StructType* result_type = StructType::create(TheContext, "vm_info_struct");
-    std::vector<Type*> fields;
-    Type* field_type1 = PointerType::get(IntegerType::get(TheContext, 8), 0); // try_catch_label_name
-    fields.push_back(field_type1);
-    Type* field_type2 = PointerType::get(IntegerType::get(TheContext, 64), 0); // current_stack
-    fields.push_back(field_type2);
-    Type* field_type3 = IntegerType::get(TheContext, 32); // current_var_num
-    fields.push_back(field_type3);
-    Type* field_type4 = PointerType::get(IntegerType::get(TheContext, 8), 0); // sname
-    fields.push_back(field_type4);
-    Type* field_type5 = IntegerType::get(TheContext, 32);                       // sline
-    fields.push_back(field_type5);
-    Type* field_type6 = IntegerType::get(TheContext, 32);                       // try_offset
-    fields.push_back(field_type6);
-    Type* field_type7 = PointerType::get(PointerType::get(IntegerType::get(TheContext, 8), 0), 0); // try_pc
-    fields.push_back(field_type7);
-    Type* field_type8 = PointerType::get(IntegerType::get(TheContext, 64), 0);      // try_code
-    fields.push_back(field_type7);
-    Type* field_type9 = IntegerType::get(TheContext, 64);                           // stack_id
-    fields.push_back(field_type9);
-    Type* field_type10 = ArrayType::get(IntegerType::get(TheContext, 8), EXCEPTION_MESSAGE_MAX);  // exception_message
-    fields.push_back(field_type10);
-
-    if(result_type->isOpaque()) {
-        result_type->setBody(fields, false);
-    }
-
-    return result_type;
-}
-*/
-
 AllocaInst* create_entry_block_alloca(Function* function, int index)
 {
     IRBuilder<> builder(&function->getEntryBlock(), function->getEntryBlock().begin());

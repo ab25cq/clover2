@@ -1512,4 +1512,10 @@ CLObject run_op_regex_with_string_expression(char* str, int* string_expression_o
     return regex_object;
 }
 
+void mark_source_position(sVMInfo* info, char* sname, int sline)
+{
+    info->sname2 = sname;
+    info->sline2 = sline;
+}
+
 }

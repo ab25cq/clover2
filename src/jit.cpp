@@ -476,18 +476,21 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 int sline = *(int*)pc;
                 pc += sizeof(int);
 
+                Function* fun = TheModule->getFunction("mark_source_position");
+
+                std::vector<Value*> params2;
+
                 std::string info_value_name("info");
                 Value* vminfo_value = params[info_value_name];
+                params2.push_back(vminfo_value);
 
-                StructType* vm_info_struct_type = get_vm_info_struct_type();
-
-                Value* sname_field = Builder.CreateStructGEP(vm_info_struct_type, vminfo_value, 5);
                 Value* sname_value = llvm_create_string(sname);
-                Builder.CreateStore(sname_value, sname_field, "sname_store");
+                params2.push_back(sname_value);
 
-                Value* sline_field = Builder.CreateStructGEP(vm_info_struct_type, vminfo_value, 6);
                 Value* sline_value = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)sline);
-                Builder.CreateStore(sline_value, sline_field, "sline_store");
+                params2.push_back(sline_value);
+
+                (void)Builder.CreateCall(fun, params2);
                 }
                 break;
 
