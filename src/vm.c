@@ -30,7 +30,6 @@ void show_stack(CLVALUE* stack, CLVALUE* stack_ptr, CLVALUE* lvar, int var_num)
     }
 }
 
-//#ifdef VM_LOG
 static void show_inst(unsigned inst)
 {
     switch(inst) {
@@ -419,8 +418,6 @@ static void show_inst(unsigned inst)
             break;
     }
 }
-
-//#endif
 
 void vm_mutex_on()
 {
@@ -980,6 +977,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
         pc+=sizeof(int);
 
 #ifdef VM_LOG
+if(info->running_class && info->running_method && strcmp(METHOD_NAME2(info->running_class, info->running_method), "toString") == 0)
 show_inst(inst);
 #endif
 
@@ -1199,11 +1197,6 @@ show_inst(inst);
             case OP_LABEL: {
                 int offset = *(int*)pc;
                 pc += sizeof(int);
-
-#ifdef VM_LOG
-    char* label_name = CONS_str(constant, offset);
-    printf("label name %s\n", label_name);
-#endif
 
                 /// nothing to do, this opecode is for Just In Time Compile
                 }
@@ -4884,6 +4877,7 @@ show_inst(inst);
                     vm_mutex_off();
 
 #ifdef VM_LOG
+if(info->running_class && info->running_method && strcmp(METHOD_NAME2(info->running_class, info->running_method), "toString") == 0)
 show_stack(stack, stack_ptr, lvar, var_num);
 #endif
                 }
@@ -13720,6 +13714,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
         }
 #ifdef VM_LOG
+if(info->running_class && info->running_method && strcmp(METHOD_NAME2(info->running_class, info->running_method), "toString") == 0)
 show_stack(stack, stack_ptr, lvar, var_num);
 #endif
     }

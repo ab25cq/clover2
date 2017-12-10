@@ -30,12 +30,16 @@ class CLNodeType
 
         result.append(">");
     }
+
+    def show() {
+        println("\{toString()}");
+    }
 }
 
 interface CLNodeTree
 {
-    def type():int;
-    def type(value:int);
+    def kind():int;
+    def kind(value:int);
 
     def left(value:CLNodeTree);
     def left():CLNodeTree;
@@ -52,6 +56,9 @@ interface CLNodeTree
     def sourceLine():int;
     def sourceLine(line:int);
 
+    def type():CLNodeType;
+    def type(type: CLNodeType);
+
     def show();
 
     enum {
@@ -61,7 +68,7 @@ interface CLNodeTree
 
 class CLNodeTreeBase
 {
-    type:int;
+    kind:int;
 
     left:CLNodeTree;
     right:CLNodeTree;
@@ -69,6 +76,8 @@ class CLNodeTreeBase
 
     sourceName:String;
     sourceLine:int;
+
+    type:CLNodeType;
 
     def initialize() {}
 }
@@ -81,10 +90,12 @@ class CLNodeTreeInt
     def initialize(value:int, sname:String, sline:int) {
         self.base = new CLNodeTreeBase();
 
-        type(CLNodeTree.IntType);
+        kind(CLNodeTree.IntType);
 
         sourceName(sname);
         sourceLine(sline);
+
+        base.type(new CLNodeType("int"));
 
         self.value = value;
     }
@@ -101,10 +112,12 @@ class CLNodeTreePlus
     def initialize(left:CLNodeTree, right:CLNodeTree, sname:String, sline:int) {
         self.base = new CLNodeTreeBase();
 
-        type(CLNodeTree.PlusExp);
+        kind(CLNodeTree.PlusExp);
 
         left(left);
         right(right);
+
+        base.type(left().type());
 
         sourceName(sname);
         sourceLine(sline);
@@ -138,10 +151,12 @@ class CLNodeTreeString
     def initialize(value:String, sname:String, sline:int) {
         self.base = new CLNodeTreeBase();
 
-        type(CLNodeTree.StringType);
+        kind(CLNodeTree.StringType);
 
         sourceName(sname);
         sourceLine(sline);
+
+        base.type(new CLNodeType("String"));
 
         self.value = value;
     }
@@ -187,8 +202,6 @@ class CLParser
             skipSpacesAndLF();
 
             result = new CLNodeTreeInt(value, self.sourceName, self.sourceLine);
-
-            #self.type = new CLNodeType("int");
         }
         elif(self.p->byte == '"') {
             self.p++;
@@ -250,8 +263,6 @@ class CLParser
             }
 
             result = new CLNodeTreeString(str, self.sourceName, self.sourceLine);
-
-            #self.type = new CLNodeType("String");
         }
 
         return result;
@@ -272,7 +283,6 @@ class CLParser
                 }
 
                 result = new CLNodeTreePlus(result, right, self.sourceName, self.sourceLine);
-                #self.type = new CLNodeType("int");
             }
             else {
                 break;
@@ -300,11 +310,7 @@ class CLParser
 
             if(!exp.identifyWith(null)) {
                 exp.show();
-                /*
-                if(!self.type.identifyWith(null)) {
-                    println("exp result type \{self.type\}");
-                }
-                */
+                #exp.type().show();
             }
         }
     }
