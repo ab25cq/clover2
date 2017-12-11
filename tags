@@ -2427,7 +2427,7 @@ store_value_to_lvar_with_offset	src/jit_sub.cpp	/^void store_value_to_lvar_with_
 store_value_to_lvar_with_offset	src/jit_sub2.cpp	/^void store_value_to_lvar_with_offset(std::map<std::string, Value*>& params, BasicBlock* current_block, int index, LVALUE* llvm_value)$/;"	f
 store_value_to_vm_lvar	src/jit_sub.cpp	/^void store_value_to_vm_lvar(std::map<std::string, Value*>& params, BasicBlock* current_block, int offset, LVALUE* llvm_value)$/;"	f
 store_value_to_vm_lvar	src/jit_sub2.cpp	/^void store_value_to_vm_lvar(std::map<std::string, Value*>& params, BasicBlock* current_block, int offset, LVALUE* llvm_value)$/;"	f
-string_expression	src/vm.c	/^static void string_expression(char* str, sBuf* buf, int* string_expression_offsets, CLObject* string_expression_object, int num_string_expression)$/;"	f	file:
+string_expression	src/vm.c	/^static BOOL string_expression(char* str, sBuf* buf, int* string_expression_offsets, CLObject* string_expression_object, int num_string_expression, CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info)$/;"	f	file:
 string_object_to_char_array	src/clover_to_clang.c	/^ALLOC char* string_object_to_char_array(CLObject string_object)$/;"	f
 string_object_to_wchar_array	src/clover_to_clang.c	/^ALLOC wchar_t* string_object_to_wchar_array(CLObject string_object)$/;"	f
 substitution_posibility	src/node_type.c	/^BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_generics_types, sNodeType* right_generics_types, sNodeType* left_method_generics, sNodeType* right_method_generics)$/;"	f

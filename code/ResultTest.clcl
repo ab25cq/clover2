@@ -1,0 +1,46 @@
+class ResultTest
+{
+    def initialize() {}
+
+    def method2() {
+        a:String = if(true) {
+            "ABC";
+        }
+        else {
+            "DEF";
+        }
+
+        Clover.test("if result test2", a.equals("ABC"));
+    }
+
+    def method3() {
+        a:String = if(false) {
+            "ABC";
+        }
+
+        Clover.test("if result test3", a.identifyWith(null));
+    }
+
+    def method4() {
+        a: String = if(true) {
+            "ABC";
+        }
+
+        Clover.test("if result test4", a.equals("ABC"));
+    }
+
+    def method5():String {
+        a := 1;
+        "ABC";
+
+        if(a > 2) {
+            "DEF";
+        }
+    }
+
+    def method():String {
+        a := if(true) {
+            "ABC";
+        }
+    }
+}

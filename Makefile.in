@@ -365,5 +365,6 @@ test:
 	./clover2 code/E.cl
 	./clover2 code/method_internal.cl
 	./clover2 code/when.cl
+	./cclover2 code/ResultTest.clcl && ./clover2 code/result.cl
 	./clover2 code/parser.cl
 

@@ -4044,12 +4044,25 @@ fi
 
 CXXFLAGS="-I . "
 
-if which clang++-3.8 > /dev/null
+if which clang++-3.7 > /dev/null
 then
-    CXX=clang++-3.8
+    CXX=clang++
     if which ccache > /dev/null
     then
-        CXX="ccache clang++-3.8"
+        CXX="ccache clang++"
+    fi
+    if test $DEBUGGING = 1
+    then
+        CXXFLAGS='`llvm-config-3.7 --cxxflags --ldflags --system-libs --libs all` -lffi -DMDEBUG -g'" $CXXFLAGS"
+    else
+        CXXFLAGS='`llvm-config-3.7 --cxxflags --ldflags --system-libs --libs all` -lffi -O3'" $CXXFLAGS"
+    fi
+elif which clang++-3.8 > /dev/null
+then
+    CXX=clang++
+    if which ccache > /dev/null
+    then
+        CXX="ccache clang++"
     fi
     if test $DEBUGGING = 1
     then

@@ -947,7 +947,7 @@ void Self_convertion_of_method_name_and_params(char* method_name_and_params, cha
     }
 }
 
-static void string_expression(char* str, sBuf* buf, int* string_expression_offsets, CLObject* string_expression_object, int num_string_expression)
+static BOOL string_expression(char* str, sBuf* buf, int* string_expression_offsets, CLObject* string_expression_object, int num_string_expression, CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info)
 {
     int offset_before = 0;
 
@@ -957,7 +957,14 @@ static void string_expression(char* str, sBuf* buf, int* string_expression_offse
 
         sBuf_append(buf, str + offset_before, offset - offset_before);
 
-        char* str2 = ALLOC string_object_to_char_array(string_expression_object[i]);
+        CLObject object = string_expression_object[i];
+
+        if(object == 0) {
+            entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(10)");
+            return FALSE;
+        }
+
+        char* str2 = ALLOC string_object_to_char_array(object);
         sBuf_append_str(buf, str2);
         MFREE(str2);
 
@@ -965,6 +972,8 @@ static void string_expression(char* str, sBuf* buf, int* string_expression_offse
     }
 
     sBuf_append(buf, str + offset_before, strlen(str) - offset_before);
+
+    return TRUE;
 }
 
 BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sVMInfo* info)
@@ -13003,7 +13012,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                         sBuf buf;
                         sBuf_init(&buf);
 
-                        string_expression(str, &buf, string_expression_offsets, string_expression_object, num_string_expression);
+                        if(!string_expression(str, &buf, string_expression_offsets, string_expression_object, num_string_expression, &stack_ptr, stack, var_num, info))
+                        {
+                            vm_mutex_off();
+                            remove_stack_to_stack_list(stack_id);
+                            MFREE(buf.mBuf);
+                            return FALSE;
+                        }
 
                         stack_ptr -= num_string_expression;
 
@@ -13057,7 +13072,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                         sBuf buf;
                         sBuf_init(&buf);
 
-                        string_expression(str, &buf, string_expression_offsets, string_expression_object, num_string_expression);
+                        if(!string_expression(str, &buf, string_expression_offsets, string_expression_object, num_string_expression, &stack_ptr, stack, var_num, info))
+                        {
+                            vm_mutex_off();
+                            remove_stack_to_stack_list(stack_id);
+                            MFREE(buf.mBuf);
+                            return FALSE;
+                        }
 
                         stack_ptr -= num_string_expression;
 
@@ -13109,7 +13130,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                         sBuf buf;
                         sBuf_init(&buf);
 
-                        string_expression(str, &buf, string_expression_offsets, string_expression_object, num_string_expression);
+                        if(!string_expression(str, &buf, string_expression_offsets, string_expression_object, num_string_expression, &stack_ptr, stack, var_num, info))
+                        {
+                            vm_mutex_off();
+                            remove_stack_to_stack_list(stack_id);
+                            MFREE(buf.mBuf);
+                            return FALSE;
+                        }
 
                         stack_ptr -= num_string_expression;
 
@@ -13702,7 +13729,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                         sBuf buf;
                         sBuf_init(&buf);
 
-                        string_expression(str, &buf, string_expression_offsets, string_expression_object, num_string_expression);
+                        if(!string_expression(str, &buf, string_expression_offsets, string_expression_object, num_string_expression, &stack_ptr, stack, var_num, info))
+                        {
+                            vm_mutex_off();
+                            remove_stack_to_stack_list(stack_id);
+                            MFREE(buf.mBuf);
+                            return FALSE;
+                        }
 
                         stack_ptr -= num_string_expression;
 
