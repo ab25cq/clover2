@@ -15,6 +15,14 @@ void entry_exception_object_with_class_name(CLVALUE** stack_ptr, CLVALUE* stack,
 
     if(info->running_class && info->running_method) {
         snprintf(msg3, 1024, "%s %d: %s at %s.%s(%s %d)", info->sname, info->sline, msg2, CLASS_NAME(info->running_class), METHOD_NAME2(info->running_class, info->running_method), info->sname2, info->sline2);
+        int i;
+        for(i=0; i<STACK_TRACE_MAX; i++) {
+            if(info->running_sname_for_stack_trace[i]) {
+                char buf[1024];
+                snprintf(buf, 1024, "(%s %d)", info->running_sname_for_stack_trace[i], info->running_sline_for_stack_trace[i]);
+                xstrncat(msg3, buf, 1024);
+            }
+        }
     }
     else {
         snprintf(msg3, 1024, "%s %d: %s", info->sname, info->sline, msg2);
@@ -50,6 +58,14 @@ void entry_exception_object_with_class_name2(CLVALUE** stack_ptr, CLVALUE* stack
 
     if(info->running_class && info->running_method) {
         snprintf(msg3, 1024, "%s %d: %s at %s.%s(%s %d)", info->sname, info->sline, msg, CLASS_NAME(info->running_class), METHOD_NAME2(info->running_class, info->running_method), info->sname2, info->sline2);
+        int i;
+        for(i=0; i<STACK_TRACE_MAX; i++) {
+            if(info->running_sname_for_stack_trace[i]) {
+                char buf[1024];
+                snprintf(buf, 1024, "(%s %d)", info->running_sname_for_stack_trace[i], info->running_sline_for_stack_trace[i]);
+                xstrncat(msg3, buf, 1024);
+            }
+        }
     }
     else {
         snprintf(msg3, 1024, "%s %d: %s", info->sname, info->sline, msg);
@@ -86,7 +102,16 @@ void entry_exception_object(CLObject exception, sVMInfo* info)
     char* str = ALLOC string_object_to_char_array(message);
 
     if(info->running_class && info->running_method) {
-        snprintf(info->exception_message, EXCEPTION_MESSAGE_MAX, "%s %d: %s at %s.%s(%s %d)\n", info->sname, info->sline, str, CLASS_NAME(info->running_class), METHOD_NAME2(info->running_class, info->running_method), info->sname2, info->sline2);
+        snprintf(info->exception_message, EXCEPTION_MESSAGE_MAX, "%s %d: %s at %s.%s(%s %d)", info->sname, info->sline, str, CLASS_NAME(info->running_class), METHOD_NAME2(info->running_class, info->running_method), info->sname2, info->sline2);
+        int i;
+        for(i=0; i<STACK_TRACE_MAX; i++) {
+            if(info->running_sname_for_stack_trace[i]) {
+                char buf[1024];
+                snprintf(buf, 1024, "(%s %d)", info->running_sname_for_stack_trace[i], info->running_sline_for_stack_trace[i]);
+                xstrncat(info->exception_message, buf, EXCEPTION_MESSAGE_MAX);
+            }
+        }
+        xstrncat(info->exception_message, "\n", EXCEPTION_MESSAGE_MAX);
     }
     else {
         snprintf(info->exception_message, EXCEPTION_MESSAGE_MAX, "%s %d: %s\n", info->sname, info->sline, str);

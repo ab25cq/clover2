@@ -444,7 +444,15 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
     printf("invoke_method %s.%s start\n", CLASS_NAME(klass), METHOD_NAME2(klass, method));
     printf("method->mMethodIndex %d\n", method->mMethodIndex);
 #endif
-    
+
+    int i;
+    for(i=0; i<STACK_TRACE_MAX-1; i++) {
+        info->running_sname_for_stack_trace[i+1] = info->running_sname_for_stack_trace[i];
+        info->running_sline_for_stack_trace[i+1] = info->running_sline_for_stack_trace[i];
+    }
+    info->running_sname_for_stack_trace[0] = info->sname2;
+    info->running_sline_for_stack_trace[0] = info->sline2;
+
     if(method->mFlags & METHOD_FLAGS_NATIVE) {
         CLVALUE* lvar = *stack_ptr - method->mNumParams;
 
@@ -977,7 +985,6 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
         pc+=sizeof(int);
 
 #ifdef VM_LOG
-if(info->running_class && info->running_method && strcmp(METHOD_NAME2(info->running_class, info->running_method), "toString") == 0)
 show_inst(inst);
 #endif
 
@@ -13714,7 +13721,6 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
         }
 #ifdef VM_LOG
-if(info->running_class && info->running_method && strcmp(METHOD_NAME2(info->running_class, info->running_method), "toString") == 0)
 show_stack(stack, stack_ptr, lvar, var_num);
 #endif
     }

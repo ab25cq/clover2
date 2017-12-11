@@ -790,7 +790,7 @@ static BOOL setter_and_getter_on_compile_time(sParserInfo* info, sCompileInfo* c
         memset(&info2, 0, sizeof(sParserInfo));
 
         char source[1024];
-        snprintf(source, 1024, "self.%s } ", field_name);
+        snprintf(source, 1024, "return self.%s } ", field_name);
 
         info2.p = source;
         info2.sname = "getter";

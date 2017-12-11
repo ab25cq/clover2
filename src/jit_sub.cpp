@@ -1298,6 +1298,10 @@ StructType* get_vm_info_struct_type()
     fields.push_back(field_type13);
     Type* field_type14 = ArrayType::get(IntegerType::get(TheContext, 8), EXCEPTION_MESSAGE_MAX);  // exception_message
     fields.push_back(field_type14);
+    Type* field_type15 = ArrayType::get(PointerType::get(IntegerType::get(TheContext, 8)), STACK_TRACE_MAX);  // running_class_for_stack_trace
+    fields.push_back(field_type15);
+    Type* field_type16 = ArrayType::get(IntegerType::get(TheContext, 32), STACK_TRACE_MAX);  // running_method_for_stack_trace
+    fields.push_back(field_type16);
 
     if(result_type->isOpaque()) {
         result_type->setBody(fields, false);

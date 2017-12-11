@@ -210,6 +210,7 @@ typedef struct sCLParamStruct sCLParam;
 #define METHOD_FLAGS_NATIVE 0x01
 #define METHOD_FLAGS_CLASS_METHOD 0x02
 #define EXCEPTION_MESSAGE_MAX 256
+#define STACK_TRACE_MAX 3
 
 struct sVMInfoStruct {
     char* try_catch_label_name;
@@ -229,6 +230,9 @@ struct sVMInfoStruct {
 
     sCLStack* stack_id;
     char exception_message[EXCEPTION_MESSAGE_MAX];
+
+    char* running_sname_for_stack_trace[STACK_TRACE_MAX];
+    int running_sline_for_stack_trace[STACK_TRACE_MAX];
 };
 
 typedef struct sVMInfoStruct sVMInfo;
