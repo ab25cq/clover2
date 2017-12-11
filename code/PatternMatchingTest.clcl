@@ -1,0 +1,10 @@
+class PatternMatchingTest
+{
+    value1: int;
+    value2: String;
+
+    def initialize(value1:int, value2:String) {
+        self.value1 = value1;
+        self.value2 = value2;
+    }
+}
