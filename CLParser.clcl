@@ -33,6 +33,8 @@ class CLNodeType
 
             result.append(">");
         }
+
+        result;
     }
 
     def show() {
