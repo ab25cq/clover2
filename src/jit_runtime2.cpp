@@ -745,9 +745,13 @@ CLObject run_op_string_with_string_expression(char* str, int* string_expression_
 
         sBuf_append(&buf, str + offset_before, offset - offset_before);
 
-        char* str2 = ALLOC string_object_to_char_array(string_expression_object[i]);
-        sBuf_append_str(&buf, str2);
-        MFREE(str2);
+        CLObject object = string_expression_object[i];
+
+        if(object != 0 ) {
+            char* str2 = ALLOC string_object_to_char_array(string_expression_object[i]);
+            sBuf_append_str(&buf, str2);
+            MFREE(str2);
+        }
 
         offset_before = offset;
     }
