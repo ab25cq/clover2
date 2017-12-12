@@ -1,6 +1,11 @@
 
 a := new PatternMatchingTest(111, "ABC");
 
-match(a) {
-    case PatternMatchingTest(_, _
+b:String = match(a) {
+    case PatternMatchingTest(value1, value2) {
+        value2;
+    }
+    else {
+        "else";
+    }
 }

@@ -276,7 +276,7 @@ permission:
 # clean
 ########################################################
 clean:
-	rm -fR clover2 clover2.dSYM cclover2 cclover2.dSYM iclover2 iclover2.dSYM src/*.o config.log config.status *.stackdump autom4te.cache .DS_Store core.* a.out *.oclcl *.bc *.s *.o *.ocl code/*.ocl code/*.oclcl *.clm a.c src/*.dwo *.ll *.so.1.0.0 *.so
+	rm -fR clover2 clover2.dSYM cclover2 cclover2.dSYM iclover2 iclover2.dSYM src/*.o config.log config.status *.stackdump autom4te.cache .DS_Store core.* a.out *.oclcl *.bc *.s *.o *.ocl code/*.ocl code/*.oclcl *.clm a.c src/*.dwo *.ll *.so.1.0.0 *.so *.class
 	(cd examples/; make clean)
 
 distclean: clean
@@ -366,5 +366,6 @@ test:
 	./clover2 code/method_internal.cl
 	./clover2 code/when.cl
 	./cclover2 code/ResultTest.clcl && ./clover2 code/result.cl
+	./cclover2 code/PatternMatchingTest.clcl && ./clover2 code/pattern_matching.cl
 	./clover2 code/parser.cl
 
