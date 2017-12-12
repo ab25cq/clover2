@@ -617,6 +617,8 @@ struct sNodeTreeStruct
             int mValueNodes[WHEN_BLOCK_MAX][WHEN_BLOCK_MAX];
             int mNumValues[WHEN_BLOCK_MAX];
             sNodeBlock* mWhenBlocks[WHEN_BLOCK_MAX];
+            sNodeType* mWhenTypes[WHEN_BLOCK_MAX];
+            sNodeType* mWhenTypes2[WHEN_BLOCK_MAX];
             sNodeBlock* mElseBlock;
         } sWhen;
         struct {
@@ -791,7 +793,7 @@ BOOL compile(unsigned int node, sCompileInfo* info);
 void append_class_name_to_constant_pool_and_code(sCompileInfo* info, sCLClass* klass);
 
 unsigned int sNodeTree_create_operand(enum eOperand operand, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
-unsigned int sNodeTree_when_expression(unsigned int expression_node, unsigned int value_nodes[WHEN_BLOCK_MAX][WHEN_BLOCK_MAX], int num_values[WHEN_BLOCK_MAX], sNodeBlock* when_blocks[WHEN_BLOCK_MAX], int num_when_block, sNodeBlock* else_block, sParserInfo* info);
+unsigned int sNodeTree_when_expression(unsigned int expression_node, unsigned int value_nodes[WHEN_BLOCK_MAX][WHEN_BLOCK_MAX], int num_values[WHEN_BLOCK_MAX], sNodeBlock* when_blocks[WHEN_BLOCK_MAX], int num_when_block, sNodeBlock* else_block, sNodeType* when_types[WHEN_BLOCK_MAX], sNodeType* when_types2[WHEN_BLOCK_MAX], sParserInfo* info);
 unsigned int sNodeTree_if_expression(unsigned int expression_node, MANAGED sNodeBlock* if_node_block, unsigned int* elif_expression_nodes, MANAGED sNodeBlock** elif_node_blocks, int elif_num, MANAGED sNodeBlock* else_node_block, sParserInfo* info);
 unsigned int sNodeTree_create_byte_value(char value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
 unsigned int sNodeTree_create_ubyte_value(unsigned char value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);

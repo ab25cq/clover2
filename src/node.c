@@ -1784,7 +1784,7 @@ if(!else_node_block) {
     return TRUE;
 }
 
-unsigned int sNodeTree_when_expression(unsigned int expression_node, unsigned int value_nodes[WHEN_BLOCK_MAX][WHEN_BLOCK_MAX], int num_values[WHEN_BLOCK_MAX], sNodeBlock* when_blocks[WHEN_BLOCK_MAX], int num_when_block, sNodeBlock* else_block, sParserInfo* info)
+unsigned int sNodeTree_when_expression(unsigned int expression_node, unsigned int value_nodes[WHEN_BLOCK_MAX][WHEN_BLOCK_MAX], int num_values[WHEN_BLOCK_MAX], sNodeBlock* when_blocks[WHEN_BLOCK_MAX], int num_when_block, sNodeBlock* else_block, sNodeType* when_types[WHEN_BLOCK_MAX], sNodeType* when_types2[WHEN_BLOCK_MAX], sParserInfo* info)
 {
     unsigned node = alloc_node();
 
@@ -1802,6 +1802,9 @@ unsigned int sNodeTree_when_expression(unsigned int expression_node, unsigned in
         gNodes[node].uValue.sWhen.mWhenBlocks[i] = when_blocks[i];
 
         gNodes[node].uValue.sWhen.mNumValues[i] = num_values[i];
+
+        gNodes[node].uValue.sWhen.mWhenTypes[i] = when_types[i];
+        gNodes[node].uValue.sWhen.mWhenTypes2[i] = when_types2[i];
 
         int j;
         for(j=0; j<num_values[i]; j++) {
@@ -1830,10 +1833,15 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
 
     sNodeBlock* when_blocks[WHEN_BLOCK_MAX];
 
+    sNodeType* when_types[WHEN_BLOCK_MAX];
+    sNodeType* when_types2[WHEN_BLOCK_MAX];
+
     int i;
     for(i=0; i<num_when_block; i++) {
         num_values[i] = gNodes[node].uValue.sWhen.mNumValues[i];
         when_blocks[i] = gNodes[node].uValue.sWhen.mWhenBlocks[i];
+        when_types[i] = gNodes[node].uValue.sWhen.mWhenTypes[i];
+        when_types2[i] = gNodes[node].uValue.sWhen.mWhenTypes2[i];
 
         int j;
         for(j=0; j<num_values[i]; j++) {
@@ -1849,153 +1857,92 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
     int end_points[WHEN_BLOCK_MAX][WHEN_BLOCK_MAX];
 
     for(i=0; i<num_when_block; i++) {
-        int j;
-        for(j=0; j<num_values[i]; j++) {
+        if(when_types[i] || when_types2[i]) {
+            sNodeType* node_type;
+
+            if(when_types[i]) {
+                node_type = when_types[i];
+            }
+            else {
+                node_type = when_types2[i];
+            }
+
             /// left value ///
             if(!compile(expression_node, info)) {
                 return FALSE;
             }
 
-            sNodeType* left_type = info->type;
-            sCLClass* klass = left_type->mClass;
+            append_opecode_to_code(info->code, OP_CLASSNAME, info->no_output);
 
-            if(klass->mFlags & CLASS_FLAGS_PRIMITIVE) {
-                /// right value ///
-                if(!compile(value_nodes[i][j], info)) {
-                    return FALSE;
+            info->type = create_node_type_with_class_name("String");
+
+            info->stack_num--;
+            info->stack_num++;
+
+            char* str = CLASS_NAME(node_type->mClass);
+            int num_string_expression = 0;
+
+            append_opecode_to_code(info->code, OP_CREATE_STRING, info->no_output);
+            append_str_to_constant_pool_and_code(info->constant, info->code, str, info->no_output);
+            append_int_value_to_code(info->code, num_string_expression, info->no_output);
+
+            info->stack_num++;
+
+            info->type = create_node_type_with_class_name("String");
+
+            /// String.equals ///
+            sCLClass* string_class = get_class("String");
+            char* method_name = "equals";
+
+            sNodeType* param_types[PARAMS_MAX];
+            int num_params = 1;
+
+            param_types[0] = create_node_type_with_class_name("String");
+
+            sNodeType* result_type = NULL;
+            sNodeType* result_method_generics_types = NULL;
+            int method_index = search_for_method(string_class, "equals", param_types, num_params, FALSE, string_class->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, FALSE, &result_method_generics_types);
+
+            if(method_index == -1) {
+                compile_err_msg(info, "method not found(4)");
+                info->err_num++;
+
+                err_msg_for_method_not_found(string_class, method_name, param_types, num_params, FALSE, info);
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+
+            append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
+
+            append_class_name_to_constant_pool_and_code(info, string_class);
+            append_int_value_to_code(info->code, method_index, info->no_output);
+
+            info->stack_num-=2;
+            info->stack_num++;
+
+            info->type = result_type;
+
+            //// go ///
+            sNodeType* var_type = NULL;
+            if(when_types[i]) {
+                if(gNodes[expression_node].mNodeType == kNodeTypeLoadVariable) {
+                    sVar* var = get_variable_from_table(info->lv_table, gNodes[expression_node].uValue.mVarName);
+
+                    var_type = var->mType;
+
+                    var->mType = node_type;
                 }
+            }
 
-                sNodeType* right_type = info->type;
-
-                if(!type_identify(left_type, right_type)) {
-                    compile_err_msg(info, "When value type and when type is the different.");
-                    info->err_num++;
-
-                    info->type = create_node_type_with_class_name("int"); // dummy
-
-                    return TRUE;
-                }
-
-                if(!binary_operator(left_type, right_type, OP_BEQ, OP_UBEQ, OP_SEQ, OP_USEQ, OP_IEQ, OP_UIEQ, OP_LEQ, OP_ULEQ, OP_FEQ, OP_DEQ, OP_PEQ, OP_IEQ, OP_CEQ, OP_IEQ, OP_REGEQ, "==", info))
-                {
-                    return FALSE;
-                }
-
-                info->type = create_node_type_with_class_name("bool");
+            if(when_types[i]) {
+                append_opecode_to_code(info->code, OP_COND_JUMP, info->no_output);
             }
             else {
-                /// check interface ///
-                sCLClass* iequalable = get_class("IEqualable");
-                if(!check_implemented_methods_for_interface(iequalable, klass)) {
-                    compile_err_msg(info, "Require IEqualable implemented for when value classs(%s)", CLASS_NAME(klass));
-                    info->err_num++;
-                }
-
-                if(klass->mFlags & CLASS_FLAGS_DYNAMIC_CLASS) {
-                    compile_err_msg(info, "Dynamic class type can't be when argument");
-                    info->err_num++;
-
-                    info->type = create_node_type_with_class_name("int"); // dummy
-
-                    return TRUE;
-                }
-                else if(class_identify_with_class_name(klass, "Anonymous")) {
-                    compile_err_msg(info, "Anonymous class type can't be when argument");
-                    info->err_num++;
-
-                    info->type = create_node_type_with_class_name("int"); // dummy
-
-                    return TRUE;
-                }
-                else if(klass->mFlags & CLASS_FLAGS_INTERFACE)
-                {
-                    info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
-
-                    /// right value ///
-                    if(!compile(value_nodes[i][j], info)) {
-                        return FALSE;
-                    }
-
-                    sNodeType* right_type = info->type;
-
-                    if(!type_identify(left_type, right_type)) {
-                        compile_err_msg(info, "When value type and when type is the different.");
-                        info->err_num++;
-
-                        info->type = create_node_type_with_class_name("int"); // dummy
-
-                        return TRUE;
-                    }
-
-                    sNodeType* param_types[PARAMS_MAX];
-                    int num_params = 1;
-
-                    char* method_name = "equals";
-
-                    param_types[0] = right_type;
-
-                    if(!info->pinfo->exist_block_object_err) { // for interpreter completion
-                        int num_real_params = num_params + 1;
-
-                        int size_method_name_and_params = METHOD_NAME_MAX + PARAMS_MAX * CLASS_NAME_MAX + 256;
-                        char method_name_and_params[size_method_name_and_params];
-                        create_method_name_and_params(method_name_and_params, size_method_name_and_params, klass, method_name, param_types, num_params);
-
-                        append_opecode_to_code(info->code, OP_INVOKE_VIRTUAL_METHOD, info->no_output);
-                        append_int_value_to_code(info->code, num_real_params, info->no_output);
-                        append_str_to_constant_pool_and_code(info->constant, info->code, method_name_and_params, info->no_output);
-
-                        info->stack_num -= num_params + 1;
-                        info->stack_num++;
-
-                        info->type = create_node_type_with_class_name("bool");
-                    }
-                }
-                else {
-                    info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
-
-                    /// right value ///
-                    if(!compile(value_nodes[i][j], info)) {
-                        return FALSE;
-                    }
-
-                    sNodeType* right_type = info->type;
-
-                    if(!type_identify(left_type, right_type)) {
-                        compile_err_msg(info, "When value type and when type is the different.");
-                        info->err_num++;
-
-                        info->type = create_node_type_with_class_name("int"); // dummy
-
-                        return TRUE;
-                    }
-
-                    sNodeType* param_types[PARAMS_MAX];
-                    int num_params = 1;
-
-                    char* method_name = "equals";
-                    sNodeType* result_type = NULL;
-
-                    param_types[0] = right_type;
-
-                    sNodeType* result_method_generics_types = NULL;
-                    int method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, FALSE, &result_method_generics_types);
-
-                    sCLMethod* method = klass->mMethods + method_index2;
-
-                    append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
-
-                    append_class_name_to_constant_pool_and_code(info, klass);
-                    append_int_value_to_code(info->code, method_index2, info->no_output);
-
-                    info->stack_num -= num_params + 1;
-                    info->stack_num++;
-
-                    info->type = result_type;
-                }
+                append_opecode_to_code(info->code, OP_COND_NOT_JUMP, info->no_output);
             }
 
-            append_opecode_to_code(info->code, OP_COND_JUMP, info->no_output);
             append_int_value_to_code(info->code, sizeof(int)*3, info->no_output);
 
             info->stack_num--;
@@ -2030,7 +1977,7 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
             }
 
             append_opecode_to_code(info->code, OP_GOTO, info->no_output);
-            end_points[i][j] = info->code->mLen;
+            end_points[i][0] = info->code->mLen;
 
             append_int_value_to_code(info->code, 0, info->no_output);
 
@@ -2041,6 +1988,208 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
 
             append_opecode_to_code(info->code, OP_LABEL, info->no_output);
             append_str_to_constant_pool_and_code(info->constant, info->code, label_name_next_when, info->no_output);
+
+            /// restore var type ///
+            if(var_type) {
+                sVar* var = get_variable_from_table(info->lv_table, gNodes[expression_node].uValue.mVarName);
+
+                var->mType = var_type;
+            }
+        }
+        else {
+            int j;
+            for(j=0; j<num_values[i]; j++) {
+                /// left value ///
+                if(!compile(expression_node, info)) {
+                    return FALSE;
+                }
+
+                sNodeType* left_type = info->type;
+                sCLClass* klass = left_type->mClass;
+
+                if(klass->mFlags & CLASS_FLAGS_PRIMITIVE) {
+                    /// right value ///
+                    if(!compile(value_nodes[i][j], info)) {
+                        return FALSE;
+                    }
+
+                    sNodeType* right_type = info->type;
+
+                    if(!type_identify(left_type, right_type)) {
+                        compile_err_msg(info, "When value type and when type is the different.");
+                        info->err_num++;
+
+                        info->type = create_node_type_with_class_name("int"); // dummy
+
+                        return TRUE;
+                    }
+
+                    if(!binary_operator(left_type, right_type, OP_BEQ, OP_UBEQ, OP_SEQ, OP_USEQ, OP_IEQ, OP_UIEQ, OP_LEQ, OP_ULEQ, OP_FEQ, OP_DEQ, OP_PEQ, OP_IEQ, OP_CEQ, OP_IEQ, OP_REGEQ, "==", info))
+                    {
+                        return FALSE;
+                    }
+
+                    info->type = create_node_type_with_class_name("bool");
+                }
+                else {
+                    /// check interface ///
+                    sCLClass* iequalable = get_class("IEqualable");
+                    if(!check_implemented_methods_for_interface(iequalable, klass)) {
+                        compile_err_msg(info, "Require IEqualable implemented for when value classs(%s)", CLASS_NAME(klass));
+                        info->err_num++;
+                    }
+
+                    if(klass->mFlags & CLASS_FLAGS_DYNAMIC_CLASS) {
+                        compile_err_msg(info, "Dynamic class type can't be when argument");
+                        info->err_num++;
+
+                        info->type = create_node_type_with_class_name("int"); // dummy
+
+                        return TRUE;
+                    }
+                    else if(class_identify_with_class_name(klass, "Anonymous")) {
+                        compile_err_msg(info, "Anonymous class type can't be when argument");
+                        info->err_num++;
+
+                        info->type = create_node_type_with_class_name("int"); // dummy
+
+                        return TRUE;
+                    }
+                    else if(klass->mFlags & CLASS_FLAGS_INTERFACE)
+                    {
+                        info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
+
+                        /// right value ///
+                        if(!compile(value_nodes[i][j], info)) {
+                            return FALSE;
+                        }
+
+                        sNodeType* right_type = info->type;
+
+                        if(!type_identify(left_type, right_type)) {
+                            compile_err_msg(info, "When value type and when type is the different.");
+                            info->err_num++;
+
+                            info->type = create_node_type_with_class_name("int"); // dummy
+
+                            return TRUE;
+                        }
+
+                        sNodeType* param_types[PARAMS_MAX];
+                        int num_params = 1;
+
+                        char* method_name = "equals";
+
+                        param_types[0] = right_type;
+
+                        if(!info->pinfo->exist_block_object_err) { // for interpreter completion
+                            int num_real_params = num_params + 1;
+
+                            int size_method_name_and_params = METHOD_NAME_MAX + PARAMS_MAX * CLASS_NAME_MAX + 256;
+                            char method_name_and_params[size_method_name_and_params];
+                            create_method_name_and_params(method_name_and_params, size_method_name_and_params, klass, method_name, param_types, num_params);
+
+                            append_opecode_to_code(info->code, OP_INVOKE_VIRTUAL_METHOD, info->no_output);
+                            append_int_value_to_code(info->code, num_real_params, info->no_output);
+                            append_str_to_constant_pool_and_code(info->constant, info->code, method_name_and_params, info->no_output);
+
+                            info->stack_num -= num_params + 1;
+                            info->stack_num++;
+
+                            info->type = create_node_type_with_class_name("bool");
+                        }
+                    }
+                    else {
+                        info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
+
+                        /// right value ///
+                        if(!compile(value_nodes[i][j], info)) {
+                            return FALSE;
+                        }
+
+                        sNodeType* right_type = info->type;
+
+                        if(!type_identify(left_type, right_type)) {
+                            compile_err_msg(info, "When value type and when type is the different.");
+                            info->err_num++;
+
+                            info->type = create_node_type_with_class_name("int"); // dummy
+
+                            return TRUE;
+                        }
+
+                        sNodeType* param_types[PARAMS_MAX];
+                        int num_params = 1;
+
+                        char* method_name = "equals";
+                        sNodeType* result_type = NULL;
+
+                        param_types[0] = right_type;
+
+                        sNodeType* result_method_generics_types = NULL;
+                        int method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, FALSE, &result_method_generics_types);
+
+                        sCLMethod* method = klass->mMethods + method_index2;
+
+                        append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
+
+                        append_class_name_to_constant_pool_and_code(info, klass);
+                        append_int_value_to_code(info->code, method_index2, info->no_output);
+
+                        info->stack_num -= num_params + 1;
+                        info->stack_num++;
+
+                        info->type = result_type;
+                    }
+                }
+
+                append_opecode_to_code(info->code, OP_COND_JUMP, info->no_output);
+                append_int_value_to_code(info->code, sizeof(int)*3, info->no_output);
+
+                info->stack_num--;
+
+                /// block of when expression ///
+                append_opecode_to_code(info->code, OP_GOTO, info->no_output); // if the conditional expression is false, jump to the end of the block
+
+                int goto_point = info->code->mLen;
+                append_int_value_to_code(info->code, 0, info->no_output);
+
+                int label_num = gLabelNum++;
+
+                char label_name_next_when[LABEL_NAME_MAX];
+                create_label_name2("label_name_next_when", label_name_next_when, LABEL_NAME_MAX, label_num, 1);
+
+                append_str_to_constant_pool_and_code(info->constant, info->code, label_name_next_when, info->no_output);
+
+                if(!compile_block_with_result(when_blocks[i], info)) {
+                    return FALSE;
+                }
+
+                append_opecode_to_code(info->code, OP_STORE_VALUE_TO_GLOBAL, info->no_output);
+                info->stack_num--;
+
+                if(when_result_type && type_identify_with_class_name(when_result_type, "Anonymous")) {
+                }
+                else if(when_result_type && !type_identify(info->type, when_result_type)) {
+                    when_result_type = create_node_type_with_class_name("Anonymous");
+                }
+                else {
+                    when_result_type = info->type;
+                }
+
+                append_opecode_to_code(info->code, OP_GOTO, info->no_output);
+                end_points[i][j] = info->code->mLen;
+
+                append_int_value_to_code(info->code, 0, info->no_output);
+
+                append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
+
+                /// next when value ///
+                *(int*)(info->code->mCodes + goto_point) = info->code->mLen;
+
+                append_opecode_to_code(info->code, OP_LABEL, info->no_output);
+                append_str_to_constant_pool_and_code(info->constant, info->code, label_name_next_when, info->no_output);
+            }
         }
     }
 
@@ -3537,7 +3686,7 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
             compile_err_msg(info, "method not found(4)");
             info->err_num++;
 
-            err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
+            err_msg_for_method_not_found(string_class, method_name, param_types, num_params, FALSE, info);
 
             info->type = create_node_type_with_class_name("int"); // dummy
 
