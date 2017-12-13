@@ -1050,6 +1050,82 @@ static BOOL compile_byte_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_cbyte_value(char value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)
+{
+    unsigned node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeCByteValue;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].uValue.mByteValue = value;
+
+    gNodes[node].mLeft = left;
+    gNodes[node].mRight = right;
+    gNodes[node].mMiddle = middle;
+
+    gNodes[node].mType = create_node_type_with_class_name("byte");
+
+    return node;
+}
+
+static BOOL compile_cbyte_value(unsigned int node, sCompileInfo* info)
+{
+    char bvalue = gNodes[node].uValue.mByteValue;
+
+    sNodeType* generics_types2 = NULL;
+
+    sCLClass* klass = get_class("Byte");
+
+    append_opecode_to_code(info->code, OP_NEW, info->no_output);
+    append_class_name_to_constant_pool_and_code(info, klass);
+    append_int_value_to_code(info->code, 0, info->no_output);
+
+    info->stack_num++;
+
+    int num_params = 1;
+    sNodeType* param_types[PARAMS_MAX];
+
+    char* method_name = "initialize";
+
+    append_opecode_to_code(info->code, OP_LDCBYTE, info->no_output);
+    append_int_value_to_code(info->code, gNodes[node].uValue.mByteValue, info->no_output);
+
+    info->stack_num++;
+    param_types[0] = create_node_type_with_class_name("byte");
+
+    if(!info->pinfo->exist_block_object_err) { // for interpreter completion
+        sNodeType* right_method_generics_types = NULL;
+
+        sNodeType* result_type;
+        sNodeType* result_method_generics_types = NULL;
+        int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types);
+
+        if(method_index == -1) {
+            compile_err_msg(info, "method not found(11)");
+            info->err_num++;
+
+            err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
+        append_class_name_to_constant_pool_and_code(info, klass);
+        append_int_value_to_code(info->code, method_index, info->no_output);
+
+        info->stack_num-=num_params+1;
+        info->stack_num++;
+
+        info->type = create_node_type_with_class_name("Byte");
+    }
+
+    return TRUE;
+}
+
 unsigned int sNodeTree_create_float_value(float value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)
 {
     unsigned node = alloc_node();
@@ -1080,6 +1156,80 @@ static BOOL compile_float_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_cfloat_value(float value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)
+{
+    unsigned node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeCFloatValue;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].uValue.mFloatValue = value;
+
+    gNodes[node].mLeft = left;
+    gNodes[node].mRight = right;
+    gNodes[node].mMiddle = middle;
+
+    return node;
+}
+
+static BOOL compile_cfloat_value(unsigned int node, sCompileInfo* info)
+{
+    float fvalue = gNodes[node].uValue.mFloatValue;
+
+    sNodeType* generics_types2 = NULL;
+
+    sCLClass* klass = get_class("Float");
+
+    append_opecode_to_code(info->code, OP_NEW, info->no_output);
+    append_class_name_to_constant_pool_and_code(info, klass);
+    append_int_value_to_code(info->code, 0, info->no_output);
+
+    info->stack_num++;
+
+    int num_params = 1;
+    sNodeType* param_types[PARAMS_MAX];
+
+    char* method_name = "initialize";
+
+    append_opecode_to_code(info->code, OP_LDCFLOAT, info->no_output);
+    append_float_value_to_code(info->code, fvalue, info->no_output);
+
+    info->stack_num++;
+    param_types[0] = create_node_type_with_class_name("float");
+
+    if(!info->pinfo->exist_block_object_err) { // for interpreter completion
+        sNodeType* right_method_generics_types = NULL;
+
+        sNodeType* result_type;
+        sNodeType* result_method_generics_types = NULL;
+        int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types);
+
+        if(method_index == -1) {
+            compile_err_msg(info, "method not found(11)");
+            info->err_num++;
+
+            err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
+        append_class_name_to_constant_pool_and_code(info, klass);
+        append_int_value_to_code(info->code, method_index, info->no_output);
+
+        info->stack_num-=num_params+1;
+        info->stack_num++;
+
+        info->type = create_node_type_with_class_name("Float");
+    }
+
+    return TRUE;
+}
+
 unsigned int sNodeTree_create_double_value(double value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)
 {
     unsigned node = alloc_node();
@@ -1106,6 +1256,80 @@ static BOOL compile_double_value(unsigned int node, sCompileInfo* info)
     info->stack_num++;
 
     info->type = create_node_type_with_class_name("double");
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_cdouble_value(double value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)
+{
+    unsigned node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeCDoubleValue;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].uValue.mDoubleValue = value;
+
+    gNodes[node].mLeft = left;
+    gNodes[node].mRight = right;
+    gNodes[node].mMiddle = middle;
+
+    return node;
+}
+
+static BOOL compile_cdouble_value(unsigned int node, sCompileInfo* info)
+{
+    double dvalue = gNodes[node].uValue.mDoubleValue;
+
+    sNodeType* generics_types2 = NULL;
+
+    sCLClass* klass = get_class("Double");
+
+    append_opecode_to_code(info->code, OP_NEW, info->no_output);
+    append_class_name_to_constant_pool_and_code(info, klass);
+    append_int_value_to_code(info->code, 0, info->no_output);
+
+    info->stack_num++;
+
+    int num_params = 1;
+    sNodeType* param_types[PARAMS_MAX];
+
+    char* method_name = "initialize";
+
+    append_opecode_to_code(info->code, OP_LDCDOUBLE, info->no_output);
+    append_double_value_to_code(info->code, dvalue, info->no_output);
+
+    info->stack_num++;
+    param_types[0] = create_node_type_with_class_name("double");
+
+    if(!info->pinfo->exist_block_object_err) { // for interpreter completion
+        sNodeType* right_method_generics_types = NULL;
+
+        sNodeType* result_type;
+        sNodeType* result_method_generics_types = NULL;
+        int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types);
+
+        if(method_index == -1) {
+            compile_err_msg(info, "method not found(11)");
+            info->err_num++;
+
+            err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
+        append_class_name_to_constant_pool_and_code(info, klass);
+        append_int_value_to_code(info->code, method_index, info->no_output);
+
+        info->stack_num-=num_params+1;
+        info->stack_num++;
+
+        info->type = create_node_type_with_class_name("Double");
+    }
 
     return TRUE;
 }
@@ -1142,6 +1366,82 @@ static BOOL compile_ubyte_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_cubyte_value(unsigned char value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)
+{
+    unsigned node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeCUByteValue;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].uValue.mUByteValue = value;
+
+    gNodes[node].mLeft = left;
+    gNodes[node].mRight = right;
+    gNodes[node].mMiddle = middle;
+
+    gNodes[node].mType = create_node_type_with_class_name("ubyte");
+
+    return node;
+}
+
+static BOOL compile_cubyte_value(unsigned int node, sCompileInfo* info)
+{
+    unsigned char ubvalue = gNodes[node].uValue.mUByteValue;
+
+    sNodeType* generics_types2 = NULL;
+
+    sCLClass* klass = get_class("UByte");
+
+    append_opecode_to_code(info->code, OP_NEW, info->no_output);
+    append_class_name_to_constant_pool_and_code(info, klass);
+    append_int_value_to_code(info->code, 0, info->no_output);
+
+    info->stack_num++;
+
+    int num_params = 1;
+    sNodeType* param_types[PARAMS_MAX];
+
+    char* method_name = "initialize";
+
+    append_opecode_to_code(info->code, OP_LDCUBYTE, info->no_output);
+    append_double_value_to_code(info->code, ubvalue, info->no_output);
+
+    info->stack_num++;
+    param_types[0] = create_node_type_with_class_name("ubyte");
+
+    if(!info->pinfo->exist_block_object_err) { // for interpreter completion
+        sNodeType* right_method_generics_types = NULL;
+
+        sNodeType* result_type;
+        sNodeType* result_method_generics_types = NULL;
+        int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types);
+
+        if(method_index == -1) {
+            compile_err_msg(info, "method not found(11)");
+            info->err_num++;
+
+            err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
+        append_class_name_to_constant_pool_and_code(info, klass);
+        append_int_value_to_code(info->code, method_index, info->no_output);
+
+        info->stack_num-=num_params+1;
+        info->stack_num++;
+
+        info->type = create_node_type_with_class_name("UByte");
+    }
+
+    return TRUE;
+}
+
 unsigned int sNodeTree_create_short_value(short value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)
 {
     unsigned node = alloc_node();
@@ -1170,6 +1470,82 @@ static BOOL compile_short_value(unsigned int node, sCompileInfo* info)
     info->stack_num++;
 
     info->type = gNodes[node].mType;
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_cshort_value(short value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)
+{
+    unsigned node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeCShortValue;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].uValue.mShortValue = value;
+
+    gNodes[node].mLeft = left;
+    gNodes[node].mRight = right;
+    gNodes[node].mMiddle = middle;
+
+    gNodes[node].mType = create_node_type_with_class_name("short");
+
+    return node;
+}
+
+static BOOL compile_cshort_value(unsigned int node, sCompileInfo* info)
+{
+    short svalue = gNodes[node].uValue.mShortValue;
+
+    sNodeType* generics_types2 = NULL;
+
+    sCLClass* klass = get_class("Short");
+
+    append_opecode_to_code(info->code, OP_NEW, info->no_output);
+    append_class_name_to_constant_pool_and_code(info, klass);
+    append_int_value_to_code(info->code, 0, info->no_output);
+
+    info->stack_num++;
+
+    int num_params = 1;
+    sNodeType* param_types[PARAMS_MAX];
+
+    char* method_name = "initialize";
+
+    append_opecode_to_code(info->code, OP_LDCSHORT, info->no_output);
+    append_int_value_to_code(info->code, svalue, info->no_output);
+
+    info->stack_num++;
+    param_types[0] = create_node_type_with_class_name("short");
+
+    if(!info->pinfo->exist_block_object_err) { // for interpreter completion
+        sNodeType* right_method_generics_types = NULL;
+
+        sNodeType* result_type;
+        sNodeType* result_method_generics_types = NULL;
+        int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types);
+
+        if(method_index == -1) {
+            compile_err_msg(info, "method not found(11)");
+            info->err_num++;
+
+            err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
+        append_class_name_to_constant_pool_and_code(info, klass);
+        append_int_value_to_code(info->code, method_index, info->no_output);
+
+        info->stack_num-=num_params+1;
+        info->stack_num++;
+
+        info->type = create_node_type_with_class_name("Short");
+    }
 
     return TRUE;
 }
@@ -1206,6 +1582,82 @@ static BOOL compile_ushort_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_cushort_value(unsigned short value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)
+{
+    unsigned node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeCUShortValue;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].uValue.mUShortValue = value;
+
+    gNodes[node].mLeft = left;
+    gNodes[node].mRight = right;
+    gNodes[node].mMiddle = middle;
+
+    gNodes[node].mType = create_node_type_with_class_name("ushort");
+
+    return node;
+}
+
+static BOOL compile_cushort_value(unsigned int node, sCompileInfo* info)
+{
+    unsigned short usvalue = gNodes[node].uValue.mUShortValue;
+
+    sNodeType* generics_types2 = NULL;
+
+    sCLClass* klass = get_class("UShort");
+
+    append_opecode_to_code(info->code, OP_NEW, info->no_output);
+    append_class_name_to_constant_pool_and_code(info, klass);
+    append_int_value_to_code(info->code, 0, info->no_output);
+
+    info->stack_num++;
+
+    int num_params = 1;
+    sNodeType* param_types[PARAMS_MAX];
+
+    char* method_name = "initialize";
+
+    append_opecode_to_code(info->code, OP_LDCUSHORT, info->no_output);
+    append_int_value_to_code(info->code, usvalue, info->no_output);
+
+    info->stack_num++;
+    param_types[0] = create_node_type_with_class_name("ushort");
+
+    if(!info->pinfo->exist_block_object_err) { // for interpreter completion
+        sNodeType* right_method_generics_types = NULL;
+
+        sNodeType* result_type;
+        sNodeType* result_method_generics_types = NULL;
+        int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types);
+
+        if(method_index == -1) {
+            compile_err_msg(info, "method not found(11)");
+            info->err_num++;
+
+            err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
+        append_class_name_to_constant_pool_and_code(info, klass);
+        append_int_value_to_code(info->code, method_index, info->no_output);
+
+        info->stack_num-=num_params+1;
+        info->stack_num++;
+
+        info->type = create_node_type_with_class_name("UShort");
+    }
+
+    return TRUE;
+}
+
 unsigned int sNodeTree_create_int_value(int value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)
 {
     unsigned node = alloc_node();
@@ -1234,6 +1686,82 @@ static BOOL compile_int_value(unsigned int node, sCompileInfo* info)
     info->stack_num++;
 
     info->type = create_node_type_with_class_name("int");
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_cint_value(int value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)
+{
+    unsigned node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeCIntValue;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].uValue.mIntValue = value;
+
+    gNodes[node].mLeft = left;
+    gNodes[node].mRight = right;
+    gNodes[node].mMiddle = middle;
+
+    gNodes[node].mType = create_node_type_with_class_name("int");
+
+    return node;
+}
+
+static BOOL compile_cint_value(unsigned int node, sCompileInfo* info)
+{
+    int ivalue = gNodes[node].uValue.mIntValue;
+
+    sNodeType* generics_types2 = NULL;
+
+    sCLClass* klass = get_class("Integer");
+
+    append_opecode_to_code(info->code, OP_NEW, info->no_output);
+    append_class_name_to_constant_pool_and_code(info, klass);
+    append_int_value_to_code(info->code, 0, info->no_output);
+
+    info->stack_num++;
+
+    int num_params = 1;
+    sNodeType* param_types[PARAMS_MAX];
+
+    char* method_name = "initialize";
+
+    append_opecode_to_code(info->code, OP_LDCINT, info->no_output);
+    append_int_value_to_code(info->code, ivalue, info->no_output);
+
+    info->stack_num++;
+    param_types[0] = create_node_type_with_class_name("int");
+
+    if(!info->pinfo->exist_block_object_err) { // for interpreter completion
+        sNodeType* right_method_generics_types = NULL;
+
+        sNodeType* result_type;
+        sNodeType* result_method_generics_types = NULL;
+        int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types);
+
+        if(method_index == -1) {
+            compile_err_msg(info, "method not found(11)");
+            info->err_num++;
+
+            err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
+        append_class_name_to_constant_pool_and_code(info, klass);
+        append_int_value_to_code(info->code, method_index, info->no_output);
+
+        info->stack_num-=num_params+1;
+        info->stack_num++;
+
+        info->type = create_node_type_with_class_name("Integer");
+    }
 
     return TRUE;
 }
@@ -1270,6 +1798,83 @@ static BOOL compile_uint_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_cuint_value(unsigned int value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)
+{
+    unsigned node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeCUIntValue;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].uValue.mUIntValue = value;
+
+    gNodes[node].mLeft = left;
+    gNodes[node].mRight = right;
+    gNodes[node].mMiddle = middle;
+
+    gNodes[node].mType = create_node_type_with_class_name("uint");
+
+    return node;
+}
+
+static BOOL compile_cuint_value(unsigned int node, sCompileInfo* info)
+{
+    unsigned int uivalue = gNodes[node].uValue.mUIntValue;
+
+    sNodeType* generics_types2 = NULL;
+
+    sCLClass* klass = get_class("UInteger");
+
+    append_opecode_to_code(info->code, OP_NEW, info->no_output);
+    append_class_name_to_constant_pool_and_code(info, klass);
+    append_int_value_to_code(info->code, 0, info->no_output);
+
+    info->stack_num++;
+
+    int num_params = 1;
+    sNodeType* param_types[PARAMS_MAX];
+
+    char* method_name = "initialize";
+
+    append_opecode_to_code(info->code, OP_LDCUINT, info->no_output);
+    append_int_value_to_code(info->code, uivalue, info->no_output);
+
+    info->stack_num++;
+    param_types[0] = create_node_type_with_class_name("uint");
+
+    if(!info->pinfo->exist_block_object_err) { // for interpreter completion
+        sNodeType* right_method_generics_types = NULL;
+
+        sNodeType* result_type;
+        sNodeType* result_method_generics_types = NULL;
+        int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types);
+
+        if(method_index == -1) {
+            compile_err_msg(info, "method not found(11)");
+            info->err_num++;
+
+            err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
+        append_class_name_to_constant_pool_and_code(info, klass);
+        append_int_value_to_code(info->code, method_index, info->no_output);
+
+        info->stack_num-=num_params+1;
+        info->stack_num++;
+
+        info->type = create_node_type_with_class_name("UInteger");
+    }
+
+    return TRUE;
+}
+
+
 unsigned int sNodeTree_create_long_value(clint64 value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)
 {
     unsigned node = alloc_node();
@@ -1302,6 +1907,82 @@ static BOOL compile_long_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_clong_value(clint64 value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)
+{
+    unsigned node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeCLongValue;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].uValue.mLongValue = value;
+
+    gNodes[node].mLeft = left;
+    gNodes[node].mRight = right;
+    gNodes[node].mMiddle = middle;
+
+    gNodes[node].mType = create_node_type_with_class_name("long");
+
+    return node;
+}
+
+static BOOL compile_clong_value(unsigned int node, sCompileInfo* info)
+{
+    long lvalue = gNodes[node].uValue.mLongValue;
+
+    sNodeType* generics_types2 = NULL;
+
+    sCLClass* klass = get_class("Long");
+
+    append_opecode_to_code(info->code, OP_NEW, info->no_output);
+    append_class_name_to_constant_pool_and_code(info, klass);
+    append_int_value_to_code(info->code, 0, info->no_output);
+
+    info->stack_num++;
+
+    int num_params = 1;
+    sNodeType* param_types[PARAMS_MAX];
+
+    char* method_name = "initialize";
+
+    append_opecode_to_code(info->code, OP_LDCLONG, info->no_output);
+    append_long_value_to_code(info->code, lvalue, info->no_output);
+
+    info->stack_num++;
+    param_types[0] = create_node_type_with_class_name("long");
+
+    if(!info->pinfo->exist_block_object_err) { // for interpreter completion
+        sNodeType* right_method_generics_types = NULL;
+
+        sNodeType* result_type;
+        sNodeType* result_method_generics_types = NULL;
+        int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types);
+
+        if(method_index == -1) {
+            compile_err_msg(info, "method not found(11)");
+            info->err_num++;
+
+            err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
+        append_class_name_to_constant_pool_and_code(info, klass);
+        append_int_value_to_code(info->code, method_index, info->no_output);
+
+        info->stack_num-=num_params+1;
+        info->stack_num++;
+
+        info->type = create_node_type_with_class_name("Long");
+    }
+
+    return TRUE;
+}
+
 unsigned int sNodeTree_create_ulong_value(unsigned clint64 value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)
 {
     unsigned node = alloc_node();
@@ -1330,6 +2011,82 @@ static BOOL compile_ulong_value(unsigned int node, sCompileInfo* info)
     info->stack_num++;
 
     info->type = gNodes[node].mType;
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_culong_value(unsigned clint64 value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)
+{
+    unsigned node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeCULongValue;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].uValue.mULongValue = value;
+
+    gNodes[node].mLeft = left;
+    gNodes[node].mRight = right;
+    gNodes[node].mMiddle = middle;
+
+    gNodes[node].mType = create_node_type_with_class_name("ulong");
+
+    return node;
+}
+
+static BOOL compile_culong_value(unsigned int node, sCompileInfo* info)
+{
+    unsigned long ulvalue = gNodes[node].uValue.mULongValue;
+
+    sNodeType* generics_types2 = NULL;
+
+    sCLClass* klass = get_class("ULong");
+
+    append_opecode_to_code(info->code, OP_NEW, info->no_output);
+    append_class_name_to_constant_pool_and_code(info, klass);
+    append_int_value_to_code(info->code, 0, info->no_output);
+
+    info->stack_num++;
+
+    int num_params = 1;
+    sNodeType* param_types[PARAMS_MAX];
+
+    char* method_name = "initialize";
+
+    append_opecode_to_code(info->code, OP_LDCULONG, info->no_output);
+    append_long_value_to_code(info->code, ulvalue, info->no_output);
+
+    info->stack_num++;
+    param_types[0] = create_node_type_with_class_name("ulong");
+
+    if(!info->pinfo->exist_block_object_err) { // for interpreter completion
+        sNodeType* right_method_generics_types = NULL;
+
+        sNodeType* result_type;
+        sNodeType* result_method_generics_types = NULL;
+        int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types);
+
+        if(method_index == -1) {
+            compile_err_msg(info, "method not found(11)");
+            info->err_num++;
+
+            err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
+        append_class_name_to_constant_pool_and_code(info, klass);
+        append_int_value_to_code(info->code, method_index, info->no_output);
+
+        info->stack_num-=num_params+1;
+        info->stack_num++;
+
+        info->type = create_node_type_with_class_name("ULong");
+    }
 
     return TRUE;
 }
@@ -8433,7 +9190,15 @@ void show_node(unsigned int node)
             printf("byte value %d\n", gNodes[node].uValue.mByteValue);
             break;
 
+        case kNodeTypeCByteValue:
+            printf("cbyte value %d\n", gNodes[node].uValue.mByteValue);
+            break;
+
         case kNodeTypeUByteValue:
+            printf("ubyte value %u\n", gNodes[node].uValue.mUByteValue);
+            break;
+
+        case kNodeTypeCUByteValue:
             printf("ubyte value %u\n", gNodes[node].uValue.mUByteValue);
             break;
 
@@ -8441,7 +9206,15 @@ void show_node(unsigned int node)
             printf("short value %d\n", gNodes[node].uValue.mShortValue);
             break;
 
+        case kNodeTypeCShortValue:
+            printf("short value %d\n", gNodes[node].uValue.mShortValue);
+            break;
+
         case kNodeTypeUShortValue:
+            printf("ushort value %u\n", gNodes[node].uValue.mUShortValue);
+            break;
+
+        case kNodeTypeCUShortValue:
             printf("ushort value %u\n", gNodes[node].uValue.mUShortValue);
             break;
 
@@ -8449,7 +9222,15 @@ void show_node(unsigned int node)
             printf("int value %d\n", gNodes[node].uValue.mIntValue);
             break;
 
+        case kNodeTypeCIntValue:
+            printf("int value %d\n", gNodes[node].uValue.mIntValue);
+            break;
+
         case kNodeTypeUIntValue:
+            printf("uint value %u\n", gNodes[node].uValue.mUIntValue);
+            break;
+
+        case kNodeTypeCUIntValue:
             printf("uint value %u\n", gNodes[node].uValue.mUIntValue);
             break;
 
@@ -8457,7 +9238,15 @@ void show_node(unsigned int node)
             printf("long value %lld\n", gNodes[node].uValue.mLongValue);
             break;
 
+        case kNodeTypeCLongValue:
+            printf("long value %lld\n", gNodes[node].uValue.mLongValue);
+            break;
+
         case kNodeTypeULongValue:
+            printf("long value %llu\n", gNodes[node].uValue.mULongValue);
+            break;
+
+        case kNodeTypeCULongValue:
             printf("long value %llu\n", gNodes[node].uValue.mULongValue);
             break;
 
@@ -8467,6 +9256,14 @@ void show_node(unsigned int node)
 
         case kNodeTypeDoubleValue:
             printf("double value %lf\n", gNodes[node].uValue.mDoubleValue);
+            break;
+
+        case kNodeTypeCFloatValue:
+            printf("Float value %f\n", gNodes[node].uValue.mFloatValue);
+            break;
+
+        case kNodeTypeCDoubleValue:
+            printf("Double value %lf\n", gNodes[node].uValue.mDoubleValue);
             break;
 
         case kNodeTypeAssignVariable:
@@ -8722,8 +9519,20 @@ BOOL compile(unsigned int node, sCompileInfo* info)
             }
             break;
 
+        case kNodeTypeCByteValue:
+            if(!compile_cbyte_value(node, info)) {
+                return FALSE;
+            }
+            break;
+
         case kNodeTypeUByteValue:
             if(!compile_ubyte_value(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeCUByteValue:
+            if(!compile_cubyte_value(node, info)) {
                 return FALSE;
             }
             break;
@@ -8740,6 +9549,18 @@ BOOL compile(unsigned int node, sCompileInfo* info)
             }
             break;
 
+        case kNodeTypeCFloatValue:
+            if(!compile_cfloat_value(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeCDoubleValue:
+            if(!compile_cdouble_value(node, info)) {
+                return FALSE;
+            }
+            break;
+
         case kNodeTypeShortValue:
             if(!compile_short_value(node, info)) {
                 return FALSE;
@@ -8752,8 +9573,26 @@ BOOL compile(unsigned int node, sCompileInfo* info)
             }
             break;
 
+        case kNodeTypeCShortValue:
+            if(!compile_cshort_value(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeCUShortValue:
+            if(!compile_cushort_value(node, info)) {
+                return FALSE;
+            }
+            break;
+
         case kNodeTypeIntValue:
             if(!compile_int_value(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeCIntValue:
+            if(!compile_cint_value(node, info)) {
                 return FALSE;
             }
             break;
@@ -8764,14 +9603,32 @@ BOOL compile(unsigned int node, sCompileInfo* info)
             }
             break;
 
+        case kNodeTypeCUIntValue:
+            if(!compile_cuint_value(node, info)) {
+                return FALSE;
+            }
+            break;
+
         case kNodeTypeLongValue:
             if(!compile_long_value(node, info)) {
                 return FALSE;
             }
             break;
 
+        case kNodeTypeCLongValue:
+            if(!compile_clong_value(node, info)) {
+                return FALSE;
+            }
+            break;
+
         case kNodeTypeULongValue:
             if(!compile_ulong_value(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeCULongValue:
+            if(!compile_culong_value(node, info)) {
                 return FALSE;
             }
             break;

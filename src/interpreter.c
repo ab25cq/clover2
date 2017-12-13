@@ -1106,31 +1106,6 @@ void local_variable_completion(char** candidates, int *num_candidates, int max_c
 
 char* on_complete(const char* text, int a);
 
-static int gFileNameIndex = 0;
-
-char* file_name_completion(const char* text, int stat)
-{
-    char* result = NULL;
-
-    switch(gFileNameIndex) {
-        case 0:
-            result = strdup("AAA");
-            break;
-
-        case 1:
-            result = strdup("ABC");
-            break;
-
-        case 2:
-            result = strdup("ABD");
-            break;
-    }
-
-    gFileNameIndex++;
-
-    return result;
-}
-
 static int my_complete_internal(int count, int key)
 {
     gInputingMethod = FALSE;

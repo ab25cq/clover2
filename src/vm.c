@@ -69,6 +69,10 @@ static void show_inst(unsigned inst)
             puts("OP_STORE_VALUE_TO_GLOBAL");
             break;
 
+        case OP_UINT_TO_UINTEGER_CAST:
+            puts("OP_UINT_TO_UINTEGER_CAST");
+            break;
+
         case OP_POP_VALUE_FROM_GLOBAL:
             puts("OP_POP_VALUE_FROM_GLOBAL");
             break;
@@ -545,6 +549,9 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
     info->running_method = running_method;
 
     gGlobalStackPtr = gGlobalStack + num_global_stack;
+#ifdef VM_LOG
+    printf("invoke_method %s.%s end\n", CLASS_NAME(klass), METHOD_NAME2(klass, method));
+#endif
 
     return TRUE;
 }

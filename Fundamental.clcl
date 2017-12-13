@@ -565,7 +565,7 @@ class ULong
         self.value = 0.to_ulong;
     }
 
-    def initialize(value:long) {
+    def initialize(value:ulong) {
         self.value = value;
     }
 
