@@ -266,7 +266,15 @@ class Job
         return self.title;
     }
     def equals(job:Job): bool {
-        return self.pgrp == job.pgrp;
+        if(job.is("WildCard")) {
+            return true;
+        }
+        else {
+            return self.pgrp == job.pgrp;
+        }
+    }
+    def equals(right:WildCard): bool {
+        return true;
     }
     def forground() {
         terminfo:termios = new termios();

@@ -160,18 +160,27 @@ class String
     }
 
     def equals(str: String):  bool {
-        if(self.len == str.length()) {
-            for(i:int = 0; i<self.len; i++) {
-                if(self.buffer[i] != str.buffer[i]) {
-                    return false;
-                }
-            }
-
+        if(str.is("WildCard")) {
             return true;
         }
         else {
-            return false;
+            if(self.len == str.length()) {
+                for(i:int = 0; i<self.len; i++) {
+                    if(self.buffer[i] != str.buffer[i]) {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+            else {
+                return false;
+            }
         }
+    }
+
+    def equals(right:WildCard):bool {
+        return true;
     }
 
     def getHashKey():  uint {
@@ -1051,16 +1060,25 @@ class Buffer
     }
 
     def equals(buf:Buffer):bool {
-        if(self.len != buf.len) {
-            return false;
+        if(buf.is("WildCard")) {
+            return true;
         }
-
-        for(i:size_t = 0; i<self.len; i++) {
-            if(self.chars(i) != buf.chars(i)) {
+        else {
+            if(self.len != buf.len) {
                 return false;
             }
-        }
 
+            for(i:size_t = 0; i<self.len; i++) {
+                if(self.chars(i) != buf.chars(i)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+    }
+
+    def equals(right:WildCard):bool {
         return true;
     }
 

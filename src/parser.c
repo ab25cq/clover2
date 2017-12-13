@@ -1195,7 +1195,10 @@ static BOOL when_expression(unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
         }
-        else {
+        else if(*info->p == 'c' && *(info->p+1) == 'a' && *(info->p+2) == 's' && *(info->p+3) == 'e') {
+            info->p+=4;
+            skip_spaces_and_lf(info);
+
             int num_value = 0;
 
             while(1) {
@@ -1229,12 +1232,14 @@ static BOOL when_expression(unsigned int* node, sParserInfo* info)
                     info->p++;
                     skip_spaces_and_lf(info);
                 }
-                else if(*info->p == '{') {
+                else if(*info->p == ':') {
                     info->p++;
                     skip_spaces_and_lf(info);
                     break;
                 }
             }
+
+            expect_next_character_with_one_forward("{", info);
 
             sNodeBlock* when_block = NULL;
             if(!parse_block(ALLOC &when_block, info, NULL, FALSE)) {
@@ -1248,6 +1253,10 @@ static BOOL when_expression(unsigned int* node, sParserInfo* info)
                 parser_err_msg(info, "overflow when block number");
                 return FALSE;
             }
+        }
+        else {
+            parser_err_msg(info, "when requires is or !is or case");
+            return FALSE;
         }
     }
 
@@ -3277,6 +3286,11 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             skip_spaces_and_lf(info);
 
             *node = sNodeTree_null_expression(info);
+        }
+        else if(strcmp(buf, "wildcard") == 0) {
+            skip_spaces_and_lf(info);
+
+            *node = sNodeTree_wildcard_expression(info);
         }
         else if(strcmp(buf, "throw") == 0) {
             skip_spaces_and_lf(info);

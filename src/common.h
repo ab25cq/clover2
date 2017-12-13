@@ -561,7 +561,7 @@ sNodeBlock* sNodeBlock_clone(sNodeBlock* block);
 BOOL parse_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* new_table, BOOL block_object);
 
 /// node.c ///
-enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeUByteValue, kNodeTypeShortValue, kNodeTypeUShortValue, kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand, kNodeTypeIncrementWithValueOperand, kNodeTypeDecrementWithValueOperand, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand, kNodeTypeLoadArrayElement, kNodeTypeStoreArrayElement, kNodeTypeChar, kNodeTypeString, kNodeTypeBuffer, kNodeTypeThrow, kNodeTypeTry, kNodeTypeBlockObject, kNodeTypeFunction, kNodeTypeBlockCall, kNodeTypeConditional, kNodeTypeNormalBlock, kNodeTypeArrayValue, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeHashValue, kNodeTypeRegex, kNodeTypeListValue, kNodeTypeSortableListValue, kNodeTypeEqualableListValue, kNodeTypeTupleValue, kNodeTypeCArrayValue, kNodeTypeEqualableCArrayValue, kNodeTypeSortableCArrayValue, kNodeTypeImplements, kNodeTypeGetAddress, kNodeTypeInheritCall, kNodeTypeFloatValue, kNodeTypeDoubleValue, kNodeTypePath, kNodeTypeWhen };
+enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeUByteValue, kNodeTypeShortValue, kNodeTypeUShortValue, kNodeTypeIntValue, kNodeTypeUIntValue, kNodeTypeLongValue, kNodeTypeULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeWildCard, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand, kNodeTypeIncrementWithValueOperand, kNodeTypeDecrementWithValueOperand, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand, kNodeTypeLoadArrayElement, kNodeTypeStoreArrayElement, kNodeTypeChar, kNodeTypeString, kNodeTypeBuffer, kNodeTypeThrow, kNodeTypeTry, kNodeTypeBlockObject, kNodeTypeFunction, kNodeTypeBlockCall, kNodeTypeConditional, kNodeTypeNormalBlock, kNodeTypeArrayValue, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeHashValue, kNodeTypeRegex, kNodeTypeListValue, kNodeTypeSortableListValue, kNodeTypeEqualableListValue, kNodeTypeTupleValue, kNodeTypeCArrayValue, kNodeTypeEqualableCArrayValue, kNodeTypeSortableCArrayValue, kNodeTypeImplements, kNodeTypeGetAddress, kNodeTypeInheritCall, kNodeTypeFloatValue, kNodeTypeDoubleValue, kNodeTypePath, kNodeTypeWhen };
 
 enum eOperand { kOpAdd, kOpSub , kOpComplement, kOpLogicalDenial, kOpMult, kOpDiv, kOpMod, kOpLeftShift, kOpRightShift, kOpComparisonEqual, kOpComparisonNotEqual,kOpComparisonGreaterEqual, kOpComparisonLesserEqual, kOpComparisonGreater, kOpComparisonLesser, kOpAnd, kOpXor, kOpOr };
 
@@ -814,6 +814,7 @@ unsigned int sNodeTree_break_expression(sParserInfo* info);
 unsigned int sNodeTree_false_expression(sParserInfo* info);
 unsigned int sNodeTree_true_expression(sParserInfo* info);
 unsigned int sNodeTree_null_expression(sParserInfo* info);
+unsigned int sNodeTree_wildcard_expression(sParserInfo* info);
 unsigned int sNodeTree_for_expression(unsigned int expression_node1, unsigned int expression_node2, unsigned int expression_node3, MANAGED sNodeBlock* for_node_block, sParserInfo* info);
 BOOL check_node_is_variable(unsigned int node);
 unsigned int sNodeTree_create_class_method_call(sNodeType* klass, char* method_name, unsigned int* params, int num_params, sParserInfo* info);
@@ -1158,6 +1159,7 @@ extern BOOL gSigInt;
 
 #define OP_OBJ_IDENTIFY 1300
 #define OP_CLASSNAME 1301
+#define OP_IS 1302
 #define OP_IMPLEMENTS 1303
 
 #define OP_ANDAND 2000

@@ -2,10 +2,10 @@ a := 125;
 
 print("when test...");
 when(a) {
-    1 {
+    case 1: {
         println("FALSE");
     }
-    123,125 {
+    case 123,125: {
         println("TRUE");
     }
     else {
@@ -17,10 +17,10 @@ b := "ABC";
 
 print("when test2...");
 when(b) {
-    "A" {
+    case "A": {
         println("FALSE");
     }
-    "ABC" {
+    case "ABC": {
         println("TRUE");
     }
     else {
@@ -29,11 +29,11 @@ when(b) {
 }
 
 c := when(123) {
-    123 {
+    case 123: {
         "ABC";
     }
 
-    234 {
+    case 234: {
         "DEF";
     }
 
@@ -45,11 +45,11 @@ c := when(123) {
 Clover.test("when test3", c.equals("ABC"));
 
 d := when(234) {
-    123 {
+    case 123: {
         "ABC";
     }
 
-    234 {
+    case 234: {
         123;
     }
 

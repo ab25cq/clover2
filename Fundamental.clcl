@@ -255,7 +255,16 @@ module MWrapperClassBase
     }
 
     def equals(right:SELF): bool {
-        return self.value == right.value;
+        if(right.is("WildCard")) {
+            return true;
+        }
+        else {
+            return self.value == right.value;
+        }
+    }
+
+    def equals(right:WildCard): bool {
+        return true;
     }
 
     def compare(right:SELF):  int {
@@ -834,7 +843,16 @@ class Bool
     }
 
     def equals(right:Bool):bool {
-        return self.value == right.value;
+        if(right.is("WildCard")) {
+            return true;
+        }
+        else {
+            return self.value == right.value;
+        }
+    }
+
+    def equals(right:WildCard):bool {
+        return true;
     }
 }
 

@@ -491,7 +491,16 @@ class Path
     }
 
     def equals(path:Path):bool {
-        return self.path.equals(path.path)
+        if(path.is("WildCard")) {
+            return true;
+        }
+        else {
+            return self.path.equals(path.path)
+        }
+    }
+
+    def equals(right:WildCard):bool {
+        return true;
     }
 
     def realpath():Path throws Exception {

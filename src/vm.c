@@ -4758,6 +4758,36 @@ show_inst(inst);
                 }
                 break;
 
+            case OP_IS:
+                {
+                    vm_mutex_on();
+
+                    CLObject left = (stack_ptr-2)->mObjectValue;
+                    CLObject right = (stack_ptr-1)->mObjectValue;
+
+                    if(left == 0 || right == 0) {
+                        vm_mutex_off();
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(1)");
+                        remove_stack_to_stack_list(stack_id);
+                        return FALSE;
+                    }
+
+                    sCLObject* object_data = CLOBJECT(left);
+
+                    char* left_class_name = CLASS_NAME(object_data->mClass);
+                    char* right_class_name = ALLOC string_object_to_char_array(right);
+
+                    stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
+                    stack_ptr->mBoolValue = strcmp(left_class_name, right_class_name) == 0;
+                    stack_ptr++;
+
+                    MFREE(right_class_name);
+
+                    vm_mutex_off();
+                }
+                break;
+
             case OP_IMPLEMENTS:
                 {
                     vm_mutex_on();

@@ -71,35 +71,54 @@ module MEqualableArray
     }
 
     def equals(right:T[]): bool {
-        return self.equals(right.toArray);
+        if(right.is("WildCard")) {
+            return true;
+        }
+        else {
+            return self.equals(right.toArray);
+        }
+    }
+
+    def equals(right:WildCard): bool {
+        return true;
     }
 
     def equals(right:Array<T>):bool {
-        if(self.items.length != right.items.length) {
-            return false;
+        if(right.is("WildCard")) {
+            return true;
         }
-
-        for(i:int = 0; i<self.items.length; i++) {
-            if(!self.items[i].equals(right.items[i])) {
+        else {
+            if(self.items.length != right.items.length) {
                 return false;
             }
-        }
 
-        return true;
+            for(i:int = 0; i<self.items.length; i++) {
+                if(!self.items[i].equals(right.items[i])) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
     }
 
     def equals(right:EqualableArray<T>):bool {
-        if(self.items.length != right.items.length) {
-            return false;
+        if(right.is("WildCard")) {
+            return true;
         }
-
-        for(i:int = 0; i<self.items.length; i++) {
-            if(!self.items[i].equals(right.items[i])) {
+        else {
+            if(self.items.length != right.items.length) {
                 return false;
             }
-        }
 
-        return true;
+            for(i:int = 0; i<self.items.length; i++) {
+                if(!self.items[i].equals(right.items[i])) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
     }
 }
 
@@ -193,17 +212,22 @@ class SortableArray <T:ISortable>
     include MEqualableArray;
 
     def equals(right:SortableArray<T>):bool {
-        if(self.items.length != right.items.length) {
-            return false;
+        if(right.is("WildCard")) {
+            return true;
         }
-
-        for(i:int = 0; i<self.items.length; i++) {
-            if(!self.items[i].equals(right.items[i])) {
+        else {
+            if(self.items.length != right.items.length) {
                 return false;
             }
-        }
 
-        return true;
+            for(i:int = 0; i<self.items.length; i++) {
+                if(!self.items[i].equals(right.items[i])) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
     }
 
     def toArray():Array<T> {
@@ -795,15 +819,24 @@ module MList
 module MEqualableList
 {
     def equals(right:SELF<T>):bool {
-        if(self.number != right.number) {
-            return false;
+        if(right.is("WildCard")) {
+            return true;
         }
-        for(i:int =0; i<self.number; i++) {
-            if(!self.items(i).equals(right.items(i))) {
+        else {
+            if(self.number != right.number) {
                 return false;
             }
-        }
+            for(i:int =0; i<self.number; i++) {
+                if(!self.items(i).equals(right.items(i))) {
+                    return false;
+                }
+            }
 
+            return true;
+        }
+    }
+
+    def equals(right:WildCard): bool {
         return true;
     }
 
@@ -1247,18 +1280,27 @@ class Hash <T:IHashKey, T2:IEqualable>
     }
 
     def equals(right:Hash<T,T2>):bool {
-        if(self.itemNumber != right.itemNumber) {
-            return false;
+        if(right.is("WildCard")) {
+            return true;
         }
-        result:bool = true;
-        self.each(closure(key:T, item:T2) {
-            if(!self.containes(key, item)) {
-                result = false;
-                return;
+        else {
+            if(self.itemNumber != right.itemNumber) {
+                return false;
             }
-        });
+            result:bool = true;
+            self.each(closure(key:T, item:T2) {
+                if(!self.containes(key, item)) {
+                    result = false;
+                    return;
+                }
+            });
 
-        return result;
+            return result;
+        }
+    }
+
+    def equals(right:WildCard):bool {
+        return true;
     }
 
     def length(): int {
@@ -1404,7 +1446,16 @@ class Tuple1 <T:IEqualable>
     }
 
     def equals(right:Tuple1<T>):bool {
-        return self.value1.equals(right.value1);
+        if(right.is("WildCard")) {
+            return true;
+        }
+        else {
+            return self.value1.equals(right.value1);
+        }
+    }
+
+    def equals(right:WildCard): bool {
+        return true;
     }
 
     def toString():String {
@@ -1423,7 +1474,16 @@ class Tuple2 <T:IEqualable, T2:IEqualable>
     }
 
     def equals(right:Tuple2<T,T2>):bool {
-        return self.value1.equals(right.value1) && self.value2.equals(right.value2);
+        if(right.is("WildCard")) {
+            return true;
+        }
+        else {
+            return self.value1.equals(right.value1) && self.value2.equals(right.value2);
+        }
+    }
+
+    def equals(right:WildCard): bool {
+        return true;
     }
 
     def toString():String {
@@ -1444,7 +1504,16 @@ class Tuple3 <T:IEqualable, T2:IEqualable, T3:IEqualable>
     }
 
     def equals(right:Tuple3<T,T2,T3>):bool {
-        return self.value1.equals(right.value1) && self.value2.equals(right.value2) && self.value3.equals(right.value3);
+        if(right.is("WildCard")) {
+            return true;
+        }
+        else {
+            return self.value1.equals(right.value1) && self.value2.equals(right.value2) && self.value3.equals(right.value3);
+        }
+    }
+
+    def equals(right:WildCard): bool {
+        return true;
     }
 
     def toString():String {
@@ -1467,7 +1536,16 @@ class Tuple4 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable>
     }
 
     def equals(right:Tuple4<T,T2,T3,T4>):bool {
-        return self.value1.equals(right.value1) && self.value2.equals(right.value2) && self.value3.equals(right.value3) && self.value4.equals(right.value4);
+        if(right.is("WildCard")) {
+            return true;
+        }
+        else {
+            return self.value1.equals(right.value1) && self.value2.equals(right.value2) && self.value3.equals(right.value3) && self.value4.equals(right.value4);
+        }
+    }
+
+    def equals(right:WildCard): bool {
+        return true;
     }
     def toString():String {
         return "tuple {".append(self.value1.toString()).append(",").append(self.value2.toString()).append(",").append(self.value3.toString()).append(",").append(self.value4.toString()).append("}");
@@ -1491,7 +1569,15 @@ class Tuple5 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqu
     }
 
     def equals(right:Tuple5<T,T2,T3,T4,T5>):bool {
-        return self.value1.equals(right.value1) && self.value2.equals(right.value2) && self.value3.equals(right.value3) && self.value4.equals(right.value4) && self.value5.equals(right.value5);
+        if(right.is("WildCard")) {
+            return true;
+        }
+        else {
+            return self.value1.equals(right.value1) && self.value2.equals(right.value2) && self.value3.equals(right.value3) && self.value4.equals(right.value4) && self.value5.equals(right.value5);
+        }
+    }
+    def equals(right:WildCard): bool {
+        return true;
     }
     def toString():String {
         return "tuple {".append(self.value1.toString()).append(",").append(self.value2.toString()).append(",").append(self.value3.toString()).append(",").append(self.value4.toString()).append(",").append(self.value5.toString()).append("}");
@@ -1517,7 +1603,16 @@ class Tuple6 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqu
     }
 
     def equals(right:Tuple6<T,T2,T3,T4,T5,T6>):bool {
-        return self.value1.equals(right.value1) && self.value2.equals(right.value2) && self.value3.equals(right.value3) && self.value4.equals(right.value4) && self.value5.equals(right.value5) && self.value6.equals(right.value6);
+        if(right.is("WildCard")) {
+            return true;
+        }
+        else {
+            return self.value1.equals(right.value1) && self.value2.equals(right.value2) && self.value3.equals(right.value3) && self.value4.equals(right.value4) && self.value5.equals(right.value5) && self.value6.equals(right.value6);
+        }
+    }
+
+    def equals(right:WildCard): bool {
+        return true;
     }
     def toString():String {
         return "tuple {".append(self.value1.toString()).append(",").append(self.value2.toString()).append(",").append(self.value3.toString()).append(",").append(self.value4.toString()).append(",").append(self.value5.toString()).append(",").append(self.value6.toString()).append("}");
@@ -1545,7 +1640,16 @@ class Tuple7 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqu
     }
 
     def equals(right:Tuple7<T,T2,T3,T4,T5,T6,T7>):bool {
-        return self.value1.equals(right.value1) && self.value2.equals(right.value2) && self.value3.equals(right.value3) && self.value4.equals(right.value4) && self.value5.equals(right.value5) && self.value6.equals(right.value6) && self.value7.equals(right.value7);
+        if(right.is("WildCard")) {
+            return true;
+        }
+        else {
+            return self.value1.equals(right.value1) && self.value2.equals(right.value2) && self.value3.equals(right.value3) && self.value4.equals(right.value4) && self.value5.equals(right.value5) && self.value6.equals(right.value6) && self.value7.equals(right.value7);
+        }
+    }
+
+    def equals(right:WildCard): bool {
+        return true;
     }
     def toString():String {
         return "tuple {".append(self.value1.toString()).append(",").append(self.value2.toString()).append(",").append(self.value3.toString()).append(",").append(self.value4.toString()).append(",").append(self.value5.toString()).append(",").append(self.value6.toString()).append(",").append(self.value7.toString()).append("}");
@@ -1575,7 +1679,15 @@ class Tuple8 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqu
     }
 
     def equals(right:Tuple8<T,T2,T3,T4,T5,T6,T7,T8>):bool {
-        return self.value1.equals(right.value1) && self.value2.equals(right.value2) && self.value3.equals(right.value3) && self.value4.equals(right.value4) && self.value5.equals(right.value5) && self.value6.equals(right.value6) && self.value7.equals(right.value7) && self.value8.equals(right.value8);
+        if(right.is("WildCard")) {
+            return true;
+        }
+        else {
+            return self.value1.equals(right.value1) && self.value2.equals(right.value2) && self.value3.equals(right.value3) && self.value4.equals(right.value4) && self.value5.equals(right.value5) && self.value6.equals(right.value6) && self.value7.equals(right.value7) && self.value8.equals(right.value8);
+        }
+    }
+    def equals(right:WildCard): bool {
+        return true;
     }
     def toString():String {
         return "tuple {".append(self.value1.toString()).append(",").append(self.value2.toString()).append(",").append(self.value3.toString()).append(",").append(self.value4.toString()).append(",").append(self.value5.toString()).append(",").append(self.value6.toString()).append(",").append(self.value7.toString()).append(",").append(self.value8.toString()).append("}");
@@ -1607,7 +1719,15 @@ class Tuple9 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqu
     }
 
     def equals(right:Tuple9<T,T2,T3,T4,T5,T6,T7,T8,T9>):bool {
-        return self.value1.equals(right.value1) && self.value2.equals(right.value2) && self.value3.equals(right.value3) && self.value4.equals(right.value4) && self.value5.equals(right.value5) && self.value6.equals(right.value6) && self.value7.equals(right.value7) && self.value8.equals(right.value8) && self.value9.equals(right.value9);
+        if(right.is("WildCard")) {
+            return true;
+        }
+        else {
+            return self.value1.equals(right.value1) && self.value2.equals(right.value2) && self.value3.equals(right.value3) && self.value4.equals(right.value4) && self.value5.equals(right.value5) && self.value6.equals(right.value6) && self.value7.equals(right.value7) && self.value8.equals(right.value8) && self.value9.equals(right.value9);
+        }
+    }
+    def equals(right:WildCard): bool {
+        return true;
     }
     def toString():String {
         return "tuple {".append(self.value1.toString()).append(",").append(self.value2.toString()).append(",").append(self.value3.toString()).append(",").append(self.value4.toString()).append(",").append(self.value5.toString()).append(",").append(self.value6.toString()).append(",").append(self.value7.toString()).append(",").append(self.value8.toString()).append(",").append(self.value9.toString()).append("}");
@@ -1641,7 +1761,15 @@ class Tuple10 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEq
     }
 
     def equals(right:Tuple10<T,T2,T3,T4,T5,T6,T7,T8,T9,T10>):bool {
-        return self.value1.equals(right.value1) && self.value2.equals(right.value2) && self.value3.equals(right.value3) && self.value4.equals(right.value4) && self.value5.equals(right.value5) && self.value6.equals(right.value6) && self.value7.equals(right.value7) && self.value8.equals(right.value8) && self.value9.equals(right.value9) && self.value10.equals(right.value10);
+        if(right.is("WildCard")) {
+            return true;
+        }
+        else {
+            return self.value1.equals(right.value1) && self.value2.equals(right.value2) && self.value3.equals(right.value3) && self.value4.equals(right.value4) && self.value5.equals(right.value5) && self.value6.equals(right.value6) && self.value7.equals(right.value7) && self.value8.equals(right.value8) && self.value9.equals(right.value9) && self.value10.equals(right.value10);
+        }
+    }
+    def equals(right:WildCard): bool {
+        return true;
     }
     def toString():String {
         return "tuple {".append(self.value1.toString()).append(",").append(self.value2.toString()).append(",").append(self.value3.toString()).append(",").append(self.value4.toString()).append(",").append(self.value5.toString()).append(",").append(self.value6.toString()).append(",").append(self.value7.toString()).append(",").append(self.value8.toString()).append(",").append(self.value9.toString()).append(",").append(self.value10.toString()).append("}");

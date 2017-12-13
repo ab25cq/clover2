@@ -916,6 +916,7 @@ void class_init()
     alloc_class("regex", FALSE, -1, -1, 0, NULL, FALSE, FALSE);
 
     alloc_class("Null", FALSE, -1, -1, 0, NULL, FALSE, FALSE);
+    alloc_class("WildCard", FALSE, -1, -1, 0, NULL, FALSE, FALSE);
     alloc_class("Anonymous", FALSE, -1, -1, 0, NULL, FALSE, FALSE);
     alloc_class("Self", FALSE, -1, -1, 0, NULL, FALSE, FALSE);
 
