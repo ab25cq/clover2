@@ -1269,6 +1269,35 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             }
             break;
 
+        case OP_IS: {
+            LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -2);
+            LVALUE* rvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            if_value_is_zero_entry_exception_object(lvalue->value, 32, FALSE, FALSE, params, *function, current_block, "Exception", "Null pointer exception(1)");
+            if_value_is_zero_entry_exception_object(rvalue->value, 32, FALSE, FALSE, params, *function, current_block, "Exception", "Null pointer exception(1)");
+
+            Function* fun = TheModule->getFunction("op_is_fun");
+
+            std::vector<Value*> params2;
+
+            LVALUE llvm_value2;
+            llvm_value2 = trunc_value(lvalue, 32);
+            params2.push_back(llvm_value2.value);
+
+            llvm_value2 = trunc_value(rvalue, 32);
+            params2.push_back(llvm_value2.value);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt32;
+
+            dec_stack_ptr(llvm_stack_ptr, 2);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
         case OP_IMPLEMENTS: {
             int offset = *(int*)(*pc);
             (*pc) += sizeof(int);

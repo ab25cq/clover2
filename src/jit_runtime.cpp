@@ -1518,4 +1518,18 @@ void mark_source_position(sVMInfo* info, char* sname, int sline)
     info->sline2 = sline;
 }
 
+BOOL op_is_fun(CLObject left, CLObject right)
+{
+    sCLObject* object_data = CLOBJECT(left);
+
+    char* left_class_name = CLASS_NAME(object_data->mClass);
+    char* right_class_name = ALLOC string_object_to_char_array(right);
+
+    BOOL result = strcmp(left_class_name, right_class_name) == 0;
+
+    MFREE(right_class_name);
+
+    return result;
+}
+
 }
