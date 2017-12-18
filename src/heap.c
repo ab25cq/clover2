@@ -179,6 +179,9 @@ static void compaction(unsigned char* mark_flg)
                 if(klass && !(klass->mFlags & CLASS_FLAGS_PRIMITIVE) && array_num == -1) {
                     (void)free_object(obj);
                 }
+                else if(klass && !(klass->mFlags & CLASS_FLAGS_PRIMITIVE) && array_num != -1) {
+                    free_array(obj);
+                }
 
                 if(klass->mFreeFun) {
                     klass->mFreeFun(obj);
@@ -239,9 +242,29 @@ static void delete_all_object()
     MFREE(mark_flg);
 }
 
+static void show()
+{
+    int i;
+    for(i=0; i<gCLHeap.mNumHandles; i++) {
+        if(gCLHeap.mHandles[i].mOffset != -1) {
+            void* data = (void*)(gCLHeap.mCurrentMem + gCLHeap.mHandles[i].mOffset);
+            sCLClass* klass = ((sCLHeapMem*)data)->mClass;
+
+            CLObject obj = i + FIRST_OBJ;
+
+            sCLObject* object_data = CLOBJECT(obj);
+            
+            printf("obj %d size %d array_num %d\n", obj, object_data->mSize, object_data->mArrayNum);
+        }
+    }
+}
+
 static void gc()
 {
     unsigned char* mark_flg;
+
+show();
+puts("gc");
 
     mark_flg = MCALLOC(1, gCLHeap.mNumHandles);
 
@@ -249,12 +272,15 @@ static void gc()
     compaction(mark_flg);
 
     MFREE(mark_flg);
+
+show();
 }
 
 CLObject alloc_heap_mem(int size, sCLClass* klass, int array_num)
 {
     int handle;
     CLObject obj;
+
 
     if(gCLHeap.mMemLen + size >= gCLHeap.mMemSize) {
         gc();
@@ -314,7 +340,10 @@ CLObject alloc_heap_mem(int size, sCLClass* klass, int array_num)
 
     object_ptr->mSize = size;
     object_ptr->mClass = klass;
+    object_ptr->mType = NULL;
     object_ptr->mArrayNum = array_num;
+
+printf("obj %d alloc_heap_mem size %d array_num %d\n", obj, size, array_num);
 
     return obj;
 }

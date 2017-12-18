@@ -4,7 +4,7 @@ CLObject create_list_object()
 {
     sCLClass* klass = get_class("List");
     MASSERT(klass != NULL);
-    CLObject obj = create_object(klass);
+    CLObject obj = create_object(klass, "List");
 
     return obj;
 }
@@ -47,7 +47,7 @@ CLObject create_sortable_list_object()
 {
     sCLClass* klass = get_class("SortableList");
     MASSERT(klass != NULL);
-    CLObject obj = create_object(klass);
+    CLObject obj = create_object(klass, "SortableList");
 
     return obj;
 }
@@ -90,7 +90,7 @@ CLObject create_equalable_list_object()
 {
     sCLClass* klass = get_class("EqualableList");
     MASSERT(klass != NULL);
-    CLObject obj = create_object(klass);
+    CLObject obj = create_object(klass, "EqualableList");
 
     return obj;
 }

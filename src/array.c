@@ -15,6 +15,14 @@ void array_mark_fun(CLObject self, unsigned char* mark_flg)
     }
 }
 
+void free_array(CLObject self)
+{
+    sCLObject* object_data = CLOBJECT(self);
+    sCLClass* klass = object_data->mClass;
+
+    MFREE(object_data->mType);
+}
+
 static unsigned int object_size(sCLClass* klass, int array_num)
 {
     unsigned int size;
@@ -33,6 +41,13 @@ CLObject create_array_object(sCLClass* klass, int array_num)
     int size = object_size(klass, array_num);
 
     CLObject obj = alloc_heap_mem(size, klass, array_num);
+
+    sCLObject* object_data = CLOBJECT(obj);
+
+    char type[OBJECT_TYPE_NAME_MAX];
+    snprintf(type, OBJECT_TYPE_NAME_MAX, "%s[]", CLASS_NAME(klass));
+
+    object_data->mType = MSTRDUP(type);
 
 #ifdef ENABLE_JIT
     push_jit_object(obj);

@@ -791,6 +791,7 @@ unsigned int clone_node(unsigned int node);
 void compile_err_msg(sCompileInfo* info, const char* msg, ...);
 BOOL compile(unsigned int node, sCompileInfo* info);
 void append_class_name_to_constant_pool_and_code(sCompileInfo* info, sCLClass* klass);
+void create_type_name_from_node_type(char* type_name, int type_name_max, sNodeType* node_type);
 
 unsigned int sNodeTree_create_operand(enum eOperand operand, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
 unsigned int sNodeTree_when_expression(unsigned int expression_node, unsigned int value_nodes[WHEN_BLOCK_MAX][WHEN_BLOCK_MAX], int num_values[WHEN_BLOCK_MAX], sNodeBlock* when_blocks[WHEN_BLOCK_MAX], int num_when_block, sNodeBlock* else_block, sNodeType* when_types[WHEN_BLOCK_MAX], sNodeType* when_types2[WHEN_BLOCK_MAX], sParserInfo* info);
@@ -1817,6 +1818,7 @@ BOOL is_this_class_with_class_name(sCLClass* klass, char* class_name);
 struct sCLHeapMemStruct {
     int mSize;
     sCLClass* mClass;       // NULL --> no class only memory
+    char* mType;
     int mArrayNum;
     void* mMem;
 };
@@ -1860,9 +1862,12 @@ BOOL load_module_from_file(ALLOC sCLModule** self, char* module_name);
 /// object.c ///
 #define DUMMY_ARRAY_SIZE 32
 
+#define OBJECT_TYPE_NAME_MAX 128
+
 struct sCLObjectStruct {
     int mSize;
     sCLClass* mClass;
+    char* mType;
     union {
         int mArrayNum;
         int mNumFields;
@@ -1874,7 +1879,7 @@ typedef struct sCLObjectStruct sCLObject;
 
 #define CLOBJECT(obj) (sCLObject*)(get_object_pointer((obj)))
 
-CLObject create_object(sCLClass* klass);
+CLObject create_object(sCLClass* klass, char* type);
 BOOL free_object(CLObject self);
 void object_mark_fun(CLObject self, unsigned char* mark_flg);
 BOOL object_implements_interface(CLObject object, sCLClass* interface);
@@ -1882,6 +1887,7 @@ BOOL object_implements_interface(CLObject object, sCLClass* interface);
 /// array.c ///
 CLObject create_array_object(sCLClass* klass, int array_num);
 void array_mark_fun(CLObject self, unsigned char* mark_flg);
+void free_array(CLObject self);
 
 /// hash.c ///
 CLObject create_hash_object();

@@ -101,7 +101,7 @@ class CLNodeTreeInt
         sourceName(sname);
         sourceLine(sline);
 
-        base.type(new CLNodeType("int"));
+        type(new CLNodeType("int"));
 
         self.value = value;
     }
@@ -123,7 +123,7 @@ class CLNodeTreePlus
         left(left);
         right(right);
 
-        base.type(left().type());
+        type(left().type());
 
         sourceName(sname);
         sourceLine(sline);
@@ -162,7 +162,7 @@ class CLNodeTreeString
         sourceName(sname);
         sourceLine(sline);
 
-        base.type(new CLNodeType("String"));
+        type(new CLNodeType("String"));
 
         self.value = value;
     }

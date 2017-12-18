@@ -4,7 +4,7 @@ CLObject create_carray_object()
 {
     sCLClass* klass = get_class("Array");
     MASSERT(klass != NULL);
-    CLObject obj = create_object(klass);
+    CLObject obj = create_object(klass, "Array");
 
     return obj;
 }
@@ -13,7 +13,7 @@ CLObject create_equalable_carray_object()
 {
     sCLClass* klass = get_class("EqualableArray");
     MASSERT(klass != NULL);
-    CLObject obj = create_object(klass);
+    CLObject obj = create_object(klass, "EqualableArray");
 
     return obj;
 }
@@ -22,7 +22,7 @@ CLObject create_sortable_carray_object()
 {
     sCLClass* klass = get_class("SortableArray");
     MASSERT(klass != NULL);
-    CLObject obj = create_object(klass);
+    CLObject obj = create_object(klass, "SortableArray");
 
     return obj;
 }

@@ -5194,6 +5194,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     int offset = *(int*)pc;
                     pc += sizeof(int);
 
+                    int offset2 = *(int*)pc;
+                    pc += sizeof(int);
+
                     BOOL flg_array = *(int*)pc;
                     pc += sizeof(int);
 
@@ -5208,6 +5211,8 @@ show_stack(stack, stack_ptr, lvar, var_num);
                         return FALSE;
                     }
 
+                    char* type_name = CONS_str(constant, offset2);
+
                     if(flg_array) {
                         int array_num = (stack_ptr-1)->mIntValue;
                         stack_ptr--;
@@ -5218,7 +5223,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                         stack_ptr++;
                     }
                     else {
-                        CLObject obj = create_object(klass);
+                        CLObject obj = create_object(klass, type_name);
                         stack_ptr->mLongValue = 0;              // zero clear for jit
                         stack_ptr->mObjectValue = obj;
                         stack_ptr++;
@@ -12795,7 +12800,10 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 sCLClass* klass2 = get_class("Array");
                 MASSERT(klass2 != NULL);
 
-                CLObject new_array = create_object(klass2);
+                char type_name[OBJECT_TYPE_NAME_MAX];
+                snprintf(type_name, OBJECT_TYPE_NAME_MAX, "Array<%s>", CLASS_NAME(klass));
+
+                CLObject new_array = create_object(klass2, type_name);
 
                 stack_ptr->mLongValue = 0;       // zero clear for jit
                 stack_ptr->mObjectValue = new_array;   // push object

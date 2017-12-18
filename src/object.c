@@ -13,8 +13,10 @@ void object_mark_fun(CLObject self, unsigned char* mark_flg)
 
 BOOL free_object(CLObject self)
 {
-    sCLObject* object = CLOBJECT(self);
-    sCLClass* klass = object->mClass;
+    sCLObject* object_data = CLOBJECT(self);
+    sCLClass* klass = object_data->mClass;
+
+    MFREE(object_data->mType);
 
     if(!call_finalize_method_on_free_object(klass, self)) {
         return FALSE;
@@ -35,11 +37,17 @@ static unsigned int object_size(sCLClass* klass)
     return size;
 }
 
-CLObject create_object(sCLClass* klass)
+CLObject create_object(sCLClass* klass, char* type)
 {
     int size = object_size(klass);
 
+printf("klass %s size %d\n", CLASS_NAME(klass), size);
+
     CLObject obj = alloc_heap_mem(size, klass, -1);
+
+    sCLObject* object_data = CLOBJECT(obj);
+
+    object_data->mType = MSTRDUP(type);
 
 #ifdef ENABLE_JIT
     push_jit_object(obj);

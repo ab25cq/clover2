@@ -4,7 +4,7 @@ CLObject create_hash_object()
 {
     sCLClass* klass = get_class("Hash");
 
-    CLObject obj = create_object(klass);
+    CLObject obj = create_object(klass, "Hash");
 
     return obj;
 }

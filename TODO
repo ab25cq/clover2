@@ -1,9 +1,17 @@
 多次元配列
 
-1.1F
-1.1D
+list.c
+CLObject create_list_object()
+CLObject create_sortable_list_object()
+CLObject create_equalable_list_object()
 
-hex用のS, USなど。
+tuple.c
+CLObject create_equalable_list_object()
+
+carray.c
+CLObject create_carray_object()
+CLObject create_equalable_carray_object()
+CLObject create_sortable_carray_object()
 
 パーサコンビネータ
 Lisp

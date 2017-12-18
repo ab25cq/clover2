@@ -3,7 +3,7 @@
 CLObject create_char(wchar_t value)
 {
     sCLClass* klass = get_class("Char");
-    CLObject obj = create_object(klass);
+    CLObject obj = create_object(klass, "Char");
 
     sCLObject* obj_data = CLOBJECT(obj);
 

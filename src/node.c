@@ -257,6 +257,15 @@ void append_class_name_to_constant_pool_and_code(sCompileInfo* info, sCLClass* k
     append_str_to_constant_pool_and_code(info->constant, info->code, class_name, info->no_output);
 }
 
+static void append_type_name_to_constant_pool_and_code(sCompileInfo* info, sNodeType* node_type)
+{
+    char type_name[OBJECT_TYPE_NAME_MAX];
+    
+    create_type_name_from_node_type(type_name, OBJECT_TYPE_NAME_MAX, node_type);
+
+    append_str_to_constant_pool_and_code(info->constant, info->code, type_name, info->no_output);
+}
+
 static void append_method_name_and_params_to_constant_pool_and_code(sCompileInfo* info, sCLClass* klass, sCLMethod* method)
 {
     int size_method_name_and_params = METHOD_NAME_MAX + PARAMS_MAX * CLASS_NAME_MAX + 256;
@@ -1080,6 +1089,7 @@ static BOOL compile_cbyte_value(unsigned int node, sCompileInfo* info)
 
     append_opecode_to_code(info->code, OP_NEW, info->no_output);
     append_class_name_to_constant_pool_and_code(info, klass);
+    append_str_to_constant_pool_and_code(info->constant, info->code, "Byte", info->no_output);
     append_int_value_to_code(info->code, 0, info->no_output);
 
     info->stack_num++;
@@ -1184,6 +1194,7 @@ static BOOL compile_cfloat_value(unsigned int node, sCompileInfo* info)
 
     append_opecode_to_code(info->code, OP_NEW, info->no_output);
     append_class_name_to_constant_pool_and_code(info, klass);
+    append_str_to_constant_pool_and_code(info->constant, info->code, "Float", info->no_output);
     append_int_value_to_code(info->code, 0, info->no_output);
 
     info->stack_num++;
@@ -1288,6 +1299,7 @@ static BOOL compile_cdouble_value(unsigned int node, sCompileInfo* info)
 
     append_opecode_to_code(info->code, OP_NEW, info->no_output);
     append_class_name_to_constant_pool_and_code(info, klass);
+    append_str_to_constant_pool_and_code(info->constant, info->code, "Double", info->no_output);
     append_int_value_to_code(info->code, 0, info->no_output);
 
     info->stack_num++;
@@ -1396,6 +1408,7 @@ static BOOL compile_cubyte_value(unsigned int node, sCompileInfo* info)
 
     append_opecode_to_code(info->code, OP_NEW, info->no_output);
     append_class_name_to_constant_pool_and_code(info, klass);
+    append_str_to_constant_pool_and_code(info->constant, info->code, "UByte", info->no_output);
     append_int_value_to_code(info->code, 0, info->no_output);
 
     info->stack_num++;
@@ -1504,6 +1517,7 @@ static BOOL compile_cshort_value(unsigned int node, sCompileInfo* info)
 
     append_opecode_to_code(info->code, OP_NEW, info->no_output);
     append_class_name_to_constant_pool_and_code(info, klass);
+    append_str_to_constant_pool_and_code(info->constant, info->code, "UByte", info->no_output);
     append_int_value_to_code(info->code, 0, info->no_output);
 
     info->stack_num++;
@@ -1612,6 +1626,7 @@ static BOOL compile_cushort_value(unsigned int node, sCompileInfo* info)
 
     append_opecode_to_code(info->code, OP_NEW, info->no_output);
     append_class_name_to_constant_pool_and_code(info, klass);
+    append_str_to_constant_pool_and_code(info->constant, info->code, "UShort", info->no_output);
     append_int_value_to_code(info->code, 0, info->no_output);
 
     info->stack_num++;
@@ -1720,6 +1735,7 @@ static BOOL compile_cint_value(unsigned int node, sCompileInfo* info)
 
     append_opecode_to_code(info->code, OP_NEW, info->no_output);
     append_class_name_to_constant_pool_and_code(info, klass);
+    append_str_to_constant_pool_and_code(info->constant, info->code, "Integer", info->no_output);
     append_int_value_to_code(info->code, 0, info->no_output);
 
     info->stack_num++;
@@ -1828,6 +1844,7 @@ static BOOL compile_cuint_value(unsigned int node, sCompileInfo* info)
 
     append_opecode_to_code(info->code, OP_NEW, info->no_output);
     append_class_name_to_constant_pool_and_code(info, klass);
+    append_str_to_constant_pool_and_code(info->constant, info->code, "UInteger", info->no_output);
     append_int_value_to_code(info->code, 0, info->no_output);
 
     info->stack_num++;
@@ -1937,6 +1954,7 @@ static BOOL compile_clong_value(unsigned int node, sCompileInfo* info)
 
     append_opecode_to_code(info->code, OP_NEW, info->no_output);
     append_class_name_to_constant_pool_and_code(info, klass);
+    append_str_to_constant_pool_and_code(info->constant, info->code, "Long", info->no_output);
     append_int_value_to_code(info->code, 0, info->no_output);
 
     info->stack_num++;
@@ -2045,6 +2063,7 @@ static BOOL compile_culong_value(unsigned int node, sCompileInfo* info)
 
     append_opecode_to_code(info->code, OP_NEW, info->no_output);
     append_class_name_to_constant_pool_and_code(info, klass);
+    append_str_to_constant_pool_and_code(info->constant, info->code, "ULong", info->no_output);
     append_int_value_to_code(info->code, 0, info->no_output);
 
     info->stack_num++;
@@ -3423,6 +3442,7 @@ static BOOL compile_wildcard_expression(unsigned int node, sCompileInfo* info)
 
     append_opecode_to_code(info->code, OP_NEW, info->no_output);
     append_class_name_to_constant_pool_and_code(info, klass);
+    append_str_to_constant_pool_and_code(info->constant, info->code, "WildCard", info->no_output);
     append_int_value_to_code(info->code, 0, info->no_output);
 
     info->stack_num++;
@@ -4572,7 +4592,6 @@ static BOOL compile_new_operator(unsigned int node, sCompileInfo* info)
 
     append_opecode_to_code(info->code, OP_NEW, info->no_output);
     append_class_name_to_constant_pool_and_code(info, klass);
-    append_int_value_to_code(info->code, array_num ? 1:0, info->no_output);
 
     info->stack_num++;
 
@@ -4640,6 +4659,9 @@ static BOOL compile_new_operator(unsigned int node, sCompileInfo* info)
             info->type = generics_types2;
         }
     }
+
+    append_type_name_to_constant_pool_and_code(info, info->type);
+    append_int_value_to_code(info->code, array_num ? 1:0, info->no_output);
 
     return TRUE;
 }
@@ -9954,3 +9976,51 @@ BOOL check_node_is_variable(unsigned int node)
     return gNodes[node].mNodeType == kNodeTypeLoadVariable;
 }
 
+void create_type_name_from_node_type(char* type_name, int type_name_max, sNodeType* node_type)
+{
+    sCLClass* klass = node_type->mClass;
+
+    xstrncat(type_name, CLASS_NAME(klass), type_name_max);
+
+    if(node_type->mBlockType) {
+        sNodeBlockType* node_block_type = node_type->mBlockType;
+
+        xstrncat(type_name, "(", type_name_max);
+
+        if(node_block_type->mNumParams > 0) {
+            int i;
+            for(i=0; i<node_block_type->mNumParams; i++) {
+                create_type_name_from_node_type(type_name, type_name_max, node_block_type->mParams[i]);
+                
+                if(i != node_block_type->mNumParams-1) {
+                    xstrncat(type_name, ",", type_name_max);
+                }
+            }
+        }
+        xstrncat(type_name, ")", type_name_max);
+
+        xstrncat(type_name, ":", type_name_max);
+
+        create_type_name_from_node_type(type_name, type_name_max, node_block_type->mResultType);
+    }
+    if(node_type->mArray) {
+        xstrncat(type_name, "[]", type_name_max);
+    }
+    if(node_type->mNullable) {
+        xstrncat(type_name, "?", type_name_max);
+    }
+    if(node_type->mNumGenericsTypes > 0) {
+        xstrncat(type_name, "<", type_name_max);
+
+        int i;
+        for(i=0; i<node_type->mNumGenericsTypes; i++) {
+            create_type_name_from_node_type(type_name, type_name_max, node_type->mGenericsTypes[i]);
+
+            if(i != node_type->mNumGenericsTypes-1) {
+                xstrncat(type_name, ",", type_name_max);
+            }
+        }
+
+        xstrncat(type_name, ">", type_name_max);
+    }
+}

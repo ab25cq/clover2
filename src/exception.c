@@ -37,7 +37,7 @@ void entry_exception_object_with_class_name(CLVALUE** stack_ptr, CLVALUE* stack,
         exit(2);
     }
 
-    CLObject object = create_object(klass);
+    CLObject object = create_object(klass, class_name);
     (*stack_ptr) = stack + var_num;
     (*stack_ptr)->mObjectValue = object;
     (*stack_ptr)++;
@@ -80,7 +80,7 @@ void entry_exception_object_with_class_name2(CLVALUE** stack_ptr, CLVALUE* stack
         exit(2);
     }
 
-    CLObject object = create_object(klass);
+    CLObject object = create_object(klass, class_name);
     (*stack_ptr) = stack + var_num;
     (*stack_ptr)->mObjectValue = object;
     (*stack_ptr)++;

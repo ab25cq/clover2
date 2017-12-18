@@ -16,7 +16,7 @@ CLObject create_string_object(char* str)
     sCLClass* string_class = get_class("String");
     MASSERT(string_class != NULL);
 
-    CLObject obj = create_object(string_class);
+    CLObject obj = create_object(string_class, "String");
 
     /// push object ///
     CLVALUE cl_value;
@@ -57,7 +57,7 @@ CLObject create_buffer_object(char* buffer, size_t size)
     sCLClass* buffer_class = get_class("Buffer");
     MASSERT(buffer_class != NULL);
 
-    CLObject obj = create_object(buffer_class);
+    CLObject obj = create_object(buffer_class, "Buffer");
 
     sCLObject* object_data = CLOBJECT(obj);
 
@@ -83,7 +83,7 @@ CLObject create_path_object(char* path)
     cl_value.mObjectValue = str_object;
     push_value_to_global_stack(cl_value);
 
-    CLObject obj = create_object(path_class);
+    CLObject obj = create_object(path_class, "Path");
 
     sCLObject* object_data = CLOBJECT(obj);
 
