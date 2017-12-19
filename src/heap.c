@@ -244,6 +244,7 @@ static void delete_all_object()
 
 static void show()
 {
+puts("heap.show");
     int i;
     for(i=0; i<gCLHeap.mNumHandles; i++) {
         if(gCLHeap.mHandles[i].mOffset != -1) {
@@ -257,6 +258,7 @@ static void show()
             printf("obj %d size %d array_num %d\n", obj, object_data->mSize, object_data->mArrayNum);
         }
     }
+puts("heap.show end");
 }
 
 static void gc()
@@ -280,7 +282,7 @@ CLObject alloc_heap_mem(int size, sCLClass* klass, int array_num)
 {
     int handle;
     CLObject obj;
-
+printf("(1)array_num %d\n", array_num);
 
     if(gCLHeap.mMemLen + size >= gCLHeap.mMemSize) {
         gc();
@@ -309,6 +311,7 @@ CLObject alloc_heap_mem(int size, sCLClass* klass, int array_num)
             }
         }
     }
+printf("(2)array_num %d\n", array_num);
 
     /// get a free handle from linked list ///
     if(gCLHeap.mFreeHandles >= 0) {
@@ -330,6 +333,7 @@ CLObject alloc_heap_mem(int size, sCLClass* klass, int array_num)
         handle = gCLHeap.mNumHandles;
         gCLHeap.mNumHandles++;
     }
+printf("(3)array_num %d\n", array_num);
     
     obj = handle + FIRST_OBJ;
 
@@ -342,8 +346,14 @@ CLObject alloc_heap_mem(int size, sCLClass* klass, int array_num)
     object_ptr->mClass = klass;
     object_ptr->mType = NULL;
     object_ptr->mArrayNum = array_num;
+printf("(4)array_num %d\n", array_num);
 
-printf("obj %d alloc_heap_mem size %d array_num %d\n", obj, size, array_num);
+if(klass) {
+    printf("alloc_heap_mem klass %s obj %d alloc_heap_mem size %d array_num %d\n", CLASS_NAME(klass), obj, size, array_num);
+}
+else {
+    printf("alloc_heap_mem obj %d alloc_heap_mem size %d array_num %d\n", obj, size, array_num);
+}
 
     return obj;
 }
