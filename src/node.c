@@ -4590,8 +4590,12 @@ static BOOL compile_new_operator(unsigned int node, sCompileInfo* info)
         }
     }
 
+    sNodeType* node_type = generics_types2;
+
     append_opecode_to_code(info->code, OP_NEW, info->no_output);
     append_class_name_to_constant_pool_and_code(info, klass);
+    append_type_name_to_constant_pool_and_code(info, node_type);
+    append_int_value_to_code(info->code, array_num ? 1:0, info->no_output);
 
     info->stack_num++;
 
@@ -4659,9 +4663,6 @@ static BOOL compile_new_operator(unsigned int node, sCompileInfo* info)
             info->type = generics_types2;
         }
     }
-
-    append_type_name_to_constant_pool_and_code(info, info->type);
-    append_int_value_to_code(info->code, array_num ? 1:0, info->no_output);
 
     return TRUE;
 }

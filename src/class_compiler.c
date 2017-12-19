@@ -210,7 +210,7 @@ static BOOL parse_class_on_alloc_classes_phase(sParserInfo* info, sCompileInfo* 
     info->klass = get_class(class_name);
 
     if(info->klass == NULL) {
-        info->klass = alloc_class(class_name, FALSE, -1, -1, info->generics_info.mNumParams, info->generics_info.mInterface, interface, dynamic_class);
+        info->klass = alloc_class(class_name, FALSE, -1, -1, info->generics_info.mNumParams, info->generics_info.mInterface, interface, dynamic_class, FALSE);
         info->klass->mFlags |= CLASS_FLAGS_ALLOCATED;
     }
 

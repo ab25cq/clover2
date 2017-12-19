@@ -171,6 +171,7 @@ extern CLVALUE* gGlobalStackPtr;
 #define CLASS_FLAGS_MODIFIED 0x04
 #define CLASS_FLAGS_ALLOCATED 0x08
 #define CLASS_FLAGS_DYNAMIC_CLASS 0x10
+#define CLASS_FLAGS_NO_FREE_OBJECT 0x11
 
 struct sCLTypeStruct;
 
@@ -345,7 +346,7 @@ void class_final();
 
 sCLClass* get_class(char* name);
 unsigned int get_hash_key(char* name, unsigned int max);
-sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_class_num, int method_generics_param_class_num, int generics_number, sCLClass** type_of_generics_params, BOOL interface, BOOL dynamic_class);
+sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_class_num, int method_generics_param_class_num, int generics_number, sCLClass** type_of_generics_params, BOOL interface, BOOL dynamic_class, BOOL no_free_object);
 ALLOC sCLType* create_cl_type(sCLClass* klass, sCLClass* klass2);
 void free_cl_type(sCLType* cl_type);
 sCLClass* load_class(char* class_name);
@@ -1898,6 +1899,7 @@ struct sBlockObjectStruct
 {
     int mSize;
     sCLClass* mClass;       // NULL --> no class only memory
+    char* mType;
     int mArrayNum;
     sByteCode mCodes;
     sConst mConstant;
@@ -1919,6 +1921,7 @@ struct sRegexObjectStruct
 {
     int mSize;
     sCLClass* mClass;       // NULL --> no class only memory
+    char* mType;
     int mArrayNum;
     pcre* mRegex;
     char* mRegexString;

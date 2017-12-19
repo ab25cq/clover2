@@ -41,8 +41,6 @@ CLObject create_object(sCLClass* klass, char* type)
 {
     int size = object_size(klass);
 
-printf("klass %s size %d\n", CLASS_NAME(klass), size);
-
     CLObject obj = alloc_heap_mem(size, klass, -1);
 
     sCLObject* object_data = CLOBJECT(obj);
