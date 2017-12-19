@@ -210,6 +210,9 @@ void create_internal_functions()
     param1_type = PointerType::get(IntegerType::get(TheContext,64), 0);
     type_params.push_back(param1_type);
 
+    param2_type = PointerType::get(IntegerType::get(TheContext,8), 0);
+    type_params.push_back(param2_type);
+
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "create_object", TheModule);
 

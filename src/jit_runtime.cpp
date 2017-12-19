@@ -1334,7 +1334,10 @@ struct sCLVALUEAndBoolResult* run_array_to_carray_cast(CLVALUE** stack_ptr, CLVA
     sCLClass* klass2 = get_class("Array");
     MASSERT(klass2 != NULL);
 
-    CLObject new_array = create_object(klass2);
+    char type_name[OBJECT_TYPE_NAME_MAX];
+    snprintf(type_name, OBJECT_TYPE_NAME_MAX, "Array<%s>", CLASS_NAME(klass));
+
+    CLObject new_array = create_object(klass2, type_name);
 
     gGlobalStackPtr->mObjectValue = new_array;
     gGlobalStackPtr++;
