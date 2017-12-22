@@ -1,12 +1,12 @@
 #include "common.h"
 
-CLObject create_tuple_object(int num_elements)
+CLObject create_tuple_object(int num_elements, char* type_name)
 {
     char class_name[CLASS_NAME_MAX+1];
     snprintf(class_name, CLASS_NAME_MAX, "Tuple%d", num_elements);
     sCLClass* klass = get_class(class_name);
     MASSERT(klass != NULL);
-    CLObject obj = create_object(klass);
+    CLObject obj = create_object(klass, type_name);
 
     return obj;
 }

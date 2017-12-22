@@ -3,7 +3,7 @@
 CLObject create_bool(BOOL value)
 {
     sCLClass* klass = get_class("Bool");
-    CLObject obj = create_object(klass);
+    CLObject obj = create_object(klass, "Bool");
 
     sCLObject* obj_data = CLOBJECT(obj);
 

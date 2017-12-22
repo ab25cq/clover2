@@ -1235,14 +1235,16 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
 
         case OP_CLASSNAME: {
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
-            if_value_is_zero_entry_exception_object(value->value, 32, FALSE, FALSE, params, *function, current_block, "Exception", "Null pointer exception(1)");
+
+            LVALUE llvm_value2;
+            llvm_value2 = trunc_value(value, 32);
+
+            if_value_is_zero_entry_exception_object(llvm_value2.value, 32, FALSE, FALSE, params, *function, current_block, "Exception", "Null pointer exception(1)");
 
             Function* fun = TheModule->getFunction("get_string_object_of_object_name");
 
             std::vector<Value*> params2;
 
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(value, 32);
             params2.push_back(llvm_value2.value);
 
             LVALUE llvm_value;
@@ -1251,16 +1253,16 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt32;
 
+            LVALUE llvm_value3;
+            llvm_value3 = trunc_value(&llvm_value, 32);
+
             dec_stack_ptr(llvm_stack_ptr, 1);
-            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value3);
 
             /// push object to jit objects ///
             Function* fun2 = TheModule->getFunction("push_jit_object");
 
             std::vector<Value*> params3;
-
-            LVALUE llvm_value3;
-            llvm_value3 = trunc_value(&llvm_value, 32);
 
             Value* param1 = llvm_value3.value;
             params3.push_back(param1);
@@ -1273,19 +1275,21 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -2);
             LVALUE* rvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
-            if_value_is_zero_entry_exception_object(lvalue->value, 32, FALSE, FALSE, params, *function, current_block, "Exception", "Null pointer exception(1)");
-            if_value_is_zero_entry_exception_object(rvalue->value, 32, FALSE, FALSE, params, *function, current_block, "Exception", "Null pointer exception(1)");
+            LVALUE lvalue2;
+            lvalue2 = trunc_value(lvalue, 32);
+
+            LVALUE rvalue2;
+            rvalue2 = trunc_value(rvalue, 32);
+
+            if_value_is_zero_entry_exception_object(lvalue2.value, 32, FALSE, FALSE, params, *function, current_block, "Exception", "Null pointer exception(1)");
+            if_value_is_zero_entry_exception_object(rvalue2.value, 32, FALSE, FALSE, params, *function, current_block, "Exception", "Null pointer exception(1)");
 
             Function* fun = TheModule->getFunction("op_is_fun");
 
             std::vector<Value*> params2;
 
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(lvalue, 32);
-            params2.push_back(llvm_value2.value);
-
-            llvm_value2 = trunc_value(rvalue, 32);
-            params2.push_back(llvm_value2.value);
+            params2.push_back(lvalue2.value);
+            params2.push_back(rvalue2.value);
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateCall(fun, params2);
@@ -1293,8 +1297,11 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt32;
 
+            LVALUE llvm_value2;
+            llvm_value2 = trunc_value(&llvm_value, 32);
+
             dec_stack_ptr(llvm_stack_ptr, 2);
-            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value2);
             }
             break;
 

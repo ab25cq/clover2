@@ -171,6 +171,7 @@ extern CLVALUE* gGlobalStackPtr;
 #define CLASS_FLAGS_MODIFIED 0x04
 #define CLASS_FLAGS_ALLOCATED 0x08
 #define CLASS_FLAGS_DYNAMIC_CLASS 0x10
+#define CLASS_FLAGS_NO_FREE_OBJECT 0x20
 
 struct sCLTypeStruct;
 
@@ -345,7 +346,7 @@ void class_final();
 
 sCLClass* get_class(char* name);
 unsigned int get_hash_key(char* name, unsigned int max);
-sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_class_num, int method_generics_param_class_num, int generics_number, sCLClass** type_of_generics_params, BOOL interface, BOOL dynamic_class);
+sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_class_num, int method_generics_param_class_num, int generics_number, sCLClass** type_of_generics_params, BOOL interface, BOOL dynamic_class, BOOL no_free_object);
 ALLOC sCLType* create_cl_type(sCLClass* klass, sCLClass* klass2);
 void free_cl_type(sCLType* cl_type);
 sCLClass* load_class(char* class_name);
@@ -791,6 +792,7 @@ unsigned int clone_node(unsigned int node);
 void compile_err_msg(sCompileInfo* info, const char* msg, ...);
 BOOL compile(unsigned int node, sCompileInfo* info);
 void append_class_name_to_constant_pool_and_code(sCompileInfo* info, sCLClass* klass);
+void create_type_name_from_node_type(char* type_name, int type_name_max, sNodeType* node_type);
 
 unsigned int sNodeTree_create_operand(enum eOperand operand, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
 unsigned int sNodeTree_when_expression(unsigned int expression_node, unsigned int value_nodes[WHEN_BLOCK_MAX][WHEN_BLOCK_MAX], int num_values[WHEN_BLOCK_MAX], sNodeBlock* when_blocks[WHEN_BLOCK_MAX], int num_when_block, sNodeBlock* else_block, sNodeType* when_types[WHEN_BLOCK_MAX], sNodeType* when_types2[WHEN_BLOCK_MAX], sParserInfo* info);
@@ -1817,6 +1819,7 @@ BOOL is_this_class_with_class_name(sCLClass* klass, char* class_name);
 struct sCLHeapMemStruct {
     int mSize;
     sCLClass* mClass;       // NULL --> no class only memory
+    char* mType;
     int mArrayNum;
     void* mMem;
 };
@@ -1860,9 +1863,12 @@ BOOL load_module_from_file(ALLOC sCLModule** self, char* module_name);
 /// object.c ///
 #define DUMMY_ARRAY_SIZE 32
 
+#define OBJECT_TYPE_NAME_MAX 128
+
 struct sCLObjectStruct {
     int mSize;
     sCLClass* mClass;
+    char* mType;
     union {
         int mArrayNum;
         int mNumFields;
@@ -1874,7 +1880,7 @@ typedef struct sCLObjectStruct sCLObject;
 
 #define CLOBJECT(obj) (sCLObject*)(get_object_pointer((obj)))
 
-CLObject create_object(sCLClass* klass);
+CLObject create_object(sCLClass* klass, char* type);
 BOOL free_object(CLObject self);
 void object_mark_fun(CLObject self, unsigned char* mark_flg);
 BOOL object_implements_interface(CLObject object, sCLClass* interface);
@@ -1882,9 +1888,10 @@ BOOL object_implements_interface(CLObject object, sCLClass* interface);
 /// array.c ///
 CLObject create_array_object(sCLClass* klass, int array_num);
 void array_mark_fun(CLObject self, unsigned char* mark_flg);
+void free_array(CLObject self);
 
 /// hash.c ///
-CLObject create_hash_object();
+CLObject create_hash_object(char* type_name);
 BOOL initialize_hash_object(CLObject hash_object, int num_elements, CLObject* keys, CLObject* items, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sCLClass* class_keys, sCLClass* class_items);
 
 /// block.c ///
@@ -1892,6 +1899,7 @@ struct sBlockObjectStruct
 {
     int mSize;
     sCLClass* mClass;       // NULL --> no class only memory
+    char* mType;
     int mArrayNum;
     sByteCode mCodes;
     sConst mConstant;
@@ -1913,6 +1921,7 @@ struct sRegexObjectStruct
 {
     int mSize;
     sCLClass* mClass;       // NULL --> no class only memory
+    char* mType;
     int mArrayNum;
     pcre* mRegex;
     char* mRegexString;
@@ -2113,21 +2122,21 @@ void clover_termios_to_c_termios(CLObject terminfo_object, struct termios* termi
 void c_termios_to_clover_termios(struct termios* terminfo_value, CLObject terminfo_object);
 
 /// list.c ///
-CLObject create_list_object();
+CLObject create_list_object(char* type_name);
 BOOL initialize_list_object(CLObject list_object, int num_elements, CLObject* items, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sCLClass* class_items);
-CLObject create_sortable_list_object();
+CLObject create_sortable_list_object(char* type_name);
 BOOL initialize_sortable_list_object(CLObject list_object, int num_elements, CLObject* items, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sCLClass* class_items);
-CLObject create_equalable_list_object();
+CLObject create_equalable_list_object(char* type_name);
 BOOL initialize_equalable_list_object(CLObject list_object, int num_elements, CLObject* items, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sCLClass* class_items);
 
 /// tuple.c ///
-CLObject create_tuple_object(int num_elements);
+CLObject create_tuple_object(int num_elements, char* type_name);
 BOOL initialize_tuple_object(CLObject tuple_object, int num_elements, CLObject* items, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info);
 
 /// carray.c ///
-CLObject create_carray_object();
-CLObject create_equalable_carray_object();;
-CLObject create_sortable_carray_object();
+CLObject create_carray_object(char* type_name);
+CLObject create_equalable_carray_object(char* type_name);
+CLObject create_sortable_carray_object(char* type_name);
 CLObject create_carray_object_with_elements(int num_elements, CLObject* elements);
 BOOL initialize_carray_object(CLObject array_object, int num_elements, CLObject* items, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sCLClass* class_items);
 CLObject create_equalable_carray_object_with_elements(int num_elements, CLObject* elements);

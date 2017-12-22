@@ -367,6 +367,9 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
             int offset = *(int*)(*pc);
             (*pc) += sizeof(int);
 
+            int offset2 = *(int*)(*pc);
+            (*pc) += sizeof(int);
+
             int flg_array = *(int*)(*pc);
             (*pc) += sizeof(int);
 
@@ -387,6 +390,8 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* klass_value = Builder.CreateCall(load_class_fun, params2);
 
             if_value_is_null_ret_zero(klass_value, 64, params, *function, current_block);
+
+            char* type_name = CONS_str(constant, offset2);
 
             /// go ///
             if(flg_array) {
@@ -430,6 +435,9 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
 
                 std::vector<Value*> params2;
                 params2.push_back(klass_value);
+
+                Value* type_value = llvm_create_string(type_name);
+                params2.push_back(type_value);
 
                 Value* value = Builder.CreateCall(function, params2);
 

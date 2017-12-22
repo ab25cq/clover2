@@ -3,7 +3,7 @@
 CLObject create_byte(char value)
 {
     sCLClass* klass = get_class("Byte");
-    CLObject obj = create_object(klass);
+    CLObject obj = create_object(klass, "Byte");
 
     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -15,7 +15,7 @@ CLObject create_byte(char value)
 CLObject create_ubyte(unsigned char value)
 {
     sCLClass* klass = get_class("UByte");
-    CLObject obj = create_object(klass);
+    CLObject obj = create_object(klass, "UByte");
 
     sCLObject* obj_data = CLOBJECT(obj);
 

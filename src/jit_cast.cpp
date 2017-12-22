@@ -2806,7 +2806,12 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             int offset = *(int*)(*pc);
             (*pc) += sizeof(int);
 
+            int offset2 = *(int*)(*pc);
+            (*pc) += sizeof(int);
+
             int class_name_offset = offset;
+
+            int type_name_offset = offset2;
 
             llvm_stack_to_vm_stack(*llvm_stack_ptr, params, *current_block, num_elements);
 
@@ -2836,9 +2841,12 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* param6 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)class_name_offset);
             params2.push_back(param6);
 
-            std::string constant_value_name("constant");
-            Value* param7 = params[constant_value_name];
+            Value* param7 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)type_name_offset);
             params2.push_back(param7);
+
+            std::string constant_value_name("constant");
+            Value* param8 = params[constant_value_name];
+            params2.push_back(param8);
 
             Value* result = Builder.CreateCall(fun, params2);
 
@@ -2885,6 +2893,11 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
 
             int class_name_offset = offset;
 
+            int offset2 = *(int*)(*pc);
+            (*pc) += sizeof(int);
+
+            int type_name_offset = offset2;
+
             llvm_stack_to_vm_stack(*llvm_stack_ptr, params, *current_block, num_elements);
 
             Function* fun = TheModule->getFunction("run_create_sortable_carray");
@@ -2913,9 +2926,12 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* param6 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)class_name_offset);
             params2.push_back(param6);
 
-            std::string constant_value_name("constant");
-            Value* param7 = params[constant_value_name];
+            Value* param7 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)type_name_offset);
             params2.push_back(param7);
+
+            std::string constant_value_name("constant");
+            Value* param8 = params[constant_value_name];
+            params2.push_back(param8);
 
             Value* result = Builder.CreateCall(fun, params2);
 
@@ -2962,6 +2978,11 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
 
             int class_name_offset = offset;
 
+            int offset2 = *(int*)(*pc);
+            (*pc) += sizeof(int);
+
+            int type_name_offset = offset2;
+
             llvm_stack_to_vm_stack(*llvm_stack_ptr, params, *current_block, num_elements);
 
             Function* fun = TheModule->getFunction("run_create_equalable_carray");
@@ -2990,9 +3011,12 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* param6 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)class_name_offset);
             params2.push_back(param6);
 
-            std::string constant_value_name("constant");
-            Value* param7 = params[constant_value_name];
+            Value* param7 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)type_name_offset);
             params2.push_back(param7);
+
+            std::string constant_value_name("constant");
+            Value* param8 = params[constant_value_name];
+            params2.push_back(param8);
 
             Value* result = Builder.CreateCall(fun, params2);
 
@@ -3037,7 +3061,12 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             int offset = *(int*)(*pc);
             (*pc) += sizeof(int);
 
+            int offset2 = *(int*)(*pc);
+            (*pc) += sizeof(int);
+
             int class_name_offset = offset;
+
+            int type_name_offset = offset2;
 
             llvm_stack_to_vm_stack(*llvm_stack_ptr, params, *current_block, num_elements);
 
@@ -3067,9 +3096,12 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* param6 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)class_name_offset);
             params2.push_back(param6);
 
-            std::string constant_value_name("constant");
-            Value* param7 = params[constant_value_name];
+            Value* param7 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)type_name_offset);
             params2.push_back(param7);
+
+            std::string constant_value_name("constant");
+            Value* param8 = params[constant_value_name];
+            params2.push_back(param8);
 
             Value* result = Builder.CreateCall(fun, params2);
 
@@ -3114,7 +3146,12 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             int offset = *(int*)(*pc);
             (*pc) += sizeof(int);
 
+            int offset2 = *(int*)(*pc);
+            (*pc) += sizeof(int);
+
             int class_name_offset = offset;
+
+            int type_name_offset = offset2;
 
             llvm_stack_to_vm_stack(*llvm_stack_ptr, params, *current_block, num_elements);
 
@@ -3144,9 +3181,12 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* param6 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)class_name_offset);
             params2.push_back(param6);
 
-            std::string constant_value_name("constant");
-            Value* param7 = params[constant_value_name];
+            Value* param7 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)type_name_offset);
             params2.push_back(param7);
+
+            std::string constant_value_name("constant");
+            Value* param8 = params[constant_value_name];
+            params2.push_back(param8);
 
             Value* result = Builder.CreateCall(fun, params2);
 
@@ -3191,7 +3231,12 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             int offset = *(int*)(*pc);
             (*pc) += sizeof(int);
 
+            int offset2 = *(int*)(*pc);
+            (*pc) += sizeof(int);
+
             int class_name_offset = offset;
+
+            int type_name_offset = offset2;
 
             llvm_stack_to_vm_stack(*llvm_stack_ptr, params, *current_block, num_elements);
 
@@ -3221,9 +3266,12 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* param6 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)class_name_offset);
             params2.push_back(param6);
 
-            std::string constant_value_name("constant");
-            Value* param7 = params[constant_value_name];
+            Value* param7 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)type_name_offset);
             params2.push_back(param7);
+
+            std::string constant_value_name("constant");
+            Value* param8 = params[constant_value_name];
+            params2.push_back(param8);
 
             Value* result = Builder.CreateCall(fun, params2);
 
@@ -3265,6 +3313,11 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             int num_elements = *(int*)(*pc);
             (*pc) += sizeof(int);
 
+            int offset = *(int*)(*pc);
+            (*pc) += sizeof(int);
+
+            char* type_name = CONS_str(constant, offset);
+
             llvm_stack_to_vm_stack(*llvm_stack_ptr, params, *current_block, num_elements);
 
             Function* fun = TheModule->getFunction("run_create_tuple");
@@ -3289,6 +3342,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
 
             Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_elements);
             params2.push_back(param5);
+
+            Value* param6 = llvm_create_string(type_name);
+            params2.push_back(param6);
 
             Value* result = Builder.CreateCall(fun, params2);
 
@@ -3336,8 +3392,12 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             int offset2 = *(int*)(*pc);
             (*pc) += sizeof(int);
 
+            int offset3 = *(int*)(*pc);
+            (*pc) += sizeof(int);
+
             int class_name_offset = offset;
             int class_name_offset2 = offset2;
+            int type_name_offset = offset3;
 
             llvm_stack_to_vm_stack(*llvm_stack_ptr, params, *current_block, num_elements*2);
 
@@ -3370,9 +3430,12 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* param7 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)class_name_offset2);
             params2.push_back(param7);
 
+            Value* param8 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)type_name_offset);
+            params2.push_back(param7);
+
             std::string constant_value_name("constant");
-            Value* param8 = params[constant_value_name];
-            params2.push_back(param8);
+            Value* param9 = params[constant_value_name];
+            params2.push_back(param9);
 
             Value* result = Builder.CreateCall(fun, params2);
 

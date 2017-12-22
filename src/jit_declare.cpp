@@ -210,6 +210,9 @@ void create_internal_functions()
     param1_type = PointerType::get(IntegerType::get(TheContext,64), 0);
     type_params.push_back(param1_type);
 
+    param2_type = PointerType::get(IntegerType::get(TheContext,8), 0);
+    type_params.push_back(param2_type);
+
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "create_object", TheModule);
 
@@ -509,7 +512,6 @@ void create_internal_functions()
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "get_string_object_of_object_name", TheModule);
-
     /// object_implements_interface ///
     type_params.clear();
 
@@ -1220,8 +1222,11 @@ void create_internal_functions2()
     param6_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param6_type);
 
-    param7_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    param7_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param7_type);
+
+    param8_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param8_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_create_carray", TheModule);
@@ -1249,9 +1254,11 @@ void create_internal_functions2()
     param6_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param6_type);
 
-    param7_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    param7_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param7_type);
 
+    param8_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param8_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_create_equalable_carray", TheModule);
@@ -1279,8 +1286,11 @@ void create_internal_functions2()
     param6_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param6_type);
 
-    param7_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    param7_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param7_type);
+
+    param8_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param8_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_create_sortable_carray", TheModule);
@@ -1308,8 +1318,11 @@ void create_internal_functions2()
     param6_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param6_type);
 
-    param7_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    param7_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param7_type);
+
+    param8_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param8_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_create_list", TheModule);
@@ -1337,8 +1350,11 @@ void create_internal_functions2()
     param6_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param6_type);
 
-    param7_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    param7_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param7_type);
+
+    param8_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param8_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_create_sortable_list", TheModule);
@@ -1366,8 +1382,11 @@ void create_internal_functions2()
     param6_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param6_type);
 
-    param7_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    param7_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param7_type);
+
+    param8_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param8_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_create_equalable_list", TheModule);
@@ -1391,6 +1410,9 @@ void create_internal_functions2()
 
     param5_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param5_type);
+
+    param6_type = PointerType::get(IntegerType::get(TheContext, 8), 0);
+    type_params.push_back(param6_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_create_tuple", TheModule);
@@ -1421,8 +1443,11 @@ void create_internal_functions2()
     param7_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param7_type);
 
-    param8_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    param8_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param8_type);
+
+    param9_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param9_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_create_hash", TheModule);

@@ -717,7 +717,7 @@ void boxing_to_lapper_class(sNodeType** type_, struct sCompileInfoStruct* info)
             cast_right_type_to_left_type(boxing_type, type_, info);
         }
         else {
-            parser_err_msg(info->pinfo, "primitive class without boxing");
+            parser_err_msg(info->pinfo, "primitive class without boxing %s", CLASS_NAME(klass));
             info->err_num++;
         }
     }

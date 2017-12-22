@@ -3,7 +3,7 @@
 CLObject create_pointer(char* value)
 {
     sCLClass* klass = get_class("Pointer");
-    CLObject obj = create_object(klass);
+    CLObject obj = create_object(klass, "Pointer");
 
     sCLObject* obj_data = CLOBJECT(obj);
 

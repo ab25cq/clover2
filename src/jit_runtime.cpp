@@ -100,7 +100,7 @@ CLObject get_string_object_of_object_name(CLObject object)
 {
     sCLObject* object_data = CLOBJECT(object);
 
-    CLObject object2 = create_string_object(CLASS_NAME(object_data->mClass));
+    CLObject object2 = create_string_object(object_data->mType);
 
     return object2;
 }
@@ -654,7 +654,7 @@ extern "C"
 // JIT runtime functions
 //////////////////////////////////////////////////
 
-struct sCLVALUEAndBoolResult* run_create_carray(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, int class_name_offset, sConst* constant)
+struct sCLVALUEAndBoolResult* run_create_carray(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, int class_name_offset, int type_name_offset, sConst* constant)
 {
     struct sCLVALUEAndBoolResult* result = &gCLValueAndBoolStructMemory;
 
@@ -669,7 +669,9 @@ struct sCLVALUEAndBoolResult* run_create_carray(CLVALUE** stack_ptr, CLVALUE* st
         return result;
     }
 
-    CLObject array_object = create_carray_object();
+    char* type_name = CONS_str(constant, type_name_offset);
+
+    CLObject array_object = create_carray_object(type_name);
     (*stack_ptr)->mObjectValue = array_object; // push object
     (*stack_ptr)++;
 
@@ -698,7 +700,7 @@ struct sCLVALUEAndBoolResult* run_create_carray(CLVALUE** stack_ptr, CLVALUE* st
     return result;
 }
 
-struct sCLVALUEAndBoolResult* run_create_equalable_carray(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, int class_name_offset, sConst* constant)
+struct sCLVALUEAndBoolResult* run_create_equalable_carray(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, int class_name_offset, int type_name_offset, sConst* constant)
 {
     struct sCLVALUEAndBoolResult* result = &gCLValueAndBoolStructMemory;
 
@@ -713,7 +715,9 @@ struct sCLVALUEAndBoolResult* run_create_equalable_carray(CLVALUE** stack_ptr, C
         return result;
     }
 
-    CLObject array_object = create_equalable_carray_object();
+    char* type_name = CONS_str(constant, type_name_offset);
+
+    CLObject array_object = create_equalable_carray_object(type_name);
     (*stack_ptr)->mObjectValue = array_object; // push object
     (*stack_ptr)++;
 
@@ -742,7 +746,7 @@ struct sCLVALUEAndBoolResult* run_create_equalable_carray(CLVALUE** stack_ptr, C
     return result;
 }
 
-struct sCLVALUEAndBoolResult* run_create_sortable_carray(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, int class_name_offset, sConst* constant)
+struct sCLVALUEAndBoolResult* run_create_sortable_carray(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, int class_name_offset, int type_name_offset, sConst* constant)
 {
     struct sCLVALUEAndBoolResult* result = &gCLValueAndBoolStructMemory;
 
@@ -757,7 +761,9 @@ struct sCLVALUEAndBoolResult* run_create_sortable_carray(CLVALUE** stack_ptr, CL
         return result;
     }
 
-    CLObject array_object = create_sortable_carray_object();
+    char* type_name = CONS_str(constant, type_name_offset);
+
+    CLObject array_object = create_sortable_carray_object(type_name);
     (*stack_ptr)->mObjectValue = array_object; // push object
     (*stack_ptr)++;
 
@@ -786,7 +792,7 @@ struct sCLVALUEAndBoolResult* run_create_sortable_carray(CLVALUE** stack_ptr, CL
     return result;
 }
 
-struct sCLVALUEAndBoolResult* run_create_list(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, int class_name_offset, sConst* constant)
+struct sCLVALUEAndBoolResult* run_create_list(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, int class_name_offset, int type_name_offset, sConst* constant)
 {
     struct sCLVALUEAndBoolResult* result = &gCLValueAndBoolStructMemory;
 
@@ -801,7 +807,9 @@ struct sCLVALUEAndBoolResult* run_create_list(CLVALUE** stack_ptr, CLVALUE* stac
         return result;
     }
 
-    CLObject list_object = create_list_object();
+    char* type_name = CONS_str(constant, type_name_offset);
+
+    CLObject list_object = create_list_object(type_name);
     (*stack_ptr)->mObjectValue = list_object; // push object
     (*stack_ptr)++;
 
@@ -830,7 +838,7 @@ struct sCLVALUEAndBoolResult* run_create_list(CLVALUE** stack_ptr, CLVALUE* stac
     return result;
 }
 
-struct sCLVALUEAndBoolResult* run_create_sortable_list(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, int class_name_offset, sConst* constant)
+struct sCLVALUEAndBoolResult* run_create_sortable_list(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, int class_name_offset, int type_name_offset, sConst* constant)
 {
     struct sCLVALUEAndBoolResult* result = &gCLValueAndBoolStructMemory;
 
@@ -845,7 +853,9 @@ struct sCLVALUEAndBoolResult* run_create_sortable_list(CLVALUE** stack_ptr, CLVA
         return result;
     }
 
-    CLObject list_object = create_sortable_list_object();
+    char* type_name = CONS_str(constant, type_name_offset);
+
+    CLObject list_object = create_sortable_list_object(type_name);
     (*stack_ptr)->mObjectValue = list_object; // push object
     (*stack_ptr)++;
 
@@ -874,7 +884,7 @@ struct sCLVALUEAndBoolResult* run_create_sortable_list(CLVALUE** stack_ptr, CLVA
     return result;
 }
 
-struct sCLVALUEAndBoolResult* run_create_equalable_list(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, int class_name_offset, sConst* constant)
+struct sCLVALUEAndBoolResult* run_create_equalable_list(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, int class_name_offset, int type_name_offset, sConst* constant)
 {
     struct sCLVALUEAndBoolResult* result = &gCLValueAndBoolStructMemory;
 
@@ -889,7 +899,9 @@ struct sCLVALUEAndBoolResult* run_create_equalable_list(CLVALUE** stack_ptr, CLV
         return result;
     }
 
-    CLObject list_object = create_equalable_list_object();
+    char* type_name = CONS_str(constant, type_name_offset);
+
+    CLObject list_object = create_equalable_list_object(type_name);
     (*stack_ptr)->mObjectValue = list_object; // push object
     (*stack_ptr)++;
 
@@ -918,11 +930,11 @@ struct sCLVALUEAndBoolResult* run_create_equalable_list(CLVALUE** stack_ptr, CLV
     return result;
 }
 
-struct sCLVALUEAndBoolResult* run_create_tuple(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements)
+struct sCLVALUEAndBoolResult* run_create_tuple(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, char* type_name)
 {
     struct sCLVALUEAndBoolResult* result = &gCLValueAndBoolStructMemory;
 
-    CLObject tuple_object = create_tuple_object(num_elements);
+    CLObject tuple_object = create_tuple_object(num_elements, type_name);
 
     (*stack_ptr)->mObjectValue = tuple_object; // push object
     (*stack_ptr)++;
@@ -952,12 +964,13 @@ struct sCLVALUEAndBoolResult* run_create_tuple(CLVALUE** stack_ptr, CLVALUE* sta
     return result;
 }
 
-struct sCLVALUEAndBoolResult* run_create_hash(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, int class_name_offset, int class_name_offset2, sConst* constant)
+struct sCLVALUEAndBoolResult* run_create_hash(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, int class_name_offset, int class_name_offset2, int type_name_offset, sConst* constant)
 {
     struct sCLVALUEAndBoolResult* result = &gCLValueAndBoolStructMemory;
 
     char* class_name = CONS_str(constant, class_name_offset);
     char* class_name2 = CONS_str(constant, class_name_offset2);
+    char* type_name = CONS_str(constant, type_name_offset);
 
     sCLClass* klass = get_class_with_load_and_initialize(class_name);
 
@@ -990,7 +1003,7 @@ struct sCLVALUEAndBoolResult* run_create_hash(CLVALUE** stack_ptr, CLVALUE* stac
         items[i] = ((*stack_ptr) - num_elements * 2 + i * 2 + 1)->mObjectValue;
     }
 
-    CLObject hash_object = create_hash_object();
+    CLObject hash_object = create_hash_object(type_name);
     (*stack_ptr)->mObjectValue = hash_object; // push object
     (*stack_ptr)++;
 
@@ -1334,7 +1347,10 @@ struct sCLVALUEAndBoolResult* run_array_to_carray_cast(CLVALUE** stack_ptr, CLVA
     sCLClass* klass2 = get_class("Array");
     MASSERT(klass2 != NULL);
 
-    CLObject new_array = create_object(klass2);
+    char type_name[OBJECT_TYPE_NAME_MAX];
+    snprintf(type_name, OBJECT_TYPE_NAME_MAX, "Array<%s>", CLASS_NAME(klass));
+
+    CLObject new_array = create_object(klass2, type_name);
 
     gGlobalStackPtr->mObjectValue = new_array;
     gGlobalStackPtr++;
@@ -1522,7 +1538,7 @@ BOOL op_is_fun(CLObject left, CLObject right)
 {
     sCLObject* object_data = CLOBJECT(left);
 
-    char* left_class_name = CLASS_NAME(object_data->mClass);
+    char* left_class_name = object_data->mType;
     char* right_class_name = ALLOC string_object_to_char_array(right);
 
     BOOL result = strcmp(left_class_name, right_class_name) == 0;

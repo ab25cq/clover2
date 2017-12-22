@@ -1,10 +1,10 @@
 #include "common.h"
 
-CLObject create_hash_object()
+CLObject create_hash_object(char* type_name)
 {
     sCLClass* klass = get_class("Hash");
 
-    CLObject obj = create_object(klass);
+    CLObject obj = create_object(klass, type_name);
 
     return obj;
 }

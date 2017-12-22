@@ -1,10 +1,10 @@
 #include "common.h"
 
-CLObject create_list_object()
+CLObject create_list_object(char* type_name)
 {
     sCLClass* klass = get_class("List");
     MASSERT(klass != NULL);
-    CLObject obj = create_object(klass);
+    CLObject obj = create_object(klass, type_name);
 
     return obj;
 }
@@ -43,11 +43,11 @@ BOOL initialize_list_object(CLObject list_object, int num_elements, CLObject* it
     return TRUE;
 }
 
-CLObject create_sortable_list_object()
+CLObject create_sortable_list_object(char* type_name)
 {
     sCLClass* klass = get_class("SortableList");
     MASSERT(klass != NULL);
-    CLObject obj = create_object(klass);
+    CLObject obj = create_object(klass, type_name);
 
     return obj;
 }
@@ -86,11 +86,11 @@ BOOL initialize_sortable_list_object(CLObject list_object, int num_elements, CLO
     return TRUE;
 }
 
-CLObject create_equalable_list_object()
+CLObject create_equalable_list_object(char* type_name)
 {
     sCLClass* klass = get_class("EqualableList");
     MASSERT(klass != NULL);
-    CLObject obj = create_object(klass);
+    CLObject obj = create_object(klass, type_name);
 
     return obj;
 }

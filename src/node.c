@@ -257,6 +257,17 @@ void append_class_name_to_constant_pool_and_code(sCompileInfo* info, sCLClass* k
     append_str_to_constant_pool_and_code(info->constant, info->code, class_name, info->no_output);
 }
 
+static void append_type_name_to_constant_pool_and_code(sCompileInfo* info, sNodeType* node_type)
+{
+    char type_name[OBJECT_TYPE_NAME_MAX];
+
+    xstrncpy(type_name, "", OBJECT_TYPE_NAME_MAX);
+    
+    create_type_name_from_node_type(type_name, OBJECT_TYPE_NAME_MAX, node_type);
+
+    append_str_to_constant_pool_and_code(info->constant, info->code, type_name, info->no_output);
+}
+
 static void append_method_name_and_params_to_constant_pool_and_code(sCompileInfo* info, sCLClass* klass, sCLMethod* method)
 {
     int size_method_name_and_params = METHOD_NAME_MAX + PARAMS_MAX * CLASS_NAME_MAX + 256;
@@ -1080,6 +1091,7 @@ static BOOL compile_cbyte_value(unsigned int node, sCompileInfo* info)
 
     append_opecode_to_code(info->code, OP_NEW, info->no_output);
     append_class_name_to_constant_pool_and_code(info, klass);
+    append_str_to_constant_pool_and_code(info->constant, info->code, "Byte", info->no_output);
     append_int_value_to_code(info->code, 0, info->no_output);
 
     info->stack_num++;
@@ -1184,6 +1196,7 @@ static BOOL compile_cfloat_value(unsigned int node, sCompileInfo* info)
 
     append_opecode_to_code(info->code, OP_NEW, info->no_output);
     append_class_name_to_constant_pool_and_code(info, klass);
+    append_str_to_constant_pool_and_code(info->constant, info->code, "Float", info->no_output);
     append_int_value_to_code(info->code, 0, info->no_output);
 
     info->stack_num++;
@@ -1288,6 +1301,7 @@ static BOOL compile_cdouble_value(unsigned int node, sCompileInfo* info)
 
     append_opecode_to_code(info->code, OP_NEW, info->no_output);
     append_class_name_to_constant_pool_and_code(info, klass);
+    append_str_to_constant_pool_and_code(info->constant, info->code, "Double", info->no_output);
     append_int_value_to_code(info->code, 0, info->no_output);
 
     info->stack_num++;
@@ -1396,6 +1410,7 @@ static BOOL compile_cubyte_value(unsigned int node, sCompileInfo* info)
 
     append_opecode_to_code(info->code, OP_NEW, info->no_output);
     append_class_name_to_constant_pool_and_code(info, klass);
+    append_str_to_constant_pool_and_code(info->constant, info->code, "UByte", info->no_output);
     append_int_value_to_code(info->code, 0, info->no_output);
 
     info->stack_num++;
@@ -1504,6 +1519,7 @@ static BOOL compile_cshort_value(unsigned int node, sCompileInfo* info)
 
     append_opecode_to_code(info->code, OP_NEW, info->no_output);
     append_class_name_to_constant_pool_and_code(info, klass);
+    append_str_to_constant_pool_and_code(info->constant, info->code, "UByte", info->no_output);
     append_int_value_to_code(info->code, 0, info->no_output);
 
     info->stack_num++;
@@ -1612,6 +1628,7 @@ static BOOL compile_cushort_value(unsigned int node, sCompileInfo* info)
 
     append_opecode_to_code(info->code, OP_NEW, info->no_output);
     append_class_name_to_constant_pool_and_code(info, klass);
+    append_str_to_constant_pool_and_code(info->constant, info->code, "UShort", info->no_output);
     append_int_value_to_code(info->code, 0, info->no_output);
 
     info->stack_num++;
@@ -1720,6 +1737,7 @@ static BOOL compile_cint_value(unsigned int node, sCompileInfo* info)
 
     append_opecode_to_code(info->code, OP_NEW, info->no_output);
     append_class_name_to_constant_pool_and_code(info, klass);
+    append_str_to_constant_pool_and_code(info->constant, info->code, "Integer", info->no_output);
     append_int_value_to_code(info->code, 0, info->no_output);
 
     info->stack_num++;
@@ -1828,6 +1846,7 @@ static BOOL compile_cuint_value(unsigned int node, sCompileInfo* info)
 
     append_opecode_to_code(info->code, OP_NEW, info->no_output);
     append_class_name_to_constant_pool_and_code(info, klass);
+    append_str_to_constant_pool_and_code(info->constant, info->code, "UInteger", info->no_output);
     append_int_value_to_code(info->code, 0, info->no_output);
 
     info->stack_num++;
@@ -1937,6 +1956,7 @@ static BOOL compile_clong_value(unsigned int node, sCompileInfo* info)
 
     append_opecode_to_code(info->code, OP_NEW, info->no_output);
     append_class_name_to_constant_pool_and_code(info, klass);
+    append_str_to_constant_pool_and_code(info->constant, info->code, "Long", info->no_output);
     append_int_value_to_code(info->code, 0, info->no_output);
 
     info->stack_num++;
@@ -2045,6 +2065,7 @@ static BOOL compile_culong_value(unsigned int node, sCompileInfo* info)
 
     append_opecode_to_code(info->code, OP_NEW, info->no_output);
     append_class_name_to_constant_pool_and_code(info, klass);
+    append_str_to_constant_pool_and_code(info->constant, info->code, "ULong", info->no_output);
     append_int_value_to_code(info->code, 0, info->no_output);
 
     info->stack_num++;
@@ -3423,6 +3444,7 @@ static BOOL compile_wildcard_expression(unsigned int node, sCompileInfo* info)
 
     append_opecode_to_code(info->code, OP_NEW, info->no_output);
     append_class_name_to_constant_pool_and_code(info, klass);
+    append_str_to_constant_pool_and_code(info->constant, info->code, "WildCard", info->no_output);
     append_int_value_to_code(info->code, 0, info->no_output);
 
     info->stack_num++;
@@ -4570,8 +4592,12 @@ static BOOL compile_new_operator(unsigned int node, sCompileInfo* info)
         }
     }
 
+    sNodeType* node_type = generics_types2;
+
+
     append_opecode_to_code(info->code, OP_NEW, info->no_output);
     append_class_name_to_constant_pool_and_code(info, klass);
+    append_type_name_to_constant_pool_and_code(info, node_type);
     append_int_value_to_code(info->code, array_num ? 1:0, info->no_output);
 
     info->stack_num++;
@@ -7707,21 +7733,25 @@ static BOOL compile_carray_value(unsigned int node, sCompileInfo* info)
         }
     }
 
+    sNodeType* array_type = create_node_type_with_class_name("Array");
+    array_type->mNumGenericsTypes = 1;
+    if(generics_type_is_object) {
+        array_type->mGenericsTypes[0] = create_node_type_with_class_name("Object");
+    }
+    else {
+        array_type->mGenericsTypes[0] = element_type;
+    }
+
     append_opecode_to_code(info->code, OP_CREATE_CARRAY, info->no_output);
     append_int_value_to_code(info->code, num_elements, info->no_output);
     append_class_name_to_constant_pool_and_code(info, element_type->mClass);
 
+    append_type_name_to_constant_pool_and_code(info, array_type);
+
     info->stack_num-= num_elements;
     info->stack_num++;
 
-    info->type = create_node_type_with_class_name("Array");
-    info->type->mNumGenericsTypes = 1;
-    if(generics_type_is_object) {
-        info->type->mGenericsTypes[0] = create_node_type_with_class_name("Object");
-    }
-    else {
-        info->type->mGenericsTypes[0] = element_type;
-    }
+    info->type = array_type;
 
     return TRUE;
 }
@@ -7795,21 +7825,25 @@ static BOOL compile_equalable_carray_value(unsigned int node, sCompileInfo* info
         info->err_num++;
     }
 
+    sNodeType* array_type = create_node_type_with_class_name("EqualableArray");
+    array_type->mNumGenericsTypes = 1;
+    if(generics_type_is_object) {
+        array_type->mGenericsTypes[0] = create_node_type_with_class_name("Object");
+    }
+    else {
+        array_type->mGenericsTypes[0] = element_type;
+    }
+
     append_opecode_to_code(info->code, OP_CREATE_EQUALABLE_CARRAY, info->no_output);
     append_int_value_to_code(info->code, num_elements, info->no_output);
     append_class_name_to_constant_pool_and_code(info, element_type->mClass);
 
+    append_type_name_to_constant_pool_and_code(info, array_type);
+
     info->stack_num-= num_elements;
     info->stack_num++;
 
-    info->type = create_node_type_with_class_name("EqualableArray");
-    info->type->mNumGenericsTypes = 1;
-    if(generics_type_is_object) {
-        info->type->mGenericsTypes[0] = create_node_type_with_class_name("Object");
-    }
-    else {
-        info->type->mGenericsTypes[0] = element_type;
-    }
+    info->type = array_type;
 
     return TRUE;
 }
@@ -7883,21 +7917,25 @@ static BOOL compile_sortable_carray_value(unsigned int node, sCompileInfo* info)
         info->err_num++;
     }
 
+    sNodeType* array_type = create_node_type_with_class_name("SortableArray");
+    array_type->mNumGenericsTypes = 1;
+    if(generics_type_is_object) {
+        array_type->mGenericsTypes[0] = create_node_type_with_class_name("Object");
+    }
+    else {
+        array_type->mGenericsTypes[0] = element_type;
+    }
+
     append_opecode_to_code(info->code, OP_CREATE_SORTABLE_CARRAY, info->no_output);
     append_int_value_to_code(info->code, num_elements, info->no_output);
     append_class_name_to_constant_pool_and_code(info, element_type->mClass);
 
+    append_type_name_to_constant_pool_and_code(info, array_type);
+
     info->stack_num-= num_elements;
     info->stack_num++;
 
-    info->type = create_node_type_with_class_name("SortableArray");
-    info->type->mNumGenericsTypes = 1;
-    if(generics_type_is_object) {
-        info->type->mGenericsTypes[0] = create_node_type_with_class_name("Object");
-    }
-    else {
-        info->type->mGenericsTypes[0] = element_type;
-    }
+    info->type = array_type;
 
     return TRUE;
 }
@@ -7985,16 +8023,19 @@ BOOL compile_list_value(unsigned int node, sCompileInfo* info)
         }
     }
 
+    sNodeType* list_type = create_node_type_with_class_name("List");
+    list_type->mNumGenericsTypes = 1;
+    list_type->mGenericsTypes[0] = element_type;
+
     append_opecode_to_code(info->code, OP_CREATE_LIST, info->no_output);
     append_int_value_to_code(info->code, num_elements, info->no_output);
     append_class_name_to_constant_pool_and_code(info, element_type->mClass);
+    append_type_name_to_constant_pool_and_code(info, list_type);
 
     info->stack_num-= num_elements;
     info->stack_num++;
 
-    info->type = create_node_type_with_class_name("List");
-    info->type->mNumGenericsTypes = 1;
-    info->type->mGenericsTypes[0] = element_type;
+    info->type = list_type;
 
     return TRUE;
 }
@@ -8067,16 +8108,19 @@ BOOL compile_sortable_list_value(unsigned int node, sCompileInfo* info)
         info->err_num++;
     }
 
+    sNodeType* list_type = create_node_type_with_class_name("SortableList");
+    list_type->mNumGenericsTypes = 1;
+    list_type->mGenericsTypes[0] = element_type;
+
     append_opecode_to_code(info->code, OP_CREATE_SORTALBE_LIST, info->no_output);
     append_int_value_to_code(info->code, num_elements, info->no_output);
     append_class_name_to_constant_pool_and_code(info, element_type->mClass);
+    append_type_name_to_constant_pool_and_code(info, list_type);
 
     info->stack_num-= num_elements;
     info->stack_num++;
 
-    info->type = create_node_type_with_class_name("SortableList");
-    info->type->mNumGenericsTypes = 1;
-    info->type->mGenericsTypes[0] = element_type;
+    info->type = list_type;
 
     return TRUE;
 }
@@ -8149,16 +8193,19 @@ BOOL compile_equalable_list_value(unsigned int node, sCompileInfo* info)
         info->err_num++;
     }
 
+    sNodeType* list_type = create_node_type_with_class_name("EqualableList");
+    list_type->mNumGenericsTypes = 1;
+    list_type->mGenericsTypes[0] = element_type;
+
     append_opecode_to_code(info->code, OP_CREATE_EQUALABLE_LIST, info->no_output);
     append_int_value_to_code(info->code, num_elements, info->no_output);
     append_class_name_to_constant_pool_and_code(info, element_type->mClass);
+    append_type_name_to_constant_pool_and_code(info, list_type);
 
     info->stack_num-= num_elements;
     info->stack_num++;
 
-    info->type = create_node_type_with_class_name("EqualableList");
-    info->type->mNumGenericsTypes = 1;
-    info->type->mGenericsTypes[0] = element_type;
+    info->type = list_type;
 
     return TRUE;
 }
@@ -8213,21 +8260,24 @@ static BOOL compile_tuple_value(unsigned int node, sCompileInfo* info)
         element_types[i] = info->type;
     }
 
-    append_opecode_to_code(info->code, OP_CREATE_TUPLE, info->no_output);
-    append_int_value_to_code(info->code, num_elements, info->no_output);
-
-    info->stack_num-= num_elements;
-    info->stack_num++;
-
     char class_name[CLASS_NAME_MAX+1];
 
     snprintf(class_name, CLASS_NAME_MAX, "Tuple%d", num_elements);
 
-    info->type = create_node_type_with_class_name(class_name);
-    info->type->mNumGenericsTypes = num_elements;
+    sNodeType* tuple_type = create_node_type_with_class_name(class_name);
+    tuple_type->mNumGenericsTypes = num_elements;
     for(i=0; i<num_elements; i++) {
-        info->type->mGenericsTypes[i] = element_types[i];
+        tuple_type->mGenericsTypes[i] = element_types[i];
     }
+
+    append_opecode_to_code(info->code, OP_CREATE_TUPLE, info->no_output);
+    append_int_value_to_code(info->code, num_elements, info->no_output);
+    append_type_name_to_constant_pool_and_code(info, tuple_type);
+
+    info->stack_num-= num_elements;
+    info->stack_num++;
+
+    info->type = tuple_type;
 
     return TRUE;
 }
@@ -8296,18 +8346,21 @@ BOOL compile_hash_value(unsigned int node, sCompileInfo* info)
         }
     }
 
+    sNodeType* hash_type = create_node_type_with_class_name("Hash");
+    hash_type->mNumGenericsTypes = 2;
+    hash_type->mGenericsTypes[0] = key_type;
+    hash_type->mGenericsTypes[1] = item_type;
+
     append_opecode_to_code(info->code, OP_CREATE_HASH, info->no_output);
     append_int_value_to_code(info->code, num_elements, info->no_output);
     append_class_name_to_constant_pool_and_code(info, key_type->mClass);
     append_class_name_to_constant_pool_and_code(info, item_type->mClass);
+    append_type_name_to_constant_pool_and_code(info, hash_type);
 
     info->stack_num-= num_elements * 2;
     info->stack_num++;
 
-    info->type = create_node_type_with_class_name("Hash");
-    info->type->mNumGenericsTypes = 2;
-    info->type->mGenericsTypes[0] = key_type;
-    info->type->mGenericsTypes[1] = item_type;
+    info->type = hash_type;
 
     return TRUE;
 }
@@ -9954,3 +10007,51 @@ BOOL check_node_is_variable(unsigned int node)
     return gNodes[node].mNodeType == kNodeTypeLoadVariable;
 }
 
+void create_type_name_from_node_type(char* type_name, int type_name_max, sNodeType* node_type)
+{
+    sCLClass* klass = node_type->mClass;
+
+    xstrncat(type_name, CLASS_NAME(klass), type_name_max);
+
+    if(node_type->mBlockType) {
+        sNodeBlockType* node_block_type = node_type->mBlockType;
+
+        xstrncat(type_name, "(", type_name_max);
+
+        if(node_block_type->mNumParams > 0) {
+            int i;
+            for(i=0; i<node_block_type->mNumParams; i++) {
+                create_type_name_from_node_type(type_name, type_name_max, node_block_type->mParams[i]);
+                
+                if(i != node_block_type->mNumParams-1) {
+                    xstrncat(type_name, ",", type_name_max);
+                }
+            }
+        }
+        xstrncat(type_name, ")", type_name_max);
+
+        xstrncat(type_name, ":", type_name_max);
+
+        create_type_name_from_node_type(type_name, type_name_max, node_block_type->mResultType);
+    }
+    if(node_type->mArray) {
+        xstrncat(type_name, "[]", type_name_max);
+    }
+    if(node_type->mNullable) {
+        xstrncat(type_name, "?", type_name_max);
+    }
+    if(node_type->mNumGenericsTypes > 0) {
+        xstrncat(type_name, "<", type_name_max);
+
+        int i;
+        for(i=0; i<node_type->mNumGenericsTypes; i++) {
+            create_type_name_from_node_type(type_name, type_name_max, node_type->mGenericsTypes[i]);
+
+            if(i != node_type->mNumGenericsTypes-1) {
+                xstrncat(type_name, ",", type_name_max);
+            }
+        }
+
+        xstrncat(type_name, ">", type_name_max);
+    }
+}

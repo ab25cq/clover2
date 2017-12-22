@@ -4754,7 +4754,7 @@ show_inst(inst);
 
                     sCLObject* object_data = CLOBJECT(left);
 
-                    CLObject result = create_string_object(CLASS_NAME(object_data->mClass));
+                    CLObject result = create_string_object(object_data->mType);
 
                     stack_ptr--;
                     stack_ptr->mLongValue = 0; // zero clear for jit
@@ -4781,7 +4781,7 @@ show_inst(inst);
 
                     sCLObject* object_data = CLOBJECT(left);
 
-                    char* left_class_name = CLASS_NAME(object_data->mClass);
+                    char* left_class_name = object_data->mType;
                     char* right_class_name = ALLOC string_object_to_char_array(right);
 
                     stack_ptr-=2;
@@ -5194,6 +5194,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     int offset = *(int*)pc;
                     pc += sizeof(int);
 
+                    int offset2 = *(int*)pc;
+                    pc += sizeof(int);
+
                     BOOL flg_array = *(int*)pc;
                     pc += sizeof(int);
 
@@ -5208,6 +5211,8 @@ show_stack(stack, stack_ptr, lvar, var_num);
                         return FALSE;
                     }
 
+                    char* type_name = CONS_str(constant, offset2);
+
                     if(flg_array) {
                         int array_num = (stack_ptr-1)->mIntValue;
                         stack_ptr--;
@@ -5218,7 +5223,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                         stack_ptr++;
                     }
                     else {
-                        CLObject obj = create_object(klass);
+                        CLObject obj = create_object(klass, type_name);
                         stack_ptr->mLongValue = 0;              // zero clear for jit
                         stack_ptr->mObjectValue = obj;
                         stack_ptr++;
@@ -12795,7 +12800,10 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 sCLClass* klass2 = get_class("Array");
                 MASSERT(klass2 != NULL);
 
-                CLObject new_array = create_object(klass2);
+                char type_name[OBJECT_TYPE_NAME_MAX];
+                snprintf(type_name, OBJECT_TYPE_NAME_MAX, "Array<%s>", CLASS_NAME(klass));
+
+                CLObject new_array = create_object(klass2, type_name);
 
                 stack_ptr->mLongValue = 0;       // zero clear for jit
                 stack_ptr->mObjectValue = new_array;   // push object
@@ -13244,6 +13252,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     int offset = *(int*)pc;
                     pc += sizeof(int);
 
+                    int offset2 = *(int*)pc;
+                    pc += sizeof(int);
+
                     char* class_name = CONS_str(constant, offset);
 
                     sCLClass* klass = get_class_with_load_and_initialize(class_name);
@@ -13255,7 +13266,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
                         return FALSE;
                     }
 
-                    CLObject array_object = create_carray_object();
+                    char* type_name = CONS_str(constant, offset2);
+
+                    CLObject array_object = create_carray_object(type_name);
                     stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = array_object; // push object
                     stack_ptr++;
@@ -13296,6 +13309,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     int offset = *(int*)pc;
                     pc += sizeof(int);
 
+                    int offset2 = *(int*)pc;
+                    pc += sizeof(int);
+
                     char* class_name = CONS_str(constant, offset);
 
                     sCLClass* klass = get_class_with_load_and_initialize(class_name);
@@ -13307,7 +13323,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
                         return FALSE;
                     }
 
-                    CLObject array_object = create_equalable_carray_object();
+                    char* type_name = CONS_str(constant, offset2);
+
+                    CLObject array_object = create_equalable_carray_object(type_name);
                     stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = array_object; // push object
                     stack_ptr++;
@@ -13348,6 +13366,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     int offset = *(int*)pc;
                     pc += sizeof(int);
 
+                    int offset2 = *(int*)pc;
+                    pc += sizeof(int);
+
                     char* class_name = CONS_str(constant, offset);
 
                     sCLClass* klass = get_class_with_load_and_initialize(class_name);
@@ -13359,7 +13380,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
                         return FALSE;
                     }
 
-                    CLObject array_object = create_sortable_carray_object();
+                    char* type_name = CONS_str(constant, offset2);
+
+                    CLObject array_object = create_sortable_carray_object(type_name);
                     stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = array_object; // push object
                     stack_ptr++;
@@ -13400,6 +13423,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     int offset = *(int*)pc;
                     pc += sizeof(int);
 
+                    int offset2 = *(int*)pc;
+                    pc += sizeof(int);
+
                     char* class_name = CONS_str(constant, offset);
 
                     sCLClass* klass = get_class_with_load_and_initialize(class_name);
@@ -13411,7 +13437,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
                         return FALSE;
                     }
 
-                    CLObject list_object = create_list_object();
+                    char* type_name = CONS_str(constant, offset2);
+
+                    CLObject list_object = create_list_object(type_name);
                     stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = list_object; // push object
                     stack_ptr++;
@@ -13452,6 +13480,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     int offset = *(int*)pc;
                     pc += sizeof(int);
 
+                    int offset2 = *(int*)pc;
+                    pc += sizeof(int);
+
                     char* class_name = CONS_str(constant, offset);
 
                     sCLClass* klass = get_class_with_load_and_initialize(class_name);
@@ -13463,7 +13494,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
                         return FALSE;
                     }
 
-                    CLObject list_object = create_sortable_list_object();
+                    char* type_name = CONS_str(constant, offset2);
+
+                    CLObject list_object = create_sortable_list_object(type_name);
                     stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = list_object; // push object
                     stack_ptr++;
@@ -13504,6 +13537,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     int offset = *(int*)pc;
                     pc += sizeof(int);
 
+                    int offset2 = *(int*)pc;
+                    pc += sizeof(int);
+
                     char* class_name = CONS_str(constant, offset);
 
                     sCLClass* klass = get_class_with_load_and_initialize(class_name);
@@ -13515,7 +13551,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
                         return FALSE;
                     }
 
-                    CLObject list_object = create_equalable_list_object();
+                    char* type_name = CONS_str(constant, offset2);
+
+                    CLObject list_object = create_equalable_list_object(type_name);
                     stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = list_object; // push object
                     stack_ptr++;
@@ -13553,7 +13591,12 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     int num_elements = *(int*)pc;
                     pc += sizeof(int);
 
-                    CLObject tuple_object = create_tuple_object(num_elements);
+                    int offset = *(int*)pc;
+                    pc += sizeof(int);
+
+                    char* type_name = CONS_str(constant, offset);
+
+                    CLObject tuple_object = create_tuple_object(num_elements, type_name);
                     stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = tuple_object; // push object
                     stack_ptr++;
@@ -13608,6 +13651,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     int offset2 = *(int*)pc;
                     pc += sizeof(int);
 
+                    int offset3 = *(int*)pc;
+                    pc += sizeof(int);
+
                     char* class_name2 = CONS_str(constant, offset2);
 
                     sCLClass* klass2 = get_class_with_load_and_initialize(class_name2);
@@ -13632,7 +13678,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
                         items[i] = (stack_ptr - num_elements * 2 + i * 2 + 1)->mObjectValue;
                     }
 
-                    CLObject hash_object = create_hash_object();
+                    char* type_name = CONS_str(constant, offset3);
+
+                    CLObject hash_object = create_hash_object(type_name);
                     stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = hash_object; // push object
                     stack_ptr++;

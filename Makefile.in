@@ -367,6 +367,7 @@ test:
 	./clover2 code/when.cl
 	./cclover2 code/ResultTest.clcl && ./clover2 code/result.cl
 	./clover2 code/number2.cl
+	./cclover2 code/TypeDataTest.clcl && ./clover2 code/type_data.cl
 	./cclover2 code/PatternMatchingTest.clcl && ./clover2 code/pattern_matching.cl
 	./clover2 code/parser.cl
 

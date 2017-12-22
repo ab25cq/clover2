@@ -1,35 +1,48 @@
 #include "common.h"
 
-CLObject create_carray_object()
+CLObject create_carray_object(char* type_name)
 {
     sCLClass* klass = get_class("Array");
     MASSERT(klass != NULL);
-    CLObject obj = create_object(klass);
+    CLObject obj = create_object(klass, type_name);
 
     return obj;
 }
 
-CLObject create_equalable_carray_object()
+CLObject create_equalable_carray_object(char* type_name)
 {
     sCLClass* klass = get_class("EqualableArray");
     MASSERT(klass != NULL);
-    CLObject obj = create_object(klass);
+    CLObject obj = create_object(klass, type_name);
 
     return obj;
 }
 
-CLObject create_sortable_carray_object()
+CLObject create_sortable_carray_object(char* type_name)
 {
     sCLClass* klass = get_class("SortableArray");
     MASSERT(klass != NULL);
-    CLObject obj = create_object(klass);
+    CLObject obj = create_object(klass, type_name);
 
     return obj;
 }
 
 CLObject create_carray_object_with_elements(int num_elements, CLObject* elements)
 {
-    CLObject obj = create_carray_object();
+    char type_name[OBJECT_TYPE_NAME_MAX];
+
+    if(num_elements > 0) {
+        sCLObject* obj_data3 = CLOBJECT(elements[0]);
+
+        char* element_type = obj_data3->mType;
+
+        snprintf(type_name, OBJECT_TYPE_NAME_MAX, "Array<%s>", element_type);
+    }
+    else {
+        snprintf(type_name, OBJECT_TYPE_NAME_MAX, "Array<Null>");
+    }
+
+    CLObject obj = create_carray_object(type_name);
 
     CLVALUE cl_value;
     cl_value.mLongValue = 0;
@@ -88,7 +101,20 @@ BOOL initialize_carray_object(CLObject array_object, int num_elements, CLObject*
 
 CLObject create_equalable_carray_object_with_elements(int num_elements, CLObject* elements)
 {
-    CLObject obj = create_equalable_carray_object();
+    char type_name[OBJECT_TYPE_NAME_MAX];
+
+    if(num_elements > 0) {
+        sCLObject* obj_data3 = CLOBJECT(elements[0]);
+
+        char* element_type = obj_data3->mType;
+
+        snprintf(type_name, OBJECT_TYPE_NAME_MAX, "Array<%s>", element_type);
+    }
+    else {
+        snprintf(type_name, OBJECT_TYPE_NAME_MAX, "Array<Null>");
+    }
+
+    CLObject obj = create_equalable_carray_object(type_name);
 
     CLVALUE cl_value;
     cl_value.mLongValue = 0;
@@ -147,7 +173,20 @@ BOOL initialize_equalable_carray_object(CLObject array_object, int num_elements,
 
 CLObject create_sortable_carray_object_with_elements(int num_elements, CLObject* elements)
 {
-    CLObject obj = create_sortable_carray_object();
+    char type_name[OBJECT_TYPE_NAME_MAX];
+
+    if(num_elements > 0) {
+        sCLObject* obj_data3 = CLOBJECT(elements[0]);
+
+        char* element_type = obj_data3->mType;
+
+        snprintf(type_name, OBJECT_TYPE_NAME_MAX, "Array<%s>", element_type);
+    }
+    else {
+        snprintf(type_name, OBJECT_TYPE_NAME_MAX, "Array<Null>");
+    }
+
+    CLObject obj = create_sortable_carray_object(type_name);
 
     CLVALUE cl_value;
     cl_value.mLongValue = 0;

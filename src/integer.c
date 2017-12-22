@@ -3,7 +3,7 @@
 CLObject create_integer(int value)
 {
     sCLClass* klass = get_class("Integer");
-    CLObject obj = create_object(klass);
+    CLObject obj = create_object(klass, "Integer");
 
     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -16,7 +16,7 @@ CLObject create_integer(int value)
 CLObject create_uinteger(unsigned int value)
 {
     sCLClass* klass = get_class("UInteger");
-    CLObject obj = create_object(klass);
+    CLObject obj = create_object(klass, "UInteger");
 
     sCLObject* obj_data = CLOBJECT(obj);
 
