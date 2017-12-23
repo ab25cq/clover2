@@ -40,3 +40,12 @@ class GClass <T:GInterface, T2:Object> {
     }
 }
 
+class GenericsTest2
+{
+    def main(): static {
+        gclass:GClass<GClass2, Integer> = new GClass<GClass2, Integer>();
+
+        gclass.method();
+    }
+}
+

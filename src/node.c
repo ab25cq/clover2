@@ -918,117 +918,6 @@ static BOOL compile_or_or(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_conditional_expression(unsigned int expression_node, unsigned int true_expression_node, unsigned int false_expression_node, sParserInfo* info)
-{
-    unsigned node = alloc_node();
-
-    gNodes[node].mNodeType = kNodeTypeConditional;
-
-    gNodes[node].mSName = info->sname;
-    gNodes[node].mLine = info->sline;
-
-    gNodes[node].mLeft = true_expression_node;
-    gNodes[node].mRight = false_expression_node;
-    gNodes[node].mMiddle = expression_node;
-
-    gNodes[node].mType = NULL;
-
-    return node;
-}
-
-static BOOL compile_conditional_operator(unsigned int node, sCompileInfo* info)
-{
-    int label_num = gLabelNum++;
-
-    /// compile expression ///
-    unsigned int expression_node = gNodes[node].mMiddle;
-
-    if(!compile(expression_node, info)) {
-        return FALSE;
-    }
-
-    sNodeType* bool_type = create_node_type_with_class_name("bool");
-    cast_right_type_to_left_type(bool_type, &info->type, info);
-
-    if(!type_identify_with_class_name(info->type, "bool")) {
-        compile_err_msg(info, "This conditional expression type is not bool");
-        info->err_num++;
-
-        info->type = create_node_type_with_class_name("int"); // dummy
-
-        return TRUE;
-    }
-
-    append_opecode_to_code(info->code, OP_COND_JUMP, info->no_output);
-    append_int_value_to_code(info->code, sizeof(int)*3, info->no_output);
-    info->stack_num--;
-
-    /// if expression ///
-    append_opecode_to_code(info->code, OP_GOTO, info->no_output); // if the conditional expression is false, jump to the end of if block
-    int goto_point = info->code->mLen;
-    append_int_value_to_code(info->code, 0, info->no_output);
-
-    char label_conditional_operator[LABEL_NAME_MAX];
-    create_label_name("label_conditional_operator", label_conditional_operator, LABEL_NAME_MAX, label_num);
-
-    append_str_to_constant_pool_and_code(info->constant, info->code, label_conditional_operator, info->no_output);
-
-    /// compile true expression ///
-    unsigned int true_expression_node = gNodes[node].mLeft;
-
-    if(!compile(true_expression_node, info)) {
-        return FALSE;
-    }
-
-    info->stack_num--;
-
-    sNodeType* true_expression_type = info->type;
-
-    append_opecode_to_code(info->code, OP_GOTO, info->no_output);
-    int end_point = info->code->mLen;
-    append_int_value_to_code(info->code, 0, info->no_output);
-
-    char label_end_point[LABEL_NAME_MAX];
-    create_label_name("label_conditional_operator2", label_end_point, LABEL_NAME_MAX, label_num);
-    append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
-
-    *(int*)(info->code->mCodes + goto_point) = info->code->mLen;
-
-    append_opecode_to_code(info->code, OP_LABEL, info->no_output);
-    append_str_to_constant_pool_and_code(info->constant, info->code, label_conditional_operator, info->no_output);
-
-    /// compile false expression ///
-    unsigned int false_expression_node = gNodes[node].mRight;
-
-    if(!compile(false_expression_node, info)) {
-        return FALSE;
-    }
-
-    info->stack_num--;
-
-    sNodeType* false_expression_type = info->type;
-
-    *(int*)(info->code->mCodes + end_point) = info->code->mLen;
-
-    append_opecode_to_code(info->code, OP_LABEL, info->no_output);
-    append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
-
-    /// check result ///
-    if(!type_identify(true_expression_type, false_expression_type)) {
-        compile_err_msg(info, "True expression type and false expression type are different");
-        info->err_num++;
-
-        info->type = create_node_type_with_class_name("int"); // dummy
-
-        return TRUE;
-    }
-
-    info->type = true_expression_type;
-    info->stack_num++;
-
-    return TRUE;
-}
-
 unsigned int sNodeTree_create_byte_value(char value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)
 {
     unsigned node = alloc_node();
@@ -9227,10 +9116,6 @@ void show_node(unsigned int node)
             show_node(gNodes[node].mRight);
             break;
 
-        case kNodeTypeConditional:
-            puts("conditional operator");
-            break;
-
         case kNodeTypeAndAnd:
             puts("and and operator");
             break;
@@ -9544,12 +9429,6 @@ BOOL compile(unsigned int node, sCompileInfo* info)
     switch(gNodes[node].mNodeType) {
         case kNodeTypeOperand:
             if(!compile_operand(node, info)) {
-                return FALSE;
-            }
-            break;
-
-        case kNodeTypeConditional:
-            if(!compile_conditional_operator(node, info)) {
                 return FALSE;
             }
             break;

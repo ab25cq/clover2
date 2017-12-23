@@ -485,7 +485,7 @@ static BOOL search_for_class_file_on_compile_time(char* class_name, char* class_
             else if(access(source_path2, F_OK) == 0) {
                 struct stat source_path_stat;
 
-                if(stat(source_path, &source_path_stat) != 0) {
+                if(stat(source_path2, &source_path_stat) != 0) {
                     return FALSE;
                 }
 

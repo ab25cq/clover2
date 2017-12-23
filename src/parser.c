@@ -4804,58 +4804,11 @@ static BOOL expression_and_and_or_or(unsigned int* node, sParserInfo* info)
 
     return TRUE;
 }
-
-// from left to right order
-static BOOL expression_conditional_operator(unsigned int* node, sParserInfo* info)
-{
-    if(!expression_and_and_or_or(node, info)) {
-        return FALSE;
-    }
-    if(*node == 0) {
-        return TRUE;
-    }
-
-    while(*info->p) {
-        if(*info->p == '?') {
-            info->p++;
-            skip_spaces_and_lf(info);
-
-            unsigned middle = 0;
-            if(!expression(&middle, info)) {
-                return FALSE;
-            }
-
-            expect_next_character_with_one_forward(":", info);
-
-            unsigned right = 0;
-            if(!expression(&right, info)) {
-                return FALSE;
-            }
-
-            if(middle == 0) {
-                parser_err_msg(info, "require middle value for operator ?");
-                info->err_num++;
-            }
-            if(right == 0) {
-                parser_err_msg(info, "require right value for operator ?");
-                info->err_num++;
-            }
-
-            *node = sNodeTree_conditional_expression(*node, middle, right, info);
-        }
-        else {
-            break;
-        }
-    }
-
-    return TRUE;
-}
-
 BOOL expression(unsigned int* node, sParserInfo* info) 
 {
     skip_spaces_and_lf(info);
 
-    if(!expression_conditional_operator(node, info)) {
+    if(!expression_and_and_or_or(node, info)) {
         return FALSE;
     }
 
