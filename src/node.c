@@ -3571,7 +3571,7 @@ static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)
     char* method_name = gNodes[node].uValue.sClassMethodCall.mMethodName;
 
     sNodeType* generics_types;
-    if(info->pinfo->klass) {
+    if(info->pinfo->klass && klass == info->pinfo->klass) {
         generics_types = get_generics_type_of_inner_class(info->pinfo);
     }
     else {
