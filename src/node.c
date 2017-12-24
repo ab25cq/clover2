@@ -1109,7 +1109,7 @@ static BOOL compile_cfloat_value(unsigned int node, sCompileInfo* info)
         int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types);
 
         if(method_index == -1) {
-            compile_err_msg(info, "method not found(11)");
+            compile_err_msg(info, "method not found(12)");
             info->err_num++;
 
             err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
@@ -1214,7 +1214,7 @@ static BOOL compile_cdouble_value(unsigned int node, sCompileInfo* info)
         int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types);
 
         if(method_index == -1) {
-            compile_err_msg(info, "method not found(11)");
+            compile_err_msg(info, "method not found(13)");
             info->err_num++;
 
             err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
@@ -1323,7 +1323,7 @@ static BOOL compile_cubyte_value(unsigned int node, sCompileInfo* info)
         int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types);
 
         if(method_index == -1) {
-            compile_err_msg(info, "method not found(11)");
+            compile_err_msg(info, "method not found(14)");
             info->err_num++;
 
             err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
@@ -1432,7 +1432,7 @@ static BOOL compile_cshort_value(unsigned int node, sCompileInfo* info)
         int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types);
 
         if(method_index == -1) {
-            compile_err_msg(info, "method not found(11)");
+            compile_err_msg(info, "method not found(15)");
             info->err_num++;
 
             err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
@@ -1541,7 +1541,7 @@ static BOOL compile_cushort_value(unsigned int node, sCompileInfo* info)
         int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types);
 
         if(method_index == -1) {
-            compile_err_msg(info, "method not found(11)");
+            compile_err_msg(info, "method not found(16)");
             info->err_num++;
 
             err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
@@ -1650,7 +1650,7 @@ static BOOL compile_cint_value(unsigned int node, sCompileInfo* info)
         int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types);
 
         if(method_index == -1) {
-            compile_err_msg(info, "method not found(11)");
+            compile_err_msg(info, "method not found(17)");
             info->err_num++;
 
             err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
@@ -1759,7 +1759,7 @@ static BOOL compile_cuint_value(unsigned int node, sCompileInfo* info)
         int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types);
 
         if(method_index == -1) {
-            compile_err_msg(info, "method not found(11)");
+            compile_err_msg(info, "method not found(18)");
             info->err_num++;
 
             err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
@@ -1869,7 +1869,7 @@ static BOOL compile_clong_value(unsigned int node, sCompileInfo* info)
         int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types);
 
         if(method_index == -1) {
-            compile_err_msg(info, "method not found(11)");
+            compile_err_msg(info, "method not found(19)");
             info->err_num++;
 
             err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
@@ -1978,7 +1978,7 @@ static BOOL compile_culong_value(unsigned int node, sCompileInfo* info)
         int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types);
 
         if(method_index == -1) {
-            compile_err_msg(info, "method not found(11)");
+            compile_err_msg(info, "method not found(20)");
             info->err_num++;
 
             err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
@@ -4178,7 +4178,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                         return TRUE;
                     }
                     else {
-                        compile_err_msg(info, "method not found(2)");
+                        compile_err_msg(info, "method not found(5)");
                         info->err_num++;
 
                         err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
@@ -4535,7 +4535,7 @@ static BOOL compile_new_operator(unsigned int node, sCompileInfo* info)
             int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types);
 
             if(method_index == -1) {
-                compile_err_msg(info, "method not found(3)");
+                compile_err_msg(info, "method not found(6)");
                 info->err_num++;
 
                 err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
@@ -9072,7 +9072,7 @@ static BOOL compile_inherit_call(unsigned int node, sCompileInfo* info)
         int method_index2 = search_for_method(klass, method_name, param_types, num_params, class_method, method_index-1, generics_types, NULL, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types);
 
         if(method_index2 == -1) {
-            compile_err_msg(info, "method not found(1)");
+            compile_err_msg(info, "method not found(30)");
             info->err_num++;
 
             err_msg_for_method_not_found(klass, method_name, param_types, num_params, TRUE, info);

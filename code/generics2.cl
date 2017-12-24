@@ -1,1 +1,0 @@
-GenericsTest2.main();

@@ -287,9 +287,13 @@ distclean: clean
 ########################################################
 test:
 	@echo "Compile to test code..."
-	./cclover2 code/OperatorTest.clcl && ./clover2 code/operator.cl
-	./cclover2 code/GenericsTest2.clcl && ./clover2 code/generics2.cl
-	./cclover2 code/generics3.clcl && ./clover2 code/generics3.cl
+	./cclover2 code/OperatorTest.clcl
+	./cclover2 code/GenericsTest2.clcl
+	./cclover2 code/GenericsTest3.clcl
+	./clover2 code/main.cl
+
+
+	./clover2 code/generics4.cl
 	./clover2 code/block_var_test.cl
 	./cclover2 code/user_object.clcl && ./clover2 code/user_object.cl
 	./clover2 code/pointer.cl
@@ -352,7 +356,6 @@ test:
 	./clover2 code/method_block.cl
 	./cclover2 code/return.clcl && ./clover2 code/return.cl
 	./cclover2 code/delegate.clcl && ./clover2 code/delegate.cl
-	./clover2 code/generics4.cl
 	./cclover2 code/result_type.clcl && ./clover2 code/result_type.cl
 	./clover2 code/is.cl
 	./clover2 code/null_test.cl
