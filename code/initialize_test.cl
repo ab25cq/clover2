@@ -1,4 +1,0 @@
-
-a:= new InitializeAndFinalizeTest();
-
-

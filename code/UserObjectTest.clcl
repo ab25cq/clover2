@@ -1,0 +1,50 @@
+
+
+class UserObjectTestClass {
+    def method(): static {
+        a := 1;
+        b := 2;
+
+        c := a + b;
+    }
+
+    def method2(a:int, b:int): static {
+        c:= a + b
+    }
+
+    def method3(a:int, b:int): static int {
+        return a + b;
+    }
+}
+
+class UserObjectTestClass2 {
+    a: private int;
+    b: private int;
+
+    c: static int;
+    d: static int;
+
+    def initialize() {
+        self.a = 1;
+        self.b = 2;
+    }
+
+    def initialize(): static {
+        UserObjectTestClass2.c = 111;
+        UserObjectTestClass2.d = 222;
+    }
+}
+
+class UserObjectTest {
+    def main():static {
+        System.assert(UserObjectTestClass.method() == null);
+        System.assert(UserObjectTestClass.method3(3, 7) == 10);
+
+        a := new UserObjectTestClass2();
+        System.assert(a.a == 1);
+        System.assert(a.b == 2);
+
+        System.assert(UserObjectTestClass2.c == 111);
+        System.assert(UserObjectTestClass2.d == 222);
+    }
+}

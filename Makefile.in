@@ -287,28 +287,10 @@ distclean: clean
 ########################################################
 test:
 	@echo "Compile to test code..."
-	./cclover2 code/OperatorTest.clcl
-	./cclover2 code/GenericsTest2.clcl
-	./cclover2 code/GenericsTest3.clcl
-	./clover2 code/main.cl
+	./cclover2 code/main.cl && ./clover2 code/main.cl
 
-
-	./clover2 code/generics4.cl
-	./clover2 code/block_var_test.cl
-	./cclover2 code/user_object.clcl && ./clover2 code/user_object.cl
-	./clover2 code/pointer.cl
-	./cclover2 code/pointer2.clcl && ./clover2 code/pointer2.cl
-	./cclover2 code/increment.clcl && ./clover2 code/increment.cl
-	./cclover2 code/initialize_test.clcl && ./clover2 code/initialize_test.cl
-	./cclover2 code/stack.clcl && ./clover2 code/stack.cl
-	./clover2 code/array.cl
 	if locale -a | grep ja_JP.utf8; then export LANG="ja_JP_utf8"; export LC_ALL="ja_JP.utf8"; ./clover2 code/char.cl; else export LANG="C.UTF-8"; export LC_ALL="C.UTF-8"; ./clover2 code/char.cl; fi
-	./clover2 code/hello_world.cl
-	./clover2 code/cast.cl
-	./clover2 code/string.cl
-	./cclover2 code/interface.clcl && ./clover2 code/interface.cl
-	./clover2 code/null.cl
-	./clover2 code/special_field.cl
+
 	./cclover2 code/self_class.clcl && ./clover2 code/self_class.cl
 	./cclover2 code/module.clcl && ./clover2 code/module.cl
 	./cclover2 code/generics.clcl && ./clover2 code/generics.cl
@@ -373,4 +355,5 @@ test:
 	./cclover2 code/TypeDataTest.clcl && ./clover2 code/type_data.cl
 	./cclover2 code/PatternMatchingTest.clcl && ./clover2 code/pattern_matching.cl
 	./clover2 code/parser.cl
+	./clover2 code/generics4.cl
 

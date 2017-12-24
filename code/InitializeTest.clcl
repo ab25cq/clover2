@@ -18,3 +18,9 @@ class InitializeAndFinalizeTest {
         System.free(InitializeAndFinalizeTest.a);
     }
 }
+
+class InitializeTest {
+    def main():static {
+        a:= new InitializeAndFinalizeTest();
+    }
+}
