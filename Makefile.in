@@ -291,39 +291,13 @@ test:
 
 	if locale -a | grep ja_JP.utf8; then export LANG="ja_JP_utf8"; export LC_ALL="ja_JP.utf8"; ./clover2 code/char.cl; else export LANG="C.UTF-8"; export LC_ALL="C.UTF-8"; ./clover2 code/char.cl; fi
 
-	./cclover2 code/void_result.clcl && ./clover2 code/void_result.cl
-	./clover2 code/integer.cl
-	./clover2 code/normal_block.cl
-	./cclover2 code/try.clcl && ./clover2 code/try.cl
-	./clover2 code/array2.cl
-	./clover2 code/hash.cl
-	./cclover2 code/array4.clcl && ./clover2 code/array4.cl
-	./clover2 code/regex.cl
-	./clover2 code/list.cl
-	./clover2 code/tuple.cl
-	./clover2 code/printf.cl
-	./clover2 code/array5.cl
-	./cclover2 code/equalable_array.clcl && ./clover2 code/equalable_array.cl
-	./clover2 code/buffer.cl
-	./clover2 code/system_test.cl
-	./cclover2 code/inherit.clcl && ./cclover2 code/inherit2.clcl && ./clover2 code/inherit.cl
-	./clover2 code/float.cl
-	./clover2 code/number.cl
-	./clover2 code/string2.cl
-	./clover2 code/carray.cl
-	./clover2 code/list2.cl
-	./clover2 code/time.cl
-	./clover2 code/file.cl
-	./clover2 code/dir.cl
 	./clover2 code/command.cl
 	./clover2 code/closure.cl
 	./clover2 code/anonymous.cl
 	if test `uname` != Darwin; then gcc -shared -Wl,-soname=libExtTest.so.1 -o libExtTest.so.1.0.0 -I src/ -I . -I/usr/local/include -fPIC ext/hello.c; ln -fs libExtTest.so.1.0.0 libExtTest.so; ./cclover2 ext.clcl && ./clover2 ext.cl; fi
 	./clover2 code/fun.cl
 	./clover2 code/type_inference.cl
-	./clover2 code/list3.cl
 	./clover2 code/anonymous2.cl
-	./cclover2 code/string3.clcl && ./clover2 code/string3.cl
 	./cclover2 code/kotlin.clcl && ./clover2 code/kotlin.cl
 	./cclover2 code/method_generics.clcl && ./clover2 code/method_generics.cl
 	./clover2 code/method_block.cl

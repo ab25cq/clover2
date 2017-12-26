@@ -181,10 +181,6 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info)
 
         append_opecode_to_code(info->code, OP_HEAD_OF_EXPRESSION, info->no_output);
 
-        append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
-        append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
-        append_int_value_to_code(info->code, info->sline, info->no_output);
-
         int stack_num = info->stack_num;
 
         if(!compile(node, info)) {

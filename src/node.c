@@ -1014,6 +1014,10 @@ static BOOL compile_cbyte_value(unsigned int node, sCompileInfo* info)
             return TRUE;
         }
 
+        append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+        append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+        append_int_value_to_code(info->code, info->sline, info->no_output);
+
         append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
         append_class_name_to_constant_pool_and_code(info, klass);
         append_int_value_to_code(info->code, method_index, info->no_output);
@@ -1119,6 +1123,10 @@ static BOOL compile_cfloat_value(unsigned int node, sCompileInfo* info)
             return TRUE;
         }
 
+        append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+        append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+        append_int_value_to_code(info->code, info->sline, info->no_output);
+
         append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
         append_class_name_to_constant_pool_and_code(info, klass);
         append_int_value_to_code(info->code, method_index, info->no_output);
@@ -1223,6 +1231,10 @@ static BOOL compile_cdouble_value(unsigned int node, sCompileInfo* info)
 
             return TRUE;
         }
+
+        append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+        append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+        append_int_value_to_code(info->code, info->sline, info->no_output);
 
         append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
         append_class_name_to_constant_pool_and_code(info, klass);
@@ -1333,6 +1345,10 @@ static BOOL compile_cubyte_value(unsigned int node, sCompileInfo* info)
             return TRUE;
         }
 
+        append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+        append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+        append_int_value_to_code(info->code, info->sline, info->no_output);
+
         append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
         append_class_name_to_constant_pool_and_code(info, klass);
         append_int_value_to_code(info->code, method_index, info->no_output);
@@ -1441,6 +1457,10 @@ static BOOL compile_cshort_value(unsigned int node, sCompileInfo* info)
 
             return TRUE;
         }
+
+        append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+        append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+        append_int_value_to_code(info->code, info->sline, info->no_output);
 
         append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
         append_class_name_to_constant_pool_and_code(info, klass);
@@ -1551,6 +1571,10 @@ static BOOL compile_cushort_value(unsigned int node, sCompileInfo* info)
             return TRUE;
         }
 
+        append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+        append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+        append_int_value_to_code(info->code, info->sline, info->no_output);
+
         append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
         append_class_name_to_constant_pool_and_code(info, klass);
         append_int_value_to_code(info->code, method_index, info->no_output);
@@ -1660,6 +1684,10 @@ static BOOL compile_cint_value(unsigned int node, sCompileInfo* info)
             return TRUE;
         }
 
+        append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+        append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+        append_int_value_to_code(info->code, info->sline, info->no_output);
+
         append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
         append_class_name_to_constant_pool_and_code(info, klass);
         append_int_value_to_code(info->code, method_index, info->no_output);
@@ -1768,6 +1796,10 @@ static BOOL compile_cuint_value(unsigned int node, sCompileInfo* info)
 
             return TRUE;
         }
+
+        append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+        append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+        append_int_value_to_code(info->code, info->sline, info->no_output);
 
         append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
         append_class_name_to_constant_pool_and_code(info, klass);
@@ -1879,6 +1911,10 @@ static BOOL compile_clong_value(unsigned int node, sCompileInfo* info)
             return TRUE;
         }
 
+        append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+        append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+        append_int_value_to_code(info->code, info->sline, info->no_output);
+
         append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
         append_class_name_to_constant_pool_and_code(info, klass);
         append_int_value_to_code(info->code, method_index, info->no_output);
@@ -1987,6 +2023,10 @@ static BOOL compile_culong_value(unsigned int node, sCompileInfo* info)
 
             return TRUE;
         }
+
+        append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+        append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+        append_int_value_to_code(info->code, info->sline, info->no_output);
 
         append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
         append_class_name_to_constant_pool_and_code(info, klass);
@@ -2581,6 +2621,10 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
                 return TRUE;
             }
 
+            append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+            append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+            append_int_value_to_code(info->code, info->sline, info->no_output);
+
             append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
 
             append_class_name_to_constant_pool_and_code(info, string_class);
@@ -2738,6 +2782,10 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
                             char method_name_and_params[size_method_name_and_params];
                             create_method_name_and_params(method_name_and_params, size_method_name_and_params, klass, method_name, param_types, num_params);
 
+                            append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+                            append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+                            append_int_value_to_code(info->code, info->sline, info->no_output);
+
                             append_opecode_to_code(info->code, OP_INVOKE_VIRTUAL_METHOD, info->no_output);
                             append_int_value_to_code(info->code, num_real_params, info->no_output);
                             append_str_to_constant_pool_and_code(info->constant, info->code, method_name_and_params, info->no_output);
@@ -2782,6 +2830,11 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
                             char method_name_and_params[size_method_name_and_params];
                             create_method_name_and_params(method_name_and_params, size_method_name_and_params, klass, method_name, param_types, num_params);
 
+                            append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+                            append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+                            append_int_value_to_code(info->code, info->sline, info->no_output);
+
+
                             append_opecode_to_code(info->code, OP_INVOKE_VIRTUAL_METHOD, info->no_output);
                             append_int_value_to_code(info->code, num_real_params, info->no_output);
                             append_str_to_constant_pool_and_code(info->constant, info->code, method_name_and_params, info->no_output);
@@ -2823,6 +2876,11 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
                         int method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, FALSE, &result_method_generics_types);
 
                         sCLMethod* method = klass->mMethods + method_index2;
+
+                        append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+                        append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+                        append_int_value_to_code(info->code, info->sline, info->no_output);
+
 
                         append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
 
@@ -3601,6 +3659,10 @@ static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)
 
     if(method_index != -1) {
         if(!info->pinfo->exist_block_object_err) { // for interpreter completion
+            append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+            append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+            append_int_value_to_code(info->code, info->sline, info->no_output);
+
             /// generate code ////
             append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
             append_class_name_to_constant_pool_and_code(info, klass);
@@ -3654,6 +3716,11 @@ static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)
                     compile_err_msg(info, "overflow parametor number");
                     return FALSE;
                 }
+
+                append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+                append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+                append_int_value_to_code(info->code, info->sline, info->no_output);
+
 
                 append_opecode_to_code(info->code, OP_INVOKE_DYNAMIC_METHOD, info->no_output);
                 append_class_name_to_constant_pool_and_code(info, klass);
@@ -3774,6 +3841,11 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                 if(!info->pinfo->exist_block_object_err) { // for interpreter completion
                     sCLMethod* method = klass->mMethods + method_index2;
 
+                    append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+                    append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+                    append_int_value_to_code(info->code, info->sline, info->no_output);
+
+
                     append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
                     append_class_name_to_constant_pool_and_code(info, klass);
                     append_int_value_to_code(info->code, method_index2, info->no_output);
@@ -3820,6 +3892,10 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                 }
 
                 if(!info->pinfo->exist_block_object_err) { // for interpreter completion
+                    append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+                    append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+                    append_int_value_to_code(info->code, info->sline, info->no_output);
+
                     append_opecode_to_code(info->code, OP_INVOKE_DYNAMIC_METHOD, info->no_output);
                     append_class_name_to_constant_pool_and_code(info, klass);
                     append_str_to_constant_pool_and_code(info->constant, info->code, method_name, info->no_output);
@@ -3859,6 +3935,11 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
             int size_method_name_and_params = METHOD_NAME_MAX + PARAMS_MAX * CLASS_NAME_MAX + 256;
             char method_name_and_params[size_method_name_and_params];
             create_method_name_and_params(method_name_and_params, size_method_name_and_params, klass, method_name, param_types, num_params);
+
+            append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+            append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+            append_int_value_to_code(info->code, info->sline, info->no_output);
+
 
             append_opecode_to_code(info->code, OP_INVOKE_VIRTUAL_METHOD, info->no_output);
             append_int_value_to_code(info->code, num_real_params, info->no_output);
@@ -3902,6 +3983,11 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
             sCLMethod* method = klass->mMethods + method_index2;
 
             int num_real_params = method->mNumParams + 1;
+
+            append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+            append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+            append_int_value_to_code(info->code, info->sline, info->no_output);
+
 
             append_opecode_to_code(info->code, OP_INVOKE_VIRTUAL_METHOD, info->no_output);
             append_int_value_to_code(info->code, num_real_params, info->no_output);
@@ -4190,6 +4276,11 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                 }
 
                 sCLMethod* method = klass->mMethods + method_index2;
+
+                append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+                append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+                append_int_value_to_code(info->code, info->sline, info->no_output);
+
 
                 append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
 
@@ -4544,6 +4635,10 @@ static BOOL compile_new_operator(unsigned int node, sCompileInfo* info)
 
                 return TRUE;
             }
+
+            append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+            append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+            append_int_value_to_code(info->code, info->sline, info->no_output);
 
             append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
             append_class_name_to_constant_pool_and_code(info, klass);
@@ -7120,6 +7215,10 @@ BOOL compile_string_value(unsigned int node, sCompileInfo* info)
                 return TRUE;
             }
 
+            append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+            append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+            append_int_value_to_code(info->code, info->sline, info->no_output);
+
             append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
 
             append_class_name_to_constant_pool_and_code(info, klass);
@@ -7231,6 +7330,11 @@ BOOL compile_buffer_value(unsigned int node, sCompileInfo* info)
                 return TRUE;
             }
 
+            append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+            append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+            append_int_value_to_code(info->code, info->sline, info->no_output);
+
+
             append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
 
             append_class_name_to_constant_pool_and_code(info, klass);
@@ -7341,6 +7445,11 @@ BOOL compile_path_value(unsigned int node, sCompileInfo* info)
 
                 return TRUE;
             }
+
+            append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+            append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+            append_int_value_to_code(info->code, info->sline, info->no_output);
+
 
             append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
 
@@ -8884,6 +8993,11 @@ static BOOL compile_regex(unsigned int node, sCompileInfo* info)
                 return TRUE;
             }
 
+            append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+            append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+            append_int_value_to_code(info->code, info->sline, info->no_output);
+
+
             append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
 
             append_class_name_to_constant_pool_and_code(info, klass);
@@ -9081,6 +9195,10 @@ static BOOL compile_inherit_call(unsigned int node, sCompileInfo* info)
 
             return TRUE;
         }
+
+        append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+        append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+        append_int_value_to_code(info->code, info->sline, info->no_output);
 
         append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
         append_class_name_to_constant_pool_and_code(info, klass);

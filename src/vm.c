@@ -449,13 +449,28 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
     printf("method->mMethodIndex %d\n", method->mMethodIndex);
 #endif
 
-    int i;
-    for(i=0; i<STACK_TRACE_MAX-1; i++) {
-        info->running_sname_for_stack_trace[i+1] = info->running_sname_for_stack_trace[i];
-        info->running_sline_for_stack_trace[i+1] = info->running_sline_for_stack_trace[i];
+    char* sname2 = info->sname2;
+    int sline2 = info->sline2;
+
+    if(sname2) {
+        if(info->num_stack_trace < STACK_TRACE_MAX-1) {
+            info->stack_trace_sname[info->num_stack_trace] = sname2;
+            info->stack_trace_sline[info->num_stack_trace] = sline2;
+            info->num_stack_trace++;
+        }
+        else {
+            int i;
+            for(i=0; i<info->num_stack_trace-1; i++) {
+                info->stack_trace_sname[i] = info->stack_trace_sname[i+1];
+                info->stack_trace_sline[i] = info->stack_trace_sline[i+1];
+            }
+            info->num_stack_trace--;
+
+            info->stack_trace_sname[info->num_stack_trace] = sname2;
+            info->stack_trace_sline[info->num_stack_trace] = sline2;
+            info->num_stack_trace++;
+        }
     }
-    info->running_sname_for_stack_trace[0] = info->sname2;
-    info->running_sline_for_stack_trace[0] = info->sline2;
 
     if(method->mFlags & METHOD_FLAGS_NATIVE) {
         CLVALUE* lvar = *stack_ptr - method->mNumParams;
@@ -552,6 +567,9 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
 #ifdef VM_LOG
     printf("invoke_method %s.%s end\n", CLASS_NAME(klass), METHOD_NAME2(klass, method));
 #endif
+    if(sname2) {
+        info->num_stack_trace--;
+    }
 
     return TRUE;
 }
