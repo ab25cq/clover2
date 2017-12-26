@@ -1,11 +1,12 @@
+class BlockTest {
+    def main(): static {
+        a:lambda(int,int):int = lambda(value1:int, value2:int): int {
+        System.println(value1.toString);
+        System.println(value2.toString);
+            return value1 + value2;
+        }
 
-a:lambda(int,int):int = lambda(value1:int, value2:int): int {
-System.println(value1.toString);
-System.println(value2.toString);
-    return value1 + value2;
-}
-
-Clover.test("lambda test1", a(123,234) == 357);
+        Clover.test("lambda test1", a(123,234) == 357);
 
 /*
 c:int = 1;
@@ -29,3 +30,6 @@ e:lambda(int,int):int = lambda(value1:int, value2:int):int {
 
 Clover.test("lambda test4", e(1, 2) == 3);
 */
+    }
+}
+

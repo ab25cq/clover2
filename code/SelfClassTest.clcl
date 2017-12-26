@@ -1,3 +1,4 @@
+
 class SelfTest {
     value1:int;
     value2:int;
@@ -11,3 +12,12 @@ class SelfTest {
         return self;
     }
 }
+
+class SelfClassTest {
+    def main(): static {
+        object: SelfTest = new SelfTest(111,222);
+
+        Clover.test("Self test1", object.getSelf().value1 == 111);
+    }
+}
+

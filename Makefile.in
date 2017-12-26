@@ -291,13 +291,6 @@ test:
 
 	if locale -a | grep ja_JP.utf8; then export LANG="ja_JP_utf8"; export LC_ALL="ja_JP.utf8"; ./clover2 code/char.cl; else export LANG="C.UTF-8"; export LC_ALL="C.UTF-8"; ./clover2 code/char.cl; fi
 
-	./cclover2 code/self_class.clcl && ./clover2 code/self_class.cl
-	./cclover2 code/module.clcl && ./clover2 code/module.cl
-	./cclover2 code/generics.clcl && ./clover2 code/generics.cl
-	./clover2 code/variables.cl
-	./clover2 code/block.cl
-	./cclover2 code/block2.clcl && ./clover2 code/block2.cl
-	./cclover2 code/block3.clcl && ./clover2 code/block3.cl
 	./cclover2 code/void_result.clcl && ./clover2 code/void_result.cl
 	./clover2 code/integer.cl
 	./clover2 code/normal_block.cl
@@ -330,8 +323,6 @@ test:
 	./clover2 code/type_inference.cl
 	./clover2 code/list3.cl
 	./clover2 code/anonymous2.cl
-	./clover2 code/block4.cl
-	./clover2 code/block5.cl
 	./cclover2 code/string3.clcl && ./clover2 code/string3.cl
 	./cclover2 code/kotlin.clcl && ./clover2 code/kotlin.cl
 	./cclover2 code/method_generics.clcl && ./clover2 code/method_generics.cl
