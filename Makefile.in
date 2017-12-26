@@ -291,34 +291,5 @@ test:
 
 	if locale -a | grep ja_JP.utf8; then export LANG="ja_JP_utf8"; export LC_ALL="ja_JP.utf8"; ./clover2 code/char.cl; else export LANG="C.UTF-8"; export LC_ALL="C.UTF-8"; ./clover2 code/char.cl; fi
 
-	./clover2 code/command.cl
-	./clover2 code/closure.cl
-	./clover2 code/anonymous.cl
 	if test `uname` != Darwin; then gcc -shared -Wl,-soname=libExtTest.so.1 -o libExtTest.so.1.0.0 -I src/ -I . -I/usr/local/include -fPIC ext/hello.c; ln -fs libExtTest.so.1.0.0 libExtTest.so; ./cclover2 ext.clcl && ./clover2 ext.cl; fi
-	./clover2 code/fun.cl
-	./clover2 code/type_inference.cl
-	./clover2 code/anonymous2.cl
-	./cclover2 code/kotlin.clcl && ./clover2 code/kotlin.cl
-	./cclover2 code/method_generics.clcl && ./clover2 code/method_generics.cl
-	./clover2 code/method_block.cl
-	./cclover2 code/return.clcl && ./clover2 code/return.cl
-	./cclover2 code/delegate.clcl && ./clover2 code/delegate.cl
-	./cclover2 code/result_type.clcl && ./clover2 code/result_type.cl
-	./clover2 code/is.cl
-	./clover2 code/null_test.cl
-	./clover2 code/dependecy.cl
-	./clover2 code/object.cl
-	./clover2 code/default_method_arg.cl
-	./clover2 code/enum.cl
-	./clover2 code/byte.cl
-	./clover2 code/setter_getter.cl
-	./cclover2 code/EFTest.clcl && ./clover2 code/E.cl
-	./clover2 code/method_internal.cl
-	./clover2 code/when.cl
-	./cclover2 code/ResultTest.clcl && ./clover2 code/result.cl
-	./clover2 code/number2.cl
-	./cclover2 code/TypeDataTest.clcl && ./clover2 code/type_data.cl
-	./cclover2 code/PatternMatchingTest.clcl && ./clover2 code/pattern_matching.cl
-	./clover2 code/parser.cl
-	./clover2 code/generics4.cl
 

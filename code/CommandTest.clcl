@@ -1,9 +1,9 @@
 class CommandTest {
     def main():static {
-        Command.ls("-al").grep("clcl").less();
-        Command.pwd().less();
+#        Command.ls("-al").grep("clcl").less();
+#        Command.pwd().less();
 
-        Clover.jobs.items(0).forground();
+#        Clover.jobs.items(0).forground();
 
         Command.pwd().toString().print();
     }

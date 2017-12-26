@@ -1,8 +1,0 @@
-class SetterGetter
-{
-    value:int;
-    value2:String;
-
-    def initialize() {
-    }
-}

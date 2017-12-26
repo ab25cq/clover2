@@ -3,7 +3,7 @@ class TypeDataTest
     def initialize() {
     }
 
-    def main() {
+    def main():static {
         new List<String>().className();
 /*
         Clover.test("type test", new List<String>().className().equals("List<String>"));

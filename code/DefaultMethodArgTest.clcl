@@ -1,4 +1,4 @@
-class DefaultMethodArg
+class DefaultMethodArgTest
 {
     def initialize() {
     }
@@ -21,5 +21,15 @@ class DefaultMethodArg
 
     def method5(a:int = 1, b:int = 2): int {
         return a + b;
+    }
+
+    def main():static {
+        a := new DefaultMethodArgTest();
+
+        Clover.test("method default value", a.method(2) == 3);
+        Clover.test("method defautl value2", a.method2(2, 2) == 6);
+        Clover.test("method default value3", DefaultMethodArgTest.method3(1) == 4);
+        Clover.test("method default value4", a.method4(1).equals("ABC1"));
+        Clover.test("method default value5", a.method5() == 3);
     }
 }
