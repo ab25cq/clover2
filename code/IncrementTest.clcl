@@ -96,20 +96,18 @@ class IncrementTest {
 
         System.assert(f == 120);
 
-/*
-        c:int = 3;
+        i:int = 3;
 
-        c+=4;
+        i+=4;
 
-        System.assert(c == 7);
+        System.assert(i == 7);
 
-        c+=4;
+        i+=4;
 
-        System.assert(c == 11);
+        System.assert(i == 11);
 
-        c-=4;
+        i-=4;
 
-        System.assert(c == 7);
-*/
+        System.assert(i == 7);
     }
 }
