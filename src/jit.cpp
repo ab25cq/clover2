@@ -108,9 +108,9 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
     for(i=real_param_num; i<var_num; i++) {
         LVALUE llvm_value;
         llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(64, 0, true));
-        llvm_stack[i].lvar_address_index = -1;
-        llvm_stack[i].lvar_stored = FALSE;
-        llvm_stack[i].kind = kLVKindInt64;
+        llvm_value.lvar_address_index = -1;
+        llvm_value.lvar_stored = FALSE;
+        llvm_value.kind = kLVKindInt64;
 
         store_llvm_value_to_lvar_with_offset(llvm_stack, i, &llvm_value);
     }
