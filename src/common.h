@@ -415,6 +415,7 @@ BOOL type_identify(sNodeType* left, sNodeType* right);
 BOOL class_identify_with_class_name(sCLClass* klass, char* class_name);
 void print_node_type(sNodeType* node_type);
 BOOL boxing_posibility(sNodeType* left_type, sNodeType* right_type);
+BOOL unboxing_posibility(sNodeType* left_type, sNodeType* right_type);
 BOOL unboxig_posibility(sCLClass* klass);
 sNodeType* create_generics_types_from_generics_params(sCLClass* klass);
 struct sCompileInfoStruct;

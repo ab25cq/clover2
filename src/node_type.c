@@ -695,6 +695,20 @@ BOOL boxing_posibility(sNodeType* left_type, sNodeType* right_type)
     return FALSE;
 }
 
+BOOL unboxing_posibility(sNodeType* left_type, sNodeType* right_type)
+{
+    if(left_type->mNumGenericsTypes == 0 && right_type->mNumGenericsTypes == 0) {
+        sCLClass* left_class = left_type->mClass;
+        sCLClass* right_class = right_type->mClass;
+
+        if(left_class->mBoxingClass == right_class) {
+            return TRUE;
+        }
+    }
+
+    return FALSE;
+}
+
 BOOL unboxig_posibility(sCLClass* klass)
 {
     return !(klass->mFlags & CLASS_FLAGS_PRIMITIVE) && klass->mUnboxingClass != NULL;

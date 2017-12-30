@@ -3605,6 +3605,29 @@ static BOOL compile_params(sCLClass* klass, char* method_name, int* num_params, 
                     }
                 }
             }
+
+            /// 引数をunboxingすればメソッドが見つかるならunboxingしないといけない ///
+            for(j=0; j<num_methods; j++) {
+                sCLMethod* method = klass->mMethods + method_indexes[j];
+
+                if(*num_params == method->mNumParams 
+                    && i < method->mNumParams) 
+                {
+                    sNodeType* param;
+                    sNodeType* solved_param;
+
+                    param = create_node_type_from_cl_type(method->mParams[i].mType, klass);
+
+                    if(!solve_generics_types_for_node_type(param, ALLOC &solved_param, generics_types, TRUE, FALSE)) 
+                    {
+                        return FALSE;
+                    }
+
+                    if(unboxing_posibility(solved_param, param_types[i])) {
+                        cast_right_type_to_left_type(solved_param, &param_types[i], info);
+                    }
+                }
+            }
         }
     }
 

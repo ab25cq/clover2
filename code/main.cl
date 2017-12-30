@@ -164,5 +164,7 @@ println("DelegateTest");
 DelegateTest.main();
 println("RangeTest");
 RangeTest.main();
+println("SelfOmittedField");
 SelfOmittedField.main();
-
+println("UnboxingTest");
+UnboxingTest.main();

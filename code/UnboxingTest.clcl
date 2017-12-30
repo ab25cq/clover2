@@ -1,0 +1,27 @@
+class UnboxingTest 
+{
+    field1:int;
+
+    def initialize(value1:int) {
+        field1 = value1;
+    }
+
+    def method1(a:int) {
+        field1 = a;
+    }
+    def method2(a:Integer) {
+        field1 = a.value;
+    }
+
+    def main(): static {
+        a := new UnboxingTest(123);
+
+        a.method1(234I)
+
+        Clover.test("Unboxing test", a.field1 == 234);
+
+        a.method2(123);
+
+        Clover.test("Boxing test", a.field1 == 123);
+    }
+}
