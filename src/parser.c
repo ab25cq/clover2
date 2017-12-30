@@ -3896,6 +3896,34 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     return FALSE;
                 }
             }
+            /// ローカル変数 ///
+            else if(get_variable_from_table(info->lv_table, buf) || is_method_param_name(buf)) {
+                skip_spaces_and_lf(info);
+
+                *node = sNodeTree_create_load_variable(buf, info);
+
+                /// 括弧があるならラムダ式の呼び出し ///
+                if(*info->p == '(') {
+                    unsigned int params[PARAMS_MAX];
+                    int num_params = 0;
+
+                    if(!parse_method_params(&num_params, params, info)) {
+                        return FALSE;
+                    }
+
+                    *node = sNodeTree_create_block_call(*node, num_params, params, info);
+                }
+            }
+            /// 同一クラス内のフィールド？
+            else if(info->klass && field_name_existance(info->klass, buf)
+                && *info->p != '(')
+            {
+                skip_spaces_and_lf(info);
+
+                *node = sNodeTree_create_load_variable("self", info);
+
+                *node = sNodeTree_create_fields(buf, *node, info);
+            }
             /// コマンド名かつローカル変数でなかったらシェルモードに入る ///
             else if(including_slash || (get_variable_index(info->lv_table, buf) == -1 && is_command_name(buf) && *info->p != '('))
             {
@@ -4031,34 +4059,6 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     parser_err_msg(info, "overflow method chain");
                     return FALSE;
                 }
-            }
-            /// ローカル変数 ///
-            else if(get_variable_from_table(info->lv_table, buf) || is_method_param_name(buf)) {
-                skip_spaces_and_lf(info);
-
-                *node = sNodeTree_create_load_variable(buf, info);
-
-                /// 括弧があるならラムダ式の呼び出し ///
-                if(*info->p == '(') {
-                    unsigned int params[PARAMS_MAX];
-                    int num_params = 0;
-
-                    if(!parse_method_params(&num_params, params, info)) {
-                        return FALSE;
-                    }
-
-                    *node = sNodeTree_create_block_call(*node, num_params, params, info);
-                }
-            }
-            /// 同一クラス内のフィールド？
-            else if(info->klass && field_name_existance(info->klass, buf)
-                && *info->p != '(')
-            {
-                skip_spaces_and_lf(info);
-
-                *node = sNodeTree_create_load_variable("self", info);
-
-                *node = sNodeTree_create_fields(buf, *node, info);
             }
             else {
                 parser_err_msg(info, "%s is undeclared", buf);
