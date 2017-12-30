@@ -1115,6 +1115,7 @@ static void load_fundamental_classes_on_compile_time()
     load_class_on_compile_time("String");
 
     load_class_on_compile_time("Exception");
+    load_class_on_compile_time("Range");
 
     load_class_on_compile_time("Object");
 

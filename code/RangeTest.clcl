@@ -1,0 +1,6 @@
+class RangeTest 
+{
+    def main():static {
+        Clover.test("Range Test", (1..2).equals(1..2));
+    }
+}

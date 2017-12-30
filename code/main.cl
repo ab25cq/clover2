@@ -162,3 +162,6 @@ println("GenericsTest4");
 GenericsTest4.main();
 println("DelegateTest");
 DelegateTest.main();
+println("RangeTest");
+RangeTest.main();
+

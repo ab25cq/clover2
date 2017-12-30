@@ -694,6 +694,7 @@ static BOOL load_fundamental_classes_on_runtime()
     if(!load_class_with_initialize("Exception")) { return FALSE; }
 
     if(!load_class_with_initialize("Object")) { return FALSE; }
+    if(!load_class_with_initialize("Range")) { return FALSE; }
 
     if(!load_class_with_initialize("Byte")) { return FALSE; }
     if(!load_class_with_initialize("UByte")) { return FALSE; }

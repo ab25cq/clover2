@@ -2180,8 +2180,19 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info, int* nu
     }
 
     while(*info->p) {
+        if(*info->p == '.' && *(info->p+1) == '.') {
+            info->p+=2;
+            skip_spaces_and_lf(info);
+
+            unsigned int tail = 0;
+            if(!expression(&tail, info)) {
+                return FALSE;
+            }
+
+            *node = sNodeTree_create_range(*node, tail, info);
+        }
         /// call method or access field ///
-        if(*info->p == '.' && *(info->p+1) != '.') {
+        else if(*info->p == '.' && *(info->p+1) != '.') {
             info->p++;
             skip_spaces_and_lf(info);
 

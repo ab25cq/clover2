@@ -855,4 +855,3 @@ class Bool
         return true;
     }
 }
-

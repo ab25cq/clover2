@@ -9219,6 +9219,151 @@ static BOOL compile_inherit_call(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_range(unsigned int head, unsigned int tail, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeRange;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = head;
+    gNodes[node].mRight = tail;
+    gNodes[node].mMiddle = 0;
+
+    gNodes[node].mType = NULL;
+
+    return node;
+}
+
+static BOOL compile_range(unsigned int node, sCompileInfo* info)
+{
+    sCLClass* klass = get_class("Range");
+
+    sNodeType* param_types[PARAMS_MAX];
+    int num_params = 2;
+
+    MASSERT(klass != NULL);
+
+    /// get type of value without generating code ///
+    BOOL no_output_before = info->no_output;
+    info->no_output = TRUE;
+    int stack_num_before = info->stack_num;
+
+    info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
+
+    int head_node = gNodes[node].mLeft;
+    if(!compile(head_node, info)) {
+        return FALSE;
+    }
+
+    /// Do boxing if the class of a param is primitive ///
+    if(info->type->mClass->mFlags & CLASS_FLAGS_PRIMITIVE) {
+        boxing_to_lapper_class(&info->type, info);
+    }
+
+    sNodeType* head_type = info->type;
+
+    info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
+
+    int tail_node = gNodes[node].mRight;
+    if(!compile(tail_node, info)) {
+        return FALSE;
+    }
+
+    /// Do boxing if the class of a param is primitive ///
+    if(info->type->mClass->mFlags & CLASS_FLAGS_PRIMITIVE) {
+        boxing_to_lapper_class(&info->type, info);
+    }
+
+    sNodeType* tail_type = info->type;
+
+    info->no_output = no_output_before;
+    info->stack_num = stack_num_before;
+
+    if(!type_identify(head_type, tail_type)) {
+        compile_err_msg(info, "Range value type is the diffrent.");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    /// create range object ///
+    sNodeType* node_type = create_node_type_with_class_name("Range");
+    node_type->mNumGenericsTypes = 1;
+    node_type->mGenericsTypes[0] = head_type;
+
+    append_opecode_to_code(info->code, OP_NEW, info->no_output);
+    append_str_to_constant_pool_and_code(info->constant, info->code, "Range", info->no_output);
+    append_type_name_to_constant_pool_and_code(info, node_type);
+    append_int_value_to_code(info->code, 0, info->no_output);
+
+    info->stack_num++;
+
+    /// compile head ///
+    info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
+
+    if(!compile(head_node, info)) {
+        return FALSE;
+    }
+
+    /// Do boxing if the class of a param is primitive ///
+    if(info->type->mClass->mFlags & CLASS_FLAGS_PRIMITIVE) {
+        boxing_to_lapper_class(&info->type, info);
+    }
+
+    param_types[0] = info->type;
+
+    if(!compile(tail_node, info)) {
+        return FALSE;
+    }
+
+    /// Do boxing if the class of a param is primitive ///
+    if(info->type->mClass->mFlags & CLASS_FLAGS_PRIMITIVE) {
+        boxing_to_lapper_class(&info->type, info);
+    }
+
+    param_types[1] = info->type;
+
+    if(!info->pinfo->exist_block_object_err) { // for interpreter completion
+        char* method_name = "initialize";
+
+        sNodeType* generics_types2 = node_type;
+
+        sNodeType* result_type;
+        sNodeType* result_method_generics_types = NULL;
+        int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, NULL, &result_type, FALSE, FALSE, &result_method_generics_types);
+        if(method_index == -1) {
+            compile_err_msg(info, "method not found(30)");
+            info->err_num++;
+
+            err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+        append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+        append_int_value_to_code(info->code, info->sline, info->no_output);
+
+        append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
+        append_class_name_to_constant_pool_and_code(info, klass);
+        append_int_value_to_code(info->code, method_index, info->no_output);
+
+        info->stack_num-=num_params+1;
+        info->stack_num++;
+
+        info->type = node_type;
+    }
+    
+    return TRUE;
+}
+
 void show_node(unsigned int node)
 {
     if(node == 0) {
@@ -9531,6 +9676,10 @@ void show_node(unsigned int node)
 
         case kNodeTypeInheritCall:
             puts("inherit");
+            break;
+
+        case kNodeTypeRange:
+            puts("range");
             break;
     }
 }
@@ -9991,6 +10140,12 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeInheritCall:
             if(!compile_inherit_call(node,info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeRange:
+            if(!compile_range(node, info)) {
                 return FALSE;
             }
             break;
