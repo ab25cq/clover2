@@ -1,0 +1,16 @@
+class SelfOmittedField
+{
+    head:int;
+    ls:int;
+
+    def initialize(value1:int, value2:int) {
+        head = value1;
+        ls = value2;
+    }
+
+    def main(): static {
+        obj := new SelfOmittedField(111, 222);
+
+        Clover.test("self ommited field", obj.head == 111 && obj.ls == 222);
+    }
+}

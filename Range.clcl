@@ -1,0 +1,64 @@
+include "String.clcl"
+
+class Range<T:ISortable>
+{
+    head:T;
+    tail:T;
+
+    def initialize(head:T, tail:T) {
+        self.head = head;
+        self.tail = tail
+    }
+
+    def equals(right:Range<T>):bool {
+        return self.head.equals(right.head) && self.tail.equals(right.tail);
+    }
+
+    def isMember(value:T):bool {
+        return value.compare(self.head) >= 0 && value.compare(self.tail) < 0;
+    }
+}
+
+module MListWithRange
+{
+    def subList(range:Range<Integer>):SELF<T> {
+        return self.subList(range.head.value, range.tail.value);
+    }
+
+    def deleteWithRange(range:Range<Integer>):SELF<T> {
+        return self.deleteWithRange(range.head.value, range.tail.value);
+    }
+
+    def fill(range:Range<Integer>, item:T):SELF<T> {
+        return self.fill(range.head.value, range.tail.value, item);
+    }
+}
+
+class List <T:Object>
+{
+    include MListWithRange;
+}
+
+class EqualableList<T:IEqualable>
+{
+    include MListWithRange;
+}
+
+class SortableList<T:ISortable>
+{
+    include MListWithRange;
+}
+
+class String 
+{
+    def subString(range:Range<Integer>):  String {
+        return self.subString(range.head.value, range.tail.value);
+    }
+}
+
+class Buffer
+{
+    def subBuffer(range:Range<Integer>): Buffer {
+        return self.subBuffer(range.head.value, range.tail.value);
+    }
+}

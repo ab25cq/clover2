@@ -164,4 +164,5 @@ println("DelegateTest");
 DelegateTest.main();
 println("RangeTest");
 RangeTest.main();
+SelfOmittedField.main();
 

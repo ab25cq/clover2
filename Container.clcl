@@ -1847,22 +1847,3 @@ class Bool
 {
     include MInclude;
 }
-
-class Range<T:ISortable>
-{
-    head:T;
-    tail:T;
-
-    def initialize(head:T, tail:T) {
-        self.head = head;
-        self.tail = tail
-    }
-
-    def equals(right:Range<T>):bool {
-        return self.head.equals(right.head) && self.tail.equals(right.tail);
-    }
-
-    def isMember(value:T):bool {
-        return value.compare(self.head) >= 0 && value.compare(self.tail) < 0;
-    }
-}
