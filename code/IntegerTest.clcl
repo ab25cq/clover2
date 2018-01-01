@@ -29,6 +29,8 @@ class IntegerTest {
 
         g:Float = new Float(100);
 
+g.getValue().toString().println();
+
         Clover.test("Float test1", g.getValue() == 100.0f);
 
         h:Bool = new Bool(true);
