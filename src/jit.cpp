@@ -50,7 +50,7 @@ void jit_final()
 //////////////////////////////////////////////////////////////
 // LLVM core
 //////////////////////////////////////////////////////////////
-#define ANDAND_OROR_MAX 128
+#define MACHINE_STACK_MAX 128
 
 BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2)
 {
@@ -86,6 +86,14 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
 
     LVALUE* llvm_stack_ptr = llvm_stack + var_num;
 
+    Value* machine_stack_value[MACHINE_STACK_MAX];
+    int num_machine_stack = 0;
+
+    Value* andand_oror_value = NULL;
+    Value* andand_oror_value2 = NULL;
+
+    Value* cond_jump_result_flag = NULL;
+
     /// alloc local variables ///
     int i;
     for(i=0; i<var_num; i++) {
@@ -94,6 +102,9 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
         llvm_stack[i].lvar_address_index = -1;
         llvm_stack[i].lvar_stored = FALSE;
         llvm_stack[i].kind = kLVKindMemory;
+        llvm_stack[i].parent_var_num = 0;
+        llvm_stack[i].parent_stack = NULL;
+        llvm_stack[i].parent_llvm_stack = NULL;
     }
 
     /// parametor from VM stack ptr ///
@@ -101,7 +112,7 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
     for(i=0; i<real_param_num; i++) {
         LVALUE llvm_value = get_stack_value_from_index_with_aligned(params, current_block, i, 8);
 
-        store_llvm_value_to_lvar_with_offset(llvm_stack, i, &llvm_value);
+        store_llvm_value_to_lvar_with_offset(llvm_stack, i, &llvm_value, FALSE);
     }
 
     /// clear local variable ///
@@ -111,13 +122,12 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
         llvm_value.lvar_address_index = -1;
         llvm_value.lvar_stored = FALSE;
         llvm_value.kind = kLVKindInt64;
+        llvm_value.parent_var_num = 0;
+        llvm_value.parent_stack = NULL;
+        llvm_value.parent_llvm_stack = NULL;
 
-        store_llvm_value_to_lvar_with_offset(llvm_stack, i, &llvm_value);
+        store_llvm_value_to_lvar_with_offset(llvm_stack, i, &llvm_value, FALSE);
     }
-
-    Value* value_for_andand_oror[ANDAND_OROR_MAX];
-    memset(value_for_andand_oror, 0, sizeof(Value*)*ANDAND_OROR_MAX);
-    int num_value_for_andand_oror = 0;
 
     while(pc - code->mCodes < code->mLen) {
         int k;
@@ -153,13 +163,18 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
         unsigned int inst = *(unsigned int*)pc;
         pc+=sizeof(int);
 
+/*
 if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
     if(strcmp(METHOD_NAME2(klass, method), "initialize") != 0 && strcmp(METHOD_NAME2(klass, method), "finalize") != 0) {
-//call_show_inst_in_jit(inst);
+call_show_inst_in_jit(inst);
     }
 }
+*/
 
         switch(inst) {
+            case OP_NOP:
+                break;
+
             case OP_POP:
                 dec_stack_ptr(&llvm_stack_ptr, 1);
                 break;
@@ -197,6 +212,16 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE* conditional_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
+                IRBuilder<> builder(&function->getEntryBlock(), function->getEntryBlock().begin());
+                cond_jump_result_flag = builder.CreateAlloca(Type::getInt64Ty(TheContext), 0, "COND_JUMP_CONDITIONAL_VALUE");
+                LVALUE value64;
+                value64 = trunc_value(conditional_value, 64);
+
+                Value* zero = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)0);
+                Builder.CreateAlignedStore(zero, cond_jump_result_flag, 8);
+
+                Builder.CreateAlignedStore(value64.value, cond_jump_result_flag, 8);
+
                 BasicBlock* cond_jump_then_block = BasicBlock::Create(TheContext, "cond_jump_then", function);
                 entry_condends[num_cond_jump] = BasicBlock::Create(TheContext, "entry_condend", function);
 
@@ -226,6 +251,14 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 pc += sizeof(int);
 
                 LVALUE* conditional_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                IRBuilder<> builder(&function->getEntryBlock(), function->getEntryBlock().begin());
+                cond_jump_result_flag = builder.CreateAlloca(Type::getInt64Ty(TheContext), 0, "COND_JUMP_CONDITIONAL_VALUE");
+
+                LVALUE value64;
+                value64 = trunc_value(conditional_value, 64);
+
+                Builder.CreateAlignedStore(value64.value, cond_jump_result_flag, 8);
 
                 BasicBlock* cond_not_jump_then_block = BasicBlock::Create(TheContext, "cond_not_jump_then", function);
                 entry_condnotends[num_cond_not_jump] = BasicBlock::Create(TheContext, "entry_condnotend", function);
@@ -404,11 +437,19 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 }
                 break;
 
-            case OP_CATCH_POP:
+            case OP_CATCH_POP: {
+                inc_vm_stack_ptr(params, current_block, -1);
+                }
                 break;
 
             case OP_CATCH_STORE: {
+                int index = *(int*)pc;
                 pc += sizeof(int);
+
+                LVALUE llvm_value = get_vm_stack_ptr_value_from_index_with_aligned(params, current_block, -1, 8);
+                trunc_variable(&llvm_value, 4);
+
+                store_llvm_value_to_lvar_with_offset(llvm_stack, index, &llvm_value, FALSE);
                 }
                 break;
 
@@ -494,48 +535,205 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 }
                 break;
 
-            case OP_VALUE_FOR_ANDAND_OROR: {
+            case OP_STORE_VALUE_FOR_MACHINE_STACK: {
                 LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                LVALUE dupe_value = trunc_value(llvm_value, 64);
 
                 IRBuilder<> builder(&function->getEntryBlock(), function->getEntryBlock().begin());
-                value_for_andand_oror[num_value_for_andand_oror] = builder.CreateAlloca(Type::getInt64Ty(TheContext), 0, "VALUE_FOR_ANDAND_OROR");
+                Value* value = builder.CreateAlloca(Type::getInt64Ty(TheContext), 0, "MACHINE_STACK_VALUE");
+
+                machine_stack_value[num_machine_stack++] = value;
+
+                if(num_machine_stack >= MACHINE_STACK_MAX) {
+                    fprintf(stderr, "Compile Error. Overflow machine stack max\n");
+                    exit(2);
+                }
+             
                 Value* zero = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)0);
-                Builder.CreateAlignedStore(zero, value_for_andand_oror[num_value_for_andand_oror], 8);
+                Builder.CreateAlignedStore(zero, value, 8);
 
-                LVALUE llvm_value2;
-                llvm_value2 = trunc_value(llvm_value, 64);
-
-                Builder.CreateAlignedStore(llvm_value2.value, value_for_andand_oror[num_value_for_andand_oror], 8);
-
-                num_value_for_andand_oror++;
-
-                MASSERT(num_value_for_andand_oror >= ANDAND_OROR_MAX);
+                Builder.CreateAlignedStore(dupe_value.value, value, 8);
                 }
                 break;
 
-            case OP_STORE_VALUE_FOR_ANDAND_OROR: {
-                LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                num_value_for_andand_oror--;
+            case OP_POP_FOR_MACHINE_STACK: {
+                num_machine_stack--;
 
-                LVALUE llvm_value2;
-                llvm_value2 = trunc_value(llvm_value, 64);
-
-                Builder.CreateAlignedStore(llvm_value2.value, value_for_andand_oror[num_value_for_andand_oror], 8);
-
-                MASSERT(num_value_for_andand_oror >= 0);
+                if(num_machine_stack < 0) {
+                    fprintf(stderr, "Invalid Machine Stack Value.\n");
+                    exit(2);
+                }
                 }
                 break;
 
-            case OP_LOAD_VALUE_FOR_ANDAND_OROR: {
-                dec_stack_ptr(&llvm_stack_ptr, 1);
+            case OP_RESTORE_VALUE_FROM_MACHINE_STACK: {
+                int size = *(int*)pc;
+                pc += sizeof(int);
+
+                Value* value = machine_stack_value[--num_machine_stack];
+
+                if(num_machine_stack < 0) {
+                    fprintf(stderr, "Compile Error. Invalid machine stack max\n");
+                    exit(2);
+                }
+
+                Value* value2 = Builder.CreateAlignedLoad(value, 8);
 
                 LVALUE llvm_value;
-                llvm_value.value = Builder.CreateLoad(value_for_andand_oror[num_value_for_andand_oror], "value_for_andand_oror");
+                llvm_value.value = value2;
+                llvm_value.kind = kLVKindInt64;
+
+                trunc_variable(&llvm_value, size);
+
+                dec_stack_ptr(&llvm_stack_ptr, 1);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_RESET_ANDAND_OROR_VALUE:
+                andand_oror_value = NULL;
+                andand_oror_value2 = NULL;
+                break;
+
+            case OP_STORE_ANDAND_OROR_VALUE: {
+                LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                LVALUE dupe_value = trunc_value(llvm_value, 64);
+
+                IRBuilder<> builder(&function->getEntryBlock(), function->getEntryBlock().begin());
+                Value* value = builder.CreateAlloca(Type::getInt64Ty(TheContext), 0, "ANDAND_OROR_VALUE");
+
+                andand_oror_value = value;
+             
+                Value* zero = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)0);
+                Builder.CreateAlignedStore(zero, andand_oror_value, 8);
+
+                Builder.CreateAlignedStore(dupe_value.value, andand_oror_value, 8);
+                }
+                break;
+
+            case OP_STORE_ANDAND_OROR_VALUE2: {
+                LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                LVALUE dupe_value = trunc_value(llvm_value, 64);
+
+                IRBuilder<> builder(&function->getEntryBlock(), function->getEntryBlock().begin());
+                Value* value = builder.CreateAlloca(Type::getInt64Ty(TheContext), 0, "ANDAND_OROR_VALUE");
+
+                andand_oror_value2 = value;
+             
+                Value* zero = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)0);
+                Builder.CreateAlignedStore(zero, andand_oror_value2, 8);
+
+                Builder.CreateAlignedStore(dupe_value.value, andand_oror_value2, 8);
+                }
+                break;
+
+            case OP_RESTORE_ANDAND_OROR_VALUE: {
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+
+                LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, offset);
+
+                Value* value;
+                if(andand_oror_value) {
+                    value = andand_oror_value;
+                }
+                else {
+                    fprintf(stderr, "Unexpected Error\n");
+                    exit(2);
+                }
+
+                Value* value2 = Builder.CreateAlignedLoad(value, 8);
+
+                llvm_value->value = value2;
+                llvm_value->kind = kLVKindInt64;
+
+                trunc_variable(llvm_value, 1);
+                }
+                break;
+
+            case OP_RESTORE_ANDAND_OROR_VALUE2: {
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+
+                LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, offset);
+
+                Value* value;
+                if(andand_oror_value2) {
+                    value = andand_oror_value2;
+                }
+                else {
+                    fprintf(stderr, "Unexpected Error\n");
+                    exit(2);
+                }
+
+                Value* value2 = Builder.CreateAlignedLoad(value, 8);
+
+                llvm_value->value = value2;
+                llvm_value->kind = kLVKindInt64;
+
+                trunc_variable(llvm_value, 1);
+                }
+                break;
+
+            case OP_GET_ANDAND_OROR_RESULT: {
+                Value* result_value = gAndAndOrOrValue;
+
+                /// cond jump ///
+                BasicBlock* true_block = BasicBlock::Create(TheContext, "andand_oror_true_block", function);
+                BasicBlock* false_block = BasicBlock::Create(TheContext, "andand_oror_false_block", function);
+                BasicBlock* result_block = BasicBlock::Create(TheContext, "andand_oror_result_block", function);
+
+                Value* conditional_value = Builder.CreateAlignedLoad(cond_jump_result_flag, 8);
+
+                conditional_value = Builder.CreateCast(Instruction::Trunc, conditional_value, IntegerType::get(TheContext, 1));
+
+                Builder.CreateCondBr(conditional_value, true_block, false_block);
+
+                /// true block ///
+                Builder.SetInsertPoint(true_block);
+
+                Value* zero = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)0);
+                Builder.CreateAlignedStore(zero, result_value, 88888888);
+
+                Value* true_block_result = Builder.CreateAlignedLoad(andand_oror_value2, 8);
+
+                Builder.CreateAlignedStore(true_block_result, result_value, 8);
+                Builder.CreateBr(result_block);
+
+                /// false block ///
+                Builder.SetInsertPoint(false_block);
+
+                zero = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)0);
+                Builder.CreateAlignedStore(zero, result_value, 8);
+
+                Value* false_block_result = Builder.CreateAlignedLoad(andand_oror_value, 8);
+
+                Builder.CreateAlignedStore(false_block_result, result_value, 8);
+
+                Builder.CreateBr(result_block);
+
+                /// result block ///
+                Builder.SetInsertPoint(result_block);
+
+                current_block = result_block;
+
+                LVALUE llvm_value;
+
+                llvm_value.value = Builder.CreateAlignedLoad(result_value, 8);
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
-                llvm_value.kind = kLVKindMemory;
+                llvm_value.kind = kLVKindInt64;
+                llvm_value.parent_var_num = 0;
+                llvm_value.parent_stack = NULL;
+                llvm_value.parent_llvm_stack = NULL;
 
+                trunc_variable(&llvm_value, 1);
+
+                dec_stack_ptr(&llvm_stack_ptr, 1);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
                 break;
@@ -614,7 +812,10 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = Builder.CreateAlignedLoad(dec_ptr_value, 8, "value");
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
-                llvm_value.kind = kLVKindMemory;
+                llvm_value.kind = kLVKindInt64;
+                llvm_value.parent_var_num = 0;
+                llvm_value.parent_stack = NULL;
+                llvm_value.parent_llvm_stack = NULL;
 
                 trunc_variable(&llvm_value, size);
 
@@ -631,7 +832,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 
                 LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                store_llvm_value_to_lvar_with_offset(llvm_stack, index, llvm_value);
+                store_llvm_value_to_lvar_with_offset(llvm_stack, index, llvm_value, FALSE);
                 }
                 break;
 
@@ -664,6 +865,9 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.lvar_address_index = index;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.kind = kLVKindAddress;
+                llvm_value.parent_var_num = 0;
+                llvm_value.parent_stack = NULL;
+                llvm_value.parent_llvm_stack = NULL;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -679,6 +883,9 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                     llvm_value.lvar_address_index = -1;
                     llvm_value.lvar_stored = FALSE;
                     llvm_value.kind = kLVKindConstantInt8;
+                    llvm_value.parent_var_num = 0;
+                    llvm_value.parent_stack = NULL;
+                    llvm_value.parent_llvm_stack = NULL;
 
                     push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -694,6 +901,9 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                     llvm_value.lvar_address_index = -1;
                     llvm_value.lvar_stored = FALSE;
                     llvm_value.kind = kLVKindConstantUInt8;
+                    llvm_value.parent_var_num = 0;
+                    llvm_value.parent_stack = NULL;
+                    llvm_value.parent_llvm_stack = NULL;
 
                     push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -709,6 +919,9 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                     llvm_value.lvar_address_index = -1;
                     llvm_value.lvar_stored = FALSE;
                     llvm_value.kind = kLVKindConstantInt16;
+                    llvm_value.parent_var_num = 0;
+                    llvm_value.parent_stack = NULL;
+                    llvm_value.parent_llvm_stack = NULL;
 
                     push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -724,10 +937,31 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                     llvm_value.lvar_address_index = -1;
                     llvm_value.lvar_stored = FALSE;
                     llvm_value.kind = kLVKindConstantUInt16;
+                    llvm_value.parent_var_num = 0;
+                    llvm_value.parent_stack = NULL;
+                    llvm_value.parent_llvm_stack = NULL;
 
                     push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
                 break;
+
+            case OP_LDCBOOL: {
+                int value = *(int*)pc;
+                pc += sizeof(int);
+
+                LVALUE llvm_value;
+                llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(1, value)); 
+                llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
+                llvm_value.kind = kLVKindConstantInt1;
+                llvm_value.parent_var_num = 0;
+                llvm_value.parent_stack = NULL;
+                llvm_value.parent_llvm_stack = NULL;
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
 
             case OP_LDCINT: {
                 int value = *(int*)pc;
@@ -738,6 +972,9 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.kind = kLVKindConstantInt32;
+                llvm_value.parent_var_num = 0;
+                llvm_value.parent_stack = NULL;
+                llvm_value.parent_llvm_stack = NULL;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -752,6 +989,9 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.kind = kLVKindConstantUInt32;
+                llvm_value.parent_var_num = 0;
+                llvm_value.parent_stack = NULL;
+                llvm_value.parent_llvm_stack = NULL;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -774,6 +1014,9 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.kind = kLVKindConstantInt64;
+                llvm_value.parent_var_num = 0;
+                llvm_value.parent_stack = NULL;
+                llvm_value.parent_llvm_stack = NULL;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -796,6 +1039,9 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.kind = kLVKindConstantUInt64;
+                llvm_value.parent_var_num = 0;
+                llvm_value.parent_stack = NULL;
+                llvm_value.parent_llvm_stack = NULL;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -809,6 +1055,9 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.kind = kLVKindConstantInt32;
+                llvm_value.parent_var_num = 0;
+                llvm_value.parent_stack = NULL;
+                llvm_value.parent_llvm_stack = NULL;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -830,6 +1079,9 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(64, lvalue, false)); 
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
+                llvm_value.parent_var_num = 0;
+                llvm_value.parent_stack = NULL;
+                llvm_value.parent_llvm_stack = NULL;
 
                 llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, PointerType::get(IntegerType::get(TheContext, 64), 0));
 
@@ -848,6 +1100,9 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.kind = kLVKindConstantFloat;
+                llvm_value.parent_var_num = 0;
+                llvm_value.parent_stack = NULL;
+                llvm_value.parent_llvm_stack = NULL;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -870,6 +1125,9 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.kind = kLVKindConstantDouble;
+                llvm_value.parent_var_num = 0;
+                llvm_value.parent_stack = NULL;
+                llvm_value.parent_llvm_stack = NULL;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
@@ -899,6 +1157,7 @@ if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
                 break;
         }
 
+//show_llvm_stck_on_compile_time(llvm_stack, llvm_stack_ptr, var_num);
 /*
 if(inst != OP_HEAD_OF_EXPRESSION 
     && inst != OP_SIGINT 
@@ -906,7 +1165,7 @@ if(inst != OP_HEAD_OF_EXPRESSION
     && inst != OP_THROW 
 )
 {
-show_llvm_stack(llvm_stack, llvm_stack_ptr, var_num, params, current_block);
+    show_llvm_stack(llvm_stack, llvm_stack_ptr, var_num, params, current_block);
 }
 */
     }

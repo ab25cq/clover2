@@ -660,7 +660,7 @@ class Double
     }
 
     def toDouble():Double {
-        return self.value.toDouble
+        return self.value.toDouble;
     }
 }
 

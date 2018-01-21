@@ -78,6 +78,8 @@ ALLOC sNodeBlockType* clone_node_block_type(sNodeBlockType* block)
 
     self->mResultType = clone_node_type(block->mResultType);
 
+    self->mLambda = block->mLambda;
+
     return self;
 }
 

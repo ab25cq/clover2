@@ -1,5 +1,6 @@
 class StringTest2 {
     def main():static {
+/*
         Clover.test("string2 test1", "ABC".sub(/A/, "B").equals("BBC"));
         Clover.test("string2 test2", "AAA".sub(/A/g, "B").equals("BBB"));
         Clover.test("string2 test3", "AAA".sub(/^A/g, "B").equals("BAA"));
@@ -17,10 +18,13 @@ class StringTest2 {
         Clover.test("string2 test6", str2.equals("ABCC"));
 
         Clover.test("string2 tset7", "ABC".match(/^A/) && "ABC".match(/C$/) && "ABC".match(/B/));
+*/
 
         group_strings3:EqualableList<String> = new EqualableList<String>();
+        #Clover.test("string2 test8", "ABC".match(/^A(.)C/, group_strings3) && group_strings3.length() == 1 && group_strings3.items(0).equals("B"));
         Clover.test("string2 test8", "ABC".match(/^A(.)C/, group_strings3) && group_strings3.length() == 1 && group_strings3.items(0).equals("B"));
 
+/*
         Clover.test("string2 test9", "ABC".scan(/./).equals(equalable_list {"A", "B", "C"}));
         Clover.test("string2 test10", "ABCDEFGHI".scan(/^./).equals(equalable_list {"A"}));
         Clover.test("string2 test11", "ABCDEFGHI".scan(/.$/).equals(equalable_list {"I"}));
@@ -66,5 +70,6 @@ class StringTest2 {
         Clover.test("String2 test35", "abc".insert(1,"A").equals("aAbc"));
         Clover.test("String2 test36", "abc".subString(-1,-1).equals("c"));
         Clover.test("String2 test37", "ABC".subString(-2, -1).equals("BC"));
+*/
     }
 }

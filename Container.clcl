@@ -1,4 +1,4 @@
-include "Fundamental.clcl"
+include "String.clcl"
 
 interface IEqualable
 {
@@ -279,15 +279,15 @@ class SortableArray <T:ISortable>
 
         pivot_num = left;
 
-        left = l_hold;
-        right = r_hold;
-        if(left < pivot_num) {
-            self.quickSort(left, pivot_num-1);
+        left2:int = l_hold;
+        right2:int = r_hold;
+
+        if(left2 < pivot_num) {
+            self.quickSort(left2, pivot_num-1);
         }
 
-        if(right > pivot_num) {
-            self.quickSort(pivot_num+1, right);
-
+        if(right2 > pivot_num) {
+            self.quickSort(pivot_num+1, right2);
         }
 
         return self;
@@ -1104,6 +1104,8 @@ class SortableList<T:ISortable>
                 list.replace(left, list.items(right));
                 left++;
             }
+
+#Global.println("pivot \{list.items(left).compare(pivot).toBool}");
 
             while((list.items(left).compare(pivot) <= 0) && (left < right)) {
                 left++;

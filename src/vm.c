@@ -121,6 +121,10 @@ static void show_inst(unsigned inst)
             puts("OP_LDCINT");
             break;
 
+        case OP_LDCBOOL :
+            puts("OP_LDCBOOL");
+            break;
+
         case OP_LDCUINT :
             puts("OP_LDCUINT");
             break;
@@ -574,7 +578,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
     return TRUE;
 }
 
-BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_params, CLVALUE** stack_ptr, sVMInfo* info)
+BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_params, CLVALUE** stack_ptr, sVMInfo* info, BOOL llvm_flag)
 {
     sBlockObject* object_data = CLBLOCK(block_object);
 
@@ -1024,6 +1028,9 @@ show_inst(inst);
 #endif
 
         switch(inst) {
+            case OP_NOP:
+                break;
+
             case OP_POP:
                 vm_mutex_on();
 
@@ -1149,6 +1156,9 @@ show_inst(inst);
 
                 int catch_label_name_offset = *(int*)pc;
                 pc += sizeof(int);
+
+                int try_exception_var_index = *(int*)pc;
+                pc += sizeof(int);
                 
                 vm_mutex_off();
                 }
@@ -1263,6 +1273,30 @@ show_inst(inst);
                 }
                 break;
 
+            case OP_STORE_VALUE_FOR_MACHINE_STACK:
+                break;
+
+            case OP_POP_FOR_MACHINE_STACK:
+                break;
+
+            case OP_RESTORE_VALUE_FROM_MACHINE_STACK: {
+                int size = *(int*)pc;
+                pc += sizeof(int);
+                }
+                break;
+
+            case OP_RESTORE_ANDAND_OROR_VALUE: {
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+                }
+                break;
+
+            case OP_RESTORE_ANDAND_OROR_VALUE2: {
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+                }
+                break;
+
             case OP_STORE:
                 {
                     vm_mutex_on();
@@ -1369,6 +1403,21 @@ show_inst(inst);
                 break;
 
             case OP_LDCINT: 
+                {
+                    vm_mutex_on();
+
+                    int value = *(int*)pc;
+                    pc += sizeof(int);
+
+                    stack_ptr->mLongValue = 0; // zero clear for jit
+                    stack_ptr->mIntValue = value;
+                    stack_ptr++;
+
+                    vm_mutex_off();
+                }
+                break;
+
+            case OP_LDCBOOL: 
                 {
                     vm_mutex_on();
 
@@ -4914,6 +4963,9 @@ show_inst(inst);
                     int method_index = *(int*)pc;
                     pc += sizeof(int);
 
+                    int size = *(int*)pc;
+                    pc += sizeof(int);
+
                     char* class_name = CONS_str(constant, offset);
                     sCLClass* klass = get_class_with_load_and_initialize(class_name);
 
@@ -4963,6 +5015,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     pc += sizeof(int);
 
                     int offset = *(int*)pc;
+                    pc += sizeof(int);
+
+                    int size = *(int*)pc;
                     pc += sizeof(int);
 
                     CLObject object = (stack_ptr-num_real_params)->mObjectValue;
@@ -5033,6 +5088,9 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     pc += sizeof(int);
 
                     int max_method_chains = *(int*)pc;
+                    pc += sizeof(int);
+
+                    int size = *(int*)pc;
                     pc += sizeof(int);
 
                     /// none static method ////
@@ -5185,10 +5243,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     int num_params = *(int*)pc;
                     pc += sizeof(int);
 
+                    int size = *(int*)pc;
+                    pc += sizeof(int);
+
                     CLObject block_object = (stack_ptr-num_params-1)->mObjectValue;
 
 
-                    if(!invoke_block(block_object, stack, var_num, num_params, &stack_ptr, info)) 
+                    if(!invoke_block(block_object, stack, var_num, num_params, &stack_ptr, info, FALSE)) 
                     {
                         vm_mutex_off();
                         remove_stack_to_stack_list(stack_id);

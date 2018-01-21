@@ -7,257 +7,298 @@ LVALUE trunc_value(LVALUE* llvm_value, int size)
 {
     LVALUE result = *llvm_value;
 
-    Type* llvm_type = llvm_value->value->getType();
-    Type::TypeID type_id = llvm_type->getTypeID();
-
-    /// Constant Int ///
-    if(llvm_value->kind == kLVKindConstantInt1 || llvm_value->kind == kLVKindConstantInt8 || llvm_value->kind == kLVKindConstantUInt8 || llvm_value->kind == kLVKindConstantInt16 || llvm_value->kind == kLVKindConstantUInt16 || llvm_value->kind == kLVKindConstantInt32 || llvm_value->kind == kLVKindConstantUInt32 || llvm_value->kind == kLVKindConstantInt64 || llvm_value->kind == kLVKindConstantInt64 || llvm_value->kind == kLVKindConstantUInt64) 
-    {
-        ConstantInt* constant_int_value = dynamic_cast<ConstantInt*>(llvm_value->value);
-        APInt apint_value = constant_int_value->getValue();
-
-        int bit_width = constant_int_value->getBitWidth();
-        bool signed_value = apint_value.isSignBit();
-
-        switch(size) {
-            case 1:
-                if(signed_value) {
-                    result.value = ConstantInt::get(TheContext, apint_value.sextOrTrunc(1));
-                    result.kind = kLVKindConstantInt1;
-                }
-                else {
-                    result.value = ConstantInt::get(TheContext, apint_value.zextOrTrunc(1));
-                    result.kind = kLVKindConstantInt1;
-                }
-                break;
-
-            case 8:
-                if(signed_value) {
-                    result.value = ConstantInt::get(TheContext, apint_value.sextOrTrunc(8));
-                    result.kind = kLVKindConstantInt8;
-                }
-                else {
-                    result.value = ConstantInt::get(TheContext, apint_value.zextOrTrunc(8));
-                    result.kind = kLVKindConstantUInt8;
-                }
-                break;
-
-            case 16:
-                if(signed_value) {
-                    result.value = ConstantInt::get(TheContext, apint_value.sextOrTrunc(16));
-                    result.kind = kLVKindConstantInt16;
-                }
-                else {
-                    result.value = ConstantInt::get(TheContext, apint_value.zextOrTrunc(16));
-                    result.kind = kLVKindConstantUInt16;
-                }
-                break;
-
-            case 32:
-                if(signed_value) {
-                    result.value = ConstantInt::get(TheContext, apint_value.sextOrTrunc(32));
-                    result.kind = kLVKindConstantInt32;
-                }
-                else {
-                    result.value = ConstantInt::get(TheContext, apint_value.zextOrTrunc(32));
-                    result.kind = kLVKindConstantUInt32;
-                }
-                break;
-
-            case 64:
-                if(signed_value) {
-                    result.value = ConstantInt::get(TheContext, apint_value.sextOrTrunc(64));
-                    result.kind = kLVKindConstantInt64;
-                }
-                else {
-                    result.value = ConstantInt::get(TheContext, apint_value.zextOrTrunc(64));
-                    result.kind = kLVKindConstantUInt64;
-                }
-                break;
-        }
-    }
-    else if(llvm_value->kind == kLVKindConstantFloat || llvm_value->kind == kLVKindConstantDouble) {
-        ConstantFP* constant_float_value = dynamic_cast<ConstantFP*>(llvm_value->value);
-        const APFloat apfloat_value = constant_float_value->getValueAPF();
+    if(llvm_value->kind == kLVKindMemory) {
+        Value* value = Builder.CreateAlignedLoad(llvm_value->value, 8);
 
         switch(size) {
             case 1: {
-                APInt apint_value = apfloat_value.bitcastToAPInt();
-                ConstantInt* value = ConstantInt::get(TheContext, apint_value);
-                result.value = ConstantInt::get(TheContext, apint_value.sextOrTrunc(1));
-                result.kind = kLVKindConstantInt1;
-                }
-                break;
+                result.value = Builder.CreateCast(Instruction::Trunc, value, Type::getInt1Ty(TheContext));
+                result.kind = kLVKindInt1;
+            }
+            break;
 
             case 8: {
-                APInt apint_value = apfloat_value.bitcastToAPInt();
-                ConstantInt* value = ConstantInt::get(TheContext, apint_value);
-                result.value = ConstantInt::get(TheContext, apint_value.sextOrTrunc(8));
-                result.kind = kLVKindConstantInt8;
-                }
-                break;
+                result.value = Builder.CreateCast(Instruction::Trunc, value, Type::getInt8Ty(TheContext));
+                result.kind = kLVKindInt8;
+            }
+            break;
 
             case 16: {
-                APInt apint_value = apfloat_value.bitcastToAPInt();
-                ConstantInt* value = ConstantInt::get(TheContext, apint_value);
-                result.value = ConstantInt::get(TheContext, apint_value.sextOrTrunc(16));
-                result.kind = kLVKindConstantInt16;
-                }
-                break;
+                result.value = Builder.CreateCast(Instruction::Trunc, value, Type::getInt16Ty(TheContext));
+                result.kind = kLVKindInt16;
+            }
+            break;
 
             case 32: {
-                APInt apint_value = apfloat_value.bitcastToAPInt();
-                ConstantInt* value = ConstantInt::get(TheContext, apint_value);
-                result.value = ConstantInt::get(TheContext, apint_value.sextOrTrunc(32));
-                result.kind = kLVKindConstantInt32;
-                }
-                break;
+                result.value = Builder.CreateCast(Instruction::Trunc, value, Type::getInt32Ty(TheContext));
+                result.kind = kLVKindInt32;
+            }
+            break;
 
             case 64: {
-                APInt apint_value = apfloat_value.bitcastToAPInt();
-                ConstantInt* value = ConstantInt::get(TheContext, apint_value);
-                result.value = ConstantInt::get(TheContext, apint_value.sextOrTrunc(64));
-                result.kind = kLVKindConstantInt64;
-                }
-                break;
-        }
-    }
-    /// Memory ///
-    else if(type_id == Type::TypeID::FloatTyID) {
-        switch(size) {
-            case 1:
-                result.value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, Type::getInt1Ty(TheContext));
-                result.kind = kLVKindInt1;
-                break;
-
-            case 8:
-                result.value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, Type::getInt8Ty(TheContext));
-                result.kind = kLVKindInt8;
-                break;
-
-            case 16:
-                result.value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, Type::getInt16Ty(TheContext));
-                result.kind = kLVKindInt16;
-                break;
-
-            case 32:
-                result.value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, Type::getInt32Ty(TheContext));
-                result.kind = kLVKindInt32;
-                break;
-
-            case 64:
-                result.value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, Type::getInt32Ty(TheContext));
-                result.value = Builder.CreateCast(Instruction::ZExt, result.value, Type::getInt64Ty(TheContext));
+                result.value = Builder.CreateCast(Instruction::BitCast, value, Type::getInt64Ty(TheContext));
                 result.kind = kLVKindInt64;
-                break;
-        }
-    }
-    else if(type_id == Type::TypeID::DoubleTyID) {
-        switch(size) {
-            case 1:
-                result.value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, Type::getInt1Ty(TheContext));
-                result.kind = kLVKindInt1;
-                break;
-
-            case 8:
-                result.value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, Type::getInt8Ty(TheContext));
-                result.kind = kLVKindInt8;
-                break;
-
-            case 16:
-                result.value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, Type::getInt16Ty(TheContext));
-                result.kind = kLVKindInt16;
-                break;
-
-            case 32:
-                result.value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, Type::getInt32Ty(TheContext));
-                result.kind = kLVKindInt32;
-                break;
-
-            case 64:
-                result.value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, Type::getInt64Ty(TheContext));
-                result.kind = kLVKindInt64;
-                break;
-        }
-    }
-    else if(llvm_type->isPointerTy()) {
-        switch(size) {
-            case 1:
-                result.value = Builder.CreateCast(Instruction::PtrToInt, llvm_value->value, Type::getInt1Ty(TheContext));
-                result.kind = kLVKindInt1;
-                break;
-
-            case 8:
-                result.value = Builder.CreateCast(Instruction::PtrToInt, llvm_value->value, Type::getInt8Ty(TheContext));
-                result.kind = kLVKindInt8;
-                break;
-
-            case 16:
-                result.value = Builder.CreateCast(Instruction::PtrToInt, llvm_value->value, Type::getInt16Ty(TheContext));
-                result.kind = kLVKindInt16;
-                break;
-
-            case 32:
-                result.value = Builder.CreateCast(Instruction::PtrToInt, llvm_value->value, Type::getInt32Ty(TheContext));
-                result.kind = kLVKindInt32;
-                break;
-
-            case 64:
-                result.value = Builder.CreateCast(Instruction::PtrToInt, llvm_value->value, Type::getInt64Ty(TheContext));
-                result.kind = kLVKindInt64;
-                break;
+            }
+            break;
         }
     }
     else {
-        switch(size) {
-            case 1:
-                if(!llvm_type->isIntegerTy(1)) {
-                    result.value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt1Ty(TheContext));
+        Type* llvm_type = llvm_value->value->getType();
+        Type::TypeID type_id = llvm_type->getTypeID();
+
+        /// Constant Int ///
+        if(llvm_value->kind == kLVKindConstantInt1 || llvm_value->kind == kLVKindConstantInt8 || llvm_value->kind == kLVKindConstantUInt8 || llvm_value->kind == kLVKindConstantInt16 || llvm_value->kind == kLVKindConstantUInt16 || llvm_value->kind == kLVKindConstantInt32 || llvm_value->kind == kLVKindConstantUInt32 || llvm_value->kind == kLVKindConstantInt64 || llvm_value->kind == kLVKindConstantInt64 || llvm_value->kind == kLVKindConstantUInt64) 
+        {
+            ConstantInt* constant_int_value = dynamic_cast<ConstantInt*>(llvm_value->value);
+            APInt apint_value = constant_int_value->getValue();
+
+            int bit_width = constant_int_value->getBitWidth();
+            bool signed_value = apint_value.isSignBit();
+
+            switch(size) {
+                case 1:
+                    if(signed_value) {
+                        result.value = ConstantInt::get(TheContext, apint_value.sextOrTrunc(1));
+                        result.kind = kLVKindConstantInt1;
+                    }
+                    else {
+                        result.value = ConstantInt::get(TheContext, apint_value.zextOrTrunc(1));
+                        result.kind = kLVKindConstantInt1;
+                    }
+                    break;
+
+                case 8:
+                    if(signed_value) {
+                        result.value = ConstantInt::get(TheContext, apint_value.sextOrTrunc(8));
+                        result.kind = kLVKindConstantInt8;
+                    }
+                    else {
+                        result.value = ConstantInt::get(TheContext, apint_value.zextOrTrunc(8));
+                        result.kind = kLVKindConstantUInt8;
+                    }
+                    break;
+
+                case 16:
+                    if(signed_value) {
+                        result.value = ConstantInt::get(TheContext, apint_value.sextOrTrunc(16));
+                        result.kind = kLVKindConstantInt16;
+                    }
+                    else {
+                        result.value = ConstantInt::get(TheContext, apint_value.zextOrTrunc(16));
+                        result.kind = kLVKindConstantUInt16;
+                    }
+                    break;
+
+                case 32:
+                    if(signed_value) {
+                        result.value = ConstantInt::get(TheContext, apint_value.sextOrTrunc(32));
+                        result.kind = kLVKindConstantInt32;
+                    }
+                    else {
+                        result.value = ConstantInt::get(TheContext, apint_value.zextOrTrunc(32));
+                        result.kind = kLVKindConstantUInt32;
+                    }
+                    break;
+
+                case 64:
+                    if(signed_value) {
+                        result.value = ConstantInt::get(TheContext, apint_value.sextOrTrunc(64));
+                        result.kind = kLVKindConstantInt64;
+                    }
+                    else {
+                        result.value = ConstantInt::get(TheContext, apint_value.zextOrTrunc(64));
+                        result.kind = kLVKindConstantUInt64;
+                    }
+                    break;
+            }
+        }
+        else if(llvm_value->kind == kLVKindConstantFloat || llvm_value->kind == kLVKindConstantDouble) {
+            ConstantFP* constant_float_value = dynamic_cast<ConstantFP*>(llvm_value->value);
+            const APFloat apfloat_value = constant_float_value->getValueAPF();
+
+            switch(size) {
+                case 1: {
+                    APInt apint_value = apfloat_value.bitcastToAPInt();
+                    ConstantInt* value = ConstantInt::get(TheContext, apint_value);
+                    result.value = ConstantInt::get(TheContext, apint_value.sextOrTrunc(1));
+                    result.kind = kLVKindConstantInt1;
+                    }
+                    break;
+
+                case 8: {
+                    APInt apint_value = apfloat_value.bitcastToAPInt();
+                    ConstantInt* value = ConstantInt::get(TheContext, apint_value);
+                    result.value = ConstantInt::get(TheContext, apint_value.sextOrTrunc(8));
+                    result.kind = kLVKindConstantInt8;
+                    }
+                    break;
+
+                case 16: {
+                    APInt apint_value = apfloat_value.bitcastToAPInt();
+                    ConstantInt* value = ConstantInt::get(TheContext, apint_value);
+                    result.value = ConstantInt::get(TheContext, apint_value.sextOrTrunc(16));
+                    result.kind = kLVKindConstantInt16;
+                    }
+                    break;
+
+                case 32: {
+                    APInt apint_value = apfloat_value.bitcastToAPInt();
+                    ConstantInt* value = ConstantInt::get(TheContext, apint_value);
+                    result.value = ConstantInt::get(TheContext, apint_value.sextOrTrunc(32));
+                    result.kind = kLVKindConstantInt32;
+                    }
+                    break;
+
+                case 64: {
+                    APInt apint_value = apfloat_value.bitcastToAPInt();
+                    ConstantInt* value = ConstantInt::get(TheContext, apint_value);
+                    result.value = ConstantInt::get(TheContext, apint_value.sextOrTrunc(64));
+                    result.kind = kLVKindConstantInt64;
+                    }
+                    break;
+            }
+        }
+        /// Memory ///
+        else if(type_id == Type::TypeID::FloatTyID) {
+            switch(size) {
+                case 1:
+                    result.value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, Type::getInt1Ty(TheContext));
                     result.kind = kLVKindInt1;
-                }
-                break;
+                    break;
 
-            case 8:
-                if(llvm_type->isIntegerTy(1)) {
-                    result.value = Builder.CreateCast(Instruction::ZExt, llvm_value->value, Type::getInt8Ty(TheContext));
+                case 8:
+                    result.value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, Type::getInt8Ty(TheContext));
                     result.kind = kLVKindInt8;
-                }
-                else if(!llvm_type->isIntegerTy(8)) {
-                    result.value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt8Ty(TheContext));
-                    result.kind = kLVKindInt8;
-                }
-                break;
+                    break;
 
-            case 16:
-                if(llvm_type->isIntegerTy(1) || llvm_type->isIntegerTy(8)) {
-                    result.value = Builder.CreateCast(Instruction::ZExt, llvm_value->value, Type::getInt16Ty(TheContext));
+                case 16:
+                    result.value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, Type::getInt16Ty(TheContext));
                     result.kind = kLVKindInt16;
-                }
-                else if(llvm_type->isIntegerTy(16)) {
-                }
-                else {
-                    result.value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt16Ty(TheContext));
-                    result.kind = kLVKindInt16;
-                }
-                break;
+                    break;
 
-            case 32:
-                if(llvm_type->isIntegerTy(1) ||llvm_type->isIntegerTy(8) || llvm_type->isIntegerTy(16)) {
-                    result.value = Builder.CreateCast(Instruction::ZExt, llvm_value->value, Type::getInt32Ty(TheContext));
+                case 32:
+                    result.value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, Type::getInt32Ty(TheContext));
                     result.kind = kLVKindInt32;
-                }
-                else {
-                    result.value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt32Ty(TheContext));
-                    result.kind = kLVKindInt32;
-                }
-                break;
+                    break;
 
-            case 64:
-                if(!llvm_type->isIntegerTy(64)) {
-                    result.value = Builder.CreateCast(Instruction::ZExt, llvm_value->value, Type::getInt64Ty(TheContext));
+                case 64:
+                    result.value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, Type::getInt32Ty(TheContext));
+                    result.value = Builder.CreateCast(Instruction::ZExt, result.value, Type::getInt64Ty(TheContext));
                     result.kind = kLVKindInt64;
-                }
-                break;
+                    break;
+            }
+        }
+        else if(type_id == Type::TypeID::DoubleTyID) {
+            switch(size) {
+                case 1:
+                    result.value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, Type::getInt64Ty(TheContext));
+                    result.value = Builder.CreateCast(Instruction::Trunc, result.value, Type::getInt1Ty(TheContext));
+                    result.kind = kLVKindInt1;
+                    break;
+
+                case 8:
+                    result.value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, Type::getInt64Ty(TheContext));
+                    result.value = Builder.CreateCast(Instruction::Trunc, result.value, Type::getInt8Ty(TheContext));
+                    result.kind = kLVKindInt8;
+                    break;
+
+                case 16:
+                    result.value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, Type::getInt64Ty(TheContext));
+                    result.value = Builder.CreateCast(Instruction::Trunc, result.value, Type::getInt16Ty(TheContext));
+                    result.kind = kLVKindInt16;
+                    break;
+
+                case 32:
+                    result.value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, Type::getInt64Ty(TheContext));
+                    result.value = Builder.CreateCast(Instruction::Trunc, result.value, Type::getInt32Ty(TheContext));
+                    result.kind = kLVKindInt32;
+                    break;
+
+                case 64:
+                    result.value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, Type::getInt64Ty(TheContext));
+                    result.kind = kLVKindInt64;
+                    break;
+            }
+        }
+        else if(llvm_type->isPointerTy()) {
+            switch(size) {
+                case 1:
+                    result.value = Builder.CreateCast(Instruction::PtrToInt, llvm_value->value, Type::getInt1Ty(TheContext));
+                    result.kind = kLVKindInt1;
+                    break;
+
+                case 8:
+                    result.value = Builder.CreateCast(Instruction::PtrToInt, llvm_value->value, Type::getInt8Ty(TheContext));
+                    result.kind = kLVKindInt8;
+                    break;
+
+                case 16:
+                    result.value = Builder.CreateCast(Instruction::PtrToInt, llvm_value->value, Type::getInt16Ty(TheContext));
+                    result.kind = kLVKindInt16;
+                    break;
+
+                case 32:
+                    result.value = Builder.CreateCast(Instruction::PtrToInt, llvm_value->value, Type::getInt32Ty(TheContext));
+                    result.kind = kLVKindInt32;
+                    break;
+
+                case 64:
+                    result.value = Builder.CreateCast(Instruction::PtrToInt, llvm_value->value, Type::getInt64Ty(TheContext));
+                    result.kind = kLVKindInt64;
+                    break;
+            }
+        }
+        else {
+            switch(size) {
+                case 1:
+                    if(!llvm_type->isIntegerTy(1)) {
+                        result.value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt1Ty(TheContext));
+                        result.kind = kLVKindInt1;
+                    }
+                    break;
+
+                case 8:
+                    if(llvm_type->isIntegerTy(1)) {
+                        result.value = Builder.CreateCast(Instruction::ZExt, llvm_value->value, Type::getInt8Ty(TheContext));
+                        result.kind = kLVKindInt8;
+                    }
+                    else if(!llvm_type->isIntegerTy(8)) {
+                        result.value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt8Ty(TheContext));
+                        result.kind = kLVKindInt8;
+                    }
+                    break;
+
+                case 16:
+                    if(llvm_type->isIntegerTy(1) || llvm_type->isIntegerTy(8)) {
+                        result.value = Builder.CreateCast(Instruction::ZExt, llvm_value->value, Type::getInt16Ty(TheContext));
+                        result.kind = kLVKindInt16;
+                    }
+                    else if(llvm_type->isIntegerTy(16)) {
+                    }
+                    else {
+                        result.value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt16Ty(TheContext));
+                        result.kind = kLVKindInt16;
+                    }
+                    break;
+
+                case 32:
+                    if(llvm_type->isIntegerTy(1) ||llvm_type->isIntegerTy(8) || llvm_type->isIntegerTy(16)) {
+                        result.value = Builder.CreateCast(Instruction::ZExt, llvm_value->value, Type::getInt32Ty(TheContext));
+                        result.kind = kLVKindInt32;
+                    }
+                    else {
+                        result.value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt32Ty(TheContext));
+                        result.kind = kLVKindInt32;
+                    }
+                    break;
+
+                case 64:
+                    if(!llvm_type->isIntegerTy(64)) {
+                        result.value = Builder.CreateCast(Instruction::ZExt, llvm_value->value, Type::getInt64Ty(TheContext));
+                        result.kind = kLVKindInt64;
+                    }
+                    break;
+            }
         }
     }
 
@@ -269,90 +310,105 @@ LVALUE trunc_value_to_float_or_double(LVALUE* llvm_value, int size)
 {
     LVALUE result = *llvm_value;
 
-    Type* llvm_type = llvm_value->value->getType();
-    Type::TypeID type_id = llvm_type->getTypeID();
-
-    /// Constant Int ///
-    if(llvm_value->kind == kLVKindConstantInt1 || llvm_value->kind == kLVKindConstantInt8 || llvm_value->kind == kLVKindConstantUInt8 || llvm_value->kind == kLVKindConstantInt16 || llvm_value->kind == kLVKindConstantUInt16 || llvm_value->kind == kLVKindConstantInt32 || llvm_value->kind == kLVKindConstantUInt32 || llvm_value->kind == kLVKindConstantInt64 || llvm_value->kind == kLVKindConstantInt64 || llvm_value->kind == kLVKindConstantUInt64) 
-    {
-        ConstantInt* constant_int_value = dynamic_cast<ConstantInt*>(llvm_value->value);
-        APInt apint_value = constant_int_value->getValue();
-
-        int bit_width = constant_int_value->getBitWidth();
-        bool signed_value = apint_value.isSignBit();
+    if(llvm_value->kind == kLVKindMemory) {
+        Value* value = Builder.CreateAlignedLoad(llvm_value->value, 8);
 
         switch(size) {
             case 32:
-                if(signed_value) {
-                    result.value = Builder.CreateCast(Instruction::SIToFP, llvm_value->value, Type::getFloatTy(TheContext));
-                    result.kind = kLVKindFloat;
-                }
-                else {
-                    result.value = Builder.CreateCast(Instruction::UIToFP, llvm_value->value, Type::getFloatTy(TheContext));
-                    result.kind = kLVKindFloat;
-                }
-                break;
-
-            case 64:
-                if(signed_value) {
-                    result.value = Builder.CreateCast(Instruction::SIToFP, llvm_value->value, Type::getDoubleTy(TheContext));
-                    result.kind = kLVKindDouble;
-                }
-                else {
-                    result.value = Builder.CreateCast(Instruction::UIToFP, llvm_value->value, Type::getDoubleTy(TheContext));
-                    result.kind = kLVKindDouble;
-                }
-                break;
-        }
-    }
-    else if(llvm_value->kind == kLVKindConstantFloat || llvm_value->kind == kLVKindConstantDouble) {
-    }
-    /// Memory ///
-    else if(type_id == Type::TypeID::FloatTyID) {
-        switch(size) {
-            case 64:
-                result.value = Builder.CreateCast(Instruction::FPExt, llvm_value->value, Type::getDoubleTy(TheContext));
-                result.kind = kLVKindDouble;
-                break;
-        }
-    }
-    else if(type_id == Type::TypeID::DoubleTyID) {
-        switch(size) {
-            case 32:
-                result.value = Builder.CreateCast(Instruction::FPTrunc, llvm_value->value, Type::getFloatTy(TheContext));
+                result.value = Builder.CreateCast(Instruction::Trunc, value, Type::getInt32Ty(TheContext));
+                result.value = Builder.CreateCast(Instruction::BitCast, result.value, Type::getFloatTy(TheContext));
                 result.kind = kLVKindFloat;
                 break;
 
             case 64:
-                break;
-        }
-    }
-    else if(llvm_type->isPointerTy()) {
-        switch(size) {
-            case 32:
-                result.value = Builder.CreateCast(Instruction::PtrToInt, llvm_value->value, Type::getInt32Ty(TheContext));
-                result.value = Builder.CreateCast(Instruction::UIToFP, result.value, Type::getFloatTy(TheContext));
-                result.kind = kLVKindFloat;
-                break;
-
-            case 64:
-                result.value = Builder.CreateCast(Instruction::PtrToInt, llvm_value->value, Type::getInt64Ty(TheContext));
-                result.value = Builder.CreateCast(Instruction::UIToFP, result.value, Type::getDoubleTy(TheContext));
+                result.value = Builder.CreateCast(Instruction::BitCast, value, Type::getDoubleTy(TheContext));
                 result.kind = kLVKindDouble;
                 break;
         }
     }
     else {
-        switch(size) {
-            case 32:
-                result.value = Builder.CreateCast(Instruction::UIToFP, llvm_value->value, Type::getFloatTy(TheContext));
-                result.kind = kLVKindFloat;
-                break;
+        Type* llvm_type = llvm_value->value->getType();
+        Type::TypeID type_id = llvm_type->getTypeID();
 
-            case 64:
-                result.value = Builder.CreateCast(Instruction::UIToFP, llvm_value->value, Type::getDoubleTy(TheContext));
-                result.kind = kLVKindDouble;
-                break;
+        /// Constant Int ///
+        if(llvm_value->kind == kLVKindConstantInt1 || llvm_value->kind == kLVKindConstantInt8 || llvm_value->kind == kLVKindConstantUInt8 || llvm_value->kind == kLVKindConstantInt16 || llvm_value->kind == kLVKindConstantUInt16 || llvm_value->kind == kLVKindConstantInt32 || llvm_value->kind == kLVKindConstantUInt32 || llvm_value->kind == kLVKindConstantInt64 || llvm_value->kind == kLVKindConstantInt64 || llvm_value->kind == kLVKindConstantUInt64) 
+        {
+            ConstantInt* constant_int_value = dynamic_cast<ConstantInt*>(llvm_value->value);
+            APInt apint_value = constant_int_value->getValue();
+
+            int bit_width = constant_int_value->getBitWidth();
+            bool signed_value = apint_value.isSignBit();
+
+            switch(size) {
+                case 32:
+                    if(signed_value) {
+                        result.value = Builder.CreateCast(Instruction::SIToFP, llvm_value->value, Type::getFloatTy(TheContext));
+                        result.kind = kLVKindFloat;
+                    }
+                    else {
+                        result.value = Builder.CreateCast(Instruction::UIToFP, llvm_value->value, Type::getFloatTy(TheContext));
+                        result.kind = kLVKindFloat;
+                    }
+                    break;
+
+                case 64:
+                    if(signed_value) {
+                        result.value = Builder.CreateCast(Instruction::SIToFP, llvm_value->value, Type::getDoubleTy(TheContext));
+                        result.kind = kLVKindDouble;
+                    }
+                    else {
+                        result.value = Builder.CreateCast(Instruction::UIToFP, llvm_value->value, Type::getDoubleTy(TheContext));
+                        result.kind = kLVKindDouble;
+                    }
+                    break;
+            }
+        }
+        else if(llvm_value->kind == kLVKindConstantFloat || type_id == Type::TypeID::FloatTyID || llvm_value->kind == kLVKindFloat) {
+            switch(size) {
+                case 64:
+                    result.value = Builder.CreateCast(Instruction::FPExt, llvm_value->value, Type::getDoubleTy(TheContext));
+                    result.kind = kLVKindDouble;
+                    break;
+            }
+        }
+        else if(type_id == Type::TypeID::DoubleTyID || llvm_value->kind == kLVKindConstantDouble || llvm_value->kind == kLVKindDouble) {
+            switch(size) {
+                case 32:
+                    result.value = Builder.CreateCast(Instruction::FPTrunc, llvm_value->value, Type::getFloatTy(TheContext));
+                    result.kind = kLVKindFloat;
+                    break;
+
+                case 64:
+                    break;
+            }
+        }
+        else if(llvm_type->isPointerTy()) {
+            switch(size) {
+                case 32:
+                    result.value = Builder.CreateCast(Instruction::PtrToInt, llvm_value->value, Type::getInt32Ty(TheContext));
+                    result.value = Builder.CreateCast(Instruction::UIToFP, result.value, Type::getFloatTy(TheContext));
+                    result.kind = kLVKindFloat;
+                    break;
+
+                case 64:
+                    result.value = Builder.CreateCast(Instruction::PtrToInt, llvm_value->value, Type::getInt64Ty(TheContext));
+                    result.value = Builder.CreateCast(Instruction::UIToFP, result.value, Type::getDoubleTy(TheContext));
+                    result.kind = kLVKindDouble;
+                    break;
+            }
+        }
+        else {
+            switch(size) {
+                case 32:
+                    result.value = Builder.CreateCast(Instruction::UIToFP, llvm_value->value, Type::getFloatTy(TheContext));
+                    result.kind = kLVKindFloat;
+                    break;
+
+                case 64:
+                    result.value = Builder.CreateCast(Instruction::UIToFP, llvm_value->value, Type::getDoubleTy(TheContext));
+                    result.kind = kLVKindDouble;
+                    break;
+            }
         }
     }
 
@@ -363,44 +419,52 @@ LVALUE trunc_value_to_pointer(LVALUE* llvm_value)
 {
     LVALUE result = *llvm_value;
 
-    Type* llvm_type = llvm_value->value->getType();
-    Type::TypeID type_id = llvm_type->getTypeID();
+    if(llvm_value->kind == kLVKindMemory) {
+        Value* value = Builder.CreateAlignedLoad(llvm_value->value, 8);
 
-    /// Constant Int ///
-    if(llvm_value->kind == kLVKindConstantInt1 || llvm_value->kind == kLVKindConstantInt8 || llvm_value->kind == kLVKindConstantUInt8 || llvm_value->kind == kLVKindConstantInt16 || llvm_value->kind == kLVKindConstantUInt16 || llvm_value->kind == kLVKindConstantInt32 || llvm_value->kind == kLVKindConstantUInt32 || llvm_value->kind == kLVKindConstantInt64 || llvm_value->kind == kLVKindConstantInt64 || llvm_value->kind == kLVKindConstantUInt64) 
-    {
-        ConstantInt* constant_int_value = dynamic_cast<ConstantInt*>(llvm_value->value);
-        APInt apint_value = constant_int_value->getValue();
-
-        int bit_width = constant_int_value->getBitWidth();
-        bool signed_value = apint_value.isSignBit();
-
-        result.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value->value, PointerType::get(IntegerType::get(TheContext, 8), 0));
+        result.value = Builder.CreateCast(Instruction::IntToPtr, value, PointerType::get(IntegerType::get(TheContext, 8), 0));
         result.kind = kLVKindPointer8;
-    }
-    else if(llvm_value->kind == kLVKindConstantFloat || llvm_value->kind == kLVKindConstantDouble) {
-        ConstantFP* constant_float_value = dynamic_cast<ConstantFP*>(llvm_value->value);
-        const APFloat apfloat_value = constant_float_value->getValueAPF();
-
-        result.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value->value, PointerType::get(IntegerType::get(TheContext, 8), 0));
-        result.kind = kLVKindPointer8;
-    }
-    /// Memory ///
-    else if(type_id == Type::TypeID::FloatTyID) {
-        result.value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, Type::getInt64Ty(TheContext));
-        result.value = Builder.CreateCast(Instruction::IntToPtr, result.value, PointerType::get(IntegerType::get(TheContext, 8), 0));
-        result.kind = kLVKindPointer8;
-    }
-    else if(type_id == Type::TypeID::DoubleTyID) {
-        result.value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, Type::getInt64Ty(TheContext));
-        result.value = Builder.CreateCast(Instruction::IntToPtr, result.value, PointerType::get(IntegerType::get(TheContext, 8), 0));
-        result.kind = kLVKindPointer8;
-    }
-    else if(llvm_type->isPointerTy()) {
     }
     else {
-        result.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value->value, PointerType::get(IntegerType::get(TheContext, 8), 0));
-        result.kind = kLVKindPointer8;
+        Type* llvm_type = llvm_value->value->getType();
+        Type::TypeID type_id = llvm_type->getTypeID();
+
+        /// Constant Int ///
+        if(llvm_value->kind == kLVKindConstantInt1 || llvm_value->kind == kLVKindConstantInt8 || llvm_value->kind == kLVKindConstantUInt8 || llvm_value->kind == kLVKindConstantInt16 || llvm_value->kind == kLVKindConstantUInt16 || llvm_value->kind == kLVKindConstantInt32 || llvm_value->kind == kLVKindConstantUInt32 || llvm_value->kind == kLVKindConstantInt64 || llvm_value->kind == kLVKindConstantInt64 || llvm_value->kind == kLVKindConstantUInt64) 
+        {
+            ConstantInt* constant_int_value = dynamic_cast<ConstantInt*>(llvm_value->value);
+            APInt apint_value = constant_int_value->getValue();
+
+            int bit_width = constant_int_value->getBitWidth();
+            bool signed_value = apint_value.isSignBit();
+
+            result.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value->value, PointerType::get(IntegerType::get(TheContext, 8), 0));
+            result.kind = kLVKindPointer8;
+        }
+        else if(llvm_value->kind == kLVKindConstantFloat || llvm_value->kind == kLVKindConstantDouble) {
+            ConstantFP* constant_float_value = dynamic_cast<ConstantFP*>(llvm_value->value);
+            const APFloat apfloat_value = constant_float_value->getValueAPF();
+
+            result.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value->value, PointerType::get(IntegerType::get(TheContext, 8), 0));
+            result.kind = kLVKindPointer8;
+        }
+        /// Memory ///
+        else if(type_id == Type::TypeID::FloatTyID || llvm_value->kind == kLVKindFloat) {
+            result.value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, Type::getInt64Ty(TheContext));
+            result.value = Builder.CreateCast(Instruction::IntToPtr, result.value, PointerType::get(IntegerType::get(TheContext, 8), 0));
+            result.kind = kLVKindPointer8;
+        }
+        else if(type_id == Type::TypeID::DoubleTyID || llvm_value->kind == kLVKindDouble) {
+            result.value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, Type::getInt64Ty(TheContext));
+            result.value = Builder.CreateCast(Instruction::IntToPtr, result.value, PointerType::get(IntegerType::get(TheContext, 8), 0));
+            result.kind = kLVKindPointer8;
+        }
+        else if(llvm_type->isPointerTy()) {
+        }
+        else {
+            result.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value->value, PointerType::get(IntegerType::get(TheContext, 8), 0));
+            result.kind = kLVKindPointer8;
+        }
     }
 
     return result;
@@ -408,43 +472,49 @@ LVALUE trunc_value_to_pointer(LVALUE* llvm_value)
 
 void trunc_variable(LVALUE* llvm_value, int size)
 {
-    switch(size) {
-        case 1:
-            llvm_value->value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt8Ty(TheContext));
-            llvm_value->kind = kLVKindInt8;
+    if(llvm_value->kind == kLVKindInt64) {
+        switch(size) {
+            case 1:
+                llvm_value->value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt1Ty(TheContext), "trunc_variable");
+                llvm_value->kind = kLVKindInt1;
+                break;
 
-            break;
+            case 8:
+                llvm_value->value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt8Ty(TheContext), "trunc_variable");
+                llvm_value->kind = kLVKindInt8;
+                break;
 
-        case 2:
-            llvm_value->value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt16Ty(TheContext));
-            llvm_value->kind = kLVKindInt16;
-            break;
+            case 16:
+                llvm_value->value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt16Ty(TheContext), "trunc_variable");
+                llvm_value->kind = kLVKindInt16;
+                break;
 
-        case 4:
-            llvm_value->value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt32Ty(TheContext));
-            llvm_value->kind = kLVKindInt32;
-            break;
+            case 32:
+                llvm_value->value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt32Ty(TheContext), "trunc_variable");
+                llvm_value->kind = kLVKindInt32;
+                break;
 
-        case 8:
-            llvm_value->value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt64Ty(TheContext));
-            llvm_value->kind = kLVKindInt64;
-            break;
+            case 64:
+                llvm_value->value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt64Ty(TheContext), "trunc_variable");
+                llvm_value->kind = kLVKindInt64;
+                break;
 
-        case 16:
-            llvm_value->value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt32Ty(TheContext));
-            llvm_value->value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, Type::getFloatTy(TheContext));
-            llvm_value->kind = kLVKindFloat;
-            break;
+            case 128:
+                llvm_value->value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt32Ty(TheContext));
+                llvm_value->value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, Type::getFloatTy(TheContext), "trunc_variable");
+                llvm_value->kind = kLVKindFloat;
+                break;
 
-        case 32:
-            llvm_value->value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, Type::getDoubleTy(TheContext));
-            llvm_value->kind = kLVKindDouble;
-            break;
+            case 256:
+                llvm_value->value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, Type::getDoubleTy(TheContext), "trunc_variable");
+                llvm_value->kind = kLVKindDouble;
+                break;
 
-        case 64:
-            llvm_value->value = Builder.CreateCast(Instruction::IntToPtr, llvm_value->value, PointerType::get(IntegerType::get(TheContext, 8), 0));
-            llvm_value->kind = kLVKindPointer8;
-            break;
+            case 1024:
+                llvm_value->value = Builder.CreateCast(Instruction::IntToPtr, llvm_value->value, PointerType::get(IntegerType::get(TheContext, 8), 0), "trunc_variable");
+                llvm_value->kind = kLVKindPointer8;
+                break;
+        }
     }
 }
 
@@ -667,15 +737,6 @@ void cast_llvm_value_from_inst(LVALUE* llvm_value, int inst)
             llvm_value->kind = kLVKindInt32;
             break;
 
-        case OP_BYTE_TO_INTEGER_CAST:
-        case OP_UBYTE_TO_INTEGER_CAST:
-        case OP_SHORT_TO_INTEGER_CAST:
-        case OP_USHORT_TO_INTEGER_CAST:
-        case OP_INT_TO_INTEGER_CAST:
-        case OP_UINT_TO_INTEGER_CAST:
-        case OP_LONG_TO_INTEGER_CAST:
-        case OP_ULONG_TO_INTEGER_CAST:
-        case OP_CHAR_TO_INTEGER_CAST:
         case OP_POINTER_TO_INTEGER_CAST:
         case OP_BOOL_TO_INTEGER_CAST:{
             LVALUE llvm_value2 = trunc_value(llvm_value, 32);
@@ -685,6 +746,8 @@ void cast_llvm_value_from_inst(LVALUE* llvm_value, int inst)
             break;
 
         case OP_FLOAT_TO_CFLOAT_CAST:
+            //llvm_value->value = Builder.CreateCast(Instruction::SIToFP, llvm_value->value, Type::getFloatTy(TheContext), "fvalue");
+            llvm_value->kind = kLVKindFloat;
             break;
 
         case OP_DOUBLE_TO_CFLOAT_CAST: 
@@ -1006,6 +1069,22 @@ Value* llvm_create_string(char* str)
     return value;
 }
 
+Value* llvm_create_buffer(char* str, int len)
+{
+    uint8_t* str2 = (uint8_t*)str;
+    ArrayRef<uint8_t> str_array(str2, len);
+    Constant* str_constant = ConstantDataArray::get(TheModule->getContext(), str_array);
+
+    GlobalVariable* gvar = new GlobalVariable(*TheModule, ArrayType::get(IntegerType::get(TheContext, 8), len) , true, GlobalValue::PrivateLinkage, 0, "global_buffer");
+    gvar->setAlignment(1);
+
+    gvar->setInitializer(str_constant);
+
+    Value* value = Builder.CreateCast(Instruction::BitCast, gvar, PointerType::get(IntegerType::get(TheContext, 8), 0));
+
+    return value;
+}
+
 LVALUE* get_stack_ptr_value_from_index(LVALUE* llvm_stack_ptr, int index)
 {
     return llvm_stack_ptr + index;
@@ -1019,6 +1098,9 @@ void dec_stack_ptr(LVALUE** llvm_stack_ptr, int value)
         (*llvm_stack_ptr)->lvar_address_index = -1;
         (*llvm_stack_ptr)->lvar_stored = FALSE;
         (*llvm_stack_ptr)->kind = kLVKindNone;
+        (*llvm_stack_ptr)->parent_var_num = 0;
+        (*llvm_stack_ptr)->parent_stack = NULL;
+        (*llvm_stack_ptr)->parent_llvm_stack = NULL;
 
         (*llvm_stack_ptr)--;
     }
@@ -1027,6 +1109,9 @@ void dec_stack_ptr(LVALUE** llvm_stack_ptr, int value)
     (*llvm_stack_ptr)->lvar_address_index = -1;
     (*llvm_stack_ptr)->lvar_stored = FALSE;
     (*llvm_stack_ptr)->kind = kLVKindNone;
+    (*llvm_stack_ptr)->parent_var_num = 0;
+    (*llvm_stack_ptr)->parent_stack = NULL;
+    (*llvm_stack_ptr)->parent_llvm_stack = NULL;
 }
 
 void push_value_to_stack_ptr(LVALUE** llvm_stack_ptr, LVALUE* value)
@@ -1040,7 +1125,7 @@ void insert_value_to_stack_ptr_with_offset(LVALUE** llvm_stack_ptr, LVALUE* valu
     (*(*llvm_stack_ptr+offset)) = *value;
 }
 
-void store_llvm_value_to_lvar_with_offset(LVALUE* llvm_stack, int index, LVALUE* llvm_value)
+void store_llvm_value_to_lvar_with_offset(LVALUE* llvm_stack, int index, LVALUE* llvm_value, BOOL except_parent_stack)
 {
     /// 0 clear align 8 byte ///
     Value* zero = ConstantInt::get(TheContext, llvm::APInt(64, 0, true));
@@ -1055,7 +1140,13 @@ void store_llvm_value_to_lvar_with_offset(LVALUE* llvm_stack, int index, LVALUE*
 
     llvm_stack[index].lvar_address_index = llvm_value->lvar_address_index;
     llvm_stack[index].lvar_stored = TRUE;
-    llvm_stack[index].kind = llvm_stack->kind;
+    llvm_stack[index].kind = llvm_value->kind;
+
+    if(!except_parent_stack) {
+        llvm_stack[index].parent_var_num = llvm_value->parent_var_num;
+        llvm_stack[index].parent_stack = llvm_value->parent_stack;
+        llvm_stack[index].parent_llvm_stack = llvm_value->parent_llvm_stack;
+    }
 }
 
 void get_llvm_value_from_lvar_with_offset(LVALUE* result, LVALUE* llvm_stack, int index)
@@ -1067,6 +1158,9 @@ void get_llvm_value_from_lvar_with_offset(LVALUE* result, LVALUE* llvm_stack, in
     result->lvar_address_index = llvm_value->lvar_address_index;
     result->lvar_stored = llvm_value->lvar_stored;
     result->kind = kLVKindInt64;
+    result->parent_var_num = llvm_value->parent_var_num;
+    result->parent_stack = llvm_value->parent_stack;
+    result->parent_llvm_stack = llvm_value->parent_llvm_stack;
 }
 
 LVALUE get_vm_stack_ptr_value_from_index_with_aligned(std::map<std::string, Value*>& params, BasicBlock* current_block, int index, int align)
@@ -1112,6 +1206,35 @@ LVALUE get_vm_stack_ptr_value_from_index_with_aligned(std::map<std::string, Valu
 
     result.lvar_address_index = -1;
     result.lvar_stored = FALSE;
+    result.parent_var_num = 0;
+    result.parent_stack = NULL;
+    result.parent_llvm_stack = NULL;
+
+    return result;
+}
+
+LVALUE get_method_call_result(std::map<std::string, Value*>& params, BasicBlock* current_block)
+{
+    std::string stack_ptr_address_name("stack_ptr_address");
+    Value* stack_ptr_address_value = params[stack_ptr_address_name];
+
+    Value* loaded_stack_ptr_address_value = Builder.CreateLoad(stack_ptr_address_value, "loaded_stack_ptr_address_value");
+
+    Value* lvalue = loaded_stack_ptr_address_value;
+    Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(64, -1, true));
+    Value* stack_pointer_offset_value = Builder.CreateGEP(lvalue, rvalue, "stack_pointer_offset_value");
+
+    LVALUE result;
+    result.value = Builder.CreateAlignedLoad(stack_pointer_offset_value, 8, "stack_pointer_offset_value");
+
+    //result.value = Builder.CreateCast(Instruction::Trunc, result.value, Type::getInt64Ty(TheContext));
+    result.kind = kLVKindInt64;
+
+    result.lvar_address_index = -1;
+    result.lvar_stored = FALSE;
+    result.parent_var_num = 0;
+    result.parent_stack = NULL;
+    result.parent_llvm_stack = NULL;
 
     return result;
 }
@@ -1196,6 +1319,9 @@ LVALUE get_stack_value_from_index_with_aligned(std::map<std::string, Value*>& pa
 
     result.lvar_address_index = -1;
     result.lvar_stored = FALSE;
+    result.parent_var_num = 0;
+    result.parent_stack = NULL;
+    result.parent_llvm_stack = NULL;
 
     return result;
 }
@@ -1207,6 +1333,77 @@ void llvm_stack_to_vm_stack(LVALUE* llvm_stack_ptr, std::map<std::string, Value*
         LVALUE* llvm_value = llvm_stack_ptr + i - num;
 
         push_value_to_vm_stack_ptr_with_aligned(params, current_block, llvm_value);
+    }
+}
+
+void parent_llvm_stack_to_parent_vm_stack(Value* parent_stack, LVALUE* parent_llvm_stack, BasicBlock* current_block, int parent_var_num)
+{
+    int i;
+
+    for(i=0; i<parent_var_num; i++) {
+        LVALUE* llvm_value = parent_llvm_stack + i;
+
+        LVALUE llvm_value2;
+        llvm_value2 = *llvm_value;
+        llvm_value2.value = Builder.CreateAlignedLoad(llvm_value->value, 8);
+        llvm_value2.kind = kLVKindInt64;
+
+        Value* lvalue = parent_stack;
+        Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(64, i*8, true));
+        Value* parent_llvm_stack_address = Builder.CreateGEP(lvalue, rvalue);
+
+        /// zero clear///
+        Value* zero = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)0);
+        Builder.CreateAlignedStore(zero, parent_llvm_stack_address, 8);
+
+        /// trunc ///
+        LVALUE llvm_value3;
+        llvm_value3 = trunc_value(&llvm_value2, 64);
+
+        /// store ///
+        Builder.CreateAlignedStore(llvm_value3.value, parent_llvm_stack_address, 8);
+    }
+}
+
+void parent_vm_stack_to_parent_llvm_stack(Value* parent_stack, LVALUE* parent_llvm_stack, BasicBlock* current_block, int parent_var_num)
+{
+    int i;
+
+    for(i=0; i<parent_var_num; i++) {
+        Value* lvalue = parent_stack;
+        Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(64, i, true));
+        Value* parent_llvm_stack_address = Builder.CreateGEP(lvalue, rvalue);
+
+        /// load ///
+        Value* value = Builder.CreateAlignedLoad(parent_llvm_stack_address, 8);
+
+        LVALUE llvm_value2;
+        llvm_value2.value = value;
+        llvm_value2.kind = kLVKindInt64;
+        llvm_value2.lvar_address_index = -1;
+        llvm_value2.lvar_stored = FALSE;
+        llvm_value2.parent_var_num = 0;
+        llvm_value2.parent_stack = NULL;
+        llvm_value2.parent_llvm_stack = NULL;
+
+        /// store ///
+        LVALUE* llvm_value = parent_llvm_stack + i;
+
+        Builder.CreateAlignedStore(llvm_value2.value, llvm_value->value, 8);
+    }
+}
+
+void llvm_give_type_to_params(LVALUE* llvm_stack_ptr, std::map<std::string, Value*> params, BasicBlock* current_block, sCLMethod* method, sCLClass* klass)
+{
+    int i;
+
+    for(i=0; i<method->mNumParams; i++) {
+        LVALUE* param = llvm_stack_ptr - method->mNumParams + i;
+
+        sNodeType* node_type = create_node_type_from_cl_type(method->mParams[i].mType, klass);
+        int size = get_var_size(node_type);
+
+        trunc_variable(param, size);
     }
 }
 
@@ -1388,7 +1585,7 @@ void vm_lvar_to_llvm_lvar(LVALUE* llvm_stack,std::map<std::string, Value*>& para
     int i;
     for(i=0; i<var_num; i++) {
         LVALUE llvm_value = get_stack_value_from_index_with_aligned(params, current_block, i, 8);
-        store_llvm_value_to_lvar_with_offset(llvm_stack, i, &llvm_value);
+        store_llvm_value_to_lvar_with_offset(llvm_stack, i, &llvm_value, TRUE);
     }
 }
 
@@ -1485,7 +1682,7 @@ void lvar_of_vm_to_lvar_of_llvm(std::map<std::string, Value *> params, BasicBloc
     int i;
     for(i=0; i<var_num; i++) {
         LVALUE llvm_value = get_stack_value_from_index_with_aligned(params, current_block, i, 8);
-        store_llvm_value_to_lvar_with_offset(llvm_stack, i, &llvm_value);
+        store_llvm_value_to_lvar_with_offset(llvm_stack, i, &llvm_value, TRUE);
     }
 }
 

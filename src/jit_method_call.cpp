@@ -15,6 +15,9 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
             int method_index = *(int*)(*pc);
             (*pc) += sizeof(int);
 
+            int size = *(int*)(*pc);
+            (*pc) += sizeof(int);
+
             char* class_name = CONS_str(constant, offset);
 
             sCLClass* klass = get_class_with_load(class_name);
@@ -79,7 +82,6 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* param6 = params[info_value_name];
             params2.push_back(param6);
 
-
             Value* result = Builder.CreateCall(fun, params2);
 
             finish_method_call(result, params, current_block, *function, try_catch_label_name, code, real_param_num, var_num, llvm_stack, *llvm_stack_ptr);
@@ -91,7 +93,10 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
             dec_stack_ptr(llvm_stack_ptr, real_param_num);
 
             /// vm stack_ptr to llvm stack ///
-            LVALUE llvm_value = get_vm_stack_ptr_value_from_index_with_aligned(params, *current_block, -1, 8);
+            LVALUE llvm_value = get_method_call_result(params, *current_block);
+
+            trunc_variable(&llvm_value, size);
+
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
 
             /// push object to jit objects ///
@@ -117,6 +122,9 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
             (*pc) += sizeof(int);
 
             int offset = *(int*)(*pc);
+            (*pc) += sizeof(int);
+
+            int size = *(int*)(*pc);
             (*pc) += sizeof(int);
 
             /// llvm stack to VM stack ///
@@ -175,7 +183,10 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
             dec_stack_ptr(llvm_stack_ptr, num_real_params);
 
             /// vm stack_ptr to llvm stack ///
-            LVALUE llvm_value = get_vm_stack_ptr_value_from_index_with_aligned(params, *current_block, -1, 8);
+            LVALUE llvm_value = get_method_call_result(params, *current_block);
+
+            trunc_variable(&llvm_value, size);
+
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
 
             /// push object to jit objects ///
@@ -213,6 +224,9 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
             (*pc) += sizeof(int);
 
             int max_method_chains = *(int*)(*pc);
+            (*pc) += sizeof(int);
+
+            int size = *(int*)(*pc);
             (*pc) += sizeof(int);
 
             int num_real_params = num_params + (static_ ? 0:1);
@@ -280,7 +294,9 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
             dec_stack_ptr(llvm_stack_ptr, num_real_params);
 
             /// vm stack_ptr to llvm stack ///
-            LVALUE llvm_value = get_vm_stack_ptr_value_from_index_with_aligned(params, *current_block, -1, 8);
+            LVALUE llvm_value = get_method_call_result(params, *current_block);
+
+            trunc_variable(&llvm_value, size);
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
 
@@ -306,7 +322,17 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
             int num_params = *(int*)(*pc);
             (*pc) += sizeof(int);
 
+            int size = *(int*)(*pc);
+            (*pc) += sizeof(int);
+
+            LVALUE* obj_value = (*llvm_stack_ptr) - num_params -1;
+
+            int parent_var_num = obj_value->parent_var_num;
+            Value* parent_stack = obj_value->parent_stack;
+            LVALUE* parent_llvm_stack = obj_value->parent_llvm_stack;
+
             /// llvm stack to VM stack ///
+            parent_llvm_stack_to_parent_vm_stack(parent_stack, parent_llvm_stack, *current_block, parent_var_num);
             llvm_stack_to_vm_stack(*llvm_stack_ptr, params, *current_block, num_params + 1);
 
             /// go ///
@@ -337,11 +363,16 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
 
             if_value_is_zero_ret_zero(result, params, *function, current_block);
 
+            /// parent vm stack for parent llvm stack ///
+            parent_vm_stack_to_parent_llvm_stack(parent_stack, parent_llvm_stack, *current_block, parent_var_num);
+
             /// dec llvm stack pointer ///
             dec_stack_ptr(llvm_stack_ptr, num_params+1);
 
             /// vm stack_ptr to llvm stack ///
-            LVALUE llvm_value = get_vm_stack_ptr_value_from_index_with_aligned(params, *current_block, -1, 8);
+            LVALUE llvm_value = get_method_call_result(params, *current_block);
+
+            trunc_variable(&llvm_value, size);
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
 
@@ -413,6 +444,9 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.kind = kLVKindInt32;
+                llvm_value.parent_var_num = 0;
+                llvm_value.parent_stack = NULL;
+                llvm_value.parent_llvm_stack = NULL;
 
                 dec_stack_ptr(llvm_stack_ptr, 1);
                 push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -446,6 +480,9 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.kind = kLVKindInt32;
+                llvm_value.parent_var_num = 0;
+                llvm_value.parent_stack = NULL;
+                llvm_value.parent_llvm_stack = NULL;
 
                 push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
 
@@ -516,6 +553,9 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt64;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -574,6 +614,9 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindPointer8;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -682,6 +725,9 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt64;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             trunc_variable(&llvm_value, size);
 
@@ -740,6 +786,9 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindPointer8;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
             }

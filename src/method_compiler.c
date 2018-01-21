@@ -131,7 +131,7 @@ BOOL compile_method(sCLMethod* method, sParserParam* params, int num_params, sPa
     }
     else {
         if(cinfo2.stack_num != 1) {
-            parser_err_msg(info, "require return value");
+            parser_err_msg(info, "Require return value. Stack num is %d", cinfo2.stack_num);
             cinfo2.err_num++;
         }
 

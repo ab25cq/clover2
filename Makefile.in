@@ -33,7 +33,7 @@ JIT=@JIT@
 ##########################################################
 # main
 ##########################################################
-all: cclover2 clover2 $(INTERPRETER) library
+all: cclover2 clover2 $(INTERPRETER) SortableArray.oclcl
 	if which ctags > /dev/null; then if test $(OS) = DARWIN; then ctags src/*.c > /dev/null 2>&1; else ctags -R; fi; fi
 
 cclover2: config.h src/compiler.o $(COMMON_OBJS) $(COMPILER_OBJS) $(JIT_OBJS)
@@ -48,8 +48,7 @@ clover2: config.h src/main.o $(COMMON_OBJS) $(OBJS) $(JIT_RUNTIME_OBJS)
 iclover2: config.h src/interpreter.o $(COMMON_OBJS) $(OBJS) $(COMPILER_OBJS) $(JIT_RUNTIME_OBJS)
 	if test $(JIT) = 1; then $(CXX) -o iclover2 src/interpreter.o $(COMMON_OBJS) $(OBJS) $(COMPILER_OBJS) $(JIT_RUNTIME_OBJS) $(CFLAGS) $(LIBS) $(CXXFLAGS); else $(CC) -o iclover2 src/interpreter.o $(COMMON_OBJS) $(OBJS) $(COMPILER_OBJS) $(CFLAGS) $(LIBS); fi
 
-library:
-#	rm -f ./*.oclcl
+SortableArray.oclcl: Fundamental.clcl String.clcl Container.clcl CLParser.clcl Range.clcl Command.clcl File.clcl MyOwnLibrary.clcl
 	./cclover2 -core MyOwnLibrary.clcl
 	./cclover2 CLParser.clcl
 
@@ -287,6 +286,7 @@ distclean: clean
 ########################################################
 test:
 	@echo "Compile to test code..."
+	./cclover2 code/ListTest.clcl
 	./cclover2 code/OperatorTest.clcl
 	./cclover2 code/GenericsTest2.clcl;
 	./cclover2 code/GenericsTest3.clcl
@@ -324,7 +324,6 @@ test:
 	./cclover2 code/ArrayTest4.clcl
 	./cclover2 code/ArrayTest5.clcl
 	./cclover2 code/RegexTest.clcl
-	./cclover2 code/ListTest.clcl
 	./cclover2 code/ListTest2.clcl
 	./cclover2 code/ListTest3.clcl
 	./cclover2 code/TupleTest.clcl
@@ -341,7 +340,6 @@ test:
 	./cclover2 code/FileTest.clcl
 	./cclover2 code/DirTest.clcl
 	./cclover2 code/CommandTest.clcl
-	./cclover2 code/ClosureTest.clcl
 	./cclover2 code/AnonymousTest.clcl
 	./cclover2 code/FunTest.clcl
 	./cclover2 code/TypeInference.clcl
@@ -372,6 +370,8 @@ test:
 	./cclover2 code/RangeTest.clcl
 	./cclover2 code/SelfOmittedField.clcl
 	./cclover2 code/UnboxingTest.clcl
+	./cclover2 code/AndAndOrOrTest.clcl
+	./cclover2 code/ClosureTest.clcl
 	./cclover2 code/main.cl && ./clover2 code/main.cl
 
 	if locale -a | grep ja_JP.utf8; then export LANG="ja_JP_utf8"; export LC_ALL="ja_JP.utf8"; ./clover2 code/char.cl; else export LANG="C.UTF-8"; export LC_ALL="C.UTF-8"; ./clover2 code/char.cl; fi

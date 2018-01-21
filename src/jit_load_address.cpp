@@ -121,6 +121,9 @@ BOOL compile_to_native_code5(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
             
             llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt32Ty(TheContext));
 
@@ -144,6 +147,9 @@ BOOL compile_to_native_code5(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
             
             llvm_value.value = Builder.CreateCast(Instruction::BitCast, llvm_value.value, Type::getFloatTy(TheContext));
             //llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getFloatTy(TheContext));
@@ -169,6 +175,9 @@ BOOL compile_to_native_code5(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt8;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt8Ty(TheContext));
 
@@ -193,6 +202,9 @@ BOOL compile_to_native_code5(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt16;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt16Ty(TheContext));
 
@@ -217,6 +229,9 @@ BOOL compile_to_native_code5(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt64;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt64Ty(TheContext));
 
@@ -240,6 +255,9 @@ BOOL compile_to_native_code5(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindPointer8;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, PointerType::get(IntegerType::get(TheContext, 8), 0));
 
@@ -263,6 +281,9 @@ BOOL compile_to_native_code5(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindPointerDouble;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             llvm_value.value = Builder.CreateCast(Instruction::BitCast, llvm_value.value, Type::getDoubleTy(TheContext));
 
@@ -325,6 +346,9 @@ BOOL compile_to_native_code5(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt64;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             trunc_variable(&llvm_value, size);
 
@@ -358,6 +382,7 @@ BOOL compile_to_native_code5(sByteCode* code, sConst* constant, sCLClass* klass,
             params2.push_back(param4);
 
             LVALUE array2 = trunc_value(array, 32);
+
             Value* param5 = array2.value;
             params2.push_back(param5);
 

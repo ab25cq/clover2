@@ -113,6 +113,11 @@ BOOL call_invoke_method(sCLClass* klass, int method_index, CLVALUE* stack, int v
 
 BOOL call_invoke_virtual_method(int offset, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sConst* constant, CLObject object, int num_real_params)
 {
+    if(object == 0) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+        return FALSE;
+    }
+
     /// go ///
     sCLObject* object_data = CLOBJECT(object);
 
@@ -148,6 +153,11 @@ BOOL call_invoke_dynamic_method(int offset, int offset2, int num_params, int sta
         char* method_name = CONS_str(constant, offset2);
 
         CLObject object = ((*stack_ptr)-num_real_params)->mObjectValue;
+
+        if(object == 0) {
+            entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+            return FALSE;
+        }
 
         sCLObject* object_data = CLOBJECT(object);
 
@@ -260,7 +270,7 @@ BOOL invoke_block_in_jit(int num_params, CLVALUE* stack, int var_num, CLVALUE** 
 {
     CLObject block_object = ((*stack_ptr)-num_params-1)->mObjectValue;
 
-    if(!invoke_block(block_object, stack, var_num, num_params, stack_ptr, info)) 
+    if(!invoke_block(block_object, stack, var_num, num_params, stack_ptr, info, TRUE)) 
     {
         return FALSE;
     }
@@ -499,7 +509,7 @@ struct sCLVALUEAndBoolResult* run_create_array(CLVALUE** stack_ptr, CLVALUE* sta
 
     (*stack_ptr)--; // pop_object
 
-    (*stack_ptr)-=num_elements;
+//    (*stack_ptr)-=num_elements;
 
     result->result1.mObjectValue = array_object;
     result->result2 = TRUE;
@@ -1341,6 +1351,13 @@ struct sCLVALUEAndBoolResult* run_array_to_carray_cast(CLVALUE** stack_ptr, CLVA
         return result;
     }
 
+    if(array == 0) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(9)");
+        result->result1.mIntValue = 0;
+        result->result2 = FALSE;
+        return result;
+    }
+
     sCLObject* array_data = CLOBJECT(array);
     int array_num = array_data->mArrayNum;
 
@@ -1404,6 +1421,7 @@ CLObject run_op_string_with_string_expression(char* str, int* string_expression_
     int i;
     for(i=0; i<num_string_expression; i++) {
         int offset = string_expression_offsets[i];
+
         string_expression_object[i] = ((*stack_ptr) - num_string_expression + i)->mObjectValue;
 
         sBuf_append(&buf, str + offset_before, offset - offset_before);
@@ -1426,7 +1444,7 @@ CLObject run_op_string_with_string_expression(char* str, int* string_expression_
     return string_object;
 }
 
-CLObject run_op_buffer_with_string_expression(char* str, int* string_expression_offsets, int num_string_expression, CLVALUE** stack_ptr)
+CLObject run_op_buffer_with_string_expression(char* str, int len, int* string_expression_offsets, int num_string_expression, CLVALUE** stack_ptr)
 {
     CLObject string_expression_object[STRING_EXPRESSION_MAX];
 
@@ -1449,7 +1467,7 @@ CLObject run_op_buffer_with_string_expression(char* str, int* string_expression_
         offset_before = offset;
     }
 
-    sBuf_append(&buf, str + offset_before, strlen(str) - offset_before);
+    sBuf_append(&buf, str + offset_before, len - offset_before);
 
     (*stack_ptr) -= num_string_expression;
 

@@ -5,32 +5,32 @@ extern "C"
 
 void show_int8(char number)
 {
-    printf("%d\n", number);
+    printf("int8 %d\n", number);
 }
 
 void show_int16(short number)
 {
-    printf("%d\n", number);
+    printf("int16 %d\n", number);
 }
 
 void show_int32(int number)
 {
-    printf("%d\n", number);
+    printf("int32 %d\n", number);
 }
 
 void show_int64(clint64 number)
 {
-    printf("%lld\n", number);
+    printf("int64 %lld\n", number);
 }
 
 void show_float(float number)
 {
-    printf("%f\n", number);
+    printf("float %f\n", number);
 }
 
 void show_double(double number)
 {
-    printf("%lf\n", number);
+    printf("double %lf\n", number);
 }
 
 void show_str_in_jit(char* str)
@@ -263,6 +263,10 @@ void show_inst_in_jit(int opecode)
 
         case OP_POP:
             puts("OP_POP");
+            break;
+
+        case OP_NOP:
+            puts("OP_NOP");
             break;
 
         case OP_DUPE:
@@ -1094,7 +1098,7 @@ void show_inst_in_jit(int opecode)
 void show_stack_stat(CLVALUE** stack_ptr, CLVALUE* stack)
 {
     printf("stack_ptr %p\n", *stack_ptr);
-    printf("stack %p\n", *stack);
+    printf("stack %p\n", stack);
     printf("stack_ptr - stack %d\n", (int)((*stack_ptr) - stack));
 }
 

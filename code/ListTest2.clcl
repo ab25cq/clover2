@@ -1,5 +1,6 @@
 class ListTest2 {
     def main(): static {
+/*
         Clover.test("List2 test1", equalable_list {1,2,3}.indexOf(2) == 1);
         Clover.test("List2 test2", equalable_list {1,2,3}.sample().include(equalable_list {1,2,3}));
         Clover.test("List2 test3", equalable_list {1,2,3}.equals(equalable_list { 1,2,3 }));
@@ -42,5 +43,6 @@ class ListTest2 {
 
         Clover.test("List test26", sortable_list { "BBB", "CCC", "AAA"}.sort().equals(sortable_list { "AAA", "BBB", "CCC" }));
         Clover.test("List test27", sortable_list { "B", "D", "E", "A", "Z", "C", "Y", "X"}.sort().equals(sortable_list { "A", "B", "C", "D", "E", "X", "Y", "Z" }));
+*/
     }
 }

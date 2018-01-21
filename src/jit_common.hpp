@@ -80,6 +80,9 @@ struct LVALUEStruct {
     int lvar_address_index;
     BOOL lvar_stored;
     enum eLVALUEKind kind;
+    int parent_var_num;
+    Value* parent_stack;
+    struct LVALUEStruct* parent_llvm_stack;
 };
 
 void InitializeModuleAndPassManager(char* class_name);
@@ -131,7 +134,9 @@ void show_stack_for_llvm_stack(LVALUE* llvm_stack, LVALUE* llvm_stack_ptr, int v
 void show_stack_stat(CLVALUE** stack_ptr, CLVALUE* stack);
 void show_inst_in_jit(int opecode);
 void show_llvm_stack(LVALUE* llvm_stack, LVALUE* llvm_stack_ptr, int var_num, std::map<std::string, Value*>& params, BasicBlock* current_block);
+void show_llvm_stck_on_compile_time(LVALUE* llvm_stack, LVALUE* llvm_stack_ptr, int var_num);
 void show_llvm_value(LVALUE* llvm_value);
+void show_str(char* str);
 
 /// jit_sub.cpp ///
 LVALUE trunc_value(LVALUE* llvm_value, int size);
@@ -140,17 +145,21 @@ LVALUE trunc_value_to_pointer(LVALUE* llvm_value);
 void trunc_variable(LVALUE* llvm_value, int size);
 void cast_llvm_value_from_inst(LVALUE* llvm_value, int inst);
 Value* llvm_create_string(char* str);
+Value* llvm_create_buffer(char* str, int len);
 LVALUE* get_stack_ptr_value_from_index(LVALUE* llvm_stack_ptr, int index);
 void dec_stack_ptr(LVALUE** llvm_stack_ptr, int value);
 void push_value_to_stack_ptr(LVALUE** llvm_stack_ptr, LVALUE* value);
 void insert_value_to_stack_ptr_with_offset(LVALUE** llvm_stack_ptr, LVALUE* value, int offset);
-void store_llvm_value_to_lvar_with_offset(LVALUE* llvm_stack, int index, LVALUE* llvm_value);
+void store_llvm_value_to_lvar_with_offset(LVALUE* llvm_stack, int index, LVALUE* llvm_value, BOOL except_parent_stack);
 void get_llvm_value_from_lvar_with_offset(LVALUE* result, LVALUE* llvm_stack, int index);
 LVALUE get_vm_stack_ptr_value_from_index_with_aligned(std::map<std::string, Value*>& params, BasicBlock* current_block, int index, int align);
 void inc_vm_stack_ptr(std::map<std::string, Value*> params, BasicBlock* current_block, int value);
 void push_value_to_vm_stack_ptr_with_aligned(std::map<std::string, Value*> params, BasicBlock* current_block, LVALUE* llvm_value);
 LVALUE get_stack_value_from_index_with_aligned(std::map<std::string, Value*>& params, BasicBlock* current_block, int index, int align);
 void llvm_stack_to_vm_stack(LVALUE* llvm_stack_ptr, std::map<std::string, Value*> params, BasicBlock* current_block, int num);
+void parent_llvm_stack_to_parent_vm_stack(Value* parent_stack, LVALUE* parent_llvm_stack, BasicBlock* current_block, int parent_var_num);
+void parent_vm_stack_to_parent_llvm_stack(Value* parent_stack, LVALUE* parent_llvm_stack, BasicBlock* current_block, int parent_var_num);
+void llvm_stack_to_vm_stack_of_parent(LVALUE* llvm_stack_ptr, Value* parent_stack, std::map<std::string, Value*> params, BasicBlock* current_block, int num);
 void if_value_is_zero_ret_zero(Value* value, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block);
 void if_value_is_null_ret_zero(Value* value, int value_bit, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block);
 void store_value_to_lvar_with_offset(std::map<std::string, Value*>& params, BasicBlock* current_block, int index, LVALUE* llvm_value);
@@ -165,10 +174,13 @@ void lvar_of_llvm_to_lvar_of_vm(std::map<std::string, Value *> params, BasicBloc
 void trunc_value_from_inst(LVALUE* value, int inst);
 void store_value_to_vm_lvar(std::map<std::string, Value*>& params, BasicBlock* current_block, int offset, LVALUE* llvm_value);
 void llvm_lvar_to_vm_lvar(LVALUE* llvm_stack,std::map<std::string, Value*>& params, BasicBlock* current_block, int var_num);
+LVALUE get_method_call_result(std::map<std::string, Value*>& params, BasicBlock* current_block);
+void llvm_give_type_to_params(LVALUE* llvm_stack_ptr, std::map<std::string, Value*> params, BasicBlock* current_block, sCLMethod* method, sCLClass* klass);
 
 
 /// jit declare.cpp ///
 extern GlobalVariable* gSigIntValue;
+extern GlobalVariable* gAndAndOrOrValue;
 extern StructType* gCLValueAndBoolStruct;
 extern StructType* gPointerAndBoolStruct;
 

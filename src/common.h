@@ -431,6 +431,8 @@ struct sNodeBlockTypeStruct {
     int mNumParams;
 
     struct sNodeTypeStruct* mResultType;
+
+    BOOL mLambda;
 };
 
 typedef struct sNodeBlockTypeStruct sNodeBlockType;
@@ -796,6 +798,7 @@ void compile_err_msg(sCompileInfo* info, const char* msg, ...);
 BOOL compile(unsigned int node, sCompileInfo* info);
 void append_class_name_to_constant_pool_and_code(sCompileInfo* info, sCLClass* klass);
 void create_type_name_from_node_type(char* type_name, int type_name_max, sNodeType* node_type);
+int get_var_size(sNodeType* var_type);
 
 unsigned int sNodeTree_create_operand(enum eOperand operand, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
 unsigned int sNodeTree_when_expression(unsigned int expression_node, unsigned int value_nodes[WHEN_BLOCK_MAX][WHEN_BLOCK_MAX], int num_values[WHEN_BLOCK_MAX], sNodeBlock* when_blocks[WHEN_BLOCK_MAX], int num_when_block, sNodeBlock* else_block, sNodeType* when_types[WHEN_BLOCK_MAX], sNodeType* when_types2[WHEN_BLOCK_MAX], sParserInfo* info);
@@ -947,30 +950,40 @@ extern BOOL gSigInt;
 #define OP_SIGINT 17
 #define OP_LABEL 18
 
-#define OP_VALUE_FOR_ANDAND_OROR 19
-#define OP_STORE_VALUE_FOR_ANDAND_OROR 20
-#define OP_LOAD_VALUE_FOR_ANDAND_OROR 21
+#define OP_STORE_VALUE_FOR_MACHINE_STACK 19
+#define OP_RESTORE_VALUE_FROM_MACHINE_STACK 20
+#define OP_POP_FOR_MACHINE_STACK 21
 
-#define OP_STORE_VALUE_TO_GLOBAL 22
-#define OP_POP_VALUE_FROM_GLOBAL 23
+#define OP_RESET_ANDAND_OROR_VALUE 22          // for native code machine, it don't need to Virtual Machine
+#define OP_STORE_ANDAND_OROR_VALUE 23
+#define OP_RESTORE_ANDAND_OROR_VALUE 24
+#define OP_STORE_ANDAND_OROR_VALUE2 25
+#define OP_RESTORE_ANDAND_OROR_VALUE2 26
+#define OP_GET_ANDAND_OROR_RESULT 27
 
-#define OP_STORE 24
-#define OP_LOAD 25
+#define OP_NOP 28
 
-#define OP_LOAD_ADDRESS 26
+#define OP_STORE_VALUE_TO_GLOBAL 29
+#define OP_POP_VALUE_FROM_GLOBAL 30
 
-#define OP_LDCBYTE 30
-#define OP_LDCUBYTE 31
-#define OP_LDCSHORT 32
-#define OP_LDCUSHORT 33
-#define OP_LDCINT 34
-#define OP_LDCUINT 35
-#define OP_LDCLONG 36
-#define OP_LDCULONG 37
-#define OP_LDCNULL 38
-#define OP_LDCPOINTER 39
-#define OP_LDCFLOAT 40
-#define OP_LDCDOUBLE 41
+#define OP_STORE 31
+#define OP_LOAD 32
+
+#define OP_LOAD_ADDRESS 33
+
+#define OP_LDCBYTE 35
+#define OP_LDCUBYTE 36
+#define OP_LDCSHORT 37
+#define OP_LDCUSHORT 38
+#define OP_LDCINT 39
+#define OP_LDCUINT 40
+#define OP_LDCLONG 41
+#define OP_LDCULONG 42
+#define OP_LDCNULL 43
+#define OP_LDCPOINTER 44
+#define OP_LDCFLOAT 45
+#define OP_LDCDOUBLE 46
+#define OP_LDCBOOL 47
 
 #define OP_BADD 50
 #define OP_BSUB 51
@@ -1751,7 +1764,7 @@ sCLClass* get_class_with_load_and_initialize(char* class_name);
 void class_final_on_runtime();
 BOOL call_finalize_method_on_free_object(sCLClass* klass, CLObject self);
 BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info);
-BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_params, CLVALUE** stack_ptr, sVMInfo* info);
+BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_params, CLVALUE** stack_ptr, sVMInfo* info, BOOL llvm_flag);
 BOOL class_init_on_runtime();
 void show_stack(CLVALUE* stack, CLVALUE* stack_ptr, CLVALUE* lvar, int var_num);
 void boxing_primitive_value_to_object(CLVALUE object, CLVALUE* result, sCLClass* klass);

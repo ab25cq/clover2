@@ -15,6 +15,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = value->lvar_address_index;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -31,6 +34,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = value->lvar_address_index;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -53,6 +59,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = value->lvar_address_index;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -81,6 +90,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = value->lvar_address_index;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -97,6 +109,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = value->lvar_address_index;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -115,6 +130,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = value->lvar_address_index;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -132,6 +150,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = value->lvar_address_index;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -157,6 +178,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = value->lvar_address_index;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt8;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -178,6 +202,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = value->lvar_address_index;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt8;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -194,6 +221,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = value->lvar_address_index;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt8;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -210,6 +240,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = value->lvar_address_index;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt8;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -226,6 +259,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = value->lvar_address_index;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt8;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -245,6 +281,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = value->lvar_address_index;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt16;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -264,6 +303,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = value->lvar_address_index;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt16;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -280,6 +322,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = value->lvar_address_index;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt16;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -295,7 +340,10 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.value = Builder.CreateCast(Instruction::FPToUI, value->value, Type::getInt16Ty(TheContext), "value2");
             llvm_value.lvar_address_index = value->lvar_address_index;
             llvm_value.lvar_stored = FALSE;
-            llvm_value.kind = kLVKindUInt16;
+            llvm_value.kind = kLVKindInt16;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -311,6 +359,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = value->lvar_address_index;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt16;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -326,6 +377,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = value->lvar_address_index;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt16;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -342,6 +396,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = value->lvar_address_index;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt16;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -362,6 +419,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = value->lvar_address_index;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt16;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -379,6 +439,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = value->lvar_address_index;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt64;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -397,6 +460,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = value->lvar_address_index;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt64;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -418,6 +484,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = value->lvar_address_index;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt64;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -440,6 +509,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = value->lvar_address_index;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt64;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -456,6 +528,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = value->lvar_address_index;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt64;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -472,6 +547,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = value->lvar_address_index;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt64;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -502,6 +580,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = value->lvar_address_index;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindFloat;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -521,6 +602,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = value->lvar_address_index;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindFloat;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -536,6 +620,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = value->lvar_address_index;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindFloat;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -554,6 +641,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = value->lvar_address_index;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindDouble;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -573,6 +663,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = value->lvar_address_index;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindDouble;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -588,6 +681,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = value->lvar_address_index;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindDouble;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -614,6 +710,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindObject;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -651,6 +750,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindObject;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -690,6 +792,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindObject;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -727,6 +832,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindObject;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -761,6 +869,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindObject;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -795,6 +906,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindObject;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -832,6 +946,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindObject;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -869,6 +986,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindObject;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -906,6 +1026,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindObject;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -940,6 +1063,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindObject;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -970,12 +1096,51 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
         case OP_ULONG_TO_INTEGER_CAST:
         case OP_CHAR_TO_INTEGER_CAST:
         case OP_POINTER_TO_INTEGER_CAST:
-        case OP_BOOL_TO_INTEGER_CAST:
+        case OP_BOOL_TO_INTEGER_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            LVALUE value2 = trunc_value(value, 32);
+
+            Function* fun = TheModule->getFunction("create_integer");
+
+            std::vector<Value*> params2;
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindObject;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            /// push object to jit objects ///
+            Function* fun2 = TheModule->getFunction("push_jit_object");
+
+            std::vector<Value*> params3;
+
+            LVALUE llvm_value2;
+            llvm_value2 = trunc_value(&llvm_value, 32);
+
+            param1 = llvm_value2.value;
+            params3.push_back(param1);
+            (void)Builder.CreateCall(fun2, params3);
+            }
+            break;
+
         case OP_FLOAT_TO_INTEGER_CAST:
         case OP_DOUBLE_TO_INTEGER_CAST: {
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
-            cast_llvm_value_from_inst(value, inst);
+            value->value = Builder.CreateCast(Instruction::FPToSI, value->value, Type::getInt32Ty(TheContext));
+            value->kind = kLVKindInt32;
 
             Function* fun = TheModule->getFunction("create_integer");
 
@@ -989,6 +1154,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindObject;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -1019,12 +1187,52 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
         case OP_ULONG_TO_UINTEGER_CAST:
         case OP_CHAR_TO_UINTEGER_CAST:
         case OP_POINTER_TO_UINTEGER_CAST:
-        case OP_BOOL_TO_UINTEGER_CAST:
+        case OP_BOOL_TO_UINTEGER_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            LVALUE value2 = trunc_value(value, 32);
+
+            Function* fun = TheModule->getFunction("create_uinteger");
+
+            std::vector<Value*> params2;
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindObject;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            /// push object to jit objects ///
+            Function* fun2 = TheModule->getFunction("push_jit_object");
+
+            std::vector<Value*> params3;
+
+            LVALUE llvm_value2;
+            llvm_value2 = trunc_value(&llvm_value, 32);
+
+            param1 = llvm_value2.value;
+            params3.push_back(param1);
+
+            (void)Builder.CreateCall(fun2, params3);
+            }
+            break;
+
         case OP_FLOAT_TO_UINTEGER_CAST:
         case OP_DOUBLE_TO_UINTEGER_CAST: {
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
-            cast_llvm_value_from_inst(value, inst);
+            value->value = Builder.CreateCast(Instruction::FPToUI, value->value, Type::getInt32Ty(TheContext));
+            value->kind = kLVKindUInt32;
 
             Function* fun = TheModule->getFunction("create_uinteger");
 
@@ -1038,6 +1246,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindObject;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -1068,18 +1279,16 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
         case OP_ULONG_TO_CBYTE_CAST:
         case OP_CHAR_TO_CBYTE_CAST:
         case OP_POINTER_TO_CBYTE_CAST:
-        case OP_BOOL_TO_CBYTE_CAST: 
-        case OP_FLOAT_TO_CBYTE_CAST:
-        case OP_DOUBLE_TO_CBYTE_CAST: {
+        case OP_BOOL_TO_CBYTE_CAST:  {
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
-            cast_llvm_value_from_inst(value, inst);
+            LVALUE value2 = trunc_value(value, 8);
 
             Function* fun = TheModule->getFunction("create_byte");
 
             std::vector<Value*> params2;
 
-            Value* param1 = value->value;
+            Value* param1 = value2.value;
             params2.push_back(param1);
 
             LVALUE llvm_value;
@@ -1087,6 +1296,52 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindObject;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            /// push object to jit objects ///
+            Function* fun2 = TheModule->getFunction("push_jit_object");
+
+            std::vector<Value*> params3;
+
+            LVALUE llvm_value2;
+            llvm_value2 = trunc_value(&llvm_value, 32);
+
+            param1 = llvm_value2.value;
+            params3.push_back(param1);
+
+            (void)Builder.CreateCall(fun2, params3);
+            }
+            break;
+
+        case OP_FLOAT_TO_CBYTE_CAST:
+        case OP_DOUBLE_TO_CBYTE_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            LVALUE value2;
+            value2.value = Builder.CreateCast(Instruction::FPToSI, value->value, Type::getInt8Ty(TheContext));
+            value2.kind = kLVKindInt8;
+
+            Function* fun = TheModule->getFunction("create_byte");
+
+            std::vector<Value*> params2;
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindObject;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -1118,18 +1373,17 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
         case OP_ULONG_TO_CUBYTE_CAST:
         case OP_CHAR_TO_CUBYTE_CAST:
         case OP_POINTER_TO_CUBYTE_CAST:
-        case OP_BOOL_TO_CUBYTE_CAST:
-        case OP_FLOAT_TO_CUBYTE_CAST:
-        case OP_DOUBLE_TO_CUBYTE_CAST: {
+        case OP_BOOL_TO_CUBYTE_CAST: {
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
-            cast_llvm_value_from_inst(value, inst);
+            LVALUE value2;
+            value2 = trunc_value(value, 8);
 
             Function* fun = TheModule->getFunction("create_ubyte");
 
             std::vector<Value*> params2;
 
-            Value* param1 = value->value;
+            Value* param1 = value2.value;
             params2.push_back(param1);
 
             LVALUE llvm_value;
@@ -1137,6 +1391,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindObject;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -1158,6 +1415,49 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             }
             break;
 
+        case OP_FLOAT_TO_CUBYTE_CAST:
+        case OP_DOUBLE_TO_CUBYTE_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            LVALUE value2;
+            value2.value = Builder.CreateCast(Instruction::FPToUI, value->value, Type::getInt8Ty(TheContext));
+            value2.kind = kLVKindUInt8;
+
+            Function* fun = TheModule->getFunction("create_ubyte");
+
+            std::vector<Value*> params2;
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindObject;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            /// push object to jit objects ///
+            Function* fun2 = TheModule->getFunction("push_jit_object");
+
+
+            std::vector<Value*> params3;
+
+            LVALUE llvm_value2;
+            llvm_value2 = trunc_value(&llvm_value, 32);
+
+            param1 = llvm_value2.value;
+            params3.push_back(param1);
+
+            (void)Builder.CreateCall(fun2, params3);
+            }
+            break;
 
         case OP_BYTE_TO_CSHORT_CAST:
         case OP_UBYTE_TO_CSHORT_CAST:
@@ -1169,18 +1469,17 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
         case OP_ULONG_TO_CSHORT_CAST:
         case OP_CHAR_TO_CSHORT_CAST:
         case OP_POINTER_TO_CSHORT_CAST:
-        case OP_BOOL_TO_CSHORT_CAST: 
-        case OP_FLOAT_TO_CSHORT_CAST:
-        case OP_DOUBLE_TO_CSHORT_CAST: {
+        case OP_BOOL_TO_CSHORT_CAST:  {
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
-            cast_llvm_value_from_inst(value, inst);
+            LVALUE value2;
+            value2 = trunc_value(value, 16);
 
             Function* fun = TheModule->getFunction("create_short");
 
             std::vector<Value*> params2;
 
-            Value* param1 = value->value;
+            Value* param1 = value2.value;
             params2.push_back(param1);
 
             LVALUE llvm_value;
@@ -1188,6 +1487,52 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindObject;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            /// push object to jit objects ///
+            Function* fun2 = TheModule->getFunction("push_jit_object");
+
+            std::vector<Value*> params3;
+
+            LVALUE llvm_value2;
+            llvm_value2 = trunc_value(&llvm_value, 32);
+
+            param1 = llvm_value2.value;
+            params3.push_back(param1);
+
+            (void)Builder.CreateCall(fun2, params3);
+            }
+            break;
+
+        case OP_FLOAT_TO_CSHORT_CAST:
+        case OP_DOUBLE_TO_CSHORT_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            LVALUE value2;
+            value2.value = Builder.CreateCast(Instruction::FPToSI, value->value, Type::getInt16Ty(TheContext));
+            value2.kind = kLVKindInt16;
+
+            Function* fun = TheModule->getFunction("create_short");
+
+            std::vector<Value*> params2;
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindObject;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -1218,18 +1563,17 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
         case OP_ULONG_TO_CUSHORT_CAST:
         case OP_CHAR_TO_CUSHORT_CAST:
         case OP_POINTER_TO_CUSHORT_CAST:
-        case OP_BOOL_TO_CUSHORT_CAST:
-        case OP_FLOAT_TO_CUSHORT_CAST:
-        case OP_DOUBLE_TO_CUSHORT_CAST: {
+        case OP_BOOL_TO_CUSHORT_CAST: {
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
-            cast_llvm_value_from_inst(value, inst);
+            LVALUE value2;
+            value2 = trunc_value(value, 16);
 
             Function* fun = TheModule->getFunction("create_ushort");
 
             std::vector<Value*> params2;
 
-            Value* param1 = value->value;
+            Value* param1 = value2.value;
             params2.push_back(param1);
 
             LVALUE llvm_value;
@@ -1237,6 +1581,52 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindObject;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            /// push object to jit objects ///
+            Function* fun2 = TheModule->getFunction("push_jit_object");
+
+            std::vector<Value*> params3;
+
+            LVALUE llvm_value2;
+            llvm_value2 = trunc_value(&llvm_value, 32);
+
+            param1 = llvm_value2.value;
+            params3.push_back(param1);
+
+            (void)Builder.CreateCall(fun2, params3);
+            }
+            break;
+
+        case OP_FLOAT_TO_CUSHORT_CAST:
+        case OP_DOUBLE_TO_CUSHORT_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            LVALUE value2;
+            value2.value = Builder.CreateCast(Instruction::FPToUI, value->value, Type::getInt16Ty(TheContext));
+            value2.kind = kLVKindUInt16;
+
+            Function* fun = TheModule->getFunction("create_ushort");
+
+            std::vector<Value*> params2;
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindObject;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -1267,18 +1657,17 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
         case OP_ULONG_TO_CLONG_CAST:
         case OP_CHAR_TO_CLONG_CAST:
         case OP_POINTER_TO_CLONG_CAST:
-        case OP_BOOL_TO_CLONG_CAST: 
-        case OP_FLOAT_TO_CLONG_CAST:
-        case OP_DOUBLE_TO_CLONG_CAST: {
+        case OP_BOOL_TO_CLONG_CAST: {
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
-            cast_llvm_value_from_inst(value, inst);
+            LVALUE value2;
+            value2 = trunc_value(value, 64);
 
             Function* fun = TheModule->getFunction("create_long");
 
             std::vector<Value*> params2;
 
-            Value* param1 = value->value;
+            Value* param1 = value2.value;
             params2.push_back(param1);
 
             LVALUE llvm_value;
@@ -1286,6 +1675,52 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindObject;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            /// push object to jit objects ///
+            Function* fun2 = TheModule->getFunction("push_jit_object");
+
+            std::vector<Value*> params3;
+
+            LVALUE llvm_value2;
+            llvm_value2 = trunc_value(&llvm_value, 32);
+
+            param1 = llvm_value2.value;
+            params3.push_back(param1);
+
+            (void)Builder.CreateCall(fun2, params3);
+            }
+            break;
+
+        case OP_FLOAT_TO_CLONG_CAST:
+        case OP_DOUBLE_TO_CLONG_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            LVALUE value2;
+            value2.value = Builder.CreateCast(Instruction::FPToSI, value->value, Type::getInt64Ty(TheContext));
+            value2.kind = kLVKindInt64;
+
+            Function* fun = TheModule->getFunction("create_long");
+
+            std::vector<Value*> params2;
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindObject;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -1316,18 +1751,17 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
         case OP_ULONG_TO_CULONG_CAST:
         case OP_CHAR_TO_CULONG_CAST:
         case OP_POINTER_TO_CULONG_CAST:
-        case OP_BOOL_TO_CULONG_CAST:
-        case OP_FLOAT_TO_CULONG_CAST:
-        case OP_DOUBLE_TO_CULONG_CAST: {
+        case OP_BOOL_TO_CULONG_CAST: {
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
-            cast_llvm_value_from_inst(value, inst);
+            LVALUE value2;
+            value2 = trunc_value(value, 64);
 
             Function* fun = TheModule->getFunction("create_ulong");
 
             std::vector<Value*> params2;
 
-            Value* param1 = value->value;
+            Value* param1 = value2.value;
             params2.push_back(param1);
 
             LVALUE llvm_value;
@@ -1335,6 +1769,52 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindObject;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            /// push object to jit objects ///
+            Function* fun2 = TheModule->getFunction("push_jit_object");
+
+            std::vector<Value*> params3;
+
+            LVALUE llvm_value2;
+            llvm_value2 = trunc_value(&llvm_value, 32);
+
+            param1 = llvm_value2.value;
+            params3.push_back(param1);
+
+            (void)Builder.CreateCall(fun2, params3);
+            }
+            break;
+
+        case OP_FLOAT_TO_CULONG_CAST:
+        case OP_DOUBLE_TO_CULONG_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            LVALUE value2;
+            value2.value = Builder.CreateCast(Instruction::FPToUI, value->value, Type::getInt64Ty(TheContext));
+            value2.kind = kLVKindUInt64;
+
+            Function* fun = TheModule->getFunction("create_ulong");
+
+            std::vector<Value*> params2;
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindObject;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -1359,23 +1839,18 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
         case OP_SHORT_TO_CFLOAT_CAST:
         case OP_INT_TO_CFLOAT_CAST:
         case OP_LONG_TO_CFLOAT_CAST:
-        case OP_BOOL_TO_CFLOAT_CAST: 
-        case OP_UBYTE_TO_CFLOAT_CAST:
-        case OP_USHORT_TO_CFLOAT_CAST:
-        case OP_UINT_TO_CFLOAT_CAST:
-        case OP_CHAR_TO_CFLOAT_CAST:
-        case OP_ULONG_TO_CFLOAT_CAST:
-        case OP_FLOAT_TO_CFLOAT_CAST: 
-        case OP_DOUBLE_TO_CFLOAT_CAST: {
+        case OP_BOOL_TO_CFLOAT_CAST: {
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
-            cast_llvm_value_from_inst(value, inst);
+            LVALUE value2;
+            value2.value = Builder.CreateCast(Instruction::SIToFP, value->value, Type::getFloatTy(TheContext), "fvalue");
+            value2.kind = kLVKindFloat;
 
             Function* fun = TheModule->getFunction("create_float");
 
             std::vector<Value*> params2;
 
-            Value* param1 = value->value;
+            Value* param1 = value2.value;
             params2.push_back(param1);
 
             LVALUE llvm_value;
@@ -1383,6 +1858,135 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindObject;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            /// push object to jit objects ///
+            Function* fun2 = TheModule->getFunction("push_jit_object");
+
+            std::vector<Value*> params3;
+
+            LVALUE llvm_value2;
+            llvm_value2 = trunc_value(&llvm_value, 32);
+
+            param1 = llvm_value2.value;
+            params3.push_back(param1);
+
+            (void)Builder.CreateCall(fun2, params3);
+            }
+            break;
+
+        case OP_UBYTE_TO_CFLOAT_CAST:
+        case OP_USHORT_TO_CFLOAT_CAST:
+        case OP_UINT_TO_CFLOAT_CAST:
+        case OP_CHAR_TO_CFLOAT_CAST:
+        case OP_ULONG_TO_CFLOAT_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            LVALUE value2;
+            value2.value = Builder.CreateCast(Instruction::UIToFP, value->value, Type::getFloatTy(TheContext), "fvalue");
+            value2.kind = kLVKindFloat;
+
+            Function* fun = TheModule->getFunction("create_float");
+
+            std::vector<Value*> params2;
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindObject;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            /// push object to jit objects ///
+            Function* fun2 = TheModule->getFunction("push_jit_object");
+
+            std::vector<Value*> params3;
+
+            LVALUE llvm_value2;
+            llvm_value2 = trunc_value(&llvm_value, 32);
+
+            param1 = llvm_value2.value;
+            params3.push_back(param1);
+
+            (void)Builder.CreateCall(fun2, params3);
+            }
+            break;
+
+        case OP_FLOAT_TO_CFLOAT_CAST:  {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            LVALUE value2 = trunc_value_to_float_or_double(value, 32);
+
+            Function* fun = TheModule->getFunction("create_float");
+
+            std::vector<Value*> params2;
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindObject;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            /// push object to jit objects ///
+            Function* fun2 = TheModule->getFunction("push_jit_object");
+
+            std::vector<Value*> params3;
+
+            LVALUE llvm_value2;
+            llvm_value2 = trunc_value(&llvm_value, 32);
+
+            param1 = llvm_value2.value;
+            params3.push_back(param1);
+
+            (void)Builder.CreateCall(fun2, params3);
+            }
+            break;
+
+        case OP_DOUBLE_TO_CFLOAT_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            LVALUE value2 = trunc_value_to_float_or_double(value, 32);
+
+            Function* fun = TheModule->getFunction("create_float");
+
+            std::vector<Value*> params2;
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindObject;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -1407,17 +2011,11 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
         case OP_SHORT_TO_CDOUBLE_CAST:
         case OP_INT_TO_CDOUBLE_CAST:
         case OP_LONG_TO_CDOUBLE_CAST:
-        case OP_BOOL_TO_CDOUBLE_CAST: 
-        case OP_UBYTE_TO_CDOUBLE_CAST:
-        case OP_USHORT_TO_CDOUBLE_CAST:
-        case OP_UINT_TO_CDOUBLE_CAST:
-        case OP_CHAR_TO_CDOUBLE_CAST:
-        case OP_ULONG_TO_CDOUBLE_CAST:
-        case OP_FLOAT_TO_CDOUBLE_CAST:
-        case OP_DOUBLE_TO_CDOUBLE_CAST: {
+        case OP_BOOL_TO_CDOUBLE_CAST:  {
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
-            cast_llvm_value_from_inst(value, inst);
+            value->value = Builder.CreateCast(Instruction::SIToFP, value->value, Type::getFloatTy(TheContext), "fvalue");
+            value->value = Builder.CreateCast(Instruction::FPExt, value->value, Type::getDoubleTy(TheContext), "fvalue");
 
             Function* fun = TheModule->getFunction("create_double");
 
@@ -1431,6 +2029,132 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindObject;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            /// push object to jit objects ///
+            Function* fun2 = TheModule->getFunction("push_jit_object");
+
+            std::vector<Value*> params3;
+
+            LVALUE llvm_value2;
+            llvm_value2 = trunc_value(&llvm_value, 32);
+
+            param1 = llvm_value2.value;
+            params3.push_back(param1);
+
+            (void)Builder.CreateCall(fun2, params3);
+            }
+            break;
+
+        case OP_UBYTE_TO_CDOUBLE_CAST:
+        case OP_USHORT_TO_CDOUBLE_CAST:
+        case OP_UINT_TO_CDOUBLE_CAST:
+        case OP_CHAR_TO_CDOUBLE_CAST:
+        case OP_ULONG_TO_CDOUBLE_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            value->value = Builder.CreateCast(Instruction::UIToFP, value->value, Type::getFloatTy(TheContext), "fvalue");
+            value->value = Builder.CreateCast(Instruction::FPExt, value->value, Type::getDoubleTy(TheContext), "fvalue");
+
+            Function* fun = TheModule->getFunction("create_double");
+
+            std::vector<Value*> params2;
+
+            Value* param1 = value->value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindObject;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            /// push object to jit objects ///
+            Function* fun2 = TheModule->getFunction("push_jit_object");
+
+            std::vector<Value*> params3;
+
+            LVALUE llvm_value2;
+            llvm_value2 = trunc_value(&llvm_value, 32);
+
+            param1 = llvm_value2.value;
+            params3.push_back(param1);
+
+            (void)Builder.CreateCall(fun2, params3);
+            }
+            break;
+
+        case OP_FLOAT_TO_CDOUBLE_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            value->value = Builder.CreateCast(Instruction::FPExt, value->value, Type::getDoubleTy(TheContext), "fvalue");
+
+            Function* fun = TheModule->getFunction("create_double");
+
+            std::vector<Value*> params2;
+
+            Value* param1 = value->value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindObject;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            /// push object to jit objects ///
+            Function* fun2 = TheModule->getFunction("push_jit_object");
+
+            std::vector<Value*> params3;
+
+            LVALUE llvm_value2;
+            llvm_value2 = trunc_value(&llvm_value, 32);
+
+            param1 = llvm_value2.value;
+            params3.push_back(param1);
+
+            (void)Builder.CreateCall(fun2, params3);
+            }
+            break;
+
+        case OP_DOUBLE_TO_CDOUBLE_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("create_double");
+
+            std::vector<Value*> params2;
+
+            Value* param1 = value->value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindObject;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -1452,19 +2176,18 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             break;
 
         case OP_BYTE_TO_CPOINTER_CAST:
-        case OP_UBYTE_TO_CPOINTER_CAST:
         case OP_SHORT_TO_CPOINTER_CAST:
-        case OP_USHORT_TO_CPOINTER_CAST:
         case OP_INT_TO_CPOINTER_CAST:
-        case OP_UINT_TO_CPOINTER_CAST:
         case OP_LONG_TO_CPOINTER_CAST:
+        case OP_BOOL_TO_CPOINTER_CAST:
+        case OP_UBYTE_TO_CPOINTER_CAST:
+        case OP_USHORT_TO_CPOINTER_CAST:
+        case OP_UINT_TO_CPOINTER_CAST:
         case OP_ULONG_TO_CPOINTER_CAST:
-        case OP_CHAR_TO_CPOINTER_CAST: 
-        case OP_POINTER_TO_CPOINTER_CAST:
-        case OP_BOOL_TO_CPOINTER_CAST: {
+        case OP_CHAR_TO_CPOINTER_CAST: {
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
-            cast_llvm_value_from_inst(value, inst);
+            value->value = Builder.CreateCast(Instruction::IntToPtr, value->value, PointerType::get(IntegerType::get(TheContext, 8), 0));
 
             Function* fun = TheModule->getFunction("create_pointer");
 
@@ -1478,6 +2201,47 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindObject;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            /// push object to jit objects ///
+            Function* fun2 = TheModule->getFunction("push_jit_object");
+
+            std::vector<Value*> params3;
+
+            LVALUE llvm_value2;
+            llvm_value2 = trunc_value(&llvm_value, 32);
+
+            param1 = llvm_value2.value;
+            params3.push_back(param1);
+
+            (void)Builder.CreateCall(fun2, params3);
+            }
+            break;
+
+        case OP_POINTER_TO_CPOINTER_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("create_pointer");
+
+            std::vector<Value*> params2;
+
+            Value* param1 = value->value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindObject;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -1513,13 +2277,14 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
         case OP_BOOL_TO_CBOOL_CAST: {
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
-            cast_llvm_value_from_inst(value, inst);
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
 
             Function* fun = TheModule->getFunction("create_bool");
 
             std::vector<Value*> params2;
 
-            Value* param1 = value->value;
+            Value* param1 = value2.value;
             params2.push_back(param1);
 
             LVALUE llvm_value;
@@ -1527,6 +2292,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindObject;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -1555,14 +2323,55 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
         case OP_UINT_TO_CCHAR_CAST:
         case OP_LONG_TO_CCHAR_CAST:
         case OP_ULONG_TO_CCHAR_CAST:
-        case OP_FLOAT_TO_CCHAR_CAST:
-        case OP_DOUBLE_TO_CCHAR_CAST:
         case OP_CHAR_TO_CCHAR_CAST:
         case OP_POINTER_TO_CCHAR_CAST:
         case OP_BOOL_TO_CCHAR_CAST: {
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
-            cast_llvm_value_from_inst(value, inst);
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Function* fun = TheModule->getFunction("create_char");
+
+            std::vector<Value*> params2;
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindObject;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            /// push object to jit objects ///
+            Function* fun2 = TheModule->getFunction("push_jit_object");
+
+            std::vector<Value*> params3;
+
+            LVALUE llvm_value2;
+            llvm_value2 = trunc_value(&llvm_value, 32);
+
+            param1 = llvm_value2.value;
+            params3.push_back(param1);
+
+            (void)Builder.CreateCall(fun2, params3);
+            }
+            break;
+
+        case OP_FLOAT_TO_CCHAR_CAST:
+        case OP_DOUBLE_TO_CCHAR_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            value->value = Builder.CreateCast(Instruction::FPToUI, value->value, Type::getInt32Ty(TheContext));
+            value->kind = kLVKindUInt32;
 
             Function* fun = TheModule->getFunction("create_char");
 
@@ -1576,6 +2385,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindObject;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -1597,15 +2409,282 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             break;
 
         case OP_CBYTE_TO_BYTE_CAST:
-        case OP_CBYTE_TO_SHORT_CAST:
-        case OP_CBYTE_TO_INT_CAST:
-        case OP_CBYTE_TO_LONG_CAST:
-        case OP_CBYTE_TO_UBYTE_CAST:
-        case OP_CBYTE_TO_USHORT_CAST:
-        case OP_CBYTE_TO_UINT_CAST:
-        case OP_CBYTE_TO_ULONG_CAST:
-        case OP_CBYTE_TO_CHAR_CAST:
-        case OP_CBYTE_TO_FLOAT_CAST:
+        case OP_CBYTE_TO_UBYTE_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cbyte_to_byte_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt8;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CBYTE_TO_SHORT_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cbyte_to_byte_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt8;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            llvm_value.value = Builder.CreateCast(Instruction::SExt, llvm_value.value, Type::getInt16Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt16;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CBYTE_TO_USHORT_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cbyte_to_byte_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt8;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            llvm_value.value = Builder.CreateCast(Instruction::ZExt, llvm_value.value, Type::getInt16Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindUInt16;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CBYTE_TO_INT_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cbyte_to_byte_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt8;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            llvm_value.value = Builder.CreateCast(Instruction::SExt, llvm_value.value, Type::getInt32Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt32;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CBYTE_TO_UINT_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cbyte_to_byte_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt8;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            llvm_value.value = Builder.CreateCast(Instruction::ZExt, llvm_value.value, Type::getInt32Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt32;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CBYTE_TO_LONG_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cbyte_to_byte_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt8;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            llvm_value.value = Builder.CreateCast(Instruction::SExt, llvm_value.value, Type::getInt64Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt64;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CBYTE_TO_ULONG_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cbyte_to_byte_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt8;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            llvm_value.value = Builder.CreateCast(Instruction::ZExt, llvm_value.value, Type::getInt64Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt64;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CBYTE_TO_CHAR_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cbyte_to_byte_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt8;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            llvm_value.value = Builder.CreateCast(Instruction::ZExt, llvm_value.value, Type::getInt32Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt32;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CBYTE_TO_FLOAT_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cbyte_to_byte_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt8;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            llvm_value.value = Builder.CreateCast(Instruction::SIToFP, llvm_value.value, Type::getFloatTy(TheContext));
+            llvm_value.kind = kLVKindFloat;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
         case OP_CBYTE_TO_DOUBLE_CAST: {
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
@@ -1624,8 +2703,12 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt8;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
-            cast_llvm_value_from_inst(&llvm_value, inst);
+            llvm_value.value = Builder.CreateCast(Instruction::SIToFP, llvm_value.value, Type::getDoubleTy(TheContext));
+            llvm_value.kind = kLVKindDouble;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -1634,15 +2717,282 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             break;
 
         case OP_CUBYTE_TO_BYTE_CAST:
-        case OP_CUBYTE_TO_SHORT_CAST:
-        case OP_CUBYTE_TO_INT_CAST:
-        case OP_CUBYTE_TO_LONG_CAST:
-        case OP_CUBYTE_TO_UBYTE_CAST:
-        case OP_CUBYTE_TO_USHORT_CAST:
-        case OP_CUBYTE_TO_UINT_CAST:
-        case OP_CUBYTE_TO_ULONG_CAST:
-        case OP_CUBYTE_TO_CHAR_CAST:
-        case OP_CUBYTE_TO_FLOAT_CAST:
+        case OP_CUBYTE_TO_UBYTE_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cubyte_to_ubyte_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindUInt8;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CUBYTE_TO_SHORT_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cubyte_to_ubyte_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindUInt8;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            llvm_value.value = Builder.CreateCast(Instruction::ZExt, llvm_value.value, Type::getInt16Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt16;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CUBYTE_TO_USHORT_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cubyte_to_ubyte_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindUInt8;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            llvm_value.value = Builder.CreateCast(Instruction::ZExt, llvm_value.value, Type::getInt16Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt16;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CUBYTE_TO_INT_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cubyte_to_ubyte_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindUInt8;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            llvm_value.value = Builder.CreateCast(Instruction::ZExt, llvm_value.value, Type::getInt32Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt32;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CUBYTE_TO_LONG_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cubyte_to_ubyte_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindUInt8;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            llvm_value.value = Builder.CreateCast(Instruction::ZExt, llvm_value.value, Type::getInt64Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt64;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CUBYTE_TO_UINT_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cubyte_to_ubyte_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindUInt8;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            llvm_value.value = Builder.CreateCast(Instruction::ZExt, llvm_value.value, Type::getInt32Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt32;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CUBYTE_TO_ULONG_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cubyte_to_ubyte_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindUInt8;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            llvm_value.value = Builder.CreateCast(Instruction::ZExt, llvm_value.value, Type::getInt64Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt64;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CUBYTE_TO_CHAR_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cubyte_to_ubyte_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindUInt8;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            llvm_value.value = Builder.CreateCast(Instruction::ZExt, llvm_value.value, Type::getInt32Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt32;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CUBYTE_TO_FLOAT_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cubyte_to_ubyte_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindUInt8;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            llvm_value.value = Builder.CreateCast(Instruction::UIToFP, llvm_value.value, Type::getFloatTy(TheContext));
+            llvm_value.kind = kLVKindFloat;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
         case OP_CUBYTE_TO_DOUBLE_CAST: {
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
@@ -1661,8 +3011,12 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt8;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
-            cast_llvm_value_from_inst(&llvm_value, inst);
+            llvm_value.value = Builder.CreateCast(Instruction::UIToFP, llvm_value.value, Type::getDoubleTy(TheContext));
+            llvm_value.kind = kLVKindDouble;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -1670,16 +3024,283 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             }
             break;
 
-        case OP_CSHORT_TO_BYTE_CAST:
         case OP_CSHORT_TO_SHORT_CAST:
-        case OP_CSHORT_TO_INT_CAST : 
-        case OP_CSHORT_TO_LONG_CAST : 
-        case OP_CSHORT_TO_UBYTE_CAST :
-        case OP_CSHORT_TO_USHORT_CAST :
-        case OP_CSHORT_TO_UINT_CAST :
-        case OP_CSHORT_TO_ULONG_CAST :
-        case OP_CSHORT_TO_CHAR_CAST:
-        case OP_CSHORT_TO_FLOAT_CAST: 
+        case OP_CSHORT_TO_USHORT_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cshort_to_short_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt16;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CSHORT_TO_BYTE_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cshort_to_short_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt16;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt8Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt8;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CSHORT_TO_UBYTE_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cshort_to_short_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt16;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt8Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt8;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CSHORT_TO_INT_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cshort_to_short_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt16;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::SExt, llvm_value.value, Type::getInt32Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt32;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CSHORT_TO_LONG_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cshort_to_short_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt16;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::SExt, llvm_value.value, Type::getInt64Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt64;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CSHORT_TO_UINT_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cshort_to_short_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt16;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::ZExt, llvm_value.value, Type::getInt32Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt32;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CSHORT_TO_ULONG_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cshort_to_short_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt16;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::ZExt, llvm_value.value, Type::getInt64Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt64;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CSHORT_TO_CHAR_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cshort_to_short_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt16;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::ZExt, llvm_value.value, Type::getInt32Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt32;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CSHORT_TO_FLOAT_CAST:  {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cshort_to_short_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt16;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::SIToFP, llvm_value.value, Type::getFloatTy(TheContext));
+            llvm_value.kind = kLVKindFloat;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
         case OP_CSHORT_TO_DOUBLE_CAST: {
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
@@ -1698,25 +3319,296 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt16;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
-            cast_llvm_value_from_inst(&llvm_value, inst);
+            llvm_value.value = Builder.CreateCast(Instruction::SIToFP, llvm_value.value, Type::getDoubleTy(TheContext));
+            llvm_value.kind = kLVKindDouble;
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
             }
             break;
 
-        case OP_CUSHORT_TO_BYTE_CAST:
         case OP_CUSHORT_TO_SHORT_CAST:
-        case OP_CUSHORT_TO_INT_CAST : 
-        case OP_CUSHORT_TO_LONG_CAST : 
-        case OP_CUSHORT_TO_UBYTE_CAST :
-        case OP_CUSHORT_TO_USHORT_CAST :
-        case OP_CUSHORT_TO_UINT_CAST :
-        case OP_CUSHORT_TO_ULONG_CAST :
-        case OP_CUSHORT_TO_CHAR_CAST:
-        case OP_CUSHORT_TO_FLOAT_CAST:
+        case OP_CUSHORT_TO_USHORT_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cushort_to_ushort_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindUInt16;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CUSHORT_TO_BYTE_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cushort_to_ushort_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindUInt16;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt8Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt8;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CUSHORT_TO_INT_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cushort_to_ushort_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindUInt16;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::ZExt, llvm_value.value, Type::getInt32Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt32;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CUSHORT_TO_LONG_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cushort_to_ushort_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindUInt16;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::ZExt, llvm_value.value, Type::getInt64Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt64;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CUSHORT_TO_UBYTE_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cushort_to_ushort_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindUInt16;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt8Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt8;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CUSHORT_TO_UINT_CAST :{
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cushort_to_ushort_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindUInt16;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::ZExt, llvm_value.value, Type::getInt32Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt32;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CUSHORT_TO_ULONG_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cushort_to_ushort_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindUInt16;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::ZExt, llvm_value.value, Type::getInt64Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt64;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CUSHORT_TO_CHAR_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cushort_to_ushort_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindUInt16;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::ZExt, llvm_value.value, Type::getInt32Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt32;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CUSHORT_TO_FLOAT_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cushort_to_ushort_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindUInt16;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::UIToFP, llvm_value.value, Type::getFloatTy(TheContext));
+            llvm_value.kind = kLVKindFloat;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
         case OP_CUSHORT_TO_DOUBLE_CAST: {
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
@@ -1735,36 +3627,277 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt16;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
-            cast_llvm_value_from_inst(&llvm_value, inst);
+            llvm_value.value = Builder.CreateCast(Instruction::UIToFP, llvm_value.value, Type::getDoubleTy(TheContext));
+            llvm_value.kind = kLVKindDouble;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_INTEGER_TO_INT_CAST : 
+        case OP_INTEGER_TO_UINT_CAST :
+        case OP_CBOOL_TO_UINT_CAST :
+        case OP_INTEGER_TO_CHAR_CAST:
+        case OP_CBOOL_TO_CHAR_CAST: 
+        case OP_CBOOL_TO_INT_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_integer_to_int_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
             }
             break;
 
         case OP_INTEGER_TO_BYTE_CAST:
-        case OP_INTEGER_TO_SHORT_CAST:
-        case OP_INTEGER_TO_INT_CAST : 
+        case OP_CBOOL_TO_BYTE_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_integer_to_int_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt8Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt8;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_INTEGER_TO_SHORT_CAST: 
+        case OP_CBOOL_TO_SHORT_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_integer_to_int_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt16Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt16;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
         case OP_INTEGER_TO_LONG_CAST : 
-        case OP_INTEGER_TO_UBYTE_CAST :
-        case OP_INTEGER_TO_USHORT_CAST :
-        case OP_INTEGER_TO_UINT_CAST :
+        case OP_CBOOL_TO_LONG_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_integer_to_int_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::SExt, llvm_value.value, Type::getInt64Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt64;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_INTEGER_TO_UBYTE_CAST : 
+        case OP_CBOOL_TO_UBYTE_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_integer_to_int_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt8Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt8;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_INTEGER_TO_USHORT_CAST : 
+        case OP_CBOOL_TO_USHORT_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_integer_to_int_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt16Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt16;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
         case OP_INTEGER_TO_ULONG_CAST :
-        case OP_INTEGER_TO_CHAR_CAST:
+        case OP_CBOOL_TO_ULONG_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_integer_to_int_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::ZExt, llvm_value.value, Type::getInt64Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt64;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
         case OP_INTEGER_TO_FLOAT_CAST:
+        case OP_CBOOL_TO_FLOAT_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_integer_to_int_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::SIToFP, llvm_value.value, Type::getFloatTy(TheContext));
+            llvm_value.kind = kLVKindFloat;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
         case OP_INTEGER_TO_DOUBLE_CAST:
-        case OP_CBOOL_TO_BYTE_CAST:
-        case OP_CBOOL_TO_SHORT_CAST:
-        case OP_CBOOL_TO_INT_CAST : 
-        case OP_CBOOL_TO_LONG_CAST : 
-        case OP_CBOOL_TO_UBYTE_CAST :
-        case OP_CBOOL_TO_USHORT_CAST :
-        case OP_CBOOL_TO_UINT_CAST :
-        case OP_CBOOL_TO_ULONG_CAST :
-        case OP_CBOOL_TO_CHAR_CAST: 
-        case OP_CBOOL_TO_FLOAT_CAST:
         case OP_CBOOL_TO_DOUBLE_CAST: {
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
@@ -1783,36 +3916,332 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
-            cast_llvm_value_from_inst(&llvm_value, inst);
+            llvm_value.value = Builder.CreateCast(Instruction::SIToFP, llvm_value.value, Type::getDoubleTy(TheContext));
+            llvm_value.kind = kLVKindDouble;
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
             }
             break;
 
+
         case OP_UINTEGER_TO_BYTE_CAST:
+        case OP_CCHAR_TO_BYTE_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_uinteger_to_uint_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindUInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt8Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt8;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
         case OP_UINTEGER_TO_SHORT_CAST:
-        case OP_UINTEGER_TO_INT_CAST : 
+        case OP_CCHAR_TO_SHORT_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_uinteger_to_uint_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindUInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt16Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt16;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_UINTEGER_TO_INT_CAST :  
+        case OP_CCHAR_TO_INT_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_uinteger_to_uint_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindUInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
         case OP_UINTEGER_TO_LONG_CAST : 
+        case OP_CCHAR_TO_LONG_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_uinteger_to_uint_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindUInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::ZExt, llvm_value.value, Type::getInt64Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt64;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
         case OP_UINTEGER_TO_UBYTE_CAST :
+        case OP_CCHAR_TO_UBYTE_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_uinteger_to_uint_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindUInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt8Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt8;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
         case OP_UINTEGER_TO_USHORT_CAST :
+        case OP_CCHAR_TO_USHORT_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_uinteger_to_uint_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindUInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt16Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt16;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
         case OP_UINTEGER_TO_UINT_CAST :
+        case OP_CCHAR_TO_UINT_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_uinteger_to_uint_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindUInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
         case OP_UINTEGER_TO_ULONG_CAST :
+        case OP_CCHAR_TO_ULONG_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_uinteger_to_uint_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindUInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::ZExt, llvm_value.value, Type::getInt64Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt64;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
         case OP_UINTEGER_TO_CHAR_CAST:
+        case OP_CCHAR_TO_CHAR_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_uinteger_to_uint_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindUInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
         case OP_UINTEGER_TO_FLOAT_CAST: 
+        case OP_CCHAR_TO_FLOAT_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_uinteger_to_uint_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindUInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::UIToFP, llvm_value.value, Type::getFloatTy(TheContext));
+            llvm_value.kind = kLVKindFloat;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
         case OP_UINTEGER_TO_DOUBLE_CAST:
-        case OP_CCHAR_TO_BYTE_CAST:
-        case OP_CCHAR_TO_SHORT_CAST:
-        case OP_CCHAR_TO_INT_CAST : 
-        case OP_CCHAR_TO_LONG_CAST : 
-        case OP_CCHAR_TO_UBYTE_CAST :
-        case OP_CCHAR_TO_USHORT_CAST :
-        case OP_CCHAR_TO_UINT_CAST :
-        case OP_CCHAR_TO_ULONG_CAST :
-        case OP_CCHAR_TO_CHAR_CAST:
-        case OP_CCHAR_TO_FLOAT_CAST:
         case OP_CCHAR_TO_DOUBLE_CAST: {
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
@@ -1831,25 +4260,293 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
-            cast_llvm_value_from_inst(&llvm_value, inst);
+            llvm_value.value = Builder.CreateCast(Instruction::UIToFP, llvm_value.value, Type::getDoubleTy(TheContext));
+            llvm_value.kind = kLVKindDouble;
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
             }
             break;
 
-        case OP_CLONG_TO_BYTE_CAST:
-        case OP_CLONG_TO_SHORT_CAST:
-        case OP_CLONG_TO_INT_CAST : 
-        case OP_CLONG_TO_LONG_CAST : 
-        case OP_CLONG_TO_UBYTE_CAST :
-        case OP_CLONG_TO_USHORT_CAST :
+        case OP_CLONG_TO_BYTE_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_clong_to_long_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt64;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt8Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt8;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CLONG_TO_SHORT_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_clong_to_long_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt64;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt16Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt16;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CLONG_TO_INT_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_clong_to_long_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt64;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt32Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt32;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CLONG_TO_LONG_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_clong_to_long_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt64;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+            
+        case OP_CLONG_TO_UBYTE_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_clong_to_long_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt64;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt8Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt8;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CLONG_TO_USHORT_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_clong_to_long_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt64;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt16Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt16;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
         case OP_CLONG_TO_UINT_CAST :
-        case OP_CLONG_TO_ULONG_CAST :
-        case OP_CLONG_TO_CHAR_CAST:
-        case OP_CLONG_TO_FLOAT_CAST: 
+        case OP_CLONG_TO_CHAR_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_clong_to_long_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt64;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt32Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt32;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CLONG_TO_ULONG_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_clong_to_long_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt64;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CLONG_TO_FLOAT_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_clong_to_long_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt64;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::SIToFP, llvm_value.value, Type::getFloatTy(TheContext));
+            llvm_value.kind = kLVKindFloat;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
         case OP_CLONG_TO_DOUBLE_CAST: {
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
@@ -1868,25 +4565,323 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt64;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
-            cast_llvm_value_from_inst(&llvm_value, inst);
+            llvm_value.value = Builder.CreateCast(Instruction::SIToFP, llvm_value.value, Type::getDoubleTy(TheContext));
+            llvm_value.kind = kLVKindDouble;
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
             }
             break;
 
-        case OP_CULONG_TO_BYTE_CAST:
-        case OP_CULONG_TO_SHORT_CAST:
-        case OP_CULONG_TO_INT_CAST : 
-        case OP_CULONG_TO_LONG_CAST : 
-        case OP_CULONG_TO_UBYTE_CAST :
-        case OP_CULONG_TO_USHORT_CAST :
-        case OP_CULONG_TO_UINT_CAST :
-        case OP_CULONG_TO_ULONG_CAST :
-        case OP_CULONG_TO_CHAR_CAST:
-        case OP_CULONG_TO_FLOAT_CAST:
+        case OP_CULONG_TO_BYTE_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_culong_to_ulong_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindUInt64;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt8Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt8;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CULONG_TO_SHORT_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_culong_to_ulong_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindUInt64;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt16Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt16;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CULONG_TO_INT_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_culong_to_ulong_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindUInt64;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt32Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt32;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CULONG_TO_LONG_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_culong_to_ulong_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindUInt64;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CULONG_TO_UBYTE_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_culong_to_ulong_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindUInt64;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt8Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt8;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CULONG_TO_USHORT_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_culong_to_ulong_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindUInt64;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt16Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt16;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CULONG_TO_UINT_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_culong_to_ulong_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindUInt64;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt32Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt32;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CULONG_TO_ULONG_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_culong_to_ulong_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindUInt64;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CULONG_TO_CHAR_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_culong_to_ulong_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindUInt64;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt32Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt32;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CULONG_TO_FLOAT_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_culong_to_ulong_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindUInt64;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::UIToFP, llvm_value.value, Type::getFloatTy(TheContext));
+            llvm_value.kind = kLVKindFloat;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
         case OP_CULONG_TO_DOUBLE_CAST: {
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
@@ -1905,23 +4900,283 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt64;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
-            cast_llvm_value_from_inst(&llvm_value, inst);
+            llvm_value.value = Builder.CreateCast(Instruction::UIToFP, llvm_value.value, Type::getDoubleTy(TheContext));
+            llvm_value.kind = kLVKindDouble;
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
             }
             break;
 
-        case OP_CPOINTER_TO_BYTE_CAST:
-        case OP_CPOINTER_TO_SHORT_CAST:
-        case OP_CPOINTER_TO_INT_CAST : 
-        case OP_CPOINTER_TO_LONG_CAST : 
-        case OP_CPOINTER_TO_UBYTE_CAST :
-        case OP_CPOINTER_TO_USHORT_CAST :
-        case OP_CPOINTER_TO_UINT_CAST :
-        case OP_CPOINTER_TO_ULONG_CAST :
+        case OP_CPOINTER_TO_BYTE_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("un_cpointer_to_pointer_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindPointer8;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, PointerType::get(IntegerType::get(TheContext, 64), 0));
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::PtrToInt, llvm_value.value, Type::getInt8Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt8;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CPOINTER_TO_SHORT_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("un_cpointer_to_pointer_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindPointer8;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, PointerType::get(IntegerType::get(TheContext, 64), 0));
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::PtrToInt, llvm_value.value, Type::getInt16Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt16;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CPOINTER_TO_INT_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("un_cpointer_to_pointer_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindPointer8;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, PointerType::get(IntegerType::get(TheContext, 64), 0));
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::PtrToInt, llvm_value.value, Type::getInt32Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt32;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CPOINTER_TO_LONG_CAST :  {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("un_cpointer_to_pointer_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindPointer8;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, PointerType::get(IntegerType::get(TheContext, 64), 0));
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::PtrToInt, llvm_value.value, Type::getInt64Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt64;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CPOINTER_TO_UBYTE_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("un_cpointer_to_pointer_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindPointer8;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, PointerType::get(IntegerType::get(TheContext, 64), 0));
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::PtrToInt, llvm_value.value, Type::getInt8Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt8;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CPOINTER_TO_USHORT_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("un_cpointer_to_pointer_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindPointer8;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, PointerType::get(IntegerType::get(TheContext, 64), 0));
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::PtrToInt, llvm_value.value, Type::getInt16Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt16;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CPOINTER_TO_UINT_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("un_cpointer_to_pointer_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindPointer8;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, PointerType::get(IntegerType::get(TheContext, 64), 0));
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::PtrToInt, llvm_value.value, Type::getInt32Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt32;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CPOINTER_TO_ULONG_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("un_cpointer_to_pointer_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindPointer8;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, PointerType::get(IntegerType::get(TheContext, 64), 0));
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::PtrToInt, llvm_value.value, Type::getInt64Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt64;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
         case OP_CPOINTER_TO_CHAR_CAST: {
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
@@ -1940,25 +5195,263 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindPointer8;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, PointerType::get(IntegerType::get(TheContext, 64), 0));
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
-            cast_llvm_value_from_inst(&llvm_value, inst);
+            llvm_value.value = Builder.CreateCast(Instruction::PtrToInt, llvm_value.value, Type::getInt32Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt32;
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
             }
             break;
 
-        case OP_CFLOAT_TO_BYTE_CAST:
-        case OP_CFLOAT_TO_SHORT_CAST:
-        case OP_CFLOAT_TO_INT_CAST : 
-        case OP_CFLOAT_TO_LONG_CAST : 
-        case OP_CFLOAT_TO_UBYTE_CAST :
-        case OP_CFLOAT_TO_USHORT_CAST :
-        case OP_CFLOAT_TO_UINT_CAST :
-        case OP_CFLOAT_TO_ULONG_CAST :
+        case OP_CFLOAT_TO_BYTE_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cfloat_to_int_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt8Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt8;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CFLOAT_TO_SHORT_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cfloat_to_int_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt16Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt16;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CFLOAT_TO_INT_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cfloat_to_int_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CFLOAT_TO_LONG_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cfloat_to_int_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::SExt, llvm_value.value, Type::getInt64Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt64;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CFLOAT_TO_UBYTE_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cfloat_to_int_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt8Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt8;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CFLOAT_TO_USHORT_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cfloat_to_int_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt16Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt16;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CFLOAT_TO_UINT_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cfloat_to_int_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CFLOAT_TO_ULONG_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cfloat_to_int_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::ZExt, llvm_value.value, Type::getInt64Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt64;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
         case OP_CFLOAT_TO_CHAR_CAST: {
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
@@ -1977,16 +5470,47 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
-            cast_llvm_value_from_inst(&llvm_value, inst);
+            llvm_value.value = Builder.CreateCast(Instruction::ZExt, llvm_value.value, Type::getInt32Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt32;
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
             }
             break;
 
-        case OP_CFLOAT_TO_FLOAT_CAST:
+        case OP_CFLOAT_TO_FLOAT_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cfloat_to_float_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindFloat;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
         case OP_CFLOAT_TO_DOUBLE_CAST: {
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
@@ -2005,23 +5529,261 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindFloat;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
-            cast_llvm_value_from_inst(&llvm_value, inst);
+            llvm_value.value = Builder.CreateCast(Instruction::FPExt, llvm_value.value, Type::getDoubleTy(TheContext));
+            llvm_value.kind = kLVKindDouble;
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
             }
             break;
 
-        case OP_CDOUBLE_TO_BYTE_CAST:
-        case OP_CDOUBLE_TO_SHORT_CAST:
-        case OP_CDOUBLE_TO_INT_CAST : 
-        case OP_CDOUBLE_TO_LONG_CAST : 
-        case OP_CDOUBLE_TO_UBYTE_CAST :
-        case OP_CDOUBLE_TO_USHORT_CAST :
-        case OP_CDOUBLE_TO_UINT_CAST :
-        case OP_CDOUBLE_TO_ULONG_CAST :
+        case OP_CDOUBLE_TO_BYTE_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cdouble_to_int_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt8Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt8;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CDOUBLE_TO_SHORT_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cdouble_to_int_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt16Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt16;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CDOUBLE_TO_INT_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cdouble_to_int_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CDOUBLE_TO_LONG_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cdouble_to_int_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::SExt, llvm_value.value, Type::getInt64Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt64;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CDOUBLE_TO_UBYTE_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cdouble_to_int_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt8Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt8;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CDOUBLE_TO_USHORT_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cdouble_to_int_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::Trunc, llvm_value.value, Type::getInt16Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt16;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CDOUBLE_TO_UINT_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cdouble_to_int_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
+        case OP_CDOUBLE_TO_ULONG_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cdouble_to_int_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::ZExt, llvm_value.value, Type::getInt64Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt64;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
         case OP_CDOUBLE_TO_CHAR_CAST: {
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
@@ -2040,16 +5802,50 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
-            cast_llvm_value_from_inst(&llvm_value, inst);
+            llvm_value.value = Builder.CreateCast(Instruction::ZExt, llvm_value.value, Type::getInt32Ty(TheContext), "value2");
+            llvm_value.kind = kLVKindInt32;
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
             }
             break;
 
-        case OP_CDOUBLE_TO_FLOAT_CAST:
+        case OP_CDOUBLE_TO_FLOAT_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cdouble_to_double_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindDouble;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            llvm_value.value = Builder.CreateCast(Instruction::FPTrunc, llvm_value.value, Type::getFloatTy(TheContext));
+            llvm_value.kind = kLVKindFloat;
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
         case OP_CDOUBLE_TO_DOUBLE_CAST: {
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
@@ -2068,10 +5864,11 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindDouble;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
-
-            cast_llvm_value_from_inst(&llvm_value, inst);
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
             }
@@ -2126,6 +5923,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindObject;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -2154,6 +5954,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -2182,6 +5985,8 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -2207,6 +6012,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -2232,6 +6040,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -2257,6 +6068,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -2282,6 +6096,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -2307,6 +6124,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -2332,6 +6152,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -2358,6 +6181,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -2383,6 +6209,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt32;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -2408,6 +6237,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt32;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
 
@@ -2437,6 +6269,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.kind = kLVKindObject;
+                llvm_value.parent_var_num = 0;
+                llvm_value.parent_stack = NULL;
+                llvm_value.parent_llvm_stack = NULL;
 
                 push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
 
@@ -2467,13 +6302,12 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
 
                 IRBuilder<> builder(&(*function)->getEntryBlock(), (*function)->getEntryBlock().begin());
                 Value* string_expression_offsets_value = builder.CreateAlloca(array_type, 0, "string_expression_offsets");
+                Value* string_expression_offsets_value2 = Builder.CreateCast(Instruction::BitCast, string_expression_offsets_value, PointerType::get(IntegerType::get(TheContext, 32), 0));
 
                 for(i=0; i<num_string_expression; i++) {
-                    Value* lvalue = string_expression_offsets_value;
+                    Value* lvalue = string_expression_offsets_value2;
                     Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(32, i));
                     Value* element_address_value = Builder.CreateGEP(lvalue, rvalue);
-
-                    element_address_value = Builder.CreateCast(Instruction::BitCast, element_address_value, PointerType::get(IntegerType::get(TheContext, 32), 0));
 
                     Value* element_value = ConstantInt::get(TheContext, llvm::APInt(32, string_expression_offsets[i], "element_value"));
                     Builder.CreateAlignedStore(element_value, element_address_value, 4);
@@ -2490,7 +6324,6 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
                 
                 Value* param2 = string_expression_offsets_value;
                 param2 = Builder.CreateCast(Instruction::BitCast, param2, PointerType::get(IntegerType::get(TheContext, 32), 0));
-
                 params2.push_back(param2);
 
                 Value* param3 = ConstantInt::get(TheContext, llvm::APInt(32, num_string_expression, true));
@@ -2505,6 +6338,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.kind = kLVKindObject;
+                llvm_value.parent_var_num = 0;
+                llvm_value.parent_stack = NULL;
+                llvm_value.parent_llvm_stack = NULL;
 
                 /// dec llvm stack pointer ///
                 dec_stack_ptr(llvm_stack_ptr, num_string_expression);
@@ -2531,7 +6367,7 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
                 Function* function = TheModule->getFunction("create_buffer_object");
 
                 std::vector<Value*> params2;
-                Value* param1 = llvm_create_string(str);
+                Value* param1 = llvm_create_buffer(str, size);
                 params2.push_back(param1);
 
                 Value* param2 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)size);
@@ -2542,6 +6378,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.kind = kLVKindObject;
+                llvm_value.parent_var_num = 0;
+                llvm_value.parent_stack = NULL;
+                llvm_value.parent_llvm_stack = NULL;
 
                 push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
 
@@ -2572,13 +6411,12 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
 
                 IRBuilder<> builder(&(*function)->getEntryBlock(), (*function)->getEntryBlock().begin());
                 Value* string_expression_offsets_value = builder.CreateAlloca(array_type, 0, "string_expression_offsets");
+                Value* string_expression_offsets_value2 = Builder.CreateCast(Instruction::BitCast, string_expression_offsets_value, PointerType::get(IntegerType::get(TheContext, 32), 0));
 
                 for(i=0; i<num_string_expression; i++) {
-                    Value* lvalue = string_expression_offsets_value;
+                    Value* lvalue = string_expression_offsets_value2;
                     Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(32, i));
                     Value* element_address_value = Builder.CreateGEP(lvalue, rvalue);
-
-                    element_address_value = Builder.CreateCast(Instruction::BitCast, element_address_value, PointerType::get(IntegerType::get(TheContext, 32), 0));
 
                     Value* element_value = ConstantInt::get(TheContext, llvm::APInt(32, string_expression_offsets[i], "element_value"));
                     Builder.CreateAlignedStore(element_value, element_address_value, 4);
@@ -2589,27 +6427,32 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
                 Function* function = TheModule->getFunction("run_op_buffer_with_string_expression");
 
                 std::vector<Value*> params2;
-
-                Value* param1 = llvm_create_string(str);
+                Value* param1 = llvm_create_buffer(str, size);
                 params2.push_back(param1);
-                
-                Value* param2 = string_expression_offsets_value;
-                param2 = Builder.CreateCast(Instruction::BitCast, param2, PointerType::get(IntegerType::get(TheContext, 32), 0));
 
+                Value* param2 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)size);
                 params2.push_back(param2);
+                
+                Value* param3 = string_expression_offsets_value;
+                param3 = Builder.CreateCast(Instruction::BitCast, param3, PointerType::get(IntegerType::get(TheContext, 32), 0));
 
-                Value* param3 = ConstantInt::get(TheContext, llvm::APInt(32, num_string_expression, true));
                 params2.push_back(param3);
 
-                std::string stack_ptr_address_name("stack_ptr_address");
-                Value* param4 = params[stack_ptr_address_name];
+                Value* param4 = ConstantInt::get(TheContext, llvm::APInt(32, num_string_expression, true));
                 params2.push_back(param4);
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param5 = params[stack_ptr_address_name];
+                params2.push_back(param5);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(function, params2);
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.kind = kLVKindObject;
+                llvm_value.parent_var_num = 0;
+                llvm_value.parent_stack = NULL;
+                llvm_value.parent_llvm_stack = NULL;
 
                 /// dec llvm stack pointer ///
                 dec_stack_ptr(llvm_stack_ptr, num_string_expression);
@@ -2641,6 +6484,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.kind = kLVKindObject;
+                llvm_value.parent_var_num = 0;
+                llvm_value.parent_stack = NULL;
+                llvm_value.parent_llvm_stack = NULL;
 
                 push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
 
@@ -2671,13 +6517,12 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
 
                 IRBuilder<> builder(&(*function)->getEntryBlock(), (*function)->getEntryBlock().begin());
                 Value* string_expression_offsets_value = builder.CreateAlloca(array_type, 0, "string_expression_offsets");
+                Value* string_expression_offsets_value2 = Builder.CreateCast(Instruction::BitCast, string_expression_offsets_value, PointerType::get(IntegerType::get(TheContext, 32), 0));
 
                 for(i=0; i<num_string_expression; i++) {
-                    Value* lvalue = string_expression_offsets_value;
+                    Value* lvalue = string_expression_offsets_value2;
                     Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(32, i));
                     Value* element_address_value = Builder.CreateGEP(lvalue, rvalue);
-
-                    element_address_value = Builder.CreateCast(Instruction::BitCast, element_address_value, PointerType::get(IntegerType::get(TheContext, 32), 0));
 
                     Value* element_value = ConstantInt::get(TheContext, llvm::APInt(32, string_expression_offsets[i], "element_value"));
                     Builder.CreateAlignedStore(element_value, element_address_value, 4);
@@ -2709,6 +6554,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.kind = kLVKindObject;
+                llvm_value.parent_var_num = 0;
+                llvm_value.parent_stack = NULL;
+                llvm_value.parent_llvm_stack = NULL;
 
                 /// dec llvm stack pointer ///
                 dec_stack_ptr(llvm_stack_ptr, num_string_expression);
@@ -2774,6 +6622,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt64;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             /// dec llvm stack pointer ///
             dec_stack_ptr(llvm_stack_ptr, num_elements);
@@ -2862,6 +6713,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt64;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             /// dec llvm stack pointer ///
             dec_stack_ptr(llvm_stack_ptr, num_elements);
@@ -2947,6 +6801,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt64;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             /// dec llvm stack pointer ///
             dec_stack_ptr(llvm_stack_ptr, num_elements);
@@ -3032,6 +6889,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt64;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             /// dec llvm stack pointer ///
             dec_stack_ptr(llvm_stack_ptr, num_elements);
@@ -3117,6 +6977,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt64;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             /// dec llvm stack pointer ///
             dec_stack_ptr(llvm_stack_ptr, num_elements);
@@ -3202,6 +7065,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt64;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             /// dec llvm stack pointer ///
             dec_stack_ptr(llvm_stack_ptr, num_elements);
@@ -3287,6 +7153,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt64;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             /// dec llvm stack pointer ///
             dec_stack_ptr(llvm_stack_ptr, num_elements);
@@ -3360,6 +7229,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt64;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+                llvm_value.parent_llvm_stack = NULL;
 
             /// dec llvm stack pointer ///
             dec_stack_ptr(llvm_stack_ptr, num_elements);
@@ -3451,6 +7323,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt64;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             /// dec llvm stack pointer ///
             dec_stack_ptr(llvm_stack_ptr, num_elements*2);
@@ -3541,6 +7416,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindObject;
+            llvm_value.parent_var_num = parent_var_num;
+            llvm_value.parent_stack = params[stack_value_name];
+            llvm_value.parent_llvm_stack = llvm_stack;
 
             /// vm stack_ptr to llvm stack ///
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -3621,6 +7499,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.kind = kLVKindObject;
+                llvm_value.parent_var_num = 0;
+                llvm_value.parent_stack = NULL;
+                llvm_value.parent_llvm_stack = NULL;
 
                 push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
 
@@ -3651,13 +7532,12 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
 
                 IRBuilder<> builder(&(*function)->getEntryBlock(), (*function)->getEntryBlock().begin());
                 Value* string_expression_offsets_value = builder.CreateAlloca(array_type, 0, "string_expression_offsets");
+                Value* string_expression_offsets_value2 = Builder.CreateCast(Instruction::BitCast, string_expression_offsets_value, PointerType::get(IntegerType::get(TheContext, 32), 0));
 
                 for(i=0; i<num_string_expression; i++) {
-                    Value* lvalue = string_expression_offsets_value;
+                    Value* lvalue = string_expression_offsets_value2;
                     Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(32, i));
                     Value* element_address_value = Builder.CreateGEP(lvalue, rvalue);
-
-                    element_address_value = Builder.CreateCast(Instruction::BitCast, element_address_value, PointerType::get(IntegerType::get(TheContext, 32), 0));
 
                     Value* element_value = ConstantInt::get(TheContext, llvm::APInt(32, string_expression_offsets[i], "element_value"));
                     Builder.CreateAlignedStore(element_value, element_address_value, 4);
@@ -3706,6 +7586,9 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
                 llvm_value.kind = kLVKindObject;
+                llvm_value.parent_var_num = 0;
+                llvm_value.parent_stack = NULL;
+                llvm_value.parent_llvm_stack = NULL;
 
                 /// dec llvm stack pointer ///
                 dec_stack_ptr(llvm_stack_ptr, num_string_expression);

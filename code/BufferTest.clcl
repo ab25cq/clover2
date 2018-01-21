@@ -14,6 +14,8 @@ class BufferTest {
         b.append(b"\0");
         b.append(b"ABC");
 
+        c:Buffer = b"ABC\0ABC";
+
         Clover.test("buffer test3", b.equals(b"ABC\0ABC"));
     }
 }

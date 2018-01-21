@@ -1926,7 +1926,7 @@ BOOL System_fork(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
         int num_params = 0;
 
-        if(!invoke_block(block_value, info->current_stack, info->current_var_num, num_params, stack_ptr, info)) {
+        if(!invoke_block(block_value, info->current_stack, info->current_var_num, num_params, stack_ptr, info, FALSE)) {
             return FALSE;
         }
 

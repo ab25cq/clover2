@@ -19,6 +19,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -38,6 +41,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -57,6 +63,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -76,6 +85,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -94,6 +106,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -112,6 +127,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -130,6 +148,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -149,6 +170,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -168,6 +192,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -187,6 +214,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -206,6 +236,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -224,6 +257,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -242,6 +278,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -260,6 +299,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -278,6 +320,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -296,6 +341,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -314,6 +362,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -332,6 +383,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -350,6 +404,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -368,6 +425,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -386,6 +446,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -404,6 +467,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -422,6 +488,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -440,6 +509,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -458,6 +530,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -476,6 +551,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -494,6 +572,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -512,6 +593,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -530,6 +614,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -548,6 +635,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -566,6 +656,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -584,6 +677,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -602,6 +698,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -620,6 +719,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -638,6 +740,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -656,6 +761,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -674,6 +782,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -692,6 +803,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -710,6 +824,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -728,6 +845,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -746,6 +866,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -764,6 +887,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -782,6 +908,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -800,6 +929,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -818,6 +950,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -836,6 +971,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -854,6 +992,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -872,6 +1013,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -890,6 +1034,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -908,6 +1055,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -926,6 +1076,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -944,6 +1097,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -962,6 +1118,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -980,6 +1139,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -998,6 +1160,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -1016,6 +1181,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -1034,6 +1202,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -1052,6 +1223,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
             
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -1070,6 +1244,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -1088,6 +1265,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -1124,6 +1304,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -1160,6 +1343,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -1178,6 +1364,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -1202,6 +1391,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -1227,6 +1419,8 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -1252,6 +1446,8 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
 
             LVALUE llvm_value3;
             llvm_value3 = trunc_value(&llvm_value, 32);
@@ -1296,6 +1492,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             LVALUE llvm_value2;
             llvm_value2 = trunc_value(&llvm_value, 32);
@@ -1346,6 +1545,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
@@ -1356,6 +1558,7 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -2);
             LVALUE* rvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
+
             *lvalue = trunc_value(lvalue, 1);
             *rvalue = trunc_value(rvalue, 1);
 
@@ -1364,9 +1567,25 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
+
+            IRBuilder<> builder(&(*function)->getEntryBlock(), (*function)->getEntryBlock().begin());
+            Value* value = builder.CreateAlloca(Type::getInt64Ty(TheContext), 0, "VALUE_FOR_ANDAND");
+            Value* zero = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)0);
+            Builder.CreateAlignedStore(zero, value, 8);
+
+            LVALUE llvm_value2;
+            llvm_value2 = trunc_value(&llvm_value, 64);
+
+            Builder.CreateAlignedStore(llvm_value2.value, value, 8);
+
+            llvm_value2.value = value;
+            llvm_value2.kind = kLVKindMemory;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
-            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value2);
             }
             break;
 
@@ -1382,9 +1601,25 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
+
+            IRBuilder<> builder(&(*function)->getEntryBlock(), (*function)->getEntryBlock().begin());
+            Value* value = builder.CreateAlloca(Type::getInt64Ty(TheContext), 0, "VALUE_FOR_OROR");
+            Value* zero = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)0);
+            Builder.CreateAlignedStore(zero, value, 8);
+
+            LVALUE llvm_value2;
+            llvm_value2 = trunc_value(&llvm_value, 64);
+
+            Builder.CreateAlignedStore(llvm_value2.value, value, 8);
+
+            llvm_value2.value = value;
+            llvm_value2.kind = kLVKindMemory;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
-            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value2);
             }
             break;
 
@@ -1401,6 +1636,9 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);

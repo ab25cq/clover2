@@ -103,6 +103,54 @@ void free_nodes()
     }
 }
 
+int get_var_size(sNodeType* var_type)
+{
+    int size = 0;
+    if(var_type->mClass->mFlags & CLASS_FLAGS_INTERFACE) {
+        size = 32;
+    }
+    else if(type_identify_with_class_name(var_type, "byte") || type_identify_with_class_name(var_type, "ubyte"))
+    {
+        size = 8;
+    }
+    else if(type_identify_with_class_name(var_type, "short") || type_identify_with_class_name(var_type, "ushort"))
+    {
+        size = 16;
+    }
+    else if(type_identify_with_class_name(var_type, "int") || type_identify_with_class_name(var_type, "uint"))
+    {
+        size = 32;
+    }
+    else if(type_identify_with_class_name(var_type, "long") || type_identify_with_class_name(var_type, "ulong"))
+    {
+        size = 64;
+    }
+    else if(type_identify_with_class_name(var_type, "float"))
+    {
+        size = 128;
+    }
+    else if(type_identify_with_class_name(var_type, "double"))
+    {
+        size = 256;
+    }
+    else if(type_identify_with_class_name(var_type, "bool"))
+    {
+        size = 1;
+    }
+    else if(type_identify_with_class_name(var_type, "char"))
+    {
+        size = 32;
+    }
+    else if(type_identify_with_class_name(var_type, "pointer"))
+    {
+        size = 1024;
+    }
+    else {
+        size = 32;
+    }
+
+    return size;
+}
 
 #define LABEL_NAME_MAX 512
 
@@ -750,14 +798,18 @@ static BOOL compile_and_and(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
-    append_opecode_to_code(info->code, OP_VALUE_FOR_ANDAND_OROR, info->no_output);
-
     append_opecode_to_code(info->code, OP_DUPE, info->no_output);
     info->stack_num++;
 
+    append_opecode_to_code(info->code, OP_RESET_ANDAND_OROR_VALUE, info->no_output);
+
     append_opecode_to_code(info->code, OP_COND_JUMP, info->no_output);
-    append_int_value_to_code(info->code, sizeof(int)*3, info->no_output);
+    append_int_value_to_code(info->code, sizeof(int)*4, info->no_output);
     info->stack_num--;
+
+    append_opecode_to_code(info->code, OP_STORE_ANDAND_OROR_VALUE, info->no_output);
+
+    int stack_num_before = info->stack_num;
 
     /// goto the end point ///
     append_opecode_to_code(info->code, OP_GOTO, info->no_output); // if the left expression is false, jump to the end of and and expression
@@ -768,6 +820,9 @@ static BOOL compile_and_and(unsigned int node, sCompileInfo* info)
     create_label_name("label_and_endpoint", label_end_point, LABEL_NAME_MAX, label_num);
 
     append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
+
+    /// right value ///
+    append_opecode_to_code(info->code, OP_STORE_ANDAND_OROR_VALUE2, info->no_output);
 
     /// compile right expression ///
     unsigned int right_node = gNodes[node].mRight;
@@ -793,18 +848,23 @@ static BOOL compile_and_and(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
+    append_opecode_to_code(info->code, OP_RESTORE_ANDAND_OROR_VALUE2, info->no_output);
+    append_int_value_to_code(info->code, -2, info->no_output);
+
     append_opecode_to_code(info->code, OP_ANDAND, info->no_output);
     info->stack_num--;
 
-    append_opecode_to_code(info->code, OP_STORE_VALUE_FOR_ANDAND_OROR, info->no_output);
+    append_opecode_to_code(info->code, OP_STORE_ANDAND_OROR_VALUE2, info->no_output);
 
     /// the end point ///
+    info->stack_num = stack_num_before;
+
     *(int*)(info->code->mCodes + goto_point) = info->code->mLen;
 
     append_opecode_to_code(info->code, OP_LABEL, info->no_output);
     append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
 
-    append_opecode_to_code(info->code, OP_LOAD_VALUE_FOR_ANDAND_OROR, info->no_output);
+    append_opecode_to_code(info->code, OP_GET_ANDAND_OROR_RESULT, info->no_output);
 
     info->type = create_node_type_with_class_name("bool");
 
@@ -857,14 +917,18 @@ static BOOL compile_or_or(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
-    append_opecode_to_code(info->code, OP_VALUE_FOR_ANDAND_OROR, info->no_output);
-
     append_opecode_to_code(info->code, OP_DUPE, info->no_output);
     info->stack_num++;
 
+    append_opecode_to_code(info->code, OP_RESET_ANDAND_OROR_VALUE, info->no_output);
+
     append_opecode_to_code(info->code, OP_COND_NOT_JUMP, info->no_output);
-    append_int_value_to_code(info->code, sizeof(int)*3, info->no_output);
+    append_int_value_to_code(info->code, sizeof(int)*4, info->no_output);
     info->stack_num--;
+
+    append_opecode_to_code(info->code, OP_STORE_ANDAND_OROR_VALUE2, info->no_output);
+
+    int stack_num_before = info->stack_num;
 
     /// goto the end point ///
     append_opecode_to_code(info->code, OP_GOTO, info->no_output); // if the left expression is true, jump to the end of || expression
@@ -877,6 +941,8 @@ static BOOL compile_or_or(unsigned int node, sCompileInfo* info)
     append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
 
     /// compile right expression ///
+    append_opecode_to_code(info->code, OP_STORE_ANDAND_OROR_VALUE, info->no_output);
+
     unsigned int right_node = gNodes[node].mRight;
 
     if(!compile(right_node, info)) {
@@ -900,18 +966,23 @@ static BOOL compile_or_or(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
-    append_opecode_to_code(info->code, OP_OROR, info->no_output);
+    append_opecode_to_code(info->code, OP_RESTORE_ANDAND_OROR_VALUE, info->no_output);
+    append_int_value_to_code(info->code, -2, info->no_output);
 
-    append_opecode_to_code(info->code, OP_STORE_VALUE_FOR_ANDAND_OROR, info->no_output);
+    append_opecode_to_code(info->code, OP_OROR, info->no_output);
     info->stack_num--;
 
+    append_opecode_to_code(info->code, OP_STORE_ANDAND_OROR_VALUE, info->no_output);
+
     /// the end point ///
+    info->stack_num = stack_num_before;
+    
     *(int*)(info->code->mCodes + goto_point) = info->code->mLen;
 
     append_opecode_to_code(info->code, OP_LABEL, info->no_output);
     append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
 
-    append_opecode_to_code(info->code, OP_LOAD_VALUE_FOR_ANDAND_OROR, info->no_output);
+    append_opecode_to_code(info->code, OP_GET_ANDAND_OROR_RESULT, info->no_output);
 
     info->type = create_node_type_with_class_name("bool");
 
@@ -1022,10 +1093,14 @@ static BOOL compile_cbyte_value(unsigned int node, sCompileInfo* info)
         append_class_name_to_constant_pool_and_code(info, klass);
         append_int_value_to_code(info->code, method_index, info->no_output);
 
+        sNodeType* result_type2 = create_node_type_with_class_name("Byte");
+        int size = get_var_size(result_type2);
+        append_int_value_to_code(info->code, size, info->no_output);
+
         info->stack_num-=num_params+1;
         info->stack_num++;
 
-        info->type = create_node_type_with_class_name("Byte");
+        info->type = result_type2;
     }
 
     return TRUE;
@@ -1131,10 +1206,14 @@ static BOOL compile_cfloat_value(unsigned int node, sCompileInfo* info)
         append_class_name_to_constant_pool_and_code(info, klass);
         append_int_value_to_code(info->code, method_index, info->no_output);
 
+        sNodeType* result_type2 = create_node_type_with_class_name("Float");
+        int size = get_var_size(result_type2);
+        append_int_value_to_code(info->code, size, info->no_output);
+
         info->stack_num-=num_params+1;
         info->stack_num++;
 
-        info->type = create_node_type_with_class_name("Float");
+        info->type = result_type2;
     }
 
     return TRUE;
@@ -1240,10 +1319,14 @@ static BOOL compile_cdouble_value(unsigned int node, sCompileInfo* info)
         append_class_name_to_constant_pool_and_code(info, klass);
         append_int_value_to_code(info->code, method_index, info->no_output);
 
+        sNodeType* result_type2 = create_node_type_with_class_name("Double");
+        int size = get_var_size(result_type2);
+        append_int_value_to_code(info->code, size, info->no_output);
+
         info->stack_num-=num_params+1;
         info->stack_num++;
 
-        info->type = create_node_type_with_class_name("Double");
+        info->type = result_type2;
     }
 
     return TRUE;
@@ -1353,10 +1436,14 @@ static BOOL compile_cubyte_value(unsigned int node, sCompileInfo* info)
         append_class_name_to_constant_pool_and_code(info, klass);
         append_int_value_to_code(info->code, method_index, info->no_output);
 
+        sNodeType* result_type2 = create_node_type_with_class_name("UByte");
+        int size = get_var_size(result_type2);
+        append_int_value_to_code(info->code, size, info->no_output);
+
         info->stack_num-=num_params+1;
         info->stack_num++;
 
-        info->type = create_node_type_with_class_name("UByte");
+        info->type = result_type2;
     }
 
     return TRUE;
@@ -1466,10 +1553,14 @@ static BOOL compile_cshort_value(unsigned int node, sCompileInfo* info)
         append_class_name_to_constant_pool_and_code(info, klass);
         append_int_value_to_code(info->code, method_index, info->no_output);
 
+        sNodeType* result_type2 = create_node_type_with_class_name("Short");
+        int size = get_var_size(result_type2);
+        append_int_value_to_code(info->code, size, info->no_output);
+
         info->stack_num-=num_params+1;
         info->stack_num++;
 
-        info->type = create_node_type_with_class_name("Short");
+        info->type = result_type2;
     }
 
     return TRUE;
@@ -1579,10 +1670,14 @@ static BOOL compile_cushort_value(unsigned int node, sCompileInfo* info)
         append_class_name_to_constant_pool_and_code(info, klass);
         append_int_value_to_code(info->code, method_index, info->no_output);
 
+        sNodeType* result_type2 = create_node_type_with_class_name("UShort");
+        int size = get_var_size(result_type2);
+        append_int_value_to_code(info->code, size, info->no_output);
+
         info->stack_num-=num_params+1;
         info->stack_num++;
 
-        info->type = create_node_type_with_class_name("UShort");
+        info->type = result_type2;
     }
 
     return TRUE;
@@ -1692,10 +1787,14 @@ static BOOL compile_cint_value(unsigned int node, sCompileInfo* info)
         append_class_name_to_constant_pool_and_code(info, klass);
         append_int_value_to_code(info->code, method_index, info->no_output);
 
+        sNodeType* result_type2 = create_node_type_with_class_name("Integer");
+        int size = get_var_size(result_type2);
+        append_int_value_to_code(info->code, size, info->no_output);
+
         info->stack_num-=num_params+1;
         info->stack_num++;
 
-        info->type = create_node_type_with_class_name("Integer");
+        info->type = result_type2;
     }
 
     return TRUE;
@@ -1805,10 +1904,14 @@ static BOOL compile_cuint_value(unsigned int node, sCompileInfo* info)
         append_class_name_to_constant_pool_and_code(info, klass);
         append_int_value_to_code(info->code, method_index, info->no_output);
 
+        sNodeType* result_type2 = create_node_type_with_class_name("UInteger");
+        int size = get_var_size(result_type2);
+        append_int_value_to_code(info->code, size, info->no_output);
+
         info->stack_num-=num_params+1;
         info->stack_num++;
 
-        info->type = create_node_type_with_class_name("UInteger");
+        info->type = result_type2;
     }
 
     return TRUE;
@@ -1919,10 +2022,14 @@ static BOOL compile_clong_value(unsigned int node, sCompileInfo* info)
         append_class_name_to_constant_pool_and_code(info, klass);
         append_int_value_to_code(info->code, method_index, info->no_output);
 
+        sNodeType* result_type2 = create_node_type_with_class_name("Long");
+        int size = get_var_size(result_type2);
+        append_int_value_to_code(info->code, size, info->no_output);
+
         info->stack_num-=num_params+1;
         info->stack_num++;
 
-        info->type = create_node_type_with_class_name("Long");
+        info->type = result_type2;
     }
 
     return TRUE;
@@ -2032,10 +2139,14 @@ static BOOL compile_culong_value(unsigned int node, sCompileInfo* info)
         append_class_name_to_constant_pool_and_code(info, klass);
         append_int_value_to_code(info->code, method_index, info->no_output);
 
+        sNodeType* result_type2 = create_node_type_with_class_name("ULong");
+        int size = get_var_size(result_type2);
+        append_int_value_to_code(info->code, size, info->no_output);
+
         info->stack_num-=num_params+1;
         info->stack_num++;
 
-        info->type = create_node_type_with_class_name("ULong");
+        info->type = result_type2;
     }
 
     return TRUE;
@@ -2146,47 +2257,6 @@ unsigned int sNodeTree_create_load_variable(char* var_name, sParserInfo* info)
     gNodes[node].mType = NULL;
 
     return node;
-}
-
-static int get_var_size(sNodeType* var_type)
-{
-    int size = 0;
-    if(var_type->mClass->mFlags & CLASS_FLAGS_INTERFACE) {
-        size = 4;
-    }
-    else if(type_identify_with_class_name(var_type, "byte") || type_identify_with_class_name(var_type, "ubyte"))
-    {
-        size = 1;
-    }
-    else if(type_identify_with_class_name(var_type, "short") || type_identify_with_class_name(var_type, "ushort"))
-    {
-        size = 2;
-    }
-    else if(type_identify_with_class_name(var_type, "int") || type_identify_with_class_name(var_type, "uint"))
-    {
-        size = 4;
-    }
-    else if(type_identify_with_class_name(var_type, "long") || type_identify_with_class_name(var_type, "ulong"))
-    {
-        size = 8;
-    }
-    else if(type_identify_with_class_name(var_type, "float"))
-    {
-        size = 16;
-    }
-    else if(type_identify_with_class_name(var_type, "double"))
-    {
-        size = 32;
-    }
-    else if(type_identify_with_class_name(var_type, "pointer"))
-    {
-        size = 64;
-    }
-    else {
-        size = 4;
-    }
-
-    return size;
 }
 
 static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
@@ -2630,6 +2700,9 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
             append_class_name_to_constant_pool_and_code(info, string_class);
             append_int_value_to_code(info->code, method_index, info->no_output);
 
+            int size = get_var_size(result_type);
+            append_int_value_to_code(info->code, size, info->no_output);
+
             info->stack_num-=2;
             info->stack_num++;
 
@@ -2790,10 +2863,14 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
                             append_int_value_to_code(info->code, num_real_params, info->no_output);
                             append_str_to_constant_pool_and_code(info->constant, info->code, method_name_and_params, info->no_output);
 
+                            sNodeType* result_type = create_node_type_with_class_name("bool");
+                            int size = get_var_size(result_type);
+                            append_int_value_to_code(info->code, size, info->no_output);
+
                             info->stack_num -= num_params + 1;
                             info->stack_num++;
 
-                            info->type = create_node_type_with_class_name("bool");
+                            info->type = result_type;
                         }
                     }
                     else if(klass->mFlags & CLASS_FLAGS_INTERFACE)
@@ -2839,10 +2916,14 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
                             append_int_value_to_code(info->code, num_real_params, info->no_output);
                             append_str_to_constant_pool_and_code(info->constant, info->code, method_name_and_params, info->no_output);
 
+                            sNodeType* result_type = create_node_type_with_class_name("bool");
+                            int size = get_var_size(result_type);
+                            append_int_value_to_code(info->code, size, info->no_output);
+
                             info->stack_num -= num_params + 1;
                             info->stack_num++;
 
-                            info->type = create_node_type_with_class_name("bool");
+                            info->type = result_type;
                         }
                     }
                     else {
@@ -2886,6 +2967,9 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
 
                         append_class_name_to_constant_pool_and_code(info, klass);
                         append_int_value_to_code(info->code, method_index2, info->no_output);
+
+                        int size = get_var_size(result_type);
+                        append_int_value_to_code(info->code, size, info->no_output);
 
                         info->stack_num -= num_params + 1;
                         info->stack_num++;
@@ -3691,6 +3775,9 @@ static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)
             append_class_name_to_constant_pool_and_code(info, klass);
             append_int_value_to_code(info->code, method_index, info->no_output);
 
+            int size = get_var_size(result_type);
+            append_int_value_to_code(info->code, size, info->no_output);
+
             info->stack_num-=num_params;
             info->stack_num++;
 
@@ -3753,10 +3840,14 @@ static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)
                 append_int_value_to_code(info->code, num_method_chains, info->no_output);
                 append_int_value_to_code(info->code, max_method_chains, info->no_output);
 
+                sNodeType* result_type = create_node_type_from_cl_type(method->mResultType, klass);
+                int size = get_var_size(result_type);
+                append_int_value_to_code(info->code, size, info->no_output);
+
                 info->stack_num -= num_params;
                 info->stack_num++;
 
-                info->type = create_node_type_from_cl_type(method->mResultType, klass);
+                info->type = result_type;
             }
         }
         else {
@@ -3873,6 +3964,9 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                     append_class_name_to_constant_pool_and_code(info, klass);
                     append_int_value_to_code(info->code, method_index2, info->no_output);
 
+                    int size = get_var_size(result_type);
+                    append_int_value_to_code(info->code, size, info->no_output);
+
                     info->stack_num -= num_params + 1;
                     info->stack_num++;
 
@@ -3927,10 +4021,14 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                     append_int_value_to_code(info->code, num_method_chains, info->no_output);
                     append_int_value_to_code(info->code, max_method_chains, info->no_output);
 
+                    sNodeType* result_type = create_node_type_from_cl_type(method->mResultType, klass);
+                    int size = get_var_size(result_type);
+                    append_int_value_to_code(info->code, size, info->no_output);
+
                     info->stack_num -= num_real_params;
                     info->stack_num++;
 
-                    info->type = create_node_type_from_cl_type(method->mResultType, klass);
+                    info->type = result_type;
                 }
             }
             else {
@@ -3968,10 +4066,14 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
             append_int_value_to_code(info->code, num_real_params, info->no_output);
             append_str_to_constant_pool_and_code(info->constant, info->code, method_name_and_params, info->no_output);
 
+            sNodeType* result_type = create_node_type_with_class_name("Anonymous");
+            int size = get_var_size(result_type);
+            append_int_value_to_code(info->code, size, info->no_output);
+
             info->stack_num -= num_params + 1;
             info->stack_num++;
 
-            info->type = create_node_type_with_class_name("Anonymous");
+            info->type = result_type;
         }
     }
     else if(klass->mFlags & CLASS_FLAGS_INTERFACE)
@@ -4015,6 +4117,9 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
             append_opecode_to_code(info->code, OP_INVOKE_VIRTUAL_METHOD, info->no_output);
             append_int_value_to_code(info->code, num_real_params, info->no_output);
             append_method_name_and_params_to_constant_pool_and_code(info, klass, method);
+
+            int size = get_var_size(result_type);
+            append_int_value_to_code(info->code, size, info->no_output);
 
             info->stack_num -= num_params + 1;
             info->stack_num++;
@@ -4309,6 +4414,9 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
 
                 append_class_name_to_constant_pool_and_code(info, klass);
                 append_int_value_to_code(info->code, method_index2, info->no_output);
+
+                int size = get_var_size(result_type);
+                append_int_value_to_code(info->code, size, info->no_output);
 
                 info->stack_num -= num_params + 1;
                 info->stack_num++;
@@ -4666,6 +4774,9 @@ static BOOL compile_new_operator(unsigned int node, sCompileInfo* info)
             append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
             append_class_name_to_constant_pool_and_code(info, klass);
             append_int_value_to_code(info->code, method_index, info->no_output);
+
+            int size = get_var_size(generics_types2);
+            append_int_value_to_code(info->code, size, info->no_output);
 
             info->stack_num-=num_params+1;
             info->stack_num++;
@@ -7247,6 +7358,9 @@ BOOL compile_string_value(unsigned int node, sCompileInfo* info)
             append_class_name_to_constant_pool_and_code(info, klass);
             append_int_value_to_code(info->code, method_index, info->no_output);
 
+            int size = get_var_size(result_type);
+            append_int_value_to_code(info->code, size, info->no_output);
+
             info->stack_num--;
             info->stack_num++;
 
@@ -7357,11 +7471,13 @@ BOOL compile_buffer_value(unsigned int node, sCompileInfo* info)
             append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
             append_int_value_to_code(info->code, info->sline, info->no_output);
 
-
             append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
 
             append_class_name_to_constant_pool_and_code(info, klass);
             append_int_value_to_code(info->code, method_index, info->no_output);
+
+            int size = get_var_size(result_type);
+            append_int_value_to_code(info->code, size, info->no_output);
 
             info->stack_num--;
             info->stack_num++;
@@ -7478,6 +7594,9 @@ BOOL compile_path_value(unsigned int node, sCompileInfo* info)
 
             append_class_name_to_constant_pool_and_code(info, klass);
             append_int_value_to_code(info->code, method_index, info->no_output);
+
+            int size = get_var_size(result_type);
+            append_int_value_to_code(info->code, size, info->no_output);
 
             info->stack_num--;
             info->stack_num++;
@@ -8539,24 +8658,10 @@ BOOL compile_block_object(unsigned int node, sCompileInfo* info)
             node_block_type->mParams[i] = params[i]->mType;
         }
 
-        info->type->mBlockType = node_block_type;
-    }
-/*
-    else {
-        info->type = create_node_type_with_class_name("lambda");
-
-        sNodeBlockType* node_block_type = alloc_node_block_type();
-
-        node_block_type->mNumParams = num_params;
-        for(i=0; i<num_params; i++) {
-            node_block_type->mParams[i] = create_node_type_with_class_name("Null");
-        }
-
-        node_block_type->mResultType = create_node_type_with_class_name("Null");
+        node_block_type->mLambda = lambda;
 
         info->type->mBlockType = node_block_type;
     }
-*/
 
     sByteCode_free(&codes);
     sConst_free(&constant);
@@ -8621,6 +8726,8 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     for(i=0; i<num_params; i++) {
         node_block_type->mParams[i] = params[i]->mType;
     }
+
+    node_block_type->mLambda = lambda;
 
     lambda_type->mBlockType = node_block_type;
 
@@ -8911,6 +9018,10 @@ BOOL compile_block_call(unsigned int node, sCompileInfo* info)
     append_opecode_to_code(info->code, OP_INVOKE_BLOCK, info->no_output);
     append_int_value_to_code(info->code, num_params, info->no_output);
 
+    sNodeType* result_type2 = block_type->mResultType;
+    int size = get_var_size(result_type2);
+    append_int_value_to_code(info->code, size, info->no_output);
+
     info->stack_num-=(num_params+1);
     info->stack_num++;
 
@@ -9025,6 +9136,9 @@ static BOOL compile_regex(unsigned int node, sCompileInfo* info)
 
             append_class_name_to_constant_pool_and_code(info, klass);
             append_int_value_to_code(info->code, method_index, info->no_output);
+
+            int size = get_var_size(result_type);
+            append_int_value_to_code(info->code, size, info->no_output);
 
             info->stack_num--;
             info->stack_num++;
@@ -9227,6 +9341,9 @@ static BOOL compile_inherit_call(unsigned int node, sCompileInfo* info)
         append_class_name_to_constant_pool_and_code(info, klass);
         append_int_value_to_code(info->code, method_index2, info->no_output);
 
+        int size = get_var_size(result_type);
+        append_int_value_to_code(info->code, size, info->no_output);
+
         if(!class_method) {
             info->stack_num-=num_params+1;
         }
@@ -9377,6 +9494,9 @@ static BOOL compile_range(unsigned int node, sCompileInfo* info)
         append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
         append_class_name_to_constant_pool_and_code(info, klass);
         append_int_value_to_code(info->code, method_index, info->no_output);
+
+        int size = get_var_size(node_type);
+        append_int_value_to_code(info->code, size, info->no_output);
 
         info->stack_num-=num_params+1;
         info->stack_num++;

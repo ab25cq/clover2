@@ -4,6 +4,7 @@ extern "C"
 {
 
 GlobalVariable* gSigIntValue;
+GlobalVariable* gAndAndOrOrValue;
 StructType* gCLValueAndBoolStruct;
 StructType* gPointerAndBoolStruct;
 
@@ -418,7 +419,7 @@ void create_internal_functions()
     type_params.push_back(param4_type);
 
     param5_type = PointerType::get(IntegerType::get(TheContext,64), 0);
-    type_params.push_back(param4_type);
+    type_params.push_back(param5_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "try_function", TheModule);
@@ -796,6 +797,7 @@ void create_internal_functions()
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_op_string_with_string_expression", TheModule);
 
+
     /// run_op_buffer_with_string_expression ///
     type_params.clear();
     
@@ -804,20 +806,23 @@ void create_internal_functions()
     param1_type = PointerType::get(IntegerType::get(TheContext, 8), 0);
     type_params.push_back(param1_type);
 
+    param2_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param2_type);
+
 /*
     Type* element_type = IntegerType::getInt32Ty(TheContext);
     ArrayType* array_type = ArrayType::get(element_type, STRING_EXPRESSION_MAX);
 
     param2_type = array_type;
 */
-    param2_type = PointerType::get(IntegerType::get(TheContext, 32), 0);
-    type_params.push_back(param2_type);
-
-    param3_type = IntegerType::get(TheContext, 32);
+    param3_type = PointerType::get(IntegerType::get(TheContext, 32), 0);
     type_params.push_back(param3_type);
 
-    param4_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    param4_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param4_type);
+
+    param5_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param5_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_op_buffer_with_string_expression", TheModule);
@@ -1009,6 +1014,10 @@ void create_internal_functions()
     /// gSigInt ///
     Type* variable_type = IntegerType::get(TheContext, 32);
     gSigIntValue = new GlobalVariable(*TheModule, variable_type, false, GlobalValue::ExternalLinkage, nullptr, "gSigInt");
+
+    /// gAndAndOrOrValue ///
+    variable_type = IntegerType::get(TheContext, 64);
+    gAndAndOrOrValue = new GlobalVariable(*TheModule, variable_type, false, GlobalValue::ExternalLinkage, nullptr, "gAndAndOrOrValue");
 
     create_internal_functions2();
 }
