@@ -1940,6 +1940,8 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
 
                         append_class_name_to_constant_pool_and_code(&cinfo, string_class);
                         append_int_value_to_code(cinfo.code, method_index, cinfo.no_output);
+                        int size = get_var_size(result_type);
+                        append_int_value_to_code(cinfo.code, size, cinfo.no_output);
 
                         cinfo.stack_num--;
                         cinfo.stack_num++;
@@ -1956,6 +1958,8 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
 
                         append_class_name_to_constant_pool_and_code(&cinfo, string_class);
                         append_int_value_to_code(cinfo.code, method_index, cinfo.no_output);
+                        int size = get_var_size(result_type);
+                        append_int_value_to_code(cinfo.code, size, cinfo.no_output);
 
                         cinfo.stack_num--;
                         cinfo.stack_num++;
@@ -1974,6 +1978,8 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
 
                     append_class_name_to_constant_pool_and_code(&cinfo, klass);
                     append_int_value_to_code(cinfo.code, method_index, cinfo.no_output);
+                    int size = get_var_size(result_type);
+                    append_int_value_to_code(cinfo.code, size, cinfo.no_output);
 
                     cinfo.stack_num--;
                     cinfo.stack_num++;
@@ -1995,6 +2001,8 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
 
                         append_class_name_to_constant_pool_and_code(&cinfo, string_class);
                         append_int_value_to_code(cinfo.code, method_index, cinfo.no_output);
+                        int size = get_var_size(result_type);
+                        append_int_value_to_code(cinfo.code, size, cinfo.no_output);
 
                         cinfo.stack_num--;
                         cinfo.stack_num++;
@@ -2012,6 +2020,8 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
 
                         append_class_name_to_constant_pool_and_code(&cinfo, string_class);
                         append_int_value_to_code(cinfo.code, method_index, cinfo.no_output);
+                        int size = get_var_size(result_type);
+                        append_int_value_to_code(cinfo.code, size, cinfo.no_output);
 
                         cinfo.stack_num--;
                         cinfo.stack_num++;
