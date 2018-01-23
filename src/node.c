@@ -3738,7 +3738,8 @@ static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)
     sNodeType* klass_type = gNodes[node].uValue.sClassMethodCall.mClass;
     sCLClass* klass = klass_type->mClass;
     int num_params = gNodes[node].uValue.sClassMethodCall.mNumParams;
-    char* method_name = gNodes[node].uValue.sClassMethodCall.mMethodName;
+    char method_name[METHOD_NAME_MAX];
+    xstrncpy(method_name, gNodes[node].uValue.sClassMethodCall.mMethodName, METHOD_NAME_MAX);
 
     sNodeType* generics_types;
     if(info->pinfo->klass && klass == info->pinfo->klass) {
@@ -5123,7 +5124,8 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
     }
 
     sCLClass* klass = info->type->mClass;
-    char* field_name = gNodes[node].uValue.mVarName;
+    char field_name[VAR_NAME_MAX];
+    xstrncpy(field_name, gNodes[node].uValue.mVarName, VAR_NAME_MAX);
     BOOL array = info->type->mArray;
     sNodeType* generics_types = info->type;
 
@@ -5402,7 +5404,8 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
     }
 
     sCLClass* klass = left_type->mClass;
-    char* field_name = gNodes[node].uValue.mVarName;
+    char field_name[VAR_NAME_MAX];
+    xstrncpy(field_name, gNodes[node].uValue.mVarName, VAR_NAME_MAX);
 
     int field_index = search_for_field(klass, field_name);
 
@@ -5471,7 +5474,8 @@ unsigned int sNodeTree_create_class_fields(sCLClass* klass, char* name, sParserI
 static BOOL compile_load_class_field(unsigned int node, sCompileInfo* info)
 {
     sCLClass* klass = gNodes[node].uValue.sClassField.mClass;
-    char* field_name = gNodes[node].uValue.sClassField.mVarName;
+    char field_name[VAR_NAME_MAX];
+    xstrncpy(field_name, gNodes[node].uValue.sClassField.mVarName, VAR_NAME_MAX);
 
     int field_index = search_for_class_field(klass, field_name);
 
@@ -5545,7 +5549,8 @@ static BOOL compile_store_class_field(unsigned int node, sCompileInfo* info)
     }
 
     sCLClass* klass = gNodes[node].uValue.sClassField.mClass;
-    char* field_name = gNodes[node].uValue.sClassField.mVarName;
+    char field_name[VAR_NAME_MAX];
+    xstrncpy(field_name, gNodes[node].uValue.sClassField.mVarName, VAR_NAME_MAX);
 
     int field_index = search_for_class_field(klass, field_name);
 
@@ -5834,7 +5839,8 @@ static void increment_operand_core(unsigned int node, sCompileInfo* info, unsign
 
     info->stack_num--;
 
-    char* var_name = gNodes[lnode].uValue.mVarName;
+    char var_name[VAR_NAME_MAX];
+    xstrncpy(var_name, gNodes[lnode].uValue.mVarName, VAR_NAME_MAX);
     int var_index = get_variable_index(info->lv_table, var_name);
 
     MASSERT(var_index != -1);
@@ -5887,7 +5893,8 @@ static BOOL increment_operand_core_for_field(unsigned int node, sCompileInfo* in
     }
 
     sCLClass* klass = info->type->mClass;
-    char* field_name = gNodes[lnode].uValue.mVarName;
+    char field_name[VAR_NAME_MAX];
+    xstrncpy(field_name, gNodes[lnode].uValue.mVarName, VAR_NAME_MAX);
 
     int field_index = search_for_field(klass, field_name);
 
@@ -6429,7 +6436,8 @@ static void decrement_operand_core(unsigned int node, sCompileInfo* info, unsign
 
     info->stack_num--;
 
-    char* var_name = gNodes[lnode].uValue.mVarName;
+    char var_name[VAR_NAME_MAX];
+    xstrncpy(var_name, gNodes[lnode].uValue.mVarName, VAR_NAME_MAX);
     int var_index = get_variable_index(info->lv_table, var_name);
 
     MASSERT(var_index != -1);
@@ -6482,7 +6490,8 @@ static BOOL decrement_operand_core_for_field(unsigned int node, sCompileInfo* in
     }
 
     sCLClass* klass = info->type->mClass;
-    char* field_name = gNodes[lnode].uValue.mVarName;
+    char field_name[VAR_NAME_MAX];
+    xstrncpy(field_name, gNodes[lnode].uValue.mVarName, VAR_NAME_MAX);
 
     int field_index = search_for_field(klass, field_name);
 
@@ -7692,7 +7701,8 @@ BOOL compile_get_address(unsigned int node, sCompileInfo* info)
         }
 
         sCLClass* klass = info->type->mClass;
-        char* field_name = gNodes[lnode].uValue.mVarName;
+        char field_name[VAR_NAME_MAX];
+        xstrncpy(field_name, gNodes[lnode].uValue.mVarName, VAR_NAME_MAX);
 
         int field_index = search_for_field(klass, field_name);
 
@@ -7716,7 +7726,8 @@ BOOL compile_get_address(unsigned int node, sCompileInfo* info)
     }
     else if(gNodes[lnode].mNodeType == kNodeTypeLoadClassField) {
         sCLClass* klass = gNodes[lnode].uValue.sClassField.mClass;
-        char* field_name = gNodes[lnode].uValue.sClassField.mVarName;
+        char field_name[VAR_NAME_MAX];
+        xstrncpy(field_name, gNodes[lnode].uValue.sClassField.mVarName, VAR_NAME_MAX);
 
         int field_index = search_for_class_field(klass, field_name);
 
