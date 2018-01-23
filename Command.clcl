@@ -1014,6 +1014,10 @@ dynamic_class Command
         return self.data;
     }
 
+    def equals(command:Command):bool {
+        return self.data.equals(command.data);
+    }
+
     def toBool():bool {
         return self.resultCode == 0;
     }

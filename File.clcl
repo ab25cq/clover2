@@ -502,6 +502,9 @@ class Path
     def equals(right:WildCard):bool {
         return true;
     }
+    def compare(item:Path): int {
+        return self.path.compare(item.path);
+    }
 
     def realpath():Path throws Exception {
         return System.realpath(self.path).toPath();

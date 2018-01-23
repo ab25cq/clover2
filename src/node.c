@@ -367,7 +367,12 @@ static void err_msg_for_method_not_found(sCLClass* klass, char* method_name, sNo
     compile_err_msg(info, "%s.%s(%d prametors) is not found", CLASS_NAME(klass), method_name, num_params);
     int i;
     for(i=0; i<num_params; i++) {
-        compile_err_msg(info, "parametor#%d is %s", i, CLASS_NAME(param_types[i]->mClass));
+        if(param_types[i] == NULL || param_types[i]->mClass == NULL) {
+            compile_err_msg(info, "parametor#%d is NULL(unexpected parametor)", i);
+        }
+        else {
+            compile_err_msg(info, "parametor#%d is %s", i, CLASS_NAME(param_types[i]->mClass));
+        }
     }
 }
 
@@ -4153,7 +4158,9 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                 /// determine block type and block params from getted method ///
                 sCLMethod* method2 = klass->mMethods + method_index2;
 
-                sNodeTree* node_tree = gNodes + clone_node(node2); // prevent realloc bug
+                unsigned int tmp = clone_node(node2); // prevent realloc bug
+
+                sNodeTree* node_tree = gNodes + tmp;
                 BOOL omit_block_result_type = FALSE;
                 sCLParam* param = method2->mParams + method2->mNumParams -1;
                 sNodeType* node_type = create_node_type_from_cl_type(param->mType, klass);
@@ -4487,7 +4494,8 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
     sNodeType* param_types[PARAMS_MAX];
 
     int num_params = gNodes[node].uValue.sMethodCall.mNumParams;
-    char* method_name = gNodes[node].uValue.sMethodCall.mMethodName;
+    char method_name[METHOD_NAME_MAX];
+    xstrncpy(method_name, gNodes[node].uValue.sMethodCall.mMethodName, METHOD_NAME_MAX);
     unsigned int params[PARAMS_MAX];
 
     memcpy(params, gNodes[node].uValue.sMethodCall.mParams, sizeof(unsigned int)*PARAMS_MAX);

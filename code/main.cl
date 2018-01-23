@@ -170,3 +170,5 @@ SelfOmittedField.main();
 println("UnboxingTest");
 UnboxingTest.main();
 AndAndOrOrTest.main();
+println("MapTest");
+MapTest.main();
