@@ -17,7 +17,7 @@ version 3.5.2
 
 5. オープンクラスです。組み込みのクラスを含む全てのクラスに後からメソッドやフィールドを追加することができます。同名のメソッドを定義することができ、mixin-layersスタイルのような差分プログラミングをすることができます。
 
-5.インタプリタもあります。外部コマンドも簡単に実行でき、clover2のメソッドとも簡単に混ぜることができます。
+6.インタプリタもあります。外部コマンドも簡単に実行でき、clover2のメソッドとも簡単に混ぜることができます。
 
 ls().grep("main.c").toString().scan(/./).join("+").toCommand().less()
 m+a+i+n+.+c
@@ -33,7 +33,7 @@ egrep str src/*.c
 make && make install && make test
 ./configure --prefix=$HOME --with-optimize --with-interpreter
 
-メソッドブロックの型推論が出来ます。以下のようなコードが動きます。
+9.メソッドブロックの型推論が出来ます。以下のようなコードが動きます。
 
 a:SortableList<String> = slist{1,2,3}.map { it.toString() }
 
@@ -47,7 +47,7 @@ slist{1,2,3}.map { it * 2 }.each { it.printf("[%d]\n"); }
 [4]
 [6]
 
-elist{1,2,3}.map { it.toString().toCommand() }.each { it.less() }
+list{1,2,3}.map { it.toString().toCommand() }.each { it.less() }
 
 list{uname(), hostname(), pwd()}.each { it.less() }
 
@@ -78,6 +78,6 @@ slist{1,2,3}.map { it * 2 }.each { it.printf("[%d]\n"); }
 [4]
 [6]
 
-elist{1,2,3}.map { it.toString().toCommand() }.each { it.less() }
+list{1,2,3}.map { it.toString().toCommand() }.each { it.less() }
 
 list{uname(), hostname(), pwd()}.each { it.less() }
