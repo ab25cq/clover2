@@ -13,20 +13,39 @@ version 3.5.2
 
 3. 簡易なGenericsがあります。JavaのGenericsを簡素にしたようものです。コンパイル時のみGenerics情報があり、実行時には消えているので効率的です。
 
-4. 簡略化のために継承はありません。インターフェースとクラスとモジュールのみあります。そのためインターフェースに対するメソッド呼び出し以外はすべてコンパイル時にメソッドが特定でき効率的です。
+4. 簡略化のために継承はありません。インターフェースとクラスとモジュールのみあります。そのためインターフェースに対するメソッド呼び出し以外はすべてコンパイル時にメソッドが特定でき効率的です。継承の代わりに使える機能として移譲を言語でサポートしています。
 
 5. オープンクラスです。組み込みのクラスを含む全てのクラスに後からメソッドやフィールドを追加することができます。同名のメソッドを定義することができ、mixin-layersスタイルのような差分プログラミングをすることができます。
 
-6. シェルのようなインタプリタもあります。外部コマンドも簡単に実行でき、clover2のメソッドとも簡単に混ぜることができます。
+5.インタプリタもあります。外部コマンドも簡単に実行でき、clover2のメソッドとも簡単に混ぜることができます。
+> ls().grep("main.c").toString().scan(/./).join("+").toCommand().less()
+> m+a+i+n+.+c
+とless外部コマンドで表示される。 メソッド名や外部コマンド名、ファイル名の補完もされます。JavaのIDEやPowerShellと同じく文脈に沿った補完を行います。
 
-> ls().grep("main.c").toString().scan(/./).toCommand().less()
-list {m,a,i,n,.,c}
+7.--with-jit指定を./configureにつけるとLLVMによるJITが有効になります。処理速度が向上します。大体3倍速くらいです。内部的にはClover2のソースファイルのコンパイル時にJITコンパイルしてダイナミックライブラリを作っているのでJITというよりネイティブコードコンパイラと言っても良いかもしれません。
 
-とless外部コマンドで表示される。 メソッド名や外部コマンド名、ファイル名の補完もされます。
+8. シェルのような記述もできREPLをシェルの代わりに使うことができます。補完もシェルと同等の機能があります。ジョブコントロールも行うためfgやjobsなども動きます。ただしシェルよりは機能は限定的です。
 
-7. LLVMでJITします。
+> ls -al | less
+> egrep str src/*.c
+> make && make install && make test
+> ./configure --prefix=$HOME --with-optimize --with-interpreter
+メソッドブロックの型推論が出来ます。以下のようなコードが動きます。
+> a:SortableList<String> = slist{1,2,3}.map { it.toString() }
 
-インストール方法については詳しくはwikiを見てください https://github.com/ab25cq/clover2/wiki
+サンプルコード
+
+"A,B,C".split(/,/) {it.append("X"); }
+{ AX, BX, CX }
+
+slist{1,2,3}.map { it * 2 }.each { it.printf("[%d]\n"); }
+[2]
+[4]
+[6]
+
+slist{1,2,3}.map { it.toString().toCommand() }.each { it.less() }
+
+list{uname(), hostname(), pwd()}.each { it.less() }
 
 Yet another compiler and a Virtual Machine.
 
@@ -37,7 +56,8 @@ FEATURES
 3. Generics
 4. No inheritance, only interfaces and classes, modules
 5. open class
-6. LLVM JIT
+6. REPL with completion like shell
+7. LLVM native code compiling 
 
 See clover2 wiki on github (Japanese) https://github.com/ab25cq/clover2/wiki
 
