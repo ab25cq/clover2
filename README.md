@@ -35,17 +35,17 @@ version 3.5.2
 
 サンプルコード
 
-"A,B,C".split(/,/) {it.append("X"); }
+> "A,B,C".split(/,/) {it.append("X"); }
 { AX, BX, CX }
 
-slist{1,2,3}.map { it * 2 }.each { it.printf("[%d]\n"); }
+> slist{1,2,3}.map { it * 2 }.each { it.printf("[%d]\n"); }
 [2]
 [4]
 [6]
 
-slist{1,2,3}.map { it.toString().toCommand() }.each { it.less() }
+> slist{1,2,3}.map { it.toString().toCommand() }.each { it.less() }
 
-list{uname(), hostname(), pwd()}.each { it.less() }
+> list{uname(), hostname(), pwd()}.each { it.less() }
 
 Yet another compiler and a Virtual Machine.
 
@@ -63,3 +63,17 @@ See clover2 wiki on github (Japanese) https://github.com/ab25cq/clover2/wiki
 
 LICENSE is GPL-2.0. see LICENSE file
 
+
+Sample Code
+
+> "A,B,C".split(/,/) {it.append("X"); }
+{ AX, BX, CX }
+
+> slist{1,2,3}.map { it * 2 }.each { it.printf("[%d]\n"); }
+[2]
+[4]
+[6]
+
+> slist{1,2,3}.map { it.toString().toCommand() }.each { it.less() }
+
+> list{uname(), hostname(), pwd()}.each { it.less() }
