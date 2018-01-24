@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/ab25cq/clover2.svg?branch=master)](https://travis-ci.org/ab25cq/clover2)
 
 
-version 3.5.2
+version 3.5.3
 
 サポートしている機能
 
@@ -54,6 +54,9 @@ a:SortableList<String> = slist{1,2,3}.map { it.toString() }
     list{1,2,3}.map { it.toString().toCommand() }.each { it.less() }
 
     list{uname(), hostname(), pwd()}.each { it.less() }
+
+詳しくは、https://github.com/ab25cq/clover2/wikiをみてください。
+(もしくはrepositoryに含まれるclover2.wikiディレクトリ以下のドキュメントを見てください)
 
 Yet another compiler and a Virtual Machine.
 
