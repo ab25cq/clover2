@@ -420,7 +420,7 @@ dynamic_class Command
                     }
                 });
             }
-            elif(item.className().equals("SortableList")) {
+            elif(item.className().equals("SortableList<String>")) {
                 list_:SortableList<ISortable> = item.toAnonymous();
 
                 list_.each(closure(item2:ISortable) {
@@ -585,7 +585,7 @@ dynamic_class Command
                     }
                 });
             }
-            elif(item.className().equals("SortableList")) {
+            elif(item.className().equals("SortableList<String>")) {
                 list_:SortableList<ISortable> = item.toAnonymous();
 
                 list_.each(closure(item2:ISortable) {
