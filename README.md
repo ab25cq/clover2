@@ -19,8 +19,9 @@ version 3.5.2
 
     6.インタプリタもあります。外部コマンドも簡単に実行でき、clover2のメソッドとも簡単に混ぜることができます。
 
-ls().grep("main.c").toString().scan(/./).join("+").toCommand().less()
-m+a+i+n+.+c
+    ls().grep("main.c").toString().scan(/./).join("+").toCommand().less()
+
+    m+a+i+n+.+c
 
     とless外部コマンドで表示される。 メソッド名や外部コマンド名、ファイル名の補完もされます。JavaのIDEやPowerShellと同じく文脈に沿った補完を行います。
 
@@ -28,10 +29,13 @@ m+a+i+n+.+c
 
     8. シェルのような記述もできREPLをシェルの代わりに使うことができます。補完もシェルと同等の機能があります。ジョブコントロールも行うためfgやjobsなども動きます。ただしシェルよりは機能は限定的です。
 
-ls -al | less
-egrep str src/*.c
-make && make install && make test
-./configure --prefix=$HOME --with-optimize --with-interpreter
+    ls -al | less
+
+    egrep str src/*.c
+
+    make && make install && make test
+
+    ./configure --prefix=$HOME --with-optimize --with-interpreter
 
     9.メソッドブロックの型推論が出来ます。以下のようなコードが動きます。
 
