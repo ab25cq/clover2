@@ -122,6 +122,16 @@ Add the `--with-interpreter` option to `./ configure`. An interpreter is entered
 If you need to compile Method's native code, add the `--with-jit` option to`./configure`.
 If segmentation violation occurs with `--with-optimize` depending on the environment, try `--with-optimize` and execute it. Although processing speed is considerably slow, segmentation violation may not be done. Also, if the operation is unstable with --with-jit, please remove --with-jit and execute it. --with-jit is stable in version 3.5. If you still have a bug, please remove --with-jit and try using it. In case
 
+If you want to install executable files in a specific directory
+
+```
+    ./configure --with-optimize
+    make
+    make DESTDIR=~/tmp/bin install
+```
+
+Please do as. clover, cclover is installed in /tmp/bin.
+
 ----
 
 [>> How to use](usage-en)

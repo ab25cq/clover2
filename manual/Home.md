@@ -124,6 +124,14 @@ ubuntuでは
 Methodのネイティブコードコンパイルが必要になる場合は`--with-jit`オプションを`./configure`に追加してください。
 環境の違いよって`--with-optimize`でセグメンテーション違反が出る場合は`--with-optimize`を外してみて実行してください。かなり処理速度が遅くなりますが、セグメンテーション違反がでなくなるかもしれません。また--with-jitで動作が不安定な場合は--with-jitを外して実行してみてください。--with-jitはversion 3.5で安定しています。それでもバグが出るようなら--with-jitを外して使ってみてください。　
 
+特定のディレクトリに実行ファイルをインストールしたい場合は
+
+    ./configure --with-optimize
+    make
+    make DESTDIR=~/tmp/bin install
+
+などとしてください。~/tmp/binにclover, ccloverがインストールされます。
+
 ----
 
 [>> 次 使い方](usage)
