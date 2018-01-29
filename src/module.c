@@ -212,24 +212,30 @@ static BOOL save_module_to_file(sCLModule* self)
 static BOOL search_for_module_file_from_module_name(char* module_file, unsigned int module_file_size, char* module_name)
 {
     int i;
-    char* cwd;
-
-    cwd = getenv("PWD");
-
-    /// current working directory ///
-    if(cwd) {
-        snprintf(module_file, module_file_size, "%s/%s.clm", cwd, module_name);
-
-        if(access(module_file, F_OK) == 0) {
-            return TRUE;
-        }
-    }
 
     /// .clover2 directory ////
     char* home = getenv("HOME");
 
     if(home) {
         snprintf(module_file, module_file_size, "%s/.clover2/%s.clm", home, module_name);
+
+        if(access(module_file, F_OK) == 0) {
+            return TRUE;
+        }
+    }
+
+    /// system shared directory ///
+    snprintf(module_file, module_file_size, "%s/%s.clm", PREFIX, module_name);
+
+    if(access(module_file, F_OK) == 0) {
+        return TRUE;
+    }
+
+    /// current working directory ///
+    char* cwd = getenv("PWD");
+
+    if(cwd) {
+        snprintf(module_file, module_file_size, "%s/%s.clm", cwd, module_name);
 
         if(access(module_file, F_OK) == 0) {
             return TRUE;

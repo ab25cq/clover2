@@ -46,7 +46,8 @@ fi
 ##############################################################
 AC_MSG_CHECKING(Operating System)
 
-CFLAGS="-fPIC -rdynamic"
+CFLAGS='-DPREFIX="\"${DESTDIR}/\""'
+CFLAGS="-fPIC -rdynamic $CFLAGS"
 
 if test `uname -s` = "Darwin"; then
     echo "Darwin"
@@ -207,7 +208,8 @@ fi
 
 AC_SUBST(CC)
 
-CXXFLAGS="-I . "
+CXXFLAGS='-DPREFIX="\"${DESTDIR}/\""'
+CXXFLAGS="-I . $CXXFLAGS"
 
 if which clang++-3.7 > /dev/null
 then

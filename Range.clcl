@@ -17,6 +17,25 @@ class Range<T:ISortable>
     def isMember(value:T):bool {
         return value.compare(self.head) >= 0 && value.compare(self.tail) < 0;
     }
+
+    def toString(): String {
+        return "\{self.head}..\{self.tail}";
+    }
+
+    def compare(range:Range<T>): int {
+        head_cmp:int = self.head.compare(range.head);
+        tail_cmp:int = self.tail.compare(range.tail);
+
+        if(head_cmp == 0 && tail_cmp == 0) {
+            return 0;
+        }
+        elif(head_cmp == -1 && (tail_cmp == 0 || tail_cmp == -1)) {
+            return -1;
+        }
+        else {
+            return 1;
+        }
+    }
 }
 
 module MListWithRange

@@ -134,7 +134,7 @@ static BOOL search_for_class_file(char* class_name, char* class_file_name, size_
 {
     char* home = getenv("HOME");
 
-    /// .clover directory ///
+    /// home directory ///
     if(home) {
         snprintf(class_file_name, class_file_name_size, "%s/.clover2/%s.oclcl", home, class_name);
 
@@ -143,9 +143,16 @@ static BOOL search_for_class_file(char* class_name, char* class_file_name, size_
         }
     }
 
-    char* cwd = getenv("PWD");
+    /// system shared directory ///
+    snprintf(class_file_name, class_file_name_size, "%s/%s.oclcl", PREFIX, class_name);
+
+    if(access(class_file_name, F_OK) == 0) {
+        return TRUE;
+    }
 
     /// current working directory ///
+    char* cwd = getenv("PWD");
+
     if(cwd) {
         snprintf(class_file_name, class_file_name_size, "%s/%s.oclcl", cwd, class_name);
 

@@ -1018,6 +1018,10 @@ dynamic_class Command
         return self.data.equals(command.data);
     }
 
+    def compare(command:Command): int {
+        return self.data.compare(command.data);
+    }
+
     def toBool():bool {
         return self.resultCode == 0;
     }

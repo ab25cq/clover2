@@ -405,194 +405,95 @@ BOOL determine_method_generics_types(sNodeType* left_param, sNodeType* right_par
 
 static BOOL search_for_class_file_on_compile_time(char* class_name, char* class_file_path, size_t class_file_path_size)
 {
-    /// ホームディレクトリのClover2のクラスファイルの置き場所にクラスファイルはありますか？ ///
+    /// home directory ///
     char* home = getenv("HOME");
 
     if(home) {
         snprintf(class_file_path, class_file_path_size, "%s/.clover2/%s.oclcl", home, class_name);
 
         if(access(class_file_path, F_OK) == 0) {
-            return TRUE;  // ありました。真を返します
+            return TRUE;
         }
     }
 
-    /// カレントワーキングディレクトリにクラスファイルが存在しますか？ ///
+    /// system shared directory ///
+    snprintf(class_file_path, class_file_path_size, "%s/%s.oclcl", PREFIX, class_name);
+
+    if(access(class_file_path, F_OK) == 0) {
+        return TRUE;
+    }
+
+    /// current working directory ///
     char* cwd = getenv("PWD");
 
     if(cwd) {
         snprintf(class_file_path, class_file_path_size, "%s/%s.oclcl", cwd, class_name);
 
         if(access(class_file_path, F_OK) == 0) {
-            /// ソース・ファイルのパスを得る ///
-            char source_path[PATH_MAX];
-            snprintf(source_path, PATH_MAX, "%s/%s.clcl", cwd, class_name);
-
-            char source_path2[PATH_MAX];
-            if(strstr(gCompilingSourceFileName, "/"))  // gCompilingSourceFileNameは絶対パスじゃないこともある
-            {
-                char* source_dir = dirname(gCompilingSourceFileName);
-
-                snprintf(source_path2, PATH_MAX, "%s/%s.clcl", source_dir, class_name);
-            }
-            else {
-                source_path2[0] = '\0';
-            }
-
-            /// 自動コンパイル機能を行う ///
-            struct stat class_file_path_stat;
-
-            if(stat(class_file_path, &class_file_path_stat) != 0) {
-                return FALSE;
-            }
-
-            if(access(source_path, F_OK) == 0) {
-                struct stat source_path_stat;
-
-                if(stat(source_path, &source_path_stat) != 0) {
-                    return FALSE;
-                }
-
-                /// ソースファイルのほうが新しいならコンパイルする
-                if(class_file_path_stat.st_mtime < source_path_stat.st_mtime) {
-                    /// コンパイル ///
-                    char command[PATH_MAX+128];
-
-                    char command_path[PATH_MAX+1];
-                    snprintf(command_path, PATH_MAX, "./cclover2");
-
-                    if(access(command_path, X_OK) == 0) {
-                        snprintf(command, PATH_MAX+128, "./cclover2 %s/%s.clcl", cwd, class_name);
-                    }
-                    else {
-                        snprintf(command, PATH_MAX+128, "cclover2 %s/%s.clcl", cwd, class_name);
-                    }
-
-                    int rc = system(command);
-
-                    /// 一応クラスファイルがあるかどうかチェックして、あるなら真を返します ///
-                    if(rc == 0) {
-                        snprintf(class_file_path, class_file_path_size, "%s/%s.oclcl", cwd, class_name);
-
-                        if(access(class_file_path, F_OK) == 0) {
-                            return TRUE;
-                        }
-                    }
-                }
-                else {
-                    return TRUE;
-                }
-            }
-            else if(access(source_path2, F_OK) == 0) {
-                struct stat source_path_stat;
-
-                if(stat(source_path2, &source_path_stat) != 0) {
-                    return FALSE;
-                }
-
-                if(class_file_path_stat.st_mtime < source_path_stat.st_mtime) {
-                    /// コンパイル ///
-                    char command[PATH_MAX+128];
-
-                    char* source_dir = dirname(gCompilingSourceFileName);
-
-                    char command_path[PATH_MAX+1];
-                    snprintf(command_path, PATH_MAX, "./cclover2");
-
-                    if(access(command_path, X_OK) == 0) {
-                        snprintf(command, PATH_MAX+128, "./cclover2 %s/%s.clcl", source_dir, class_name);
-                    }
-                    else {
-                        snprintf(command, PATH_MAX+128, "cclover2 %s/%s.clcl", source_dir, class_name);
-                    }
-
-                    int rc = system(command);
-
-                    /// 一応クラスファイルがあるかどうかチェックして、あるなら真を返します ///
-                    if(rc == 0) {
-                        snprintf(class_file_path, class_file_path_size, "%s/%s.oclcl", cwd, class_name);
-
-                        if(access(class_file_path, F_OK) == 0) {
-                            return TRUE;
-                        }
-                    }
-                }
-                else {
-                    return TRUE;
-                }
-            }
-            else {
-                return TRUE;
-            }
+            return TRUE;
         }
         else {
-            /// クラスファイルが無いならクラス名.clclファイルのコンパイルを試してみます ///
-            char path[PATH_MAX];
+            char source_path[PATH_MAX];
 
-            snprintf(path, PATH_MAX, "%s/%s.clcl", cwd, class_name);
+            snprintf(source_path, PATH_MAX, "%s/%s.clcl", cwd, class_name);
 
-            if(access(path, F_OK) == 0) {           // クラス名.clclファイルはありますか？
-                /// コンパイル ///
-                char command[PATH_MAX+128];
+            char cclover2_path[PATH_MAX];
 
-                char command_path[PATH_MAX+1];
-                snprintf(command_path, PATH_MAX, "./cclover2");
+            snprintf(cclover2_path, PATH_MAX, "%s/cclover2", cwd);
 
-                if(access(command_path, X_OK) == 0) {
-                    snprintf(command, PATH_MAX+128, "./cclover2 %s/%s.clcl", cwd, class_name);
+            if(access(source_path, F_OK) == 0) {
+                if(access(cclover2_path, X_OK) == 0) {
+                    char command[PATH_MAX*2];
+
+                    snprintf(command, PATH_MAX*2, "./cclover2 %s/%s.clcl", cwd, class_name);
+                    int rc = system(command);
+
+                    if(rc == 0) {
+                        if(access(class_file_path, F_OK) == 0) {
+                            return TRUE;
+                        }
+                    }
                 }
                 else {
-                    snprintf(command, PATH_MAX+128, "cclover2 %s/%s.clcl", cwd, class_name);
-                }
+                    char command[PATH_MAX*2];
 
-                int rc = system(command);
+                    snprintf(command, PATH_MAX*2, "cclover2 %s/%s.clcl", cwd, class_name);
+                    int rc = system(command);
 
-                /// 一応クラスファイルがあるかどうかチェックして、あるなら真を返します ///
-                if(rc == 0) {
-                    snprintf(class_file_path, class_file_path_size, "%s/%s.oclcl", cwd, class_name);
-
-                    if(access(class_file_path, F_OK) == 0) {
-                        return TRUE;
+                    if(rc == 0) {
+                        if(access(class_file_path, F_OK) == 0) {
+                            return TRUE;
+                        }
                     }
                 }
             }
 
-            /// ソースファイルのディレクトリも一応探しておく ///
-            if(strstr(gCompilingSourceFileName, "/")) {  // gCompilingSourceFileNameは絶対パスじゃないこともある
-                char source_path[PATH_MAX];
+            char* compiling_source_dir = dirname(gCompilingSourceFileName);
 
-                char* p = gCompilingSourceFileName + strlen(gCompilingSourceFileName);
+            snprintf(source_path, PATH_MAX, "%s/%s.clcl", compiling_source_dir, class_name);
 
-                while(*p != '/') {
-                    p--;
-                }
+            if(access(source_path, F_OK) == 0) {
+                if(access(cclover2_path, X_OK) == 0) {
+                    char command[PATH_MAX*2];
 
-                memcpy(source_path, gCompilingSourceFileName, p - gCompilingSourceFileName);
-                source_path[p - gCompilingSourceFileName] = '\0';
-
-                snprintf(path, PATH_MAX, "%s/%s.clcl", source_path, class_name);
-
-                /// ありゃ、dirname使えばいいのかな、、
-
-                if(access(path, F_OK) == 0) {
-                    /// コンパイル ///
-                    char command[PATH_MAX+128];
-
-                    char command_path[PATH_MAX+1];
-                    snprintf(command_path, PATH_MAX, "./cclover2");
-
-                    if(access(command_path, X_OK) == 0) {
-                        snprintf(command, PATH_MAX+128, "./cclover2 %s/%s.clcl", source_path, class_name);
-                    }
-                    else {
-                        snprintf(command, PATH_MAX+128, "cclover2 %s/%s.clcl", source_path, class_name);
-                    }
+                    snprintf(command, PATH_MAX*2, "./cclover2 %s/%s.clcl", compiling_source_dir, class_name);
 
                     int rc = system(command);
 
-                    /// 一応クラスファイルがあるかどうかチェックして、あるなら真を返します ///
                     if(rc == 0) {
-                        snprintf(class_file_path, class_file_path_size, "%s/%s.oclcl", cwd, class_name);
+                        if(access(class_file_path, F_OK) == 0) {
+                            return TRUE;
+                        }
+                    }
+                }
+                else {
+                    char command[PATH_MAX*2];
 
+                    snprintf(command, PATH_MAX*2, "cclover2 %s/%s.clcl", compiling_source_dir, class_name);
+
+                    int rc = system(command);
+
+                    if(rc == 0) {
                         if(access(class_file_path, F_OK) == 0) {
                             return TRUE;
                         }
@@ -602,7 +503,7 @@ static BOOL search_for_class_file_on_compile_time(char* class_name, char* class_
         }
     }
 
-    return FALSE; // 失敗。クラスファイルは見つかりませんね、、、。
+    return FALSE;
 }
 
 sCLClass* load_class_on_compile_time(char* class_name)

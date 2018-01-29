@@ -1,3 +1,11 @@
+version 3.5.6
+
+In order to package the OS, I moved the installation location of the basic library to ${PREFIX}/share/clover2 or ${DESTDIR}/share/clover2.
+
+It made the automatic compiling function simple. When changing the source file, it will not compile automatically.
+
+make DESTDIR=$HOME install, etc now move the software file to $HOME/bin, $HOME/share/clover2.
+
 version 3.5.4
 
 Added document to repository.

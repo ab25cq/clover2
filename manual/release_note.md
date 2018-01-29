@@ -2,7 +2,17 @@ version 3.5.4
 
 English page is here [>> English page](release_note-en)
 
-ドキュメントをrepositoryに追加。
+version 3.5.6
+
+OSのパッケージ化のために基礎ライブラリのインストール先を${PREFIX}/share/clover2か${DESTDIR}/share/clover2に移動しました。
+
+自動コンパイル機能をシンプルにしました。ソースファイルを変更時は自動的にコンパイルはしません。
+
+make DESTDIR=$HOME installなどとすると$HOME/bin, $HOME/share/clover2にソフトウェアのファイルを移動するようになりました。
+
+version 3.5.5
+
+英語ドキュメントをrepositoryに追加。
 
 version 3.5.3
 
