@@ -127,10 +127,10 @@ If you want to install files in a specific directory
 ```
     ./configure --with-optimize
     make
-    make DESTDIR=~/tmp install
+    make DESTDIR=$HOME/tmp install
 ```
 
-Please do as. clover2, cclover2 is installed in ~/tmp/bin, and the basic library is installed in ~/tmp/share/clover2.
+Please do as. clover2, cclover2 is installed in $HOME/tmp/bin, and the basic library is installed in $HOME/tmp/share/clover2.
 
 Please do as. clover, cclover is installed in /tmp/bin.
 

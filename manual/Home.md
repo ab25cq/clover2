@@ -128,9 +128,9 @@ Methodのネイティブコードコンパイルが必要になる場合は`--wi
 
     ./configure --with-optimize
     make
-    make DESTDIR=~/tmp install
+    make DESTDIR=$HOME/tmp install
 
-などとしてください。~/tmp/binにclover2, cclover2がインストールされて、~/tmp/share/clover2に基礎ライブラリがインストールされます。
+などとしてください。$HOME/tmp/binにclover2, cclover2がインストールされて、$HOME/tmp/share/clover2に基礎ライブラリがインストールされます。
 
 ----
 
