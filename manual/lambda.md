@@ -1,5 +1,8 @@
 # lambdaクラス
 
+English page is here [>> English page](lambda-en)
+
+
 lambdaとはコードの塊をオブジェクトして扱えるようにしたものです。関数型プログラミング言語ではおなじみの機能です。lambdaにはclosureというものもあり、lambdaは親の変数にアクセスできませんがclosureは親の変数にもアクセスできます。例を見たほうが早いと思います。
 
     > a:lambda(int) = lambda(num:int) {

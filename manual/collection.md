@@ -1,5 +1,7 @@
 # コンテナライブラリ
 
+English page is here [>> English page](collecton-en)
+
 コンテナライブラリとは値を保持するクラスの集まりです。コレクションとも呼ばれます。コレクションは配列のように複数の値を一つの変数に
 入れることができます。
 Array, List, Hash, Tupleがあります。

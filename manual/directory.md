@@ -1,5 +1,7 @@
 # ディレクトリクラス
 
+English page is here [>> English page](directory-en)
+
 ディレクトリのクラスです。Fileクラスと同じくopenしてclosedirする方法と一度にファイル名の一覧にアクセスする方法の二つあります。基本的に一度にファイル名の一覧を得る方法しか使わないと思います。
 
     > dir:Directory = new Directory("src/");

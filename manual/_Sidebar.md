@@ -1,4 +1,4 @@
-#### [Home](Home)
+#### [Home](Home) [→ Home English Page](Home-en)
 * [はじめに](Home#はじめに)
 * [サポートしている機能](Home#サポートしている機能)
 * [サンプルコード](Home#サンプルコード)
@@ -10,7 +10,7 @@
 * [リリースノート](release_note)
 * [コントリビューション](contribution)
 
-#### [使い方](usage)
+#### [使い方](usage) [→ usage English Page](usage-en)
 
 * [HELLO WORLD](usage#hello-world)
 * [ソースコード](usage#ソースコード)
@@ -19,7 +19,7 @@
 * [クラスの自動コンパイル機能](usage#クラスの自動コンパイル機能)
 * [クラスの循環参照](usage#クラスの循環参照)
 
-#### [主な機能](feature)
+#### [主な機能](feature) [→ feature English Page](feature-en)
 
 * [フリーフォーマット](feature#フリーフォーマット)
 * [変数と関数について](feature#変数と関数について)
@@ -57,12 +57,12 @@
     * [メソッドのデフォルト引数](feature#メソッドのデフォルト引数)
     * [同一クラスのメソッドとフィールドのself省略](feature#同一クラスのメソッドとフィールドのself省略)
 
-#### [型推論](typing)
+#### [型推論](typing) [→ typing English Page](typing-en)
 
 * [型推論](typing#型推論)
 * [メソッドブロックの型推論](typing#メソッドブロックの型推論)
 
-#### [ライブラリリファレンス](libraries)
+#### [ライブラリリファレンス](libraries) [→ libraries English Page](libraries-en)
 
 * [オブジェクトクラス](object)
 * [文字列クラス](string)
@@ -83,13 +83,13 @@
     * [Hash](collection#hash)
     * [Tuple](collection#tuple)
 
-#### [高度な使い方](usage2)
+#### [高度な使い方](usage2) [→ usage2 English Page](usage2-en)
 
 * [ジャストインタイムコンパイル](usage2#ジャストインタイムコンパイル)
 * [対話的なプログラムの実行](usage2#対話的なプログラムの実行)
 * [シェルモード](usage2#シェルモード)
 
 #### [内部構造](source)
-#### [拡張ライブラリ](extension)
-#### [あとがき](conclusion)
+#### [拡張ライブラリ](extension) [→ extension English Page](extension-en)
+#### [あとがき](conclusion) [→ conclusion English Page](conclusion-en)
 #### [作者の情報](conclusion#作者の情報)

@@ -1,5 +1,7 @@
 # 型推論
 
+English page is here [>> English page](typing-en)
+
 Cloverの型推論にはローカル変数の型推論、ブロックオブジェクトへの型推論の2種類があります。まずはローカル変数の型推論です。
 
     a:int = 2;

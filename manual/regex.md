@@ -1,5 +1,7 @@
 # regexクラス
 
+English page is here [>> English page](regex-en)
+
 正規表現のプリミティブ型です。正規表現はString型でしか使わないためString型と一緒に解説します。正規表現とは文字列処理に使うもので、以下のようなものがあります。
 
 メタ文字

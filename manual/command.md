@@ -1,5 +1,7 @@
 # コマンドクラス
 
+English page is here [>> English page](command-en)
+
 Commandクラスでは外部コマンドを実行することができます。
 
     > Command.pwd()

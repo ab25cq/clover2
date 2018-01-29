@@ -1,5 +1,7 @@
 # pointerクラス
 
+English page is here [>> English page](pointer-en)
+
 pointerクラスはプリミティブ型でアドレスを扱います。ただし不正なアドレスもアクセスできるため、扱いには注意が必要です。型チェックも行われません。以下の様に使います。
 
     > a:int = 123;

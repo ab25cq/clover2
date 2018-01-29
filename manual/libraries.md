@@ -1,5 +1,7 @@
 # ライブラリリファレンス
 
+English page is here [>> English page](libraries-en)
+
 以下のページに主なクラスとメソッドの解説があります。
 
 * [オブジェクトクラス](object)

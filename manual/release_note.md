@@ -1,5 +1,7 @@
 version 3.5.4
 
+English page is here [>> English page](release_note-en)
+
 ドキュメントをrepositoryに追加。
 
 version 3.5.3

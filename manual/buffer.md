@@ -1,5 +1,7 @@
 # バッファークラス
 
+English page is here [>> English page](buffer-en)
+
 Stringクラスは文字列を表すクラスですがバッファークラスはバイト列を表すクラスです。内部的にはpointerオブジェクトにmallocしてメモリを確保しています。使い方は以下です。
 
     > a:Buffer = new Buffer(3.to_ulong);

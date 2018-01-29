@@ -1,5 +1,7 @@
 # 文字列クラス
 
+English page is here [>> English page](string-en)
+
 文字列はダブルクォート"で囲まれた文字を表します。
 
     > "ABC"

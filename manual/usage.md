@@ -1,5 +1,7 @@
 # 使い方
 
+English page is here [>> English page](usage-en)
+
 ## HELLO WORLD
 
     > vim HelloWorld.cl

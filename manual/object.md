@@ -1,5 +1,7 @@
 # オブジェクトクラス
 
+English page is here [>> English page](object-en)
+
 Objectクラスは空のインターフェースです。そのため、どのオブジェクトも代入することができます。ただし、呼び出せるメソッドはスペシャルメソッドのみとなります。className(), identfyWith()などはスペシャルメソッドのため使うことができます。className()で実行時のオブジェクトのクラスに応じた処理をしてください。何らかのクラスに変換したい場合は後述するtoAnonymous()を使ってください。もしくはisスペシャルメソッドのほうが便利かもしれません。
 
     a:List<Object> = new List<Object>();

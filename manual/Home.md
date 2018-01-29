@@ -1,3 +1,5 @@
+English page is here [>> English page](Home-en)
+
 # Clover2 仕様書
 
 # はじめに
@@ -75,7 +77,7 @@ GPL2です。readlineがGPL2なので、それを利用しているclover2もGPL
 
 ## 依存ライブラリ
 
-コンパイル前に依存しているライブラリの開発版のインストールが必要です。math, iconv,pcre,readline,libzの6つのライブラリが必要です。
+コンパイル前に依存しているライブラリの開発版のインストールが必要です。math, iconv,pcre,readline,libz5つのライブラリが必要です。
 Fedoraでしたら、ライブラリ名-develが開発版になります。Debian系(ubuntuなど)はライブラリ名-devのはずです。
 詳しくは検索して調べてください。
 あとコンパイルにはctagsが必要です。ctagsもインストールしてください。
@@ -87,6 +89,7 @@ ubuntuでは
     sudo apt-get install clang
     sudo apt-get libpcre3-dev
     sudo apt-get intall libz-dev
+    sudo apt-get install ctags
 
 辺りが必要です。
 

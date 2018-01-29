@@ -1,5 +1,8 @@
 # 構文
 
+English page is here [>> English page](feature-en)
+
+
 ## フリーフォーマット
 
 clover2はフリーフォーマットです。特に改行や空白には意味がありません。自由に改行や空白を入れてください。

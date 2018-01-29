@@ -1,3 +1,7 @@
+# Rangeクラス
+
+English page is here [>> English page](Range-en)
+
 Rangeクラスは範囲を示すクラスです。Genericsで作られており、GenericsはISortableインタフェースを実装している必要があります。
 一応Charクラスなどでも実装できるようにGenericsで作っていますが普通はIntegerクラスしか使わないでしょう。
 値の表現は
