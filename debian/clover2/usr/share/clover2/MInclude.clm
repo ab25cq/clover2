@@ -1,6 +1,0 @@
-Container.clcl
-1782
-
-    def include(list:EqualableList<SELF>):bool {
-        return list.indexOf(self) != -1;
-    }
