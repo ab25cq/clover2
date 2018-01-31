@@ -1,5 +1,9 @@
 version 3.5.6
 
+Clover2 can have made debian package using make_deb.sh
+
+version 3.5.6
+
 In order to package the OS, I moved the installation location of the basic library to ${PREFIX}/share/clover2 or ${DESTDIR}/share/clover2.
 
 It made the automatic compiling function simple. When changing the source file, it will not compile automatically.

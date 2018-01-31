@@ -1,0 +1,5 @@
+clover2 (3.5.6-1) unstable; urgency=medium
+
+  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+
+ -- Daisuke Minato <ab25cq@gmail.com>  Tue, 30 Jan 2018 17:01:33 +0900

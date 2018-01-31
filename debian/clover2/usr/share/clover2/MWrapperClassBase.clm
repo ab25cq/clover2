@@ -1,0 +1,71 @@
+Fundamental.clcl
+212
+
+    def toByte(): Byte {
+        return self.value.toByte;
+    }
+
+    def toUByte(): UByte {
+        return self.value.toUByte;
+    }
+
+    def toShort(): Short {
+        return self.value.toShort;
+    }
+
+    def toUShort(): UShort {
+        return self.value.toUShort;
+    }
+
+    def toInteger(): Integer {
+        return self.value.toInteger;
+    }
+
+    def toUInteger(): UInteger {
+        return self.value.toUInteger;
+    }
+
+    def toLong(): Long {
+        return self.value.toLong;
+    }
+
+    def toULong(): ULong {
+        return self.value.toULong;
+    }
+
+    def toChar(): Char {
+        return self.value.toChar;
+    }
+
+    def toBool(): Bool {
+        return self.value.toBool;
+    }
+
+    def toString(): String {
+        return self.value.toString;
+    }
+
+    def equals(right:SELF): bool {
+        if(right.is("WildCard")) {
+            return true;
+        }
+        else {
+            return self.value == right.value;
+        }
+    }
+
+    def equals(right:WildCard): bool {
+        return true;
+    }
+
+    def compare(right:SELF):  int {
+        if(self.value < right.value) {
+            return -1;
+        }
+        elif(self.value == right.value) {
+            return 0;
+        }
+        else {
+            return 1;
+        }
+    }

@@ -1,0 +1,481 @@
+Container.clcl
+338
+
+    head: ListItem<T>?;
+    tail: ListItem<T>?;
+    number: int;
+
+    def initialize() {
+        self.head = null;
+        self.tail = null;
+        self.number = 0;
+    }
+
+    def initialize(items:T[], num_elements:uint) {
+        self.head = null;
+        self.tail = null;
+        self.number = 0;
+
+        for(i:int = 0; i<num_elements; i++) {
+            self.add(items[i]);
+        }
+    }
+
+    def setValue(list:SELF<T>) {
+        self.head = list.head;
+        self.tail = list.tail;
+        self.number = list.number;
+    }
+
+    def length():int {
+        return self.number;
+    }
+
+    def toString(): String {
+        if(self.head.identifyWith(null)) {
+            return "Null list";
+        }
+        else {
+            result:String = "";
+            result.append(self.number.toString);
+            result.append(" length list of ");
+            result.append(self.head.item.className());
+            return result;
+        }
+    }
+
+    def items(index:int):T? {
+        if(index < 0) {
+            index += self.number;
+        }
+
+        it:ListItem<T>? = self.head;
+
+        count:int = 0;
+
+        while(!it.identifyWith(null)) {
+            if(count == index) {
+                return it.item
+            }
+            count++;
+
+            it = it.next;
+        }
+
+        return null;
+    }
+    
+    def clear(): SELF<T> {
+        self.head = null;
+        self.tail = null;
+        self.number = 0;
+
+        return self;
+    }
+
+    def add(item:T):SELF<T> {
+        if(self.head.identifyWith(null)) {
+            self.head = new ListItem<T>(item, null, null);
+            self.tail = self.head;
+        }
+        else {
+            new_item:ListItem<T> = new ListItem<T>(item, self.tail, null);
+
+            self.tail.next = new_item;
+            self.tail = new_item;
+        }
+
+        self.number++;
+
+        return self;
+    }
+
+    def push(item:T):SELF<T> {
+        return self.add(item);
+    }
+
+    def pop():T? {
+        if(self.head.identifyWith(null)) {
+            return null;
+        }
+        else {
+            new_tail :ListItem<T>? = self.tail.prev;
+            item :T = self.tail.item;
+
+            if(new_tail.identifyWith(null)) {
+                self.head = null;
+                self.tail = null;
+                self.number = 0;
+
+                return item;
+            }
+            else {
+                new_tail.next = null;
+                self.tail = new_tail;
+
+                self.number--;
+
+                return item;
+            }
+        }
+    }
+
+    def shift():T? {
+        if(self.head.identifyWith(null)) {
+            return null;
+        }
+        else {
+            new_head :ListItem<T>? = self.head.next;
+            item :T = self.head.item;
+
+            if(new_head.identifyWith(null)) {
+                self.head = null;
+                self.tail = null;
+                self.number = 0;
+
+                return item;
+            }
+            else {
+                new_head.prev = null;
+                self.head = new_head;
+
+                self.number--;
+
+                return item;
+            }
+        }
+    }
+
+    def insert(index:int, item:T):SELF<T> {
+        if(index < 0) {
+            index += self.number + 1;
+        }
+        if(index < 0) {
+            index = 0;
+        }
+        if(index > self.number) {
+            index = self.number;
+        }
+
+        if(self.number == 0 || index == self.number) {
+            self.add(item);
+            return self;
+        }
+
+        if(index == 0) {
+            new_item:ListItem<T> = new ListItem<T>(item, null, self.head);
+            self.head.prev = new_item;
+            self.head = new_item;
+
+            self.number++;
+        }
+        else {
+            it:ListItem<T>? = self.head;
+
+            i:int= 0;
+
+            while(!it.identifyWith(null)) {
+                if(i == index-1) {
+                    new_item:ListItem<T> = new ListItem<T>(item, it, it.next);
+                    if(!it.next.identifyWith(null)) {
+                        it.next.prev = new_item;
+                    }
+                    it.next = new_item;
+
+                    self.number++;
+                    break;
+                }
+
+                it = it.next;
+                i++;
+            }
+        }
+
+        return self;
+    }
+
+    def deleteAt(index:int):SELF<T> {
+        it:ListItem<T>? = self.head;
+        it2:ListItem<T>? = self.head;
+
+        count:int = 0;
+
+        while(!it.identifyWith(null)) {
+            if(count == index) {
+                
+                if(it.identifyWith(self.head) && it.identifyWith(self.tail)) {
+                    self.head = null;
+                    self.tail = null;
+                    self.number = 0;
+                }
+                
+                elif(it2.identifyWith(self.head) && it.identifyWith(self.tail)) {
+                    self.head = it2;
+                    self.tail = it2;
+                    it2.prev = null;
+                    it2.next = null;
+                    self.number = 1;
+                }
+                
+                else {
+                    if(it.identifyWith(self.head)) {
+                        self.head = self.head.next;
+                        self.head.prev = null;
+                        self.number--;
+                    }
+                    elif(it.identifyWith(self.tail)) {
+                        self.tail = self.tail.prev;
+                        self.tail.next = null;
+                        self.number--;
+                    }
+                    else {
+                        it2.next = it.next;
+                        it.next.prev = it2;
+                        self.number--;
+                    }
+                }
+                break;
+            }
+
+            count++;
+            
+            it2 = it;
+            it = it.next;
+        }
+
+        return self;
+    }
+
+    def each(block_:lambda(T)):SELF<T> {
+        it:ListItem<T>? = self.head;
+
+        while(!it.identifyWith(null)) {
+            block_(it.item);
+            it = it.next;
+        }
+
+        return self;
+    }
+
+    def eachReverse(block_:lambda(T)):SELF<T> {
+        it:ListItem<T>? = self.tail;
+
+        while(!it.identifyWith(null)) {
+            block_(it.item);
+            it = it.prev;
+        }
+
+        return self;
+    }
+
+    def replace(index:int, item:T):SELF<T> {
+        if(index < 0) {
+            index += self.number;
+        }
+        if(index < 0) {
+            index = 0;
+        }
+        if(index >= self.number) {
+            index = self.number-1;
+        }
+
+        it:ListItem<T>? = self.head;
+
+        count:int = 0;
+
+        while(!it.identifyWith(null)) {
+            if(count == index) {
+                it.item = item;
+                break;
+            }
+            count++;
+
+            it = it.next;
+        }
+
+        return self;
+    }
+    def sample():T {
+        return self.items(System.rand() % self.number);
+    }
+
+    def append(list:SELF<T>):SELF<T> {
+        list.each(closure(item:T) {
+            self.add(item);
+        });
+
+        return self;
+    }
+
+    def multiply(n:int):SELF<T> {
+        result:SELF<T> = new SELF<T>();
+
+        for(i:int = 0; i<n; i++) {
+            result.append(self);
+        }
+
+        return result;
+    }
+
+    def select(block_:lambda(T):bool):SELF<T> {
+        new_list: SELF<T> = new SELF<T>();
+
+        it :ListItem<T>? = self.head;
+
+        while(!it.identifyWith(null)) {
+            if(block_(it.item)) {
+                new_list.add(it.item);
+            }
+            it = it.next;
+        }
+
+        return new_list;
+    }
+
+    def clone():SELF<T> {
+        result:SELF<T> = new SELF<T>();
+        it :ListItem<T>? = self.head;
+        while(!it.identifyWith(null)) {
+            result.add(it.item);
+            it = it.next;
+        }
+        return result;
+    }
+
+    def subList(start:int, end:int):SELF<T> {
+        if(start < 0) {
+            start += self.number;
+        }
+        if(end < 0) {
+            end += self.number + 1;
+        }
+        if(start < 0) {
+            start = 0;
+        }
+        if(end > self.number) {
+            end = self.number;
+        }
+
+        if(start >= end || start >= self.number || end < 0) {
+            return new SELF<T>();
+        }
+
+        new_list: SELF<T> = new SELF<T>();
+
+        it :ListItem<T>? = self.head;
+        count:int = 0;
+
+        while(!it.identifyWith(null)) {
+            if(count >= start && count < end) {
+                new_list.add(it.item);
+            }
+            count++;
+            it = it.next;
+        }
+
+        return new_list;
+    }
+
+    def deleteWithRange(start:int, end:int):SELF<T> {
+        if(start < 0) {
+            start += self.number;
+        }
+        if(end < 0) {
+            end += self.number + 1;
+        }
+        if(start < 0) {
+            start = 0;
+        }
+        if(end > self.number) {
+            end = self.number;
+        }
+
+        if(start >= end || start >= self.number || end < 0) {
+            return new SELF<T>();
+        }
+
+        new_list: SELF<T> = new SELF<T>();
+
+        it :ListItem<T>? = self.head;
+        count:int = 0;
+
+        while(!it.identifyWith(null)) {
+            if(count < start || count >= end) {
+                new_list.add(it.item);
+            }
+            count++;
+            it = it.next;
+        }
+
+        return new_list;
+    }
+
+    def fill(start:int, end:int, item:T):SELF<T> {
+        if(start < 0) {
+            start += self.number;
+        }
+        if(end < 0) {
+            end += self.number + 1;
+        }
+        if(start < 0) {
+            start = 0;
+        }
+        if(end > self.number) {
+            end = self.number;
+        }
+
+        if(start >= end || start >= self.number || end < 0) {
+            return new SELF<T>();
+        }
+
+        new_list: SELF<T> = new SELF<T>();
+
+        it :ListItem<T>? = self.head;
+        count:int = 0;
+
+        while(!it.identifyWith(null)) {
+            if(count < start || count >= end) {
+                new_list.add(it.item);
+            }
+            else {
+                new_list.add(item);
+            }
+            count++;
+            it = it.next;
+        }
+
+        return new_list;
+    }
+    def fill(item:T):SELF<T> {
+        return self.fill(0,-1,item);
+    }
+
+    def reverse():SELF<T> {
+        result:SELF<T> = new SELF<T>();
+
+        it :ListItem<T>? = self.tail;
+
+        while(!it.identifyWith(null)) {
+            result.add(it.item);
+            it = it.prev;
+        }
+
+        return result;
+    }
+
+    def shuffle():SELF<T> {
+        result:SELF<T> = self.clone();
+
+        for(i:int =0; i<50; i++) {
+            n :int = System.rand() % self.number;
+            m :int = System.rand() % self.number;
+
+            item :T = result.items(n);
+            item2 :T = result.items(m);
+
+            result.replace(m, item);
+            result.replace(n, item2);
+        }
+
+        return result;
+    }

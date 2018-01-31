@@ -1,6 +1,9 @@
-version 3.5.4
 
 English page is here [>> English page](release_note-en)
+
+version 3.5.6
+
+debianのパッケージが作れるようになりました。
 
 version 3.5.6
 

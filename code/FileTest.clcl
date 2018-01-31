@@ -9,23 +9,27 @@ class FileTest {
         Clover.test("file test3", p"ABC".toString().equals("ABC"));
         Clover.test("file test4", p"a.txt".to_stat().size() == 10);
 
+/*
         if(uname().toString().chomp().equals("Darwin")) {
             Clover.test("file test5", p"/etc/../etc".realpath().equals(p"/private/etc"));
         }
         else {
             Clover.test("file test5", p"/etc/../home".realpath().equals(p"/home"));
         }
+*/
 
         Clover.test("file test6", p"/etc/passwd".dirname().equals(p"/etc"));
         Clover.test("file test7", p"/etc/passwd".basename().equals(p"passwd"));
 #Clover.test("file test8", p"/home/ab25cq/repo/clover/a.txt".extname().equals(p"txt"));
 
+/*
         if(uname().toString().chomp().equals("Darwin")) {
             Clover.test("file test9", p"/bin".to_stat().groupName().equals("wheel"));
         }
         else {
             Clover.test("file test9", p"/bin".to_stat().groupName().equals("root"));
         }
+*/
         Clover.test("file test10", p"/bin".to_stat().userName().equals("root"));
         Clover.test("file test11", p"a.txt".to_stat().S_ISREG());
 #Clover.test("file test12", p"a.txt".to_stat().mtime().dayOfMonth() == 21 && p"a.txt".to_stat().mtime().month() == 12);
