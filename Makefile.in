@@ -249,6 +249,10 @@ install:
 	$(INSTALL) -m 644 ./MList.clm $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 ./MPrintOutObject.clm $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 ./MWrapperClassBase.clm $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 ./MWrapperClassBase.clm $(DESTDIR)/share/clover2
+
+	mkdir -p $(DESTDIR)/share/man/man1
+	$(INSTALL) ./man/clover2.1.gz $(DESTDIR)/share/man/man1
 
 	mkdir -p "$(DESTDIR)/bin"
 	$(INSTALL) -m 755 ./clover2 "$(DESTDIR)/bin"
