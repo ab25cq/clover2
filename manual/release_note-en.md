@@ -1,6 +1,7 @@
-version 3.5.6
+Version 3.5.6
 
-Clover2 can have made debian package using make_deb.sh
+We prepared a script to make Debian package. A package is made with make_deb.sh. Installed by install_deb.sh.
+There was a bug in loading the basic library. Fix.
 
 version 3.5.6
 

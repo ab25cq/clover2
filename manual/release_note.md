@@ -1,9 +1,9 @@
-
 English page is here [>> English page](release_note-en)
 
-version 3.5.6
+Version 3.5.6
 
-debianのパッケージが作れるようになりました。
+Debianのパッケージを作るスクリプトを用意しました。. make_deb.shでパッケージが作られます。. install_deb.shでインストールされます。
+基礎ライブラリのロードにバグがありました。修正。
 
 version 3.5.6
 

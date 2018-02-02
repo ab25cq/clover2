@@ -134,6 +134,13 @@ Please do as. clover2, cclover2 is installed in $HOME/tmp/bin, and the basic lib
 
 Please do as. clover, cclover is installed in /tmp/bin.
 
+## Packaging
+
+In Debian you can install by package. You can create packages with make_deb.sh. The package is installed with install_deb.sh. Uninstallation is sudo apt-get remove clover2.
+Packaging is done, so we are looking for a Debian developer who can register the package.
+Someone please do m(_ _)m
+
+
 ----
 
 [>> How to use](usage-en)
