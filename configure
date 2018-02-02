@@ -629,6 +629,7 @@ OBJS
 CXXFLAGS
 JIT
 CXX
+DESTDIR
 OS
 INTERPRETER
 EGREP
@@ -4052,6 +4053,10 @@ else
         CC="ccache gcc"
     fi
 fi
+
+
+
+DESTDIR=$myprefix
 
 
 

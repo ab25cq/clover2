@@ -18,7 +18,6 @@
 	dh $@ --with autotools_dev
 
 CLOVER2_CONFIGURE=--with-optimize --with-interpreter --prefix=/usr
-DESTDIR=/usr
 
 override_dh_auto_configure:
 	dh_auto_configure -- $(CLOVER2_CONFIGURE) #	-DCMAKE_LIBRARY_PATH=$(DEB_HOST_MULTIARCH)

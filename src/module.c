@@ -225,7 +225,7 @@ static BOOL search_for_module_file_from_module_name(char* module_file, unsigned 
     }
 
     /// system shared directory ///
-    snprintf(module_file, module_file_size, "%s/%s.clm", PREFIX, module_name);
+    snprintf(module_file, module_file_size, "%s/share/clover2/%s.clm", PREFIX, module_name);
 
     if(access(module_file, F_OK) == 0) {
         return TRUE;

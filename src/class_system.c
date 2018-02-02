@@ -606,53 +606,53 @@ BOOL System_sprintf(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
                 sCLClass* klass = get_class_from_object(param);
 
                 if(is_this_class_with_class_name(klass, "Byte")) {
-                    asprintf(ALLOC &str, format2, get_value_from_Byte(param));
+                    (void)asprintf(ALLOC &str, format2, get_value_from_Byte(param));
                 }
                 else if(is_this_class_with_class_name(klass, "UByte")) {
-                    asprintf(ALLOC &str, format2, get_value_from_UByte(param));
+                    (void)asprintf(ALLOC &str, format2, get_value_from_UByte(param));
                 }
                 else if(is_this_class_with_class_name(klass, "Short")) {
-                    asprintf(ALLOC &str, format2, get_value_from_Short(param));
+                    (void)asprintf(ALLOC &str, format2, get_value_from_Short(param));
                 }
                 else if(is_this_class_with_class_name(klass, "UShort")) {
-                    asprintf(ALLOC &str, format2, get_value_from_UShort(param));
+                    (void)asprintf(ALLOC &str, format2, get_value_from_UShort(param));
                 }
                 else if(is_this_class_with_class_name(klass, "Integer")) {
-                    asprintf(ALLOC &str, format2, get_value_from_Integer(param));
+                    (void)asprintf(ALLOC &str, format2, get_value_from_Integer(param));
                 }
                 else if(is_this_class_with_class_name(klass, "UInteger")) {
-                    asprintf(ALLOC &str, format2, get_value_from_UInteger(param));
+                    (void)asprintf(ALLOC &str, format2, get_value_from_UInteger(param));
                 }
                 else if(is_this_class_with_class_name(klass, "Long")) {
-                    asprintf(ALLOC &str, format2, get_value_from_Long(param));
+                    (void)asprintf(ALLOC &str, format2, get_value_from_Long(param));
                 }
                 else if(is_this_class_with_class_name(klass, "ULong")) {
-                    asprintf(ALLOC &str, format2, get_value_from_ULong(param));
+                    (void)asprintf(ALLOC &str, format2, get_value_from_ULong(param));
                 }
                 else if(is_this_class_with_class_name(klass, "Char")) {
-                    asprintf(ALLOC &str, format2, get_value_from_Char(param));
+                    (void)asprintf(ALLOC &str, format2, get_value_from_Char(param));
                 }
                 else if(is_this_class_with_class_name(klass, "Float")) {
-                    asprintf(ALLOC &str, format2, get_value_from_Float(param));
+                    (void)asprintf(ALLOC &str, format2, get_value_from_Float(param));
                 }
                 else if(is_this_class_with_class_name(klass, "Double")) {
-                    asprintf(ALLOC &str, format2, get_value_from_Double(param));
+                    (void)asprintf(ALLOC &str, format2, get_value_from_Double(param));
                 }
                 else if(is_this_class_with_class_name(klass, "Bool")) {
-                    asprintf(ALLOC &str, format2, get_value_from_Bool(param));
+                    (void)asprintf(ALLOC &str, format2, get_value_from_Bool(param));
                 }
                 else if(is_this_class_with_class_name(klass, "Pointer")) {
-                    asprintf(ALLOC &str, format2, get_value_from_Pointer(param));
+                    (void)asprintf(ALLOC &str, format2, get_value_from_Pointer(param));
                 }
                 else if(is_this_class_with_class_name(klass, "String")) {
                     char* str2 = ALLOC string_object_to_char_array(param);
-                    asprintf(ALLOC &str, format2, str2);
+                    (void)asprintf(ALLOC &str, format2, str2);
                     MFREE(str2);
                 }
                 else if(is_this_class_with_class_name(klass, "Buffer")) {
                     sCLObject* object_data = CLOBJECT(param);
                     char* str2 = object_data->mFields[0].mPointerValue;
-                    asprintf(ALLOC &str, format2, str2);
+                    (void)asprintf(ALLOC &str, format2, str2);
                 }
                 else {
                     entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "invalid format string");

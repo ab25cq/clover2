@@ -534,7 +534,7 @@ static BOOL search_for_dl_file(char* class_name, char* dynamic_library_path, siz
     }
 
     /// system shared directory ///
-    snprintf(dynamic_library_path, dynamic_library_path_size, "%s/lib%s.so", PREFIX, class_name);
+    snprintf(dynamic_library_path, dynamic_library_path_size, "%s/share/clover2/lib%s.so", PREFIX, class_name);
 
     if(access(dynamic_library_path, F_OK) == 0) {
         return TRUE;

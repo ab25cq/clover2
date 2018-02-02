@@ -417,7 +417,7 @@ static BOOL search_for_class_file_on_compile_time(char* class_name, char* class_
     }
 
     /// system shared directory ///
-    snprintf(class_file_path, class_file_path_size, "%s/%s.oclcl", PREFIX, class_name);
+    snprintf(class_file_path, class_file_path_size, "%s/share/clover2/%s.oclcl", PREFIX, class_name);
 
     if(access(class_file_path, F_OK) == 0) {
         return TRUE;

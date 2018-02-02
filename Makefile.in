@@ -23,7 +23,7 @@ CFLAGS=@CFLAGS@
 CXXFLAGS=@CXXFLAGS@
 LIBS=@LIBS@
 OS=@OS@
-DESTDIR=@prefix@
+DESTDIR=@DESTDIR@
 OBJS=@OBJS@
 COMPILER_OBJS=@COMPILER_OBJS@
 JIT_OBJS=@JIT_OBJS@
@@ -270,9 +270,9 @@ uninstall:
 	rm -f "$(DESTDIR)"/bin/cclover2
 	rm -f "$(DESTDIR)"/bin/iclover2
 	rm -f "$(DESTDIR)"/share/clover2/*
+	rmdir "$(DESTDIR)"/share/clover2
 	rm -f "$(DESTDIR)"/share/doc/clover2/*
 	rmdir "$(DESTDIR)"/share/doc/clover2
-	rmdir "$(DESTDIR)"/share/clover2
 
 #########################################################
 # permission
