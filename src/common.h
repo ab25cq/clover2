@@ -2133,7 +2133,7 @@ BOOL get_value_from_Bool(CLObject object);
 char* get_value_from_Pointer(CLObject object);
 sCLClass* get_class_from_object(CLObject object);
 void* get_pointer_from_buffer_object(CLObject buffer);
-int get_size_from_buffer_object(CLObject buffer);
+size_t get_size_from_buffer_object(CLObject buffer);
 ALLOC CLObject* list_to_array(CLObject list, int* num_elements);
 void clover_termios_to_c_termios(CLObject terminfo_object, struct termios* terminfo_value);
 void c_termios_to_clover_termios(struct termios* terminfo_value, CLObject terminfo_object);

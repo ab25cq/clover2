@@ -1,5 +1,11 @@
 English page is here [>> English page](release_note-en)
 
+version 3.5.7
+
+unset 変数名という命令を加えました。変数の宣言を取り消します。
+
+PowerPCに対応しました。
+
 Version 3.5.6
 
 Debianのパッケージを作るスクリプトを用意しました。. make_deb.shでパッケージが作られます。. install_deb.shでインストールされます。

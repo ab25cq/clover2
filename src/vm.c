@@ -1459,8 +1459,19 @@ show_inst(inst);
 
                     clint64 lvalue;
 
+#ifdef __BIG_ENDIAN__
+                    memcpy(&lvalue, &value1, sizeof(char));
+                    memcpy((char*)&lvalue + 1, (char*)&value1 + 1, sizeof(char));
+                    memcpy((char*)&lvalue + 2, (char*)&value1 + 2, sizeof(char));
+                    memcpy((char*)&lvalue + 3, (char*)&value1 + 3, sizeof(char));
+                    memcpy((char*)&lvalue + 4, (char*)&value2, sizeof(char));
+                    memcpy((char*)&lvalue + 5, (char*)&value2 + 1, sizeof(char));
+                    memcpy((char*)&lvalue + 6, (char*)&value2 + 2, sizeof(char));
+                    memcpy((char*)&lvalue + 7, (char*)&value2 + 3, sizeof(char));
+#else
                     memcpy(&lvalue, &value1, sizeof(int));
                     memcpy((char*)&lvalue + sizeof(int), &value2, sizeof(int));
+#endif
 
                     stack_ptr->mLongValue = lvalue;
                     stack_ptr++;
@@ -1481,8 +1492,20 @@ show_inst(inst);
 
                     unsigned clint64 lvalue;
 
+#ifdef __BIG_ENDIAN__
+                    memcpy(&lvalue, &value1, sizeof(char));
+                    memcpy((char*)&lvalue + 1, (char*)&value1 + 1, sizeof(char));
+                    memcpy((char*)&lvalue + 2, (char*)&value1 + 2, sizeof(char));
+                    memcpy((char*)&lvalue + 3, (char*)&value1 + 3, sizeof(char));
+                    memcpy((char*)&lvalue + 4, (char*)&value2, sizeof(char));
+                    memcpy((char*)&lvalue + 5, (char*)&value2 + 1, sizeof(char));
+                    memcpy((char*)&lvalue + 6, (char*)&value2 + 2, sizeof(char));
+                    memcpy((char*)&lvalue + 7, (char*)&value2 + 3, sizeof(char));
+#else
                     memcpy(&lvalue, &value1, sizeof(int));
                     memcpy((char*)&lvalue + sizeof(int), &value2, sizeof(int));
+#endif
+
 
                     stack_ptr->mULongValue = lvalue;
                     stack_ptr++;
@@ -1515,8 +1538,28 @@ show_inst(inst);
 
                     void* lvalue;
 
+#if defined(__BIG_ENDIAN__) && defined(__32BIT_CPU__)
+                    memcpy(&lvalue, &value1, sizeof(char));
+                    memcpy((char*)&lvalue + 1, (char*)&value1 + 1, sizeof(char));
+                    memcpy((char*)&lvalue + 2, (char*)&value1 + 2, sizeof(char));
+                    memcpy((char*)&lvalue + 3, (char*)&value1 + 3, sizeof(char));
+#elif defined(__BIG_ENDIAN__) && defined(__64BIT_CPU__)
+                    memcpy(&lvalue, &value1, sizeof(char));
+                    memcpy((char*)&lvalue + 1, (char*)&value1 + 1, sizeof(char));
+                    memcpy((char*)&lvalue + 2, (char*)&value1 + 2, sizeof(char));
+                    memcpy((char*)&lvalue + 3, (char*)&value1 + 3, sizeof(char));
+                    memcpy((char*)&lvalue + 4, (char*)&value2, sizeof(char));
+                    memcpy((char*)&lvalue + 5, (char*)&value2 + 1, sizeof(char));
+                    memcpy((char*)&lvalue + 6, (char*)&value2 + 2, sizeof(char));
+                    memcpy((char*)&lvalue + 7, (char*)&value2 + 3, sizeof(char));
+#elif !defined(__BIG_ENDIAN__) && defined(__32BIT_CPU__)
                     memcpy(&lvalue, &value1, sizeof(int));
                     memcpy((char*)&lvalue + sizeof(int), &value2, sizeof(int));
+//#elif !defined(__BIG_ENDIAN__) && defined(__64BIT_CPU__)
+#else
+                    memcpy(&lvalue, &value1, sizeof(int));
+                    memcpy((char*)&lvalue + sizeof(int), &value2, sizeof(int));
+#endif
 
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mPointerValue = lvalue;

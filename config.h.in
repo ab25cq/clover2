@@ -11,3 +11,4 @@
 #undef __FREEBSD__
 #undef __64BIT_CPU__
 #undef __32BIT_CPU__
+#undef __BIG_ENDIAN__

@@ -1233,6 +1233,19 @@ Use wildcard as follows. wildcard matches any value.
 However, wildcard can not be assigned to primitive types, so if you want to use wildcard, please use Integer class etc. instead of int class.
 If you want to compare values ​​with case statements, you need to implement equals. Well, this is natural.
 
+## Cancel variable declaration
+
+```
+    a: = 123;
+```
+If you declared
+
+```
+    unset a
+```
+
+Declaration can be canceled. I think that it can be used conveniently in REPL.
+
 # Sugar coating syntax
 
 ### sugar-coating syntax of the lambda class

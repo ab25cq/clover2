@@ -210,7 +210,9 @@ class CLParser
             result = new CLNodeTreeInt(value, self.sourceName, self.sourceLine);
         }
         elif(self.p->byte == '"') {
+println("self->p \{self.p.toPointer}");
             self.p++;
+println("self->p(2) \{self.p.toPointer}");
             str:String = "";
 
             while(true) {

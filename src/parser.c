@@ -2902,6 +2902,28 @@ BOOL parse_iniherit(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
+BOOL parse_unset(unsigned int* node, sParserInfo* info)
+{
+    char var_name[VAR_NAME_MAX];
+
+    /// name ///
+    if(!parse_word(var_name, VAR_NAME_MAX, info, TRUE, FALSE)) {
+        return FALSE;
+    }
+
+    sVar* var = get_variable_from_table(info->lv_table, var_name);
+
+    if(var == NULL) {
+        parser_err_msg(info, "%s is not defined", var_name);
+        info->err_num++;
+        return TRUE;
+    }
+
+    xstrncpy(var->mName, "", VAR_NAME_MAX);
+
+    return TRUE;
+}
+
 static BOOL parse_string_expression(unsigned int* string_expressions, int* string_expression_offsets, int* num_string_expression, sBuf* value, sParserInfo* info)
 {
     sBuf expression_str;
@@ -3516,6 +3538,13 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             skip_spaces_and_lf(info);
 
             if(!parse_iniherit(node, info)) {
+                return FALSE;
+            }
+        }
+        else if(strcmp(buf, "unset") == 0) {
+            skip_spaces_and_lf(info);
+
+            if(!parse_unset(node, info)) {
                 return FALSE;
             }
         }

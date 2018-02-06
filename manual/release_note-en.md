@@ -1,3 +1,10 @@
+
+Version 3.5.7
+
+    We added an instruction called unset variable name. Cancel the variable declaration.
+
+    It corresponds to PowerPC.
+
 Version 3.5.6
 
 We prepared a script to make Debian package. A package is made with make_deb.sh. Installed by install_deb.sh.

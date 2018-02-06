@@ -170,11 +170,11 @@ void* get_pointer_from_buffer_object(CLObject buffer)
     return obj_data->mFields[0].mPointerValue;
 }
 
-int get_size_from_buffer_object(CLObject buffer)
+size_t get_size_from_buffer_object(CLObject buffer)
 {
     sCLObject* obj_data = CLOBJECT(buffer);
 
-    return obj_data->mFields[2].mIntValue;
+    return obj_data->mFields[2].mULongValue;
 }
 
 ALLOC CLObject* list_to_array(CLObject list, int* num_elements)

@@ -35,6 +35,18 @@ then
     echo x86_64
 
     AC_DEFINE(__64BIT_CPU__, 1)
+elif test `uname -m` = ppc
+then
+    echo ppc
+
+    AC_DEFINE(__32BIT_CPU__, 1)
+    AC_DEFINE(__BIG_ENDIAN__, 1)
+elif test `uname -m` = ppc64
+then
+    echo ppc64
+
+    AC_DEFINE(__64BIT_CPU__, 1)
+    AC_DEFINE(__BIG_ENDIAN__, 1)
 else
     echo 32BIT_CPU
 

@@ -50,6 +50,7 @@
 * [列挙型(enum)](feature#列挙型)　
 * [自動setterとgetterの定義](feature#自動setterとgetterの定義)
 * [when文](feature#when文)
+* [変数の宣言の取り消し](feature#変数の宣言の取り消し)
 * [糖衣構文](feature#糖衣構文)
     * [文字列への式の埋め込み](feature#文字列への式の埋め込み)
     * [lambdaクラスの糖衣構文](feature#lambdaクラスの糖衣構文)
