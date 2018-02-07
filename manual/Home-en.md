@@ -59,13 +59,10 @@ Method names, external command names, file names are also supplemented. Just lik
     list {uname(), hostname(), pwd()}.each { it.less () }
 ```
 
-# Operating environment
-
-It works with 64 bit and 32 bit INTEL CPU. ARM does not know whether I will run because I do not have an environment.
-Please use clang for the compiler. I have not checked the operation even with gcc. If you have some knowledge of C it will be compiled with gcc
-I think that it is not difficult.
-This means that it is desirable to work with Fedora, Ubuntu, or Debian running on a computer that contains clang today.
-Once OSX also moves from version 3.1.2. Since readline is editline in OSX, I think that it is necessary to put readline in brew etc. in order to run the interpreter. (unconfirmed)
+# Operating environment $
+I am checking the operation on Linux on x86, PowerPC (32bit, 64bit). I think that it will work with other CPUs. (Because it runs with little endian, bigendian, 32 bit, 64 bit)
+Once OSX also moves from version 3.1.2. Since readline is editline in OSX, in order to run REPL, I think that it is necessary to put readline in brew etc. (unconfirmed)
+After that I use clang for the compiler.
 
 # License
 
@@ -74,24 +71,22 @@ It is GPL2. Since readline is GPL 2, clover 2 using it is also GPL 2.
 # Install
 
 ## Dependent library
+It is necessary to install the development version of the library dependent on compilation. math, iconv, pcre3, readline, libz There are five libraries required. With Fedora, the library name -devel becomes the development version. Debian type (ubuntu etc.) should be library name -dev. Please search and search for details. In addition, ctags is necessary for the control pile. Please also install ctags. Incidentally, math is a function for mathematics, iconv is multilingualization, pcre is regular expression, readline is the interface of inpreter, and libz is a library for decompressing compressed files. If you want to enable native code compilation with --with-jit to configure option LLVM is required. It is 3.8 and 3.9 in my environment. I do not know whether it will work with 4.0 or 5.0. (I confirmed, but it does not work) Then you need GNU make to gcc, clang, make to the compiler
 
-It is necessary to install the development version of the library dependent on compilation. We need five libraries: math, iconv, pcre, readline, libz.
-With Fedora, the library name -devel becomes the development version. Debian type (ubuntu etc.) should be library name -dev.
-Please search and search for details.
-In addition, ctags is necessary for the control pile. Please also install ctags.
-Incidentally, math is a function for mathematics, iconv is multilingualized, pcre is regular expression, readline is an interpreter interface, and libz is a library for decompressing compressed files.
-LWVM is required to enable just-in-time compilation by --with-jit to configure option. It is 3.8 and 3.9 in my environment. I do not know whether it will work with 4.0 or 5.0. (I checked but it does not work)
-
-In ubuntu
+In ubuntu, Debian
 ```
-    sudo apt-get install clang
-    sudo apt-get libpcre3-dev
-    sudo apt-get intall libz-dev
-    sudo apt-get instsall ctags
+    sudo apt-get install gcc
+    sudo apt-get install ctags
+    sudo apt-get install clang
+    sudo apt-get install libreadline-dev
+    sudo apt-get install libpcre3-dev
+    sudo apt-get install libz-dev
+    sudo apt-get install ctags
+    sudo apt-get install make
 ```
-A neighborhood is necessary.
+Is required. $
 
-Compile
+## Compile
 
 Please get the source code first.
 ```

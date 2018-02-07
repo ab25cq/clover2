@@ -63,11 +63,9 @@ Clover2を使い始めようとするあなたへ。この言語はJavaやC#と�
 
 # 動作環境
 
-64bitと32bitのINTELのCPUで動きます。ARMは筆者が環境を持っていないので動くかどうか分かりません。
-あとはコンパイラにclangを使ってください。gccでも動作確認を行ってません。多少のCの知識があればgccでコンパイルさせることは
-難しくないと思います。
-つまり今どきのclangが入ったコンピュータ上で動くFedoraやUbuntu,もしくはDebianでの動作が望ましいということです。
-一応version 3.1.2からOSXでも動きます。OSXはreadlineがeditlineなので、インタプリタを動かすにはbrewなどでreadlineを入れる必要があると思います。（未確認)
+x86, PowerPC(32bit, 64bit)上のLinuxで動作確認をしています。他のCPUでも動くと思います。(little endian, bigendian, 32bit, 64bitで動くので)
+一応version 3.1.2からOSXでも動きます。OSXはreadlineがeditlineなので、REPLを動かすにはbrewなどでreadlineを入れる必要があると思います。（未確認)
+あとはコンパイラにはclangを使っています。
 
 # ライセンス
 
@@ -77,21 +75,26 @@ GPL2です。readlineがGPL2なので、それを利用しているclover2もGPL
 
 ## 依存ライブラリ
 
-コンパイル前に依存しているライブラリの開発版のインストールが必要です。math, iconv,pcre,readline,libz5つのライブラリが必要です。
+コンパイル前に依存しているライブラリの開発版のインストールが必要です。math, iconv, pcre3,readline,libz5つのライブラリが必要です。
 Fedoraでしたら、ライブラリ名-develが開発版になります。Debian系(ubuntuなど)はライブラリ名-devのはずです。
 詳しくは検索して調べてください。
 あとコンパイルにはctagsが必要です。ctagsもインストールしてください。
 ちなみにmathは数学用の関数、iconvは多言語化、pcreは正規表現, readlineはインタプリタのインターフェース、libzは圧縮ファイルの解凍用のライブラリです。
-configureオプションに--with-jitしてジャストインタイムコンパイルを有効にする場合はLLVMが必要になります。筆者の環境では3.8と3.9です。4.0や5.0で動くかはわかりません。(確認しましたが動きません)
+configureオプションに--with-jitしてネイティブコードコンパイルを有効にする場合はLLVMが必要になります。筆者の環境では3.8と3.9です。4.0や5.0で動くかはわかりません。(確認しましたが動きません)
+あとはコンパイラにgcc, clang, makeをするためにGNU makeが必要となります。
 
-ubuntuでは
+ubuntu, Debianでは
 
-    sudo apt-get install clang
-    sudo apt-get libpcre3-dev
-    sudo apt-get intall libz-dev
+    sudo apt-get install gcc
     sudo apt-get install ctags
+    sudo apt-get install clang
+    sudo apt-get install libreadline-dev
+    sudo apt-get install libpcre3-dev
+    sudo apt-get install libz-dev
+    sudo apt-get install ctags
+    sudo apt-get install make
 
-辺りが必要です。
+が必要です。
 
 ## コンパイル
 
