@@ -1,3 +1,7 @@
+clover2 (3.5.8-1) unstable; urgency=medium
+
+   * support PPC,PPC64, other CPUs.
+
 clover2 (3.5.7-2) unstable; urgency=medium
 
    * Changed manual

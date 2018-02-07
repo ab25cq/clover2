@@ -1,8 +1,0 @@
-class ClassMethodTest
-{
-    def initialize() {
-    }
-    def get():int {
-        123;
-    }
-}

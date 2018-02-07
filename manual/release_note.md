@@ -1,5 +1,9 @@
 English page is here [>> English page](release_note-en)
 
+version 3.5.8
+
+    configureの他のCPUへの対応やディレクトリ内のファイルの整理をしました。
+
 version 3.5.7
 
 unset 変数名という命令を加えました。変数の宣言を取り消します。

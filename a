@@ -1,4 +1,0 @@
-0 2
-0 0
-2 2
-	./cclover2 code/delegate.clcl && ./clover2 code/delegate.cl

@@ -1,4 +1,8 @@
 
+versioin 3.5.8
+
+    I configured configure and handle other CPUs and organize files in the directory.
+
 Version 3.5.7
 
     We added an instruction called unset variable name. Cancel the variable declaration.
