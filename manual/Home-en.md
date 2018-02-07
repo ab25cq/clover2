@@ -111,11 +111,7 @@ If you have administrator privileges
     sudo make install
     make test
 ```
-Please. cclover2 and clover2 are registered in /usr/local/bin.
-If you need an interpreter
-Add the `--with-interpreter` option to `./ configure`. An interpreter is entered with the executable file name iclover2. However, the execution code is delicately delayed. (Since the judgment of Signal Interprrupt is embedded in the code). I think that it is a range of honest error.
-If you need to compile Method's native code, add the `--with-jit` option to`./configure`.
-If segmentation violation occurs with `--with-optimize` depending on the environment, try `--with-optimize` and execute it. Although processing speed is considerably slow, segmentation violation may not be done. Also, if the operation is unstable with --with-jit, please remove --with-jit and execute it. --with-jit is stable in version 3.5. If you still have a bug, please remove --with-jit and try using it. In case
+Please. cclover2 and clover2 are registered in /usr/local/bin. If you need an interpreter add the `--with-interpreter` option to `./configure`. An interpreter is entered with the executable file name iclover2. However, the execution code is delicately delayed. (Since the judgment of Signal Interprrupt is embedded in the code). Range of honest error I guess. If you need to compile Method's native code, add the `--with-jit` option to `./configure`. If the behavior is unstable with --with-jit, please remove --with-jit and try it. --with-jit is stable in version 3.5. If you still have a bug, please remove --with-jit and try using it. If segmentation violation occurs with `--with-optimize` depending on the environment, try `--with-optimize` and execute it. Although processing speed will be considerably slow, segmentation violation may not be done.
 
 If you want to install files in a specific directory
 
