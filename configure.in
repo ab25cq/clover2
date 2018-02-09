@@ -310,7 +310,7 @@ fi
 
 AC_SUBST(CXX)
 
-CFLAGS="$CFLAGS -Qunused-arguments"
+#CFLAGS="$CFLAGS -Qunused-arguments"
 #CFLAGS="$CFLAGS -Qunused-arguments -Wunused-variable"
 
 if test $ENABLE_JIT = 1
