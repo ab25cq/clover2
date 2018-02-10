@@ -20,7 +20,7 @@ English page is here [>> English page](libraries-en)
 * [コンテナライブラリ](collection)
 
 更に詳しい情報はソースコードを参照してください。
-ソースに含まれるFundamental.clcl→Container.clcl→String.clcl→Command.clcl→MyOwnLibrary.clclの順にレイヤーが重ねられてます。順番にみていくことで、理解が深まることでしょう。
+ソースに含まれるFundamental.clcl→String.clcl→Container.clcl→Range.clcl→File.clcl→Command.clcl→MyOwnLibrary.clclの順にレイヤーが重ねられてます。順番にみていくことで、理解が深まることでしょう。
 
 ----
 
