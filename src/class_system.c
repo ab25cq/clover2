@@ -3445,3 +3445,70 @@ BOOL System_put_fun_to_hash_for_native_method(CLVALUE** stack_ptr, CLVALUE* lvar
 
     return TRUE;
 }
+
+BOOL System_alarm(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* seconds = lvar;
+
+    /// Clover to c value ///
+    unsigned int seconds_value = seconds->mUIntValue;
+
+    /// go ///
+    unsigned int result = alarm(seconds_value);
+
+    (*stack_ptr)->mUIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_dup(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* old_fd = lvar;
+
+    /// Clover to c value ///
+    int old_fd_value = old_fd->mIntValue;
+
+    /// go ///
+    int result = dup(old_fd_value);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "dup(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_dup3(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* old_fd = lvar;
+    CLVALUE* new_fd = lvar + 1;
+    CLVALUE* flags = lvar + 2;
+
+    /// Clover to c value ///
+    int old_fd_value = old_fd->mIntValue;
+    int new_fd_value = new_fd->mIntValue;
+    int flags_value = flags->mIntValue;
+
+    /// go ///
+    int result = dup3(old_fd_value, new_fd_value, flags_value);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "dup3(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_initialize_system_calls_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    sCLClass* system = get_class("System");
+
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+0].mValue.mIntValue = O_CLOEXEC;
+
+#define LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS (LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+1)
+
+    return TRUE;
+}

@@ -1,4 +1,4 @@
-include "Command.clcl"
+include "SystemCalls.clcl"
 
 class SortableList<T:ISortable>
 {
@@ -19,35 +19,3 @@ class SortableList<T:ISortable>
     }
 }
 
-/*
-class CLNodeTree
-{
-    type:int;
-
-    left:CLNodeTree;
-    right:CLNodeTree;
-    middle:CLNodeTree;
-
-    sourceName:String;
-    sourceLine:int;
-}
-
-class CLParser
-{
-    sourceBuffer:Buffer;
-
-    def initialize(sname:String) {
-        self.sourceBuffer = File.read(sname);
-    }
-
-    def mainLoop() {
-        p:pointer = self.sourceBuffer.buffer;
-
-        while(p->char != '\0') {
-        }
-    }
-
-    def expression() {
-    }
-}
-*/

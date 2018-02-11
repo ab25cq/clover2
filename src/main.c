@@ -52,6 +52,10 @@ int main(int argc, char** argv, char* const * envp)
             system("rm -rf *.oclcl *.ocl");
             continue;
         }
+        else if(strcmp(argv[i], "-version") == 0 || strcmp(argv[i], "--version") == 0) {
+            printf("clover2 version 3.5.9\n");
+            exit(0);
+        }
 
         char* source = argv[i];
 

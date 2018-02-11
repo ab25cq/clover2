@@ -2108,6 +2108,10 @@ BOOL System_dlopen(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_dlclose(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_dlsym(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_put_fun_to_hash_for_native_method(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_initialize_system_calls_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_alarm(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_dup(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_dup3(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 /// alignment.c ///
 void alignment(unsigned int* size);
