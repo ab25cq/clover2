@@ -916,6 +916,7 @@ void class_init()
     alloc_class("ulong", TRUE, -1, -1, 0, NULL, FALSE, FALSE, TRUE);
     alloc_class("float", TRUE, -1, -1, 0, NULL, FALSE, FALSE, TRUE);
     alloc_class("double", TRUE, -1, -1, 0, NULL, FALSE, FALSE, TRUE);
+
     alloc_class("pointer", TRUE, -1, -1, 0, NULL, FALSE, FALSE, TRUE);
     alloc_class("char", TRUE, -1, -1, 0, NULL, FALSE, FALSE, TRUE);
     alloc_class("bool", TRUE, -1, -1, 0, NULL, FALSE, FALSE, TRUE);

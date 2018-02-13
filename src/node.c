@@ -3685,7 +3685,7 @@ static BOOL compile_params(sCLClass* klass, char* method_name, int* num_params, 
                             cast_right_type_to_left_type(solved_param, &param_types[i], info);
                         }
 
-                        /// Nullを代入しているなら戻り値はメソッド側の型にする。Null型ではメソッドサーチが通らないため
+                        /// Nullを代入しているなら戻り値の引数の型はメソッド側の型にする。Null型ではメソッドサーチが通らないため
                         if(substitution_posibility_with_class_name(solved_param, "Null")) {
                             if(type_identify_with_class_name(param_types[i], "Null")) {
                                 param_types[i] = solved_param;

@@ -677,6 +677,11 @@ void print_node_type(sNodeType* node_type)
     }
 }
 
+static BOOL is_numeric_type(sNodeType* type_)
+{
+    return type_identify_with_class_name(type_, "int") || type_identify_with_class_name(type_, "uint") || type_identify_with_class_name(type_, "byte") || type_identify_with_class_name(type_, "ubyte") || type_identify_with_class_name(type_, "short") || type_identify_with_class_name(type_, "ushort") || type_identify_with_class_name(type_, "long") || type_identify_with_class_name(type_, "ulong") || type_identify_with_class_name(type_, "float") || type_identify_with_class_name(type_, "double") || type_identify_with_class_name(type_, "Integer") || type_identify_with_class_name(type_, "UInteger") || type_identify_with_class_name(type_, "Byte") || type_identify_with_class_name(type_, "UByte") || type_identify_with_class_name(type_, "Short") || type_identify_with_class_name(type_, "UShort") || type_identify_with_class_name(type_, "Long") || type_identify_with_class_name(type_, "ULong") || type_identify_with_class_name(type_, "Float") || type_identify_with_class_name(type_, "Double");
+}
+
 BOOL boxing_posibility(sNodeType* left_type, sNodeType* right_type)
 {
     if(left_type->mNumGenericsTypes == 0 && right_type->mNumGenericsTypes == 0) {
@@ -684,7 +689,7 @@ BOOL boxing_posibility(sNodeType* left_type, sNodeType* right_type)
         sCLClass* right_class = right_type->mClass;
 
         /// ulong --> int or int --> ulong etc
-        if(!type_identify_with_class_name(left_type, "String") && !type_identify_with_class_name(right_type, "String")) {
+        if(is_numeric_type(left_type) && is_numeric_type(right_type)) {
             return TRUE;
         }
 
