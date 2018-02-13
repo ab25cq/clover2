@@ -1,8 +1,15 @@
 
+version 3.5.9
+
+    メソッドの引数で数値型の変換は暗黙で行われるようになりました。int --> ulongなど。
+
+version 3.5.9
+
+    Numeric type conversion is now implicit in method arguments. int -> ulong and so on.
+
 version 3.5.8
 
     configureの他のCPUへの対応やディレクトリ内のファイルの整理をしました。
-
 
 versioin 3.5.8
 

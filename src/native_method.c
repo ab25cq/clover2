@@ -213,7 +213,10 @@ static sNativeMethod gNativeMethods[] = {
     { "System.initialize_system_calls_system()", "System_initialize_system_calls_system", System_initialize_system_calls_system },
     { "System.alarm(uint)", "System_alarm", System_alarm },
     { "System.dup(int)", "System_dup", System_dup },
-
+    { "System.execvpe(String,List,List)", "System_execvpe", System_execvpe },
+    { "System.fopen(String,String)", "System_fopen", System_fopen },
+    { "System.fclose(pointer)", "System_fclose", System_fclose },
+    { "System.fwrite(Buffer,ulong,pointer)", "System_fwrite", System_fwrite },
     { "", "", 0 }  // sentinel
 };
 

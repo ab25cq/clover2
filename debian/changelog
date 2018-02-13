@@ -1,3 +1,7 @@
+clover2 (3.5.9-1) unstable; urgency=medium
+
+   * Numeric type conversion is now implicit in method arguments. int -> ulong and so on.
+
 clover2 (3.5.8-1) unstable; urgency=medium
 
    * support PPC,PPC64, other CPUs.

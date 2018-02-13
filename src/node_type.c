@@ -683,6 +683,11 @@ BOOL boxing_posibility(sNodeType* left_type, sNodeType* right_type)
         sCLClass* left_class = left_type->mClass;
         sCLClass* right_class = right_type->mClass;
 
+        /// ulong --> int or int --> ulong etc
+        if(!type_identify_with_class_name(left_type, "String") && !type_identify_with_class_name(right_type, "String")) {
+            return TRUE;
+        }
+
         if(right_class->mBoxingClass == left_class) {
             return TRUE;
         }

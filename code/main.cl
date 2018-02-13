@@ -172,3 +172,5 @@ UnboxingTest.main();
 AndAndOrOrTest.main();
 println("MapTest");
 MapTest.main();
+println("SysteCallTest");
+SystemCallTest.main();

@@ -1,0 +1,10 @@
+class SystemCallTest
+{
+    def main(): static {
+        f := System.fopen("sys.txt", "w");
+        System.fwrite(b"ABCDEF", 3, f);
+        System.fclose(f);
+
+        Clover.test("sys call test", p"sys.txt".read().equals(b"ABC"));
+    }
+}

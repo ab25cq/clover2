@@ -2,6 +2,7 @@
 class System
 {
     typedef size_t ulong;
+    typedef ssize_t ulong;
     typedef time_t ulong;
 
     def assert(exp:bool): native static throws Exception;

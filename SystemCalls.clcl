@@ -3,9 +3,10 @@ include "Command.clcl"
 class System
 {
     def alarm(seconads: uint): static native uint;
-    def dup(old_fd:int): static native;
-    def dup3(old_fd:int, new_fd:int, flags:int): static native;
-
+    def dup(old_fd:int): static native throws Exception;
+    def dup3(old_fd:int, new_fd:int, flags:int): static native throws Exception;
+    def execvpe(path:String, argv:List<String>, envp:List<String>):static native throws Exception;
+    
     def initialize_system_calls_system():static native;
 
     def initialize(): static {
