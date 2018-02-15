@@ -53,7 +53,7 @@ int main(int argc, char** argv, char* const * envp)
             continue;
         }
         else if(strcmp(argv[i], "-version") == 0 || strcmp(argv[i], "--version") == 0) {
-            printf("clover2 version 3.5.9\n");
+            printf("clover2 version 3.6.0\n");
             exit(0);
         }
 

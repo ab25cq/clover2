@@ -133,9 +133,9 @@ BOOL System_strcpy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* str1 = lvar;
     CLVALUE* str2 = lvar + 1;
 
-    strcpy(str1->mPointerValue, str2->mPointerValue);
+    char* result = strcpy(str1->mPointerValue, str2->mPointerValue);
 
-    (*stack_ptr)->mPointerValue = str2->mPointerValue;
+    (*stack_ptr)->mPointerValue = result;
     (*stack_ptr)++;
 
     return TRUE;
@@ -147,9 +147,9 @@ BOOL System_memcpy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* str2 = lvar + 1;
     CLVALUE* len = lvar + 2;
 
-    memcpy(str1->mPointerValue, str2->mPointerValue, len->mULongValue);
+    void* result = memcpy(str1->mPointerValue, str2->mPointerValue, len->mULongValue);
 
-    (*stack_ptr)->mPointerValue = str2->mPointerValue;
+    (*stack_ptr)->mPointerValue = result;
     (*stack_ptr)++;
 
     return TRUE;
@@ -175,9 +175,9 @@ BOOL System_strncpy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* str2 = lvar + 1;
     CLVALUE* size = lvar + 2;
 
-    xstrncpy(str1->mPointerValue, str2->mPointerValue, size->mULongValue);
+    char* result = xstrncpy(str1->mPointerValue, str2->mPointerValue, size->mULongValue);
 
-    (*stack_ptr)->mPointerValue = str2->mPointerValue;
+    (*stack_ptr)->mPointerValue = result;
     (*stack_ptr)++;
 
     return TRUE;
@@ -883,7 +883,13 @@ BOOL System_strtod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     char* str_value = ALLOC string_object_to_char_array(str_object);
 
     /// go ///
-    double result = strtod(str_value, NULL);
+    char* endptr = NULL;
+    double result = strtod(str_value, &endptr);
+
+    if(endptr == str_value) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "strtod(3) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
 
     (*stack_ptr)->mDoubleValue = result;
     (*stack_ptr)++;
@@ -903,14 +909,13 @@ BOOL System_strcmp(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
         return FALSE;
     }
 
-    /// Clover to c value ///
-    CLObject str_object = str->mObjectValue;
-
     if(str2->mObjectValue == 0) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
         return FALSE;
     }
 
+    /// Clover to c value ///
+    CLObject str_object = str->mObjectValue;
     char* str_value = ALLOC string_object_to_char_array(str_object);
 
     CLObject str_object2 = str2->mObjectValue;
@@ -933,10 +938,7 @@ BOOL System_strcasecmp(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* str = lvar;
     CLVALUE* str2 = (lvar+1);
 
-    /// Clover to c value ///
-    CLObject str_object = str->mObjectValue;
-
-    if(str_object == 0) {
+    if(str->mObjectValue == 0) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
         return FALSE;
     }
@@ -946,6 +948,8 @@ BOOL System_strcasecmp(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
         return FALSE;
     }
 
+    /// Clover to c value ///
+    CLObject str_object = str->mObjectValue;
     char* str_value = ALLOC string_object_to_char_array(str_object);
 
     CLObject str_object2 = str2->mObjectValue;
@@ -968,20 +972,26 @@ BOOL System_strtol(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* str = lvar;
     CLVALUE* base = (lvar+1);
 
-    /// Clover to c value ///
-    CLObject str_object = str->mObjectValue;
-
-    if(str_object == 0) {
+    if(str->mObjectValue == 0) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
         return FALSE;
     }
+
+    /// Clover to c value ///
+    CLObject str_object = str->mObjectValue;
 
     char* str_value = ALLOC string_object_to_char_array(str_object);
 
     int base_value = base->mIntValue;
 
     /// go ///
+    errno = 0;
     clint64 result = strtol(str_value, NULL, base_value);
+
+    if(errno != 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "strtol(3) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
 
     (*stack_ptr)->mLongValue = result;
     (*stack_ptr)++;
@@ -996,20 +1006,26 @@ BOOL System_strtoul(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* str = lvar;
     CLVALUE* base = (lvar+1);
 
-    /// Clover to c value ///
-    CLObject str_object = str->mObjectValue;
-
-    if(str_object == 0) {
+    if(str->mObjectValue == 0) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
         return FALSE;
     }
+
+    /// Clover to c value ///
+    CLObject str_object = str->mObjectValue;
 
     char* str_value = ALLOC string_object_to_char_array(str_object);
 
     int base_value = base->mIntValue;
 
     /// go ///
-    unsigned clint64 result = strtol(str_value, NULL, base_value);
+    errno = 0;
+    unsigned clint64 result = strtoul(str_value, NULL, base_value);
+
+    if(errno != 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "strtoul(3) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
 
     (*stack_ptr)->mULongValue = result;
     (*stack_ptr)++;
@@ -1048,6 +1064,11 @@ BOOL System_time(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     /// go ///
     unsigned clint64 result = time(NULL);
 
+    if((time_t)result < 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "time(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
     (*stack_ptr)->mULongValue = result;
     (*stack_ptr)++;
 
@@ -1070,7 +1091,7 @@ BOOL System_open(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     int flags_value = flags->mIntValue;
 
-    int mode_value = mode->mIntValue;
+    mode_t mode_value = mode->mIntValue;
 
     /// go ///
     int result = open(file_name_value, flags_value, mode_value);
@@ -1238,13 +1259,13 @@ BOOL System_read(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* buf = lvar+1;
     CLVALUE* size = lvar + 2;
 
-    /// Clover to c value ///
-    int fd_value = fd->mIntValue;
-
     if(buf->mObjectValue == 0) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
         return FALSE;
     }
+
+    /// Clover to c value ///
+    int fd_value = fd->mIntValue;
 
     void* buf_value = get_pointer_from_buffer_object(buf->mObjectValue);
     size_t size_value = (size_t)size->mULongValue;
@@ -1258,7 +1279,7 @@ BOOL System_read(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     }
 
     /// go ///
-    int result = read(fd_value, buf_value, size_value);
+    ssize_t result = read(fd_value, buf_value, size_value);
 
     if(result < 0) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "read(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
@@ -1268,7 +1289,7 @@ BOOL System_read(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     sCLObject* obj_data = CLOBJECT(buf->mObjectValue);
     obj_data->mFields[1].mULongValue = result;                // len
 
-    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)->mULongValue = result;
     (*stack_ptr)++;
 
     return TRUE;
@@ -1280,13 +1301,13 @@ BOOL System_write(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* buf = lvar+1;
     CLVALUE* size = lvar + 2;
 
-    /// Clover to c value ///
-    int fd_value = fd->mIntValue;
-
     if(buf->mObjectValue == 0) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
         return FALSE;
     }
+
+    /// Clover to c value ///
+    int fd_value = fd->mIntValue;
 
     void* buf_value = get_pointer_from_buffer_object(buf->mObjectValue);
     size_t size_value = (size_t)size->mULongValue;
@@ -1333,7 +1354,7 @@ BOOL System_localtime(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     struct tm* tm_struct = localtime(&time_value);
 
     if(tm_struct == NULL) {
-        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "localtime(3) is faield");
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "localtime(3) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -1378,7 +1399,7 @@ BOOL System_mktime(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     time_t result = mktime(&tm);
 
     if(result == -1) {
-        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "mktime(3) is faield");
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "mktime(3) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -1606,7 +1627,13 @@ BOOL System_readdir(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     DIR* dir_value = (DIR*)dir->mPointerValue;
 
     /// go ///
+    errno = 0;
     struct dirent* entry = readdir(dir_value);
+
+    if(errno != 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "readdir(3) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
 
     /// result ///
     if(entry == NULL) {
@@ -2689,7 +2716,7 @@ BOOL System_lchown(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     if(result < 0) {
         MFREE(path_value);
-        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "chown(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "lchown(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -3170,7 +3197,7 @@ BOOL System_clock_gettime(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int result = clock_gettime(clk_id_value, &timespec_struct);
 
     if(result < 0) {
-        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "clock_getres(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "clock_getime(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
     sCLObject* object_data = CLOBJECT(tp_value);
@@ -3203,10 +3230,10 @@ BOOL System_clock_settime(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     timespec_struct.tv_nsec = object_data->mFields[1].mLongValue;
 
     /// go ///
-    int result = clock_gettime(clk_id_value, &timespec_struct);
+    int result = clock_settime(clk_id_value, &timespec_struct);
 
     if(result < 0) {
-        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "clock_getres(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "clock_settime(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
@@ -3673,6 +3700,94 @@ BOOL System_fwrite(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     }
 
     (*stack_ptr)->mULongValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_fread(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* buf = lvar;
+    CLVALUE* size = lvar + 1;
+    CLVALUE* stream = lvar + 2;
+
+    /// Clover to c value ///
+    if(buf->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+    if(stream->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    void* buf_value = get_pointer_from_buffer_object(buf->mObjectValue);
+    size_t size_value = (size_t)size->mULongValue;
+
+    int buffer_size = get_size_from_buffer_object(buf->mObjectValue);
+    
+    FILE* stream_value = (FILE*)stream->mPointerValue;
+
+    /// check size ///
+    if(size_value > buffer_size) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Buffer size is smaller than the size value of argument");
+        return FALSE;
+    }
+
+    /// go ///
+    size_t result = fread(buf_value, 1, size_value, stream_value);
+
+    if(ferror(stream_value) != 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "fread(3) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    sCLObject* obj_data = CLOBJECT(buf->mObjectValue);
+    obj_data->mFields[1].mULongValue = result;                // len
+
+    (*stack_ptr)->mULongValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_feof(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* stream = lvar;
+
+    /// Clover to c value ///
+    if(stream->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    FILE* stream_value = (FILE*)stream->mPointerValue;
+
+    /// go ///
+    BOOL result = feof(stream_value) != 0;
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_fgetc(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* stream = lvar;
+
+    /// Clover to c value ///
+    if(stream->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    FILE* stream_value = (FILE*)stream->mPointerValue;
+
+    /// go ///
+    int result = fgetc(stream_value);
+
+    (*stack_ptr)->mIntValue = result;
     (*stack_ptr)++;
 
     return TRUE;

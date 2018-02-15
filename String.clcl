@@ -17,12 +17,12 @@ class System
     def pcre_exec(regex:regex, str:Buffer, offset:int, ovec_max:int, ovec:PcreOVec): native static int;
     def atoi(str:String):native static int;
     def atof(str:String):native static float;
-    def strtod(str:String): native static double;
+    def strtod(str:String): native static double throws Exception;
     def strcmp(str1:String, str2:String): native static int;
     def strcasecmp(str1:String, str2:String): native static int;
-    def strtol(str:String, base:int): native static long;
-    def strtoul(str:String, base:int): native static ulong;
-    def mbstowcs(dest:pointer@wchar[], src:pointer@utf8-string-memory, size:size_t): static native int throws Exception;
+    def strtol(str:String, base:int): native static long throws Exception;
+    def strtoul(str:String, base:int): native static ulong throws Exception;
+    def mbstowcs(dest:pointer@wchar[], src:pointer@utf8-string-buffer, size:size_t): static native int throws Exception;
     def wcstombs(dest:pointer@byte[], src:char[]): static native int throws Exception;
 
     MB_LEN_MAX:static int;

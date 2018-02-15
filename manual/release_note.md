@@ -1,5 +1,9 @@
 English page is here [>> English page](release_note-en)
 
+version 3.6.0
+
+    ファイルクラスにnew File("fname.txt", "w");などを入れました。内部的にはfopenやfwrite, freadされてバッファリングされます。
+
 version 3.5.9
 
     メソッドの引数で数値型の変換は暗黙で行われるようになりました。int --> ulongなど。

@@ -24,7 +24,7 @@ class System
 
     def srand(value:uint): static native;
     def rand(): static native int;
-    def time(): static native time_t;
+    def time(): static native time_t throws Exception;
 
     def getenv(name:String): static native String;
     def setenv(name:String, value:String, overwrite:int): static native throws Exception;
@@ -295,10 +295,6 @@ class Byte
         self.value = value;
     }
 
-    def initialize(value:int) {
-        self.value = value.to_byte;
-    }
-
     def getValue(): byte {
         return self.value;
     }
@@ -332,10 +328,6 @@ class UByte
 
     def initialize(value:ubyte) {
         self.value = value;
-    }
-
-    def initialize(value:int) {
-        self.value = value.to_ubyte;
     }
 
     def getValue(): ubyte {
@@ -373,10 +365,6 @@ class Short
         self.value = value;
     }
 
-    def initialize(value:int) {
-        self.value = value.to_short;
-    }
-
     def getValue(): short {
         return self.value;
     }
@@ -410,10 +398,6 @@ class UShort
 
     def initialize(value:ushort) {
         self.value = value;
-    }
-
-    def initialize(value:int) {
-        self.value = value.to_ushort;
     }
 
     def getValue(): ushort {
@@ -492,10 +476,6 @@ class UInteger
         self.value = value;
     }
 
-    def initialize(value:int) {
-        self.value = value.to_uint;
-    }
-
     def getValue(): uint {
         return self.value;
     }
@@ -525,10 +505,6 @@ class Long
 
     def initialize() {
         self.value = 0.to_long;
-    }
-
-    def initialize(value:int) {
-        self.value = value.to_long;
     }
 
     def initialize(value:long) {
@@ -570,10 +546,6 @@ class ULong
         self.value = value;
     }
 
-    def initialize(value:int) {
-        self.value = value.to_long;
-    }
-
     def getValue(): long {
         return self.value;
     }
@@ -609,10 +581,6 @@ class Float
         self.value = value;
     }
 
-    def initialize(value:int) {
-        self.value = value.to_float;
-    }
-
     def getValue(): float {
         return self.value;
     }
@@ -642,10 +610,6 @@ class Double
 
     def initialize(value:double) {
         self.value = value;
-    }
-
-    def initialize(value:int) {
-        self.value = value.to_double;
     }
 
     def getValue(): double {

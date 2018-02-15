@@ -53,4 +53,27 @@ There is also a method of reading a file which does not open a file.
 ```
 However, since it does not perform read or write or buffering etc, we do not know whether speed will come out due to processing of very large files etc. That user is left to the user.
 
+Additional notes
+Added fopen, fclose, fwrite, fread to System, so you can now buffer files
+I use it as follows
+
+    > f: = new File ("x.txt", "r");
+    > f.read ();
+    ABC
+    DEF
+    GHI
+    > f.close ();
+    
+"w" is a file open when writing.
+
+    > f: = new File ("x.txt", "w");
+    > f.write (b "ABC");
+    > f.close ();
+    
+It is a postscript when "a" writes.
+When using the initializer of this file, reading and writing of the file is buffered using fopen. Please see the manual of fopen in C for details.
+
 Reading and writing files is over.
+
+
+

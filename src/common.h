@@ -2116,6 +2116,9 @@ BOOL System_execvpe(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_fopen(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_fclose(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_fwrite(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_fread(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_feof(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_fgetc(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 /// alignment.c ///
 void alignment(unsigned int* size);

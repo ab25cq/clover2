@@ -209,6 +209,7 @@ static sNativeMethod gNativeMethods[] = {
     { "System.setenv(String,String,int)", "System_setenv", System_setenv },
     { "System.unsetenv(String)", "System_unsetenv", System_unsetenv },
     { "System.put_fun_to_hash_for_native_method(String,String,pointer)", "System_put_fun_to_hash_for_native_method", System_put_fun_to_hash_for_native_method },
+
     { "CLParser.initialize()", "CLParser_initialize", CLParser_initialize },
     { "System.initialize_system_calls_system()", "System_initialize_system_calls_system", System_initialize_system_calls_system },
     { "System.alarm(uint)", "System_alarm", System_alarm },
@@ -217,6 +218,11 @@ static sNativeMethod gNativeMethods[] = {
     { "System.fopen(String,String)", "System_fopen", System_fopen },
     { "System.fclose(pointer)", "System_fclose", System_fclose },
     { "System.fwrite(Buffer,ulong,pointer)", "System_fwrite", System_fwrite },
+    { "System.fread(Buffer,ulong,pointer)", "System_fread", System_fread },
+    { "System.feof(pointer)", "System_feof", System_feof },
+    { "System.fgetc(pointer)", "System_fgetc", System_fgetc },
+    
+
     { "", "", 0 }  // sentinel
 };
 

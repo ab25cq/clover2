@@ -1,3 +1,6 @@
+version 3.6.0
+
+    I put new File ("fname.txt", "w"); etc in the file class. Internally it is fopen, fwrite, fread and buffered.
 
 version 3.5.9
     Numeric type conversion is now implicit in method arguments. int -> ulong and so on.

@@ -47,5 +47,16 @@ class FileTest {
 
         p"d.txt".write(b"GGG\n");
         Clover.test("file test17", p"d.txt".read().equals(b"GGG\n"));
+
+
+        f3 := new File("zzz.txt", "w");
+        f3.write(b"ABC");
+        f3.close();
+
+        f4 := new File("zzz.txt", "r");
+        buf4 := f4.read();
+        f4.close();
+
+        Clover.test("file test18", buf4.equals(b"ABC"));
     }
 }

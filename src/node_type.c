@@ -328,6 +328,10 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_
     {
         return TRUE;
     }
+    else if(type_identify_with_class_name(right3, "Null") && type_identify_with_class_name(left3, "pointer"))
+    {
+        return TRUE;
+    }
     else if(type_identify_with_class_name(right3, "Anonymous") && !(left_class->mFlags & CLASS_FLAGS_PRIMITIVE)) 
     {
         return TRUE;
@@ -401,14 +405,21 @@ BOOL no_cast_types_for_binary_operator(sNodeType* left_type, sNodeType* right_ty
 
 BOOL operand_posibility(sNodeType* left, sNodeType* right, char* op_string)
 {
-    if(type_identify_with_class_name(left, "pointer") 
-        && (strcmp(op_string, "+") == 0 || strcmp(op_string, "-") == 0))
+    if(type_identify_with_class_name(left, "pointer"))
     {
         if(strcmp(op_string, "+") == 0) {
             return type_identify_with_class_name(right, "ulong");
         }
-        else { // strcmp(op_string, "-") == 0
-            return type_identify_with_class_name(right, "ulong") || type_identify_with_class_name(right, "pointer");
+        else if(strcmp(op_string, "-") == 0) {
+            return type_identify_with_class_name(right, "ulong") 
+                        || type_identify_with_class_name(right, "pointer");
+        }
+        else if(strcmp(op_string, "==") == 0 || strcmp(op_string, "!=") == 0) {
+            return type_identify_with_class_name(right, "Null")
+                        || type_identify_with_class_name(right, "pointer");
+        }
+        else {
+            return left->mClass == right->mClass;
         }
     }
     else {

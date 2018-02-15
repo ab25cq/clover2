@@ -6,5 +6,27 @@ class SystemCallTest
         System.fclose(f);
 
         Clover.test("sys call test", p"sys.txt".read().equals(b"ABC"));
+        
+        g := System.fopen("sys.txt", "r");
+        buf := new Buffer(30);
+        System.fread(buf, 30, g);
+        System.fclose(g);
+        
+        Clover.test("sys call test2", buf.equals(b"ABC"));
+
+        wcs:char[]? = null;
+        b:Buffer = b"あいう";
+        System.mbstowcs(&wcs, b.buffer, b.len);
+
+        Clover.test("sys call test3", wcs[0] == 'あ' && wcs[1] == 'い' && wcs[2] == 'う' && wcs[3] == '\0');
+
+
+        c := new ULong(123);
+
+        Clover.test("sys call test4", c == 123);
+
+        d := new Float(123);
+
+        Clover.test("sys call test5", d == 123.0f);
     }
 }

@@ -96,7 +96,7 @@ class System
     }
     def open(file_name:String, flags:int, mode:mode_t):static native int throws Exception;
     def close(fd:int): static native int throws Exception;
-    def read(fd:int, buf:Buffer, size:size_t): static native int throws Exception;
+    def read(fd:int, buf:Buffer, size:size_t): static native ssize_t throws Exception;
     def write(fd:int, buf:Buffer, size:size_t): static native ssize_t throws Exception;
 
     def time(): static native time_t;
@@ -108,7 +108,7 @@ class System
     def dirname(path:String): static native String;
     def basename(path:String): static native String;
     def opendir(path:String): static native DIR throws Exception;
-    def readdir(dir:DIR): static native String?;
+    def readdir(dir:DIR): static native String? throws Exception;
     def closedir(dir:DIR): static native int throws Exception;
     def chmod(path:String, mode:mode_t): static native throws Exception;
     def lchmod(path:String, mode:mode_t): static native throws Exception;
@@ -143,6 +143,10 @@ class System
     def fopen(path:String, mode:String): static native pointer@FILE throws Exception;
     def fclose(stream:pointer) : static native throws Exception;
     def fwrite(buf:Buffer, size:size_t, stream: pointer@FILE): static native size_t throws Exception;
+    def fread(buf:Buffer, size:size_t, stream:pointer@FILE): static native size_t throws Exception;
+    def feof(stream: pointer@FILE): static native bool;
+    
+    def fgetc(stream:pointer@FILE): native static int;
 
     def put_fun_to_hash_for_native_method(path:String, fun_name:String, native_method:pointer): static native;
 }
@@ -378,25 +382,33 @@ class File
 {
     fd:int;
     fileName:String?;
+    stream:pointer?@FILE;
 
     def initialize() {
         self.fd = -1;
         self.fileName = null;
+        self.stream = null;
     }
 
-    def initialize(file_name:String, flags:int, mode:mode_t) throws Exception {
+    def initialize(file_name:String, flags:int, mode:mode_t) throws Exception 
+    {
         self.fd = System.open(file_name, flags, mode);
         self.fileName = file_name;
+        self.stream = null;
+    }
+    
+    def initialize(file_name:String, mode:String) throws Exception {
+        self.fd = -1;
+        self.fileName = file_name;
+        self.stream = System.fopen(file_name, mode);
     }
 
     def initialize(file_name:String) throws Exception {
-        self.initialize(file_name, System.O_RDONLY, 0);
+        self.initialize(file_name, "r");
     }
 
     def finalize() {
-        if(self.fd != -1) {
-            System.close(self.fd);
-        }
+        self.close();
     }
 
     def close() {
@@ -406,16 +418,29 @@ class File
             self.fd = -1;
             self.fileName = null;
         }
+        if(self.stream != null) {
+            System.fclose(self.stream);
+            
+            self.stream = null;
+            self.fileName = null;
+        }
     }
 
     def read(size:size_t): Buffer throws Exception {
-        if(self.fd == -1) {
+        if(self.fd == -1 && self.stream == null) {
             throw new Exception("File is not opened");
         }
-
-        result:Buffer = new Buffer(size+1.to_ulong);
-        System.read(self.fd, result, size);
-        return result;
+        
+        if(self.stream != null) {
+            result:Buffer = new Buffer(size+1.to_ulong);
+            System.fread(result, size, self.stream);
+            return result;
+        }
+        else {
+            result:Buffer = new Buffer(size+1.to_ulong);
+            System.read(self.fd, result, size);
+            return result;
+        }
     }
 
     def to_stat(): stat throws Exception {
@@ -442,38 +467,59 @@ class File
     }
 
     def read(): Buffer throws Exception {
-        if(self.fd == -1) {
+        if(self.fd == -1 && self.stream == null) {
             throw new Exception("File is not opened");
         }
 
-        size:size_t = self.to_stat().size();
+        if(self.stream != null) {
+            size:size_t = self.to_stat().size();
 
-        result:Buffer = new Buffer(size+1.to_ulong);
-        System.read(self.fd, result, size);
-        return result;
+            result:Buffer = new Buffer(size+1.to_ulong);
+            System.fread(result, size, self.stream);
+            return result;
+        }
+        else {
+            size:size_t = self.to_stat().size();
+
+            result:Buffer = new Buffer(size+1.to_ulong);
+            System.read(self.fd, result, size);
+            return result;
+        }
     }
 
     def write(buf:Buffer, size:size_t):int throws Exception {
-        if(self.fd == -1) {
+        if(self.fd == -1 && self.stream == null) {
             throw new Exception("File is not opened");
         }
 
-        return System.write(self.fd, buf, size);
+        if(self.stream != null) {
+            return System.fwrite(buf, size, self.stream);
+        }
+        else {
+            return System.write(self.fd, buf, size);
+        }
     }
 
     def write(buf:Buffer):int throws Exception {
         return self.write(buf, buf.len);
     }
 
-    def write(file_name:String, buf:Buffer, mode:mode_t): static int throws Exception {
+    def write(file_name:String, buf:Buffer, mode:mode_t): static int throws Exception 
+    {
         f:File = new File(file_name, System.O_CREAT|System.O_TRUNC|System.O_WRONLY, mode);
         result:int = f.write(buf);
         f.close();
 
         return result;
     }
-    def write(file_name:String, buf:Buffer): static int throws Exception {
-        return File.write(file_name, buf, 0644);
+    def write(file_name:String, buf:Buffer, mode:String): static throws Exception
+    {
+        f:File = new File(file_name, mode);
+        f.write(buf);
+        f.close();
+    }
+    def write(file_name:String, buf:Buffer): static throws Exception {
+        File.write(file_name, buf, "w");
     }
 }
 
@@ -544,8 +590,8 @@ class Path
     def read(): Buffer {
         return File.read(self.path);
     }
-    def write(buf:Buffer):int {
-        return File.write(self.path, buf);
+    def write(buf:Buffer) {
+        File.write(self.path, buf);
     }
 
     def chmod(mode:mode_t) throws Exception {
