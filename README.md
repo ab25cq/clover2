@@ -39,7 +39,7 @@ version 3.6.1
 
     9.メソッドブロックの型推論が出来ます。以下のようなコードが動きます。
 
-a:SortableList<String> = slist{1,2,3}.map { it.toString() }
+    a:SortableList<String> = slist{1,2,3}.map { it.toString() }
 
 サンプルコード
 
