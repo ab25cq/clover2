@@ -30,3 +30,6 @@ Addition and subtraction can be used for pointer class. For example, if b ++
     0x124a77d
 ```
 \+= 4ul and four bytes are added to the address of b. The ulong type is used for the right side value of the pointer operation. In the case of a 64 bit PC, the address is for ulong type which is 64 bit. The value is different every time to prevent illegal addresses. It was because the address was fixed and it was a hotbed of invalid hacks because it was the same each time. When MS - DOS was the de facto standard, I could access even the addresses of other programs (processes), so I could do bad things with other programs as much as possible. Well, at that time the computer seemed to be some people's play, because it was not as secure as it was for security. Since the Internet began and credit card involvement allowed illegal use of other people's money, security became more important. Recently, addresses are independent on a process basis, and addresses of other programs are not accessible, and address values ​​are also different every time, so it is difficult to make illegal programs.
+
+Additional notes
+The right side value of the pointer operator is okay if it is not ulong type. In the above code, it moves with b += 4 instead of b += 4ul.

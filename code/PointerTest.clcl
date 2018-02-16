@@ -22,6 +22,14 @@ class PointerTest
         c:pointer = a + 8.to_ulong;
         System.assert(c->int == 345);
 
+        d:pointer = a + 4;
+
+        System.assert(d->int == 245);
+
+        d += 4;
+
+        System.assert(d->int == 345);
+
         System.free(a);
     }
 }

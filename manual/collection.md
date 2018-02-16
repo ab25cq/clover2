@@ -361,9 +361,9 @@ Tupleのクラス名はGenericsの引数の数を明示しないといけませ�
 
     > a := tuple { "Daisuke", 38, "Kameoka" };
     tuple {Daisuke,38,kameoka}
-    > a.equals{tuple {"Daisuke", 38, "Kyoto" };
+    > a.equals(tuple {"Daisuke", 38, "Kyoto" });
     false
-    > a.equals{tuple {"Daisuke", 38, "Kameoka" };
+    > a.equals(tuple {"Daisuke", 38, "Kameoka" } );
     true
 
 equalsで値が同一か比較することができます。TupleのGenericsで実装しておかないといけないインターフェースはIEqualableです。equlasとtoStringが実装されている必要があります。

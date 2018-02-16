@@ -1,5 +1,9 @@
 English page is here [>> English page](release_note-en)
 
+version 3.6.1
+    
+    ポインタの演算子の右辺値はulongじゃなくても大丈夫になりました。a := 1; b := &a; b += 4は動きます。
+
 version 3.6.0
 
     ファイルクラスにnew File("fname.txt", "w");などを入れました。内部的にはfopenやfwrite, freadされてバッファリングされます。

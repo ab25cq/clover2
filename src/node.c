@@ -551,16 +551,40 @@ static BOOL binary_operator(sNodeType* left_type, sNodeType* right_type, int byt
 
                 info->type = create_node_type_with_class_name("ulong");
             }
-            else { // type_identify_with_class_name(right_type, "ulong"); see operand_posibility()
-                append_opecode_to_code(info->code, pointer_operand, info->no_output);
-                info->stack_num--;
+            else {
+                sNodeType* ulong_type = create_node_type_with_class_name("ulong");
+                cast_right_type_to_left_type(ulong_type, &right_type, info);
 
-                info->type = create_node_type_with_class_name("pointer");
+                if(!type_identify_with_class_name(right_type, "ulong")) {
+                    compile_err_msg(info, "Invalid pointer operand type(%s)", CLASS_NAME(right_type->mClass));
+                    info->err_num++;
+                }
+                else {
+                    append_opecode_to_code(info->code, pointer_operand, info->no_output);
+                    info->stack_num--;
+
+                    info->type = create_node_type_with_class_name("pointer");
+                }
             }
         }
-        else {
+        else if(strcmp(op_string, "==") == 0 || strcmp(op_string, "!=") == 0) {
             append_opecode_to_code(info->code, pointer_operand, info->no_output);
             info->stack_num--;
+
+            info->type = create_node_type_with_class_name("pointer");
+        }
+        else {
+            sNodeType* ulong_type = create_node_type_with_class_name("ulong");
+            cast_right_type_to_left_type(ulong_type, &right_type, info);
+
+            if(!type_identify_with_class_name(right_type, "ulong")) {
+                compile_err_msg(info, "Invalid pointer operand type(%s)", CLASS_NAME(right_type->mClass));
+                info->err_num++;
+            }
+            else {
+                append_opecode_to_code(info->code, pointer_operand, info->no_output);
+                info->stack_num--;
+            }
 
             info->type = create_node_type_with_class_name("pointer");
         }

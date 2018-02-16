@@ -1,3 +1,8 @@
+
+version 3.6.1
+
+    The right side value of the operator of the pointer is okay if it is not ulong. a: = 1; b: = & a; b + = 4 works.
+
 version 3.6.0
 
     I put new File ("fname.txt", "w"); etc in the file class. Internally it is fopen, fwrite, fread and buffered.

@@ -22,10 +22,15 @@ class CharTest {
 
         System.assert(y == 'あ');
 
-
         Clover.test("char test1", 'a'.to_upper == 'A');
         Clover.test("char test2", 'A'.to_upper == 'A');
         Clover.test("char test3", 'A'.to_lower == 'a');
         Clover.test("char test4", 'a'.to_lower == 'a');
+
+        wcs:char[]? = null;
+        b:Buffer = b"あいう";
+        System.mbstowcs(&wcs, b.buffer, b.len);
+
+        Clover.test("sys call test3", wcs[0] == 'あ' && wcs[1] == 'い' && wcs[2] == 'う' && wcs[3] == '\0');
     }
 }

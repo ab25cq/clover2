@@ -402,16 +402,21 @@ BOOL no_cast_types_for_binary_operator(sNodeType* left_type, sNodeType* right_ty
 {
     return type_identify_with_class_name(left_type, "pointer") && type_identify_with_class_name(right_type, "ulong");
 }
+static BOOL is_numeric_type(sNodeType* type_)
+{
+    return type_identify_with_class_name(type_, "int") || type_identify_with_class_name(type_, "uint") || type_identify_with_class_name(type_, "byte") || type_identify_with_class_name(type_, "ubyte") || type_identify_with_class_name(type_, "short") || type_identify_with_class_name(type_, "ushort") || type_identify_with_class_name(type_, "long") || type_identify_with_class_name(type_, "ulong") || type_identify_with_class_name(type_, "float") || type_identify_with_class_name(type_, "double") || type_identify_with_class_name(type_, "Integer") || type_identify_with_class_name(type_, "UInteger") || type_identify_with_class_name(type_, "Byte") || type_identify_with_class_name(type_, "UByte") || type_identify_with_class_name(type_, "Short") || type_identify_with_class_name(type_, "UShort") || type_identify_with_class_name(type_, "Long") || type_identify_with_class_name(type_, "ULong") || type_identify_with_class_name(type_, "Float") || type_identify_with_class_name(type_, "Double");
+}
+
 
 BOOL operand_posibility(sNodeType* left, sNodeType* right, char* op_string)
 {
     if(type_identify_with_class_name(left, "pointer"))
     {
         if(strcmp(op_string, "+") == 0) {
-            return type_identify_with_class_name(right, "ulong");
+            return is_numeric_type(right);
         }
         else if(strcmp(op_string, "-") == 0) {
-            return type_identify_with_class_name(right, "ulong") 
+            return is_numeric_type(right)
                         || type_identify_with_class_name(right, "pointer");
         }
         else if(strcmp(op_string, "==") == 0 || strcmp(op_string, "!=") == 0) {
@@ -686,11 +691,6 @@ void print_node_type(sNodeType* node_type)
     if(node_type->mNullable) {
         printf("?");
     }
-}
-
-static BOOL is_numeric_type(sNodeType* type_)
-{
-    return type_identify_with_class_name(type_, "int") || type_identify_with_class_name(type_, "uint") || type_identify_with_class_name(type_, "byte") || type_identify_with_class_name(type_, "ubyte") || type_identify_with_class_name(type_, "short") || type_identify_with_class_name(type_, "ushort") || type_identify_with_class_name(type_, "long") || type_identify_with_class_name(type_, "ulong") || type_identify_with_class_name(type_, "float") || type_identify_with_class_name(type_, "double") || type_identify_with_class_name(type_, "Integer") || type_identify_with_class_name(type_, "UInteger") || type_identify_with_class_name(type_, "Byte") || type_identify_with_class_name(type_, "UByte") || type_identify_with_class_name(type_, "Short") || type_identify_with_class_name(type_, "UShort") || type_identify_with_class_name(type_, "Long") || type_identify_with_class_name(type_, "ULong") || type_identify_with_class_name(type_, "Float") || type_identify_with_class_name(type_, "Double");
 }
 
 BOOL boxing_posibility(sNodeType* left_type, sNodeType* right_type)
