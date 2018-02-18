@@ -69,6 +69,7 @@
 * [文字列クラス](string)
 * [アノニマウスクラス](anonymous)
 * [グローバルクラス](global)
+* [システムクラス](system)
 * [コマンドクラス](command)
 * [pointerクラス](pointer)
 * [lambdaクラス](lambda)
