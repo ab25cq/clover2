@@ -6,12 +6,14 @@ class WhenTest {
         when(a) {
             case 1: {
                 println("FALSE");
+                System.assert(false);
             }
             case 123,125: {
                 println("TRUE");
             }
             else {
                 println("FALSE");
+                System.assert(false);
             }
         }
 
@@ -21,12 +23,14 @@ class WhenTest {
         when(b) {
             case "A": {
                 println("FALSE");
+                System.assert(false);
             }
             case "ABC": {
                 println("TRUE");
             }
             else {
                 println("FALSE");
+                System.assert(false);
             }
         }
 
@@ -37,18 +41,21 @@ class WhenTest {
 
             case 234: {
                 "DEF";
+                System.assert(false);
             }
 
             else {
                 "GHI";
+                System.assert(false);
             }
         }
 
-        Clover.test("when test3", c.equals("ABC"));
+        Clover.test("when test3", c.cast("String").equals("ABC"));
 
         d := when(234) {
             case 123: {
                 "ABC";
+                System.assert(false);
             }
 
             case 234: {
@@ -57,6 +64,7 @@ class WhenTest {
 
             else {
                 "GHI";
+                System.assert(false);
             }
         }
 

@@ -1035,19 +1035,21 @@ void command_completion(char* line, char** candidates, int num_candidates)
     gNumCandidates = n;
 }
 
-void get_class_names(char** candidates, int *num_candidates)
+void get_class_names(char** candidates, int *num_candidates, int max_candidates)
 {
     sClassTable* p = gHeadClassTable;
 
     while(p) {
-        candidates[*num_candidates] = MSTRDUP(p->mName);
-        (*num_candidates)++;
+        if(*num_candidates < max_candidates) {
+            candidates[*num_candidates] = MSTRDUP(p->mName);
+            (*num_candidates)++;
+        }
 
         p = p->mNextClass;
     }
 }
 
-void get_global_method_names(char** candidates, int *num_candidates)
+void get_global_method_names(char** candidates, int *num_candidates, int max_candidates)
 {
     sCLClass* global_class = get_class("Global");
 
@@ -1058,50 +1060,150 @@ void get_global_method_names(char** candidates, int *num_candidates)
         sCLMethod* method = global_class->mMethods + i;
 
         if(method->mFlags & METHOD_FLAGS_CLASS_METHOD) {
-            char* method_name = METHOD_NAME2(global_class, method);
-            
-            int len = strlen(method_name) + 2;
-            char* candidate = MMALLOC(len);
+            sBuf buf;
+            sBuf_init(&buf);
 
-            xstrncpy(candidate, method_name, len);
-            xstrncat(candidate, "(", len);
+            sBuf_append_str(&buf, METHOD_NAME2(global_class, method));
+            sBuf_append_str(&buf, "(");
 
-            candidates[*num_candidates] = candidate;
-            (*num_candidates)++;
+            int j;
+            for(j=0; j<method->mNumParams; j++) {
+                sCLParam* param = method->mParams + j;
+                sCLType* param_type = param->mType;
+
+                char* argment_names = ALLOC cl_type_to_buffer(param_type, global_class);
+
+                sBuf_append_str(&buf, argment_names);
+
+                if(j!=method->mNumParams-1) sBuf_append_str(&buf, ",");
+
+                MFREE(argment_names);
+            }
+
+            sBuf_append_str(&buf, ")");
+
+            if(*num_candidates < max_candidates) {
+                candidates[*num_candidates] = MANAGED buf.mBuf;
+                (*num_candidates)++;
+            }
+            else {
+                MFREE(buf.mBuf);
+            }
         }
+    }
+
+}
+
+void get_system_method_names(char** candidates, int *num_candidates, int max_candidates)
+{
+    sCLClass* system_class = get_class("System");
+
+    MASSERT(system_class != NULL);
+
+    int i;
+    for(i=0; i<system_class->mNumMethods; i++) {
+        sCLMethod* method = system_class->mMethods + i;
+
+        if(method->mFlags & METHOD_FLAGS_CLASS_METHOD) {
+            sBuf buf;
+            sBuf_init(&buf);
+
+            sBuf_append_str(&buf, METHOD_NAME2(system_class, method));
+            sBuf_append_str(&buf, "(");
+
+            int j;
+            for(j=0; j<method->mNumParams; j++) {
+                sCLParam* param = method->mParams + j;
+                sCLType* param_type = param->mType;
+
+                char* argment_names = ALLOC cl_type_to_buffer(param_type, system_class);
+
+                sBuf_append_str(&buf, argment_names);
+
+                if(j!=method->mNumParams-1) sBuf_append_str(&buf, ",");
+
+                MFREE(argment_names);
+            }
+
+            sBuf_append_str(&buf, ")");
+
+            if(*num_candidates < max_candidates) {
+                candidates[*num_candidates] = MANAGED buf.mBuf;
+                (*num_candidates)++;
+            }
+            else {
+                MFREE(buf.mBuf);
+            }
+        }
+
+
+
     }
 }
 
 void local_variable_completion(char** candidates, int *num_candidates, int max_candidates)
 {
-    char* line2 = MCALLOC(1, sizeof(char)*(rl_point+1));
-    memcpy(line2, rl_line_buffer, rl_point);
-    line2[rl_point] = '\0';
+    BOOL expression_is_void = TRUE;
 
-    /// get type ///
-    sVarTable* lv_table;
-    sNodeType* type_ = NULL;
-    sVarTable* tmp_lv_table = clone_var_table(gLVTable);
-    (void)get_type(line2, "iclover2", tmp_lv_table, gStack, &type_, &lv_table);
-
-    sVarTable* table = lv_table;
-
-    while(table) {
-        int j;
-        for(j=0; j<LOCAL_VARIABLE_MAX; j++) {
-            sVar* var = table->mLocalVariables + j;
-            if(var->mName[0] != '\0') {
-                if(*num_candidates < max_candidates) {
-                    candidates[*num_candidates] = MANAGED MSTRDUP(var->mName);
-                    (*num_candidates)++;
-                }
-            }
+    char* p = rl_line_buffer;
+    while(*p) {
+        if(*p == ' ' || *p == '\t' || *p == '\n' || isalpha(*p) || *p == '(' || *p == '_') {
+            p++;
         }
-
-        table = table->mParent;
+        else {
+            expression_is_void = FALSE;
+            p++;
+        }
     }
 
-    MFREE(line2);
+    if(expression_is_void) {
+        sVarTable* table = gLVTable;
+
+        while(table) {
+            int j;
+            for(j=0; j<LOCAL_VARIABLE_MAX; j++) {
+                sVar* var = table->mLocalVariables + j;
+                if(var->mName[0] != '\0') {
+                    if(*num_candidates < max_candidates) {
+                        candidates[*num_candidates] = MANAGED MSTRDUP(var->mName);
+                        (*num_candidates)++;
+                    }
+                }
+            }
+
+            table = table->mParent;
+        }
+    }
+    else {
+        char* line2 = MCALLOC(1, sizeof(char)*(rl_point+1));
+        memcpy(line2, rl_line_buffer, rl_point);
+        line2[rl_point] = '\0';
+
+        /// get type ///
+        sVarTable* lv_table;
+        sNodeType* type_ = NULL;
+        sVarTable* tmp_lv_table = clone_var_table(gLVTable);
+        (void)get_type(line2, "iclover2", tmp_lv_table, gStack, &type_, &lv_table);
+
+        sVarTable* table = lv_table;
+
+        while(table) {
+            int j;
+            for(j=0; j<LOCAL_VARIABLE_MAX; j++) {
+                sVar* var = table->mLocalVariables + j;
+                if(var->mName[0] != '\0') {
+                    if(*num_candidates < max_candidates) {
+                        candidates[*num_candidates] = MANAGED MSTRDUP(var->mName);
+                        (*num_candidates)++;
+                    }
+                }
+            }
+
+            table = table->mParent;
+        }
+
+        MFREE(line2);
+    }
 }
 
 char* on_complete(const char* text, int a);
@@ -1238,7 +1340,7 @@ static int my_complete_internal(int count, int key)
         int max_candidates = CLASS_NUM_MAX + 128;
         char** candidates = MCALLOC(1, sizeof(char*)*max_candidates);
 
-        get_class_names(candidates, &num_candidates);
+        get_class_names(candidates, &num_candidates, max_candidates);
 
         int size = 128 + num_candidates;
         gCandidates = MCALLOC(1, sizeof(char*)*size);
@@ -1303,7 +1405,7 @@ static int my_complete_internal(int count, int key)
         }
 
         int num_candidates = 0;
-        int max_candidates = CLASS_NUM_MAX + METHOD_NUM_MAX + 128 + LOCAL_VARIABLE_MAX * 3;
+        int max_candidates = CLASS_NUM_MAX + METHOD_NUM_MAX * 3 + 128 + LOCAL_VARIABLE_MAX * 3 + 1024;
         char** candidates = MCALLOC(1, sizeof(char*)*max_candidates);
 
         int i;
@@ -1313,8 +1415,9 @@ static int my_complete_internal(int count, int key)
 
         num_candidates += num_words;
         
-        get_class_names(candidates, &num_candidates);
-        get_global_method_names(candidates, &num_candidates);
+        get_class_names(candidates, &num_candidates, max_candidates);
+        get_global_method_names(candidates, &num_candidates, max_candidates);
+        get_system_method_names(candidates, &num_candidates, max_candidates);
         local_variable_completion(candidates, &num_candidates, max_candidates);
         command_completion(line, candidates, num_candidates);
         MFREE(candidates);
@@ -1485,49 +1588,55 @@ char* on_complete(const char* text, int a)
     if(gInputingMethod) {
         rl_completion_append_character = '(';
 
-        char* p = text2 + strlen(text2) -1;
+        if(strcmp(text2, "") != 0) {
+            char* p = text2 + strlen(text2) -1;
 
-        while(p >= text2) {
-            if(*p == '(') {
-                char* tmp = MSTRDUP(p + 1);
-                MFREE(text2);
-                text2 = tmp;
-                break;
+            while(p >= text2) {
+                if(*p == '(') {
+                    char* tmp = MSTRDUP(p + 1);
+                    MFREE(text2);
+                    text2 = tmp;
+                    break;
+                }
+
+                p--;
             }
-
-            p--;
         }
     }
     else if(gInputingPath) {
         rl_completion_append_character = '"';
 
-        char* p = text2 + strlen(text2) -1;
+        if(strcmp(text2, "") != 0) {
+            char* p = text2 + strlen(text2) -1;
 
-        while(p >= text2) {
-            if(*p == ' ' || *p == '\t' || *p == '"') {
-                char* tmp = MSTRDUP(p + 1);
-                MFREE(text2);
-                text2 = tmp;
-                break;
+            while(p >= text2) {
+                if(*p == ' ' || *p == '\t' || *p == '"') {
+                    char* tmp = MSTRDUP(p + 1);
+                    MFREE(text2);
+                    text2 = tmp;
+                    break;
+                }
+
+                p--;
             }
-
-            p--;
         }
     }
     else if(gInputingCommandPath) {
         rl_completion_append_character = ' ';
 
-        char* p = text2 + strlen(text2) - 1;
+        if(strcmp(text2, "") != 0) {
+            char* p = text2 + strlen(text2) - 1;
 
-        while(p >= text2) {
-            if(*p == ' ' || *p == '\t') {
-                char* tmp = MSTRDUP(p + 1);
-                MFREE(text2);
-                text2 = tmp;
-                break;
+            while(p >= text2) {
+                if(*p == ' ' || *p == '\t') {
+                    char* tmp = MSTRDUP(p + 1);
+                    MFREE(text2);
+                    text2 = tmp;
+                    break;
+                }
+
+                p--;
             }
-
-            p--;
         }
     }
 
@@ -1536,215 +1645,227 @@ char* on_complete(const char* text, int a)
 
     /// go ///
     if(gCandidates) {
-        /// get candidates ///
-        char* candidate;
-        char** p2;
-        char** candidates2;
-        int num_candidates2;
-        int j;
-
-        p2 = gCandidates;
-
-        candidates2 = MCALLOC(1, sizeof(char*)*(gNumCandidates+1));
-        num_candidates2 = 0;
-
-        while(p2 < gCandidates + gNumCandidates) {
-            int len_candidate;
-            int len_text;
-
-            candidate = *p2;
-
-            len_candidate = strlen(candidate);
-            len_text = strlen(text2);
-
-            if(len_candidate >= len_text && strncmp(candidate, text2, len_text) == 0) 
-            {
-                candidates2[num_candidates2++] = candidate;
-            }
-            p2++;
-        }
-
-        candidates2[num_candidates2] = NULL;
-
-        if(num_candidates2 == 0) {
-        }
-        else if(num_candidates2 == 1) {
-            char* appended_chars;
-            int len_candidate;
-            int len_text;
-            char* parenthesis;
-            char appended_chars2[32];
-            BOOL flg_field;
-
-            candidate = *candidates2;
-
-            flg_field = strstr(candidate, "(") == NULL && !gInputingCommandPath;
-
-            if(gInputingMethod) {
-                parenthesis = strstr(candidate, "(");
-
-                if(parenthesis) {
-                    len_candidate = parenthesis - candidate;
-                }
-                else {
-                    len_candidate = strlen(candidate);
-                }
-            }
-            else {
-                len_candidate = strlen(candidate);
-            }
-
-            len_text = strlen(text2);
-
-            appended_chars = MCALLOC(1, len_candidate-len_text+2);
-            memcpy(appended_chars, candidate+len_text, len_candidate-len_text);
-            appended_chars[len_candidate-len_text] = 0;
-
-            rl_insert_text(appended_chars);
-
-            MFREE(appended_chars);
-
-            /// path completion ///
-            if(gInputingPath) {
-                int len;
-
-                len = strlen(candidate);
-                if(candidate[len-1] != '/') {
-                    appended_chars2[0] = rl_completion_append_character;
-                    appended_chars2[1] = 0;
-
-                    rl_insert_text(appended_chars2);
-                }
-            }
-            else if(gInputingCommandPath) {
-                int len = strlen(candidate);
-                if(candidate[len-1] != '/') {
-                    appended_chars2[0] = rl_completion_append_character;
-                    appended_chars2[1] = 0;
-
-                    rl_insert_text(appended_chars2);
-                }
-            }
-            else if(gInputingMethod) {
-                int len = strlen(candidate);
-
-                if(candidate[len-1] == '(') {
-                    appended_chars2[0] = rl_completion_append_character;
-                    appended_chars2[1] = 0;
-
-                    rl_insert_text(appended_chars2);
-                }
-            }
-            else if(flg_field) {
-                appended_chars2[0] = '.';
-                appended_chars2[1] = 0;
-
-                rl_insert_text(appended_chars2);
-            }
-            else {
-                rl_insert_text(appended_chars2);
-            }
-
-            display_candidates(candidates2);
+        if(strcmp(text2, "") == 0) {
+            display_candidates(gCandidates);
             rl_forced_update_display();
+
+            int j;
+            for(j=0; j<gNumCandidates; j++) {
+                MFREE(gCandidates[j]);
+            }
+            MFREE(gCandidates);
         }
         else {
-            /// get same text ///
-            char* candidate_before;
-            int same_len;
+            /// get candidates ///
+            char* candidate;
+            char** p2;
+            char** candidates2;
+            int num_candidates2;
+            int j;
 
-            candidate_before = NULL;
-            same_len = -1;
-            p2 = candidates2;
+            p2 = gCandidates;
 
-            while((candidate = *p2) != NULL) {
-                int i;
+            candidates2 = MCALLOC(1, sizeof(char*)*(gNumCandidates+1));
+            num_candidates2 = 0;
+
+            while(p2 < gCandidates + gNumCandidates) {
                 int len_candidate;
-                int len_candidate_before;
+                int len_text;
 
-                if(candidate_before) {
-                    int len;
-                    int same_len2;
-                    char* parenthesis;
+                candidate = *p2;
 
+                len_candidate = strlen(candidate);
+                len_text = strlen(text2);
+
+                if(len_candidate >= len_text && strncmp(candidate, text2, len_text) == 0) 
+                {
+                    candidates2[num_candidates2++] = candidate;
+                }
+                p2++;
+            }
+
+            candidates2[num_candidates2] = NULL;
+
+            if(num_candidates2 == 0) {
+            }
+            else if(num_candidates2 == 1) {
+                char* appended_chars;
+                int len_candidate;
+                int len_text;
+                char* parenthesis;
+                char appended_chars2[32];
+                BOOL flg_field;
+
+                candidate = *candidates2;
+
+                flg_field = strstr(candidate, "(") == NULL && !gInputingCommandPath;
+
+                if(gInputingMethod) {
                     parenthesis = strstr(candidate, "(");
+
                     if(parenthesis) {
                         len_candidate = parenthesis - candidate;
                     }
                     else {
                         len_candidate = strlen(candidate);
                     }
-
-                    parenthesis = strstr(candidate_before, "(");
-                    if(parenthesis) {
-                        len_candidate_before = parenthesis - candidate_before;
-                    }
-                    else {
-                        len_candidate_before = strlen(candidate_before);
-                    }
-
-
-                    if(len_candidate < len_candidate_before) {
-                        len = len_candidate;
-                    }
-                    else {
-                        len = len_candidate_before;
-                    }
-
-                    same_len2 = len;
-
-                    for(i=0; i<len; i++) {
-                        if(candidate[i] != candidate_before[i]) {
-                            same_len2 = i;
-                            break;
-                        }
-                    }
-
-                    if(same_len == -1 || same_len2 < same_len) {
-                        same_len = same_len2;
-                    }
-                }
-                
-                candidate_before = *p2;
-                p2++;
-            }
-
-            candidate = *candidates2;
-
-            if(same_len > 0) {
-                char* appended_chars;
-                int len_candidate;
-                int len_text;
-
-                len_candidate = strlen(candidate);
-                len_text = strlen(text2);
-
-                if(same_len - len_text == 0) {
-                    display_candidates(candidates2);
-                    rl_forced_update_display();
                 }
                 else {
-                    appended_chars = MCALLOC(1, same_len-len_text+2);
-                    memcpy(appended_chars, candidate+len_text, same_len-len_text);
-                    appended_chars[same_len-len_text] = 0;
-
-                    rl_insert_text(appended_chars);
-
-                    MFREE(appended_chars);
+                    len_candidate = strlen(candidate);
                 }
-            }
-            else if(same_len == 0) {
+
+                len_text = strlen(text2);
+
+                appended_chars = MCALLOC(1, len_candidate-len_text+2);
+                memcpy(appended_chars, candidate+len_text, len_candidate-len_text);
+                appended_chars[len_candidate-len_text] = 0;
+
+                rl_insert_text(appended_chars);
+
+                MFREE(appended_chars);
+
+                /// path completion ///
+                if(gInputingPath) {
+                    int len;
+
+                    len = strlen(candidate);
+                    if(candidate[len-1] != '/') {
+                        appended_chars2[0] = rl_completion_append_character;
+                        appended_chars2[1] = 0;
+
+                        rl_insert_text(appended_chars2);
+                    }
+                }
+                else if(gInputingCommandPath) {
+                    int len = strlen(candidate);
+                    if(candidate[len-1] != '/') {
+                        appended_chars2[0] = rl_completion_append_character;
+                        appended_chars2[1] = 0;
+
+                        rl_insert_text(appended_chars2);
+                    }
+                }
+                else if(gInputingMethod) {
+                    int len = strlen(candidate);
+
+                    if(candidate[len-1] == '(') {
+                        appended_chars2[0] = rl_completion_append_character;
+                        appended_chars2[1] = 0;
+
+                        rl_insert_text(appended_chars2);
+                    }
+                }
+                else if(flg_field) {
+                    appended_chars2[0] = '.';
+                    appended_chars2[1] = 0;
+
+                    rl_insert_text(appended_chars2);
+                }
+                else {
+                    rl_insert_text(appended_chars2);
+                }
+
                 display_candidates(candidates2);
                 rl_forced_update_display();
             }
-        }
+            else {
+                /// get same text ///
+                char* candidate_before;
+                int same_len;
 
-        MFREE(candidates2);
+                candidate_before = NULL;
+                same_len = -1;
+                p2 = candidates2;
 
-        for(j=0; j<gNumCandidates; j++) {
-            MFREE(gCandidates[j]);
+                while((candidate = *p2) != NULL) {
+                    int i;
+                    int len_candidate;
+                    int len_candidate_before;
+
+                    if(candidate_before) {
+                        int len;
+                        int same_len2;
+                        char* parenthesis;
+
+                        parenthesis = strstr(candidate, "(");
+                        if(parenthesis) {
+                            len_candidate = parenthesis - candidate;
+                        }
+                        else {
+                            len_candidate = strlen(candidate);
+                        }
+
+                        parenthesis = strstr(candidate_before, "(");
+                        if(parenthesis) {
+                            len_candidate_before = parenthesis - candidate_before;
+                        }
+                        else {
+                            len_candidate_before = strlen(candidate_before);
+                        }
+
+
+                        if(len_candidate < len_candidate_before) {
+                            len = len_candidate;
+                        }
+                        else {
+                            len = len_candidate_before;
+                        }
+
+                        same_len2 = len;
+
+                        for(i=0; i<len; i++) {
+                            if(candidate[i] != candidate_before[i]) {
+                                same_len2 = i;
+                                break;
+                            }
+                        }
+
+                        if(same_len == -1 || same_len2 < same_len) {
+                            same_len = same_len2;
+                        }
+                    }
+                    
+                    candidate_before = *p2;
+                    p2++;
+                }
+
+                candidate = *candidates2;
+
+                if(same_len > 0) {
+                    char* appended_chars;
+                    int len_candidate;
+                    int len_text;
+
+                    len_candidate = strlen(candidate);
+                    len_text = strlen(text2);
+
+                    if(same_len - len_text == 0) {
+                        display_candidates(candidates2);
+                        rl_forced_update_display();
+                    }
+                    else {
+                        appended_chars = MCALLOC(1, same_len-len_text+2);
+                        memcpy(appended_chars, candidate+len_text, same_len-len_text);
+                        appended_chars[same_len-len_text] = 0;
+
+                        rl_insert_text(appended_chars);
+
+                        MFREE(appended_chars);
+                    }
+                }
+                else if(same_len == 0) {
+                    display_candidates(candidates2);
+                    rl_forced_update_display();
+                }
+            }
+
+            MFREE(candidates2);
+
+            for(j=0; j<gNumCandidates; j++) {
+                MFREE(gCandidates[j]);
+            }
+            MFREE(gCandidates);
         }
-        MFREE(gCandidates);
     }
 
     MFREE(text2);

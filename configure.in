@@ -227,9 +227,6 @@ AC_HAVE_LIBRARY(pcre, [ LIBS="$LIBS -lpcre"; ], [ eixt ])
 
 AC_HAVE_LIBRARY(rt, [ LIBS="$LIBS -lrt"; ], [])
 
-AC_CHECK_HEADER(gc.h, [AC_DEFINE(HAVE_GC_H,1)], [])
-AC_HAVE_LIBRARY(gc, [ LIBS="$LIBS -lgc"; ], [exit])
-
 AC_SUBST(LIBS)
 
 if which clang > /dev/null

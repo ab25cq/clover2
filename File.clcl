@@ -88,6 +88,12 @@ class System
 
     EOF: static int;
 
+    stdin: static pointer@FILE;
+    stdout: static pointer@FILE;
+    stderr: static pointer@FILE;
+
+    BUFSIZ: static int;
+
     def initialize_file_system(): static native;
 
     def initialize(): static {
@@ -146,7 +152,10 @@ class System
     def fread(buf:Buffer, size:size_t, stream:pointer@FILE): static native size_t throws Exception;
     def feof(stream: pointer@FILE): static native bool;
     
-    def fgetc(stream:pointer@FILE): native static int;
+    def fgetc(stream:pointer@FILE): native static int throws Exception;
+    def fgets(buf:Buffer, size:int, stream:pointer@FILE): native static pointer@pchar throws Exception;
+    def getchar(): native static int throws Exception;
+    def ungetc(c:int, stream:pointer@FILE): native static int throws Exception;
 
     def put_fun_to_hash_for_native_method(path:String, fun_name:String, native_method:pointer): static native;
 }

@@ -221,7 +221,9 @@ static sNativeMethod gNativeMethods[] = {
     { "System.fread(Buffer,ulong,pointer)", "System_fread", System_fread },
     { "System.feof(pointer)", "System_feof", System_feof },
     { "System.fgetc(pointer)", "System_fgetc", System_fgetc },
-    
+    { "System.fgets(Buffer,int,pointer)", "System_fgets", System_fgets },
+    { "System.getchar()", "System_getchar", System_getchar },
+    { "System.ungetc(int,pointer)", "System_ungetc", System_ungetc },
 
     { "", "", 0 }  // sentinel
 };

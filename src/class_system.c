@@ -1248,7 +1248,13 @@ BOOL System_initialize_file_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* 
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+70].mValue.mPointerValue = RTLD_NEXT;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+71].mValue.mIntValue = EOF;
 
-#define LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM (LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+72)
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+72].mValue.mPointerValue = (char*)stdin;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+73].mValue.mPointerValue = (char*)stdout;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+74].mValue.mPointerValue = (char*)stderr;
+
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+75].mValue.mIntValue = BUFSIZ;
+
+#define LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM (LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+76)
 
     return TRUE;
 }
@@ -3785,7 +3791,105 @@ BOOL System_fgetc(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     FILE* stream_value = (FILE*)stream->mPointerValue;
 
     /// go ///
+    errno = 0;
     int result = fgetc(stream_value);
+    
+    if(errno != 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "fgetc(3) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_fgets(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* buf = lvar;
+    CLVALUE* size = lvar + 1;
+    CLVALUE* stream = lvar + 2;
+
+    /// Clover to c value ///
+    if(buf->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+    if(stream->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    /// Clover to C lang ///
+    char* buf_value = (char*)get_pointer_from_buffer_object(buf->mObjectValue);
+    int buffer_size = get_size_from_buffer_object(buf->mObjectValue);
+
+    int size_value = (int)size->mIntValue;
+    FILE* stream_value = (FILE*)stream->mPointerValue;
+
+    /// check size ///
+    if(size_value >= buffer_size) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Buffer size is smaller than the size value of argument");
+        return FALSE;
+    }
+
+    /// go ///
+    errno = 0;
+    char* result = fgets(buf_value, size_value, stream_value);
+
+    if(errno != 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "fgets(3) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    sCLObject* obj_data = CLOBJECT(buf->mObjectValue);
+    obj_data->mFields[1].mULongValue = strlen(result);                // len
+
+    (*stack_ptr)->mPointerValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_getchar(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    /// go ///
+    errno = 0;
+    int result = getchar();
+    
+    if(errno != 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "getchar(3) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_ungetc(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* c = lvar;
+    CLVALUE* stream = lvar + 1;
+
+    /// Clover to c value ///
+    if(stream->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    int c_value = c->mIntValue;
+    FILE* stream_value = (FILE*)stream->mPointerValue;
+
+    /// go ///
+    int result = ungetc(c_value, stream_value);
+    
+    if(result == EOF) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "ungetc(3) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
 
     (*stack_ptr)->mIntValue = result;
     (*stack_ptr)++;

@@ -1,3 +1,8 @@
+
+clover2 (3.6.2-1) unstable; urgency=medium
+
+   * I added System.fgets, System.stdout, System.stdin, System.stderr to Clover2 lang.
+
 clover2 (3.6.1-1) unstable; urgency=medium
 
    * The right side value of the operator of the pointer is okay if it is not ulong. a: = 1; b: = & a; b + = 4 works.

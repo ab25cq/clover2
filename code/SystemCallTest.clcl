@@ -14,13 +14,42 @@ class SystemCallTest
         
         Clover.test("sys call test2", buf.equals(b"ABC"));
 
-
         c := new ULong(123);
 
-        Clover.test("sys call test4", c == 123);
+        Clover.test("sys call test3", c == 123);
 
         d := new Float(123);
 
-        Clover.test("sys call test5", d == 123.0f);
+        Clover.test("sys call test4", d == 123.0f);
+
+        e := System.fopen("sys.txt", "r");
+
+        h := new Buffer(120);
+
+        System.fgets(h, 30, e)
+
+        System.fclose(e);
+
+        Clover.test("system call test5", h.toString().equals("ABC"));
+
+        e = System.fopen("sys.txt", "r");
+
+        i := System.fgetc(e);
+
+        System.fclose(e);
+
+        Clover.test("system call test6", i.to_char == 'A');
+
+        e = System.fopen("sys.txt", "r");
+
+        i = System.fgetc(e);
+
+        System.ungetc(i, e);
+
+        i = System.fgetc(e);
+
+        Clover.test("system call test7", i.to_char == 'A');
+
+        System.fclose(e);
     }
 }

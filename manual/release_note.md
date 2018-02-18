@@ -1,5 +1,11 @@
 English page is here [>> English page](release_note-en)
 
+version 3.6.2
+
+    Systemクラスのクラス名を省略できるようになりました。
+
+    各種システムコールの追加
+
 version 3.6.1
     
     ポインタの演算子の右辺値はulongじゃなくても大丈夫になりました。a := 1; b := &a; b += 4は動きます。

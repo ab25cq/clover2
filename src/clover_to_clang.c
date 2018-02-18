@@ -1,4 +1,4 @@
-#include "common.h"
+ #include "common.h"
 #include <wchar.h>
 
 ALLOC wchar_t* string_object_to_wchar_array(CLObject string_object)

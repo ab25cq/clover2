@@ -6,6 +6,7 @@ The following pages have explanations of main classes and methods.
 * [String class](string-en)
 * [Anonymouse class](anonymous-en)
 * [Global class](global-en)
+* [System class](system-en)
 * [Command class](command-en)
 * [pointer class](pointer-en)
 * [lambda class](lambda-en)

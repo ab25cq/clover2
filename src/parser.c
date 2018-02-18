@@ -3786,8 +3786,10 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             }
 
             sCLClass* global_klass = get_class("Global");
+            sCLClass* system_klass = get_class("System");
 
             MASSERT(global_klass != NULL);
+            MASSERT(system_klass != NULL);
 
             /// クラス名だった ///
             if(klass) {
@@ -3877,7 +3879,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 }
             }
             /// グローバルクラスのメソッド？ ///
-            else if(method_name_existance(global_klass, buf))
+            else if(method_name_existance(global_klass, buf) && *info->p == '(')
             {
                 skip_spaces_and_lf(info);
 
@@ -3894,6 +3896,31 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 global_klass_type->mNumGenericsTypes = 0;
 
                 *node = sNodeTree_create_class_method_call(global_klass_type, buf, params, num_params, info);
+                max_method_chains_node[num_method_chains] = *node;
+                num_method_chains++;
+                if(num_method_chains >= METHOD_CHAIN_MAX) {
+                    parser_err_msg(info, "overflow method chain");
+                    return FALSE;
+                }
+            }
+            /// is Sytem Class method ? ///
+            else if(method_name_existance(system_klass, buf) && *info->p == '(')
+            {
+                skip_spaces_and_lf(info);
+
+                unsigned int params[PARAMS_MAX];
+                int num_params = 0;
+
+                if(!parse_method_params(&num_params, params, info)) {
+                    return FALSE;
+                }
+
+                sNodeType* system_klass_type = alloc_node_type();
+
+                system_klass_type->mClass = system_klass;
+                system_klass_type->mNumGenericsTypes = 0;
+
+                *node = sNodeTree_create_class_method_call(system_klass_type, buf, params, num_params, info);
                 max_method_chains_node[num_method_chains] = *node;
                 num_method_chains++;
                 if(num_method_chains >= METHOD_CHAIN_MAX) {

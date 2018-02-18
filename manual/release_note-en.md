@@ -1,4 +1,10 @@
 
+version 3.6.2
+
+    The class name of System class can be omitted.
+
+    Addition of various system calls
+
 version 3.6.1
 
     The right side value of the operator of the pointer is okay if it is not ulong. a: = 1; b: = & a; b + = 4 works.
