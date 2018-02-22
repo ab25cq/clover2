@@ -225,6 +225,7 @@ static sNativeMethod gNativeMethods[] = {
     { "System.getchar()", "System_getchar", System_getchar },
     { "System.ungetc(int,pointer)", "System_ungetc", System_ungetc },
     { "System.getcwd()", "System_getcwd", System_getcwd },
+    { "Clover.initialize_lang()", "Clover_initialize_lang", Clover_initialize_lang },
 
     { "", "", 0 }  // sentinel
 };

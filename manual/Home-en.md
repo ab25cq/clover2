@@ -131,25 +131,6 @@ In Debian you can install by package. You can create packages with make_deb.sh. 
 Packaging is done, so we are looking for a Debian developer who can register the package.
 Someone please do m(_ _)m
 
-- Installation by package
-
-Debian 9 (64 bit)
-Create a new file with /etc/apt/sources.list.d/. For example, clover-lang.org.list. inside that
-```
-    deb http://clover-lang.org/debian9/ ./
-    deb-src http://clover-lang.org/debian9/ ./
-```
-Write. Then apt-get update and install apt-get install clover2.
-
-Ubuntu 16 (64 bit)
-Create a new file with /etc/apt/sources.list.d/. For example, clover-lang.org.list. inside that
-```
-    deb http://clover-lang.org/ubuntu16/ ./
-    deb-src http://clover-lang.org/ubuntu16/ ./
-```
-Write. Then apt-get update and install apt-get install clover2.
-
-
 ----
 
 [>> How to use](usage-en)

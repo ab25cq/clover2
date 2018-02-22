@@ -4427,7 +4427,9 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                         compile_err_msg(info, "method not found(5)");
                         info->err_num++;
 
-                        err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
+                        if(!exist_lazy_lamda_compile) {
+                            err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
+                        }
 
                         info->type = create_node_type_with_class_name("int"); // dummy
 
@@ -4461,6 +4463,29 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
     return TRUE;
 }
 
+void boxing_before_method_call(char* method_name, sCompileInfo* info)
+{
+    /// Do boxing if the class of left object is primitive ///
+    if(info->type->mArray) {
+        if(strcmp(method_name, "identifyWith") == 0) {
+        }
+        else if(strcmp(method_name, "className") == 0) {
+        }
+        else if(strcmp(method_name, "toNull") == 0) {
+        }
+        else if(strcmp(method_name, "ID") == 0) {
+        }
+        else if(strcmp(method_name, "toAnonymous") == 0) {
+        }
+        else {
+            boxing_to_lapper_class(&info->type, info);
+        }
+    }
+    else if(info->type->mClass->mFlags & CLASS_FLAGS_PRIMITIVE) {
+        boxing_to_lapper_class(&info->type, info);
+    }
+}
+
 static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
 {
     /// compile left node ///
@@ -4484,10 +4509,11 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
     int num_method_chains = gNodes[node].uValue.sMethodCall.mNumMethodChains;
     int max_method_chains = gNodes[node].mMaxMethodChains;
 
+    char method_name[METHOD_NAME_MAX];
+    xstrncpy(method_name, gNodes[node].uValue.sMethodCall.mMethodName, METHOD_NAME_MAX);
+
     /// Do boxing if the class of left object is primitive ///
-    if(info->type->mClass->mFlags & CLASS_FLAGS_PRIMITIVE) {
-        boxing_to_lapper_class(&info->type, info);
-    }
+    boxing_before_method_call(method_name, info);
 
     if(info->type->mClass->mFlags & CLASS_FLAGS_PRIMITIVE) {
         compile_err_msg(info, "Primitive class can't be called to method");
@@ -4519,8 +4545,6 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
     sNodeType* param_types[PARAMS_MAX];
 
     int num_params = gNodes[node].uValue.sMethodCall.mNumParams;
-    char method_name[METHOD_NAME_MAX];
-    xstrncpy(method_name, gNodes[node].uValue.sMethodCall.mMethodName, METHOD_NAME_MAX);
     unsigned int params[PARAMS_MAX];
 
     memcpy(params, gNodes[node].uValue.sMethodCall.mParams, sizeof(unsigned int)*PARAMS_MAX);

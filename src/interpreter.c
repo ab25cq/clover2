@@ -1458,33 +1458,20 @@ static int my_complete_internal(int count, int key)
 
         /// normal method ///
         if(klass == NULL) {
-            char* p = rl_line_buffer + rl_point;
-
-            while(p > rl_line_buffer) {
-                if(*p == '(') {
-                    p++;
-                    break;
-                }
-                else {
-                    p--;
-                }
-            }
-
-            char* line2 = MCALLOC(1, sizeof(char)*(rl_point+1));
-            memcpy(line2, p, rl_point-(p-rl_line_buffer));
-            line2[rl_point-(p-rl_line_buffer)] = '\0';
-
             /// get type ///
             sNodeType* type_ = NULL;
             sVarTable* result_lv_table;
             sVarTable* tmp_lv_table = clone_var_table(gLVTable);
-            (void)get_type(line2, "iclover2", tmp_lv_table, gStack, &type_, &result_lv_table);
+            (void)get_type(line, "iclover2", tmp_lv_table, gStack, &type_, &result_lv_table);
 
             if(type_) {
                 klass = type_->mClass;
 
                 if(klass->mFlags & CLASS_FLAGS_PRIMITIVE) {
                     klass = klass->mBoxingClass;
+                }
+                else if(type_->mArray) {
+                    klass = get_class("Array");
                 }
 
                 if(klass) {
@@ -1502,8 +1489,6 @@ static int my_complete_internal(int count, int key)
                     }
                 }
             }
-
-            MFREE(line2);
         }
         /// class method ///
         else {
@@ -2102,6 +2087,10 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
                 }
             }
             else {
+                boxing_before_method_call("toString", &cinfo);
+
+                klass = cinfo.type->mClass;
+
                 sNodeType* result_type = NULL;
                 sNodeType* result_method_generics_types = NULL;
                 int method_index = search_for_method(klass, "toString", NULL, 0, FALSE, klass->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, FALSE, &result_method_generics_types);
@@ -2234,6 +2223,10 @@ static void compiler_final()
     free_nodes();
 }
 
+int gARGC;
+char** gARGV;
+char* gVersion = "3.6.4";
+
 int main(int argc, char** argv)
 {
     CHECKML_BEGIN;
@@ -2242,6 +2235,9 @@ int main(int argc, char** argv)
     srandom((unsigned)time(NULL));
 
     setsid();
+
+    gARGC = argc;
+    gARGV = argv;
 
     set_signal_for_interpreter();
 

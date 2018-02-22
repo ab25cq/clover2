@@ -1,4 +1,20 @@
 
+version 3.6.4
+
+    プリミティブ型じゃない配列に対するメソッドコールのバグを修正。
+
+    REPLの補完のバグを修正。
+
+    Clover.ARGV, ARGC, VERSIONを追加。
+
+version 3.6.4
+
+    Fixed a bug in method calls for arrays that are not primitive types.
+
+    Fixed REPL complementary bug.
+
+    Added Clover.ARGV and ARGC, VERSION.
+
 version 3.6.3
 
     System.mbstowcs, System.wcstombsのAPIの変更。詳しくはString.clclを見てください。

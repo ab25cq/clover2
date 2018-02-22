@@ -37,12 +37,19 @@ static void set_signal()
     sigprocmask(SIG_BLOCK, &signal_set, NULL);
 }
 
+int gARGC;
+char** gARGV;
+char* gVersion = "3.6.4";
+
 int main(int argc, char** argv, char* const * envp)
 {
     int i;
 
     CHECKML_BEGIN;
     setlocale(LC_ALL, "");
+
+    gARGC = argc;
+    gARGV = argv;
 
     set_signal();
 
@@ -53,7 +60,7 @@ int main(int argc, char** argv, char* const * envp)
             continue;
         }
         else if(strcmp(argv[i], "-version") == 0 || strcmp(argv[i], "--version") == 0) {
-            printf("clover2 version 3.6.3\n");
+            printf("clover2 version %s\n", gVersion);
             exit(0);
         }
 

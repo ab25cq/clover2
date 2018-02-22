@@ -141,32 +141,6 @@ Debianではパッケージによるインストールができます。. make_d
 パッケージングはできているので、パッケージを登録してもらえるDebianの開発者募集中です。
 どなたかよろしくお願いしますm(_ _)m
 
-## パッケージによるインストール
-
-- Debian9(64bit)
-
-/etc/apt/sources.list.d/で新規ファイルを作る。clover-lang.org.listなどとする。
-その中で
-```
-    deb http://clover-lang.org/debian9/ ./
-    deb-src http://clover-lang.org/debian9/ ./
-```
-と書く。
-その後、apt-get updateしてapt-get install clover2とすればインストールされます。
-
-- ubuntu16(64bit)
-
-/etc/apt/sources.list.d/で新規ファイルを作る。clover-lang.org.listなどとする。
-その中で
-```
-    deb http://clover-lang.org/ubuntu16/ ./
-    deb-src http://clover-lang.org/ubuntu16/ ./
-```
-と書く。
-その後、apt-get updateしてapt-get install clover2とすればインストールされます。
-
-
-
 ----
 
 [>> 次 使い方](usage)

@@ -7,6 +7,7 @@ The following pages have explanations of main classes and methods.
 * [Anonymouse class](anonymous-en)
 * [Global class](global-en)
 * [System class](system-en)
+* [Clover class](clover-en)
 * [Command class](command-en)
 * [pointer class](pointer-en)
 * [lambda class](lambda-en)

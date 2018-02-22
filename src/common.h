@@ -799,6 +799,7 @@ BOOL compile(unsigned int node, sCompileInfo* info);
 void append_class_name_to_constant_pool_and_code(sCompileInfo* info, sCLClass* klass);
 void create_type_name_from_node_type(char* type_name, int type_name_max, sNodeType* node_type);
 int get_var_size(sNodeType* var_type);
+void boxing_before_method_call(char* method_name, sCompileInfo* info);
 
 unsigned int sNodeTree_create_operand(enum eOperand operand, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
 unsigned int sNodeTree_when_expression(unsigned int expression_node, unsigned int value_nodes[WHEN_BLOCK_MAX][WHEN_BLOCK_MAX], int num_values[WHEN_BLOCK_MAX], sNodeBlock* when_blocks[WHEN_BLOCK_MAX], int num_when_block, sNodeBlock* else_block, sNodeType* when_types[WHEN_BLOCK_MAX], sNodeType* when_types2[WHEN_BLOCK_MAX], sParserInfo* info);
@@ -2182,6 +2183,7 @@ int utf32_index_to_utf8_index(char* str, int utf32index);
 
 /// class_clover.c ///
 BOOL Clover_load(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL Clover_initialize_lang(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 /// jit.cpp ///
 BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sCLMethod* method, sVMInfo* info, CLVALUE** stack_ptr);
@@ -2204,6 +2206,11 @@ void push_jit_object(CLObject obj);
 
 /// class_parser.c ///
 BOOL CLParser_initialize(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+
+/// main.c ///
+extern int gARGC;
+extern char** gARGV;
+extern char* gVersion;
 
 #endif
 

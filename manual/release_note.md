@@ -1,5 +1,13 @@
 English page is here [>> English page](release_note-en)
 
+version 3.6.4
+
+    プリミティブ型じゃない配列に対するメソッドコールのバグを修正。
+
+    REPLの補完のバグを修正。
+
+    Clover.ARGV, ARGC, VERSIONを追加。
+
 version 3.6.3
 
     System.mbstowcs, System.wcstombsのAPIの変更。詳しくはString.clclを見てください。

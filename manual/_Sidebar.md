@@ -70,6 +70,7 @@
 * [アノニマウスクラス](anonymous)
 * [グローバルクラス](global)
 * [システムクラス](system)
+* [クローバークラス](clover)
 * [コマンドクラス](command)
 * [pointerクラス](pointer)
 * [lambdaクラス](lambda)

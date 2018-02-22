@@ -202,7 +202,14 @@ interface Object
 
 class Clover
 {
+    ARGC:static int;
+    ARGV:static String[];
+    VERSION:static String;
+
+    def initialize_lang(): static native;
+
     def initialize():static {
+        Clover.initialize_lang();
         System.srand(System.time().to_uint);
     }
 

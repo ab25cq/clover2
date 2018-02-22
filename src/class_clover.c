@@ -25,3 +25,34 @@ BOOL Clover_load(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     return TRUE;
 }
+
+BOOL Clover_initialize_lang(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    sCLClass* clover = get_class("Clover");
+
+    clover->mClassFields[0].mValue.mIntValue = gARGC;
+
+    sCLClass* string_class = get_class("String");
+
+    CLObject array = create_array_object(string_class, gARGC);
+
+    CLVALUE value;
+    value.mObjectValue = array;
+    push_value_to_global_stack(value);
+
+    int i;
+    for(i=0; i<gARGC; i++) {
+        CLObject obj = create_string_object(gARGV[i]);
+
+        sCLObject* object_data = CLOBJECT(array);
+
+        object_data->mFields[i].mObjectValue = obj;
+    }
+
+    clover->mClassFields[1].mValue.mObjectValue = array;
+    clover->mClassFields[2].mValue.mObjectValue = create_string_object(gVersion);
+
+    pop_global_stack();
+
+    return TRUE;
+}

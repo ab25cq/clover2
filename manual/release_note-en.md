@@ -1,4 +1,12 @@
 
+version 3.6.4
+
+    Fixed a bug in method calls for arrays that are not primitive types.
+
+    Fixed REPL complementary bug.
+
+    Added Clover.ARGV and ARGC, VERSION.
+
 version 3.6.3
 
     System.mbstowcs, System.wcstombs API changes. See String.clcl for details.
