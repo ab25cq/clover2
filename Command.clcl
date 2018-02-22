@@ -219,13 +219,13 @@ class System
 
     def tcsetpgrp(fd:int, pid:pid_t): static native int throws Exception;
 
-    def tcgetattr(fd:int, terminfo:termios): static native throws Exception;
+    def tcgetattr(fd:int): static native termios throws Exception;
     def tcsetattr(fd:int, optional_actions:int, terminfo:termios): static native throws Exception;
     def tcsendbreak(fd:int, duration:int): static native throws Exception;
     def tcdrain(fd:int): static native throws Exception;
     def tcflush(fd:int, queue_selector:int): static native throws Exception;
     def tcflow(fd:int, action:int): static native throws Exception;
-    def cfmakeraw(terminfo:termios): static native;
+    def cfmakeraw(): static native termios;
     def cfgetispeed(terminfo:termios): static native speed_t;
     def cfgetospeed(terminfo:termios): static native speed_t;
     def cfsetispeed(terminfo:termios, speed:speed_t): static native throws Exception;
@@ -277,8 +277,7 @@ class Job
         return true;
     }
     def forground() {
-        terminfo:termios = new termios();
-        System.tcgetattr(0, terminfo);
+        terminfo := System.tcgetattr(0);
 
         System.tcsetattr(0, System.TCSANOW, self.terminfo);
         System.tcsetpgrp(0, self.pgrp);
@@ -291,8 +290,7 @@ class Job
         if(System.WIFSTOPPED(status)) {
             rcode:int = System.WSTOPSIG(status) +128;
 
-            terminfo2:termios = new termios();
-            System.tcgetattr(0, terminfo2);
+            terminfo2 := System.tcgetattr(0);
 
             self.terminfo = terminfo2;
 
@@ -892,8 +890,7 @@ dynamic_class Command
             rcode:int = System.WSTOPSIG(status) +128;
             title:String = method_name;
 
-            terminfo:termios = new termios();
-            System.tcgetattr(0, terminfo);
+            terminfo := System.tcgetattr(0);
 
             job:Job = new Job(title, pid, terminfo);
 
@@ -967,8 +964,7 @@ dynamic_class Command
             rcode:int = System.WSTOPSIG(status) +128;
             title:String = method_name;
 
-            terminfo:termios = new termios();
-            System.tcgetattr(0, terminfo);
+            terminfo := System.tcgetattr(0);
 
             job:Job = new Job(title, pid, terminfo);
 

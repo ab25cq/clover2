@@ -1,5 +1,13 @@
 English page is here [>> English page](release_note-en)
 
+version 3.6.3
+
+    System.mbstowcs, System.wcstombsのAPIの変更。詳しくはString.clclを見てください。
+
+    System.tcgetatter, System.cfmakerawのAPIの変更。詳しくはCommand.clclを見てください。
+
+    REPLの補完のバグを修正。
+
 version 3.6.2
 
     Systemクラスのクラス名を省略できるようになりました。

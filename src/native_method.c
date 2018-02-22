@@ -119,8 +119,8 @@ static sNativeMethod gNativeMethods[] = {
     { "System.sleep(int)", "System_sleep", System_sleep },
     { "System.pcre_exec(regex,Buffer,int,int,PcreOVec)", "System_pcre_exec", System_pcre_exec },
     { "System.sprintf(String,Array)", "System_sprintf", System_sprintf },
-    { "System.mbstowcs(pointer,pointer,ulong)", "System_mbstowcs", System_mbstowcs },
-    { "System.wcstombs(pointer,char[])", "System_wcstombs", System_wcstombs },
+    { "System.mbstowcs(pointer,ulong)", "System_mbstowcs", System_mbstowcs },
+    { "System.wcstombs(char[])", "System_wcstombs", System_wcstombs },
     { "System.atoi(String)", "System_atoi", System_atoi },
     { "System.atof(String)", "System_atof", System_atof },
     { "System.strtod(String)", "System_strtod", System_strtod },
@@ -166,7 +166,7 @@ static sNativeMethod gNativeMethods[] = {
     { "System.setpgid(int,int)", "System_setpgid", System_setpgid },
     { "System.kill(int,int)", "System_kill", System_kill },
     { "System.tcsetpgrp(int,int)", "System_tcsetpgrp", System_tcsetpgrp },
-    { "System.tcgetattr(int,termios)", "System_tcgetattr", System_tcgetattr },
+    { "System.tcgetattr(int)", "System_tcgetattr", System_tcgetattr },
     { "System.tcsetattr(int,int,termios)", "System_tcsetattr", System_tcsetattr },
     { "System.tcflow(int,int)", "System_tcflow", System_tcflow },
     { "System.tcflush(int,int)", "System_tcflush", System_tcflush },
@@ -224,6 +224,7 @@ static sNativeMethod gNativeMethods[] = {
     { "System.fgets(Buffer,int,pointer)", "System_fgets", System_fgets },
     { "System.getchar()", "System_getchar", System_getchar },
     { "System.ungetc(int,pointer)", "System_ungetc", System_ungetc },
+    { "System.getcwd()", "System_getcwd", System_getcwd },
 
     { "", "", 0 }  // sentinel
 };

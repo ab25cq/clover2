@@ -693,15 +693,13 @@ BOOL System_sprintf(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
 BOOL System_mbstowcs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
-    CLVALUE* dest = lvar;
-    CLVALUE* src = lvar+1;
-    CLVALUE* size = lvar+2;
+    CLVALUE* src = lvar;
+    CLVALUE* size = lvar+1;
 
     /// clover variable to c variable ///
     char* src_value = src->mPointerValue;
     size_t size_value = size->mULongValue;
     wchar_t* wcs = MCALLOC(1, sizeof(wchar_t)*(size_value+1));
-    CLVALUE* dest_value = (CLVALUE*)dest->mPointerValue;
 
     char* src_value2 = MCALLOC(1, size_value+1);
 
@@ -709,7 +707,7 @@ BOOL System_mbstowcs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     src_value2[size_value] = '\0';
 
     /// go ///
-    int size_wcs = mbstowcs(wcs, src_value2, size_value+16);
+    int size_wcs = mbstowcs(wcs, src_value2, size_value);
 
     MFREE(src_value2);
 
@@ -733,11 +731,9 @@ BOOL System_mbstowcs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     }
     object_data->mFields[i].mCharValue = '\0';
 
-    dest_value->mObjectValue = object;
-
     MFREE(wcs);
 
-    (*stack_ptr)->mIntValue = size_wcs;
+    (*stack_ptr)->mObjectValue = object;
     (*stack_ptr)++;
 
     return TRUE;
@@ -745,8 +741,7 @@ BOOL System_mbstowcs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
 BOOL System_wcstombs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
-    CLVALUE* dest = lvar;
-    CLVALUE* src = lvar+1;
+    CLVALUE* src = lvar;
 
     if(src->mObjectValue == 0) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
@@ -754,7 +749,6 @@ BOOL System_wcstombs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     }
 
     /// clover variable to c variable ///
-    CLVALUE* dest_value = (CLVALUE*)dest->mPointerValue;
     CLObject src_value = src->mObjectValue;
 
     sCLObject* object_data = CLOBJECT(src_value);
@@ -768,15 +762,11 @@ BOOL System_wcstombs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     for(i=0; i<len; i++) {
         wcs[i] = object_data->mFields[i].mCharValue;
     }
-    BOOL null_terminated = FALSE;
-    if(len > 0 && wcs[len-1] == '\0') {
-        null_terminated = TRUE;
-    }
 
     /// go ///
-    int num = wcstombs(mbs, wcs, size);
+    int result = wcstombs(mbs, wcs, size);
 
-    if(num < 0) {
+    if(result < 0) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "wcstombs returns -1");
         MFREE(wcs);
         MFREE(mbs);
@@ -789,30 +779,18 @@ BOOL System_wcstombs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     MASSERT(klass != NULL);
 
     CLObject object;
-    if(null_terminated) {
-        object = create_array_object(klass, num+1);
-        sCLObject* object_data2 = CLOBJECT(object);
+    object = create_array_object(klass, result+1);
+    sCLObject* object_data2 = CLOBJECT(object);
 
-        for(i=0; i<num; i++) {
-            object_data2->mFields[i].mByteValue = mbs[i];
-        }
-        object_data2->mFields[i].mByteValue = '\0';
+    for(i=0; i<result; i++) {
+        object_data2->mFields[i].mByteValue = mbs[i];
     }
-    else {
-        object = create_array_object(klass, num);
-        sCLObject* object_data2 = CLOBJECT(object);
-
-        for(i=0; i<num; i++) {
-            object_data2->mFields[i].mByteValue = mbs[i];
-        }
-    }
-
-    dest_value->mObjectValue = object;
+    object_data2->mFields[i].mByteValue = '\0';
 
     MFREE(wcs);
     MFREE(mbs);
 
-    (*stack_ptr)->mIntValue = num;
+    (*stack_ptr)->mObjectValue = object;
     (*stack_ptr)++;
 
     return TRUE;
@@ -1254,7 +1232,9 @@ BOOL System_initialize_file_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* 
 
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+75].mValue.mIntValue = BUFSIZ;
 
-#define LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM (LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+76)
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+76].mValue.mIntValue = PATH_MAX;
+
+#define LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM (LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+77)
 
     return TRUE;
 }
@@ -1276,7 +1256,7 @@ BOOL System_read(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     void* buf_value = get_pointer_from_buffer_object(buf->mObjectValue);
     size_t size_value = (size_t)size->mULongValue;
 
-    int buffer_size = get_size_from_buffer_object(buf->mObjectValue);
+    size_t buffer_size = get_size_from_buffer_object(buf->mObjectValue);
 
     /// check size ///
     if(size_value > buffer_size) {
@@ -1318,7 +1298,7 @@ BOOL System_write(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     void* buf_value = get_pointer_from_buffer_object(buf->mObjectValue);
     size_t size_value = (size_t)size->mULongValue;
 
-    int buffer_size = get_size_from_buffer_object(buf->mObjectValue);
+    size_t buffer_size = get_size_from_buffer_object(buf->mObjectValue);
 
     /// check size ///
     if(size_value > buffer_size) {
@@ -2310,16 +2290,18 @@ BOOL System_tcsetpgrp(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 BOOL System_tcgetattr(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* fd = lvar;
-    CLVALUE* terminfo = lvar + 1;
-
-    if(terminfo->mObjectValue == 0) {
-        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
-        return FALSE;
-    }
 
     /// Clover to C value ///
     int fd_value = fd->mIntValue;
-    CLObject terminfo_object = terminfo->mObjectValue;
+
+    sCLClass* termios_class = get_class_with_load_and_initialize("termios");
+
+    if(termios_class == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "class not found");
+        return FALSE;
+    }
+
+    CLObject terminfo_object = create_object(termios_class, "termios");
 
     /// go ///
     struct termios terminfo_value;
@@ -2332,6 +2314,9 @@ BOOL System_tcgetattr(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     /// C to Clover object ///
     c_termios_to_clover_termios(&terminfo_value, terminfo_object);
+
+    (*stack_ptr)->mObjectValue = terminfo_object;
+    (*stack_ptr)++;
 
     return TRUE;
 }
@@ -2446,20 +2431,25 @@ BOOL System_tcflow(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
 BOOL System_cfmakeraw(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
-    CLVALUE* terminfo = lvar;
+    /// Clover to C value ///
+    sCLClass* termios_class = get_class_with_load_and_initialize("termios");
 
-    if(terminfo->mObjectValue == 0) {
-        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+    if(termios_class == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "class not found");
         return FALSE;
     }
 
-    /// Clover to C value ///
-    CLObject terminfo_object = terminfo->mObjectValue;
-    struct termios terminfo_value;
-    clover_termios_to_c_termios(terminfo_object, &terminfo_value);
+    CLObject terminfo_object = create_object(termios_class, "termios");
 
     /// go ///
+    struct termios terminfo_value;
     cfmakeraw(&terminfo_value);
+
+    /// C to Clover object ///
+    c_termios_to_clover_termios(&terminfo_value, terminfo_object);
+
+    (*stack_ptr)->mObjectValue = terminfo_object;
+    (*stack_ptr)++;
 
     return TRUE;
 }
@@ -2472,7 +2462,6 @@ BOOL System_cfgetispeed(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
         return FALSE;
     }
-
 
     /// Clover to C value ///
     CLObject terminfo_object = terminfo->mObjectValue;
@@ -3689,7 +3678,7 @@ BOOL System_fwrite(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     size_t size_value = (size_t)size->mULongValue;
     FILE* stream_value = (FILE*)stream->mPointerValue;
 
-    int buffer_size = get_size_from_buffer_object(buf->mObjectValue);
+    size_t buffer_size = get_size_from_buffer_object(buf->mObjectValue);
 
     /// check size ///
     if(size_value > buffer_size) {
@@ -3698,9 +3687,9 @@ BOOL System_fwrite(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     }
 
     /// go ///
-    ssize_t result = fwrite(buf_value, 1, size_value, stream_value);
+    size_t result = fwrite(buf_value, 1, size_value, stream_value);
 
-    if(result <= 0) {
+    if(result < size_value) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "fwrite(3) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
@@ -3730,7 +3719,7 @@ BOOL System_fread(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     void* buf_value = get_pointer_from_buffer_object(buf->mObjectValue);
     size_t size_value = (size_t)size->mULongValue;
 
-    int buffer_size = get_size_from_buffer_object(buf->mObjectValue);
+    size_t buffer_size = get_size_from_buffer_object(buf->mObjectValue);
     
     FILE* stream_value = (FILE*)stream->mPointerValue;
 
@@ -3823,7 +3812,7 @@ BOOL System_fgets(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     /// Clover to C lang ///
     char* buf_value = (char*)get_pointer_from_buffer_object(buf->mObjectValue);
-    int buffer_size = get_size_from_buffer_object(buf->mObjectValue);
+    size_t buffer_size = get_size_from_buffer_object(buf->mObjectValue);
 
     int size_value = (int)size->mIntValue;
     FILE* stream_value = (FILE*)stream->mPointerValue;
@@ -3892,6 +3881,25 @@ BOOL System_ungetc(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     }
 
     (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_getcwd(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    char buf[PATH_MAX];
+
+    char* result = getcwd(buf, PATH_MAX);
+    
+    if(result == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "getcwd(3) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    CLObject obj = create_buffer_object(buf, PATH_MAX);
+
+    (*stack_ptr)->mObjectValue = obj;
     (*stack_ptr)++;
 
     return TRUE;

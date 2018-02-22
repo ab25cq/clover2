@@ -1,4 +1,11 @@
 
+version 3.6.3
+
+    System.mbstowcs, System.wcstombs API changes. See String.clcl for details.
+    System.tcgetatter, System.cfmakeraw API change. See Command.clcl for details.
+
+    Fixed REPL complementary bug.
+
 version 3.6.2
 
     The class name of System class can be omitted.

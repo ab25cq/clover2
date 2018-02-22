@@ -1,4 +1,11 @@
 
+clover2 (3.6.3-1) unstable; urgency=medium
+
+    * System.mbstowcs, System.wcstombs API changes. See String.clcl for details.
+      System.tcgetatter, System.cfmakeraw API change. See Command.clcl for details.
+
+      Fixed REPL complementary bug.
+
 clover2 (3.6.2-1) unstable; urgency=medium
 
    * I added System.fgets, System.stdout, System.stdin, System.stderr to Clover2 lang.

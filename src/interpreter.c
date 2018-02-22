@@ -1135,9 +1135,6 @@ void get_system_method_names(char** candidates, int *num_candidates, int max_can
                 MFREE(buf.mBuf);
             }
         }
-
-
-
     }
 }
 
@@ -1335,6 +1332,7 @@ static int my_complete_internal(int count, int key)
         }
     }
 
+    /// class name completion ///
     if(!in_double_quote && !in_single_quote && class_name_completion) {
         int num_candidates = 0;
         int max_candidates = CLASS_NUM_MAX + 128;
@@ -1356,6 +1354,7 @@ static int my_complete_internal(int count, int key)
         gInputingMethod = TRUE;
         rl_completer_word_break_characters = "\t :<,";
     }
+    /// command line ///
     else if(!in_double_quote && !in_single_quote 
         && inputing_command_line) 
     {
@@ -1366,6 +1365,7 @@ static int my_complete_internal(int count, int key)
         gInputingCommandPath = TRUE;
         rl_completer_word_break_characters = "\t ";
     }
+    /// first word ///
     else if(expression_is_void) {
         rl_completion_entry_function = on_complete;
 
@@ -1458,9 +1458,21 @@ static int my_complete_internal(int count, int key)
 
         /// normal method ///
         if(klass == NULL) {
+            char* p = rl_line_buffer + rl_point;
+
+            while(p > rl_line_buffer) {
+                if(*p == '(') {
+                    p++;
+                    break;
+                }
+                else {
+                    p--;
+                }
+            }
+
             char* line2 = MCALLOC(1, sizeof(char)*(rl_point+1));
-            memcpy(line2, rl_line_buffer, rl_point);
-            line2[rl_point] = '\0';
+            memcpy(line2, p, rl_point-(p-rl_line_buffer));
+            line2[rl_point-(p-rl_line_buffer)] = '\0';
 
             /// get type ///
             sNodeType* type_ = NULL;
