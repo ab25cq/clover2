@@ -11,10 +11,9 @@ Then enjoy programing! <br>
 
 Minato Daini lives and lives in Kameoka City, Kyoto Prefecture born. Aizu University. Care Welfare. Born on February 21, 1978. Married.
 
-# blog
+# Development Dialy
 
-I write a development diary. <br>
-Link here → <a href="http://daisukeminato.hatenablog.jp"> Clover 2 Development Diary </a> <br>
+[Development Dialy](diary-en)
 
 ----
 

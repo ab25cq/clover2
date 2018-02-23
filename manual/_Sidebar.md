@@ -9,6 +9,7 @@
     * [コンパイル](Home#コンパイル)
 * [リリースノート](release_note)
 * [コントリビューション](contribution)
+* [開発日誌](diary)
 
 #### [使い方](usage) [→ usage English Page](usage-en)
 

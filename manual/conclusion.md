@@ -13,10 +13,9 @@ English page is here [>> English page](conclusion-en)
 
 湊 大典 京都府亀岡市在住 会津大学出身 介護福祉士 昭和53年2月21日生まれ 既婚。
 
-# ブログ
+# 開発日誌
 
-開発日誌書いてます。<br>
-リンクはこちら→ <a href="http://daisukeminato.hatenablog.jp">Clover2開発日誌</a><br>
+[開発日誌](diary)
 
 ----
 
