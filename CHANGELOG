@@ -1,4 +1,12 @@
 
+version 3.6.5
+
+    REPLの補完のバグを修正。
+
+version 3.6.5
+
+    Fixed REPL complementary bug.
+
 version 3.6.4
 
     プリミティブ型じゃない配列に対するメソッドコールのバグを修正。

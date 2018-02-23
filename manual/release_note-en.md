@@ -1,4 +1,8 @@
 
+version 3.6.5
+
+    Fixed REPL complementary bug.
+
 version 3.6.4
 
     Fixed a bug in method calls for arrays that are not primitive types.

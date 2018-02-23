@@ -1,5 +1,9 @@
 English page is here [>> English page](release_note-en)
 
+version 3.6.5
+
+    REPLの補完のバグを修正。
+
 version 3.6.4
 
     プリミティブ型じゃない配列に対するメソッドコールのバグを修正。

@@ -1213,14 +1213,14 @@ static int my_complete_internal(int count, int key)
     gCandidates = NULL;
     gNumCandidates = 0;
 
-    /// parse source ///
-    char* source = ALLOC line_buffer_from_head_to_cursor_point();
-    char* line = get_one_expression(source);
+    /// parse the line ///
+    char* line = ALLOC line_buffer_from_head_to_cursor_point();
+    char* exp = get_one_expression(line);
 
     /// in double quote or single quote ? ///
     BOOL in_double_quote = FALSE;
     BOOL in_single_quote = FALSE;
-    char* p = line;
+    char* p = exp;
 
     while(*p) {
         if(*p == '"') {
@@ -1242,9 +1242,9 @@ static int my_complete_internal(int count, int key)
         }
     }
 
-    /// Is Command line ///
+    /// Is Command line ? ///
     BOOL inputing_command_line = FALSE;
-    p = line;
+    p = exp;
     while(*p) {
         if(*p == ' ' || *p == '\t') {
             p++;
@@ -1290,7 +1290,7 @@ static int my_complete_internal(int count, int key)
     /// Is expression void ? ///
     BOOL expression_is_void = TRUE;
 
-    p = line;
+    p = exp;
     while(*p) {
         if(*p == ' ' || *p == '\t' || *p == '\n' || isalpha(*p) || *p == '(' || *p == '_') {
             p++;
@@ -1301,8 +1301,8 @@ static int my_complete_internal(int count, int key)
         }
     }
 
-    p = line + strlen(line) -1;
-    while(p >= line) {
+    p = exp + strlen(exp) -1;
+    while(p >= exp) {
         if(isalnum(*p) || *p == '_') {
             p--;
         }
@@ -1311,11 +1311,122 @@ static int my_complete_internal(int count, int key)
         }
     }
 
+    /// Is in the method block ? ///
+    BOOL in_the_method_block = FALSE;
+
+    p = line;
+    while(*p) {
+        if(*p == '"') {
+            p++;
+            while(*p) {
+                if(*p == '\\' && *p == '"') {
+                    p+=2;
+                }
+                else if(*p == '"') {
+                    p++;
+                    break;
+                }
+                else {
+                    p++;
+                }
+            }
+        }
+        else if(*p == '\'') {
+            p++;
+
+            if(*p == '\0') {
+            }
+            else if(*p == '\\') {
+                p++;
+
+                if(*p == '\0') {
+                }
+                else {
+                    p++;
+                }
+            }
+            else {
+                p++;
+            }
+
+            if(*p == '\'') {
+                p++;
+            }
+        }
+        else if(*p == '.' && (isalnum(*(p+1)) || *(p+1) == '_')) {
+            p++;
+
+            while(isalnum(*p) || *p == '_') {
+                p++;
+            }
+
+            while(*p == ' ' || *p == '\t' || *p == '\n') {
+                p++;
+            }
+
+            if(*p == '{') {
+                p++;
+                in_the_method_block = TRUE;
+
+                while(*p) {
+                    if(*p == '"') {
+                        p++;
+                        while(*p) {
+                            if(*p == '\\' && *p == '"') {
+                                p+=2;
+                            }
+                            else if(*p == '"') {
+                                p++;
+                                break;
+                            }
+                            else {
+                                p++;
+                            }
+                        }
+                    }
+                    else if(*p == '\'') {
+                        p++;
+
+                        if(*p == '\0') {
+                        }
+                        else if(*p == '\\') {
+                            p++;
+
+                            if(*p == '\0') {
+                            }
+                            else {
+                                p++;
+                            }
+                        }
+                        else {
+                            p++;
+                        }
+
+                        if(*p == '\'') {
+                            p++;
+                        }
+                    }
+                    else if(*p == '}') {
+                        p++;
+                        in_the_method_block = FALSE;
+                        break;
+                    }
+                    else {
+                        p++;
+                    }
+                }
+            }
+        }
+        else {
+            p++;
+        }
+    }
+
     /// is class name completion ? ///
     BOOL class_name_completion = FALSE;
 
-    p = source + strlen(source) -1;
-    while(p >= source) {
+    p = line + strlen(line) -1;
+    while(p >= line) {
         if(isalnum(*p) || *p == '_' || *p == ' ' || *p == '\t' || *p == ',') {
             p--;
         }
@@ -1355,12 +1466,10 @@ static int my_complete_internal(int count, int key)
         rl_completer_word_break_characters = "\t :<,";
     }
     /// command line ///
-    else if(!in_double_quote && !in_single_quote 
-        && inputing_command_line) 
-    {
+    else if(!in_double_quote && !in_single_quote && inputing_command_line) {
         rl_completion_entry_function = on_complete;
 
-        file_completion_command_line(line);
+        file_completion_command_line(exp);
 
         gInputingCommandPath = TRUE;
         rl_completer_word_break_characters = "\t ";
@@ -1419,7 +1528,7 @@ static int my_complete_internal(int count, int key)
         get_global_method_names(candidates, &num_candidates, max_candidates);
         get_system_method_names(candidates, &num_candidates, max_candidates);
         local_variable_completion(candidates, &num_candidates, max_candidates);
-        command_completion(line, candidates, num_candidates);
+        command_completion(exp, candidates, num_candidates);
         MFREE(candidates);
 
         gInputingMethod = TRUE;
@@ -1433,7 +1542,7 @@ static int my_complete_internal(int count, int key)
         char* p2 = p;
         p2--;
 
-        while(p2 >= line) {
+        while(p2 >= exp) {
             if(isalnum(*p2) || *p2 == '_') {
                 p2--;
             }
@@ -1462,7 +1571,13 @@ static int my_complete_internal(int count, int key)
             sNodeType* type_ = NULL;
             sVarTable* result_lv_table;
             sVarTable* tmp_lv_table = clone_var_table(gLVTable);
-            (void)get_type(line, "iclover2", tmp_lv_table, gStack, &type_, &result_lv_table);
+
+            if(in_the_method_block) {
+                (void)get_type(line, "iclover2", tmp_lv_table, gStack, &type_, &result_lv_table);
+            }
+            else {
+                (void)get_type(exp, "iclover2", tmp_lv_table, gStack, &type_, &result_lv_table);
+            }
 
             if(type_) {
                 klass = type_->mClass;
@@ -1478,7 +1593,7 @@ static int my_complete_internal(int count, int key)
                     if(strcmp(CLASS_NAME(klass), "Command") == 0) {
                         int num_methods = 0;
                         char** candidates = ALLOC ALLOC get_method_names_with_arguments(klass, FALSE, &num_methods);
-                        command_completion(line, candidates, num_methods);
+                        command_completion(exp, candidates, num_methods);
 
                         MFREE(candidates);
                     }
@@ -1504,13 +1619,13 @@ static int my_complete_internal(int count, int key)
     else {
         rl_completion_entry_function = on_complete;
 
-        file_completion(line);
+        file_completion(exp);
 
         gInputingPath = TRUE;
         rl_completer_word_break_characters = "\t ";
     }
 
-    MFREE(source);
+    MFREE(line);
 
     return rl_complete(0, key);
 }
@@ -2225,7 +2340,7 @@ static void compiler_final()
 
 int gARGC;
 char** gARGV;
-char* gVersion = "3.6.4";
+char* gVersion = "3.6.5";
 
 int main(int argc, char** argv)
 {
@@ -2315,6 +2430,13 @@ int main(int argc, char** argv)
     free_node_block_types();
 
     MFREE(stack);
+
+    char history_dir[PATH_MAX];
+    snprintf(history_dir, PATH_MAX, "%s/.clover2", getenv("HOME"));
+
+    if(access(history_dir, X_OK) != 0) {
+        (void)system("mkdir -p ~/.clover2");
+    }
 
     write_history(history_path);
 

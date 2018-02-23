@@ -1,3 +1,7 @@
+clover2 (3.6.5-1) unstable; urgency=medium
+
+    * Fixed REPL complementary bug.
+
 clover2 (3.6.4-1) unstable; urgency=medium
 
     * Fixed a bug in method calls for arrays that are not primitive types.  Fixed REPL complementary bug.  Added Clover.ARGV and ARGC, VERSION.
