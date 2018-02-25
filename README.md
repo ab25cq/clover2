@@ -77,13 +77,13 @@ FEATURES
 
     3. There is a simple Generics. It seems to simplify Java's generics. Generics information is only available at compile time, it is efficient as it disappears at run time.
 
-    4. There is no inheritance for simplicity. There are only interfaces, classes and modules. Therefore, it is efficient to specify the method at compile time except for method calls to the interface. It is a function that can be used instead of inheritance> We support transfer in language.
- 
+    4. There is no inheritance for simplicity. There are only interfaces, classes and modules. Therefore, it is efficient to specify the method at compile time except for method calls to the interface. It is a function that can be used instead of inheritance. We support transfer in language.
+
     5. It is open class. You can add methods and fields later to all classes including built-in classes. You can define methods with the same name, you can do differential programming like mixin-layers style.
 
     6. I also have an interpreter. External commands can also be easily executed and can be easily mixed with clover2's methods.
 
-    &gt; ls().grep("main.c").toString().scan(/./).join("+").toCommand().less()
+    > ls().grep("main.c").toString().scan(/./).join("+").toCommand().less()
     m+a+i+n+.+c
 
     And less displayed with an external command. Method names, external command names, file names are also supplemented. Just like Java IDE and PowerShell, we will complement the context.
