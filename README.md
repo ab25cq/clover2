@@ -81,11 +81,11 @@ FEATURES
 
     5. It is open class. You can add methods and fields later to all classes including built-in classes. You can define methods with the same name, you can do differential programming like mixin-layers style.
 
-    6. I also have an interpreter. External commands can also be easily executed and can be easily mixed with clover2's methods.
-
-    > ls().grep("main.c").toString().scan(/./).join("+").toCommand().less()
+    6. I also have an interpreter. External commands can also be easily executed and can be easily mixed with clover2's methods.
+```
+    ls().grep("main.c").toString().scan(/./).join("+").toCommand().less()
     m+a+i+n+.+c
-
+```
     And less displayed with an external command. Method names, external command names, file names are also supplemented. Just like Java IDE and PowerShell, we will complement the context.
 
     7. If you attach with-jit specification to ./configure, JIT by LLVM will be effective. Processing speed improves. It is about 3 times faster. Internally, it is good to say that it is a native code compiler rather than J IT because we are JIT compiled and compiled dynamic libraries when compiling Clover 2 source files.
