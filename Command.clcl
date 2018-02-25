@@ -948,7 +948,11 @@ dynamic_class Command
 
         if(!pipe_data.identifyWith(null)) {
             buffer:Buffer = pipe_data.toBuffer();
-            System.write(parent2child_write_fd, buffer, buffer.len);
+            try {
+                System.write(parent2child_write_fd, buffer, buffer.len);
+            } catch(e:Exception) {
+                kill(pid, System.SIGTERM);
+            }
         }
         System.close(parent2child_write_fd);
 

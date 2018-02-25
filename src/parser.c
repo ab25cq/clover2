@@ -630,6 +630,9 @@ static BOOL parse_command_method_params(int* num_params, unsigned int* params, s
                     return FALSE;
                 }
             }
+            else {
+                MFREE(param.mBuf);
+            }
 
             if(*info->p == '\0' || *info->p == '\n' || *info->p == ';' 
                 || *info->p == '|' || *info->p == '&') 

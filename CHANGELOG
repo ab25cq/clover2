@@ -1,4 +1,12 @@
 
+version 3.6.8
+
+    メモリリークといくつかのバグを修正しました。
+
+version 3.6.8
+
+    Fixed some bugs and memory leak.
+
 version 3.6.7
 
     コマンドのサスペンドがversion 3.6.3でバグになっていました。修正。

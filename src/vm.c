@@ -4865,6 +4865,13 @@ show_inst(inst);
 
                     sCLObject* object_data = CLOBJECT(left);
 
+                    if(object_data->mType == NULL) {
+                        vm_mutex_off();
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Object Type is Null");
+                        remove_stack_to_stack_list(stack_id);
+                        return FALSE;
+                    }
+
                     CLObject result = create_string_object(object_data->mType);
 
                     stack_ptr--;

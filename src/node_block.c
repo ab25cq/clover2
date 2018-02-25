@@ -1,15 +1,22 @@
 #include "common.h"
 
-static sNodeBlock* sNodeBlock_alloc()
+static sNodeBlock* sNodeBlock_alloc(BOOL clone)
 {
     sNodeBlock* block = MCALLOC(1, sizeof(sNodeBlock));
 
     block->mSizeNodes = 32;
     block->mNumNodes = 0;
-    block->mNodes = MCALLOC(1, sizeof(unsigned int)*block->mSizeNodes);
+    if(clone) {
+        block->mNodes = NULL;
+    }
+    else {
+        block->mNodes = MCALLOC(1, sizeof(unsigned int)*block->mSizeNodes);
+    }
     block->mLVTable = NULL;
     block->mUnClosedBlock = FALSE;
-    sBuf_init(&block->mSource);
+    if(!clone) {
+        sBuf_init(&block->mSource);
+    }
 
     return block;
 }
@@ -23,7 +30,7 @@ void sNodeBlock_free(sNodeBlock* block)
 
 sNodeBlock* sNodeBlock_clone(sNodeBlock* block)
 {
-    sNodeBlock* result = sNodeBlock_alloc();
+    sNodeBlock* result = sNodeBlock_alloc(TRUE);
 
     result->mNumNodes = block->mNumNodes;
     result->mSizeNodes = block->mSizeNodes;
@@ -62,7 +69,7 @@ BOOL parse_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* ne
 {
     //expect_next_character_with_one_forward("{", info);
 
-    *node_block = sNodeBlock_alloc();
+    *node_block = sNodeBlock_alloc(FALSE);
 
     sVarTable* old_vtable = info->lv_table;
     if(new_table) {

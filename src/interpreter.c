@@ -1138,11 +1138,11 @@ void get_system_method_names(char** candidates, int *num_candidates, int max_can
     }
 }
 
-void local_variable_completion(char** candidates, int *num_candidates, int max_candidates)
+static void local_variable_completion(char* exp, char** candidates, int *num_candidates, int max_candidates)
 {
     BOOL expression_is_void = TRUE;
 
-    char* p = rl_line_buffer;
+    char* p = exp;
     while(*p) {
         if(*p == ' ' || *p == '\t' || *p == '\n' || isalpha(*p) || *p == '(' || *p == '_') {
             p++;
@@ -1527,7 +1527,7 @@ static int my_complete_internal(int count, int key)
         get_class_names(candidates, &num_candidates, max_candidates);
         get_global_method_names(candidates, &num_candidates, max_candidates);
         get_system_method_names(candidates, &num_candidates, max_candidates);
-        local_variable_completion(candidates, &num_candidates, max_candidates);
+        local_variable_completion(exp, candidates, &num_candidates, max_candidates);
         command_completion(exp, candidates, num_candidates);
         MFREE(candidates);
 
@@ -2340,7 +2340,7 @@ static void compiler_final()
 
 int gARGC;
 char** gARGV;
-char* gVersion = "3.6.7";
+char* gVersion = "3.6.8";
 
 int main(int argc, char** argv)
 {

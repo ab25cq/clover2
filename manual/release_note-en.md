@@ -1,4 +1,8 @@
 
+version 3.6.8
+
+    Fixed some bugs and memory leak.
+
 version 3.6.7
 
     The command suspend was a bug in version 3.6.3. Fix.

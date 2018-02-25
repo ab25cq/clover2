@@ -1,4 +1,8 @@
 
+clover2 (3.6.8-1) unstable; urgency=medium
+
+    * Fixed some bugs and memory leak.
+
 clover2 (3.6.7-1) unstable; urgency=medium
 
     * The command suspend was a bug in version 3.6.3. Fix.
