@@ -1,13 +1,13 @@
 Package: clover2-dbgsym
 Source: clover2
-Version: 3.6.5-1
+Version: 3.6.6-1
 Auto-Built-Package: debug-symbols
 Architecture: amd64
 Maintainer: Daisuke Minato <ab25cq@icloud.com>
 Installed-Size: 105
-Depends: clover2 (= 3.6.5-1)
+Depends: clover2 (= 3.6.6-1)
 Section: debug
 Priority: extra
 Homepage: https://github.com/ab25cq/clover2/wiki
 Description: Debug symbols for clover2
-Build-Ids: 350d830b88f99b729e6946487119902ae03ef118 cb5cb79a4ab15d32b707bda4e632aab624d7aa13 f6865f256d52447a1b98127f67605ea377254201
+Build-Ids: a71c7c07de1c10d384d8bec76d6453b2a768c80b cb5cb79a4ab15d32b707bda4e632aab624d7aa13 dcac48cf28eab2c7aefecf74b2c2978dfdbe4d9d

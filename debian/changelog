@@ -1,3 +1,10 @@
+
+clover2 (3.6.6-1) unstable; urgency=medium
+
+    * The environment variable PWD is now set when the cd command is executed.
+
+    System.setenv's return value changed from Buffer to String
+
 clover2 (3.6.5-1) unstable; urgency=medium
 
     * Fixed REPL complementary bug.

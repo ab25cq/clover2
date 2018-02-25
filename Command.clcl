@@ -983,6 +983,7 @@ dynamic_class Command
 
     def cd(path:String):static {
         path.toPath().chdir();
+        setenv("PWD", getcwd(), 1);
     }
 
     def cd(arg:SortableList<String>):static {

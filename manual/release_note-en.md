@@ -1,4 +1,10 @@
 
+version 3.6.6
+
+    The environment variable PWD is now set when the cd command is executed.
+
+    System.setenv's return value changed from Buffer to String
+
 version 3.6.5
 
     Fixed REPL complementary bug.

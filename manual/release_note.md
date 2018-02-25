@@ -1,5 +1,11 @@
 English page is here [>> English page](release_note-en)
 
+version 3.6.6
+
+    cd コマンドを実行した時に環境変数PWDを設定するようになりました。
+
+    System.setenvの戻り値をBufferからStringに変更しました
+
 version 3.6.5
 
     REPLの補完のバグを修正。

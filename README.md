@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/ab25cq/clover2.svg?branch=master)](https://travis-ci.org/ab25cq/clover2)
 
 
-version 3.6.5
+version 3.6.6
 
 サポートしている機能
 
@@ -30,60 +30,104 @@ version 3.6.5
     8. シェルのような記述もできREPLをシェルの代わりに使うことができます。補完もシェルと同等の機能があります。ジョブコントロールも行うためfgやjobsなども動きます。ただしシェルよりは機能は限定的です。
 
     ls -al | less
-
     egrep str src/*.c
-
     make && make install && make test
-
     ./configure --prefix=$HOME --with-optimize --with-interpreter
 
     9.メソッドブロックの型推論が出来ます。以下のようなコードが動きます。
 
     a:SortableList<String> = slist{1,2,3}.map { it.toString() }
 
+詳しくは、https://github.com/ab25cq/clover2/wikiをみてください。
+(もしくはrepositoryに含まれるmanualディレクトリ以下のドキュメントを見てください)
+
 サンプルコード
 
-    "A,B,C".split(/,/) {it.append("X"); }
+    > "A,B,C".split(/,/) {it.append("X"); }
     { AX, BX, CX }
 
-    slist{1,2,3}.map { it * 2 }.each { it.printf("[%d]\n"); }
+    > slist{1,2,3}.map { it * 2 }.each { it.printf("[%d]\n"); }
     [2]
     [4]
     [6]
 
-    list{1,2,3}.map { it.toString().toCommand() }.each { it.less() }
+    > slist{1,2,3,4,5,6,7}.select { it > 3 }.reverse()
+    {7,6,5,4}
 
-    list{uname(), hostname(), pwd()}.each { it.less() }
+    > 2.className().scan(/./).map { it.multiply(5) }.join("\n")
+    IIIII
+    nnnnn
+    ttttt
+    eeeee
+    ggggg
+    eeeee
+    rrrrr
 
-詳しくは、https://github.com/ab25cq/clover2/wikiをみてください。
-(もしくはrepositoryに含まれるclover2.wikiディレクトリ以下のドキュメントを見てください)
+    > list{1,2,3}.map { it.toString().toCommand() }.each { it.less() }
+
+    > list{uname(), hostname(), pwd()}.each { it.less() }
 
 Yet another compiler and a Virtual Machine.
 
 FEATURES
 
-    1. primitive class and none primitive class with boxing and unboxing
-    2. Lambda and closure, regex are first-class object
-    3. Generics
-    4. No inheritance, only interfaces and classes, modules
-    5. open class
-    6. REPL with completion like shell
-    7. LLVM native code compiling 
+    1.There are two kinds of primitive classes and ordinary classes, primitive classes do not use heap. There is no method call, only operators are supported, and processing to the value of the primitive class is fast. But there are boxing and unboxing. When you make a method call to a primitive> class, add a value to a container library etc, it is boxing to reduce> use distortion of primitive class. Conversely, if it becomes an object of an operator, it is unboxed.
 
-See clover2 wiki on github (Japanese) https://github.com/ab25cq/clover2/wiki
+    2. Like functional languages, Lambda and closure are first class objects. Regular expressions are also first class objects.
+
+    3. There is a simple Generics. It seems to simplify Java's generics. Generics information is only available at compile time, it is efficient as it disappears at run time.
+
+    4. There is no inheritance for simplicity. There are only interfaces, classes and modules. Therefore, it is efficient to specify the method at compile time except for method calls to the interface. It is a function that can be used instead of inheritance> We support transfer in language.
+ 
+    5. It is open class. You can add methods and fields later to all classes including built-in classes. You can define methods with the same name, you can do differential programming like mixin-layers style.
+
+    6. I also have an interpreter. External commands can also be easily executed and can be easily mixed with clover2's methods.
+
+    &gt; ls().grep("main.c").toString().scan(/./).join("+").toCommand().less()
+    m+a+i+n+.+c
+
+    And less displayed with an external command. Method names, external command names, file names are also supplemented. Just like Java IDE and PowerShell, we will complement the context.
+
+    7 .- If you attach with-jit specification to ./configure, JIT by LLVM will be effective. Processing speed improves. It is about 3 times faster. Internally, it is good to say that it is a native code compiler rather than J IT because we are JIT compiled and compiled dynamic libraries when compiling Clover 2 source files.
+
+    8. You can write like a shell and REPL can be used instead of shell. Complementation also has the same function as shell. Since job control is also performed, fg and jobs etc. also move. However, the function is more limited than the shell.
+
+    ls -al | less
+    egrep str src/*.c
+    make && make install && make test
+    ./configure --prefix=$HOME --with-optimize --with-interpreter
+
+    9. You can type in method block types. The following code works.
+
+    a:SortableList<String> = slist{1,2,3}.map { it.toString() }
+
+See clover2 wiki on github (Japanese and English) https://github.com/ab25cq/clover2/wiki
 
 LICENSE is GPL-2.0. see LICENSE file
 
 Sample Code
 
-    "A,B,C".split(/,/) {it.append("X"); }
+    > "A,B,C".split(/,/) {it.append("X"); }
     { AX, BX, CX }
 
-    slist{1,2,3}.map { it * 2 }.each { it.printf("[%d]\n"); }
+    > slist{1,2,3}.map { it * 2 }.each { it.printf("[%d]\n"); }
     [2]
     [4]
     [6]
 
-    list{1,2,3}.map { it.toString().toCommand() }.each { it.less() }
+    > slist{1,2,3,4,5,6,7}.select { it > 3 }.reverse()
+    {7,6,5,4}
 
-    list{uname(), hostname(), pwd()}.each { it.less() }
+    > 2.className().scan(/./).map { it.multiply(5) }.join("\n")
+    IIIII
+    nnnnn
+    ttttt
+    eeeee
+    ggggg
+    eeeee
+    rrrrr
+
+    > list{1,2,3}.map { it.toString().toCommand() }.each { it.less() }
+
+    > list{uname(), hostname(), pwd()}.each { it.less() }
+

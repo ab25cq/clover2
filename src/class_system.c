@@ -3897,7 +3897,7 @@ BOOL System_getcwd(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
         return FALSE;
     }
 
-    CLObject obj = create_buffer_object(buf, PATH_MAX);
+    CLObject obj = create_string_object(buf);
 
     (*stack_ptr)->mObjectValue = obj;
     (*stack_ptr)++;

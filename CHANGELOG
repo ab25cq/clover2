@@ -1,4 +1,16 @@
 
+version 3.6.6
+
+    cd コマンドを実行した時に環境変数PWDを設定するようになりました。
+
+    System.setenvの戻り値をBufferからStringに変更しました
+
+version 3.6.6
+
+    The environment variable PWD is now set when the cd command is executed.
+
+    System.setenv's return value changed from Buffer to String
+
 version 3.6.5
 
     REPLの補完のバグを修正。

@@ -159,7 +159,7 @@ class System
     def getchar(): native static int throws Exception;
     def ungetc(c:int, stream:pointer@FILE): native static int throws Exception;
 
-    def getcwd(): native static Buffer throws Exception;
+    def getcwd(): native static String throws Exception;
 
     def put_fun_to_hash_for_native_method(path:String, fun_name:String, native_method:pointer): static native;
 }
