@@ -57,9 +57,21 @@ Clover2を使い始めようとするあなたへ。この言語はJavaやC#と�
     [4]
     [6]
 
-    list{1,2,3}.map { it.toString().toCommand() }.each { it.less() }
+    > slist{1,2,3,4,5,6,7}.select { it > 3 }.reverse()
+    {7,6,5,4}
 
-    list{uname(), hostname(), pwd()}.each { it.less() }
+    > 2.className().scan(/./).map { it.multiply(5) }.join("\n")
+    IIIII
+    nnnnn
+    ttttt
+    eeeee
+    ggggg
+    eeeee
+    rrrrr
+
+    > list{1,2,3}.map { it.toString().toCommand() }.each { it.less() }
+
+    > list{uname(), hostname(), pwd()}.each { it.less() }
 
 # 動作環境
 

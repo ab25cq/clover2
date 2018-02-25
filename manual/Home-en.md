@@ -46,17 +46,29 @@ Method names, external command names, file names are also supplemented. Just lik
 # Sample code
 
 ```
-    "A,B,C".split(/,/) { it.append("X"); }
-    {AX, BX, CX}
+    "A,B,C".split(/,/) {it.append("X"); }
+    { AX, BX, CX }
 
-    slist {1,2,3}.map{ it * 2 }.each { it.printf("[%d]\n"); }
-    [2]
-    [4]
-    [6]
+    slist{1,2,3}.map { it * 2 }.each { it.printf("[%d]\n"); }
+    [2]
+    [4]
+    [6]
 
-    list {1,2,3}.map { it.toString().toCommand() }.each { it.less() }
+    > slist{1,2,3,4,5,6,7}.select { it > 3 }.reverse()
+    {7,6,5,4}
 
-    list {uname(), hostname(), pwd()}.each { it.less () }
+    > 2.className().scan(/./).map { it.multiply(5) }.join("\n")
+    IIIII
+    nnnnn
+    ttttt
+    eeeee
+    ggggg
+    eeeee
+    rrrrr
+
+    > list{1,2,3}.map { it.toString().toCommand() }.each { it.less() }
+
+    > list{uname(), hostname(), pwd()}.each { it.less() }
 ```
 
 # Operating environment $

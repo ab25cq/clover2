@@ -2153,6 +2153,7 @@ size_t get_size_from_buffer_object(CLObject buffer);
 ALLOC CLObject* list_to_array(CLObject list, int* num_elements);
 void clover_termios_to_c_termios(CLObject terminfo_object, struct termios* terminfo_value);
 void c_termios_to_clover_termios(struct termios* terminfo_value, CLObject terminfo_object);
+BOOL create_termios_object(CLObject* result, CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 /// list.c ///
 CLObject create_list_object(char* type_name);

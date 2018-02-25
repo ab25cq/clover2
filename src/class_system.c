@@ -2294,14 +2294,15 @@ BOOL System_tcgetattr(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     /// Clover to C value ///
     int fd_value = fd->mIntValue;
 
-    sCLClass* termios_class = get_class_with_load_and_initialize("termios");
-
-    if(termios_class == NULL) {
-        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "class not found");
+    CLObject terminfo_object;
+    if(!create_termios_object(&terminfo_object, stack_ptr, lvar, info)) {
         return FALSE;
     }
 
-    CLObject terminfo_object = create_object(termios_class, "termios");
+    CLVALUE cl_value;
+    cl_value.mObjectValue = terminfo_object;
+
+    push_value_to_global_stack(cl_value);
 
     /// go ///
     struct termios terminfo_value;
@@ -2309,6 +2310,7 @@ BOOL System_tcgetattr(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     if(result < 0) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "tcgetattr(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        pop_global_stack();
         return FALSE;
     }
 
@@ -2317,6 +2319,8 @@ BOOL System_tcgetattr(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     (*stack_ptr)->mObjectValue = terminfo_object;
     (*stack_ptr)++;
+
+    pop_global_stack();
 
     return TRUE;
 }
@@ -2431,15 +2435,10 @@ BOOL System_tcflow(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
 BOOL System_cfmakeraw(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
-    /// Clover to C value ///
-    sCLClass* termios_class = get_class_with_load_and_initialize("termios");
-
-    if(termios_class == NULL) {
-        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "class not found");
+    CLObject terminfo_object;
+    if(!create_termios_object(&terminfo_object, stack_ptr, lvar, info)) {
         return FALSE;
     }
-
-    CLObject terminfo_object = create_object(termios_class, "termios");
 
     /// go ///
     struct termios terminfo_value;
