@@ -1,4 +1,8 @@
 
+version 3.6.7
+
+    The command suspend was a bug in version 3.6.3. Fix.
+
 version 3.6.6
 
     The environment variable PWD is now set when the cd command is executed.

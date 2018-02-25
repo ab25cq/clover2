@@ -39,7 +39,7 @@ static void set_signal()
 
 int gARGC;
 char** gARGV;
-char* gVersion = "3.6.6";
+char* gVersion = "3.6.7";
 
 int main(int argc, char** argv, char* const * envp)
 {
@@ -56,7 +56,7 @@ int main(int argc, char** argv, char* const * envp)
     for(i=1; i<argc; i++) {
         /// 出力ファイルのクリーン
         if(strcmp(argv[i], "-clean") == 0) {
-            system("rm -rf *.oclcl *.ocl");
+            (void)system("rm -rf *.oclcl *.ocl");
             continue;
         }
         else if(strcmp(argv[i], "-version") == 0 || strcmp(argv[i], "--version") == 0) {

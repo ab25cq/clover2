@@ -1,5 +1,9 @@
 English page is here [>> English page](release_note-en)
 
+version 3.6.7
+
+    コマンドのサスペンドがversion 3.6.3でバグになっていました。修正。
+
 version 3.6.6
 
     cd コマンドを実行した時に環境変数PWDを設定するようになりました。

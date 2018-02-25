@@ -1,4 +1,8 @@
 
+clover2 (3.6.7-1) unstable; urgency=medium
+
+    * The command suspend was a bug in version 3.6.3. Fix.
+
 clover2 (3.6.6-1) unstable; urgency=medium
 
     * The environment variable PWD is now set when the cd command is executed.
