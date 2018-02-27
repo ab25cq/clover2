@@ -1263,11 +1263,13 @@ static BOOL when_expression(unsigned int* node, sParserInfo* info)
     sNodeBlock* when_blocks[WHEN_BLOCK_MAX];
     sNodeType* when_types[WHEN_BLOCK_MAX];
     sNodeType* when_types2[WHEN_BLOCK_MAX];
+    BOOL when_match[WHEN_BLOCK_MAX];
     sNodeBlock* else_block = NULL;
     int num_when_block = 0;
 
     memset(when_types, 0, sizeof(sNodeType*)*WHEN_BLOCK_MAX);
     memset(when_types2, 0, sizeof(sNodeType*)*WHEN_BLOCK_MAX);
+    memset(when_match, 0, sizeof(BOOL*)*WHEN_BLOCK_MAX);
 
     /// 値 ///
     while(1) {
@@ -1354,6 +1356,67 @@ static BOOL when_expression(unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
         }
+        else if(*info->p == 'm' && *(info->p+1) == 'a' && *(info->p+2) == 't' && *(info->p+3) == 'c' && *(info->p+4) == 'h') 
+        {
+            info->p+=5;
+            skip_spaces_and_lf(info);
+
+            int num_value = 0;
+
+            while(1) {
+                unsigned int node = 0;
+                if(!expression(&node, info)) {
+                    return FALSE;
+                }
+
+                if(node == 0) {
+                    parser_err_msg(info, "require expression for when");
+                    info->err_num++;
+                    return TRUE;
+                }
+
+                value_nodes[num_when_block][num_value] = node;
+                num_value++;
+
+                if(num_value >= WHEN_BLOCK_MAX) {
+                    parser_err_msg(info, "overflow when value number");
+                    return FALSE;
+                }
+
+                num_values[num_when_block] = num_value;
+
+                if(*info->p == '\0') {
+                    parser_err_msg(info, "Unexpected the source end");
+                    info->err_num++;
+                    return TRUE;
+                }
+                else if(*info->p == ',') {
+                    info->p++;
+                    skip_spaces_and_lf(info);
+                }
+                else if(*info->p == ':') {
+                    info->p++;
+                    skip_spaces_and_lf(info);
+                    break;
+                }
+            }
+
+            expect_next_character_with_one_forward("{", info);
+
+            sNodeBlock* when_block = NULL;
+            if(!parse_block(ALLOC &when_block, info, NULL, FALSE)) {
+                return FALSE;
+            }
+            when_blocks[num_when_block] = when_block;
+            when_match[num_when_block] = TRUE;
+
+            num_when_block++;
+
+            if(num_when_block >= WHEN_BLOCK_MAX) {
+                parser_err_msg(info, "overflow when block number");
+                return FALSE;
+            }
+        }
         else if(*info->p == 'c' && *(info->p+1) == 'a' && *(info->p+2) == 's' && *(info->p+3) == 'e') {
             info->p+=4;
             skip_spaces_and_lf(info);
@@ -1419,7 +1482,7 @@ static BOOL when_expression(unsigned int* node, sParserInfo* info)
         }
     }
 
-    *node = sNodeTree_when_expression(expression_node, value_nodes, num_values, when_blocks, num_when_block, else_block, when_types, when_types2, info);
+    *node = sNodeTree_when_expression(expression_node, value_nodes, num_values, when_blocks, num_when_block, else_block, when_types, when_types2, when_match, info);
 
     return TRUE;
 }

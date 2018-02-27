@@ -1,4 +1,21 @@
 
+version 3.6.9
+
+    Pattern matching has been entered into when. I use it as follows.
+
+    e := new Array<String>();
+
+    f := when(e.className()) {
+        match /.+<String>/: {
+            123;
+        }
+        else {
+            456;
+        }
+    }
+
+    Clover.test("when test5", f == 123);
+
 version 3.6.8
 
     Fixed some bugs and memory leak.

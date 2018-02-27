@@ -69,5 +69,18 @@ class WhenTest {
         }
 
         Clover.test("when test4", d.cast("int").equals(123));
+
+        e := new Array<String>();
+
+        f := when(e.className()) {
+            match /.+<String>/: {
+                123;
+            }
+            else {
+                456;
+            }
+        }
+
+        Clover.test("when test5", f == 123);
     }
 }

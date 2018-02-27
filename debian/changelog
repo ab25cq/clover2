@@ -1,4 +1,8 @@
 
+clover2 (3.6.9-1) unstable; urgency=medium
+
+    * match statment is added to when statment
+
 clover2 (3.6.8-1) unstable; urgency=medium
 
     * Fixed some bugs and memory leak.

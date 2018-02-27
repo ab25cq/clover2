@@ -1231,6 +1231,23 @@ wildcardは以下のように使います。wildcardはどんな値にもマッ�
 ただし、wildcardはプリミティブ型には代入することができないので、wildcardを使いたい時はintクラスじゃなくてIntegerクラスなどを使ってください。
 またcase文で値を比較したい場合はequalsを実装する必要があります。まあ、これは当然ですが。
 
+パターンマッチングもあります。以下のように使います。
+
+    e := new Array<String>();
+
+    f := when(e.className()) {
+        match /.+<String>/: {
+            123;
+        }
+        else {
+            456;
+        }
+    }
+
+    Clover.test("when test5", f == 123);
+
+whenの値はStringでないといけません。またmatchの値は正規表現じゃないといけません。
+
 ## 変数の宣言の取り消し
 
     a := 123;

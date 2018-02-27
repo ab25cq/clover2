@@ -1,5 +1,22 @@
 English page is here [>> English page](release_note-en)
 
+version 3.6.9
+    
+    whenにパターンマッチングが入りました。以下のように使います。
+
+    e := new Array<String>();
+
+    f := when(e.className()) {
+        match /.+<String>/: {
+            123;
+        }
+        else {
+            456;
+        }
+    }
+
+    Clover.test("when test5", f == 123);
+
 version 3.6.8
 
     メモリリークといくつかのバグを修正しました。

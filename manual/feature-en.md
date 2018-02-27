@@ -1233,6 +1233,25 @@ Use wildcard as follows. wildcard matches any value.
 However, wildcard can not be assigned to primitive types, so if you want to use wildcard, please use Integer class etc. instead of int class.
 If you want to compare values ​​with case statements, you need to implement equals. Well, this is natural.
 
+There is also pattern matching. Use it as follows.
+
+```
+    e := new Array<String>();
+
+    f := when(e.className()) {
+        match /.+<String>/: {
+            123;
+        }
+        else {
+            456;
+        }
+    }
+
+    Clover.test("when test5", f == 123);
+```
+
+The value of when must be a String. The value of match must be a regular expression.
+
 ## Cancel variable declaration
 
 ```
