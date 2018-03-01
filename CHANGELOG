@@ -1,4 +1,20 @@
 
+version 3.7.0
+
+    コマンドライン引数のバグを修正。
+
+    System.getopt, System.getopt_long, System.getopt_long_onlyを追加。
+
+    -clean, --version, -versionオプションの廃止（-> 同名のコマンドライン引数が取れなくなるため)
+
+version 3.7.0
+
+    Fixed command line argument bug.
+
+    System.getopt, System.getopt_long, System.getopt_long_only added.
+
+    -clean, --version, -version option is deprecated (-> command line argument of the same name can not be taken)
+
 version 3.6.9
     
     whenにパターンマッチングが入りました。以下のように使います。

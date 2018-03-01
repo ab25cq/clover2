@@ -1,4 +1,12 @@
 
+clover2 (3.7.0-1) unstable; urgency=medium
+
+    * Fixed command line argument bug.
+
+    System.getopt, System.getopt_long, System.getopt_long_only added.
+
+    -clean, --version, -version option is deprecated (-> command line argument of the same name can not be taken)
+
 clover2 (3.6.9-1) unstable; urgency=medium
 
     * match statment is added to when statment

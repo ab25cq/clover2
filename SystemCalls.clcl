@@ -1,5 +1,20 @@
 include "Command.clcl"
 
+class getopt_long_option
+{
+    name:String;
+    has_arg:int;
+    flag:pointer@int;
+    val:int;
+
+    def initialize(name:String, has_arg:int, flag:pointer@int, val:char) {
+        self.name = name;
+        self.has_arg = has_arg;
+        self.flag = flag;
+        self.val = val.to_int;
+    }
+}
+
 class System
 {
     def alarm(seconads: uint): static native uint;
@@ -14,5 +29,18 @@ class System
         System.initialize_system_calls_system();
     }
 
+    def getopt(optstring:String, opterr:bool=true): native static Tuple3<Integer, String?, Integer>;
+        # result is Integer --> (result value of getopt) String --> (optarg) Integer --> (optind)
+
+    def getopt_long(optstring:String, longopts:getopt_long_option[], opterr:bool=true): native static Tuple4<Integer, String?, Integer, Integer>;
+        # result is Integer --> (result value of getopt_long) String --> (optarg) Integer --> (optind) Integer --> longindex
+
+    def getopt_long_only(optstring:String, longopts:getopt_long_option[], opterr:bool=true): native static Tuple4<Integer, String?, Integer, Integer>;
+        # result is Integer --> (result value of getopt_long) String --> (optarg) Integer --> (optind) Integer --> longindex
+
     O_CLOEXEC: static int;
+
+    no_argument:static int;
+    required_argument:static int;
+    optional_argument:static int;
 }

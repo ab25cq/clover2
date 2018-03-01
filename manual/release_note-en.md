@@ -1,4 +1,12 @@
 
+version 3.7.0
+
+    Fixed command line argument bug.
+
+    System.getopt, System.getopt_long, System.getopt_long_only added.
+
+    -clean, --version, -version option is deprecated (-> command line argument of the same name can not be taken)
+
 version 3.6.9
 
     Pattern matching has been entered into when. I use it as follows.

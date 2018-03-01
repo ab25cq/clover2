@@ -12,6 +12,7 @@
 #include <utime.h>
 #include <fnmatch.h>
 #include <signal.h>
+#include <getopt.h>
 
 BOOL System_exit(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
@@ -3904,13 +3905,282 @@ BOOL System_getcwd(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     return TRUE;
 }
 
+BOOL System_getopt(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* optstring = lvar;
+    CLVALUE* opterr_arg = lvar + 1;
+
+    /// Clover to c value ///
+    if(optstring->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    char* optstring_value = ALLOC string_object_to_char_array(optstring->mObjectValue);
+    BOOL opterr_value = opterr_arg->mBoolValue;
+
+
+    /// go ///
+    opterr = opterr_value;
+    int result_value = getopt(gARGC, gARGV, optstring_value);
+
+    sCLClass* tuple_class = get_class("Tuple3");
+
+    CLVALUE cl_value;
+    CLObject result = create_object(tuple_class, "Tuple3<Integer,String,Integer>");
+    cl_value.mObjectValue = result;
+    push_value_to_global_stack(cl_value);
+
+    CLObject result_object = create_integer(result_value);
+    cl_value.mObjectValue = result_object;
+    push_value_to_global_stack(cl_value);
+
+    CLObject optarg_object;
+    if(optarg) {
+        optarg_object = create_string_object(optarg);
+        cl_value.mObjectValue = optarg_object;
+        push_value_to_global_stack(cl_value);
+    }
+    else {
+        optarg_object = 0; // null
+    }
+
+    CLObject optind_object = create_integer(optind);
+    cl_value.mObjectValue = optind_object;
+    push_value_to_global_stack(cl_value);
+
+    sCLObject* obj_data = CLOBJECT(result);
+    obj_data->mFields[0].mIntValue = result_object;             // result
+    obj_data->mFields[1].mObjectValue = optarg_object;          // optarg
+    obj_data->mFields[2].mIntValue = optind_object;             // optind
+
+    (*stack_ptr)->mObjectValue = result;
+    (*stack_ptr)++;
+
+    pop_global_stack();
+    pop_global_stack();
+    if(optarg) { pop_global_stack(); }
+    pop_global_stack();
+
+    MFREE(optstring_value);
+
+    return TRUE;
+}
+
+BOOL System_getopt_long(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* optstring = lvar;
+    CLVALUE* longopts = lvar + 1;
+    CLVALUE* opterr_arg = lvar + 2;
+
+    /// Clover to c value ///
+    if(optstring->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+    if(longopts->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    char* optstring_value = ALLOC string_object_to_char_array(optstring->mObjectValue);
+
+    sCLObject* object_data = CLOBJECT(longopts->mObjectValue);
+
+    int num_option = object_data->mArrayNum;
+    struct option* longopts_value = MCALLOC(1, sizeof(struct option)*(num_option+1));
+
+    int i;
+    for(i=0; i<num_option; i++) {
+        sCLObject* object_data2 = CLOBJECT(object_data->mFields[i].mObjectValue);
+
+        CLObject name_object = object_data2->mFields[0].mObjectValue;
+
+        longopts_value[i].name = ALLOC string_object_to_char_array(name_object);
+        longopts_value[i].has_arg = object_data2->mFields[1].mIntValue;
+        longopts_value[i].flag = (void*)object_data2->mFields[2].mPointerValue;
+        longopts_value[i].val = object_data2->mFields[3].mIntValue;
+    }
+    longopts_value[i].name = 0;
+    longopts_value[i].has_arg = 0;
+    longopts_value[i].flag = 0;
+    longopts_value[i].val = 0;
+
+    BOOL opterr_value = opterr_arg->mBoolValue;
+
+    /// go ///
+    opterr = opterr_value;
+    optarg = NULL;
+    int longindex = 0;
+    int result_value = getopt_long(gARGC, gARGV, optstring_value, longopts_value, &longindex);
+
+    sCLClass* tuple_class = get_class("Tuple4");
+
+    CLVALUE cl_value;
+    CLObject result = create_object(tuple_class, "Tuple4<Integer,String,Integer,Integer>");
+    cl_value.mObjectValue = result;
+    push_value_to_global_stack(cl_value);
+
+    CLObject result_object = create_integer(result_value);
+    cl_value.mObjectValue = result_object;
+    push_value_to_global_stack(cl_value);
+
+    CLObject optarg_object;
+    if(optarg) {
+        optarg_object = create_string_object(optarg);
+        cl_value.mObjectValue = optarg_object;
+        push_value_to_global_stack(cl_value);
+    }
+    else {
+        optarg_object = 0; // null
+    }
+
+    CLObject optind_object = create_integer(optind);
+    cl_value.mObjectValue = optind_object;
+    push_value_to_global_stack(cl_value);
+
+    CLObject longindex_object = create_integer(longindex);
+    cl_value.mObjectValue = longindex_object;
+    push_value_to_global_stack(cl_value);
+
+    sCLObject* obj_data = CLOBJECT(result);
+    obj_data->mFields[0].mObjectValue = result_object;              // result
+    obj_data->mFields[1].mObjectValue = optarg_object;              // optarg
+    obj_data->mFields[2].mObjectValue = optind_object;              // optind
+    obj_data->mFields[3].mObjectValue = longindex_object;           // longindex
+
+    (*stack_ptr)->mObjectValue = result;
+    (*stack_ptr)++;
+
+    pop_global_stack();
+    pop_global_stack();
+    if(optarg) { pop_global_stack(); }
+    pop_global_stack();
+    pop_global_stack();
+
+    MFREE(optstring_value);
+
+    for(i=0; i<num_option; i++) {
+        MFREE((char*)longopts_value[i].name);
+    }
+
+    MFREE(longopts_value);
+
+    return TRUE;
+}
+
+BOOL System_getopt_long_only(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* optstring = lvar;
+    CLVALUE* longopts = lvar + 1;
+    CLVALUE* opterr_arg = lvar + 2;
+
+    /// Clover to c value ///
+    if(optstring->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+    if(longopts->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    char* optstring_value = ALLOC string_object_to_char_array(optstring->mObjectValue);
+
+    sCLObject* object_data = CLOBJECT(longopts->mObjectValue);
+
+    int num_option = object_data->mArrayNum;
+    struct option* longopts_value = MCALLOC(1, sizeof(struct option)*(num_option+1));
+
+    int i;
+    for(i=0; i<num_option; i++) {
+        sCLObject* object_data2 = CLOBJECT(object_data->mFields[i].mObjectValue);
+
+        CLObject name_object = object_data2->mFields[0].mObjectValue;
+
+        longopts_value[i].name = ALLOC string_object_to_char_array(name_object);
+        longopts_value[i].has_arg = object_data2->mFields[1].mIntValue;
+        longopts_value[i].flag = (void*)object_data2->mFields[2].mPointerValue;
+        longopts_value[i].val = object_data2->mFields[3].mIntValue;
+    }
+    longopts_value[i].name = 0;
+    longopts_value[i].has_arg = 0;
+    longopts_value[i].flag = 0;
+    longopts_value[i].val = 0;
+
+    BOOL opterr_value = opterr_arg->mBoolValue;
+
+    /// go ///
+    opterr = opterr_value;
+    optarg = NULL;
+    int longindex = 0;
+    int result_value = getopt_long_only(gARGC, gARGV, optstring_value, longopts_value, &longindex);
+
+    sCLClass* tuple_class = get_class("Tuple4");
+
+    CLVALUE cl_value;
+    CLObject result = create_object(tuple_class, "Tuple4<Integer,String,Integer,Integer>");
+    cl_value.mObjectValue = result;
+    push_value_to_global_stack(cl_value);
+
+    CLObject result_object = create_integer(result_value);
+    cl_value.mObjectValue = result_object;
+    push_value_to_global_stack(cl_value);
+
+    CLObject optarg_object;
+    if(optarg) {
+        optarg_object = create_string_object(optarg);
+        cl_value.mObjectValue = optarg_object;
+        push_value_to_global_stack(cl_value);
+    }
+    else {
+        optarg_object = 0; // null
+    }
+
+    CLObject optind_object = create_integer(optind);
+    cl_value.mObjectValue = optind_object;
+    push_value_to_global_stack(cl_value);
+
+    CLObject longindex_object = create_integer(longindex);
+    cl_value.mObjectValue = longindex_object;
+    push_value_to_global_stack(cl_value);
+
+    sCLObject* obj_data = CLOBJECT(result);
+    obj_data->mFields[0].mObjectValue = result_object;              // result
+    obj_data->mFields[1].mObjectValue = optarg_object;              // optarg
+    obj_data->mFields[2].mObjectValue = optind_object;              // optind
+    obj_data->mFields[3].mObjectValue = longindex_object;           // longindex
+
+    (*stack_ptr)->mObjectValue = result;
+    (*stack_ptr)++;
+
+    pop_global_stack();
+    pop_global_stack();
+    if(optarg) { pop_global_stack(); }
+    pop_global_stack();
+    pop_global_stack();
+
+    MFREE(optstring_value);
+
+    for(i=0; i<num_option; i++) {
+        MFREE((char*)longopts_value[i].name);
+    }
+
+    MFREE(longopts_value);
+
+    return TRUE;
+}
+
 BOOL System_initialize_system_calls_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     sCLClass* system = get_class("System");
 
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+0].mValue.mIntValue = O_CLOEXEC;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+1].mValue.mIntValue = no_argument;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+2].mValue.mIntValue = required_argument;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+3].mValue.mIntValue = optional_argument;
 
-#define LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS (LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+1)
+#define LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS (LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+4)
 
     return TRUE;
 }

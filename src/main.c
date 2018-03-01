@@ -39,7 +39,7 @@ static void set_signal()
 
 int gARGC;
 char** gARGV;
-char* gVersion = "3.6.9";
+char* gVersion = "3.7.0";
 
 int main(int argc, char** argv, char* const * envp)
 {
@@ -54,19 +54,9 @@ int main(int argc, char** argv, char* const * envp)
     set_signal();
 
     for(i=1; i<argc; i++) {
-        /// 出力ファイルのクリーン
-        if(strcmp(argv[i], "-clean") == 0) {
-            (void)system("rm -rf *.oclcl *.ocl");
-            continue;
-        }
-        else if(strcmp(argv[i], "-version") == 0 || strcmp(argv[i], "--version") == 0) {
-            printf("clover2 version %s\n", gVersion);
-            exit(0);
-        }
-
         char* source = argv[i];
 
-        /// oclファイル名を得る
+        /// get ocl file name
         char* p = source + strlen(source);
 
         while(p >= source) {
@@ -94,7 +84,7 @@ int main(int argc, char** argv, char* const * envp)
         char object_file_name[PATH_MAX];
         snprintf(object_file_name, PATH_MAX, "%s.ocl", base_name);
 
-        /// 自動コンパイル機能 ///
+        /// auto compile function ///
         if(strcmp(source, object_file_name) != 0) {
             if(access(object_file_name, R_OK) != 0) {
                 char cmd[PATH_MAX+20];
@@ -156,6 +146,8 @@ int main(int argc, char** argv, char* const * envp)
             exit(1);
         }
         clover2_final();
+
+        break;
     }
     CHECKML_END;
 

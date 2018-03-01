@@ -226,6 +226,9 @@ static sNativeMethod gNativeMethods[] = {
     { "System.ungetc(int,pointer)", "System_ungetc", System_ungetc },
     { "System.getcwd()", "System_getcwd", System_getcwd },
     { "Clover.initialize_lang()", "Clover_initialize_lang", Clover_initialize_lang },
+    { "System.getopt(String,bool)", "System_getopt", System_getopt },
+    { "System.getopt_long(String,getopt_long_option[],bool)", "System_getopt_long", System_getopt_long },
+    { "System.getopt_long_only(String,getopt_long_option[],bool)", "System_getopt_long_only", System_getopt_long_only },
 
     { "", "", 0 }  // sentinel
 };
