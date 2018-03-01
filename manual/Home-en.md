@@ -143,6 +143,10 @@ In Debian you can install by package. You can create packages with make_deb.sh. 
 Packaging is done, so we are looking for a Debian developer who can register the package.
 Someone please do m(_ _)m
 
+## release_note
+
+* [release_note](release_note-en)
+
 ----
 
 [>> How to use](usage-en)

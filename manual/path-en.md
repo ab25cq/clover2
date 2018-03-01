@@ -120,6 +120,9 @@ truncate shortens the file by the number of arguments. In this case it is 1 ul s
     > p"src/".chdir ();
 ```
 chdir () changes the current directory. It's cd in the shell. Since cd is not prepared for Clover 2, please change the current directory with this. You may also create a class method called cd in the Global class.
+
+(Command.cd method is difined in the current version.)
+
 ```
     > p"my_dir".mkdir ();
     > ls("-dl", "my_dir");
