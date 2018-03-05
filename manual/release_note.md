@@ -1,5 +1,16 @@
 English page is here [>> English page](release_note-en)
 
+version 3.7.1
+
+    ローカル変数の多重代入を入れました。
+
+    > (a, b) := (1,2)
+    > (a, b) = (b, a)
+
+    タプルの表記で簡単なものを追加しました。
+
+    (1,"AAA", 1.1)  # == Tuple<Integer, String, Double>
+
 version 3.7.0
 
     コマンドライン引数のバグを修正。

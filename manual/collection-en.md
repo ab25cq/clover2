@@ -394,3 +394,9 @@ You can compare equals with the same value. The interface that I have to impleme
 That is the end of the collection.
 
 sortable_list {1,2,3} is slist {1,2,3}, equalable_list {1,2,3} is elist {1,2,3}, sortalbe_array {1, 2, 3} Sarray {1,2,3}, equalable_array {1, 2, 3} can be declared as earray {1, 2, 3}.
+
+Tuples can be written as (1, "AAA", 2), and so on.
+
+    a:Tuple3<String, String, Integer> = ("AAA", "BBB", 1)
+    assert(a.value1.equals("AAA") && a.value2.equals("BBB") && a.value3 == 1);
+

@@ -8610,6 +8610,154 @@ static BOOL compile_tuple_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_multiple_asignment(int num_elements, unsigned int tuple_elements[], int right_value, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeMultipleAsignment;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = right_value;
+    gNodes[node].mMiddle = 0;
+
+    gNodes[node].mType = NULL;
+
+    memcpy(gNodes[node].uValue.sTupleValue.mTupleElements, tuple_elements, sizeof(unsigned int)*TUPLE_VALUE_ELEMENT_MAX);
+    gNodes[node].uValue.sTupleValue.mNumTupleElements = num_elements;
+
+    return node;
+}
+
+static BOOL compile_multiple_asignment(unsigned int node, sCompileInfo* info)
+{
+    unsigned int* left_element_nodes = gNodes[node].uValue.sTupleValue.mTupleElements;
+    int num_left_elements = gNodes[node].uValue.sTupleValue.mNumTupleElements;
+
+    if(num_left_elements == 0) {
+        compile_err_msg(info, "require element for left value");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    /// compile right value ///
+    unsigned int right_value = gNodes[node].mRight;
+
+    if(!compile(right_value, info)) {
+        return FALSE;
+    }
+
+    sNodeType* right_value_type = info->type;
+
+    if(right_value_type->mNumGenericsTypes != num_left_elements) {
+        compile_err_msg(info, "right type is invalid. type error");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    /// Determine type for multiple assignment varialbles or check type ///
+    int i;
+    for(i=0; i<num_left_elements; i++) {
+        unsigned int left_element_node = left_element_nodes[i];
+
+        char* var_name = gNodes[left_element_node].uValue.mVarName;
+
+        sNodeType* right_element_type = right_value_type->mGenericsTypes[i];
+
+        if(gNodes[left_element_node].mNodeType == kNodeTypeLoadVariable) {
+            sVar* left_element_var = get_variable_from_table(info->lv_table, var_name);
+
+            if(left_element_var->mType == NULL) {
+                left_element_var->mType = right_element_type;
+            }
+            else {
+                sNodeType* left_element_type = left_element_var->mType;
+
+                sCLClass* left_class = left_element_type->mClass;
+
+                if(left_class->mFlags & CLASS_FLAGS_PRIMITIVE) {
+                    if(left_class->mBoxingClass != NULL) {
+                        left_element_type = create_node_type_with_class_pointer(left_class->mBoxingClass);
+                    }
+                    else {
+                        parser_err_msg(info->pinfo, "primitive class without boxing %s", CLASS_NAME(left_class));
+                        info->err_num++;
+                    }
+                }
+
+                if(!substitution_posibility(left_element_type, right_element_type, NULL, NULL, NULL, NULL)) 
+                {
+                    compile_err_msg(info, "right element type is invalid. type error (%s,%s)", CLASS_NAME(left_element_var->mType->mClass), CLASS_NAME(right_element_type->mClass));
+                    info->err_num++;
+
+                    info->type = create_node_type_with_class_name("int"); // dummy
+
+                    return TRUE;
+                }
+            }
+        }
+/*
+        else if(gNodes[left_element_node].mNodeType == kNodeTypeLoadField) {
+        }
+        else if(gNodes[left_element_node].mNodeType == kNodeTypeLoadClassField) {
+        }
+*/
+    }
+
+    append_opecode_to_code(info->code, OP_SPLIT_TUPLE, info->no_output);
+    append_int_value_to_code(info->code, right_value_type->mNumGenericsTypes, info->no_output);
+    info->stack_num --;
+    info->stack_num += right_value_type->mNumGenericsTypes;
+
+    for(i=0; i<right_value_type->mNumGenericsTypes; i++) {
+        unsigned int left_element_node = left_element_nodes[right_value_type->mNumGenericsTypes-i-1];
+
+        sNodeType* right_element_type = right_value_type->mGenericsTypes[i];
+
+        char* var_name = gNodes[left_element_node].uValue.mVarName;
+        
+        sVar* left_element_var 
+            = get_variable_from_table(info->lv_table, var_name);
+            
+        sNodeType* left_element_type = left_element_var->mType;
+
+        sCLClass* left_class = left_element_type->mClass;
+        
+        if(left_class->mFlags & CLASS_FLAGS_PRIMITIVE) {
+            if(unboxig_posibility(right_element_type->mClass)) {
+                if(!unboxing_to_primitive_type(&right_element_type, info)) {
+                    return FALSE;
+                }
+            }
+        }
+
+        int var_index = get_variable_index(info->lv_table, var_name);
+
+        MASSERT(var_index != -1);
+
+        append_opecode_to_code(info->code, OP_STORE, info->no_output);
+        append_int_value_to_code(info->code, var_index, info->no_output);
+
+        append_opecode_to_code(info->code, OP_POP, info->no_output);
+        info->stack_num --;
+    }
+
+    append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
+    info->stack_num++;
+
+    info->type = create_node_type_with_class_name("Null");
+
+    return TRUE;
+}
+
 BOOL compile_hash_value(unsigned int node, sCompileInfo* info)
 {
     unsigned int* keys = gNodes[node].uValue.sHashValue.mHashKeys;
@@ -10012,6 +10160,10 @@ void show_node(unsigned int node)
         case kNodeTypeRange:
             puts("range");
             break;
+
+        case kNodeTypeMultipleAsignment:
+            puts("multiple asignment");
+            break;
     }
 }
 
@@ -10477,6 +10629,12 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeRange:
             if(!compile_range(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeMultipleAsignment:
+            if(!compile_multiple_asignment(node, info)) {
                 return FALSE;
             }
             break;

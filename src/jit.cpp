@@ -852,6 +852,47 @@ call_show_inst_in_jit(inst);
                 }
                 break;
 
+            case OP_SPLIT_TUPLE: {
+                int num_elements = *(int*)pc;
+                pc += sizeof(int);
+
+                LVALUE* tuple = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                Function* split_tuple_fun = TheModule->getFunction("split_tuple");
+
+                std::vector<Value*> params2;
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param1 = params[stack_ptr_address_name];
+                params2.push_back(param1);
+
+                std::string info_value_name("info");
+                Value* param2 = params[info_value_name];
+                params2.push_back(param2);
+
+                LVALUE tuple2 = trunc_value(tuple, 32);
+                Value* param3 = tuple2.value;
+                params2.push_back(param3);
+
+                Value* param4 = ConstantInt::get(TheContext, llvm::APInt(32, num_elements, true));
+                params2.push_back(param4);
+
+                Builder.CreateCall(split_tuple_fun, params2);
+
+                dec_stack_ptr(&llvm_stack_ptr, 1);
+
+                int i;
+                for(i=0; i<num_elements; i++) {
+                    LVALUE llvm_value = get_vm_stack_ptr_value_from_index_with_aligned(params, current_block, -num_elements+i, 8);
+                    trunc_variable(&llvm_value, 4);
+
+                    push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+
+                inc_vm_stack_ptr(params, current_block, -num_elements);
+                }
+                break;
+
             case OP_LOAD_ADDRESS: {
                 int index = *(int*)pc;
                 pc += sizeof(int);

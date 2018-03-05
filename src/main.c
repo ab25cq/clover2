@@ -39,7 +39,7 @@ static void set_signal()
 
 int gARGC;
 char** gARGV;
-char* gVersion = "3.7.0";
+char* gVersion = "3.7.1";
 
 int main(int argc, char** argv, char* const * envp)
 {

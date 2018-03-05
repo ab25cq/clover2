@@ -527,6 +527,7 @@ struct sParserInfoStruct
     BOOL get_type_for_interpreter;
     BOOL next_command_is_to_bool;
     BOOL exist_block_object_err;
+    BOOL multiple_assignment;
 };
 
 typedef struct sParserInfoStruct sParserInfo;
@@ -567,7 +568,7 @@ sNodeBlock* sNodeBlock_clone(sNodeBlock* block);
 BOOL parse_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* new_table, BOOL block_object);
 
 /// node.c ///
-enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeCByteValue, kNodeTypeUByteValue, kNodeTypeCUByteValue, kNodeTypeShortValue, kNodeTypeCShortValue, kNodeTypeUShortValue, kNodeTypeCUShortValue, kNodeTypeIntValue, kNodeTypeCIntValue, kNodeTypeUIntValue, kNodeTypeCUIntValue, kNodeTypeLongValue, kNodeTypeCLongValue, kNodeTypeULongValue, kNodeTypeCULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeWildCard, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand, kNodeTypeIncrementWithValueOperand, kNodeTypeDecrementWithValueOperand, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand, kNodeTypeLoadArrayElement, kNodeTypeStoreArrayElement, kNodeTypeChar, kNodeTypeString, kNodeTypeBuffer, kNodeTypeThrow, kNodeTypeTry, kNodeTypeBlockObject, kNodeTypeFunction, kNodeTypeBlockCall, kNodeTypeNormalBlock, kNodeTypeArrayValue, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeHashValue, kNodeTypeRegex, kNodeTypeListValue, kNodeTypeSortableListValue, kNodeTypeEqualableListValue, kNodeTypeTupleValue, kNodeTypeCArrayValue, kNodeTypeEqualableCArrayValue, kNodeTypeSortableCArrayValue, kNodeTypeImplements, kNodeTypeGetAddress, kNodeTypeInheritCall, kNodeTypeFloatValue, kNodeTypeCFloatValue, kNodeTypeDoubleValue, kNodeTypeCDoubleValue, kNodeTypePath, kNodeTypeWhen, kNodeTypeRange };
+enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeCByteValue, kNodeTypeUByteValue, kNodeTypeCUByteValue, kNodeTypeShortValue, kNodeTypeCShortValue, kNodeTypeUShortValue, kNodeTypeCUShortValue, kNodeTypeIntValue, kNodeTypeCIntValue, kNodeTypeUIntValue, kNodeTypeCUIntValue, kNodeTypeLongValue, kNodeTypeCLongValue, kNodeTypeULongValue, kNodeTypeCULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeWildCard, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand, kNodeTypeIncrementWithValueOperand, kNodeTypeDecrementWithValueOperand, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand, kNodeTypeLoadArrayElement, kNodeTypeStoreArrayElement, kNodeTypeChar, kNodeTypeString, kNodeTypeBuffer, kNodeTypeThrow, kNodeTypeTry, kNodeTypeBlockObject, kNodeTypeFunction, kNodeTypeBlockCall, kNodeTypeNormalBlock, kNodeTypeArrayValue, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeHashValue, kNodeTypeRegex, kNodeTypeListValue, kNodeTypeSortableListValue, kNodeTypeEqualableListValue, kNodeTypeTupleValue, kNodeTypeCArrayValue, kNodeTypeEqualableCArrayValue, kNodeTypeSortableCArrayValue, kNodeTypeImplements, kNodeTypeGetAddress, kNodeTypeInheritCall, kNodeTypeFloatValue, kNodeTypeCFloatValue, kNodeTypeDoubleValue, kNodeTypeCDoubleValue, kNodeTypePath, kNodeTypeWhen, kNodeTypeRange, kNodeTypeMultipleAsignment };
 
 enum eOperand { kOpAdd, kOpSub , kOpComplement, kOpLogicalDenial, kOpMult, kOpDiv, kOpMod, kOpLeftShift, kOpRightShift, kOpComparisonEqual, kOpComparisonNotEqual,kOpComparisonGreaterEqual, kOpComparisonLesserEqual, kOpComparisonGreater, kOpComparisonLesser, kOpAnd, kOpXor, kOpOr };
 
@@ -803,6 +804,7 @@ int get_var_size(sNodeType* var_type);
 void boxing_before_method_call(char* method_name, sCompileInfo* info);
 
 unsigned int sNodeTree_create_operand(enum eOperand operand, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
+unsigned int sNodeTree_create_multiple_asignment(int num_elements, unsigned int tuple_elements[], int right_value, sParserInfo* info);
 unsigned int sNodeTree_when_expression(unsigned int expression_node, unsigned int value_nodes[WHEN_BLOCK_MAX][WHEN_BLOCK_MAX], int num_values[WHEN_BLOCK_MAX], sNodeBlock* when_blocks[WHEN_BLOCK_MAX], int num_when_block, sNodeBlock* else_block, sNodeType* when_types[WHEN_BLOCK_MAX], sNodeType* when_types2[WHEN_BLOCK_MAX], BOOL when_match[WHEN_BLOCK_MAX], sParserInfo* info);
 unsigned int sNodeTree_if_expression(unsigned int expression_node, MANAGED sNodeBlock* if_node_block, unsigned int* elif_expression_nodes, MANAGED sNodeBlock** elif_node_blocks, int elif_num, MANAGED sNodeBlock* else_node_block, sParserInfo* info);
 unsigned int sNodeTree_create_range(unsigned int head, unsigned int tail, sParserInfo* info);
@@ -972,6 +974,7 @@ extern BOOL gSigInt;
 #define OP_LOAD 32
 
 #define OP_LOAD_ADDRESS 33
+#define OP_SPLIT_TUPLE 34
 
 #define OP_LDCBYTE 35
 #define OP_LDCUBYTE 36

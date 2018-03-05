@@ -1831,6 +1831,26 @@ void create_internal_functions2()
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_array_to_carray_cast", TheModule);
 
+    /// split_tuple ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    param2_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param2_type);
+
+    param3_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param3_type);
+
+    param4_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param4_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "split_tuple", TheModule);
+
     /// show_method_parametor_address ///
     type_params.clear();
     

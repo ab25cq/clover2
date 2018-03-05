@@ -1,4 +1,15 @@
 
+version 3.7.1
+
+    Added Multiple Assignements for local variables
+
+    > (a, b) := (1,2)
+    > (a, b) = (b, a)
+
+    An easy thing was added by the notation of a tuple
+
+    > (1,"AAA", 1.1)  # == Tuple<Integer, String, Double>
+
 version 3.7.0
 
     Fixed command line argument bug.

@@ -1368,6 +1368,28 @@ Self abbreviation for fields of the same class
 ```
 It is like the above. Although the namespace of the local variable and the field batters, since the local variable takes precedence in the search algorithm, please add self to the field when it is ambiguous. With this algorithm, it was judged that there is no particular problem even if self is omitted. It is compatible with past codes.
 
+### multiple assignment
+
+Tuples can be assigned to multiple local variables.
+
+```
+    > (a, b): = (1, 2)
+```
+
+The right side value is a tuple. Please see the collection section for details.
+a is 1 and b is 2.
+It is also possible to exchange the values ​​of variables.
+
+```
+    > a: = 1; b: = 2;
+    > (a, b) = (b, a)
+```
+
+a is 2 and b is 1.
+For now, we can only do this multiple assignment with local variables.
+Assign to class fields and fields normally.
+Also, if you feel like it, you may implement it.
+
 ----
 
 [<< previous usage](usage-en) [>> next type inference](typing-en)

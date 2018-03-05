@@ -1573,4 +1573,15 @@ BOOL op_is_fun(CLObject left, CLObject right)
     return result;
 }
 
+void split_tuple(CLVALUE** stack_ptr, sVMInfo* info, CLObject tuple, int num_elements)
+{
+    sCLObject* object_data = CLOBJECT(tuple);
+
+    int i;
+    for(i=0; i<num_elements; i++) {
+        **stack_ptr = object_data->mFields[i];
+        (*stack_ptr)++;
+    }
+}
+
 }

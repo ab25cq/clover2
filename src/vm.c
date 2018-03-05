@@ -1342,6 +1342,23 @@ show_inst(inst);
                 }
                 break;
 
+            case OP_SPLIT_TUPLE: {
+                int num_elements = *(int*)pc;
+                pc += sizeof(int);
+
+                CLObject tuple = (stack_ptr-1)->mObjectValue;
+                stack_ptr--;
+
+                sCLObject* object_data = CLOBJECT(tuple);
+
+                int i;
+                for(i=0; i<num_elements; i++) {
+                    *stack_ptr = object_data->mFields[i];
+                    stack_ptr++;
+                }
+                }
+                break;
+
             case OP_LDCBYTE: 
                 {
                     vm_mutex_on();

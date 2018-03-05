@@ -2917,7 +2917,7 @@ static BOOL parse_tuple_value(unsigned int* node, sParserInfo* info)
 {
     int num_elements = 0;
 
-    unsigned int tuple_element[LIST_VALUE_ELEMENT_MAX];
+    unsigned int tuple_element[TUPLE_VALUE_ELEMENT_MAX];
     memset(tuple_element, 0, sizeof(unsigned int)*TUPLE_VALUE_ELEMENT_MAX);
 
     if(*info->p == '}') {
@@ -4019,7 +4019,8 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 }
             }
             /// ローカル変数 ///
-            else if(get_variable_from_table(info->lv_table, buf) || is_method_param_name(buf)) {
+            else if(get_variable_from_table(info->lv_table, buf) || is_method_param_name(buf) || info->multiple_assignment) 
+            {
                 skip_spaces_and_lf(info);
 
                 *node = sNodeTree_create_load_variable(buf, info);
@@ -4298,21 +4299,145 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         info->p++;
         skip_spaces_and_lf(info);
 
-        if(!expression(node, info)) {
-            return FALSE;
-        }
-        skip_spaces_and_lf(info);
+        /// 多重代入？ ///
+        info->multiple_assignment = TRUE;
 
-        if(!expect_next_character(")", info)) {
+        if(!expression(node, info)) {
+            info->multiple_assignment = FALSE;
             return FALSE;
         }
-        info->p++;
         skip_spaces_and_lf(info);
 
         if(*node == 0) {
             parser_err_msg(info, "require expression as ( operand");
             info->err_num++;
         }
+
+        /// タプル ///
+        if(*info->p == ',') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            int num_elements = 0;
+
+            unsigned int tuple_element[TUPLE_VALUE_ELEMENT_MAX];
+            memset(tuple_element, 0, sizeof(unsigned int)*TUPLE_VALUE_ELEMENT_MAX);
+
+            tuple_element[0] = *node;
+            num_elements++;
+
+            while(1) {
+                if(!expression(tuple_element + num_elements, info)) {
+                    info->multiple_assignment = FALSE;
+                    return FALSE;
+                }
+
+                num_elements++;
+
+                if(num_elements >= TUPLE_VALUE_ELEMENT_MAX) {
+                    parser_err_msg(info, "overflow array value elements");
+                    info->multiple_assignment = FALSE;
+                    return FALSE;
+                }
+
+                if(*info->p == ',') {
+                    info->p++;
+                    skip_spaces_and_lf(info);
+                }
+                else if(*info->p == ')') {
+                    info->p++;
+                    skip_spaces_and_lf(info);
+                    break;
+                }
+            }
+
+            /// 多重代入1 ///
+            if(*info->p == ':' && *(info->p+1) == '=') {
+                info->p+=2;
+                skip_spaces_and_lf(info);
+
+                unsigned int node2 = 0;
+                if(!expression(&node2, info)) {
+                    info->multiple_assignment = FALSE;
+                    return FALSE;
+                }
+
+                if(gNodes[node2].mNodeType != kNodeTypeTupleValue) {
+                    parser_err_msg(info, "require tuple value for right value of :=");
+                    info->err_num++;
+                }
+
+                /// 変数宣言 ///
+                int i;
+                for(i=0; i<num_elements; i++) {
+                    int node = tuple_element[i];
+
+                    if(gNodes[node].mNodeType != kNodeTypeLoadVariable) {
+                        parser_err_msg(info, "require variable name for left value of :=");
+                        info->err_num++;
+                    }
+
+                    char* var_name = gNodes[node].uValue.mVarName;
+
+                    check_already_added_variable(info->lv_table, var_name, info);
+                    add_variable_to_table(info->lv_table, var_name, NULL);
+                }
+
+                *node = sNodeTree_create_multiple_asignment(num_elements, tuple_element, node2, info);
+            }
+            /// 多重代入2 ///
+            else if(*info->p == '=') {
+                info->p++;
+                skip_spaces_and_lf(info);
+
+                unsigned int node2 = 0;
+                if(!expression(&node2, info)) {
+                    info->multiple_assignment = FALSE;
+                    return FALSE;
+                }
+
+                /// 変数かチェック ///
+                int i;
+                for(i=0; i<num_elements; i++) {
+                    int node = tuple_element[i];
+
+                    if(gNodes[node].mNodeType == kNodeTypeLoadVariable) {
+                        char* var_name = gNodes[node].uValue.mVarName;
+
+                        int var_index = get_variable_index(info->lv_table, var_name);
+                        if(var_index == -1) {
+                            parser_err_msg(info, "undeclared variable(%s)", var_name);
+                            info->err_num++;
+                        }
+                    }
+/*
+                    else if(gNodes[node].mNodeType == kNodeTypeLoadField) {
+                    }
+                    else if(gNodes[node].mNodeType == kNodeTypeLoadClassField) {
+                    }
+*/
+                    else {
+                        parser_err_msg(info, "require variable name for left value of =");
+                        info->err_num++;
+                    }
+                }
+
+                *node = sNodeTree_create_multiple_asignment(num_elements, tuple_element, node2, info);
+            }
+            else {
+                *node = sNodeTree_create_tuple_value(num_elements, tuple_element, info);
+            }
+        }
+        else {
+            if(!expect_next_character(")", info)) {
+                info->multiple_assignment = FALSE;
+                return FALSE;
+            }
+            info->p++;
+            skip_spaces_and_lf(info);
+        }
+
+        info->multiple_assignment = FALSE;
     }
     /// アドレス取得演算子 ///
     else if(*info->p == '&') {
@@ -4937,6 +5062,7 @@ static BOOL expression_and_and_or_or(unsigned int* node, sParserInfo* info)
 
     return TRUE;
 }
+
 BOOL expression(unsigned int* node, sParserInfo* info) 
 {
     skip_spaces_and_lf(info);

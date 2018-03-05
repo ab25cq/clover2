@@ -377,3 +377,9 @@ equalsで値が同一か比較することができます。TupleのGenericsで�
 以上でコレクションは終わりです。
 
 後からの追加ですがsortable_list{1,2,3}はslist{1,2,3}, equalable_list{1,2,3}はelist{1,2,3},sortalbe_array{1,2,3}はsarray{1,2,3}, equalable_array{1,2,3}はearray{1,2,3}と省略して宣言することができます。
+
+タプルは(1, "AAA", 2)などと書けます。
+
+    a:Tuple3<String, String, Integer> = ("AAA", "BBB", 1)
+    assert(a.value1.equals("AAA") && a.value2.equals("BBB") && a.value3 == 1);
+
