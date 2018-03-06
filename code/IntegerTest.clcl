@@ -28,7 +28,7 @@ class IntegerTest
         Clover.test("Byte test2", f.getValue() == 255);
         Clover.test("Byte test3", f.toByte().getValue() == -1);
 
-        g:Float = new Float(100);
+        g:Float = new Float(100.0f);
 
         Clover.test("Float test0", g.value == 100.0f);
 

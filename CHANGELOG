@@ -1,4 +1,13 @@
 
+version 3.7.2
+
+    変数への数値の代入時にint --> floatなどdoubleやfloatの場合は自動変換しなくなりました。
+    (int --> long)などは暗黙のキャストが行われます
+
+version 3.7.2
+
+    When assigning a numeric value to a variable, it does not automatically convert to double or float such as int -> float. (int -> long) etc. are implicitly cast
+
 version 3.7.1
 
     ローカル変数の多重代入を入れました。

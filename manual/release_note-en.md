@@ -1,4 +1,8 @@
 
+version 3.7.2
+
+    When assigning a numeric value to a variable, it does not automatically convert to double or float such as int -> float. (int -> long) etc. are implicitly cast
+
 version 3.7.1
 
     Added Multiple Assignements for local variables

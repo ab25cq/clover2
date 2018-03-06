@@ -402,11 +402,16 @@ BOOL no_cast_types_for_binary_operator(sNodeType* left_type, sNodeType* right_ty
 {
     return type_identify_with_class_name(left_type, "pointer") && type_identify_with_class_name(right_type, "ulong");
 }
+
 static BOOL is_numeric_type(sNodeType* type_)
 {
     return type_identify_with_class_name(type_, "int") || type_identify_with_class_name(type_, "uint") || type_identify_with_class_name(type_, "byte") || type_identify_with_class_name(type_, "ubyte") || type_identify_with_class_name(type_, "short") || type_identify_with_class_name(type_, "ushort") || type_identify_with_class_name(type_, "long") || type_identify_with_class_name(type_, "ulong") || type_identify_with_class_name(type_, "float") || type_identify_with_class_name(type_, "double") || type_identify_with_class_name(type_, "Integer") || type_identify_with_class_name(type_, "UInteger") || type_identify_with_class_name(type_, "Byte") || type_identify_with_class_name(type_, "UByte") || type_identify_with_class_name(type_, "Short") || type_identify_with_class_name(type_, "UShort") || type_identify_with_class_name(type_, "Long") || type_identify_with_class_name(type_, "ULong") || type_identify_with_class_name(type_, "Float") || type_identify_with_class_name(type_, "Double");
 }
 
+static BOOL is_numeric_type_without_float(sNodeType* type_)
+{
+    return type_identify_with_class_name(type_, "int") || type_identify_with_class_name(type_, "uint") || type_identify_with_class_name(type_, "byte") || type_identify_with_class_name(type_, "ubyte") || type_identify_with_class_name(type_, "short") || type_identify_with_class_name(type_, "ushort") || type_identify_with_class_name(type_, "long") || type_identify_with_class_name(type_, "ulong") || type_identify_with_class_name(type_, "Integer") || type_identify_with_class_name(type_, "UInteger") || type_identify_with_class_name(type_, "Byte") || type_identify_with_class_name(type_, "UByte") || type_identify_with_class_name(type_, "Short") || type_identify_with_class_name(type_, "UShort") || type_identify_with_class_name(type_, "Long") || type_identify_with_class_name(type_, "ULong");
+}
 
 BOOL operand_posibility(sNodeType* left, sNodeType* right, char* op_string)
 {
@@ -693,16 +698,30 @@ void print_node_type(sNodeType* node_type)
     }
 }
 
+BOOL cast_posibility(sNodeType* left_type, sNodeType* right_type)
+{
+    sCLClass* left_class = left_type->mClass;
+    sCLClass* right_class = right_type->mClass;
+
+    /// ulong --> int or int --> ulong etc
+    if(is_numeric_type_without_float(left_type) && is_numeric_type_without_float(right_type)) {
+        return TRUE;
+    }
+    else if(boxing_posibility(left_type, right_type)) {
+        return TRUE;
+    }
+    else if(unboxing_posibility(left_type, right_type)) {
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
 BOOL boxing_posibility(sNodeType* left_type, sNodeType* right_type)
 {
     if(left_type->mNumGenericsTypes == 0 && right_type->mNumGenericsTypes == 0) {
         sCLClass* left_class = left_type->mClass;
         sCLClass* right_class = right_type->mClass;
-
-        /// ulong --> int or int --> ulong etc
-        if(is_numeric_type(left_type) && is_numeric_type(right_type)) {
-            return TRUE;
-        }
 
         if(right_class->mBoxingClass == left_class) {
             return TRUE;

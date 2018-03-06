@@ -333,7 +333,7 @@ class stat
     def permission():int {
         return self.st_mode & (System.S_ISUID|System.S_ISGID|System.S_ISVTX|System.S_IRWXU|System.S_IRWXG|System.S_IRWXO);
     }
-    def S_IXUGO():int {
+    def S_IXUGO():bool {
         return ((self.st_mode & System.S_IXUSR) == System.S_IXUSR) && ((self.st_mode & System.S_IXGRP) == System.S_IXGRP) && ((self.st_mode & System.S_IXOTH) == System.S_IXOTH);
     }
     def atime():tm {

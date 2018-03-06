@@ -2311,7 +2311,6 @@ static void clover2_init()
     heap_init(128, 128);
     stack_init();
     (void)class_init_on_runtime();
-    //set_boxing_and_unboxing_classes();
 }
 
 static void clover2_final()
@@ -2340,7 +2339,7 @@ static void compiler_final()
 
 int gARGC;
 char** gARGV;
-char* gVersion = "3.7.1";
+char* gVersion = "3.7.2";
 
 int main(int argc, char** argv)
 {

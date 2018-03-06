@@ -1,0 +1,14 @@
+class FloatClassA {
+    def method(a:float, b:float):static float {
+        println("method");
+        return a + b;
+    }
+    def method2(a:Float):static Float {
+        println("method2");
+        return a;
+    }
+
+    def method3(a:short, b:ulong): static int {
+        return a + b;
+    }
+}

@@ -156,7 +156,7 @@ static BOOL parse_generics_params(sGenericsParamInfo* ginfo, sParserInfo* info, 
     return TRUE;
 }
 
-static BOOL parse_class_name_and_attributes(char* class_name, int class_name_size, sParserInfo* info, sCompileInfo* cinfo)
+static BOOL parse_class_name_and_attributes(char* class_name, int class_name_size, sParserInfo* info, sCompileInfo* cinfo, sCLClass** unboxing_class)
 {
     /// class name ///
     if(!parse_word(class_name, VAR_NAME_MAX, info, TRUE, FALSE)) {
@@ -184,6 +184,14 @@ static BOOL parse_class_name_and_attributes(char* class_name, int class_name_siz
                 return FALSE;
             }
 
+            if(strcmp(buf, "unboxing") == 0) {
+                if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
+                    return FALSE;
+                }
+
+                *unboxing_class = get_class(buf);
+            }
+
             if(*info->p == '\0') {
                 parser_err_msg(info, "It is the source end. Close class definition");
                 info->err_num++;
@@ -201,8 +209,9 @@ static BOOL parse_class_name_and_attributes(char* class_name, int class_name_siz
 static BOOL parse_class_on_alloc_classes_phase(sParserInfo* info, sCompileInfo* cinfo, BOOL interface, BOOL dynamic_class)
 {
     char class_name[VAR_NAME_MAX];
+    sCLClass* unboxing_class = NULL;
 
-    if(!parse_class_name_and_attributes(class_name, VAR_NAME_MAX, info, cinfo))
+    if(!parse_class_name_and_attributes(class_name, VAR_NAME_MAX, info, cinfo, &unboxing_class))
     {
         return FALSE;
     }
@@ -210,7 +219,7 @@ static BOOL parse_class_on_alloc_classes_phase(sParserInfo* info, sCompileInfo* 
     info->klass = get_class(class_name);
 
     if(info->klass == NULL) {
-        info->klass = alloc_class(class_name, FALSE, -1, -1, info->generics_info.mNumParams, info->generics_info.mInterface, interface, dynamic_class, FALSE);
+        info->klass = alloc_class(class_name, FALSE, -1, -1, info->generics_info.mNumParams, info->generics_info.mInterface, interface, dynamic_class, FALSE, unboxing_class);
         info->klass->mFlags |= CLASS_FLAGS_ALLOCATED;
     }
 
@@ -733,8 +742,9 @@ static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOO
 static BOOL parse_class_on_add_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOOL interface)
 {
     char class_name[VAR_NAME_MAX];
+    sCLClass* unboxing_class = NULL;
 
-    if(!parse_class_name_and_attributes(class_name, VAR_NAME_MAX, info, cinfo))
+    if(!parse_class_name_and_attributes(class_name, VAR_NAME_MAX, info, cinfo, &unboxing_class))
     {
         return FALSE;
     }
@@ -1171,8 +1181,9 @@ BOOL parse_methods_and_fields_on_compile_time(sParserInfo* info, sCompileInfo* c
 static BOOL parse_class_on_compile_code(sParserInfo* info, sCompileInfo* cinfo, BOOL interface)
 {
     char class_name[VAR_NAME_MAX];
+    sCLClass* unboxing_class = NULL;
 
-    if(!parse_class_name_and_attributes(class_name, VAR_NAME_MAX, info, cinfo))
+    if(!parse_class_name_and_attributes(class_name, VAR_NAME_MAX, info, cinfo, &unboxing_class))
     {
         return FALSE;
     }

@@ -1,4 +1,8 @@
 
+clover2 (3.7.2-1) unstable; urgency=medium
+
+    * When assigning a numeric value to a variable, it does not automatically convert to double or float such as int -> float. (int -> long) etc. are implicitly cast
+
 clover2 (3.7.1-1) unstable; urgency=medium
 
     * Added Multiple Assignements for local variables

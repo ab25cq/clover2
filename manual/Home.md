@@ -149,6 +149,8 @@ Methodのネイティブコードコンパイルが必要になる場合は`--wi
 
 ## パッケージング
 
+Fedoraではパッケージになっているので、yum install clover2でいけるはずです（未確認）
+
 Debianではパッケージによるインストールができます。. make_deb.shでパッケージの作成ができます。. install_deb.shでパッケージがインストールされます。アンインストールは sudo apt-get remove clover2です。
 パッケージングはできているので、パッケージを登録してもらえるDebianの開発者募集中です。
 どなたかよろしくお願いしますm(_ _)m
@@ -156,6 +158,10 @@ Debianではパッケージによるインストールができます。. make_d
 ## リリースノート
 
 * [リリースノート](release_note)
+
+## 掲示板
+
+2ch Linux板 * [【静的型付け】Clover2 【LLVM,補完付きREPL】](https://mao.5ch.net/test/read.cgi/linux/1520327862/l50)
 
 ----
 

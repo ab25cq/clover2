@@ -343,12 +343,11 @@ typedef struct sCLClassStruct sCLClass;
 
 void class_init();
 void class_init_on_compile_time();
-void set_boxing_and_unboxing_classes();
 void class_final();
 
 sCLClass* get_class(char* name);
 unsigned int get_hash_key(char* name, unsigned int max);
-sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_class_num, int method_generics_param_class_num, int generics_number, sCLClass** type_of_generics_params, BOOL interface, BOOL dynamic_class, BOOL no_free_object);
+sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_class_num, int method_generics_param_class_num, int generics_number, sCLClass** type_of_generics_params, BOOL interface, BOOL dynamic_class, BOOL no_free_object, sCLClass* unboxing_class);
 ALLOC sCLType* create_cl_type(sCLClass* klass, sCLClass* klass2);
 void free_cl_type(sCLType* cl_type);
 sCLClass* load_class(char* class_name);
@@ -358,6 +357,7 @@ BOOL put_class_to_table(char* class_name, sCLClass* klass);
 BOOL jit_compile_all_classes();
 void remove_class(char* class_name);
 sCLClass* load_class_from_class_file(char* class_name, char* class_file_name);
+void set_boxing_and_unboxing_classes();
 
 sCLClass* get_class_with_load(char* class_name);
 
@@ -402,6 +402,7 @@ sNodeType* create_node_type_with_class_pointer(sCLClass* klass);
 BOOL is_exception_type(sNodeType* exception_type);
 
 BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_generics_types, sNodeType* right_generics_types, sNodeType* left_method_generics, sNodeType* right_method_generics);
+BOOL cast_posibility(sNodeType* left_type, sNodeType* right_type);
 BOOL substitution_posibility_with_class_name(sNodeType* left, char* right_class_name);
 BOOL operand_posibility_with_class_name(sNodeType* left, char* right_class_name, char* op_string);
 BOOL operand_posibility(sNodeType* left, sNodeType* right, char* op_string);

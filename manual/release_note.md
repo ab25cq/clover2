@@ -1,5 +1,10 @@
 English page is here [>> English page](release_note-en)
 
+version 3.7.2
+
+    変数への数値の代入時にint --> floatなどdoubleやfloatの場合は自動変換しなくなりました。
+    (int --> long)などは暗黙のキャストが行われます
+
 version 3.7.1
 
     ローカル変数の多重代入を入れました。

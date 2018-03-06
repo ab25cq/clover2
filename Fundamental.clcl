@@ -288,7 +288,7 @@ module MWrapperClassBase
     }
 }
 
-class Byte 
+class Byte : unboxing byte
 {
     include MWrapperClassBase;
 
@@ -323,7 +323,7 @@ class Byte
     }
 }
 
-class UByte 
+class UByte : unboxing ubyte
 {
     include MWrapperClassBase;
 
@@ -358,7 +358,7 @@ class UByte
     }
 }
 
-class Short 
+class Short : unboxing short
 {
     include MWrapperClassBase;
 
@@ -393,7 +393,7 @@ class Short
     }
 }
 
-class UShort 
+class UShort : unboxing ushort
 {
     include MWrapperClassBase;
 
@@ -428,7 +428,7 @@ class UShort
     }
 }
 
-class Integer 
+class Integer : unboxing int
 {
     include MWrapperClassBase;
 
@@ -469,7 +469,7 @@ class Integer
     }
 }
 
-class UInteger 
+class UInteger : unboxing uint
 {
     include MWrapperClassBase;
 
@@ -504,7 +504,7 @@ class UInteger
     }
 }
 
-class Long 
+class Long : unboxing long
 {
     include MWrapperClassBase;
 
@@ -539,7 +539,7 @@ class Long
     }
 }
 
-class ULong 
+class ULong : unboxing ulong
 {
     include MWrapperClassBase;
 
@@ -574,7 +574,7 @@ class ULong
     }
 }
 
-class Float 
+class Float : unboxing float
 {
     include MWrapperClassBase;
 
@@ -605,7 +605,7 @@ class Float
     }
 }
 
-class Double
+class Double : unboxing double
 {
     include MWrapperClassBase;
 
@@ -636,7 +636,7 @@ class Double
     }
 }
 
-class Pointer
+class Pointer : unboxing pointer
 {
     include MWrapperClassBase;
 
@@ -667,7 +667,7 @@ class Pointer
     }
 }
 
-class Char
+class Char : unboxing char
 {
     include MWrapperClassBase;
 
@@ -734,7 +734,7 @@ class Char
     }
 }
 
-class Bool
+class Bool : unboxing bool
 {
     value: bool;
 

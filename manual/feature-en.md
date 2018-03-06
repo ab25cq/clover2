@@ -1390,6 +1390,11 @@ For now, we can only do this multiple assignment with local variables.
 Assign to class fields and fields normally.
 Also, if you feel like it, you may implement it.
 
+
+### AUTOMATIC CAST IN ASSEMBLY
+
+In the case of int, short, long, including wrapper classes, mutual automatic casting is done and assignment and arguments of method become different arguments regardless of type. float, double, Float, Double are not automatically cast.
+
 ----
 
 [<< previous usage](usage-en) [>> next type inference](typing-en)
