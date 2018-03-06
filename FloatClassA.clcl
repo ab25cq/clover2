@@ -11,4 +11,8 @@ class FloatClassA {
     def method3(a:short, b:ulong): static int {
         return a + b;
     }
+
+    def method4(a:String) :static int {
+        return a.length();
+    }
 }
