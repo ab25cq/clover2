@@ -161,7 +161,7 @@ Debianではパッケージによるインストールができます。. make_d
 
 ## 掲示板
 
-2ch Linux板 * [【静的型付け】Clover2 【LLVM,補完付きREPL】](https://mao.5ch.net/test/read.cgi/linux/1520327862/l50)
+2ch プログラム板 * [【静的型付けRuby】Clover2 【LLVM,補完付きREPL】](https://mevius.5ch.net/test/read.cgi/tech/1520385530/l50)
 
 ----
 
