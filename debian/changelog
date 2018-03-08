@@ -1,3 +1,6 @@
+clover2 (3.7.3-1) unstable; urgency=medium
+
+    * A simplified expression was added to the expression of the value of hash. 
 
 clover2 (3.7.2-1) unstable; urgency=medium
 

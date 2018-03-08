@@ -1,5 +1,9 @@
 English page is here [>> English page](release_note-en)
 
+version 3.7.3
+
+    hashの値の表現に簡易表現を追加しました。a:Hash<String,Integer> = [ "AAA":2, "BBB":3 ]はコンパイルが通ります。
+
 version 3.7.2
 
     変数への数値の代入時にint --> floatなどdoubleやfloatの場合は自動変換しなくなりました。

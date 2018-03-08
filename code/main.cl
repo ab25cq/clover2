@@ -1,7 +1,5 @@
 println("ClosureTest");
 ClosureTest.main();
-println("ParserTest");
-ParserTest.main();
 
 println("ListTest");
 ListTest.main();
@@ -174,3 +172,5 @@ println("MapTest");
 MapTest.main();
 println("SysteCallTest");
 SystemCallTest.main();
+#println("RefelectionTest");
+#RefelectionTest.main()

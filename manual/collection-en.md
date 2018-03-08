@@ -400,3 +400,4 @@ Tuples can be written as (1, "AAA", 2), and so on.
     a:Tuple3<String, String, Integer> = ("AAA", "BBB", 1)
     assert(a.value1.equals("AAA") && a.value2.equals("BBB") && a.value3 == 1);
 
+Hash can be written as "[" AAA ": 1," BBB ", 2] and so on. a: Hash <String, Integer> = ["AAA": 2, "BBB": 3] is compiled

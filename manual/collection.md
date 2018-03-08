@@ -383,3 +383,5 @@ equalsで値が同一か比較することができます。TupleのGenericsで�
     a:Tuple3<String, String, Integer> = ("AAA", "BBB", 1)
     assert(a.value1.equals("AAA") && a.value2.equals("BBB") && a.value3 == 1);
 
+ハッシュは["AAA":1, "BBB",2]などと書けます。a:Hash<String,Integer> = [ "AAA":2, "BBB":3 ]はコンパイルが通ります。
+

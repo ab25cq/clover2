@@ -1,0 +1,25 @@
+
+class ReflectionA {
+    a:int;
+
+    def initialize() {
+        a = 123;
+    }
+    def method1() : int {
+        123
+    }
+    def setB(v:int) {
+        b = v;
+    }
+}
+
+Clover.addFiled("RefrectionA", "b", "int");
+
+class ReflectionTest
+{
+    def main() {
+        a := new ReflectionA();
+        a.setB(234);
+        Clover.test("refelection test", a.a == 123 && a.b == 234);
+    }
+}

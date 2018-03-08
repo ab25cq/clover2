@@ -2576,12 +2576,18 @@ static BOOL parse_normal_block(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
-static BOOL parse_array_value(unsigned int* node, sParserInfo* info) 
+static BOOL parse_array_value_or_hash_value(unsigned int* node, sParserInfo* info) 
 {
     int num_elements = 0;
 
     unsigned int array_elements[ARRAY_VALUE_ELEMENT_MAX];
     memset(array_elements, 0, sizeof(unsigned int)*ARRAY_VALUE_ELEMENT_MAX);
+
+    unsigned int hash_keys[HASH_VALUE_ELEMENT_MAX+1];
+    unsigned int hash_items[HASH_VALUE_ELEMENT_MAX+1];
+
+    memset(hash_keys, 0, sizeof(unsigned int)*HASH_VALUE_ELEMENT_MAX);
+    memset(hash_items, 0, sizeof(unsigned int)*HASH_VALUE_ELEMENT_MAX);
 
     if(*info->p == ']') {
         info->p++;
@@ -2589,30 +2595,82 @@ static BOOL parse_array_value(unsigned int* node, sParserInfo* info)
     }
     else {
         while(1) {
-            if(!expression(array_elements + num_elements, info)) {
+            unsigned int node = 0;
+            if(!expression(&node, info)) {
                 return FALSE;
             }
 
-            num_elements++;
-
-            if(num_elements >= ARRAY_VALUE_ELEMENT_MAX) {
-                parser_err_msg(info, "overflow array value elements");
-                return FALSE;
-            }
-
-            if(*info->p == ',') {
+            if(*info->p == ':') {
                 info->p++;
                 skip_spaces_and_lf(info);
+
+                hash_keys[num_elements] = node;
+
+                unsigned int node2 = 0;
+                if(!expression(&node2, info)) {
+                    return FALSE;
+                }
+
+                hash_items[num_elements] = node2;
+
+                num_elements++;
+
+                if(num_elements >= HASH_VALUE_ELEMENT_MAX) {
+                    parser_err_msg(info, "overflow hash value elements");
+                    return FALSE;
+                }
+
+                if(*info->p == ',') {
+                    info->p++;
+                    skip_spaces_and_lf(info);
+                }
+                else if(*info->p == ']') {
+                    info->p++;
+                    skip_spaces_and_lf(info);
+                    break;
+                }
+                else {
+                    parser_err_msg(info, "invalid hash value");
+                    info->err_num++;
+                }
             }
-            else if(*info->p == ']') {
-                info->p++;
-                skip_spaces_and_lf(info);
-                break;
+            else {
+                array_elements[num_elements] = node;
+
+                num_elements++;
+
+                if(num_elements >= ARRAY_VALUE_ELEMENT_MAX) {
+                    parser_err_msg(info, "overflow array value elements");
+                    return FALSE;
+                }
+
+                if(*info->p == ',') {
+                    info->p++;
+                    skip_spaces_and_lf(info);
+                }
+                else if(*info->p == ']') {
+                    info->p++;
+                    skip_spaces_and_lf(info);
+                    break;
+                }
+                else {
+                    parser_err_msg(info, "invalid array value");
+                    info->err_num++;
+                }
             }
         }
     }
 
-    *node = sNodeTree_create_array_value(num_elements, array_elements, info);
+    if(array_elements[0] != 0 && hash_keys[0] != 0) {
+        parser_err_msg(info, "invalid hash or array value");
+        info->err_num++;
+    }
+    else if(array_elements[0] != 0) {
+        *node = sNodeTree_create_array_value(num_elements, array_elements, info);
+    }
+    else if(hash_keys[0] != 0) {
+        *node = sNodeTree_create_hash_value(num_elements, hash_keys, hash_items, info);
+    }
 
     return TRUE;
 }
@@ -3459,12 +3517,12 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             *node = sNodeTree_create_character_value(c, info);
         }
     }
-    /// 配列の値 ///
+    /// 配列とハッシュの値 ///
     else if(*info->p == '[') {
         info->p++;
         skip_spaces_and_lf(info);
 
-        if(!parse_array_value(node, info)) {
+        if(!parse_array_value_or_hash_value(node, info)) {
             return FALSE;
         }
     }
