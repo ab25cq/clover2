@@ -1265,6 +1265,45 @@ If you declared
 
 Declaration can be canceled. I think that it can be used conveniently in REPL.
 
+## multiple assignment
+
+Tuples can be assigned to multiple local variables.
+
+```
+    > (a, b): = (1, 2)
+```
+
+The right side value is a tuple. Please see the collection section for details.
+a is 1 and b is 2.
+It is also possible to exchange the values ​​of variables.
+
+```
+    > a: = 1; b: = 2;
+    > (a, b) = (b, a)
+```
+
+a is 2 and b is 1.
+For now, we can only do this multiple assignment with local variables.
+Assign to class fields and fields normally.
+Also, if you feel like it, you may implement it.
+
+## AUTOMATIC CAST IN ASSEMBLY
+
+In the case of int, short, long, including wrapper classes, mutual automatic casting is done and assignment and arguments of method become different arguments regardless of type. float, double, Float, Double are not automatically cast.
+
+## Exception
+
+I forgot to write, but of course there is also exception handling.
+
+try {
+    throws new Exception("TEST");
+}
+catch(e:Exception) {
+    println("catch EXCEPTION");
+}
+
+Exceptions are not typed. Determine the exception that occurred in the message in e.message Please.
+
 # Sugar coating syntax
 
 ### sugar-coating syntax of the lambda class
@@ -1368,32 +1407,6 @@ Self abbreviation for fields of the same class
 ```
 It is like the above. Although the namespace of the local variable and the field batters, since the local variable takes precedence in the search algorithm, please add self to the field when it is ambiguous. With this algorithm, it was judged that there is no particular problem even if self is omitted. It is compatible with past codes.
 
-### multiple assignment
-
-Tuples can be assigned to multiple local variables.
-
-```
-    > (a, b): = (1, 2)
-```
-
-The right side value is a tuple. Please see the collection section for details.
-a is 1 and b is 2.
-It is also possible to exchange the values ​​of variables.
-
-```
-    > a: = 1; b: = 2;
-    > (a, b) = (b, a)
-```
-
-a is 2 and b is 1.
-For now, we can only do this multiple assignment with local variables.
-Assign to class fields and fields normally.
-Also, if you feel like it, you may implement it.
-
-
-### AUTOMATIC CAST IN ASSEMBLY
-
-In the case of int, short, long, including wrapper classes, mutual automatic casting is done and assignment and arguments of method become different arguments regardless of type. float, double, Float, Double are not automatically cast.
 
 ----
 
