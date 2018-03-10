@@ -2132,6 +2132,10 @@ BOOL System_getcwd(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_getopt(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_getopt_long(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_getopt_long_only(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_getppid(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_setsid(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_getsid(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_setpgrp(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 /// alignment.c ///
 void alignment(unsigned int* size);

@@ -1,5 +1,11 @@
 English page is here [>> English page](release_note-en)
 
+version 3.7.4
+
+    getppid, setsid, getsid, setpgrp, setpigdをSystemクラスに追加しました。
+
+    REPLで配列に対するメソッドコールの補完にバグが有りました。修正。
+
 version 3.7.3
 
     hashの値の表現に簡易表現を追加しました。a:Hash<String,Integer> = [ "AAA":2, "BBB":3 ]はコンパイルが通ります。

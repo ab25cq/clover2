@@ -43,4 +43,9 @@ class System
     no_argument:static int;
     required_argument:static int;
     optional_argument:static int;
+
+    def getppid():static native pid_t;
+    def setsid():static native pid_t throws Exception;
+    def getsid(pid:pid_t):static native pid_t throws Exception;
+    def setpgrp():static native pid_t throws Exception;
 }

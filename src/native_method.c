@@ -163,6 +163,7 @@ static sNativeMethod gNativeMethods[] = {
     { "System.WSTOPSIG(int)", "System_WSTOPSIG", System_WSTOPSIG },
     { "System.WIFCONTINUED(int)", "System_WIFCONTINUED", System_WIFCONTINUED },
     { "System.getpid()", "System_getpid", System_getpid },
+    { "System.getppid()", "System_getppid", System_getppid },
     { "System.setpgid(int,int)", "System_setpgid", System_setpgid },
     { "System.kill(int,int)", "System_kill", System_kill },
     { "System.tcsetpgrp(int,int)", "System_tcsetpgrp", System_tcsetpgrp },
@@ -229,6 +230,9 @@ static sNativeMethod gNativeMethods[] = {
     { "System.getopt(String,bool)", "System_getopt", System_getopt },
     { "System.getopt_long(String,getopt_long_option[],bool)", "System_getopt_long", System_getopt_long },
     { "System.getopt_long_only(String,getopt_long_option[],bool)", "System_getopt_long_only", System_getopt_long_only },
+    { "System.setsid()", "System_setsid", System_setsid },
+    { "System.getsid(int)", "System_getsid", System_getsid },
+    { "System.setpgrp()", "System_setpgrp", System_setpgrp },
 
     { "", "", 0 }  // sentinel
 };

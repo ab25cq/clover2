@@ -1582,11 +1582,11 @@ static int my_complete_internal(int count, int key)
             if(type_) {
                 klass = type_->mClass;
 
-                if(klass->mFlags & CLASS_FLAGS_PRIMITIVE) {
-                    klass = klass->mBoxingClass;
-                }
-                else if(type_->mArray) {
+                if(type_->mArray) {
                     klass = get_class("Array");
+                }
+                else if(klass->mFlags & CLASS_FLAGS_PRIMITIVE) {
+                    klass = klass->mBoxingClass;
                 }
 
                 if(klass) {
@@ -2339,7 +2339,7 @@ static void compiler_final()
 
 int gARGC;
 char** gARGV;
-char* gVersion = "3.7.3";
+char* gVersion = "3.7.4";
 
 int main(int argc, char** argv)
 {

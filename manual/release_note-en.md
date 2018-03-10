@@ -1,4 +1,10 @@
 
+version 3.7.4
+
+    Added getppid, setsid, getsid, setpgrp, setpigd to System Class
+    
+    There was a bug in completing method calls for arrays in REPL. Fix.
+
 version 3.7.3
 
     A simplified expression was added to the expression of the value of hash. a: Hash <String, Integer> = ["AAA": 2, "BBB": 3] is compiled
