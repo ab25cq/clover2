@@ -41,6 +41,8 @@ Method names, external command names, file names are also supplemented. Just lik
 
 ```
 > a: SortableList <String> = slist {1,2,3} .map { it.toString() }
+
+10. The script can perform motion reflection at compile time. Since it is done at compile time, the overhead of reflection is 0 at run time.
 ```
 
 # Sample code
