@@ -12,6 +12,28 @@ static void compiler_init(BOOL no_load_fudamental_classes)
     parser_init();
 }
 
+static void clover2_init(BOOL no_load_fudamental_classes)
+{
+#ifdef ENABLE_JIT
+    jit_init_on_runtime();
+#endif
+    native_method_init();
+    heap_init(128, 128);
+    stack_init();
+    //if(!no_load_fudamental_classes) class_init_on_runtime();
+}
+
+static void clover2_final()
+{
+    class_final_on_runtime();
+    heap_final();
+    stack_final();
+    native_method_final();
+#ifdef ENABLE_JIT
+    jit_final_on_runtime();
+#endif
+}
+
 static void compiler_final()
 {
     parser_final();
@@ -112,9 +134,16 @@ static BOOL class_compiler(char* fname)
     return TRUE;
 }
 
+int gARGC;
+char** gARGV;
+char* gVersion = "3.7.5";
+
 int main(int argc, char** argv)
 {
     int i;
+
+    gARGC = argc;
+    gARGV = argv;
 
     setlocale(LC_ALL, "");
 
@@ -160,11 +189,13 @@ int main(int argc, char** argv)
     }
 
     compiler_init(no_load_fudamental_classes);
+    clover2_init(no_load_fudamental_classes);
 
     if(clcl_compile) {
         if(!class_compiler(sname)) {
             fprintf(stderr, "cclover2 can't compile %s\n", argv[i]);
             compiler_final();
+            clover2_final();
             return 1;
         }
     }
@@ -172,10 +203,12 @@ int main(int argc, char** argv)
         if(!compiler(sname)) {
             fprintf(stderr, "cclover2 can't compile %s\n", argv[i]);
             compiler_final();
+            clover2_final();
             return 1;
         }
     }
 
+    clover2_final();
     compiler_final();
 
     return 0;

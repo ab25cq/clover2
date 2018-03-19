@@ -172,5 +172,5 @@ println("MapTest");
 MapTest.main();
 println("SysteCallTest");
 SystemCallTest.main();
-#println("RefelectionTest");
-#RefelectionTest.main()
+println("RefelectionTest");
+ReflectionTest.main();

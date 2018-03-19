@@ -20,9 +20,10 @@ English page is here [>> English page](libraries-en)
 * [ディレクトリクラス](directory)
 * [バッファークラス](buffer)
 * [コンテナライブラリ](collection)
+* [リフレクション](reflection)
 
 更に詳しい情報はソースコードを参照してください。
-ソースに含まれるFundamental.clcl→String.clcl→Container.clcl→Range.clcl→File.clcl→Command.clcl→SystemCalls.clcl→MyOwnLibrary.clclの順にレイヤーが重ねられてます。順番にみていくことで、理解が深まることでしょう。
+ソースに含まれるFundamental.clcl→Reflection.clcl→String.clcl→Container.clcl→Range.clcl→File.clcl→Command.clcl→SystemCalls.clcl→MyOwnLibrary.clclの順にレイヤーが重ねられてます。順番にみていくことで、理解が深まることでしょう。
 
 ----
 

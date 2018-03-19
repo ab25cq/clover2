@@ -233,6 +233,16 @@ static sNativeMethod gNativeMethods[] = {
     { "System.setsid()", "System_setsid", System_setsid },
     { "System.getsid(int)", "System_getsid", System_getsid },
     { "System.setpgrp()", "System_setpgrp", System_setpgrp },
+    { "Clover.appendField(String,String,String)", "Clover_appendField", Clover_appendField },
+    { "Clover.appendClassField(String,String,String)", "Clover_appendClassField", Clover_appendClassField },
+    { "Clover.appendMethod(String,String)", "Clover_appendMethod", Clover_appendMethod },
+    { "Clover.initialize_reflection()", "Clover_initialize_reflection", Clover_initialize_reflection },
+    { "Clover.getField(String,int)", "Clover_getField", Clover_getField },
+    { "Clover.getClassField(String,int)", "Clover_getClassField", Clover_getClassField },
+    { "Clover.getMethod(String,int)", "Clover_getMethod", Clover_getMethod },
+    { "Clover.getClassFlags(String)", "Clover_getClassFlags", Clover_getClassFlags },
+    { "Clover.getClassGenericsParamTypes(String)", "Clover_getClassGenericsParamTypes", Clover_getClassGenericsParamTypes },
+    { "Clover.getClassGenericsParamNames(String)", "Clover_getClassGenericsParamNames", Clover_getClassGenericsParamNames },
 
     { "", "", 0 }  // sentinel
 };

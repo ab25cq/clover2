@@ -1,4 +1,8 @@
 
+version 3.7.5
+    
+    Added Compile time scripting and Reflection.
+
 version 3.7.4
 
     Added getppid, setsid, getsid, setpgrp, setpigd to System Class

@@ -209,7 +209,7 @@ void set_method_index_to_class(sCLClass* klass)
     }
 }
 
-BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_, sGenericsParamInfo* ginfo)
+BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_, sGenericsParamInfo* ginfo, sCLMethod** appended_method)
 {
     if(klass->mNumMethods == klass->mSizeMethods) {
         int new_size = klass->mSizeMethods * 2;
@@ -219,6 +219,8 @@ BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* param
     }
 
     const int num_methods = klass->mNumMethods;
+
+    *appended_method = klass->mMethods + num_methods;
 
     klass->mMethods[num_methods].mFlags = (native_ ? METHOD_FLAGS_NATIVE : 0) | (static_ ? METHOD_FLAGS_CLASS_METHOD:0);
     klass->mMethods[num_methods].mNameOffset = append_str_to_constant_pool(&klass->mConst, method_name, FALSE);
@@ -281,6 +283,11 @@ BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* param
         return FALSE;
     }
 
+    if(!create_virtual_method_table(klass)) {
+        fprintf(stderr, "overflow method number\n");
+        return FALSE;
+    }
+
     set_method_index_to_class(klass);
     
     return TRUE;
@@ -308,29 +315,6 @@ BOOL add_typedef_to_class(sCLClass* klass, char* class_name1, char* class_name2)
     return TRUE;
 }
 
-BOOL add_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type)
-{
-    if(klass->mNumFields == klass->mSizeFields) {
-        int new_size = klass->mSizeFields * 2;
-        klass->mFields = MREALLOC(klass->mFields, sizeof(sCLField)*new_size);
-        memset(klass->mFields + klass->mSizeFields, 0, sizeof(sCLField)*(new_size - klass->mSizeFields));
-        klass->mSizeFields = new_size;
-    }
-
-    const int num_fields = klass->mNumFields;
-
-    klass->mFields[num_fields].mFlags = (private_ ? FIELD_FLAGS_PRIVATE : 0) | (protected_ ? FIELD_FLAGS_PROTECTED:0);
-    klass->mFields[num_fields].mNameOffset = append_str_to_constant_pool(&klass->mConst, name, FALSE);
-
-    klass->mFields[num_fields].mNumDelegatedMethod = 0;
-    memset(&klass->mFields[num_fields].mDelegatedMethodIndex, 0, sizeof(int)*METHOD_NUM_MAX);
-
-    node_type_to_cl_type(result_type, ALLOC &klass->mFields[num_fields].mResultType, klass);
-
-    klass->mNumFields++;
-    
-    return TRUE;
-}
 
 BOOL add_class_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type, int initialize_value)
 {
@@ -914,6 +898,7 @@ static void write_class_to_buffer(sCLClass* klass, sBuf* buf)
     sBuf_append_int(buf, klass->mNumGenerics);
     int i;
     for(i=0; i<klass->mNumGenerics; i++ ) {
+        sBuf_append_int(buf, klass->mGenericsParamNameOffsets[i]);
         sBuf_append_int(buf, klass->mGenericsParamTypeOffsets[i]);
     }
     sBuf_append_int(buf, klass->mGenericsParamClassNum);
@@ -1071,6 +1056,10 @@ static void load_fundamental_classes_on_compile_time()
     load_class_on_compile_time("termios");
     load_class_on_compile_time("Job");
     load_class_on_compile_time("Command");
+    load_class_on_compile_time("Class");
+    load_class_on_compile_time("Method");
+    load_class_on_compile_time("MethodParam");
+    load_class_on_compile_time("Field");
 
     load_class_on_compile_time("Clover");
 }
@@ -1079,6 +1068,7 @@ void class_init_on_compile_time()
 {
     load_fundamental_classes_on_compile_time();
     set_boxing_and_unboxing_classes();
+    set_free_fun_to_classes();
 }
 
 sCLClass* get_class_with_load_on_compile_time(char* class_name)
@@ -1090,4 +1080,193 @@ sCLClass* get_class_with_load_on_compile_time(char* class_name)
     }
 
     return result;
+}
+
+BOOL add_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type)
+{
+    if(klass->mNumFields == klass->mSizeFields) {
+        int new_size = klass->mSizeFields * 2;
+        klass->mFields = MREALLOC(klass->mFields, sizeof(sCLField)*new_size);
+        memset(klass->mFields + klass->mSizeFields, 0, sizeof(sCLField)*(new_size - klass->mSizeFields));
+        klass->mSizeFields = new_size;
+    }
+
+    const int num_fields = klass->mNumFields;
+
+    klass->mFields[num_fields].mFlags = (private_ ? FIELD_FLAGS_PRIVATE : 0) | (protected_ ? FIELD_FLAGS_PROTECTED:0);
+    klass->mFields[num_fields].mNameOffset = append_str_to_constant_pool(&klass->mConst, name, FALSE);
+
+    klass->mFields[num_fields].mNumDelegatedMethod = 0;
+    memset(&klass->mFields[num_fields].mDelegatedMethodIndex, 0, sizeof(int)*METHOD_NUM_MAX);
+
+    node_type_to_cl_type(result_type, ALLOC &klass->mFields[num_fields].mResultType, klass);
+
+    klass->mNumFields++;
+    
+    return TRUE;
+}
+
+static BOOL type_name_to_cl_type(char** p, ALLOC sCLType** cl_type, sCLClass* klass)
+{
+    char class_name[CLASS_NAME_MAX];
+
+    char* p2 = class_name;
+
+    while(isalnum(**p) || **p == '_') {
+        *p2++ = **p;
+        (*p)++;
+    }
+    *p2 = '\0';
+
+    sCLClass* cl_type_class = get_class_with_load_and_initialize(class_name);
+
+    if(cl_type_class == NULL) {
+        return FALSE;
+    }
+
+    *cl_type = create_cl_type(cl_type_class, klass);
+
+    (*cl_type)->mNumGenericsTypes = 0;
+
+    if(strcmp(class_name, "lambda") == 0) {
+        (*cl_type)->mBlockType = MCALLOC(1, sizeof(sCLBlockType));
+
+        if(**p == '(') {
+            (*p)++;
+
+            if(**p == ')') {
+                (*p)++;
+            }
+            else {
+                int num_params = 0;
+                while(1) {
+                    sCLType* cl_block_param = NULL;
+                    if(!type_name_to_cl_type(p, ALLOC &cl_block_param, klass)) 
+                    {
+                        return FALSE;
+                    }
+
+                    (*cl_type)->mBlockType->mParams[num_params] = cl_block_param;
+                    num_params++;
+
+                    if(num_params >= PARAMS_MAX) {
+                        return FALSE;
+                    }
+
+                    if(**p == ')') {
+                        (*p)++;
+                        break;
+                    }
+                    else if(**p == ',') {
+                        (*p)++;
+                    }
+                    else {
+                        break;
+                    }
+                }
+                (*cl_type)->mBlockType->mNumParams = num_params;
+            }
+        }
+
+        if(**p == ':') {
+            (*p)++;
+
+            sCLType* result_type = NULL;
+            if(!type_name_to_cl_type(p, ALLOC &result_type, klass)) 
+            {
+                return FALSE;
+            }
+
+            (*cl_type)->mBlockType->mResultType = result_type;
+        }
+        else {
+            sCLClass* null_class = get_class("Null");
+            (*cl_type)->mBlockType->mResultType = create_cl_type(null_class, klass);
+        }
+    }
+    else if(**p == '<') {
+        while(1) {
+            if(!type_name_to_cl_type(p, ALLOC (*cl_type)->mGenericsTypes + (*cl_type)->mNumGenericsTypes, klass)) {
+                return FALSE;
+            }
+
+            (*cl_type)->mNumGenericsTypes++;
+
+            if((*cl_type)->mNumGenericsTypes >= GENERICS_TYPES_MAX) {
+                return FALSE;
+            }
+
+            if(**p == ',') {
+                (*p)++;
+            }
+            else if(**p == '>') {
+                (*p)++;
+                break;
+            }
+            else if(**p == '\0') {
+                return FALSE;
+            }
+        }
+    }
+    else if(**p == '[' && *(*p+1) == ']') {
+        (*p) += 2;
+        (*cl_type)->mArray = TRUE;
+    }
+
+    (*cl_type)->mNullable = FALSE;
+
+    return TRUE;
+}
+
+BOOL add_field_to_class_with_class_name(sCLClass* klass, char* name, BOOL private_, BOOL protected_, char* field_type_name)
+{
+    if(klass->mNumFields == klass->mSizeFields) {
+        int new_size = klass->mSizeFields * 2;
+        klass->mFields = MREALLOC(klass->mFields, sizeof(sCLField)*new_size);
+        memset(klass->mFields + klass->mSizeFields, 0, sizeof(sCLField)*(new_size - klass->mSizeFields));
+        klass->mSizeFields = new_size;
+    }
+
+    const int num_fields = klass->mNumFields;
+
+    klass->mFields[num_fields].mFlags = (private_ ? FIELD_FLAGS_PRIVATE : 0) | (protected_ ? FIELD_FLAGS_PROTECTED:0);
+    klass->mFields[num_fields].mNameOffset = append_str_to_constant_pool(&klass->mConst, name, FALSE);
+
+    klass->mFields[num_fields].mNumDelegatedMethod = 0;
+    memset(&klass->mFields[num_fields].mDelegatedMethodIndex, 0, sizeof(int)*METHOD_NUM_MAX);
+
+    char* p = field_type_name;
+    if(!type_name_to_cl_type(&p, ALLOC &klass->mFields[num_fields].mResultType, klass)) {
+        return FALSE;
+    }
+
+    klass->mNumFields++;
+    
+    return TRUE;
+}
+
+BOOL add_class_field_to_class_with_class_name(sCLClass* klass, char* name, BOOL private_, BOOL protected_, char* field_type_name, int initialize_value)
+{
+    if(klass->mNumClassFields == klass->mSizeClassFields) {
+        int new_size = klass->mSizeClassFields * 2;
+        klass->mClassFields = MREALLOC(klass->mClassFields, sizeof(sCLField)*new_size);
+        memset(klass->mClassFields + klass->mSizeClassFields, 0, sizeof(sCLField)*(new_size - klass->mSizeClassFields));
+        klass->mSizeClassFields = new_size;
+    }
+
+    const int num_fields = klass->mNumClassFields;
+
+    klass->mClassFields[num_fields].mFlags = (private_ ? FIELD_FLAGS_PRIVATE : 0) | (protected_ ? FIELD_FLAGS_PROTECTED:0);
+    klass->mClassFields[num_fields].mNameOffset = append_str_to_constant_pool(&klass->mConst, name, FALSE);
+
+    klass->mClassFields[num_fields].mInitializeValue = initialize_value;
+
+    char* p = field_type_name;
+    if(!type_name_to_cl_type(&p, ALLOC &klass->mClassFields[num_fields].mResultType, klass)) {
+        return FALSE;
+    }
+
+    klass->mNumClassFields++;
+    
+    return TRUE;
 }

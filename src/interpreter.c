@@ -320,6 +320,7 @@ static BOOL get_type(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
     memset(&info, 0, sizeof(sParserInfo));
 
     info.p = source;
+    info.source = source;
     info.sname = fname;
     info.sline = 1;
     info.lv_table = lv_table;
@@ -2098,6 +2099,7 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
     memset(&info, 0, sizeof(sParserInfo));
 
     info.p = source;
+    info.source = source;
     info.sname = fname;
     info.sline = 1;
     info.lv_table = lv_table;
@@ -2339,7 +2341,7 @@ static void compiler_final()
 
 int gARGC;
 char** gARGV;
-char* gVersion = "3.7.4";
+char* gVersion = "3.7.5";
 
 int main(int argc, char** argv)
 {

@@ -1,5 +1,52 @@
 # Advanced usage
 
+## Compile time scripting
+
+You can move Clover 2 in the Clover 2 class source file.
+```
+    > vim ClassA.clcl
+    println("HELLO WORLD");
+
+    class ClassA {
+        value1:int;
+        value2:int;
+
+        def initialize() {
+            value1 = 123;
+            value2 = 234;
+        }
+    }
+    > cclover2 ClassA.clcl
+    HELLO WORLD
+```
+
+This is for what reason it is in order to do reflection at compile time.
+```
+    > vim ClassA.clcl
+    println("HELLO WORLD");
+
+    class ClassA {
+        value1:int;
+        value2:int;
+
+        def initialize() {
+            value1 = 123;
+            value2 = 234;
+        }
+    }
+
+    klass:Class = new Class("ClassA");
+
+    klass.appendField("value3", "int");
+    klass.appendMethod("def method1() { value3 = value1 + value2; }");
+
+    > cclover2 ClassA.clcl
+    HELLO WORLD
+```
+
+In the above code, Class A has a field called value3, and method1 assigns the sum of value1 and value2 to value3.
+Scripting of this compile time is executed at the timing after compilation is over. Please be aware of that. With this, if there is a certain field, you can write various processes such as implementing a specific method. Please see the explanation of reflection class for details.
+
 ## Just-in-time compilation
 
 To enable JIT, please conifgure compile with --with-jit option. The byte code of the class file is compiled into native code when compiling the class file of Clover2, and a dynamic library is created. Clover2 is not compiled into native code at run time. For that reason Clover 2's JIT is fast. I think that a mere native code compiler rather than JIT is the correct way of calling. Speed ​​is about 3 times speed of bytecode. However, please be sure to include $ HOME/.clover2 in the environment variable LD_LIBRARY_PATH because it is being executed by the dynamic library. If it is not added to the search path of the dynamic library, the dynamic library is not searched, so it will be executed by bytecodes. When registering user-created class files in $HOME/.clover2, please also copy lib[class name].so, lib[class name].so.1.0.0 to $HOME/.clover2. User-created classes are also executed by native code.

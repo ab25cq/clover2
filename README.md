@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/ab25cq/clover2.svg?branch=master)](https://travis-ci.org/ab25cq/clover2)
 
 
-version 3.7.4
+version 3.7.5
 
 サポートしている機能
 
@@ -37,6 +37,8 @@ version 3.7.4
     9.メソッドブロックの型推論が出来ます。以下のようなコードが動きます。
 
     a:SortableList<String> = slist{1,2,3}.map { it.toString() }
+
+    10.コンパイル時にスクリプトが動きリフレクションを行うことができます。コンパイル時に行うため実行時ではリフレクションのオーバーヘッドは0です。
 
 詳しくは、https://github.com/ab25cq/clover2/wikiをみてください。
 (もしくはrepositoryに含まれるmanualディレクトリ以下のドキュメントを見てください)
@@ -100,6 +102,8 @@ FEATURES
     9. You can type in method block types. The following code works.
 
     a:SortableList<String> = slist{1,2,3}.map { it.toString() }
+
+    10. The script can perform motion reflection at compile time. Since it is done at compile time, the overhead of reflection is 0 at run time.
 
 See clover2 wiki on github (Japanese and English) https://github.com/ab25cq/clover2/wiki
 

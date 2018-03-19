@@ -295,6 +295,7 @@ struct sCLClassStruct {
     int mMethodGenericsParamClassNum;  // -1 is none geenrics param
     int mNumGenerics;
 
+    int mGenericsParamNameOffsets[GENERICS_TYPES_MAX];
     int mGenericsParamTypeOffsets[GENERICS_TYPES_MAX];
 
     sConst mConst;
@@ -347,7 +348,7 @@ void class_final();
 
 sCLClass* get_class(char* name);
 unsigned int get_hash_key(char* name, unsigned int max);
-sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_class_num, int method_generics_param_class_num, int generics_number, sCLClass** type_of_generics_params, BOOL interface, BOOL dynamic_class, BOOL no_free_object, sCLClass* unboxing_class);
+sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_class_num, int method_generics_param_class_num, int generics_number, char name_of_generics_params[GENERICS_TYPES_MAX][VAR_NAME_MAX], sCLClass** type_of_generics_params, BOOL interface, BOOL dynamic_class, BOOL no_free_object, sCLClass* unboxing_class);
 ALLOC sCLType* create_cl_type(sCLClass* klass, sCLClass* klass2);
 void free_cl_type(sCLType* cl_type);
 sCLClass* load_class(char* class_name);
@@ -366,6 +367,7 @@ struct sClassTableStruct
     char* mName;
     sCLClass* mItem;
     BOOL mFreed;
+    BOOL mInitialized;
 
     struct sClassTableStruct* mNextClass;
 };
@@ -373,6 +375,8 @@ struct sClassTableStruct
 typedef struct sClassTableStruct sClassTable;
 
 extern sClassTable* gHeadClassTable;
+
+BOOL create_virtual_method_table(sCLClass* klass);
 
 /// node_type.c ///
 struct sNodeBlockTypeStruct;
@@ -516,6 +520,7 @@ struct sParserInfoStruct
 {
     char* p;
     char* sname;
+    char* source;
     int sline;
     int err_num;
     sVarTable* lv_table;
@@ -1775,18 +1780,22 @@ BOOL class_init_on_runtime();
 void show_stack(CLVALUE* stack, CLVALUE* stack_ptr, CLVALUE* lvar, int var_num);
 void boxing_primitive_value_to_object(CLVALUE object, CLVALUE* result, sCLClass* klass);
 void Self_convertion_of_method_name_and_params(char* method_name_and_params, char* method_name_and_params2, char* class_name);
+void set_free_fun_to_classes();
+BOOL call_all_class_initializer();
 
 /// class_compiler.c ///
 #define PARSE_PHASE_ALLOC_CLASSES 1
 #define PARSE_PHASE_ADD_SUPER_CLASSES 2
 #define PARSE_PHASE_CALCULATE_SUPER_CLASSES 3
 #define PARSE_PHASE_ADD_GENERICS_TYPES 4
+//#define PARSE_PHASE_RUN_SCRIPT 5
 #define PARSE_PHASE_ADD_METHODS_AND_FIELDS 5
 #define PARSE_PHASE_COMPILE_PARAM_INITIALIZER 6
 #define PARSE_PHASE_DO_COMPILE_CODE 7
 #define PARSE_PHASE_MAX 8
 
 BOOL compile_class_source(char* fname, char* source);
+BOOL parse_method_name_and_params(char* method_name, int method_name_max, sParserParam* params, int* num_params, sNodeType** result_type, BOOL* native_, BOOL* static_, sParserInfo* info);
 
 /// cycle.c ///
 void set_dependency_compile();
@@ -1797,8 +1806,7 @@ void dependency_final();
 /// klass_compile_time.c ///
 sCLClass* get_class_with_load_on_compile_time(char* class_name);
 sCLClass* load_class_on_compile_time(char* class_name);
-BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_, sGenericsParamInfo* ginfo);
-BOOL add_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type);
+BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_, sGenericsParamInfo* ginfo, sCLMethod** appended_method);
 BOOL add_typedef_to_class(sCLClass* klass, char* class_name1, char* class_name2);
 BOOL add_class_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type, int initialize_value);
 void add_code_to_method(sCLMethod* method, sByteCode* code, int var_num);
@@ -1815,6 +1823,9 @@ BOOL field_name_existance(sCLClass* klass, char* field_name);
 void create_method_name_and_params(char* result, int size_result, sCLClass* klass, char* method_name, sNodeType* param_types[PARAMS_MAX], int num_params);
 BOOL determine_method_generics_types(sNodeType* left_param, sNodeType* right_param, sNodeType* method_generics_types);
 BOOL is_method_param_name(char* name);
+BOOL add_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type);
+BOOL add_field_to_class_with_class_name(sCLClass* klass, char* name, BOOL private_, BOOL protected_, char* field_type_name);
+BOOL add_class_field_to_class_with_class_name(sCLClass* klass, char* name, BOOL private_, BOOL protected_, char* field_type_name, int initialize_value);
 
 /// native_method.c ///
 void native_method_init();
@@ -1836,7 +1847,7 @@ BOOL compile_method(sCLMethod* method, sParserParam* params, int num_params, sPa
 BOOL is_void_type(sCLType* cl_type, sCLClass* klass);
 sCLClass* get_class_from_cl_type(sCLType* cl_type, sCLClass* klass);
 BOOL is_this_class_with_class_name(sCLClass* klass, char* class_name);
-
+ALLOC char* cl_type_to_string(sCLType* cl_type, sCLClass* klass);;
 
 /// heap.c ///
 struct sCLHeapMemStruct {
@@ -2197,6 +2208,16 @@ int utf32_index_to_utf8_index(char* str, int utf32index);
 /// class_clover.c ///
 BOOL Clover_load(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL Clover_initialize_lang(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL Clover_initialize_reflection(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL Clover_appendField(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL Clover_appendMethod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL Clover_appendClassField(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL Clover_getField(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL Clover_getMethod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL Clover_getClassField(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL Clover_getClassGenericsParamNames(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL Clover_getClassGenericsParamTypes(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL Clover_getClassFlags(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 /// jit.cpp ///
 BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sCLMethod* method, sVMInfo* info, CLVALUE** stack_ptr);

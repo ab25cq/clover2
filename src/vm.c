@@ -642,7 +642,7 @@ BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_pa
 static BOOL initialize_class(sCLClass* klass)
 {
     if(klass->mClassInitializeMethodIndex != -1) {
-        sCLMethod* initialize_method = klass->mMethods + klass->mClassInitializeMethodIndex;
+        sCLMethod initialize_method = klass->mMethods[klass->mClassInitializeMethodIndex]; // struct copy for realloc
 
         const int stack_size = 512;
         CLVALUE* stack = MCALLOC(1, sizeof(CLVALUE)*stack_size);
@@ -651,7 +651,7 @@ static BOOL initialize_class(sCLClass* klass)
         sVMInfo info;
         memset(&info, 0, sizeof(sVMInfo));
 
-        if(!invoke_method(klass, initialize_method, stack, 0, &stack_ptr, &info)) {
+        if(!invoke_method(klass, &initialize_method, stack, 0, &stack_ptr, &info)) {
             show_exception_message(info.exception_message);
             MFREE(stack);
             return FALSE;
@@ -751,18 +751,45 @@ static BOOL load_fundamental_classes_on_runtime()
     if(!load_class_with_initialize("termios")) { return FALSE; }
     if(!load_class_with_initialize("Job")) { return FALSE; }
     if(!load_class_with_initialize("Command")) { return FALSE; }
+    if(!load_class_with_initialize("Class")) { return FALSE; }
+    if(!load_class_with_initialize("Method")) { return FALSE; }
+    if(!load_class_with_initialize("MethodParam")) { return FALSE; }
+    if(!load_class_with_initialize("Field")) { return FALSE; }
 
     if(!load_class_with_initialize("Clover")) { return FALSE; }
 
     return TRUE;
 }
 
-static void set_free_fun_to_classes()
+void set_free_fun_to_classes()
 {
     sCLClass* klass;
 
     klass = get_class("regex");
     klass->mFreeFun = regex_free_fun;
+}
+
+BOOL call_all_class_initializer()
+{
+    sClassTable* p = gHeadClassTable;
+
+    while(p) {
+        if(p->mInitialized == FALSE) {
+            sClassTable* p2 = gHeadClassTable;
+            while(p2) {
+                if(p->mItem == p2->mItem) {   // typedef class
+                    p2->mInitialized = TRUE;
+                }
+                p2 = p2->mNextClass;
+            }
+            if(!initialize_class(p->mItem)) {
+                return TRUE;
+            }
+        }
+        p = p->mNextClass;
+    }
+
+    return TRUE;
 }
 
 BOOL class_init_on_runtime()
@@ -779,7 +806,7 @@ BOOL class_init_on_runtime()
 static BOOL finalize_class(sCLClass* klass)
 {
     if(klass->mClassFinalizeMethodIndex != -1) {
-        sCLMethod* finalize_method = klass->mMethods + klass->mClassFinalizeMethodIndex;
+        sCLMethod finalize_method = klass->mMethods[klass->mClassFinalizeMethodIndex]; // struct copy for realloc
 
         const int stack_size = 512;
         CLVALUE* stack = MCALLOC(1, sizeof(CLVALUE)*stack_size);
@@ -788,7 +815,7 @@ static BOOL finalize_class(sCLClass* klass)
         sVMInfo info;
         memset(&info, 0, sizeof(sVMInfo));
 
-        if(!invoke_method(klass, finalize_method, stack, 0, &stack_ptr, &info)) {
+        if(!invoke_method(klass, &finalize_method, stack, 0, &stack_ptr, &info)) {
             show_exception_message(info.exception_message);
             MFREE(stack);
             return FALSE;
@@ -803,7 +830,7 @@ static BOOL finalize_class(sCLClass* klass)
 BOOL call_finalize_method_on_free_object(sCLClass* klass, CLObject self)
 {
     if(klass->mFinalizeMethodIndex != -1) {
-        sCLMethod* finalize_method = klass->mMethods + klass->mFinalizeMethodIndex;
+        sCLMethod finalize_method = klass->mMethods[klass->mFinalizeMethodIndex]; // struct copy for realloc
 
         const int stack_size = 512;
         CLVALUE* stack = MCALLOC(1, sizeof(CLVALUE)*stack_size);
@@ -816,7 +843,7 @@ BOOL call_finalize_method_on_free_object(sCLClass* klass, CLObject self)
         stack_ptr->mObjectValue = self;
         stack_ptr++;
 
-        if(!invoke_method(klass, finalize_method, stack, 0, &stack_ptr, &info)) {
+        if(!invoke_method(klass, &finalize_method, stack, 0, &stack_ptr, &info)) {
             show_exception_message(info.exception_message);
             MFREE(stack);
             return FALSE;
@@ -5050,9 +5077,9 @@ show_inst(inst);
                         return FALSE;
                     }
 
-                    sCLMethod* method = klass->mMethods + method_index;
+                    sCLMethod method = klass->mMethods[method_index]; // struct copy for realloc
 
-                    if(!invoke_method(klass, method, stack, var_num, &stack_ptr, info)) {
+                    if(!invoke_method(klass, &method, stack, var_num, &stack_ptr, info)) {
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -5180,7 +5207,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                             return FALSE;
                         }
 
-                        sCLMethod* method = klass->mMethods + klass->mCallingMethodIndex;
+                        sCLMethod method = klass->mMethods[klass->mCallingMethodIndex];
 
                         CLObject elements[ARRAY_VALUE_ELEMENT_MAX];
 
@@ -5215,7 +5242,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                         pop_global_stack();
 
-                        if(!invoke_method(klass, method, stack, var_num, &stack_ptr, info)) {
+                        if(!invoke_method(klass, &method, stack, var_num, &stack_ptr, info)) {
                             if(info->try_code == code && info->try_offset != 0) {
                                 pc = code->mCodes + info->try_offset;
                                 info->try_offset = 0;
@@ -5249,7 +5276,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                             return FALSE;
                         }
 
-                        sCLMethod* method = klass->mMethods + klass->mCallingClassMethodIndex;
+                        sCLMethod method = klass->mMethods[klass->mCallingClassMethodIndex]; // struct copy for realloc
 
                         CLObject elements[ARRAY_VALUE_ELEMENT_MAX];
 
@@ -5285,7 +5312,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                         pop_global_stack();
 
-                        if(!invoke_method(klass, method, stack, var_num, &stack_ptr, info)) {
+                        if(!invoke_method(klass, &method, stack, var_num, &stack_ptr, info)) {
                             if(info->try_code == code && info->try_offset != 0) {
                                 pc = code->mCodes + info->try_offset;
                                 info->try_offset = 0;

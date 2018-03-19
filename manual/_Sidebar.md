@@ -84,6 +84,7 @@
 * [パスクラス](path)
 * [ディレクトリクラス](directory)
 * [バッファークラス](buffer)
+* [リフレクション](reflection)
 * [コンテナライブラリ](collection)
     * [Array](collection#array)
     * [List](collection#list)
@@ -92,6 +93,7 @@
 
 #### [高度な使い方](usage2) [→ usage2 English Page](usage2-en)
 
+* [コンパイルタイムスクリプティング](usage2#コンパイルタイムスクリプティング)
 * [ジャストインタイムコンパイル](usage2#ジャストインタイムコンパイル)
 * [対話的なプログラムの実行](usage2#対話的なプログラムの実行)
 * [シェルモード](usage2#シェルモード)

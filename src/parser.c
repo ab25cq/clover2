@@ -3085,6 +3085,7 @@ static BOOL parse_string_expression(unsigned int* string_expressions, int* strin
     memset(&info2, 0, sizeof(sParserInfo));
 
     info2.p = expression_str.mBuf;
+    info2.source = expression_str.mBuf;
     info2.sname = "string expression";
     info2.sline = 1;
     info2.lv_table = info->lv_table;
@@ -3852,7 +3853,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 }
             }
             else {
-                parser_err_msg(info, "%s is undeclared.", buf);
+                parser_err_msg(info, "%s is undeclared.(1)", buf);
                 info->err_num++;
             }
         }
@@ -3892,7 +3893,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 *node = sNodeTree_create_assign_field(buf, node3, *node, info);
             }
             else {
-                parser_err_msg(info, "%s is undeclared.", buf);
+                parser_err_msg(info, "%s is undeclared.(2)", buf);
                 info->err_num++;
             }
         }
@@ -3911,9 +3912,6 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
             sCLClass* global_klass = get_class("Global");
             sCLClass* system_klass = get_class("System");
-
-            MASSERT(global_klass != NULL);
-            MASSERT(system_klass != NULL);
 
             /// クラス名だった ///
             if(klass) {
@@ -4003,7 +4001,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 }
             }
             /// グローバルクラスのメソッド？ ///
-            else if(method_name_existance(global_klass, buf) && *info->p == '(')
+            else if(global_klass && method_name_existance(global_klass, buf) && *info->p == '(')
             {
                 skip_spaces_and_lf(info);
 
@@ -4028,7 +4026,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 }
             }
             /// is Sytem Class method ? ///
-            else if(method_name_existance(system_klass, buf) && *info->p == '(')
+            else if(system_klass && method_name_existance(system_klass, buf) && *info->p == '(')
             {
                 skip_spaces_and_lf(info);
 
@@ -4242,7 +4240,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 }
             }
             else {
-                parser_err_msg(info, "%s is undeclared", buf);
+                parser_err_msg(info, "%s is undeclared(3)", buf);
                 info->err_num++;
             }
         }
@@ -4464,7 +4462,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
                         int var_index = get_variable_index(info->lv_table, var_name);
                         if(var_index == -1) {
-                            parser_err_msg(info, "undeclared variable(%s)", var_name);
+                            parser_err_msg(info, "undeclared variable(%s)(4)", var_name);
                             info->err_num++;
                         }
                     }

@@ -2207,7 +2207,7 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
     sVar* var = get_variable_from_table(info->lv_table, gNodes[node].uValue.sAssignVariable.mVarName);
 
     if(var == NULL) {
-        compile_err_msg(info, "undeclared variable %s", gNodes[node].uValue.sAssignVariable.mVarName);
+        compile_err_msg(info, "undeclared variable %s(5)", gNodes[node].uValue.sAssignVariable.mVarName);
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -2295,7 +2295,7 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
     sVar* var = get_variable_from_table(info->lv_table, gNodes[node].uValue.mVarName);
 
     if(var == NULL) {
-        compile_err_msg(info, "undeclared variable %s", gNodes[node].uValue.mVarName);
+        compile_err_msg(info, "undeclared variable %s(6)", gNodes[node].uValue.mVarName);
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -3737,6 +3737,7 @@ BOOL compile_params_method_default_value(sCLClass* klass, char* method_name, int
                         sParserInfo info2;
 
                         info2.p = source;
+                        info2.source = source;
 
                         info2.sname = info->pinfo->sname;
                         info2.sline = info->pinfo->sline;
@@ -4391,6 +4392,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                     sParserInfo info2;
 
                     info2.p = node_block->mSource.mBuf;
+                    info2.source = node_block->mSource.mBuf;
 
                     info2.sname = node_block->mSName;
                     info2.sline = node_block->mSLine;
@@ -7850,7 +7852,7 @@ BOOL compile_get_address(unsigned int node, sCompileInfo* info)
         sVar* var = get_variable_from_table(info->lv_table, gNodes[lnode].uValue.mVarName);
 
         if(var == NULL) {
-            compile_err_msg(info, "undeclared variable %s", gNodes[lnode].uValue.mVarName);
+            compile_err_msg(info, "undeclared variable %s(7)", gNodes[lnode].uValue.mVarName);
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy
@@ -9088,7 +9090,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     sVar* var = get_variable_from_table(info->lv_table, gNodes[node].uValue.sFunction.mName);
 
     if(var == NULL) {
-        compile_err_msg(info, "undeclared variable %s", gNodes[node].uValue.sFunction.mName);
+        compile_err_msg(info, "undeclared variable %s(8)", gNodes[node].uValue.sFunction.mName);
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy

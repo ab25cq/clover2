@@ -1,5 +1,9 @@
 English page is here [>> English page](release_note-en)
 
+version 3.7.5
+
+    コンパイル時スクリプティング機能が入りました。リフレクション機能が入りました。
+
 version 3.7.4
 
     getppid, setsid, getsid, setpgrp, setpigdをSystemクラスに追加しました。

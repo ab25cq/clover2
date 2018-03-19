@@ -97,7 +97,7 @@ static BOOL skip_block(sParserInfo* info)
     return TRUE;
 }
 
-static BOOL parse_generics_params(sGenericsParamInfo* ginfo, sParserInfo* info, sCompileInfo* cinfo)
+static BOOL parse_generics_params(sGenericsParamInfo* ginfo, sParserInfo* info)
 {
     ginfo->mNumParams = 0;
 
@@ -165,7 +165,7 @@ static BOOL parse_class_name_and_attributes(char* class_name, int class_name_siz
 
     /// generics ///
     sGenericsParamInfo ginfo;
-    if(!parse_generics_params(&ginfo, info, cinfo)) 
+    if(!parse_generics_params(&ginfo, info)) 
     {
         return FALSE;
     }
@@ -219,7 +219,7 @@ static BOOL parse_class_on_alloc_classes_phase(sParserInfo* info, sCompileInfo* 
     info->klass = get_class(class_name);
 
     if(info->klass == NULL) {
-        info->klass = alloc_class(class_name, FALSE, -1, -1, info->generics_info.mNumParams, info->generics_info.mInterface, interface, dynamic_class, FALSE, unboxing_class);
+        info->klass = alloc_class(class_name, FALSE, -1, -1, info->generics_info.mNumParams, info->generics_info.mParamNames, info->generics_info.mInterface, interface, dynamic_class, FALSE, unboxing_class);
         info->klass->mFlags |= CLASS_FLAGS_ALLOCATED;
     }
 
@@ -232,7 +232,7 @@ static BOOL parse_class_on_alloc_classes_phase(sParserInfo* info, sCompileInfo* 
     return TRUE;
 }
 
-static BOOL parse_throws(sParserInfo* info, sCompileInfo* cinfo, BOOL* throw_existance)
+static BOOL parse_throws(sParserInfo* info, BOOL* throw_existance)
 {
     /// throws ///
     char* p_saved = info->p;
@@ -273,12 +273,12 @@ static BOOL parse_throws(sParserInfo* info, sCompileInfo* cinfo, BOOL* throw_exi
     return TRUE;
 }
 
-static BOOL parse_method_name_and_params(char* method_name, int method_name_max, sParserParam* params, int* num_params, sNodeType** result_type, BOOL* native_, BOOL* static_, sParserInfo* info, sCompileInfo* cinfo)
+BOOL parse_method_name_and_params(char* method_name, int method_name_max, sParserParam* params, int* num_params, sNodeType** result_type, BOOL* native_, BOOL* static_, sParserInfo* info)
 {
     /// method generics ///
     if(*info->p == '<') {
         sGenericsParamInfo ginfo;
-        if(!parse_generics_params(&ginfo, info, cinfo)) 
+        if(!parse_generics_params(&ginfo, info)) 
         {
             return FALSE;
         }
@@ -332,7 +332,7 @@ static BOOL parse_method_name_and_params(char* method_name, int method_name_max,
         /// throw or result type ///
         if(isalpha(*info->p)) {
             BOOL throw_existance = FALSE;
-            if(!parse_throws(info, cinfo, &throw_existance)) {
+            if(!parse_throws(info, &throw_existance)) {
                 return FALSE;
             }
 
@@ -356,7 +356,7 @@ static BOOL parse_method_name_and_params(char* method_name, int method_name_max,
 
     /// throw ///
     BOOL throw_existance = FALSE;
-    if(!parse_throws(info, cinfo, &throw_existance)) {
+    if(!parse_throws(info, &throw_existance)) {
         return FALSE;
     }
 
@@ -458,7 +458,8 @@ static BOOL field_delegation(sParserInfo* info, sCompileInfo* cinfo, sCLClass* k
                     xstrncpy(method_generics_info.mParamNames[j], "dummy", VAR_NAME_MAX); // no use in add_method_to_class
                 }
 
-                if(!add_method_to_class(klass, method_name, parser_params, num_params, result_type, native_, static_, &method_generics_info)) 
+                sCLMethod* appended_method = NULL;
+                if(!add_method_to_class(klass, method_name, parser_params, num_params, result_type, native_, static_, &method_generics_info, &appended_method)) 
                 {
                     return FALSE;
                 }
@@ -489,7 +490,8 @@ static BOOL setter_and_getter(sParserInfo* info, sCompileInfo* cinfo, sCLClass* 
         BOOL native_ = FALSE;
         BOOL static_ = FALSE;
 
-        if(!add_method_to_class(klass, method_name, parser_params, num_params, result_type, native_, static_, NULL))
+        sCLMethod* appended_method = NULL;
+        if(!add_method_to_class(klass, method_name, parser_params, num_params, result_type, native_, static_, NULL, &appended_method))
         {
             return FALSE;
         }
@@ -513,7 +515,8 @@ static BOOL setter_and_getter(sParserInfo* info, sCompileInfo* cinfo, sCLClass* 
             BOOL native_ = FALSE;
             BOOL static_ = FALSE;
 
-            if(!add_method_to_class(klass, method_name, parser_params, num_params, result_type, native_, static_, NULL))
+            sCLMethod* appended_method = NULL;
+            if(!add_method_to_class(klass, method_name, parser_params, num_params, result_type, native_, static_, NULL, &appended_method))
             {
                 return FALSE;
             }
@@ -592,13 +595,14 @@ static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOO
         BOOL native_ = FALSE;
         BOOL static_ = FALSE;
 
-        if(!parse_method_name_and_params(method_name, METHOD_NAME_MAX, params, &num_params, &result_type, &native_, &static_, info, cinfo)) 
+        if(!parse_method_name_and_params(method_name, METHOD_NAME_MAX, params, &num_params, &result_type, &native_, &static_, info)) 
         {
             return FALSE;
         }
 
         if(info->err_num == 0 && (info->klass->mFlags & CLASS_FLAGS_ALLOCATED)) {
-            if(!add_method_to_class(info->klass, method_name, params, num_params, result_type, native_, static_, &info->method_generics_info)) 
+            sCLMethod* appended_method = NULL;
+            if(!add_method_to_class(info->klass, method_name, params, num_params, result_type, native_, static_, &info->method_generics_info, &appended_method)) 
             {
                 return FALSE;
             }
@@ -783,6 +787,8 @@ static BOOL setter_and_getter_on_compile_time(sParserInfo* info, sCompileInfo* c
 {
     sNodeType* field_type = create_node_type_from_cl_type(field->mResultType, klass);
 
+    sVarTable* lv_table_before = info->lv_table;
+
     if(info->err_num == 0 && (info->klass->mFlags & CLASS_FLAGS_ALLOCATED)) {
         /// getter ///
         char* method_name = field_name;
@@ -803,6 +809,7 @@ static BOOL setter_and_getter_on_compile_time(sParserInfo* info, sCompileInfo* c
         snprintf(source, 1024, "return self.%s } ", field_name);
 
         info2.p = source;
+        info2.source = source;
         info2.sname = "getter";
         info2.sline = 1;
         info2.err_num = 0;
@@ -821,6 +828,8 @@ static BOOL setter_and_getter_on_compile_time(sParserInfo* info, sCompileInfo* c
         sCLMethod* method = klass->mMethods + field->mNumGetterMethodIndex;
 
         if(!compile_method(method, parser_params, num_params, &info2, cinfo)) {
+            info->lv_table = lv_table_before;
+            cinfo->lv_table = lv_table_before;
             return FALSE;
         }
 
@@ -852,6 +861,7 @@ static BOOL setter_and_getter_on_compile_time(sParserInfo* info, sCompileInfo* c
             snprintf(source, 1024, "self.%s = value; }", field_name);
 
             info2.p = source;
+            info2.source = source;
             info2.sname = "setter";
             info2.sline = 1;
             info2.err_num = 0;
@@ -870,6 +880,8 @@ static BOOL setter_and_getter_on_compile_time(sParserInfo* info, sCompileInfo* c
             sCLMethod* method = klass->mMethods + field->mNumGetterMethodIndex + 1;
 
             if(!compile_method(method, parser_params, num_params, &info2, cinfo)) {
+                info->lv_table = lv_table_before;
+                cinfo->lv_table = lv_table_before;
                 return FALSE;
             }
 
@@ -877,6 +889,9 @@ static BOOL setter_and_getter_on_compile_time(sParserInfo* info, sCompileInfo* c
             info->klass->mMethodIndexOnCompileTime++;
         }
     }
+
+    info->lv_table = lv_table_before;
+    cinfo->lv_table = lv_table_before;
 
     return TRUE;
 }
@@ -886,6 +901,8 @@ static BOOL field_delegation_on_compile_time(sParserInfo* info, sCompileInfo* ci
     sNodeType* field_type = create_node_type_from_cl_type(field->mResultType, klass);
 
     sCLClass* field_class = field_type->mClass;
+
+    sVarTable* lv_table_before = info->lv_table;
 
     if(info->err_num == 0 && (info->klass->mFlags & CLASS_FLAGS_ALLOCATED)) {
         int i;
@@ -947,6 +964,7 @@ static BOOL field_delegation_on_compile_time(sParserInfo* info, sCompileInfo* ci
             xstrncat(source, "); }", 1024);
 
             info2.p = source;
+            info2.source = source;
             info2.sname = "field_delegation";
             info2.sline = 1;
             info2.err_num = 0;
@@ -963,6 +981,8 @@ static BOOL field_delegation_on_compile_time(sParserInfo* info, sCompileInfo* ci
             info2.exist_block_object_err = FALSE;
 
             if(!compile_method(method, parser_params, num_params, &info2, cinfo)) {
+                info->lv_table = lv_table_before;
+                cinfo->lv_table = lv_table_before;
                 return FALSE;
             }
 
@@ -970,6 +990,9 @@ static BOOL field_delegation_on_compile_time(sParserInfo* info, sCompileInfo* ci
             info->klass->mMethodIndexOnCompileTime++;
         }
     }
+
+    info->lv_table = lv_table_before;
+    cinfo->lv_table = lv_table_before;
 
     return TRUE;
 }
@@ -1041,7 +1064,7 @@ BOOL parse_methods_and_fields_on_compile_time(sParserInfo* info, sCompileInfo* c
         BOOL native_ = FALSE;
         BOOL static_ = FALSE;
 
-        if(!parse_method_name_and_params(method_name, METHOD_NAME_MAX, params, &num_params, &result_type, &native_, &static_, info, cinfo)) 
+        if(!parse_method_name_and_params(method_name, METHOD_NAME_MAX, params, &num_params, &result_type, &native_, &static_, info)) 
         {
             return FALSE;
         }
@@ -1061,9 +1084,16 @@ BOOL parse_methods_and_fields_on_compile_time(sParserInfo* info, sCompileInfo* c
                     info->p++;
                     skip_spaces_and_lf(info);
 
+                    sVarTable* lv_table_before = info->lv_table;
+
                     if(!compile_method(method, params, num_params, info, cinfo)) {
+                        info->lv_table = lv_table_before;
+                        cinfo->lv_table = lv_table_before;
                         return FALSE;
                     }
+
+                    info->lv_table = lv_table_before;
+                    cinfo->lv_table = lv_table_before;
                 }
                 else {
                     parser_err_msg(info, "The next character is required {");
@@ -1441,12 +1471,13 @@ static BOOL include_file(sParserInfo* info, sCompileInfo* cinfo)
 
 static BOOL parse_class_source(sParserInfo* info, sCompileInfo* cinfo)
 {
-    skip_spaces_and_lf(info);
-
     while(*info->p) {
+        skip_spaces_and_lf(info);
+
+        char* p_before = info->p;
         char buf[VAR_NAME_MAX+1];
 
-        if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
+        if(!parse_word(buf, VAR_NAME_MAX, info, FALSE, FALSE)) {
             return FALSE;
         }
 
@@ -1476,9 +1507,43 @@ static BOOL parse_class_source(sParserInfo* info, sCompileInfo* cinfo)
             }
         }
         else {
-            parser_err_msg(info, "Require class keyword. It is %s", buf);
-            info->err_num++;
-            return FALSE;
+            info->p = p_before;
+
+            if(info->parse_phase == PARSE_PHASE_DO_COMPILE_CODE) {
+                cinfo->no_output = FALSE;
+            }
+            else {
+                cinfo->no_output = TRUE;
+            }
+
+            info->exist_block_object_err = FALSE;
+            info->next_command_is_to_bool = FALSE;
+            unsigned int node = 0;
+            if(!expression(&node, info)) {
+                return FALSE;
+            }
+
+            cinfo->sname = gNodes[node].mSName;
+            cinfo->sline = gNodes[node].mLine;
+
+            if(info->err_num == 0 && node != 0 && info->parse_phase == PARSE_PHASE_DO_COMPILE_CODE) {
+                append_opecode_to_code(cinfo->code, OP_HEAD_OF_EXPRESSION, cinfo->no_output);
+
+                append_opecode_to_code(cinfo->code, OP_MARK_SOURCE_CODE_POSITION, cinfo->no_output);
+                append_str_to_constant_pool_and_code(cinfo->constant, cinfo->code, cinfo->sname, cinfo->no_output);
+                append_int_value_to_code(cinfo->code, cinfo->sline, cinfo->no_output);
+
+                if(!compile(node, cinfo)) {
+                    return FALSE;
+                }
+
+                arrange_stack(cinfo);
+            }
+
+            if(*info->p == ';') {
+                info->p++;
+                skip_spaces_and_lf(info);
+            }
         }
     }
 
@@ -1502,6 +1567,7 @@ BOOL compile_class_source(char* fname, char* source)
     memset(&info, 0, sizeof(sParserInfo));
 
     info.p = source;
+    info.source = source;
     info.sname = fname;
     info.sline = 1;
     info.lv_table = NULL;
@@ -1518,10 +1584,18 @@ BOOL compile_class_source(char* fname, char* source)
     
     memset(&cinfo, 0, sizeof(sCompileInfo));
 
-    cinfo.code = NULL;
-    cinfo.constant = NULL;
+    sByteCode code;
+    sByteCode_init(&code);
 
-    cinfo.lv_table = NULL;
+    cinfo.code = &code;
+    //cinfo.code = NULL;
+
+    sConst constant;
+    sConst_init(&constant);
+    cinfo.constant = &constant;
+    //cinfo.constant = NULL;
+
+    //cinfo.lv_table = NULL;
     cinfo.no_output = FALSE;
     cinfo.pinfo = &info;
 
@@ -1536,6 +1610,9 @@ BOOL compile_class_source(char* fname, char* source)
 
         reset_method_index_on_compile_time();
 
+        info.lv_table = init_var_table();
+        cinfo.lv_table = info.lv_table;
+
         if(!parse_class_source(&info, &cinfo)) {
             return FALSE;
         }
@@ -1545,6 +1622,31 @@ BOOL compile_class_source(char* fname, char* source)
             return FALSE;
         }
     }
+
+    if(info.err_num > 0 || cinfo.err_num > 0) {
+        fprintf(stderr, "Parser error number is %d. Compile error number is %d\n", info.err_num, cinfo.err_num);
+        return FALSE;
+    }
+
+    call_all_class_initializer();
+
+    int var_num = get_var_num(info.lv_table);
+
+    sVMInfo vinfo;
+    memset(&vinfo, 0, sizeof(sVMInfo));
+
+    int stack_size = 512;
+    CLVALUE* stack = MCALLOC(1, sizeof(CLVALUE)*stack_size);
+
+    if(!vm(&code, &constant, stack, var_num, NULL, &vinfo)) {
+        show_exception_message(vinfo.exception_message);
+        sByteCode_free(&code);
+        sConst_free(&constant);
+        return FALSE;
+    }
+
+    sByteCode_free(&code);
+    sConst_free(&constant);
 
     return TRUE;
 }

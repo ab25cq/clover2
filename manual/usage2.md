@@ -2,6 +2,50 @@
 
 English page is here [>> English page](usage2-en)
 
+## コンパイルタイムスクリプティング
+
+Clover2のクラスのソースファイルではClover2を動かすことができます。
+
+    > vim ClassA.clcl
+    println("HELLO WORLD");
+
+    class ClassA {
+        value1:int;
+        value2:int;
+
+        def initialize() {
+            value1 = 123;
+            value2 = 234;
+        }
+    }
+    > cclover2 ClassA.clcl
+    HELLO WORLD
+
+これはなんのためにあるかですがコンパイル時にリフレクションを行うためにあります。
+
+    > vim ClassA.clcl
+    println("HELLO WORLD");
+
+    class ClassA {
+        value1:int;
+        value2:int;
+
+        def initialize() {
+            value1 = 123;
+            value2 = 234;
+        }
+    }
+
+    klass:Class = new Class("ClassA");
+
+    klass.appendField("value3", "int");
+    klass.appendMethod("def method1() { value3 = value1 + value2; }");
+
+    > cclover2 ClassA.clcl
+    HELLO WORLD
+
+上記のコードではClassAにはvalue3というフィールドがあり、method1ではvalue3にvalue1とvalue2の合計が代入されます。このコンパイルタイムのスクリプティングはコンパイルが終わった後のタイミングでスクリプトが実行されます。その点に注意してください。これを使うとあるフィールドがあれば、特定のメソッドを実装するなど様々な処理が書けます。詳しくはリフレクションのクラスの解説を見てください。
+
 ## ジャストインタイムコンパイル
 
 JITを有効にする場合はconifgureに--with-jitオプションを付けてコンパイルしてください。クラスファイルのバイトコードがClover2のクラスファイルのコンパイル時にネイティブコードにコンパイルされてダイナミックライブラリが作られます。Clover2は実行時にはネイティブコードにはコンパイルしていません。その為Clover2のJITは高速です。JITというより単なるネイティブコードコンパイラという方が正しい呼び方だとは思います。速度的にはバイトコードの3倍程度の速度がでます。ただし、ダイナミックライブラリによって実行されているため$HOME/.clover2を環境変数LD_LIBRARY_PATHに含めてください。ダイナミックライブラリの検索パスに追加しないとダイナミックライブラリが検索されないためバイトコードによって実行されてしまいます。ユーザーが作ったクラスファイルを$HOME/.clover2に登録する場合、lib[クラス名].so, lib[クラス名].so.1.0.0も$HOME/.clover2にコピーしてください。ユーザーが作ったクラスもネイティブコードによって実行されます。

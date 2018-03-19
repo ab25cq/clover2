@@ -18,9 +18,10 @@ The following pages have explanations of main classes and methods.
 * [Directory class](directory-en)
 * [Buffer class](buffer-en)
 * [Container library](collection-en)
+* [Reflection](reflection)
 
 Please refer to the source code for further information.
-Layers are stacked in the order of Fundamental.clcl→String.clcl→Container.clcl→Range.clcl→File.clcl→Command.clcl→SystemCalls.clcl→MyOwnLibrary.clcl included in the source. By looking through in turn, your understanding will deepen.
+Layers are stacked in the order of Fundamental.clcl→Reflection.clcl→String.clcl→Container.clcl→Range.clcl→File.clcl→Command.clcl→SystemCalls.clcl→MyOwnLibrary.clcl included in the source. By looking through in turn, your understanding will deepen.
 
 ----
 

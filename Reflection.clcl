@@ -1,0 +1,105 @@
+include "Fundamental.clcl"
+
+class Clover
+{
+    def appendField(class_name:String, name:String, type:String):static native throws Exception;
+    def appendMethod(class_name:String, code:String): static native throws Exception;
+    def appendClassField(class_name:String, name:String, type:String):static native throws Exception;
+    def getField(class_name:String, index:int):static native Field throws Exception;
+    def getClassField(class_name:String, index:int):static native Field throws Exception;
+    def getMethod(class_name:String, index:int):static native Method throws Exception;
+    def getClassFlags(class_name:String): static native long throws Exception;
+    def getClassGenericsParamTypes(class_name:String): static native String[] throws Exception;
+    def getClassGenericsParamNames(class_name:String): static native String[] throws Exception;
+
+    def initialize_reflection(): static native;
+
+    FIELD_FLAGS_PRIVATE:static long;
+    FIELD_FLAGS_PROTECTED:static long;
+
+    CLASS_FLAGS_PRIMITIVE:static long;
+    CLASS_FLAGS_INTERFACE:static long;
+    CLASS_FLAGS_MODIFIED:static long;
+    CLASS_FLAGS_ALLOCATED:static long;
+    CLASS_FLAGS_DYNAMIC_CLASS:static long;
+    CLASS_FLAGS_NO_FREE_OBJECT:static long;
+
+    def initialize():static {
+        inherit();
+
+        Clover.initialize_reflection();
+    }
+}
+
+class Field
+{
+    flags:long;
+    name:String;
+    resultType:String;
+    #value:Anonymous;
+
+    def private():bool {
+        return (self.flags & Clover.FIELD_FLAGS_PRIVATE).to_bool;
+    }
+
+    def protected():bool {
+        return (self.flags & Clover.FIELD_FLAGS_PROTECTED).to_bool;
+    }
+}
+
+class MethodParam
+{
+    name:String;
+    type:String;
+}
+
+class Method
+{
+    flags:long;
+    name:String;
+    path:String;
+    methodNameAndParams:String;
+    index:int;
+
+    params:MethodParam[];
+
+    resultType:String;
+
+    varNum:int;
+
+    genericsParamTypes:String[];
+}
+
+class Class
+{
+    className:String;
+    flags:long;
+    genericsParamTypes:String[];
+    genericsParamNames:String[];
+
+    def initialize(class_name:String) {
+        className = class_name;
+        flags = Clover.getClassFlags(class_name);
+        genericsParamTypes = Clover.getClassGenericsParamTypes(class_name);
+        genericsParamNames = Clover.getClassGenericsParamNames(class_name);
+    }
+
+    def appendField(name:String, type:String) {
+        Clover.appendField(className, name, type);
+    }
+    def appendMethod(code:String) {
+        Clover.appendMethod(className, code);
+    }
+    def appendClassField(name:String, type:String) {
+        Clover.appendClassField(className, name, type);
+    }
+    def getField(index:int): Field {
+        return Clover.getField(className, index);
+    }
+    def getClassField(index:int): Field {
+        return Clover.getClassField(className, index);
+    }
+    def getMethod(index:int): Method {
+        return Clover.getMethod(className, index);
+    }
+}

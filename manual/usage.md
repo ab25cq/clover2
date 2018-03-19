@@ -114,7 +114,7 @@ Clover2はオープンクラスなのでクラスの定義後フィールドや�
 
 d.clclでフィールドが追加されてメソッドが上書きされています。上書きされたshowはメソッドコールのメソッド検索時にd.clclのものが優先されます。showの中でinherit();が呼ばれているため、元のc.clclのshow()が呼び出されてフィールドは両方のものが表示されます。上書されるメソッドに引数がある場合はinheritに引数をつけてください。<br>
 
-組み込みクラスのStringやHashなどにメソッドやフィールドを追加したい場合はClover2のソースファイルに含まれる。MyOwnLibrary.clclをincludeしてください。このMyOwnLibrary.clclにはFundamental.clcl→String.clc→Container.clcl→File.clcl→Command.clcl→MyOwnLibrary.clclの順でレイヤーが重ねられているため、これらのソースファイルも必要です。
+組み込みクラスのStringやHashなどにメソッドやフィールドを追加したい場合はClover2のソースファイルに含まれる。MyOwnLibrary.clclをincludeしてください。このMyOwnLibrary.clclにはFundamental.clcl→Reflection.clcl→String.clc→Container.clcl→Range.clcl→File.clcl→Command.clcl→SystemCalls.clcl→MyOwnLibrary.clclの順でレイヤーが重ねられているため、これらのソースファイルも必要です。
 一つ注意点はこの場合コンパイル時に-coreというオプションが必要になることです。
 例えば、StringやHashを機能拡張したソースファイルの名前がMyOwnLibrary2.clclだとすると
 
