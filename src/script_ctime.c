@@ -190,6 +190,7 @@ BOOL compile_script(char* fname, char* source)
     memset(&info, 0, sizeof(sParserInfo));
 
     info.p = source;
+    info.source = source;
     info.sname = fname;
     info.sline = 1;
     info.lv_table = init_var_table();

@@ -47,7 +47,56 @@ Clover2を使い始めようとするあなたへ。この言語はJavaやC#と�
 ```
 
 10.コンパイル時にスクリプトが動きリフレクションを行うことができます。コンパイル時に行うため実行時ではリフレクションのオーバーヘッドは0です。
+```
+    println("HELLO COMPILE SCRIPT");
 
+    class ReflectionA {
+        a:int;
+        ClassField: static int;
+
+        def initialize() {
+            a = 123;
+        }
+        def method1() : int {
+            123
+        }
+
+        def method2(a:int, b:String): String {
+            return a.toString.append(b);
+        }
+    }
+
+    class ReflectionB <T:Object, T2:IEqualable> {
+    }
+
+    c :Class = new Class("ReflectionA");
+    c.appendField("b", "int");
+
+    c.appendMethod("def setB(b:int) { self.b = b }");
+    c.appendMethod("def getB():int { return self.b }");
+    c.appendClassField("ClassField2", "String");
+
+    class ReflectionTest
+    {
+        def main():static {
+            a := new ReflectionA();
+            Clover.test("refelection test", a.a == 123);
+        }
+    }
+
+    Clover.appendClass(
+        """
+        class ReflectionC
+        {
+            field: String;
+
+            def initialize() {
+                field = "ABC";
+            }
+        }
+        """
+    );
+```
 
 # サンプルコード
 

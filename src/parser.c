@@ -3166,6 +3166,150 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             return FALSE;
         }
     }
+    /// multi line string ///
+    else if(*info->p == '"' && *(info->p+1) == '"' && *(info->p + 2) == '"' && *(info->p+3) == '\n') 
+    {
+        int indent = 0;
+
+        char* p = info->p;
+        while(1) {
+            if(p == info->source) {
+                break;
+            }
+            else if(*p == '\n') {
+                indent--;
+                break;
+            }
+            else {
+                p--;
+                indent++;
+            }
+        }
+
+        info->p+=4;
+
+        int i;
+        for(i=0; i<indent; i++) {
+            if(*info->p == ' ') {
+                info->p++;
+            }
+            else if(*info->p == '\n') {
+                info->sline++;
+                info->p++;
+                break;
+            }
+            else {
+                parser_err_msg(info, "require white space for indent of multi line string");
+                info->err_num++;
+            }
+        }
+
+        sBuf value;
+        sBuf_init(&value);
+
+        unsigned int string_expressions[STRING_EXPRESSION_MAX];
+        memset(string_expressions, 0, sizeof(unsigned int)*STRING_EXPRESSION_MAX);
+
+        int string_expression_offsets[STRING_EXPRESSION_MAX];
+        memset(string_expression_offsets, 0, sizeof(int)*STRING_EXPRESSION_MAX);
+
+        int num_string_expression = 0;
+
+        while(1) {
+            if(*info->p == '"' && *(info->p+1) == '"' && *(info->p + 2) == '"') 
+            {
+                info->p+=3;
+                break;
+            }
+            else if(*info->p == '\\') {
+                info->p++;
+
+                switch(*info->p) {
+                    case '0':
+                        sBuf_append_char(&value, '\0');
+                        info->p++;
+                        break;
+
+                    case '{':
+                        info->p++;
+
+                        /// string expression ///
+                        if(!parse_string_expression(string_expressions, string_expression_offsets, &num_string_expression, &value, info)) 
+                        {
+                            MFREE(value.mBuf);
+                            return FALSE;
+                        }
+                        break;
+
+                    case 'n':
+                        sBuf_append_char(&value, '\n');
+                        info->p++;
+                        break;
+
+                    case 't':
+                        sBuf_append_char(&value, '\t');
+                        info->p++;
+                        break;
+
+                    case 'r':
+                        sBuf_append_char(&value, '\r');
+                        info->p++;
+                        break;
+
+                    case 'a':
+                        sBuf_append_char(&value, '\a');
+                        info->p++;
+                        break;
+
+                    case '\\':
+                        sBuf_append_char(&value, '\\');
+                        info->p++;
+                        break;
+
+                    default:
+                        sBuf_append_char(&value, *info->p);
+                        info->p++;
+                        break;
+                }
+            }
+            else if(*info->p == '\0') {
+                parser_err_msg(info, "close \"\"\" to make string value");
+                MFREE(value.mBuf);
+                return FALSE;
+            }
+            else if(*info->p == '\n') {
+                info->sline++;
+
+                sBuf_append_char(&value, *info->p);
+                info->p++;
+
+                int i;
+                for(i=0; i<indent; i++) {
+                    if(*info->p == ' ') {
+                        info->p++;
+                    }
+                    else if(*info->p == '\n') {
+                        info->sline++;
+                        sBuf_append_char(&value, *info->p);
+                        info->p++;
+                        break;
+                    }
+                    else {
+                        parser_err_msg(info, "require white space for indent of multi line string");
+                        info->err_num++;
+                    }
+                }
+            }
+            else {
+                sBuf_append_char(&value, *info->p);
+                info->p++;
+            }
+        }
+
+        skip_spaces_and_lf(info);
+
+        *node = sNodeTree_create_string_value(MANAGED value.mBuf, string_expressions, string_expression_offsets, num_string_expression, info);
+    }
     /// 文字列 ///
     else if(*info->p == '"') {
         info->p++;
@@ -3994,7 +4138,15 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                         }
                     }
                 }
-                /// クラス名の次は必ず.がないといけない ///
+                else if(*info->p == '(') {
+                    info->p = p_before;
+                    info->sline = sline_before;
+
+                    if(!new_expression(node, info)) {
+                        return FALSE;
+                    }
+                }
+                /// クラス名の次は必ず.か(がないといけない ///
                 else {
                     parser_err_msg(info, "require . operator");
                     info->err_num++;

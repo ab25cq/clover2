@@ -1,5 +1,17 @@
 English page is here [>> English page](release_note-en)
 
+version 3.7.6
+
+    Multi line stringを入れました。
+
+    CloverクラスにgetMethod(name:String), getClassField(name:String), getField(name:String)を入れました。またClassクラスにnumFields, numMethods, numClassFieldsをフィールドを追加。
+
+    CloverクラスにisLoaded(name:String), isDefined(name:String)クラスを追加。
+
+    CloverクラスにappendClassを入れました。
+
+    オブジェクトの作成時newを省略できるようになりました。
+
 version 3.7.5
 
     コンパイル時スクリプティング機能が入りました。リフレクション機能が入りました。

@@ -130,7 +130,7 @@ sCLClass* get_class(char* class_name)
     return NULL;
 }
 
-static BOOL search_for_class_file(char* class_name, char* class_file_name, size_t class_file_name_size)
+BOOL search_for_class_file(char* class_name, char* class_file_name, size_t class_file_name_size)
 {
     char* home = getenv("HOME");
 

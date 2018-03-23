@@ -26,9 +26,17 @@ flagsフィールドにはクラスの種類のフラグが入ってます。gen
 
 0はインデックスです。定義の順番通りの数値を指定します。
 
+名前でもフィールドを得られます。
+
+    klass.getField("field1");
+
 メソッドの情報を得るためには以下のようにします。
 
     klass.getMethod(0);
+
+名前でもメソッドを得られます。
+
+    klass.getField("method1");
 
 0はインデックスです。定義の順番通りの数値を指定します。このとき注意してほしいのはフィールドを定義すると自動的にsetterやgetterのメソッドが定義されるため、思ったとおりのメソッドを得られないことがあることです。フィールドが定義されると自動的にsetterやgetterメソッドが定義されるため、それを忘れないでインデックスを指定してください。
 
@@ -87,5 +95,38 @@ varNumはローカル変数の数が入っています。
 
 genericsParamTypesはメソッドジェネリクスのインターフェース名が入った配列です。
 
+クラスのクラスは以下のように定義されています。
+
+    class Class
+    {
+        className:String;
+        flags:long;
+        genericsParamTypes:String[];
+        genericsParamNames:String[];
+        numFields:int;
+        numClassFields:int;
+        numMethods:int;
+    }
+
+Classのフィールドの数はnumFields, クラスフィールドの数はnumClassFields, メソッドの数はnumMethodsで得られます。クラスのフラグはflags, ジェネリクスの情報はgenericsParamTypes, genericsParamNamesで得られます。genericsParamTypesはジェネリクスの引数のインターフェスの型が入ってます。genericsParamNamesはジェネリクスの引数の名前です。
+
+Clover.isLoadedClass(name:String)はクラスがロードさているかbool値で分かります。Clover.isDefinedClass(name:String)はクラスが定義されているかどうか分かります。(クラスファイルがあるかどうか)
+
+Clover.append(code:String)でクラスを定義することもできます。
+
+    Clover.appendClass(
+        """
+        class ReflectionC
+        {
+            field: String;
+
+            def initialize() {
+                field = "ABC";
+            }
+        }
+        """
+    );
+
 以上です。色々試して理解してください。
+
 注意してほしいのはappendFieldなどはコンパイル時にしか動かない点です。Clover2は実行時にフィールドやメソッドが追加されても、コンパイル言語など意味はありません。コンパイル時スクリプティングで使ってください。コンパイル時スクリプティングではClover2の機能全てが使えるため、コンパイル時スクリプティング用のクラスなどを作ったりすれば、コーディングの自動化がだいぶ行えるはずです。マクロやプリプロセッサみたいなものですかね。まあ、色々楽しんでください。

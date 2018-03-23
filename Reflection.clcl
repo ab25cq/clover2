@@ -11,6 +11,12 @@ class Clover
     def getClassFlags(class_name:String): static native long throws Exception;
     def getClassGenericsParamTypes(class_name:String): static native String[] throws Exception;
     def getClassGenericsParamNames(class_name:String): static native String[] throws Exception;
+    def getNumFields(class_name:String): static native int throws Exception;
+    def getNumClassFields(class_name:String): static native int throws Exception;
+    def getNumMethods(class_name:String): static native int throws Exception;
+    def isLoadedClass(class_name:String): static native bool throws Exception;
+    def isDefinedClass(class_name:String): static native bool throws Exception;
+    def appendClass(code:String):static native throws Exception;
 
     def initialize_reflection(): static native;
 
@@ -76,12 +82,18 @@ class Class
     flags:long;
     genericsParamTypes:String[];
     genericsParamNames:String[];
+    numFields:int;
+    numClassFields:int;
+    numMethods:int;
 
     def initialize(class_name:String) {
         className = class_name;
         flags = Clover.getClassFlags(class_name);
         genericsParamTypes = Clover.getClassGenericsParamTypes(class_name);
         genericsParamNames = Clover.getClassGenericsParamNames(class_name);
+        numFields = Clover.getNumFields(class_name);
+        numClassFields = Clover.getNumClassFields(class_name);
+        numMethods = Clover.getNumMethods(class_name);
     }
 
     def appendField(name:String, type:String) {
@@ -96,10 +108,43 @@ class Class
     def getField(index:int): Field {
         return Clover.getField(className, index);
     }
+    def getField(name:String): Field? {
+        for(i:=0; i<numFields; i++) {
+            field := getField(i);
+
+            if(field.name.equals(name)) {
+                return field;
+            }
+        }
+
+        return null;
+    }
     def getClassField(index:int): Field {
         return Clover.getClassField(className, index);
     }
+    def getClassField(name:String): Field? {
+        for(i:=0; i<numClassFields; i++) {
+            field := getClassField(i);
+
+            if(field.name.equals(name)) {
+                return field;
+            }
+        }
+
+        return null;
+    }
     def getMethod(index:int): Method {
         return Clover.getMethod(className, index);
+    }
+    def getMethod(name:String): Method? {
+        for(i:=numMethods-1; i>=0; i--) { # reverse search for multiple definition
+            method := getMethod(i);
+
+            if(method.name.equals(name)) {
+                return method;
+            }
+        }
+
+        return null;
     }
 }

@@ -33,3 +33,16 @@ Clover.test("reflection test7", c.genericsParamTypes[0].equals("Object") && c.ge
 
 Clover.test("reflection test8", c.flags == Clover.CLASS_FLAGS_ALLOCATED);
 
+field3 := b.getField("a");
+
+Clover.test("reflection test9", field3.name.equals("a") && field3.resultType.equals("int"));
+
+method2 := b.getMethod("method2");
+
+Clover.test("reflection test10", method2.name.equals("method2") && method2.index == 4 && method2.params[0].name.equals("a") && method2.params[0].type.equals("int") && method2.params[1].name.equals("b") && method2.params[1].type.equals("String") && method2.resultType.equals("String"));
+
+Clover.test("reflection test11", Clover.isLoadedClass("String") && Clover.isDefinedClass("String") && !Clover.isLoadedClass("XXX") && !Clover.isDefinedClass("XXX"));
+
+d := ReflectionC();
+
+Clover.test("reflection test12", d.field.equals("ABC"));

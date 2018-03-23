@@ -477,6 +477,8 @@ Student.clなどとしてください。コンパイルは
 
 です。
 
+後からの追加ですが、student := new Student("Yuka Minato", 38);はstudent := Student("Yuka Minato", 38)とnewを省略することができます。
+
 ## クラスフィールドとクラスメソッド
 
 クラスフィールドやクラスメソッドとはクラス固有のフィールドやメソッドのことです。
@@ -1293,6 +1295,35 @@ catch(e:Exception) {
 }
 
 Javaのように例外は型付けされているわけじゃないです。e.messsageに入っているメッセージで起こった例外を判断してください。
+
+## 複数行の文字列
+
+以下のように使います。
+
+    print(
+        """
+        HELLO WORLD
+        HELLO WORLD
+        HELLO WORLD
+        """);
+
+変数の展開は以下のように使います。
+
+    name := "Tom";
+
+    print(
+        """
+        HELLO \{name}
+        HELLO \{name}
+        HELLO \{name}
+        """);
+
+インデントにはタブは使えません。スペースのみとなっております。インデントは必要ない場合は普通の文字列を使ってください。普通の文字列でも改行を含めることができます。
+
+    print("HELLO WORLD
+    HELLO WORLD
+    HELLOWORLD
+    ");
 
 ## 糖衣構文
 

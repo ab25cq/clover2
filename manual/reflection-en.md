@@ -13,10 +13,6 @@ To add a field do the following.
 ```
     klass.appendField("field1", "int");
 ```
-
-To add a method, do as follows.
-
-```
     klass.appendMethod("def method1() { 123 }");
 ```
 
@@ -27,16 +23,28 @@ To add a class field do the following.
 ```
 
 To obtain field information, do as follows.
-
+```
     klass.getField(0);
-
+```
 0 is the index. Specify numerical values in order of definition. 
 
+```
+    klass.getField("field1");
+```
+
+You can get fields by name.
+
 To obtain information on a method, do as follows.
-
+```
     klass.getMethod(0);
-
+```
 0 is the index. Specify numerical values ​​in order of definition. It is important to note that when you define a field, methods of setter and getter are automatically defined, so you may not get the method you want. Since the setter and getter methods are automatically defined when the field is defined, do not forget to specify the index.
+
+```
+    klass.getMethod("method1");
+```
+
+You can get methods by name.
 
 Field classes are as follows.
 
@@ -90,6 +98,41 @@ flags contains the type of method. name is the method name. path is the method n
 ```
 
 name is the variable name of the argument. type is the name of the type of the argument. varNum contains the number of local variables. genericsParamTypes is an array containing the interface names of method generics. that's all. Please try variously and understand.
+
+The class class is defined as follows.
+
+```
+    class Class
+    {
+        className:String;
+        flags:long;
+        genericsParamTypes:String[];
+        genericsParamNames:String[];
+        numFields:int;
+        numClassFields:int;
+        numMethods:int;
+    }
+```
+
+The number of fields in Class is numFields, the number of class fields is numClassFields, and the number of methods is numMethods. Class flags are obtained with flags, generics information is obtained with genericsParamTypes, genericsParamNames. genericsParamTypes contains the type of interface of the generics argument. genericsParamNames is the name of the argument of generics.
+
+Clover.isLoadedClass(name: String) is known by the bool value whether the class is loaded. Clover.isDefinedClass(name: String) knows if a class is defined. (Whether there is a class file).
+
+You can also define classes with Clover.append (code: String).
+```
+    Clover.appendClass(
+        """
+        class ReflectionC
+        {
+            field: String;
+
+            def initialize() {
+                field = "ABC";
+            }
+        }
+        """
+    );
+```
 
 Please note that appendField and others work only at compile time. Clover 2 is meaningless in compiled languages even if fields and methods are added at run time. Please use it at compile time scripting. Since compile-time scripting can use all the functions of Clover 2, if you create classes for compile-time scripting, Automation can be done a lot. Is it like a macro or preprocessor? Well, please enjoy a lot
 

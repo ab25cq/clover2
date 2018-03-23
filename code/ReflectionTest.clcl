@@ -34,3 +34,16 @@ class ReflectionTest
         Clover.test("refelection test", a.a == 123);
     }
 }
+
+Clover.appendClass(
+    """
+    class ReflectionC
+    {
+        field: String;
+
+        def initialize() {
+            field = "ABC";
+        }
+    }
+    """
+);

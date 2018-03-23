@@ -359,6 +359,7 @@ BOOL jit_compile_all_classes();
 void remove_class(char* class_name);
 sCLClass* load_class_from_class_file(char* class_name, char* class_file_name);
 void set_boxing_and_unboxing_classes();
+BOOL search_for_class_file(char* class_name, char* class_file_name, size_t class_file_name_size);
 
 sCLClass* get_class_with_load(char* class_name);
 
@@ -2218,6 +2219,12 @@ BOOL Clover_getClassField(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL Clover_getClassGenericsParamNames(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL Clover_getClassGenericsParamTypes(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL Clover_getClassFlags(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL Clover_getNumFields(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL Clover_getNumClassFields(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL Clover_getNumMethods(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL Clover_isLoadedClass(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL Clover_isDefinedClass(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL Clover_appendClass(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 /// jit.cpp ///
 BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sCLMethod* method, sVMInfo* info, CLVALUE** stack_ptr);

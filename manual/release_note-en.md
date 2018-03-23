@@ -1,4 +1,16 @@
 
+version 3.7.6
+
+    Added Multi line stirng.
+
+    I added getMethod (name: String), getClassField (name: String), getField (name: String) to lover class. Also add numFields, numMethods, numClassFields fields to the Class class
+
+    I added Clover.isLoaded(name:String), Clover.isDefined(name:String).
+
+    I added Clover.appendClass(code:String).
+
+    new can now be omitted when creating objects.
+
 version 3.7.5
     
     Added Compile time scripting and Reflection.

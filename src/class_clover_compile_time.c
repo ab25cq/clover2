@@ -260,3 +260,24 @@ BOOL Clover_appendMethod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     return TRUE;
 }
+
+BOOL Clover_appendClass(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* code = lvar;
+
+    if(code->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    char* code_value = ALLOC string_object_to_char_array(code->mObjectValue);
+
+    if(!compile_class_source("appendClass", code_value)) {
+        MFREE(code_value);
+        return FALSE;
+    }
+
+    MFREE(code_value);
+
+    return TRUE;
+}

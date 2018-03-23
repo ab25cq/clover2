@@ -513,3 +513,136 @@ BOOL Clover_getClassGenericsParamNames(CLVALUE** stack_ptr, CLVALUE* lvar, sVMIn
 
     return TRUE;
 }
+
+BOOL Clover_getNumFields(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* class_name = lvar;
+
+    /// Clover to c value ///
+    if(class_name->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    char* class_name_value = ALLOC string_object_to_char_array(class_name->mObjectValue);
+
+    sCLClass* klass2 = get_class_with_load_and_initialize(class_name_value);
+
+    if(klass2 == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Class not found");
+        MFREE(class_name_value);
+        return FALSE;
+    }
+
+    /// go ///
+    (*stack_ptr)->mIntValue = klass2->mNumFields;
+    (*stack_ptr)++;
+
+    MFREE(class_name_value);
+
+    return TRUE;
+}
+
+BOOL Clover_getNumClassFields(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* class_name = lvar;
+
+    /// Clover to c value ///
+    if(class_name->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    char* class_name_value = ALLOC string_object_to_char_array(class_name->mObjectValue);
+
+    sCLClass* klass2 = get_class_with_load_and_initialize(class_name_value);
+
+    if(klass2 == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Class not found");
+        MFREE(class_name_value);
+        return FALSE;
+    }
+
+    /// go ///
+    (*stack_ptr)->mIntValue = klass2->mNumClassFields;
+    (*stack_ptr)++;
+
+    MFREE(class_name_value);
+
+    return TRUE;
+}
+
+BOOL Clover_getNumMethods(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* class_name = lvar;
+
+    /// Clover to c value ///
+    if(class_name->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    char* class_name_value = ALLOC string_object_to_char_array(class_name->mObjectValue);
+
+    sCLClass* klass2 = get_class_with_load_and_initialize(class_name_value);
+
+    if(klass2 == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Class not found");
+        MFREE(class_name_value);
+        return FALSE;
+    }
+
+    /// go ///
+    (*stack_ptr)->mIntValue = klass2->mNumMethods;
+    (*stack_ptr)++;
+
+    MFREE(class_name_value);
+
+    return TRUE;
+}
+
+BOOL Clover_isLoadedClass(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* class_name = lvar;
+
+    /// Clover to c value ///
+    if(class_name->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    char* class_name_value = ALLOC string_object_to_char_array(class_name->mObjectValue);
+
+    sCLClass* klass2 = get_class(class_name_value);
+
+    /// go ///
+    (*stack_ptr)->mIntValue = klass2 != NULL;
+    (*stack_ptr)++;
+
+    MFREE(class_name_value);
+
+    return TRUE;
+}
+
+BOOL Clover_isDefinedClass(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* class_name = lvar;
+
+    /// Clover to c value ///
+    if(class_name->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    char* class_name_value = ALLOC string_object_to_char_array(class_name->mObjectValue);
+
+    /// go ///
+    char class_file_name[PATH_MAX];
+
+    (*stack_ptr)->mIntValue = search_for_class_file(class_name_value, class_file_name, PATH_MAX);
+    (*stack_ptr)++;
+
+    MFREE(class_name_value);
+
+    return TRUE;
+}

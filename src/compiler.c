@@ -136,7 +136,7 @@ static BOOL class_compiler(char* fname)
 
 int gARGC;
 char** gARGV;
-char* gVersion = "3.7.5";
+char* gVersion = "3.7.6";
 
 int main(int argc, char** argv)
 {

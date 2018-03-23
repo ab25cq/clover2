@@ -402,4 +402,5 @@ test: parser
 	PWD=`pwd` ./cclover2 code/ParserTest.clcl && ./clover2 code/parser.cl
 
 	PWD=`pwd` ./cclover2 code/reflection.cl && ./clover2 code/reflection.cl
+	PWD=`pwd` ./cclover2 code/MultiLineString.cl && ./clover2 code/MultiLineString.cl
 

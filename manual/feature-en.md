@@ -532,6 +532,8 @@ Output is
 ```
 .
 
+Student: = new Student ("Yuka Minato", 38); You can omit student: = Student ("Yuka Minato", 38) and new though it is a later addition.
+
 ## dynamic_class
 
 For objects of dynamic_class, you can call any method name or argument method. A method called callingMethod is called at the time of execution of the invoked method, and you can do concrete processing in it. For example
@@ -1303,6 +1305,41 @@ catch(e:Exception) {
 }
 
 Exceptions are not typed. Determine the exception that occurred in the message in e.message Please.
+
+## Multi line string
+
+I use it as follows
+
+```
+    print(
+        """
+        HELLO WORLD
+        HELLO WORLD
+        HELLO WORLD
+        """);
+```
+
+Expansion of variables is used as follows.
+
+```
+    name := "Tom";
+
+    print(
+        """
+        HELLO \{name}
+        HELLO \{name}
+        HELLO \{name}
+        """);
+```
+
+Tabs can not be used for indentation. It is only space. If you do not need indentation please use normal string. An ordinary character string can also contain line breaks.
+
+```
+    print("HELLO WORLD
+    HELLO WORLD
+    HELLOWORLD
+    ");
+```
 
 # Sugar coating syntax
 

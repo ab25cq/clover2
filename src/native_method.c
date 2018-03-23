@@ -243,6 +243,12 @@ static sNativeMethod gNativeMethods[] = {
     { "Clover.getClassFlags(String)", "Clover_getClassFlags", Clover_getClassFlags },
     { "Clover.getClassGenericsParamTypes(String)", "Clover_getClassGenericsParamTypes", Clover_getClassGenericsParamTypes },
     { "Clover.getClassGenericsParamNames(String)", "Clover_getClassGenericsParamNames", Clover_getClassGenericsParamNames },
+    { "Clover.getNumFields(String)", "Clover_getNumFields", Clover_getNumFields },
+    { "Clover.getNumClassFields(String)", "Clover_getNumClassFields", Clover_getNumClassFields },
+    { "Clover.getNumMethods(String)", "Clover_getNumMethods", Clover_getNumMethods },
+    { "Clover.isLoadedClass(String)", "Clover_isLoadedClass", Clover_isLoadedClass },
+    { "Clover.isDefinedClass(String)", "Clover_isDefinedClass", Clover_isDefinedClass },
+    { "Clover.appendClass(String)", "Clover_appendClass", Clover_appendClass },
 
     { "", "", 0 }  // sentinel
 };

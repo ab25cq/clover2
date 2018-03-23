@@ -18,3 +18,9 @@ BOOL Clover_appendClassField(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     return FALSE;
 }
 
+BOOL Clover_appendClass(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented on runtime.");
+    return FALSE;
+}
+
