@@ -288,9 +288,72 @@ module MWrapperClassBase
     }
 }
 
+module MOperand
+{
+    def add(right:SELF): SELF {
+        return self + right;
+    }
+
+    def sub(right:SELF): SELF {
+        return self - right;
+    }
+
+    def multiply(right:SELF): SELF {
+        return self * right;
+    }
+
+    def divide(right:SELF): SELF {
+        return self / right;
+    }
+
+    def mod(right:SELF): SELF {
+        return self % right;
+    }
+
+    def lshift(right:SELF): SELF {
+        return self << right;
+    }
+
+    def rshift(right:SELF): SELF {
+        return self >> right;
+    }
+
+    def and(right:SELF): SELF {
+        return self & right;
+    }
+
+    def xor(right:SELF): SELF {
+        return self ^ right;
+    }
+
+    def or(right:SELF): SELF {
+        return self | right;
+    }
+}
+
+module MOperandFloat
+{
+    def add(right:SELF): SELF {
+        return self + right;
+    }
+
+    def sub(right:SELF): SELF {
+        return self - right;
+    }
+
+    def multiply(right:SELF): SELF {
+        return self * right;
+    }
+
+    def divide(right:SELF): SELF {
+        return self / right;
+    }
+}
+
 class Byte : unboxing byte
 {
     include MWrapperClassBase;
+    include MOperand;
 
     value:byte;
 
@@ -326,6 +389,7 @@ class Byte : unboxing byte
 class UByte : unboxing ubyte
 {
     include MWrapperClassBase;
+    include MOperand;
 
     value:ubyte;
 
@@ -361,6 +425,7 @@ class UByte : unboxing ubyte
 class Short : unboxing short
 {
     include MWrapperClassBase;
+    include MOperand;
 
     value:short;
 
@@ -396,6 +461,10 @@ class Short : unboxing short
 class UShort : unboxing ushort
 {
     include MWrapperClassBase;
+    include MOperand;
+    def add(right:UShort): UShort {
+        return self.to_ushort() + right.to_ushort();
+    }
 
     value:ushort;
 
@@ -431,6 +500,7 @@ class UShort : unboxing ushort
 class Integer : unboxing int
 {
     include MWrapperClassBase;
+    include MOperand;
 
     value:int;
 
@@ -472,6 +542,7 @@ class Integer : unboxing int
 class UInteger : unboxing uint
 {
     include MWrapperClassBase;
+    include MOperand;
 
     value: uint;
 
@@ -507,6 +578,7 @@ class UInteger : unboxing uint
 class Long : unboxing long
 {
     include MWrapperClassBase;
+    include MOperand;
 
     value:long;
 
@@ -542,6 +614,7 @@ class Long : unboxing long
 class ULong : unboxing ulong
 {
     include MWrapperClassBase;
+    include MOperand;
 
     value: ulong;
 
@@ -577,6 +650,7 @@ class ULong : unboxing ulong
 class Float : unboxing float
 {
     include MWrapperClassBase;
+    include MOperandFloat;
 
     value: float;
 
@@ -608,6 +682,7 @@ class Float : unboxing float
 class Double : unboxing double
 {
     include MWrapperClassBase;
+    include MOperandFloat;
 
     value: double;
 
@@ -825,5 +900,13 @@ class Bool : unboxing bool
 
     def equals(right:WildCard):bool {
         return true;
+    }
+    
+    def and(right:Bool):Bool {
+        return self && right;
+    }
+    
+    def or(right:Bool) : Bool {
+        return self || right;
     }
 }

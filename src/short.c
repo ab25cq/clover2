@@ -8,7 +8,7 @@ CLObject create_short(short value)
     sCLObject* obj_data = CLOBJECT(obj);
 
     obj_data->mFields[0].mShortValue = value;
-    
+
     return obj;
 }
 
@@ -21,7 +21,7 @@ CLObject create_ushort(unsigned short value)
     sCLObject* obj_data = CLOBJECT(obj);
 
     obj_data->mFields[0].mUShortValue = value;
-    
+
     return obj;
 }
 

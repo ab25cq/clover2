@@ -72,6 +72,7 @@
 #define GLOBAL_STACK_MAX 256
 #define METHOD_DEFAULT_PARAM_MAX 1024
 #define METHOD_BLOCK_PARAM_MAX 16
+#define CLOVER2_NUM_THREAD_MAX 1024
 
 #define WHEN_BLOCK_MAX 64
 
@@ -110,6 +111,7 @@ typedef struct sByteCodeStruct sByteCode;
 void sByteCode_init(sByteCode* code);
 void sByteCode_init_with_size(sByteCode* code, int size);
 void sByteCode_free(sByteCode* code);
+void sByteCode_clone(sByteCode* self, sByteCode* code);
 void append_value_to_code(sByteCode* code, void* data, size_t size, BOOL no_output);
 void append_opecode_to_code(sByteCode* code, unsigned int op, BOOL no_output);
 void append_int_value_to_code(sByteCode* code, int value, BOOL no_output);
@@ -132,6 +134,7 @@ typedef struct sConstStruct sConst;
 void sConst_init(sConst* self);
 void sConst_init_with_size(sConst* self, int size);
 void sConst_free(sConst* self);
+void sConst_clone(sConst* self, sConst* constant);
 
 int sConst_append(sConst* self, void* data, size_t size, BOOL no_output);
 int append_int_value_to_constant_pool(sConst* constant, int n, BOOL no_output);
@@ -144,6 +147,7 @@ void append_str_to_constant_pool_and_code(sConst* constant, sByteCode* code, cha
 
 /// stack.c ///
 struct sCLStackStruct {
+    int mStackID;
     CLVALUE* mStack;
     CLVALUE** mStackPtr;
 
@@ -172,6 +176,7 @@ extern CLVALUE* gGlobalStackPtr;
 #define CLASS_FLAGS_ALLOCATED 0x08
 #define CLASS_FLAGS_DYNAMIC_CLASS 0x10
 #define CLASS_FLAGS_NO_FREE_OBJECT 0x20
+#define CLASS_FLAGS_LAMBDA 0x40
 
 struct sCLTypeStruct;
 
@@ -210,6 +215,8 @@ typedef struct sCLParamStruct sCLParam;
 
 #define METHOD_FLAGS_NATIVE 0x01
 #define METHOD_FLAGS_CLASS_METHOD 0x02
+#define METHOD_FLAGS_NO_SYNC 0x04
+
 #define EXCEPTION_MESSAGE_MAX 1024
 #define STACK_TRACE_MAX 32
 
@@ -229,6 +236,9 @@ struct sVMInfoStruct {
     struct sCLClassStruct* running_class;
     struct sCLMethodStruct* running_method;
 
+    char* running_class_name;
+    char* running_method_name;
+
     sCLStack* stack_id;
     char exception_message[EXCEPTION_MESSAGE_MAX];
 
@@ -236,6 +246,8 @@ struct sVMInfoStruct {
     int stack_trace_sline[STACK_TRACE_MAX];
 
     int num_stack_trace;
+
+    BOOL no_mutex_in_vm;
 };
 
 typedef struct sVMInfoStruct sVMInfo;
@@ -319,6 +331,7 @@ struct sCLClassStruct {
     int mFinalizeMethodIndex;
     int mCallingMethodIndex;
     int mCallingClassMethodIndex;
+    int mAllocSizeMethodIndex;
 
     int mMethodIndexOnCompileTime;                  // This requires on the compile time
     sCLMethod* mVirtualMethodTable[METHOD_NUM_MAX]; // This requires on the run time
@@ -346,9 +359,10 @@ void class_init();
 void class_init_on_compile_time();
 void class_final();
 
+sCLClass* get_class_with_load(char* class_name);
 sCLClass* get_class(char* name);
 unsigned int get_hash_key(char* name, unsigned int max);
-sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_class_num, int method_generics_param_class_num, int generics_number, char name_of_generics_params[GENERICS_TYPES_MAX][VAR_NAME_MAX], sCLClass** type_of_generics_params, BOOL interface, BOOL dynamic_class, BOOL no_free_object, sCLClass* unboxing_class);
+sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_class_num, int method_generics_param_class_num, int generics_number, char name_of_generics_params[GENERICS_TYPES_MAX][VAR_NAME_MAX], sCLClass** type_of_generics_params, BOOL interface, BOOL dynamic_class, BOOL no_free_object, BOOL lambda, sCLClass* unboxing_class);
 ALLOC sCLType* create_cl_type(sCLClass* klass, sCLClass* klass2);
 void free_cl_type(sCLType* cl_type);
 sCLClass* load_class(char* class_name);
@@ -356,12 +370,9 @@ sCLMethod* search_for_method_from_virtual_method_table(sCLClass* klass, char* me
 BOOL is_valid_class(sCLClass* klass);
 BOOL put_class_to_table(char* class_name, sCLClass* klass);
 BOOL jit_compile_all_classes();
-void remove_class(char* class_name);
 sCLClass* load_class_from_class_file(char* class_name, char* class_file_name);
 void set_boxing_and_unboxing_classes();
 BOOL search_for_class_file(char* class_name, char* class_file_name, size_t class_file_name_size);
-
-sCLClass* get_class_with_load(char* class_name);
 
 struct sClassTableStruct
 {
@@ -448,6 +459,7 @@ void free_node_block_types();
 sNodeBlockType* alloc_node_block_type();
 sNodeBlockType* clone_node_block_type(sNodeBlockType* block);
 BOOL substitution_posibility_for_node_block_type(sNodeBlockType* left_block, sNodeBlockType* right_block, sNodeType* left_generics_types, sNodeType* right_generics_types);
+void free_block(CLObject self);
 
 /// vtable.c ///
 struct sVarStruct {
@@ -1202,6 +1214,8 @@ extern BOOL gSigInt;
 #define OP_CLASSNAME 1301
 #define OP_IS 1302
 #define OP_IMPLEMENTS 1303
+#define OP_OBJ_ALLOCATED_SIZE 1304
+#define OP_OBJ_HEAD_OF_MEMORY 1305
 
 #define OP_ANDAND 2000
 #define OP_OROR 2001
@@ -1769,12 +1783,10 @@ extern BOOL gSigInt;
 #define OP_CREATE_REGEX 9013
 
 BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sVMInfo* info);
-void vm_mutex_on();
-void vm_mutex_off();
-void new_vm_mutex();
 sCLClass* get_class_with_load_and_initialize(char* class_name);
 void class_final_on_runtime();
 BOOL call_finalize_method_on_free_object(sCLClass* klass, CLObject self);
+BOOL call_alloc_size_method(sCLClass* klass, int* result);
 BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info);
 BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_params, CLVALUE** stack_ptr, sVMInfo* info, BOOL llvm_flag);
 BOOL class_init_on_runtime();
@@ -1796,7 +1808,7 @@ BOOL call_all_class_initializer();
 #define PARSE_PHASE_MAX 8
 
 BOOL compile_class_source(char* fname, char* source);
-BOOL parse_method_name_and_params(char* method_name, int method_name_max, sParserParam* params, int* num_params, sNodeType** result_type, BOOL* native_, BOOL* static_, sParserInfo* info);
+BOOL parse_method_name_and_params(char* method_name, int method_name_max, sParserParam* params, int* num_params, sNodeType** result_type, BOOL* native_, BOOL* static_, BOOL* nosync, sParserInfo* info);
 
 /// cycle.c ///
 void set_dependency_compile();
@@ -1807,7 +1819,7 @@ void dependency_final();
 /// klass_compile_time.c ///
 sCLClass* get_class_with_load_on_compile_time(char* class_name);
 sCLClass* load_class_on_compile_time(char* class_name);
-BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_, sGenericsParamInfo* ginfo, sCLMethod** appended_method);
+BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_, BOOL nosync, sGenericsParamInfo* ginfo, sCLMethod** appended_method);
 BOOL add_typedef_to_class(sCLClass* klass, char* class_name1, char* class_name2);
 BOOL add_class_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type, int initialize_value);
 void add_code_to_method(sCLMethod* method, sByteCode* code, int var_num);
@@ -1950,6 +1962,7 @@ typedef struct sBlockObjectStruct sBlockObject;
 #define CLBLOCK(obj) (sBlockObject*)(get_object_pointer((obj)))
 
 CLObject create_block_object(sByteCode* codes, sConst* constant, CLVALUE* parent_stack, int parent_var_num, int block_var_num, sCLStack* stack_id, BOOL lambda);
+void block_mark_fun(CLObject self, unsigned char* mark_flg);
 
 /// regex.c ///
 struct sRegexObjectStruct
@@ -2148,6 +2161,25 @@ BOOL System_getppid(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_setsid(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_getsid(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_setpgrp(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_gettid(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_popen(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_pclose(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_initialize_thread_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_pthread_mutex_init(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_pthread_mutex_destroy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_pthread_mutex_lock(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_pthread_mutex_unlock(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_pthread_mutex_trylock(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_pthread_mutexattr_gettype(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_pthread_mutexattr_destroy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_pthread_mutexattr_settype(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_pthread_mutexattr_init(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_pthread_cond_init(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_pthread_cond_signal(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_pthread_cond_broadcast(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_pthread_cond_wait(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_pthread_cond_timedwait(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_pthread_cond_destroy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 /// alignment.c ///
 void alignment(unsigned int* size);
@@ -2252,6 +2284,18 @@ BOOL CLParser_initialize(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 extern int gARGC;
 extern char** gARGV;
 extern char* gVersion;
+
+/// class_thread.c ///
+void thread_init();
+void thread_final();
+void vm_mutex_on();
+void vm_mutex_off();
+BOOL Thread_initialize_thread(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL Thread_pthread_join(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+void new_vm_mutex();
+pid_t gettid();
+BOOL pthread_mutex_t_allocSize(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL pthread_cond_t_allocSize(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 #endif
 

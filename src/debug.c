@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-#ifndef MDEBUG
+//#ifndef MDEBUG
 
 ALLOC void* xmalloc(size_t size)
 {
@@ -77,6 +77,7 @@ void xfree(void* ptr)
     free(ptr);
 }
 
+/*
 #else
 
 static char* xstrncpy(char* des, char* src, int size)
@@ -301,4 +302,4 @@ void debug_free(void* memory, const char* file_name, int line, const char* func_
 }
 
 #endif
-
+*/

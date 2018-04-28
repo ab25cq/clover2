@@ -9,8 +9,6 @@ void entry_exception_object_with_class_name(CLVALUE** stack_ptr, CLVALUE* stack,
     vsnprintf(msg2, 1024, msg, args);
     va_end(args);
 
-    vm_mutex_on();
-
     char msg3[1024];
 
     if(info->running_class && info->running_method) {
@@ -46,14 +44,10 @@ void entry_exception_object_with_class_name(CLVALUE** stack_ptr, CLVALUE* stack,
 
     sCLObject* object_data = CLOBJECT(object);
     object_data->mFields[0].mObjectValue = str;
-
-    vm_mutex_off();
 }
 
 void entry_exception_object_with_class_name2(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, char* class_name, char* msg)
 {
-    vm_mutex_on();
-
     char msg3[1024];
 
     if(info->running_class && info->running_method) {
@@ -89,8 +83,6 @@ void entry_exception_object_with_class_name2(CLVALUE** stack_ptr, CLVALUE* stack
 
     sCLObject* object_data = CLOBJECT(object);
     object_data->mFields[0].mObjectValue = str;
-
-    vm_mutex_off();
 }
 
 void entry_exception_object(CLObject exception, sVMInfo* info)
@@ -125,8 +117,6 @@ void show_exception_message(char* message)
     fprintf(stderr, "%s\n", message);
 
 /*
-    vm_mutex_on();
-
     sCLObject* object_data = CLOBJECT(exception);
     CLObject string_object = object_data->mFields[0].mObjectValue;
 
@@ -147,7 +137,5 @@ void show_exception_message(char* message)
     fprintf(stderr, "%s: %ls\n", CLASS_NAME(object_data->mClass), wstr);
 
     MFREE(wstr);
-
-    vm_mutex_off();
 */
 }

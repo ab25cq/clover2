@@ -694,10 +694,10 @@ struct sCLVALUEAndBoolResult* run_array_to_carray_cast(CLVALUE** stack_ptr, CLVA
 
     CLObject new_primitive_array;
     if(klass->mFlags & CLASS_FLAGS_PRIMITIVE) {
-        new_primitive_array = create_array_object(klass->mBoxingClass, array_num);
+        new_primitive_array = create_array_object(klass->mBoxingClass, array_num, 0);
     }
     else {
-        new_primitive_array = create_array_object(klass, array_num);
+        new_primitive_array = create_array_object(klass, array_num, 0);
     }
 
     sCLObject* new_array_data = CLOBJECT(new_array);

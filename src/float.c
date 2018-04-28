@@ -8,7 +8,7 @@ CLObject create_float(float value)
     sCLObject* obj_data = CLOBJECT(obj);
 
     obj_data->mFields[0].mFloatValue = value;
-    
+
     return obj;
 }
 
@@ -20,7 +20,7 @@ CLObject create_double(double value)
     sCLObject* obj_data = CLOBJECT(obj);
 
     obj_data->mFields[0].mDoubleValue = value;
-    
+
     return obj;
 }
 

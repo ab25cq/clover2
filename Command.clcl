@@ -2,7 +2,6 @@ include "File.clcl"
 
 class System
 {
-    typedef pid_t int;
     typedef wait_status int;
     typedef wait_option int;
     typedef tcflag_t int;
@@ -198,6 +197,8 @@ class System
 
     def system(str:String): static native int throws Exception;
     def pipe(read_fd:pointer@int, write_fd:pointer@int): static native throws Exception;
+    def popen(command:String, type:String): static native pointer@FILE throws Exception;
+    def pclose(stream:pointer@FILE): static native int;
     def fork(block_:lambda()): static native pid_t throws Exception;
     def dup2(fd1:int, fd2:int): static native int throws Exception;
     def execvp(method_name:String, params:List<String>): static native throws Exception;
@@ -983,6 +984,21 @@ dynamic_class Command
 
             return new Command("", System.WEXITSTATUS(status));
         }
+    }
+
+    def popen(command:String, rcode:pointer@int):static String throws Exception {
+        result := "";
+        fp:pointer@FILE = popen(command, "r");
+
+        while(!feof(fp)) {
+            buf := Buffer(System.BUFSIZ);
+            fgets(buf, System.BUFSIZ, fp);
+            result.append(buf.toString());
+        }
+
+        rcode->int = pclose(fp);
+
+        return result;
     }
 
     def cd():static {

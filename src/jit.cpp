@@ -129,6 +129,8 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
         store_llvm_value_to_lvar_with_offset(llvm_stack, i, &llvm_value, FALSE);
     }
 
+    call_vm_mutex_off();
+
     while(pc - code->mCodes < code->mLen) {
         int k;
         for(k=0; k<num_cond_jump; k++) {
@@ -170,6 +172,8 @@ call_show_inst_in_jit(inst);
     }
 }
 */
+
+        call_vm_mutex_on();
 
         switch(inst) {
             case OP_NOP:
@@ -228,6 +232,8 @@ call_show_inst_in_jit(inst);
                 LVALUE llvm_value;
                 llvm_value = trunc_value(conditional_value, 1);
 
+                call_vm_mutex_off();
+
                 Builder.CreateCondBr(llvm_value.value, entry_condends[num_cond_jump], cond_jump_then_block);
 
                 Builder.SetInsertPoint(cond_jump_then_block);
@@ -264,6 +270,8 @@ call_show_inst_in_jit(inst);
                 entry_condnotends[num_cond_not_jump] = BasicBlock::Create(TheContext, "entry_condnotend", function);
                 LVALUE llvm_value;
                 llvm_value = trunc_value(conditional_value, 1);
+
+                call_vm_mutex_off();
 
                 Builder.CreateCondBr(llvm_value.value, cond_not_jump_then_block, entry_condnotends[num_cond_not_jump]);
 
@@ -1198,6 +1206,12 @@ call_show_inst_in_jit(inst);
                 break;
         }
 
+        if(inst == OP_COND_JUMP || inst == OP_COND_NOT_JUMP) {
+        }
+        else {
+            call_vm_mutex_off();
+        }
+
 //show_llvm_stck_on_compile_time(llvm_stack, llvm_stack_ptr, var_num);
 /*
 if(inst != OP_HEAD_OF_EXPRESSION 
@@ -1210,6 +1224,8 @@ if(inst != OP_HEAD_OF_EXPRESSION
 }
 */
     }
+
+    call_vm_mutex_on();
 
     // Finish off the function.
     Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 1, true));

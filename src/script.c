@@ -73,7 +73,12 @@ BOOL eval_file(char* fname, int stack_size)
     CLVALUE* stack = MCALLOC(1, sizeof(CLVALUE)*stack_size);
 
     sVMInfo info;
-    memset(&info, 0, sizeof(sVMInfo));
+    memset(&info, 0, sizeof(info));
+
+    info.running_class_name = "none";
+    info.running_method_name = "eval_file";
+
+    vm_mutex_on();
 
     if(!vm(&code, &constant, stack, var_num, NULL, &info)) {
         show_exception_message(info.exception_message);
@@ -83,8 +88,11 @@ BOOL eval_file(char* fname, int stack_size)
         MFREE(code_contents2);
         sByteCode_free(&code);
         sConst_free(&constant);
+        vm_mutex_off();
         return FALSE;
     }
+
+    vm_mutex_off(); // see OP_RETURN
 
     fclose(f);
     MFREE(code_contents);

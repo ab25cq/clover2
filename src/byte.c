@@ -8,7 +8,7 @@ CLObject create_byte(char value)
     sCLObject* obj_data = CLOBJECT(obj);
 
     obj_data->mFields[0].mByteValue = value;
-    
+
     return obj;
 }
 

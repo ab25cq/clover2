@@ -22,6 +22,15 @@ void sConst_free(sConst* self)
     MFREE(self->mConst);
 }
 
+void sConst_clone(sConst* self, sConst* constant)
+{
+    self->mSize = constant->mLen;
+    self->mLen = constant->mLen;
+    self->mConst = MCALLOC(1, sizeof(char)*constant->mLen);
+
+    memcpy(self->mConst, constant->mConst, constant->mLen);
+}
+
 static void arrange_alignment(sConst* self)
 {
     alignment((unsigned int*)&self->mLen);

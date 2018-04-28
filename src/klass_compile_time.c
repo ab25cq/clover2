@@ -207,9 +207,27 @@ void set_method_index_to_class(sCLClass* klass)
             }
         }
     }
+
+    klass->mAllocSizeMethodIndex = -1;
+
+    for(i=klass->mNumMethods-1; i>=0; i--) {
+        sCLMethod* method = klass->mMethods + i;
+
+        if((method->mFlags & METHOD_FLAGS_CLASS_METHOD) 
+            && strcmp(CONS_str(&klass->mConst, method->mNameOffset), "allocSize") == 0
+            && method->mNumParams == 0)
+        {
+            sNodeType* result_type = create_node_type_from_cl_type(method->mResultType, klass);
+
+            if(type_identify_with_class_name(result_type, "int")) {
+                klass->mAllocSizeMethodIndex = i;
+                break;
+            }
+        }
+    }
 }
 
-BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_, sGenericsParamInfo* ginfo, sCLMethod** appended_method)
+BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_, BOOL nosync, sGenericsParamInfo* ginfo, sCLMethod** appended_method)
 {
     if(klass->mNumMethods == klass->mSizeMethods) {
         int new_size = klass->mSizeMethods * 2;
@@ -222,7 +240,7 @@ BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* param
 
     *appended_method = klass->mMethods + num_methods;
 
-    klass->mMethods[num_methods].mFlags = (native_ ? METHOD_FLAGS_NATIVE : 0) | (static_ ? METHOD_FLAGS_CLASS_METHOD:0);
+    klass->mMethods[num_methods].mFlags = (native_ ? METHOD_FLAGS_NATIVE : 0) | (static_ ? METHOD_FLAGS_CLASS_METHOD:0) | (nosync ? METHOD_FLAGS_NO_SYNC:0);
     klass->mMethods[num_methods].mNameOffset = append_str_to_constant_pool(&klass->mConst, method_name, FALSE);
 
     BOOL method_arg_default_value = FALSE;
@@ -335,7 +353,7 @@ BOOL add_class_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL p
     node_type_to_cl_type(result_type, ALLOC &klass->mClassFields[num_fields].mResultType, klass);
 
     klass->mNumClassFields++;
-    
+
     return TRUE;
 }
 
@@ -494,7 +512,8 @@ sCLClass* load_class_on_compile_time(char* class_name)
 {
     sCLClass* klass = get_class(class_name);
     if(klass != NULL) {
-        remove_class(class_name);
+        return klass;
+        //remove_class(class_name);
     }
 
     char class_file_name[PATH_MAX+1];
@@ -502,7 +521,9 @@ sCLClass* load_class_on_compile_time(char* class_name)
         return NULL;
     }
 
-    return load_class_from_class_file(class_name, class_file_name);
+    sCLClass* result = load_class_from_class_file(class_name, class_file_name);
+
+    return result;
 }
 
 static BOOL check_method_params(sCLMethod* method, sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, sNodeType* left_generics_type, sNodeType* right_generics_type, sNodeType* left_method_generics, sNodeType* right_method_generics, sNodeType* method_generics_types, BOOL lazy_lambda_compile)
@@ -914,6 +935,7 @@ static void write_class_to_buffer(sCLClass* klass, sBuf* buf)
     sBuf_append_int(buf, klass->mFinalizeMethodIndex);
     sBuf_append_int(buf, klass->mCallingClassMethodIndex);
     sBuf_append_int(buf, klass->mCallingMethodIndex);
+    sBuf_append_int(buf, klass->mAllocSizeMethodIndex);
 
     sBuf_append_int(buf, klass->mNumTypedef);
     for(i=0; i<klass->mNumTypedef; i++) {
@@ -1060,6 +1082,7 @@ static void load_fundamental_classes_on_compile_time()
     load_class_on_compile_time("Method");
     load_class_on_compile_time("MethodParam");
     load_class_on_compile_time("Field");
+    load_class_on_compile_time("Thread");
 
     load_class_on_compile_time("Clover");
 }
@@ -1241,7 +1264,7 @@ BOOL add_field_to_class_with_class_name(sCLClass* klass, char* name, BOOL privat
     }
 
     klass->mNumFields++;
-    
+
     return TRUE;
 }
 
@@ -1267,6 +1290,6 @@ BOOL add_class_field_to_class_with_class_name(sCLClass* klass, char* name, BOOL 
     }
 
     klass->mNumClassFields++;
-    
+
     return TRUE;
 }

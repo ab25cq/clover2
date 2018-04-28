@@ -1467,6 +1467,66 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             }
             break;
 
+        case OP_OBJ_ALLOCATED_SIZE: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            LVALUE llvm_value2;
+            llvm_value2 = trunc_value(value, 32);
+
+            if_value_is_zero_entry_exception_object(llvm_value2.value, 32, FALSE, FALSE, params, *function, current_block, "Exception", "Null pointer exception(1)");
+
+            Function* fun = TheModule->getFunction("get_object_allocated_size");
+
+            std::vector<Value*> params2;
+
+            params2.push_back(llvm_value2.value);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+
+            LVALUE llvm_value3;
+            llvm_value3 = trunc_value(&llvm_value, 32);
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value3);
+            }
+            break;
+
+        case OP_OBJ_HEAD_OF_MEMORY: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            LVALUE llvm_value2;
+            llvm_value2 = trunc_value(value, 32);
+
+            if_value_is_zero_entry_exception_object(llvm_value2.value, 32, FALSE, FALSE, params, *function, current_block, "Exception", "Null pointer exception(1)");
+
+            Function* fun = TheModule->getFunction("get_object_head_of_memory");
+
+            std::vector<Value*> params2;
+
+            params2.push_back(llvm_value2.value);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt32;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+
+            LVALUE llvm_value3;
+            llvm_value3 = trunc_value(&llvm_value, 64);
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value3);
+            }
+            break;
+
         case OP_IS: {
             LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -2);
             LVALUE* rvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);

@@ -10,8 +10,8 @@ sCLClass* get_class_from_cl_type(sCLType* cl_type, sCLClass* klass)
 BOOL is_void_type(sCLType* cl_type, sCLClass* klass)
 {
     sCLClass* klass2 = get_class_from_cl_type(cl_type, klass);
-
-    return klass2 == get_class("Null");
+    BOOL result = klass2 == get_class("Null");
+    return result;
 }
 
 static void cl_type_to_string_core(sCLType* cl_type, sCLClass* klass, sBuf* buf)

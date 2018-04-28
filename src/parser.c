@@ -4138,7 +4138,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                         }
                     }
                 }
-                else if(*info->p == '(') {
+                else if(*info->p == '(' || *info->p == '[') {
                     info->p = p_before;
                     info->sline = sline_before;
 

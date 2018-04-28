@@ -1,0 +1,19 @@
+
+class AllocSizeClass
+{
+    def initialize() {
+    }
+
+    def allocSize():static int {
+        return 123;
+    }
+
+    def main():static {
+        a := AllocSizeClass();
+        Clover.test("alloc size class", a.allocatedSize() == 123);
+
+        memcpy(a.headOfMemory(), B"ABC\0".buffer, 4);
+
+        Clover.test("alloc size class2", memcmp(a.headOfMemory(), B"ABC".buffer, 4) == 0);
+    }
+}

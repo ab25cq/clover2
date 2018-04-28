@@ -3834,7 +3834,8 @@ fi
 
 if test $ENABLE_OPTIMIZE = 1
 then
-    CFLAGS="$CFLAGS -O3"
+    CFLAGS="$CFLAGS"         # no optimization for thread.
+    #CFLAGS="$CFLAGS -O3"
 fi
 
 if test $ENABLE_INTERPRETER = 1
@@ -3865,8 +3866,52 @@ CC=gcc
 
 INSTALL="/usr/bin/install -c"
 
-#AC_CHECK_HEADER(pthread.h, [AC_DEFINE(HAVE_PTHREAD_H, 1)], [ exit ])
-#AC_HAVE_LIBRARY(pthread, [ LIBS="$LIBS -lpthread"; ], [ exit ])
+ac_fn_c_check_header_mongrel "$LINENO" "pthread.h" "ac_cv_header_pthread_h" "$ac_includes_default"
+if test "x$ac_cv_header_pthread_h" = xyes; then :
+  $as_echo "#define HAVE_PTHREAD_H 1" >>confdefs.h
+
+else
+   exit
+fi
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lpthread" >&5
+$as_echo_n "checking for main in -lpthread... " >&6; }
+if ${ac_cv_lib_pthread_main+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lpthread  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+
+int
+main ()
+{
+return main ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  ac_cv_lib_pthread_main=yes
+else
+  ac_cv_lib_pthread_main=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_pthread_main" >&5
+$as_echo "$ac_cv_lib_pthread_main" >&6; }
+if test "x$ac_cv_lib_pthread_main" = xyes; then :
+   LIBS="$LIBS -lpthread";
+else
+   exit
+fi
+ac_cv_lib_pthread=ac_cv_lib_pthread_main
+
 
 ac_fn_c_check_header_mongrel "$LINENO" "readline/readline.h" "ac_cv_header_readline_readline_h" "$ac_includes_default"
 if test "x$ac_cv_header_readline_readline_h" = xyes; then :
@@ -4177,13 +4222,13 @@ CFLAGS="$CFLAGS -Qunused-arguments"
 if test $ENABLE_JIT = 1
 then
     CFLAGS="$CFLAGS -DENABLE_JIT"
-    OBJS="src/vm.o src/script.o src/object.o src/array.o src/string.o src/block.o src/regex.o src/integer.o src/byte.o src/short.o src/long.o src/float.o src/pointer.o src/char.o src/bool.o src/hash.o src/list.o src/tuple.o src/carray.o src/type.o src/stack.o src/heap.o src/exception.o src/native_method.o src/class_system.o src/class_parser.o src/class_clover.o src/class_clover_runtime.o src/clover_to_clang.o"
+    OBJS="src/vm.o src/script.o src/object.o src/array.o src/string.o src/block.o src/regex.o src/integer.o src/byte.o src/short.o src/long.o src/float.o src/pointer.o src/char.o src/bool.o src/hash.o src/list.o src/tuple.o src/carray.o src/type.o src/stack.o src/heap.o src/exception.o src/native_method.o src/class_system.o src/class_parser.o src/class_clover.o src/class_clover_runtime.o src/clover_to_clang.o src/class_thread.o"
     COMPILER_OBJS="src/parser.o src/node_type.o src/node.o src/cast.o src/vtable.o src/script_ctime.o src/node_block.o src/node_block_type.o src/class_compiler.o src/klass_compile_time.o src/method_compiler.o src/module.o src/class_clover_compile_time.o"
     JIT_OBJS="src/jit.o src/jit_bop.o src/jit_eqop.o src/jit_method_call.o src/jit_load_address.o src/jit_cast.o src/jit_compile_method.o src/jit_debug.o src/jit_declare.o src/jit_sub.o"
     JIT_RUNTIME_OBJS="src/jit_runtime.o src/jit_debug_runtime.o"
     JIT=1
 else
-    OBJS="src/vm.o src/script.o src/object.o src/array.o src/string.o src/block.o src/regex.o src/integer.o src/byte.o src/short.o src/long.o src/float.o src/pointer.o src/char.o src/bool.o src/hash.o src/list.o src/tuple.o src/carray.o src/type.o src/stack.o src/heap.o src/exception.o src/native_method.o src/class_system.o src/class_parser.o src/class_clover.o src/class_clover_runtime.o src/clover_to_clang.o"
+    OBJS="src/vm.o src/script.o src/object.o src/array.o src/string.o src/block.o src/regex.o src/integer.o src/byte.o src/short.o src/long.o src/float.o src/pointer.o src/char.o src/bool.o src/hash.o src/list.o src/tuple.o src/carray.o src/type.o src/stack.o src/heap.o src/exception.o src/native_method.o src/class_system.o src/class_parser.o src/class_clover.o src/class_clover_runtime.o src/clover_to_clang.o src/class_thread.o"
     COMPILER_OBJS="src/parser.o src/node_type.o src/node.o src/cast.o src/vtable.o src/script_ctime.o src/node_block.o src/node_block_type.o src/class_compiler.o src/klass_compile_time.o src/method_compiler.o src/module.o src/class_clover_compile_time.o"
     JIT_OBJS=
     JIT_RUNTIME_OBJS=

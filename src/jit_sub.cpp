@@ -1935,4 +1935,45 @@ void llvm_lvar_to_vm_lvar(LVALUE* llvm_stack,std::map<std::string, Value*>& para
         }
     }
 }
+
+void call_vm_mutex_on()
+{
+    Function* fun = TheModule->getFunction("vm_mutex_on");
+    std::vector<Value*> params;
+    (void)Builder.CreateCall(fun, params);
+}
+
+void call_vm_mutex_off()
+{
+    Function* fun = TheModule->getFunction("vm_mutex_off");
+    std::vector<Value*> params;
+    (void)Builder.CreateCall(fun, params);
+}
+
+void call_vm_mutex_on2(std::map<std::string, Value *> params)
+{
+    Function* fun = TheModule->getFunction("vm_mutex_on2");
+    std::vector<Value*> params2;
+
+    std::string info_value_name("info");
+    Value* param1 = params[info_value_name];
+    params2.push_back(param1);
+
+    (void)Builder.CreateCall(fun, params2);
+}
+
+void call_vm_mutex_off2(std::map<std::string, Value *> params)
+{
+    Function* fun = TheModule->getFunction("vm_mutex_off2");
+    std::vector<Value*> params2;
+
+    std::string info_value_name("info");
+    Value* param1 = params[info_value_name];
+    params2.push_back(param1);
+
+    (void)Builder.CreateCall(fun, params2);
+}
+
+
+
 }

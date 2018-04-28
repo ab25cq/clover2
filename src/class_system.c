@@ -13,6 +13,8 @@
 #include <fnmatch.h>
 #include <signal.h>
 #include <getopt.h>
+#include <pthread.h>
+#include <sys/syscall.h>
 
 BOOL System_exit(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
@@ -348,6 +350,282 @@ BOOL System_sleep(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     (*stack_ptr)->mUIntValue = result;
     (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_pthread_mutex_init(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* mutex = lvar;
+    CLVALUE* attr = lvar + 1;
+
+    /// Clover to C Value ///
+    pthread_mutex_t* mutex_value = (pthread_mutex_t*)mutex->mPointerValue;
+    pthread_mutexattr_t* attr_value = (pthread_mutexattr_t*)attr->mPointerValue;
+
+    /// go ///
+    int result = pthread_mutex_init(mutex_value, attr_value);
+
+    return TRUE;
+}
+
+BOOL System_pthread_mutex_lock(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* mutex = lvar;
+
+    /// Clover to C Value ///
+    pthread_mutex_t* mutex_value = (pthread_mutex_t*)mutex->mPointerValue;
+
+    /// go ///
+    int result = pthread_mutex_lock(mutex_value);
+
+    if(result != 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "pthread_mutex_lock is failed");
+        return FALSE;
+    }
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_pthread_mutex_unlock(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* mutex = lvar;
+
+    /// Clover to C Value ///
+    pthread_mutex_t* mutex_value = (pthread_mutex_t*)mutex->mPointerValue;
+
+    /// go ///
+    int result = pthread_mutex_unlock(mutex_value);
+
+    if(result != 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "pthread_mutex_unlock is failed");
+        return FALSE;
+    }
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_pthread_mutex_destroy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* mutex = lvar;
+
+    /// Clover to C Value ///
+    pthread_mutex_t* mutex_value = (pthread_mutex_t*)mutex->mPointerValue;
+
+    /// go ///
+    int result = pthread_mutex_destroy(mutex_value);
+
+    if(result != 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "pthread_mutex_destroy is failed");
+        return FALSE;
+    }
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_pthread_mutex_trylock(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* mutex = lvar;
+
+    /// Clover to C Value ///
+    pthread_mutex_t* mutex_value = (pthread_mutex_t*)mutex->mPointerValue;
+
+    /// go ///
+    int result = pthread_mutex_trylock(mutex_value);
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_pthread_mutexattr_init(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* attr = lvar;
+
+    /// Clover to C Value ///
+    pthread_mutexattr_t* attr_value = (pthread_mutexattr_t*)attr->mPointerValue;
+
+    /// go ///
+    (void)pthread_mutexattr_init(attr_value);
+
+    return TRUE;
+}
+
+BOOL System_pthread_mutexattr_settype(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* attr = lvar;
+    CLVALUE* kind = lvar + 1;
+
+    /// Clover to C Value ///
+    pthread_mutexattr_t* attr_value = (pthread_mutexattr_t*)attr->mPointerValue;
+    int kind_value = kind->mIntValue;
+
+    /// go ///
+    int result = pthread_mutexattr_settype(attr_value, kind_value);
+
+    if(result != 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "pthread_mutexattr_settype is failed. Error num is %d", result);
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_pthread_mutexattr_destroy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* attr = lvar;
+
+    /// Clover to C Value ///
+    pthread_mutexattr_t* attr_value = (pthread_mutexattr_t*)attr->mPointerValue;
+
+    /// go ///
+    (void)pthread_mutexattr_destroy(attr_value);
+
+    return TRUE;
+}
+
+BOOL System_pthread_mutexattr_gettype(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* attr = lvar;
+    CLVALUE* kind = lvar + 1;
+
+    /// Clover to C Value ///
+    pthread_mutexattr_t* attr_value = (pthread_mutexattr_t*)attr->mPointerValue;
+    int* kind_value = (int*)kind->mPointerValue;
+
+    /// go ///
+    (void)pthread_mutexattr_gettype(attr_value, kind_value);
+
+    return TRUE;
+}
+
+BOOL System_pthread_cond_init(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* cond = lvar;
+    CLVALUE* cond_attr = lvar + 1;
+
+    /// Clover to C Value ///
+    pthread_cond_t* cond_value = (pthread_cond_t*)cond->mPointerValue;
+    pthread_condattr_t* cond_attr_value = (pthread_condattr_t*)cond_attr->mPointerValue;
+
+    /// go ///
+    (void)pthread_cond_init(cond_value, cond_attr_value);
+
+    return TRUE;
+}
+
+BOOL System_pthread_cond_signal(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* cond = lvar;
+
+    /// Clover to C Value ///
+    pthread_cond_t* cond_value = (pthread_cond_t*)cond->mPointerValue;
+
+    /// go ///
+    (void)pthread_cond_signal(cond_value);
+
+    return TRUE;
+}
+
+BOOL System_pthread_cond_broadcast(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* cond = lvar;
+
+    /// Clover to C Value ///
+    pthread_cond_t* cond_value = (pthread_cond_t*)cond->mPointerValue;
+
+    /// go ///
+    (void)pthread_cond_broadcast(cond_value);
+
+    return TRUE;
+}
+
+BOOL System_pthread_cond_wait(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* cond = lvar;
+    CLVALUE* mutex = lvar + 1;
+
+    /// Clover to C Value ///
+    pthread_cond_t* cond_value = (pthread_cond_t*)cond->mPointerValue;
+    pthread_mutex_t* mutex_value = (pthread_mutex_t*)mutex->mPointerValue;
+
+    /// go ///
+    (void)pthread_cond_wait(cond_value, mutex_value);
+
+    return TRUE;
+}
+
+BOOL System_pthread_cond_timedwait(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* cond = lvar;
+    CLVALUE* mutex = lvar + 1;
+    CLVALUE* abtime = lvar + 2;
+
+    /// Clover to C Value ///
+    pthread_cond_t* cond_value = (pthread_cond_t*)cond->mPointerValue;
+    pthread_mutex_t* mutex_value = (pthread_mutex_t*)mutex->mPointerValue;
+    struct timespec* abtime_value = (struct timespec*)abtime->mPointerValue;
+
+    /// go ///
+    int result = pthread_cond_timedwait(cond_value, mutex_value, abtime_value);
+
+    if(result != 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "pthread_cond_timedwait is failed. Error num is %d", result);
+        return FALSE;
+    }
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_pthread_cond_destroy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* cond = lvar;
+
+    /// Clover to C Value ///
+    pthread_cond_t* cond_value = (pthread_cond_t*)cond->mPointerValue;
+
+    /// go ///
+    int result = pthread_cond_destroy(cond_value);
+
+    if(result != 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "pthread_cond_destroy is failed. Error num is %d", result);
+        return FALSE;
+    }
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_initialize_thread_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    sCLClass* system = get_class("System");
+
+    system->mClassFields[0].mValue.mIntValue = EINVAL;
+    system->mClassFields[1].mValue.mIntValue = EDEADLK;
+    system->mClassFields[2].mValue.mIntValue = EBUSY;
+    system->mClassFields[3].mValue.mIntValue = EPERM;
+    system->mClassFields[4].mValue.mIntValue = EBUSY;
+    system->mClassFields[5].mValue.mIntValue = ETIMEDOUT;
+    system->mClassFields[6].mValue.mIntValue = EINTR;
+    system->mClassFields[7].mValue.mUIntValue = PTHREAD_MUTEX_RECURSIVE;
+    system->mClassFields[8].mValue.mUIntValue = PTHREAD_MUTEX_ERRORCHECK;
+
+#define LAST_INITIALIZE_FIELD_NUM_ON_THREAD_SYSTEM 9
 
     return TRUE;
 }
@@ -713,7 +991,7 @@ BOOL System_mbstowcs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     MFREE(src_value2);
 
     if(size_wcs < 0) {
-        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "invalid multi byte string");
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "mbstowcs(3). Invalid multi byte string");
         MFREE(wcs);
         return FALSE;
     }
@@ -768,7 +1046,7 @@ BOOL System_wcstombs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int result = wcstombs(mbs, wcs, size);
 
     if(result < 0) {
-        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "wcstombs returns -1");
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "wcstombs(3) returns -1");
         MFREE(wcs);
         MFREE(mbs);
         return FALSE;
@@ -1114,9 +1392,9 @@ BOOL System_initialize_string_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo
 {
     sCLClass* system = get_class("System");
 
-    system->mClassFields[0].mValue.mIntValue = MB_LEN_MAX;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_THREAD_SYSTEM+0].mValue.mIntValue = MB_LEN_MAX;
 
-#define LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM 1
+#define LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM (LAST_INITIALIZE_FIELD_NUM_ON_THREAD_SYSTEM+1)
 
     return TRUE;
 }
@@ -1925,28 +2203,35 @@ BOOL System_fork(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     /// Clover to c value ///
     CLObject block_value = block_->mObjectValue;
 
+    //vm_mutex_off();
+
     /// go ///
     pid_t result = fork();
 
     if(result < 0) {
+        //vm_mutex_on();
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "fork(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
         return FALSE;
     }
 
     /// child process
     if(result == 0) {
-        vm_mutex_on();
-        new_vm_mutex();         // avoid to dead lock
-        vm_mutex_off();
+        //vm_mutex_on();
 
         int num_params = 0;
 
-        if(!invoke_block(block_value, info->current_stack, info->current_var_num, num_params, stack_ptr, info, FALSE)) {
+        if(!invoke_block(block_value, info->current_stack, info->current_var_num, num_params, stack_ptr, info, FALSE)) 
+        {
+            //vm_mutex_off();
             return FALSE;
         }
 
+        //vm_mutex_off();
+
         exit(0);
     }
+
+    //vm_mutex_on();
 
     (*stack_ptr)->mIntValue = result;
     (*stack_ptr)++;
@@ -3818,7 +4103,11 @@ BOOL System_fgets(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     FILE* stream_value = (FILE*)stream->mPointerValue;
 
     /// check size ///
-    if(size_value >= buffer_size) {
+    if(size_value == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Buffer size is smaller than the size value of argument");
+        return FALSE;
+    }
+    if(size_value > buffer_size) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Buffer size is smaller than the size value of argument");
         return FALSE;
     }
@@ -3832,8 +4121,15 @@ BOOL System_fgets(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
         return FALSE;
     }
 
-    sCLObject* obj_data = CLOBJECT(buf->mObjectValue);
-    obj_data->mFields[1].mULongValue = strlen(result);                // len
+    if(result == NULL) {
+        buf_value[0] = '\0';
+        sCLObject* obj_data = CLOBJECT(buf->mObjectValue);
+        obj_data->mFields[1].mULongValue = 0;
+    }
+    else {
+        sCLObject* obj_data = CLOBJECT(buf->mObjectValue);
+        obj_data->mFields[1].mULongValue = strlen(result);                // len
+    }
 
     (*stack_ptr)->mPointerValue = result;
     (*stack_ptr)++;
@@ -4232,6 +4528,16 @@ BOOL System_setpgrp(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     return TRUE;
 }
 
+BOOL System_gettid(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    pid_t result = gettid();
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
 BOOL System_initialize_system_calls_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     sCLClass* system = get_class("System");
@@ -4242,6 +4548,60 @@ BOOL System_initialize_system_calls_system(CLVALUE** stack_ptr, CLVALUE* lvar, s
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+3].mValue.mIntValue = optional_argument;
 
 #define LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS (LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+4)
+
+    return TRUE;
+}
+
+BOOL System_popen(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* command = lvar;
+    CLVALUE* type = lvar+1;
+
+    if(command->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    if(type->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    /// Clover to C ///
+    char* command_string = ALLOC string_object_to_char_array(command->mObjectValue);
+    char* type_string = ALLOC string_object_to_char_array(type->mObjectValue);
+
+    /// go ///
+    FILE* result = popen(command_string, type_string);
+
+    if(result == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "popen(3) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        MFREE(command_string);
+        MFREE(type_string);
+        return FALSE;
+    }
+
+    MFREE(command_string);
+    MFREE(type_string);
+
+    (*stack_ptr)->mPointerValue = (void*)result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_pclose(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* stream = lvar;
+
+    /// Clover to C ///
+    FILE* stream_value = (FILE*)stream->mPointerValue;
+
+    /// go ///
+    int result = pclose(stream_value); // result code
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
 
     return TRUE;
 }

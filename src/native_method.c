@@ -23,7 +23,9 @@ static unsigned int get_hash_key_for_native_method(char* path)
         key += *p++;
     }
 
-    return key % NATIVE_METHOD_HASH_SIZE;
+    unsigned int result =  key % NATIVE_METHOD_HASH_SIZE;
+
+    return result;
 }
 
 void put_fun_to_hash_for_native_method(char* path, char* fun_name, fNativeMethod fun)
@@ -71,7 +73,8 @@ fNativeMethod get_native_method(char* path, char** fun_name)
         else {
             if(strcmp(gNativeMethodHash[key2].mPath, path) == 0) {
                 (*fun_name) = gNativeMethodHash[key2].mFunName;
-                return gNativeMethodHash[key2].mFun;
+                fNativeMethod result = gNativeMethodHash[key2].mFun;
+                return result;
             }
             else {
                 key2++;
@@ -233,6 +236,9 @@ static sNativeMethod gNativeMethods[] = {
     { "System.setsid()", "System_setsid", System_setsid },
     { "System.getsid(int)", "System_getsid", System_getsid },
     { "System.setpgrp()", "System_setpgrp", System_setpgrp },
+    { "System.gettid()", "System_gettid", System_gettid },
+    { "System.popen(String,String)", "System_popen", System_popen },
+    { "System.pclose(pointer)", "System_pclose", System_pclose },
     { "Clover.appendField(String,String,String)", "Clover_appendField", Clover_appendField },
     { "Clover.appendClassField(String,String,String)", "Clover_appendClassField", Clover_appendClassField },
     { "Clover.appendMethod(String,String)", "Clover_appendMethod", Clover_appendMethod },
@@ -249,10 +255,31 @@ static sNativeMethod gNativeMethods[] = {
     { "Clover.isLoadedClass(String)", "Clover_isLoadedClass", Clover_isLoadedClass },
     { "Clover.isDefinedClass(String)", "Clover_isDefinedClass", Clover_isDefinedClass },
     { "Clover.appendClass(String)", "Clover_appendClass", Clover_appendClass },
+    { "Thread.initialize_thread(Thread,lambda)", "Thread_initialize_thread", Thread_initialize_thread },
+    { "Thread.pthread_join(ulong)", "Thread_pthread_join", Thread_pthread_join },
+    { "pthread_mutex_t.allocSize()", "pthread_mutex_t_allocSize", pthread_mutex_t_allocSize },
+    { "System.initialize_thread_system()", "System_initialize_thread_system", System_initialize_thread_system },
+    { "System.pthread_mutex_init(pointer,pointer)", "System_pthread_mutex_init", System_pthread_mutex_init },
+    { "System.pthread_mutex_lock(pointer)", "System_pthread_mutex_lock", System_pthread_mutex_lock },
+    { "System.pthread_mutex_unlock(pointer)", "System_pthread_mutex_unlock", System_pthread_mutex_unlock },
+    { "System.pthread_mutex_destroy(pointer)", "System_pthread_mutex_destroy", System_pthread_mutex_destroy },
+    { "System.pthread_mutex_trylock(pointer)", "System_pthread_mutex_trylock", System_pthread_mutex_trylock },
+
+    { "System.pthread_mutexattr_init(pointer)", "System_pthread_mutexattr_init", System_pthread_mutexattr_init },
+    { "System.pthread_mutexattr_settype(pointer,int)", "System_pthread_mutexattr_settype", System_pthread_mutexattr_settype },
+    { "System.pthread_mutexattr_destroy(pointer)", "System_pthread_mutexattr_destroy", System_pthread_mutexattr_destroy },
+    { "System.pthread_mutexattr_gettype(pointer,pointer)", "System_pthread_mutexattr_gettype", System_pthread_mutexattr_gettype },
+
+    { "System.pthread_cond_init(pointer,pointer)", "System_pthread_cond_init", System_pthread_cond_init },
+    { "System.pthread_cond_signal(pointer)", "System_pthread_cond_signal", System_pthread_cond_signal },
+    { "System.pthread_cond_broadcast(pointer)", "System_pthread_cond_broadcast", System_pthread_cond_broadcast },
+    { "System.pthread_cond_wait(pointer,pointer)", "System_pthread_cond_wait", System_pthread_cond_wait },
+    { "System.pthread_cond_timedwait(pointer,pointer,pointer)", "System_pthread_cond_timedwait", System_pthread_cond_timedwait },
+    { "System.pthread_cond_destroy(pointer)", "System_pthread_cond_destroy", System_pthread_cond_destroy },
+    { "pthread_cond_t.allocSize()", "pthread_cond_t_allocSize", pthread_cond_t_allocSize },
 
     { "", "", 0 }  // sentinel
 };
-
 
 void native_method_init()
 {

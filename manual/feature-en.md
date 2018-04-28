@@ -731,6 +731,19 @@ Convert it to null. Please use it when you want to suppress return value display
     ID(): int
 ```
 Returns the unique ID of the object. It will be used for debugging, especially for users.
+
+```
+    allocatedSize():int
+```
+
+Returns the size of the retrieved memory of the object. It will be used for debugging, especially for users. Mainly expanded. It is used for debugging with Zhang library.
+
+```
+    headOfMemory():pointer
+```
+
+Returns the starting address of the memory from which the object was retrieved. It is mainly used in extension libraries.
+
 ```
     is(class_name: String): bool
 ```

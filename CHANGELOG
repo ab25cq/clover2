@@ -1,4 +1,33 @@
 
+version 4.0.0
+
+    スレッドを追加しました。詳しくはThreadクラスの解説を読んでください。
+
+    def allocSize(): int でヒープから取得するメモリのサイズを指定できるようになりました。主に拡張ライブラリで使います。
+
+    allocatedSize()スペシャルメソッドを追加しました。オブジェクトのヒープから取得したメモリのサイズを返します。主に拡張ライブラリ使うもので特にユーザーは使うことがないでしょう。
+
+    headOfmemory()スペシャルメソッドを追加しました。オブジェクトのヒープから取得したメモリの先頭サイズを返します。主に拡張ライブラリで使うもので特にユーザーは使うことがないでしょう。
+
+    クラスファイルの仕様が変更されてます。コンパイルされたクラスファイルは再度コンパイルが必要になってます。再コンパイルをお願いします。
+
+    UShortのboxingのbugをfix
+
+version 4.0.0
+
+    Threads were added. For details, please read the explanation of Thread class.
+
+    def allocSize (): int allows you to specify the size of the memory to get from the heap. We mainly use it in extension library.
+
+    The allocatedSize () special method was added. Returns the size of the memory retrieved from the heap of the object.
+        It mainly uses extended libraries, so users will not use them in particular.
+
+    The headOfmemory () special method was added. Returns the starting size of the memory obtained from the heap of the object. It is mainly used for extended libraries, so users will not use them in particular.
+
+    The specification of the class file has been changed. Compiled class files need to be recompiled again. Please recompile.
+
+    Fixed boxing bug of UShort
+
 version 3.7.6
 
     Multi line stringを入れました。

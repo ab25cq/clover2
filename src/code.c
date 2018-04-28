@@ -21,6 +21,22 @@ void sByteCode_free(sByteCode* code)
     MFREE(code->mCodes);
 }
 
+void sByteCode_clone(sByteCode* self, sByteCode* code)
+{
+    if(code->mLen > 0) {
+        self->mSize = code->mLen;
+        self->mCodes = MCALLOC(1, sizeof(char)*code->mLen);
+        self->mLen = code->mLen;
+
+        memcpy(self->mCodes, code->mCodes, code->mLen);
+    }
+    else {
+        self->mSize = 64;
+        self->mCodes = MCALLOC(1, sizeof(char)*self->mSize);
+        self->mLen = 0;
+    }
+}
+
 static void arrange_alignment(sByteCode* code)
 {
     alignment(&code->mLen);

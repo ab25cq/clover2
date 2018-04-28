@@ -1,7 +1,7 @@
 # clover2 computer language
 
 [![Build Status](https://travis-ci.org/ab25cq/clover2.svg?branch=master)](https://travis-ci.org/ab25cq/clover2)
-version 3.7.6
+version 4.0.0
 
 サポートしている機能
 
@@ -86,6 +86,8 @@ version 3.7.6
         }
         """
     );
+
+    11. Threadをサポートします。
 
 詳しくは、https://github.com/ab25cq/clover2/wikiをみてください。
 (もしくはrepositoryに含まれるmanualディレクトリ以下のドキュメントを見てください)
@@ -200,6 +202,8 @@ FEATURES
         }
         """
     );
+
+    11. Threads are supported.
 
 See clover2 wiki on github (Japanese and English) https://github.com/ab25cq/clover2/wiki
 

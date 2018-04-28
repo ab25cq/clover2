@@ -176,6 +176,8 @@ void store_value_to_vm_lvar(std::map<std::string, Value*>& params, BasicBlock* c
 void llvm_lvar_to_vm_lvar(LVALUE* llvm_stack,std::map<std::string, Value*>& params, BasicBlock* current_block, int var_num);
 LVALUE get_method_call_result(std::map<std::string, Value*>& params, BasicBlock* current_block);
 void llvm_give_type_to_params(LVALUE* llvm_stack_ptr, std::map<std::string, Value*> params, BasicBlock* current_block, sCLMethod* method, sCLClass* klass);
+void call_vm_mutex_on();
+void call_vm_mutex_off();
 
 
 /// jit declare.cpp ///

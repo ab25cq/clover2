@@ -4605,6 +4605,10 @@ void boxing_before_method_call(char* method_name, sCompileInfo* info)
         }
         else if(strcmp(method_name, "toAnonymous") == 0) {
         }
+        else if(strcmp(method_name, "allocatedSize") == 0) {
+        }
+        else if(strcmp(method_name, "headOfMemory") == 0) {
+        }
         else {
             boxing_to_lapper_class(&info->type, info);
         }
@@ -4765,6 +4769,42 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
         info->type = create_node_type_with_class_name("int");
         
         return TRUE;
+    }
+    else if(strcmp(method_name, "allocatedSize") == 0) {
+        //// go ///
+        if(num_params != 0) {
+            compile_err_msg(info, "allocatedSize method doesn't require params");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        append_opecode_to_code(info->code, OP_OBJ_ALLOCATED_SIZE, info->no_output);
+
+        info->stack_num-=num_params + 1;
+        info->stack_num++;
+
+        info->type = create_node_type_with_class_name("int");
+    }
+    else if(strcmp(method_name, "headOfMemory") == 0) {
+        //// go ///
+        if(num_params != 0) {
+            compile_err_msg(info, "headOfMemory method doesn't require params");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int"); // dummy
+
+            return TRUE;
+        }
+
+        append_opecode_to_code(info->code, OP_OBJ_HEAD_OF_MEMORY, info->no_output);
+
+        info->stack_num-=num_params + 1;
+        info->stack_num++;
+
+        info->type = create_node_type_with_class_name("pointer");
     }
     else if(strcmp(method_name, "toAnonymous") == 0) {
         //// go ///

@@ -25,14 +25,20 @@ BOOL free_object(CLObject self)
     return TRUE;
 }
 
-static unsigned int object_size(sCLClass* klass)
+static unsigned long object_size(sCLClass* klass)
 {
-    unsigned int size;
+    unsigned long size;
 
-    size = sizeof(sCLObject) - sizeof(CLVALUE) * DUMMY_ARRAY_SIZE;
-    size += (unsigned int)sizeof(CLVALUE) * klass->mNumFields;
+    if(klass->mAllocSizeMethodIndex != -1) {
+        size = 0;
+        (void)call_alloc_size_method(klass, (int*)&size);
+    }
+    else {
+        size = sizeof(sCLObject) - sizeof(CLVALUE) * DUMMY_ARRAY_SIZE;
+        size += (unsigned int)sizeof(CLVALUE) * klass->mNumFields;
 
-    alignment(&size);
+        alignment((unsigned int*)&size);
+    }
 
     return size;
 }
@@ -132,6 +138,8 @@ BOOL object_implements_interface(CLObject object, sCLClass* interface)
     sCLObject* object_data = CLOBJECT(object);
     sCLClass* klass = object_data->mClass;
 
-    return check_implemented_methods_for_interface_on_runtime(interface, klass);
+    BOOL result = check_implemented_methods_for_interface_on_runtime(interface, klass);
+
+    return result;
 }
 

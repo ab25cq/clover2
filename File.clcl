@@ -164,30 +164,6 @@ class System
     def put_fun_to_hash_for_native_method(path:String, fun_name:String, native_method:pointer): static native;
 }
 
-class timespec
-{
-    tv_sec: time_t;
-    tv_nsec: long;
-
-    def initialize() {
-        self.tv_sec = 0;
-        self.tv_nsec = 0.to_long;
-    }
-
-    def minus(right:timespec):timespec {
-        result:timespec = new timespec();
-
-        result.tv_sec = self.tv_sec - right.tv_sec;
-        result.tv_nsec = self.tv_nsec - right.tv_nsec;
-
-        return result;
-    }
-
-    def toString():String {
-        return sprintf("%lu.%09lu sec", array { self.tv_sec.toULong, self.tv_nsec.toULong });
-    }
-}
-
 class tm
 {
     tm_sec:int;
@@ -821,5 +797,20 @@ class Clover
         System.clock_gettime(System.CLOCK_MONOTONIC, ts2);
 
         return ts2.minus(ts1);
+    }
+}
+
+
+class String
+{
+    def write(file_name:String) {
+        File.write(file_name, self.toBuffer());
+    }
+}
+
+class Buffer
+{
+    def write(file_name:String) {
+        File.write(file_name, self);
     }
 }

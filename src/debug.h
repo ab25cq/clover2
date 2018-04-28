@@ -6,7 +6,9 @@
 #include <stdlib.h>
 #include <assert.h>
 
+/*
 #if !defined(MDEBUG)
+*/
 
 #   define CHECKML_BEGIN
 #   define CHECKML_END
@@ -25,6 +27,7 @@ void xfree(void* ptr);
 
 #   define MASSERT(o)
 
+/*
 #else 
 
 void debug_init();
@@ -48,5 +51,6 @@ void debug_free(MANAGED void* memory, const char* file_name, int line, const cha
 #   define MASSERT(o) assert(o)
 
 #endif
+*/
 
 #endif

@@ -83,6 +83,18 @@ sCLStack* append_stack_to_stack_list(CLVALUE* stack_mem, CLVALUE** stack_ptr)
     stack->mNextStack = gHeadStack;
     gHeadStack = stack;
 
+    sCLStack* it = gHeadStack;
+    int max = 0;
+
+    while(it) {
+        if(max < it->mStackID) {
+            max = it->mStackID;
+        }
+        it = it->mNextStack;
+    }
+
+    stack->mStackID = max + 1;
+
     return stack;
 }
 

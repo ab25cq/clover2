@@ -190,8 +190,9 @@ BOOL Clover_appendMethod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
         sNodeType* result_type = NULL;
         BOOL native_ = FALSE;
         BOOL static_ = FALSE;
+        BOOL nosync = FALSE;
 
-        if(!parse_method_name_and_params(method_name, METHOD_NAME_MAX, params, &num_params, &result_type, &native_, &static_, &pinfo)) 
+        if(!parse_method_name_and_params(method_name, METHOD_NAME_MAX, params, &num_params, &result_type, &native_, &static_, &nosync, &pinfo)) 
         {
             MFREE(klass_value);
             MFREE(code_value);
@@ -200,7 +201,7 @@ BOOL Clover_appendMethod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
         sCLMethod* appended_method = NULL;
         if(pinfo.err_num == 0) {
-            if(!add_method_to_class(klass2, method_name, params, num_params, result_type, native_, static_, &pinfo.method_generics_info, &appended_method))
+            if(!add_method_to_class(klass2, method_name, params, num_params, result_type, native_, static_, nosync, &pinfo.method_generics_info, &appended_method))
             {
                 MFREE(klass_value);
                 MFREE(code_value);

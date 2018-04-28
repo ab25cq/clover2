@@ -64,7 +64,7 @@ BOOL regex_equals(CLObject left, CLObject right)
     sRegexObject* left_object = CLREGEX(left);
     sRegexObject* right_object = CLREGEX(right);
 
-    return strcmp(left_object->mRegexString, right_object->mRegexString) == 0
+    BOOL result =  strcmp(left_object->mRegexString, right_object->mRegexString) == 0
         && left_object->mGlobal == right_object->mGlobal 
         && left_object->mIgnoreCase == right_object->mIgnoreCase 
         && left_object->mMultiline == right_object->mMultiline 
@@ -73,5 +73,7 @@ BOOL regex_equals(CLObject left, CLObject right)
         && left_object->mAnchored == right_object->mAnchored 
         && left_object->mDollarEndOnly == right_object->mDollarEndOnly 
         && left_object->mUngreedy == right_object->mUngreedy;
+
+    return result;
 }
 

@@ -427,31 +427,18 @@ static void show_inst(unsigned inst)
     }
 }
 
-void vm_mutex_on()
-{
-}
-
-void vm_mutex_off()
-{
-}
-
-void new_vm_mutex()
-{
-}
-
 BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info)
 {
     sCLClass* running_class = info->running_class;
     sCLMethod* running_method = info->running_method;
 
-    int num_global_stack = gGlobalStackPtr - gGlobalStack;
+    //int num_global_stack = gGlobalStackPtr - gGlobalStack;
+
+    info->running_class_name = CLASS_NAME(klass);
+    info->running_method_name = METHOD_NAME2(klass, method);
 
     info->running_class = klass;
     info->running_method = method;
-#ifdef VM_LOG
-    printf("invoke_method %s.%s start\n", CLASS_NAME(klass), METHOD_NAME2(klass, method));
-    printf("method->mMethodIndex %d\n", method->mMethodIndex);
-#endif
 
     char* sname2 = info->sname2;
     int sline2 = info->sline2;
@@ -476,7 +463,8 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
         }
     }
 
-    if(method->mFlags & METHOD_FLAGS_NATIVE) {
+    if(method->mFlags & METHOD_FLAGS_NATIVE) 
+    {
         CLVALUE* lvar = *stack_ptr - method->mNumParams;
 
         if(method->mNativeMethod == NULL) {
@@ -487,9 +475,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
 
             if(native_method == NULL) {
                 entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "Native method not found");
-//                info->running_class = running_class;
-//                info->running_method = running_method;
-                gGlobalStackPtr = gGlobalStack + num_global_stack;
+                //gGlobalStackPtr = gGlobalStack + num_global_stack;
                 return FALSE;
             }
 
@@ -505,9 +491,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             *stack_ptr = lvar;
             **stack_ptr = result;
             (*stack_ptr)++;
-            //info->running_class = running_class;
-            //info->running_method = running_method;
-            gGlobalStackPtr = gGlobalStack + num_global_stack;
+            //gGlobalStackPtr = gGlobalStack + num_global_stack;
             return FALSE;
         }
 
@@ -528,8 +512,11 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
         int real_param_num = method->mNumParams + (method->mFlags & METHOD_FLAGS_CLASS_METHOD ? 0:1);
         CLVALUE* lvar = *stack_ptr - real_param_num;
 
-        sByteCode* code = &method->mByteCodes;
-        sConst* constant = &klass->mConst;
+        sByteCode code;
+        sByteCode_clone(&code, &method->mByteCodes);
+        sConst constant;
+        sConst_clone(&constant, &klass->mConst);
+
         CLVALUE* new_stack = lvar;
         int new_var_num = method->mVarNum;
 
@@ -537,24 +524,24 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
         memset(lvar + real_param_num, 0, sizeof(CLVALUE)* (new_var_num - real_param_num));
 
 #ifdef ENABLE_JIT
-        if(!jit(code, constant, new_stack, new_var_num, klass, method, info, stack_ptr))
+        if(!jit(&code, &constant, new_stack, new_var_num, klass, method, info, stack_ptr))
         {
             *stack_ptr = lvar;
             **stack_ptr = *(new_stack + new_var_num);
             (*stack_ptr)++;
-            //info->running_class = running_class;
-            //info->running_method = running_method;
-            gGlobalStackPtr = gGlobalStack + num_global_stack;
+            //gGlobalStackPtr = gGlobalStack + num_global_stack;
+            sConst_free(&constant);
+            sByteCode_free(&code);
             return FALSE;
         }
 #else
-        if(!vm(code, constant, new_stack, new_var_num, klass, info)) {
+        if(!vm(&code, &constant, new_stack, new_var_num, klass, info)) {
             *stack_ptr = lvar;
             **stack_ptr = *(new_stack + new_var_num);
             (*stack_ptr)++;
-            //info->running_class = running_class;
-            //info->running_method = running_method;
-            gGlobalStackPtr = gGlobalStack + num_global_stack;
+            //gGlobalStackPtr = gGlobalStack + num_global_stack;
+            sConst_free(&constant);
+            sByteCode_free(&code);
             return FALSE;
         }
 #endif
@@ -562,18 +549,19 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
         *stack_ptr = lvar;      // see OP_RETURN
         **stack_ptr = *(new_stack+new_var_num);
         (*stack_ptr)++;
+
+        sConst_free(&constant);
+        sByteCode_free(&code);
     }
 
     info->running_class = running_class;
     info->running_method = running_method;
 
-    gGlobalStackPtr = gGlobalStack + num_global_stack;
-#ifdef VM_LOG
-    printf("invoke_method %s.%s end\n", CLASS_NAME(klass), METHOD_NAME2(klass, method));
-#endif
     if(sname2) {
         info->num_stack_trace--;
     }
+
+    //gGlobalStackPtr = gGlobalStack + num_global_stack;
 
     return TRUE;
 }
@@ -592,6 +580,9 @@ BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_pa
     memset(new_stack + num_params, 0, sizeof(CLVALUE)* (new_var_num - num_params));
 
     sCLClass* klass = NULL;
+
+    info->running_class_name = "none";
+    info->running_method_name = "block_object";
 
     if(lambda) {
         memcpy(new_stack, (*stack_ptr)-num_params, sizeof(CLVALUE)*num_params);
@@ -649,7 +640,7 @@ static BOOL initialize_class(sCLClass* klass)
         CLVALUE* stack_ptr = stack;
 
         sVMInfo info;
-        memset(&info, 0, sizeof(sVMInfo));
+        memset(&info, 0, sizeof(info));
 
         if(!invoke_method(klass, &initialize_method, stack, 0, &stack_ptr, &info)) {
             show_exception_message(info.exception_message);
@@ -755,6 +746,7 @@ static BOOL load_fundamental_classes_on_runtime()
     if(!load_class_with_initialize("Method")) { return FALSE; }
     if(!load_class_with_initialize("MethodParam")) { return FALSE; }
     if(!load_class_with_initialize("Field")) { return FALSE; }
+    if(!load_class_with_initialize("Thread")) { return FALSE; }
 
     if(!load_class_with_initialize("Clover")) { return FALSE; }
 
@@ -771,6 +763,8 @@ void set_free_fun_to_classes()
 
 BOOL call_all_class_initializer()
 {
+    vm_mutex_off();
+    vm_mutex_on();
     sClassTable* p = gHeadClassTable;
 
     while(p) {
@@ -782,23 +776,31 @@ BOOL call_all_class_initializer()
                 }
                 p2 = p2->mNextClass;
             }
+
             if(!initialize_class(p->mItem)) {
+                vm_mutex_off();
                 return TRUE;
             }
         }
         p = p->mNextClass;
     }
 
+    vm_mutex_off();
+
     return TRUE;
 }
 
 BOOL class_init_on_runtime()
 {
+    vm_mutex_on();
     if(!load_fundamental_classes_on_runtime()) {
+        vm_mutex_off();
         return FALSE;
     }
     set_boxing_and_unboxing_classes();
     set_free_fun_to_classes();
+
+    vm_mutex_off();
 
     return TRUE;
 }
@@ -814,7 +816,7 @@ static BOOL finalize_class(sCLClass* klass)
 
         sVMInfo info;
         memset(&info, 0, sizeof(sVMInfo));
-
+        
         if(!invoke_method(klass, &finalize_method, stack, 0, &stack_ptr, &info)) {
             show_exception_message(info.exception_message);
             MFREE(stack);
@@ -839,6 +841,8 @@ BOOL call_finalize_method_on_free_object(sCLClass* klass, CLObject self)
         sVMInfo info;
         memset(&info, 0, sizeof(sVMInfo));
 
+        info.no_mutex_in_vm = TRUE;
+
         stack_ptr->mLongValue = 0;    // zero clear for jit
         stack_ptr->mObjectValue = self;
         stack_ptr++;
@@ -855,14 +859,44 @@ BOOL call_finalize_method_on_free_object(sCLClass* klass, CLObject self)
     return TRUE;
 }
 
+BOOL call_alloc_size_method(sCLClass* klass, int* result)
+{
+    if(klass->mAllocSizeMethodIndex != -1) {
+        sCLMethod alloc_size_method = klass->mMethods[klass->mAllocSizeMethodIndex]; // struct copy for realloc
+
+        const int stack_size = 512;
+        CLVALUE* stack = MCALLOC(1, sizeof(CLVALUE)*stack_size);
+        CLVALUE* stack_ptr = stack;
+
+        sVMInfo info;
+        memset(&info, 0, sizeof(sVMInfo));
+
+        info.no_mutex_in_vm = TRUE;
+
+        if(!invoke_method(klass, &alloc_size_method, stack, 0, &stack_ptr, &info)) {
+            show_exception_message(info.exception_message);
+            MFREE(stack);
+            return FALSE;
+        }
+
+        *result = (stack_ptr-1)->mIntValue;
+
+        MFREE(stack);
+    }
+
+    return TRUE;
+}
+
 void class_final_on_runtime()
 {
+    vm_mutex_on();
     sClassTable* p = gHeadClassTable;
 
     while(p) {
         (void)finalize_class(p->mItem);
         p = p->mNextClass;
     }
+    vm_mutex_off();
 }
 
 sCLClass* get_class_with_load_and_initialize(char* class_name)
@@ -1046,66 +1080,67 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
     sCLStack* stack_id = append_stack_to_stack_list(stack, &stack_ptr);
 
-    while(pc - code->mCodes < code->mLen) {
+    if(!info->no_mutex_in_vm) {
+        vm_mutex_off();
+    }
+
+    while(1) {
+        if(!info->no_mutex_in_vm) {
+            vm_mutex_on();
+        }
+
+        BOOL bvalue = pc - code->mCodes < code->mLen;
+
+        if(!info->no_mutex_in_vm) {
+            vm_mutex_off();
+        }
+
+        if(!bvalue) {
+            break;
+        }
+
+        if(!info->no_mutex_in_vm) {
+            vm_mutex_on();
+        }
+
         unsigned int inst = *(unsigned int*)pc;
         pc+=sizeof(int);
-
-#ifdef VM_LOG
-show_inst(inst);
-#endif
 
         switch(inst) {
             case OP_NOP:
                 break;
 
             case OP_POP:
-                vm_mutex_on();
-
                 stack_ptr--;
 
-                vm_mutex_off();
                 break;
 
             case OP_POP_N:
                 {
-                    vm_mutex_on();
-                    
                     int value = *(int*)pc;
                     pc += sizeof(int);
                     stack_ptr -= value;
-                    
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_REVERSE: {
-                vm_mutex_on();
-
                 CLVALUE value = *(stack_ptr-2);
 
                 *(stack_ptr -2) = *(stack_ptr -1);
                 *(stack_ptr -1) = value;
-
-                vm_mutex_off();
                 }
                 break;
 
             case OP_DUPE: {
-                vm_mutex_on();
-
                 CLVALUE value = *(stack_ptr-1);
 
                 *stack_ptr = value;
                 stack_ptr++;
-
-                vm_mutex_off();
                 }
                 break;
 
             case OP_COND_JUMP:
                 {
-                    vm_mutex_on();
-
                     int jump_value = *(int*)pc;
                     pc += sizeof(int);
 
@@ -1115,15 +1150,11 @@ show_inst(inst);
                     if(conditional_value) {
                         pc += jump_value;
                     }
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_COND_NOT_JUMP:
                 {
-                    vm_mutex_on();
-
                     int jump_value = *(int*)pc;
                     pc += sizeof(int);
 
@@ -1133,15 +1164,11 @@ show_inst(inst);
                     if(!conditional_value) {
                         pc += jump_value;
                     }
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_GOTO:
                 {
-                    vm_mutex_on();
-
                     int jump_value = *(int*)pc;
                     pc += sizeof(int);
                     int label_offset = *(int*)pc;
@@ -1149,8 +1176,6 @@ show_inst(inst);
 
 
                     pc = code->mCodes + jump_value;
-
-                    vm_mutex_off();
                 }
                 break;
 
@@ -1170,8 +1195,6 @@ show_inst(inst);
                 return FALSE;
 
             case OP_TRY: {
-                vm_mutex_on();
-
                 info->try_offset = *(int*)pc;
                 pc += sizeof(int);
 
@@ -1186,49 +1209,31 @@ show_inst(inst);
 
                 int try_exception_var_index = *(int*)pc;
                 pc += sizeof(int);
-                
-                vm_mutex_off();
                 }
                 break;
 
             case OP_TRY_END:
-                vm_mutex_on();
-
 #ifdef ENABLE_JIT
                 info->try_pc = 0;
 #endif
                 info->try_code = NULL;
                 info->try_offset = 0;
-                
-                vm_mutex_off();
                 break;
 
             case OP_CATCH_POP:
-                vm_mutex_on();
-
                 stack_ptr--;
-
-                vm_mutex_off();
                 break;
 
             case OP_CATCH_STORE: {
-                vm_mutex_on();
-
                 int index = *(int*)pc;
                 pc += sizeof(int);
 
                 lvar[index] = *(stack_ptr-1);
-
-                vm_mutex_off();
                 }
                 break;
 
             case OP_HEAD_OF_EXPRESSION:
-                vm_mutex_on();
-
                 gSigInt = FALSE;
-
-                vm_mutex_off();
                 break;
 
             case OP_MARK_SOURCE_CODE_POSITION: {
@@ -1260,17 +1265,13 @@ show_inst(inst);
                 break;
 
             case OP_SIGINT:
-                vm_mutex_on();
-
                 if(gSigInt) {
                     gSigInt = FALSE;
-                    vm_mutex_off();
+                    
                     entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Signal Interrupt");
                     remove_stack_to_stack_list(stack_id);
                     return FALSE;
                 }
-
-                vm_mutex_off();
                 break;
 
             case OP_LABEL: {
@@ -1326,21 +1327,15 @@ show_inst(inst);
 
             case OP_STORE:
                 {
-                    vm_mutex_on();
-
                     int index = *(int*)pc;
                     pc += sizeof(int);
 
                     lvar[index] = *(stack_ptr-1);
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_LOAD:
                 {
-                    vm_mutex_on();
-
                     int index = *(int*)pc;
                     pc += sizeof(int);
 
@@ -1349,23 +1344,17 @@ show_inst(inst);
 
                     *stack_ptr = lvar[index];
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_LOAD_ADDRESS:
                 {
-                    vm_mutex_on();
-
                     int index = *(int*)pc;
                     pc += sizeof(int);
 
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mPointerValue = (char*)&lvar[index];
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
@@ -1388,113 +1377,83 @@ show_inst(inst);
 
             case OP_LDCBYTE: 
                 {
-                    vm_mutex_on();
-
                     int value = *(int*)pc;
                     pc += sizeof(int);
 
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mByteValue = (char)value;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_LDCUBYTE: 
                 {
-                    vm_mutex_on();
-
                     int value = *(int*)pc;
                     pc += sizeof(int);
 
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUByteValue = (unsigned char)value;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_LDCSHORT: 
                 {
-                    vm_mutex_on();
-
                     int value = *(int*)pc;
                     pc += sizeof(int);
 
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mShortValue = (short)value;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_LDCUSHORT: 
                 {
-                    vm_mutex_on();
-
                     int value = *(int*)pc;
                     pc += sizeof(int);
 
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUShortValue = (unsigned short)value;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_LDCINT: 
                 {
-                    vm_mutex_on();
-
                     int value = *(int*)pc;
                     pc += sizeof(int);
 
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mIntValue = value;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_LDCBOOL: 
                 {
-                    vm_mutex_on();
-
                     int value = *(int*)pc;
                     pc += sizeof(int);
 
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mIntValue = value;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_LDCUINT: 
                 {
-                    vm_mutex_on();
-
                     unsigned int value = *(unsigned int*)pc;
                     pc += sizeof(int);
 
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUIntValue = value;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_LDCLONG: 
                 {
-                    vm_mutex_on();
-
                     int value1 = *(int*)pc;
                     pc += sizeof(int);
 
@@ -1519,15 +1478,11 @@ show_inst(inst);
 
                     stack_ptr->mLongValue = lvalue;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_LDCULONG: 
                 {
-                    vm_mutex_on();
-
                     int value1 = *(int*)pc;
                     pc += sizeof(int);
 
@@ -1553,27 +1508,19 @@ show_inst(inst);
 
                     stack_ptr->mULongValue = lvalue;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_LDCNULL:
                 {
-                    vm_mutex_on();
-
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mIntValue = 0;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_LDCPOINTER: 
                 {
-                    vm_mutex_on();
-
                     int value1 = *(int*)pc;
                     pc += sizeof(int);
 
@@ -1609,30 +1556,22 @@ show_inst(inst);
                     stack_ptr->mPointerValue = lvalue;
                     stack_ptr++;
 
-                    vm_mutex_off();
-
                 }
                 break;
 
             case OP_LDCFLOAT: 
                 {
-                    vm_mutex_on();
-
                     float value1 = *(float*)pc;
                     pc += sizeof(float);
 
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mFloatValue = value1;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_LDCDOUBLE: 
                 {
-                    vm_mutex_on();
-
                     int value1 = *(int*)pc;
                     pc += sizeof(int);
 
@@ -1646,15 +1585,11 @@ show_inst(inst);
 
                     stack_ptr->mDoubleValue = lvalue;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_BADD:
                 {
-                    vm_mutex_on();
-
                     char left = (stack_ptr-2)->mByteValue;
                     char right = (stack_ptr-1)->mByteValue;
 
@@ -1664,15 +1599,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mByteValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_BSUB:
                 {
-                    vm_mutex_on();
-
                     char left = (stack_ptr-2)->mByteValue;
                     char right = (stack_ptr-1)->mByteValue;
 
@@ -1682,15 +1613,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mByteValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_BMULT:
                 {
-                    vm_mutex_on();
-
                     char left = (stack_ptr-2)->mByteValue;
                     char right = (stack_ptr-1)->mByteValue;
 
@@ -1700,20 +1627,16 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mByteValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_BDIV:
                 {
-                    vm_mutex_on();
-
                     char left = (stack_ptr-2)->mByteValue;
                     char right = (stack_ptr-1)->mByteValue;
 
                     if(right == 0) {
-                        vm_mutex_off();
+                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -1725,20 +1648,16 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mByteValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_BMOD:
                 {
-                    vm_mutex_on();
-
                     char left = (stack_ptr-2)->mByteValue;
                     char right = (stack_ptr-1)->mByteValue;
 
                     if(right == 0) {
-                        vm_mutex_off();
+                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -1750,15 +1669,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mByteValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_BLSHIFT:
                 {
-                    vm_mutex_on();
-
                     char left = (stack_ptr-2)->mByteValue;
                     char right = (stack_ptr-1)->mByteValue;
 
@@ -1768,15 +1683,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mByteValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_BRSHIFT:
                 {
-                    vm_mutex_on();
-
                     char left = (stack_ptr-2)->mByteValue;
                     char right = (stack_ptr-1)->mByteValue;
 
@@ -1786,15 +1697,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mByteValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_BAND:
                 {
-                    vm_mutex_on();
-
                     char left = (stack_ptr-2)->mByteValue;
                     char right = (stack_ptr-1)->mByteValue;
 
@@ -1804,15 +1711,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mByteValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_BXOR:
                 {
-                    vm_mutex_on();
-
                     char left = (stack_ptr-2)->mByteValue;
                     char right = (stack_ptr-1)->mByteValue;
 
@@ -1822,15 +1725,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mByteValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_BOR:
                 {
-                    vm_mutex_on();
-
                     char left = (stack_ptr-2)->mByteValue;
                     char right = (stack_ptr-1)->mByteValue;
 
@@ -1840,15 +1739,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mByteValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_UBADD:
                 {
-                    vm_mutex_on();
-
                     unsigned char left = (stack_ptr-2)->mByteValue;
                     unsigned char right = (stack_ptr-1)->mByteValue;
 
@@ -1858,15 +1753,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUByteValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_UBSUB:
                 {
-                    vm_mutex_on();
-
                     unsigned char left = (stack_ptr-2)->mByteValue;
                     unsigned char right = (stack_ptr-1)->mByteValue;
 
@@ -1876,15 +1767,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUByteValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_UBMULT:
                 {
-                    vm_mutex_on();
-
                     unsigned char left = (stack_ptr-2)->mByteValue;
                     unsigned char right = (stack_ptr-1)->mByteValue;
 
@@ -1894,20 +1781,16 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUByteValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_UBDIV:
                 {
-                    vm_mutex_on();
-
                     unsigned char left = (stack_ptr-2)->mByteValue;
                     unsigned char right = (stack_ptr-1)->mByteValue;
 
                     if(right == 0) {
-                        vm_mutex_off();
+                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -1919,20 +1802,16 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUByteValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_UBMOD:
                 {
-                    vm_mutex_on();
-
                     unsigned char left = (stack_ptr-2)->mByteValue;
                     unsigned char right = (stack_ptr-1)->mByteValue;
 
                     if(right == 0) {
-                        vm_mutex_off();
+                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -1944,15 +1823,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUByteValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_UBLSHIFT:
                 {
-                    vm_mutex_on();
-
                     unsigned char left = (stack_ptr-2)->mByteValue;
                     unsigned char right = (stack_ptr-1)->mByteValue;
 
@@ -1962,15 +1837,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUByteValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_UBRSHIFT:
                 {
-                    vm_mutex_on();
-
                     unsigned char left = (stack_ptr-2)->mByteValue;
                     unsigned char right = (stack_ptr-1)->mByteValue;
 
@@ -1980,15 +1851,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUByteValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_UBAND:
                 {
-                    vm_mutex_on();
-
                     unsigned char left = (stack_ptr-2)->mByteValue;
                     unsigned char right = (stack_ptr-1)->mByteValue;
 
@@ -1998,15 +1865,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUByteValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_UBXOR:
                 {
-                    vm_mutex_on();
-
                     unsigned char left = (stack_ptr-2)->mByteValue;
                     unsigned char right = (stack_ptr-1)->mByteValue;
 
@@ -2016,15 +1879,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUByteValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_UBOR:
                 {
-                    vm_mutex_on();
-
                     unsigned char left = (stack_ptr-2)->mByteValue;
                     unsigned char right = (stack_ptr-1)->mByteValue;
 
@@ -2034,15 +1893,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUByteValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_SADD:
                 {
-                    vm_mutex_on();
-
                     short left = (stack_ptr-2)->mShortValue;
                     short right = (stack_ptr-1)->mShortValue;
 
@@ -2052,15 +1907,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mShortValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_SSUB:
                 {
-                    vm_mutex_on();
-
                     short left = (stack_ptr-2)->mShortValue;
                     short right = (stack_ptr-1)->mShortValue;
 
@@ -2070,15 +1921,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mShortValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_SMULT:
                 {
-                    vm_mutex_on();
-
                     short left = (stack_ptr-2)->mShortValue;
                     short right = (stack_ptr-1)->mShortValue;
 
@@ -2088,20 +1935,16 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mShortValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_SDIV:
                 {
-                    vm_mutex_on();
-
                     short left = (stack_ptr-2)->mShortValue;
                     short right = (stack_ptr-1)->mShortValue;
 
                     if(right == 0) {
-                        vm_mutex_off();
+                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -2113,20 +1956,16 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mShortValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_SMOD:
                 {
-                    vm_mutex_on();
-
                     short left = (stack_ptr-2)->mShortValue;
                     short right = (stack_ptr-1)->mShortValue;
 
                     if(right == 0) {
-                        vm_mutex_off();
+                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -2138,15 +1977,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mShortValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_SLSHIFT:
                 {
-                    vm_mutex_on();
-
                     short left = (stack_ptr-2)->mShortValue;
                     short right = (stack_ptr-1)->mShortValue;
 
@@ -2156,15 +1991,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mShortValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_SRSHIFT:
                 {
-                    vm_mutex_on();
-
                     short left = (stack_ptr-2)->mShortValue;
                     short right = (stack_ptr-1)->mShortValue;
 
@@ -2174,15 +2005,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mShortValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_SAND:
                 {
-                    vm_mutex_on();
-
                     short left = (stack_ptr-2)->mShortValue;
                     short right = (stack_ptr-1)->mShortValue;
 
@@ -2192,15 +2019,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mShortValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_SXOR:
                 {
-                    vm_mutex_on();
-
                     short left = (stack_ptr-2)->mShortValue;
                     short right = (stack_ptr-1)->mShortValue;
 
@@ -2210,15 +2033,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mShortValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_SOR:
                 {
-                    vm_mutex_on();
-
                     short left = (stack_ptr-2)->mShortValue;
                     short right = (stack_ptr-1)->mShortValue;
 
@@ -2228,15 +2047,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mShortValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_USADD:
                 {
-                    vm_mutex_on();
-
                     unsigned short left = (stack_ptr-2)->mUShortValue;
                     unsigned short right = (stack_ptr-1)->mUShortValue;
 
@@ -2246,15 +2061,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUShortValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_USSUB:
                 {
-                    vm_mutex_on();
-
                     unsigned short left = (stack_ptr-2)->mUShortValue;
                     unsigned short right = (stack_ptr-1)->mUShortValue;
 
@@ -2264,15 +2075,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUShortValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_USMULT:
                 {
-                    vm_mutex_on();
-
                     unsigned short left = (stack_ptr-2)->mUShortValue;
                     unsigned short right = (stack_ptr-1)->mUShortValue;
 
@@ -2282,20 +2089,16 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUShortValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_USDIV:
                 {
-                    vm_mutex_on();
-
                     unsigned short left = (stack_ptr-2)->mUShortValue;
                     unsigned short right = (stack_ptr-1)->mUShortValue;
 
                     if(right == 0) {
-                        vm_mutex_off();
+                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -2307,20 +2110,15 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUShortValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_USMOD:
                 {
-                    vm_mutex_on();
-
                     unsigned short left = (stack_ptr-2)->mUShortValue;
                     unsigned short right = (stack_ptr-1)->mUShortValue;
 
                     if(right == 0) {
-                        vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -2332,15 +2130,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUShortValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_USLSHIFT:
                 {
-                    vm_mutex_on();
-
                     unsigned short left = (stack_ptr-2)->mUShortValue;
                     unsigned short right = (stack_ptr-1)->mUShortValue;
 
@@ -2350,15 +2144,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUShortValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_USRSHIFT:
                 {
-                    vm_mutex_on();
-
                     unsigned short left = (stack_ptr-2)->mUShortValue;
                     unsigned short right = (stack_ptr-1)->mUShortValue;
 
@@ -2368,15 +2158,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUShortValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_USAND:
                 {
-                    vm_mutex_on();
-
                     unsigned short left = (stack_ptr-2)->mUShortValue;
                     unsigned short right = (stack_ptr-1)->mUShortValue;
 
@@ -2386,15 +2172,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUShortValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_USXOR:
                 {
-                    vm_mutex_on();
-
                     unsigned short left = (stack_ptr-2)->mUShortValue;
                     unsigned short right = (stack_ptr-1)->mUShortValue;
 
@@ -2404,15 +2186,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUShortValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_USOR:
                 {
-                    vm_mutex_on();
-
                     unsigned short left = (stack_ptr-2)->mUShortValue;
                     unsigned short right = (stack_ptr-1)->mUShortValue;
 
@@ -2422,15 +2200,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUShortValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_IADD: 
                 {
-                    vm_mutex_on();
-
                     int left = (stack_ptr-2)->mIntValue;
                     int right = (stack_ptr-1)->mIntValue;
 
@@ -2440,15 +2214,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mIntValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_ISUB: 
                 {
-                    vm_mutex_on();
-
                     int left = (stack_ptr-2)->mIntValue;
                     int right = (stack_ptr-1)->mIntValue;
 
@@ -2458,15 +2228,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mIntValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_IMULT: 
                 {
-                    vm_mutex_on();
-
                     int left = (stack_ptr-2)->mIntValue;
                     int right = (stack_ptr-1)->mIntValue;
 
@@ -2476,20 +2242,16 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mIntValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_IDIV: 
                 {
-                    vm_mutex_on();
-
                     int left = (stack_ptr-2)->mIntValue;
                     int right = (stack_ptr-1)->mIntValue;
 
                     if(right == 0) {
-                        vm_mutex_off();
+                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -2501,20 +2263,16 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mIntValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_IMOD: 
                 {
-                    vm_mutex_on();
-
                     int left = (stack_ptr-2)->mIntValue;
                     int right = (stack_ptr-1)->mIntValue;
 
                     if(right == 0) {
-                        vm_mutex_off();
+                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -2526,15 +2284,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mIntValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_ILSHIFT: 
                 {
-                    vm_mutex_on();
-
                     int left = (stack_ptr-2)->mIntValue;
                     int right = (stack_ptr-1)->mIntValue;
 
@@ -2544,15 +2298,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mIntValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_IRSHIFT: 
                 {
-                    vm_mutex_on();
-
                     int left = (stack_ptr-2)->mIntValue;
                     int right = (stack_ptr-1)->mIntValue;
 
@@ -2562,15 +2312,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mIntValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_IAND: 
                 {
-                    vm_mutex_on();
-
                     int left = (stack_ptr-2)->mIntValue;
                     int right = (stack_ptr-1)->mIntValue;
 
@@ -2580,15 +2326,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mIntValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_IXOR: 
                 {
-                    vm_mutex_on();
-
                     int left = (stack_ptr-2)->mIntValue;
                     int right = (stack_ptr-1)->mIntValue;
 
@@ -2598,15 +2340,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mIntValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_IOR: 
                 {
-                    vm_mutex_on();
-
                     int left = (stack_ptr-2)->mIntValue;
                     int right = (stack_ptr-1)->mIntValue;
 
@@ -2616,15 +2354,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mIntValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_UIADD: 
                 {
-                    vm_mutex_on();
-
                     unsigned int left = (stack_ptr-2)->mUIntValue;
                     unsigned int right = (stack_ptr-1)->mUIntValue;
 
@@ -2634,15 +2368,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUIntValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_UISUB: 
                 {
-                    vm_mutex_on();
-
                     unsigned int left = (stack_ptr-2)->mUIntValue;
                     unsigned int right = (stack_ptr-1)->mUIntValue;
 
@@ -2652,15 +2382,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUIntValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_UIMULT: 
                 {
-                    vm_mutex_on();
-
                     unsigned int left = (stack_ptr-2)->mUIntValue;
                     unsigned int right = (stack_ptr-1)->mUIntValue;
 
@@ -2670,20 +2396,16 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUIntValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_UIDIV: 
                 {
-                    vm_mutex_on();
-
                     unsigned int left = (stack_ptr-2)->mUIntValue;
                     unsigned int right = (stack_ptr-1)->mUIntValue;
 
                     if(right == 0) {
-                        vm_mutex_off();
+                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -2695,20 +2417,16 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUIntValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_UIMOD: 
                 {
-                    vm_mutex_on();
-
                     unsigned int left = (stack_ptr-2)->mUIntValue;
                     unsigned int right = (stack_ptr-1)->mUIntValue;
 
                     if(right == 0) {
-                        vm_mutex_off();
+                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -2720,15 +2438,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUIntValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_UILSHIFT: 
                 {
-                    vm_mutex_on();
-
                     unsigned int left = (stack_ptr-2)->mUIntValue;
                     unsigned int right = (stack_ptr-1)->mUIntValue;
 
@@ -2738,15 +2452,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUIntValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_UIRSHIFT: 
                 {
-                    vm_mutex_on();
-
                     unsigned int left = (stack_ptr-2)->mUIntValue;
                     unsigned int right = (stack_ptr-1)->mUIntValue;
 
@@ -2756,15 +2466,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUIntValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_UIAND: 
                 {
-                    vm_mutex_on();
-
                     unsigned int left = (stack_ptr-2)->mUIntValue;
                     unsigned int right = (stack_ptr-1)->mUIntValue;
 
@@ -2774,15 +2480,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUIntValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_UIXOR: 
                 {
-                    vm_mutex_on();
-
                     unsigned int left = (stack_ptr-2)->mUIntValue;
                     unsigned int right = (stack_ptr-1)->mUIntValue;
 
@@ -2792,15 +2494,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUIntValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_UIOR: 
                 {
-                    vm_mutex_on();
-
                     unsigned int left = (stack_ptr-2)->mUIntValue;
                     unsigned int right = (stack_ptr-1)->mUIntValue;
 
@@ -2810,15 +2508,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mUIntValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_LADD: 
                 {
-                    vm_mutex_on();
-
                     clint64 left = (stack_ptr-2)->mLongValue;
                     clint64 right = (stack_ptr-1)->mLongValue;
 
@@ -2827,15 +2521,11 @@ show_inst(inst);
                     stack_ptr-=2;
                     stack_ptr->mLongValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_LSUB: 
                 {
-                    vm_mutex_on();
-
                     clint64 left = (stack_ptr-2)->mLongValue;
                     clint64 right = (stack_ptr-1)->mLongValue;
 
@@ -2844,15 +2534,11 @@ show_inst(inst);
                     stack_ptr-=2;
                     stack_ptr->mLongValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_LMULT: 
                 {
-                    vm_mutex_on();
-
                     clint64 left = (stack_ptr-2)->mLongValue;
                     clint64 right = (stack_ptr-1)->mLongValue;
 
@@ -2861,20 +2547,16 @@ show_inst(inst);
                     stack_ptr-=2;
                     stack_ptr->mLongValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_LDIV: 
                 {
-                    vm_mutex_on();
-
                     clint64 left = (stack_ptr-2)->mLongValue;
                     clint64 right = (stack_ptr-1)->mLongValue;
 
                     if(right == 0) {
-                        vm_mutex_off();
+                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -2885,20 +2567,15 @@ show_inst(inst);
                     stack_ptr-=2;
                     stack_ptr->mLongValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_LMOD: 
                 {
-                    vm_mutex_on();
-
                     clint64 left = (stack_ptr-2)->mLongValue;
                     clint64 right = (stack_ptr-1)->mLongValue;
 
                     if(right == 0) {
-                        vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -2909,15 +2586,11 @@ show_inst(inst);
                     stack_ptr-=2;
                     stack_ptr->mLongValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_LLSHIFT: 
                 {
-                    vm_mutex_on();
-
                     clint64 left = (stack_ptr-2)->mLongValue;
                     clint64 right = (stack_ptr-1)->mLongValue;
 
@@ -2926,15 +2599,11 @@ show_inst(inst);
                     stack_ptr-=2;
                     stack_ptr->mLongValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_LRSHIFT: 
                 {
-                    vm_mutex_on();
-
                     clint64 left = (stack_ptr-2)->mLongValue;
                     clint64 right = (stack_ptr-1)->mLongValue;
 
@@ -2943,15 +2612,11 @@ show_inst(inst);
                     stack_ptr-=2;
                     stack_ptr->mLongValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_LAND: 
                 {
-                    vm_mutex_on();
-
                     clint64 left = (stack_ptr-2)->mLongValue;
                     clint64 right = (stack_ptr-1)->mLongValue;
 
@@ -2960,15 +2625,11 @@ show_inst(inst);
                     stack_ptr-=2;
                     stack_ptr->mLongValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_LXOR: 
                 {
-                    vm_mutex_on();
-
                     clint64 left = (stack_ptr-2)->mLongValue;
                     clint64 right = (stack_ptr-1)->mLongValue;
 
@@ -2977,15 +2638,11 @@ show_inst(inst);
                     stack_ptr-=2;
                     stack_ptr->mLongValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_LOR: 
                 {
-                    vm_mutex_on();
-
                     clint64 left = (stack_ptr-2)->mLongValue;
                     clint64 right = (stack_ptr-1)->mLongValue;
 
@@ -2994,15 +2651,11 @@ show_inst(inst);
                     stack_ptr-=2;
                     stack_ptr->mLongValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_ULADD: 
                 {
-                    vm_mutex_on();
-
                     unsigned clint64 left = (stack_ptr-2)->mULongValue;
                     unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
@@ -3011,15 +2664,11 @@ show_inst(inst);
                     stack_ptr-=2;
                     stack_ptr->mULongValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_ULSUB: 
                 {
-                    vm_mutex_on();
-
                     unsigned clint64 left = (stack_ptr-2)->mULongValue;
                     unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
@@ -3028,15 +2677,11 @@ show_inst(inst);
                     stack_ptr-=2;
                     stack_ptr->mULongValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_ULMULT: 
                 {
-                    vm_mutex_on();
-
                     unsigned clint64 left = (stack_ptr-2)->mULongValue;
                     unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
@@ -3045,20 +2690,16 @@ show_inst(inst);
                     stack_ptr-=2;
                     stack_ptr->mULongValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_ULDIV: 
                 {
-                    vm_mutex_on();
-
                     unsigned clint64 left = (stack_ptr-2)->mULongValue;
                     unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
                     if(right == 0) {
-                        vm_mutex_off();
+                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -3069,20 +2710,16 @@ show_inst(inst);
                     stack_ptr-=2;
                     stack_ptr->mULongValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_ULMOD: 
                 {
-                    vm_mutex_on();
-
                     unsigned clint64 left = (stack_ptr-2)->mULongValue;
                     unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
                     if(right == 0) {
-                        vm_mutex_off();
+                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -3093,15 +2730,11 @@ show_inst(inst);
                     stack_ptr-=2;
                     stack_ptr->mULongValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_ULLSHIFT: 
                 {
-                    vm_mutex_on();
-
                     unsigned clint64 left = (stack_ptr-2)->mULongValue;
                     unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
@@ -3110,15 +2743,11 @@ show_inst(inst);
                     stack_ptr-=2;
                     stack_ptr->mULongValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_ULRSHIFT: 
                 {
-                    vm_mutex_on();
-
                     unsigned clint64 left = (stack_ptr-2)->mULongValue;
                     unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
@@ -3127,15 +2756,11 @@ show_inst(inst);
                     stack_ptr-=2;
                     stack_ptr->mULongValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_ULAND: 
                 {
-                    vm_mutex_on();
-
                     unsigned clint64 left = (stack_ptr-2)->mULongValue;
                     unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
@@ -3144,15 +2769,11 @@ show_inst(inst);
                     stack_ptr-=2;
                     stack_ptr->mULongValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_ULXOR: 
                 {
-                    vm_mutex_on();
-
                     unsigned clint64 left = (stack_ptr-2)->mULongValue;
                     unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
@@ -3161,15 +2782,11 @@ show_inst(inst);
                     stack_ptr-=2;
                     stack_ptr->mULongValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_ULOR: 
                 {
-                    vm_mutex_on();
-
                     unsigned clint64 left = (stack_ptr-2)->mULongValue;
                     unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
@@ -3178,133 +2795,97 @@ show_inst(inst);
                     stack_ptr-=2;
                     stack_ptr->mULongValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_BCOMPLEMENT:
                 {
-                    vm_mutex_on();
-
                     char value = (stack_ptr-1)->mByteValue;
 
                     value = ~value;
 
                     (stack_ptr-1)->mLongValue = 0; // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_UBCOMPLEMENT:
                 {
-                    vm_mutex_on();
-
                     unsigned char value = (stack_ptr-1)->mUByteValue;
 
                     value = ~value;
 
                     (stack_ptr-1)->mLongValue = 0; // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_SCOMPLEMENT:
                 {
-                    vm_mutex_on();
-
                     short value = (stack_ptr-1)->mShortValue;
 
                     value = ~value;
 
                     (stack_ptr-1)->mLongValue = 0; // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_USCOMPLEMENT:
                 {
-                    vm_mutex_on();
-
                     unsigned short value = (stack_ptr-1)->mUShortValue;
 
                     value = ~value;
 
                     (stack_ptr-1)->mLongValue = 0; // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_ICOMPLEMENT:
                 {
-                    vm_mutex_on();
-
                     int value = (stack_ptr-1)->mIntValue;
 
                     value = ~value;
 
                     (stack_ptr-1)->mLongValue = 0; // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_UICOMPLEMENT:
                 {
-                    vm_mutex_on();
-
                     unsigned int value = (stack_ptr-1)->mUIntValue;
 
                     value = ~value;
 
                     (stack_ptr-1)->mLongValue = 0; // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_LCOMPLEMENT:
                 {
-                    vm_mutex_on();
-
                     clint64 value = (stack_ptr-1)->mLongValue;
 
                     value = ~value;
 
                     (stack_ptr-1)->mLongValue = value;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_ULCOMPLEMENT:
                 {
-                    vm_mutex_on();
-
                     unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
                     value = ~value;
 
                     (stack_ptr-1)->mULongValue = value;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_FADD: 
                 {
-                    vm_mutex_on();
-
                     float left = (stack_ptr-2)->mFloatValue;
                     float right = (stack_ptr-1)->mFloatValue;
 
@@ -3314,15 +2895,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mFloatValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_FSUB: 
                 {
-                    vm_mutex_on();
-
                     float left = (stack_ptr-2)->mFloatValue;
                     float right = (stack_ptr-1)->mFloatValue;
 
@@ -3332,15 +2909,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mFloatValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_FMULT: 
                 {
-                    vm_mutex_on();
-
                     float left = (stack_ptr-2)->mFloatValue;
                     float right = (stack_ptr-1)->mFloatValue;
 
@@ -3350,20 +2923,16 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mFloatValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_FDIV: 
                 {
-                    vm_mutex_on();
-
                     float left = (stack_ptr-2)->mFloatValue;
                     float right = (stack_ptr-1)->mFloatValue;
 
                     if(right == 0.0f) {
-                        vm_mutex_off();
+                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -3375,15 +2944,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mFloatValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_DADD: 
                 {
-                    vm_mutex_on();
-
                     double left = (stack_ptr-2)->mDoubleValue;
                     double right = (stack_ptr-1)->mDoubleValue;
 
@@ -3392,15 +2957,11 @@ show_inst(inst);
                     stack_ptr-=2;
                     stack_ptr->mDoubleValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_DSUB: 
                 {
-                    vm_mutex_on();
-
                     double left = (stack_ptr-2)->mDoubleValue;
                     double right = (stack_ptr-1)->mDoubleValue;
 
@@ -3409,15 +2970,11 @@ show_inst(inst);
                     stack_ptr-=2;
                     stack_ptr->mDoubleValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_DMULT: 
                 {
-                    vm_mutex_on();
-
                     double left = (stack_ptr-2)->mDoubleValue;
                     double right = (stack_ptr-1)->mDoubleValue;
 
@@ -3426,20 +2983,16 @@ show_inst(inst);
                     stack_ptr-=2;
                     stack_ptr->mDoubleValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_DDIV: 
                 {
-                    vm_mutex_on();
-
                     double left = (stack_ptr-2)->mDoubleValue;
                     double right = (stack_ptr-1)->mDoubleValue;
 
                     if(right == 0.0) {
-                        vm_mutex_off();
+                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -3450,15 +3003,11 @@ show_inst(inst);
                     stack_ptr-=2;
                     stack_ptr->mDoubleValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_PADD: 
                 {
-                    vm_mutex_on();
-
                     char* left = (stack_ptr-2)->mPointerValue;
                     unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
@@ -3468,15 +3017,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mPointerValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_PSUB: 
                 {
-                    vm_mutex_on();
-
                     char* left = (stack_ptr-2)->mPointerValue;
                     unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
@@ -3486,15 +3031,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mPointerValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_PPSUB: 
                 {
-                    vm_mutex_on();
-
                     char* left = (stack_ptr-2)->mPointerValue;
                     char* right = (stack_ptr-1)->mPointerValue;
 
@@ -3503,15 +3044,11 @@ show_inst(inst);
                     stack_ptr-=2;
                     stack_ptr->mULongValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_CADD: 
                 {
-                    vm_mutex_on();
-
                     wchar_t left = (stack_ptr-2)->mCharValue;
                     wchar_t right = (stack_ptr-1)->mCharValue;
 
@@ -3521,15 +3058,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mCharValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_CSUB: 
                 {
-                    vm_mutex_on();
-
                     wchar_t left = (stack_ptr-2)->mCharValue;
                     int right = (stack_ptr-1)->mIntValue;
 
@@ -3539,15 +3072,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mCharValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_BEQ:
                 {
-                    vm_mutex_on();
-
                     char left = (stack_ptr-2)->mByteValue;
                     char right = (stack_ptr-1)->mByteValue;
 
@@ -3557,15 +3086,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_BNOTEQ:
                 {
-                    vm_mutex_on();
-
                     char left = (stack_ptr-2)->mByteValue;
                     char right = (stack_ptr-1)->mByteValue;
 
@@ -3575,15 +3100,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_on();
                 }
                 break;
 
             case OP_BGT:
                 {
-                    vm_mutex_on();
-
                     char left = (stack_ptr-2)->mByteValue;
                     char right = (stack_ptr-1)->mByteValue;
 
@@ -3593,15 +3114,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_BLE:
                 {
-                    vm_mutex_on();
-
                     char left = (stack_ptr-2)->mByteValue;
                     char right = (stack_ptr-1)->mByteValue;
 
@@ -3611,15 +3128,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_BGTEQ:
                 {
-                    vm_mutex_on();
-
                     char left = (stack_ptr-2)->mByteValue;
                     char right = (stack_ptr-1)->mByteValue;
 
@@ -3629,15 +3142,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_BLEEQ:
                 {
-                    vm_mutex_on();
-
                     char left = (stack_ptr-2)->mByteValue;
                     char right = (stack_ptr-1)->mByteValue;
 
@@ -3647,15 +3156,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_UBEQ:
                 {
-                    vm_mutex_on();
-
                     unsigned char left = (stack_ptr-2)->mUByteValue;
                     unsigned char right = (stack_ptr-1)->mUByteValue;
 
@@ -3665,15 +3170,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_UBNOTEQ:
                 {
-                    vm_mutex_on();
-
                     unsigned char left = (stack_ptr-2)->mUByteValue;
                     unsigned char right = (stack_ptr-1)->mUByteValue;
 
@@ -3683,15 +3184,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_on();
                 }
                 break;
 
             case OP_UBGT:
                 {
-                    vm_mutex_on();
-
                     unsigned char left = (stack_ptr-2)->mUByteValue;
                     unsigned char right = (stack_ptr-1)->mUByteValue;
 
@@ -3701,15 +3198,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_on();
                 }
                 break;
 
             case OP_UBLE:
                 {
-                    vm_mutex_on();
-
                     unsigned char left = (stack_ptr-2)->mUByteValue;
                     unsigned char right = (stack_ptr-1)->mUByteValue;
 
@@ -3719,15 +3212,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_on();
                 }
                 break;
 
             case OP_UBGTEQ:
                 {
-                    vm_mutex_on();
-
                     unsigned char left = (stack_ptr-2)->mUByteValue;
                     unsigned char right = (stack_ptr-1)->mUByteValue;
 
@@ -3737,15 +3226,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_on();
                 }
                 break;
 
             case OP_UBLEEQ:
                 {
-                    vm_mutex_on();
-
                     unsigned char left = (stack_ptr-2)->mUByteValue;
                     unsigned char right = (stack_ptr-1)->mUByteValue;
 
@@ -3755,15 +3240,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_on();
                 }
                 break;
 
             case OP_SEQ:
                 {
-                    vm_mutex_on();
-
                     short left = (stack_ptr-2)->mShortValue;
                     short right = (stack_ptr-1)->mShortValue;
 
@@ -3773,15 +3254,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_SNOTEQ:
                 {
-                    vm_mutex_on();
-
                     short left = (stack_ptr-2)->mShortValue;
                     short right = (stack_ptr-1)->mShortValue;
 
@@ -3791,15 +3268,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_on();
                 }
                 break;
 
             case OP_SGT:
                 {
-                    vm_mutex_on();
-
                     short left = (stack_ptr-2)->mShortValue;
                     short right = (stack_ptr-1)->mShortValue;
 
@@ -3809,15 +3282,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_on();
                 }
                 break;
 
             case OP_SLE:
                 {
-                    vm_mutex_on();
-
                     short left = (stack_ptr-2)->mShortValue;
                     short right = (stack_ptr-1)->mShortValue;
 
@@ -3827,15 +3296,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_on();
                 }
                 break;
 
             case OP_SGTEQ:
                 {
-                    vm_mutex_on();
-
                     short left = (stack_ptr-2)->mShortValue;
                     short right = (stack_ptr-1)->mShortValue;
 
@@ -3845,15 +3310,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_on();
                 }
                 break;
 
             case OP_SLEEQ:
                 {
-                    vm_mutex_on();
-
                     short left = (stack_ptr-2)->mShortValue;
                     short right = (stack_ptr-1)->mShortValue;
 
@@ -3863,15 +3324,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_on();
                 }
                 break;
 
             case OP_USEQ:
                 {
-                    vm_mutex_on();
-
                     unsigned short left = (stack_ptr-2)->mUShortValue;
                     unsigned short right = (stack_ptr-1)->mUShortValue;
 
@@ -3881,15 +3338,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_USNOTEQ:
                 {
-                    vm_mutex_on();
-
                     unsigned short left = (stack_ptr-2)->mShortValue;
                     unsigned short right = (stack_ptr-1)->mShortValue;
 
@@ -3899,15 +3352,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_on();
                 }
                 break;
 
             case OP_USGT:
                 {
-                    vm_mutex_on();
-
                     unsigned short left = (stack_ptr-2)->mUShortValue;
                     unsigned short right = (stack_ptr-1)->mUShortValue;
 
@@ -3917,15 +3366,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_USLE:
                 {
-                    vm_mutex_on();
-
                     unsigned short left = (stack_ptr-2)->mUShortValue;
                     unsigned short right = (stack_ptr-1)->mUShortValue;
 
@@ -3935,15 +3380,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_USGTEQ:
                 {
-                    vm_mutex_on();
-
                     unsigned short left = (stack_ptr-2)->mUShortValue;
                     unsigned short right = (stack_ptr-1)->mUShortValue;
 
@@ -3953,15 +3394,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_USLEEQ:
                 {
-                    vm_mutex_on();
-
                     unsigned short left = (stack_ptr-2)->mUShortValue;
                     unsigned short right = (stack_ptr-1)->mUShortValue;
 
@@ -3971,15 +3408,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_IEQ:
                 {
-                    vm_mutex_on();
-
                     int left = (stack_ptr-2)->mIntValue;
                     int right = (stack_ptr-1)->mIntValue;
 
@@ -3989,15 +3422,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_INOTEQ:
                 {
-                    vm_mutex_on();
-
                     int left = (stack_ptr-2)->mIntValue;
                     int right = (stack_ptr-1)->mIntValue;
 
@@ -4007,15 +3436,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_on();
                 }
                 break;
 
             case OP_IGT:
                 {
-                    vm_mutex_on();
-
                     int left = (stack_ptr-2)->mIntValue;
                     int right = (stack_ptr-1)->mIntValue;
 
@@ -4025,15 +3450,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_on();
                 }
                 break;
 
             case OP_ILE:
                 {
-                    vm_mutex_on();
-
                     int left = (stack_ptr-2)->mIntValue;
                     int right = (stack_ptr-1)->mIntValue;
 
@@ -4043,15 +3464,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_on();
                 }
                 break;
 
             case OP_IGTEQ:
                 {
-                    vm_mutex_on();
-
                     int left = (stack_ptr-2)->mIntValue;
                     int right = (stack_ptr-1)->mIntValue;
 
@@ -4061,15 +3478,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_on();
                 }
                 break;
 
             case OP_ILEEQ:
                 {
-                    vm_mutex_on();
-
                     int left = (stack_ptr-2)->mIntValue;
                     int right = (stack_ptr-1)->mIntValue;
 
@@ -4079,15 +3492,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_on();
                 }
                 break;
 
             case OP_UIEQ:
                 {
-                    vm_mutex_on();
-
                     unsigned int left = (stack_ptr-2)->mUIntValue;
                     unsigned int right = (stack_ptr-1)->mUIntValue;
 
@@ -4097,15 +3506,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_UINOTEQ:
                 {
-                    vm_mutex_on();
-
                     unsigned int left = (stack_ptr-2)->mUIntValue;
                     unsigned int right = (stack_ptr-1)->mUIntValue;
 
@@ -4115,15 +3520,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_on();
                 }
                 break;
 
             case OP_UIGT:
                 {
-                    vm_mutex_on();
-
                     unsigned int left = (stack_ptr-2)->mUIntValue;
                     unsigned int right = (stack_ptr-1)->mUIntValue;
 
@@ -4133,15 +3534,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_on();
                 }
                 break;
 
             case OP_UILE:
                 {
-                    vm_mutex_on();
-
                     unsigned int left = (stack_ptr-2)->mUIntValue;
                     unsigned int right = (stack_ptr-1)->mUIntValue;
 
@@ -4151,15 +3548,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_on();
                 }
                 break;
 
             case OP_UIGTEQ:
                 {
-                    vm_mutex_on();
-
                     unsigned int left = (stack_ptr-2)->mUIntValue;
                     unsigned int right = (stack_ptr-1)->mUIntValue;
 
@@ -4169,15 +3562,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_on();
                 }
                 break;
 
             case OP_UILEEQ:
                 {
-                    vm_mutex_on();
-
                     unsigned int left = (stack_ptr-2)->mUIntValue;
                     unsigned int right = (stack_ptr-1)->mUIntValue;
 
@@ -4187,15 +3576,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_on();
                 }
                 break;
 
             case OP_LEQ:
                 {
-                    vm_mutex_on();
-
                     clint64 left = (stack_ptr-2)->mLongValue;
                     clint64 right = (stack_ptr-1)->mLongValue;
 
@@ -4205,15 +3590,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_LNOTEQ:
                 {
-                    vm_mutex_on();
-
                     clint64 left = (stack_ptr-2)->mLongValue;
                     clint64 right = (stack_ptr-1)->mLongValue;
 
@@ -4223,15 +3604,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_on();
                 }
                 break;
 
             case OP_LGT:
                 {
-                    vm_mutex_on();
-
                     clint64 left = (stack_ptr-2)->mLongValue;
                     clint64 right = (stack_ptr-1)->mLongValue;
 
@@ -4241,15 +3618,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_LLE:
                 {
-                    vm_mutex_on();
-
                     clint64 left = (stack_ptr-2)->mLongValue;
                     clint64 right = (stack_ptr-1)->mLongValue;
 
@@ -4259,15 +3632,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_LGTEQ:
                 {
-                    vm_mutex_on();
-
                     clint64 left = (stack_ptr-2)->mLongValue;
                     clint64 right = (stack_ptr-1)->mLongValue;
 
@@ -4277,15 +3646,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_LLEEQ:
                 {
-                    vm_mutex_on();
-
                     clint64 left = (stack_ptr-2)->mLongValue;
                     clint64 right = (stack_ptr-1)->mLongValue;
 
@@ -4295,15 +3660,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_ULEQ:
                 {
-                    vm_mutex_on();
-
                     unsigned clint64 left = (stack_ptr-2)->mULongValue;
                     unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
@@ -4313,15 +3674,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_ULNOTEQ:
                 {
-                    vm_mutex_on();
-
                     unsigned clint64 left = (stack_ptr-2)->mULongValue;
                     unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
@@ -4331,15 +3688,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_on();
                 }
                 break;
 
             case OP_ULGT:
                 {
-                    vm_mutex_on();
-
                     unsigned clint64 left = (stack_ptr-2)->mULongValue;
                     unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
@@ -4349,15 +3702,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_on();
                 }
                 break;
 
             case OP_ULLE:
                 {
-                    vm_mutex_on();
-
                     unsigned clint64 left = (stack_ptr-2)->mULongValue;
                     unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
@@ -4367,15 +3716,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_on();
                 }
                 break;
 
             case OP_ULGTEQ:
                 {
-                    vm_mutex_on();
-
                     unsigned clint64 left = (stack_ptr-2)->mULongValue;
                     unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
@@ -4385,15 +3730,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_on();
                 }
                 break;
 
             case OP_ULLEEQ:
                 {
-                    vm_mutex_on();
-
                     unsigned clint64 left = (stack_ptr-2)->mULongValue;
                     unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
@@ -4403,15 +3744,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_on();
                 }
                 break;
 
             case OP_FEQ:
                 {
-                    vm_mutex_on();
-
                     float left = (stack_ptr-2)->mFloatValue;
                     float right = (stack_ptr-1)->mFloatValue;
 
@@ -4421,15 +3758,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_FNOTEQ:
                 {
-                    vm_mutex_on();
-
                     float left = (stack_ptr-2)->mFloatValue;
                     float right = (stack_ptr-1)->mFloatValue;
 
@@ -4439,15 +3772,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_on();
                 }
                 break;
 
             case OP_FGT:
                 {
-                    vm_mutex_on();
-
                     float left = (stack_ptr-2)->mFloatValue;
                     float right = (stack_ptr-1)->mFloatValue;
 
@@ -4457,15 +3786,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_FLE:
                 {
-                    vm_mutex_on();
-
                     float left = (stack_ptr-2)->mFloatValue;
                     float right = (stack_ptr-1)->mFloatValue;
 
@@ -4475,15 +3800,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_FGTEQ:
                 {
-                    vm_mutex_on();
-
                     float left = (stack_ptr-2)->mFloatValue;
                     float right = (stack_ptr-1)->mFloatValue;
 
@@ -4493,15 +3814,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_FLEEQ:
                 {
-                    vm_mutex_on();
-
                     float left = (stack_ptr-2)->mFloatValue;
                     float right = (stack_ptr-1)->mFloatValue;
 
@@ -4511,15 +3828,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_DEQ:
                 {
-                    vm_mutex_on();
-
                     double left = (stack_ptr-2)->mDoubleValue;
                     double right = (stack_ptr-1)->mDoubleValue;
 
@@ -4529,15 +3842,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_DNOTEQ:
                 {
-                    vm_mutex_on();
-
                     double left = (stack_ptr-2)->mDoubleValue;
                     double right = (stack_ptr-1)->mDoubleValue;
 
@@ -4547,15 +3856,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_on();
                 }
                 break;
 
             case OP_DGT:
                 {
-                    vm_mutex_on();
-
                     double left = (stack_ptr-2)->mDoubleValue;
                     double right = (stack_ptr-1)->mDoubleValue;
 
@@ -4565,15 +3870,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_DLE:
                 {
-                    vm_mutex_on();
-
                     double left = (stack_ptr-2)->mDoubleValue;
                     double right = (stack_ptr-1)->mDoubleValue;
 
@@ -4583,15 +3884,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_DGTEQ:
                 {
-                    vm_mutex_on();
-
                     double left = (stack_ptr-2)->mDoubleValue;
                     double right = (stack_ptr-1)->mDoubleValue;
 
@@ -4601,15 +3898,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_DLEEQ:
                 {
-                    vm_mutex_on();
-
                     double left = (stack_ptr-2)->mDoubleValue;
                     double right = (stack_ptr-1)->mDoubleValue;
 
@@ -4619,15 +3912,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_PEQ:
                 {
-                    vm_mutex_on();
-
                     char* left = (stack_ptr-2)->mPointerValue;
                     char* right = (stack_ptr-1)->mPointerValue;
 
@@ -4637,15 +3926,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_PNOTEQ:
                 {
-                    vm_mutex_on();
-
                     char* left = (stack_ptr-2)->mPointerValue;
                     char* right = (stack_ptr-1)->mPointerValue;
 
@@ -4655,15 +3940,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_PGT:
                 {
-                    vm_mutex_on();
-
                     char* left = (stack_ptr-2)->mPointerValue;
                     char* right = (stack_ptr-1)->mPointerValue;
 
@@ -4673,15 +3954,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_PLE:
                 {
-                    vm_mutex_on();
-
                     char* left = (stack_ptr-2)->mPointerValue;
                     char* right = (stack_ptr-1)->mPointerValue;
 
@@ -4691,15 +3968,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_PGTEQ:
                 {
-                    vm_mutex_on();
-
                     char* left = (stack_ptr-2)->mPointerValue;
                     char* right = (stack_ptr-1)->mPointerValue;
 
@@ -4709,15 +3982,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_PLEEQ:
                 {
-                    vm_mutex_on();
-
                     char* left = (stack_ptr-2)->mPointerValue;
                     char* right = (stack_ptr-1)->mPointerValue;
 
@@ -4727,15 +3996,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_CEQ:
                 {
-                    vm_mutex_on();
-
                     wchar_t left = (stack_ptr-2)->mCharValue;
                     wchar_t right = (stack_ptr-1)->mCharValue;
 
@@ -4745,15 +4010,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_CNOTEQ:
                 {
-                    vm_mutex_on();
-
                     wchar_t left = (stack_ptr-2)->mCharValue;
                     wchar_t right = (stack_ptr-1)->mCharValue;
 
@@ -4763,15 +4024,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_CGT:
                 {
-                    vm_mutex_on();
-
                     wchar_t left = (stack_ptr-2)->mCharValue;
                     wchar_t right = (stack_ptr-1)->mCharValue;
 
@@ -4781,15 +4038,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_CLE:
                 {
-                    vm_mutex_on();
-
                     wchar_t left = (stack_ptr-2)->mCharValue;
                     wchar_t right = (stack_ptr-1)->mCharValue;
 
@@ -4799,15 +4052,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_CGTEQ:
                 {
-                    vm_mutex_on();
-
                     wchar_t left = (stack_ptr-2)->mCharValue;
                     wchar_t right = (stack_ptr-1)->mCharValue;
 
@@ -4817,15 +4066,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_CLEEQ:
                 {
-                    vm_mutex_on();
-
                     wchar_t left = (stack_ptr-2)->mCharValue;
                     wchar_t right = (stack_ptr-1)->mCharValue;
 
@@ -4835,15 +4080,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_REGEQ:
                 {
-                    vm_mutex_on();
-
                     CLObject left = (stack_ptr-2)->mObjectValue;
                     CLObject right = (stack_ptr-1)->mObjectValue;
 
@@ -4853,15 +4094,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_REGNOTEQ:
                 {
-                    vm_mutex_on();
-
                     CLObject left = (stack_ptr-2)->mObjectValue;
                     CLObject right = (stack_ptr-1)->mObjectValue;
 
@@ -4871,15 +4108,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_OBJ_IDENTIFY:
                 {
-                    vm_mutex_on();
-
                     CLObject left = (stack_ptr-2)->mObjectValue;
                     CLObject right = (stack_ptr-1)->mObjectValue;
 
@@ -4889,19 +4122,15 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_CLASSNAME:
                 {
-                    vm_mutex_on();
-
                     CLObject left = (stack_ptr-1)->mObjectValue;
 
                     if(left == 0) {
-                        vm_mutex_off();
+                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(1)");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -4910,7 +4139,7 @@ show_inst(inst);
                     sCLObject* object_data = CLOBJECT(left);
 
                     if(object_data->mType == NULL) {
-                        vm_mutex_off();
+                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Object Type is Null");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -4922,20 +4151,16 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mObjectValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_IS:
                 {
-                    vm_mutex_on();
-
                     CLObject left = (stack_ptr-2)->mObjectValue;
                     CLObject right = (stack_ptr-1)->mObjectValue;
 
                     if(left == 0 || right == 0) {
-                        vm_mutex_off();
+                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(1)");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -4952,15 +4177,49 @@ show_inst(inst);
                     stack_ptr++;
 
                     MFREE(right_class_name);
+                }
+                break;
 
-                    vm_mutex_off();
+            case OP_OBJ_ALLOCATED_SIZE:
+                {
+                    CLObject left = (stack_ptr-1)->mObjectValue;
+
+                    if(left == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(1)");
+                        remove_stack_to_stack_list(stack_id);
+                        return FALSE;
+                    }
+
+                    sCLObject* object_data = CLOBJECT(left);
+
+                    stack_ptr--;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
+                    stack_ptr->mIntValue = object_data->mSize;
+                    stack_ptr++;
+                }
+                break;
+
+            case OP_OBJ_HEAD_OF_MEMORY:
+                {
+                    CLObject left = (stack_ptr-1)->mObjectValue;
+
+                    if(left == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(1)");
+                        remove_stack_to_stack_list(stack_id);
+                        return FALSE;
+                    }
+
+                    sCLObject* object_data = CLOBJECT(left);
+
+                    stack_ptr--;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
+                    stack_ptr->mPointerValue = (void*)object_data->mFields;
+                    stack_ptr++;
                 }
                 break;
 
             case OP_IMPLEMENTS:
                 {
-                    vm_mutex_on();
-
                     int offset = *(int*)pc;
                     pc += sizeof(int);
 
@@ -4969,7 +4228,7 @@ show_inst(inst);
                     sCLClass* klass = get_class_with_load_and_initialize(class_name);
 
                     if(klass == NULL) {
-                        vm_mutex_off();
+                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(1)");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -4978,7 +4237,7 @@ show_inst(inst);
                     CLObject left = (stack_ptr-1)->mObjectValue;
 
                     if(left == 0) {
-                        vm_mutex_off();
+                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(2)");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -4990,15 +4249,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_ANDAND:
                 {
-                    vm_mutex_on();
-
                     int left = (stack_ptr-2)->mBoolValue;
                     int right = (stack_ptr-1)->mBoolValue;
 
@@ -5008,15 +4263,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_on();
                 }
                 break;
 
             case OP_OROR:
                 {
-                    vm_mutex_on();
-
                     int left = (stack_ptr-2)->mBoolValue;
                     int right = (stack_ptr-1)->mBoolValue;
 
@@ -5026,15 +4277,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_on();
                 }
                 break;
 
             case OP_LOGICAL_DENIAL:
                 {
-                    vm_mutex_on();
-
                     BOOL value = (stack_ptr-1)->mBoolValue;
                     BOOL result = !value;
 
@@ -5042,15 +4289,11 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0; // zero clear for jit
                     stack_ptr->mBoolValue = result;
                     stack_ptr++;
-
-                    vm_mutex_on();
                 }
                 break;
 
             case OP_INVOKE_METHOD:
                 {
-                    vm_mutex_on();
-
                     int offset = *(int*)pc;
                     pc += sizeof(int);
 
@@ -5061,17 +4304,16 @@ show_inst(inst);
                     pc += sizeof(int);
 
                     char* class_name = CONS_str(constant, offset);
+
                     sCLClass* klass = get_class_with_load_and_initialize(class_name);
 
                     if(klass == NULL) {
-                        vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(2)");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     if(method_index < 0 || method_index >= klass->mNumMethods) {
-                        vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "OP_INVOKE_METHOD: Method not found");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -5086,25 +4328,15 @@ show_inst(inst);
                             info->try_code = NULL;
                         }
                         else {
-                            vm_mutex_off();
                             remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
-
-                    vm_mutex_off();
-
-#ifdef VM_LOG
-if(info->running_class && info->running_method && strcmp(METHOD_NAME2(info->running_class, info->running_method), "toString") == 0)
-show_stack(stack, stack_ptr, lvar, var_num);
-#endif
                 }
                 break;
 
             case OP_INVOKE_VIRTUAL_METHOD:
                 {
-                    vm_mutex_on();
-
                     int num_real_params = *(int*)pc;
                     pc += sizeof(int);
 
@@ -5117,7 +4349,6 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     CLObject object = (stack_ptr-num_real_params)->mObjectValue;
 
                     if(object == 0) {
-                        vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-1)");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -5126,6 +4357,8 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     sCLObject* object_data = CLOBJECT(object);
 
                     sCLClass* klass = object_data->mClass;
+
+//printf("OP_VIRTUAL_METHOD %s\n", CLASS_NAME(klass));
 
                     MASSERT(klass != NULL);
 
@@ -5136,9 +4369,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
 
                     sCLMethod* method = search_for_method_from_virtual_method_table(klass, method_name_and_params2);
-
                     if(method == NULL) {
-                        vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "OP_INVOKE_VIRTUAL_METHOD: Method not found(%s.%s)", CLASS_NAME(klass), method_name_and_params);
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -5151,21 +4382,16 @@ show_stack(stack, stack_ptr, lvar, var_num);
                                 info->try_code = NULL;
                             }
                             else {
-                                vm_mutex_off();
                                 remove_stack_to_stack_list(stack_id);
                                 return FALSE;
                             }
                         }
                     }
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_INVOKE_DYNAMIC_METHOD: 
                 {
-                    vm_mutex_on();
-
                     int offset = *(int*)pc;
                     pc += sizeof(int);
 
@@ -5201,7 +4427,6 @@ show_stack(stack, stack_ptr, lvar, var_num);
                         MASSERT(klass != NULL);
 
                         if(klass->mCallingMethodIndex == -1) {
-                            vm_mutex_off();
                             entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "OP_INVOKE_DYNAMIC_METHOD: Method not found(1)");
                             remove_stack_to_stack_list(stack_id);
                             return FALSE;
@@ -5249,7 +4474,6 @@ show_stack(stack, stack_ptr, lvar, var_num);
                                 info->try_code = NULL;
                             }
                             else {
-                                vm_mutex_off();
                                 remove_stack_to_stack_list(stack_id);
                                 return FALSE;
                             }
@@ -5263,14 +4487,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                         sCLClass* klass = get_class_with_load_and_initialize(class_name);
 
                         if(klass == NULL) {
-                            vm_mutex_off();
                             entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(3)");
                             remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
 
                         if(klass->mCallingClassMethodIndex == -1) {
-                            vm_mutex_off();
+                            
                             entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "OP_INVOKE_DYNAMIC_METHOD: Method not found(2)");
                             remove_stack_to_stack_list(stack_id);
                             return FALSE;
@@ -5319,21 +4542,16 @@ show_stack(stack, stack_ptr, lvar, var_num);
                                 info->try_code = NULL;
                             }
                             else {
-                                vm_mutex_off();
                                 remove_stack_to_stack_list(stack_id);
                                 return FALSE;
                             }
                         }
                     }
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_INVOKE_BLOCK:
                 {
-                    vm_mutex_on();
-
                     int num_params = *(int*)pc;
                     pc += sizeof(int);
 
@@ -5342,10 +4560,8 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     CLObject block_object = (stack_ptr-num_params-1)->mObjectValue;
 
-
                     if(!invoke_block(block_object, stack, var_num, num_params, &stack_ptr, info, FALSE)) 
                     {
-                        vm_mutex_off();
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
@@ -5356,15 +4572,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     *stack_ptr = result;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_NEW:
                 {
-                    vm_mutex_on();
-
                     int offset = *(int*)pc;
                     pc += sizeof(int);
 
@@ -5379,7 +4591,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     sCLClass* klass = get_class_with_load_and_initialize(class_name);
 
                     if(klass == NULL) {
-                        vm_mutex_off();
+                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(3)");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -5402,15 +4614,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
                         stack_ptr->mObjectValue = obj;
                         stack_ptr++;
                     }
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_LOAD_FIELD:
                 {
-                    vm_mutex_on();
-
                     int field_index = *(int*)pc;
                     pc += sizeof(int);
 
@@ -5421,7 +4629,6 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     stack_ptr--;
 
                     if(obj == 0) {
-                        vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -5431,14 +4638,12 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     sCLClass* klass = object_pointer->mClass;
 
                     if(klass == NULL) {
-                        vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(4)");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     if(field_index < 0 || field_index >= klass->mNumFields) {
-                        vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "field index is invalid(1). Field index is %d", field_index);
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -5447,15 +4652,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     CLVALUE value = object_pointer->mFields[field_index];
                     *stack_ptr = value;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_LOAD_FIELD_ADDRESS:
                 {
-                    vm_mutex_on();
-
                     int field_index = *(int*)pc;
                     pc += sizeof(int);
 
@@ -5463,7 +4664,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     stack_ptr--;
 
                     if(obj == 0) {
-                        vm_mutex_off();
+                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(4)");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -5473,14 +4674,14 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     sCLClass* klass = object_pointer->mClass;
 
                     if(klass == NULL) {
-                        vm_mutex_off();
+                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(5)");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     if(field_index < 0 || field_index >= klass->mNumFields) {
-                        vm_mutex_off();
+                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "field index is invalid(2). Field index is %d", field_index);
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -5490,15 +4691,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mPointerValue = value;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_STORE_FIELD:
                 {
-                    vm_mutex_on();
-
                     int field_index = *(int*)pc;
                     pc += sizeof(int);
 
@@ -5506,7 +4703,6 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     CLVALUE value = *(stack_ptr-1);
 
                     if(obj == 0) {
-                        vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(5)");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -5516,14 +4712,12 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     sCLClass* klass = object_pointer->mClass;
 
                     if(klass == NULL) {
-                        vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(6)");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     if(field_index < 0 || field_index >= klass->mNumFields) {
-                        vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "field index is invalid(3). Field index is %d", field_index);
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -5533,15 +4727,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     stack_ptr-=2;
                     *stack_ptr = value;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_LOAD_CLASS_FIELD:
                 {
-                    vm_mutex_on();
-
                     int offset = *(int*)pc;
                     pc += sizeof(int);
 
@@ -5556,14 +4746,14 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     sCLClass* klass = get_class_with_load_and_initialize(class_name);
 
                     if(klass == NULL) {
-                        vm_mutex_off();
+                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(7)");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     if(field_index < 0 || field_index >= klass->mNumClassFields) {
-                        vm_mutex_off();
+                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "field index is invalid(4). Field index is %d", field_index);
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -5573,15 +4763,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     *stack_ptr = field->mValue;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_LOAD_CLASS_FIELD_ADDRESS:
                 {
-                    vm_mutex_on();
-
                     int offset = *(int*)pc;
                     pc += sizeof(int);
 
@@ -5593,14 +4779,14 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     sCLClass* klass = get_class_with_load_and_initialize(class_name);
 
                     if(klass == NULL) {
-                        vm_mutex_off();
+                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(8)");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     if(field_index < 0 || field_index >= klass->mNumClassFields) {
-                        vm_mutex_off();
+                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "field index is invalid(55555). Field index is %d", field_index);
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -5612,15 +4798,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mPointerValue = value;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_STORE_CLASS_FIELD:
                 {
-                    vm_mutex_on();
-
                     int offset = *(int*)pc;
                     pc += sizeof(int);
 
@@ -5632,14 +4814,14 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     sCLClass* klass = get_class_with_load_and_initialize(class_name);
 
                     if(klass == NULL) {
-                        vm_mutex_off();
+                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(9)");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
 
                     if(field_index < 0 || field_index >= klass->mNumClassFields) {
-                        vm_mutex_off();
+                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "field index is invalid(6). Field index is %d", field_index);
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -5649,15 +4831,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     sCLField* field = klass->mClassFields + field_index;
                     field->mValue = value;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_LOAD_ELEMENT:
                 {
-                    vm_mutex_on();
-
                     int tmp = *(int*)pc;
                     pc += sizeof(int);
 
@@ -5666,7 +4844,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     stack_ptr-=2;
 
                     if(array == 0) {
-                        vm_mutex_off();
+                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(7)");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -5675,7 +4853,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     sCLObject* object_pointer = CLOBJECT(array);
 
                     if(element_num < 0 || element_num >= object_pointer->mArrayNum) {
-                        vm_mutex_off();
+                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "element index is invalid");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -5684,21 +4862,17 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     CLVALUE value = object_pointer->mFields[element_num];
                     *stack_ptr = value;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_STORE_ELEMENT:
                 {
-                    vm_mutex_on();
-
                     CLObject array = (stack_ptr -3)->mObjectValue;
                     int element_num = (stack_ptr -2)->mIntValue;
                     CLVALUE value = *(stack_ptr-1);
 
                     if(array == 0) {
-                        vm_mutex_off();
+                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(8)");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -5707,7 +4881,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     sCLObject* object_pointer = CLOBJECT(array);
 
                     if(element_num < 0 || element_num >= object_pointer->mArrayNum) {
-                        vm_mutex_off();
+                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "element index is invalid");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -5717,15 +4891,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     stack_ptr-=3;
                     *stack_ptr = value;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_STORE_VALUE_TO_INT_ADDRESS:
                 {
-                    vm_mutex_on();
-
                     CLVALUE address = *(stack_ptr-2);
                     CLVALUE value = *(stack_ptr-1);
 
@@ -5738,15 +4908,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     *stack_ptr = value;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_STORE_VALUE_TO_UINT_ADDRESS: 
                 {
-                    vm_mutex_on();
-
                     CLVALUE address = *(stack_ptr-2);
                     CLVALUE value = *(stack_ptr-1);
 
@@ -5756,15 +4922,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     *stack_ptr = value;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_STORE_VALUE_TO_BYTE_ADDRESS: 
                 {
-                    vm_mutex_on();
-
                     CLVALUE address = *(stack_ptr-2);
                     CLVALUE value = *(stack_ptr-1);
 
@@ -5774,15 +4936,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     *stack_ptr = value;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_STORE_VALUE_TO_UBYTE_ADDRESS: 
                 {
-                    vm_mutex_on();
-
                     CLVALUE address = *(stack_ptr-2);
                     CLVALUE value = *(stack_ptr-1);
 
@@ -5792,15 +4950,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     *stack_ptr = value;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_STORE_VALUE_TO_SHORT_ADDRESS: 
                 {
-                    vm_mutex_on();
-
                     CLVALUE address = *(stack_ptr-2);
                     CLVALUE value = *(stack_ptr-1);
 
@@ -5810,15 +4964,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     *stack_ptr = value;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_STORE_VALUE_TO_USHORT_ADDRESS: 
                 {
-                    vm_mutex_on();
-
                     CLVALUE address = *(stack_ptr-2);
                     CLVALUE value = *(stack_ptr-1);
 
@@ -5828,15 +4978,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     *stack_ptr = value;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_STORE_VALUE_TO_LONG_ADDRESS:
                 {
-                    vm_mutex_on();
-
                     CLVALUE address = *(stack_ptr-2);
                     CLVALUE value = *(stack_ptr-1);
 
@@ -5846,15 +4992,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     *stack_ptr = value;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_STORE_VALUE_TO_ULONG_ADDRESS: 
                 {
-                    vm_mutex_on();
-
                     CLVALUE address = *(stack_ptr-2);
                     CLVALUE value = *(stack_ptr-1);
 
@@ -5864,15 +5006,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     *stack_ptr = value;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_STORE_VALUE_TO_FLOAT_ADDRESS: 
                 {
-                    vm_mutex_on();
-
                     CLVALUE address = *(stack_ptr-2);
                     CLVALUE value = *(stack_ptr-1);
 
@@ -5882,14 +5020,12 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     *stack_ptr = value;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_STORE_VALUE_TO_DOUBLE_ADDRESS:
                 {
-                    vm_mutex_on();
+                    
 
                     CLVALUE address = *(stack_ptr-2);
                     CLVALUE value = *(stack_ptr-1);
@@ -5901,13 +5037,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     *stack_ptr = value;
                     stack_ptr++;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_STORE_VALUE_TO_POINTER_ADDRESS:
                 {
-                    vm_mutex_on();
+                    
 
                     CLVALUE address = *(stack_ptr-2);
                     CLVALUE value = *(stack_ptr-1);
@@ -5919,13 +5055,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     *stack_ptr = value;
                     stack_ptr++;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_STORE_VALUE_TO_CHAR_ADDRESS:
                 {
-                    vm_mutex_on();
+                    
 
                     CLVALUE address = *(stack_ptr-2);
                     CLVALUE value = *(stack_ptr-1);
@@ -5937,13 +5073,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     *stack_ptr = value;
                     stack_ptr++;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_STORE_VALUE_TO_BOOL_ADDRESS:
                 {
-                    vm_mutex_on();
+                    
 
                     CLVALUE address = *(stack_ptr-2);
                     CLVALUE value = *(stack_ptr-1);
@@ -5955,13 +5091,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     *stack_ptr = value;
                     stack_ptr++;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_STORE_VALUE_TO_OBJECT_ADDRESS:
                 {
-                    vm_mutex_on();
+                    
 
                     CLVALUE address = *(stack_ptr-2);
                     CLVALUE value = *(stack_ptr-1);
@@ -5973,13 +5109,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     *stack_ptr = value;
                     stack_ptr++;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_LOAD_VALUE_FROM_INT_ADDRESS:
                 {
-                    vm_mutex_on();
+                    
 
                     CLVALUE address = *(stack_ptr-1);
                     stack_ptr--;
@@ -5990,13 +5126,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     stack_ptr->mIntValue = value;
                     stack_ptr++;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_LOAD_VALUE_FROM_UINT_ADDRESS:
                 {
-                    vm_mutex_on();
+                    
 
                     CLVALUE address = *(stack_ptr-1);
                     stack_ptr--;
@@ -6007,13 +5143,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     stack_ptr->mUIntValue = value;
                     stack_ptr++;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_LOAD_VALUE_FROM_BYTE_ADDRESS:
                 {
-                    vm_mutex_on();
+                    
 
                     CLVALUE address = *(stack_ptr-1);
                     stack_ptr--;
@@ -6024,13 +5160,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     stack_ptr->mByteValue = value;
                     stack_ptr++;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_LOAD_VALUE_FROM_UBYTE_ADDRESS:
                 {
-                    vm_mutex_on();
+                    
 
                     CLVALUE address = *(stack_ptr-1);
                     stack_ptr--;
@@ -6041,13 +5177,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     stack_ptr->mUByteValue = value;
                     stack_ptr++;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_LOAD_VALUE_FROM_SHORT_ADDRESS:
                 {
-                    vm_mutex_on();
+                    
 
                     CLVALUE address = *(stack_ptr-1);
                     stack_ptr--;
@@ -6058,13 +5194,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     stack_ptr->mShortValue = value;
                     stack_ptr++;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_LOAD_VALUE_FROM_USHORT_ADDRESS:
                 {
-                    vm_mutex_on();
+                    
 
                     CLVALUE address = *(stack_ptr-1);
                     stack_ptr--;
@@ -6075,13 +5211,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     stack_ptr->mUShortValue = value;
                     stack_ptr++;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_LOAD_VALUE_FROM_LONG_ADDRESS:
                 {
-                    vm_mutex_on();
+                    
 
                     CLVALUE address = *(stack_ptr-1);
                     stack_ptr--;
@@ -6091,13 +5227,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     stack_ptr->mLongValue = value;
                     stack_ptr++;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_LOAD_VALUE_FROM_ULONG_ADDRESS:
                 {
-                    vm_mutex_on();
+                    
 
                     CLVALUE address = *(stack_ptr-1);
                     stack_ptr--;
@@ -6107,13 +5243,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     stack_ptr->mULongValue = value;
                     stack_ptr++;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_LOAD_VALUE_FROM_FLOAT_ADDRESS:
                 {
-                    vm_mutex_on();
+                    
 
                     CLVALUE address = *(stack_ptr-1);
                     stack_ptr--;
@@ -6124,13 +5260,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     stack_ptr->mFloatValue = value;
                     stack_ptr++;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_LOAD_VALUE_FROM_DOUBLE_ADDRESS:
                 {
-                    vm_mutex_on();
+                    
 
                     CLVALUE address = *(stack_ptr-1);
                     stack_ptr--;
@@ -6140,13 +5276,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     stack_ptr->mDoubleValue = value;
                     stack_ptr++;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_LOAD_VALUE_FROM_POINTER_ADDRESS:
                 {
-                    vm_mutex_on();
+                    
 
                     CLVALUE address = *(stack_ptr-1);
                     stack_ptr--;
@@ -6157,13 +5293,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     stack_ptr->mPointerValue = value;
                     stack_ptr++;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_LOAD_VALUE_FROM_CHAR_ADDRESS:
                 {
-                    vm_mutex_on();
+                    
 
                     CLVALUE address = *(stack_ptr-1);
                     stack_ptr--;
@@ -6174,13 +5310,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     stack_ptr->mCharValue = value;
                     stack_ptr++;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_LOAD_VALUE_FROM_BOOL_ADDRESS:
                 {
-                    vm_mutex_on();
+                    
 
                     CLVALUE address = *(stack_ptr-1);
                     stack_ptr--;
@@ -6191,13 +5327,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     stack_ptr->mBoolValue = value;
                     stack_ptr++;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_LOAD_VALUE_FROM_OBJECT_ADDRESS:
                 {
-                    vm_mutex_on();
+                    
 
                     CLVALUE address = *(stack_ptr-1);
                     stack_ptr--;
@@ -6208,156 +5344,156 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     stack_ptr->mObjectValue = value;
                     stack_ptr++;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_UBYTE_TO_BYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char value = (char)(stack_ptr-1)->mUByteValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_SHORT_TO_BYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char value = (char)(stack_ptr-1)->mShortValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_USHORT_TO_BYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char value = (char)(stack_ptr-1)->mUShortValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_INT_TO_BYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char value = (char)(stack_ptr-1)->mIntValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_UINT_TO_BYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char value = (char)(stack_ptr-1)->mUIntValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_LONG_TO_BYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char value = (char)(stack_ptr-1)->mLongValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_ULONG_TO_BYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char value = (char)(stack_ptr-1)->mULongValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_FLOAT_TO_BYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char value = (char)(stack_ptr-1)->mFloatValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_DOUBLE_TO_BYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char value = (char)(stack_ptr-1)->mDoubleValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_POINTER_TO_BYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char value = (char)(stack_ptr-1)->mPointerValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CHAR_TO_BYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char value = (char)(stack_ptr-1)->mCharValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CBYTE_TO_BYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -6368,13 +5504,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CUBYTE_TO_BYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -6385,13 +5521,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CSHORT_TO_BYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -6402,13 +5538,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CUSHORT_TO_BYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -6419,13 +5555,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_INTEGER_TO_BYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -6436,13 +5572,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_UINTEGER_TO_BYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -6453,13 +5589,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CLONG_TO_BYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -6470,13 +5606,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CULONG_TO_BYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -6487,13 +5623,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CFLOAT_TO_BYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -6504,13 +5640,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CDOUBLE_TO_BYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -6521,13 +5657,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CPOINTER_TO_BYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -6538,13 +5674,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CCHAR_TO_BYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -6555,13 +5691,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CBOOL_TO_BYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -6572,158 +5708,158 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
 
             case OP_BYTE_TO_SHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     short value = (short)(stack_ptr-1)->mByteValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_UBYTE_TO_SHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     short value = (short)(stack_ptr-1)->mUByteValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_USHORT_TO_SHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     short value = (short)(stack_ptr-1)->mUShortValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_INT_TO_SHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     short value = (short)(stack_ptr-1)->mIntValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_UINT_TO_SHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     short value = (short)(stack_ptr-1)->mUIntValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_LONG_TO_SHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     short value = (short)(stack_ptr-1)->mLongValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_ULONG_TO_SHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     short value = (short)(stack_ptr-1)->mULongValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_FLOAT_TO_SHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     short value = (short)(stack_ptr-1)->mFloatValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_DOUBLE_TO_SHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     short value = (short)(stack_ptr-1)->mDoubleValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_POINTER_TO_SHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     short value = (short)(stack_ptr-1)->mPointerValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_CHAR_TO_SHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     short value = (short)(stack_ptr-1)->mCharValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
 
             case OP_CBYTE_TO_SHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -6734,13 +5870,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CUBYTE_TO_SHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -6751,13 +5887,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CSHORT_TO_SHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -6768,13 +5904,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CUSHORT_TO_SHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -6785,13 +5921,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_INTEGER_TO_SHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -6802,13 +5938,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_UINTEGER_TO_SHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -6819,13 +5955,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CLONG_TO_SHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -6836,13 +5972,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CULONG_TO_SHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -6853,13 +5989,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CFLOAT_TO_SHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -6870,13 +6006,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CDOUBLE_TO_SHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -6887,13 +6023,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CPOINTER_TO_SHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -6904,13 +6040,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CCHAR_TO_SHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -6921,13 +6057,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CBOOL_TO_SHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -6938,157 +6074,157 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_BYTE_TO_INT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     int value = (int)(stack_ptr-1)->mByteValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_UBYTE_TO_INT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     int value = (int)(stack_ptr-1)->mUByteValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_SHORT_TO_INT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     int value = (int)(stack_ptr-1)->mShortValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_USHORT_TO_INT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     int value = (int)(stack_ptr-1)->mUShortValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_UINT_TO_INT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     int value = (int)(stack_ptr-1)->mUIntValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_LONG_TO_INT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     int value = (int)(stack_ptr-1)->mLongValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_ULONG_TO_INT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     int value = (int)(stack_ptr-1)->mULongValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_FLOAT_TO_INT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     int value = (int)(stack_ptr-1)->mFloatValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_DOUBLE_TO_INT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     int value = (int)(stack_ptr-1)->mDoubleValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_POINTER_TO_INT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     int value = (int)(stack_ptr-1)->mPointerValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CHAR_TO_INT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     int value = (int)(stack_ptr-1)->mCharValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
 
             case OP_CBYTE_TO_INT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -7099,13 +6235,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CUBYTE_TO_INT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -7116,13 +6252,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CSHORT_TO_INT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -7133,13 +6269,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CUSHORT_TO_INT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -7150,13 +6286,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_INTEGER_TO_INT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -7167,13 +6303,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_UINTEGER_TO_INT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -7184,13 +6320,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CLONG_TO_INT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -7201,13 +6337,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CULONG_TO_INT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -7218,13 +6354,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CFLOAT_TO_INT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -7235,13 +6371,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CDOUBLE_TO_INT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -7252,13 +6388,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CPOINTER_TO_INT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -7269,13 +6405,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CCHAR_TO_INT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -7286,13 +6422,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CBOOL_TO_INT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -7303,145 +6439,145 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_BYTE_TO_LONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     clint64 value = (clint64)(stack_ptr-1)->mByteValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_UBYTE_TO_LONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     clint64 value = (clint64)(stack_ptr-1)->mUByteValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_SHORT_TO_LONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     clint64 value = (clint64)(stack_ptr-1)->mShortValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_USHORT_TO_LONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     clint64 value = (clint64)(stack_ptr-1)->mUShortValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_INT_TO_LONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     clint64 value = (clint64)(stack_ptr-1)->mIntValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_UINT_TO_LONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     clint64 value = (clint64)(stack_ptr-1)->mUIntValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_ULONG_TO_LONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     clint64 value = (clint64)(stack_ptr-1)->mULongValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_FLOAT_TO_LONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     clint64 value = (clint64)(stack_ptr-1)->mFloatValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_DOUBLE_TO_LONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     clint64 value = (clint64)(stack_ptr-1)->mDoubleValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_POINTER_TO_LONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     clint64 value = (clint64)(stack_ptr-1)->mPointerValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CHAR_TO_LONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     clint64 value = (clint64)(stack_ptr-1)->mCharValue;
 
                     (stack_ptr-1)->mLongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CBYTE_TO_LONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -7451,13 +6587,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     (stack_ptr-1)->mLongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CUBYTE_TO_LONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -7467,13 +6603,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     (stack_ptr-1)->mLongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CSHORT_TO_LONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -7483,13 +6619,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     (stack_ptr-1)->mLongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CUSHORT_TO_LONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -7499,13 +6635,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     (stack_ptr-1)->mLongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_INTEGER_TO_LONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -7515,13 +6651,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     (stack_ptr-1)->mLongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_UINTEGER_TO_LONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -7531,13 +6667,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     (stack_ptr-1)->mLongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CLONG_TO_LONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -7547,13 +6683,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     (stack_ptr-1)->mLongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CULONG_TO_LONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -7563,13 +6699,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     (stack_ptr-1)->mLongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CFLOAT_TO_LONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -7579,13 +6715,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     (stack_ptr-1)->mLongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CDOUBLE_TO_LONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -7595,13 +6731,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     (stack_ptr-1)->mLongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CPOINTER_TO_LONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -7611,13 +6747,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     (stack_ptr-1)->mLongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CCHAR_TO_LONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -7627,13 +6763,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     (stack_ptr-1)->mLongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CBOOL_TO_LONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -7643,155 +6779,155 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     (stack_ptr-1)->mLongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_BYTE_TO_UBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned char value = (unsigned char)(stack_ptr-1)->mByteValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_SHORT_TO_UBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned char value = (unsigned char)(stack_ptr-1)->mShortValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_USHORT_TO_UBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned char value = (unsigned char)(stack_ptr-1)->mUShortValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_INT_TO_UBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned char value = (unsigned char)(stack_ptr-1)->mIntValue;
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_UINT_TO_UBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned char value = (unsigned char)(stack_ptr-1)->mUIntValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_LONG_TO_UBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned char value = (unsigned char)(stack_ptr-1)->mLongValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_ULONG_TO_UBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned char value = (unsigned char)(stack_ptr-1)->mULongValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_FLOAT_TO_UBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned char value = (unsigned char)(stack_ptr-1)->mFloatValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_DOUBLE_TO_UBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned char value = (unsigned char)(stack_ptr-1)->mDoubleValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_POINTER_TO_UBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned char value = (unsigned char)(stack_ptr-1)->mPointerValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CHAR_TO_UBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned char value = (unsigned char)(stack_ptr-1)->mCharValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CBYTE_TO_UBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -7802,13 +6938,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CUBYTE_TO_UBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -7819,13 +6955,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CSHORT_TO_UBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -7836,13 +6972,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CUSHORT_TO_UBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -7853,13 +6989,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_INTEGER_TO_UBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -7870,13 +7006,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_UINTEGER_TO_UBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -7887,13 +7023,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CLONG_TO_UBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -7904,13 +7040,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CULONG_TO_UBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -7921,13 +7057,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CFLOAT_TO_UBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -7938,13 +7074,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CDOUBLE_TO_UBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -7955,13 +7091,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CPOINTER_TO_UBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -7972,13 +7108,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CCHAR_TO_UBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -7989,13 +7125,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CBOOL_TO_UBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -8006,156 +7142,156 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_BYTE_TO_USHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned short value = (unsigned short)(stack_ptr-1)->mByteValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_UBYTE_TO_USHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned short value = (unsigned short)(stack_ptr-1)->mUByteValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_SHORT_TO_USHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned short value = (unsigned short)(stack_ptr-1)->mShortValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_INT_TO_USHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned short value = (unsigned short)(stack_ptr-1)->mIntValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_UINT_TO_USHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned short value = (unsigned short)(stack_ptr-1)->mUIntValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_LONG_TO_USHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned short value = (unsigned short)(stack_ptr-1)->mLongValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_ULONG_TO_USHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned short value = (unsigned short)(stack_ptr-1)->mULongValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_FLOAT_TO_USHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned short value = (unsigned short)(stack_ptr-1)->mFloatValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_DOUBLE_TO_USHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned short value = (unsigned short)(stack_ptr-1)->mDoubleValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_POINTER_TO_USHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned short value = (unsigned short)(stack_ptr-1)->mPointerValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_CHAR_TO_USHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned short value = (unsigned short)(stack_ptr-1)->mCharValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CBYTE_TO_USHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -8166,13 +7302,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CUBYTE_TO_USHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -8183,13 +7319,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CSHORT_TO_USHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -8200,13 +7336,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CUSHORT_TO_USHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -8217,13 +7353,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_INTEGER_TO_USHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -8234,13 +7370,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_UINTEGER_TO_USHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -8251,13 +7387,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CLONG_TO_USHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -8268,13 +7404,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CULONG_TO_USHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -8285,13 +7421,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CFLOAT_TO_USHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -8302,13 +7438,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CDOUBLE_TO_USHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -8319,13 +7455,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CPOINTER_TO_USHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -8336,13 +7472,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CCHAR_TO_USHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -8353,13 +7489,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CBOOL_TO_USHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -8370,158 +7506,158 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUShortValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
 
             case OP_BYTE_TO_UINT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned int value = (unsigned int)(stack_ptr-1)->mByteValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_UBYTE_TO_UINT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned int value = (unsigned int)(stack_ptr-1)->mUByteValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_SHORT_TO_UINT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned int value = (unsigned int)(stack_ptr-1)->mShortValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_USHORT_TO_UINT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned int value = (unsigned int)(stack_ptr-1)->mUShortValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_INT_TO_UINT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned int value = (unsigned int)(stack_ptr-1)->mIntValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
 
             case OP_LONG_TO_UINT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned int value = (unsigned int)(stack_ptr-1)->mLongValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_ULONG_TO_UINT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned int value = (unsigned int)(stack_ptr-1)->mULongValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_FLOAT_TO_UINT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned int value = (unsigned int)(stack_ptr-1)->mFloatValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_DOUBLE_TO_UINT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned int value = (unsigned int)(stack_ptr-1)->mDoubleValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_POINTER_TO_UINT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned int value = (unsigned int)(stack_ptr-1)->mPointerValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CHAR_TO_UINT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned int value = (unsigned int)(stack_ptr-1)->mCharValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CBYTE_TO_UINT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -8532,13 +7668,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CUBYTE_TO_UINT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -8549,13 +7685,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CSHORT_TO_UINT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -8566,13 +7702,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CUSHORT_TO_UINT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -8583,13 +7719,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_INTEGER_TO_UINT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -8600,13 +7736,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_UINTEGER_TO_UINT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -8617,13 +7753,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CLONG_TO_UINT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -8634,13 +7770,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CULONG_TO_UINT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -8651,13 +7787,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CFLOAT_TO_UINT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -8668,13 +7804,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CDOUBLE_TO_UINT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -8685,13 +7821,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CPOINTER_TO_UINT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -8702,13 +7838,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CCHAR_TO_UINT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -8719,13 +7855,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CBOOL_TO_UINT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -8736,7 +7872,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUIntValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
@@ -8744,140 +7880,140 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
             case OP_BYTE_TO_ULONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned clint64 value = (unsigned clint64)(stack_ptr-1)->mByteValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_UBYTE_TO_ULONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned clint64 value = (unsigned clint64)(stack_ptr-1)->mUByteValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_SHORT_TO_ULONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned clint64 value = (unsigned clint64)(stack_ptr-1)->mShortValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_USHORT_TO_ULONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned clint64 value = (unsigned clint64)(stack_ptr-1)->mUShortValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_INT_TO_ULONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned clint64 value = (unsigned clint64)(stack_ptr-1)->mIntValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_UINT_TO_ULONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned clint64 value = (unsigned clint64)(stack_ptr-1)->mUIntValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_LONG_TO_ULONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned clint64 value = (unsigned clint64)(stack_ptr-1)->mLongValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_FLOAT_TO_ULONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned clint64 value = (unsigned clint64)(stack_ptr-1)->mFloatValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_DOUBLE_TO_ULONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned clint64 value = (unsigned clint64)(stack_ptr-1)->mDoubleValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_POINTER_TO_ULONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned clint64 value = (unsigned clint64)(stack_ptr-1)->mPointerValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CHAR_TO_ULONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned clint64 value = (unsigned clint64)(stack_ptr-1)->mCharValue;
 
                     (stack_ptr-1)->mULongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
 
             case OP_CBYTE_TO_ULONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -8887,13 +8023,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     (stack_ptr-1)->mULongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CUBYTE_TO_ULONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -8903,13 +8039,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     (stack_ptr-1)->mULongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CSHORT_TO_ULONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -8919,13 +8055,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     (stack_ptr-1)->mULongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CUSHORT_TO_ULONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -8935,13 +8071,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     (stack_ptr-1)->mULongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_INTEGER_TO_ULONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -8951,13 +8087,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     (stack_ptr-1)->mULongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_UINTEGER_TO_ULONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -8967,13 +8103,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     (stack_ptr-1)->mULongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CLONG_TO_ULONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -8983,13 +8119,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     (stack_ptr-1)->mULongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CULONG_TO_ULONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -8999,13 +8135,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     (stack_ptr-1)->mULongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CFLOAT_TO_ULONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -9015,13 +8151,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     (stack_ptr-1)->mULongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CDOUBLE_TO_ULONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -9031,13 +8167,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     (stack_ptr-1)->mULongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CPOINTER_TO_ULONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -9047,13 +8183,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     (stack_ptr-1)->mULongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CCHAR_TO_ULONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -9063,13 +8199,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     (stack_ptr-1)->mULongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CBOOL_TO_ULONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -9079,145 +8215,145 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     (stack_ptr-1)->mULongValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
 
             case OP_BYTE_TO_FLOAT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     float value = (float)(stack_ptr-1)->mByteValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mFloatValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_UBYTE_TO_FLOAT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     float value = (float)(stack_ptr-1)->mUByteValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mFloatValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_SHORT_TO_FLOAT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     float value = (float)(stack_ptr-1)->mShortValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mFloatValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_USHORT_TO_FLOAT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     float value = (float)(stack_ptr-1)->mUShortValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mFloatValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_INT_TO_FLOAT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     float value = (float)(stack_ptr-1)->mIntValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mFloatValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_UINT_TO_FLOAT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     float value = (float)(stack_ptr-1)->mUIntValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mFloatValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_LONG_TO_FLOAT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     float value = (float)(stack_ptr-1)->mLongValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mFloatValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_ULONG_TO_FLOAT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     float value = (float)(stack_ptr-1)->mULongValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mFloatValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_DOUBLE_TO_FLOAT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     float value = (float)(stack_ptr-1)->mDoubleValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mFloatValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_CHAR_TO_FLOAT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     float value = (float)(stack_ptr-1)->mCharValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mFloatValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
 
             case OP_CBYTE_TO_FLOAT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -9228,13 +8364,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mFloatValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CUBYTE_TO_FLOAT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -9245,13 +8381,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mFloatValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CSHORT_TO_FLOAT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -9262,13 +8398,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mFloatValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CUSHORT_TO_FLOAT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -9279,13 +8415,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mFloatValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_INTEGER_TO_FLOAT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -9296,13 +8432,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mFloatValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_UINTEGER_TO_FLOAT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -9313,13 +8449,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mFloatValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CLONG_TO_FLOAT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -9330,13 +8466,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mFloatValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CULONG_TO_FLOAT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -9347,13 +8483,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mFloatValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CFLOAT_TO_FLOAT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -9364,13 +8500,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mFloatValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CDOUBLE_TO_FLOAT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -9381,14 +8517,14 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mFloatValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
 
             case OP_CCHAR_TO_FLOAT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -9399,13 +8535,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mFloatValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CBOOL_TO_FLOAT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -9416,7 +8552,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mFloatValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
@@ -9424,128 +8560,128 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
             case OP_BYTE_TO_DOUBLE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     double value = (double)(stack_ptr-1)->mByteValue;
 
                     (stack_ptr-1)->mDoubleValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_UBYTE_TO_DOUBLE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     double value = (double)(stack_ptr-1)->mUByteValue;
 
                     (stack_ptr-1)->mDoubleValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_SHORT_TO_DOUBLE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     double value = (double)(stack_ptr-1)->mShortValue;
 
                     (stack_ptr-1)->mDoubleValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_USHORT_TO_DOUBLE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     double value = (double)(stack_ptr-1)->mUShortValue;
 
                     (stack_ptr-1)->mDoubleValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_INT_TO_DOUBLE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     double value = (double)(stack_ptr-1)->mIntValue;
 
                     (stack_ptr-1)->mDoubleValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_UINT_TO_DOUBLE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     double value = (double)(stack_ptr-1)->mUIntValue;
 
                     (stack_ptr-1)->mDoubleValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_LONG_TO_DOUBLE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     double value = (double)(stack_ptr-1)->mLongValue;
 
                     (stack_ptr-1)->mDoubleValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_ULONG_TO_DOUBLE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     double value = (double)(stack_ptr-1)->mULongValue;
 
                     (stack_ptr-1)->mDoubleValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_FLOAT_TO_DOUBLE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     double value = (double)(stack_ptr-1)->mFloatValue;
 
                     (stack_ptr-1)->mDoubleValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_CHAR_TO_DOUBLE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     double value = (double)(stack_ptr-1)->mCharValue;
 
                     (stack_ptr-1)->mDoubleValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
 
             case OP_CBYTE_TO_DOUBLE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -9555,13 +8691,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     (stack_ptr-1)->mDoubleValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CUBYTE_TO_DOUBLE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -9571,13 +8707,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     (stack_ptr-1)->mDoubleValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CSHORT_TO_DOUBLE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -9587,13 +8723,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     (stack_ptr-1)->mDoubleValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CUSHORT_TO_DOUBLE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -9603,13 +8739,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     (stack_ptr-1)->mDoubleValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_INTEGER_TO_DOUBLE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -9619,13 +8755,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     (stack_ptr-1)->mDoubleValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_UINTEGER_TO_DOUBLE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -9635,13 +8771,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     (stack_ptr-1)->mDoubleValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CLONG_TO_DOUBLE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -9651,13 +8787,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     (stack_ptr-1)->mDoubleValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CULONG_TO_DOUBLE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -9667,13 +8803,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     (stack_ptr-1)->mDoubleValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CFLOAT_TO_DOUBLE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -9683,13 +8819,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     (stack_ptr-1)->mDoubleValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CDOUBLE_TO_DOUBLE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -9699,13 +8835,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     (stack_ptr-1)->mDoubleValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CCHAR_TO_DOUBLE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -9715,13 +8851,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     (stack_ptr-1)->mDoubleValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CBOOL_TO_DOUBLE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -9731,275 +8867,275 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     (stack_ptr-1)->mDoubleValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_BYTE_TO_POINTER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char* value = (char*)(stack_ptr-1)->mByteValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mPointerValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_UBYTE_TO_POINTER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char* value = (char*)(stack_ptr-1)->mUByteValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mPointerValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_SHORT_TO_POINTER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char* value = (char*)(stack_ptr-1)->mShortValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mPointerValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_USHORT_TO_POINTER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char* value = (char*)(stack_ptr-1)->mUShortValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mPointerValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_INT_TO_POINTER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char* value = (char*)(stack_ptr-1)->mIntValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mPointerValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_UINT_TO_POINTER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char* value = (char*)(stack_ptr-1)->mUIntValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mPointerValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_LONG_TO_POINTER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char* value = (char*)(stack_ptr-1)->mLongValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mPointerValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_ULONG_TO_POINTER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char* value = (char*)(stack_ptr-1)->mULongValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mPointerValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_CHAR_TO_POINTER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char* value = (char*)(stack_ptr-1)->mCharValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mPointerValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_BYTE_TO_CHAR_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     wchar_t value = (wchar_t)(stack_ptr-1)->mByteValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_UBYTE_TO_CHAR_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     wchar_t value = (wchar_t)(stack_ptr-1)->mUByteValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_SHORT_TO_CHAR_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     wchar_t value = (wchar_t)(stack_ptr-1)->mShortValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_USHORT_TO_CHAR_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     wchar_t value = (wchar_t)(stack_ptr-1)->mUShortValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
 
             case OP_INT_TO_CHAR_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     wchar_t value = (wchar_t)(stack_ptr-1)->mIntValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_UINT_TO_CHAR_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     wchar_t value = (wchar_t)(stack_ptr-1)->mUIntValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_LONG_TO_CHAR_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     wchar_t value = (wchar_t)(stack_ptr-1)->mLongValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_ULONG_TO_CHAR_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     wchar_t value = (wchar_t)(stack_ptr-1)->mULongValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
 
             case OP_FLOAT_TO_CHAR_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     wchar_t value = (wchar_t)(stack_ptr-1)->mFloatValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_DOUBLE_TO_CHAR_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     wchar_t value = (wchar_t)(stack_ptr-1)->mDoubleValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_POINTER_TO_CHAR_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     wchar_t value = (wchar_t)(stack_ptr-1)->mPointerValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CBYTE_TO_CHAR_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -10010,13 +9146,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CUBYTE_TO_CHAR_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -10027,13 +9163,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CSHORT_TO_CHAR_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -10044,13 +9180,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CUSHORT_TO_CHAR_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -10061,13 +9197,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_INTEGER_TO_CHAR_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -10078,13 +9214,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_UINTEGER_TO_CHAR_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -10095,13 +9231,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CLONG_TO_CHAR_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -10112,13 +9248,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CULONG_TO_CHAR_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -10129,13 +9265,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CFLOAT_TO_CHAR_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -10146,13 +9282,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CDOUBLE_TO_CHAR_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -10163,13 +9299,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CPOINTER_TO_CHAR_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -10180,13 +9316,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CCHAR_TO_CHAR_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -10197,13 +9333,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CBOOL_TO_CHAR_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -10214,13 +9350,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mCharValue = value;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_BYTE_TO_STRING_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char value = (stack_ptr-1)->mCharValue;
 
@@ -10232,13 +9368,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = str;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_SHORT_TO_STRING_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     short value = (stack_ptr-1)->mShortValue;
 
@@ -10250,13 +9386,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = str;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_INT_TO_STRING_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     int value = (stack_ptr-1)->mIntValue;
 
@@ -10268,13 +9404,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = str;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_LONG_TO_STRING_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     clint64 value = (stack_ptr-1)->mLongValue;
 
@@ -10286,13 +9422,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = str;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_UBYTE_TO_STRING_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned char value = (stack_ptr-1)->mUByteValue;
 
@@ -10304,13 +9440,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = str;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_USHORT_TO_STRING_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned short value = (stack_ptr-1)->mUShortValue;
 
@@ -10322,13 +9458,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = str;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_UINT_TO_STRING_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned int value = (stack_ptr-1)->mUIntValue;
 
@@ -10340,13 +9476,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = str;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_ULONG_TO_STRING_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
@@ -10358,13 +9494,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = str;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_FLOAT_TO_STRING_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     float value = (stack_ptr-1)->mFloatValue;
 
@@ -10376,13 +9512,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = str;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_DOUBLE_TO_STRING_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     double value = (stack_ptr-1)->mDoubleValue;
 
@@ -10394,13 +9530,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = str;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_BOOL_TO_STRING_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     BOOL value = (stack_ptr-1)->mBoolValue;
 
@@ -10417,13 +9553,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = str;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_REGEX_TO_STRING_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject regex = (stack_ptr-1)->mObjectValue;
 
@@ -10434,13 +9570,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = str;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_POINTER_TO_STRING_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char* value = (stack_ptr-1)->mPointerValue;
 
@@ -10452,13 +9588,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = str;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CHAR_TO_STRING_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     wchar_t value = (stack_ptr-1)->mCharValue;
 
@@ -10470,13 +9606,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = str;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_BYTE_TO_INTEGER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char value = (stack_ptr-1)->mByteValue;
 
@@ -10485,13 +9621,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_UBYTE_TO_INTEGER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned char value = (stack_ptr-1)->mUByteValue;
 
@@ -10500,13 +9636,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_SHORT_TO_INTEGER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     short value = (stack_ptr-1)->mShortValue;
 
@@ -10515,13 +9651,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_USHORT_TO_INTEGER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned short value = (stack_ptr-1)->mUShortValue;
 
@@ -10530,13 +9666,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_INT_TO_INTEGER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     int value = (stack_ptr-1)->mIntValue;
 
@@ -10545,13 +9681,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_UINT_TO_INTEGER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned int value = (stack_ptr-1)->mUIntValue;
 
@@ -10560,13 +9696,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_LONG_TO_INTEGER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     clint64 value = (stack_ptr-1)->mLongValue;
 
@@ -10575,13 +9711,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_ULONG_TO_INTEGER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
@@ -10590,13 +9726,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_FLOAT_TO_INTEGER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     float value = (stack_ptr-1)->mFloatValue;
 
@@ -10605,13 +9741,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_DOUBLE_TO_INTEGER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     double value = (stack_ptr-1)->mDoubleValue;
 
@@ -10620,13 +9756,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_CHAR_TO_INTEGER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     wchar_t value = (stack_ptr-1)->mCharValue;
 
@@ -10635,13 +9771,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_POINTER_TO_INTEGER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char* value = (stack_ptr-1)->mPointerValue;
 
@@ -10650,13 +9786,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_BOOL_TO_INTEGER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     BOOL value = (stack_ptr-1)->mBoolValue;
 
@@ -10665,13 +9801,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_BYTE_TO_UINTEGER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char value = (stack_ptr-1)->mByteValue;
 
@@ -10680,13 +9816,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_UBYTE_TO_UINTEGER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned char value = (stack_ptr-1)->mUByteValue;
 
@@ -10695,13 +9831,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_SHORT_TO_UINTEGER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     short value = (stack_ptr-1)->mShortValue;
 
@@ -10710,13 +9846,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_USHORT_TO_UINTEGER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned short value = (stack_ptr-1)->mUShortValue;
 
@@ -10725,13 +9861,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_INT_TO_UINTEGER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     int value = (stack_ptr-1)->mIntValue;
 
@@ -10740,13 +9876,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_UINT_TO_UINTEGER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned int value = (stack_ptr-1)->mUIntValue;
 
@@ -10755,13 +9891,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_LONG_TO_UINTEGER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     clint64 value = (stack_ptr-1)->mLongValue;
 
@@ -10770,13 +9906,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_ULONG_TO_UINTEGER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
@@ -10785,13 +9921,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_FLOAT_TO_UINTEGER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     float value = (stack_ptr-1)->mFloatValue;
 
@@ -10800,13 +9936,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_DOUBLE_TO_UINTEGER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     double value = (stack_ptr-1)->mDoubleValue;
 
@@ -10815,13 +9951,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_CHAR_TO_UINTEGER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     wchar_t value = (stack_ptr-1)->mCharValue;
 
@@ -10830,13 +9966,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_POINTER_TO_UINTEGER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char* value = (stack_ptr-1)->mPointerValue;
 
@@ -10845,13 +9981,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_BOOL_TO_UINTEGER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     BOOL value = (stack_ptr-1)->mBoolValue;
 
@@ -10860,13 +9996,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_BYTE_TO_CBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char value = (stack_ptr-1)->mByteValue;
 
@@ -10875,13 +10011,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_UBYTE_TO_CBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned char value = (stack_ptr-1)->mUByteValue;
 
@@ -10890,13 +10026,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_SHORT_TO_CBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     short value = (stack_ptr-1)->mShortValue;
 
@@ -10905,13 +10041,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_USHORT_TO_CBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned short value = (stack_ptr-1)->mUShortValue;
 
@@ -10920,13 +10056,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_INT_TO_CBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     int value = (stack_ptr-1)->mIntValue;
 
@@ -10935,13 +10071,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_UINT_TO_CBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned int value = (stack_ptr-1)->mUIntValue;
 
@@ -10950,13 +10086,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_LONG_TO_CBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     clint64 value = (stack_ptr-1)->mLongValue;
 
@@ -10965,13 +10101,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_ULONG_TO_CBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
@@ -10980,13 +10116,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_FLOAT_TO_CBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     float value = (stack_ptr-1)->mFloatValue;
 
@@ -10995,13 +10131,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_DOUBLE_TO_CBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     double value = (stack_ptr-1)->mDoubleValue;
 
@@ -11010,13 +10146,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_CHAR_TO_CBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     wchar_t value = (stack_ptr-1)->mCharValue;
 
@@ -11025,13 +10161,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_POINTER_TO_CBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char* value = (stack_ptr-1)->mPointerValue;
 
@@ -11040,13 +10176,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_BOOL_TO_CBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     BOOL value = (stack_ptr-1)->mBoolValue;
 
@@ -11055,13 +10191,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_BYTE_TO_CUBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char value = (stack_ptr-1)->mByteValue;
 
@@ -11070,13 +10206,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_UBYTE_TO_CUBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned char value = (stack_ptr-1)->mUByteValue;
 
@@ -11085,13 +10221,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_SHORT_TO_CUBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     short value = (stack_ptr-1)->mShortValue;
 
@@ -11100,13 +10236,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_USHORT_TO_CUBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned short value = (stack_ptr-1)->mUShortValue;
 
@@ -11115,13 +10251,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_INT_TO_CUBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     int value = (stack_ptr-1)->mIntValue;
 
@@ -11130,13 +10266,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_UINT_TO_CUBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned int value = (stack_ptr-1)->mUIntValue;
 
@@ -11145,13 +10281,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_LONG_TO_CUBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     clint64 value = (stack_ptr-1)->mLongValue;
 
@@ -11160,13 +10296,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_ULONG_TO_CUBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
@@ -11175,13 +10311,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_FLOAT_TO_CUBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     float value = (stack_ptr-1)->mFloatValue;
 
@@ -11190,13 +10326,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_DOUBLE_TO_CUBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     double value = (stack_ptr-1)->mDoubleValue;
 
@@ -11205,13 +10341,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_CHAR_TO_CUBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     wchar_t value = (stack_ptr-1)->mCharValue;
 
@@ -11220,13 +10356,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_POINTER_TO_CUBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char* value = (stack_ptr-1)->mPointerValue;
 
@@ -11235,13 +10371,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_BOOL_TO_CUBYTE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     BOOL value = (stack_ptr-1)->mBoolValue;
 
@@ -11250,13 +10386,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_BYTE_TO_CSHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char value = (stack_ptr-1)->mByteValue;
 
@@ -11265,13 +10401,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_UBYTE_TO_CSHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned char value = (stack_ptr-1)->mUByteValue;
 
@@ -11280,13 +10416,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_SHORT_TO_CSHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     short value = (stack_ptr-1)->mShortValue;
 
@@ -11295,13 +10431,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_USHORT_TO_CSHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned short value = (stack_ptr-1)->mUShortValue;
 
@@ -11310,13 +10446,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_INT_TO_CSHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     int value = (stack_ptr-1)->mIntValue;
 
@@ -11325,13 +10461,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_UINT_TO_CSHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned int value = (stack_ptr-1)->mUIntValue;
 
@@ -11340,13 +10476,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_LONG_TO_CSHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     clint64 value = (stack_ptr-1)->mLongValue;
 
@@ -11355,13 +10491,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_ULONG_TO_CSHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
@@ -11370,13 +10506,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_FLOAT_TO_CSHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     float value = (stack_ptr-1)->mFloatValue;
 
@@ -11385,13 +10521,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_DOUBLE_TO_CSHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     double value = (stack_ptr-1)->mDoubleValue;
 
@@ -11400,13 +10536,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_CHAR_TO_CSHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     wchar_t value = (stack_ptr-1)->mCharValue;
 
@@ -11415,13 +10551,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_POINTER_TO_CSHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char* value = (stack_ptr-1)->mPointerValue;
 
@@ -11430,13 +10566,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_BOOL_TO_CSHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     BOOL value = (stack_ptr-1)->mBoolValue;
 
@@ -11445,13 +10581,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_BYTE_TO_CUSHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char value = (stack_ptr-1)->mByteValue;
 
@@ -11460,13 +10596,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_UBYTE_TO_CUSHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned char value = (stack_ptr-1)->mUByteValue;
 
@@ -11475,13 +10611,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_SHORT_TO_CUSHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     short value = (stack_ptr-1)->mShortValue;
 
@@ -11490,13 +10626,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_USHORT_TO_CUSHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned short value = (stack_ptr-1)->mUShortValue;
 
@@ -11505,13 +10641,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_INT_TO_CUSHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     int value = (stack_ptr-1)->mIntValue;
 
@@ -11520,13 +10656,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_UINT_TO_CUSHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned int value = (stack_ptr-1)->mUIntValue;
 
@@ -11535,13 +10671,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_LONG_TO_CUSHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     clint64 value = (stack_ptr-1)->mLongValue;
 
@@ -11550,13 +10686,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_ULONG_TO_CUSHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
@@ -11565,13 +10701,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_FLOAT_TO_CUSHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     float value = (stack_ptr-1)->mFloatValue;
 
@@ -11580,13 +10716,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_DOUBLE_TO_CUSHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     double value = (stack_ptr-1)->mDoubleValue;
 
@@ -11595,13 +10731,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_CHAR_TO_CUSHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     wchar_t value = (stack_ptr-1)->mCharValue;
 
@@ -11610,13 +10746,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_POINTER_TO_CUSHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char* value = (stack_ptr-1)->mPointerValue;
 
@@ -11625,13 +10761,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_BOOL_TO_CUSHORT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     BOOL value = (stack_ptr-1)->mBoolValue;
 
@@ -11640,13 +10776,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_BYTE_TO_CLONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char value = (stack_ptr-1)->mByteValue;
 
@@ -11655,13 +10791,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_UBYTE_TO_CLONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned char value = (stack_ptr-1)->mUByteValue;
 
@@ -11670,13 +10806,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_SHORT_TO_CLONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     short value = (stack_ptr-1)->mShortValue;
 
@@ -11685,13 +10821,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_USHORT_TO_CLONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned short value = (stack_ptr-1)->mUShortValue;
 
@@ -11700,13 +10836,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_INT_TO_CLONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     int value = (stack_ptr-1)->mIntValue;
 
@@ -11715,13 +10851,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_UINT_TO_CLONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned int value = (stack_ptr-1)->mUIntValue;
 
@@ -11730,13 +10866,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_LONG_TO_CLONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     clint64 value = (stack_ptr-1)->mLongValue;
 
@@ -11745,13 +10881,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_ULONG_TO_CLONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
@@ -11760,13 +10896,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_FLOAT_TO_CLONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     float value = (stack_ptr-1)->mFloatValue;
 
@@ -11775,13 +10911,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_DOUBLE_TO_CLONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     double value = (stack_ptr-1)->mDoubleValue;
 
@@ -11790,13 +10926,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_CHAR_TO_CLONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     wchar_t value = (stack_ptr-1)->mCharValue;
 
@@ -11805,13 +10941,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_POINTER_TO_CLONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char* value = (stack_ptr-1)->mPointerValue;
 
@@ -11820,13 +10956,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_BOOL_TO_CLONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     BOOL value = (stack_ptr-1)->mBoolValue;
 
@@ -11835,13 +10971,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_BYTE_TO_CULONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char value = (stack_ptr-1)->mByteValue;
 
@@ -11850,13 +10986,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_UBYTE_TO_CULONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned char value = (stack_ptr-1)->mUByteValue;
 
@@ -11865,13 +11001,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_SHORT_TO_CULONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     short value = (stack_ptr-1)->mShortValue;
 
@@ -11880,13 +11016,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_USHORT_TO_CULONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned short value = (stack_ptr-1)->mUShortValue;
 
@@ -11895,13 +11031,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_INT_TO_CULONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     int value = (stack_ptr-1)->mIntValue;
 
@@ -11910,13 +11046,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_UINT_TO_CULONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned int value = (stack_ptr-1)->mUIntValue;
 
@@ -11925,13 +11061,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_LONG_TO_CULONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     clint64 value = (stack_ptr-1)->mLongValue;
 
@@ -11940,13 +11076,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_ULONG_TO_CULONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
@@ -11955,13 +11091,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_FLOAT_TO_CULONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     float value = (stack_ptr-1)->mFloatValue;
 
@@ -11970,13 +11106,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_DOUBLE_TO_CULONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     double value = (stack_ptr-1)->mDoubleValue;
 
@@ -11985,13 +11121,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_CHAR_TO_CULONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     wchar_t value = (stack_ptr-1)->mCharValue;
 
@@ -12000,13 +11136,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_POINTER_TO_CULONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char* value = (stack_ptr-1)->mPointerValue;
 
@@ -12015,13 +11151,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_BOOL_TO_CULONG_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     BOOL value = (stack_ptr-1)->mBoolValue;
 
@@ -12030,13 +11166,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_BYTE_TO_CFLOAT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char value = (stack_ptr-1)->mByteValue;
 
@@ -12045,13 +11181,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_UBYTE_TO_CFLOAT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned char value = (stack_ptr-1)->mUByteValue;
 
@@ -12060,13 +11196,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_SHORT_TO_CFLOAT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     short value = (stack_ptr-1)->mShortValue;
 
@@ -12075,13 +11211,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_USHORT_TO_CFLOAT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned short value = (stack_ptr-1)->mUShortValue;
 
@@ -12090,13 +11226,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_INT_TO_CFLOAT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     int value = (stack_ptr-1)->mIntValue;
 
@@ -12105,13 +11241,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_UINT_TO_CFLOAT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned int value = (stack_ptr-1)->mUIntValue;
 
@@ -12120,13 +11256,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_LONG_TO_CFLOAT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     clint64 value = (stack_ptr-1)->mLongValue;
 
@@ -12135,13 +11271,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_ULONG_TO_CFLOAT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
@@ -12150,13 +11286,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_FLOAT_TO_CFLOAT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     float value = (stack_ptr-1)->mFloatValue;
 
@@ -12165,13 +11301,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_DOUBLE_TO_CFLOAT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     double value = (stack_ptr-1)->mDoubleValue;
 
@@ -12180,13 +11316,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_CHAR_TO_CFLOAT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     wchar_t value = (stack_ptr-1)->mCharValue;
 
@@ -12195,13 +11331,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_BOOL_TO_CFLOAT_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     BOOL value = (stack_ptr-1)->mBoolValue;
 
@@ -12210,13 +11346,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_BYTE_TO_CDOUBLE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char value = (stack_ptr-1)->mByteValue;
 
@@ -12225,13 +11361,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_UBYTE_TO_CDOUBLE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned char value = (stack_ptr-1)->mUByteValue;
 
@@ -12240,13 +11376,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_SHORT_TO_CDOUBLE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     short value = (stack_ptr-1)->mShortValue;
 
@@ -12255,13 +11391,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_USHORT_TO_CDOUBLE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned short value = (stack_ptr-1)->mUShortValue;
 
@@ -12270,13 +11406,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_INT_TO_CDOUBLE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     int value = (stack_ptr-1)->mIntValue;
 
@@ -12285,13 +11421,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_UINT_TO_CDOUBLE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned int value = (stack_ptr-1)->mUIntValue;
 
@@ -12300,13 +11436,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_LONG_TO_CDOUBLE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     clint64 value = (stack_ptr-1)->mLongValue;
 
@@ -12315,13 +11451,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_ULONG_TO_CDOUBLE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
@@ -12330,13 +11466,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_FLOAT_TO_CDOUBLE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     float value = (stack_ptr-1)->mFloatValue;
 
@@ -12345,13 +11481,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_DOUBLE_TO_CDOUBLE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     double value = (stack_ptr-1)->mDoubleValue;
 
@@ -12360,13 +11496,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_CHAR_TO_CDOUBLE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     wchar_t value = (stack_ptr-1)->mCharValue;
 
@@ -12375,13 +11511,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_BOOL_TO_CDOUBLE_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     BOOL value = (stack_ptr-1)->mBoolValue;
 
@@ -12390,13 +11526,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_BYTE_TO_CPOINTER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char value = (stack_ptr-1)->mByteValue;
 
@@ -12405,13 +11541,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_UBYTE_TO_CPOINTER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned char value = (stack_ptr-1)->mUByteValue;
 
@@ -12420,13 +11556,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_SHORT_TO_CPOINTER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     short value = (stack_ptr-1)->mShortValue;
 
@@ -12435,13 +11571,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_USHORT_TO_CPOINTER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned short value = (stack_ptr-1)->mUShortValue;
 
@@ -12450,13 +11586,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_INT_TO_CPOINTER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     int value = (stack_ptr-1)->mIntValue;
 
@@ -12465,13 +11601,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_UINT_TO_CPOINTER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned int value = (stack_ptr-1)->mUIntValue;
 
@@ -12480,13 +11616,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_LONG_TO_CPOINTER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     clint64 value = (stack_ptr-1)->mLongValue;
 
@@ -12495,13 +11631,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_ULONG_TO_CPOINTER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
@@ -12510,14 +11646,14 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
                 
             case OP_CHAR_TO_CPOINTER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     wchar_t value = (stack_ptr-1)->mCharValue;
 
@@ -12526,13 +11662,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_POINTER_TO_CPOINTER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char* value = (stack_ptr-1)->mPointerValue;
 
@@ -12541,13 +11677,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_BOOL_TO_CPOINTER_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     BOOL value = (stack_ptr-1)->mBoolValue;
 
@@ -12556,13 +11692,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_BYTE_TO_CCHAR_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char value = (stack_ptr-1)->mByteValue;
 
@@ -12571,13 +11707,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_UBYTE_TO_CCHAR_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned char value = (stack_ptr-1)->mUByteValue;
 
@@ -12586,13 +11722,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_SHORT_TO_CCHAR_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     short value = (stack_ptr-1)->mShortValue;
 
@@ -12601,13 +11737,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_USHORT_TO_CCHAR_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned short value = (stack_ptr-1)->mUShortValue;
 
@@ -12616,13 +11752,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_INT_TO_CCHAR_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     int value = (stack_ptr-1)->mIntValue;
 
@@ -12631,13 +11767,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_UINT_TO_CCHAR_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned int value = (stack_ptr-1)->mUIntValue;
 
@@ -12646,13 +11782,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_LONG_TO_CCHAR_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     clint64 value = (stack_ptr-1)->mLongValue;
 
@@ -12661,13 +11797,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_ULONG_TO_CCHAR_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
@@ -12676,13 +11812,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_FLOAT_TO_CCHAR_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     float value = (stack_ptr-1)->mFloatValue;
 
@@ -12691,13 +11827,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_DOUBLE_TO_CCHAR_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     double value = (stack_ptr-1)->mDoubleValue;
 
@@ -12706,13 +11842,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_CHAR_TO_CCHAR_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     wchar_t value = (stack_ptr-1)->mCharValue;
 
@@ -12721,13 +11857,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_POINTER_TO_CCHAR_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char* value = (stack_ptr-1)->mPointerValue;
 
@@ -12736,13 +11872,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_BOOL_TO_CCHAR_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     BOOL value = (stack_ptr-1)->mBoolValue;
 
@@ -12751,13 +11887,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_BYTE_TO_CBOOL_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char value = (stack_ptr-1)->mByteValue;
 
@@ -12766,13 +11902,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_UBYTE_TO_CBOOL_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned char value = (stack_ptr-1)->mUByteValue;
 
@@ -12781,13 +11917,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_SHORT_TO_CBOOL_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     short value = (stack_ptr-1)->mShortValue;
 
@@ -12796,13 +11932,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_USHORT_TO_CBOOL_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned short value = (stack_ptr-1)->mUShortValue;
 
@@ -12811,13 +11947,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_INT_TO_CBOOL_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     int value = (stack_ptr-1)->mIntValue;
 
@@ -12826,13 +11962,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_UINT_TO_CBOOL_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned int value = (stack_ptr-1)->mUIntValue;
 
@@ -12841,13 +11977,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_LONG_TO_CBOOL_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     clint64 value = (stack_ptr-1)->mLongValue;
 
@@ -12856,13 +11992,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_ULONG_TO_CBOOL_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
@@ -12871,13 +12007,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_FLOAT_TO_CBOOL_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     float value = (stack_ptr-1)->mFloatValue;
 
@@ -12886,13 +12022,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_DOUBLE_TO_CBOOL_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     double value = (stack_ptr-1)->mDoubleValue;
 
@@ -12901,13 +12037,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_CHAR_TO_CBOOL_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     wchar_t value = (stack_ptr-1)->mCharValue;
 
@@ -12916,13 +12052,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_POINTER_TO_CBOOL_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     char* value = (stack_ptr-1)->mPointerValue;
 
@@ -12931,13 +12067,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
                 
             case OP_BOOL_TO_CBOOL_CAST:
                 {
-                    vm_mutex_on();
+                    
 
                     BOOL value = (stack_ptr-1)->mBoolValue;
 
@@ -12946,12 +12082,12 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_ARRAY_TO_CARRAY_CAST: {
-                vm_mutex_on();
+                
 
                 int offset = *(int*)pc;
                 pc += sizeof(int);
@@ -12961,7 +12097,6 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 sCLClass* klass = get_class_with_load_and_initialize(class_name);
 
                 if(klass == NULL) {
-                    vm_mutex_off();
                     entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(10)");
                     remove_stack_to_stack_list(stack_id);
                     return FALSE;
@@ -13013,13 +12148,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                 stack_ptr->mObjectValue = new_array;
                 stack_ptr++;
 
-                vm_mutex_off();
+                
                 }
                 break;
                 
             case OP_GET_ARRAY_LENGTH:
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject array = (stack_ptr-1)->mObjectValue;
                     sCLObject* array_data = CLOBJECT(array);
@@ -13029,13 +12164,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     stack_ptr->mIntValue = array_data->mArrayNum;
                     stack_ptr++;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_GET_REGEX_GLOBAL :
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject regex = (stack_ptr-1)->mObjectValue;
                     sRegexObject* regex_object = CLREGEX(regex);
@@ -13045,13 +12180,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     stack_ptr->mBoolValue = regex_object->mGlobal;
                     stack_ptr++;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_GET_REGEX_IGNORE_CASE :
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject regex = (stack_ptr-1)->mObjectValue;
                     sRegexObject* regex_object = CLREGEX(regex);
@@ -13061,13 +12196,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     stack_ptr->mBoolValue = regex_object->mIgnoreCase;
                     stack_ptr++;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_GET_REGEX_MULTILINE :
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject regex = (stack_ptr-1)->mObjectValue;
                     sRegexObject* regex_object = CLREGEX(regex);
@@ -13077,13 +12212,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     stack_ptr->mBoolValue = regex_object->mMultiline;
                     stack_ptr++;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_GET_REGEX_EXTENDED :
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject regex = (stack_ptr-1)->mObjectValue;
                     sRegexObject* regex_object = CLREGEX(regex);
@@ -13093,13 +12228,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     stack_ptr->mBoolValue = regex_object->mExtended;
                     stack_ptr++;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_GET_REGEX_DOTALL :
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject regex = (stack_ptr-1)->mObjectValue;
                     sRegexObject* regex_object = CLREGEX(regex);
@@ -13109,13 +12244,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     stack_ptr->mBoolValue = regex_object->mDotAll;
                     stack_ptr++;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_GET_REGEX_ANCHORED :
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject regex = (stack_ptr-1)->mObjectValue;
                     sRegexObject* regex_object = CLREGEX(regex);
@@ -13125,13 +12260,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     stack_ptr->mBoolValue = regex_object->mAnchored;
                     stack_ptr++;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_GET_REGEX_DOLLAR_ENDONLY :
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject regex = (stack_ptr-1)->mObjectValue;
                     sRegexObject* regex_object = CLREGEX(regex);
@@ -13141,13 +12276,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     stack_ptr->mBoolValue = regex_object->mDollarEndOnly;
                     stack_ptr++;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_GET_REGEX_UNGREEDY :
                 {
-                    vm_mutex_on();
+                    
 
                     CLObject regex = (stack_ptr-1)->mObjectValue;
                     sRegexObject* regex_object = CLREGEX(regex);
@@ -13157,13 +12292,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     stack_ptr->mBoolValue = regex_object->mUngreedy;
                     stack_ptr++;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CHAR_UPPERCASE:
                 {
-                    vm_mutex_on();
+                    
 
                     wchar_t c = (stack_ptr-1)->mCharValue;
 
@@ -13175,13 +12310,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;              // zero clear for jit
                     (stack_ptr-1)->mCharValue = result;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CHAR_LOWERCASE:
                 {
-                    vm_mutex_on();
+                    
 
                     wchar_t c = (stack_ptr-1)->mCharValue;
 
@@ -13193,14 +12328,12 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     (stack_ptr-1)->mLongValue = 0;              // zero clear for jit
                     (stack_ptr-1)->mCharValue = result;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CREATE_STRING:
                 {
-                    vm_mutex_on();
-
                     int offset = *(int*)pc;
                     pc += sizeof(int);
 
@@ -13233,7 +12366,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                         if(!string_expression(str, &buf, string_expression_offsets, string_expression_object, num_string_expression, &stack_ptr, stack, var_num, info))
                         {
-                            vm_mutex_off();
+                            
                             remove_stack_to_stack_list(stack_id);
                             MFREE(buf.mBuf);
                             return FALSE;
@@ -13250,13 +12383,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                         MFREE(buf.mBuf);
                     }
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CREATE_BUFFER:
                 {
-                    vm_mutex_on();
+                    
 
                     int offset = *(int*)pc;
                     pc += sizeof(int);
@@ -13293,7 +12426,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                         if(!string_expression(str, &buf, string_expression_offsets, string_expression_object, num_string_expression, &stack_ptr, stack, var_num, info))
                         {
-                            vm_mutex_off();
+                            
                             remove_stack_to_stack_list(stack_id);
                             MFREE(buf.mBuf);
                             return FALSE;
@@ -13311,13 +12444,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                         MFREE(buf.mBuf);
                     }
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CREATE_PATH:
                 {
-                    vm_mutex_on();
+                    
 
                     int offset = *(int*)pc;
                     pc += sizeof(int);
@@ -13351,7 +12484,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                         if(!string_expression(str, &buf, string_expression_offsets, string_expression_object, num_string_expression, &stack_ptr, stack, var_num, info))
                         {
-                            vm_mutex_off();
+                            
                             remove_stack_to_stack_list(stack_id);
                             MFREE(buf.mBuf);
                             return FALSE;
@@ -13368,13 +12501,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                         MFREE(buf.mBuf);
                     }
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CREATE_ARRAY:
                 {
-                    vm_mutex_on();
+                    
 
                     int num_elements = *(int*)pc;
                     pc += sizeof(int);
@@ -13387,7 +12520,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     sCLClass* klass = get_class_with_load_and_initialize(class_name);
 
                     if(klass == NULL) {
-                        vm_mutex_off();
+                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(11)");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -13412,14 +12545,12 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     stack_ptr->mObjectValue = array_object;
                     stack_ptr++;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CREATE_CARRAY:
                 {
-                    vm_mutex_on();
-
                     int num_elements = *(int*)pc;
                     pc += sizeof(int);
 
@@ -13434,7 +12565,6 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     sCLClass* klass = get_class_with_load_and_initialize(class_name);
 
                     if(klass == NULL) {
-                        vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(12)");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -13457,7 +12587,6 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(!initialize_carray_object(array_object, num_elements, items, stack, var_num, &stack_ptr, info, klass))
                     {
-                        vm_mutex_off();
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
@@ -13468,14 +12597,12 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = array_object;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_CREATE_EQUALABLE_CARRAY:
                 {
-                    vm_mutex_on();
+                    
 
                     int num_elements = *(int*)pc;
                     pc += sizeof(int);
@@ -13491,7 +12618,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     sCLClass* klass = get_class_with_load_and_initialize(class_name);
 
                     if(klass == NULL) {
-                        vm_mutex_off();
+                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(12)");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -13514,7 +12641,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(!initialize_equalable_carray_object(array_object, num_elements, items, stack, var_num, &stack_ptr, info, klass))
                     {
-                        vm_mutex_off();
+                        
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
@@ -13526,13 +12653,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     stack_ptr->mObjectValue = array_object;
                     stack_ptr++;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CREATE_SORTABLE_CARRAY:
                 {
-                    vm_mutex_on();
+                    
 
                     int num_elements = *(int*)pc;
                     pc += sizeof(int);
@@ -13548,7 +12675,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     sCLClass* klass = get_class_with_load_and_initialize(class_name);
 
                     if(klass == NULL) {
-                        vm_mutex_off();
+                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(12)");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -13571,7 +12698,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(!initialize_sortable_carray_object(array_object, num_elements, items, stack, var_num, &stack_ptr, info, klass))
                     {
-                        vm_mutex_off();
+                        
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
@@ -13583,13 +12710,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     stack_ptr->mObjectValue = array_object;
                     stack_ptr++;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CREATE_LIST:
                 {
-                    vm_mutex_on();
+                    
 
                     int num_elements = *(int*)pc;
                     pc += sizeof(int);
@@ -13605,7 +12732,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     sCLClass* klass = get_class_with_load_and_initialize(class_name);
 
                     if(klass == NULL) {
-                        vm_mutex_off();
+                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(13)");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -13628,7 +12755,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(!initialize_list_object(list_object, num_elements, items, stack, var_num, &stack_ptr, info, klass))
                     {
-                        vm_mutex_off();
+                        
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
@@ -13640,14 +12767,12 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     stack_ptr->mObjectValue = list_object;
                     stack_ptr++;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CREATE_SORTALBE_LIST:
                 {
-                    vm_mutex_on();
-
                     int num_elements = *(int*)pc;
                     pc += sizeof(int);
 
@@ -13662,7 +12787,6 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     sCLClass* klass = get_class_with_load_and_initialize(class_name);
 
                     if(klass == NULL) {
-                        vm_mutex_off();
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(13)");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -13685,7 +12809,6 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(!initialize_sortable_list_object(list_object, num_elements, items, stack, var_num, &stack_ptr, info, klass))
                     {
-                        vm_mutex_off();
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
@@ -13696,14 +12819,12 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = list_object;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_CREATE_EQUALABLE_LIST:
                 {
-                    vm_mutex_on();
+                    
 
                     int num_elements = *(int*)pc;
                     pc += sizeof(int);
@@ -13719,7 +12840,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     sCLClass* klass = get_class_with_load_and_initialize(class_name);
 
                     if(klass == NULL) {
-                        vm_mutex_off();
+                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(13)");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -13742,7 +12863,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(!initialize_equalable_list_object(list_object, num_elements, items, stack, var_num, &stack_ptr, info, klass))
                     {
-                        vm_mutex_off();
+                        
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
@@ -13754,13 +12875,13 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     stack_ptr->mObjectValue = list_object;
                     stack_ptr++;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CREATE_TUPLE:
                 {
-                    vm_mutex_on();
+                    
 
                     int num_elements = *(int*)pc;
                     pc += sizeof(int);
@@ -13785,7 +12906,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(!initialize_tuple_object(tuple_object, num_elements, items, stack, var_num, &stack_ptr, info))
                     {
-                        vm_mutex_off();
+                        
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
@@ -13797,14 +12918,12 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     stack_ptr->mObjectValue = tuple_object;
                     stack_ptr++;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CREATE_HASH:
                 {
-                    vm_mutex_on();
-
                     int num_elements = *(int*)pc;
                     pc += sizeof(int);
 
@@ -13816,7 +12935,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     sCLClass* klass = get_class_with_load_and_initialize(class_name);
 
                     if(klass == NULL) {
-                        vm_mutex_off();
+                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(14)");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -13833,7 +12952,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     sCLClass* klass2 = get_class_with_load_and_initialize(class_name2);
 
                     if(klass2 == NULL) {
-                        vm_mutex_off();
+                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(15)");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
@@ -13861,7 +12980,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                     if(!initialize_hash_object(hash_object, num_elements, keys, items, stack, var_num, &stack_ptr, info, klass, klass2))
                     {
-                        vm_mutex_off();
+                        
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
@@ -13873,14 +12992,12 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     stack_ptr->mObjectValue = hash_object;
                     stack_ptr++;
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
             case OP_CREATE_BLOCK_OBJECT:
                 {
-                    vm_mutex_on();
-
                     int code_offset = *(int*)pc;
                     pc += sizeof(int);
 
@@ -13925,15 +13042,11 @@ show_stack(stack, stack_ptr, lvar, var_num);
                     stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = block_object;
                     stack_ptr++;
-
-                    vm_mutex_off();
                 }
                 break;
 
             case OP_CREATE_REGEX:
                 {
-                    vm_mutex_on();
-
                     int offset = *(int*)pc;
                     pc += sizeof(int);
 
@@ -13990,7 +13103,7 @@ show_stack(stack, stack_ptr, lvar, var_num);
 
                         if(!string_expression(str, &buf, string_expression_offsets, string_expression_object, num_string_expression, &stack_ptr, stack, var_num, info))
                         {
-                            vm_mutex_off();
+                            
                             remove_stack_to_stack_list(stack_id);
                             MFREE(buf.mBuf);
                             return FALSE;
@@ -14007,27 +13120,22 @@ show_stack(stack, stack_ptr, lvar, var_num);
                         MFREE(buf.mBuf);
                     }
 
-                    vm_mutex_off();
+                    
                 }
                 break;
 
         }
-#ifdef VM_LOG
-show_stack(stack, stack_ptr, lvar, var_num);
-#endif
+
+        if(!info->no_mutex_in_vm) {
+            vm_mutex_off();
+        }
     }
 
-    remove_stack_to_stack_list(stack_id);
 
-#ifdef MDEBUG
-if(stack_ptr != lvar + var_num) {
-    fprintf(stderr, "invalid stack3\n");
-    fprintf(stderr, "var_num %d\n", var_num);
-    if(klass) { fprintf(stderr, "class name %s\n", CLASS_NAME(klass)); }
-    fprintf(stderr, "stack_ptr - lvar - var_num %lld\n", (long long int)(stack_ptr - (lvar + var_num)));
-    exit(3);
-}
-#endif
+    if(!info->no_mutex_in_vm) {
+        vm_mutex_on();  // for invoke_method after running vm must be turn mutex on
+    }
+    remove_stack_to_stack_list(stack_id);
 
     return TRUE;
 }

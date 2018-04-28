@@ -513,6 +513,28 @@ void create_internal_functions()
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "get_string_object_of_object_name", TheModule);
+    /// get_object_allocated_size ///
+    type_params.clear();
+    
+    result_type = IntegerType::get(TheContext, 32);
+
+    param1_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "get_object_allocated_size", TheModule);
+
+    /// get_head_of_memory ///
+    type_params.clear();
+    
+    result_type = IntegerType::get(TheContext, 64);
+
+    param1_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "get_object_head_of_memory", TheModule);
+
     /// object_implements_interface ///
     type_params.clear();
 
@@ -979,6 +1001,44 @@ void create_internal_functions()
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "get_regex_extended", TheModule);
+
+    /// vm_mutex_on ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "vm_mutex_on", TheModule);
+
+    /// vm_mutex_off ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "vm_mutex_off", TheModule);
+
+    /// vm_mutex_on2 ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(IntegerType::get(TheContext,64), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "vm_mutex_on2", TheModule);
+
+    /// vm_mutex_off2 ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(IntegerType::get(TheContext,64), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "vm_mutex_off2", TheModule);
 
     /// mark_source_position ///
     type_params.clear();

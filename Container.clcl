@@ -941,6 +941,7 @@ module MEqualableList
     }
 
     def join():String {
+println("join2");
         return self.join("");
     }
 

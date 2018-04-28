@@ -40,7 +40,8 @@ NULLABLE CLVALUE* get_element_from_array(CLObject array, int index)
     sCLObject* array_data = CLOBJECT(array);
 
     if(index < array_data->mArrayNum) {
-        return array_data->mFields + index;
+        CLVALUE* result = array_data->mFields + index;
+        return result;
     }
     else {
         return NULL;
@@ -53,7 +54,9 @@ NULLABLE CLVALUE* get_element_from_Array(CLObject array, int index)
 
     CLObject items = array_data->mFields[0].mObjectValue;
 
-    return get_element_from_array(items, index);
+    CLVALUE* result = get_element_from_array(items, index);
+    
+    return result;
 }
 
 int get_element_number_from_Array(CLObject array)
@@ -64,117 +67,136 @@ int get_element_number_from_Array(CLObject array)
 
     sCLObject* items_data = CLOBJECT(items);
 
-    return items_data->mArrayNum;
+    int result =  items_data->mArrayNum;
+
+    return result;
 }
 
 char get_value_from_Byte(CLObject object)
 {
     sCLObject* object_data = CLOBJECT(object);
-    return object_data->mFields[0].mByteValue;
+    char result = object_data->mFields[0].mByteValue;
+    return result;
 }
 
 unsigned char get_value_from_UByte(CLObject object)
 {
     sCLObject* object_data = CLOBJECT(object);
+    unsigned char result = object_data->mFields[0].mUByteValue;
 
-    return object_data->mFields[0].mUByteValue;
+    return result;
 }
 
 short get_value_from_Short(CLObject object)
 {
     sCLObject* object_data = CLOBJECT(object);
+    short result = object_data->mFields[0].mShortValue;
 
-    return object_data->mFields[0].mShortValue;
+    return result;
 }
 
 unsigned short get_value_from_UShort(CLObject object)
 {
     sCLObject* object_data = CLOBJECT(object);
+    unsigned short result = object_data->mFields[0].mUShortValue;
 
-    return object_data->mFields[0].mUShortValue;
+    return result;
 }
 
 int get_value_from_Integer(CLObject object)
 {
     sCLObject* object_data = CLOBJECT(object);
+    int result = object_data->mFields[0].mIntValue;
 
-    return object_data->mFields[0].mIntValue;
+    return result;
 }
 
 unsigned int get_value_from_UInteger(CLObject object)
 {
     sCLObject* object_data = CLOBJECT(object);
+    unsigned int result = object_data->mFields[0].mUIntValue;
 
-    return object_data->mFields[0].mUIntValue;
+    return result;
 }
 
 clint64 get_value_from_Long(CLObject object)
 {
     sCLObject* object_data = CLOBJECT(object);
+    clint64 result =  object_data->mFields[0].mLongValue;
 
-    return object_data->mFields[0].mLongValue;
+    return result;
 }
 
 unsigned clint64 get_value_from_ULong(CLObject object)
 {
     sCLObject* object_data = CLOBJECT(object);
+    unsigned clint64 result = object_data->mFields[0].mULongValue;
 
-    return object_data->mFields[0].mULongValue;
+    return result;
 }
 
 wchar_t get_value_from_Char(CLObject object)
 {
     sCLObject* object_data = CLOBJECT(object);
+    wchar_t result = object_data->mFields[0].mCharValue;
 
-    return object_data->mFields[0].mCharValue;
+    return result;
 }
 
 float get_value_from_Float(CLObject object)
 {
     sCLObject* object_data = CLOBJECT(object);
+    float result = object_data->mFields[0].mFloatValue;
 
-    return object_data->mFields[0].mFloatValue;
+    return result;
 }
 
 double get_value_from_Double(CLObject object)
 {
     sCLObject* object_data = CLOBJECT(object);
+    double result = object_data->mFields[0].mDoubleValue;
 
-    return object_data->mFields[0].mDoubleValue;
+    return result;
 }
 
 BOOL get_value_from_Bool(CLObject object)
 {
     sCLObject* object_data = CLOBJECT(object);
+    BOOL result = object_data->mFields[0].mBoolValue;
 
-    return object_data->mFields[0].mBoolValue;
+    return result;
 }
 
 char* get_value_from_Pointer(CLObject object)
 {
     sCLObject* object_data = CLOBJECT(object);
+    char* result = object_data->mFields[0].mPointerValue;
 
-    return object_data->mFields[0].mPointerValue;
+    return result;
 }
 
 sCLClass* get_class_from_object(CLObject object)
 {
     sCLObject* object_data = CLOBJECT(object);
-    return object_data->mClass;
+    sCLClass* result = object_data->mClass;
+
+    return result;
 }
 
 void* get_pointer_from_buffer_object(CLObject buffer)
 {
     sCLObject* obj_data = CLOBJECT(buffer);
+    void* result = obj_data->mFields[0].mPointerValue;
 
-    return obj_data->mFields[0].mPointerValue;
+    return result;
 }
 
 size_t get_size_from_buffer_object(CLObject buffer)
 {
     sCLObject* obj_data = CLOBJECT(buffer);
+    size_t result =  obj_data->mFields[2].mULongValue;
 
-    return obj_data->mFields[2].mULongValue;
+    return result;
 }
 
 ALLOC CLObject* list_to_array(CLObject list, int* num_elements)

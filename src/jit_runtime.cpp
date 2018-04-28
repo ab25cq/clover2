@@ -105,6 +105,20 @@ CLObject get_string_object_of_object_name(CLObject object)
     return object2;
 }
 
+int get_object_allocated_size(CLObject object)
+{
+    sCLObject* object_data = CLOBJECT(object);
+
+    return object_data->mSize;
+}
+
+void* get_object_head_of_memory(CLObject object)
+{
+    sCLObject* object_data = CLOBJECT(object);
+
+    return object_data->mFields;
+}
+
 BOOL call_invoke_method(sCLClass* klass, int method_index, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info)
 {
     sCLMethod* method = klass->mMethods + method_index;
@@ -274,13 +288,6 @@ BOOL invoke_block_in_jit(int num_params, CLVALUE* stack, int var_num, CLVALUE** 
     {
         return FALSE;
     }
-
-    CLVALUE result = *((*stack_ptr)-1);
-
-    (*stack_ptr) -= num_params+1+1;
-
-    **stack_ptr = result;
-    (*stack_ptr)++;
 
     return TRUE;
 }

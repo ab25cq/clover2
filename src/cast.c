@@ -2974,7 +2974,7 @@ void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
         }
         else if(type_identify_with_class_name(left_type, "UShort"))
         {
-            cast_right_type_to_Short(right_type, info);
+            cast_right_type_to_UShort(right_type, info);
         }
         else if(type_identify_with_class_name(left_type, "Integer"))
         {

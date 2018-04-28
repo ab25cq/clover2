@@ -174,3 +174,5 @@ println("SysteCallTest");
 SystemCallTest.main();
 println("RefelectionTest");
 ReflectionTest.main();
+println("AllocaSizeClass");
+AllocSizeClass.main();

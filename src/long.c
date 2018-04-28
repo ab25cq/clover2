@@ -8,7 +8,7 @@ CLObject create_long(clint64 value)
     sCLObject* obj_data = CLOBJECT(obj);
 
     obj_data->mFields[0].mLongValue = value;
-    
+
     return obj;
 }
 
@@ -20,7 +20,7 @@ CLObject create_ulong(unsigned clint64 value)
     sCLObject* obj_data = CLOBJECT(obj);
 
     obj_data->mFields[0].mULongValue = value;
-    
+
     return obj;
 }
 

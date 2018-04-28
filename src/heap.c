@@ -44,7 +44,21 @@ void heap_init(int heap_size, int size_hadles)
     gCLHeap.mSizeHandles = size_hadles;
     gCLHeap.mNumHandles = 0;
 
-    gCLHeap.mFreeHandles = -1;   // -1 for NULL
+    gCLHeap.mFreeHandles = -1;
+
+/*
+    gCLHeap.mFreeHandles = 0;
+
+    int i;
+    for(i=0; i<size_hadles; i++) {
+        gCLHeap.mHandles[i].mOffset = -1;
+
+        /// chain free handles ///
+        int top_of_free_handle = gCLHeap.mFreeHandles;
+        gCLHeap.mFreeHandles = i;
+        gCLHeap.mHandles[i].mNextFreeHandle = top_of_free_handle;
+    }
+*/
 }
 
 static void delete_all_object();
@@ -78,6 +92,8 @@ BOOL is_valid_object(CLObject obj)
 
 void mark_object(CLObject obj, unsigned char* mark_flg)
 {
+    sCLClass* lambda_class = get_class("lambda");
+
     if(is_valid_object(obj)) {
         if(mark_flg[obj - FIRST_OBJ] == FALSE) {
             mark_flg[obj - FIRST_OBJ] = TRUE;
@@ -92,6 +108,9 @@ void mark_object(CLObject obj, unsigned char* mark_flg)
                 if(klass && !(klass->mFlags & CLASS_FLAGS_PRIMITIVE)) {
                     object_mark_fun(obj, mark_flg);
                 }
+            }
+            else if(klass == lambda_class) {
+                block_mark_fun(obj, mark_flg);
             }
             else {
                 array_mark_fun(obj, mark_flg);
@@ -117,6 +136,7 @@ static void mark_all_class_fields(unsigned char* mark_flg)
         p = p->mNextClass;
     }
 }
+
 #ifdef ENABLE_JIT
 void mark_jit_objects(unsigned char* mark_flg)
 {
@@ -151,7 +171,6 @@ static void mark(unsigned char* mark_flg)
 
 #ifdef ENABLE_JIT
     /// mark jit objects ///
-
     mark_jit_objects(mark_flg);
 #endif
 }
@@ -176,15 +195,21 @@ static void compaction(unsigned char* mark_flg)
             /// this is not a marked object ///
             if(!mark_flg[i]) {
                 /// call the destructor ///
-                if(klass && !(klass->mFlags & CLASS_FLAGS_NO_FREE_OBJECT) && array_num == -1) {
-                    (void)free_object(obj);
-                }
-                else if(klass && array_num >= 0) {
-                    free_array(obj);
-                }
+                if(klass) {
+                    if(klass->mFlags & CLASS_FLAGS_NO_FREE_OBJECT) {
+                    }
+                    else {
+                        if(array_num == -1) {
+                            (void)free_object(obj);
+                        }
+                        else if(array_num >= 0) {
+                            free_array(obj);
+                        }
 
-                if(klass->mFreeFun) {
-                    klass->mFreeFun(obj);
+                        if(klass->mFreeFun) {
+                            klass->mFreeFun(obj);
+                        }
+                    }
                 }
             }
         }
@@ -200,12 +225,10 @@ static void compaction(unsigned char* mark_flg)
 
             /// this is not a marked object ///
             if(!mark_flg[i]) {
-                int top_of_free_handle;
-
                 gCLHeap.mHandles[i].mOffset = -1;
 
                 /// chain free handles ///
-                top_of_free_handle = gCLHeap.mFreeHandles;
+                int top_of_free_handle = gCLHeap.mFreeHandles;
                 gCLHeap.mFreeHandles = i;
                 gCLHeap.mHandles[i].mNextFreeHandle = top_of_free_handle;
             }
@@ -312,12 +335,26 @@ CLObject alloc_heap_mem(int size, sCLClass* klass, int array_num)
     }
     /// no free handle. get new one ///
     else {
+//puts("new free handle");
+
         if(gCLHeap.mNumHandles == gCLHeap.mSizeHandles) {
             const int new_offset_size = (gCLHeap.mSizeHandles + 1) * 10;
 
-
             gCLHeap.mHandles = MREALLOC(gCLHeap.mHandles, sizeof(sHandle)*new_offset_size);
             memset(gCLHeap.mHandles + gCLHeap.mSizeHandles, 0, sizeof(sHandle)*(new_offset_size - gCLHeap.mSizeHandles));
+
+/*
+            int i;
+            for(i=gCLHeap.mSizeHandles; i<new_offset_size - gCLHeap.mSizeHandles; i++) {
+                gCLHeap.mHandles[i].mOffset = -1;
+
+                /// chain free handles ///
+                int top_of_free_handle = gCLHeap.mFreeHandles;
+                gCLHeap.mFreeHandles = i;
+                gCLHeap.mHandles[i].mNextFreeHandle = top_of_free_handle;
+            }
+*/
+
             gCLHeap.mSizeHandles = new_offset_size;
         }
 
@@ -333,6 +370,7 @@ CLObject alloc_heap_mem(int size, sCLClass* klass, int array_num)
     sCLHeapMem* object_ptr = get_object_pointer(obj);
 
     object_ptr->mSize = size;
+
     object_ptr->mClass = klass;
     object_ptr->mType = NULL;
     object_ptr->mArrayNum = array_num;

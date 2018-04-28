@@ -14,6 +14,7 @@ static void compiler_init(BOOL no_load_fudamental_classes)
 
 static void clover2_init(BOOL no_load_fudamental_classes)
 {
+    thread_init();
 #ifdef ENABLE_JIT
     jit_init_on_runtime();
 #endif
@@ -25,6 +26,7 @@ static void clover2_init(BOOL no_load_fudamental_classes)
 
 static void clover2_final()
 {
+    thread_final();
     class_final_on_runtime();
     heap_final();
     stack_final();
@@ -136,7 +138,7 @@ static BOOL class_compiler(char* fname)
 
 int gARGC;
 char** gARGV;
-char* gVersion = "3.7.6";
+char* gVersion = "4.0.0";
 
 int main(int argc, char** argv)
 {
@@ -188,8 +190,8 @@ int main(int argc, char** argv)
         clcl_compile = TRUE;
     }
 
-    compiler_init(no_load_fudamental_classes);
     clover2_init(no_load_fudamental_classes);
+    compiler_init(no_load_fudamental_classes);
 
     if(clcl_compile) {
         if(!class_compiler(sname)) {

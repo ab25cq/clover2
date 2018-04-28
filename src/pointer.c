@@ -8,6 +8,6 @@ CLObject create_pointer(char* value)
     sCLObject* obj_data = CLOBJECT(obj);
 
     obj_data->mFields[0].mPointerValue = value;
-    
+
     return obj;
 }

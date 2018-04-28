@@ -1,4 +1,19 @@
 
+version 4.0.0
+
+    Threads were added. For details, please read the explanation of Thread class.
+
+    def allocSize (): int allows you to specify the size of the memory to get from the heap. We mainly use it in extension library.
+
+    The allocatedSize () special method was added. Returns the size of the memory retrieved from the heap of the object.
+        It mainly uses extended libraries, so users will not use them in particular.
+
+    The headOfmemory () special method was added. Returns the starting size of the memory obtained from the heap of the object. It is mainly used for extended libraries, so users will not use them in particular.
+
+    The specification of the class file has been changed. Compiled class files need to be recompiled again. Please recompile.
+
+    Fixed boxing bug of UShort
+
 version 3.7.6
 
     Added Multi line stirng.
