@@ -114,7 +114,7 @@ Class A now has fields1 and 2 in fields and methods have setField1 and setField2
 ```
 A field has been added in d.clcl and the method has been overwritten. The overwritten show takes precedence for the method in d.clcl when searching for a method call. Because inherit(); is called in the show, the field c.clcl's show() is called and both fields are displayed. If there are arguments in the overridden method, give inherit an argument. <br>
 
-If you want to add methods and fields to built-in classes such as String and Hash, they are included in the Clover2 source file. Include MyOwnLibrary.clcl. In MyOwnLibrary.clcl, these layers are necessary because layers are stacked in the order of Fundamental.clcl → Reflection.clcl → Thread.clcl → String.clcl → Container.clcl → Range.clcl → File.clcl → Command.clcl → SystemCalls.clcl → MyOwnLibrary.clcl.
+If you want to add methods and fields to built-in classes such as String and Hash, they are included in the Clover2 source file. Include MyOwnLibrary.clcl. In MyOwnLibrary.clcl, these layers are necessary because layers are stacked in the order of Fundamental.clcl → Reflection.clcl → Thread.clcl → String.clcl → Container.clcl → Range.clcl → File.clcl → Command.clcl → SystemCalls.clcl → CGI.clcl → MyOwnLibrary.clcl.
 One point of caution is that in this case you will need the option -core at compile time.
 For example, if the name of the source file that extended String and Hash is MyOwnLibrary2.clcl
 

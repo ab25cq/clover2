@@ -1,0 +1,31 @@
+include "SystemCalls.clcl"
+
+class System
+{
+    LC_ALL: static int;
+    LC_ADDRESS: static int;
+    LC_COLLATE: static int;
+    LC_CTYPE: static int;
+    LC_IDENTIFICATION: static int;
+    LC_MEASUREMENT: static int;
+    LC_MESSAGES: static int;
+    LC_MONETARY: static int;
+    LC_NAME: static int;
+    LC_NUMERIC: static int;
+    LC_PAPER: static int;
+    LC_TELEPHONE: static int;
+    LC_TIME:static int;
+    
+    def setlocale(category:int, locale:String): static native String throws Exception;
+
+    def initialize_cgi_system(): static native;
+
+    def initialize() : static {
+        inherit();
+        System.initialize_cgi_system();
+    }
+}
+
+class CGI
+{
+}

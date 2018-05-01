@@ -277,6 +277,8 @@ static sNativeMethod gNativeMethods[] = {
     { "System.pthread_cond_timedwait(pointer,pointer,pointer)", "System_pthread_cond_timedwait", System_pthread_cond_timedwait },
     { "System.pthread_cond_destroy(pointer)", "System_pthread_cond_destroy", System_pthread_cond_destroy },
     { "pthread_cond_t.allocSize()", "pthread_cond_t_allocSize", pthread_cond_t_allocSize },
+    { "System.initialize_cgi_system()", "System_initialize_cgi_system", System_initialize_cgi_system },
+    { "System.setlocale(int,String)", "System_setlocale", System_setlocale },
 
     { "", "", 0 }  // sentinel
 };

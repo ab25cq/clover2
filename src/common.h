@@ -2180,6 +2180,8 @@ BOOL System_pthread_cond_broadcast(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* 
 BOOL System_pthread_cond_wait(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_pthread_cond_timedwait(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_pthread_cond_destroy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_initialize_cgi_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_setlocale(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 /// alignment.c ///
 void alignment(unsigned int* size);

@@ -1,4 +1,10 @@
 
+version 4.0.1
+
+    Started to make CGI library. System.setlocale was appended.
+
+    Fixed compiler bug.
+
 version 4.0.0
 
     Threads were added. For details, please read the explanation of Thread class.

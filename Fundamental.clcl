@@ -26,8 +26,8 @@ class System
     def rand(): static native int;
     def time(): static native time_t throws Exception;
 
-    def getenv(name:String): static native String;
-    def setenv(name:String, value:String, overwrite:int): static native throws Exception;
+    def getenv(name:String): static native String?;
+    def setenv(name:String, value:String, overwrite:int = 1): static native throws Exception;
     def unsetenv(name:String): static native throws Exception;
 
     def print(str:String): native static;

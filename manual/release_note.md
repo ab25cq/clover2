@@ -1,5 +1,11 @@
 English page is here [>> English page](release_note-en)
 
+version 4.0.1
+
+    CGIのためのライブラリを作り始めています。System.setlocaleの追加。System.setenvの第３引数を省略できるようにしました。
+
+    コンパイラーにバグがありました。修正。
+
 version 4.0.0
 
     スレッドを追加しました。詳しくはThreadクラスの解説を読んでください。

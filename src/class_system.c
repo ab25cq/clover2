@@ -240,7 +240,11 @@ BOOL System_println(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
         return FALSE;
     }
 
-    sCLObject* str_data = CLOBJECT(str->mObjectValue);
+    /// Clover2 to C ///
+    CLObject str_value = str->mObjectValue;
+
+    /// go ///
+    sCLObject* str_data = CLOBJECT(str_value);
 
     CLObject wstr_array_object = str_data->mFields[0].mObjectValue;
     sCLObject* wstr_array_object_data = CLOBJECT(wstr_array_object);
@@ -4601,6 +4605,62 @@ BOOL System_pclose(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int result = pclose(stream_value); // result code
 
     (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_initialize_cgi_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    sCLClass* system = get_class("System");
+
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+0].mValue.mIntValue = LC_ALL;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+1].mValue.mIntValue = LC_ADDRESS;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+2].mValue.mIntValue = LC_COLLATE;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+3].mValue.mIntValue = LC_CTYPE;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+4].mValue.mIntValue = LC_IDENTIFICATION;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+5].mValue.mIntValue = LC_MEASUREMENT;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+6].mValue.mIntValue = LC_MESSAGES;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+7].mValue.mIntValue = LC_MONETARY;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+8].mValue.mIntValue = LC_NAME;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+9].mValue.mIntValue = LC_NUMERIC;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+10].mValue.mIntValue = LC_PAPER;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+11].mValue.mIntValue = LC_TELEPHONE;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+12].mValue.mIntValue = LC_TIME;
+
+#define LAST_INITIALIZE_FIELD_NUM_ON_CGI (LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+13)
+
+    return TRUE;
+}
+
+BOOL System_setlocale(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* category = lvar;
+    CLVALUE* locale = lvar+1;
+
+    if(locale->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    /// Clover to C ///
+    int category_value = category->mIntValue;
+    char* locale_value = ALLOC string_object_to_char_array(locale->mObjectValue);
+
+    /// go ///
+    char* result = setlocale(category_value, locale_value);
+
+    if(result == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "setlocale(3) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        MFREE(locale_value);
+        return FALSE;
+    }
+
+    MFREE(locale_value);
+
+    CLObject result_object = create_string_object(result);
+
+    (*stack_ptr)->mObjectValue = result_object;
     (*stack_ptr)++;
 
     return TRUE;

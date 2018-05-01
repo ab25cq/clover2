@@ -3777,7 +3777,7 @@ BOOL compile_params_method_default_value(sCLClass* klass, char* method_name, int
 
 static BOOL compile_params(sCLClass* klass, char* method_name, int* num_params, unsigned int params[PARAMS_MAX], sNodeType* param_types[PARAMS_MAX], sNodeType* generics_types, sCompileInfo* info, BOOL lazy_lambda_compile, BOOL* exist_lazy_lamda_compile, BOOL class_method)
 {
-    /// 引数のboxingのための準備 ///
+    /// preparing for argument boxing ///
     int size_method_indexes = 128;
     int method_indexes[size_method_indexes];
     int num_methods = 0;
@@ -3793,11 +3793,11 @@ static BOOL compile_params(sCLClass* klass, char* method_name, int* num_params, 
 
         enum eNodeType node2_type = gNodes[node2].mNodeType;
 
-        /// 最後の引数がブロックならlazy_lambda_compileする。（メソッドブロックの型推論のため)
+        /// If the last argument is a block, do lazy lambda compiling ///
         if(lazy_lambda_compile && i == *num_params-1 && node2_type == kNodeTypeBlockObject) {
             *exist_lazy_lamda_compile = TRUE;
         }
-        /// その他は普通にコンパイルする ///
+        /// The other is compiling normaly ///
         else {
             if(!compile(node2, info)) {
                 return FALSE;
@@ -3871,7 +3871,7 @@ static BOOL compile_params(sCLClass* klass, char* method_name, int* num_params, 
         }
     }
 
-    /// メソッドのデフォルト引数 ///
+    /// method default value ///
     if(!*exist_lazy_lamda_compile) {
         if(!compile_params_method_default_value(klass, method_name, num_params, params, param_types, generics_types, info, size_method_indexes, method_indexes, num_methods))
         {
@@ -7553,14 +7553,18 @@ BOOL compile_string_value(unsigned int node, sCompileInfo* info)
     char* str = gNodes[node].uValue.sString.mString;
 
     int num_string_expression = gNodes[node].uValue.sString.mNumStringExpression;
-    
-    unsigned int* string_expressions = gNodes[node].uValue.sString.mStringExpressions;
-    int* string_expression_offsets = gNodes[node].uValue.sString.mStringExpressionOffsets;
+
+    unsigned int string_expressions[STRING_EXPRESSION_MAX];
+    memcpy(string_expressions, gNodes[node].uValue.sString.mStringExpressions, sizeof(unsigned int)*STRING_EXPRESSION_MAX);
+
+    int string_expression_offsets[STRING_EXPRESSION_MAX];
+    memcpy(string_expression_offsets, gNodes[node].uValue.sString.mStringExpressionOffsets, sizeof(int)*STRING_EXPRESSION_MAX);
 
     int i;
 
     for(i=0; i<num_string_expression; i++) {
-        if(!compile(string_expressions[i], info)) {
+        int node2 = string_expressions[i];
+        if(!compile(node2, info)) {
             return FALSE;
         }
 
@@ -7616,6 +7620,7 @@ BOOL compile_string_value(unsigned int node, sCompileInfo* info)
     append_opecode_to_code(info->code, OP_CREATE_STRING, info->no_output);
     append_str_to_constant_pool_and_code(info->constant, info->code, str, info->no_output);
     append_int_value_to_code(info->code, num_string_expression, info->no_output);
+
     for(i=0; i<num_string_expression; i++) {
         append_int_value_to_code(info->code, string_expression_offsets[i], info->no_output);
     }
@@ -7663,8 +7668,11 @@ BOOL compile_buffer_value(unsigned int node, sCompileInfo* info)
 
     int num_string_expression = gNodes[node].uValue.sBuffer.mNumStringExpression;
     
-    unsigned int* string_expressions = gNodes[node].uValue.sBuffer.mStringExpressions;
-    int* string_expression_offsets = gNodes[node].uValue.sBuffer.mStringExpressionOffsets;
+    unsigned int string_expressions[STRING_EXPRESSION_MAX];
+    memcpy(string_expressions, gNodes[node].uValue.sBuffer.mStringExpressions, sizeof(unsigned int)*STRING_EXPRESSION_MAX);
+
+    int string_expression_offsets[STRING_EXPRESSION_MAX];
+    memcpy(string_expression_offsets, gNodes[node].uValue.sBuffer.mStringExpressionOffsets, sizeof(int)*STRING_EXPRESSION_MAX);
 
     int i;
 
@@ -7781,8 +7789,11 @@ BOOL compile_path_value(unsigned int node, sCompileInfo* info)
 
     int num_string_expression = gNodes[node].uValue.sString.mNumStringExpression;
     
-    unsigned int* string_expressions = gNodes[node].uValue.sString.mStringExpressions;
-    int* string_expression_offsets = gNodes[node].uValue.sString.mStringExpressionOffsets;
+    unsigned int string_expressions[STRING_EXPRESSION_MAX];
+    memcpy(string_expressions, gNodes[node].uValue.sString.mStringExpressions, sizeof(unsigned int)*STRING_EXPRESSION_MAX);
+
+    int string_expression_offsets[STRING_EXPRESSION_MAX];
+    memcpy(string_expression_offsets, gNodes[node].uValue.sString.mStringExpressionOffsets, sizeof(int)*STRING_EXPRESSION_MAX);
 
     int i;
 
@@ -8011,7 +8022,8 @@ unsigned int sNodeTree_create_array_value(int num_elements, unsigned int array_e
 
 BOOL compile_array_value(unsigned int node, sCompileInfo* info)
 {
-    unsigned int* elements = gNodes[node].uValue.sArrayValue.mArrayElements;
+    unsigned int elements[ARRAY_VALUE_ELEMENT_MAX];
+    memcpy(elements, gNodes[node].uValue.sArrayValue.mArrayElements, sizeof(unsigned int)*ARRAY_VALUE_ELEMENT_MAX);
     int num_elements = gNodes[node].uValue.sArrayValue.mNumArrayElements;
 
     if(num_elements == 0) {
@@ -8081,7 +8093,8 @@ unsigned int sNodeTree_create_carray_value(int num_elements, unsigned int array_
 
 static BOOL compile_carray_value(unsigned int node, sCompileInfo* info)
 {
-    unsigned int* elements = gNodes[node].uValue.sArrayValue.mArrayElements;
+    unsigned int elements[ARRAY_VALUE_ELEMENT_MAX];
+    memcpy(elements, gNodes[node].uValue.sArrayValue.mArrayElements, sizeof(unsigned int)*ARRAY_VALUE_ELEMENT_MAX);
     int num_elements = gNodes[node].uValue.sArrayValue.mNumArrayElements;
 
     if(num_elements == 0) {
@@ -8166,7 +8179,8 @@ unsigned int sNodeTree_create_equalable_carray_value(int num_elements, unsigned 
 
 static BOOL compile_equalable_carray_value(unsigned int node, sCompileInfo* info)
 {
-    unsigned int* elements = gNodes[node].uValue.sArrayValue.mArrayElements;
+    unsigned int elements[ARRAY_VALUE_ELEMENT_MAX];
+    memcpy(elements, gNodes[node].uValue.sArrayValue.mArrayElements, sizeof(unsigned int)*ARRAY_VALUE_ELEMENT_MAX);
     int num_elements = gNodes[node].uValue.sArrayValue.mNumArrayElements;
 
     if(num_elements == 0) {
@@ -8258,7 +8272,8 @@ unsigned int sNodeTree_create_sortable_carray_value(int num_elements, unsigned i
 
 static BOOL compile_sortable_carray_value(unsigned int node, sCompileInfo* info)
 {
-    unsigned int* elements = gNodes[node].uValue.sArrayValue.mArrayElements;
+    unsigned int elements[ARRAY_VALUE_ELEMENT_MAX];
+    memcpy(elements, gNodes[node].uValue.sArrayValue.mArrayElements, sizeof(unsigned int)*ARRAY_VALUE_ELEMENT_MAX);
     int num_elements = gNodes[node].uValue.sArrayValue.mNumArrayElements;
 
     if(num_elements == 0) {
@@ -8372,7 +8387,8 @@ unsigned int sNodeTree_create_list_value(int num_elements, unsigned int list_ele
 
 BOOL compile_list_value(unsigned int node, sCompileInfo* info)
 {
-    unsigned int* elements = gNodes[node].uValue.sListValue.mListElements;
+    unsigned int elements[LIST_VALUE_ELEMENT_MAX];
+    memcpy(elements, gNodes[node].uValue.sListValue.mListElements, sizeof(unsigned int)*LIST_VALUE_ELEMENT_MAX);
     int num_elements = gNodes[node].uValue.sListValue.mNumListElements;
 
     if(num_elements == 0) {
@@ -8450,7 +8466,8 @@ unsigned int sNodeTree_create_sortable_list_value(int num_elements, unsigned int
 
 BOOL compile_sortable_list_value(unsigned int node, sCompileInfo* info)
 {
-    unsigned int* elements = gNodes[node].uValue.sListValue.mListElements;
+    unsigned int elements[LIST_VALUE_ELEMENT_MAX];
+    memcpy(elements, gNodes[node].uValue.sListValue.mListElements, sizeof(unsigned int)*LIST_VALUE_ELEMENT_MAX);
     int num_elements = gNodes[node].uValue.sListValue.mNumListElements;
 
     if(num_elements == 0) {
@@ -8535,7 +8552,8 @@ unsigned int sNodeTree_create_equalable_list_value(int num_elements, unsigned in
 
 BOOL compile_equalable_list_value(unsigned int node, sCompileInfo* info)
 {
-    unsigned int* elements = gNodes[node].uValue.sListValue.mListElements;
+    unsigned int elements[LIST_VALUE_ELEMENT_MAX];
+    memcpy(elements, gNodes[node].uValue.sListValue.mListElements, sizeof(unsigned int)*LIST_VALUE_ELEMENT_MAX);
     int num_elements = gNodes[node].uValue.sListValue.mNumListElements;
 
     if(num_elements == 0) {
@@ -8620,7 +8638,8 @@ unsigned int sNodeTree_create_tuple_value(int num_elements, unsigned int tuple_e
 
 static BOOL compile_tuple_value(unsigned int node, sCompileInfo* info)
 {
-    unsigned int* elements = gNodes[node].uValue.sTupleValue.mTupleElements;
+    unsigned int elements[TUPLE_VALUE_ELEMENT_MAX];
+    memcpy(elements, gNodes[node].uValue.sTupleValue.mTupleElements, sizeof(unsigned int)*TUPLE_VALUE_ELEMENT_MAX);
     int num_elements = gNodes[node].uValue.sTupleValue.mNumTupleElements;
 
     if(num_elements == 0) {
@@ -8819,8 +8838,10 @@ static BOOL compile_multiple_asignment(unsigned int node, sCompileInfo* info)
 
 BOOL compile_hash_value(unsigned int node, sCompileInfo* info)
 {
-    unsigned int* keys = gNodes[node].uValue.sHashValue.mHashKeys;
-    unsigned int* items = gNodes[node].uValue.sHashValue.mHashItems;
+    unsigned int keys[HASH_VALUE_ELEMENT_MAX];
+    memcpy(keys, gNodes[node].uValue.sHashValue.mHashKeys, sizeof(unsigned int)*HASH_VALUE_ELEMENT_MAX);
+    unsigned int items[HASH_VALUE_ELEMENT_MAX];
+    memcpy(items, gNodes[node].uValue.sHashValue.mHashItems, sizeof(unsigned int)*HASH_VALUE_ELEMENT_MAX);
     int num_elements = gNodes[node].uValue.sHashValue.mNumHashElements;
 
     if(num_elements == 0) {
@@ -9473,8 +9494,10 @@ static BOOL compile_regex(unsigned int node, sCompileInfo* info)
 
     int num_string_expression = gNodes[node].uValue.sRegex.mNumStringExpression;
     
-    unsigned int* string_expressions = gNodes[node].uValue.sRegex.mStringExpressions;
-    int* string_expression_offsets = gNodes[node].uValue.sRegex.mStringExpressionOffsets;
+    unsigned int string_expressions[STRING_EXPRESSION_MAX];
+    memcpy(string_expressions, gNodes[node].uValue.sRegex.mStringExpressions, STRING_EXPRESSION_MAX);
+    int string_expression_offsets[STRING_EXPRESSION_MAX];
+    memcpy(string_expression_offsets, gNodes[node].uValue.sRegex.mStringExpressionOffsets, STRING_EXPRESSION_MAX);
 
     int i;
 
