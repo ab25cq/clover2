@@ -1,4 +1,16 @@
 
+version 4.0.3
+
+    Regexのバグを修正。
+
+    String Expression(\{})の中は式じゃなくてブロックになりました。
+
+version 4.0.3
+
+    Fixed regex bug.
+
+    Inside String Expression (\{}) it became a block instead of an expression
+
 version 4.0.2
 
     CSVファイルの入出力をサポート。ファイルのロック用のメソッドの用意。

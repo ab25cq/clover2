@@ -689,7 +689,7 @@ struct sNodeTreeStruct
         wchar_t mCharacter;
         struct {
             char* mString;
-            unsigned int mStringExpressions[STRING_EXPRESSION_MAX];
+            sNodeBlock* mStringExpressions[STRING_EXPRESSION_MAX];
             int mStringExpressionOffsets[STRING_EXPRESSION_MAX];
             int mNumStringExpression;
         } sString;
@@ -697,7 +697,7 @@ struct sNodeTreeStruct
         struct {
             char* mBuffer;
             int mLen;
-            unsigned int mStringExpressions[STRING_EXPRESSION_MAX];
+            sNodeBlock* mStringExpressions[STRING_EXPRESSION_MAX];
             int mStringExpressionOffsets[STRING_EXPRESSION_MAX];
             int mNumStringExpression;
         } sBuffer;
@@ -762,7 +762,7 @@ struct sNodeTreeStruct
             BOOL mAnchored;
             BOOL mDollarEndOnly;
             BOOL mUngreedy;
-            unsigned int mStringExpressions[STRING_EXPRESSION_MAX];
+            sNodeBlock* mStringExpressions[STRING_EXPRESSION_MAX];
             int mStringExpressionOffsets[STRING_EXPRESSION_MAX];
             int mNumStringExpression;
         } sRegex;
@@ -875,8 +875,8 @@ unsigned int sNodeTree_create_load_array_element(unsigned int array, unsigned in
 unsigned int sNodeTree_create_store_array_element(unsigned int array, unsigned int index_ndoe, unsigned int right_node, sParserInfo* info);
 unsigned int sNodeTree_create_character_value(wchar_t c, sParserInfo* info);
 
-unsigned int sNodeTree_create_string_value(MANAGED char* value, unsigned int* string_expressions, int* string_expression_offsets, int num_string_expression, sParserInfo* info);
-unsigned int sNodeTree_create_buffer_value(MANAGED char* value, int len, unsigned int* string_expressions, int* string_expression_offsets, int num_string_expression, sParserInfo* info);
+unsigned int sNodeTree_create_string_value(MANAGED char* value, sNodeBlock** string_expressions, int* string_expression_offsets, int num_string_expression, sParserInfo* info);
+unsigned int sNodeTree_create_buffer_value(MANAGED char* value, int len, sNodeBlock** string_expressions, int* string_expression_offsets, int num_string_expression, sParserInfo* info);
 unsigned int sNodeTree_try_expression(MANAGED sNodeBlock* try_node_block, MANAGED sNodeBlock* catch_node_block, char* exception_var_name, sParserInfo* info);
 
 unsigned int sNodeTree_create_block_object(sParserParam* params, int num_params, sNodeType* result_type, MANAGED sNodeBlock* node_block, BOOL lambda, sParserInfo* info, BOOL omit_result_type, BOOL omit_params, sVarTable* old_table);
@@ -891,7 +891,7 @@ unsigned int sNodeTree_create_tuple_value(int num_elements, unsigned int tuple_e
 unsigned int sNodeTree_create_or_or(unsigned int left_node, unsigned int right_node, sParserInfo* info);
 unsigned int sNodeTree_create_and_and(unsigned int left_node, unsigned int right_node, sParserInfo* info);
 unsigned int sNodeTree_create_hash_value(int num_elements, unsigned int hash_keys[], unsigned int hash_items[], sParserInfo* info);
-unsigned int sNodeTree_create_regex(MANAGED char* regex_str, BOOL global, BOOL ignore_case, BOOL multiline, BOOL extended, BOOL dotall, BOOL anchored, BOOL dollar_endonly, BOOL ungreedy, unsigned int* string_expressions, int* string_expression_offsets, int num_string_expression, sParserInfo* info);
+unsigned int sNodeTree_create_regex(MANAGED char* regex_str, BOOL global, BOOL ignore_case, BOOL multiline, BOOL extended, BOOL dotall, BOOL anchored, BOOL dollar_endonly, BOOL ungreedy, sNodeBlock** string_expressions, int* string_expression_offsets, int num_string_expression, sParserInfo* info);
 unsigned int sNodeTree_create_carray_value(int num_elements, unsigned int array_elements[], sParserInfo* info);
 unsigned int sNodeTree_create_equalable_carray_value(int num_elements, unsigned int array_elements[], sParserInfo* info);
 unsigned int sNodeTree_create_sortable_carray_value(int num_elements, unsigned int array_elements[], sParserInfo* info);
@@ -902,7 +902,7 @@ unsigned int sNodeTree_create_float_value(float value, unsigned int left, unsign
 unsigned int sNodeTree_create_cfloat_value(float value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
 unsigned int sNodeTree_create_double_value(double value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
 unsigned int sNodeTree_create_cdouble_value(double value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
-unsigned int sNodeTree_create_path_value(MANAGED char* value, int len, unsigned int* string_expressions, int* string_expression_offsets, int num_string_expression, sParserInfo* info);
+unsigned int sNodeTree_create_path_value(MANAGED char* value, int len, sNodeBlock** string_expressions, int* string_expression_offsets, int num_string_expression, sParserInfo* info);
 unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED sNodeBlock* node_block, BOOL lambda, sParserInfo* info);
 
 void arrange_stack(sCompileInfo* cinfo);

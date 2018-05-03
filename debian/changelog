@@ -1,4 +1,8 @@
 
+clover2 (4.0.3-1) unstable; urgency=medium
+
+    * Fixed regex bug. Inside String Expression (\{}) it became a block instead of an expression
+
 clover2 (4.0.2-1) unstable; urgency=medium
 
     * CSV File was supported. flock was supported.  Fixed compiler bug. Fixed JIT bug.

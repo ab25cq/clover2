@@ -1,5 +1,11 @@
 English page is here [>> English page](release_note-en)
 
+version 4.0.3
+
+    Regexのバグを修正。
+
+    String Expression(\{})の中は式じゃなくてブロックになりました。
+
 version 4.0.2
 
     CSVファイルの入出力をサポート。ファイルのロック用のメソッドの用意。

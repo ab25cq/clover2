@@ -1,4 +1,10 @@
 
+version 4.0.3
+
+    Fixed regex bug.
+
+    Inside String Expression (\{}) it became a block instead of an expression
+
 version 4.0.2
 
     CSV File was supported. flock was supported.

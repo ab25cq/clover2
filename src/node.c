@@ -22,6 +22,7 @@ void free_nodes()
 {
     if(gUsedNodes > 0) {
         int i;
+        int j;
         for(i=1; i<gUsedNodes; i++) {
             switch(gNodes[i].mNodeType) {
                 case kNodeTypeIf:
@@ -65,14 +66,23 @@ void free_nodes()
 
                 case kNodeTypeString:
                     MFREE(gNodes[i].uValue.sString.mString);
+                    for(j=0; j<gNodes[i].uValue.sString.mNumStringExpression; j++) {
+                        sNodeBlock_free(gNodes[i].uValue.sString.mStringExpressions[j]);
+                    }
                     break;
 
                 case kNodeTypePath:
                     MFREE(gNodes[i].uValue.sString.mString);
+                    for(j=0; j<gNodes[i].uValue.sString.mNumStringExpression; j++) {
+                        sNodeBlock_free(gNodes[i].uValue.sString.mStringExpressions[j]);
+                    }
                     break;
 
                 case kNodeTypeBuffer:
                     MFREE(gNodes[i].uValue.sBuffer.mBuffer);
+                    for(j=0; j<gNodes[i].uValue.sBuffer.mNumStringExpression; j++) {
+                        sNodeBlock_free(gNodes[i].uValue.sBuffer.mStringExpressions[j]);
+                    }
                     break;
 
                 case kNodeTypeBlockObject:
@@ -89,6 +99,9 @@ void free_nodes()
 
                 case kNodeTypeRegex:
                     MFREE(gNodes[i].uValue.sRegex.mRegexStr);
+                    for(j=0; j<gNodes[i].uValue.sRegex.mNumStringExpression; j++) {
+                        sNodeBlock_free(gNodes[i].uValue.sRegex.mStringExpressions[j]);
+                    }
                     break;
 
                 default:
@@ -7522,7 +7535,7 @@ BOOL compile_char_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_string_value(MANAGED char* value, unsigned int* string_expressions, int* string_expression_offsets, int num_string_expression, sParserInfo* info)
+unsigned int sNodeTree_create_string_value(MANAGED char* value, sNodeBlock** string_expressions, int* string_expression_offsets, int num_string_expression, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
@@ -7554,8 +7567,8 @@ BOOL compile_string_value(unsigned int node, sCompileInfo* info)
 
     int num_string_expression = gNodes[node].uValue.sString.mNumStringExpression;
 
-    unsigned int string_expressions[STRING_EXPRESSION_MAX];
-    memcpy(string_expressions, gNodes[node].uValue.sString.mStringExpressions, sizeof(unsigned int)*STRING_EXPRESSION_MAX);
+    sNodeBlock* string_expressions[STRING_EXPRESSION_MAX];
+    memcpy(string_expressions, gNodes[node].uValue.sString.mStringExpressions, sizeof(sNodeBlock*)*STRING_EXPRESSION_MAX);
 
     int string_expression_offsets[STRING_EXPRESSION_MAX];
     memcpy(string_expression_offsets, gNodes[node].uValue.sString.mStringExpressionOffsets, sizeof(int)*STRING_EXPRESSION_MAX);
@@ -7563,8 +7576,8 @@ BOOL compile_string_value(unsigned int node, sCompileInfo* info)
     int i;
 
     for(i=0; i<num_string_expression; i++) {
-        int node2 = string_expressions[i];
-        if(!compile(node2, info)) {
+        sNodeBlock* node_block = string_expressions[i];
+        if(!compile_block_with_result(node_block, info)) {
             return FALSE;
         }
 
@@ -7633,7 +7646,7 @@ BOOL compile_string_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_buffer_value(MANAGED char* value, int len, unsigned int* string_expressions, int* string_expression_offsets, int num_string_expression, sParserInfo* info)
+unsigned int sNodeTree_create_buffer_value(MANAGED char* value, int len, sNodeBlock** string_expressions, int* string_expression_offsets, int num_string_expression, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
@@ -7668,8 +7681,8 @@ BOOL compile_buffer_value(unsigned int node, sCompileInfo* info)
 
     int num_string_expression = gNodes[node].uValue.sBuffer.mNumStringExpression;
     
-    unsigned int string_expressions[STRING_EXPRESSION_MAX];
-    memcpy(string_expressions, gNodes[node].uValue.sBuffer.mStringExpressions, sizeof(unsigned int)*STRING_EXPRESSION_MAX);
+    sNodeBlock* string_expressions[STRING_EXPRESSION_MAX];
+    memcpy(string_expressions, gNodes[node].uValue.sBuffer.mStringExpressions, sizeof(sNodeBlock*)*STRING_EXPRESSION_MAX);
 
     int string_expression_offsets[STRING_EXPRESSION_MAX];
     memcpy(string_expression_offsets, gNodes[node].uValue.sBuffer.mStringExpressionOffsets, sizeof(int)*STRING_EXPRESSION_MAX);
@@ -7677,9 +7690,11 @@ BOOL compile_buffer_value(unsigned int node, sCompileInfo* info)
     int i;
 
     for(i=0; i<num_string_expression; i++) {
-        if(!compile(string_expressions[i], info)) {
+        sNodeBlock* node_block = string_expressions[i];
+        if(!compile_block_with_result(node_block, info)) {
             return FALSE;
         }
+
 
         if(info->type == NULL) {
             compile_err_msg(info, "String expression requires String object");
@@ -7756,7 +7771,7 @@ BOOL compile_buffer_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_path_value(MANAGED char* value, int len, unsigned int* string_expressions, int* string_expression_offsets, int num_string_expression, sParserInfo* info)
+unsigned int sNodeTree_create_path_value(MANAGED char* value, int len, sNodeBlock** string_expressions, int* string_expression_offsets, int num_string_expression, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
@@ -7789,8 +7804,8 @@ BOOL compile_path_value(unsigned int node, sCompileInfo* info)
 
     int num_string_expression = gNodes[node].uValue.sString.mNumStringExpression;
     
-    unsigned int string_expressions[STRING_EXPRESSION_MAX];
-    memcpy(string_expressions, gNodes[node].uValue.sString.mStringExpressions, sizeof(unsigned int)*STRING_EXPRESSION_MAX);
+    sNodeBlock* string_expressions[STRING_EXPRESSION_MAX];
+    memcpy(string_expressions, gNodes[node].uValue.sString.mStringExpressions, sizeof(sNodeBlock*)*STRING_EXPRESSION_MAX);
 
     int string_expression_offsets[STRING_EXPRESSION_MAX];
     memcpy(string_expression_offsets, gNodes[node].uValue.sString.mStringExpressionOffsets, sizeof(int)*STRING_EXPRESSION_MAX);
@@ -7798,7 +7813,8 @@ BOOL compile_path_value(unsigned int node, sCompileInfo* info)
     int i;
 
     for(i=0; i<num_string_expression; i++) {
-        if(!compile(string_expressions[i], info)) {
+        sNodeBlock* node_block = string_expressions[i];
+        if(!compile_block_with_result(node_block, info)) {
             return FALSE;
         }
 
@@ -9446,7 +9462,7 @@ BOOL compile_block_call(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_regex(MANAGED char* regex_str, BOOL global, BOOL ignore_case, BOOL multiline, BOOL extended, BOOL dotall, BOOL anchored, BOOL dollar_endonly, BOOL ungreedy, unsigned int* string_expressions, int* string_expression_offsets, int num_string_expression, sParserInfo* info)
+unsigned int sNodeTree_create_regex(MANAGED char* regex_str, BOOL global, BOOL ignore_case, BOOL multiline, BOOL extended, BOOL dotall, BOOL anchored, BOOL dollar_endonly, BOOL ungreedy, sNodeBlock** string_expressions, int* string_expression_offsets, int num_string_expression, sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
@@ -9494,15 +9510,16 @@ static BOOL compile_regex(unsigned int node, sCompileInfo* info)
 
     int num_string_expression = gNodes[node].uValue.sRegex.mNumStringExpression;
     
-    unsigned int string_expressions[STRING_EXPRESSION_MAX];
-    memcpy(string_expressions, gNodes[node].uValue.sRegex.mStringExpressions, STRING_EXPRESSION_MAX);
+    sNodeBlock* string_expressions[STRING_EXPRESSION_MAX];
+    memcpy(string_expressions, gNodes[node].uValue.sRegex.mStringExpressions, sizeof(sNodeBlock*)*STRING_EXPRESSION_MAX);
     int string_expression_offsets[STRING_EXPRESSION_MAX];
-    memcpy(string_expression_offsets, gNodes[node].uValue.sRegex.mStringExpressionOffsets, STRING_EXPRESSION_MAX);
+    memcpy(string_expression_offsets, gNodes[node].uValue.sRegex.mStringExpressionOffsets, sizeof(int)*STRING_EXPRESSION_MAX);
 
     int i;
 
     for(i=0; i<num_string_expression; i++) {
-        if(!compile(string_expressions[i], info)) {
+        sNodeBlock* node_block = string_expressions[i];
+        if(!compile_block_with_result(node_block, info)) {
             return FALSE;
         }
 

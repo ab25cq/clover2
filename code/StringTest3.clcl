@@ -79,8 +79,6 @@ class StringTest3 {
     def main():static {
         Clover.test("string test", StringTest3.run().equals("abc123def"));
 
-StringTest3.run3().toString().println();
-
         Clover.test("buffer test", StringTest3.run2().equals(B"abc123def"));
         Clover.test("path test", StringTest3.run3().equals(p"abc123def"));
         Clover.test("regex test", StringTest3.run4() == /abc123def/);
@@ -93,5 +91,9 @@ StringTest3.run3().toString().println();
         Clover.test("buffer test3", StringTest3.run11().equals(B"abc123456"));
         Clover.test("path test3", StringTest3.run12().equals(P"abc123456"));
         Clover.test("regex test3", StringTest3.run13() == /abc123456/);
+
+        a := 1;
+        b := 2;
+        Clover.test("String expression test", "\{a + b; a}".equals("1"));
     }
 }
