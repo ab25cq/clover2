@@ -1,4 +1,12 @@
 
+version 4.0.2
+
+    CSV File was supported. flock was supported.
+
+    Fixed compiler bug.
+
+    Fixed JIT bug.
+
 version 4.0.1
 
     Started to make CGI library. System.setlocale was appended.

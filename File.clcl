@@ -162,6 +162,8 @@ class System
     def getcwd(): native static String throws Exception;
 
     def put_fun_to_hash_for_native_method(path:String, fun_name:String, native_method:pointer): static native;
+
+    def fileno(stream:pointer@FILE): native static int;
 }
 
 class tm
@@ -491,6 +493,10 @@ class File
 
     def write(buf:Buffer):int throws Exception {
         return self.write(buf, buf.len);
+    }
+    def write(str:String):int throws Exception {
+        buf := str.toBuffer();
+        return self.write(buf);
     }
 
     def write(file_name:String, buf:Buffer, mode:mode_t): static int throws Exception 

@@ -176,3 +176,5 @@ println("RefelectionTest");
 ReflectionTest.main();
 println("AllocaSizeClass");
 AllocSizeClass.main();
+println("CGITest");
+CGITest.main();

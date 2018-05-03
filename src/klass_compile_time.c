@@ -365,6 +365,10 @@ void add_code_to_method(sCLMethod* method, sByteCode* code, int var_num)
 
 BOOL determine_method_generics_types(sNodeType* left_param, sNodeType* right_param, sNodeType* method_generics_types)
 {
+    if(left_param == NULL || right_param == NULL) {
+        return FALSE;
+    }
+
     sCLClass* left_param_class = left_param->mClass;
     sCLClass* right_param_class = right_param->mClass;
 

@@ -429,16 +429,19 @@ static void show_inst(unsigned inst)
 
 BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info)
 {
+    //int num_global_stack = gGlobalStackPtr - gGlobalStack;
+
     sCLClass* running_class = info->running_class;
     sCLMethod* running_method = info->running_method;
 
-    //int num_global_stack = gGlobalStackPtr - gGlobalStack;
+    info->running_class = klass;
+    info->running_method = method;
+
+    char* running_class_name = info->running_class_name;
+    char* running_method_name = info->running_method_name;
 
     info->running_class_name = CLASS_NAME(klass);
     info->running_method_name = METHOD_NAME2(klass, method);
-
-    info->running_class = klass;
-    info->running_method = method;
 
     char* sname2 = info->sname2;
     int sline2 = info->sline2;
@@ -475,6 +478,10 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
 
             if(native_method == NULL) {
                 entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "Native method not found");
+                info->running_class = running_class;
+                info->running_method = running_method;
+                info->running_class_name = running_class_name;
+                info->running_method_name = running_method_name;
                 //gGlobalStackPtr = gGlobalStack + num_global_stack;
                 return FALSE;
             }
@@ -491,6 +498,10 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             *stack_ptr = lvar;
             **stack_ptr = result;
             (*stack_ptr)++;
+            info->running_class = running_class;
+            info->running_method = running_method;
+            info->running_class_name = running_class_name;
+            info->running_method_name = running_method_name;
             //gGlobalStackPtr = gGlobalStack + num_global_stack;
             return FALSE;
         }
@@ -529,9 +540,13 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             *stack_ptr = lvar;
             **stack_ptr = *(new_stack + new_var_num);
             (*stack_ptr)++;
-            //gGlobalStackPtr = gGlobalStack + num_global_stack;
             sConst_free(&constant);
             sByteCode_free(&code);
+            info->running_class_name = running_class_name;
+            info->running_method_name = running_method_name;
+            info->running_class = running_class;
+            info->running_method = running_method;
+            //gGlobalStackPtr = gGlobalStack + num_global_stack;
             return FALSE;
         }
 #else
@@ -539,9 +554,13 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             *stack_ptr = lvar;
             **stack_ptr = *(new_stack + new_var_num);
             (*stack_ptr)++;
-            //gGlobalStackPtr = gGlobalStack + num_global_stack;
             sConst_free(&constant);
             sByteCode_free(&code);
+            info->running_class_name = running_class_name;
+            info->running_method_name = running_method_name;
+            info->running_class = running_class;
+            info->running_method = running_method;
+            //gGlobalStackPtr = gGlobalStack + num_global_stack;
             return FALSE;
         }
 #endif
@@ -554,12 +573,15 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
         sByteCode_free(&code);
     }
 
-    info->running_class = running_class;
-    info->running_method = running_method;
-
     if(sname2) {
         info->num_stack_trace--;
     }
+
+    info->running_class = running_class;
+    info->running_method = running_method;
+
+    info->running_class_name = running_class_name;
+    info->running_method_name = running_method_name;
 
     //gGlobalStackPtr = gGlobalStack + num_global_stack;
 

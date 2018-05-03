@@ -15,6 +15,10 @@ class System
     LC_PAPER: static int;
     LC_TELEPHONE: static int;
     LC_TIME:static int;
+
+    LOCK_SH: static int;
+    LOCK_EX: static int;
+    LOCK_UN: static int;
     
     def setlocale(category:int, locale:String): static native String throws Exception;
 
@@ -24,8 +28,186 @@ class System
         inherit();
         System.initialize_cgi_system();
     }
+
+    def flock(fd:int, operation:int): static native throws Exception;
 }
 
 class CGI
 {
+}
+
+module MCSVFileToList
+{
+    def putcsv(fname:String) {
+        if(self.length() > 0) {
+            file := File(fname, "w");
+
+            item := self.head.item;
+
+            if(item.className().equals("String")) {
+                self2:SELF<String> = self.toAnonymous();
+
+                n := 0;
+
+                self2.each {
+                    qit := it.quotedString();
+                    file.write(qit);
+
+                    if(n != self2.length()-1) {
+                        file.write(",");
+                    }
+
+                    n++;
+                }
+            }
+
+            file.close();
+        }
+    }
+}
+
+class List <T:Object>
+{
+    include MCSVFileToList;
+}
+
+class EqualableList <T:IEqualable>
+{
+    include MCSVFileToList;
+}
+
+class SortableList<T:ISortable>
+{
+    include MCSVFileToList;
+}
+
+class File
+{
+    def createListFromCSV(fname:String): static SortableList<String> {
+        result := SortableList<String>();
+
+        file := p"\{fname}".read().toString();
+
+        str:= "";
+
+        for(i:=0; i<file.length(); i++) {
+            c := file.chars(i);
+
+            if(c == '\\') {
+                c2 := file.chars(i+1);
+                i++;
+
+                if(c2 != '\0') {
+                    str.append(c2);
+                }
+            }
+            elif(c == ',') {
+                result.add(str);
+
+                str = "";
+            }
+            else {
+                str.append(c);
+            }
+        }
+
+        if(str.length() != 0) {
+            result.add(str);
+        }
+
+        return result;
+    }
+
+    def lock(shared:bool) throws Exception {
+        if(self.fd == -1 && self.stream.identifyWith(null)) {
+            throw Exception("Can't find file descriptor");
+        }
+
+        if(!self.stream.identifyWith(null)) {
+            fd:int = fileno(self.stream);
+
+            if(shared) {
+                flock(fd, System.LOCK_SH);
+            }
+            else {
+                flock(fd, System.LOCK_EX);
+            }
+        }
+        else {
+            if(shared) {
+                flock(self.fd, System.LOCK_SH);
+            }
+            else {
+                flock(self.fd, System.LOCK_EX);
+            }
+        }
+    }
+
+    def unlock() throws Exception {
+        if(self.fd == -1 && self.stream.identifyWith(null)) {
+            throw Exception("Can't find file descriptor");
+        }
+
+        if(!self.stream.identifyWith(null)) {
+            fd:int = fileno(self.stream);
+
+            flock(fd, System.LOCK_UN);
+        }
+        else {
+            flock(fd, System.LOCK_UN);
+        }
+    }
+
+    def lockBlock(fname:String, shared:bool, block:lambda()): static throws Exception {
+        file:File = new File(fname, "w");
+        file.lock(shared);
+        block();
+        file.unlock();
+        file.close();
+        #unlink(fname);
+    }
+
+    def lockBlock(shared:bool, block:lambda()) throws Exception {
+        self.lock(shared);
+        block();
+        self.unlock();
+    }
+}
+
+class String
+{
+    def quotedString():String {
+        result := "";
+        for(i:int = 0; i<self.length(); i++) {
+            c := self.chars(i);
+            if((c <= 127) && !((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9'))) {
+                result.append('\\');
+                result.append(c);
+            }
+            else {
+                result.append(c);
+            }
+        }
+
+        return result;
+    }
+
+    def getPlainTextFromQuotedString(): String {
+        result := "";
+        for(i:int = 0; i<self.length(); i++) {
+            c := self.chars(i);
+            if(c == '\\') {
+                c2 := self.chars(i+1);
+                if(c2 != '\0') {
+                    result.append(c2);
+                }
+                i++;
+            }
+            else {
+                result.append(c);
+            }
+        }
+
+        return result;
+    }
 }

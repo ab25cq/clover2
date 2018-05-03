@@ -279,6 +279,8 @@ static sNativeMethod gNativeMethods[] = {
     { "pthread_cond_t.allocSize()", "pthread_cond_t_allocSize", pthread_cond_t_allocSize },
     { "System.initialize_cgi_system()", "System_initialize_cgi_system", System_initialize_cgi_system },
     { "System.setlocale(int,String)", "System_setlocale", System_setlocale },
+    { "System.flock(int,int)", "System_flock", System_flock },
+    { "System.fileno(pointer)", "System_fileno", System_fileno },
 
     { "", "", 0 }  // sentinel
 };

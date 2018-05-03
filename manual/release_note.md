@@ -1,5 +1,13 @@
 English page is here [>> English page](release_note-en)
 
+version 4.0.2
+
+    CSVファイルの入出力をサポート。ファイルのロック用のメソッドの用意。
+
+    コンパイラーにバグがありました。修正。
+
+    JITのバグを修正
+
 version 4.0.1
 
     CGIのためのライブラリを作り始めています。System.setlocaleの追加。System.setenvの第３引数を省略できるようにしました。

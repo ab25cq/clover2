@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
+#include <sys/file.h>
 #include <fcntl.h>
 #include <libgen.h>
 #include <dirent.h>
@@ -4627,8 +4628,11 @@ BOOL System_initialize_cgi_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* i
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+10].mValue.mIntValue = LC_PAPER;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+11].mValue.mIntValue = LC_TELEPHONE;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+12].mValue.mIntValue = LC_TIME;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+13].mValue.mIntValue = LOCK_SH;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+14].mValue.mIntValue = LOCK_EX;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+15].mValue.mIntValue = LOCK_UN;
 
-#define LAST_INITIALIZE_FIELD_NUM_ON_CGI (LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+13)
+#define LAST_INITIALIZE_FIELD_NUM_ON_CGI (LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+16)
 
     return TRUE;
 }
@@ -4661,6 +4665,47 @@ BOOL System_setlocale(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLObject result_object = create_string_object(result);
 
     (*stack_ptr)->mObjectValue = result_object;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_flock(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* fd = lvar;
+    CLVALUE* operation = lvar+1;
+
+    /// Clover to C ///
+    int fd_value = fd->mIntValue;
+    int operation_value = operation->mIntValue;
+
+    /// go ///
+    int result = flock(fd_value, operation_value);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "flock(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_fileno(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* stream = lvar;
+
+    /// Clover to c value ///
+    if(stream->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    FILE* stream_value = (FILE*)stream->mPointerValue;
+
+    /// go ///
+    int result = fileno(stream_value);
+
+    (*stack_ptr)->mIntValue = result;
     (*stack_ptr)++;
 
     return TRUE;

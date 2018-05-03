@@ -1,6 +1,6 @@
 #!/bin/bash
 
-mv ../clover2 ../clover2-4.0.1
+mv ../clover2 ../clover2-4.0.2
 
 cd .
 
@@ -9,7 +9,7 @@ then
     make distclean
 fi
 
-(rm ../clover2_4.0.1.orig.tar.gz; cd ..; tar cvfz clover2_4.0.1.orig.tar.gz clover2-4.0.1)
+(rm ../clover2_4.0.2.orig.tar.gz; cd ..; tar cvfz clover2_4.0.2.orig.tar.gz clover2-4.0.2)
 
 sudo dpkg-buildpackage -us -uc
 
@@ -17,7 +17,7 @@ sudo make uninstall
 
 sudo rm -rf debian/clover2
 
-mv ../clover2-4.0.1 ../clover2
+mv ../clover2-4.0.2 ../clover2
 
 cd .
 

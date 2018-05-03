@@ -1552,20 +1552,26 @@ void if_value_is_zero_entry_exception_object(Value* value, int value_size, BOOL 
     BasicBlock* entry_ifend = BasicBlock::Create(TheContext, "entry_ifend", function);
 
     Value* rvalue;
+    Value* comp;
     if(value_is_float) {
-        double value = 0.0;
-        rvalue = ConstantFP::get(TheContext, llvm::APFloat(value)); 
-        //rvalue = Builder.CreateCast(Instruction::FPTrunc, rvalue, Type::getFloatTy(TheContext));
+        double dvalue = 0.0;
+        rvalue = ConstantFP::get(TheContext, llvm::APFloat(dvalue)); 
+        rvalue = Builder.CreateCast(Instruction::FPTrunc, rvalue, Type::getFloatTy(TheContext));
+
+        comp = Builder.CreateFCmpOEQ(value, rvalue, "ifcond");
     }
     else if(value_is_double) {
-        double value = 0.0;
-        rvalue = ConstantFP::get(TheContext, llvm::APFloat(value)); 
+        double dvalue = 0.0;
+        rvalue = ConstantFP::get(TheContext, llvm::APFloat(dvalue)); 
+        rvalue = Builder.CreateCast(Instruction::FPExt, rvalue, Type::getDoubleTy(TheContext));
+
+        comp = Builder.CreateFCmpOEQ(value, rvalue, "ifcond");
     }
     else {
         rvalue = ConstantInt::get(TheContext, llvm::APInt(value_size, 0, true));
-    }
 
-    Value* comp = Builder.CreateICmpEQ(value, rvalue, "ifcond");
+        comp = Builder.CreateICmpEQ(value, rvalue, "ifcond");
+    }
 
     Builder.CreateCondBr(comp, then_block, entry_ifend);
 
