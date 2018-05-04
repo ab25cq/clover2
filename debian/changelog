@@ -1,4 +1,8 @@
 
+clover2 (4.0.4-1) unstable; urgency=medium
+
+    * Multi line string bug was fiexed.
+
 clover2 (4.0.3-1) unstable; urgency=medium
 
     * Fixed regex bug. Inside String Expression (\{}) it became a block instead of an expression

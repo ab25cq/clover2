@@ -1,4 +1,8 @@
 
+version 4.0.4
+
+    Multi line string bug was fiexed.
+
 version 4.0.3
 
     Fixed regex bug.

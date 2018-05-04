@@ -3068,6 +3068,30 @@ static BOOL parse_string_expression(sNodeBlock** string_expressions, int* string
     return TRUE;
 }
 
+static BOOL remove_indent_for_multi_line_string(sBuf* value, int indent, sParserInfo* info)
+{
+    int i;
+    for(i=0; i<indent; i++) {
+        if(*info->p == ' ') {
+            info->p++;
+        }
+        else if(*info->p == '\n') {
+            info->sline++;
+            sBuf_append_char(value, *info->p);
+            info->p++;
+
+            remove_indent_for_multi_line_string(value, indent, info);
+            break;
+        }
+        else {
+            parser_err_msg(info, "require white space for indent of multi line string");
+            info->err_num++;
+        }
+    }
+
+    return TRUE;
+}
+
 static BOOL expression_node(unsigned int* node, sParserInfo* info)
 {
     int num_method_chains = 0;
@@ -3232,22 +3256,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 sBuf_append_char(&value, *info->p);
                 info->p++;
 
-                int i;
-                for(i=0; i<indent; i++) {
-                    if(*info->p == ' ') {
-                        info->p++;
-                    }
-                    else if(*info->p == '\n') {
-                        info->sline++;
-                        sBuf_append_char(&value, *info->p);
-                        info->p++;
-                        break;
-                    }
-                    else {
-                        parser_err_msg(info, "require white space for indent of multi line string");
-                        info->err_num++;
-                    }
-                }
+                remove_indent_for_multi_line_string(&value, indent, info);
             }
             else {
                 sBuf_append_char(&value, *info->p);

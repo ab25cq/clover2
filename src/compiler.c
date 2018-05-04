@@ -138,7 +138,7 @@ static BOOL class_compiler(char* fname)
 
 int gARGC;
 char** gARGV;
-char* gVersion = "4.0.3";
+char* gVersion = "4.0.4";
 
 int main(int argc, char** argv)
 {
@@ -163,6 +163,11 @@ int main(int argc, char** argv)
         }
         else if(strcmp(argv[i], "-class") == 0) {
             clcl_compile = TRUE;
+        }
+        else if(strcmp(argv[i], "--version") == 0 || strcmp(argv[i], "-version") == 0 || strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "-V") == 0)
+        {
+            printf("clover2 version %s\n", gVersion);
+            exit(0);
         }
         else {
             xstrncpy(sname, argv[i], PATH_MAX);

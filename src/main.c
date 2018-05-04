@@ -41,7 +41,7 @@ static void set_signal()
 
 int gARGC;
 char** gARGV;
-char* gVersion = "4.0.3";
+char* gVersion = "4.0.4";
 
 int main(int argc, char** argv, char* const * envp)
 {
@@ -56,6 +56,12 @@ int main(int argc, char** argv, char* const * envp)
     set_signal();
 
     for(i=1; i<argc; i++) {
+        if(strcmp(argv[i], "--version") == 0 || strcmp(argv[i], "-version") == 0 || strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "-V") == 0)
+        {
+            printf("clover2 version %s\n", gVersion);
+            exit(0);
+        }
+
         char* source = argv[i];
 
         /// get ocl file name
