@@ -116,14 +116,14 @@ class CLNodeTreePlus
     base:delegate CLNodeTreeBase;
 
     def initialize(left:CLNodeTree, right:CLNodeTree, sname:String, sline:int) {
-        base = new CLNodeTreeBase();
+        base = CLNodeTreeBase();
 
         kind(CLNodeTree.PlusExp);
 
-        left(left);
-        right(right);
+        self.left(left);
+        self.right(right);
 
-        base.type(left().type());
+        self.base.type(self.left().type());
 
         sourceName(sname);
         sourceLine(sline);
@@ -155,14 +155,14 @@ class CLNodeTreeMinus
 
     def initialize(left:CLNodeTree, right:CLNodeTree, sname:String, sline:int) 
     {
-        base = new CLNodeTreeBase();
+        base = CLNodeTreeBase();
 
         kind(CLNodeTree.MinusExp);
 
-        left(left);
-        right(right);
+        self.left(left);
+        self.right(right);
 
-        base.type(left().type());
+        self.base.type(self.left().type());
 
         sourceName(sname);
         sourceLine(sline);
@@ -194,14 +194,14 @@ class CLNodeTreeString
     value:String;
 
     def initialize(str:String, sname:String, sline:int) {
-        base = new CLNodeTreeBase();
+        base = CLNodeTreeBase();
 
         kind(CLNodeTree.StringType);
 
         sourceName(sname);
         sourceLine(sline);
 
-        base.type(new CLNodeType("String"));
+        base.type(CLNodeType("String"));
 
         value = str;
     }
@@ -246,7 +246,7 @@ class CLParser
             }
             skipSpacesAndLF();
 
-            result = new CLNodeTreeInt(value, sourceName, sourceLine);
+            result = CLNodeTreeInt(value, sourceName, sourceLine);
         }
         elif(p->byte == '"') {
             p++;
@@ -307,7 +307,7 @@ class CLParser
                 }
             }
 
-            result = new CLNodeTreeString(str, sourceName, sourceLine);
+            result = CLNodeTreeString(str, sourceName, sourceLine);
         }
 
         return result;
@@ -327,7 +327,7 @@ class CLParser
                     throw new Exception("\{sourceName} \{sourceLine}: Right expression is null.");
                 }
 
-                result = new CLNodeTreePlus(result, right, sourceName, sourceLine);
+                result = CLNodeTreePlus(result, right, sourceName, sourceLine);
             }
             elif(p->byte == '-') {
                 p++;
@@ -339,7 +339,7 @@ class CLParser
                     throw new Exception("\{sourceName} \{sourceLine}: Right expression is null.");
                 }
 
-                result = new CLNodeTreeMinus(result, right, sourceName, sourceLine);
+                result = CLNodeTreeMinus(result, right, sourceName, sourceLine);
             }
             else {
                 break;

@@ -4,10 +4,10 @@ class ExtTest
     def hello(param:int): native static int;
 
     def initialize():static {
-        dlib:pointer = System.dlopen("./libExtTest.so", System.RTLD_LAZY);
+        dlib:pointer = dlopen("./libExtTest.so", RTLD_LAZY);
 
-        hello_method:pointer = System.dlsym(dlib, "ExtTest_hello");
+        hello_method:pointer = dlsym(dlib, "ExtTest_hello");
 
-        System.put_fun_to_hash_for_native_method("ExtTest.hello(int)", "ExtTest_hello", hello_method);
+        put_fun_to_hash_for_native_method("ExtTest.hello(int)", "ExtTest_hello", hello_method);
     }
 }

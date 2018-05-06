@@ -681,13 +681,41 @@ int search_for_class_field(sCLClass* klass, char* field_name)
     return -1;
 }
 
-BOOL method_name_existance(sCLClass* klass, char* method_name)
+BOOL class_method_name_existance(sCLClass* klass, char* method_name)
 {
     int i;
     for(i=0; i<klass->mNumMethods; i++) {
         sCLMethod* method = klass->mMethods + i;
 
-        if(strcmp(METHOD_NAME2(klass, method), method_name) == 0) {
+        if((method->mFlags & METHOD_FLAGS_CLASS_METHOD ) && strcmp(METHOD_NAME2(klass, method), method_name) == 0) {
+            return TRUE;
+        }
+    }
+
+    return FALSE;
+}
+
+BOOL none_class_method_name_existance(sCLClass* klass, char* method_name)
+{
+    int i;
+    for(i=0; i<klass->mNumMethods; i++) {
+        sCLMethod* method = klass->mMethods + i;
+
+        if(!(method->mFlags & METHOD_FLAGS_CLASS_METHOD ) && strcmp(METHOD_NAME2(klass, method), method_name) == 0) {
+            return TRUE;
+        }
+    }
+
+    return FALSE;
+}
+
+BOOL class_field_name_existance(sCLClass* klass, char* field_name)
+{
+    int i;
+    for(i=0; i<klass->mNumClassFields; i++) {
+        sCLField* field = klass->mClassFields + i;
+
+        if(strcmp(FIELD_NAME(klass, field), field_name) == 0) {
             return TRUE;
         }
     }

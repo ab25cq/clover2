@@ -26,14 +26,10 @@ class System
 
     def initialize() : static {
         inherit();
-        System.initialize_cgi_system();
+        initialize_cgi_system();
     }
 
     def flock(fd:int, operation:int): static native throws Exception;
-}
-
-class CGI
-{
 }
 
 module MCSVFileToList
@@ -127,18 +123,18 @@ class File
             fd:int = fileno(self.stream);
 
             if(shared) {
-                flock(fd, System.LOCK_SH);
+                flock(fd, LOCK_SH);
             }
             else {
-                flock(fd, System.LOCK_EX);
+                flock(fd, LOCK_EX);
             }
         }
         else {
             if(shared) {
-                flock(self.fd, System.LOCK_SH);
+                flock(self.fd, LOCK_SH);
             }
             else {
-                flock(self.fd, System.LOCK_EX);
+                flock(self.fd, LOCK_EX);
             }
         }
     }
@@ -151,15 +147,15 @@ class File
         if(!self.stream.identifyWith(null)) {
             fd:int = fileno(self.stream);
 
-            flock(fd, System.LOCK_UN);
+            flock(fd, LOCK_UN);
         }
         else {
-            flock(fd, System.LOCK_UN);
+            flock(fd, LOCK_UN);
         }
     }
 
     def lockBlock(fname:String, shared:bool, block:lambda()): static throws Exception {
-        file:File = new File(fname, "w");
+        file:File = File(fname, "w");
         file.lock(shared);
         block();
         file.unlock();
@@ -168,9 +164,9 @@ class File
     }
 
     def lockBlock(shared:bool, block:lambda()) throws Exception {
-        self.lock(shared);
+        lock(shared);
         block();
-        self.unlock();
+        unlock();
     }
 }
 
@@ -209,5 +205,30 @@ class String
         }
 
         return result;
+    }
+
+    def decodeFromForm():String {
+        result := b"";
+
+        for(i:=0; i<self.length(); i++) {
+            c := self.chars(i);
+
+            if(c == '+') {
+                result.append(' ');
+            }
+            elif(c == '%') {
+                hex := self.subString(i+1, i+3);
+                hex.insert(0, "0x");
+                value := hex.hex();
+                result.append(value);
+
+                i+=2;
+            }
+            else {
+                result.append(c.toString().toBuffer());
+            }
+        }
+
+        return result.toString();
     }
 }

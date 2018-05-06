@@ -887,6 +887,14 @@ BOOL System_sprintf(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
                 char* str = NULL;
 
                 CLObject param = get_element_from_Array(params->mObjectValue, param_num)->mObjectValue;
+
+                if(param == 0) {
+                    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer Exception");
+                    MFREE(buf.mBuf);
+                    MFREE(format_string);
+                    return FALSE;
+                }
+
                 sCLClass* klass = get_class_from_object(param);
 
                 if(is_this_class_with_class_name(klass, "Byte")) {

@@ -100,7 +100,7 @@ class System
 
     def initialize(): static {
         inherit();
-        System.initialize_file_system();
+        initialize_file_system();
     }
     def open(file_name:String, flags:int, mode:mode_t):static native int throws Exception;
     def close(fd:int): static native int throws Exception;
@@ -179,11 +179,11 @@ class tm
     tm_isdst:bool;
     
     def initialize() {
-        self.initialize(System.time());
+        self.initialize(time());
     }
 
     def initialize(time:time_t) {
-        System.localtime(time, &self.tm_sec, &self.tm_min, &self.tm_hour, &self.tm_mday, &self.tm_mon, &self.tm_year, &self.tm_wday, &self.tm_yday, &self.tm_isdst);
+        localtime(time, &self.tm_sec, &self.tm_min, &self.tm_hour, &self.tm_mday, &self.tm_mon, &self.tm_year, &self.tm_wday, &self.tm_yday, &self.tm_isdst);
     }
 
     def initialize(year:int, month:int, day_of_month:int, hour:int, minuts:int, sec:int, day_of_week:int, day_of_year:int, isdst:bool) 
@@ -255,11 +255,11 @@ class tm
     }
 
     def toString():String {
-        return System.sprintf("%d-%02d-%02d %02d:%02d", array { self.year().toInteger, self.month().toInteger, self.dayOfMonth().toInteger, self.hour().toInteger, self.minuts().toInteger });
+        return sprintf("%d-%02d-%02d %02d:%02d", array { self.year().toInteger, self.month().toInteger, self.dayOfMonth().toInteger, self.hour().toInteger, self.minuts().toInteger });
     }
 
     def to_time_t():time_t throws Exception {
-        return System.mktime(self);
+        return mktime(self);
     }
 }
 
@@ -288,40 +288,40 @@ class stat
         self.initialize(path, false);
     }
     def S_ISDIR():bool {
-        return (self.st_mode & System.S_IFMT) == System.S_IFDIR;
+        return (self.st_mode & S_IFMT) == S_IFDIR;
     }
     def S_ISCHR():bool {
-        return (self.st_mode & System.S_IFMT) == System.S_IFCHR;
+        return (self.st_mode & S_IFMT) == S_IFCHR;
     }
     def S_ISBLK():bool {
-        return (self.st_mode & System.S_IFMT) == System.S_IFBLK;
+        return (self.st_mode & S_IFMT) == S_IFBLK;
     }
     def S_ISREG():bool {
-        return (self.st_mode & System.S_IFMT) == System.S_IFREG;
+        return (self.st_mode & S_IFMT) == S_IFREG;
     }
     def S_ISFIFO():bool {
-        return (self.st_mode & System.S_IFMT) == System.S_IFIFO;
+        return (self.st_mode & S_IFMT) == S_IFIFO;
     }
     def S_ISLNK():bool {
-        return (self.st_mode & System.S_IFMT) == System.S_IFLNK;
+        return (self.st_mode & S_IFMT) == S_IFLNK;
     }
     def S_ISSOCK():bool {
-        return (self.st_mode & System.S_IFMT) == System.S_IFSOCK;
+        return (self.st_mode & S_IFMT) == S_IFSOCK;
     }
     def permission():int {
-        return self.st_mode & (System.S_ISUID|System.S_ISGID|System.S_ISVTX|System.S_IRWXU|System.S_IRWXG|System.S_IRWXO);
+        return self.st_mode & (S_ISUID|S_ISGID|S_ISVTX|S_IRWXU|S_IRWXG|S_IRWXO);
     }
     def S_IXUGO():bool {
-        return ((self.st_mode & System.S_IXUSR) == System.S_IXUSR) && ((self.st_mode & System.S_IXGRP) == System.S_IXGRP) && ((self.st_mode & System.S_IXOTH) == System.S_IXOTH);
+        return ((self.st_mode & S_IXUSR) == S_IXUSR) && ((self.st_mode & S_IXGRP) == S_IXGRP) && ((self.st_mode & S_IXOTH) == S_IXOTH);
     }
     def atime():tm {
-        return new tm(self.st_atime);
+        return tm(self.st_atime);
     }
     def ctime():tm {
-        return new tm(self.st_ctime);
+        return tm(self.st_ctime);
     }
     def mtime():tm {
-        return new tm(self.st_mtime);
+        return tm(self.st_mtime);
     }
     def size():size_t {
         return self.st_size;
@@ -365,7 +365,7 @@ class stat
 class String 
 {
     def toPath(): Path {
-        return new Path(self);
+        return Path(self);
     }
 }
 
@@ -383,7 +383,7 @@ class File
 
     def initialize(file_name:String, flags:int, mode:mode_t) throws Exception 
     {
-        self.fd = System.open(file_name, flags, mode);
+        self.fd = open(file_name, flags, mode);
         self.fileName = file_name;
         self.stream = null;
     }
@@ -391,7 +391,7 @@ class File
     def initialize(file_name:String, mode:String) throws Exception {
         self.fd = -1;
         self.fileName = file_name;
-        self.stream = System.fopen(file_name, mode);
+        self.stream = fopen(file_name, mode);
     }
 
     def initialize(file_name:String) throws Exception {
@@ -410,7 +410,7 @@ class File
             self.fileName = null;
         }
         if(self.stream != null) {
-            System.fclose(self.stream);
+            fclose(self.stream);
             
             self.stream = null;
             self.fileName = null;
@@ -419,16 +419,16 @@ class File
 
     def read(size:size_t): Buffer throws Exception {
         if(self.fd == -1 && self.stream == null) {
-            throw new Exception("File is not opened");
+            throw Exception("File is not opened");
         }
         
         if(self.stream != null) {
-            result:Buffer = new Buffer(size+1.to_ulong);
-            System.fread(result, size, self.stream);
+            result:Buffer = Buffer(size+1.to_ulong);
+            fread(result, size, self.stream);
             return result;
         }
         else {
-            result:Buffer = new Buffer(size+1.to_ulong);
+            result:Buffer = Buffer(size+1.to_ulong);
             System.read(self.fd, result, size);
             return result;
         }
@@ -436,21 +436,21 @@ class File
 
     def to_stat(): stat throws Exception {
         if(self.fileName.identifyWith(null)) {
-            throw new Exception("File is not opened");
+            throw Exception("File is not opened");
         }
 
-        return new stat(self.fileName);
+        return stat(self.fileName);
     }
     def to_lstat(): stat throws Exception {
         if(self.fileName.identifyWith(null)) {
-            throw new Exception("File is not opened");
+            throw Exception("File is not opened");
         }
 
-        return new stat(self.fileName, true);
+        return stat(self.fileName, true);
     }
 
     def read(file_name:String): static Buffer throws Exception {
-        f:File = new File(file_name);
+        f:File = File(file_name);
         result: Buffer = f.read();
         f.close();
 
@@ -459,20 +459,20 @@ class File
 
     def read(): Buffer throws Exception {
         if(self.fd == -1 && self.stream == null) {
-            throw new Exception("File is not opened");
+            throw Exception("File is not opened");
         }
 
         if(self.stream != null) {
             size:size_t = self.to_stat().size();
 
-            result:Buffer = new Buffer(size+1.to_ulong);
-            System.fread(result, size, self.stream);
+            result:Buffer = Buffer(size+1.to_ulong);
+            fread(result, size, self.stream);
             return result;
         }
         else {
             size:size_t = self.to_stat().size();
 
-            result:Buffer = new Buffer(size+1.to_ulong);
+            result:Buffer = Buffer(size+1.to_ulong);
             System.read(self.fd, result, size);
             return result;
         }
@@ -480,11 +480,11 @@ class File
 
     def write(buf:Buffer, size:size_t):int throws Exception {
         if(self.fd == -1 && self.stream == null) {
-            throw new Exception("File is not opened");
+            throw Exception("File is not opened");
         }
 
         if(self.stream != null) {
-            return System.fwrite(buf, size, self.stream);
+            return fwrite(buf, size, self.stream);
         }
         else {
             return System.write(self.fd, buf, size);
@@ -501,7 +501,7 @@ class File
 
     def write(file_name:String, buf:Buffer, mode:mode_t): static int throws Exception 
     {
-        f:File = new File(file_name, System.O_CREAT|System.O_TRUNC|System.O_WRONLY, mode);
+        f:File = File(file_name, O_CREAT|O_TRUNC|O_WRONLY, mode);
         result:int = f.write(buf);
         f.close();
 
@@ -509,7 +509,7 @@ class File
     }
     def write(file_name:String, buf:Buffer, mode:String): static throws Exception
     {
-        f:File = new File(file_name, mode);
+        f:File = File(file_name, mode);
         f.write(buf);
         f.close();
     }
@@ -527,10 +527,10 @@ class Path
     }
 
     def to_stat():stat {
-        return new stat(self.path);
+        return stat(self.path);
     }
     def to_lstat():stat {
-        return new stat(self.path,true);
+        return stat(self.path,true);
     }
 
     def toString(): String {
@@ -668,7 +668,7 @@ class Directory
 
     def initialize(path:String) throws Exception {
         self.path = path;
-        self.dir = System.opendir(path);
+        self.dir = opendir(path);
     }
 
     def finalize() {
@@ -679,7 +679,7 @@ class Directory
     
     def readdir(): String? throws Exception {
         if(self.dir == 0.to_pointer) {
-            throw new Exception("This directory is not opened");
+            throw Exception("This directory is not opened");
         }
 
         return System.readdir(self.dir);
@@ -693,8 +693,8 @@ class Directory
     }
 
     def entries(path:String): static SortableList<String> throws Exception {
-        dir:Directory = new Directory(path);
-        result:SortableList<String> = new SortableList<String>();
+        dir:Directory = Directory(path);
+        result:SortableList<String> = SortableList<String>();
 
         while(true) {
             entry:String? = dir.readdir();
@@ -720,8 +720,8 @@ class Directory
     }
 
     def glob(path:String, pattern:String, flags:int): static SortableList<String> throws Exception {
-        dir:Directory = new Directory(path);
-        result:SortableList<String> = new SortableList<String>();
+        dir:Directory = Directory(path);
+        result:SortableList<String> = SortableList<String>();
 
         while(true) {
             entry:String? = dir.readdir();
@@ -730,7 +730,7 @@ class Directory
                 break;
             }
 
-            if(System.fnmatch(pattern, entry, flags)) {
+            if(fnmatch(pattern, entry, flags)) {
                 if(path.chars(-1) == '/') {
                     entry2:String = sprintf("%s%s", array { path, entry });
                     result.add(entry2);
@@ -796,11 +796,11 @@ class Clover
         return time2 - time1;
     }
     def realtime(block_:lambda()):static timespec {
-        ts1:timespec = new timespec();
-        System.clock_gettime(System.CLOCK_MONOTONIC, ts1);
+        ts1:timespec = timespec();
+        clock_gettime(CLOCK_MONOTONIC, ts1);
         block_();
-        ts2:timespec = new timespec();
-        System.clock_gettime(System.CLOCK_MONOTONIC, ts2);
+        ts2:timespec = timespec();
+        clock_gettime(CLOCK_MONOTONIC, ts2);
 
         return ts2.minus(ts1);
     }

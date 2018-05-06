@@ -212,7 +212,7 @@ Debianではパッケージによるインストールができます。. make_d
 
 ## 掲示板
 
-5ch プログラム板 * [【静的型付けRuby】Clover2 【LLVM,補完付きREPL】](https://mevius.5ch.net/test/read.cgi/tech/1520385530/l50)
+[Clover2 サポート掲示板](http://clover-lang.org/bbs.cgi)
 
 ----
 

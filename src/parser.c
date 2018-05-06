@@ -4001,21 +4001,27 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         }
         else {
             sCLClass* klass;
-            if(buf[0] >= 'A' && buf[0] <= 'Z') { // 大文字から始まるクラス名しかクラスフィールドとクラスメソッドはアクセスできなくしている。理由はOSXでファイル名が小文字と大文字を区別しないため。
+
+            if(strcmp(buf, "SELF") == 0) {
+                klass = info->klass;
+            }
+            else {
                 klass = get_class(buf);
 
                 if(klass == NULL) {
-                    klass = load_class_on_compile_time(buf);
+                    if(buf[0] >= 'A' && buf[0] <= 'Z') {  // for OSX. OSX ignores the case of file name
+                        klass = load_class_on_compile_time(buf);
+                    }
+                    else {
+                        klass = NULL;
+                    }
                 }
-            }
-            else {
-                klass = NULL;
             }
 
             sCLClass* global_klass = get_class("Global");
             sCLClass* system_klass = get_class("System");
 
-            /// クラス名だった ///
+            /// It is class name ///
             if(klass) {
                 skip_spaces_and_lf(info);
 
@@ -4028,7 +4034,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     return FALSE;
                 }
 
-                /// クラスフィールドとクラスメソッド ///
+                /// class field or class method ///
                 if(*info->p == '.') {
                     info->p++;
                     skip_spaces_and_lf(info);
@@ -4040,7 +4046,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                         return FALSE;
                     }
 
-                    /// クラスメソッド ///
+                    /// class method ///
                     if(*info->p == '(') {
                         unsigned int params[PARAMS_MAX];
                         int num_params = 0;
@@ -4058,7 +4064,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                             return FALSE;
                         }
                     }
-                    /// クラスフィールド ///
+                    /// class field ///
                     else {
                         if(is_assign_operator(info)) {
                             /// load field ///
@@ -4104,14 +4110,107 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                         return FALSE;
                     }
                 }
-                /// クラス名の次は必ず.か(がないといけない ///
                 else {
-                    parser_err_msg(info, "require . operator");
+                    parser_err_msg(info, "require . or ( or [ after class name");
                     info->err_num++;
                 }
             }
-            /// グローバルクラスのメソッド？ ///
-            else if(global_klass && method_name_existance(global_klass, buf) && *info->p == '(')
+            /// the local variable ///
+            else if(strcmp(buf, "self") == 0 
+                || is_method_param_name(buf) 
+                || get_variable_from_table(info->lv_table, buf))
+            {
+                skip_spaces_and_lf(info);
+
+                *node = sNodeTree_create_load_variable(buf, info);
+
+                /// calling lambda or closure ///
+                if(*info->p == '(') {
+                    unsigned int params[PARAMS_MAX];
+                    int num_params = 0;
+
+                    if(!parse_method_params(&num_params, params, info)) {
+                        return FALSE;
+                    }
+
+                    *node = sNodeTree_create_block_call(*node, num_params, params, info);
+                }
+            }
+            /// the field name in the same class ///
+            else if(info->klass && field_name_existance(info->klass, buf) && *info->p != '(')
+            {
+                skip_spaces_and_lf(info);
+
+                *node = sNodeTree_create_load_variable("self", info);
+
+                *node = sNodeTree_create_fields(buf, *node, info);
+            }
+            /// the class field name in the same class ///
+            else if(info->klass && class_field_name_existance(info->klass, buf) && *info->p != '(')
+            {
+                skip_spaces_and_lf(info);
+
+                if(is_assign_operator(info)) {
+                    /// load field ///
+                    *node = sNodeTree_create_class_fields(info->klass, buf, info);
+
+                    /// go 
+                    if(!assign_operator(node, info)) {
+                        return FALSE;
+                    }
+
+                    *node = sNodeTree_create_assign_class_field(info->klass, buf, *node, info);
+                }
+                else if(*info->p == '=' && *(info->p +1) != '=') {
+                    info->p++;
+                    skip_spaces_and_lf(info);
+
+                    unsigned int right_node = 0;
+
+                    if(!expression(&right_node, info)) {
+                        return FALSE;
+                    }
+
+                    if(right_node == 0) {
+                        parser_err_msg(info, "Require right value");
+                        info->err_num++;
+
+                        *node = 0;
+                    }
+                    else {
+                        *node = sNodeTree_create_assign_class_field(info->klass, buf, right_node, info);
+                    }
+                }
+                else {
+                    *node = sNodeTree_create_class_fields(info->klass, buf, info);
+                }
+            }
+            /// the method name in the same class ///
+            else if(info->klass && none_class_method_name_existance(info->klass, buf) && *info->p == '(')
+            {
+                skip_spaces_and_lf(info);
+
+                *node = sNodeTree_create_load_variable("self", info);
+
+                unsigned int params[PARAMS_MAX];
+                int num_params = 0;
+
+                if(!parse_method_params(&num_params, params, info)) {
+                    return FALSE;
+                }
+
+                *node = sNodeTree_create_method_call(*node, buf, params, num_params, num_method_chains, info);
+                max_method_chains_node[num_method_chains] = *node;
+
+                num_method_chains++;
+
+                if(num_method_chains >= METHOD_CHAIN_MAX) {
+                    parser_err_msg(info, "overflow method chain");
+                    return FALSE;
+                }
+            }
+            /// the class method name in the same class ///
+            else if(info->klass && class_method_name_existance(info->klass, buf) && *info->p == '(')
             {
                 skip_spaces_and_lf(info);
 
@@ -4122,12 +4221,12 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     return FALSE;
                 }
 
-                sNodeType* global_klass_type = alloc_node_type();
+                sNodeType* node_type = alloc_node_type();
 
-                global_klass_type->mClass = global_klass;
-                global_klass_type->mNumGenericsTypes = 0;
+                node_type->mClass = info->klass;
+                node_type->mNumGenericsTypes = 0;
 
-                *node = sNodeTree_create_class_method_call(global_klass_type, buf, params, num_params, info);
+                *node = sNodeTree_create_class_method_call(node_type, buf, params, num_params, info);
                 max_method_chains_node[num_method_chains] = *node;
                 num_method_chains++;
                 if(num_method_chains >= METHOD_CHAIN_MAX) {
@@ -4135,8 +4234,48 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     return FALSE;
                 }
             }
+            /// is Sytem Class field ? ///
+            else if(system_klass && class_field_name_existance(system_klass, buf) && *info->p != '(')
+            {
+                skip_spaces_and_lf(info);
+
+                if(is_assign_operator(info)) {
+                    /// load field ///
+                    *node = sNodeTree_create_class_fields(system_klass, buf, info);
+
+                    /// go 
+                    if(!assign_operator(node, info)) {
+                        return FALSE;
+                    }
+
+                    *node = sNodeTree_create_assign_class_field(system_klass, buf, *node, info);
+                }
+                else if(*info->p == '=' && *(info->p +1) != '=') {
+                    info->p++;
+                    skip_spaces_and_lf(info);
+
+                    unsigned int right_node = 0;
+
+                    if(!expression(&right_node, info)) {
+                        return FALSE;
+                    }
+
+                    if(right_node == 0) {
+                        parser_err_msg(info, "Require right value");
+                        info->err_num++;
+
+                        *node = 0;
+                    }
+                    else {
+                        *node = sNodeTree_create_assign_class_field(system_klass, buf, right_node, info);
+                    }
+                }
+                else {
+                    *node = sNodeTree_create_class_fields(system_klass, buf, info);
+                }
+            }
             /// is Sytem Class method ? ///
-            else if(system_klass && method_name_existance(system_klass, buf) && *info->p == '(')
+            else if(system_klass && class_method_name_existance(system_klass, buf) && *info->p == '(')
             {
                 skip_spaces_and_lf(info);
 
@@ -4160,12 +4299,10 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     return FALSE;
                 }
             }
-            /// 同一クラス内のメソッド？
-            else if(info->klass && method_name_existance(info->klass, buf) && *info->p == '(')
+            /// Global class method ///
+            else if(global_klass && class_method_name_existance(global_klass, buf) && *info->p == '(')
             {
                 skip_spaces_and_lf(info);
-
-                *node = sNodeTree_create_load_variable("self", info);
 
                 unsigned int params[PARAMS_MAX];
                 int num_params = 0;
@@ -4174,9 +4311,43 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     return FALSE;
                 }
 
-                *node = sNodeTree_create_method_call(*node, buf, params, num_params, num_method_chains, info);
-                max_method_chains_node[num_method_chains] = *node;
+                sNodeType* global_klass_type = alloc_node_type();
 
+                global_klass_type->mClass = global_klass;
+                global_klass_type->mNumGenericsTypes = 0;
+
+                *node = sNodeTree_create_class_method_call(global_klass_type, buf, params, num_params, info);
+                max_method_chains_node[num_method_chains] = *node;
+                num_method_chains++;
+                if(num_method_chains >= METHOD_CHAIN_MAX) {
+                    parser_err_msg(info, "overflow method chain");
+                    return FALSE;
+                }
+            }
+            /// Command ///
+            else if(get_variable_index(info->lv_table, buf) == -1 && is_command_name(buf) && *info->p == '(')
+            {
+                skip_spaces_and_lf(info);
+
+                /// Command class method call ///
+                unsigned int params[PARAMS_MAX];
+                int num_params = 0;
+
+                if(!parse_method_params(&num_params, params, info)) {
+                    return FALSE;
+                }
+
+                sCLClass* command_klass = get_class("Command");
+
+                MASSERT(command_klass != NULL);
+
+                sNodeType* command_klass_type = alloc_node_type();
+
+                command_klass_type->mClass = command_klass;
+                command_klass_type->mNumGenericsTypes = 0;
+
+                *node = sNodeTree_create_class_method_call(command_klass_type, buf, params, num_params, info);
+                max_method_chains_node[num_method_chains] = *node;
                 num_method_chains++;
 
                 if(num_method_chains >= METHOD_CHAIN_MAX) {
@@ -4184,36 +4355,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     return FALSE;
                 }
             }
-            /// ローカル変数 ///
-            else if(get_variable_from_table(info->lv_table, buf) || is_method_param_name(buf) || info->multiple_assignment) 
-            {
-                skip_spaces_and_lf(info);
-
-                *node = sNodeTree_create_load_variable(buf, info);
-
-                /// 括弧があるならラムダ式の呼び出し ///
-                if(*info->p == '(') {
-                    unsigned int params[PARAMS_MAX];
-                    int num_params = 0;
-
-                    if(!parse_method_params(&num_params, params, info)) {
-                        return FALSE;
-                    }
-
-                    *node = sNodeTree_create_block_call(*node, num_params, params, info);
-                }
-            }
-            /// 同一クラス内のフィールド？
-            else if(info->klass && field_name_existance(info->klass, buf)
-                && *info->p != '(')
-            {
-                skip_spaces_and_lf(info);
-
-                *node = sNodeTree_create_load_variable("self", info);
-
-                *node = sNodeTree_create_fields(buf, *node, info);
-            }
-            /// コマンド名かつローカル変数でなかったらシェルモードに入る ///
+            /// shell mode ///
             else if(including_slash || (get_variable_index(info->lv_table, buf) == -1 && is_command_name(buf) && *info->p != '('))
             {
                 unsigned int params[PARAMS_MAX];
@@ -4318,36 +4460,12 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     }
                 }
             }
-            /// ローカル変数でも無くて、コマンド名かつ(があるなら、それはコマンド名 vim("src/main.c")など
-            else if(get_variable_index(info->lv_table, buf) == -1 && is_command_name(buf) && *info->p == '(')
+            /// the local variable declaration for the multiple_assignments ///
+            else if(info->multiple_assignment) 
             {
                 skip_spaces_and_lf(info);
 
-                /// Command class method call ///
-                unsigned int params[PARAMS_MAX];
-                int num_params = 0;
-
-                if(!parse_method_params(&num_params, params, info)) {
-                    return FALSE;
-                }
-
-                sCLClass* command_klass = get_class("Command");
-
-                MASSERT(command_klass != NULL);
-
-                sNodeType* command_klass_type = alloc_node_type();
-
-                command_klass_type->mClass = command_klass;
-                command_klass_type->mNumGenericsTypes = 0;
-
-                *node = sNodeTree_create_class_method_call(command_klass_type, buf, params, num_params, info);
-                max_method_chains_node[num_method_chains] = *node;
-                num_method_chains++;
-
-                if(num_method_chains >= METHOD_CHAIN_MAX) {
-                    parser_err_msg(info, "overflow method chain");
-                    return FALSE;
-                }
+                *node = sNodeTree_create_load_variable(buf, info);
             }
             else {
                 parser_err_msg(info, "%s is undeclared(3)", buf);
@@ -4355,7 +4473,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             }
         }
     }
-    /// 正規表現 ///
+    /// regex ///
     else if(*info->p == '/' && *(info->p+1) != '*') {
         info->p++;
         skip_spaces_and_lf(info);
@@ -4460,14 +4578,14 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
         *node = sNodeTree_create_regex(MANAGED regex.mBuf, global, ignore_case, multiline, extended, dotall, anchored, dollar_endonly, ungreedy, string_expressions, string_expression_offsets, num_string_expression, info);
     }
-    /// 括弧の式 ///
+    /// Tuple or paren expression or multiple assginment ///
     else if(*info->p == '(') {
         info->p++;
         skip_spaces_and_lf(info);
 
-        /// 多重代入？ ///
         info->multiple_assignment = TRUE;
 
+        /// Is multiple assignment? ///
         if(!expression(node, info)) {
             info->multiple_assignment = FALSE;
             return FALSE;
@@ -4479,7 +4597,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             info->err_num++;
         }
 
-        /// タプル ///
+        /// tuple ///
         if(*info->p == ',') {
             info->p++;
             skip_spaces_and_lf(info);
@@ -4517,7 +4635,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 }
             }
 
-            /// 多重代入1 ///
+            /// multiple assignment1 ///
             if(*info->p == ':' && *(info->p+1) == '=') {
                 info->p+=2;
                 skip_spaces_and_lf(info);
@@ -4533,7 +4651,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     info->err_num++;
                 }
 
-                /// 変数宣言 ///
+                /// the varialbe declaration ///
                 int i;
                 for(i=0; i<num_elements; i++) {
                     int node = tuple_element[i];
@@ -4551,8 +4669,8 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
                 *node = sNodeTree_create_multiple_asignment(num_elements, tuple_element, node2, info);
             }
-            /// 多重代入2 ///
-            else if(*info->p == '=') {
+            /// multiple assginment2 ///
+            else if(*info->p == '=' && *(info->p+1) != '=') {
                 info->p++;
                 skip_spaces_and_lf(info);
 
@@ -4562,7 +4680,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     return FALSE;
                 }
 
-                /// 変数かチェック ///
+                /// Is the local variable ? ///
                 int i;
                 for(i=0; i<num_elements; i++) {
                     int node = tuple_element[i];
@@ -4605,7 +4723,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
         info->multiple_assignment = FALSE;
     }
-    /// アドレス取得演算子 ///
+    /// operator getting address ///
     else if(*info->p == '&') {
         info->p++;
         skip_spaces_and_lf(info);
@@ -4617,7 +4735,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
         *node = sNodeTree_create_get_address(*node, info);
     }
-    /// ソースの終わりなら空の式を返す
+    /// the source end ///
     else if(*info->p == 0) {
         *node = 0;
         return TRUE;

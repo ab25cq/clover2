@@ -26,7 +26,7 @@ class System
 
     def initialize(): static {
         inherit();
-        System.initialize_system_calls_system();
+        initialize_system_calls_system();
     }
 
     def getopt(optstring:String, opterr:bool=true): native static Tuple3<Integer, String?, Integer>;

@@ -1,4 +1,14 @@
 
+version 4.0.5
+
+    The class field of the System class can now omit the notation System. In other words, access(fname, R_OK) == 0 etc is compiled.
+
+    I put String.decodeFromForm (). It is useful in CGI
+
+    Refactoring processing of identifiers. I think there was a bug. Fix.
+
+    Class names can now be omitted when calling class methods and class fields of the same class.
+
 version 4.0.4
 
     Multi line string bug was fiexed.

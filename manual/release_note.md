@@ -1,5 +1,15 @@
 English page is here [>> English page](release_note-en)
 
+version 4.0.5
+
+    SystemクラスのクラスフィールドはSystem.という表記を省略できるようになりました。つまりaccess(fname, R_OK) == 0などはコンパイルが通ります。
+
+    String.decodeFromForm()をいれました。CGIで便利です
+
+    識別子の処理をリファクタリング。バグがあったと思います。修正。
+
+    同じクラスのクラスメソッドとクラスフィールドの呼び出し時にクラス名を省略できるようになりました。
+
 version 4.0.4
 
     Multi line stringのインデントのバグを修正。

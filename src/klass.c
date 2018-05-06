@@ -817,6 +817,7 @@ sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_clas
     memset(klass->mTypedefClassName1Offsets, 0, sizeof(int)*TYPEDEF_MAX);
     memset(klass->mTypedefClassName2Offsets, 0, sizeof(int)*TYPEDEF_MAX);
 
+
     return klass;
 }
 

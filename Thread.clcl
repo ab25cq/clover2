@@ -23,7 +23,7 @@ class timespec
     }
 
     def minus(right:timespec):timespec {
-        result:timespec = new timespec();
+        result:timespec = timespec();
 
         result.tv_sec = self.tv_sec - right.tv_sec;
         result.tv_nsec = self.tv_nsec - right.tv_nsec;
@@ -48,7 +48,7 @@ class System
     def initialize_thread_system(): static native;
 
     def initialize(): static {
-        System.initialize_thread_system();
+        initialize_thread_system();
     }
 
     EINVAL: static int;
@@ -106,14 +106,14 @@ class Mutex
     attr: pthread_mutexattr_t;
 
     def initialize(recursive:bool, error_check:bool) {
-        mutex = new pthread_mutex_t();
+        mutex = pthread_mutex_t();
 
         pthread_mutexattr_init(&attr);
         if(recursive) {
-            pthread_mutexattr_settype(&attr, System.PTHREAD_MUTEX_RECURSIVE);
+            pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
         }
         elif(error_check) {
-            pthread_mutexattr_settype(&attr, System.PTHREAD_MUTEX_ERRORCHECK);
+            pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK);
         }
         pthread_mutex_init(&mutex, &attr);
     }

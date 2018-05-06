@@ -192,7 +192,7 @@ class System
 
     def initialize(): static {
         inherit();
-        System.initialize_command_system();
+        initialize_command_system();
     }
 
     def system(str:String): static native int throws Exception;
@@ -247,7 +247,7 @@ class termios
         self.c_oflag = 0;
         self.c_cflag = 0;
         self.c_lflag = 0;
-        self.c_cc = new cc_t[32];
+        self.c_cc = cc_t[32];
     }
 }
 
@@ -278,39 +278,39 @@ class Job
         return true;
     }
     def forground() {
-        terminfo := System.tcgetattr(0);
+        terminfo := tcgetattr(0);
 
-        System.tcsetattr(0, System.TCSANOW, self.terminfo);
-        System.tcsetpgrp(0, self.pgrp);
+        tcsetattr(0, TCSANOW, self.terminfo);
+        tcsetpgrp(0, self.pgrp);
 
-        System.kill(self.pgrp, System.SIGCONT);
+        kill(self.pgrp, SIGCONT);
 
         status:wait_status = 0;
-        pid2:pid_t = System.waitpid(self.pgrp, &status, System.WUNTRACED);
+        pid2:pid_t = waitpid(self.pgrp, &status, WUNTRACED);
 
-        if(System.WIFSTOPPED(status)) {
-            rcode:int = System.WSTOPSIG(status) +128;
+        if(WIFSTOPPED(status)) {
+            rcode:int = WSTOPSIG(status) +128;
 
-            terminfo2 := System.tcgetattr(0);
+            terminfo2 := tcgetattr(0);
 
             self.terminfo = terminfo2;
 
-            System.tcsetattr(0, System.TCSANOW, terminfo);
-            System.tcsetpgrp(0, System.getpid());
+            tcsetattr(0, TCSANOW, terminfo);
+            tcsetpgrp(0, getpid());
         }
-        elif(System.WIFSIGNALED(status)) {
+        elif(WIFSIGNALED(status)) {
             printf("Job<%s> is done.\n", array { self.title });
 
             Clover.jobs.delete(self);
 
-            System.tcsetattr(0, System.TCSANOW, terminfo);
-            System.tcsetpgrp(0, System.getpid());
+            tcsetattr(0, TCSANOW, terminfo);
+            tcsetpgrp(0, getpid());
         }
         else {
             Clover.jobs.delete(self);
 
-            System.tcsetattr(0, System.TCSANOW, terminfo);
-            System.tcsetpgrp(0, System.getpid());
+            tcsetattr(0, TCSANOW, terminfo);
+            tcsetpgrp(0, getpid());
         }
     }
 }
@@ -322,7 +322,7 @@ class Clover
     def initialize(): static {
         inherit();
 
-        Clover.jobs = new EqualableList<Job>();
+        Clover.jobs = EqualableList<Job>();
     }
 }
 
@@ -356,7 +356,7 @@ dynamic_class Command
 
     def callingMethod(method_name:String, params:Array<Object>, num_method_chains:int, max_method_chains:int) : static Command throws Exception 
     {
-        params2:List<String> = new List<String>();
+        params2:List<String> = List<String>();
         controlling_terminal_flag:bool = false;
         no_controlling_terminal_flag:bool = false;
         getting_stderr_flag:bool = false;
@@ -521,7 +521,7 @@ dynamic_class Command
 
     def callingMethod(method_name:String, params:Array<Object>, num_method_chains:int, max_method_chains:int) : Command throws Exception 
     {
-        params2:List<String> = new List<String>();
+        params2:List<String> = List<String>();
         controlling_terminal_flag:bool = false;
         no_controlling_terminal_flag:bool = false;
         getting_stderr_flag:bool = false;
@@ -691,59 +691,59 @@ dynamic_class Command
         child2parent_read_fd_err:int = 0;
         child2parent_write_fd_err:int = 0;
 
-        System.pipe(&parent2child_read_fd, &parent2child_write_fd);
-        System.pipe(&child2parent_read_fd, &child2parent_write_fd);
-        System.pipe(&child2parent_read_fd_err, &child2parent_write_fd_err);
+        pipe(&parent2child_read_fd, &parent2child_write_fd);
+        pipe(&child2parent_read_fd, &child2parent_write_fd);
+        pipe(&child2parent_read_fd_err, &child2parent_write_fd_err);
 
-        pid:pid_t = System.fork(closure() {
-            System.close(parent2child_write_fd);
-            System.close(child2parent_read_fd);
-            System.close(child2parent_read_fd_err);
+        pid:pid_t = fork() {
+            close(parent2child_write_fd);
+            close(child2parent_read_fd);
+            close(child2parent_read_fd_err);
 
-            System.dup2(parent2child_read_fd, 0);
-            System.dup2(child2parent_write_fd, 1);
-            System.dup2(child2parent_write_fd_err, 2);
+            dup2(parent2child_read_fd, 0);
+            dup2(child2parent_write_fd, 1);
+            dup2(child2parent_write_fd_err, 2);
 
-            System.close(parent2child_read_fd);
-            System.close(child2parent_write_fd);
-            System.close(child2parent_write_fd_err);
+            close(parent2child_read_fd);
+            close(child2parent_write_fd);
+            close(child2parent_write_fd_err);
 
             try {
                 if(method_name.chars(0) == '/') {
-                    System.execv(method_name, params);
+                    execv(method_name, params);
                 }
                 else {
-                    System.execvp(method_name, params);
+                    execvp(method_name, params);
                 }
             } catch(e:Exception) {
                 buffer:Buffer = e.message.append("\n").toBuffer();
                 System.write(2, buffer, buffer.len);
-                System.exit(64);
+                exit(64);
             }
-        });
+        };
 
-        System.close(parent2child_read_fd);
-        System.close(child2parent_write_fd);
-        System.close(child2parent_write_fd_err);
+        close(parent2child_read_fd);
+        close(child2parent_write_fd);
+        close(child2parent_write_fd_err);
 
         if(!pipe_data.identifyWith(null)) {
             buffer:Buffer = pipe_data.toBuffer();
             System.write(parent2child_write_fd, buffer, buffer.len);
         }
-        System.close(parent2child_write_fd);
+        close(parent2child_write_fd);
 
         child_output:Buffer = B"";
         
         while(true) {
-            pipe_data:Buffer = new Buffer(128.to_ulong);
+            pipe_data:Buffer = Buffer(128.to_ulong);
 
-            readed_byte:int = System.read(child2parent_read_fd, pipe_data, 128.to_ulong);
+            readed_byte:int = read(child2parent_read_fd, pipe_data, 128.to_ulong);
 
             child_output.append(pipe_data);
 
-            pipe_data_err:Buffer = new Buffer(128.to_ulong);
+            pipe_data_err:Buffer = Buffer(128.to_ulong);
 
-            readed_byte_err:int = System.read(child2parent_read_fd_err, pipe_data_err, 128.to_ulong);
+            readed_byte_err:int = read(child2parent_read_fd_err, pipe_data_err, 128.to_ulong);
 
             child_output.append(pipe_data_err);
 
@@ -752,23 +752,23 @@ dynamic_class Command
             }
         }
 
-        System.close(child2parent_read_fd);
-        System.close(child2parent_read_fd_err);
+        close(child2parent_read_fd);
+        close(child2parent_read_fd_err);
 
         status: wait_status = 0;
 
-        pid2:pid_t = System.waitpid(pid, &status, System.WUNTRACED);
+        pid2:pid_t = waitpid(pid, &status, WUNTRACED);
 
-        if(System.WEXITSTATUS(status) == 64) {
-            throw new Exception("Command not found");
+        if(WEXITSTATUS(status) == 64) {
+            throw Exception("Command not found");
         }
 
-        return new Command(child_output.toString(), System.WEXITSTATUS(status));
+        return Command(child_output.toString(), WEXITSTATUS(status));
     }
 
     def expandArg(arg:String):static SortableList<String> {
         if(Directory.isGlobString(arg)) {
-            dir:String = System.dirname(arg);
+            dir:String = dirname(arg);
             if(dir.equals(".")) {
                 pattern:String = arg;
                 return Directory.glob(dir, pattern, 0);
@@ -790,49 +790,49 @@ dynamic_class Command
         parent2child_write_fd:int = 0;
         parent2child_read_fd:int = 0;
 
-        System.pipe(&child2parent_read_fd, &child2parent_write_fd);
-        System.pipe(&parent2child_read_fd, &parent2child_write_fd);
+        pipe(&child2parent_read_fd, &child2parent_write_fd);
+        pipe(&parent2child_read_fd, &parent2child_write_fd);
 
-        pid:pid_t = System.fork(closure() {
-            System.close(parent2child_write_fd);
-            System.close(child2parent_read_fd);
+        pid:pid_t = fork(closure() {
+            close(parent2child_write_fd);
+            close(child2parent_read_fd);
 
-            System.dup2(parent2child_read_fd, 0);
-            System.dup2(child2parent_write_fd, 1);
+            dup2(parent2child_read_fd, 0);
+            dup2(child2parent_write_fd, 1);
 
-            System.close(parent2child_read_fd);
-            System.close(child2parent_write_fd);
+            close(parent2child_read_fd);
+            close(child2parent_write_fd);
 
             try {
                 if(method_name.chars(0) == '/') {
-                    System.execv(method_name, params);
+                    execv(method_name, params);
                 }
                 else {
-                    System.execvp(method_name, params);
+                    execvp(method_name, params);
                 }
             } catch(e:Exception) {
                 buffer:Buffer = e.message.append("\n").toBuffer();
                 System.write(2, buffer, buffer.len);
-                System.exit(2);
+                exit(2);
             }
-            System.exit(2);
+            exit(2);
         });
 
-        System.close(parent2child_read_fd);
-        System.close(child2parent_write_fd);
+        close(parent2child_read_fd);
+        close(child2parent_write_fd);
 
         if(!pipe_data.identifyWith(null)) {
             buffer:Buffer = pipe_data.toBuffer();
             System.write(parent2child_write_fd, buffer, buffer.len);
         }
-        System.close(parent2child_write_fd);
+        close(parent2child_write_fd);
 
         child_output:Buffer = B"";
         
         while(true) {
-            pipe_data:Buffer = new Buffer(128.to_ulong);
+            pipe_data:Buffer = Buffer(128.to_ulong);
 
-            readed_byte:int = System.read(child2parent_read_fd, pipe_data, 128.to_ulong);
+            readed_byte:int = read(child2parent_read_fd, pipe_data, 128.to_ulong);
 
             if(readed_byte == 0) {
                 break;
@@ -841,73 +841,73 @@ dynamic_class Command
             child_output.append(pipe_data);
         }
 
-        System.close(child2parent_read_fd);
+        close(child2parent_read_fd);
 
         status: wait_status = 0;
 
-        pid2:pid_t = System.waitpid(pid, &status, System.WUNTRACED);
+        pid2:pid_t = waitpid(pid, &status, WUNTRACED);
 
-        if(System.WEXITSTATUS(status) == 64) {
-            throw new Exception("Command not found");
+        if(WEXITSTATUS(status) == 64) {
+            throw Exception("Command not found");
         }
 
-        return new Command(child_output.toString(), System.WEXITSTATUS(status));
+        return Command(child_output.toString(), WEXITSTATUS(status));
     }
 
     def executeCommandWithControllingTerminal(method_name:String, params:List<String>) : static Command throws Exception
     {
-        pid:pid_t = System.fork(closure() {
-            pid:pid_t = System.getpid();
+        pid:pid_t = fork(closure() {
+            pid:pid_t = getpid();
 
-            System.setpgid(0, 0);
-            System.tcsetpgrp(0, pid);
+            setpgid(0, 0);
+            tcsetpgrp(0, pid);
 
             try {
                 if(method_name.chars(0) == '/') {
-                    System.execv(method_name, params);
+                    execv(method_name, params);
                 }
                 else {
-                    System.execvp(method_name, params);
+                    execvp(method_name, params);
                 }
             } catch(e:Exception) {
                 buffer:Buffer = e.message.append("\n").toBuffer();
                 System.write(2, buffer, buffer.len);
-                System.exit(64);
+                exit(64);
             }
         });
 
-        System.setpgid(pid, pid);
-        System.tcsetpgrp(0, pid);
+        setpgid(pid, pid);
+        tcsetpgrp(0, pid);
 
         status: wait_status = 0;
 
-        pid2:pid_t = System.waitpid(pid, &status, System.WUNTRACED);
+        pid2:pid_t = waitpid(pid, &status, WUNTRACED);
 
-        if(System.WEXITSTATUS(status) == 64) {
-            throw new Exception("Command not found");
+        if(WEXITSTATUS(status) == 64) {
+            throw Exception("Command not found");
         }
 
-        if(System.WIFSTOPPED(status)) {
-            rcode:int = System.WSTOPSIG(status) +128;
+        if(WIFSTOPPED(status)) {
+            rcode:int = WSTOPSIG(status) +128;
             title:String = method_name;
 
-            terminfo := System.tcgetattr(0);
+            terminfo := tcgetattr(0);
 
-            job:Job = new Job(title, pid, terminfo);
+            job:Job = Job(title, pid, terminfo);
 
             Clover.jobs.add(job);
 
-            System.tcsetpgrp(0, System.getpid());
+            tcsetpgrp(0, getpid());
 
-            return new Command("", rcode);
+            return Command("", rcode);
         }
         else {
-            System.tcsetpgrp(0, System.getpid());
+            tcsetpgrp(0, getpid());
 
-            return new Command("", System.WEXITSTATUS(status));
+            return Command("", WEXITSTATUS(status));
         }
 
-        return new Command("", System.WEXITSTATUS(status));
+        return Command("", WEXITSTATUS(status));
     }
 
     def executeCommandWithControllingTerminalByPipe(method_name:String, params:List<String>, pipe_data:String): static Command throws Exception
@@ -915,84 +915,84 @@ dynamic_class Command
         parent2child_write_fd:int = 0;
         parent2child_read_fd:int = 0;
 
-        System.pipe(&parent2child_read_fd, &parent2child_write_fd);
+        pipe(&parent2child_read_fd, &parent2child_write_fd);
 
-        pid:pid_t = System.fork(closure() {
-            System.close(parent2child_write_fd);
+        pid:pid_t = fork(closure() {
+            close(parent2child_write_fd);
 
-            pid:pid_t = System.getpid();
+            pid:pid_t = getpid();
 
-            System.setpgid(0, 0);
-            System.tcsetpgrp(0, pid);
+            setpgid(0, 0);
+            tcsetpgrp(0, pid);
 
-            System.dup2(parent2child_read_fd, 0);
-            System.close(parent2child_read_fd);
+            dup2(parent2child_read_fd, 0);
+            close(parent2child_read_fd);
 
             try {
                 if(method_name.chars(0) == '/') {
-                    System.execv(method_name, params);
+                    execv(method_name, params);
                 }
                 else {
-                    System.execvp(method_name, params);
+                    execvp(method_name, params);
                 }
             } catch(e:Exception) {
                 buffer:Buffer = e.message.append("\n").toBuffer();
                 System.write(2, buffer, buffer.len);
-                System.exit(64);
+                exit(64);
             }
         });
 
-        System.setpgid(pid, pid);
-        System.tcsetpgrp(0, pid);
+        setpgid(pid, pid);
+        tcsetpgrp(0, pid);
 
-        System.close(parent2child_read_fd);
+        close(parent2child_read_fd);
 
         if(!pipe_data.identifyWith(null)) {
             buffer:Buffer = pipe_data.toBuffer();
             try {
                 System.write(parent2child_write_fd, buffer, buffer.len);
             } catch(e:Exception) {
-                kill(pid, System.SIGTERM);
+                kill(pid, SIGTERM);
             }
         }
-        System.close(parent2child_write_fd);
+        close(parent2child_write_fd);
 
         status: wait_status = 0;
 
-        pid2:pid_t = System.waitpid(pid, &status, System.WUNTRACED);
+        pid2:pid_t = waitpid(pid, &status, WUNTRACED);
 
-        if(System.WEXITSTATUS(status) == 64) {
-            throw new Exception("Command not found");
+        if(WEXITSTATUS(status) == 64) {
+            throw Exception("Command not found");
         }
 
-        if(System.WIFSTOPPED(status)) {
-            rcode:int = System.WSTOPSIG(status) +128;
+        if(WIFSTOPPED(status)) {
+            rcode:int = WSTOPSIG(status) +128;
             title:String = method_name;
 
-            terminfo := System.tcgetattr(0);
+            terminfo := tcgetattr(0);
 
-            job:Job = new Job(title, pid, terminfo);
+            job:Job = Job(title, pid, terminfo);
 
             Clover.jobs.add(job);
 
-            System.tcsetpgrp(0, System.getpid());
+            tcsetpgrp(0, getpid());
 
-            return new Command("", rcode);
+            return Command("", rcode);
         }
         else {
-            System.tcsetpgrp(0, System.getpid());
+            tcsetpgrp(0, getpid());
 
-            return new Command("", System.WEXITSTATUS(status));
+            return Command("", WEXITSTATUS(status));
         }
     }
 
     def popen(command:String, rcode:pointer@int):static String throws Exception {
         result := "";
-        fp:pointer@FILE = popen(command, "r");
+        fp:pointer@FILE = System.popen(command, "r");
 
         while(!feof(fp)) {
-            buf := Buffer(System.BUFSIZ);
-            fgets(buf, System.BUFSIZ, fp);
+            buf := Buffer(BUFSIZ);
+            fgets(buf, BUFSIZ, fp);
             result.append(buf.toString());
         }
 
@@ -1055,7 +1055,7 @@ dynamic_class Command
     }
 
     def write(path:String, permission:mode_t): Command {
-        f:File = new File(path, System.O_CREAT|System.O_TRUNC|System.O_WRONLY, permission);
+        f:File = File(path, O_CREAT|O_TRUNC|O_WRONLY, permission);
 
         buf:Buffer = self.data.toBuffer();
         f.write(buf, buf.len);
@@ -1073,6 +1073,6 @@ dynamic_class Command
 class String
 {
     def toCommand():Command {
-        return new Command(self,0);
+        return Command(self,0);
     }
 }

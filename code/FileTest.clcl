@@ -1,6 +1,6 @@
 class FileTest {
     def main():static {
-        f := new File("a.txt", System.O_RDONLY, 0);
+        f := new File("a.txt", O_RDONLY, 0);
         buf := f.read(4.to_ulong)
         f.close();
 

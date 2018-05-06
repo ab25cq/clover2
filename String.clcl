@@ -6,14 +6,13 @@ class PcreOVec
     end:int[];
 
     def initialize(max:int) {
-        self.start = new int[max]();
-        self.end = new int[max]();
+        self.start = int[max]();
+        self.end = int[max]();
     }
 }
 
 class System
 {
-    def sprintf(format:String, prams:Array<Object>): native static String throws Exception;
     def pcre_exec(regex:regex, str:Buffer, offset:int, ovec_max:int, ovec:PcreOVec): native static int;
     def atoi(str:String):native static int;
     def atof(str:String):native static float;
@@ -32,53 +31,53 @@ class System
     def initialize_string_system(): static native;
 
     def initialize(): static {
-        System.initialize_string_system();
+        initialize_string_system();
     }
 }
 
 class Clover
 {
     def test(msg: String, expression:bool):static {
-        System.printToError(msg.append("..."));
-        System.assert(expression);
-        System.printlnToError("OK");
+        printToError(msg.append("..."));
+        assert(expression);
+        printlnToError("OK");
     }
 }
 
 class Global
 {
     def print(str:String):static {
-        System.print(str);
+        print(str);
     }
     def printToError(str:String):static {
-        System.printToError(str);
+        printToError(str);
     }
     def println(str:String):static {
-        System.println(str);
+        println(str);
     }
     def printlnToError(str:String):static {
-        System.printlnToError(str);
+        printlnToError(str);
     }
     def printf(str:String, params:Array<Object>): static {
-        str2: String = System.sprintf(str, params);
-        System.print(str2);
+        str2: String = sprintf(str, params);
+        print(str2);
     }
     def printf(str:String): static {
-        System.print(str);
+        print(str);
     }
     def printfToError(str:String, params:Array<Object>): static {
-        str2: String = System.sprintf(str, params);
-        System.printToError(str2);
+        str2: String = sprintf(str, params);
+        printToError(str2);
     }
     def sprintf(str:String, params:Array<Object>): static String {
-        return System.sprintf(str, params);
+        return sprintf(str, params);
     }
 }
 
 class String
 {
     def printf(format:String): {
-        printf(format, array { self });
+        Global.printf(format, array { self });
     }
 
     def insert(index:int, str:String):  String {
@@ -107,7 +106,7 @@ class String
         }
         else {
             new_size:int = (self.len + len + 1) * 2 + 1;
-            new_buffer:char[] = new char[new_size];
+            new_buffer:char[] = char[new_size];
 
             for(i:int = 0; i<index; i++) {
                 new_buffer[i] = self.buffer[i];
@@ -148,7 +147,7 @@ class String
             return "";
         }
 
-        result: String = new String(end-start+1);
+        result: String = String(end-start+1);
 
         for(i:int = 0; i<end-start; i++) {
             result.buffer[i] = self.chars(i+start);
@@ -159,26 +158,6 @@ class String
         result.size = end-start+1;
 
         return result;
-    }
-
-    def equals(str: String):  bool {
-        if(str.is("WildCard")) {
-            return true;
-        }
-        else {
-            if(self.len == str.length()) {
-                for(i:int = 0; i<self.len; i++) {
-                    if(self.buffer[i] != str.buffer[i]) {
-                        return false;
-                    }
-                }
-
-                return true;
-            }
-            else {
-                return false;
-            }
-        }
     }
 
     def equals(right:WildCard):bool {
@@ -203,30 +182,30 @@ class String
     }
 
     def printf(format:String): {
-        printf(format, array { self });
+        Global.printf(format, array { self });
     }
 
     def print(): {
-        print(self);
+        Global.print(self);
     }
 
     def println(): {
-        println(self);
+        Global.println(self);
     }
     def printlnWithoutNullString() {
         if(self.len != 0) {
-            println(self);
+            Global.println(self);
         }
     }
 
     def match(regex_:regex): bool {
         ovec_max:int = 16;
-        ovec:PcreOVec = new PcreOVec(ovec_max);
+        ovec:PcreOVec = PcreOVec(ovec_max);
 
         buffer:Buffer = self.toBuffer();
 
         offset:int = 0;
-        regex_result:int = System.pcre_exec(regex_, buffer, offset, ovec_max, ovec);
+        regex_result:int = pcre_exec(regex_, buffer, offset, ovec_max, ovec);
 
         return regex_result > 0;
     }
@@ -234,12 +213,12 @@ class String
 
     def match(regex_:regex, group_strings:EqualableList<String>?):  bool {
         ovec_max:int = 16;
-        ovec:PcreOVec = new PcreOVec(ovec_max);
+        ovec:PcreOVec = PcreOVec(ovec_max);
 
         buffer:Buffer = self.toBuffer();
 
         offset:int = 0;
-        regex_result:int = System.pcre_exec(regex_, buffer, offset, ovec_max, ovec);
+        regex_result:int = pcre_exec(regex_, buffer, offset, ovec_max, ovec);
 
         ### match and no group strings ###
         if(regex_result == 1 || group_strings.identifyWith(null) && regex_result > 0) {
@@ -261,15 +240,15 @@ class String
     }
 
     def sub(regex_:regex, replace:String, group_strings:EqualableList<String>?):  String {
-        result: String = new String();
+        result: String = String();
         offset:int = 0;
 
         buffer:Buffer = self.toBuffer();
         ovec_max:int = 16;
-        ovec:PcreOVec = new PcreOVec(ovec_max);
+        ovec:PcreOVec = PcreOVec(ovec_max);
 
         while(true) {
-            regex_result:int = System.pcre_exec(regex_, buffer, offset, ovec_max, ovec);
+            regex_result:int = pcre_exec(regex_, buffer, offset, ovec_max, ovec);
 
             ### match and no group strings ###
             if(regex_result == 1 || group_strings.identifyWith(null) && regex_result > 0) {
@@ -330,20 +309,20 @@ class String
     }
 
     def sub(regex_:regex, replace:String):  String {
-        return self.sub(regex_, replace, new EqualableList<String>());
+        return self.sub(regex_, replace, EqualableList<String>());
     }
 
     def sub(regex_:regex, group_strings:EqualableList<String>?, replace_:lambda(String,EqualableList<String>):String):  String 
     {
-        result: String = new String();
+        result: String = String();
         offset:int = 0;
 
         buffer:Buffer = self.toBuffer();
         ovec_max:int = 16;
-        ovec:PcreOVec = new PcreOVec(ovec_max);
+        ovec:PcreOVec = PcreOVec(ovec_max);
 
         while(true) {
-            regex_result:int = System.pcre_exec(regex_, buffer, offset, ovec_max, ovec);
+            regex_result:int = pcre_exec(regex_, buffer, offset, ovec_max, ovec);
 
             ### match and no group strings ###
             if(regex_result == 1 || group_strings.identifyWith(null) && regex_result > 0) {
@@ -352,7 +331,7 @@ class String
 
                 match_string:String = buffer.subBuffer(ovec.start[0], ovec.end[0]).toString();
 
-                replace_string:String = replace_(match_string, new EqualableList<String>());
+                replace_string:String = replace_(match_string, EqualableList<String>());
                 result.append(replace_string);
 
                 if(offset == ovec.end[0]) {
@@ -413,15 +392,15 @@ class String
 
     def sub(regex_:regex, group_strings:EqualableList<String>?, replace_:lambda(String):String):  String 
     {
-        result: String = new String();
+        result: String = String();
         offset:int = 0;
 
         buffer:Buffer = self.toBuffer();
         ovec_max:int = 16;
-        ovec:PcreOVec = new PcreOVec(ovec_max);
+        ovec:PcreOVec = PcreOVec(ovec_max);
 
         while(true) {
-            regex_result:int = System.pcre_exec(regex_, buffer, offset, ovec_max, ovec);
+            regex_result:int = pcre_exec(regex_, buffer, offset, ovec_max, ovec);
 
             ### match and no group strings ###
             if(regex_result == 1 || group_strings.identifyWith(null) && regex_result > 0) {
@@ -490,24 +469,24 @@ class String
     }
     
     def sub(regex_:regex, replace_:lambda(String,EqualableList<String>):String):  String {
-        return self.sub(regex_, new EqualableList<String>()@group_strings, replace_);
+        return self.sub(regex_, EqualableList<String>()@group_strings, replace_);
     }
 
     def sub(regex_:regex, replace_:lambda(String):String): String
     {
-        return self.sub(regex_, new EqualableList<String>()@group_strings, replace_);
+        return self.sub(regex_, EqualableList<String>()@group_strings, replace_);
     }
 
     def scan(regex_:regex):  EqualableList<String> {
-        result: EqualableList<String> = new EqualableList<String>();
+        result: EqualableList<String> = EqualableList<String>();
         offset:int = 0;
 
         buffer:Buffer = self.toBuffer();
         ovec_max:int = 16;
-        ovec:PcreOVec = new PcreOVec(ovec_max);
+        ovec:PcreOVec = PcreOVec(ovec_max);
 
         while(true) {
-            regex_result:int = System.pcre_exec(regex_, buffer, offset, ovec_max, ovec);
+            regex_result:int = pcre_exec(regex_, buffer, offset, ovec_max, ovec);
 
             ### match and no group strings ###
             if(regex_result == 1) {
@@ -548,21 +527,21 @@ class String
     }
 
     def scan(regex_:regex, block_:lambda(String,EqualableList<String>):String):  EqualableList<String> {
-        result: EqualableList<String> = new EqualableList<String>();
+        result: EqualableList<String> = EqualableList<String>();
         offset:int = 0;
 
         buffer:Buffer = self.toBuffer();
         ovec_max:int = 16;
-        ovec:PcreOVec = new PcreOVec(ovec_max);
+        ovec:PcreOVec = PcreOVec(ovec_max);
 
         while(true) {
-            regex_result:int = System.pcre_exec(regex_, buffer, offset, ovec_max, ovec);
+            regex_result:int = pcre_exec(regex_, buffer, offset, ovec_max, ovec);
 
             ### match and no group strings ###
             if(regex_result == 1) {
                 match_string:String = buffer.subBuffer(ovec.start[0], ovec.end[0]).toString();
 
-                group_strings: EqualableList<String> = new EqualableList<String>();
+                group_strings: EqualableList<String> = EqualableList<String>();
                 result.add(block_(match_string, group_strings));
 
                 if(offset == ovec.end[0]) {
@@ -576,7 +555,7 @@ class String
             elif(regex_result > 1) {
                 match_string:String = buffer.subBuffer(ovec.start[0], ovec.end[0]).toString();
 
-                group_strings: EqualableList<String> = new EqualableList<String>();
+                group_strings: EqualableList<String> = EqualableList<String>();
                 for(i:int = 1; i<regex_result; i++) {
                     match_string:String = buffer.subBuffer(ovec.start[i], ovec.end[i]).toString();
                     group_strings.add(match_string);
@@ -600,15 +579,15 @@ class String
         return result;
     }
     def scan(regex_:regex, block_:lambda(String):String):  EqualableList<String> {
-        result: EqualableList<String> = new EqualableList<String>();
+        result: EqualableList<String> = EqualableList<String>();
         offset:int = 0;
 
         buffer:Buffer = self.toBuffer();
         ovec_max:int = 16;
-        ovec:PcreOVec = new PcreOVec(ovec_max);
+        ovec:PcreOVec = PcreOVec(ovec_max);
 
         while(true) {
-            regex_result:int = System.pcre_exec(regex_, buffer, offset, ovec_max, ovec);
+            regex_result:int = pcre_exec(regex_, buffer, offset, ovec_max, ovec);
 
             ### match and no group strings ###
             if(regex_result == 1) {
@@ -627,7 +606,7 @@ class String
             elif(regex_result > 1) {
                 match_string:String = buffer.subBuffer(ovec.start[0], ovec.end[0]).toString();
 
-                group_strings: EqualableList<String> = new EqualableList<String>();
+                group_strings: EqualableList<String> = EqualableList<String>();
                 for(i:int = 1; i<regex_result; i++) {
                     match_string:String = buffer.subBuffer(ovec.start[i], ovec.end[i]).toString();
                     group_strings.add(match_string);
@@ -660,7 +639,7 @@ class String
     }
 
     def split(c:char):  EqualableList<String> {
-        result:EqualableList<String> = new EqualableList<String>();
+        result:EqualableList<String> = EqualableList<String>();
         offset:int = 0;
         str:String = "";
 
@@ -681,15 +660,15 @@ class String
     }
 
     def split(separator:regex): EqualableList<String> {
-        result:EqualableList<String> = new EqualableList<String>();
+        result:EqualableList<String> = EqualableList<String>();
         offset:int = 0;
 
         buffer:Buffer = self.toBuffer();
         ovec_max:int = 16;
-        ovec:PcreOVec = new PcreOVec(ovec_max);
+        ovec:PcreOVec = PcreOVec(ovec_max);
 
         while(true) {
-            regex_result:int = System.pcre_exec(separator, buffer, offset, ovec_max, ovec);
+            regex_result:int = pcre_exec(separator, buffer, offset, ovec_max, ovec);
 
             ### match and no group strings ###
             if(regex_result == 1) {
@@ -735,15 +714,15 @@ class String
     }
 
     def split(separator:regex, block_:lambda(String):String):  EqualableList<String> {
-        result:EqualableList<String> = new EqualableList<String>();
+        result:EqualableList<String> = EqualableList<String>();
         offset:int = 0;
 
         buffer:Buffer = self.toBuffer();
         ovec_max:int = 16;
-        ovec:PcreOVec = new PcreOVec(ovec_max);
+        ovec:PcreOVec = PcreOVec(ovec_max);
 
         while(true) {
-            regex_result:int = System.pcre_exec(separator, buffer, offset, ovec_max, ovec);
+            regex_result:int = pcre_exec(separator, buffer, offset, ovec_max, ovec);
 
             ### match and no group strings ###
             if(regex_result == 1) {
@@ -810,10 +789,10 @@ class String
 
         buffer:Buffer = self.toBuffer();
         ovec_max:int = 16;
-        ovec:PcreOVec = new PcreOVec(ovec_max);
+        ovec:PcreOVec = PcreOVec(ovec_max);
 
         while(true) {
-            regex_result:int = System.pcre_exec(regex_, buffer, offset, ovec_max, ovec);
+            regex_result:int = pcre_exec(regex_, buffer, offset, ovec_max, ovec);
 
             ### match ###
             if(regex_result > 0) {
@@ -834,8 +813,8 @@ class String
                             # utf8 character
                             if(c > 127uy) {
                                 size:int = ((c & 0x80) >> 7) + ((c & 0x40) >> 6) + ((c & 0x20) >> 5) + ((c & 0x10) >> 4);
-                                if(size > System.MB_LEN_MAX) {
-                                    throw new Exception("unexpected error at String.indexOf");
+                                if(size > MB_LEN_MAX) {
+                                    throw Exception("unexpected error at String.indexOf");
                                 }
                                 else {
                                     p += size.to_ulong;
@@ -880,7 +859,7 @@ class String
     }
 
     def reverse(): String {
-        result:String = new String(self.size);
+        result:String = String(self.size);
 
         for(i:int = 0; i<self.len; i++) {
             result.buffer[i] = self.buffer[self.len-i-1];
@@ -909,19 +888,19 @@ class String
     }
 
     def to_int():  int {
-        return System.atoi(self);
+        return atoi(self);
     }
 
     def to_float():  float {
-        return System.atof(self);
+        return atof(self);
     }
 
     def to_double():  double {
-        return System.strtod(self);
+        return strtod(self);
     }
 
     def multiply(value:int):  String {
-        result:String = new String();
+        result:String = String();
 
         for(i:int = 0; i<value; i++) {
             result.append(self);
@@ -932,20 +911,28 @@ class String
 
     # same: 0, self > str: > 0, self < str: < 0
     def compare(str:String):  int {
-        return System.strcmp(self, str);
+        return strcmp(self, str);
     }
 
     # same: 0, self > str: > 0, self < str: < 0
     def compareWithIgnoreCase(str:String):  int {
-        return System.strcasecmp(self, str);
+        return strcasecmp(self, str);
     }
 
     def hex():  int {
-        return System.strtol(self, 0).to_int;
+        if(self.chars(0) == '0' && self.chars(1) == 'x') {
+            return strtol(self, 0).to_int;
+        }
+        else {
+            str := self.clone();
+            str.insert(0, "0x");
+
+            return strtol(str, 0).to_int;
+        }
     }
 
     def oct():  int {
-        return System.strtol(self, 0).to_int;
+        return strtol(self, 0).to_int;
     }
 
     def chomp():  String {
@@ -975,9 +962,9 @@ class String
     }
 
     def toBuffer():  Buffer throws Exception {
-        array_ := System.wcstombs(self.buffer);
+        array_ := wcstombs(self.buffer);
 
-        result:Buffer = new Buffer(array_.length-1);
+        result:Buffer = Buffer(array_.length-1);
         for(i:int = 0; i<array_.length-1; i++) {
             result.append(array_[i]);
         }
@@ -996,33 +983,33 @@ class Buffer
 
     def initialize() {
         self.size = 64;
-        self.buffer = System.malloc(self.size);
+        self.buffer = malloc(self.size);
         self.len = 0;
     }
     def initialize(buf:pointer, size:size_t) {
         self.size = size;
-        self.buffer = System.malloc(self.size);
-        System.memcpy(self.buffer, buf, size);
+        self.buffer = malloc(self.size);
+        memcpy(self.buffer, buf, size);
         self.len = self.size;
     }
     def initialize(size:size_t) {
         self.size = size;
-        self.buffer = System.malloc(self.size);
+        self.buffer = malloc(self.size);
         self.len = 0;
     }
     def finalize() {
-        System.free(self.buffer);
+        free(self.buffer);
     }
     def append(buf:Buffer) {
         len: size_t = buf.len;
 
         if(self.len + len >= self.size) {
             new_size:size_t = (self.len+len+1) * 2;
-            self.buffer = System.realloc(self.buffer, new_size);
+            self.buffer = realloc(self.buffer, new_size);
             self.size = new_size;
         }
 
-        System.memcpy(self.buffer + self.len, buf.buffer, len);
+        memcpy(self.buffer + self.len, buf.buffer, len);
         self.len += len;
     }
 
@@ -1031,12 +1018,16 @@ class Buffer
 
         if(self.len + len >= self.size) {
             new_size:size_t = (self.len+len+1) * 2;
-            self.buffer = System.realloc(self.buffer, new_size);
+            self.buffer = realloc(self.buffer, new_size);
             self.size = new_size;
         }
 
         (self.buffer + self.len)->byte = data;
         self.len += len;
+    }
+
+    def append(data: char) {
+        append(data.toString().toBuffer());
     }
 
     def chars(index:int):byte throws Exception {
@@ -1048,7 +1039,7 @@ class Buffer
             return((self.buffer + index.to_ulong)->byte);
         }
         else {
-            throw new Exception("Invalid range on Buffer.char");
+            throw Exception("Invalid range on Buffer.char");
         }
     }
 
@@ -1057,7 +1048,7 @@ class Buffer
             return((self.buffer + index)->byte);
         }
         else {
-            throw new Exception("Invalid range on Buffer.char");
+            throw Exception("Invalid range on Buffer.char");
         }
     }
 
@@ -1085,17 +1076,17 @@ class Buffer
     }
 
     def clone():Buffer {
-        result:Buffer = new Buffer(self.size);
+        result:Buffer = Buffer(self.size);
 
-        System.memcpy(result.buffer, self.buffer, self.size);
+        memcpy(result.buffer, self.buffer, self.size);
         result.len = self.len;
 
         return result;
     }
 
     def toString():String throws Exception {
-        wcs:char[] = System.mbstowcs(self.buffer, self.len);
-        result:String = new String(wcs);
+        wcs:char[] = mbstowcs(self.buffer, self.len);
+        result:String = String(wcs);
         return result;
     }
 
@@ -1118,9 +1109,9 @@ class Buffer
             return B"";
         }
 
-        result: Buffer = new Buffer(end.to_ulong-start.to_ulong);
+        result: Buffer = Buffer(end.to_ulong-start.to_ulong);
 
-        System.memcpy(result.buffer, self.buffer + start.to_ulong, (end-start).to_ulong);
+        memcpy(result.buffer, self.buffer + start.to_ulong, (end-start).to_ulong);
 
         result.len = end-start;
         result.size = end-start;
@@ -1138,13 +1129,13 @@ class Buffer
 module MPrintOutObject
 {
     def printf(format:String) {
-        printf(format, array { self });
+        Global.printf(format, array { self });
     }
     def print() {
-        print(self.toString());
+        Global.print(self.toString());
     }
     def println() {
-        println(self.toString());
+        Global.println(self.toString());
     }
 }
 

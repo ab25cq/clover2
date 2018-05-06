@@ -1,5 +1,10 @@
 include "Fundamental.clcl"
 
+class System
+{
+    def sprintf(format:String, prams:Array<Object>): native static String throws Exception;
+}
+
 class Clover
 {
     def appendField(class_name:String, name:String, type:String):static native throws Exception;
