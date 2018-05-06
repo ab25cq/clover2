@@ -89,7 +89,7 @@ version 4.0.5
 
     11. Threadをサポートします。
 
-詳しくは、https://github.com/ab25cq/clover2/wikiをみてください。
+詳しく以下を見てください。https://github.com/ab25cq/clover2/wiki
 (もしくはrepositoryに含まれるmanualディレクトリ以下のドキュメントを見てください)
 
 サンプルコード
