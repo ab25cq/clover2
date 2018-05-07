@@ -41,7 +41,7 @@ static void set_signal()
 
 int gARGC;
 char** gARGV;
-char* gVersion = "4.0.6";
+char* gVersion = "4.0.7";
 
 int main(int argc, char** argv, char* const * envp)
 {

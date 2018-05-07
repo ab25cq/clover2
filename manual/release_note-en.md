@@ -1,4 +1,8 @@
 
+version 4.0.7
+
+    I found Security holl of String.removeTag. Fix.
+
 version 4.0.6
 
     There was a bug that will handle if it is the end of a regular expression if you use a character that uses / in regular expressions. I tried to avoid it with \/.

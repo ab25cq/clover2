@@ -1,4 +1,8 @@
 
+clover2 (4.0.7-1) unstable; urgency=medium
+
+    * I found Security holl of String.removeTag. Fix.
+
 clover2 (4.0.6-1) unstable; urgency=medium
 
     * There was a bug that will handle if it is the end of a regular expression if you use a character that uses / in regular expressions. I tried to avoid it with \/. Addition of String.removeTag ()

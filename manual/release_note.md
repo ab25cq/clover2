@@ -1,5 +1,9 @@
 English page is here [>> English page](release_note-en)
 
+version 4.0.7
+
+    String.removeTagでセキュリティホールが見つかりました。修正。
+
 version 4.0.6
 
     正規表現で/を使う文字を使っていると正規表現の終端だと処理してしまうバグが有りました。\/で回避できるようにしました。

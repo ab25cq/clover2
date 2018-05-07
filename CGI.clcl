@@ -233,6 +233,6 @@ class String
     }
 
     def removeTag():String {
-        return self.clone().sub(/<[a-zA-Z]+>|<\/[a-zA-Z]+>/g, "");
+        return self.clone().sub(/<.+>/, "");
     }
 }
