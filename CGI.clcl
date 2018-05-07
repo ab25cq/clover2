@@ -231,4 +231,8 @@ class String
 
         return result.toString();
     }
+
+    def removeTag():String {
+        return self.clone().sub(/<[a-zA-Z]+>|<\/[a-zA-Z]+>/g, "");
+    }
 }

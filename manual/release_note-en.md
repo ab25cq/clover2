@@ -1,4 +1,10 @@
 
+version 4.0.6
+
+    There was a bug that will handle if it is the end of a regular expression if you use a character that uses / in regular expressions. I tried to avoid it with \/.
+ 
+    Addition of String.removeTag ()
+
 version 4.0.5
 
     The class field of the System class can now omit the notation System. In other words, access(fname, R_OK) == 0 etc is compiled.

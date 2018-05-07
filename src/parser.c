@@ -4490,7 +4490,12 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         sBuf_init(&regex);
 
         while(1) {
-            if(*info->p == '/') {
+            if(*info->p == '\\' && *(info->p+1) == '/') {
+                info->p++;
+                sBuf_append_char(&regex, *info->p);
+                info->p++;
+            }
+            else if(*info->p == '/') {
                 info->p++;
                 skip_spaces_and_lf(info);
                 break;

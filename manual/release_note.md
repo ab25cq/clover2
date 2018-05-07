@@ -1,5 +1,11 @@
 English page is here [>> English page](release_note-en)
 
+version 4.0.6
+
+    正規表現で/を使う文字を使っていると正規表現の終端だと処理してしまうバグが有りました。\/で回避できるようにしました。
+    
+    String.removeTag()の追加
+
 version 4.0.5
 
     SystemクラスのクラスフィールドはSystem.という表記を省略できるようになりました。つまりaccess(fname, R_OK) == 0などはコンパイルが通ります。

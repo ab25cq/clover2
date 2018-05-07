@@ -47,30 +47,30 @@ class Clover
 class Global
 {
     def print(str:String):static {
-        print(str);
+        System.print(str);
     }
     def printToError(str:String):static {
-        printToError(str);
+        System.printToError(str);
     }
     def println(str:String):static {
-        println(str);
+        System.println(str);
     }
     def printlnToError(str:String):static {
-        printlnToError(str);
+        System.printlnToError(str);
     }
     def printf(str:String, params:Array<Object>): static {
         str2: String = sprintf(str, params);
-        print(str2);
+        System.print(str2);
     }
     def printf(str:String): static {
-        print(str);
+        System.print(str);
     }
     def printfToError(str:String, params:Array<Object>): static {
         str2: String = sprintf(str, params);
-        printToError(str2);
+        System.printToError(str2);
     }
     def sprintf(str:String, params:Array<Object>): static String {
-        return sprintf(str, params);
+        return System.sprintf(str, params);
     }
 }
 

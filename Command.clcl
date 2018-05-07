@@ -286,7 +286,7 @@ class Job
         kill(self.pgrp, SIGCONT);
 
         status:wait_status = 0;
-        pid2:pid_t = waitpid(self.pgrp, &status, WUNTRACED);
+        pid2 := waitpid(self.pgrp, &status, WUNTRACED);
 
         if(WIFSTOPPED(status)) {
             rcode:int = WSTOPSIG(status) +128;
@@ -356,10 +356,10 @@ dynamic_class Command
 
     def callingMethod(method_name:String, params:Array<Object>, num_method_chains:int, max_method_chains:int) : static Command throws Exception 
     {
-        params2:List<String> = List<String>();
-        controlling_terminal_flag:bool = false;
-        no_controlling_terminal_flag:bool = false;
-        getting_stderr_flag:bool = false;
+        params2 := List<String>();
+        controlling_terminal_flag := false;
+        no_controlling_terminal_flag := false;
+        getting_stderr_flag := false;
         
         params.each(closure(item:Object) {
             if(item.className().equals("String")) {
@@ -521,10 +521,10 @@ dynamic_class Command
 
     def callingMethod(method_name:String, params:Array<Object>, num_method_chains:int, max_method_chains:int) : Command throws Exception 
     {
-        params2:List<String> = List<String>();
-        controlling_terminal_flag:bool = false;
-        no_controlling_terminal_flag:bool = false;
-        getting_stderr_flag:bool = false;
+        params2 := List<String>();
+        controlling_terminal_flag := false;
+        no_controlling_terminal_flag := false;
+        getting_stderr_flag := false;
         
         params.each(closure(item:Object) {
             if(item.className().equals("String")) {
@@ -684,12 +684,12 @@ dynamic_class Command
 
     def executeCommandWithGettingStderr(method_name:String, params:List<String>, pipe_data:String?) : static Command throws Exception
     {
-        child2parent_write_fd:int = 0;
-        child2parent_read_fd:int = 0;
-        parent2child_write_fd:int = 0;
-        parent2child_read_fd:int = 0;
-        child2parent_read_fd_err:int = 0;
-        child2parent_write_fd_err:int = 0;
+        child2parent_write_fd := 0;
+        child2parent_read_fd := 0;
+        parent2child_write_fd := 0;
+        parent2child_read_fd := 0;
+        child2parent_read_fd_err := 0;
+        child2parent_write_fd_err := 0;
 
         pipe(&parent2child_read_fd, &parent2child_write_fd);
         pipe(&child2parent_read_fd, &child2parent_write_fd);
@@ -716,7 +716,7 @@ dynamic_class Command
                     execvp(method_name, params);
                 }
             } catch(e:Exception) {
-                buffer:Buffer = e.message.append("\n").toBuffer();
+                buffer := e.message.append("\n").toBuffer();
                 System.write(2, buffer, buffer.len);
                 exit(64);
             }
@@ -727,7 +727,7 @@ dynamic_class Command
         close(child2parent_write_fd_err);
 
         if(!pipe_data.identifyWith(null)) {
-            buffer:Buffer = pipe_data.toBuffer();
+            buffer := pipe_data.toBuffer();
             System.write(parent2child_write_fd, buffer, buffer.len);
         }
         close(parent2child_write_fd);
@@ -735,13 +735,13 @@ dynamic_class Command
         child_output:Buffer = B"";
         
         while(true) {
-            pipe_data:Buffer = Buffer(128.to_ulong);
+            pipe_data := Buffer(128.to_ulong);
 
             readed_byte:int = read(child2parent_read_fd, pipe_data, 128.to_ulong);
 
             child_output.append(pipe_data);
 
-            pipe_data_err:Buffer = Buffer(128.to_ulong);
+            pipe_data_err := Buffer(128.to_ulong);
 
             readed_byte_err:int = read(child2parent_read_fd_err, pipe_data_err, 128.to_ulong);
 
@@ -785,10 +785,10 @@ dynamic_class Command
 
     def executeCommand(method_name:String, params:List<String>, pipe_data:String?) : static Command throws Exception
     {
-        child2parent_write_fd:int = 0;
-        child2parent_read_fd:int = 0;
-        parent2child_write_fd:int = 0;
-        parent2child_read_fd:int = 0;
+        child2parent_write_fd := 0;
+        child2parent_read_fd := 0;
+        parent2child_write_fd := 0;
+        parent2child_read_fd := 0;
 
         pipe(&child2parent_read_fd, &child2parent_write_fd);
         pipe(&parent2child_read_fd, &parent2child_write_fd);
