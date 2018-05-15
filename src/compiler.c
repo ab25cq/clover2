@@ -14,6 +14,7 @@ static void compiler_init(BOOL no_load_fudamental_classes)
 
 static void clover2_init(BOOL no_load_fudamental_classes)
 {
+    class_system_init();
     thread_init();
 #ifdef ENABLE_JIT
     jit_init_on_runtime();
@@ -138,7 +139,7 @@ static BOOL class_compiler(char* fname)
 
 int gARGC;
 char** gARGV;
-char* gVersion = "4.0.7";
+char* gVersion = "4.0.8";
 
 int main(int argc, char** argv)
 {

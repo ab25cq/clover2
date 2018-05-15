@@ -3,13 +3,13 @@ include "Reflection.clcl"
 class pthread_mutex_t 
 {
     def initialize() {}
-    def allocSize(): static native int;
+    def allocSize(): static native size_t;
 }
 
 class pthread_cond_t
 {
     def initialize() {}
-    def allocSize(): static native int;
+    def allocSize(): static native size_t;
 }
 
 class timespec
@@ -20,6 +20,11 @@ class timespec
     def initialize() {
         self.tv_sec = 0;
         self.tv_nsec = 0.to_long;
+    }
+
+    def initialize(tv_sec: time_t, tv_nsec:long) {
+        self.tv_sec = tv_sec;
+        self.tv_nsec = tv_nsec;
     }
 
     def minus(right:timespec):timespec {
@@ -62,23 +67,23 @@ class System
     PTHREAD_MUTEX_RECURSIVE: static uint;
     PTHREAD_MUTEX_ERRORCHECK: static uint;
 
-    def pthread_mutex_init(mutex:pointer@pthread_mutex_t, attr:pointer@pthread_mutexattr_t): static native;
-    def pthread_mutex_destroy(mutex:pointer@pthread_mutex_t): static native int throws Exception;
-    def pthread_mutex_lock(mutex:pointer@pthread_mutex_t): static native int throws Exception;
-    def pthread_mutex_unlock(mutex:pointer@pthread_mutex_t): static native int throws Exception;
-    def pthread_mutex_trylock(mutex:pointer@pthread_mutex_t): static native int;
+    def pthread_mutex_init(mutex:pthread_mutex_t, attr:pthread_mutexattr_t): static native;
+    def pthread_mutex_destroy(mutex:pthread_mutex_t): static native int throws Exception;
+    def pthread_mutex_lock(mutex:pthread_mutex_t): static native int throws Exception;
+    def pthread_mutex_unlock(mutex:pthread_mutex_t): static native int throws Exception;
+    def pthread_mutex_trylock(mutex:pthread_mutex_t): static native int;
 
-    def pthread_mutexattr_init(attr:pointer@pthread_mutexattr_t): static native;
-    def pthread_mutexattr_settype(attr:pointer@pthread_mutexattr_t, kind:int): static native throws Exception;
-    def pthread_mutexattr_destroy(attr:pointer@pthread_mutexattr_t): static native;
-    def pthread_mutexattr_gettype(attr:pointer@pthread_mutexattr_t, kind:pointer@int): static native;
+    def pthread_mutexattr_init(attr:pthread_mutexattr_t): static native;
+    def pthread_mutexattr_settype(attr:pthread_mutexattr_t, kind:int): static native throws Exception;
+    def pthread_mutexattr_destroy(attr:pthread_mutexattr_t): static native;
+    def pthread_mutexattr_gettype(attr:pthread_mutexattr_t, kind:pointer@int): static native;
 
-    def pthread_cond_init(cond:pointer@pthread_cond_t, cond_attr:pointer@pthread_condattr_t): static native;
-    def pthread_cond_signal(cond:pointer@pthread_cond_t): static native;
-    def pthread_cond_broadcast(cond:pointer@pthread_cond_t): static native;
-    def pthread_cond_wait(cond:pointer@pthread_cond_t, mutex:pointer@pthread_mutex_t): static native;
-    def pthread_cond_timedwait(cond:pointer@pthread_cond_t, mutex:pointer@pthread_mutex_t, abtime:pointer@timespec): static native int throws Exception;
-    def pthread_cond_destroy(cond:pointer@pthread_cond_t): static native int throws Exception;
+    def pthread_cond_init(cond:pthread_cond_t, cond_attr:pthread_condattr_t): static native;
+    def pthread_cond_signal(cond:pthread_cond_t): static native;
+    def pthread_cond_broadcast(cond:pthread_cond_t): static native;
+    def pthread_cond_wait(cond:pthread_cond_t, mutex:pthread_mutex_t): static native;
+    def pthread_cond_timedwait(cond:pthread_cond_t, mutex:pthread_mutex_t, abtime:timespec): static native int throws Exception;
+    def pthread_cond_destroy(cond:pthread_cond_t): static native int throws Exception;
 }
 
 class Thread 
@@ -108,31 +113,31 @@ class Mutex
     def initialize(recursive:bool, error_check:bool) {
         mutex = pthread_mutex_t();
 
-        pthread_mutexattr_init(&attr);
+        pthread_mutexattr_init(attr);
         if(recursive) {
-            pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+            pthread_mutexattr_settype(attr, PTHREAD_MUTEX_RECURSIVE);
         }
         elif(error_check) {
-            pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK);
+            pthread_mutexattr_settype(attr, PTHREAD_MUTEX_ERRORCHECK);
         }
-        pthread_mutex_init(&mutex, &attr);
+        pthread_mutex_init(mutex, attr);
     }
 
     def finalize() {
-        pthread_mutex_destroy(&mutex);
+        pthread_mutex_destroy(mutex);
     }
 
     def lock() {
-        pthread_mutex_lock(&mutex);
+        pthread_mutex_lock(mutex);
     }
 
     def unlock() {
-        pthread_mutex_unlock(&mutex);
+        pthread_mutex_unlock(mutex);
     }
 
     def run(block:lambda()) {
-        pthread_mutex_lock(&mutex);
+        pthread_mutex_lock(mutex);
         block();
-        pthread_mutex_unlock(&mutex);
+        pthread_mutex_unlock(mutex);
     }
 }

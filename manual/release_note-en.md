@@ -1,4 +1,22 @@
 
+version 4.0.8
+
+    Added several methods to System.
+
+    A library of libbsd-dev or libbsd-devel is required. (Optional, if System.getbsize is enabled)
+
+    With completion of REPL, completion of class field of System class is also effective.
+
+    I made a library of Socket. See Socket.clcl for details.
+
+    port of the system call.
+
+    Porting the ioctl system call.
+
+    Porting of select system call
+
+    Mutex bug may be fixed.
+
 version 4.0.7
 
     I found Security holl of String.removeTag. Fix.
@@ -47,9 +65,9 @@ version 4.0.0
 
     Threads were added. For details, please read the explanation of Thread class.
 
-    def allocSize (): int allows you to specify the size of the memory to get from the heap. We mainly use it in extension library.
+    def allocSize (): size_t allows you to specify the size of the memory to get from the heap. We mainly use it in extension library.
 
-    The allocatedSize () special method was added. Returns the size of the memory retrieved from the heap of the object.
+    The allocSize () special method was added. Returns the size of the memory retrieved from the heap of the object.
         It mainly uses extended libraries, so users will not use them in particular.
 
     The headOfmemory () special method was added. Returns the starting size of the memory obtained from the heap of the object. It is mainly used for extended libraries, so users will not use them in particular.

@@ -1,0 +1,108 @@
+include "CGI.clcl"
+
+class sockaddr
+{
+    sa_family: int;
+    sa_data: String;
+
+    def initialize() {
+    }
+}
+
+class sockaddr_un
+{
+    sun_family: int;
+    sun_path: String;
+
+    def initialize() {
+    }
+}
+
+class in_addr
+{
+    typedef in_addr_t uint;
+
+    s_addr:in_addr_t;
+
+    def initialize() {}
+}
+
+class sockaddr_in
+{
+    sin_family: int;
+    sin_addr: in_addr;
+    sin_port: int;
+
+    def initialize() {
+        sin_addr = in_addr();
+    }
+}
+
+class servent 
+{
+    s_name:String;
+    s_aliases: String[];
+    s_port:int;
+    s_proto:String;
+}
+
+class hostent
+{
+    h_name:String;
+    h_aliases:String[];
+    h_addrtype:int;
+    h_length:int;
+    h_addr_list: String[];
+}
+
+class System
+{
+    AF_UNIX:static int;
+    AF_LOCAL:static int;
+    AF_INET:static int;
+    AF_INET6:static int;
+    AF_IPX:static int;
+    AF_NETLINK:static int;
+    AF_X25:static int;
+    AF_AX25:static int;
+    AF_ATMPVC:static int;
+    AF_APPLETALK:static int;
+    AF_PACKET:static int;
+    AF_ALG:static int;
+
+    SOCK_STREAM:static int;
+    SOCK_DGRAM:static int;
+    SOCK_SEQPACKET:static int;
+    SOCK_RAW:static int;
+    SOCK_RDM:static int;
+    SOCK_PACKET:static int;
+    SOCK_NONBLOCK:static int;
+    SOCK_CLOEXEC:static int;
+    SOCK_STREAM:static int;
+
+    def initialize_socket_system(): static native;
+
+    def initialize():static {
+        inherit();
+        initialize_socket_system();
+    }
+
+    def socket(domain:int, type:int, protocol:int): native static int throws Exception;
+    def connect(sockfd:int, addr:sockaddr_un): native static throws Exception;
+    def connect(sockfd:int, addr:sockaddr_in): native static throws Exception;
+    def bind(sockfd:int, addr:sockaddr_un): native static throws Exception;
+    def bind(sockfd:int, addr:sockaddr_in): native static throws Exception;
+    def listen(sockfd:int, backlog:int): native static throws Exception;
+    def accept(sockfd:int, addr:sockaddr_un): native static int throws Exception;
+
+    def inet_addr(cp:String):static native in_addr_t;
+
+    def gethostbyaddr(addr:pointer, len:size_t, type:int): static native hostent throws Exception;
+    def gethostbyname(name:String): static native hostent throws Exception;
+
+    def getservbyname(name:String, proto:String): static native servent throws Exception;
+    def getservbyport(port:int, proto:String): static native servent throws Exception;
+
+    def inet_ntoa(in:in_addr): static native String throws Exception;
+    def gethostname(): static native String;
+}

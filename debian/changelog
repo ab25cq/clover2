@@ -1,4 +1,12 @@
 
+clover2 (4.0.8-1) unstable; urgency=medium
+
+    * Added several methods to System. A library of libbsd-dev or libbsd-devel
+	is required. (Optional, if System.getbsize is enabled). With completion of
+	REPL, completion of class field of System class is also effective. I made a
+	library of Socket. See Socket.clcl for details. port of the system call.
+	Porting the ioctl system call. Porting of select system call. Mutex bug may be fixed.
+
 clover2 (4.0.7-1) unstable; urgency=medium
 
     * I found Security holl of String.removeTag. Fix.

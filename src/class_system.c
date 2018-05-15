@@ -16,6 +16,15 @@
 #include <getopt.h>
 #include <pthread.h>
 #include <sys/syscall.h>
+#ifdef HAVE_BSD_H
+#include <bsd/stdlib.h>
+#endif
+#include <sys/socket.h>
+#include <sys/un.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <sys/ioctl.h>
 
 BOOL System_exit(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
@@ -351,7 +360,9 @@ BOOL System_sleep(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* time = lvar;
 
+    vm_mutex_off();
     unsigned int result = sleep(time->mIntValue);
+    vm_mutex_on();
 
     (*stack_ptr)->mUIntValue = result;
     (*stack_ptr)++;
@@ -364,9 +375,18 @@ BOOL System_pthread_mutex_init(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info
     CLVALUE* mutex = lvar;
     CLVALUE* attr = lvar + 1;
 
+    if(mutex->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+    if(attr->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// Clover to C Value ///
-    pthread_mutex_t* mutex_value = (pthread_mutex_t*)mutex->mPointerValue;
-    pthread_mutexattr_t* attr_value = (pthread_mutexattr_t*)attr->mPointerValue;
+    pthread_mutex_t* mutex_value = (pthread_mutex_t*)CLOBJECT(mutex->mObjectValue);
+    pthread_mutexattr_t* attr_value = (pthread_mutexattr_t*)CLOBJECT(attr->mObjectValue);
 
     /// go ///
     int result = pthread_mutex_init(mutex_value, attr_value);
@@ -378,8 +398,13 @@ BOOL System_pthread_mutex_lock(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info
 {
     CLVALUE* mutex = lvar;
 
+    if(mutex->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// Clover to C Value ///
-    pthread_mutex_t* mutex_value = (pthread_mutex_t*)mutex->mPointerValue;
+    pthread_mutex_t* mutex_value = (pthread_mutex_t*)CLOBJECT(mutex->mObjectValue);
 
     /// go ///
     int result = pthread_mutex_lock(mutex_value);
@@ -399,8 +424,13 @@ BOOL System_pthread_mutex_unlock(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* in
 {
     CLVALUE* mutex = lvar;
 
+    if(mutex->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// Clover to C Value ///
-    pthread_mutex_t* mutex_value = (pthread_mutex_t*)mutex->mPointerValue;
+    pthread_mutex_t* mutex_value = (pthread_mutex_t*)CLOBJECT(mutex->mObjectValue);
 
     /// go ///
     int result = pthread_mutex_unlock(mutex_value);
@@ -420,8 +450,13 @@ BOOL System_pthread_mutex_destroy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* i
 {
     CLVALUE* mutex = lvar;
 
+    if(mutex->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// Clover to C Value ///
-    pthread_mutex_t* mutex_value = (pthread_mutex_t*)mutex->mPointerValue;
+    pthread_mutex_t* mutex_value = (pthread_mutex_t*)CLOBJECT(mutex->mObjectValue);
 
     /// go ///
     int result = pthread_mutex_destroy(mutex_value);
@@ -441,8 +476,13 @@ BOOL System_pthread_mutex_trylock(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* i
 {
     CLVALUE* mutex = lvar;
 
+    if(mutex->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// Clover to C Value ///
-    pthread_mutex_t* mutex_value = (pthread_mutex_t*)mutex->mPointerValue;
+    pthread_mutex_t* mutex_value = (pthread_mutex_t*)CLOBJECT(mutex->mObjectValue);
 
     /// go ///
     int result = pthread_mutex_trylock(mutex_value);
@@ -457,8 +497,13 @@ BOOL System_pthread_mutexattr_init(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* 
 {
     CLVALUE* attr = lvar;
 
+    if(attr->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// Clover to C Value ///
-    pthread_mutexattr_t* attr_value = (pthread_mutexattr_t*)attr->mPointerValue;
+    pthread_mutexattr_t* attr_value = (pthread_mutexattr_t*)CLOBJECT(attr->mObjectValue);
 
     /// go ///
     (void)pthread_mutexattr_init(attr_value);
@@ -471,8 +516,13 @@ BOOL System_pthread_mutexattr_settype(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInf
     CLVALUE* attr = lvar;
     CLVALUE* kind = lvar + 1;
 
+    if(attr->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// Clover to C Value ///
-    pthread_mutexattr_t* attr_value = (pthread_mutexattr_t*)attr->mPointerValue;
+    pthread_mutexattr_t* attr_value = (pthread_mutexattr_t*)CLOBJECT(attr->mObjectValue);
     int kind_value = kind->mIntValue;
 
     /// go ///
@@ -490,8 +540,13 @@ BOOL System_pthread_mutexattr_destroy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInf
 {
     CLVALUE* attr = lvar;
 
+    if(attr->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// Clover to C Value ///
-    pthread_mutexattr_t* attr_value = (pthread_mutexattr_t*)attr->mPointerValue;
+    pthread_mutexattr_t* attr_value = (pthread_mutexattr_t*)CLOBJECT(attr->mObjectValue);
 
     /// go ///
     (void)pthread_mutexattr_destroy(attr_value);
@@ -504,8 +559,13 @@ BOOL System_pthread_mutexattr_gettype(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInf
     CLVALUE* attr = lvar;
     CLVALUE* kind = lvar + 1;
 
+    if(attr->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// Clover to C Value ///
-    pthread_mutexattr_t* attr_value = (pthread_mutexattr_t*)attr->mPointerValue;
+    pthread_mutexattr_t* attr_value = (pthread_mutexattr_t*)CLOBJECT(attr->mObjectValue);
     int* kind_value = (int*)kind->mPointerValue;
 
     /// go ///
@@ -519,9 +579,19 @@ BOOL System_pthread_cond_init(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* cond = lvar;
     CLVALUE* cond_attr = lvar + 1;
 
+    if(cond->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    if(cond_attr->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// Clover to C Value ///
-    pthread_cond_t* cond_value = (pthread_cond_t*)cond->mPointerValue;
-    pthread_condattr_t* cond_attr_value = (pthread_condattr_t*)cond_attr->mPointerValue;
+    pthread_cond_t* cond_value = (pthread_cond_t*)CLOBJECT(cond->mObjectValue);
+    pthread_condattr_t* cond_attr_value = (pthread_condattr_t*)CLOBJECT(cond_attr->mObjectValue);
 
     /// go ///
     (void)pthread_cond_init(cond_value, cond_attr_value);
@@ -533,8 +603,13 @@ BOOL System_pthread_cond_signal(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* inf
 {
     CLVALUE* cond = lvar;
 
+    if(cond->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// Clover to C Value ///
-    pthread_cond_t* cond_value = (pthread_cond_t*)cond->mPointerValue;
+    pthread_cond_t* cond_value = (pthread_cond_t*)CLOBJECT(cond->mObjectValue);
 
     /// go ///
     (void)pthread_cond_signal(cond_value);
@@ -546,8 +621,13 @@ BOOL System_pthread_cond_broadcast(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* 
 {
     CLVALUE* cond = lvar;
 
+    if(cond->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// Clover to C Value ///
-    pthread_cond_t* cond_value = (pthread_cond_t*)cond->mPointerValue;
+    pthread_cond_t* cond_value = (pthread_cond_t*)CLOBJECT(cond->mObjectValue);
 
     /// go ///
     (void)pthread_cond_broadcast(cond_value);
@@ -560,9 +640,19 @@ BOOL System_pthread_cond_wait(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* cond = lvar;
     CLVALUE* mutex = lvar + 1;
 
+    if(cond->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    if(mutex->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// Clover to C Value ///
-    pthread_cond_t* cond_value = (pthread_cond_t*)cond->mPointerValue;
-    pthread_mutex_t* mutex_value = (pthread_mutex_t*)mutex->mPointerValue;
+    pthread_cond_t* cond_value = (pthread_cond_t*)CLOBJECT(cond->mObjectValue);
+    pthread_mutex_t* mutex_value = (pthread_mutex_t*)CLOBJECT(mutex->mObjectValue);
 
     /// go ///
     (void)pthread_cond_wait(cond_value, mutex_value);
@@ -576,13 +666,33 @@ BOOL System_pthread_cond_timedwait(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* 
     CLVALUE* mutex = lvar + 1;
     CLVALUE* abtime = lvar + 2;
 
+    if(cond->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    if(mutex->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    if(abtime->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// Clover to C Value ///
-    pthread_cond_t* cond_value = (pthread_cond_t*)cond->mPointerValue;
-    pthread_mutex_t* mutex_value = (pthread_mutex_t*)mutex->mPointerValue;
-    struct timespec* abtime_value = (struct timespec*)abtime->mPointerValue;
+    pthread_cond_t* cond_value = (pthread_cond_t*)CLOBJECT(cond->mObjectValue);
+    pthread_mutex_t* mutex_value = (pthread_mutex_t*)CLOBJECT(mutex->mObjectValue);
+
+    sCLObject* object_data = CLOBJECT(abtime->mObjectValue);
+    struct timespec abtime_value;
+
+    abtime_value.tv_sec = object_data->mFields[0].mULongValue;
+    abtime_value.tv_nsec = object_data->mFields[1].mLongValue;
 
     /// go ///
-    int result = pthread_cond_timedwait(cond_value, mutex_value, abtime_value);
+    int result = pthread_cond_timedwait(cond_value, mutex_value, &abtime_value);
 
     if(result != 0) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "pthread_cond_timedwait is failed. Error num is %d", result);
@@ -599,8 +709,13 @@ BOOL System_pthread_cond_destroy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* in
 {
     CLVALUE* cond = lvar;
 
+    if(cond->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
     /// Clover to C Value ///
-    pthread_cond_t* cond_value = (pthread_cond_t*)cond->mPointerValue;
+    pthread_cond_t* cond_value = (pthread_cond_t*)CLOBJECT(cond->mObjectValue);
 
     /// go ///
     int result = pthread_cond_destroy(cond_value);
@@ -3591,6 +3706,35 @@ BOOL System_getenv(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     return TRUE;
 }
 
+BOOL System_secure_getenv(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* name = lvar;
+
+    if(name->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    /// Clover to c value ///
+    char* name_value = ALLOC string_object_to_char_array(name->mObjectValue);
+
+    /// go ///
+    char* result = secure_getenv(name_value);
+
+    if(result == NULL) {
+        (*stack_ptr)->mIntValue = 0;
+        (*stack_ptr)++;
+    }
+    else {
+        (*stack_ptr)->mObjectValue = create_string_object(result);
+        (*stack_ptr)++;
+    }
+
+    MFREE(name_value);
+
+    return TRUE;
+}
+
 BOOL System_setenv(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* name = lvar;
@@ -4559,8 +4703,527 @@ BOOL System_initialize_system_calls_system(CLVALUE** stack_ptr, CLVALUE* lvar, s
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+1].mValue.mIntValue = no_argument;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+2].mValue.mIntValue = required_argument;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+3].mValue.mIntValue = optional_argument;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+4].mValue.mIntValue = _IONBF;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+5].mValue.mIntValue = _IOLBF;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+6].mValue.mIntValue = _IOFBF;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+7].mValue.mPointerValue = (char*)SIG_IGN;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+8].mValue.mPointerValue = (char*)SIG_DFL;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+9].mValue.mIntValue = SIGHUP;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+10].mValue.mIntValue = SIGINT;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+11].mValue.mIntValue = SIGQUIT;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+12].mValue.mIntValue = SIGILL;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+13].mValue.mIntValue = SIGTRAP;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+14].mValue.mIntValue = SIGABRT;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+15].mValue.mIntValue = SIGBUS;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+16].mValue.mIntValue = SIGFPE;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+17].mValue.mIntValue = SIGKILL;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+18].mValue.mIntValue = SIGUSR1;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+19].mValue.mIntValue = SIGSEGV;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+20].mValue.mIntValue = SIGUSR2;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+21].mValue.mIntValue = SIGPIPE;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+22].mValue.mIntValue = SIGALRM;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+23].mValue.mIntValue = SIGTERM;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+24].mValue.mIntValue = SIGSTKFLT;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+25].mValue.mIntValue = SIGCHLD;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+26].mValue.mIntValue = SIGCONT;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+27].mValue.mIntValue = SIGSTOP;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+28].mValue.mIntValue = SIGTSTP;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+29].mValue.mIntValue = SIGTTIN;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+30].mValue.mIntValue = SIGTTOU;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+31].mValue.mIntValue = SIGURG;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+32].mValue.mIntValue = SIGXCPU;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+33].mValue.mIntValue = SIGXFSZ;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+34].mValue.mIntValue = SIGVTALRM;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+35].mValue.mIntValue = SIGPROF;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+36].mValue.mIntValue = SIGWINCH;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+37].mValue.mIntValue = SIGIO;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+38].mValue.mIntValue = SIGPWR;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+39].mValue.mIntValue = SIGSYS;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+40].mValue.mIntValue = FD_SETSIZE;
 
-#define LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS (LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+4)
+#ifdef IOCADDRT
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+41].mValue.mIntValue = IOCADDRT;
+#endif
+#ifdef SIOCDELRT
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+42].mValue.mIntValue = SIOCDELRT;
+#endif
+#ifdef SIOCRTMSG
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+43].mValue.mIntValue = SIOCRTMSG;
+#endif
+#ifdef SIOCGIFNAME
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+44].mValue.mIntValue = SIOCGIFNAME;
+#endif
+#ifdef SIOCSIFLINK
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+45].mValue.mIntValue = SIOCSIFLINK;
+#endif
+#ifdef SIOCGIFCONF
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+46].mValue.mIntValue = SIOCGIFCONF;
+#endif
+#ifdef SIOCGIFFLAGS
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+47].mValue.mIntValue = SIOCGIFFLAGS;
+#endif
+#ifdef SIOCSIFFLAGS
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+48].mValue.mIntValue = SIOCSIFFLAGS;
+#endif
+#ifdef SIOCGIFADDR
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+49].mValue.mIntValue = SIOCGIFADDR;
+#endif
+#ifdef SIOCSIFADDR
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+50].mValue.mIntValue = SIOCSIFADDR;
+#endif
+#ifdef SIOCGIFDSTADDR
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+51].mValue.mIntValue = SIOCGIFDSTADDR;
+#endif
+#ifdef SIOCSIFDSTADDR
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+52].mValue.mIntValue = SIOCSIFDSTADDR;
+#endif
+#ifdef SIOCGIFBRDADDR
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+53].mValue.mIntValue = SIOCGIFBRDADDR;
+#endif
+#ifdef SIOCSIFBRDADDR
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+54].mValue.mIntValue = SIOCSIFBRDADDR;
+#endif
+#ifdef SIOCGIFNETMASK
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+55].mValue.mIntValue = SIOCGIFNETMASK;
+#endif
+#ifdef SIOCSIFNETMASK
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+56].mValue.mIntValue = SIOCSIFNETMASK;
+#endif
+#ifdef SIOCGIFMETRIC
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+57].mValue.mIntValue = SIOCGIFMETRIC;
+#endif
+#ifdef SIOCSIFMETRIC
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+58].mValue.mIntValue = SIOCSIFMETRIC;
+#endif
+#ifdef SIOCGIFMEM
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+59].mValue.mIntValue = SIOCGIFMEM;
+#endif
+#ifdef SIOCSIFMEM
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+60].mValue.mIntValue = SIOCSIFMEM;
+#endif
+#ifdef SIOCGIFMTU
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+61].mValue.mIntValue = SIOCGIFMTU;
+#endif
+#ifdef SIOCSIFMTU
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+62].mValue.mIntValue = SIOCSIFMTU;
+#endif
+#ifdef SIOCSIFNAME
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+63].mValue.mIntValue = SIOCSIFNAME;
+#endif
+#ifdef SIOCSIFHWADDR
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+64].mValue.mIntValue = SIOCSIFHWADDR;
+#endif
+#ifdef SIOCGIFENCAP
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+65].mValue.mIntValue = SIOCGIFENCAP;
+#endif
+#ifdef SIOCSIFENCAP
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+66].mValue.mIntValue = SIOCSIFENCAP;
+#endif
+#ifdef SIOCGIFHWADDR
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+67].mValue.mIntValue = SIOCGIFHWADDR;
+#endif
+#ifdef SIOCGIFSLAVE
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+68].mValue.mIntValue = SIOCGIFSLAVE;
+#endif
+#ifdef SIOCSIFSLAVE
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+69].mValue.mIntValue = SIOCSIFSLAVE;
+#endif
+#ifdef SIOCADDMULTI
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+70].mValue.mIntValue = SIOCADDMULTI;
+#endif
+#ifdef SIOCDELMULTI
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+71].mValue.mIntValue = SIOCDELMULTI;
+#endif
+#ifdef SIOCGIFINDEX
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+72].mValue.mIntValue = SIOCGIFINDEX;
+#endif
+#ifdef SIOGIFINDEX
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+73].mValue.mIntValue = SIOGIFINDEX;
+#endif
+#ifdef SIOCSIFPFLAGS
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+74].mValue.mIntValue = SIOCSIFPFLAGS;
+#endif
+#ifdef SIOCGIFPFLAGS
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+75].mValue.mIntValue = SIOCGIFPFLAGS;
+#endif
+#ifdef SIOCDIFADDR
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+76].mValue.mIntValue = SIOCDIFADDR;
+#endif
+#ifdef SIOCSIFHWBROADCAST
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+77].mValue.mIntValue = SIOCSIFHWBROADCAST;
+#endif
+#ifdef SIOCGIFCOUNT
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+78].mValue.mIntValue = SIOCGIFCOUNT;
+#endif
+#ifdef SIOCGIFBR
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+79].mValue.mIntValue = SIOCGIFBR;
+#endif
+#ifdef SIOCSIFBR
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+80].mValue.mIntValue = SIOCSIFBR;
+#endif
+#ifdef SIOCGIFTXQLEN
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+81].mValue.mIntValue = SIOCGIFTXQLEN;
+#endif
+#ifdef SIOCSIFTXQLEN
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+82].mValue.mIntValue = SIOCSIFTXQLEN;
+#endif
+#ifdef SIOCDARP
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+83].mValue.mIntValue = SIOCDARP;
+#endif
+#ifdef SIOCGARP
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+84].mValue.mIntValue = SIOCGARP;
+#endif
+#ifdef SIOCSARP
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+85].mValue.mIntValue = SIOCSARP;
+#endif
+#ifdef SIOCDRARP
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+86].mValue.mIntValue = SIOCDRARP;
+#endif
+#ifdef SIOCGRARP
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+87].mValue.mIntValue = SIOCGRARP;
+#endif
+#ifdef SIOCSRARP
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+88].mValue.mIntValue = SIOCSRARP;
+#endif
+#ifdef SIOCGIFMAP
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+89].mValue.mIntValue = SIOCGIFMAP;
+#endif
+#ifdef SIOCSIFMAP
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+90].mValue.mIntValue = SIOCSIFMAP;
+#endif
+#ifdef SIOCADDDLCI
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+91].mValue.mIntValue = SIOCADDDLCI;
+#endif
+#ifdef SIOCDELDLCI
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+92].mValue.mIntValue = SIOCDELDLCI;
+#endif
+#ifdef SIOCDEVPRIVATE
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+93].mValue.mIntValue = SIOCDEVPRIVATE;
+#endif
+#ifdef SIOCPROTOPRIVATE
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+94].mValue.mIntValue = SIOCPROTOPRIVATE;
+#endif
+#ifdef TIOCM_LE
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+95].mValue.mIntValue = TIOCM_LE;
+#endif
+#ifdef TIOCM_DTR
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+96].mValue.mIntValue = TIOCM_DTR;
+#endif
+#ifdef TIOCM_RTS
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+97].mValue.mIntValue = TIOCM_RTS;
+#endif
+#ifdef TIOCM_ST
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+98].mValue.mIntValue = TIOCM_ST;
+#endif
+#ifdef TIOCM_SR
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+99].mValue.mIntValue = TIOCM_SR;
+#endif
+#ifdef TIOCM_CTS
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+100].mValue.mIntValue = TIOCM_CTS;
+#endif
+#ifdef TIOCM_CAR
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+101].mValue.mIntValue = TIOCM_CAR;
+#endif
+#ifdef TIOCM_RNG
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+102].mValue.mIntValue = TIOCM_RNG;
+#endif
+#ifdef TIOCM_DSR
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+103].mValue.mIntValue = TIOCM_DSR;
+#endif
+#ifdef TIOCM_CD
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+104].mValue.mIntValue = TIOCM_CD;
+#endif
+#ifdef TIOCM_RI
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+105].mValue.mIntValue = TIOCM_RI;
+#endif
+#ifdef N_TTY
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+106].mValue.mIntValue = N_TTY;
+#endif
+#ifdef N_SLIP
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+107].mValue.mIntValue = N_SLIP;
+#endif
+#ifdef N_MOUSE
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+108].mValue.mIntValue = N_MOUSE;
+#endif
+#ifdef N_PPP
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+109].mValue.mIntValue = N_PPP;
+#endif
+#ifdef N_STRIP
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+110].mValue.mIntValue = N_STRIP;
+#endif
+#ifdef N_AX25
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+111].mValue.mIntValue = N_AX25;
+#endif
+#ifdef N_X25
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+112].mValue.mIntValue = N_X25;
+#endif
+#ifdef N_6PACK
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+113].mValue.mIntValue = N_6PACK;
+#endif
+#ifdef N_MASC
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+114].mValue.mIntValue = N_MASC;
+#endif
+#ifdef N_R3964
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+115].mValue.mIntValue = N_R3964;
+#endif
+#ifdef N_PROFIBUS_FDL
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+116].mValue.mIntValue = N_PROFIBUS_FDL;
+#endif
+#ifdef N_IRDA
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+117].mValue.mIntValue = N_IRDA;
+#endif
+#ifdef N_SMSBLOCK
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+118].mValue.mIntValue = N_SMSBLOCK;
+#endif
+#ifdef N_HDLC
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+119].mValue.mIntValue = N_HDLC;
+#endif
+#ifdef N_SYNC_PPP
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+120].mValue.mIntValue = N_SYNC_PPP;
+#endif
+#ifdef N_HCI
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+121].mValue.mIntValue = N_HCI;
+#endif
+#ifdef TCGETS
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+122].mValue.mIntValue = TCGETS;
+#endif
+#ifdef TCSETS
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+123].mValue.mIntValue = TCSETS;
+#endif
+#ifdef TCSETSW
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+124].mValue.mIntValue = TCSETSW;
+#endif
+#ifdef TCSETSF
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+125].mValue.mIntValue = TCSETSF;
+#endif
+#ifdef TCGETA
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+126].mValue.mIntValue = TCGETA;
+#endif
+#ifdef TCSETA
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+127].mValue.mIntValue = TCSETA;
+#endif
+#ifdef TCSETAW
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+128].mValue.mIntValue = TCSETAW;
+#endif
+#ifdef TCSETAF
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+129].mValue.mIntValue = TCSETAF;
+#endif
+#ifdef TCSBRK
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+130].mValue.mIntValue = TCSBRK;
+#endif
+#ifdef TCXONC
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+131].mValue.mIntValue = TCXONC;
+#endif
+#ifdef TCFLSH
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+132].mValue.mIntValue = TCFLSH;
+#endif
+#ifdef TIOCEXCL
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+133].mValue.mIntValue = TIOCEXCL;
+#endif
+#ifdef TIOCNXCL
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+134].mValue.mIntValue = TIOCNXCL;
+#endif
+#ifdef TIOCSCTTY
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+135].mValue.mIntValue = TIOCSCTTY;
+#endif
+#ifdef TIOCGPGRP
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+136].mValue.mIntValue = TIOCGPGRP;
+#endif
+#ifdef TIOCSPGRP
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+137].mValue.mIntValue = TIOCSPGRP;
+#endif
+#ifdef TIOCOUTQ
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+138].mValue.mIntValue = TIOCOUTQ;
+#endif
+#ifdef TIOCSTI
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+139].mValue.mIntValue = TIOCSTI;
+#endif
+#ifdef TIOCGWINSZ
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+140].mValue.mIntValue = TIOCGWINSZ;
+#endif
+#ifdef TIOCSWINSZ
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+141].mValue.mIntValue = TIOCSWINSZ;
+#endif
+#ifdef TIOCMGET
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+142].mValue.mIntValue = TIOCMGET;
+#endif
+#ifdef TIOCMBIS
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+143].mValue.mIntValue = TIOCMBIS;
+#endif
+#ifdef TIOCMBIC
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+144].mValue.mIntValue = TIOCMBIC;
+#endif
+#ifdef TIOCMSET
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+145].mValue.mIntValue = TIOCMSET;
+#endif
+#ifdef TIOCGSOFTCAR
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+146].mValue.mIntValue = TIOCGSOFTCAR;
+#endif
+#ifdef TIOCSSOFTCAR
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+147].mValue.mIntValue = TIOCSSOFTCAR;
+#endif
+#ifdef FIONREAD
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+148].mValue.mIntValue = FIONREAD;
+#endif
+#ifdef TIOCINQ
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+149].mValue.mIntValue = TIOCINQ;
+#endif
+#ifdef TIOCLINUX
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+150].mValue.mIntValue = TIOCLINUX;
+#endif
+#ifdef TIOCCONS
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+151].mValue.mIntValue = TIOCCONS;
+#endif
+#ifdef TIOCGSERIAL
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+152].mValue.mIntValue = TIOCGSERIAL;
+#endif
+#ifdef TIOCSSERIAL
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+153].mValue.mIntValue = TIOCSSERIAL;
+#endif
+#ifdef TIOCPKT
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+154].mValue.mIntValue = TIOCPKT;
+#endif
+#ifdef FIONBIO
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+155].mValue.mIntValue = FIONBIO;
+#endif
+#ifdef TIOCNOTT
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+156].mValue.mIntValue = TIOCNOTT;
+#endif
+#ifdef TIOCSET
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+157].mValue.mIntValue = TIOCSET;
+#endif
+#ifdef TIOCGETD
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+158].mValue.mIntValue = TIOCGETD;
+#endif
+#ifdef TCSBRKP
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+159].mValue.mIntValue = TCSBRKP;
+#endif
+#ifdef TIOCSBRK
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+160].mValue.mIntValue = TIOCSBRK;
+#endif
+#ifdef TIOCCBRK
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+161].mValue.mIntValue = TIOCCBRK;
+#endif
+#ifdef TIOCGSID
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+162].mValue.mIntValue = TIOCGSID;
+#endif
+#ifdef TIOCGRS485
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+163].mValue.mIntValue = TIOCGRS485;
+#endif
+#ifdef TIOCSRS485
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+164].mValue.mIntValue = TIOCSRS485;
+#endif
+#ifdef TIOCGPTN
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+165].mValue.mIntValue = TIOCGPTN;
+#endif
+#ifdef TIOCSPTLCK
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+166].mValue.mIntValue = TIOCSPTLCK;
+#endif
+#ifdef TIOCGDEV
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+167].mValue.mIntValue = TIOCGDEV;
+#endif
+#ifdef TCGETX
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+168].mValue.mIntValue = TCGETX;
+#endif
+#ifdef TCSETX
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+169].mValue.mIntValue = TCSETX;
+#endif
+#ifdef TCSETXF
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+170].mValue.mIntValue = TCSETXF;
+#endif
+#ifdef TCSETXW
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+171].mValue.mIntValue = TCSETXW;
+#endif
+#ifdef TIOCSIG
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+172].mValue.mIntValue = TIOCSIG;
+#endif
+#ifdef TIOCVHANGUP
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+173].mValue.mIntValue = TIOCVHANGUP;
+#endif
+#ifdef TIOCGPKT
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+174].mValue.mIntValue = TIOCGPKT;
+#endif
+#ifdef TIOCGPTLCK
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+175].mValue.mIntValue = TIOCGPTLCK;
+#endif
+#ifdef TIOCGEXCL
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+176].mValue.mIntValue = TIOCGEXCL;
+#endif
+#ifdef FIONCLEX
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+177].mValue.mIntValue = FIONCLEX;
+#endif
+#ifdef FIOCLEX
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+178].mValue.mIntValue = FIOCLEX;
+#endif
+#ifdef FIOASYNC
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+179].mValue.mIntValue = FIOASYNC;
+#endif
+#ifdef TIOCSERCONFIG
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+180].mValue.mIntValue = TIOCSERCONFIG;
+#endif
+#ifdef TIOCSERGWILD
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+181].mValue.mIntValue = TIOCSERGWILD;
+#endif
+#ifdef TIOCSERSWILD
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+182].mValue.mIntValue = TIOCSERSWILD;
+#endif
+#ifdef TIOCGLCKTRMIOS
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+183].mValue.mIntValue = TIOCGLCKTRMIOS;
+#endif
+#ifdef TIOCSLCKTRMIOS
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+184].mValue.mIntValue = TIOCSLCKTRMIOS;
+#endif
+#ifdef TIOCSERGSTRUCT
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+185].mValue.mIntValue = TIOCSERGSTRUCT;
+#endif
+#ifdef TIOCSERGETLSR 
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+186].mValue.mIntValue = TIOCSERGETLSR ;
+#endif
+#ifdef TIOCSERGETMULTI
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+187].mValue.mIntValue = TIOCSERGETMULTI;
+#endif
+#ifdef TIOCSERSETMULTI
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+188].mValue.mIntValue = TIOCSERSETMULTI;
+#endif
+#ifdef TIOCMIWAIT
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+189].mValue.mIntValue = TIOCMIWAIT;
+#endif
+#ifdef TIOCGICOUNT
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+190].mValue.mIntValue = TIOCGICOUNT;
+#endif
+#ifdef FIOQSIZE
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+191].mValue.mIntValue = FIOQSIZE;
+#endif
+#ifdef TIOCPKT_DATA
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+192].mValue.mIntValue = TIOCPKT_DATA;
+#endif
+#ifdef TIOCPKT_FLUSHREAD
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+193].mValue.mIntValue = TIOCPKT_FLUSHREAD;
+#endif
+#ifdef TIOCPKT_FLUSHWRITE
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+194].mValue.mIntValue = TIOCPKT_FLUSHWRITE;
+#endif
+#ifdef TIOCPKT_STOP
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+195].mValue.mIntValue = TIOCPKT_STOP;
+#endif
+#ifdef TIOCPKT_START
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+196].mValue.mIntValue = TIOCPKT_START;
+#endif
+#ifdef TIOCPKT_NOSTOP
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+197].mValue.mIntValue = TIOCPKT_NOSTOP;
+#endif
+#ifdef TIOCPKT_DOSTOP
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+198].mValue.mIntValue = TIOCPKT_DOSTOP;
+#endif
+#ifdef TIOCPKT_IOCTL
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+199].mValue.mIntValue = TIOCPKT_IOCTL;
+#endif
+
+#ifdef TIOCSER_TEMT
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+200].mValue.mIntValue = TIOCSER_TEMT;
+#endif
+
+#define LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS (LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+201)
 
     return TRUE;
 }
@@ -4712,6 +5375,1167 @@ BOOL System_fileno(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     /// go ///
     int result = fileno(stream_value);
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+#ifdef HAVE_BSD_H
+BOOL System_getbsize(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* headerlenp = lvar;
+    CLVALUE* blocksizep = lvar + 1;
+
+    /// Clover to c value ///
+    if(headerlenp->mPointerValue == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+    if(blocksizep->mPointerValue == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    /// Clover to C ///
+    int* headerlenp_value = (int*)headerlenp->mPointerValue;
+    long* blocksizep_value = (long*)blocksizep->mPointerValue;
+
+    /// go ///
+    char* result = getbsize(headerlenp_value, blocksizep_value);
+
+    CLObject obj = create_string_object(result);
+
+    (*stack_ptr)->mObjectValue = obj;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+#endif
+
+BOOL System_getuid(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    uid_t result = getuid();
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_geteuid(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    uid_t result = geteuid();
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_getgid(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    gid_t result = getgid();
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_getegid(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    gid_t result = getegid();
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_isatty(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* fd = lvar;
+
+    /// Clover to c value ///
+    int fd_value = fd->mIntValue;
+
+    /// go ///
+    int result = isatty(fd_value);
+
+    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_umask(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* mask = lvar;
+
+    /// Clover to c value ///
+    mode_t mask_value = (mode_t)mask->mIntValue;
+
+    /// go ///
+    mode_t result = umask(mask_value);
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_usleep(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* usec = lvar;
+
+    /// Clover to c value ///
+    useconds_t usec_value = (useconds_t)usec->mIntValue;
+
+    /// go ///
+    vm_mutex_off();
+    int result = usleep(usec_value);
+    vm_mutex_on();
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "usleep(3) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_nanosleep(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* req = lvar;
+    CLVALUE* rem = lvar + 1;
+
+    /// Clover to c value ///
+    struct timespec req_value;
+
+    sCLObject* object_data = CLOBJECT(req->mObjectValue);
+
+    req_value.tv_sec = object_data->mFields[0].mIntValue;
+    req_value.tv_nsec = object_data->mFields[1].mLongValue;
+
+    struct timespec rem_value;
+    memset(&rem_value, 0, sizeof(struct timespec));
+
+    /// go ///
+    vm_mutex_off();
+    int result = nanosleep(&req_value, &rem_value);
+    vm_mutex_on();
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "nanosleep(3) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+
+        if(rem->mObjectValue != 0) {
+            sCLObject* object_data2 = CLOBJECT(rem->mObjectValue);
+
+            object_data2->mFields[0].mIntValue = rem_value.tv_sec;
+            object_data2->mFields[1].mLongValue = rem_value.tv_nsec;
+        }
+        return FALSE;
+    }
+
+    if(rem->mObjectValue != 0) {
+        sCLObject* object_data2 = CLOBJECT(rem->mObjectValue);
+
+        object_data2->mFields[0].mIntValue = rem_value.tv_sec;
+        object_data2->mFields[1].mLongValue = rem_value.tv_nsec;
+    }
+
+    return TRUE;
+}
+
+BOOL System_putenv(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* str = lvar;
+
+    if(str->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    /// Clover to c value ///
+    CLObject str_object = str->mObjectValue;
+
+    char* str_value = ALLOC string_object_to_char_array(str_object);
+
+    /// go ///
+    int result = putenv(str_value);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "putenv(3) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+
+        MFREE(str_value);
+        return FALSE;
+    }
+
+    //MFREE(str_value); comment out for putenv
+
+    return TRUE;
+}
+
+BOOL System_setvbuf(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* stream = lvar;
+    CLVALUE* buf = lvar + 1;
+    CLVALUE* mode = lvar + 2;
+    CLVALUE* size = lvar + 3;
+
+    if(stream->mPointerValue == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    /// Clover to c value ///
+    FILE* stream_value = (FILE*)stream->mPointerValue;
+    char* buf_value = (char*)buf->mPointerValue;
+    int mode_value = mode->mIntValue;
+    size_t size_value = size->mULongValue;
+
+    /// go ///
+    int result = setvbuf(stream_value, buf_value, mode_value, size_value);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "setvbuf(3) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_strncat(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* dest = lvar;
+    CLVALUE* src = lvar + 1;
+    CLVALUE* size = lvar + 2;
+
+    /// Clover to c value ///
+    char* dest_value = (char*)dest->mPointerValue;
+    char* src_value = (char*)src->mPointerValue;
+    size_t size_value = size->mULongValue;
+
+    /// go ///
+    char* result = xstrncat(dest_value, src_value, size_value);
+
+    (*stack_ptr)->mPointerValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_strchr(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* str = lvar;
+    CLVALUE* c = lvar + 1;
+
+    /// Clover to c value ///
+    char* str_value = (char*)str->mPointerValue;
+    char c_value = c->mByteValue;
+
+    /// go ///
+    char* result = strchr(str_value, c_value);
+
+    (*stack_ptr)->mPointerValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_initialize_socket_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    sCLClass* system = get_class("System");
+
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+0].mValue.mIntValue = AF_UNIX;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+1].mValue.mIntValue = AF_LOCAL;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+2].mValue.mIntValue = AF_INET;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+3].mValue.mIntValue = AF_INET6;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+4].mValue.mIntValue = AF_IPX;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+5].mValue.mIntValue = AF_NETLINK;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+6].mValue.mIntValue = AF_X25;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+7].mValue.mIntValue = AF_AX25;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+8].mValue.mIntValue = AF_ATMPVC;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+9].mValue.mIntValue = AF_APPLETALK;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+10].mValue.mIntValue = AF_PACKET;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+11].mValue.mIntValue = AF_ALG;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+12].mValue.mIntValue = SOCK_STREAM;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+13].mValue.mIntValue = SOCK_DGRAM;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+14].mValue.mIntValue = SOCK_SEQPACKET;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+15].mValue.mIntValue = SOCK_RAW;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+16].mValue.mIntValue = SOCK_RDM;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+17].mValue.mIntValue = SOCK_PACKET;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+18].mValue.mIntValue = SOCK_NONBLOCK;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+19].mValue.mIntValue = SOCK_CLOEXEC;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+20].mValue.mIntValue = SOCK_STREAM;
+
+#define LAST_INITIALIZE_FIELD_NUM_ON_SOCKET (LAST_INITIALIZE_FIELD_NUM_ON_CGI+21)
+
+    return TRUE;
+}
+
+BOOL System_socket(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* domain = lvar;
+    CLVALUE* type = (lvar+1);
+    CLVALUE* protocol = (lvar+2);
+
+    /// Clover to c value ///
+    int domain_value = domain->mIntValue;
+    int type_value = type->mIntValue;
+    int protocol_value = protocol->mIntValue;
+
+    /// go ///
+    int result = socket(domain_value, type_value, protocol_value);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "socket(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_connect(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* sockfd = lvar;
+    CLVALUE* addr = lvar+1;
+
+    /// Clover to c value ///
+    if(addr->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+
+    }
+
+    int sockfd_value = sockfd->mIntValue;
+    CLObject addr_object = addr->mObjectValue;
+    sCLObject* object_data = CLOBJECT(addr_object);
+
+    struct sockaddr_un addr_value;
+
+    memset(&addr_value, 0, sizeof(struct sockaddr_un));
+
+    addr_value.sun_family = object_data->mFields[0].mIntValue;
+
+    CLObject path_object = object_data->mFields[1].mObjectValue;
+
+    char* path_value = ALLOC string_object_to_char_array(path_object);
+
+    xstrncpy(addr_value.sun_path, path_value, sizeof(addr_value.sun_path));
+
+    MFREE(path_value);
+
+    socklen_t len_value = sizeof(addr_value);
+
+    /// go ///
+    int result = connect(sockfd_value, (struct sockaddr*)&addr_value, len_value);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "connect(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_bind(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* sockfd = lvar;
+    CLVALUE* addr = lvar+1;
+
+    /// Clover to c value ///
+    if(addr->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+
+    }
+
+    int sockfd_value = sockfd->mIntValue;
+    CLObject addr_object = addr->mObjectValue;
+    sCLObject* object_data = CLOBJECT(addr_object);
+
+    struct sockaddr_un addr_value;
+
+    memset(&addr_value, 0, sizeof(struct sockaddr_un));
+
+    addr_value.sun_family = object_data->mFields[0].mIntValue;
+
+    CLObject path_object = object_data->mFields[1].mObjectValue;
+
+    char* path_value = ALLOC string_object_to_char_array(path_object);
+
+    xstrncpy(addr_value.sun_path, path_value, sizeof(addr_value.sun_path));
+
+    MFREE(path_value);
+
+    socklen_t len_value = sizeof(addr_value);
+
+    /// go ///
+    int result = bind(sockfd_value, (struct sockaddr*)&addr_value, len_value);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "bind(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_listen(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* sockfd = lvar;
+    CLVALUE* backlog = lvar+1;
+
+    /// Clover to c value ///
+    int sockfd_value = sockfd->mIntValue;
+    int backlog_value = backlog->mIntValue;
+
+    /// go ///
+    int result = listen(sockfd_value, backlog_value);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "bind(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_accept(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* sockfd = lvar;
+    CLVALUE* addr = lvar+1;
+
+    /// Clover to c value ///
+    int sockfd_value = sockfd->mIntValue;
+    CLObject addr_object = addr->mObjectValue;
+
+    struct sockaddr_un addr_value;
+    socklen_t len_value;
+
+    memset(&addr_value, 0, sizeof(struct sockaddr_un));
+
+    /// go ///
+    int result = accept(sockfd_value, (struct sockaddr*)&addr_value, &len_value);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "accept(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    sCLObject* object_data = CLOBJECT(addr_object);
+    object_data->mFields[0].mIntValue = addr_value.sun_family;
+
+    CLObject path_object = create_string_object(addr_value.sun_path);
+    object_data = CLOBJECT(addr_object);
+    object_data->mFields[1].mObjectValue = path_object;
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_inet_addr(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* cp = lvar;
+
+    /// Clover to c value ///
+    if(cp->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    CLObject cp_object = cp->mObjectValue;
+    char* cp_value = ALLOC string_object_to_char_array(cp_object);
+
+    /// go ///
+    in_addr_t result = inet_addr(cp_value);
+
+    (*stack_ptr)->mUIntValue = result;
+    (*stack_ptr)++;
+
+    MFREE(cp_value);
+
+    return TRUE;
+}
+
+BOOL System_connect2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* sockfd = lvar;
+    CLVALUE* addr = lvar+1;
+
+    /// Clover to c value ///
+    if(addr->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+
+    }
+
+    int sockfd_value = sockfd->mIntValue;
+    CLObject addr_object = addr->mObjectValue;
+    sCLObject* object_data = CLOBJECT(addr_object);
+
+    struct sockaddr_in addr_value;
+
+    memset(&addr_value, 0, sizeof(struct sockaddr_in));
+
+    addr_value.sin_family = object_data->mFields[0].mIntValue;
+
+    CLObject sin_addr = object_data->mFields[1].mObjectValue;
+
+    sCLObject* object_data2 = CLOBJECT(sin_addr);
+
+    addr_value.sin_addr.s_addr = object_data2->mFields[0].mUIntValue;
+
+    addr_value.sin_port = object_data->mFields[2].mIntValue;
+
+    socklen_t len_value = sizeof(addr_value);
+
+    /// go ///
+    int result = connect(sockfd_value, (struct sockaddr*)&addr_value, len_value);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "connect(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_bind2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* sockfd = lvar;
+    CLVALUE* addr = lvar+1;
+
+    /// Clover to c value ///
+    if(addr->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+
+    }
+
+    int sockfd_value = sockfd->mIntValue;
+    CLObject addr_object = addr->mObjectValue;
+    sCLObject* object_data = CLOBJECT(addr_object);
+
+    struct sockaddr_in addr_value;
+
+    memset(&addr_value, 0, sizeof(struct sockaddr_in));
+
+    addr_value.sin_family = object_data->mFields[0].mIntValue;
+
+    CLObject sin_addr = object_data->mFields[1].mObjectValue;
+
+    sCLObject* object_data2 = CLOBJECT(sin_addr);
+
+    addr_value.sin_addr.s_addr = object_data2->mFields[0].mUIntValue;
+
+    addr_value.sin_port = object_data->mFields[2].mIntValue;
+
+    socklen_t len_value = sizeof(addr_value);
+
+    /// go ///
+    int result = bind(sockfd_value, (struct sockaddr*)&addr_value, len_value);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "bind(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+static CLObject create_string_array_from_ppchar_nullterminated(char** array) 
+{
+    CLObject result;
+
+    int num_array = 0;
+    char** p = array;
+    while(*p) {
+        num_array++;
+        p++;
+    }
+    sCLClass* string_klass = get_class("String");
+
+    result = create_array_object(string_klass, num_array);
+
+    CLVALUE cl_value;
+    cl_value.mObjectValue = result;
+    push_value_to_global_stack(cl_value);
+
+    int i;
+    for(i=0; i < num_array; i++) {
+        CLObject string_object = create_string_object(array[i]);
+
+        cl_value.mObjectValue = result;
+        push_value_to_global_stack(cl_value);
+
+        sCLObject* object_data = CLOBJECT(result);
+        object_data->mFields[i].mObjectValue = string_object;
+
+        pop_global_stack();
+    }
+
+    pop_global_stack();
+
+    return result;
+}
+
+static CLObject create_h_addr_list_array_from_ppchar_nullterminated(char** array) 
+{
+    CLObject result;
+
+    int num_array = 0;
+    char** p = array;
+    while(*p) {
+        num_array++;
+        p++;
+    }
+    sCLClass* string_klass = get_class("String");
+
+    result = create_array_object(string_klass, num_array);
+
+    CLVALUE cl_value;
+    cl_value.mObjectValue = result;
+    push_value_to_global_stack(cl_value);
+
+    int i;
+    for(i=0; i < num_array; i++) {
+        CLObject string_object = create_string_object(inet_ntoa(*(struct in_addr *)*(array + i)));
+
+        cl_value.mObjectValue = result;
+        push_value_to_global_stack(cl_value);
+
+        sCLObject* object_data = CLOBJECT(result);
+        object_data->mFields[i].mObjectValue = string_object;
+
+        pop_global_stack();
+    }
+
+    pop_global_stack();
+
+    return result;
+}
+
+static CLObject create_hostent_object(struct hostent* entry)
+{
+    sCLClass* klass = get_class_with_load_and_initialize("hostent");
+
+    if(klass == NULL) {
+        return 0;
+    }
+
+    CLObject result = create_object(klass, "hostent");
+
+    CLVALUE cl_value;
+    cl_value.mObjectValue = result;
+    push_value_to_global_stack(cl_value);
+
+    CLObject h_name_object = create_string_object(entry->h_name);
+
+    cl_value.mObjectValue = h_name_object;
+    push_value_to_global_stack(cl_value);
+
+    sCLObject* object_data = CLOBJECT(result);
+
+    object_data->mFields[0].mObjectValue = h_name_object;
+
+    pop_global_stack();
+
+    CLObject h_aliases = create_string_array_from_ppchar_nullterminated(entry->h_aliases);
+
+    object_data = CLOBJECT(result);
+    object_data->mFields[1].mObjectValue = h_aliases;
+    object_data->mFields[2].mIntValue = entry->h_addrtype;
+    object_data->mFields[3].mIntValue = entry->h_length;
+
+    CLObject h_addr_list = create_h_addr_list_array_from_ppchar_nullterminated(entry->h_addr_list);
+    object_data->mFields[4].mObjectValue = h_addr_list;
+
+    pop_global_stack();
+
+    return result;
+}
+
+BOOL System_gethostbyaddr(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* addr = lvar;
+    CLVALUE* len = lvar+1;
+    CLVALUE* type = lvar+2;
+
+    /// Clover to c value ///
+    void* addr_value = addr->mPointerValue;
+    size_t len_value = len->mULongValue;
+    int type_value = type->mIntValue;
+
+    /// go ///
+    struct hostent* result = gethostbyaddr(addr_value, len_value, type_value);
+
+    if(result == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "gethostbyaddr(2) is faield. The errorno is %d", h_errno);
+        return FALSE;
+    }
+
+    CLObject obj = create_hostent_object(result);
+
+    if(obj == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "hostent class is not loaded");
+        return FALSE;
+    }
+
+    (*stack_ptr)->mObjectValue = obj;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+static CLObject create_servent_object(struct servent* entry)
+{
+    sCLClass* klass = get_class_with_load_and_initialize("servent");
+
+    if(klass == NULL) {
+        return 0;
+    }
+
+    CLObject result = create_object(klass, "servent");
+
+    CLVALUE cl_value;
+    cl_value.mObjectValue = result;
+    push_value_to_global_stack(cl_value);
+
+    CLObject s_name_object = create_string_object(entry->s_name);
+
+    cl_value.mObjectValue = s_name_object;
+    push_value_to_global_stack(cl_value);
+
+    sCLObject* object_data = CLOBJECT(result);
+
+    object_data->mFields[0].mObjectValue = s_name_object;
+
+    pop_global_stack();
+
+    CLObject s_aliases = create_string_array_from_ppchar_nullterminated(entry->s_aliases);
+
+    object_data = CLOBJECT(result);
+    object_data->mFields[1].mObjectValue = s_aliases;
+    object_data->mFields[2].mIntValue = entry->s_port;
+
+    CLObject s_proto = create_string_object(entry->s_proto);
+
+    cl_value.mObjectValue = s_proto;
+    push_value_to_global_stack(cl_value);
+
+    object_data = CLOBJECT(result);
+    object_data->mFields[3].mObjectValue = s_proto;
+
+    pop_global_stack();
+
+    pop_global_stack();
+
+    return result;
+}
+
+BOOL System_gethostbyname(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* name = lvar;
+
+    /// Clover to c value ///
+    char* name_value = string_object_to_char_array(name->mObjectValue);
+
+    /// go ///
+    struct hostent* result = gethostbyname(name_value);
+
+    MFREE(name_value);
+
+    if(result == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "gethostbyname(2) is faield. The errorno is %d", h_errno);
+        return FALSE;
+    }
+
+    CLObject obj = create_hostent_object(result);
+
+    if(obj == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "hostent class is not loaded");
+        return FALSE;
+    }
+
+    (*stack_ptr)->mObjectValue = obj;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_getservbyname(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* name = lvar;
+    CLVALUE* proto = lvar + 1;
+
+    /// Clover to c value ///
+    char* name_value = string_object_to_char_array(name->mObjectValue);
+    char* proto_value = string_object_to_char_array(proto->mObjectValue);
+
+    /// go ///
+    struct servent* result = getservbyname(name_value, proto_value);
+
+    MFREE(name_value);
+    MFREE(proto_value);
+
+    if(result == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "getservbyname(2) is faield. The errorno is %d", h_errno);
+        return FALSE;
+    }
+
+    CLObject obj = create_servent_object(result);
+
+    if(obj == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "servent class is not loaded");
+        return FALSE;
+    }
+
+    (*stack_ptr)->mObjectValue = obj;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_getservbyport(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* port = lvar;
+    CLVALUE* proto = lvar + 1;
+
+    /// Clover to c value ///
+    int port_value = port->mIntValue;
+    char* proto_value = string_object_to_char_array(proto->mObjectValue);
+
+    /// go ///
+    struct servent* result = getservbyport(port_value, proto_value);
+
+    MFREE(proto_value);
+
+    if(result == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "getservbyport(2) is faield. The errorno is %d", h_errno);
+        return FALSE;
+    }
+
+    CLObject obj = create_servent_object(result);
+
+    if(obj == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "servent class is not loaded");
+        return FALSE;
+    }
+
+    (*stack_ptr)->mObjectValue = obj;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_inet_ntoa(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* in = lvar;
+
+    /// Clover to c value ///
+    CLObject in_object = in->mObjectValue;
+
+    sCLObject* object_data = CLOBJECT(in_object);
+
+    struct in_addr in_value;
+
+    memset(&in_value, 0, sizeof(struct in_addr));
+
+    in_value.s_addr = object_data->mFields[0].mUIntValue;
+
+    /// go ///
+    char* result = inet_ntoa(in_value);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "inet_ntoa(3) is faield.");
+        return FALSE;
+    }
+
+    CLObject string_object = create_string_object(result);
+
+    (*stack_ptr)->mObjectValue = string_object;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_gethostname(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    char name[BUFSIZ];
+
+    /// go ///
+    int result = gethostname(name, BUFSIZ);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "gethostame(2) is faield");
+        return FALSE;
+    }
+
+    CLObject string_object = create_string_object(name);
+
+    (*stack_ptr)->mObjectValue = string_object;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_signal(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* signum = lvar;
+    CLVALUE* handler = lvar+1;
+
+    /// Clover to C ///
+    int signum_value = signum->mIntValue;
+    sighandler_t handler_value = (sighandler_t)handler->mPointerValue;
+
+    /// go ///
+    sighandler_t result = signal(signum_value, handler_value);
+
+    if(result == SIG_ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "signal(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    (*stack_ptr)->mPointerValue = (char*)result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+CLObject signal_handler_object[SIGMAX];
+
+void class_system_init()
+{
+    memset(signal_handler_object, 0, sizeof(CLObject)*SIGMAX);
+}
+
+void signal_user_handler(int signum)
+{
+    CLObject block = signal_handler_object[signum];
+
+    if(block != 0) {
+        sVMInfo info;
+
+        memset(&info, 0, sizeof(info));
+
+        info.running_class_name = "signal";
+        info.running_method_name = "signal_user_handler";
+
+        CLVALUE* stack = MCALLOC(1, sizeof(CLVALUE)*CLOVER_STACK_SIZE);
+
+        int var_num = 0;
+        int num_params = 1;
+        CLVALUE* p = stack + 1 + var_num;
+        CLVALUE** stack_ptr = &p;
+
+        stack->mIntValue = signum;
+
+        (void)invoke_block(block, stack, var_num, num_params, stack_ptr, &info, FALSE);
+    }
+}
+
+BOOL System_signal2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* signum = lvar;
+    CLVALUE* handler = lvar+1;
+
+    /// Clover to C ///
+    int signum_value = signum->mIntValue;
+    CLObject handler_object = handler->mObjectValue;
+    
+    sighandler_t handler_value = signal_user_handler;
+
+    sBlockObject* object_data = CLBLOCK(handler_object);
+
+    if(!object_data->mLambda) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "signal handler should be not closure but lambda");
+        return FALSE;
+    }
+
+    /// go ///
+    sighandler_t result = signal(signum_value, handler_value);
+
+    if(result == SIG_ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "signal(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    (*stack_ptr)->mObjectValue = signal_handler_object[signum_value];
+    (*stack_ptr)++;
+
+    signal_handler_object[signum_value] = handler_object;
+
+    return TRUE;
+}
+
+BOOL fd_set_allocSize(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    (*stack_ptr)->mULongValue = sizeof(fd_set);
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_FD_ZERO(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* fdset = lvar;
+
+    if(fdset->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    /// go ///
+    fd_set fdset_value;
+    FD_ZERO((fd_set*)CLOBJECT(fdset->mObjectValue));
+
+    return TRUE;
+}
+
+BOOL System_FD_CLR(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* fd = lvar;
+    CLVALUE* fdset = lvar + 1;
+
+    if(fdset->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    /// Clover to C ///
+    int fd_value = fd->mIntValue;
+
+    /// go ///
+    FD_CLR(fd_value, (fd_set*)CLOBJECT(fdset->mObjectValue));
+
+    return TRUE;
+}
+
+BOOL System_FD_SET(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* fd = lvar;
+    CLVALUE* fdset = lvar + 1;
+
+    if(fdset->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    /// Clover to C ///
+    int fd_value = fd->mIntValue;
+
+    /// go ///
+    FD_SET(fd_value, (fd_set*)CLOBJECT(fdset->mObjectValue));
+
+    return TRUE;
+}
+
+BOOL System_FD_ISSET(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* fd = lvar;
+    CLVALUE* fdset = lvar + 1;
+
+    if(fdset->mPointerValue == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    /// Clover to C ///
+    int fd_value = fd->mIntValue;
+
+    /// go ///
+    int result = FD_ISSET(fd_value, (fd_set*)CLOBJECT(fdset->mObjectValue));
+
+    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_select(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* nfds = lvar;
+    CLVALUE* readfds = lvar+1;
+    CLVALUE* writefds = lvar+2;
+    CLVALUE* errorfds = lvar+3;
+    CLVALUE* timeout = lvar+4;
+
+    /// Clover to C ///
+    int nfds_value = nfds->mIntValue;
+
+    fd_set* readfds_value;
+    if(readfds->mObjectValue == 0) {
+        readfds_value = NULL;
+    }
+    else {
+        readfds_value = (fd_set*)CLOBJECT(readfds->mObjectValue);
+    }
+
+    fd_set* writefds_value;
+    if(writefds->mObjectValue == 0) {
+        writefds_value = NULL;
+    }
+    else {
+        writefds_value = (fd_set*)CLOBJECT(writefds->mObjectValue);
+    }
+
+    fd_set* errorfds_value;
+    if(errorfds->mObjectValue == 0) {
+        errorfds_value = NULL;
+    }
+    else {
+        errorfds_value = (fd_set*)CLOBJECT(errorfds->mObjectValue);
+    }
+
+    struct timeval timeout_value;
+
+    sCLObject* object_data = CLOBJECT(timeout->mObjectValue);
+
+    timeout_value.tv_sec = object_data->mFields[0].mULongValue;
+    timeout_value.tv_usec = object_data->mFields[1].mLongValue;
+
+    /// go ///
+    int result = select(nfds_value, readfds_value, writefds_value, errorfds_value, &timeout_value);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "select(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_ioctl(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* fd = lvar;
+    CLVALUE* request = lvar+1;
+    CLVALUE* arg = lvar+2;
+
+    /// Clover to C ///
+    int fd_value = fd->mIntValue;
+    int request_value = request->mIntValue;
+    void* arg_value = arg->mPointerValue;
+
+    /// go ///
+    int result = ioctl(fd_value, request_value, arg_value);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "ioctl(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
 
     (*stack_ptr)->mIntValue = result;
     (*stack_ptr)++;

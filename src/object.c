@@ -31,7 +31,7 @@ static unsigned long object_size(sCLClass* klass)
 
     if(klass->mAllocSizeMethodIndex != -1) {
         size = 0;
-        (void)call_alloc_size_method(klass, (int*)&size);
+        (void)call_alloc_size_method(klass, (unsigned long*)&size);
     }
     else {
         size = sizeof(sCLObject) - sizeof(CLVALUE) * DUMMY_ARRAY_SIZE;

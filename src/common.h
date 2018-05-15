@@ -76,6 +76,8 @@
 
 #define WHEN_BLOCK_MAX 64
 
+#define SIGMAX 256
+
 /// CLVALUE ///
 typedef unsigned int CLObject;
 
@@ -1786,7 +1788,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 sCLClass* get_class_with_load_and_initialize(char* class_name);
 void class_final_on_runtime();
 BOOL call_finalize_method_on_free_object(sCLClass* klass, CLObject self);
-BOOL call_alloc_size_method(sCLClass* klass, int* result);
+BOOL call_alloc_size_method(sCLClass* klass, unsigned long* result);
 BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info);
 BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_params, CLVALUE** stack_ptr, sVMInfo* info, BOOL llvm_flag);
 BOOL class_init_on_runtime();
@@ -2186,6 +2188,49 @@ BOOL System_initialize_cgi_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* i
 BOOL System_setlocale(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_flock(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_fileno(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_getbsize(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_getegid(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_getgid(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_geteuid(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_getuid(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_isatty(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_umask(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_usleep(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_nanosleep(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_putenv(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_secure_getenv(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_setvbuf(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_strncat(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_strchr(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_initialize_socket_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_socket(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_connect(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_accept(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_listen(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_bind(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_inet_addr(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_connect2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_bind2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_gethostbyaddr(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_gethostbyname(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_getservbyport(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_getservbyname(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_inet_ntoa(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_gethostname(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_signal(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+void class_system_init();
+BOOL System_signal2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL fd_set_allocSize(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+
+BOOL System_FD_ISSET(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_FD_SET(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_FD_CLR(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_FD_ZERO(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+
+BOOL System_select(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_ioctl(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+
+CLObject signal_handler_object[SIGMAX];
 
 /// alignment.c ///
 void alignment(unsigned int* size);

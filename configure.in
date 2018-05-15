@@ -209,6 +209,9 @@ AC_HAVE_LIBRARY(pthread, [ LIBS="$LIBS -lpthread"; ], [ exit ])
 AC_CHECK_HEADER(readline/readline.h, [AC_DEFINE(HAVE_READLINE_H, 1)], [])
 AC_HAVE_LIBRARY(readline, [ LIBS="$LIBS -lreadline"; ], [])
 
+AC_CHECK_HEADER(bsd/stdlib.h, [AC_DEFINE(HAVE_BSD_H, 1)], [])
+AC_HAVE_LIBRARY(bsd, [ LIBS="$LIBS -lbsd"; ], [])
+
 if test "$OS" != FREEBSD
 then
     AC_HAVE_LIBRARY(dl, [ LIBS="$LIBS -ldl"; ], [exit])

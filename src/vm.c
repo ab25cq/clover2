@@ -881,7 +881,7 @@ BOOL call_finalize_method_on_free_object(sCLClass* klass, CLObject self)
     return TRUE;
 }
 
-BOOL call_alloc_size_method(sCLClass* klass, int* result)
+BOOL call_alloc_size_method(sCLClass* klass, unsigned long* result)
 {
     if(klass->mAllocSizeMethodIndex != -1) {
         sCLMethod alloc_size_method = klass->mMethods[klass->mAllocSizeMethodIndex]; // struct copy for realloc
@@ -901,7 +901,7 @@ BOOL call_alloc_size_method(sCLClass* klass, int* result)
             return FALSE;
         }
 
-        *result = (stack_ptr-1)->mIntValue;
+        *result = (stack_ptr-1)->mULongValue;
 
         MFREE(stack);
     }
@@ -4235,7 +4235,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     stack_ptr--;
                     stack_ptr->mLongValue = 0; // zero clear for jit
-                    stack_ptr->mPointerValue = (void*)object_data->mFields;
+                    stack_ptr->mPointerValue = (void*)object_data;
                     stack_ptr++;
                 }
                 break;
@@ -4696,7 +4696,6 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     sCLClass* klass = object_pointer->mClass;
 
                     if(klass == NULL) {
-                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(5)");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;

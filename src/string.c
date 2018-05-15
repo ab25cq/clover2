@@ -31,6 +31,7 @@ CLObject create_string_object(char* str)
     CLObject buffer = create_array_object(char_class, wlen+1);
     sCLObject* buffer_data = CLOBJECT(buffer);
 
+
     int i;
     for(i=0; i<wlen; i++) {
         buffer_data->mFields[i].mCharValue = wstr[i];

@@ -198,7 +198,7 @@ static BOOL parse_word_and_slash(char* buf, int buf_size, sParserInfo* info, BOO
         info->p++;
     }
 
-    if(isalpha(*info->p)) {
+    if(isalpha(*info->p) || *info->p == '_') {
         while(isalnum(*info->p) || *info->p == '_' || *info->p == '/') {
             if(p2 - buf < buf_size-1) {
                 *p2++ = *info->p;
@@ -246,7 +246,7 @@ BOOL parse_word(char* buf, int buf_size, sParserInfo* info, BOOL print_out_err_m
 
     char* p2 = buf;
 
-    if(isalpha(*info->p)) {
+    if(isalpha(*info->p) || *info->p == '_') {
         while(isalnum(*info->p) || *info->p == '_') {
             if(p2 - buf < buf_size-1) {
                 *p2++ = *info->p;
@@ -2266,7 +2266,7 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info, int* nu
                 return TRUE;
             }
 
-            if(isalpha(*info->p)) {
+            if(isalpha(*info->p) || *info->p == '_') {
                 char buf[METHOD_NAME_MAX];
 
                 if(!parse_word(buf, METHOD_NAME_MAX, info, TRUE, FALSE)) {
@@ -3097,7 +3097,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
     int num_method_chains = 0;
     unsigned int max_method_chains_node[METHOD_CHAIN_MAX];
 
-    /// ただの数値表現 ///
+    /// number ///
     if((*info->p == '-' && *(info->p+1) != '=' && *(info->p+1) != '-' && *(info->p+1) != '>') || (*info->p == '+' && *(info->p+1) != '=' && *(info->p+1) != '+')) 
     {
         if(*info->p == '-') {
@@ -3117,7 +3117,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             }
         }
     }
-    /// 16進数 ///
+    /// hex number ///
     else if(*info->p == '0' && *(info->p+1) == 'x') {
         info->p += 2;
 
@@ -3125,7 +3125,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             return FALSE;
         }
     }
-    /// 8進数 ///
+    /// oct number ///
     else if(*info->p == '0' && isdigit(*(info->p+1))) {
         info->p++;
 
@@ -3133,7 +3133,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             return FALSE;
         }
     }
-    /// ただの数値表現 ///
+    /// number ///
     else if(isdigit(*info->p)) {
         if(!get_number(FALSE, node, info)) {
             return FALSE;
@@ -3268,7 +3268,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
         *node = sNodeTree_create_string_value(MANAGED value.mBuf, string_expressions, string_expression_offsets, num_string_expression, info);
     }
-    /// 文字列 ///
+    /// String object ///
     else if(*info->p == '"') {
         info->p++;
 
@@ -3356,7 +3356,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
         *node = sNodeTree_create_string_value(MANAGED value.mBuf, string_expressions, string_expression_offsets, num_string_expression, info);
     }
-    /// バッファクラスの値 ///
+    /// buffer object ///
     else if((*info->p == 'B' || *info->p == 'b') && *(info->p+1) == '"') {
         info->p+=2;
 
@@ -3442,7 +3442,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
         *node = sNodeTree_create_buffer_value(MANAGED value.mBuf, value.mLen, string_expressions, string_expression_offsets, num_string_expression, info);
     }
-    /// パスの値 ///
+    /// path ///
     else if((*info->p == 'P' || *info->p == 'p') && *(info->p+1) == '"') {
         info->p+=2;
 
@@ -3528,7 +3528,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
         *node = sNodeTree_create_path_value(MANAGED value.mBuf, value.mLen, string_expressions, string_expression_offsets, num_string_expression, info);
     }
-    /// 文字の値 ///
+    /// Character ///
     else if(*info->p == '\'') {
         info->p++;
 
@@ -3620,7 +3620,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             *node = sNodeTree_create_character_value(c, info);
         }
     }
-    /// 配列とハッシュの値 ///
+    /// array or hash ///
     else if(*info->p == '[') {
         info->p++;
         skip_spaces_and_lf(info);
@@ -3629,7 +3629,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             return FALSE;
         }
     }
-    /// ブロック ///
+    /// block ///
     else if(*info->p == '{') {
         info->p++;
         skip_spaces_and_lf(info);
@@ -3638,8 +3638,8 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             return FALSE;
         }
     }
-    /// 文字から始まる式 ./configureや../configureはここに入る。その場合でシェルモードで利用する
-    else if(isalpha(*info->p) || (*info->p == '.' && *(info->p+1) == '/') || (*info->p == '.' && *(info->p+1) == '.' && *(info->p+2) == '/')) 
+    /// Head of alphabets or _ ./configure or ../configure is inside for shell mode
+    else if(isalpha(*info->p) || (*info->p == '.' && *(info->p+1) == '/') || (*info->p == '.' && *(info->p+1) == '.' && *(info->p+2) == '/') || (*info->p == '_'))
     {
         char buf[VAR_NAME_MAX];
 
@@ -4009,12 +4009,16 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 klass = get_class(buf);
 
                 if(klass == NULL) {
+#ifdef __DARWIN__
                     if(buf[0] >= 'A' && buf[0] <= 'Z') {  // for OSX. OSX ignores the case of file name
                         klass = load_class_on_compile_time(buf);
                     }
                     else {
                         klass = NULL;
                     }
+#else
+                    klass = load_class_on_compile_time(buf);
+#endif
                 }
             }
 

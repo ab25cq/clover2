@@ -52,6 +52,19 @@ class SystemCallTest
 
         System.fclose(e);
 
-        
+        j:pointer = malloc(10);
+        strncpy(j, b"AAA\0".buffer, 10);
+
+        Clover.test("system call test8", j->byte == 'A' && (j+1)->byte == 'A' && (j+2)->byte == 'A' && (j+3)->byte == '\0');
+
+        strncat(j, b"B".buffer, 10);
+
+        Clover.test("system call test9", j->byte == 'A' && (j+1)->byte == 'A' && (j+2)->byte == 'A' && (j+3)->byte == 'B' && (j+4)->byte == '\0');
+
+        free(j);
+
+        buf2 := b"ABC";
+
+        Clover.test("system call test10", strchr(buf2.toPointer(), 'B'.to_byte) == buf2.toPointer() + 1);
     }
 }

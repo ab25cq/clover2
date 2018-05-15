@@ -1139,6 +1139,31 @@ void get_system_method_names(char** candidates, int *num_candidates, int max_can
     }
 }
 
+void get_system_class_field_names(char** candidates, int *num_candidates, int max_candidates)
+{
+    sCLClass* system_class = get_class("System");
+
+    MASSERT(system_class != NULL);
+
+    int i;
+    for(i=0; i<system_class->mNumClassFields; i++) {
+        sCLField* field = system_class->mClassFields + i;
+
+        sBuf buf;
+        sBuf_init(&buf);
+
+        sBuf_append_str(&buf, FIELD_NAME(system_class, field));
+
+        if(*num_candidates < max_candidates) {
+            candidates[*num_candidates] = MANAGED buf.mBuf;
+            (*num_candidates)++;
+        }
+        else {
+            MFREE(buf.mBuf);
+        }
+    }
+}
+
 static void local_variable_completion(char* exp, char** candidates, int *num_candidates, int max_candidates)
 {
     BOOL expression_is_void = TRUE;
@@ -1528,6 +1553,7 @@ static int my_complete_internal(int count, int key)
         get_class_names(candidates, &num_candidates, max_candidates);
         get_global_method_names(candidates, &num_candidates, max_candidates);
         get_system_method_names(candidates, &num_candidates, max_candidates);
+        get_system_class_field_names(candidates, &num_candidates, max_candidates);
         local_variable_completion(exp, candidates, &num_candidates, max_candidates);
         command_completion(exp, candidates, num_candidates);
         MFREE(candidates);
@@ -2314,6 +2340,7 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
 
 static void clover2_init()
 {
+    class_system_init();
     thread_init();
 #ifdef ENABLE_JIT
     jit_init_on_runtime();
@@ -2352,7 +2379,7 @@ static void compiler_final()
 
 int gARGC;
 char** gARGV;
-char* gVersion = "4.0.7";
+char* gVersion = "4.0.8";
 
 int main(int argc, char** argv)
 {

@@ -219,7 +219,7 @@ void set_method_index_to_class(sCLClass* klass)
         {
             sNodeType* result_type = create_node_type_from_cl_type(method->mResultType, klass);
 
-            if(type_identify_with_class_name(result_type, "int")) {
+            if(type_identify_with_class_name(result_type, "ulong")) {
                 klass->mAllocSizeMethodIndex = i;
                 break;
             }

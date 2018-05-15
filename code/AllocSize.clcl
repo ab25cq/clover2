@@ -4,7 +4,7 @@ class AllocSizeClass
     def initialize() {
     }
 
-    def allocSize():static int {
+    def allocSize():static ulong {
         return 123;
     }
 

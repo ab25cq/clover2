@@ -3509,6 +3509,10 @@ unsigned int sNodeTree_break_expression(sParserInfo* info)
 static BOOL compile_break_expression(unsigned int node, sCompileInfo* info)
 {
     append_opecode_to_code(info->code, OP_GOTO, info->no_output);
+    if(info->num_break_points == NULL) {
+        compile_err_msg(info, "call break in the out of loop");
+        return FALSE;
+    }
     info->break_points[*info->num_break_points] = info->code->mLen;
     (*info->num_break_points)++;
 

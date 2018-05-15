@@ -178,3 +178,5 @@ println("AllocaSizeClass");
 AllocSizeClass.main();
 println("CGITest");
 CGITest.main();
+println("SignalTest");
+SignalTest.main();

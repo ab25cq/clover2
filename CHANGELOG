@@ -1,4 +1,40 @@
 
+version 4.0.8
+
+    Systemにいくつかのメソッドを追加。
+
+    libbsd-devもしくはlibbsd-develのライブラリが必要になりました。(オプション。あるとSystem.getbsizeが有効になる)
+
+    REPLの補完でSystemクラスのクラスフィールドの補完も有効になりました。
+
+    Socketのライブラリをつくりました。詳しくはSocket.clclを見てください。
+
+    signalシステムコールの移植。
+
+    ioctlシステムコールの移植。
+
+    selectシステムコールの移植。
+
+    mutex のバグを直した。
+
+version 4.0.8
+
+    Added several methods to System.
+
+    A library of libbsd-dev or libbsd-devel is required. (Optional, if System.getbsize is enabled)
+
+    With completion of REPL, completion of class field of System class is also effective.
+
+    I made a library of Socket. See Socket.clcl for details.
+
+    port of the system call.
+
+    Porting the ioctl system call.
+
+    Porting of select system call
+
+    Mutex bug may be fixed.
+
 version 4.0.7
 
     String.removeTagでセキュリティホールが見つかりました。修正。

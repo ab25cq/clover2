@@ -1090,6 +1090,10 @@ class Buffer
         return result;
     }
 
+    def toPointer():pointer {
+        return self.buffer;
+    }
+
     def subBuffer(start:int, end:int): Buffer {
         if(start < 0) {
             start += self.len;

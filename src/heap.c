@@ -137,6 +137,18 @@ static void mark_all_class_fields(unsigned char* mark_flg)
     }
 }
 
+static void mark_sighandlers(unsigned char* mark_flg)
+{
+    int i;
+    for(i=0; i<SIGMAX; i++) {
+        CLObject obj = signal_handler_object[i];
+
+        if(obj != 0) {
+            mark_object(obj, mark_flg);
+        }
+    }
+}
+
 #ifdef ENABLE_JIT
 void mark_jit_objects(unsigned char* mark_flg)
 {
@@ -168,6 +180,9 @@ static void mark(unsigned char* mark_flg)
 
     /// mark class fields ///
     mark_all_class_fields(mark_flg);
+
+    /// mark sig handlers ////
+    mark_sighandlers(mark_flg);
 
 #ifdef ENABLE_JIT
     /// mark jit objects ///

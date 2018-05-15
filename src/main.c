@@ -3,6 +3,7 @@
 
 static void clover2_init()
 {
+    class_system_init();
     thread_init();
 #ifdef ENABLE_JIT
     jit_init_on_runtime();
@@ -41,7 +42,7 @@ static void set_signal()
 
 int gARGC;
 char** gARGV;
-char* gVersion = "4.0.7";
+char* gVersion = "4.0.8";
 
 int main(int argc, char** argv, char* const * envp)
 {

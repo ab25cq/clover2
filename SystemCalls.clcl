@@ -15,6 +15,24 @@ class getopt_long_option
     }
 }
 
+class fd_set {
+    def initialize() {}
+    def allocSize(): static native ulong;
+    def clone():fd_set {
+        result := fd_set();
+        memcpy(result.headOfMemory(), self.headOfMemory(), allocSize());
+
+        return result;
+    }
+}
+
+class timeval {
+    tv_sec: time_t;
+    tv_usec: long;
+
+    def initialize() {}
+}
+
 class System
 {
     def alarm(seconads: uint): static native uint;
@@ -44,8 +62,256 @@ class System
     required_argument:static int;
     optional_argument:static int;
 
+    typedef useconds_t int;
+
+     _IONBF: static int;
+     _IOLBF: static int;
+     _IOFBF: static int;
+
+    SIG_IGN:static pointer@sighandler_t;
+    SIG_DFL:static pointer@sighandler_t;
+
+    SIGHUP:static int;
+    SIGINT:static int;
+    SIGQUIT:static int;
+    SIGILL:static int;
+    SIGTRAP:static int;
+    SIGABRT:static int;
+    SIGBUS:static int;
+    SIGFPE:static int;
+    SIGKILL:static int;
+    SIGUSR1:static int;
+    SIGSEGV:static int;
+    SIGUSR2:static int;
+    SIGPIPE:static int;
+    SIGALRM:static int;
+    SIGTERM:static int;
+    SIGSTKFLT:static int;
+    SIGCHLD:static int;
+    SIGCONT:static int;
+    SIGSTOP:static int;
+    SIGTSTP:static int;
+    SIGTTIN:static int;
+    SIGTTOU:static int;
+    SIGURG:static int;
+    SIGXCPU:static int;
+    SIGXFSZ:static int;
+    SIGVTALRM:static int;
+    SIGPROF:static int;
+    SIGWINCH:static int;
+    SIGIO:static int;
+    SIGPWR:static int;
+    SIGSYS:static int;
+
     def getppid():static native pid_t;
     def setsid():static native pid_t throws Exception;
     def getsid(pid:pid_t):static native pid_t throws Exception;
     def setpgrp():static native pid_t throws Exception;
+    def getbsize(headerlenp:pointer@int, blocksizep:pointer@long): static native String;
+    def getuid(): static native uid_t;
+    def geteuid(): static native uid_t;
+    def getgid(): static native gid_t;
+    def getugid(): static native gid_t;
+    def isatty(fd:int): static native bool;
+    def umask(mask:mode_t): static native mode_t;
+    def usleep(usec:useconds_t): static native throws Exception;
+    def nanosleep(req:timespec, rem:timespec?): static native throws Exception;
+    def putenv(string:String): static native throws Exception;
+    def secure_getenv(name:String): static native String?;
+    def setvbuf(stream:pointer@FILE, buf:pointer?@char, mode:int, size:size_t): static native throws Exception;
+    def strncat(dest:pointer@char, src:pointer@char, size:size_t): static native pointer@char;
+    def strchr(str:pointer@char, c:byte): static native pointer?@char;
+
+    def signal(signum:int, handler:pointer@sighandler_t): static native pointer@sighandler_t throws Exception;
+    def signal(signum:int, handler:lambda(int)): static native lambda(int) throws Exception;
+
+    def FD_ZERO(fdset:fd_set): static native;
+    def FD_CLR(fd:int, fdset:fd_set): static native;
+    def FD_SET(fd:int, fdset:fd_set): static native;
+    def FD_ISSET(fd:int, fdset:fd_set): static native bool;
+
+    FD_SETSIZE:static int;
+
+    def select(nfds:int, readfds:fd_set?, writefds:fd_set?, errorfds:fd_set?, timeout:timeval): static native int throws Exception;
+
+    SIOCADDRT:static int;
+    SIOCDELRT:static int;
+    SIOCRTMSG:static int;
+
+    SIOCGIFNAME: static int;
+    SIOCSIFLINK: static int;
+    SIOCGIFCONF: static int;
+    SIOCGIFFLAGS: static int;
+    SIOCSIFFLAGS: static int;
+    SIOCGIFADDR: static int;
+    SIOCSIFADDR: static int;
+    SIOCGIFDSTADDR: static int;
+    SIOCSIFDSTADDR: static int;
+    SIOCGIFBRDADDR: static int;
+    SIOCSIFBRDADDR: static int;
+    SIOCGIFNETMASK: static int;
+    SIOCSIFNETMASK: static int;
+    SIOCGIFMETRIC: static int;
+    SIOCSIFMETRIC: static int;
+    SIOCGIFMEM: static int;
+    SIOCSIFMEM: static int;
+    SIOCGIFMTU: static int;
+    SIOCSIFMTU: static int;
+    SIOCSIFNAME: static int;
+    SIOCSIFHWADDR: static int;
+    SIOCGIFENCAP: static int;
+    SIOCSIFENCAP: static int;
+    SIOCGIFHWADDR: static int;
+    SIOCGIFSLAVE: static int;
+    SIOCSIFSLAVE: static int;
+    SIOCADDMULTI: static int;
+    SIOCDELMULTI: static int;
+    SIOCGIFINDEX: static int;
+    SIOGIFINDEX: static int;
+    SIOCSIFPFLAGS: static int;
+    SIOCGIFPFLAGS: static int;
+    SIOCDIFADDR: static int;
+    SIOCSIFHWBROADCAST: static int;
+    SIOCGIFCOUNT: static int;
+
+    SIOCGIFBR: static int;
+    SIOCSIFBR: static int;
+
+    SIOCGIFTXQLEN: static int;
+    SIOCSIFTXQLEN: static int;
+
+    SIOCDARP:static int;
+    SIOCGARP:static int;
+    SIOCSARP:static int;
+
+    SIOCDRARP: static int;
+    SIOCGRARP: static int;
+    SIOCSRARP: static int;
+
+    SIOCGIFMAP: static int;
+    SIOCSIFMAP: static int;
+    SIOCADDDLCI: static int;
+    SIOCDELDLCI: static int;
+    SIOCDEVPRIVATE: static int;
+    SIOCPROTOPRIVATE: static int;
+
+    TIOCM_LE: static int;
+    TIOCM_DTR: static int;
+    TIOCM_RTS: static int;
+    TIOCM_ST: static int;
+    TIOCM_SR: static int;
+    TIOCM_CTS: static int;
+    TIOCM_CAR: static int;
+    TIOCM_RNG: static int;
+    TIOCM_DSR: static int;
+    TIOCM_CD: static int;
+    TIOCM_RI: static int;
+
+    N_TTY: static int;
+    N_SLIP: static int;
+    N_MOUSE: static int;
+    N_PPP: static int;
+    N_STRIP: static int;
+    N_AX25: static int;
+    N_X25: static int;
+    N_6PACK: static int;
+    N_MASC: static int;
+    N_R3964: static int;
+    N_PROFIBUS_FDL: static int;
+    N_IRDA: static int;
+    N_SMSBLOCK: static int;
+    N_HDLC: static int;
+    N_SYNC_PPP: static int;
+    N_HCI: static int;
+
+    TCGETS: static int;
+    TCSETS: static int;
+    TCSETSW: static int;
+    TCSETSF: static int;
+    TCGETA: static int;
+    TCSETA: static int;
+    TCSETAW: static int;
+    TCSETAF: static int;
+    TCSBRK: static int;
+    TCXONC: static int;
+    TCFLSH: static int;
+    TIOCEXCL: static int;
+    TIOCNXCL: static int;
+    TIOCSCTTY: static int;
+    TIOCGPGRP: static int;
+    TIOCSPGRP: static int;
+    TIOCOUTQ: static int;
+    TIOCSTI: static int;
+    TIOCGWINSZ: static int;
+    TIOCSWINSZ: static int;
+    TIOCMGET: static int;
+    TIOCMBIS: static int;
+    TIOCMBIC: static int;
+    TIOCMSET: static int;
+
+    TIOCGSOFTCAR: static int;
+    TIOCSSOFTCAR: static int;
+    FIONREAD: static int;
+    TIOCINQ: static int;
+    TIOCLINUX: static int;
+
+    TIOCCONS: static int;
+    TIOCGSERIAL: static int;
+    TIOCSSERIAL: static int;
+    TIOCPKT: static int;
+    FIONBIO: static int;
+    TIOCNOTTY: static int;
+    TIOCSETD: static int;
+    TIOCGETD: static int;
+    TCSBRKP: static int;
+    TIOCSBRK: static int;
+    TIOCCBRK: static int;
+    TIOCGSID: static int;
+    TIOCGRS485: static int;
+
+    TIOCSRS485: static int;
+    TIOCGPTN: static int;
+
+    TIOCSPTLCK: static int;
+    TIOCGDEV: static int;
+    TCGETX: static int;
+    TCSETX: static int;
+    TCSETXF: static int;
+    TCSETXW: static int;
+    TIOCSIG: static int;
+    TIOCVHANGUP: static int;
+    TIOCGPKT: static int;
+    TIOCGPTLCK: static int;
+    TIOCGEXCL: static int;
+
+    FIONCLEX: static int;
+    FIOCLEX: static int;
+    FIOASYNC: static int;
+    TIOCSERCONFIG: static int;
+    TIOCSERGWILD: static int;
+    TIOCSERSWILD: static int;
+    TIOCGLCKTRMIOS: static int;
+    TIOCSLCKTRMIOS: static int;
+    TIOCSERGSTRUCT: static int;
+    TIOCSERGETLSR : static int;
+    TIOCSERGETMULTI: static int;
+    TIOCSERSETMULTI: static int;
+
+    TIOCMIWAIT: static int;
+    TIOCGICOUNT: static int;
+
+    FIOQSIZE: static int;
+
+    TIOCPKT_DATA: static int;
+    TIOCPKT_FLUSHREAD: static int;
+    TIOCPKT_FLUSHWRITE: static int;
+    TIOCPKT_STOP: static int;
+    TIOCPKT_START: static int;
+    TIOCPKT_NOSTOP: static int;
+    TIOCPKT_DOSTOP: static int;
+    TIOCPKT_IOCTL: static int;
+
+    TIOCSER_TEMT:static int;
+
+    def ioctl(fd:int, request:int, arg:pointer):static native int throws Exception;
 }
