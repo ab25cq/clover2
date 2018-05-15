@@ -8,6 +8,8 @@ version 4.0.8
 
     REPLの補完でSystemクラスのクラスフィールドの補完も有効になりました。
 
+    Socketのライブラリをつくりました。詳しくはSocket.clclを見てください。
+
     signalシステムコールの移植。
 
     ioctlシステムコールの移植。
