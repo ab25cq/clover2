@@ -4235,7 +4235,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     stack_ptr--;
                     stack_ptr->mLongValue = 0; // zero clear for jit
-                    stack_ptr->mPointerValue = (void*)object_data;
+                    stack_ptr->mPointerValue = (void*)object_data->mFields;
                     stack_ptr++;
                 }
                 break;
@@ -4686,7 +4686,6 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     stack_ptr--;
 
                     if(obj == 0) {
-                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(4)");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;

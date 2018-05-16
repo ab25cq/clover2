@@ -51,6 +51,8 @@ BOOL Clover_initialize_lang(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     clover->mClassFields[1].mValue.mObjectValue = array;
     clover->mClassFields[2].mValue.mObjectValue = create_string_object(gVersion);
+    clover->mClassFields[3].mValue.mULongValue = sizeof(sCLObject) - sizeof(CLVALUE) * DUMMY_ARRAY_SIZE;
+    clover->mClassFields[4].mValue.mULongValue = sizeof(CLVALUE);
 
     pop_global_stack();
 
@@ -61,15 +63,15 @@ BOOL Clover_initialize_reflection(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* i
 {
     sCLClass* clover = get_class("Clover");
 
-    clover->mClassFields[3].mValue.mLongValue = FIELD_FLAGS_PRIVATE;
-    clover->mClassFields[4].mValue.mLongValue = FIELD_FLAGS_PROTECTED;
+    clover->mClassFields[5].mValue.mLongValue = FIELD_FLAGS_PRIVATE;
+    clover->mClassFields[6].mValue.mLongValue = FIELD_FLAGS_PROTECTED;
 
-    clover->mClassFields[5].mValue.mLongValue = CLASS_FLAGS_PRIMITIVE;
-    clover->mClassFields[6].mValue.mLongValue = CLASS_FLAGS_INTERFACE;
-    clover->mClassFields[7].mValue.mLongValue = CLASS_FLAGS_MODIFIED;
-    clover->mClassFields[8].mValue.mLongValue = CLASS_FLAGS_ALLOCATED;
-    clover->mClassFields[9].mValue.mLongValue = CLASS_FLAGS_DYNAMIC_CLASS;
-    clover->mClassFields[10].mValue.mLongValue = CLASS_FLAGS_NO_FREE_OBJECT;
+    clover->mClassFields[7].mValue.mLongValue = CLASS_FLAGS_PRIMITIVE;
+    clover->mClassFields[8].mValue.mLongValue = CLASS_FLAGS_INTERFACE;
+    clover->mClassFields[9].mValue.mLongValue = CLASS_FLAGS_MODIFIED;
+    clover->mClassFields[10].mValue.mLongValue = CLASS_FLAGS_ALLOCATED;
+    clover->mClassFields[11].mValue.mLongValue = CLASS_FLAGS_DYNAMIC_CLASS;
+    clover->mClassFields[12].mValue.mLongValue = CLASS_FLAGS_NO_FREE_OBJECT;
 
     return TRUE;
 }

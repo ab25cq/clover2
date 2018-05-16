@@ -1924,12 +1924,15 @@ struct sCLObjectStruct {
         int mArrayNum;
         int mNumFields;
     };
-    CLVALUE mFields[DUMMY_ARRAY_SIZE];
+    union {
+        int mHeadOfMemory;
+        CLVALUE mFields[DUMMY_ARRAY_SIZE];
+    };
 };
 
 typedef struct sCLObjectStruct sCLObject;
 
-#define CLOBJECT(obj) (sCLObject*)(get_object_pointer((obj)))
+#define CLOBJECT(obj) ((sCLObject*)(get_object_pointer((obj))))
 
 CLObject create_object(sCLClass* klass, char* type);
 BOOL free_object(CLObject self);

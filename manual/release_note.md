@@ -1,5 +1,9 @@
 English page is here [>> English page](release_note-en)
 
+version 4.0.9
+
+    拡張ライブラリのオブジェクトのメモリの管理形式を変えました。
+
 version 4.0.8
 
     Systemにいくつかのメソッドを追加。

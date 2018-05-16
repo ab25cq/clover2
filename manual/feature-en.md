@@ -733,7 +733,7 @@ Convert it to null. Please use it when you want to suppress return value display
 Returns the unique ID of the object. It will be used for debugging, especially for users.
 
 ```
-    allocSize():size_t
+    allocatedSize():size_t
 ```
 
 Returns the size of the retrieved memory of the object. It will be used for debugging, especially for users. Mainly expanded. It is used for debugging with Zhang library.

@@ -2379,7 +2379,7 @@ static void compiler_final()
 
 int gARGC;
 char** gARGV;
-char* gVersion = "4.0.8";
+char* gVersion = "4.0.9";
 
 int main(int argc, char** argv)
 {

@@ -379,14 +379,10 @@ BOOL System_pthread_mutex_init(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
         return FALSE;
     }
-    if(attr->mObjectValue == 0) {
-        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
-        return FALSE;
-    }
 
     /// Clover to C Value ///
-    pthread_mutex_t* mutex_value = (pthread_mutex_t*)CLOBJECT(mutex->mObjectValue);
-    pthread_mutexattr_t* attr_value = (pthread_mutexattr_t*)CLOBJECT(attr->mObjectValue);
+    pthread_mutex_t* mutex_value = (pthread_mutex_t*)&CLOBJECT(mutex->mObjectValue)->mHeadOfMemory;
+    pthread_mutexattr_t* attr_value = (pthread_mutexattr_t*)&attr->mULongValue;
 
     /// go ///
     int result = pthread_mutex_init(mutex_value, attr_value);
@@ -404,7 +400,7 @@ BOOL System_pthread_mutex_lock(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info
     }
 
     /// Clover to C Value ///
-    pthread_mutex_t* mutex_value = (pthread_mutex_t*)CLOBJECT(mutex->mObjectValue);
+    pthread_mutex_t* mutex_value = (pthread_mutex_t*)&CLOBJECT(mutex->mObjectValue)->mHeadOfMemory;
 
     /// go ///
     int result = pthread_mutex_lock(mutex_value);
@@ -430,7 +426,7 @@ BOOL System_pthread_mutex_unlock(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* in
     }
 
     /// Clover to C Value ///
-    pthread_mutex_t* mutex_value = (pthread_mutex_t*)CLOBJECT(mutex->mObjectValue);
+    pthread_mutex_t* mutex_value = (pthread_mutex_t*)&CLOBJECT(mutex->mObjectValue)->mHeadOfMemory;
 
     /// go ///
     int result = pthread_mutex_unlock(mutex_value);
@@ -456,7 +452,7 @@ BOOL System_pthread_mutex_destroy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* i
     }
 
     /// Clover to C Value ///
-    pthread_mutex_t* mutex_value = (pthread_mutex_t*)CLOBJECT(mutex->mObjectValue);
+    pthread_mutex_t* mutex_value = (pthread_mutex_t*)&CLOBJECT(mutex->mObjectValue)->mHeadOfMemory;
 
     /// go ///
     int result = pthread_mutex_destroy(mutex_value);
@@ -482,7 +478,7 @@ BOOL System_pthread_mutex_trylock(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* i
     }
 
     /// Clover to C Value ///
-    pthread_mutex_t* mutex_value = (pthread_mutex_t*)CLOBJECT(mutex->mObjectValue);
+    pthread_mutex_t* mutex_value = (pthread_mutex_t*)&CLOBJECT(mutex->mObjectValue)->mHeadOfMemory;
 
     /// go ///
     int result = pthread_mutex_trylock(mutex_value);
@@ -497,13 +493,8 @@ BOOL System_pthread_mutexattr_init(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* 
 {
     CLVALUE* attr = lvar;
 
-    if(attr->mObjectValue == 0) {
-        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
-        return FALSE;
-    }
-
     /// Clover to C Value ///
-    pthread_mutexattr_t* attr_value = (pthread_mutexattr_t*)CLOBJECT(attr->mObjectValue);
+    pthread_mutexattr_t* attr_value = (pthread_mutexattr_t*)&attr->mULongValue;
 
     /// go ///
     (void)pthread_mutexattr_init(attr_value);
@@ -516,13 +507,8 @@ BOOL System_pthread_mutexattr_settype(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInf
     CLVALUE* attr = lvar;
     CLVALUE* kind = lvar + 1;
 
-    if(attr->mObjectValue == 0) {
-        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
-        return FALSE;
-    }
-
     /// Clover to C Value ///
-    pthread_mutexattr_t* attr_value = (pthread_mutexattr_t*)CLOBJECT(attr->mObjectValue);
+    pthread_mutexattr_t* attr_value = (pthread_mutexattr_t*)&attr->mULongValue;
     int kind_value = kind->mIntValue;
 
     /// go ///
@@ -540,13 +526,8 @@ BOOL System_pthread_mutexattr_destroy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInf
 {
     CLVALUE* attr = lvar;
 
-    if(attr->mObjectValue == 0) {
-        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
-        return FALSE;
-    }
-
     /// Clover to C Value ///
-    pthread_mutexattr_t* attr_value = (pthread_mutexattr_t*)CLOBJECT(attr->mObjectValue);
+    pthread_mutexattr_t* attr_value = (pthread_mutexattr_t*)&attr->mULongValue;
 
     /// go ///
     (void)pthread_mutexattr_destroy(attr_value);
@@ -559,13 +540,8 @@ BOOL System_pthread_mutexattr_gettype(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInf
     CLVALUE* attr = lvar;
     CLVALUE* kind = lvar + 1;
 
-    if(attr->mObjectValue == 0) {
-        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
-        return FALSE;
-    }
-
     /// Clover to C Value ///
-    pthread_mutexattr_t* attr_value = (pthread_mutexattr_t*)CLOBJECT(attr->mObjectValue);
+    pthread_mutexattr_t* attr_value = (pthread_mutexattr_t*)&attr->mULongValue;
     int* kind_value = (int*)kind->mPointerValue;
 
     /// go ///
@@ -584,14 +560,9 @@ BOOL System_pthread_cond_init(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
         return FALSE;
     }
 
-    if(cond_attr->mObjectValue == 0) {
-        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
-        return FALSE;
-    }
-
     /// Clover to C Value ///
-    pthread_cond_t* cond_value = (pthread_cond_t*)CLOBJECT(cond->mObjectValue);
-    pthread_condattr_t* cond_attr_value = (pthread_condattr_t*)CLOBJECT(cond_attr->mObjectValue);
+    pthread_cond_t* cond_value = (pthread_cond_t*)&CLOBJECT(cond->mObjectValue)->mHeadOfMemory;
+    pthread_condattr_t* cond_attr_value = (pthread_condattr_t*)&cond_attr->mULongValue;
 
     /// go ///
     (void)pthread_cond_init(cond_value, cond_attr_value);
@@ -609,7 +580,7 @@ BOOL System_pthread_cond_signal(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* inf
     }
 
     /// Clover to C Value ///
-    pthread_cond_t* cond_value = (pthread_cond_t*)CLOBJECT(cond->mObjectValue);
+    pthread_cond_t* cond_value = (pthread_cond_t*)&CLOBJECT(cond->mObjectValue)->mHeadOfMemory;
 
     /// go ///
     (void)pthread_cond_signal(cond_value);
@@ -627,7 +598,7 @@ BOOL System_pthread_cond_broadcast(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* 
     }
 
     /// Clover to C Value ///
-    pthread_cond_t* cond_value = (pthread_cond_t*)CLOBJECT(cond->mObjectValue);
+    pthread_cond_t* cond_value = (pthread_cond_t*)&CLOBJECT(cond->mObjectValue)->mHeadOfMemory;
 
     /// go ///
     (void)pthread_cond_broadcast(cond_value);
@@ -651,8 +622,8 @@ BOOL System_pthread_cond_wait(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     }
 
     /// Clover to C Value ///
-    pthread_cond_t* cond_value = (pthread_cond_t*)CLOBJECT(cond->mObjectValue);
-    pthread_mutex_t* mutex_value = (pthread_mutex_t*)CLOBJECT(mutex->mObjectValue);
+    pthread_cond_t* cond_value = (pthread_cond_t*)&CLOBJECT(cond->mObjectValue)->mHeadOfMemory;
+    pthread_mutex_t* mutex_value = (pthread_mutex_t*)&CLOBJECT(mutex->mObjectValue)->mHeadOfMemory;
 
     /// go ///
     (void)pthread_cond_wait(cond_value, mutex_value);
@@ -682,8 +653,8 @@ BOOL System_pthread_cond_timedwait(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* 
     }
 
     /// Clover to C Value ///
-    pthread_cond_t* cond_value = (pthread_cond_t*)CLOBJECT(cond->mObjectValue);
-    pthread_mutex_t* mutex_value = (pthread_mutex_t*)CLOBJECT(mutex->mObjectValue);
+    pthread_cond_t* cond_value = (pthread_cond_t*)&CLOBJECT(cond->mObjectValue)->mHeadOfMemory;
+    pthread_mutex_t* mutex_value = (pthread_mutex_t*)&CLOBJECT(mutex->mObjectValue)->mHeadOfMemory;
 
     sCLObject* object_data = CLOBJECT(abtime->mObjectValue);
     struct timespec abtime_value;
@@ -715,7 +686,7 @@ BOOL System_pthread_cond_destroy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* in
     }
 
     /// Clover to C Value ///
-    pthread_cond_t* cond_value = (pthread_cond_t*)CLOBJECT(cond->mObjectValue);
+    pthread_cond_t* cond_value = (pthread_cond_t*)&CLOBJECT(cond->mObjectValue)->mHeadOfMemory;
 
     /// go ///
     int result = pthread_cond_destroy(cond_value);
@@ -6397,7 +6368,7 @@ BOOL System_FD_ZERO(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     /// go ///
     fd_set fdset_value;
-    FD_ZERO((fd_set*)CLOBJECT(fdset->mObjectValue));
+    FD_ZERO((fd_set*)&CLOBJECT(fdset->mObjectValue)->mHeadOfMemory);
 
     return TRUE;
 }
@@ -6416,7 +6387,7 @@ BOOL System_FD_CLR(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int fd_value = fd->mIntValue;
 
     /// go ///
-    FD_CLR(fd_value, (fd_set*)CLOBJECT(fdset->mObjectValue));
+    FD_CLR(fd_value, (fd_set*)&CLOBJECT(fdset->mObjectValue)->mHeadOfMemory);
 
     return TRUE;
 }
@@ -6435,7 +6406,7 @@ BOOL System_FD_SET(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int fd_value = fd->mIntValue;
 
     /// go ///
-    FD_SET(fd_value, (fd_set*)CLOBJECT(fdset->mObjectValue));
+    FD_SET(fd_value, (fd_set*)&CLOBJECT(fdset->mObjectValue)->mHeadOfMemory);
 
     return TRUE;
 }
@@ -6454,7 +6425,7 @@ BOOL System_FD_ISSET(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int fd_value = fd->mIntValue;
 
     /// go ///
-    int result = FD_ISSET(fd_value, (fd_set*)CLOBJECT(fdset->mObjectValue));
+    int result = FD_ISSET(fd_value, (fd_set*)&CLOBJECT(fdset->mObjectValue)->mHeadOfMemory);
 
     (*stack_ptr)->mBoolValue = result;
     (*stack_ptr)++;
@@ -6478,7 +6449,7 @@ BOOL System_select(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
         readfds_value = NULL;
     }
     else {
-        readfds_value = (fd_set*)CLOBJECT(readfds->mObjectValue);
+        readfds_value = (fd_set*)&CLOBJECT(readfds->mObjectValue)->mHeadOfMemory;
     }
 
     fd_set* writefds_value;
@@ -6486,7 +6457,7 @@ BOOL System_select(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
         writefds_value = NULL;
     }
     else {
-        writefds_value = (fd_set*)CLOBJECT(writefds->mObjectValue);
+        writefds_value = (fd_set*)&CLOBJECT(writefds->mObjectValue)->mHeadOfMemory;
     }
 
     fd_set* errorfds_value;
@@ -6494,7 +6465,7 @@ BOOL System_select(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
         errorfds_value = NULL;
     }
     else {
-        errorfds_value = (fd_set*)CLOBJECT(errorfds->mObjectValue);
+        errorfds_value = (fd_set*)&CLOBJECT(errorfds->mObjectValue)->mHeadOfMemory;
     }
 
     struct timeval timeout_value;

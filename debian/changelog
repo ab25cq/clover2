@@ -1,4 +1,8 @@
 
+clover2 (4.0.9-1) unstable; urgency=medium
+
+    * I changed the memory management format of the extension library object.
+
 clover2 (4.0.8-1) unstable; urgency=medium
 
     * Added several methods to System. A library of libbsd-dev or libbsd-devel

@@ -1,4 +1,12 @@
 
+version 4.0.9
+
+    拡張ライブラリのオブジェクトのメモリの管理形式を変えました。
+
+version 4.0.9
+
+    I changed the memory management format of the extension library object.
+
 version 4.0.8
 
     Systemにいくつかのメソッドを追加。

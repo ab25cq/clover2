@@ -229,6 +229,9 @@ class Clover
     ARGV:static String[];
     VERSION:static String;
 
+    CLOVER2_OBJECT_HEADER_SIZE:static ulong;
+    CLOVER2_OBJECT_FIELD_SIZE:static ulong;
+
     def initialize_lang(): static native;
 
     def initialize():static {

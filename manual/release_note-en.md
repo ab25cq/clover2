@@ -1,4 +1,8 @@
 
+version 4.0.9
+
+    I changed the memory management format of the extension library object.
+
 version 4.0.8
 
     Added several methods to System.
