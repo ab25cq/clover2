@@ -1,0 +1,59 @@
+
+class DelegateClassA
+{
+    a:int;
+
+    def initialize() {
+        self.a = 123;
+    }
+
+    def show() {
+        println("a is \{self.a.toString()}");
+    }
+    def get(): int {
+        self.a;
+    }
+}
+
+class DelegateClassB
+{
+    b:int;
+
+    def initialize() {
+        self.b = 345;
+    }
+
+    def show() {
+        println("b is \{self.b.toString()}");
+    }
+    def get(): int {
+        self.b;
+    }
+    def plus(a:int, b:int): int {
+        a + b;
+    }
+}
+
+class DelegateClass
+{
+    field: delegate DelegateClassA;
+    field2: delegate DelegateClassB;
+
+    def initialize() {
+        self.field = new DelegateClassA();
+        self.field2 = new DelegateClassB();
+    }
+}
+
+class DelegateTest {
+    def main():static {
+        a := new DelegateClass();
+
+        a.show();
+
+        println("a.get() is \{a.get()}");
+
+        Clover.test("delegate test", a.get() == 345);
+        Clover.test("delegate test2", a.plus(1, 2) == 3);
+    }
+}

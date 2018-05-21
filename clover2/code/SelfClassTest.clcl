@@ -1,0 +1,23 @@
+
+class SelfTest {
+    value1:int;
+    value2:int;
+
+    def initialize(value1:int, value2:int) {
+        self.value1 = value1;
+        self.value2 = value2;
+    }
+
+    def getSelf():SELF {
+        return self;
+    }
+}
+
+class SelfClassTest {
+    def main(): static {
+        object: SelfTest = new SelfTest(111,222);
+
+        Clover.test("Self test1", object.getSelf().value1 == 111);
+    }
+}
+

@@ -1,0 +1,6 @@
+class TestDep 
+{
+    def hello():static int {
+        return 234;
+    }
+}

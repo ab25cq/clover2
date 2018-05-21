@@ -1,0 +1,14 @@
+println("AAA");
+ls("-al").grep("src").toString().print();
+ls("-al").grep("src").toString().print();
+ls("-al").grep("src").toString().print();
+ls("-al").grep("src").toString().print();
+ls("-al").grep("src").toString().print();
+ls("-al").grep("src").toString().print();
+ls("-al").grep("src").toString().print();
+ls("-al").grep("src").toString().print();
+ls("-al").grep("src").toString().print();
+ls("-al").grep("src").toString().print();
+ls("-al").grep("src").toString().print();
+ls("-al").grep("src").toString().print();
+println("BBB");

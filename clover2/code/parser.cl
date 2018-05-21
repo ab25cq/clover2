@@ -1,0 +1,2 @@
+println("ParserTest");
+ParserTest.main();

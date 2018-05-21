@@ -1,0 +1,35 @@
+class DefaultMethodArgTest
+{
+    def initialize() {
+    }
+
+    def method(a:int, b:int = 1):int {
+        return a + b;
+    }
+
+    def method2(a:int, b:int = 1, c:int=2): int {
+        return a + b + c;
+    }
+
+    def method3(a:int, b:int = 1, c:int = 2): static int {
+        return a + b + c;
+    }
+
+    def method4(a:int, b:String = "ABC"):String {
+        return sprintf("%s%d", array { b, a });
+    }
+
+    def method5(a:int = 1, b:int = 2): int {
+        return a + b;
+    }
+
+    def main():static {
+        a := new DefaultMethodArgTest();
+
+        Clover.test("method default value", a.method(2) == 3);
+        Clover.test("method defautl value2", a.method2(2, 2) == 6);
+        Clover.test("method default value3", DefaultMethodArgTest.method3(1) == 4);
+        Clover.test("method default value4", a.method4(1).equals("ABC1"));
+        Clover.test("method default value5", a.method5() == 3);
+    }
+}

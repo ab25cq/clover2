@@ -1,0 +1,5 @@
+class HelloWorld {
+    def main():static {
+        System.print("HELLO WORLD\n");
+    }
+}

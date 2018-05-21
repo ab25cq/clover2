@@ -1,0 +1,1097 @@
+include "File.clcl"
+
+class System
+{
+    typedef wait_status int;
+    typedef wait_option int;
+    typedef tcflag_t int;
+    typedef cc_t byte;
+    typedef speed_t int;
+
+    WNOHANG:static wait_option;
+    WUNTRACED:static wait_option;
+    WCONTINUED:static wait_option;
+
+    SIGHUP: static int;
+    SIGINT: static int;
+    SIGQUIT: static int;
+    SIGILL: static int;
+    SIGABRT: static int;
+    SIGFPE: static int;
+    SIGKILL: static int;
+    SIGSEGV: static int;
+    SIGPIPE: static int;
+    SIGALRM: static int;
+    SIGTERM: static int;
+    SIGUSR1: static int;
+    SIGUSR2: static int;
+    SIGCHLD: static int;
+    SIGCONT: static int;
+    SIGSTOP: static int;
+    SIGTSTP: static int;
+    SIGTTIN: static int;
+    SIGTTOU: static int;
+    
+    # c_iflag bits
+    IGNBRK: static int;
+    BRKINT: static int;
+    IGNPAR: static int;
+    PARMRK: static int;
+    INPCK: static int;
+    ISTRIP: static int;
+    INLCR: static int;
+    IGNCR: static int;
+    ICRNL: static int;
+    IUCLC: static int;
+    IXON: static int;
+    IXANY: static int;
+    IXOFF: static int;
+    IMAXBEL: static int;
+    IUTF8: static int;
+
+    # c_oflag bits
+    OPOST: static int;
+    OLCUC: static int;
+    ONLCR: static int;
+    OCRNL: static int;
+    ONOCR: static int;
+    ONLRET: static int;
+    OFILL: static int;
+    OFDEL: static int;
+    NLDLY: static int;
+    NL0: static int;
+    NL1: static int;
+    CRDLY: static int;
+    CR0: static int;
+    CR1: static int;
+    CR2: static int;
+    CR3: static int;
+    TABDLY: static int;
+    TAB0: static int;
+    TAB1: static int;
+    TAB2: static int;
+    TAB3: static int;
+    BSDLY: static int;
+    BS0: static int;
+    BS1: static int;
+    FFDLY: static int;
+    FF0: static int;
+    FF1: static int;
+
+    VTDLY: static int;
+    VT0: static int;
+    VT1: static int;
+
+    XTABS: static int;
+
+    # c_cflag bit meaning 
+    CBAUD: static int;
+    B0: static int;
+    B50: static int;
+    B75: static int;
+    B110: static int;
+    B134: static int;
+    B150: static int;
+    B200: static int;
+    B300: static int;
+    B600: static int;
+    B1200: static int;
+    B1800: static int;
+    B2400: static int;
+    B4800: static int;
+    B9600: static int;
+    B19200: static int;
+    B38400: static int;
+    EXTA: static int;
+    EXTB: static int;
+    CSIZE: static int;
+    CS5: static int;
+    CS6: static int;
+    CS7: static int;
+    CS8: static int;
+    CSTOPB: static int;
+    CREAD: static int;
+    PARENB: static int;
+    PARODD: static int;
+    HUPCL: static int;
+    CLOCAL: static int;
+    CBAUDEX: static int;
+    B57600: static int;
+    B115200: static int;
+    B230400: static int;
+    B460800: static int;
+    B500000: static int;
+    B576000: static int;
+    B921600: static int;
+    B1000000: static int;
+    B1152000: static int;
+    B1500000: static int;
+    B2000000: static int;
+    B2500000: static int;
+    B3000000: static int;
+    B3500000: static int;
+    B4000000: static int;
+    CIBAUD: static int;
+    CMSPAR: static int;
+    CRTSCTS: static int;
+
+    # c_lflag bits
+    ISIG: static int;
+    ICANON: static int;
+    XCASE: static int;
+    ECHO: static int;
+    ECHOE: static int;
+    ECHOK: static int;
+    ECHONL: static int;
+    NOFLSH: static int;
+    TOSTOP: static int;
+    ECHOCTL: static int;
+    ECHOPRT: static int;
+    ECHOKE: static int;
+    FLUSHO: static int;
+    PENDIN: static int;
+    IEXTEN: static int;
+    EXTPROC: static int;
+
+    # tcflow() and TCXONC use these */
+    TCOOFF: static int;
+    TCOON: static int;
+    TCIOFF: static int;
+    TCION: static int;
+
+    # tcflush() and TCFLSH use these */
+    TCIFLUSH: static int;
+    TCOFLUSH: static int;
+    TCIOFLUSH: static int;
+
+    # tcsetattr uses these
+    TCSANOW: static int;
+    TCSADRAIN: static int;
+    TCSAFLUSH: static int;
+
+    # c_cc characters
+    VINTR: static int;
+    VQUIT: static int;
+    VERASE: static int;
+    VKILL: static int;
+    VEOF: static int;
+    VTIME: static int;
+    VMIN: static int;
+    VSWTC: static int;
+    VSTART: static int;
+    VSTOP: static int;
+    VSUSP: static int;
+    VEOL: static int;
+    VREPRINT: static int;
+    VDISCARD: static int;
+    VWERASE: static int;
+    VLNEXT: static int;
+    VEOL2: static int;
+
+    def initialize_command_system():static native;
+
+    def initialize(): static {
+        inherit();
+        initialize_command_system();
+    }
+
+    def system(str:String): static native int throws Exception;
+    def pipe(read_fd:pointer@int, write_fd:pointer@int): static native throws Exception;
+    def popen(command:String, type:String): static native pointer@FILE throws Exception;
+    def pclose(stream:pointer@FILE): static native int;
+    def fork(block_:lambda()): static native pid_t throws Exception;
+    def dup2(fd1:int, fd2:int): static native int throws Exception;
+    def execvp(method_name:String, params:List<String>): static native throws Exception;
+    def execv(method_name:String, params:List<String>): static native throws Exception;
+    def waitpid(pid:pid_t, status:pointer@wait_status, option:wait_option): static native pid_t;
+
+    def WIFEXITED(status:wait_status): static native bool;
+    def WEXITSTATUS(status:wait_status): static native int;
+    def WIFSIGNALED(status:wait_status): static native bool;
+    def WTERMSIG(status:wait_status):static native int;
+    def WCOREDUMP(status:wait_status): static native int;
+    def WIFSTOPPED(status:wait_status): static native bool;
+    def WSTOPSIG(status:wait_status):  static native int;
+    def WIFCONTINUED(status:wait_status): static native bool;
+
+    def getpid():static native pid_t;
+    def setpgid(pid:pid_t, pgid:pid_t): static native throws Exception;
+    def kill(pid:pid_t, sig:int): static native throws Exception;
+
+    def tcsetpgrp(fd:int, pid:pid_t): static native int throws Exception;
+
+    def tcgetattr(fd:int): static native termios throws Exception;
+    def tcsetattr(fd:int, optional_actions:int, terminfo:termios): static native throws Exception;
+    def tcsendbreak(fd:int, duration:int): static native throws Exception;
+    def tcdrain(fd:int): static native throws Exception;
+    def tcflush(fd:int, queue_selector:int): static native throws Exception;
+    def tcflow(fd:int, action:int): static native throws Exception;
+    def cfmakeraw(): static native termios;
+    def cfgetispeed(terminfo:termios): static native speed_t;
+    def cfgetospeed(terminfo:termios): static native speed_t;
+    def cfsetispeed(terminfo:termios, speed:speed_t): static native throws Exception;
+    def cfsetospeed(terminfo:termios, speed:speed_t): static native throws Exception;
+    def cfsetspeed(terminfo:termios, speed:speed_t): static native throws Exception;
+}
+
+class termios
+{
+    c_iflag:tcflag_t;
+    c_oflag:tcflag_t;
+    c_cflag:tcflag_t;
+    c_lflag:tcflag_t;
+    c_cc:cc_t[];
+
+    def initialize() {
+        self.c_iflag = 0;
+        self.c_oflag = 0;
+        self.c_cflag = 0;
+        self.c_lflag = 0;
+        self.c_cc = cc_t[32];
+    }
+}
+
+class Job
+{
+    title:String;
+    pgrp:pid_t;
+    terminfo:termios;
+
+    def initialize(title:String, pgrp:pid_t, terminfo:termios) {
+        self.title = title;
+        self.pgrp = pgrp;
+        self.terminfo = terminfo;
+    }
+
+    def initialize() {}
+
+    def clone(): Job {
+        result := Job();
+
+        result.title = self.title.clone();
+        result.pgrp = self.pgrp;
+        result.terminfo = self.terminfo;
+
+        return result;
+    }
+
+    def toString():String {
+        return self.title;
+    }
+    def equals(job:Job): bool {
+        if(job.is("WildCard")) {
+            return true;
+        }
+        else {
+            return self.pgrp == job.pgrp;
+        }
+    }
+    def equals(right:WildCard): bool {
+        return true;
+    }
+    def forground() {
+        terminfo := tcgetattr(0);
+
+        tcsetattr(0, TCSANOW, self.terminfo);
+        tcsetpgrp(0, self.pgrp);
+
+        kill(self.pgrp, SIGCONT);
+
+        status:wait_status = 0;
+        pid2 := waitpid(self.pgrp, &status, WUNTRACED);
+
+        if(WIFSTOPPED(status)) {
+            rcode:int = WSTOPSIG(status) +128;
+
+            terminfo2 := tcgetattr(0);
+
+            self.terminfo = terminfo2;
+
+            tcsetattr(0, TCSANOW, terminfo);
+            tcsetpgrp(0, getpid());
+        }
+        elif(WIFSIGNALED(status)) {
+            printf("Job<%s> is done.\n", array { self.title });
+
+            Clover.jobs.delete(self);
+
+            tcsetattr(0, TCSANOW, terminfo);
+            tcsetpgrp(0, getpid());
+        }
+        else {
+            Clover.jobs.delete(self);
+
+            tcsetattr(0, TCSANOW, terminfo);
+            tcsetpgrp(0, getpid());
+        }
+    }
+}
+
+class Clover 
+{
+    jobs: static EqualableList<Job>;
+
+    def initialize(): static {
+        inherit();
+
+        Clover.jobs = EqualableList<Job>();
+    }
+}
+
+dynamic_class Command
+{
+    data:String;
+    resultCode:int;
+
+    controllingTerminalPrograms: static EqualableList<String>;
+
+    def initialize() : static {
+        Command.controllingTerminalPrograms = equalable_list { "git", "man", "make", "ls", "bash", "zsh", "yash", "vim", "less", "top", "htop", "lv", "htop", "emacs", "nano", "vi", "fd", "mc", "./configure" };
+    }
+
+    def initialize() {
+        self.data = "";
+        self.resultCode = 0;
+    }
+    def initialize(value:Command) {
+        self.setValue(value);
+    }
+    def initialize(data:String, result_code:int) {
+        self.data = data;
+        self.resultCode = result_code;
+    }
+
+    def clone(): Command {
+        result := Command();
+        result.data = self.data.clone();
+        result.resultCode = self.resultCode;
+        return result;
+    }
+
+    def setValue(value:Command) {
+        self.data = value.data;
+        self.resultCode = value.resultCode;
+    }
+
+    def callingMethod(method_name:String, params:Array<Object>, num_method_chains:int, max_method_chains:int) : static Command throws Exception 
+    {
+        params2 := List<String>();
+        controlling_terminal_flag := false;
+        no_controlling_terminal_flag := false;
+        getting_stderr_flag := false;
+        
+        params.each(closure(item:Object) {
+            if(item.className().equals("String")) {
+                str:String = item.toAnonymous();
+                if(str.equals("--controlling-terminal")) {
+                    controlling_terminal_flag = true;
+                }
+                elif(str.equals("--no-controlling-terminal")) {
+                    no_controlling_terminal_flag = true;
+                }
+                elif(str.equals("--getting-stderr")) {
+                    getting_stderr_flag = true;
+                }
+                else {
+                    params2.add(str);
+                }
+            }
+            elif(item.className().equals("List")) {
+                list_:List<Object> = item.toAnonymous();
+
+                list_.each(closure(item2:Object) {
+                    if(item2.className().equals("String")) {
+                        str:String = item2.toAnonymous();
+                        if(str.equals("--controlling-terminal")) {
+                            controlling_terminal_flag = true;
+                        }
+                        elif(str.equals("--no-controlling-terminal")) {
+                            no_controlling_terminal_flag = true;
+                        }
+                        elif(str.equals("--getting-stderr")) {
+                            getting_stderr_flag = true;
+                        }
+                        else {
+                            params2.add(str);
+                        }
+                    }
+                });
+            }
+            elif(item.className().equals("EqualableList")) {
+                list_:EqualableList<IEqualable> = item.toAnonymous();
+
+                list_.each(closure(item2:IEqualable) {
+                    if(item2.className().equals("String")) {
+                        str:String = item2.toAnonymous();
+                        if(str.equals("--controlling-terminal")) {
+                            controlling_terminal_flag = true;
+                        }
+                        elif(str.equals("--no-controlling-terminal")) {
+                            no_controlling_terminal_flag = true;
+                        }
+                        elif(str.equals("--getting-stderr")) {
+                            getting_stderr_flag = true;
+                        }
+                        else {
+                            params2.add(str);
+                        }
+                    }
+                });
+            }
+            elif(item.className().equals("SortableList<String>")) {
+                list_:SortableList<ISortable> = item.toAnonymous();
+
+                list_.each(closure(item2:ISortable) {
+                    if(item2.className().equals("String")) {
+                        str:String = item2.toAnonymous();
+                        if(str.equals("--controlling-terminal")) {
+                            controlling_terminal_flag = true;
+                        }
+                        elif(str.equals("--no-controlling-terminal")) {
+                            no_controlling_terminal_flag = true;
+                        }
+                        elif(str.equals("--getting-stderr")) {
+                            getting_stderr_flag = true;
+                        }
+                        else {
+                            params2.add(str);
+                        }
+                    }
+                });
+            }
+            elif(item.className().equals("Array")) {
+                array_:Array<Object> = item.toAnonymous();
+
+                array_.each(closure(item2:Object) {
+                    if(item2.className().equals("String")) {
+                        str:String = item2.toAnonymous();
+                        if(str.equals("--controlling-terminal")) {
+                            controlling_terminal_flag = true;
+                        }
+                        elif(str.equals("--no-controlling-terminal")) {
+                            no_controlling_terminal_flag = true;
+                        }
+                        elif(str.equals("--getting-stderr")) {
+                            getting_stderr_flag = true;
+                        }
+                        else {
+                            params2.add(str);
+                        }
+                    }
+                });
+            }
+            elif(item.className().equals("EqualableArray")) {
+                array_:EqualableArray<IEqualable> = item.toAnonymous();
+
+                array_.each(closure(item2:IEqualable) {
+                    if(item2.className().equals("String")) {
+                        str:String = item2.toAnonymous();
+                        if(str.equals("--controlling-terminal")) {
+                            controlling_terminal_flag = true;
+                        }
+                        elif(str.equals("--no-controlling-terminal")) {
+                            no_controlling_terminal_flag = true;
+                        }
+                        elif(str.equals("--getting-stderr")) {
+                            getting_stderr_flag = true;
+                        }
+                        else {
+                            params2.add(str);
+                        }
+                    }
+                });
+            }
+            elif(item.className().equals("SortableArray")) {
+                array_:SortableArray<ISortable> = item.toAnonymous();
+
+                array_.each(closure(item2:ISortable) {
+                    if(item2.className().equals("String")) {
+                        str:String = item2.toAnonymous();
+                        if(str.equals("--controlling-terminal")) {
+                            controlling_terminal_flag = true;
+                        }
+                        elif(str.equals("--no-controlling-terminal")) {
+                            no_controlling_terminal_flag = true;
+                        }
+                        elif(str.equals("--getting-stderr")) {
+                            getting_stderr_flag = true;
+                        }
+                        else {
+                            params2.add(str);
+                        }
+                    }
+                });
+            }
+        });
+
+        if(getting_stderr_flag) {
+            str:String? = null;
+            return Command.executeCommandWithGettingStderr(method_name, params2, str);
+        }
+        elif(controlling_terminal_flag || (num_method_chains == max_method_chains-1 && Command.controllingTerminalPrograms.indexOf(method_name) != -1 && !no_controlling_terminal_flag)) 
+        {
+            return Command.executeCommandWithControllingTerminal(method_name, params2);
+        }
+        else {
+            str:String? = null;
+            return Command.executeCommand(method_name, params2, str);
+        }
+    }
+
+    def callingMethod(method_name:String, params:Array<Object>, num_method_chains:int, max_method_chains:int) : Command throws Exception 
+    {
+        params2 := List<String>();
+        controlling_terminal_flag := false;
+        no_controlling_terminal_flag := false;
+        getting_stderr_flag := false;
+        
+        params.each(closure(item:Object) {
+            if(item.className().equals("String")) {
+                str:String = item.toAnonymous();
+                if(str.equals("--controlling-terminal")) {
+                    controlling_terminal_flag = true;
+                }
+                elif(str.equals("--getting-stderr")) {
+                    getting_stderr_flag = true;
+                }
+                elif(str.equals("--no-controlling-terminal")) {
+                    no_controlling_terminal_flag = true;
+                }
+                else {
+                    params2.add(str);
+                }
+            }
+            elif(item.className().equals("List")) {
+                list_:List<Object> = item.toAnonymous();
+
+                list_.each(closure(item2:Object) {
+                    if(item2.className().equals("String")) {
+                        str:String = item2.toAnonymous();
+                        if(str.equals("--controlling-terminal")) {
+                            controlling_terminal_flag = true;
+                        }
+                        elif(str.equals("--getting-stderr")) {
+                            getting_stderr_flag = true;
+                        }
+                        elif(str.equals("--no-controlling-terminal")) {
+                            no_controlling_terminal_flag = true;
+                        }
+                        else {
+                            params2.add(str);
+                        }
+                    }
+                });
+            }
+            elif(item.className().equals("EqualableList")) {
+                list_:EqualableList<IEqualable> = item.toAnonymous();
+
+                list_.each(closure(item2:IEqualable) {
+                    if(item2.className().equals("String")) {
+                        str:String = item2.toAnonymous();
+                        if(str.equals("--controlling-terminal")) {
+                            controlling_terminal_flag = true;
+                        }
+                        elif(str.equals("--no-controlling-terminal")) {
+                            no_controlling_terminal_flag = true;
+                        }
+                        elif(str.equals("--getting-stderr")) {
+                            getting_stderr_flag = true;
+                        }
+                        else {
+                            params2.add(str);
+                        }
+                    }
+                });
+            }
+            elif(item.className().equals("SortableList<String>")) {
+                list_:SortableList<ISortable> = item.toAnonymous();
+
+                list_.each(closure(item2:ISortable) {
+                    if(item2.className().equals("String")) {
+                        str:String = item2.toAnonymous();
+                        if(str.equals("--controlling-terminal")) {
+                            controlling_terminal_flag = true;
+                        }
+                        elif(str.equals("--no-controlling-terminal")) {
+                            no_controlling_terminal_flag = true;
+                        }
+                        elif(str.equals("--getting-stderr")) {
+                            getting_stderr_flag = true;
+                        }
+                        else {
+                            params2.add(str);
+                        }
+                    }
+                });
+            }
+            elif(item.className().equals("Array")) {
+                array_:Array<Object> = item.toAnonymous();
+
+                array_.each(closure(item2:Object) {
+                    if(item2.className().equals("String")) {
+                        str:String = item2.toAnonymous();
+                        if(str.equals("--controlling-terminal")) {
+                            controlling_terminal_flag = true;
+                        }
+                        elif(str.equals("--no-controlling-terminal")) {
+                            no_controlling_terminal_flag = true;
+                        }
+                        elif(str.equals("--getting-stderr")) {
+                            getting_stderr_flag = true;
+                        }
+                        else {
+                            params2.add(str);
+                        }
+                    }
+                });
+            }
+            elif(item.className().equals("EqualableArray")) {
+                array_:EqualableArray<IEqualable> = item.toAnonymous();
+
+                array_.each(closure(item2:IEqualable) {
+                    if(item2.className().equals("String")) {
+                        str:String = item2.toAnonymous();
+                        if(str.equals("--controlling-terminal")) {
+                            controlling_terminal_flag = true;
+                        }
+                        elif(str.equals("--no-controlling-terminal")) {
+                            no_controlling_terminal_flag = true;
+                        }
+                        elif(str.equals("--getting-stderr")) {
+                            getting_stderr_flag = true;
+                        }
+                        else {
+                            params2.add(str);
+                        }
+                    }
+                });
+            }
+            elif(item.className().equals("SortableArray")) {
+                array_:SortableArray<ISortable> = item.toAnonymous();
+
+                array_.each(closure(item2:ISortable) {
+                    if(item2.className().equals("String")) {
+                        str:String = item2.toAnonymous();
+                        if(str.equals("--controlling-terminal")) {
+                            controlling_terminal_flag = true;
+                        }
+                        elif(str.equals("--no-controlling-terminal")) {
+                            no_controlling_terminal_flag = true;
+                        }
+                        elif(str.equals("--getting-stderr")) {
+                            getting_stderr_flag = true;
+                        }
+                        else {
+                            params2.add(str);
+                        }
+                    }
+                });
+            }
+        });
+
+        if(getting_stderr_flag) {
+            return Command.executeCommandWithGettingStderr(method_name, params2, self.data);
+        }
+        elif(controlling_terminal_flag || (num_method_chains == max_method_chains-1 && Command.controllingTerminalPrograms.indexOf(method_name) != -1 && !no_controlling_terminal_flag)) 
+        {
+            return Command.executeCommandWithControllingTerminalByPipe(method_name, params2, self.data);
+        }
+        else {
+            return Command.executeCommand(method_name, params2, self.data);
+        }
+    }
+
+    def executeCommandWithGettingStderr(method_name:String, params:List<String>, pipe_data:String?) : static Command throws Exception
+    {
+        child2parent_write_fd := 0;
+        child2parent_read_fd := 0;
+        parent2child_write_fd := 0;
+        parent2child_read_fd := 0;
+        child2parent_read_fd_err := 0;
+        child2parent_write_fd_err := 0;
+
+        pipe(&parent2child_read_fd, &parent2child_write_fd);
+        pipe(&child2parent_read_fd, &child2parent_write_fd);
+        pipe(&child2parent_read_fd_err, &child2parent_write_fd_err);
+
+        pid:pid_t = fork() {
+            close(parent2child_write_fd);
+            close(child2parent_read_fd);
+            close(child2parent_read_fd_err);
+
+            dup2(parent2child_read_fd, 0);
+            dup2(child2parent_write_fd, 1);
+            dup2(child2parent_write_fd_err, 2);
+
+            close(parent2child_read_fd);
+            close(child2parent_write_fd);
+            close(child2parent_write_fd_err);
+
+            try {
+                if(method_name.chars(0) == '/') {
+                    execv(method_name, params);
+                }
+                else {
+                    execvp(method_name, params);
+                }
+            } catch(e:Exception) {
+                buffer := e.message.append("\n").toBuffer();
+                System.write(2, buffer, buffer.len);
+                exit(64);
+            }
+        };
+
+        close(parent2child_read_fd);
+        close(child2parent_write_fd);
+        close(child2parent_write_fd_err);
+
+        if(!pipe_data.identifyWith(null)) {
+            buffer := pipe_data.toBuffer();
+            System.write(parent2child_write_fd, buffer, buffer.len);
+        }
+        close(parent2child_write_fd);
+
+        child_output:Buffer = B"";
+        
+        while(true) {
+            pipe_data := Buffer(128.to_ulong);
+
+            readed_byte:int = read(child2parent_read_fd, pipe_data, 128.to_ulong);
+
+            child_output.append(pipe_data);
+
+            pipe_data_err := Buffer(128.to_ulong);
+
+            readed_byte_err:int = read(child2parent_read_fd_err, pipe_data_err, 128.to_ulong);
+
+            child_output.append(pipe_data_err);
+
+            if(readed_byte == 0 && readed_byte_err == 0) {
+                break;
+            }
+        }
+
+        close(child2parent_read_fd);
+        close(child2parent_read_fd_err);
+
+        status: wait_status = 0;
+
+        pid2:pid_t = waitpid(pid, &status, WUNTRACED);
+
+        if(WEXITSTATUS(status) == 64) {
+            throw Exception("Command not found");
+        }
+
+        return Command(child_output.toString(), WEXITSTATUS(status));
+    }
+
+    def expandArg(arg:String):static SortableList<String> {
+        if(Directory.isGlobString(arg)) {
+            dir:String = dirname(arg);
+            if(dir.equals(".")) {
+                pattern:String = arg;
+                return Directory.glob(dir, pattern, 0);
+            }
+            else {
+                pattern:String = arg.subString(dir.length()+1, -1);
+                return Directory.glob(dir, pattern, 0);
+            }
+        }
+        else {
+            return sortable_list { arg };
+        }
+    }
+
+    def executeCommand(method_name:String, params:List<String>, pipe_data:String?) : static Command throws Exception
+    {
+        child2parent_write_fd := 0;
+        child2parent_read_fd := 0;
+        parent2child_write_fd := 0;
+        parent2child_read_fd := 0;
+
+        pipe(&child2parent_read_fd, &child2parent_write_fd);
+        pipe(&parent2child_read_fd, &parent2child_write_fd);
+
+        pid:pid_t = fork(closure() {
+            close(parent2child_write_fd);
+            close(child2parent_read_fd);
+
+            dup2(parent2child_read_fd, 0);
+            dup2(child2parent_write_fd, 1);
+
+            close(parent2child_read_fd);
+            close(child2parent_write_fd);
+
+            try {
+                if(method_name.chars(0) == '/') {
+                    execv(method_name, params);
+                }
+                else {
+                    execvp(method_name, params);
+                }
+            } catch(e:Exception) {
+                buffer:Buffer = e.message.append("\n").toBuffer();
+                System.write(2, buffer, buffer.len);
+                exit(2);
+            }
+            exit(2);
+        });
+
+        close(parent2child_read_fd);
+        close(child2parent_write_fd);
+
+        if(!pipe_data.identifyWith(null)) {
+            buffer:Buffer = pipe_data.toBuffer();
+            System.write(parent2child_write_fd, buffer, buffer.len);
+        }
+        close(parent2child_write_fd);
+
+        child_output:Buffer = B"";
+        
+        while(true) {
+            pipe_data:Buffer = Buffer(128.to_ulong);
+
+            readed_byte:int = read(child2parent_read_fd, pipe_data, 128.to_ulong);
+
+            if(readed_byte == 0) {
+                break;
+            }
+
+            child_output.append(pipe_data);
+        }
+
+        close(child2parent_read_fd);
+
+        status: wait_status = 0;
+
+        pid2:pid_t = waitpid(pid, &status, WUNTRACED);
+
+        if(WEXITSTATUS(status) == 64) {
+            throw Exception("Command not found");
+        }
+
+        return Command(child_output.toString(), WEXITSTATUS(status));
+    }
+
+    def executeCommandWithControllingTerminal(method_name:String, params:List<String>) : static Command throws Exception
+    {
+        pid:pid_t = fork(closure() {
+            pid:pid_t = getpid();
+
+            setpgid(0, 0);
+            tcsetpgrp(0, pid);
+
+            try {
+                if(method_name.chars(0) == '/') {
+                    execv(method_name, params);
+                }
+                else {
+                    execvp(method_name, params);
+                }
+            } catch(e:Exception) {
+                buffer:Buffer = e.message.append("\n").toBuffer();
+                System.write(2, buffer, buffer.len);
+                exit(64);
+            }
+        });
+
+        setpgid(pid, pid);
+        tcsetpgrp(0, pid);
+
+        status: wait_status = 0;
+
+        pid2:pid_t = waitpid(pid, &status, WUNTRACED);
+
+        if(WEXITSTATUS(status) == 64) {
+            throw Exception("Command not found");
+        }
+
+        if(WIFSTOPPED(status)) {
+            rcode:int = WSTOPSIG(status) +128;
+            title:String = method_name;
+
+            terminfo := tcgetattr(0);
+
+            job:Job = Job(title, pid, terminfo);
+
+            Clover.jobs.add(job);
+
+            tcsetpgrp(0, getpid());
+
+            return Command("", rcode);
+        }
+        else {
+            tcsetpgrp(0, getpid());
+
+            return Command("", WEXITSTATUS(status));
+        }
+
+        return Command("", WEXITSTATUS(status));
+    }
+
+    def executeCommandWithControllingTerminalByPipe(method_name:String, params:List<String>, pipe_data:String): static Command throws Exception
+    {
+        parent2child_write_fd:int = 0;
+        parent2child_read_fd:int = 0;
+
+        pipe(&parent2child_read_fd, &parent2child_write_fd);
+
+        pid:pid_t = fork(closure() {
+            close(parent2child_write_fd);
+
+            pid:pid_t = getpid();
+
+            setpgid(0, 0);
+            tcsetpgrp(0, pid);
+
+            dup2(parent2child_read_fd, 0);
+            close(parent2child_read_fd);
+
+            try {
+                if(method_name.chars(0) == '/') {
+                    execv(method_name, params);
+                }
+                else {
+                    execvp(method_name, params);
+                }
+            } catch(e:Exception) {
+                buffer:Buffer = e.message.append("\n").toBuffer();
+                System.write(2, buffer, buffer.len);
+                exit(64);
+            }
+        });
+
+        setpgid(pid, pid);
+        tcsetpgrp(0, pid);
+
+        close(parent2child_read_fd);
+
+        if(!pipe_data.identifyWith(null)) {
+            buffer:Buffer = pipe_data.toBuffer();
+            try {
+                System.write(parent2child_write_fd, buffer, buffer.len);
+            } catch(e:Exception) {
+                kill(pid, SIGTERM);
+            }
+        }
+        close(parent2child_write_fd);
+
+        status: wait_status = 0;
+
+        pid2:pid_t = waitpid(pid, &status, WUNTRACED);
+
+        if(WEXITSTATUS(status) == 64) {
+            throw Exception("Command not found");
+        }
+
+        if(WIFSTOPPED(status)) {
+            rcode:int = WSTOPSIG(status) +128;
+            title:String = method_name;
+
+            terminfo := tcgetattr(0);
+
+            job:Job = Job(title, pid, terminfo);
+
+            Clover.jobs.add(job);
+
+            tcsetpgrp(0, getpid());
+
+            return Command("", rcode);
+        }
+        else {
+            tcsetpgrp(0, getpid());
+
+            return Command("", WEXITSTATUS(status));
+        }
+    }
+
+    def popen(command:String, rcode:pointer@int):static String throws Exception {
+        result := "";
+        fp:pointer@FILE = System.popen(command, "r");
+
+        while(!feof(fp)) {
+            buf := Buffer(BUFSIZ);
+            fgets(buf, BUFSIZ, fp);
+            result.append(buf.toString());
+        }
+
+        rcode->int = pclose(fp);
+
+        return result;
+    }
+
+    def cd():static {
+        path := p"\{getenv("HOME")}"
+        path.chdir();
+        setenv("PWD", getcwd(), 1);
+    }
+
+    def cd(path:String):static {
+        path.toPath().chdir();
+        setenv("PWD", getcwd(), 1);
+    }
+
+    def cd(arg:SortableList<String>):static {
+        if(arg.length() > 0) {
+            path := arg.items(0);
+            Command.cd(path);
+        }
+    }
+    
+    def fg(job_num:int):static {
+        if(job_num >= 0 && job_num < Clover.jobs.length()) {
+            Clover.jobs.items(job_num).forground();
+        }
+    }
+    
+    def fg():static {
+        Command.fg(0);
+    }
+    
+    def jobs():static EqualableList<Job> {
+        return Clover.jobs;
+    }
+
+    def toString():String {
+        return self.data;
+    }
+
+    def equals(command:Command):bool {
+        return self.data.equals(command.data);
+    }
+
+    def compare(command:Command): int {
+        return self.data.compare(command.data);
+    }
+
+    def toBool():bool {
+        return self.resultCode == 0;
+    }
+
+    def toBoolAndOutput(): bool {
+        self.data.print();
+        return self.resultCode == 0;
+    }
+
+    def write(path:String, permission:mode_t): Command {
+        f:File = File(path, O_CREAT|O_TRUNC|O_WRONLY, permission);
+
+        buf:Buffer = self.data.toBuffer();
+        f.write(buf, buf.len);
+
+        f.close();
+
+        return self;
+    }
+
+    def write(path:String): Command {
+        return self.write(path,0644);
+    }
+}
+
+class String
+{
+    def toCommand():Command {
+        return Command(self,0);
+    }
+}

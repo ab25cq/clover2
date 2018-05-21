@@ -1,0 +1,3 @@
+shlibs:Depends=libc6 (>= 2.14), libpcre3, libreadline7 (>= 6.0)
+misc:Depends=
+misc:Pre-Depends=

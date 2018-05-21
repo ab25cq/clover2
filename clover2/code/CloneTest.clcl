@@ -1,0 +1,21 @@
+class CloneTest
+{
+    value: int;
+    value2:String[];
+
+    def initialize() {
+        self.value = 123;
+        self.value2 = String[3]();
+        self.value2[0] = "ABC";
+        self.value2[1] = "DEF";
+        self.value2[2] = "GHI";
+    }
+
+    def main():static {
+        a := CloneTest();
+
+        b := a.clone();
+
+        Clover.test("clone test", b.value == 123 && b.value2[0].equals("ABC") && b.value2[1].equals("DEF") && b.value2[2].equals("GHI") && b.value2[0].ID() != a.value2[0].ID() && b.value2[1].ID() != a.value2[1].ID() && b.value2[2].ID() != a.value2[2].ID());
+    }
+}

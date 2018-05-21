@@ -1,0 +1,422 @@
+include "String.clcl"
+
+class System
+{
+    def sprintf(format:String, prams:Array<Object>): native static String throws Exception;
+}
+
+class Clover
+{
+    def appendField(class_name:String, name:String, type:String):static native throws Exception;
+    def appendMethod(class_name:String, code:String): static native throws Exception;
+    def appendMethod(class_name:String, method_index:int, code:String): static native throws Exception;
+    def appendClassField(class_name:String, name:String, type:String):static native throws Exception;
+    def appendClass(code:String):static native throws Exception;
+    def declareMethod(class_name:String, code:String): static native int throws Exception;
+
+    def getField(class_name:String, index:int):static native Field throws Exception;
+    def getClassField(class_name:String, index:int):static native Field throws Exception;
+    def getMethod(class_name:String, index:int):static native Method throws Exception;
+    def getClassFlags(class_name:String): static native long throws Exception;
+    def getClassGenericsParamTypes(class_name:String): static native String[] throws Exception;
+    def getClassGenericsParamNames(class_name:String): static native String[] throws Exception;
+    def getNumFields(class_name:String): static native int throws Exception;
+    def getNumClassFields(class_name:String): static native int throws Exception;
+    def getNumMethods(class_name:String): static native int throws Exception;
+    def isLoadedClass(class_name:String): static native bool throws Exception;
+    def isDefinedClass(class_name:String): static native bool throws Exception;
+
+    def isPrimitiveClass(name:String):static bool {
+        return name.equals("int") || name.equals("uint") || name.equals("byte") || name.equals("ubyte") || name.equals("short") || name.equals("ushort") || name.equals("long") || name.equals("ulong") || name.equals("float") || name.equals("double") || name.equals("pointer") || name.equals("char") ||  name.equals("bool") || name.match(/lambda$|lambda\(\)|lambda\(.*/) || name.equals("regex");
+    }
+
+    def initialize_reflection(): static native;
+
+    FIELD_FLAGS_PRIVATE:static long;
+    FIELD_FLAGS_PROTECTED:static long;
+
+    METHOD_FLAGS_NATIVE:static long;
+    METHOD_FLAGS_CLASS_METHOD:static long;
+
+    CLASS_FLAGS_PRIMITIVE:static long;
+    CLASS_FLAGS_INTERFACE:static long;
+    CLASS_FLAGS_MODIFIED:static long;
+    CLASS_FLAGS_ALLOCATED:static long;
+    CLASS_FLAGS_DYNAMIC_CLASS:static long;
+    CLASS_FLAGS_NO_FREE_OBJECT:static long;
+
+    def initialize():static {
+        inherit();
+
+        Clover.initialize_reflection();
+
+        Clover.initializeMethodDefinedClasses = List<Class>();
+        Clover.cloneMethodDefinedClasses = List<Class>();
+        Clover.initializeMethodDefinedClassMethodIndexes = List<Integer>();
+        Clover.cloneMethodDefinedClassMethodIndexes = List<Integer>();
+    }
+
+    def getAllClassName(): static native String[];
+
+    def getModifiedClass(): static EqualableList<Class> {
+        result := EqualableList<Class>();
+
+        getAllClassName().each {
+            klass := Class(it);
+
+            if((klass.flags & CLASS_FLAGS_MODIFIED).to_bool) {
+                result.add(klass);
+            }
+        }
+
+        return result;
+    }
+
+    initializeMethodDefinedClasses:static List<Class>;
+    initializeMethodDefinedClassMethodIndexes:static List<Integer>;
+    cloneMethodDefinedClasses:static List<Class>;
+    cloneMethodDefinedClassMethodIndexes:static List<Integer>;
+
+    def compileTimeScriptingOnDeclareTime():static {
+        getModifiedClass().each {
+            if((it.flags & CLASS_FLAGS_INTERFACE).to_bool) {
+                if(it.getMethod("initialize", 0, false).identifyWith(null)) {
+                    it.declareMethod("def initialize();");
+                }
+                if(it.getMethod("clone", 0, false).identifyWith(null)) {
+                    it.declareMethod("def clone(): Self;");
+                }
+            }
+            else {
+                if(it.getMethod("initialize", 0, false).identifyWith(null)) {
+                    method_index := it.declareMethod("def initialize();");
+                    initializeMethodDefinedClasses.add(it);
+                    initializeMethodDefinedClassMethodIndexes.add(method_index);
+                }
+                if(it.getMethod("clone", 0, false).identifyWith(null)) {
+                    method_index := it.declareMethod(
+                        """
+                        def clone(): \{it.className} \{
+                            output := "";
+
+                            if(it.genericsParamNames.length > 0) {
+                                output.append("<");
+                                for(i:=0; i<it.genericsParamNames.length; i++) {
+                                    output.append(it.genericsParamNames[i]);
+
+                                    if(i != it.genericsParamNames.length-1) {
+                                        output.append(",");
+                                    }
+                                }
+                                output.append(">");
+                            }
+
+                            output;
+                            };
+                        """
+                    );
+                    cloneMethodDefinedClasses.add(it);
+                    cloneMethodDefinedClassMethodIndexes.add(method_index);
+                }
+            }
+        }
+    }
+
+    def compileTimeScripting():static {
+        n := 0;
+        initializeMethodDefinedClasses.each {
+            method_index := initializeMethodDefinedClassMethodIndexes.items(n);
+            it.appendMethod(method_index, "def initialize() {}");
+            n++;
+        }
+        n = 0;
+        cloneMethodDefinedClasses.each {
+            method_index := cloneMethodDefinedClassMethodIndexes.items(n);
+            code := """
+                    def clone(): \{it.className} \{
+                        output := "";
+
+                        if(it.genericsParamNames.length > 0) {
+                            output.append("<");
+                            for(i:=0; i<it.genericsParamNames.length; i++) {
+                                output.append(it.genericsParamNames[i]);
+
+                                if(i != it.genericsParamNames.length-1) {
+                                    output.append(",");
+                                }
+                            }
+                            output.append(">");
+                        }
+
+                        output;
+                        }
+                    {
+                        result := \{it.className}
+                        \{
+                            output := "";
+
+                            if(it.genericsParamNames.length > 0) {
+                                output.append("<");
+                                for(i:=0; i<it.genericsParamNames.length; i++) {
+                                    output.append(it.genericsParamNames[i]);
+
+                                    if(i != it.genericsParamNames.length-1) {
+                                        output.append(",");
+                                    }
+                                }
+                                output.append(">");
+                            }
+
+                            output;
+                        }();
+                        
+                        \{
+                            output := "";
+                            for(i:=0; i<it.numFields; i++) {
+                               field := it.getField(i);
+                               
+                               if(field.resultType.chars(-2) == '[' && field.resultType.chars(-1) == ']') {
+                                   output.append(sprintf("result.%s = %s[self.%s.length]();\n", array { field.name, field.resultType.subString(0,-3), field.name}));
+
+                                   if(isPrimitiveClass(field.resultType.subString(0, -3))) 
+                                   {
+                                       output.append(sprintf("for(i:=0; i<self.%s.length; i++) { result.%s[i] = self.%s[i]; }", array { field.name, field.name, field.name }));
+                                   }
+                                   else {
+                                       output.append(sprintf("for(i:=0; i<self.%s.length; i++) { result.%s[i] = self.%s[i].toAnonymous().clone(); }", array { field.name, field.name, field.name }));
+                                   }
+                               }
+                               elif(isPrimitiveClass(field.resultType))
+                               {
+                                   output.append(sprintf("result.%s = self.%s;\n", array { field.name, field.name }));
+                               }
+                               else {
+                                   output.append(sprintf("result.%s = self.%s.toAnonymous().clone();\n", array { field.name, field.name }));
+                               }
+                            }
+
+                            output;
+                        }
+
+                        return result;
+                    }
+                    """;
+
+            it.appendMethod(method_index, code);
+            
+            n++;
+        }
+    }
+}
+
+class Field
+{
+    flags:long;
+    name:String;
+    resultType:String;
+    #value:Anonymous;
+
+    def initialize() {}
+
+    def clone():Field {
+        result := Field();
+
+        result.flags = self.flags;
+        result.name = self.name.clone();
+        result.resultType = self.resultType.clone();
+
+        return result;
+    }
+
+    def private():bool {
+        return (self.flags & Clover.FIELD_FLAGS_PRIVATE).to_bool;
+    }
+
+    def protected():bool {
+        return (self.flags & Clover.FIELD_FLAGS_PROTECTED).to_bool;
+    }
+}
+
+class MethodParam
+{
+    name:String;
+    type:String;
+
+    def initialize() {}
+
+    def clone(): MethodParam {
+        result := MethodParam();
+
+        result.name = self.name.clone();
+        result.type = self.type.clone();
+
+        return result;
+    }
+}
+
+class Method
+{
+    flags:long;
+    name:String;
+    path:String;
+    methodNameAndParams:String;
+    index:int;
+
+    params:MethodParam[];
+
+    resultType:String;
+
+    varNum:int;
+
+    genericsParamTypes:String[];
+
+    def initialize() {}
+
+    def clone(): Method {
+        result := Method();
+
+        result.flags = self.flags;
+        result.name = self.name.clone();
+        result.path = self.path.clone();
+        result.methodNameAndParams = self.methodNameAndParams.clone();
+        result.index = self.index;
+
+        result.params = MethodParam[self.params.length]();
+        for(i:=0; i<self.params.length; i++) {
+            result.params[i] = self.params[i].clone();
+        }
+
+        result.resultType = self.resultType.clone();
+        result.varNum = self.varNum;
+
+        result.genericsParamTypes = String[self.genericsParamTypes.length]();
+
+        for(j:=0; j<self.genericsParamTypes.length; j++) {
+            result.genericsParamTypes[j] = self.genericsParamTypes[j].clone();
+        }
+
+        return result;
+    }
+}
+
+class Class
+{
+    className:String;
+    flags:long;
+    genericsParamTypes:String[];
+    genericsParamNames:String[];
+    numFields:int;
+    numClassFields:int;
+    numMethods:int;
+
+    def initialize() {}
+
+    def initialize(class_name:String) {
+        className = class_name;
+        flags = Clover.getClassFlags(class_name);
+        genericsParamTypes = Clover.getClassGenericsParamTypes(class_name);
+        genericsParamNames = Clover.getClassGenericsParamNames(class_name);
+        numFields = Clover.getNumFields(class_name);
+        numClassFields = Clover.getNumClassFields(class_name);
+        numMethods = Clover.getNumMethods(class_name);
+    }
+
+    def clone():Class {
+        result := Class();
+
+        result.className = self.className.clone();
+        result.flags = self.flags;
+        result.genericsParamTypes = String[self.genericsParamTypes.length]();
+        for(i:=0; i<self.genericsParamTypes.length; i++) {
+            result.genericsParamTypes[i] = self.genericsParamTypes[i].clone();
+        }
+        result.genericsParamNames = String[self.genericsParamNames.length]();
+        for(j:=0; j<self.genericsParamNames.length; j++) {
+            result.genericsParamNames[j] = self.genericsParamNames[j].clone();
+        }
+        result.numFields = self.numFields;
+        result.numClassFields = self.numClassFields;
+        result.numMethods = self.numMethods;
+
+        return result;
+    }
+
+    def equals(right:Class): bool {
+        return self.className.equals(right.className);
+    }
+
+    def toString(): String {
+        return self.className;
+    }
+
+    def appendField(name:String, type:String) {
+        Clover.appendField(className, name, type);
+    }
+    def appendMethod(code:String) {
+        Clover.appendMethod(className, code);
+    }
+    def appendMethod(method_index:int, code:String) {
+        Clover.appendMethod(className, method_index, code);
+    }
+    def declareMethod(code:String):int {
+        return Clover.declareMethod(className, code);
+    }
+    def appendClassField(name:String, type:String) {
+        Clover.appendClassField(className, name, type);
+    }
+    def getField(index:int): Field {
+        return Clover.getField(className, index);
+    }
+    def getField(name:String): Field? {
+        for(i:=0; i<numFields; i++) {
+            field := getField(i);
+
+            if(field.name.equals(name)) {
+                return field;
+            }
+        }
+
+        return null;
+    }
+    def getClassField(index:int): Field {
+        return Clover.getClassField(className, index);
+    }
+    def getClassField(name:String): Field? {
+        for(i:=0; i<numClassFields; i++) {
+            field := getClassField(i);
+
+            if(field.name.equals(name)) {
+                return field;
+            }
+        }
+
+        return null;
+    }
+    def getMethod(index:int): Method {
+        return Clover.getMethod(className, index);
+    }
+    def getMethod(name:String): Method? {
+        for(i:=numMethods-1; i>=0; i--) { # reverse search for multiple definition
+            method := getMethod(i);
+
+            if(method.name.equals(name)) {
+                return method;
+            }
+        }
+
+        return null;
+    }
+    def getMethod(name:String, param_num:int, class_method:bool): Method? {
+        for(i:=numMethods-1; i>=0; i--) { # reverse search for multiple definition
+            method := getMethod(i);
+
+            if(method.name.equals(name) && method.params.length == param_num
+                && class_method == (method.flags & Clover.METHOD_FLAGS_CLASS_METHOD).to_bool) 
+            {
+                return method;
+            }
+        }
+
+        return null;
+    }
+}

@@ -1,0 +1,8 @@
+class PrintfTest {
+    def main():static {
+        Clover.test("printf test1", System.sprintf("%d %d", array { 123, 245 }).equals("123 245"));
+        Clover.test("printf test2", System.sprintf("%s %d", array { "ABC", 123 }).equals("ABC 123"));
+
+        printf("(%s %d)\n", array { "ABC", 111 });
+    }
+}

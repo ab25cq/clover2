@@ -1,0 +1,18 @@
+class SignalTest
+{
+    value:static int;
+
+    def main(): static {
+        SignalTest.value = 0;
+
+        block:lambda(int) = lambda(signum:int) {
+            SignalTest.value = 1;
+        }
+
+        signal(SIGUSR1, block);
+
+        kill(getpid(), SIGUSR1);
+
+        Clover.test("signal test", SignalTest.value == 1);
+    }
+}
