@@ -5,6 +5,8 @@ class PcreOVec
     start:int[];
     end:int[];
 
+    def initialize() {}
+
     def initialize(max:int) {
         self.start = int[max]();
         self.end = int[max]();

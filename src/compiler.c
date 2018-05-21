@@ -6,13 +6,17 @@ static void compiler_init(BOOL no_load_fudamental_classes)
     init_node_types();
     init_node_block_types();
     class_init();
-    if(!no_load_fudamental_classes) class_init_on_compile_time();
+
+    if(!no_load_fudamental_classes) {
+        class_init_on_runtime();
+    }
+
     init_vtable();
     module_init();
     parser_init();
 }
 
-static void clover2_init(BOOL no_load_fudamental_classes)
+static void clover2_init()
 {
     class_system_init();
     thread_init();
@@ -22,7 +26,6 @@ static void clover2_init(BOOL no_load_fudamental_classes)
     native_method_init();
     heap_init(128, 128);
     stack_init();
-    //if(!no_load_fudamental_classes) class_init_on_runtime();
 }
 
 static void clover2_final()
@@ -139,7 +142,7 @@ static BOOL class_compiler(char* fname)
 
 int gARGC;
 char** gARGV;
-char* gVersion = "4.0.9";
+char* gVersion = "4.1.0";
 
 int main(int argc, char** argv)
 {
@@ -196,7 +199,7 @@ int main(int argc, char** argv)
         clcl_compile = TRUE;
     }
 
-    clover2_init(no_load_fudamental_classes);
+    clover2_init();
     compiler_init(no_load_fudamental_classes);
 
     if(clcl_compile) {

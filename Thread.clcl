@@ -1,4 +1,4 @@
-include "Reflection.clcl"
+include "Fundamental.clcl"
 
 class pthread_mutex_t 
 {
@@ -91,10 +91,15 @@ class Thread
     typedef pthread_t ulong;
 
     thread_id:pthread_t;
-    block:lambda();
+    block:lambda()?;
     
     def initialize_thread(thread:Thread, block:lambda()): static native throws Exception;
     def pthread_join(thread_id:pthread_t): static native throws Exception;
+
+    def initialize() {
+        self.thread_id = 0;
+        block = null;
+    }
 
     def initialize(block:lambda()) throws Exception {
         Thread.initialize_thread(self, block);
@@ -109,6 +114,8 @@ class Mutex
 {
     mutex: pthread_mutex_t;
     attr: pthread_mutexattr_t;
+
+    def initialize() {}
 
     def initialize(recursive:bool, error_check:bool) {
         mutex = pthread_mutex_t();
@@ -125,6 +132,13 @@ class Mutex
 
     def finalize() {
         pthread_mutex_destroy(mutex);
+    }
+
+    def clone(): Mutex {
+        result := Mutex();
+        result.mutex = self.mutex;
+        result.attr = self.attr;
+        return result;
     }
 
     def lock() {

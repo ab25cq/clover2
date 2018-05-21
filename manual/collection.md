@@ -59,6 +59,7 @@ EqualableArrayはequalsによって配列同士を同一の値を要素が保持
     {
         def equlas(right:Self): bool;
         def toString(): String;
+        def clone(): Self;
     }
 
 インターフェースはインターフェースが定義するメソッドを持つクラスはインターフェースに代入することができます。つまり、この場合EqualableArrayの要素はequalsとtoStringメソッドを持つ必要があります。Selfという型はそのクラス自身のクラスを表します。
@@ -75,6 +76,9 @@ EqualableArrayはequalsによって配列同士を同一の値を要素が保持
         }
         def toString(): String {
             return self.value.toString
+        }
+        def clone(): EqualableArraryElementClass {
+            return EqualableArraryElementClass(self.value);
         }
     }
 
@@ -96,6 +100,7 @@ SortableArrayの要素になるためには
         def equals(right:Self): bool;
         def toString():String;
         def compare(item:Self): int;
+        def clone(): Self;
     }
 
 ISortableインターフェースを実装する必要があります。compareは例えばInteger型なら以下のように定義されています。
@@ -308,6 +313,7 @@ HashのGenericsの第一引数のクラスのインターフェースはIHashKey
         def getHashKey(): uint;
         def equals(right:Self): bool;
         def toString(): String;
+        def clone(): Self;
     }
 
 equalsやtoStringはISortableでも出てきたので説明は不要だと思うのでgetHashKeyの説明をしたいと思います。getHashKeyとはキーとなるオブジェクト固有の数値を返すものです。ハッシュ値と呼ばれます。例えばStringクラスなら以下のように定義されています。
@@ -372,6 +378,7 @@ equalsで値が同一か比較することができます。TupleのGenericsで�
     {
         def equlas(right:Self): bool;
         def toString(): String;
+        def clone(): Self;
     }
 
 以上でコレクションは終わりです。

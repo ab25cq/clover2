@@ -114,7 +114,7 @@ void entry_exception_object(CLObject exception, sVMInfo* info)
 
 void show_exception_message(char* message)
 {
-    fprintf(stderr, "%s\n", message);
+    fprintf(stderr, "Exception Message --> %s\n", message);
 
 /*
     sCLObject* object_data = CLOBJECT(exception);

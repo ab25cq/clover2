@@ -7427,6 +7427,9 @@ BOOL compile_store_array_element(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
+    sNodeType* left_type2;
+    solve_generics_for_variable(left_type, &left_type2, info->pinfo);
+
     /// compile middle node ///
     unsigned int mnode = gNodes[node].mMiddle;
 
@@ -7479,15 +7482,18 @@ BOOL compile_store_array_element(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
-    sNodeType* left_type2 = clone_node_type(left_type);
-    left_type2->mArray = FALSE;
+    sNodeType* right_type2;
+    solve_generics_for_variable(right_type, &right_type2, info->pinfo);
 
-    if(cast_posibility(left_type2, right_type)) {
-        cast_right_type_to_left_type(left_type2, &right_type, info);
+    sNodeType* left_type3 = clone_node_type(left_type2);
+    left_type3->mArray = FALSE;
+
+    if(cast_posibility(left_type3, right_type2)) {
+        cast_right_type_to_left_type(left_type3, &right_type2, info);
     }
 
-    if(!substitution_posibility(left_type2, right_type, NULL, NULL, NULL, NULL)) {
-        compile_err_msg(info, "The different type between left type and right type(7). %s and %s", CLASS_NAME(left_type2->mClass), CLASS_NAME(right_type->mClass));
+    if(!substitution_posibility(left_type3, right_type2, NULL, NULL, NULL, NULL)) {
+        compile_err_msg(info, "The different type between left type and right type(7). %s and %s", CLASS_NAME(left_type3->mClass), CLASS_NAME(right_type2->mClass));
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -7500,7 +7506,7 @@ BOOL compile_store_array_element(unsigned int node, sCompileInfo* info)
 
     info->stack_num-=2;
 
-    info->type = right_type;
+    info->type = right_type2;
 
     return TRUE;
 }

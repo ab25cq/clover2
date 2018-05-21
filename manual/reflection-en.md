@@ -136,3 +136,5 @@ You can also define classes with Clover.append (code: String).
 
 Please note that appendField and others work only at compile time. Clover 2 is meaningless in compiled languages even if fields and methods are added at run time. Please use it at compile time scripting. Since compile-time scripting can use all the functions of Clover 2, if you create classes for compile-time scripting, Automation can be done a lot. Is it like a macro or preprocessor? Well, please enjoy a lot
 
+For compile - time reflection, the Clover.compileTimeScriptingOnDeclareTime () class method is called when declaring fields and methods> before the Clover.compileTimeScripting () class method is executed before the compile - time script is executed. If you add a method etc. to the class here, you can automatically add a method or add a field when defining the class. See Reflection.clcl for details.
+

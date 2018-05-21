@@ -1737,7 +1737,7 @@ BOOL parse_class_type(sCLClass** klass, sParserInfo* info)
         *klass = info->klass;
     }
     else {
-        *klass = get_class_with_load_on_compile_time(class_name);
+        *klass = get_class_with_load_and_initialize(class_name);
     }
 
     if(*klass == NULL) {
@@ -1923,7 +1923,7 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
         sCLClass* klass = (*result_type)->mClass;
 
         for(i=0; i<generics_num; i++) {
-            sCLClass* left_type = get_class_with_load_on_compile_time(CONS_str(&klass->mConst, klass->mGenericsParamTypeOffsets[i]));
+            sCLClass* left_type = get_class_with_load_and_initialize(CONS_str(&klass->mConst, klass->mGenericsParamTypeOffsets[i]));
 
             sCLClass* right_type = (*result_type)->mGenericsTypes[i]->mClass;
 
@@ -2040,7 +2040,7 @@ BOOL parse_type_for_new(sNodeType** result_type, unsigned int* array_num, sParse
 
     for(i=0; i<generics_num; i++) {
         int generics_paramType_offset = klass->mGenericsParamTypeOffsets[i];
-        sCLClass* left_type = get_class_with_load_on_compile_time(CONS_str(&klass->mConst, generics_paramType_offset));
+        sCLClass* left_type = get_class_with_load_and_initialize(CONS_str(&klass->mConst, generics_paramType_offset));
 
         sCLClass* right_type = (*result_type)->mGenericsTypes[i]->mClass;
 
@@ -4011,13 +4011,13 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 if(klass == NULL) {
 #ifdef __DARWIN__
                     if(buf[0] >= 'A' && buf[0] <= 'Z') {  // for OSX. OSX ignores the case of file name
-                        klass = load_class_on_compile_time(buf);
+                        klass = get_class_with_load_and_initialize(buf);
                     }
                     else {
                         klass = NULL;
                     }
 #else
-                    klass = load_class_on_compile_time(buf);
+                    klass = get_class_with_load_and_initialize(buf);
 #endif
                 }
             }

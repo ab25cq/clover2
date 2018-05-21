@@ -734,6 +734,7 @@ sCLClass* load_class_from_class_file(char* class_name, char* class_file_name)
     klass->mBoxingClass = NULL;
     klass->mUnboxingClass = NULL;
     klass->mDynamicLibrary = NULL;
+    klass->mInitialized = FALSE;
 
     klass->mFreeFun = NULL;
 
@@ -816,7 +817,7 @@ sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_clas
     klass->mNumTypedef = 0;
     memset(klass->mTypedefClassName1Offsets, 0, sizeof(int)*TYPEDEF_MAX);
     memset(klass->mTypedefClassName2Offsets, 0, sizeof(int)*TYPEDEF_MAX);
-
+    klass->mInitialized = FALSE;
 
     return klass;
 }

@@ -273,7 +273,7 @@ static BOOL parse_throws(sParserInfo* info, BOOL* throw_existance)
     return TRUE;
 }
 
-BOOL parse_method_name_and_params(char* method_name, int method_name_max, sParserParam* params, int* num_params, sNodeType** result_type, BOOL* native_, BOOL* static_, BOOL* nosync, sParserInfo* info)
+BOOL parse_method_name_and_params(char* method_name, int method_name_max, sParserParam* params, int* num_params, sNodeType** result_type, BOOL* native_, BOOL* static_, sParserInfo* info)
 {
     /// method generics ///
     if(*info->p == '<') {
@@ -318,9 +318,6 @@ BOOL parse_method_name_and_params(char* method_name, int method_name_max, sParse
 
             if(strcmp(buf, "native") == 0) {
                 *native_ = TRUE;
-            }
-            else if(strcmp(buf, "nosync") == 0) {
-                *nosync = TRUE;
             }
             else if(strcmp(buf, "static") == 0) {
                 *static_ = TRUE;
@@ -444,7 +441,6 @@ static BOOL field_delegation(sParserInfo* info, sCompileInfo* cinfo, sCLClass* k
 
                 BOOL native_ = FALSE;
                 BOOL static_ = FALSE;
-                BOOL nosync = FALSE;
 
                 sGenericsParamInfo method_generics_info;
 
@@ -463,7 +459,7 @@ static BOOL field_delegation(sParserInfo* info, sCompileInfo* cinfo, sCLClass* k
                 }
 
                 sCLMethod* appended_method = NULL;
-                if(!add_method_to_class(klass, method_name, parser_params, num_params, result_type, native_, static_, nosync, &method_generics_info, &appended_method)) 
+                if(!add_method_to_class(klass, method_name, parser_params, num_params, result_type, native_, static_, &method_generics_info, &appended_method)) 
                 {
                     return FALSE;
                 }
@@ -493,10 +489,9 @@ static BOOL setter_and_getter(sParserInfo* info, sCompileInfo* cinfo, sCLClass* 
 
         BOOL native_ = FALSE;
         BOOL static_ = FALSE;
-        BOOL nosync = FALSE;
 
         sCLMethod* appended_method = NULL;
-        if(!add_method_to_class(klass, method_name, parser_params, num_params, result_type, native_, static_, nosync, NULL, &appended_method))
+        if(!add_method_to_class(klass, method_name, parser_params, num_params, result_type, native_, static_, NULL, &appended_method))
         {
             return FALSE;
         }
@@ -519,10 +514,9 @@ static BOOL setter_and_getter(sParserInfo* info, sCompileInfo* cinfo, sCLClass* 
 
             BOOL native_ = FALSE;
             BOOL static_ = FALSE;
-            BOOL nosync = FALSE;
 
             sCLMethod* appended_method = NULL;
-            if(!add_method_to_class(klass, method_name, parser_params, num_params, result_type, native_, static_, nosync, NULL, &appended_method))
+            if(!add_method_to_class(klass, method_name, parser_params, num_params, result_type, native_, static_, NULL, &appended_method))
             {
                 return FALSE;
             }
@@ -600,16 +594,15 @@ static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOO
         sNodeType* result_type = NULL;
         BOOL native_ = FALSE;
         BOOL static_ = FALSE;
-        BOOL nosync = FALSE;
 
-        if(!parse_method_name_and_params(method_name, METHOD_NAME_MAX, params, &num_params, &result_type, &native_, &static_, &nosync, info)) 
+        if(!parse_method_name_and_params(method_name, METHOD_NAME_MAX, params, &num_params, &result_type, &native_, &static_, info)) 
         {
             return FALSE;
         }
 
         if(info->err_num == 0 && (info->klass->mFlags & CLASS_FLAGS_ALLOCATED)) {
             sCLMethod* appended_method = NULL;
-            if(!add_method_to_class(info->klass, method_name, params, num_params, result_type, native_, static_, nosync, &info->method_generics_info, &appended_method)) 
+            if(!add_method_to_class(info->klass, method_name, params, num_params, result_type, native_, static_, &info->method_generics_info, &appended_method)) 
             {
                 return FALSE;
             }
@@ -1070,9 +1063,8 @@ BOOL parse_methods_and_fields_on_compile_time(sParserInfo* info, sCompileInfo* c
         sNodeType* result_type = NULL;
         BOOL native_ = FALSE;
         BOOL static_ = FALSE;
-        BOOL nosync = FALSE;
 
-        if(!parse_method_name_and_params(method_name, METHOD_NAME_MAX, params, &num_params, &result_type, &native_, &static_, &nosync, info)) 
+        if(!parse_method_name_and_params(method_name, METHOD_NAME_MAX, params, &num_params, &result_type, &native_, &static_, info)) 
         {
             return FALSE;
         }
@@ -1568,6 +1560,32 @@ static void reset_method_index_on_compile_time()
     }
 }
 
+BOOL call_compile_time_script_method_on_declare()
+{
+    sCLClass* clover_class = get_class("Clover");
+
+    sNodeType* result_type = NULL;
+    sNodeType* result_method_generics_types = NULL;
+    int method_index = search_for_method(clover_class, "compileTimeScriptingOnDeclareTime", NULL, 0, TRUE, clover_class->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, FALSE, &result_method_generics_types);
+    sCLMethod* method = clover_class->mMethods + method_index;
+    
+    const int stack_size = 512;
+    CLVALUE* stack = MCALLOC(1, sizeof(CLVALUE)*stack_size);
+    CLVALUE* stack_ptr = stack;
+
+    sVMInfo info;
+    memset(&info, 0, sizeof(sVMInfo));
+
+    int var_num = 0;
+
+    if(!invoke_method(clover_class, method, stack, var_num, &stack_ptr, &info)) {
+        show_exception_message(info.exception_message);
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
 BOOL compile_class_source(char* fname, char* source)
 {
     sParserInfo info;
@@ -1609,6 +1627,25 @@ BOOL compile_class_source(char* fname, char* source)
 
     info.cinfo = &cinfo;
 
+    sCLClass* clover_class = get_class("Clover");
+
+    if(clover_class) {
+        sNodeType* result_type = NULL;
+        sNodeType* result_method_generics_types = NULL;
+        int method_index = search_for_method(clover_class, "compileTimeScripting", NULL, 0, TRUE, clover_class->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, FALSE, &result_method_generics_types);
+
+        if(method_index >= 0) {
+            append_opecode_to_code(cinfo.code, OP_INVOKE_METHOD, cinfo.no_output);
+
+            append_class_name_to_constant_pool_and_code(&cinfo, clover_class);
+            append_int_value_to_code(cinfo.code, method_index, cinfo.no_output);
+            int size = get_var_size(result_type);
+            append_int_value_to_code(cinfo.code, size, cinfo.no_output);
+
+            cinfo.type = result_type;
+        }
+    }
+
     int i;
     for(i=PARSE_PHASE_ALLOC_CLASSES; i<PARSE_PHASE_MAX; i++) {
         info.parse_phase = i;
@@ -1629,6 +1666,14 @@ BOOL compile_class_source(char* fname, char* source)
             fprintf(stderr, "Parser error number is %d. Compile error number is %d\n", info.err_num, cinfo.err_num);
             return FALSE;
         }
+
+        if(i == PARSE_PHASE_ADD_METHODS_AND_FIELDS) {
+            if(!call_compile_time_script_method_on_declare()) {
+                fprintf(stderr, "error on compile time script\n");
+                return FALSE;
+            }
+        }
+
     }
 
     if(info.err_num > 0 || cinfo.err_num > 0) {

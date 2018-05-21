@@ -1,2 +1,0 @@
-println("HELLO WORLD");
-

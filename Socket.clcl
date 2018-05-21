@@ -44,6 +44,8 @@ class servent
     s_aliases: String[];
     s_port:int;
     s_proto:String;
+
+    def initialize() {}
 }
 
 class hostent
@@ -53,6 +55,8 @@ class hostent
     h_addrtype:int;
     h_length:int;
     h_addr_list: String[];
+
+    def initialize() {}
 }
 
 class System

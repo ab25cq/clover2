@@ -227,7 +227,7 @@ void set_method_index_to_class(sCLClass* klass)
     }
 }
 
-BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_, BOOL nosync, sGenericsParamInfo* ginfo, sCLMethod** appended_method)
+BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_, sGenericsParamInfo* ginfo, sCLMethod** appended_method)
 {
     if(klass->mNumMethods == klass->mSizeMethods) {
         int new_size = klass->mSizeMethods * 2;
@@ -240,7 +240,7 @@ BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* param
 
     *appended_method = klass->mMethods + num_methods;
 
-    klass->mMethods[num_methods].mFlags = (native_ ? METHOD_FLAGS_NATIVE : 0) | (static_ ? METHOD_FLAGS_CLASS_METHOD:0) | (nosync ? METHOD_FLAGS_NO_SYNC:0);
+    klass->mMethods[num_methods].mFlags = (native_ ? METHOD_FLAGS_NATIVE : 0) | (static_ ? METHOD_FLAGS_CLASS_METHOD:0);
     klass->mMethods[num_methods].mNameOffset = append_str_to_constant_pool(&klass->mConst, method_name, FALSE);
 
     BOOL method_arg_default_value = FALSE;
@@ -321,7 +321,7 @@ BOOL add_typedef_to_class(sCLClass* klass, char* class_name1, char* class_name2)
         return FALSE;
     }
 
-    sCLClass* klass2 = get_class_with_load_on_compile_time(class_name2);
+    sCLClass* klass2 = get_class_with_load_and_initialize(class_name2);
 
     if(klass2) {
         put_class_to_table(class_name1, klass2);
@@ -510,24 +510,6 @@ static BOOL search_for_class_file_on_compile_time(char* class_name, char* class_
     }
 
     return FALSE;
-}
-
-sCLClass* load_class_on_compile_time(char* class_name)
-{
-    sCLClass* klass = get_class(class_name);
-    if(klass != NULL) {
-        return klass;
-        //remove_class(class_name);
-    }
-
-    char class_file_name[PATH_MAX+1];
-    if(!search_for_class_file_on_compile_time(class_name, class_file_name, PATH_MAX)) {
-        return NULL;
-    }
-
-    sCLClass* result = load_class_from_class_file(class_name, class_file_name);
-
-    return result;
 }
 
 static BOOL check_method_params(sCLMethod* method, sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, sNodeType* left_generics_type, sNodeType* right_generics_type, sNodeType* left_method_generics, sNodeType* right_method_generics, sNodeType* method_generics_types, BOOL lazy_lambda_compile)
@@ -831,7 +813,7 @@ BOOL check_implemented_methods_for_interface(sCLClass* left_class, sCLClass* rig
                 }
             }
 
-            if(!found) {
+            if(j!=0 && !found) {
                 return FALSE;
             }
         }
@@ -1043,98 +1025,6 @@ BOOL write_all_modified_classes()
     }
 
     return TRUE;
-}
-
-static void load_fundamental_classes_on_compile_time()
-{
-    load_class_on_compile_time("PcreOVec");
-    load_class_on_compile_time("System");
-    load_class_on_compile_time("Global");
-
-    load_class_on_compile_time("Buffer");
-    load_class_on_compile_time("String");
-
-    load_class_on_compile_time("Exception");
-    load_class_on_compile_time("Range");
-
-    load_class_on_compile_time("Object");
-
-    load_class_on_compile_time("Byte");
-    load_class_on_compile_time("UByte");
-    load_class_on_compile_time("Short");
-    load_class_on_compile_time("UShort");
-    load_class_on_compile_time("Integer");
-    load_class_on_compile_time("UInteger");
-    load_class_on_compile_time("Long");
-    load_class_on_compile_time("ULong");
-
-    load_class_on_compile_time("Float");
-    load_class_on_compile_time("Double");
-
-    load_class_on_compile_time("Pointer");
-    load_class_on_compile_time("Char");
-    load_class_on_compile_time("Bool");
-
-    load_class_on_compile_time("Array");
-    load_class_on_compile_time("EqualableArray");
-    load_class_on_compile_time("SortableArray");
-
-    load_class_on_compile_time("IHashKey");
-    load_class_on_compile_time("IEqualable");
-    load_class_on_compile_time("ISortable");
-
-    load_class_on_compile_time("HashItem");
-    load_class_on_compile_time("Hash");
-
-    load_class_on_compile_time("ListItem");
-    load_class_on_compile_time("List");
-    load_class_on_compile_time("SortableList");
-    load_class_on_compile_time("EqualableList");
-
-    load_class_on_compile_time("Tuple1");
-    load_class_on_compile_time("Tuple2");
-    load_class_on_compile_time("Tuple3");
-    load_class_on_compile_time("Tuple4");
-    load_class_on_compile_time("Tuple5");
-    load_class_on_compile_time("Tuple6");
-    load_class_on_compile_time("Tuple7");
-    load_class_on_compile_time("Tuple8");
-    load_class_on_compile_time("Tuple9");
-    load_class_on_compile_time("Tuple10");
-
-    load_class_on_compile_time("File");
-    load_class_on_compile_time("Path");
-    load_class_on_compile_time("tm");
-    load_class_on_compile_time("stat");
-    load_class_on_compile_time("Directory");
-    load_class_on_compile_time("termios");
-    load_class_on_compile_time("Job");
-    load_class_on_compile_time("Command");
-    load_class_on_compile_time("Class");
-    load_class_on_compile_time("Method");
-    load_class_on_compile_time("MethodParam");
-    load_class_on_compile_time("Field");
-    load_class_on_compile_time("Thread");
-
-    load_class_on_compile_time("Clover");
-}
-
-void class_init_on_compile_time()
-{
-    load_fundamental_classes_on_compile_time();
-    set_boxing_and_unboxing_classes();
-    set_free_fun_to_classes();
-}
-
-sCLClass* get_class_with_load_on_compile_time(char* class_name)
-{
-    sCLClass* result = get_class(class_name);
-    
-    if(result == NULL) {
-        result = load_class_on_compile_time(class_name);
-    }
-
-    return result;
 }
 
 BOOL add_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type)

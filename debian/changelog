@@ -1,4 +1,8 @@
 
+clover2 (4.1.0-1) unstable; urgency=medium
+
+    * The clone method has been added to IEqualable, ISortable and IHashKey. clone is now automatically implemented by reflection at compile time. See Reflection.clcl for details.
+
 clover2 (4.0.9-1) unstable; urgency=medium
 
     * I changed the memory management format of the extension library object.

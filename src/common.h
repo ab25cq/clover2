@@ -217,7 +217,7 @@ typedef struct sCLParamStruct sCLParam;
 
 #define METHOD_FLAGS_NATIVE 0x01
 #define METHOD_FLAGS_CLASS_METHOD 0x02
-#define METHOD_FLAGS_NO_SYNC 0x04
+#define METHOD_FLAGS_MODIFIED 0x08
 
 #define EXCEPTION_MESSAGE_MAX 1024
 #define STACK_TRACE_MAX 32
@@ -284,6 +284,7 @@ typedef struct sCLMethodStruct sCLMethod;
 
 #define FIELD_FLAGS_PRIVATE 0x01
 #define FIELD_FLAGS_PROTECTED 0x02
+#define FIELD_FLAGS_MODIFIED 0x04
 
 struct sCLFieldStruct {
     clint64 mFlags;
@@ -347,6 +348,8 @@ struct sCLClassStruct {
     int mTypedefClassName1Offsets[TYPEDEF_MAX];
     int mTypedefClassName2Offsets[TYPEDEF_MAX];
     int mNumTypedef;
+
+    BOOL mInitialized;   // This requires on the run time
 };
 
 typedef struct sCLClassStruct sCLClass;
@@ -358,7 +361,6 @@ typedef struct sCLClassStruct sCLClass;
 #define METHOD_NAME_AND_PARAMS(klass, method) (CONS_str((&(klass)->mConst), (method)->mMethodNameAndParamsOffset))
 
 void class_init();
-void class_init_on_compile_time();
 void class_final();
 
 sCLClass* get_class_with_load(char* class_name);
@@ -1810,7 +1812,7 @@ BOOL call_all_class_initializer();
 #define PARSE_PHASE_MAX 8
 
 BOOL compile_class_source(char* fname, char* source);
-BOOL parse_method_name_and_params(char* method_name, int method_name_max, sParserParam* params, int* num_params, sNodeType** result_type, BOOL* native_, BOOL* static_, BOOL* nosync, sParserInfo* info);
+BOOL parse_method_name_and_params(char* method_name, int method_name_max, sParserParam* params, int* num_params, sNodeType** result_type, BOOL* native_, BOOL* static_, sParserInfo* info);
 
 /// cycle.c ///
 void set_dependency_compile();
@@ -1819,9 +1821,7 @@ BOOL dependency_compile(char* cwd, char* class_name, char* class_file_name, size
 void dependency_final();
 
 /// klass_compile_time.c ///
-sCLClass* get_class_with_load_on_compile_time(char* class_name);
-sCLClass* load_class_on_compile_time(char* class_name);
-BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_, BOOL nosync, sGenericsParamInfo* ginfo, sCLMethod** appended_method);
+BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_, sGenericsParamInfo* ginfo, sCLMethod** appended_method);
 BOOL add_typedef_to_class(sCLClass* klass, char* class_name1, char* class_name2);
 BOOL add_class_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type, int initialize_value);
 void add_code_to_method(sCLMethod* method, sByteCode* code, int var_num);
@@ -2298,6 +2298,8 @@ BOOL Clover_initialize_lang(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL Clover_initialize_reflection(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL Clover_appendField(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL Clover_appendMethod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL Clover_appendMethod2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL Clover_declareMethod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL Clover_appendClassField(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL Clover_getField(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL Clover_getMethod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
@@ -2311,6 +2313,7 @@ BOOL Clover_getNumMethods(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL Clover_isLoadedClass(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL Clover_isDefinedClass(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL Clover_appendClass(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL Clover_getAllClassName(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 /// jit.cpp ///
 BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sCLMethod* method, sVMInfo* info, CLVALUE** stack_ptr);

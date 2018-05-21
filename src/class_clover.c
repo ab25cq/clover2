@@ -66,12 +66,15 @@ BOOL Clover_initialize_reflection(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* i
     clover->mClassFields[5].mValue.mLongValue = FIELD_FLAGS_PRIVATE;
     clover->mClassFields[6].mValue.mLongValue = FIELD_FLAGS_PROTECTED;
 
-    clover->mClassFields[7].mValue.mLongValue = CLASS_FLAGS_PRIMITIVE;
-    clover->mClassFields[8].mValue.mLongValue = CLASS_FLAGS_INTERFACE;
-    clover->mClassFields[9].mValue.mLongValue = CLASS_FLAGS_MODIFIED;
-    clover->mClassFields[10].mValue.mLongValue = CLASS_FLAGS_ALLOCATED;
-    clover->mClassFields[11].mValue.mLongValue = CLASS_FLAGS_DYNAMIC_CLASS;
-    clover->mClassFields[12].mValue.mLongValue = CLASS_FLAGS_NO_FREE_OBJECT;
+    clover->mClassFields[7].mValue.mLongValue = METHOD_FLAGS_NATIVE;
+    clover->mClassFields[8].mValue.mLongValue = METHOD_FLAGS_CLASS_METHOD;
+
+    clover->mClassFields[9].mValue.mLongValue = CLASS_FLAGS_PRIMITIVE;
+    clover->mClassFields[10].mValue.mLongValue = CLASS_FLAGS_INTERFACE;
+    clover->mClassFields[11].mValue.mLongValue = CLASS_FLAGS_MODIFIED;
+    clover->mClassFields[12].mValue.mLongValue = CLASS_FLAGS_ALLOCATED;
+    clover->mClassFields[13].mValue.mLongValue = CLASS_FLAGS_DYNAMIC_CLASS;
+    clover->mClassFields[14].mValue.mLongValue = CLASS_FLAGS_NO_FREE_OBJECT;
 
     return TRUE;
 }
@@ -645,6 +648,51 @@ BOOL Clover_isDefinedClass(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     (*stack_ptr)++;
 
     MFREE(class_name_value);
+
+    return TRUE;
+}
+
+BOOL Clover_getAllClassName(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    int num = 0;
+
+    sClassTable* p = gHeadClassTable;
+
+    while(p) {
+        sCLClass* klass = p->mItem;
+        num++;
+        p = p->mNextClass;
+    }
+
+    sCLClass* string_class = get_class("String");
+
+    CLObject object = create_array_object(string_class, num);
+
+    CLVALUE cl_value;
+    cl_value.mObjectValue = object;
+    push_value_to_global_stack(cl_value);
+
+    num = 0;
+
+    p = gHeadClassTable;
+
+    while(p) {
+        sCLClass* klass = p->mItem;
+
+        CLObject string_object = create_string_object(CLASS_NAME(klass));
+
+        sCLObject* object_data = CLOBJECT(object);
+        object_data->mFields[num].mObjectValue = string_object;
+
+        num++;
+
+        p = p->mNextClass;
+    }
+
+    pop_global_stack();
+
+    (*stack_ptr)->mObjectValue = object;
+    (*stack_ptr)++;
 
     return TRUE;
 }

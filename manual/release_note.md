@@ -1,5 +1,9 @@
 English page is here [>> English page](release_note-en)
 
+version 4.1.0
+
+    IEqualableとISortableとIHashKeyにcloneメソッドが追加されました。cloneはコンパイル時のリフレクションで自動的に実装されるようになりました。詳しくはReflection.clclを見てください。
+
 version 4.0.9
 
     拡張ライブラリのオブジェクトのメモリの管理形式を変えました。

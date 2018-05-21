@@ -1,4 +1,16 @@
 
+version 4.1.0
+
+    IEqualableとISortableとIHashKeyにcloneメソッドが追加されました。cloneはコンパイル時のリフレクションで自動的に実装されるようになりました。詳しくはReflection.clclを見てください。
+
+version 4.1.0
+
+    The clone method has been added to IEqualable, ISortable and IHashKey. clone is now automatically implemented by reflection at compile time. See Reflection.clcl for details.
+
+version 4.0.9
+
+    I changed the memory management format of the extension library object.
+
 version 4.0.9
 
     拡張ライブラリのオブジェクトのメモリの管理形式を変えました。

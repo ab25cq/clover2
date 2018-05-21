@@ -1,16 +1,18 @@
-include "String.clcl"
+include "Reflection.clcl"
 
 interface IEqualable
 {
     def equals(right:Self): bool;
     def toString(): String;
+    def clone(): Self;
 }
 
 interface ISortable
 {
+    def compare(item:Self): int;
     def equals(right:Self): bool;
     def toString(): String;
-    def compare(item:Self): int;
+    def clone(): Self;
 }
 
 interface IHashKey
@@ -18,6 +20,7 @@ interface IHashKey
     def getHashKey(): uint;
     def equals(right:Self): bool;
     def toString(): String;
+    def clone(): Self;
 }
 
 module MArray
@@ -119,6 +122,18 @@ module MEqualableArray
 
             return true;
         }
+    }
+
+    def clone(): SELF {
+        result := SELF();
+
+        result.items = Anonymous[self.items.length].toAnonymous();
+
+        for(i:=0; i<items.length(); i++) {
+            result.items[i] = self.items[i].clone();
+        }
+
+        return result;
     }
 }
 
@@ -1074,6 +1089,20 @@ class SortableList<T:ISortable>
     include MList;
     include MEqualableList;
 
+    def clone():SortableList<T> {
+        result := SortableList<T>();
+
+        it := self.head;
+
+        while(!it.identifyWith(null)) {
+            item := it.item.clone();
+            result.add(item);
+            it = it.next;
+        }
+
+        return result;
+    }
+
     def <R:ISortable> map(trans:lambda(T):R): SELF<R> {
         result:SELF<R> = SELF<R>();
 
@@ -1249,6 +1278,15 @@ class HashItem <T:IHashKey, T2:IEqualable>
         self.key = key;
         self.item = item;
     }
+
+    def clone():HashItem<T,T2> {
+        result := HashItem<T,T2>();
+
+        result.key = self.key.clone();
+        result.item = self.item.clone();
+
+        return result;
+    }
 }
 
 class Hash <T:IHashKey, T2:IEqualable>
@@ -1279,6 +1317,22 @@ class Hash <T:IHashKey, T2:IEqualable>
         for(i:int =0; i<num_elements; i++) {
             self.put(keys[i], items[i]);
         }
+    }
+    
+    def clone(): Hash<T,T2> {
+        result := Hash<T,T2>();
+
+        result.table = HashItem<T,T2>[self.tableSize];
+        result.tableSize = self.tableSize;
+
+        for(i:=0; i<self.table.length; i++) {
+            if(!self.table[i].identifyWith(null)) {
+                result.table[i] = self.table[i].clone();
+            }
+        }
+        result.itemNumber = self.itemNumber;
+
+        return result;
     }
 
     def equals(right:Hash<T,T2>):bool {
@@ -1443,8 +1497,18 @@ class Tuple1 <T:IEqualable>
 {
     value1: T;
 
+    def initialize() {}
+
     def initialize(value1:T) {
         self.value1 = value1;
+    }
+
+    def clone(): Tuple1<T> {
+        result := Tuple1<T>();
+
+        result.value1 = self.value1.clone();
+
+        return result;
     }
 
     def equals(right:Tuple1<T>):bool {
@@ -1470,9 +1534,20 @@ class Tuple2 <T:IEqualable, T2:IEqualable>
     value1: T;
     value2: T2;
 
+    def initialize() {}
+
     def initialize(value1:T, value2:T2) {
         self.value1 = value1;
         self.value2 = value2;
+    }
+
+    def clone(): Tuple2<T, T2> {
+        result := Tuple2<T, T2>();
+
+        result.value1 = self.value1.clone();
+        result.value2 = self.value2.clone();
+
+        return result;
     }
 
     def equals(right:Tuple2<T,T2>):bool {
@@ -1499,10 +1574,22 @@ class Tuple3 <T:IEqualable, T2:IEqualable, T3:IEqualable>
     value2: T2;
     value3: T3;
 
+    def initialize() {}
+
     def initialize(value1:T, value2:T2, value3:T3) {
         self.value1 = value1;
         self.value2 = value2;
         self.value3 = value3;
+    }
+
+    def clone(): Tuple3<T,T2,T3> {
+        result := Tuple3<T,T2,T3>();
+
+        result.value1 = self.value1.clone();
+        result.value2 = self.value2.clone();
+        result.value3 = self.value3.clone();
+
+        return result;
     }
 
     def equals(right:Tuple3<T,T2,T3>):bool {
@@ -1530,6 +1617,8 @@ class Tuple4 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable>
     value3: T3;
     value4: T4;
 
+    def initialize() {}
+
     def initialize(value1:T, value2:T2, value3:T3, value4:T4) {
         self.value1 = value1;
         self.value2 = value2;
@@ -1544,6 +1633,17 @@ class Tuple4 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable>
         else {
             return self.value1.equals(right.value1) && self.value2.equals(right.value2) && self.value3.equals(right.value3) && self.value4.equals(right.value4);
         }
+    }
+
+    def clone(): Tuple4<T,T2,T3,T4> {
+        result := Tuple4<T,T2,T3,T4>();
+
+        result.value1 = self.value1.clone();
+        result.value2 = self.value2.clone();
+        result.value3 = self.value3.clone();
+        result.value4 = self.value4.clone();
+
+        return result;
     }
 
     def equals(right:WildCard): bool {
@@ -1562,12 +1662,26 @@ class Tuple5 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqu
     value4: T4;
     value5: T5;
 
+    def initialize() {}
+
     def initialize(value1:T, value2:T2, value3:T3, value4:T4, value5:T5) {
         self.value1 = value1;
         self.value2 = value2;
         self.value3 = value3;
         self.value4 = value4;
         self.value5 = value5;
+    }
+
+    def clone(): Tuple5<T,T2,T3,T4,T5> {
+        result := Tuple5<T,T2,T3,T4,T5>();
+
+        result.value1 = self.value1.clone();
+        result.value2 = self.value2.clone();
+        result.value3 = self.value3.clone();
+        result.value4 = self.value4.clone();
+        result.value5 = self.value5.clone();
+
+        return result;
     }
 
     def equals(right:Tuple5<T,T2,T3,T4,T5>):bool {
@@ -1595,6 +1709,8 @@ class Tuple6 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqu
     value5: T5;
     value6: T6;
 
+    def initialize() {}
+
     def initialize(value1:T, value2:T2, value3:T3, value4:T4, value5:T5, value6:T6) {
         self.value1 = value1;
         self.value2 = value2;
@@ -1602,6 +1718,19 @@ class Tuple6 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqu
         self.value4 = value4;
         self.value5 = value5;
         self.value6 = value6;
+    }
+
+    def clone(): Tuple6<T,T2,T3,T4,T5,T6> {
+        result := Tuple6<T,T2,T3,T4,T5,T6>();
+
+        result.value1 = self.value1.clone();
+        result.value2 = self.value2.clone();
+        result.value3 = self.value3.clone();
+        result.value4 = self.value4.clone();
+        result.value5 = self.value5.clone();
+        result.value6 = self.value6.clone();
+
+        return result;
     }
 
     def equals(right:Tuple6<T,T2,T3,T4,T5,T6>):bool {
@@ -1631,6 +1760,8 @@ class Tuple7 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqu
     value6: T6;
     value7: T7;
 
+    def initialize() {}
+
     def initialize(value1:T, value2:T2, value3:T3, value4:T4, value5:T5, value6:T6, value7:T7) {
         self.value1 = value1;
         self.value2 = value2;
@@ -1639,6 +1770,20 @@ class Tuple7 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqu
         self.value5 = value5;
         self.value6 = value6;
         self.value7 = value7;
+    }
+
+    def clone(): Tuple7<T,T2,T3,T4,T5,T6,T7> {
+        result := Tuple7<T,T2,T3,T4,T5,T6,T7>();
+
+        result.value1 = self.value1.clone();
+        result.value2 = self.value2.clone();
+        result.value3 = self.value3.clone();
+        result.value4 = self.value4.clone();
+        result.value5 = self.value5.clone();
+        result.value6 = self.value6.clone();
+        result.value7 = self.value7.clone();
+
+        return result;
     }
 
     def equals(right:Tuple7<T,T2,T3,T4,T5,T6,T7>):bool {
@@ -1669,6 +1814,8 @@ class Tuple8 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqu
     value7: T7;
     value8: T8;
 
+    def initialize() {}
+
     def initialize(value1:T, value2:T2, value3:T3, value4:T4, value5:T5, value6:T6, value7:T7, value8:T8) {
         self.value1 = value1;
         self.value2 = value2;
@@ -1678,6 +1825,21 @@ class Tuple8 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqu
         self.value6 = value6;
         self.value7 = value7;
         self.value8 = value8;
+    }
+
+    def clone(): Tuple8<T,T2,T3,T4,T5,T6,T7,T8> {
+        result := Tuple8<T,T2,T3,T4,T5,T6,T7,T8>();
+
+        result.value1 = self.value1.clone();
+        result.value2 = self.value2.clone();
+        result.value3 = self.value3.clone();
+        result.value4 = self.value4.clone();
+        result.value5 = self.value5.clone();
+        result.value6 = self.value6.clone();
+        result.value7 = self.value7.clone();
+        result.value8 = self.value8.clone();
+
+        return result;
     }
 
     def equals(right:Tuple8<T,T2,T3,T4,T5,T6,T7,T8>):bool {
@@ -1708,6 +1870,8 @@ class Tuple9 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqu
     value8: T8;
     value9: T9;
 
+    def initialize() {}
+
     def initialize(value1:T, value2:T2, value3:T3, value4:T4, value5:T5, value6:T6, value7:T7, value8:T8, value9:T9) {
         self.value1 = value1;
         self.value2 = value2;
@@ -1718,6 +1882,22 @@ class Tuple9 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqu
         self.value7 = value7;
         self.value8 = value8;
         self.value9 = value9;
+    }
+
+    def clone(): Tuple9<T,T2,T3,T4,T5,T6,T7,T8,T9> {
+        result := Tuple9<T,T2,T3,T4,T5,T6,T7,T8,T9>();
+
+        result.value1 = self.value1.clone();
+        result.value2 = self.value2.clone();
+        result.value3 = self.value3.clone();
+        result.value4 = self.value4.clone();
+        result.value5 = self.value5.clone();
+        result.value6 = self.value6.clone();
+        result.value7 = self.value7.clone();
+        result.value8 = self.value8.clone();
+        result.value9 = self.value9.clone();
+
+        return result;
     }
 
     def equals(right:Tuple9<T,T2,T3,T4,T5,T6,T7,T8,T9>):bool {
@@ -1749,6 +1929,8 @@ class Tuple10 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEq
     value9: T9;
     value10: T10;
 
+    def initialize() {}
+
     def initialize(value1:T, value2:T2, value3:T3, value4:T4, value5:T5, value6:T6, value7:T7, value8:T8, value9:T9, value10:T10) {
         self.value1 = value1;
         self.value2 = value2;
@@ -1760,6 +1942,23 @@ class Tuple10 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEq
         self.value8 = value8;
         self.value9 = value9;
         self.value10 = value10;
+    }
+
+    def clone(): Tuple10<T,T2,T3,T4,T5,T6,T7,T8,T9,T10> {
+        result := Tuple10<T,T2,T3,T4,T5,T6,T7,T8,T9,T10>();
+
+        result.value1 = self.value1.clone();
+        result.value2 = self.value2.clone();
+        result.value3 = self.value3.clone();
+        result.value4 = self.value4.clone();
+        result.value5 = self.value5.clone();
+        result.value6 = self.value6.clone();
+        result.value7 = self.value7.clone();
+        result.value8 = self.value8.clone();
+        result.value9 = self.value9.clone();
+        result.value10 = self.value10.clone();
+
+        return result;
     }
 
     def equals(right:Tuple10<T,T2,T3,T4,T5,T6,T7,T8,T9,T10>):bool {

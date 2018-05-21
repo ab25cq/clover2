@@ -276,6 +276,8 @@ class stat
     st_mtime:time_t;
     st_ctime:time_t;
 
+    def initialize() {}
+
     def initialize(path:String, lstat:bool) throws Exception {
         if(lstat) {
             System.lstat(path, self);
@@ -402,6 +404,21 @@ class File
         self.close();
     }
 
+    def clone(): File {
+        result := File();
+
+        result.fd = self.fd;
+        if(self.fileName.identifyWith(null)) {
+            result.fileName = null;
+        }
+        else {
+            result.fileName = self.fileName.clone();
+        }
+        result.stream = self.stream;
+
+        return result;
+    }
+
     def close() {
         if(self.fd != -1) {
             System.close(self.fd);
@@ -522,8 +539,18 @@ class Path
 {
     path: String;
 
+    def initialize() {}
+
     def initialize(path:String) {
         self.path = path;
+    }
+
+    def clone():Path {
+        result := Path();
+
+        result.path = self.path.clone();
+
+        return result;
     }
 
     def to_stat():stat {
@@ -666,6 +693,8 @@ class Directory
     path:String;
     dir:DIR;
 
+    def initialize() {}
+
     def initialize(path:String) throws Exception {
         self.path = path;
         self.dir = opendir(path);
@@ -675,6 +704,15 @@ class Directory
         if(self.dir != 0.to_pointer) {
             System.closedir(self.dir);
         }
+    }
+
+    def clone(): Directory {
+        result := Directory();
+
+        result.path = self.path.clone();
+        result.dir = self.dir;
+
+        return result;
     }
     
     def readdir(): String? throws Exception {
@@ -805,7 +843,6 @@ class Clover
         return ts2.minus(ts1);
     }
 }
-
 
 class String
 {

@@ -243,6 +243,7 @@ static sNativeMethod gNativeMethods[] = {
     { "Clover.appendField(String,String,String)", "Clover_appendField", Clover_appendField },
     { "Clover.appendClassField(String,String,String)", "Clover_appendClassField", Clover_appendClassField },
     { "Clover.appendMethod(String,String)", "Clover_appendMethod", Clover_appendMethod },
+    { "Clover.appendMethod(String,int,String)", "Clover_appendMethod2", Clover_appendMethod2 },
     { "Clover.initialize_reflection()", "Clover_initialize_reflection", Clover_initialize_reflection },
     { "Clover.getField(String,int)", "Clover_getField", Clover_getField },
     { "Clover.getClassField(String,int)", "Clover_getClassField", Clover_getClassField },
@@ -321,6 +322,8 @@ static sNativeMethod gNativeMethods[] = {
     { "System.FD_ISSET(int,fd_set)", "System_FD_ISSET", System_FD_ISSET },
     { "System.select(int,fd_set?,fd_set?,fd_set?,timeval)", "System_select", System_select },
     { "System.ioctl(int,int,pointer)", "System_ioctl", System_ioctl },
+    { "Clover.getAllClassName()", "Clover_getAllClassName", Clover_getAllClassName },
+    { "Clover.declareMethod(String,String)", "Clover_declareMethod", Clover_declareMethod },
 
     { "", "", 0 }  // sentinel
 };

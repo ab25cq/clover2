@@ -129,10 +129,10 @@ static sNodeType* parse_class_name(char** p, char** p2, char* buf, sParserInfo* 
 
             **p2 = 0;
 
-            node_type->mClass = get_class_with_load_on_compile_time(buf);
+            node_type->mClass = get_class_with_load_and_initialize(buf);
 
             if(node_type->mClass == NULL) {
-                node_type->mClass = load_class_on_compile_time(buf);
+                return NULL;
             }
 
             while(1) {
@@ -177,10 +177,10 @@ static sNodeType* parse_class_name(char** p, char** p2, char* buf, sParserInfo* 
         else if(**p == '>') {
             **p2 = 0;
 
-            node_type->mClass = get_class_with_load_on_compile_time(buf);
+            node_type->mClass = get_class_with_load_and_initialize(buf);
 
             if(node_type->mClass == NULL) {
-                node_type->mClass = load_class_on_compile_time(buf);
+                return NULL;
             }
 
             return node_type;
@@ -196,10 +196,10 @@ static sNodeType* parse_class_name(char** p, char** p2, char* buf, sParserInfo* 
     if(*p2 - buf > 0) {
         **p2 = 0;
 
-        node_type->mClass = get_class_with_load_on_compile_time(buf);
+        node_type->mClass = get_class_with_load_and_initialize(buf);
 
         if(node_type->mClass == NULL) {
-            node_type->mClass = load_class_on_compile_time(buf);
+            return NULL;
         }
     }
 
@@ -238,7 +238,7 @@ sNodeType* create_node_type_from_cl_type(sCLType* cl_type, sCLClass* klass)
 {
     sNodeType* node_type = alloc_node_type();
 
-    node_type->mClass = get_class_with_load_on_compile_time(CONS_str(&klass->mConst, cl_type->mClassNameOffset));
+    node_type->mClass = get_class_with_load_and_initialize(CONS_str(&klass->mConst, cl_type->mClassNameOffset));
 
     MASSERT(node_type->mClass != NULL);
 
@@ -321,7 +321,15 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_
     sCLClass* left_class = left3->mClass;
     sCLClass* right_class = right3->mClass;
 
-    if(left_class->mGenericsParamClassNum != -1 || right_class->mGenericsParamClassNum != -1) {
+    if(type_identify_with_class_name(right3, "Anonymous") && !(left_class->mFlags & CLASS_FLAGS_PRIMITIVE)) 
+    {
+        return TRUE;
+    }
+    else if(type_identify_with_class_name(left3, "Anonymous") && !(right_class->mFlags & CLASS_FLAGS_PRIMITIVE)) 
+    {
+        return TRUE;
+    }
+    else if(left_class->mGenericsParamClassNum != -1 || right_class->mGenericsParamClassNum != -1) {
         return FALSE;
     }
     else if(type_identify_with_class_name(right3, "Null") && (!(left_class->mFlags & CLASS_FLAGS_PRIMITIVE) || left3->mArray) && left->mNullable) 
@@ -332,16 +340,8 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_
     {
         return TRUE;
     }
-    else if(type_identify_with_class_name(right3, "Anonymous") && !(left_class->mFlags & CLASS_FLAGS_PRIMITIVE)) 
-    {
-        return TRUE;
-    }
     else if(type_identify_with_class_name(right3, "WildCard") 
         && !(left_class->mFlags & CLASS_FLAGS_PRIMITIVE)) 
-    {
-        return TRUE;
-    }
-    else if(type_identify_with_class_name(left3, "Anonymous") && !(right_class->mFlags & CLASS_FLAGS_PRIMITIVE)) 
     {
         return TRUE;
     }
@@ -454,7 +454,7 @@ BOOL type_identify_with_class_name(sNodeType* left, char* right_class_name)
 
 BOOL class_identify_with_class_name(sCLClass* klass, char* class_name)
 {
-    sCLClass* klass2 = get_class_with_load_on_compile_time(class_name);
+    sCLClass* klass2 = get_class_with_load_and_initialize(class_name);
 
     MASSERT(klass2 != NULL);
 
@@ -579,7 +579,7 @@ sNodeType* create_generics_types_from_generics_params(sCLClass* klass)
     int i;
     for(i=0; i<klass->mNumGenerics; i++) {
         int offset = klass->mGenericsParamTypeOffsets[i];
-        sCLClass* interface = get_class_with_load_on_compile_time(CONS_str(&klass->mConst, offset));
+        sCLClass* interface = get_class_with_load_and_initialize(CONS_str(&klass->mConst, offset));
 
         MASSERT(interface != NULL);
 

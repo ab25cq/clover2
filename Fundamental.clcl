@@ -5,6 +5,8 @@ class System
     typedef ssize_t ulong;
     typedef time_t ulong;
 
+    def initialize() {}
+
     def assert(exp:bool): native static throws Exception;
     def exit(num:int): native static;
     def sleep(time:int): native static uint;
@@ -38,6 +40,7 @@ class System
 
 class Global
 {
+    def initialize() {}
 }
 
 class String
@@ -214,8 +217,13 @@ class Exception
 {
     message:String;
 
+    def initialize() { }
+
     def initialize(message:String) {
         self.message = message;
+    }
+    def clone(): Exception {
+        return Exception(message.clone());
     }
 }
 
@@ -231,6 +239,8 @@ class Clover
 
     CLOVER2_OBJECT_HEADER_SIZE:static ulong;
     CLOVER2_OBJECT_FIELD_SIZE:static ulong;
+
+    def initialize() {}
 
     def initialize_lang(): static native;
 
@@ -311,6 +321,14 @@ module MWrapperClassBase
         else {
             return 1;
         }
+    }
+
+    def clone(): SELF {
+        result := SELF();
+
+        result.value = self.value;
+
+        return result;
     }
 }
 
@@ -849,6 +867,14 @@ class Bool : unboxing bool
 
     def initialize(value:int) {
         self.value = value.to_bool;
+    }
+
+    def clone():Bool {
+        result := Bool();
+
+        result.value = self.value;
+
+        return result;
     }
 
     def getValue(): bool {

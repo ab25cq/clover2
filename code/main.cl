@@ -1,6 +1,5 @@
 println("ClosureTest");
 ClosureTest.main();
-
 println("ListTest");
 ListTest.main();
 println("ListTest3");
@@ -180,3 +179,5 @@ println("CGITest");
 CGITest.main();
 println("SignalTest");
 SignalTest.main();
+println("CloneTest");
+CloneTest.main();

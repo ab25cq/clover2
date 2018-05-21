@@ -1,4 +1,8 @@
 
+version 4.1.0
+
+    The clone method has been added to IEqualable, ISortable and IHashKey. clone is now automatically implemented by reflection at compile time. See Reflection.clcl for details.
+
 version 4.0.9
 
     I changed the memory management format of the extension library object.

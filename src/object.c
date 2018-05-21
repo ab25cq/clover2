@@ -79,6 +79,10 @@ static BOOL check_same_interface_of_two_methods(sCLMethod* method1, sCLClass* kl
     char* result_type1 = get_class_name_from_cl_type(method1->mResultType, klass1);
     char* result_type2 = get_class_name_from_cl_type(method2->mResultType, klass2);
 
+    if(strcmp(result_type1, "Self") == 0) {
+        result_type1 = CLASS_NAME(klass2);
+    }
+
     if(strcmp(result_type1, result_type2) != 0) {
         return FALSE;
     }

@@ -5,9 +5,20 @@ class Range<T:ISortable>
     head:T;
     tail:T;
 
+    def initialize() {}
+
     def initialize(head:T, tail:T) {
         self.head = head;
         self.tail = tail
+    }
+
+    def clone(): Range<T> {
+        result := Range<T>();
+
+        result.head = self.head.clone();
+        result.tail = self.tail.clone();
+
+        return result;
     }
 
     def equals(right:Range<T>):bool {

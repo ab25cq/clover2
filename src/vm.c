@@ -652,35 +652,39 @@ BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_pa
     return TRUE;
 }
 
-static BOOL initialize_class(sCLClass* klass)
+static BOOL initialize_class(sCLClass* klass, BOOL compile_time)
 {
-    if(klass->mClassInitializeMethodIndex != -1) {
-        sCLMethod initialize_method = klass->mMethods[klass->mClassInitializeMethodIndex]; // struct copy for realloc
+    if(!klass->mInitialized) {
+        if(klass->mClassInitializeMethodIndex != -1) {
+            sCLMethod initialize_method = klass->mMethods[klass->mClassInitializeMethodIndex]; // struct copy for realloc
 
-        const int stack_size = 512;
-        CLVALUE* stack = MCALLOC(1, sizeof(CLVALUE)*stack_size);
-        CLVALUE* stack_ptr = stack;
+            const int stack_size = 512;
+            CLVALUE* stack = MCALLOC(1, sizeof(CLVALUE)*stack_size);
+            CLVALUE* stack_ptr = stack;
 
-        sVMInfo info;
-        memset(&info, 0, sizeof(info));
+            sVMInfo info;
+            memset(&info, 0, sizeof(info));
 
-        if(!invoke_method(klass, &initialize_method, stack, 0, &stack_ptr, &info)) {
-            show_exception_message(info.exception_message);
+            if(!invoke_method(klass, &initialize_method, stack, 0, &stack_ptr, &info)) {
+                show_exception_message(info.exception_message);
+                MFREE(stack);
+                return FALSE;
+            }
+
             MFREE(stack);
-            return FALSE;
         }
 
-        MFREE(stack);
-    }
+        /// initialize enum ///
+        int i;
+        for(i=0; i<klass->mNumClassFields; i++) {
+            sCLField* field = klass->mClassFields + i;
 
-    /// initialize enum ///
-    int i;
-    for(i=0; i<klass->mNumClassFields; i++) {
-        sCLField* field = klass->mClassFields + i;
-
-        if(field->mInitializeValue != -1) {
-            field->mValue.mIntValue = field->mInitializeValue;
+            if(field->mInitializeValue != -1) {
+                field->mValue.mIntValue = field->mInitializeValue;
+            }
         }
+
+        klass->mInitialized = TRUE;
     }
 
     return TRUE;
@@ -691,7 +695,7 @@ static BOOL load_class_with_initialize(char* class_name)
     sCLClass* klass = load_class(class_name);
 
     if(klass) {
-        if(!initialize_class(klass)) {
+        if(!initialize_class(klass, FALSE)) {
             return FALSE;
         }
     }
@@ -699,7 +703,7 @@ static BOOL load_class_with_initialize(char* class_name)
     return TRUE;
 }
 
-static BOOL load_fundamental_classes_on_runtime()
+BOOL load_fundamental_classes_on_runtime()
 {
     if(!load_class_with_initialize("PcreOVec")) { return FALSE; }
     if(!load_class_with_initialize("System")) { return FALSE; }
@@ -787,19 +791,14 @@ BOOL call_all_class_initializer()
 {
     vm_mutex_off();
     vm_mutex_on();
+
+    load_fundamental_classes_on_runtime();
+
     sClassTable* p = gHeadClassTable;
 
     while(p) {
-        if(p->mInitialized == FALSE) {
-            sClassTable* p2 = gHeadClassTable;
-            while(p2) {
-                if(p->mItem == p2->mItem) {   // typedef class
-                    p2->mInitialized = TRUE;
-                }
-                p2 = p2->mNextClass;
-            }
-
-            if(!initialize_class(p->mItem)) {
+        if(p->mItem->mInitialized == FALSE) {
+            if(!initialize_class(p->mItem, TRUE)) {
                 vm_mutex_off();
                 return TRUE;
             }
@@ -929,10 +928,10 @@ sCLClass* get_class_with_load_and_initialize(char* class_name)
         result = load_class(class_name);
 
         if(result == NULL) {
-            fprintf(stderr, "Clover2 can't load %s\n", class_name);
+            //fprintf(stderr, "Clover2 can't load %s\n", class_name);
             return NULL;
         }
-        if(!initialize_class(result)) {
+        if(!initialize_class(result, FALSE)) {
             return NULL;
         }
     }
@@ -4259,7 +4258,6 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     CLObject left = (stack_ptr-1)->mObjectValue;
 
                     if(left == 0) {
-                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(2)");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;

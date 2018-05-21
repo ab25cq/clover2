@@ -263,6 +263,18 @@ class Job
         self.terminfo = terminfo;
     }
 
+    def initialize() {}
+
+    def clone(): Job {
+        result := Job();
+
+        result.title = self.title.clone();
+        result.pgrp = self.pgrp;
+        result.terminfo = self.terminfo;
+
+        return result;
+    }
+
     def toString():String {
         return self.title;
     }
@@ -347,6 +359,13 @@ dynamic_class Command
     def initialize(data:String, result_code:int) {
         self.data = data;
         self.resultCode = result_code;
+    }
+
+    def clone(): Command {
+        result := Command();
+        result.data = self.data.clone();
+        result.resultCode = self.resultCode;
+        return result;
     }
 
     def setValue(value:Command) {

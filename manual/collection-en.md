@@ -64,6 +64,7 @@ Otherwise it can not be an element of the EqualableArray class.
     {
         def equlas(right: Self): bool;
         def toString(): String;
+        def clone(): Self;
     }
 ```
 
@@ -83,6 +84,9 @@ In other words, in order to become an element of EqualableArray, we define the c
         def toString(): String {
             return self.value.toString
         }
+        def clone(): EqualableArraryElementClass {
+            return EqualableArraryElementClass(self.value);
+        }
     }
 ```
 
@@ -107,6 +111,7 @@ In order to become an element of SortableArray
         def equals (right: Self): bool;
         def toString (): String;
         def compare (item: Self): int;
+        def clone(): Self;
     }
 ```
 
@@ -322,6 +327,7 @@ The interface of the first argument class of Hash Generics needs to implement th
         def getHashKey (): uint;
         def equals (right: Self): bool;
         def toString (): String;
+        def clone(): Self;
     }
 ```
 Because equals and toString came out even in ISortable, I think that explanation is unnecessary so I would like to explain getHashKey. getHashKey returns the numeric value unique to the key object. It is called a hash value. For example, if it is a String class, it is defined as follows.
@@ -389,6 +395,7 @@ You can compare equals with the same value. The interface that I have to impleme
     {
         def equlas (right: Self): bool;
         def toString (): String;
+        def clone(): Self;
     }
 ```
 That is the end of the collection.
