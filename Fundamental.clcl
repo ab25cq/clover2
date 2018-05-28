@@ -100,7 +100,7 @@ class String
         self.size = buffer.length;
     }
 
-    def chars(index:int):char {
+    def chars(index:int):char throws Exception {
         if(index < 0) {
             index += self.len;
         }
@@ -112,7 +112,12 @@ class String
             index = self.len -1;
         }
 
-        return self.buffer[index];
+        if(index >= 0 && index < self.len) {
+            return self.buffer[index];
+        }
+        else {
+            throw Exception("Invalid range on String.chars");
+        }
     }
 
     def length(): int {
@@ -217,13 +222,20 @@ class Exception
 {
     message:String;
 
-    def initialize() { }
+    def initialize() { 
+        self.message = "";
+    }
 
     def initialize(message:String) {
         self.message = message;
     }
     def clone(): Exception {
-        return Exception(message.clone());
+        if(message.identifyWith(null)) {
+            return Exception("");
+        }
+        else {
+            return Exception(message.clone());
+        }
     }
 }
 
@@ -960,5 +972,9 @@ class Bool : unboxing bool
     
     def or(right:Bool) : Bool {
         return self || right;
+    }
+
+    def negative(): bool {
+        return !self.value;
     }
 }

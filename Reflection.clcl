@@ -25,9 +25,13 @@ class Clover
     def getNumMethods(class_name:String): static native int throws Exception;
     def isLoadedClass(class_name:String): static native bool throws Exception;
     def isDefinedClass(class_name:String): static native bool throws Exception;
+    def createObject(class_name:String): static native Anonymous;
+    def createArray(class_name:String, size:int): static native Anonymous;
+
+    def isTypedefedClass(class_name:String, class_name2:String): static native bool;
 
     def isPrimitiveClass(name:String):static bool {
-        return name.equals("int") || name.equals("uint") || name.equals("byte") || name.equals("ubyte") || name.equals("short") || name.equals("ushort") || name.equals("long") || name.equals("ulong") || name.equals("float") || name.equals("double") || name.equals("pointer") || name.equals("char") ||  name.equals("bool") || name.match(/lambda$|lambda\(\)|lambda\(.*/) || name.equals("regex");
+        return name.equals("int") || isTypedefedClass(name, "int") || name.equals("uint") || isTypedefedClass(name, "uint") || name.equals("byte") || isTypedefedClass(name, "byte") || name.equals("ubyte") || isTypedefedClass(name, "ubyte") || name.equals("short") || isTypedefedClass(name, "short") || name.equals("ushort") || isTypedefedClass(name, "ushort") || name.equals("long") || isTypedefedClass(name, "long") || name.equals("ulong") || isTypedefedClass(name, "ulong") || name.equals("float") || isTypedefedClass(name, "float") || name.equals("double") || isTypedefedClass(name, "double") || name.equals("pointer") || isTypedefedClass(name, "pointer") || name.equals("char") || isTypedefedClass(name, "char") ||  name.equals("bool") || isTypedefedClass(name, "bool") || name.match(/lambda$|lambda\(\)|lambda\(.*/) || isTypedefedClass(name, "lambda") || name.equals("regex")|| isTypedefedClass(name, "regex") ;
     }
 
     def initialize_reflection(): static native;
@@ -115,6 +119,7 @@ class Clover
                             };
                         """
                     );
+
                     cloneMethodDefinedClasses.add(it);
                     cloneMethodDefinedClassMethodIndexes.add(method_index);
                 }
@@ -126,73 +131,141 @@ class Clover
         n := 0;
         initializeMethodDefinedClasses.each {
             method_index := initializeMethodDefinedClassMethodIndexes.items(n);
-            it.appendMethod(method_index, "def initialize() {}");
+            it.appendMethod(method_index, 
+                """
+                def initialize() {
+                    \{
+                        output := "";
+                        for(i:=0; i<it.numFields; i++) {
+                            field := it.getField(i);
+
+                            class_name:String? = null;
+                            if(field.resultType.match(/^GenericsParametorClass\d+$/)) {
+                                generics_param_num := field.resultType.scan(/^GenericsParametorClass(\d+)/).items(0).to_int();
+                                
+                                class_name = it.genericsParamTypes[generics_param_num];
+                            }
+                            else {
+                                class_name = field.resultType;
+                            }
+
+                            if(class_name.length() > 1 && class_name.chars(-1) == '?') {
+                                class_name = class_name.subString(0,-2);
+                            }
+
+                            is_array := false;
+                            if(class_name.length() > 2 && class_name.chars(-2) == '[' && class_name.chars(-1) == ']') 
+                            {
+                                class_name = class_name.subString(0, -3);
+                                is_array = true;
+                            }
+
+                            if(class_name.match(/.+<.+>/)) {
+                                class_name = class_name.scan(/(.+)<.+>/).items(1);
+                            }
+
+                            if(class_name.match(/lambda$|lambda\(\)|lambda\(.*/)) {
+                                class_name = "lambda"
+                            }
+
+                            klass := Class(class_name);
+
+                            is_primitive := isPrimitiveClass(class_name);
+
+                            is_interface := (Class(class_name).flags & CLASS_FLAGS_INTERFACE).to_bool;
+
+
+                            if(!is_array && !is_primitive && !is_interface)
+                            {
+                               output.append(sprintf("self.%s = %s();\n", array { field.name, class_name }));
+                            }
+                        }
+                        output;
+                    }
+                }
+                """
+            );
             n++;
         }
+
         n = 0;
         cloneMethodDefinedClasses.each {
             method_index := cloneMethodDefinedClassMethodIndexes.items(n);
+
+            class_name := it.className.clone();
+
+            if(it.genericsParamNames.length > 0) {
+                class_name.append("<");
+                for(i:=0; i<it.genericsParamNames.length; i++) {
+                    class_name.append(it.genericsParamNames[i]);
+
+                    if(i != it.genericsParamNames.length-1) {
+                        class_name.append(",");
+                    }
+                }
+                class_name.append(">");
+            }
+
             code := """
-                    def clone(): \{it.className} \{
-                        output := "";
-
-                        if(it.genericsParamNames.length > 0) {
-                            output.append("<");
-                            for(i:=0; i<it.genericsParamNames.length; i++) {
-                                output.append(it.genericsParamNames[i]);
-
-                                if(i != it.genericsParamNames.length-1) {
-                                    output.append(",");
-                                }
-                            }
-                            output.append(">");
-                        }
-
-                        output;
-                        }
+                    def clone(): \{class_name}
                     {
-                        result := \{it.className}
-                        \{
-                            output := "";
-
-                            if(it.genericsParamNames.length > 0) {
-                                output.append("<");
-                                for(i:=0; i<it.genericsParamNames.length; i++) {
-                                    output.append(it.genericsParamNames[i]);
-
-                                    if(i != it.genericsParamNames.length-1) {
-                                        output.append(",");
-                                    }
-                                }
-                                output.append(">");
-                            }
-
-                            output;
-                        }();
+                        result := \{class_name}();
                         
                         \{
                             output := "";
                             for(i:=0; i<it.numFields; i++) {
-                               field := it.getField(i);
-                               
-                               if(field.resultType.chars(-2) == '[' && field.resultType.chars(-1) == ']') {
-                                   output.append(sprintf("result.%s = %s[self.%s.length]();\n", array { field.name, field.resultType.subString(0,-3), field.name}));
+                                field := it.getField(i);
 
-                                   if(isPrimitiveClass(field.resultType.subString(0, -3))) 
-                                   {
-                                       output.append(sprintf("for(i:=0; i<self.%s.length; i++) { result.%s[i] = self.%s[i]; }", array { field.name, field.name, field.name }));
-                                   }
-                                   else {
-                                       output.append(sprintf("for(i:=0; i<self.%s.length; i++) { result.%s[i] = self.%s[i].toAnonymous().clone(); }", array { field.name, field.name, field.name }));
-                                   }
-                               }
-                               elif(isPrimitiveClass(field.resultType))
-                               {
-                                   output.append(sprintf("result.%s = self.%s;\n", array { field.name, field.name }));
-                               }
-                               else {
-                                   output.append(sprintf("result.%s = self.%s.toAnonymous().clone();\n", array { field.name, field.name }));
-                               }
+                                class_name := field.resultType;
+
+                                if(class_name.length() > 1 && class_name.chars(-1) == '?') {
+                                    class_name = class_name.subString(0,-2);
+                                }
+
+                                is_array := false;
+                                if(class_name.length() > 2 && class_name.chars(-2) == '[' && class_name.chars(-1) == ']') 
+                                {
+                                    class_name = class_name.subString(0, -3);
+                                    is_array = true;
+                                }
+
+                                if(class_name.match(/.+<.+>/)) {
+                                    class_name = class_name.scan(/(.+)<.+>/).items(1);
+                                }
+
+                                if(class_name.match(/lambda$|lambda\(\)|lambda\(.*/)) {
+                                    class_name = "lambda"
+                                }
+
+                                klass := Class(class_name);
+
+                                is_primitive := isPrimitiveClass(class_name);
+                                is_interface := (klass.flags & CLASS_FLAGS_INTERFACE).to_bool;
+                                clone_method_existance := !klass.getMethod("clone", 0, false).identifyWith(null);
+                                
+                                if(is_array) {
+                                    output.append(sprintf("if(!self.%s.identifyWith(null)) {", array { field.name }));
+                                    output.append(sprintf("result.%s = %s[self.%s.length]();\n", array { field.name, class_name, field.name}));
+
+                                    if(is_primitive || !clone_method_existance)
+                                    {
+                                        output.append(sprintf("for(i:=0; i<self.%s.length; i++) { result.%s[i] = self.%s[i]; }", array { field.name, field.name, field.name }));
+                                    }
+                                    else {
+                                        output.append(sprintf("for(i:=0; i<self.%s.length; i++) { result.%s[i] = self.%s[i].toAnonymous().clone(); }", array { field.name, field.name, field.name }));
+                                    }
+
+                                    output.append("}");
+                                }
+                                elif(is_primitive || !clone_method_existance)
+                                {
+                                    output.append(sprintf("result.%s = self.%s;\n", array { field.name, field.name }));
+                                }
+                                else {
+                                    output.append(sprintf("if(!self.%s.identifyWith(null)) {", array { field.name }));
+                                    output.append(sprintf("result.%s = self.%s.toAnonymous().clone();\n", array { field.name, field.name }));
+                                    output.append("}");
+                                }
                             }
 
                             output;
@@ -203,7 +276,7 @@ class Clover
                     """;
 
             it.appendMethod(method_index, code);
-            
+
             n++;
         }
     }
@@ -222,8 +295,12 @@ class Field
         result := Field();
 
         result.flags = self.flags;
-        result.name = self.name.clone();
-        result.resultType = self.resultType.clone();
+        if(self.name.identifyWith(null).negative()) {
+            result.name = self.name.clone();
+        }
+        if(self.resultType.identifyWith(null).negative()) {
+            result.resultType = self.resultType.clone();
+        }
 
         return result;
     }
@@ -247,8 +324,12 @@ class MethodParam
     def clone(): MethodParam {
         result := MethodParam();
 
-        result.name = self.name.clone();
-        result.type = self.type.clone();
+        if(self.name.identifyWith(null).negative()) {
+            result.name = self.name.clone();
+        }
+        if(self.type.identifyWith(null).negative()) {
+            result.type = self.type.clone();
+        }
 
         return result;
     }
@@ -276,23 +357,35 @@ class Method
         result := Method();
 
         result.flags = self.flags;
-        result.name = self.name.clone();
-        result.path = self.path.clone();
-        result.methodNameAndParams = self.methodNameAndParams.clone();
+        if(self.name.identifyWith(null).negative()) {
+            result.name = self.name.clone();
+        }
+        if(self.path.identifyWith(null).negative()) {
+            result.path = self.path.clone();
+        }
+        if(self.methodNameAndParams.identifyWith(null).negative()) {
+            result.methodNameAndParams = self.methodNameAndParams.clone();
+        }
         result.index = self.index;
 
-        result.params = MethodParam[self.params.length]();
-        for(i:=0; i<self.params.length; i++) {
-            result.params[i] = self.params[i].clone();
+        if(self.params.identifyWith(null).negative()) {
+            result.params = MethodParam[self.params.length]();
+            for(i:=0; i<self.params.length; i++) {
+                result.params[i] = self.params[i].clone();
+            }
         }
 
-        result.resultType = self.resultType.clone();
+        if(self.resultType.identifyWith(null).negative()) {
+            result.resultType = self.resultType.clone();
+        }
         result.varNum = self.varNum;
 
-        result.genericsParamTypes = String[self.genericsParamTypes.length]();
+        if(self.genericsParamTypes.identifyWith(null).negative()) {
+            result.genericsParamTypes = String[self.genericsParamTypes.length]();
 
-        for(j:=0; j<self.genericsParamTypes.length; j++) {
-            result.genericsParamTypes[j] = self.genericsParamTypes[j].clone();
+            for(j:=0; j<self.genericsParamTypes.length; j++) {
+                result.genericsParamTypes[j] = self.genericsParamTypes[j].clone();
+            }
         }
 
         return result;
@@ -324,15 +417,21 @@ class Class
     def clone():Class {
         result := Class();
 
-        result.className = self.className.clone();
-        result.flags = self.flags;
-        result.genericsParamTypes = String[self.genericsParamTypes.length]();
-        for(i:=0; i<self.genericsParamTypes.length; i++) {
-            result.genericsParamTypes[i] = self.genericsParamTypes[i].clone();
+        if(self.className.identifyWith(null).negative()) {
+            result.className = self.className.clone();
         }
-        result.genericsParamNames = String[self.genericsParamNames.length]();
-        for(j:=0; j<self.genericsParamNames.length; j++) {
-            result.genericsParamNames[j] = self.genericsParamNames[j].clone();
+        result.flags = self.flags;
+        if(self.genericsParamTypes.identifyWith(null).negative()) {
+            result.genericsParamTypes = String[self.genericsParamTypes.length]();
+            for(i:=0; i<self.genericsParamTypes.length; i++) {
+                result.genericsParamTypes[i] = self.genericsParamTypes[i].clone();
+            }
+        }
+        if(self.genericsParamNames.identifyWith(null).negative()) {
+            result.genericsParamNames = String[self.genericsParamNames.length]();
+            for(j:=0; j<self.genericsParamNames.length; j++) {
+                result.genericsParamNames[j] = self.genericsParamNames[j].clone();
+            }
         }
         result.numFields = self.numFields;
         result.numClassFields = self.numClassFields;
@@ -418,5 +517,15 @@ class Class
         }
 
         return null;
+    }
+    def createObject(): Anonymous {
+        return Clover.createObject(className);
+    }
+    def createArray(size:int): Anonymous {
+        return Clover.createArray(className, size);
+    }
+
+    def isInterface():bool {
+        return (self.flags & Clover.CLASS_FLAGS_INTERFACE).to_bool;
     }
 }

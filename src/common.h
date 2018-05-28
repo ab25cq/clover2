@@ -476,7 +476,7 @@ struct sVarStruct {
 
 typedef struct sVarStruct sVar;
 
-#define LOCAL_VARIABLE_MAX 128
+#define LOCAL_VARIABLE_MAX 1024
 
 struct sVarTableStruct {
     sVar mLocalVariables[LOCAL_VARIABLE_MAX];  // open address hash
@@ -588,7 +588,7 @@ typedef struct sNodeBlockStruct sNodeBlock;
 
 void sNodeBlock_free(sNodeBlock* block);
 sNodeBlock* sNodeBlock_clone(sNodeBlock* block);
-BOOL parse_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* new_table, BOOL block_object);
+BOOL parse_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* new_table, BOOL block_object, BOOL string_expression);
 
 /// node.c ///
 enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeCByteValue, kNodeTypeUByteValue, kNodeTypeCUByteValue, kNodeTypeShortValue, kNodeTypeCShortValue, kNodeTypeUShortValue, kNodeTypeCUShortValue, kNodeTypeIntValue, kNodeTypeCIntValue, kNodeTypeUIntValue, kNodeTypeCUIntValue, kNodeTypeLongValue, kNodeTypeCLongValue, kNodeTypeULongValue, kNodeTypeCULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeWildCard, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand, kNodeTypeIncrementWithValueOperand, kNodeTypeDecrementWithValueOperand, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand, kNodeTypeLoadArrayElement, kNodeTypeStoreArrayElement, kNodeTypeChar, kNodeTypeString, kNodeTypeBuffer, kNodeTypeThrow, kNodeTypeTry, kNodeTypeBlockObject, kNodeTypeFunction, kNodeTypeBlockCall, kNodeTypeNormalBlock, kNodeTypeArrayValue, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeHashValue, kNodeTypeRegex, kNodeTypeListValue, kNodeTypeSortableListValue, kNodeTypeEqualableListValue, kNodeTypeTupleValue, kNodeTypeCArrayValue, kNodeTypeEqualableCArrayValue, kNodeTypeSortableCArrayValue, kNodeTypeImplements, kNodeTypeGetAddress, kNodeTypeInheritCall, kNodeTypeFloatValue, kNodeTypeCFloatValue, kNodeTypeDoubleValue, kNodeTypeCDoubleValue, kNodeTypePath, kNodeTypeWhen, kNodeTypeRange, kNodeTypeMultipleAsignment };
@@ -824,7 +824,7 @@ BOOL compile(unsigned int node, sCompileInfo* info);
 void append_class_name_to_constant_pool_and_code(sCompileInfo* info, sCLClass* klass);
 void create_type_name_from_node_type(char* type_name, int type_name_max, sNodeType* node_type);
 int get_var_size(sNodeType* var_type);
-void boxing_before_method_call(char* method_name, sCompileInfo* info);
+void boxing_before_method_call(char* method_name, sCompileInfo* info, BOOL* array_and_special_method);
 
 unsigned int sNodeTree_create_operand(enum eOperand operand, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
 unsigned int sNodeTree_create_multiple_asignment(int num_elements, unsigned int tuple_elements[], int right_value, sParserInfo* info);
@@ -2314,6 +2314,9 @@ BOOL Clover_isLoadedClass(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL Clover_isDefinedClass(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL Clover_appendClass(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL Clover_getAllClassName(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL Clover_createObject(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL Clover_createArray(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL Clover_isTypedefedClass(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 /// jit.cpp ///
 BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sCLMethod* method, sVMInfo* info, CLVALUE** stack_ptr);

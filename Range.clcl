@@ -15,8 +15,12 @@ class Range<T:ISortable>
     def clone(): Range<T> {
         result := Range<T>();
 
-        result.head = self.head.clone();
-        result.tail = self.tail.clone();
+        if(self.head.identifyWith(null).negative()) {
+            result.head = self.head.clone();
+        }
+        if(self.tail.identifyWith(null).negative()) {
+            result.tail = self.tail.clone();
+        }
 
         return result;
     }

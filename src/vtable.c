@@ -121,6 +121,10 @@ BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_)
                 p->mType = NULL;
             }
 
+            if(table->mVarNum >= LOCAL_VARIABLE_MAX) {
+                return FALSE;
+            }
+
             p->mBlockLevel = table->mBlockLevel;
 
             return TRUE;
@@ -135,6 +139,10 @@ BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_)
                     }
                     else {
                         p->mType = NULL;
+                    }
+
+                    if(table->mVarNum >= LOCAL_VARIABLE_MAX) {
+                        return FALSE;
                     }
                     p->mBlockLevel = table->mBlockLevel;
 

@@ -7,11 +7,27 @@ class getopt_long_option
     flag:pointer@int;
     val:int;
 
+    def initialize() {
+    }
+
     def initialize(name:String, has_arg:int, flag:pointer@int, val:char) {
         self.name = name;
         self.has_arg = has_arg;
         self.flag = flag;
         self.val = val.to_int;
+    }
+
+    def clone(): getopt_long_option {
+        result := getopt_long_option();
+
+        if(self.name.identifyWith(null).negative()) {
+            result.name = self.name.clone();
+        }
+        result.has_arg = self.has_arg;
+        result.flag = self.flag;
+        result.val = self.val;
+
+        return result;
     }
 }
 
@@ -31,6 +47,15 @@ class timeval {
     tv_usec: long;
 
     def initialize() {}
+
+    def clone(): timeval {
+        result := timeval();
+
+        result.tv_sec = self.tv_sec;
+        result.tv_usec = self.tv_usec;
+
+        return result;
+    }
 }
 
 class System

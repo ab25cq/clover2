@@ -199,6 +199,22 @@ class tm
         self.setDaylightSavingTime(isdst);
     }
 
+    def clone():tm {
+        result := tm();
+
+        result.tm_sec = self.tm_sec;
+        result.tm_min = self.tm_min;
+        result.tm_hour = self.tm_hour;
+        result.tm_mday = self.tm_mday;
+        result.tm_mon = self.tm_mon;
+        result.tm_year = self.tm_year;
+        result.tm_wday = self.tm_wday;
+        result.tm_yday = self.tm_yday;
+        result.tm_isdst = self.tm_isdst;
+
+        return result;
+    }
+
     def second():int {
         return self.tm_sec;
     }
@@ -288,6 +304,22 @@ class stat
     }
     def initialize(path:String) throws Exception {
         self.initialize(path, false);
+    }
+    def clone():stat {
+        result := stat();
+
+        result.st_dev = self.st_dev;
+        result.st_mode = self.st_mode;
+        result.st_uid = self.st_uid;
+        result.st_gid = self.st_gid;
+        result.st_rdev = self.st_rdev;
+        result.st_size = self.st_size;
+
+        result.st_atime = self.st_atime;
+        result.st_mtime = self.st_mtime;
+        result.st_ctime = self.st_ctime;
+
+        return result;
     }
     def S_ISDIR():bool {
         return (self.st_mode & S_IFMT) == S_IFDIR;
@@ -548,7 +580,9 @@ class Path
     def clone():Path {
         result := Path();
 
-        result.path = self.path.clone();
+        if(self.path.identifyWith(null).negative()) {
+            result.path = self.path.clone();
+        }
 
         return result;
     }
@@ -688,6 +722,13 @@ class Path
     }
 }
 
+class Global
+{
+    def glob(pattern:String): static SortableList<String> throws Exception {
+        return Directory.glob(".", pattern, 0);
+    }
+}
+
 class Directory 
 {
     path:String;
@@ -709,7 +750,9 @@ class Directory
     def clone(): Directory {
         result := Directory();
 
-        result.path = self.path.clone();
+        if(self.path.identifyWith(null).negative()) {
+            result.path = self.path.clone();
+        }
         result.dir = self.dir;
 
         return result;

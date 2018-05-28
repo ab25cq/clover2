@@ -696,3 +696,102 @@ BOOL Clover_getAllClassName(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     return TRUE;
 }
+
+BOOL Clover_createObject(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* class_name = lvar;
+
+    /// Clover to c value ///
+    if(class_name->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    char* class_name_value = ALLOC string_object_to_char_array(class_name->mObjectValue);
+
+    /// go ///
+    sCLClass* klass = get_class_with_load_and_initialize(class_name_value);
+
+    if(klass == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "class not found");
+        MFREE(class_name_value);
+        return FALSE;
+    }
+
+    CLObject result = create_object(klass, class_name_value);
+
+    /// go ///
+    (*stack_ptr)->mObjectValue = result;
+    (*stack_ptr)++;
+
+    MFREE(class_name_value);
+
+    return TRUE;
+}
+
+BOOL Clover_createArray(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* class_name = lvar;
+    CLVALUE* size = lvar+1;
+
+    /// Clover to c value ///
+    if(class_name->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    char* class_name_value = ALLOC string_object_to_char_array(class_name->mObjectValue);
+    int size_value = size->mIntValue;
+
+    /// go ///
+    sCLClass* klass = get_class_with_load_and_initialize(class_name_value);
+
+    if(klass == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "class not found");
+        MFREE(class_name_value);
+        return FALSE;
+    }
+
+    CLObject result = create_array_object(klass, size_value);
+
+    /// go ///
+    (*stack_ptr)->mObjectValue = result;
+    (*stack_ptr)++;
+
+    MFREE(class_name_value);
+
+    return TRUE;
+}
+
+BOOL Clover_isTypedefedClass(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* class_name = lvar;
+    CLVALUE* class_name2 = lvar+1;
+
+    if(class_name->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+    if(class_name2->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    /// Clover2 to C ///
+    char* class_name_value = ALLOC string_object_to_char_array(class_name->mObjectValue);
+    char* class_name_value2 = ALLOC string_object_to_char_array(class_name2->mObjectValue);
+
+    /// go ///
+    sCLClass* klass1 = get_class(class_name_value);
+    sCLClass* klass2 = get_class(class_name_value2);
+
+    BOOL result = klass1 == klass2;
+
+    MFREE(class_name_value);
+    MFREE(class_name_value2);
+
+    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}

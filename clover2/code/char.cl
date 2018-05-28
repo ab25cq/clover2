@@ -1,1 +1,0 @@
-CharTest.main();

@@ -11,8 +11,6 @@ class CLNodeType
     blockType:CLBlockType;
 */
 
-    def initialize() {}
-
     def initialize(class_name:String) {
         className = class_name;
         genericsTypes = new CLNodeType[CLParser.GENERICS_TYPES_MAX]();
@@ -86,16 +84,12 @@ class CLNodeTreeBase
     sourceLine:int;
 
     type:CLNodeType;
-
-    def initialize() { }
 }
 
 class CLNodeTreeInt
 {
     base:delegate CLNodeTreeBase;
     value:int;
-
-    def initialize() {}
 
     def initialize(value:int, sname:String, sline:int) {
         base = CLNodeTreeBase();
@@ -118,8 +112,6 @@ class CLNodeTreeInt
 class CLNodeTreePlus
 {
     base:delegate CLNodeTreeBase;
-
-    def initialize() {}
 
     def initialize(left:CLNodeTree, right:CLNodeTree, sname:String, sline:int) {
         base = CLNodeTreeBase();
@@ -158,8 +150,6 @@ class CLNodeTreePlus
 class CLNodeTreeMinus
 {
     base:delegate CLNodeTreeBase;
-
-    def initialize() {}
 
     def initialize(left:CLNodeTree, right:CLNodeTree, sname:String, sline:int) 
     {
@@ -200,8 +190,6 @@ class CLNodeTreeString
 {
     base:delegate CLNodeTreeBase;
     value:String;
-
-    def initialize() {}
 
     def initialize(str:String, sname:String, sline:int) {
         base = CLNodeTreeBase();

@@ -1,7 +1,7 @@
 # clover2 computer language
 
 [![Build Status](https://travis-ci.org/ab25cq/clover2.svg?branch=master)](https://travis-ci.org/ab25cq/clover2)
-version 4.1.0
+version 4.1.1
 
 サポートしている機能
 

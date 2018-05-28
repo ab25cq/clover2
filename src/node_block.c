@@ -65,7 +65,7 @@ static void append_node_to_node_block(sNodeBlock* node_block, unsigned int node)
     node_block->mNumNodes++;
 }
 
-BOOL parse_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* new_table, BOOL block_object)
+BOOL parse_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* new_table, BOOL block_object, BOOL string_expression)
 {
     //expect_next_character_with_one_forward("{", info);
 
@@ -87,7 +87,7 @@ BOOL parse_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* ne
     while(1) {
         if(*info->p == '}') {
             info->p++;
-            skip_spaces_and_lf(info);
+            if(!string_expression) skip_spaces_and_lf(info);
             break;
         }
         else if(*info->p == '\0') {
@@ -132,7 +132,7 @@ BOOL parse_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* ne
 
         if(*info->p == '}') {
             info->p++;
-            skip_spaces_and_lf(info);
+            if(!string_expression) skip_spaces_and_lf(info);
             break;
         }
         else if(*info->p == '\0') {
@@ -188,8 +188,6 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info)
 
         append_opecode_to_code(info->code, OP_HEAD_OF_EXPRESSION, info->no_output);
 
-        int stack_num = info->stack_num;
-
         if(!compile(node, info)) {
             info->lv_table = old_table;
             info->stack_num = stack_num_before;
@@ -209,8 +207,22 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info)
 #endif
     }
 
-    info->stack_num = stack_num_before;
+    if(block->mNumNodes == 0) {
+        append_opecode_to_code(info->code, OP_HEAD_OF_EXPRESSION, info->no_output);
 
+        append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
+        info->stack_num++;
+
+        info->type = create_node_type_with_class_name("Null");
+
+        arrange_stack(info);
+
+#ifdef ENABLE_INTERPRETER
+        append_opecode_to_code(info->code, OP_SIGINT, info->no_output);
+#endif
+    }
+
+    info->stack_num = stack_num_before;
     info->lv_table = old_table;
 
     return TRUE;
@@ -263,6 +275,40 @@ BOOL compile_block_with_result(sNodeBlock* block, sCompileInfo* info)
         }
         else {
             arrange_stack(info);
+        }
+
+#ifdef ENABLE_INTERPRETER
+        append_opecode_to_code(info->code, OP_SIGINT, info->no_output);
+#endif
+    }
+
+    if(block->mNumNodes == 0) {
+        append_opecode_to_code(info->code, OP_HEAD_OF_EXPRESSION, info->no_output);
+
+        append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
+        info->stack_num++;
+
+        info->type = create_node_type_with_class_name("Null");
+
+        if(info->stack_num == 0) {
+            append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
+            info->stack_num++;
+
+            info->type = create_node_type_with_class_name("Null");
+        }
+        else if(info->stack_num < 0) {
+            compile_err_msg(info, "Unexpected error. Stack pointer is invalid(stack number is %d)", info->stack_num);
+            info->err_num++;
+        }
+        else if(info->stack_num == 1) {
+        }
+        else {
+            int i;
+            for(i=0; i<info->stack_num-1; i++) {
+                append_opecode_to_code(info->code, OP_REVERSE, info->no_output);
+                append_opecode_to_code(info->code, OP_POP, info->no_output);
+                info->stack_num--;
+            }
         }
 
 #ifdef ENABLE_INTERPRETER

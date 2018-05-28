@@ -4428,7 +4428,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                     BOOL lambda = FALSE;
 
                     sNodeBlock* node_block = NULL;
-                    if(!parse_block(ALLOC &node_block, &info2, new_table, TRUE)) {
+                    if(!parse_block(ALLOC &node_block, &info2, new_table, TRUE, FALSE)) {
                         return FALSE;
                     }
 
@@ -4608,23 +4608,30 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
     return TRUE;
 }
 
-void boxing_before_method_call(char* method_name, sCompileInfo* info)
+void boxing_before_method_call(char* method_name, sCompileInfo* info, BOOL* array_and_special_method)
 {
     /// Do boxing if the class of left object is primitive ///
     if(info->type->mArray) {
         if(strcmp(method_name, "identifyWith") == 0) {
+            *array_and_special_method = TRUE;
         }
         else if(strcmp(method_name, "className") == 0) {
+            *array_and_special_method = TRUE;
         }
         else if(strcmp(method_name, "toNull") == 0) {
+            *array_and_special_method = TRUE;
         }
         else if(strcmp(method_name, "ID") == 0) {
+            *array_and_special_method = TRUE;
         }
         else if(strcmp(method_name, "toAnonymous") == 0) {
+            *array_and_special_method = TRUE;
         }
         else if(strcmp(method_name, "allocatedSize") == 0) {
+            *array_and_special_method = TRUE;
         }
         else if(strcmp(method_name, "headOfMemory") == 0) {
+            *array_and_special_method = TRUE;
         }
         else {
             boxing_to_lapper_class(&info->type, info);
@@ -4662,9 +4669,10 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
     xstrncpy(method_name, gNodes[node].uValue.sMethodCall.mMethodName, METHOD_NAME_MAX);
 
     /// Do boxing if the class of left object is primitive ///
-    boxing_before_method_call(method_name, info);
+    BOOL array_and_special_method = FALSE;
+    boxing_before_method_call(method_name, info, &array_and_special_method);
 
-    if(info->type->mClass->mFlags & CLASS_FLAGS_PRIMITIVE) {
+    if((info->type->mClass->mFlags & CLASS_FLAGS_PRIMITIVE) && !array_and_special_method) {
         compile_err_msg(info, "Primitive class can't be called to method");
         info->err_num++;
 

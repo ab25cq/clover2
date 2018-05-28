@@ -16,11 +16,12 @@ BOOL free_object(CLObject self)
     sCLObject* object_data = CLOBJECT(self);
     sCLClass* klass = object_data->mClass;
 
-    MFREE(object_data->mType);
-
     if(!call_finalize_method_on_free_object(klass, self)) {
         return FALSE;
     }
+
+    object_data = CLOBJECT(self);
+    MFREE(object_data->mType);
 
     return TRUE;
 }

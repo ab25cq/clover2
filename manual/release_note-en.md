@@ -1,4 +1,12 @@
 
+version 4.1.1
+
+    Fixed clone method bugs
+
+    Fixed a bug in string expression that removes spaces after that place.
+
+    Fixed because there was a bug in free_object.
+
 version 4.1.0
 
     The clone method has been added to IEqualable, ISortable and IHashKey. clone is now automatically implemented by reflection at compile time. See Reflection.clcl for details.

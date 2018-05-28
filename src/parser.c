@@ -422,7 +422,7 @@ static BOOL parse_simple_lambda_params(unsigned int* node, sParserInfo* info, BO
     }
 
     sNodeBlock* node_block = NULL;
-    if(!parse_block(ALLOC &node_block, info, new_table, TRUE)) {
+    if(!parse_block(ALLOC &node_block, info, new_table, TRUE, FALSE)) {
         return FALSE;
     }
 
@@ -1076,7 +1076,7 @@ static BOOL if_expression(unsigned int* node, sParserInfo* info)
     expect_next_character_with_one_forward("{", info);
 
     sNodeBlock* if_node_block = NULL;
-    if(!parse_block(ALLOC &if_node_block, info, NULL, FALSE)) {
+    if(!parse_block(ALLOC &if_node_block, info, NULL, FALSE, FALSE)) {
         return FALSE;
     }
 
@@ -1107,7 +1107,7 @@ static BOOL if_expression(unsigned int* node, sParserInfo* info)
         if(strcmp(buf, "else") == 0) {
             expect_next_character_with_one_forward("{", info);
 
-            if(!parse_block(ALLOC &else_node_block, info, NULL, FALSE)) {
+            if(!parse_block(ALLOC &else_node_block, info, NULL, FALSE, FALSE)) {
                 return FALSE;
             }
             break;
@@ -1129,7 +1129,7 @@ static BOOL if_expression(unsigned int* node, sParserInfo* info)
             expect_next_character_with_one_forward(")", info);
             expect_next_character_with_one_forward("{", info);
 
-            if(!parse_block(ALLOC &elif_node_blocks[elif_num], info, NULL, FALSE)) {
+            if(!parse_block(ALLOC &elif_node_blocks[elif_num], info, NULL, FALSE, FALSE)) {
                 return FALSE;
             }
 
@@ -1172,7 +1172,7 @@ static BOOL while_expression(unsigned int* node, sParserInfo* info)
     expect_next_character_with_one_forward("{", info);
 
     sNodeBlock* while_node_block = NULL;
-    if(!parse_block(ALLOC &while_node_block, info, NULL, FALSE)) {
+    if(!parse_block(ALLOC &while_node_block, info, NULL, FALSE, FALSE)) {
         return FALSE;
     }
 
@@ -1229,7 +1229,7 @@ static BOOL for_expression(unsigned int* node, sParserInfo* info)
     expect_next_character_with_one_forward("{", info);
 
     sNodeBlock* for_node_block = NULL;
-    if(!parse_block(ALLOC &for_node_block, info, NULL, FALSE)) {
+    if(!parse_block(ALLOC &for_node_block, info, NULL, FALSE, FALSE)) {
         return FALSE;
     }
 
@@ -1298,7 +1298,7 @@ static BOOL when_expression(unsigned int* node, sParserInfo* info)
             expect_next_character_with_one_forward("{", info);
 
             sNodeBlock* when_block = NULL;
-            if(!parse_block(ALLOC &when_block, info, NULL, FALSE)) {
+            if(!parse_block(ALLOC &when_block, info, NULL, FALSE, FALSE)) {
                 return FALSE;
             }
             when_blocks[num_when_block] = when_block;
@@ -1326,7 +1326,7 @@ static BOOL when_expression(unsigned int* node, sParserInfo* info)
             expect_next_character_with_one_forward("{", info);
 
             sNodeBlock* when_block = NULL;
-            if(!parse_block(ALLOC &when_block, info, NULL, FALSE)) {
+            if(!parse_block(ALLOC &when_block, info, NULL, FALSE, FALSE)) {
                 return FALSE;
             }
             when_blocks[num_when_block] = when_block;
@@ -1352,7 +1352,7 @@ static BOOL when_expression(unsigned int* node, sParserInfo* info)
                 return TRUE;
             }
 
-            if(!parse_block(ALLOC &else_block, info, NULL, FALSE)) {
+            if(!parse_block(ALLOC &else_block, info, NULL, FALSE, FALSE)) {
                 return FALSE;
             }
         }
@@ -1404,7 +1404,7 @@ static BOOL when_expression(unsigned int* node, sParserInfo* info)
             expect_next_character_with_one_forward("{", info);
 
             sNodeBlock* when_block = NULL;
-            if(!parse_block(ALLOC &when_block, info, NULL, FALSE)) {
+            if(!parse_block(ALLOC &when_block, info, NULL, FALSE, FALSE)) {
                 return FALSE;
             }
             when_blocks[num_when_block] = when_block;
@@ -1464,7 +1464,7 @@ static BOOL when_expression(unsigned int* node, sParserInfo* info)
             expect_next_character_with_one_forward("{", info);
 
             sNodeBlock* when_block = NULL;
-            if(!parse_block(ALLOC &when_block, info, NULL, FALSE)) {
+            if(!parse_block(ALLOC &when_block, info, NULL, FALSE, FALSE)) {
                 return FALSE;
             }
             when_blocks[num_when_block] = when_block;
@@ -1686,7 +1686,7 @@ static BOOL try_expression(unsigned int* node, sParserInfo* info)
 
     /// try ///
     sNodeBlock* try_node_block = NULL;
-    if(!parse_block(ALLOC &try_node_block, info, NULL, FALSE)) {
+    if(!parse_block(ALLOC &try_node_block, info, NULL, FALSE, FALSE)) {
         return FALSE;
     }
 
@@ -1715,7 +1715,7 @@ static BOOL try_expression(unsigned int* node, sParserInfo* info)
 
         expect_next_character_with_one_forward("{", info);
 
-        if(!parse_block(ALLOC &catch_node_block, info, new_table, FALSE)) {
+        if(!parse_block(ALLOC &catch_node_block, info, new_table, FALSE, FALSE)) {
             return FALSE;
         }
     }
@@ -2504,7 +2504,7 @@ static BOOL parse_block_object(unsigned int* node, sParserInfo* info, BOOL lambd
     expect_next_character_with_one_forward("{", info);
 
     sNodeBlock* node_block = NULL;
-    if(!parse_block(ALLOC &node_block, info, new_table, TRUE)) {
+    if(!parse_block(ALLOC &node_block, info, new_table, TRUE, FALSE)) {
         return FALSE;
     }
 
@@ -2555,7 +2555,7 @@ static BOOL parse_function(unsigned int* node, sParserInfo* info, BOOL lambda)
     expect_next_character_with_one_forward("{", info);
 
     sNodeBlock* node_block = NULL;
-    if(!parse_block(ALLOC &node_block, info, new_table, TRUE)) {
+    if(!parse_block(ALLOC &node_block, info, new_table, TRUE, FALSE)) {
         return FALSE;
     }
 
@@ -2567,7 +2567,7 @@ static BOOL parse_function(unsigned int* node, sParserInfo* info, BOOL lambda)
 static BOOL parse_normal_block(unsigned int* node, sParserInfo* info)
 {
     sNodeBlock* node_block = NULL;
-    if(!parse_block(ALLOC &node_block, info, NULL, FALSE)) {
+    if(!parse_block(ALLOC &node_block, info, NULL, FALSE, FALSE)) {
         return FALSE;
     }
 
@@ -3051,7 +3051,7 @@ BOOL parse_unset(unsigned int* node, sParserInfo* info)
 static BOOL parse_string_expression(sNodeBlock** string_expressions, int* string_expression_offsets, int* num_string_expression, sBuf* value, sParserInfo* info)
 {
     sNodeBlock* block = NULL;
-    if(!parse_block(ALLOC &block, info, NULL, FALSE)) {
+    if(!parse_block(ALLOC &block, info, NULL, FALSE, TRUE)) {
         return FALSE;
     }
 
@@ -4748,6 +4748,67 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
     else if(*info->p == 0) {
         *node = 0;
         return TRUE;
+    }
+    else if(*info->p == '#') {
+        while(*info->p) {
+            if(*info->p == '\n') {
+                break;
+            }
+
+            info->p++;
+        }
+
+        *node = 0;
+    }
+    else if(*info->p == '#') {
+        while(*info->p) {
+            if(*info->p == '\n') {
+                info->p++;
+                info->sline++;
+                break;
+            }
+
+            info->p++;
+        }
+
+        *node = 0;
+    }
+    else if(*info->p == '/' && *(info->p+1) == '*') {
+        info->p+=2;
+
+        BOOL in_string = FALSE;
+        int nest = 0;
+        while(1) {
+            if(*info->p == '"') {
+                info->p++;
+                in_string = !in_string;
+            }
+            else if(*info->p == 0) {
+                fprintf(stderr, "there is not a comment end until source end\n");
+                return FALSE;
+            }
+            else if(!in_string && *info->p == '/' && *(info->p+1) == '*') {
+                info->p+=2;
+                nest++;
+            }
+            else if(!in_string && *info->p == '*' && *(info->p+1) == '/') {
+                info->p+=2;
+                if(nest == 0) {
+                    break;
+                }
+
+                nest--;
+            }
+            else if(*info->p == '\n') {
+                info->p++;
+                info->sline++;
+            }
+            else {
+                info->p++;
+            }
+        }
+
+        *node = 0;
     }
     else {
         parser_err_msg(info, "invalid character (character code %d) (%c)", *info->p, *info->p);

@@ -1,4 +1,8 @@
 
+clover2 (4.1.1-1) unstable; urgency=medium
+
+    Fixed clone method bugs. Fixed a bug in string expression that removes spaces after that place. Fixed because there was a bug in free_object.
+
 clover2 (4.1.0-1) unstable; urgency=medium
 
     * The clone method has been added to IEqualable, ISortable and IHashKey. clone is now automatically implemented by reflection at compile time. See Reflection.clcl for details.

@@ -1,1 +1,4 @@
-"lambda".match(/lambda$|lambda\(\)|lambda\(.*/).toString().println();
+
+a:int[] = int[10]();
+
+a.identifyWith(null);

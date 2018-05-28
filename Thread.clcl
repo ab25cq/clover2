@@ -4,12 +4,28 @@ class pthread_mutex_t
 {
     def initialize() {}
     def allocSize(): static native size_t;
+
+    def clone():pthread_mutex_t {
+        result := pthread_mutex_t();
+
+        memcpy(result.headOfMemory(), self.headOfMemory(), allocSize());
+
+        return result;
+    }
 }
 
 class pthread_cond_t
 {
     def initialize() {}
     def allocSize(): static native size_t;
+
+    def clone():pthread_cond_t {
+        result := pthread_cond_t();
+
+        memcpy(result.headOfMemory(), self.headOfMemory(), allocSize());
+
+        return result;
+    }
 }
 
 class timespec
@@ -25,6 +41,13 @@ class timespec
     def initialize(tv_sec: time_t, tv_nsec:long) {
         self.tv_sec = tv_sec;
         self.tv_nsec = tv_nsec;
+    }
+
+    def clone():timespec {
+        result := timespec();
+        result.tv_sec = self.tv_sec;
+        result.tv_nsec = self.tv_nsec;
+        return result;
     }
 
     def minus(right:timespec):timespec {
@@ -108,6 +131,13 @@ class Thread
     def join() throws Exception {
         Thread.pthread_join(thread_id);
     }
+
+    def clone():Thread {
+        result := Thread();
+        result.thread_id = self.thread_id;
+        result.block = self.block;
+        return result;
+    }
 }
 
 class Mutex 
@@ -115,7 +145,8 @@ class Mutex
     mutex: pthread_mutex_t;
     attr: pthread_mutexattr_t;
 
-    def initialize() {}
+    def initialize() {
+    }
 
     def initialize(recursive:bool, error_check:bool) {
         mutex = pthread_mutex_t();
@@ -131,13 +162,19 @@ class Mutex
     }
 
     def finalize() {
-        pthread_mutex_destroy(mutex);
+        if(mutex.identifyWith(null).negative()) {
+            pthread_mutex_destroy(mutex);
+        }
     }
 
-    def clone(): Mutex {
+    def clone():Mutex {
         result := Mutex();
-        result.mutex = self.mutex;
+
+        if(self.mutex.identifyWith(null).negative()) {
+            result.mutex = self.mutex.clone();
+        }
         result.attr = self.attr;
+
         return result;
     }
 

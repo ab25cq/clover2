@@ -1668,9 +1668,10 @@ BOOL compile_class_source(char* fname, char* source)
         }
 
         if(i == PARSE_PHASE_ADD_METHODS_AND_FIELDS) {
+            call_all_class_initializer();
             if(!call_compile_time_script_method_on_declare()) {
                 fprintf(stderr, "error on compile time script\n");
-                return FALSE;
+                exit(1);
             }
         }
 

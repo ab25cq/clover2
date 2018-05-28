@@ -95,5 +95,7 @@ class StringTest3 {
         a := 1;
         b := 2;
         Clover.test("String expression test", "\{a + b; a}".equals("1"));
+
+        Clover.test("String expression test2", "ABC\{a}  DEF".equals("ABC1  DEF"));
     }
 }

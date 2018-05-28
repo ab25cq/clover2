@@ -792,8 +792,6 @@ BOOL call_all_class_initializer()
     vm_mutex_off();
     vm_mutex_on();
 
-    load_fundamental_classes_on_runtime();
-
     sClassTable* p = gHeadClassTable;
 
     while(p) {
@@ -4151,8 +4149,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     CLObject left = (stack_ptr-1)->mObjectValue;
 
                     if(left == 0) {
-                        
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(1)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(1-1)");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
@@ -4182,7 +4179,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     if(left == 0 || right == 0) {
                         
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(1)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(1-2)");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
@@ -4206,7 +4203,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     CLObject left = (stack_ptr-1)->mObjectValue;
 
                     if(left == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(1)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(1-3)");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
@@ -4225,7 +4222,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     CLObject left = (stack_ptr-1)->mObjectValue;
 
                     if(left == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(1)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(1-4)");
                         remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }

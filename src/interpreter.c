@@ -2230,7 +2230,8 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
                 }
             }
             else {
-                boxing_before_method_call("toString", &cinfo);
+                BOOL array_and_special_method = FALSE;
+                boxing_before_method_call("toString", &cinfo, &array_and_special_method);
 
                 klass = cinfo.type->mClass;
 
@@ -2379,7 +2380,7 @@ static void compiler_final()
 
 int gARGC;
 char** gARGV;
-char* gVersion = "4.1.0";
+char* gVersion = "4.1.1";
 
 int main(int argc, char** argv)
 {

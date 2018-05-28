@@ -7,6 +7,17 @@ class sockaddr
 
     def initialize() {
     }
+
+    def clone():sockaddr {
+        result := sockaddr();
+
+        result.sa_family = self.sa_family;
+        if(self.sa_data.identifyWith(null).negative()) {
+            result.sa_data = self.sa_data.clone();
+        }
+
+        return result;
+    }
 }
 
 class sockaddr_un
@@ -15,6 +26,17 @@ class sockaddr_un
     sun_path: String;
 
     def initialize() {
+    }
+
+    def clone(): sockaddr_un {
+        result := sockaddr_un();
+
+        result.sun_family = self.sun_family;
+        if(self.sun_path.identifyWith(null).negative()) {
+            result.sun_path = self.sun_path.clone();
+        }
+
+        return result;
     }
 }
 
@@ -25,6 +47,12 @@ class in_addr
     s_addr:in_addr_t;
 
     def initialize() {}
+
+    def clone(): in_addr {
+        result := in_addr();
+        result.s_addr = self.s_addr;
+        return result;
+    }
 }
 
 class sockaddr_in
@@ -36,6 +64,18 @@ class sockaddr_in
     def initialize() {
         sin_addr = in_addr();
     }
+
+    def clone(): sockaddr_in {
+        result := sockaddr_in();
+
+        result.sin_family = self.sin_family;
+        if(self.sin_addr.identifyWith(null).negative()) {
+            result.sin_addr = self.sin_addr.clone();
+        }
+        result.sin_port = self.sin_port;
+
+        return result;
+    }
 }
 
 class servent 
@@ -46,6 +86,26 @@ class servent
     s_proto:String;
 
     def initialize() {}
+
+    def clone(): servent {
+        result := servent();
+
+        if(!self.s_name.identifyWith(null)) {
+            result.s_name = self.s_name.clone();
+        }
+        if(!self.s_aliases.identifyWith(null)) {
+            result.s_aliases = String[self.s_aliases.length]();
+            for(i:=0; i<self.s_aliases.length; i++) {
+                result.s_aliases[i] = self.s_aliases[i].clone();
+            }
+        }
+        result.s_port = self.s_port;
+        if(!self.s_proto.identifyWith(null)) {
+            result.s_proto = self.s_proto.clone();
+        }
+
+        return result;
+    }
 }
 
 class hostent
@@ -57,6 +117,31 @@ class hostent
     h_addr_list: String[];
 
     def initialize() {}
+
+    def clone():hostent {
+        result := hostent();
+
+        if(!self.h_name.identifyWith(null)) {
+            result.h_name = self.h_name.clone();
+        }
+        if(self.h_aliases.identifyWith(null).negative()) {
+            result.h_aliases = String[self.h_aliases.length]();
+            for(i:=0; i<self.h_aliases.length; i++) {
+                result.h_aliases[i] = self.h_aliases[i].clone();
+            }
+        }
+        result.h_addrtype = self.h_addrtype;
+        result.h_length = self.h_length;
+
+        if(self.h_addr_list.identifyWith(null).negative()) {
+            result.h_addr_list = String[self.h_addr_list.length]();
+            for(i:=0; i<self.h_addr_list.length; i++) {
+                result.h_addr_list[i] = self.h_addr_list[i].clone();
+            }
+        }
+
+        return result;
+    }
 }
 
 class System

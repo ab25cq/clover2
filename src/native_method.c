@@ -50,7 +50,7 @@ void put_fun_to_hash_for_native_method(char* path, char* fun_name, fNativeMethod
                 key2 = 0;
             }
             else if(key2 == key) {
-                fprintf(stderr, "overflow native methods number");
+                fprintf(stderr, "overflow native methods number\n");
                 exit(1);
             }
         }
@@ -256,7 +256,10 @@ static sNativeMethod gNativeMethods[] = {
     { "Clover.getNumMethods(String)", "Clover_getNumMethods", Clover_getNumMethods },
     { "Clover.isLoadedClass(String)", "Clover_isLoadedClass", Clover_isLoadedClass },
     { "Clover.isDefinedClass(String)", "Clover_isDefinedClass", Clover_isDefinedClass },
+    { "Clover.createObject(String)", "Clover_createObject", Clover_createObject },
+    { "Clover.createArray(String,int)", "Clover_createArray", Clover_createArray },
     { "Clover.appendClass(String)", "Clover_appendClass", Clover_appendClass },
+    { "Clover.isTypedefedClass(String,String)", "Clover_isTypedefedClass", Clover_isTypedefedClass },
     { "Thread.initialize_thread(Thread,lambda)", "Thread_initialize_thread", Thread_initialize_thread },
     { "Thread.pthread_join(ulong)", "Thread_pthread_join", Thread_pthread_join },
     { "pthread_mutex_t.allocSize()", "pthread_mutex_t_allocSize", pthread_mutex_t_allocSize },
