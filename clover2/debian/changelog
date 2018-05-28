@@ -1,0 +1,169 @@
+
+clover2 (4.1.1-1) unstable; urgency=medium
+
+    Fixed clone method bugs. Fixed a bug in string expression that removes spaces after that place. Fixed because there was a bug in free_object.
+
+clover2 (4.1.0-1) unstable; urgency=medium
+
+    * The clone method has been added to IEqualable, ISortable and IHashKey. clone is now automatically implemented by reflection at compile time. See Reflection.clcl for details.
+
+clover2 (4.0.9-1) unstable; urgency=medium
+
+    * I changed the memory management format of the extension library object.
+
+clover2 (4.0.8-1) unstable; urgency=medium
+
+    * Added several methods to System. A library of libbsd-dev or libbsd-devel
+	is required. (Optional, if System.getbsize is enabled). With completion of
+	REPL, completion of class field of System class is also effective. I made a
+	library of Socket. See Socket.clcl for details. port of the system call.
+	Porting the ioctl system call. Porting of select system call. Mutex bug may be fixed.
+
+clover2 (4.0.7-1) unstable; urgency=medium
+
+    * I found Security holl of String.removeTag. Fix.
+
+clover2 (4.0.6-1) unstable; urgency=medium
+
+    * There was a bug that will handle if it is the end of a regular expression if you use a character that uses / in regular expressions. I tried to avoid it with \/. Addition of String.removeTag ()
+
+clover2 (4.0.5-1) unstable; urgency=medium
+
+    * The class field of the System class can now omit the notation System. In
+	other words, access(fname, R_OK) == 0 etc is compiled.  I put
+	String.decodeFromForm (). It is useful in CGI. Refactoring processing of
+	identifiers. I think there was a bug. Fix. Class names can now be omitted
+	when calling class methods and class fields of the same class.
+
+clover2 (4.0.4-1) unstable; urgency=medium
+
+    * Multi line string bug was fiexed.
+
+clover2 (4.0.3-1) unstable; urgency=medium
+
+    * Fixed regex bug. Inside String Expression (\{}) it became a block instead of an expression
+
+clover2 (4.0.2-1) unstable; urgency=medium
+
+    * CSV File was supported. flock was supported.  Fixed compiler bug. Fixed JIT bug.
+
+clover2 (4.0.1-1) unstable; urgency=medium
+
+    * Started to make CGI library. System.setlocale was appended. Fixed compiler bug.
+
+clover2 (4.0.0-1) unstable; urgency=medium
+
+    * Threads were added. For details, please read the explanation of Thread class.  def allocSize (): int allows you to specify the size of the memory to get from the heap. We mainly use it in extension library.  The allocatedSize () special method was added. Returns the size of the memory retrieved from the heap of the object.      It mainly uses extended libraries, so users will not use them in particular.  The headOfmemory () special method was added. Returns the starting size of the memory obtained from the heap of the object. It is mainly used for extended libraries, so users will not use them in particular.  The specification of the class file has been changed. Compiled class files need to be recompiled again. Please recompile.  Fixed boxing bug of UShort
+
+clover2 (3.7.6-1) unstable; urgency=medium
+
+    * Added Multi line stirng. I added getMethod (name: String), getClassField
+	(name: String), getField (name: String) to lover class. Also add numFields,
+	numMethods, numClassFields fields to the Class class. I added Clover.isLoaded(name:String), Clover.isDefined(name:String). I added Clover.appendClass(code:String). new can now be omitted when creating objects.
+
+clover2 (3.7.5-1) unstable; urgency=medium
+
+    * Added Compile time scripting and Reflection.
+
+clover2 (3.7.4-1) unstable; urgency=medium
+
+    * Added getppid, setsid, getsid, setpgrp, setpigd to System Class. There was a bug in completing method calls for arrays in REPL. Fix.
+
+clover2 (3.7.3-1) unstable; urgency=medium
+
+    * A simplified expression was added to the expression of the value of hash. 
+
+clover2 (3.7.2-1) unstable; urgency=medium
+
+    * When assigning a numeric value to a variable, it does not automatically convert to double or float such as int -> float. (int -> long) etc. are implicitly cast
+
+clover2 (3.7.1-1) unstable; urgency=medium
+
+    * Added Multiple Assignements for local variables
+
+    > (a, b) := (1,2)
+    > (a, b) = (b, a)
+
+    An easy thing was added by the notation of a tuple
+
+    > (1,"AAA", 1.1)  # == Tuple<Integer, String, Double>
+
+clover2 (3.7.0-1) unstable; urgency=medium
+
+    * Fixed command line argument bug.
+
+    System.getopt, System.getopt_long, System.getopt_long_only added.
+
+    -clean, --version, -version option is deprecated (-> command line argument of the same name can not be taken)
+
+clover2 (3.6.9-1) unstable; urgency=medium
+
+    * match statment is added to when statment
+
+clover2 (3.6.8-1) unstable; urgency=medium
+
+    * Fixed some bugs and memory leak.
+
+clover2 (3.6.7-1) unstable; urgency=medium
+
+    * The command suspend was a bug in version 3.6.3. Fix.
+
+clover2 (3.6.6-1) unstable; urgency=medium
+
+    * The environment variable PWD is now set when the cd command is executed.
+
+    System.setenv's return value changed from Buffer to String
+
+clover2 (3.6.5-1) unstable; urgency=medium
+
+    * Fixed REPL complementary bug.
+
+clover2 (3.6.4-1) unstable; urgency=medium
+
+    * Fixed a bug in method calls for arrays that are not primitive types.  Fixed REPL complementary bug.  Added Clover.ARGV and ARGC, VERSION.
+
+clover2 (3.6.3-1) unstable; urgency=medium
+
+    * System.mbstowcs, System.wcstombs API changes. See String.clcl for details.
+      System.tcgetatter, System.cfmakeraw API change. See Command.clcl for details.
+
+      Fixed REPL complementary bug.
+
+clover2 (3.6.2-1) unstable; urgency=medium
+
+   * I added System.fgets, System.stdout, System.stdin, System.stderr to Clover2 lang.
+
+clover2 (3.6.1-1) unstable; urgency=medium
+
+   * The right side value of the operator of the pointer is okay if it is not ulong. a: = 1; b: = & a; b + = 4 works.
+
+clover2 (3.6.0-1) unstable; urgency=medium
+
+   * I put new File ("fname.txt", "w"); etc in the file class. Internally it is fopen, fwrite, fread and buffered.
+
+clover2 (3.5.9-1) unstable; urgency=medium
+
+   * Numeric type conversion is now implicit in method arguments. int -> ulong and so on.
+
+clover2 (3.5.8-1) unstable; urgency=medium
+
+   * support PPC,PPC64, other CPUs.
+
+clover2 (3.5.7-2) unstable; urgency=medium
+
+   * Changed manual
+
+ -- Daisuke Minato <ab25cq@icloud.com>  Tue, 30 Jan 2018 17:01:33 +0900
+
+clover2 (3.5.7-1) unstable; urgency=medium
+
+   * We added an instruction called unset variable name. Cancel the variable
+declaration. It corresponds to PowerPC.(Closes #1234)
+
+ -- Daisuke Minato <ab25cq@icloud.com>  Tue, 30 Jan 2018 17:01:33 +0900
+
+clover2 (3.5.6-1) unstable; urgency=medium
+
+  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+
+ -- Daisuke Minato <ab25cq@icloud.com>  Tue, 30 Jan 2018 17:01:33 +0900

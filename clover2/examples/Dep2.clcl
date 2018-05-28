@@ -1,0 +1,8 @@
+include "Dep1.clcl"
+
+class Dep2 {
+  def p():static {
+    Dep1.p();
+  }
+}
+

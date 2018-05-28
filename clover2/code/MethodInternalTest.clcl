@@ -1,0 +1,47 @@
+
+class MethodInternal
+{
+    field:int;
+
+    def initialize() {
+        field = 234;
+    }
+
+    def method():int {
+        return method2();
+    }
+
+    def method2(): int {
+        return 123;
+    }
+
+    def method3(): int {
+        return field;
+    }
+    def method4(): int {
+        field:int = 345;
+        return field;
+    }
+    def method5(): int {
+        field:int = 345;
+        return self.field;
+    }
+
+    def method6(): int {
+        field *= 2;
+        return field;
+    }
+}
+
+class MethodInternalTest {
+    def main():static {
+        a := new MethodInternal();
+
+        Clover.test("method internal", a.method() == 123);
+
+        Clover.test("field internal", a.method3() == 234);
+        Clover.test("field internal2", a.method4() == 345);
+        Clover.test("field internal3", a.method5() == 234);
+        Clover.test("field internal4", a.method6() == 468);
+    }
+}

@@ -1,0 +1,13 @@
+Source: clover2
+Section: unknown
+Priority: optional
+Maintainer: Daisuke Minato <ab25cq@icloud.com>
+Build-Depends: debhelper (>= 9), autotools-dev, libpcre3-dev, libreadline-dev, clang, libreadline7
+Standards-Version: 4.1.1
+Homepage: https://github.com/ab25cq/clover2/wiki
+Vcs-Git: https://github.com/ab25cq/clover2.git
+
+Package: clover2
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: It is a Ruby-like compiler language with static type like Java. It can also be used as an interpreter. We also compile to native code with LLVM.

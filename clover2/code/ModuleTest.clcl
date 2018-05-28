@@ -1,0 +1,29 @@
+
+module MModuleTest {
+    def method(): int {
+        return 123;
+    }
+    def method2():int {
+        return self.field;
+    }
+}
+
+class ModuleTestClass {
+    field:int;
+
+    include MModuleTest;
+
+    def initialize() {
+        self.field = 123;
+    }
+}
+
+
+class ModuleTest {
+    def main(): static {
+        a: ModuleTestClass = new ModuleTestClass();
+
+        Clover.test("module test1", a.method() == 123);
+        Clover.test("module test2", a.method2() == 123);
+    }
+}

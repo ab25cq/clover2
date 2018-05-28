@@ -1,0 +1,51 @@
+
+interface GInterface
+{
+    def method(a:int, b:int):int;
+}
+
+class GItem <T:Object, T2:GInterface>
+{
+    value: T;
+    value2:T2;
+
+    def initialize(value:T, value2:T2) {
+        self.value = value;
+        self.value2 = value2;
+    }
+}
+
+class GClass2
+{
+    def initialize() {
+    }
+
+    def method(a:int, b:int):int {
+        return a + b;
+    }
+}
+
+class GClass <T:GInterface, T2:Object> {
+    item: GItem<T2, T>;
+
+    def initialize() {
+        a:T2 = new Integer(123);
+        b:T = new GClass2();
+        self.item = new GItem<T2, T>(a, b);
+    }
+
+    def method() {
+        a:T2 = self.item.value;
+        b:T = self.item.value2;
+    }
+}
+
+class GenericsTest2
+{
+    def main(): static {
+        gclass:GClass<GClass2, Integer> = new GClass<GClass2, Integer>();
+
+        gclass.method();
+    }
+}
+

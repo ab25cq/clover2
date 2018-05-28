@@ -1,0 +1,101 @@
+class StringTest3
+{
+    def run():static String {
+        a:int = 123;
+        return "abc\{a.toString()}def";
+    }
+
+    def run2():static Buffer {
+        a:int = 123;
+        return B"abc\{a.toString()}def";
+    }
+
+    def run3():static Path {
+        a:int = 123;
+        return p"abc\{a.toString()}def";
+    }
+
+    def run4():static regex {
+        a:int = 123;
+        return /abc\{a.toString()}def/;
+    }
+
+
+    def run5():static String {
+        a:int = 123;
+        return "abc\{a}def";
+    }
+
+    def run6():static Buffer {
+        a:int = 123;
+        return B"abc\{a}def";
+    }
+
+    def run7():static Path {
+        a:int = 123;
+        return p"abc\{a}def";
+    }
+
+    def run8():static regex {
+        a:int = 123;
+        return /abc\{a}def/;
+    }
+
+    def run9():static String {
+        a:Integer = new Integer(123);
+        return "abc\{a}def";
+    }
+
+    def run10():static String {
+        a:Integer = new Integer(123);
+        b:Integer = new Integer(456);
+
+        return "abc\{a}\{b}";
+    }
+
+    def run11():static Buffer {
+        a:Integer = new Integer(123);
+        b:Integer = new Integer(456);
+
+        return B"abc\{a}\{b}";
+    }
+
+    def run12():static Path {
+        a:Integer = new Integer(123);
+        b:Integer = new Integer(456);
+
+        return P"abc\{a}\{b}";
+    }
+
+    def run13():static regex {
+        a:Integer = new Integer(123);
+        b:Integer = new Integer(456);
+
+        return /abc\{a}\{b}/;
+    }
+}
+
+class StringTest3 {
+    def main():static {
+        Clover.test("string test", StringTest3.run().equals("abc123def"));
+
+        Clover.test("buffer test", StringTest3.run2().equals(B"abc123def"));
+        Clover.test("path test", StringTest3.run3().equals(p"abc123def"));
+        Clover.test("regex test", StringTest3.run4() == /abc123def/);
+        Clover.test("string test2", StringTest3.run5().equals("abc123def"));
+        Clover.test("buffer test2", StringTest3.run6().equals(B"abc123def"));
+        Clover.test("path test2", StringTest3.run7().equals(p"abc123def"));
+        Clover.test("regex test2", StringTest3.run8() == /abc123def/);
+        Clover.test("string test3", StringTest3.run9().equals("abc123def"));
+        Clover.test("string test4", StringTest3.run10().equals("abc123456"));
+        Clover.test("buffer test3", StringTest3.run11().equals(B"abc123456"));
+        Clover.test("path test3", StringTest3.run12().equals(P"abc123456"));
+        Clover.test("regex test3", StringTest3.run13() == /abc123456/);
+
+        a := 1;
+        b := 2;
+        Clover.test("String expression test", "\{a + b; a}".equals("1"));
+
+        Clover.test("String expression test2", "ABC\{a}  DEF".equals("ABC1  DEF"));
+    }
+}

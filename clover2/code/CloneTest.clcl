@@ -1,0 +1,90 @@
+class CloneTest
+{
+    value: int;
+    value2:String[];
+
+    def initialize() {
+        self.value = 123;
+        self.value2 = String[3]();
+        self.value2[0] = "ABC";
+        self.value2[1] = "DEF";
+        self.value2[2] = "GHI";
+    }
+
+    def main():static {
+    }
+}
+
+klass := Class("CloneTest");
+
+klass.appendMethod(
+    """
+    def main():static {
+        a := CloneTest();
+
+        b := a.clone();
+
+        Clover.test("clone test", b.value == 123 && b.value2[0].equals("ABC") && b.value2[1].equals("DEF") && b.value2[2].equals("GHI") && b.value2[0].ID() != a.value2[0].ID() && b.value2[1].ID() != a.value2[1].ID() && b.value2[2].ID() != a.value2[2].ID());
+
+        \{
+            result := "";
+            n := 0;
+            ls(glob("*.oclcl")).toString().split(/\n/).each {
+                it2 := it.scan(/(.+)\.oclcl/).items(1).subString(2, -1);
+
+                klass := Class(it2);
+
+                if(klass.isInterface().negative()) {
+                    result.append("print(\"class \{it2} clone test...\");\n");
+
+                    if(klass.genericsParamTypes.length > 0) {
+                        if(it2.equals("GenericsTest1")) {
+                            result.append(sprintf("a%d := %s<GenericsTestClass,String>();\n", array { n, it2 }));
+                            result.append(sprintf("b%d := a%d.clone();\n", array { n, n }));
+                        }
+                        elif(it2.equals("GenericsTestClass3")) {
+                            result.append(sprintf("a%d := %s<GenericsTest3ClassA,String>();\n", array { n, it2 }));
+                            result.append(sprintf("b%d := a%d.clone();\n", array { n, n }));
+                        }
+                        elif(it2.equals("GClass") || it2.equals("GItem")) {
+                            result.append(sprintf("a%d := %s<", array { n, it2 }));
+                            m := 0;
+                            klass.genericsParamTypes.each {
+                                result.append("GClass2");
+
+                                if(m != klass.genericsParamTypes.length -1) {
+                                    result.append(",");
+                                }
+
+                                m++;
+                            }
+                            result.append(sprintf(">();\nb%d := a%d.clone();\n", array { n, n }));
+                        }
+                        else {
+                            result.append(sprintf("a%d := %s<", array { n, it2 }));
+                            m := 0;
+                            klass.genericsParamTypes.each {
+                                result.append("String");
+
+                                if(m != klass.genericsParamTypes.length -1) {
+                                    result.append(",");
+                                }
+
+                                m++;
+                            }
+                            result.append(sprintf(">();\nb%d := a%d.clone();\n", array { n, n }));
+                        }
+                    }
+                    elif(it2.equals("Clover").negative() && it2.equals("Global").negative() && it2.equals("System").negative()) {
+                        result.append(sprintf("a%d := %s();\nb%d := a%d.clone();\n", array { n, it2, n, n }));
+                    }
+                    n++;
+
+                    result.append("println(\"OK\")\n");
+                }
+            }
+            result;
+        }
+    }
+    """
+);

@@ -1,0 +1,23 @@
+
+class LabmdaTest {
+    value: lambda(int, int):int;
+
+    def initialize() {
+        self.value = lambda(a:int, b:int):int {
+            return a + b;
+        }
+    }
+
+    def run(a:int, b:int):int {
+        value_ := self.value;
+        return value_(a, b);
+    }
+}
+
+class BlockTest3 {
+    def main():static {
+        a:= new LabmdaTest();
+
+        Clover.test("lambda test1", a.run(111, 222) == 333);
+    }
+}

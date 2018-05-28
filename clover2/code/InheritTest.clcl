@@ -1,0 +1,16 @@
+include "code/InheritClassA.clcl"
+
+class InheritClassA
+{
+    def method(value:int):int {
+        return inherit(value);
+    }
+}
+
+class InheritTest {
+    def main():static {
+        a:InheritClassA = new InheritClassA(123);
+
+        Clover.test("inherit test1", a.method(123) == 246);
+    }
+}

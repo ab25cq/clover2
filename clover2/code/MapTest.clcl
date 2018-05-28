@@ -1,0 +1,9 @@
+class MapTest
+{
+    def main() : static {
+        Clover.test("map teat", slist {1,2,3}.map { it.toString() }.equals(slist{"1", "2", "3" }));
+        Clover.test("map test2", slist{"/home/ab25cq", "/usr/bin" }.map { it.toPath()}.equals(slist{ P"/home/ab25cq", P"/usr/bin" })) 
+        Clover.test("map test3", slist{"/home/ab25cq", "/usr/bin" }.map { it.toPath()}.map { it.dirname() }.equals(slist{ P"/home", P"/usr" })) 
+        Clover.test("map test4", slist{"/home/ab25cq", "/usr/bin" }.map { it.toPath()}.map { it.toString() }.map { it.toPath() }.map { it.toString() }.map { it.toPath() }.map { it.toString() }.equals(slist{"/home/ab25cq", "/usr/bin" }));
+    }
+}
