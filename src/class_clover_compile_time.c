@@ -283,7 +283,6 @@ BOOL Clover_appendMethod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Class not found");
         MFREE(klass_value);
         MFREE(code_value);
-puts("AAA");
         return FALSE;
     }
 
@@ -306,7 +305,6 @@ puts("AAA");
             entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Class not found");
             MFREE(klass_value);
             MFREE(code_value);
-puts("BBB");
             return FALSE;
         }
 
@@ -334,7 +332,6 @@ puts("BBB");
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "appendMethod Exception");
         MFREE(klass_value);
         MFREE(code_value);
-puts("CCC");
         return FALSE;
     }
 
@@ -354,7 +351,6 @@ puts("CCC");
             entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "appendMethod Exception");
             MFREE(klass_value);
             MFREE(code_value);
-puts("DDD");
             return FALSE;
         }
 
@@ -365,7 +361,6 @@ puts("DDD");
                 entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "appendMethod Exception");
                 MFREE(klass_value);
                 MFREE(code_value);
-puts("EEE");
                 return FALSE;
             }
         }
@@ -387,7 +382,6 @@ puts("EEE");
                         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Invalid method definition(5)");
                         MFREE(klass_value);
                         MFREE(code_value);
-puts("FFF");
                         return FALSE;
                     }
 
@@ -395,7 +389,6 @@ puts("FFF");
                         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Invalid method definition(6)");
                         MFREE(klass_value);
                         MFREE(code_value);
-puts("GGG");
                         return FALSE;
                     }
                 }
@@ -403,7 +396,6 @@ puts("GGG");
                     entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Invalid method definition(7)");
                     MFREE(klass_value);
                     MFREE(code_value);
-puts("HHH");
                     return FALSE;
                 }
             }
@@ -413,7 +405,6 @@ puts("HHH");
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Invalid method definition(8)");
         MFREE(klass_value);
         MFREE(code_value);
-puts("III");
         return FALSE;
     }
 

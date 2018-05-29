@@ -3,19 +3,27 @@ class InitializeAndFinalizeTest {
     b:pointer;
 
     def initialize() {
-        self.b = System.malloc(1.to_ulong);
+        b = malloc(1);
     }
 
     def finalize() {
-        System.free(self.b);
+        free(b);
+    }
+
+    def clone():InitializeAndFinalizeTest {
+        result := InitializeAndFinalizeTest();
+
+        result.b = malloc(1);
+
+        return result;
     }
 
     def initialize():static {
-        InitializeAndFinalizeTest.a = System.malloc(1.to_ulong);
+        a = malloc(1);
     }
 
     def finalize():static {
-        System.free(InitializeAndFinalizeTest.a);
+        free(a);
     }
 }
 

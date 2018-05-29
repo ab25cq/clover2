@@ -5,12 +5,8 @@ class pthread_mutex_t
     def initialize() {}
     def allocSize(): static native size_t;
 
-    def clone():pthread_mutex_t {
-        result := pthread_mutex_t();
-
-        memcpy(result.headOfMemory(), self.headOfMemory(), allocSize());
-
-        return result;
+    def clone():pthread_mutex_t? {
+        return null;
     }
 }
 
@@ -19,12 +15,8 @@ class pthread_cond_t
     def initialize() {}
     def allocSize(): static native size_t;
 
-    def clone():pthread_cond_t {
-        result := pthread_cond_t();
-
-        memcpy(result.headOfMemory(), self.headOfMemory(), allocSize());
-
-        return result;
+    def clone():pthread_cond_t? {
+        return null;
     }
 }
 
@@ -146,6 +138,10 @@ class Mutex
     attr: pthread_mutexattr_t;
 
     def initialize() {
+        mutex = pthread_mutex_t();
+
+        pthread_mutexattr_init(attr);
+        pthread_mutex_init(mutex, attr);
     }
 
     def initialize(recursive:bool, error_check:bool) {
@@ -162,9 +158,7 @@ class Mutex
     }
 
     def finalize() {
-        if(mutex.identifyWith(null).negative()) {
-            pthread_mutex_destroy(mutex);
-        }
+        pthread_mutex_destroy(mutex);
     }
 
     def clone():Mutex {

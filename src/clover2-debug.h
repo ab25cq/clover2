@@ -1,7 +1,7 @@
 #ifndef DEBUG_H
 #define DEBUG_H
 
-#include "macros.h"
+#include "clover2-macros.h"
 
 #include <stdlib.h>
 #include <assert.h>

@@ -34,16 +34,16 @@
 
 #define clint64 long long      // for 32 bit cpu
 
-#include "macros.h"
+#include "clover2-macros.h"
 
 /// debug.c ///
-#include "debug.h"
+#include "clover2-debug.h"
 
 /// buffer.c ///
-#include "buffer.h"
+#include "clover2-buffer.h"
 
 /// xfunc.c ///
-#include "xfunc.h"
+#include "clover2-xfunc.h"
 
 /// limits ///
 #define CLASS_NAME_MAX 64

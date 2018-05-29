@@ -179,5 +179,7 @@ println("CGITest");
 CGITest.main();
 println("SignalTest");
 SignalTest.main();
+println("ClassFieldAndFieldTest");
+ClassFieldAndFieldTest.main();
 println("CloneTest");
 CloneTest.main();

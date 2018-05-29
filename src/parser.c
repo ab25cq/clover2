@@ -3903,9 +3903,9 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 info->err_num++;
             }
         }
-        /// 変数への代入 ///
+        /// assignment for variable ///
         else if(*info->p == '=' && *(info->p+1) != '=') {
-            /// ローカル変数 ///
+            /// local variable ///
             if(get_variable_from_table(info->lv_table, buf) || is_method_param_name(buf)) {
                 skip_spaces_and_lf(info);
 
@@ -3928,7 +3928,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     *node = sNodeTree_create_store_variable(buf, NULL, right_node, info->klass, info);
                 }
             }
-            /// 同一クラス内のフィールド？
+            /// the field in the same class
             else if(info->klass && field_name_existance(info->klass, buf))
             {
                 skip_spaces_and_lf(info);
@@ -3954,14 +3954,38 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     *node = sNodeTree_create_assign_field(buf, *node, right_node, info);
                 }
             }
+            /// the class field name in the same class ///
+            else if(info->klass && class_field_name_existance(info->klass, buf)) 
+            {
+                skip_spaces_and_lf(info);
+
+                info->p++;
+                skip_spaces_and_lf(info);
+
+                unsigned int right_node = 0;
+
+                if(!expression(&right_node, info)) {
+                    return FALSE;
+                }
+
+                if(right_node == 0) {
+                    parser_err_msg(info, "Require right value");
+                    info->err_num++;
+
+                    *node = 0;
+                }
+                else {
+                    *node = sNodeTree_create_assign_class_field(info->klass, buf, right_node, info);
+                }
+            }
             else {
                 parser_err_msg(info, "%s is undeclared.(1)", buf);
                 info->err_num++;
             }
         }
-        /// -=, +=などの式 ///
+        /// -=, +=, etc ///
         else if(is_assign_operator(info)) {
-            /// ローカル変数 ///
+            /// local variable ///
             if(get_variable_from_table(info->lv_table, buf) || is_method_param_name(buf)) {
                 skip_spaces_and_lf(info);
 
@@ -3974,7 +3998,22 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
                 *node = sNodeTree_create_store_variable(buf, NULL, *node, info->klass, info);
             }
-            /// 同一クラス内のフィールド？
+            /// the class field name in the same class ///
+            else if(info->klass && class_field_name_existance(info->klass, buf)) 
+            {
+                skip_spaces_and_lf(info);
+
+                /// load field ///
+                *node = sNodeTree_create_class_fields(info->klass, buf, info);
+
+                /// go 
+                if(!assign_operator(node, info)) {
+                    return FALSE;
+                }
+
+                *node = sNodeTree_create_assign_class_field(info->klass, buf, *node, info);
+            }
+            /// the field in the same class
             else if(info->klass && field_name_existance(info->klass, buf))
             {
                 skip_spaces_and_lf(info);

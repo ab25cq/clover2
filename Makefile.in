@@ -11,6 +11,7 @@ sysconfdir=@sysconfdir@/clover2
 includedir=@includedir@/clover2
 datarootdir=@datarootdir@/clover2
 docdir=@datadir@/doc
+libdir=@libdir@
 
 
 ##########################################################
@@ -36,7 +37,7 @@ JIT=@JIT@
 ##########################################################
 # main
 ##########################################################
-all: cclover2 clover2 $(INTERPRETER) SortableArray.oclcl
+all: cclover2 clover2 $(INTERPRETER) SortableArray.oclcl libclover2.so.1.0.0
 	if which ctags > /dev/null; then if test $(OS) = DARWIN; then ctags src/*.c > /dev/null 2>&1; else ctags -R; fi; fi
 
 cclover2: config.h src/compiler.o $(COMMON_OBJS) $(COMPILER_OBJS) $(OBJS) $(JIT_OBJS) $(JIT_RUNTIME_OBJS)
@@ -53,6 +54,11 @@ iclover2: config.h src/interpreter.o $(COMMON_OBJS) $(OBJS) $(COMPILER_OBJS) $(J
 
 SortableArray.oclcl: Fundamental.clcl String.clcl Container.clcl CLParser.clcl Range.clcl Command.clcl File.clcl MyOwnLibrary.clcl CGI.clcl Reflection.clcl Socket.clcl SystemCalls.clcl Thread.clcl
 	./cclover2 -core MyOwnLibrary.clcl
+
+libclover2.so.1.0.0: $(COMMON_OBJ) $(COMPILER_OBJS) $(OBJS)
+	clang -shared -o libclover2.so.1.0.0 $(COMMON_OBJS) $(COMPILER_OBJS) $(OBJS:src/class_clover_runtime.o=) $(CFLAGS) $(LIBS)
+	ln -s -f libclover2.so.1.0.0 libclover2.so.1
+	ln -s -f libclover2.so.1.0.0 libclover2.so
 
 #########################################################
 # Object files
@@ -134,6 +140,10 @@ install:
 	$(INSTALL) -m 644 ./sockaddr_in.oclcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 ./sockaddr_un.oclcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 ./timeval.oclcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 755 ./libclover2.so.1.0.0 $(DESTDIR)/lib
+	$(INSTALL) -m 755 ./libclover2.so.1 $(DESTDIR)/lib
+	$(INSTALL) -m 755 ./libclover2.so $(DESTDIR)/lib
+	$(INSTALL) -m 644 src/common.h $(DESTDIR)/include/clover2.h
 
 	if test $(JIT) = 1;then llvm-dis Clover.bc && $(INSTALL) -m 644 ./Clover.bc $(DESTDIR)/share/clover2; fi
 	if test -e libClover.so; then $(INSTALL) -m 755 ./libClover.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libClover.so $(DESTDIR)/share/clover2; fi
@@ -306,7 +316,7 @@ permission:
 # clean
 ########################################################
 clean:
-	rm -fR clover2 clover2.dSYM cclover2 cclover2.dSYM iclover2 iclover2.dSYM src/*.o config.log config.status *.stackdump autom4te.cache .DS_Store core.* core a.out *.oclcl *.bc *.s *.o *.ocl code/*.ocl code/*.oclcl *.clm a.c src/*.dwo *.ll *.so.1.0.0 *.so *.class src/config.h moveVarDecls.hi moveVarDecls.o moveVarDecls a.lock server_socket
+	rm -fR clover2 clover2.dSYM cclover2 cclover2.dSYM iclover2 iclover2.dSYM src/*.o config.log config.status *.stackdump autom4te.cache .DS_Store core.* core a.out *.oclcl *.bc *.s *.o *.ocl code/*.ocl code/*.oclcl *.clm a.c src/*.dwo *.ll *.so.1.0.0 *.so *.class src/config.h moveVarDecls.hi moveVarDecls.o moveVarDecls a.lock server_socket *.so.1
 	(cd examples/; make clean)
 
 distclean: clean
@@ -414,7 +424,6 @@ test: parser
 	PWD=`pwd` ./cclover2 code/CGITest.clcl
 	PWD=`pwd` ./cclover2 code/ClassMethodTest.clcl
 	PWD=`pwd` ./cclover2 code/SignalTest.clcl
-	PWD=`pwd` ./cclover2 code/CloneTest.clcl
 
 	PWD=`pwd` ./cclover2 code/CharTest.clcl
 	if locale -a | grep ja_JP.utf8; then export LANG="ja_JP_utf8"; export LC_ALL="ja_JP.utf8"; PWD=`pwd` ./clover2 code/char.cl; else export LANG="C.UTF-8"; export LC_ALL="C.UTF-8"; PWD=`pwd` ./clover2 code/char.cl; fi
@@ -439,4 +448,6 @@ test: parser
 #	PWD=`pwd` ./clover2 code/SocketTestInet.cl
 #	PWD=`pwd` ./clover2 code/SelectTest.cl
 
+	PWD=`pwd` ./cclover2 code/ClassFieldAndFieldTest.clcl
+	PWD=`pwd` ./cclover2 code/CloneTest.clcl
 	PWD=`pwd` ./clover2 code/main.cl

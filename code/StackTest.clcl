@@ -7,27 +7,30 @@ class StackTest {
     b:pointer;
 
     def initialize() {
-        self.b = System.malloc(1.to_ulong);
+        b = malloc(1);
     }
 
     def finalize() {
-        System.free(self.b);
+        free(b);
     }
-/*
+
+    def clone():StackTest {
+        result := StackTest();
+
+        result.b = System.malloc(1);
+
+        return result;
+    }
+
     def initialize():static {
-        StackTest.a = System.malloc(1);
+        a = malloc(1);
     }
 
     def finalize():static {
-        System.free(StackTest.a);
+        free(a);
     }
-*/
 
     def main(): static {
-#       1+1
-
-#       StackTest.method1();
-
         a:= new StackTest();
     }
 }

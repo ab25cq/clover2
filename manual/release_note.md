@@ -1,5 +1,11 @@
 English page is here [>> English page](release_note-en)
 
+version 4.1.2
+
+    Cloneメソッドのバグを修正。
+
+    クラスフィールドやフィールドの++, --などが動いていなかったため修正。
+
 version 4.1.1
 
     Cloneメソッドのバグを修正。

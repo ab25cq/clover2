@@ -1,5 +1,5 @@
-#include "buffer.h"
-#include "debug.h"
+#include "clover2-buffer.h"
+#include "clover2-debug.h"
 #include <wchar.h>
 #include <string.h>
 #include <ctype.h>

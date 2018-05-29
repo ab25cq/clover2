@@ -16,7 +16,6 @@ class CloneTest
 }
 
 klass := Class("CloneTest");
-
 klass.appendMethod(
     """
     def main():static {
@@ -32,9 +31,11 @@ klass.appendMethod(
             ls(glob("*.oclcl")).toString().split(/\n/).each {
                 it2 := it.scan(/(.+)\.oclcl/).items(1).subString(2, -1);
 
+println(it2);
                 klass := Class(it2);
 
-                if(klass.isInterface().negative()) {
+                if(klass.isInterface().negative() && it2.equals("Clover").negative() && it2.equals("Global").negative() && it2.equals("System").negative() && it2.equals("AndAndOrOrTest").negative() && it2.equals("CloneTest").negative())
+                {
                     result.append("print(\"class \{it2} clone test...\");\n");
 
                     if(klass.genericsParamTypes.length > 0) {
@@ -75,7 +76,8 @@ klass.appendMethod(
                             result.append(sprintf(">();\nb%d := a%d.clone();\n", array { n, n }));
                         }
                     }
-                    elif(it2.equals("Clover").negative() && it2.equals("Global").negative() && it2.equals("System").negative()) {
+                    else 
+                    {
                         result.append(sprintf("a%d := %s();\nb%d := a%d.clone();\n", array { n, it2, n, n }));
                     }
                     n++;

@@ -1,4 +1,16 @@
 
+version 4.1.2
+
+    Cloneメソッドのバグを修正。
+
+    クラスフィールドやフィールドの++, --などが動いていなかったため修正。
+
+version 4.1.2
+
+    Fixed clone method bugs
+
+    Fixed because class fields and field ++, - and so did not move.
+
 version 4.1.1
 
     Cloneメソッドのバグを修正。

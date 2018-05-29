@@ -1,4 +1,8 @@
 
+clover2 (4.1.2-1) unstable; urgency=medium
+
+    Fixed clone method bugs. Fixed because class fields and field ++, - and so did not move.
+
 clover2 (4.1.1-1) unstable; urgency=medium
 
     Fixed clone method bugs. Fixed a bug in string expression that removes spaces after that place. Fixed because there was a bug in free_object.
