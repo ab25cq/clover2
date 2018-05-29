@@ -140,10 +140,6 @@ install:
 	$(INSTALL) -m 644 ./sockaddr_in.oclcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 ./sockaddr_un.oclcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 ./timeval.oclcl $(DESTDIR)/share/clover2
-	$(INSTALL) -m 755 ./libclover2.so.1.0.0 $(DESTDIR)/lib
-	$(INSTALL) -m 755 ./libclover2.so.1 $(DESTDIR)/lib
-	$(INSTALL) -m 755 ./libclover2.so $(DESTDIR)/lib
-	$(INSTALL) -m 644 src/common.h $(DESTDIR)/include/clover2.h
 
 	if test $(JIT) = 1;then llvm-dis Clover.bc && $(INSTALL) -m 644 ./Clover.bc $(DESTDIR)/share/clover2; fi
 	if test -e libClover.so; then $(INSTALL) -m 755 ./libClover.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libClover.so $(DESTDIR)/share/clover2; fi
@@ -278,6 +274,18 @@ install:
 	$(INSTALL) -m 644 ./MPrintOutObject.clm $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 ./MWrapperClassBase.clm $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 ./MWrapperClassBase.clm $(DESTDIR)/share/clover2
+
+	mkdir -p $(DESTDIR)/lib
+	$(INSTALL) -m 755 ./libclover2.so.1.0.0 $(DESTDIR)/lib
+	$(INSTALL) -m 755 ./libclover2.so.1 $(DESTDIR)/lib
+	$(INSTALL) -m 755 ./libclover2.so $(DESTDIR)/lib
+
+	mkdir -p $(DESTDIR)/include/clover2
+	$(INSTALL) -m 644 src/common.h $(DESTDIR)/include/clover2/clover2.h
+	$(INSTALL) -m 644 src/clover2-buffer.h $(DESTDIR)/include/clover2
+	$(INSTALL) -m 644 src/clover2-debug.h $(DESTDIR)/include/clover2
+	$(INSTALL) -m 644 src/clover2-macros.h $(DESTDIR)/include/clover2
+	$(INSTALL) -m 644 src/clover2-xfunc.h $(DESTDIR)/include/clover2
 
 	mkdir -p $(DESTDIR)/share/man/man1
 	$(INSTALL) ./man/clover2.1.gz $(DESTDIR)/share/man/man1
