@@ -1,4 +1,8 @@
 
+version 4.1.3
+
+    Fiexed clone method bugs.
+
 version 4.1.2
 
     Fixed clone method bugs

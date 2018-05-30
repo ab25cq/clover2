@@ -382,7 +382,7 @@ BOOL System_pthread_mutex_init(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info
 
     /// Clover to C Value ///
     pthread_mutex_t* mutex_value = (pthread_mutex_t*)&CLOBJECT(mutex->mObjectValue)->mHeadOfMemory;
-    pthread_mutexattr_t* attr_value = (pthread_mutexattr_t*)&attr->mULongValue;
+    pthread_mutexattr_t* attr_value = (pthread_mutexattr_t*)&attr->mUIntValue;
 
     /// go ///
     int result = pthread_mutex_init(mutex_value, attr_value);
@@ -494,7 +494,7 @@ BOOL System_pthread_mutexattr_init(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* 
     CLVALUE* attr = lvar;
 
     /// Clover to C Value ///
-    pthread_mutexattr_t* attr_value = (pthread_mutexattr_t*)&attr->mULongValue;
+    pthread_mutexattr_t* attr_value = (pthread_mutexattr_t*)&attr->mUIntValue;
 
     /// go ///
     (void)pthread_mutexattr_init(attr_value);
@@ -508,7 +508,7 @@ BOOL System_pthread_mutexattr_settype(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInf
     CLVALUE* kind = lvar + 1;
 
     /// Clover to C Value ///
-    pthread_mutexattr_t* attr_value = (pthread_mutexattr_t*)&attr->mULongValue;
+    pthread_mutexattr_t* attr_value = (pthread_mutexattr_t*)&attr->mUIntValue;
     int kind_value = kind->mIntValue;
 
     /// go ///
@@ -527,7 +527,7 @@ BOOL System_pthread_mutexattr_destroy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInf
     CLVALUE* attr = lvar;
 
     /// Clover to C Value ///
-    pthread_mutexattr_t* attr_value = (pthread_mutexattr_t*)&attr->mULongValue;
+    pthread_mutexattr_t* attr_value = (pthread_mutexattr_t*)&attr->mUIntValue;
 
     /// go ///
     (void)pthread_mutexattr_destroy(attr_value);
@@ -541,7 +541,7 @@ BOOL System_pthread_mutexattr_gettype(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInf
     CLVALUE* kind = lvar + 1;
 
     /// Clover to C Value ///
-    pthread_mutexattr_t* attr_value = (pthread_mutexattr_t*)&attr->mULongValue;
+    pthread_mutexattr_t* attr_value = (pthread_mutexattr_t*)&attr->mUIntValue;
     int* kind_value = (int*)kind->mPointerValue;
 
     /// go ///

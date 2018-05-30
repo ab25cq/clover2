@@ -183,3 +183,5 @@ println("ClassFieldAndFieldTest");
 ClassFieldAndFieldTest.main();
 println("CloneTest");
 CloneTest.main();
+println("HereDocument");
+HereDocument.main();

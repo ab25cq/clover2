@@ -1,0 +1,19 @@
+class HereDocument
+{
+    def main(): static {
+        result := "";
+
+        result.append(
+            """
+            ABC
+            \{a := "D"; b := "E"; c := "F"; 
+            result := """
+                      \{a}\{b}\{c}
+                      """.chomp();
+            result;
+            }
+            """);
+
+        Clover.test("Here document", result.equals("ABC\nDEF\n"));
+    }
+}
