@@ -138,7 +138,7 @@ GPL2です。readlineがGPL2なので、それを利用しているclover2もGPL
 
 ## 依存ライブラリ
 
-コンパイル前に依存しているライブラリの開発版のインストールが必要です。math, iconv, pcre3,readline,libz,bsd6つのライブラリが必要です。
+コンパイル前に依存しているライブラリの開発版のインストールが必要です。math, iconv, pcre3,readline,libz,ncursesw6つのライブラリが必要です。
 Fedoraでしたら、ライブラリ名-develが開発版になります。Debian系(ubuntuなど)はライブラリ名-devのはずです。
 詳しくは検索して調べてください。
 あとコンパイルにはctagsが必要です。ctagsもインストールしてください。
@@ -154,7 +154,7 @@ ubuntu, Debianでは
     sudo apt-get install libreadline-dev
     sudo apt-get install libpcre3-dev
     sudo apt-get install libz-dev
-    sudo apt-get install libbsd-dev
+    sudo apt-get install libncursesw5-dev
     sudo apt-get install ctags
     sudo apt-get install make
 

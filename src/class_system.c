@@ -26,6 +26,10 @@
 #include <netdb.h>
 #include <sys/ioctl.h>
 
+#ifdef HAVE_NCURSESW_H
+#include <ncurses.h>
+#endif
+
 BOOL System_exit(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* num = lvar;
@@ -5194,7 +5198,386 @@ BOOL System_initialize_system_calls_system(CLVALUE** stack_ptr, CLVALUE* lvar, s
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+200].mValue.mIntValue = TIOCSER_TEMT;
 #endif
 
-#define LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS (LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+201)
+#ifdef ACS_BLOCK
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+201].mValue.mIntValue = ACS_BLOCK;
+#endif
+#ifdef ACS_BOARD
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+202].mValue.mIntValue = ACS_BOARD;
+#endif
+#ifdef ACS_BTEE
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+203].mValue.mIntValue = ACS_BTEE;
+#endif
+#ifdef ACS_BULLET
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+204].mValue.mIntValue = ACS_BULLET;
+#endif
+#ifdef ACS_CKBOARD
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+205].mValue.mIntValue = ACS_CKBOARD;
+#endif
+#ifdef ACS_DARROW
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+206].mValue.mIntValue = ACS_DARROW;
+#endif
+#ifdef ACS_DEGREE
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+207].mValue.mIntValue = ACS_DEGREE;
+#endif
+#ifdef ACS_DIAMOND
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+208].mValue.mIntValue = ACS_DIAMOND;
+#endif
+#ifdef ACS_GEQUAL
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+209].mValue.mIntValue = ACS_GEQUAL;
+#endif
+#ifdef ACS_HLINE
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+210].mValue.mIntValue = ACS_HLINE;
+#endif
+#ifdef ACS_LANTERN
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+211].mValue.mIntValue = ACS_LANTERN;
+#endif
+#ifdef ACS_LARROW
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+212].mValue.mIntValue = ACS_LARROW;
+#endif
+#ifdef ACS_LEQUAL
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+213].mValue.mIntValue = ACS_LEQUAL;
+#endif
+#ifdef ACS_LLCORNER
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+214].mValue.mIntValue = ACS_LLCORNER;
+#endif
+#ifdef ACS_LRCORNER
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+215].mValue.mIntValue = ACS_LRCORNER;
+#endif
+#ifdef ACS_LTEE
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+216].mValue.mIntValue = ACS_LTEE;
+#endif
+#ifdef ACS_NEQUAL
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+217].mValue.mIntValue = ACS_NEQUAL;
+#endif
+#ifdef ACS_PI
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+218].mValue.mIntValue = ACS_PI;
+#endif
+#ifdef ACS_PLMINUS
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+219].mValue.mIntValue = ACS_PLMINUS;
+#endif
+#ifdef ACS_PLUS
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+220].mValue.mIntValue = ACS_PLUS;
+#endif
+#ifdef ACS_RARROW
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+221].mValue.mIntValue = ACS_RARROW;
+#endif
+#ifdef ACS_RTEE
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+222].mValue.mIntValue = ACS_RTEE;
+#endif
+#ifdef ACS_S1
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+223].mValue.mIntValue = ACS_S1;
+#endif
+#ifdef ACS_S3
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+224].mValue.mIntValue = ACS_S3;
+#endif
+#ifdef ACS_S7
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+225].mValue.mIntValue = ACS_S7;
+#endif
+#ifdef ACS_S9
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+226].mValue.mIntValue = ACS_S9;
+#endif
+#ifdef ACS_STERLING
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+227].mValue.mIntValue = ACS_STERLING;
+#endif
+#ifdef ACS_TTEE
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+228].mValue.mIntValue = ACS_TTEE;
+#endif
+#ifdef ACS_UARROW
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+229].mValue.mIntValue = ACS_UARROW;
+#endif
+#ifdef ACS_ULCORNER
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+230].mValue.mIntValue = ACS_ULCORNER;
+#endif
+#ifdef ACS_URCORNER
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+231].mValue.mIntValue = ACS_URCORNER;
+#endif
+#ifdef ACS_VLINE
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+232].mValue.mIntValue = ACS_VLINE;
+#endif
+#ifdef A_BLINK
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+233].mValue.mIntValue = A_BLINK;
+#endif
+#ifdef A_BOLD
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+234].mValue.mIntValue = A_BOLD;
+#endif
+#ifdef A_DIM
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+235].mValue.mIntValue = A_DIM;
+#endif
+#ifdef A_REVERSE
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+236].mValue.mIntValue = A_REVERSE;
+#endif
+#ifdef A_STANDOUT
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+237].mValue.mIntValue = A_STANDOUT;
+#endif
+#ifdef A_UNDERLINE
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+238].mValue.mIntValue = A_UNDERLINE;
+#endif
+#ifdef KEY_DOWN
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+239].mValue.mIntValue = KEY_DOWN;
+#endif
+#ifdef KEY_UP
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+240].mValue.mIntValue = KEY_UP;
+#endif
+#ifdef KEY_LEFT
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+241].mValue.mIntValue = KEY_LEFT;
+#endif
+#ifdef KEY_RIGHT
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+242].mValue.mIntValue = KEY_RIGHT;
+#endif
+#ifdef KEY_HOME
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+243].mValue.mIntValue = KEY_HOME;
+#endif
+#ifdef KEY_BACKSPACE
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+244].mValue.mIntValue = KEY_BACKSPACE;
+#endif
+#ifdef KEY_DL
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+245].mValue.mIntValue = KEY_DL;
+#endif
+#ifdef KEY_IL
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+246].mValue.mIntValue = KEY_IL;
+#endif
+#ifdef KEY_DC
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+247].mValue.mIntValue = KEY_DC;
+#endif
+#ifdef KEY_IC
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+248].mValue.mIntValue = KEY_IC;
+#endif
+#ifdef KEY_EIC
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+249].mValue.mIntValue = KEY_EIC;
+#endif
+#ifdef KEY_CLEAR
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+250].mValue.mIntValue = KEY_CLEAR;
+#endif
+#ifdef KEY_EOS
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+251].mValue.mIntValue = KEY_EOS;
+#endif
+#ifdef KEY_EOL
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+252].mValue.mIntValue = KEY_EOL;
+#endif
+#ifdef KEY_SF
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+253].mValue.mIntValue = KEY_SF;
+#endif
+#ifdef KEY_SR
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+254].mValue.mIntValue = KEY_SR;
+#endif
+#ifdef KEY_NPAGE
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+255].mValue.mIntValue = KEY_NPAGE;
+#endif
+#ifdef KEY_PPAGE
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+256].mValue.mIntValue = KEY_PPAGE;
+#endif
+#ifdef KEY_STAB
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+257].mValue.mIntValue = KEY_STAB;
+#endif
+#ifdef KEY_CTAB
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+258].mValue.mIntValue = KEY_CTAB;
+#endif
+#ifdef KEY_CATAB
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+259].mValue.mIntValue = KEY_CATAB;
+#endif
+#ifdef KEY_ENTER
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+260].mValue.mIntValue = KEY_ENTER;
+#endif
+#ifdef KEY_PRINT
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+261].mValue.mIntValue = KEY_PRINT;
+#endif
+#ifdef KEY_LL
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+262].mValue.mIntValue = KEY_LL;
+#endif
+#ifdef KEY_A1
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+263].mValue.mIntValue = KEY_A1;
+#endif
+#ifdef KEY_A3
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+264].mValue.mIntValue = KEY_A3;
+#endif
+#ifdef KEY_B2
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+265].mValue.mIntValue = KEY_B2;
+#endif
+#ifdef KEY_C1
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+266].mValue.mIntValue = KEY_C1;
+#endif
+#ifdef KEY_C3
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+267].mValue.mIntValue = KEY_C3;
+#endif
+#ifdef KEY_BTAB
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+268].mValue.mIntValue = KEY_BTAB;
+#endif
+#ifdef KEY_BEG
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+269].mValue.mIntValue = KEY_BEG;
+#endif
+#ifdef KEY_CANCEL
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+270].mValue.mIntValue = KEY_CANCEL;
+#endif
+#ifdef KEY_CLOSE
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+271].mValue.mIntValue = KEY_CLOSE;
+#endif
+#ifdef KEY_COMMAND
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+272].mValue.mIntValue = KEY_COMMAND;
+#endif
+#ifdef KEY_COPY
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+273].mValue.mIntValue = KEY_COPY;
+#endif
+#ifdef KEY_CREATE
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+274].mValue.mIntValue = KEY_CREATE;
+#endif
+#ifdef KEY_END
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+275].mValue.mIntValue = KEY_END;
+#endif
+#ifdef KEY_EXIT
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+276].mValue.mIntValue = KEY_EXIT;
+#endif
+#ifdef KEY_FIND
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+277].mValue.mIntValue = KEY_FIND;
+#endif
+#ifdef KEY_HELP
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+278].mValue.mIntValue = KEY_HELP;
+#endif
+#ifdef KEY_MARK
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+279].mValue.mIntValue = KEY_MARK;
+#endif
+#ifdef KEY_MESSAGE
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+280].mValue.mIntValue = KEY_MESSAGE;
+#endif
+#ifdef KEY_MOVE
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+281].mValue.mIntValue = KEY_MOVE;
+#endif
+#ifdef KEY_NEXT
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+282].mValue.mIntValue = KEY_NEXT;
+#endif
+#ifdef KEY_OPEN
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+283].mValue.mIntValue = KEY_OPEN;
+#endif
+#ifdef KEY_OPTIONS
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+284].mValue.mIntValue = KEY_OPTIONS;
+#endif
+#ifdef KEY_PREVIOUS
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+285].mValue.mIntValue = KEY_PREVIOUS;
+#endif
+#ifdef KEY_REDO
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+286].mValue.mIntValue = KEY_REDO;
+#endif
+#ifdef KEY_REFERENCE
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+287].mValue.mIntValue = KEY_REFERENCE;
+#endif
+#ifdef KEY_REFRESH
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+288].mValue.mIntValue = KEY_REFRESH;
+#endif
+#ifdef KEY_REPLACE
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+289].mValue.mIntValue = KEY_REPLACE;
+#endif
+#ifdef KEY_RESTART
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+290].mValue.mIntValue = KEY_RESTART;
+#endif
+#ifdef KEY_RESUME
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+291].mValue.mIntValue = KEY_RESUME;
+#endif
+#ifdef KEY_SAVE
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+292].mValue.mIntValue = KEY_SAVE;
+#endif
+#ifdef KEY_SBEG
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+293].mValue.mIntValue = KEY_SBEG;
+#endif
+#ifdef KEY_SCANCEL
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+294].mValue.mIntValue = KEY_SCANCEL;
+#endif
+#ifdef KEY_SCOMMAND
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+295].mValue.mIntValue = KEY_SCOMMAND;
+#endif
+#ifdef KEY_SCOPY
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+296].mValue.mIntValue = KEY_SCOPY;
+#endif
+#ifdef KEY_SCREATE
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+297].mValue.mIntValue = KEY_SCREATE;
+#endif
+#ifdef KEY_SDC
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+298].mValue.mIntValue = KEY_SDC;
+#endif
+#ifdef KEY_SDL
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+299].mValue.mIntValue = KEY_SDL;
+#endif
+#ifdef KEY_SELECT
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+300].mValue.mIntValue = KEY_SELECT;
+#endif
+#ifdef KEY_SEND
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+301].mValue.mIntValue = KEY_SEND;
+#endif
+#ifdef KEY_SEOL
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+302].mValue.mIntValue = KEY_SEOL;
+#endif
+#ifdef KEY_SEXIT
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+303].mValue.mIntValue = KEY_SEXIT;
+#endif
+#ifdef KEY_SFIND
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+304].mValue.mIntValue = KEY_SFIND;
+#endif
+#ifdef KEY_SHELP
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+305].mValue.mIntValue = KEY_SHELP;
+#endif
+#ifdef KEY_SHOME
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+306].mValue.mIntValue = KEY_SHOME;
+#endif
+#ifdef KEY_SIC
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+307].mValue.mIntValue = KEY_SIC;
+#endif
+#ifdef KEY_SLEFT
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+308].mValue.mIntValue = KEY_SLEFT;
+#endif
+#ifdef KEY_SMESSAGE
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+309].mValue.mIntValue = KEY_SMESSAGE;
+#endif
+#ifdef KEY_SMOVE
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+310].mValue.mIntValue = KEY_SMOVE;
+#endif
+#ifdef KEY_SNEXT
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+311].mValue.mIntValue = KEY_SNEXT;
+#endif
+#ifdef KEY_SOPTIONS
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+312].mValue.mIntValue = KEY_SOPTIONS;
+#endif
+#ifdef KEY_SPREVIOUS
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+313].mValue.mIntValue = KEY_SPREVIOUS;
+#endif
+#ifdef KEY_SPRINT
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+314].mValue.mIntValue = KEY_SPRINT;
+#endif
+#ifdef KEY_SREDO
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+315].mValue.mIntValue = KEY_SREDO;
+#endif
+#ifdef KEY_SREPLACE
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+316].mValue.mIntValue = KEY_SREPLACE;
+#endif
+#ifdef KEY_SRIGHT
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+317].mValue.mIntValue = KEY_SRIGHT;
+#endif
+#ifdef KEY_SRSUME
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+318].mValue.mIntValue = KEY_SRSUME;
+#endif
+#ifdef KEY_SSAVE
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+319].mValue.mIntValue = KEY_SSAVE;
+#endif
+#ifdef KEY_SSUSPEND
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+320].mValue.mIntValue = KEY_SSUSPEND;
+#endif
+#ifdef KEY_SUNDO
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+321].mValue.mIntValue = KEY_SUNDO;
+#endif
+#ifdef KEY_SUSPEND
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+322].mValue.mIntValue = KEY_SUSPEND;
+#endif
+#ifdef KEY_UNDO
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+323].mValue.mIntValue = KEY_UNDO;
+#endif
+#ifdef KEY_MOUSE
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+324].mValue.mIntValue = KEY_MOUSE;
+#endif
+#ifdef KEY_RESIZE
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+325].mValue.mIntValue = KEY_RESIZE;
+#endif
+#ifdef KEY_EVENT
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+326].mValue.mIntValue = KEY_EVENT;
+#endif
+
+#define LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS (LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+328)
 
     return TRUE;
 }
@@ -6513,3 +6896,642 @@ BOOL System_ioctl(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     return TRUE;
 }
+
+#ifdef HAVE_NCURSESW_H
+
+BOOL System_initscr(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    WINDOW* result = initscr();
+
+    if(result == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "initscr(3) is error.");
+        return FALSE;
+    }
+
+    sCLClass* system = get_class("System");
+
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+327].mValue.mPointerValue = (char*)stdscr;
+
+    (*stack_ptr)->mPointerValue = (char*)result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_endwin(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    int result = endwin();
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "endwin(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_move(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* y = lvar;
+    CLVALUE* x = lvar+1;
+
+    /// Clover to C ///
+    int y_value = y->mIntValue;
+    int x_value = x->mIntValue;
+
+    /// go ///
+    int result = move(y_value, x_value);
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "move(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_printw(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* str = lvar;
+
+    if(str->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    /// Clover to C ///
+    char* str_value = string_object_to_char_array(str->mObjectValue);
+
+    int result = printw(str_value);
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "printw(3) is error.");
+        MFREE(str_value);
+        return FALSE;
+    }
+
+    MFREE(str_value);
+
+    return TRUE;
+}
+
+BOOL System_refresh(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    int result = refresh();
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "endwin(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_box(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* win_ptr = lvar;
+    CLVALUE* vetical_char = lvar + 1;
+    CLVALUE* horizonal_char = lvar + 2;
+
+    /// Clover to C ///
+    WINDOW* win_ptr_value = (WINDOW*)win_ptr->mPointerValue;
+    chtype vetical_char_value = (chtype)vetical_char->mCharValue;
+    chtype horizonal_char_value = (chtype)horizonal_char->mCharValue;
+    
+    /// go ///
+    int result = box(win_ptr_value, vetical_char_value, horizonal_char_value);
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "endwin(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_isendwin(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    int result = isendwin();
+
+    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_clear(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    /// go ///
+    int result = clear();
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "clear(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_attron(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* attribute = lvar;
+
+    /// Clover to C ///
+    chtype attribute_value = attribute->mIntValue;
+    
+    /// go ///
+    int result = attron(attribute_value);
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "attron(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_attroff(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* attribute = lvar;
+
+    /// Clover to C ///
+    chtype attribute_value = attribute->mIntValue;
+    
+    /// go ///
+    int result = attroff(attribute_value);
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "attroff(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_attrset(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* attribute = lvar;
+
+    /// Clover to C ///
+    chtype attribute_value = attribute->mIntValue;
+    
+    /// go ///
+    int result = attrset(attribute_value);
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "attrset(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_echo(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    /// go ///
+    int result = echo();
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "echo(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_noecho(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    /// go ///
+    int result = noecho();
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "noecho(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_cbreak(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    /// go ///
+    int result = cbreak();
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "cbreak(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_nocbreak(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    /// go ///
+    int result = nocbreak();
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "nocbreak(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_raw(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    /// go ///
+    int result = raw();
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "raw(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_noraw(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    /// go ///
+    int result = noraw();
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "noraw(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_getch(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    /// go ///
+    int result = getch();
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "noecho(3) is error.");
+        return FALSE;
+    }
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_newwin(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* num_of_lines = lvar;
+    CLVALUE* num_of_cols = lvar + 1;
+    CLVALUE* start_y = lvar + 2;
+    CLVALUE* start_x = lvar + 3;
+
+    /// Clover to C ///
+    int num_of_lines_value = num_of_lines->mIntValue;
+    int num_of_cols_value = num_of_cols->mIntValue;
+    int start_y_value = start_y->mIntValue;
+    int start_x_value = start_x->mIntValue;
+
+    /// go ///
+    WINDOW* result = newwin(num_of_lines_value, num_of_cols_value, start_y_value, start_x_value);
+
+    if(result == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "newwin(3) is error.");
+        return FALSE;
+    }
+
+    (*stack_ptr)->mPointerValue = (char*)result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_delwin(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* window_to_delete = lvar;
+
+    /// Clover to C ///
+    WINDOW* window_to_delete_value = (WINDOW*)window_to_delete->mPointerValue;
+
+    /// go ///
+    int result = delwin(window_to_delete_value);
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "delwin(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_mvwin(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* window_to_move = lvar;
+    CLVALUE* new_y = lvar + 1;
+    CLVALUE* new_x = lvar + 2;
+
+    /// Clover to C ///
+    WINDOW* window_to_move_value = (WINDOW*)window_to_move->mPointerValue;
+    int new_y_value = new_y->mIntValue;
+    int new_x_value = new_x->mIntValue;
+
+    /// go ///
+    int result = mvwin(window_to_move_value, new_y_value, new_x_value);
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "mvwin(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_wrefresh(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* window_to_ptr = lvar;
+
+    /// Clover to C ///
+    WINDOW* window_to_ptr_value = (WINDOW*)window_to_ptr->mPointerValue;
+
+    /// go ///
+    int result = wrefresh(window_to_ptr_value);
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "wrefresh(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_wclear(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* window_to_ptr = lvar;
+
+    /// Clover to C ///
+    WINDOW* window_to_ptr_value = (WINDOW*)window_to_ptr->mPointerValue;
+
+    /// go ///
+    int result = wclear(window_to_ptr_value);
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "wclear(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_touchwin(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* window_to_ptr = lvar;
+
+    /// Clover to C ///
+    WINDOW* window_to_ptr_value = (WINDOW*)window_to_ptr->mPointerValue;
+
+    /// go ///
+    int result = touchwin(window_to_ptr_value);
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "touchwin(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_keypad(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* window = lvar;
+    CLVALUE* keypad_on = lvar + 1;
+
+    /// Clover to C ///
+    WINDOW* window_value = (WINDOW*)window->mPointerValue;
+    BOOL keypad_on_value = keypad_on->mBoolValue;
+
+    /// go ///
+    int result = keypad(window_value, keypad_on_value);
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "keypad(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_wmove(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* window = lvar;
+    CLVALUE* y = lvar + 1;
+    CLVALUE* x = lvar + 1;
+
+    /// Clover to C ///
+    WINDOW* window_value = (WINDOW*)window->mPointerValue;
+    int y_value = y->mIntValue;
+    int x_value = x->mIntValue;
+
+    /// go ///
+    int result = wmove(window_value, y_value, x_value);
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "keypad(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_wprintw(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* window = lvar;
+    CLVALUE* str = lvar + 1;
+
+    if(str->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    /// Clover to C ///
+    WINDOW* window_value = (WINDOW*)window->mPointerValue;
+    char* str_value = string_object_to_char_array(str->mObjectValue);
+
+    int result = wprintw(window_value, str_value);
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "printw(3) is error.");
+        MFREE(str_value);
+        return FALSE;
+    }
+
+    MFREE(str_value);
+
+    return TRUE;
+}
+
+#else
+
+BOOL System_initscr(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
+    return FALSE;
+}
+
+BOOL System_endwin(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
+    return FALSE;
+}
+
+BOOL System_move(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
+    return FALSE;
+}
+
+BOOL System_printw(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
+    return FALSE;
+}
+
+BOOL System_refresh(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
+    return FALSE;
+}
+
+BOOL System_box(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
+    return FALSE;
+}
+
+BOOL System_isendwin(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
+    return FALSE;
+}
+
+BOOL System_clear(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
+    return FALSE;
+}
+
+BOOL System_attron(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
+    return FALSE;
+}
+
+BOOL System_attroff(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
+    return FALSE;
+}
+
+BOOL System_attrset(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
+    return FALSE;
+}
+
+BOOL System_echo(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
+    return FALSE;
+}
+
+BOOL System_noecho(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
+    return FALSE;
+}
+
+BOOL System_cbreak(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
+    return FALSE;
+}
+
+BOOL System_nocbreak(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
+    return FALSE;
+}
+
+BOOL System_raw(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
+    return FALSE;
+}
+
+BOOL System_noraw(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
+    return FALSE;
+}
+
+BOOL System_getch(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
+    return FALSE;
+}
+
+BOOL System_newwin(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
+    return FALSE;
+}
+
+BOOL System_delwin(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
+    return FALSE;
+}
+
+BOOL System_mvwin(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
+    return FALSE;
+}
+
+BOOL System_wrefresh(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
+    return FALSE;
+}
+
+BOOL System_wclear(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
+    return FALSE;
+}
+
+BOOL System_touchwin(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
+    return FALSE;
+}
+
+BOOL System_keypad(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
+    return FALSE;
+}
+
+BOOL System_wmove(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
+    return FALSE;
+}
+
+BOOL System_wprintw(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
+    return FALSE;
+}
+
+#endif

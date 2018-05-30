@@ -569,7 +569,7 @@ class File
 
 class Path 
 {
-    path: String;
+    path: delegate String;
 
     def initialize() {}
 

@@ -150,6 +150,10 @@ class String
         return self;
     }
 
+    def insert(index:int, c:char): String {
+        return insert(index, c.toString());
+    }
+
     def subString(start:int, end:int):  String {
         if(start < 0) {
             start += self.len;

@@ -64,7 +64,7 @@
 #define TUPLE_VALUE_ELEMENT_MAX ARRAY_VALUE_ELEMENT_MAX
 #define HASH_VALUE_ELEMENT_MAX ARRAY_VALUE_ELEMENT_MAX
 #define TYPEDEF_MAX 64
-#define CLASS_NUM_MAX 512
+#define CLASS_NUM_MAX 1024
 #define CLOVER_STACK_SIZE 1024
 //#define CLOVER_STACK_SIZE 512
 #define METHOD_CHAIN_MAX 128
@@ -2232,6 +2232,35 @@ BOOL System_FD_ZERO(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 BOOL System_select(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_ioctl(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+
+BOOL System_initscr(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_endwin(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_move(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_printw(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_refresh(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_box(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_isendwin(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_clear(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_attron(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_attroff(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_attrset(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+
+BOOL System_echo(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_noecho(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_cbreak(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_nocbreak(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_raw(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_noraw(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_getch(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_mvwin(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_wrefresh(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_wclear(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_touchwin(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_keypad(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_newwin(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_delwin(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_wmove(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_wprintw(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 CLObject signal_handler_object[SIGMAX];
 

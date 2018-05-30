@@ -1,4 +1,10 @@
 
+version 4.1.4
+
+    Now Path class delegates String class
+
+    Added curses library
+
 version 4.1.3
 
     Fiexed clone method bugs.

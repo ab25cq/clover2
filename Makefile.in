@@ -309,6 +309,10 @@ uninstall:
 	rmdir "$(DESTDIR)"/share/clover2
 	rm -f "$(DESTDIR)"/share/doc/clover2/*
 	rmdir "$(DESTDIR)"/share/doc/clover2
+	rm -f "$(DESTDIR)"/lib/libclover2.*
+	rm -f "$(DESTDIR)"/include/clover2/*
+	rmdir "$(DESTDIR)"/include/clover2
+	rm -f "$(DESTDIR)"/share/man/man1/clover2.1.gz
 
 #########################################################
 # permission

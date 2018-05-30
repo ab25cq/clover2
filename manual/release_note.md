@@ -1,5 +1,11 @@
 English page is here [>> English page](release_note-en)
 
+version 4.1.4
+
+    PathクラスはStringクラスにメソッドを委譲するようになりました。
+
+    Added curses library
+
 version 4.1.3
 
     Cloneメソッドのバグを修正。

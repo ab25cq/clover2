@@ -206,6 +206,9 @@ INSTALL="/usr/bin/install -c"
 AC_CHECK_HEADER(pthread.h, [AC_DEFINE(HAVE_PTHREAD_H, 1)], [ exit ])
 AC_HAVE_LIBRARY(pthread, [ LIBS="$LIBS -lpthread"; ], [ exit ])
 
+AC_CHECK_HEADER(ncurses.h, [AC_DEFINE(HAVE_NCURSESW_H, 1)], [])
+AC_HAVE_LIBRARY(ncursesw, [ LIBS="$LIBS -lncursesw"; ], [])
+
 AC_CHECK_HEADER(readline/readline.h, [AC_DEFINE(HAVE_READLINE_H, 1)], [])
 AC_HAVE_LIBRARY(readline, [ LIBS="$LIBS -lreadline"; ], [])
 
