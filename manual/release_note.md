@@ -1,5 +1,11 @@
 English page is here [>> English page](release_note-en)
 
+version 4.1.5
+    
+    ラムダの配列に対するラムダの実行ができなったので、できるようにしました。
+
+    cloneメソッドのバグを修正。
+
 version 4.1.4
 
     PathクラスはStringクラスにメソッドを委譲するようになりました。

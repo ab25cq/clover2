@@ -468,6 +468,8 @@ class System
     KEY_RESIZE: static int;
     KEY_EVENT: static int;
 
+    KEY_MAX: static int;
+
     stdscr: static pointer@WINDOW;
 
     def ioctl(fd:int, request:int, arg:pointer):static native int throws Exception;
@@ -479,6 +481,10 @@ class System
     def printw(format:String, params:Array<Object>): static throws Exception {
         str := sprintf(format, params);
         printw(str);
+    }
+    def mvprintw(y:int, x:int, format:String, params:Array<Object>): static throws Exception {
+        move(y, x);
+        printw(format, params);
     }
     def refresh(): native static throws Exception;
     def box(win_ptr:pointer@WINDOW, vetical_char:char, horizonal_char:char): native static throws Exception;
@@ -510,5 +516,15 @@ class System
     def wprintw(window:pointer@WINDOW, format:String, params:Array<Object>): static throws Exception {
         str := sprintf(format, params);
         wprintw(window, str);
+    }
+}
+
+class String 
+{
+    def printw(format:String): throws Exception {
+        System.printw(format, array { self });
+    }
+    def mvprintw(y:int, x:int, format:String): throws Exception {
+        System.mvprintw(y, x, format, array { self });
     }
 }

@@ -185,3 +185,5 @@ println("CloneTest");
 CloneTest.main();
 println("HereDocument");
 HereDocument.main();
+println("LambdaArrayTest");
+LambdaArrayTest.main();

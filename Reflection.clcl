@@ -216,25 +216,37 @@ class Clover
                             for(i:=0; i<it.numFields; i++) {
                                 field := it.getField(i);
 
-                                class_name := field.resultType;
+                                class_name := field.resultType.clone();
 
-                                if(class_name.length() > 1 && class_name.chars(-1) == '?') {
-                                    class_name = class_name.subString(0,-2);
+                                if(class_name.match(/\?/)) {
+                                    class_name = class_name.sub(/\?/, "");
                                 }
 
                                 is_array := false;
-                                if(class_name.length() > 2 && class_name.chars(-2) == '[' && class_name.chars(-1) == ']') 
-                                {
-                                    class_name = class_name.subString(0, -3);
+                                class_name_for_array := "";
+                                if(class_name.match(/^lambda\[\].*$/)) {
+                                    class_name_for_array = class_name.clone();
+                                    class_name = "lambda"
                                     is_array = true;
                                 }
-
-                                if(class_name.match(/.+<.+>/)) {
-                                    class_name = class_name.scan(/(.+)<.+>/).items(1);
-                                }
-
-                                if(class_name.match(/lambda$|lambda\(\)|lambda\(.*/)) {
+                                elif(class_name.match(/^lambda$|^lambda\(\)|^lambda\(.*/)) {
                                     class_name = "lambda"
+                                    is_array = false;
+                                }
+                                elif(class_name.match(/^.+<.+>\[\]$/)) {
+                                    class_name_for_array = class_name.scan(/(.+<.+>)\[\]/).items(1).clone();
+                                    class_name = class_name.scan(/(.+)<.+>\[\]/).items(1);
+                                    is_array = true;
+                                }
+                                elif(class_name.match(/^.+<.+>$/)) {
+                                    class_name = class_name.scan(/(.+)<.+>/).items(1);
+                                    is_array = false;
+                                }
+                                elif(class_name.length() > 2 && class_name.chars(-2) == '[' && class_name.chars(-1) == ']') 
+                                {
+                                    class_name = class_name.subString(0, -3);
+                                    class_name_for_array = class_name.clone();
+                                    is_array = true;
                                 }
 
                                 klass := Class(class_name);
@@ -243,16 +255,32 @@ class Clover
                                 is_interface := (klass.flags & CLASS_FLAGS_INTERFACE).to_bool;
                                 clone_method_existance := !klass.getMethod("clone", 0, false).identifyWith(null);
                                 
-                                if(is_array) {
+                                if(is_array && class_name.equals("lambda")) {
+                                    class_name2 := class_name_for_array.scan(/lambda\[\](.*)$/).items(1);
+
                                     output.append(sprintf("if(!self.%s.identifyWith(null)) {", array { field.name }));
-                                    output.append(sprintf("result.%s = %s[self.%s.length]();\n", array { field.name, class_name, field.name}));
+                                    output.append(sprintf("result.%s = new lambda[self.%s.length]%s();\n", array { field.name, field.name, class_name2 }));
 
                                     if(is_primitive || !clone_method_existance)
                                     {
                                         output.append(sprintf("for(i:=0; i<self.%s.length; i++) { result.%s[i] = self.%s[i]; }", array { field.name, field.name, field.name }));
                                     }
                                     else {
-                                        output.append(sprintf("for(i:=0; i<self.%s.length; i++) { result.%s[i] = self.%s[i].toAnonymous().clone(); }", array { field.name, field.name, field.name }));
+                                        output.append(sprintf("for(i:=0; i<self.%s.length; i++) { if(!self.%s[i].identifyWith(null)) { result.%s[i] = self.%s[i].toAnonymous().clone(); } }", array { field.name, field.name, field.name, field.name }));
+                                    }
+
+                                    output.append("}");
+                                }
+                                elif(is_array) {
+                                    output.append(sprintf("if(!self.%s.identifyWith(null)) {", array { field.name }));
+                                    output.append(sprintf("result.%s = %s[self.%s.length]();\n", array { field.name, class_name_for_array, field.name}));
+
+                                    if(is_primitive || !clone_method_existance)
+                                    {
+                                        output.append(sprintf("for(i:=0; i<self.%s.length; i++) { result.%s[i] = self.%s[i]; }", array { field.name, field.name, field.name }));
+                                    }
+                                    else {
+                                        output.append(sprintf("for(i:=0; i<self.%s.length; i++) { if(!self.%s[i].identifyWith(null)) { result.%s[i] = self.%s[i].toAnonymous().clone(); } }", array { field.name, field.name, field.name, field.name }));
                                     }
 
                                     output.append("}");

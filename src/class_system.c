@@ -5576,8 +5576,12 @@ BOOL System_initialize_system_calls_system(CLVALUE** stack_ptr, CLVALUE* lvar, s
 #ifdef KEY_EVENT
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+326].mValue.mIntValue = KEY_EVENT;
 #endif
+#ifdef KEY_EVENT
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+327].mValue.mIntValue = KEY_MAX;
+#endif
+    //system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+328].mValue.mPointerValue = (char*)stdscr;
 
-#define LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS (LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+328)
+#define LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS (LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+329)
 
     return TRUE;
 }
@@ -6910,7 +6914,7 @@ BOOL System_initscr(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     sCLClass* system = get_class("System");
 
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+327].mValue.mPointerValue = (char*)stdscr;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+328].mValue.mPointerValue = (char*)stdscr;
 
     (*stack_ptr)->mPointerValue = (char*)result;
     (*stack_ptr)++;

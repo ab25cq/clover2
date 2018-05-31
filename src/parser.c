@@ -1782,6 +1782,24 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
         }
     }
 
+    (*result_type)->mNullable = FALSE;
+
+    if(strcmp(type_name, "lambda") == 0) {
+        if(*info->p == '[' && *(info->p+1) == ']') {
+            info->p+=2;
+            skip_spaces_and_lf(info);
+
+            (*result_type)->mArray = TRUE;
+        }
+
+        if(*info->p == '?') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            (*result_type)->mNullable = TRUE;
+        }
+    }
+
     if(*result_type == NULL || (*result_type)->mClass == NULL) {
         parser_err_msg(info, "%s is not defined class", type_name);
         info->err_num++;
@@ -1789,7 +1807,7 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
 
     int generics_num = 0;
 
-    if(type_identify_with_class_name(*result_type, "lambda")) {
+    if(strcmp(type_name, "lambda") == 0) {
         sNodeBlockType* node_block_type = alloc_node_block_type();
 
         if(*info->p == '(') {
@@ -1898,9 +1916,6 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
 
         (*result_type)->mNullable = TRUE;
     }
-    else {
-        (*result_type)->mNullable = FALSE;
-    }
 
     /// anotation ///
     if(*info->p == '@') {
@@ -1987,7 +2002,80 @@ BOOL parse_type_for_new(sNodeType** result_type, unsigned int* array_num, sParse
 
     int generics_num = 0;
 
-    if(*info->p == '<' && *(info->p+1) != '<' && *(info->p+1) != '=') {
+    if(type_identify_with_class_name(*result_type, "lambda")) {
+        if(*info->p == '[') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            if(!expression(array_num, info)) {
+                return FALSE;
+            }
+
+            expect_next_character_with_one_forward("]", info);
+
+            (*result_type)->mArray = TRUE;
+        }
+
+        sNodeBlockType* node_block_type = alloc_node_block_type();
+
+        if(*info->p == '(') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            if(*info->p == ')') {
+                info->p++;
+                skip_spaces_and_lf(info);
+            }
+            else {
+                while(1) {
+                    sNodeType* node_type = NULL;
+                    if(!parse_type(&node_type, info)) {
+                        return FALSE;
+                    }
+
+                    node_block_type->mParams[node_block_type->mNumParams] = node_type;
+                    node_block_type->mNumParams++;
+
+                    if(node_block_type->mNumParams >= PARAMS_MAX) {
+                        parser_err_msg(info, "oveflow block object type params");
+                        return FALSE;
+                    }
+
+                    if(*info->p == ')') {
+                        info->p++;
+                        skip_spaces_and_lf(info);
+                        break;
+                    }
+                    else if(*info->p == ',') {
+                        info->p++;
+                        skip_spaces_and_lf(info);
+                    }
+                    else {
+                        parser_err_msg(info, "invalid character in block type name(%c)", *info->p);
+                        break;
+                    }
+                }
+            }
+        }
+
+        if(*info->p == ':') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            sNodeType* node_type = NULL;
+            if(!parse_type(&node_type, info)) {
+                return FALSE;
+            }
+
+            node_block_type->mResultType = node_type;
+        }
+        else {
+            node_block_type->mResultType = create_node_type_with_class_name("Null");
+        }
+
+        (*result_type)->mBlockType = node_block_type;
+    }
+    else if(*info->p == '<' && *(info->p+1) != '<' && *(info->p+1) != '=') {
         info->p++;
         skip_spaces_and_lf(info);
 
@@ -2365,7 +2453,20 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info, int* nu
             else {
                 expect_next_character_with_one_forward("]", info);
 
-                if(is_assign_operator(info)) {
+                /// calling lambda or closure ///
+                if(*info->p == '(') {
+                    *node = sNodeTree_create_load_array_element(*node, index_node, info);
+
+                    unsigned int params[PARAMS_MAX];
+                    int num_params = 0;
+
+                    if(!parse_method_params(&num_params, params, info)) {
+                        return FALSE;
+                    }
+
+                    *node = sNodeTree_create_block_call(*node, num_params, params, info);
+                }
+                else if(is_assign_operator(info)) {
                     unsigned int node2 = clone_node(*node);
                     unsigned int index_node2 = clone_node(index_node);
 

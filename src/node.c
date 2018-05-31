@@ -9825,7 +9825,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     cast_right_type_to_left_type(left_type2, &right_type, info);
 
     if(!substitution_posibility(left_type2, right_type, NULL, NULL, NULL, NULL)) {
-        compile_err_msg(info, "The different type between left type and right type(1). Left type is %s. Right type is %s.", CLASS_NAME(left_type2->mClass), CLASS_NAME(right_type->mClass));
+        compile_err_msg(info, "The different type between left type and right type(8). Left type is %s. Right type is %s.", CLASS_NAME(left_type2->mClass), CLASS_NAME(right_type->mClass));
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy

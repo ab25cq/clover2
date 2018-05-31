@@ -356,8 +356,13 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_
             return check_implemented_methods_for_interface(left_class, right_class);
         }
     }
-    else if(type_identify_with_class_name(left3, "lambda")) {
-        if(type_identify_with_class_name(right3, "lambda")) {
+    else if(strcmp(CLASS_NAME(left3->mClass), "lambda") == 0) {
+        if(strcmp(CLASS_NAME(right3->mClass), "lambda") == 0) 
+        {
+            if(left3->mArray != right3->mArray) {
+                return FALSE;
+            }
+
             sNodeBlockType* left_block_type = left3->mBlockType;
             sNodeBlockType* right_block_type = right3->mBlockType;
 
@@ -367,6 +372,9 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_
             else {
                 return FALSE;
             }
+        }
+        else if(left3->mNullable && type_identify_with_class_name(right3, "Null")) {
+            return TRUE;
         }
         else {
             return FALSE;
