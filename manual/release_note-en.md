@@ -1,4 +1,8 @@
 
+version 4.1.6
+    
+    Fixed lambda array object bug.
+
 version 4.1.5
 
     I have made it possible to execute lambda on lambda's array, so I can do it. Fixed a bug in the clone method.

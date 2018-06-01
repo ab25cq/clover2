@@ -562,8 +562,13 @@ class File
         f.write(buf);
         f.close();
     }
-    def write(file_name:String, buf:Buffer): static throws Exception {
-        File.write(file_name, buf, "w");
+    def write(file_name:String, buf:Buffer, append:bool=false): static throws Exception {
+        if(append) {
+            File.write(file_name, buf, "a");
+        }
+        else {
+            File.write(file_name, buf, "w");
+        }
     }
 }
 
@@ -646,8 +651,8 @@ class Path
     def read(): Buffer {
         return File.read(self.path);
     }
-    def write(buf:Buffer) {
-        File.write(self.path, buf);
+    def write(buf:Buffer, append:bool=false) {
+        File.write(self.path, buf, append);
     }
 
     def chmod(mode:mode_t) throws Exception {
@@ -889,14 +894,14 @@ class Clover
 
 class String
 {
-    def write(file_name:String) {
-        File.write(file_name, self.toBuffer());
+    def write(file_name:String, append:bool =false) {
+        File.write(file_name, self.toBuffer(), append);
     }
 }
 
 class Buffer
 {
-    def write(file_name:String) {
-        File.write(file_name, self);
+    def write(file_name:String, append:bool=false) {
+        File.write(file_name, self, append);
     }
 }

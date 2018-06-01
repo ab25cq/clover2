@@ -1,4 +1,8 @@
 
+clover2 (4.1.6-1) unstable; urgency=medium
+
+    * Fixed lambda array object bug.
+
 clover2 (4.1.5-1) unstable; urgency=medium
 
     * I have made it possible to execute lambda on lambda's array, so I can do it. Fixed a bug in the clone method.

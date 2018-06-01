@@ -109,11 +109,11 @@ void mark_object(CLObject obj, unsigned char* mark_flg)
                     object_mark_fun(obj, mark_flg);
                 }
             }
+            else if(array_num >= 0) {
+                array_mark_fun(obj, mark_flg);
+            }
             else if(klass == lambda_class) {
                 block_mark_fun(obj, mark_flg);
-            }
-            else {
-                array_mark_fun(obj, mark_flg);
             }
         }
     }

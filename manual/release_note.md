@@ -1,5 +1,9 @@
 English page is here [>> English page](release_note-en)
 
+version 4.1.6
+    
+    ラムダの配列でラムダのオブジェクトがマークされない問題を修正。
+
 version 4.1.5
     
     ラムダの配列に対するラムダの実行ができなったので、できるようにしました。
