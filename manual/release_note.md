@@ -1,5 +1,9 @@
 English page is here [>> English page](release_note-en)
 
+version 4.1.8
+    
+    クラスのソースファイルのincludeファイルの検索パスのルーチンを作りました。カレントディレクトリだけでなく$PREFIX/share/clover2や~/.clover2にあるファイルも検索されます。cclover2 -core a.clclなどでinclude "MyOwnLibrary.clcl"などすれば基礎ライブラリの改造が出来ます。
+
 version 4.1.7
     
     Clover.onExceptionフックを作りました。例外が起こったときに実行されます。

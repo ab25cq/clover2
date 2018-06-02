@@ -70,6 +70,20 @@ $(OBJ): src/*.h Makefile configure
 #########################################################
 install:
 	mkdir -p $(DESTDIR)/share/clover2
+
+	$(INSTALL) -m 644 ./CGI.clcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 ./Command.clcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 ./Container.clcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 ./File.clcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 ./Fundamental.clcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 ./MyOwnLibrary.clcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 ./Range.clcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 ./Reflection.clcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 ./Socket.clcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 ./String.clcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 ./SystemCalls.clcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 ./Thread.clcl $(DESTDIR)/share/clover2
+
 	$(INSTALL) -m 644 ./PcreOVec.oclcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 ./System.oclcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 ./Clover.oclcl $(DESTDIR)/share/clover2

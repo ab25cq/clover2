@@ -1,4 +1,12 @@
 
+version 4.1.8
+    
+    クラスのソースファイルのincludeファイルの検索パスのルーチンを作りました。カレントディレクトリだけでなく$PREFIX/share/clover2や~/.clover2にあるファイルも検索されます。cclover2 -core a.clclなどでinclude "MyOwnLibrary.clcl"などすれば基礎ライブラリの改造が出来ます。
+
+version 4.1.8
+
+    I created a search path routine for include files of class source files. Files in $ PRE FIX / share / clover 2 and ~ /. Clover 2 as well as the current directory are also searched. If you include "MyOwnLibrary.clc l" in cclover2 -core a.clcl etc, you can modify the basic library.
+
 version 4.1.7
     
     Clover.onExceptionフックを作りました。例外が起こったときに実行されます。

@@ -1,3 +1,8 @@
+
+version 4.1.8
+
+    I created a search path routine for include files of class source files. Files in $ PRE FIX / share / clover 2 and ~ /. Clover 2 as well as the current directory are also searched. If you include "MyOwnLibrary.clc l" in cclover2 -core a.clcl etc, you can modify the basic library.
+
 version 4.1.7
 
     I made a Clover.onException hook. It is executed when an exception occurs.

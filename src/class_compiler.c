@@ -1372,29 +1372,48 @@ static BOOL parse_module(sParserInfo* info, sCompileInfo* cinfo)
 
 static BOOL parse_class_source(sParserInfo* info, sCompileInfo* cinfo);
 
+static BOOL search_for_include_file(char* file_name, char* include_file_path, size_t include_file_path_size)
+{
+    /// home directory ///
+    char* home = getenv("HOME");
+
+    if(home) {
+        snprintf(include_file_path, include_file_path_size, "%s/.clover2/%s", home, file_name);
+
+        if(access(include_file_path, F_OK) == 0) {
+            return TRUE;
+        }
+    }
+
+    /// system shared directory ///
+    snprintf(include_file_path, include_file_path_size, "%s/share/clover2/%s", PREFIX, file_name);
+
+    if(access(include_file_path, F_OK) == 0) {
+        return TRUE;
+    }
+
+    /// current working directory ///
+    char* cwd = getenv("PWD");
+
+    if(cwd) {
+        snprintf(include_file_path, include_file_path_size, "%s/%s", cwd, file_name);
+
+        if(access(include_file_path, F_OK) == 0) {
+            return TRUE;
+        }
+    }
+
+    return FALSE;
+}
+
 static BOOL include_file(sParserInfo* info, sCompileInfo* cinfo)
 {
-    /// includeするファイル名を得る ///
+    /// get including file name ///
     char file_name[PATH_MAX+1];
 
     expect_next_character_with_one_forward("\"", info);
 
     char* p = file_name;
-
-    /// ファイル名を絶対パスにしておく ///
-    if(*info->p != '/') {
-        char* pwd = getenv("PWD");
-
-        if(pwd) {
-            char* p2 = pwd;
-
-            while(*p2) {
-                *p++ = *p2++;
-            }
-
-            *p++ = '/';
-        }
-    }
 
     while(1) {
         if(*info->p == '"') {
@@ -1417,12 +1436,19 @@ static BOOL include_file(sParserInfo* info, sCompileInfo* cinfo)
     }
     *p = '\0';
 
-    if(strcmp(gCompilingSourceFileName, file_name) != 0) { /// コンパイル中のファイルのincludeは禁止させる
+    char file_path[PATH_MAX+1];
+
+    if(!search_for_include_file(file_name, file_path, PATH_MAX)) {
+        parser_err_msg(info, "can't search for the file(%s).", file_name);
+        return FALSE;
+    }
+
+    if(strcmp(gCompilingSourceFileName, file_path) != 0) {
         /// load source file ///
         sBuf source;
         sBuf_init(&source);
 
-        if(!read_source(file_name, &source)) {
+        if(!read_source(file_path, &source)) {
             MFREE(source.mBuf);
             return FALSE;
         }
@@ -1440,7 +1466,7 @@ static BOOL include_file(sParserInfo* info, sCompileInfo* cinfo)
         info->p = source2.mBuf;
 
         char* info_sname_before = info->sname;
-        info->sname = file_name;
+        info->sname = file_path;
 
         int info_sline_before = info->sline;
         info->sline = 1;

@@ -142,7 +142,7 @@ static BOOL class_compiler(char* fname)
 
 int gARGC;
 char** gARGV;
-char* gVersion = "4.1.7";
+char* gVersion = "4.1.8";
 
 int main(int argc, char** argv)
 {
