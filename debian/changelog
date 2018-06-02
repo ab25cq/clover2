@@ -1,4 +1,8 @@
 
+clover2 (4.1.7-1) unstable; urgency=medium
+
+    * I made a Clover.onException hook. It is executed when an exception occurs.
+
 clover2 (4.1.6-1) unstable; urgency=medium
 
     * Fixed lambda array object bug.

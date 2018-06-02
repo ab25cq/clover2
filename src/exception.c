@@ -9,6 +9,8 @@ void entry_exception_object_with_class_name(CLVALUE** stack_ptr, CLVALUE* stack,
     vsnprintf(msg2, 1024, msg, args);
     va_end(args);
 
+    callOnException();
+
     char msg3[1024];
 
     if(info->running_class && info->running_method) {
@@ -50,6 +52,8 @@ void entry_exception_object_with_class_name2(CLVALUE** stack_ptr, CLVALUE* stack
 {
     char msg3[1024];
 
+    callOnException();
+
     if(info->running_class && info->running_method) {
         snprintf(msg3, 1024, "%s %d: %s at %s.%s", info->sname, info->sline, msg, CLASS_NAME(info->running_class), METHOD_NAME2(info->running_class, info->running_method));
         int i;
@@ -87,6 +91,8 @@ void entry_exception_object_with_class_name2(CLVALUE** stack_ptr, CLVALUE* stack
 
 void entry_exception_object(CLObject exception, sVMInfo* info)
 {
+    callOnException();
+
     sCLObject* object_data = CLOBJECT(exception);
 
     CLObject message = object_data->mFields[0].mObjectValue;

@@ -1,3 +1,6 @@
+version 4.1.7
+
+    I made a Clover.onException hook. It is executed when an exception occurs.
 
 version 4.1.6
     

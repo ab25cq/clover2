@@ -517,6 +517,8 @@ class System
         str := sprintf(format, params);
         wprintw(window, str);
     }
+    def getmaxx(): native static int throws Exception;
+    def getmaxy(): native static int throws Exception;
 }
 
 class String 

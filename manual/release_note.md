@@ -1,5 +1,9 @@
 English page is here [>> English page](release_note-en)
 
+version 4.1.7
+    
+    Clover.onExceptionフックを作りました。例外が起こったときに実行されます。
+
 version 4.1.6
     
     ラムダの配列でラムダのオブジェクトがマークされない問題を修正。

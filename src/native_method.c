@@ -354,6 +354,8 @@ static sNativeMethod gNativeMethods[] = {
     { "System.keypad(pointer,bool)", "System_keypad", System_keypad },
     { "System.wmove(pointer,int,int)", "System_wmove", System_wmove },
     { "System.wprintw(pointer,String)", "System_wprintw", System_wprintw },
+    { "System.getmaxx()", "System_getmaxx", System_getmaxx },
+    { "System.getmaxy()", "System_getmaxy", System_getmaxy },
 
     { "", "", 0 }  // sentinel
 };
