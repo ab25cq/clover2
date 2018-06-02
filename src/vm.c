@@ -852,31 +852,34 @@ void callOnException()
 {
     sCLClass* clover_class = get_class("Clover");
 
-    int method_index = -1;
+    if(clover_class) {
+        int method_index = -1;
 
-    int i;
-    for(i=clover_class->mNumMethods-1; i>=0; i--) {
-        sCLMethod* method = clover_class->mMethods + i;
+        int i;
+        for(i=clover_class->mNumMethods-1; i>=0; i--) {
+            sCLMethod* method = clover_class->mMethods + i;
 
-        if(strcmp(METHOD_NAME2(clover_class, method), "onException") == 0 && (method->mFlags & METHOD_FLAGS_CLASS_METHOD) && method->mNumParams == 0)
-        {
-            method_index = i;
+            if(strcmp(METHOD_NAME2(clover_class, method), "onException") == 0 && (method->mFlags & METHOD_FLAGS_CLASS_METHOD) && method->mNumParams == 0)
+            {
+                method_index = i;
+                break;
+            }
         }
-    }
 
-    if(method_index >= 0) {
-        sCLMethod* method = clover_class->mMethods + method_index;
+        if(method_index >= 0) {
+            sCLMethod* method = clover_class->mMethods + method_index;
 
-        const int stack_size = 512;
-        CLVALUE* stack = MCALLOC(1, sizeof(CLVALUE)*stack_size);
-        CLVALUE* stack_ptr = stack;
+            const int stack_size = 512;
+            CLVALUE* stack = MCALLOC(1, sizeof(CLVALUE)*stack_size);
+            CLVALUE* stack_ptr = stack;
 
-        sVMInfo info;
-        memset(&info, 0, sizeof(sVMInfo));
-        
-        (void)invoke_method(clover_class, method, stack, 0, &stack_ptr, &info);
+            sVMInfo info;
+            memset(&info, 0, sizeof(sVMInfo));
+            
+            (void)invoke_method(clover_class, method, stack, 0, &stack_ptr, &info);
 
-        MFREE(stack);
+            MFREE(stack);
+        }
     }
 }
 

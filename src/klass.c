@@ -147,7 +147,6 @@ BOOL search_for_class_file(char* class_name, char* class_file_name, size_t class
     /// system shared directory ///
     snprintf(class_file_name, class_file_name_size, "%s/share/clover2/%s.oclcl", PREFIX, class_name);
 
-
     if(access(class_file_name, F_OK) == 0) {
         return TRUE;
     }

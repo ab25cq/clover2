@@ -262,7 +262,6 @@ class Clover
     }
 
     def onException():static {
-        println("threw Exception...");
     }
 
 #    def load(file_name:String): native throws Exception;
