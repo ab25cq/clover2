@@ -2327,8 +2327,6 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
     vm_mutex_on();
 
     if(!vm(code, constant, stack, var_num, NULL, &vinfo)) {
-        show_exception_message(vinfo.exception_message);
-
         vm_mutex_off();
 
         return FALSE;
@@ -2382,9 +2380,13 @@ int gARGC;
 char** gARGV;
 char* gVersion = "4.1.8";
 
+char gScriptDirPath[PATH_MAX];
+
 int main(int argc, char** argv)
 {
     CHECKML_BEGIN;
+
+    xstrncpy(gScriptDirPath, "", PATH_MAX);
 
     int i;
     for(i=1; i<argc; i++) {

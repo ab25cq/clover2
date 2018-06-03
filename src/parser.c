@@ -199,7 +199,7 @@ static BOOL parse_word_and_slash(char* buf, int buf_size, sParserInfo* info, BOO
     }
 
     if(isalpha(*info->p) || *info->p == '_') {
-        while(isalnum(*info->p) || *info->p == '_' || *info->p == '/') {
+        while(isalnum(*info->p) || *info->p == '_') {
             if(p2 - buf < buf_size-1) {
                 *p2++ = *info->p;
                 info->p++;
@@ -3205,16 +3205,42 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             info->p++;
             skip_spaces_and_lf(info);
 
-            if(!get_number(TRUE, node, info)) {
-                return FALSE;
+            if(isdigit(*info->p)) {
+                if(!get_number(TRUE, node, info)) {
+                    return FALSE;
+                }
+            }
+            else {
+                if(!expression_node(node, info)) {
+                    return FALSE;
+                }
+
+                if(*node == 0) {
+                    parser_err_msg(info, "require right value for -");
+                    info->err_num++;
+                }
+
+                *node = sNodeTree_create_operand(kOpMinus, *node, 0, 0, info);
             }
         }
         else if(*info->p =='+') {
             info->p++;
             skip_spaces_and_lf(info);
 
-            if(!get_number(FALSE, node, info)) {
-                return FALSE;
+            if(isdigit(*info->p)) {
+                if(!get_number(FALSE, node, info)) {
+                    return FALSE;
+                }
+            }
+            else {
+                if(!expression_node(node, info)) {
+                    return FALSE;
+                }
+
+                if(*node == 0) {
+                    parser_err_msg(info, "require right value for -");
+                    info->err_num++;
+                }
             }
         }
     }
@@ -3949,7 +3975,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             }
         }
 
-        /// ローカル変数の追加。パース時にはローカル変数かどうかが分かっていないと困る ///
+        /// local variable ////
         else if(*info->p == ':') {
             skip_spaces_and_lf(info);
 

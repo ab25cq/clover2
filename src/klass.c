@@ -133,9 +133,29 @@ sCLClass* get_class(char* class_name)
 
 BOOL search_for_class_file(char* class_name, char* class_file_name, size_t class_file_name_size)
 {
-    char* home = getenv("HOME");
+    /// script file directory ///
+    if(gScriptDirPath[0] != '\0') {
+        snprintf(class_file_name, class_file_name_size, "%s/%s.oclcl", gScriptDirPath, class_name);
+
+        if(access(class_file_name, F_OK) == 0) {
+            return TRUE;
+        }
+    }
+
+    /// current working directory ///
+    char* cwd = getenv("PWD");
+
+    if(cwd) {
+        snprintf(class_file_name, class_file_name_size, "%s/%s.oclcl", cwd, class_name);
+
+        if(access(class_file_name, F_OK) == 0) {
+            return TRUE;
+        }
+    }
 
     /// home directory ///
+    char* home = getenv("HOME");
+
     if(home) {
         snprintf(class_file_name, class_file_name_size, "%s/.clover2/%s.oclcl", home, class_name);
 
@@ -149,17 +169,6 @@ BOOL search_for_class_file(char* class_name, char* class_file_name, size_t class
 
     if(access(class_file_name, F_OK) == 0) {
         return TRUE;
-    }
-
-    /// current working directory ///
-    char* cwd = getenv("PWD");
-
-    if(cwd) {
-        snprintf(class_file_name, class_file_name_size, "%s/%s.oclcl", cwd, class_name);
-
-        if(access(class_file_name, F_OK) == 0) {
-            return TRUE;
-        }
     }
 
     return FALSE;

@@ -1,7 +1,7 @@
 
 version 4.1.8
 
-    I created a search path routine for include files of class source files. Files in $ PRE FIX / share / clover 2 and ~ /. Clover 2 as well as the current directory are also searched. If you include "MyOwnLibrary.clc l" in cclover2 -core a.clcl etc, you can modify the basic library.
+    I created a search path routine for include files of class source files. Files in $ PREFIX / share / clover 2 and ~ /. Clover 2 are searched in addition to the current directory. If you include "MyOwnLibrary.clcl" etc in cclover2 - core a.clcl etc, you can modify the basic library. Fixed a bug in file search routines for class files, modules, and include files. The class file of the current directory takes precedence. Also, the directory where the script file is located is also added to the search routine. I changed the specification of the exception. You can catch not only when calling a method but also when an exception occurs at the top of the script. We have made Clover.onException output the exception message. Please change the output destination when CGI or terminal control. You can do so by overriding Clover.onException (String, bool): static. Fixed a bug that parsing does not pass like -x Fixed a bug that seems to be a command without a character string including a fix thought to be an operator.The class compilation is abolished.
 
 version 4.1.7
 

@@ -261,7 +261,10 @@ class Clover
         srand(System.time().to_uint);
     }
 
-    def onException():static {
+    def onException(message:String, in_try:bool):static {
+        if(!in_try) {
+            System.printlnToError(message);
+        }
     }
 
 #    def load(file_name:String): native throws Exception;

@@ -666,7 +666,6 @@ static BOOL initialize_class(sCLClass* klass, BOOL compile_time)
             memset(&info, 0, sizeof(info));
 
             if(!invoke_method(klass, &initialize_method, stack, 0, &stack_ptr, &info)) {
-                show_exception_message(info.exception_message);
                 MFREE(stack);
                 return FALSE;
             }
@@ -837,7 +836,6 @@ static BOOL finalize_class(sCLClass* klass)
         memset(&info, 0, sizeof(sVMInfo));
         
         if(!invoke_method(klass, &finalize_method, stack, 0, &stack_ptr, &info)) {
-            show_exception_message(info.exception_message);
             MFREE(stack);
             return FALSE;
         }
@@ -848,7 +846,7 @@ static BOOL finalize_class(sCLClass* klass)
     return TRUE;
 }
 
-void callOnException()
+void callOnException(CLObject message, BOOL in_try)
 {
     sCLClass* clover_class = get_class("Clover");
 
@@ -859,10 +857,18 @@ void callOnException()
         for(i=clover_class->mNumMethods-1; i>=0; i--) {
             sCLMethod* method = clover_class->mMethods + i;
 
-            if(strcmp(METHOD_NAME2(clover_class, method), "onException") == 0 && (method->mFlags & METHOD_FLAGS_CLASS_METHOD) && method->mNumParams == 0)
-            {
-                method_index = i;
-                break;
+            if(method->mNumParams == 2) {
+                sCLParam* param1 = method->mParams + 0;
+                sCLParam* param2 = method->mParams + 1;
+
+                sCLType* param1_type = param1->mType;
+                sCLType* param2_type = param2->mType;
+
+                if(strcmp(METHOD_NAME2(clover_class, method), "onException") == 0 && (method->mFlags & METHOD_FLAGS_CLASS_METHOD) && strcmp(CONS_str(&clover_class->mConst, param1_type->mClassNameOffset), "String") == 0 && strcmp(CONS_str(&clover_class->mConst, param2_type->mClassNameOffset), "bool") == 0)
+                {
+                    method_index = i;
+                    break;
+                }
             }
         }
 
@@ -872,6 +878,12 @@ void callOnException()
             const int stack_size = 512;
             CLVALUE* stack = MCALLOC(1, sizeof(CLVALUE)*stack_size);
             CLVALUE* stack_ptr = stack;
+
+            stack_ptr->mObjectValue = message;
+            stack_ptr++;
+
+            stack_ptr->mBoolValue = in_try;
+            stack_ptr++;
 
             sVMInfo info;
             memset(&info, 0, sizeof(sVMInfo));
@@ -902,7 +914,6 @@ BOOL call_finalize_method_on_free_object(sCLClass* klass, CLObject self)
         stack_ptr++;
 
         if(!invoke_method(klass, &finalize_method, stack, 0, &stack_ptr, &info)) {
-            show_exception_message(info.exception_message);
             MFREE(stack);
             return FALSE;
         }
@@ -928,7 +939,6 @@ BOOL call_alloc_size_method(sCLClass* klass, unsigned long* result)
         info.no_mutex_in_vm = TRUE;
 
         if(!invoke_method(klass, &alloc_size_method, stack, 0, &stack_ptr, &info)) {
-            show_exception_message(info.exception_message);
             MFREE(stack);
             return FALSE;
         }
@@ -1321,7 +1331,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
             case OP_SIGINT:
                 if(gSigInt) {
                     gSigInt = FALSE;
-                    
+
                     entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Signal Interrupt");
                     remove_stack_to_stack_list(stack_id);
                     return FALSE;
@@ -1690,10 +1700,18 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     char right = (stack_ptr-1)->mByteValue;
 
                     if(right == 0) {
-                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     char result = left / right;
@@ -1711,10 +1729,18 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     char right = (stack_ptr-1)->mByteValue;
 
                     if(right == 0) {
-                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     char result = left % right;
@@ -1844,10 +1870,18 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     unsigned char right = (stack_ptr-1)->mByteValue;
 
                     if(right == 0) {
-                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     unsigned char result = left / right;
@@ -1865,10 +1899,18 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     unsigned char right = (stack_ptr-1)->mByteValue;
 
                     if(right == 0) {
-                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     unsigned char result = left % right;
@@ -1998,10 +2040,18 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     short right = (stack_ptr-1)->mShortValue;
 
                     if(right == 0) {
-                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     short result = left / right;
@@ -2019,10 +2069,18 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     short right = (stack_ptr-1)->mShortValue;
 
                     if(right == 0) {
-                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     short result = left % right;
@@ -2152,10 +2210,18 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     unsigned short right = (stack_ptr-1)->mUShortValue;
 
                     if(right == 0) {
-                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     unsigned short result = left / right;
@@ -2174,8 +2240,17 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     if(right == 0) {
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     unsigned short result = left % right;
@@ -2305,10 +2380,18 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     int right = (stack_ptr-1)->mIntValue;
 
                     if(right == 0) {
-                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     int result = left / right;
@@ -2326,10 +2409,18 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     int right = (stack_ptr-1)->mIntValue;
 
                     if(right == 0) {
-                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     int result = left % right;
@@ -2459,10 +2550,18 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     unsigned int right = (stack_ptr-1)->mUIntValue;
 
                     if(right == 0) {
-                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     unsigned int result = left / right;
@@ -2480,10 +2579,18 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     unsigned int right = (stack_ptr-1)->mUIntValue;
 
                     if(right == 0) {
-                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     unsigned int result = left % right;
@@ -2610,10 +2717,18 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     clint64 right = (stack_ptr-1)->mLongValue;
 
                     if(right == 0) {
-                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     clint64 result = left / right;
@@ -2631,8 +2746,17 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     if(right == 0) {
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     clint64 result = left % right;
@@ -2753,10 +2877,18 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
                     if(right == 0) {
-                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     unsigned clint64 result = left / right;
@@ -2773,10 +2905,18 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
                     if(right == 0) {
-                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     unsigned clint64 result = left % right;
@@ -2986,10 +3126,18 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     float right = (stack_ptr-1)->mFloatValue;
 
                     if(right == 0.0f) {
-                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     float result = left / right;
@@ -3046,10 +3194,18 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     double right = (stack_ptr-1)->mDoubleValue;
 
                     if(right == 0.0) {
-                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "division by zero");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     double result = left / right;
@@ -4185,17 +4341,34 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     if(left == 0) {
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(1-1)");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     sCLObject* object_data = CLOBJECT(left);
 
                     if(object_data->mType == NULL) {
-                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Object Type is Null");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     CLObject result = create_string_object(object_data->mType);
@@ -4213,10 +4386,18 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     CLObject right = (stack_ptr-1)->mObjectValue;
 
                     if(left == 0 || right == 0) {
-                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(1-2)");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     sCLObject* object_data = CLOBJECT(left);
@@ -4239,8 +4420,17 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     if(left == 0) {
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(1-3)");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     sCLObject* object_data = CLOBJECT(left);
@@ -4258,8 +4448,17 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     if(left == 0) {
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(1-4)");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     sCLObject* object_data = CLOBJECT(left);
@@ -4281,18 +4480,35 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     sCLClass* klass = get_class_with_load_and_initialize(class_name);
 
                     if(klass == NULL) {
-                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(1)");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     CLObject left = (stack_ptr-1)->mObjectValue;
 
                     if(left == 0) {
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(2)");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     BOOL result = object_implements_interface(left, klass);
@@ -4361,14 +4577,31 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     if(klass == NULL) {
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(2)");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     if(method_index < 0 || method_index >= klass->mNumMethods) {
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "OP_INVOKE_METHOD: Method not found");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     sCLMethod method = klass->mMethods[method_index]; // struct copy for realloc
@@ -4378,6 +4611,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
                             info->try_code = NULL;
+                            break;
                         }
                         else {
                             remove_stack_to_stack_list(stack_id);
@@ -4402,8 +4636,16 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     if(object == 0) {
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-1)");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     sCLObject* object_data = CLOBJECT(object);
@@ -4423,8 +4665,16 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     sCLMethod* method = search_for_method_from_virtual_method_table(klass, method_name_and_params2);
                     if(method == NULL) {
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "OP_INVOKE_VIRTUAL_METHOD: Method not found(%s.%s)", CLASS_NAME(klass), method_name_and_params);
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
                     else {
                         if(!invoke_method(klass, method, stack, var_num, &stack_ptr, info)) {
@@ -4432,6 +4682,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                                 pc = code->mCodes + info->try_offset;
                                 info->try_offset = 0;
                                 info->try_code = NULL;
+                                break;
                             }
                             else {
                                 remove_stack_to_stack_list(stack_id);
@@ -4480,8 +4731,16 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                         if(klass->mCallingMethodIndex == -1) {
                             entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "OP_INVOKE_DYNAMIC_METHOD: Method not found(1)");
-                            remove_stack_to_stack_list(stack_id);
-                            return FALSE;
+                            if(info->try_code == code && info->try_offset != 0) {
+                                pc = code->mCodes + info->try_offset;
+                                info->try_offset = 0;
+                                info->try_code = NULL;
+                                break;
+                            }
+                            else {
+                                remove_stack_to_stack_list(stack_id);
+                                return FALSE;
+                            }
                         }
 
                         sCLMethod method = klass->mMethods[klass->mCallingMethodIndex];
@@ -4524,6 +4783,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                                 pc = code->mCodes + info->try_offset;
                                 info->try_offset = 0;
                                 info->try_code = NULL;
+                                break;
                             }
                             else {
                                 remove_stack_to_stack_list(stack_id);
@@ -4540,15 +4800,31 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                         if(klass == NULL) {
                             entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(3)");
-                            remove_stack_to_stack_list(stack_id);
-                            return FALSE;
+                            if(info->try_code == code && info->try_offset != 0) {
+                                pc = code->mCodes + info->try_offset;
+                                info->try_offset = 0;
+                                info->try_code = NULL;
+                                break;
+                            }
+                            else {
+                                remove_stack_to_stack_list(stack_id);
+                                return FALSE;
+                            }
                         }
 
                         if(klass->mCallingClassMethodIndex == -1) {
-                            
                             entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "OP_INVOKE_DYNAMIC_METHOD: Method not found(2)");
-                            remove_stack_to_stack_list(stack_id);
-                            return FALSE;
+
+                            if(info->try_code == code && info->try_offset != 0) {
+                                pc = code->mCodes + info->try_offset;
+                                info->try_offset = 0;
+                                info->try_code = NULL;
+                                break;
+                            }
+                            else {
+                                remove_stack_to_stack_list(stack_id);
+                                return FALSE;
+                            }
                         }
 
                         sCLMethod method = klass->mMethods[klass->mCallingClassMethodIndex]; // struct copy for realloc
@@ -4592,6 +4868,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                                 pc = code->mCodes + info->try_offset;
                                 info->try_offset = 0;
                                 info->try_code = NULL;
+                                break;
                             }
                             else {
                                 remove_stack_to_stack_list(stack_id);
@@ -4614,8 +4891,16 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     if(!invoke_block(block_object, stack, var_num, num_params, &stack_ptr, info, FALSE)) 
                     {
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     CLVALUE result = *(stack_ptr-1);
@@ -4643,10 +4928,17 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     sCLClass* klass = get_class_with_load_and_initialize(class_name);
 
                     if(klass == NULL) {
-                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(3)");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     char* type_name = CONS_str(constant, offset2);
@@ -4682,8 +4974,16 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     if(obj == 0) {
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     sCLObject* object_pointer = CLOBJECT(obj);
@@ -4691,14 +4991,30 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     if(klass == NULL) {
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(4)");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     if(field_index < 0 || field_index >= klass->mNumFields) {
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "field index is invalid(1). Field index is %d", field_index);
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     CLVALUE value = object_pointer->mFields[field_index];
@@ -4717,8 +5033,16 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     if(obj == 0) {
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(4)");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     sCLObject* object_pointer = CLOBJECT(obj);
@@ -4726,15 +5050,31 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     if(klass == NULL) {
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(5)");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     if(field_index < 0 || field_index >= klass->mNumFields) {
                         
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "field index is invalid(2). Field index is %d", field_index);
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     char* value = (char*)&object_pointer->mFields[field_index];
@@ -4754,8 +5094,16 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     if(obj == 0) {
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(5)");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     sCLObject* object_pointer = CLOBJECT(obj);
@@ -4763,14 +5111,30 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     if(klass == NULL) {
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(6)");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     if(field_index < 0 || field_index >= klass->mNumFields) {
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "field index is invalid(3). Field index is %d", field_index);
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     object_pointer->mFields[field_index] = value;
@@ -4798,15 +5162,31 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     if(klass == NULL) {
                         
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(7)");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     if(field_index < 0 || field_index >= klass->mNumClassFields) {
                         
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "field index is invalid(4). Field index is %d", field_index);
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     sCLField* field = klass->mClassFields + field_index;
@@ -4831,15 +5211,31 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     if(klass == NULL) {
                         
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(8)");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     if(field_index < 0 || field_index >= klass->mNumClassFields) {
                         
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "field index is invalid(55555). Field index is %d", field_index);
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     sCLField* field = klass->mClassFields + field_index;
@@ -4866,15 +5262,31 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     if(klass == NULL) {
                         
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(9)");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     if(field_index < 0 || field_index >= klass->mNumClassFields) {
                         
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "field index is invalid(6). Field index is %d", field_index);
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     CLVALUE value = *(stack_ptr-1);
@@ -4896,8 +5308,16 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     if(array == 0) {
                         
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(7)");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     sCLObject* object_pointer = CLOBJECT(array);
@@ -4905,8 +5325,16 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     if(element_num < 0 || element_num >= object_pointer->mArrayNum) {
                         
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "element index is invalid");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     CLVALUE value = object_pointer->mFields[element_num];
@@ -4924,8 +5352,16 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     if(array == 0) {
                         
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(8)");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     sCLObject* object_pointer = CLOBJECT(array);
@@ -4933,8 +5369,16 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     if(element_num < 0 || element_num >= object_pointer->mArrayNum) {
                         
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "element index is invalid");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     object_pointer->mFields[element_num] = value;
@@ -12148,8 +12592,16 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                 if(klass == NULL) {
                     entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(10)");
-                    remove_stack_to_stack_list(stack_id);
-                    return FALSE;
+                    if(info->try_code == code && info->try_offset != 0) {
+                        pc = code->mCodes + info->try_offset;
+                        info->try_offset = 0;
+                        info->try_code = NULL;
+                        break;
+                    }
+                    else {
+                        remove_stack_to_stack_list(stack_id);
+                        return FALSE;
+                    }
                 }
 
                 CLObject array = (stack_ptr-1)->mObjectValue;
@@ -12416,10 +12868,17 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                         if(!string_expression(str, &buf, string_expression_offsets, string_expression_object, num_string_expression, &stack_ptr, stack, var_num, info))
                         {
-                            
-                            remove_stack_to_stack_list(stack_id);
-                            MFREE(buf.mBuf);
-                            return FALSE;
+                            if(info->try_code == code && info->try_offset != 0) {
+                                pc = code->mCodes + info->try_offset;
+                                info->try_offset = 0;
+                                info->try_code = NULL;
+                                break;
+                            }
+                            else {
+                                remove_stack_to_stack_list(stack_id);
+                                MFREE(buf.mBuf);
+                                return FALSE;
+                            }
                         }
 
                         stack_ptr -= num_string_expression;
@@ -12476,10 +12935,17 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                         if(!string_expression(str, &buf, string_expression_offsets, string_expression_object, num_string_expression, &stack_ptr, stack, var_num, info))
                         {
-                            
-                            remove_stack_to_stack_list(stack_id);
-                            MFREE(buf.mBuf);
-                            return FALSE;
+                            if(info->try_code == code && info->try_offset != 0) {
+                                pc = code->mCodes + info->try_offset;
+                                info->try_offset = 0;
+                                info->try_code = NULL;
+                                break;
+                            }
+                            else {
+                                remove_stack_to_stack_list(stack_id);
+                                MFREE(buf.mBuf);
+                                return FALSE;
+                            }
                         }
 
                         stack_ptr -= num_string_expression;
@@ -12534,10 +13000,17 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                         if(!string_expression(str, &buf, string_expression_offsets, string_expression_object, num_string_expression, &stack_ptr, stack, var_num, info))
                         {
-                            
-                            remove_stack_to_stack_list(stack_id);
-                            MFREE(buf.mBuf);
-                            return FALSE;
+                            if(info->try_code == code && info->try_offset != 0) {
+                                pc = code->mCodes + info->try_offset;
+                                info->try_offset = 0;
+                                info->try_code = NULL;
+                                break;
+                            }
+                            else {
+                                remove_stack_to_stack_list(stack_id);
+                                MFREE(buf.mBuf);
+                                return FALSE;
+                            }
                         }
 
                         stack_ptr -= num_string_expression;
@@ -12572,8 +13045,16 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     if(klass == NULL) {
                         
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(11)");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     CLObject array_object = create_array_object(klass, num_elements);
@@ -12616,8 +13097,16 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     if(klass == NULL) {
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(12)");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     char* type_name = CONS_str(constant, offset2);
@@ -12637,8 +13126,16 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     if(!initialize_carray_object(array_object, num_elements, items, stack, var_num, &stack_ptr, info, klass))
                     {
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     stack_ptr--; // pop_object
@@ -12670,8 +13167,16 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     if(klass == NULL) {
                         
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(12)");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     char* type_name = CONS_str(constant, offset2);
@@ -12691,9 +13196,16 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     if(!initialize_equalable_carray_object(array_object, num_elements, items, stack, var_num, &stack_ptr, info, klass))
                     {
-                        
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     stack_ptr--; // pop_object
@@ -12727,8 +13239,16 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     if(klass == NULL) {
                         
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(12)");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     char* type_name = CONS_str(constant, offset2);
@@ -12748,9 +13268,16 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     if(!initialize_sortable_carray_object(array_object, num_elements, items, stack, var_num, &stack_ptr, info, klass))
                     {
-                        
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     stack_ptr--; // pop_object
@@ -12784,8 +13311,16 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     if(klass == NULL) {
                         
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(13)");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     char* type_name = CONS_str(constant, offset2);
@@ -12805,9 +13340,16 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     if(!initialize_list_object(list_object, num_elements, items, stack, var_num, &stack_ptr, info, klass))
                     {
-                        
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     stack_ptr--; // pop_object
@@ -12838,8 +13380,16 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     if(klass == NULL) {
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(13)");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     char* type_name = CONS_str(constant, offset2);
@@ -12859,8 +13409,16 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     if(!initialize_sortable_list_object(list_object, num_elements, items, stack, var_num, &stack_ptr, info, klass))
                     {
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     stack_ptr--; // pop_object
@@ -12892,8 +13450,16 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     if(klass == NULL) {
                         
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(13)");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     char* type_name = CONS_str(constant, offset2);
@@ -12913,9 +13479,16 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     if(!initialize_equalable_list_object(list_object, num_elements, items, stack, var_num, &stack_ptr, info, klass))
                     {
-                        
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     stack_ptr--; // pop_object
@@ -12956,9 +13529,16 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     if(!initialize_tuple_object(tuple_object, num_elements, items, stack, var_num, &stack_ptr, info))
                     {
-                        
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     stack_ptr--; // pop_object
@@ -12987,8 +13567,16 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     if(klass == NULL) {
                         
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(14)");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     int offset2 = *(int*)pc;
@@ -13004,8 +13592,16 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     if(klass2 == NULL) {
                         
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(15)");
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     CLObject keys[HASH_VALUE_ELEMENT_MAX];
@@ -13030,9 +13626,16 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     if(!initialize_hash_object(hash_object, num_elements, keys, items, stack, var_num, &stack_ptr, info, klass, klass2))
                     {
-                        
-                        remove_stack_to_stack_list(stack_id);
-                        return FALSE;
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
                     }
 
                     stack_ptr--; // pop_object
@@ -13153,10 +13756,17 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                         if(!string_expression(str, &buf, string_expression_offsets, string_expression_object, num_string_expression, &stack_ptr, stack, var_num, info))
                         {
-                            
-                            remove_stack_to_stack_list(stack_id);
-                            MFREE(buf.mBuf);
-                            return FALSE;
+                            if(info->try_code == code && info->try_offset != 0) {
+                                pc = code->mCodes + info->try_offset;
+                                info->try_offset = 0;
+                                info->try_code = NULL;
+                                break;
+                            }
+                            else {
+                                remove_stack_to_stack_list(stack_id);
+                                MFREE(buf.mBuf);
+                                return FALSE;
+                            }
                         }
 
                         stack_ptr -= num_string_expression;

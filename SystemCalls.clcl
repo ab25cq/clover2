@@ -483,6 +483,13 @@ class System
         printw(str);
     }
     def mvprintw(y:int, x:int, format:String, params:Array<Object>): static throws Exception {
+        maxx := getmaxx();
+        maxy := getmaxy();
+
+        if(y > maxy || x > maxx || x < 0 || y < 0) {
+            throw Exception("x or y is out of Range");
+        }
+
         move(y, x);
         printw(format, params);
     }

@@ -637,15 +637,109 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
         }
     }
 
-    int right_node = gNodes[node].mRight;
-    if(!compile(right_node, info)) {
-        return FALSE;
-    }
+    sNodeType* right_type = NULL;
+    if(gNodes[node].uValue.mOperand == kOpMinus) {
+        if(type_identify_with_class_name(left_type, "int")) {
+            append_opecode_to_code(info->code, OP_LDCINT, info->no_output);
+            append_int_value_to_code(info->code, 0, info->no_output);
 
-    sNodeType* right_type = info->type;
+            info->stack_num++;
+
+            right_type = create_node_type_with_class_name("int");
+        }
+        else if(type_identify_with_class_name(left_type, "uint")) {
+            append_opecode_to_code(info->code, OP_LDCUINT, info->no_output);
+            append_int_value_to_code(info->code, 0, info->no_output);
+
+            info->stack_num++;
+
+            right_type = create_node_type_with_class_name("uint");
+        }
+        else if(type_identify_with_class_name(left_type, "byte")) {
+            append_opecode_to_code(info->code, OP_LDCBYTE, info->no_output);
+            append_int_value_to_code(info->code, 0, info->no_output);
+
+            info->stack_num++;
+
+            right_type = create_node_type_with_class_name("byte");
+        }
+        else if(type_identify_with_class_name(left_type, "ubyte")) {
+            append_opecode_to_code(info->code, OP_LDCUBYTE, info->no_output);
+            append_int_value_to_code(info->code, 0, info->no_output);
+
+            info->stack_num++;
+
+            right_type = create_node_type_with_class_name("ubyte");
+        }
+        else if(type_identify_with_class_name(left_type, "short")) {
+            append_opecode_to_code(info->code, OP_LDCSHORT, info->no_output);
+            append_int_value_to_code(info->code, 0, info->no_output);
+
+            info->stack_num++;
+
+            right_type = create_node_type_with_class_name("short");
+        }
+        else if(type_identify_with_class_name(left_type, "ushort")) {
+            append_opecode_to_code(info->code, OP_LDCUSHORT, info->no_output);
+            append_int_value_to_code(info->code, 0, info->no_output);
+
+            info->stack_num++;
+
+            right_type = create_node_type_with_class_name("ushort");
+        }
+        else if(type_identify_with_class_name(left_type, "long")) {
+            append_opecode_to_code(info->code, OP_LDCLONG, info->no_output);
+            append_long_value_to_code(info->code, 0, info->no_output);
+
+            info->stack_num++;
+
+            right_type = create_node_type_with_class_name("long");
+        }
+        else if(type_identify_with_class_name(left_type, "ulong")) {
+            append_opecode_to_code(info->code, OP_LDCULONG, info->no_output);
+            append_long_value_to_code(info->code, 0, info->no_output);
+
+            info->stack_num++;
+
+            right_type = create_node_type_with_class_name("ulong");
+        }
+        else if(type_identify_with_class_name(left_type, "float")) {
+            append_opecode_to_code(info->code, OP_LDCFLOAT, info->no_output);
+            append_float_value_to_code(info->code, 0.0f, info->no_output);
+
+            info->stack_num++;
+
+            right_type = create_node_type_with_class_name("float");
+        }
+        else if(type_identify_with_class_name(left_type, "ulong")) {
+            append_opecode_to_code(info->code, OP_LDCDOUBLE, info->no_output);
+            append_double_value_to_code(info->code, 0.0, info->no_output);
+
+            info->stack_num++;
+
+            right_type = create_node_type_with_class_name("double");
+        }
+
+        append_opecode_to_code(info->code, OP_REVERSE, info->no_output);
+    }
+    else {
+        int right_node = gNodes[node].mRight;
+        if(!compile(right_node, info)) {
+            return FALSE;
+        }
+
+        right_type = info->type;
+    }
     sNodeType* node_type = left_type;
 
     switch(gNodes[node].uValue.mOperand) {
+        case kOpMinus:
+            if(!binary_operator(right_type, left_type, OP_BSUB, OP_UBSUB, OP_SSUB, OP_USSUB, OP_ISUB, OP_UISUB, OP_LSUB, OP_ULSUB, OP_FSUB, OP_DSUB, OP_PSUB, -1, OP_CSUB, -1, -1, "-", info))
+            {
+                return FALSE;
+            }
+            break;
+
         case kOpAdd:
             if(!binary_operator(left_type, right_type, OP_BADD, OP_UBADD, OP_SADD, OP_USADD, OP_IADD, OP_UIADD, OP_LADD, OP_ULADD, OP_FADD, OP_DADD, OP_PADD, -1, OP_CADD, -1, -1, "+", info))
             {

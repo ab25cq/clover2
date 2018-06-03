@@ -6969,7 +6969,7 @@ BOOL System_printw(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int result = printw(str_value);
 
     if(result == ERR) {
-        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "printw(3) is error.");
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "printw(3) is error. str is (%s)", str_value);
         MFREE(str_value);
         return FALSE;
     }

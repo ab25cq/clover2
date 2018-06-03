@@ -144,12 +144,16 @@ int gARGC;
 char** gARGV;
 char* gVersion = "4.1.8";
 
+char gScriptDirPath[PATH_MAX];
+
 int main(int argc, char** argv)
 {
     int i;
 
     gARGC = argc;
     gARGV = argv;
+
+    xstrncpy(gScriptDirPath, "", PATH_MAX);
 
     setlocale(LC_ALL, "");
 

@@ -411,6 +411,26 @@ BOOL determine_method_generics_types(sNodeType* left_param, sNodeType* right_par
 
 static BOOL search_for_class_file_on_compile_time(char* class_name, char* class_file_path, size_t class_file_path_size)
 {
+    /// script file directory ///
+    if(gScriptDirPath[0] != '\0') {
+        snprintf(class_file_path, class_file_path_size, "%s/%s.oclcl", gScriptDirPath, class_name);
+
+        if(access(class_file_path, F_OK) == 0) {
+            return TRUE;
+        }
+    }
+
+    /// current working directory ///
+    char* cwd = getenv("PWD");
+
+    if(cwd) {
+        snprintf(class_file_path, class_file_path_size, "%s/%s.oclcl", cwd, class_name);
+
+        if(access(class_file_path, F_OK) == 0) {
+            return TRUE;
+        }
+    }
+
     /// home directory ///
     char* home = getenv("HOME");
 
@@ -427,86 +447,6 @@ static BOOL search_for_class_file_on_compile_time(char* class_name, char* class_
 
     if(access(class_file_path, F_OK) == 0) {
         return TRUE;
-    }
-
-    /// current working directory ///
-    char* cwd = getenv("PWD");
-
-    if(cwd) {
-        snprintf(class_file_path, class_file_path_size, "%s/%s.oclcl", cwd, class_name);
-
-        if(access(class_file_path, F_OK) == 0) {
-            return TRUE;
-        }
-        else {
-            char source_path[PATH_MAX];
-
-            snprintf(source_path, PATH_MAX, "%s/%s.clcl", cwd, class_name);
-
-            char cclover2_path[PATH_MAX];
-
-            snprintf(cclover2_path, PATH_MAX, "%s/cclover2", cwd);
-
-            if(access(source_path, F_OK) == 0) {
-                if(access(cclover2_path, X_OK) == 0) {
-                    char command[PATH_MAX*2];
-
-                    snprintf(command, PATH_MAX*2, "./cclover2 %s/%s.clcl", cwd, class_name);
-                    int rc = system(command);
-
-                    if(rc == 0) {
-                        if(access(class_file_path, F_OK) == 0) {
-                            return TRUE;
-                        }
-                    }
-                }
-                else {
-                    char command[PATH_MAX*2];
-
-                    snprintf(command, PATH_MAX*2, "cclover2 %s/%s.clcl", cwd, class_name);
-                    int rc = system(command);
-
-                    if(rc == 0) {
-                        if(access(class_file_path, F_OK) == 0) {
-                            return TRUE;
-                        }
-                    }
-                }
-            }
-
-            char* compiling_source_dir = dirname(gCompilingSourceFileName);
-
-            snprintf(source_path, PATH_MAX, "%s/%s.clcl", compiling_source_dir, class_name);
-
-            if(access(source_path, F_OK) == 0) {
-                if(access(cclover2_path, X_OK) == 0) {
-                    char command[PATH_MAX*2];
-
-                    snprintf(command, PATH_MAX*2, "./cclover2 %s/%s.clcl", compiling_source_dir, class_name);
-
-                    int rc = system(command);
-
-                    if(rc == 0) {
-                        if(access(class_file_path, F_OK) == 0) {
-                            return TRUE;
-                        }
-                    }
-                }
-                else {
-                    char command[PATH_MAX*2];
-
-                    snprintf(command, PATH_MAX*2, "cclover2 %s/%s.clcl", compiling_source_dir, class_name);
-
-                    int rc = system(command);
-
-                    if(rc == 0) {
-                        if(access(class_file_path, F_OK) == 0) {
-                            return TRUE;
-                        }
-                    }
-                }
-            }
-        }
     }
 
     return FALSE;

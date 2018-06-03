@@ -1,5 +1,6 @@
 #include "common.h"
 #include <signal.h>
+#include <libgen.h>
 
 static void clover2_init()
 {
@@ -43,6 +44,8 @@ static void set_signal()
 int gARGC;
 char** gARGV;
 char* gVersion = "4.1.8";
+
+char gScriptDirPath[PATH_MAX];
 
 int main(int argc, char** argv, char* const * envp)
 {
@@ -95,56 +98,36 @@ int main(int argc, char** argv, char* const * envp)
 
         /// auto compile function ///
         if(strcmp(source, object_file_name) != 0) {
-            if(access(object_file_name, R_OK) != 0) {
-                char cmd[PATH_MAX+20];
+            char cmd[PATH_MAX+20];
 
-                char command_path[PATH_MAX+1];
-                snprintf(command_path, PATH_MAX, "./cclover2");
+            char command_path[PATH_MAX+1];
+            snprintf(command_path, PATH_MAX, "./cclover2");
 
-                if(access(command_path, X_OK) == 0) {
-                    sprintf(cmd, "./cclover2 %s", source);
-                }
-                else {
-                    sprintf(cmd, "cclover2 %s", source);
-                }
-                int rc = system(cmd);
-
-                if(rc != 0) {
-                    fprintf(stderr, "automatically compile faield\n");
-                    exit(1);
-                }
+            if(access(command_path, X_OK) == 0) {
+                sprintf(cmd, "./cclover2 %s", source);
             }
             else {
-                struct stat source_stat;
-                struct stat object_file_stat;
-
-                if(stat(source, &source_stat) == 0 && stat(object_file_name, &object_file_stat) == 0) 
-                {
-                    if(source_stat.st_mtime >= object_file_stat.st_mtime) {
-                        char cmd[PATH_MAX+20];
-
-                        char command_path[PATH_MAX+1];
-                        snprintf(command_path, PATH_MAX, "./cclover2");
-
-                        if(access(command_path, X_OK) == 0) {
-                            sprintf(cmd, "./cclover2 %s", source);
-                        }
-                        else {
-                            sprintf(cmd, "cclover2 %s", source);
-                        }
-                        int rc = system(cmd);
-
-                        if(rc != 0) {
-                            fprintf(stderr, "automatically compile faield\n");
-                            exit(1);
-                        }
-                    }
-                }
-                else {
-                    fprintf(stderr, "automatically compile faield\n");
-                    exit(1);
-                }
+                sprintf(cmd, "cclover2 %s", source);
             }
+            int rc = system(cmd);
+
+            if(rc != 0) {
+                fprintf(stderr, "automatically compile faield\n");
+                exit(1);
+            }
+        }
+
+        /// get dir path of script file ///
+        if(strstr(object_file_name, "/")) {
+            char tmp[PATH_MAX];
+            xstrncpy(tmp, object_file_name, PATH_MAX);
+
+            char* dname = dirname(tmp);
+
+            xstrncpy(gScriptDirPath, dname, PATH_MAX);
+        }
+        else {
+            xstrncpy(gScriptDirPath, "", PATH_MAX);
         }
 
         clover2_init();

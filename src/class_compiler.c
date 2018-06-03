@@ -1,4 +1,5 @@
 #include "common.h"
+#include <libgen.h>
 
 static BOOL skip_block(sParserInfo* info)
 {
@@ -1374,6 +1375,26 @@ static BOOL parse_class_source(sParserInfo* info, sCompileInfo* cinfo);
 
 static BOOL search_for_include_file(char* file_name, char* include_file_path, size_t include_file_path_size)
 {
+    /// script file directory ///
+    if(gScriptDirPath[0] != '\0') {
+        snprintf(include_file_path, include_file_path_size, "%s/%s", gScriptDirPath, file_name);
+
+        if(access(include_file_path, F_OK) == 0) {
+            return TRUE;
+        }
+    }
+
+    /// current working directory ///
+    char* cwd = getenv("PWD");
+
+    if(cwd) {
+        snprintf(include_file_path, include_file_path_size, "%s/%s", cwd, file_name);
+
+        if(access(include_file_path, F_OK) == 0) {
+            return TRUE;
+        }
+    }
+
     /// home directory ///
     char* home = getenv("HOME");
 
@@ -1392,22 +1413,15 @@ static BOOL search_for_include_file(char* file_name, char* include_file_path, si
         return TRUE;
     }
 
-    /// current working directory ///
-    char* cwd = getenv("PWD");
-
-    if(cwd) {
-        snprintf(include_file_path, include_file_path_size, "%s/%s", cwd, file_name);
-
-        if(access(include_file_path, F_OK) == 0) {
-            return TRUE;
-        }
-    }
-
     return FALSE;
 }
 
 static BOOL include_file(sParserInfo* info, sCompileInfo* cinfo)
 {
+    char script_dir_path[PATH_MAX];
+
+    xstrncpy(script_dir_path, gScriptDirPath, PATH_MAX);
+
     /// get including file name ///
     char file_name[PATH_MAX+1];
 
@@ -1443,54 +1457,67 @@ static BOOL include_file(sParserInfo* info, sCompileInfo* cinfo)
         return FALSE;
     }
 
-    if(strcmp(gCompilingSourceFileName, file_path) != 0) {
-        /// load source file ///
-        sBuf source;
-        sBuf_init(&source);
+    char tmp[PATH_MAX];
 
-        if(!read_source(file_path, &source)) {
-            MFREE(source.mBuf);
-            return FALSE;
-        }
+    xstrncpy(tmp, file_path, PATH_MAX);
+    char* dname = dirname(tmp);
 
-        sBuf source2;
-        sBuf_init(&source2);
+    xstrncpy(gScriptDirPath, dname, PATH_MAX);
 
-        if(!delete_comment(&source, &source2)) {
-            MFREE(source.mBuf);
-            MFREE(source2.mBuf);
-            return FALSE;
-        }
+    /// load source file ///
+    sBuf source;
+    sBuf_init(&source);
 
-        char* info_p_before = info->p;
-        info->p = source2.mBuf;
+    if(!read_source(file_path, &source)) {
+        MFREE(source.mBuf);
 
-        char* info_sname_before = info->sname;
-        info->sname = file_path;
+        xstrncpy(gScriptDirPath, script_dir_path, PATH_MAX);
+        return FALSE;
+    }
 
-        int info_sline_before = info->sline;
-        info->sline = 1;
+    sBuf source2;
+    sBuf_init(&source2);
 
-        BOOL info_included_source_before = info->included_source;
-        info->included_source = TRUE;
+    if(!delete_comment(&source, &source2)) {
+        MFREE(source.mBuf);
+        MFREE(source2.mBuf);
 
-        if(!parse_class_source(info, cinfo)) {
-            info->p = info_p_before;
-            info->sname = info_sname_before;
-            info->sline = info_sline_before;
-            info->included_source = info_included_source_before;
-            MFREE(source.mBuf);
-            return FALSE;
-        }
+        xstrncpy(gScriptDirPath, script_dir_path, PATH_MAX);
+        return FALSE;
+    }
 
+    char* info_p_before = info->p;
+    info->p = source2.mBuf;
+
+    char* info_sname_before = info->sname;
+    info->sname = file_path;
+
+    int info_sline_before = info->sline;
+    info->sline = 1;
+
+    BOOL info_included_source_before = info->included_source;
+    info->included_source = TRUE;
+
+    if(!parse_class_source(info, cinfo)) {
         info->p = info_p_before;
         info->sname = info_sname_before;
         info->sline = info_sline_before;
         info->included_source = info_included_source_before;
-
         MFREE(source.mBuf);
-        MFREE(source2.mBuf);
+
+        xstrncpy(gScriptDirPath, script_dir_path, PATH_MAX);
+        return FALSE;
     }
+
+    info->p = info_p_before;
+    info->sname = info_sname_before;
+    info->sline = info_sline_before;
+    info->included_source = info_included_source_before;
+
+    MFREE(source.mBuf);
+    MFREE(source2.mBuf);
+
+    xstrncpy(gScriptDirPath, script_dir_path, PATH_MAX);
 
     return TRUE;
 }
@@ -1605,7 +1632,6 @@ BOOL call_compile_time_script_method_on_declare()
     int var_num = 0;
 
     if(!invoke_method(clover_class, method, stack, var_num, &stack_ptr, &info)) {
-        show_exception_message(info.exception_message);
         return FALSE;
     }
 
@@ -1625,12 +1651,6 @@ BOOL compile_class_source(char* fname, char* source)
     info.lv_table = NULL;
     info.parse_phase = 0;
     info.included_source = FALSE;
-
-    char fname2[PATH_MAX+1];
-
-    append_cwd_for_path(fname, fname2);         // ファイル名を絶対パスにしておく
-
-    xstrncpy(gCompilingSourceFileName, fname2, PATH_MAX);  // コンパイル中のソースファイル名を保存
 
     sCompileInfo cinfo;
     
@@ -1724,7 +1744,6 @@ BOOL compile_class_source(char* fname, char* source)
     vm_mutex_on();
 
     if(!vm(&code, &constant, stack, var_num, NULL, &vinfo)) {
-        show_exception_message(vinfo.exception_message);
         sByteCode_free(&code);
         sConst_free(&constant);
         vm_mutex_off();

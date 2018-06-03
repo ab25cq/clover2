@@ -9,8 +9,6 @@ void entry_exception_object_with_class_name(CLVALUE** stack_ptr, CLVALUE* stack,
     vsnprintf(msg2, 1024, msg, args);
     va_end(args);
 
-    callOnException();
-
     char msg3[1024];
 
     if(info->running_class && info->running_method) {
@@ -46,13 +44,13 @@ void entry_exception_object_with_class_name(CLVALUE** stack_ptr, CLVALUE* stack,
 
     sCLObject* object_data = CLOBJECT(object);
     object_data->mFields[0].mObjectValue = str;
+
+    callOnException(str, info->try_offset != 0);
 }
 
 void entry_exception_object_with_class_name2(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, char* class_name, char* msg)
 {
     char msg3[1024];
-
-    callOnException();
 
     if(info->running_class && info->running_method) {
         snprintf(msg3, 1024, "%s %d: %s at %s.%s", info->sname, info->sline, msg, CLASS_NAME(info->running_class), METHOD_NAME2(info->running_class, info->running_method));
@@ -87,12 +85,12 @@ void entry_exception_object_with_class_name2(CLVALUE** stack_ptr, CLVALUE* stack
 
     sCLObject* object_data = CLOBJECT(object);
     object_data->mFields[0].mObjectValue = str;
+
+    callOnException(str, info->try_offset != 0);
 }
 
 void entry_exception_object(CLObject exception, sVMInfo* info)
 {
-    callOnException();
-
     sCLObject* object_data = CLOBJECT(exception);
 
     CLObject message = object_data->mFields[0].mObjectValue;
@@ -116,32 +114,7 @@ void entry_exception_object(CLObject exception, sVMInfo* info)
     }
 
     MFREE(str);
+
+    callOnException(message, info->try_offset != 0);
 }
 
-void show_exception_message(char* message)
-{
-    fprintf(stderr, "Exception Message --> %s\n", message);
-
-/*
-    sCLObject* object_data = CLOBJECT(exception);
-    CLObject string_object = object_data->mFields[0].mObjectValue;
-
-    sCLObject* object_data2 = CLOBJECT(string_object);
-
-    CLObject wchar_array = object_data2->mFields[0].mObjectValue;
-
-    sCLObject* object_data3 = CLOBJECT(wchar_array);
-
-    wchar_t* wstr = MCALLOC(1, sizeof(wchar_t)*(object_data3->mArrayNum+1));
-
-    int i;
-    for(i=0; i<object_data3->mArrayNum; i++) {
-        wstr[i] = object_data3->mFields[i].mCharValue;
-    }
-    wstr[i] = '\0';
-
-    fprintf(stderr, "%s: %ls\n", CLASS_NAME(object_data->mClass), wstr);
-
-    MFREE(wstr);
-*/
-}

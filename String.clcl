@@ -503,6 +503,10 @@ class String
         return self.sub(regex_, EqualableList<String>()@group_strings, replace_);
     }
 
+    def count(regex_:regex): int {
+        return scan(regex_).length();
+    }
+
     def scan(regex_:regex):  EqualableList<String> {
         result: EqualableList<String> = EqualableList<String>();
         offset:int = 0;

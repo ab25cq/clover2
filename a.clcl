@@ -1,28 +1,5 @@
-class FieldTest
-{
-    map:Hash<String, Integer>[];
-
-    def initialize() {}
-
-    def clone():FieldTest {
-        result := FieldTest();
-
-        result.map = Hash<String, Integer>[self.map.length];
-        for(i:=0; i<self.map.length; i++) {
-            result.map[i] = self.map[i].clone();
-        }
-
-        return result;
-    }
-
-    def main():static {
-        a := FieldTest();
-        a.map = Hash<String,Integer>[123]();
+class TestA {
+    def method() throws Exception {
+        1/0;
     }
 }
-
-klass := Class("FieldTest");
-
-field := klass.getField(0);
-
-println(field.resultType);

@@ -81,7 +81,6 @@ BOOL eval_file(char* fname, int stack_size)
     vm_mutex_on();
 
     if(!vm(&code, &constant, stack, var_num, NULL, &info)) {
-        show_exception_message(info.exception_message);
         fclose(f);
         MFREE(stack);
         MFREE(code_contents);

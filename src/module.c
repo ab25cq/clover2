@@ -213,6 +213,26 @@ static BOOL search_for_module_file_from_module_name(char* module_file, unsigned 
 {
     int i;
 
+    /// script file directory ///
+    if(gScriptDirPath[0] != '\0') {
+        snprintf(module_file, module_file_size, "%s/%s.clm", gScriptDirPath, module_name);
+
+        if(access(module_file, F_OK) == 0) {
+            return TRUE;
+        }
+    }
+
+    /// current working directory ///
+    char* cwd = getenv("PWD");
+
+    if(cwd) {
+        snprintf(module_file, module_file_size, "%s/%s.clm", cwd, module_name);
+
+        if(access(module_file, F_OK) == 0) {
+            return TRUE;
+        }
+    }
+
     /// .clover2 directory ////
     char* home = getenv("HOME");
 
@@ -229,17 +249,6 @@ static BOOL search_for_module_file_from_module_name(char* module_file, unsigned 
 
     if(access(module_file, F_OK) == 0) {
         return TRUE;
-    }
-
-    /// current working directory ///
-    char* cwd = getenv("PWD");
-
-    if(cwd) {
-        snprintf(module_file, module_file_size, "%s/%s.clm", cwd, module_name);
-
-        if(access(module_file, F_OK) == 0) {
-            return TRUE;
-        }
     }
 
     return FALSE;
