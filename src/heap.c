@@ -156,7 +156,6 @@ void mark_jit_objects(unsigned char* mark_flg)
     for(i=0; i<gNumJITObjects; i++) {
         mark_object(gJITObjects[i], mark_flg);
     }
-
 }
 #endif
 
@@ -304,6 +303,7 @@ static void gc()
     mark_flg = MCALLOC(1, gCLHeap.mNumHandles);
 
     mark(mark_flg);
+
     compaction(mark_flg);
 
     MFREE(mark_flg);
@@ -315,8 +315,6 @@ CLObject alloc_heap_mem(int size, sCLClass* klass, int array_num)
     CLObject obj;
 
     if(gCLHeap.mMemLen + size >= gCLHeap.mMemSize) {
-        gc();
-
         /// create new space of object ///
         if(gCLHeap.mMemLen + size >= gCLHeap.mMemSize) {
             BOOL current_is_mem_a = gCLHeap.mMem == gCLHeap.mCurrentMem;
@@ -340,6 +338,9 @@ CLObject alloc_heap_mem(int size, sCLClass* klass, int array_num)
                 gCLHeap.mSleepMem = gCLHeap.mMem;
             }
         }
+
+        /// gc ///
+        gc();
     }
 
     /// get a free handle from linked list ///

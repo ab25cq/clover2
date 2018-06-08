@@ -40,8 +40,8 @@ void show_str_in_jit(char* str)
 
 void show_stack_stat(CLVALUE** stack_ptr, CLVALUE* stack)
 {
-    printf("stack_ptr %p\n", *stack_ptr);
-    printf("stack %p\n", stack);
+    printf("stack_ptr %p\n", (void*)*stack_ptr);
+    printf("stack %p\n", (void*)stack);
     printf("stack_ptr - stack %d\n", (int)((*stack_ptr) - stack));
 }
 

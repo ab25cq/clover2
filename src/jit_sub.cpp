@@ -47,13 +47,19 @@ LVALUE trunc_value(LVALUE* llvm_value, int size)
         Type::TypeID type_id = llvm_type->getTypeID();
 
         /// Constant Int ///
-        if(llvm_value->kind == kLVKindConstantInt1 || llvm_value->kind == kLVKindConstantInt8 || llvm_value->kind == kLVKindConstantUInt8 || llvm_value->kind == kLVKindConstantInt16 || llvm_value->kind == kLVKindConstantUInt16 || llvm_value->kind == kLVKindConstantInt32 || llvm_value->kind == kLVKindConstantUInt32 || llvm_value->kind == kLVKindConstantInt64 || llvm_value->kind == kLVKindConstantInt64 || llvm_value->kind == kLVKindConstantUInt64) 
+        if(llvm_value->kind == kLVKindConstantInt1 || llvm_value->kind == kLVKindConstantInt8 || llvm_value->kind == kLVKindConstantUInt8 || llvm_value->kind == kLVKindConstantInt16 || llvm_value->kind == kLVKindConstantUInt16 || llvm_value->kind == kLVKindConstantInt32 || llvm_value->kind == kLVKindConstantUInt32 || llvm_value->kind == kLVKindConstantInt64 || llvm_value->kind == kLVKindConstantUInt64) 
         {
-            ConstantInt* constant_int_value = dynamic_cast<ConstantInt*>(llvm_value->value);
+#if LLVM_VERSION_MAJOR >= 4
+            ConstantInt* constant_int_value = (ConstantInt*)llvm_value->value;
             APInt apint_value = constant_int_value->getValue();
 
-            int bit_width = constant_int_value->getBitWidth();
+            //bool signed_value = llvm_value->kind == kLVKindConstantInt1 || llvm_value->kind == kLVKindConstantInt8 || llvm_value->kind == kLVKindConstantInt16 || llvm_value->kind == kLVKindConstantInt32 || llvm_value->kind == kLVKindConstantInt64;
+            bool signed_value = apint_value.isSignBitSet();
+#else
+            ConstantInt* constant_int_value = dynamic_cast<ConstantInt*>(llvm_value->value);
+            APInt apint_value = constant_int_value->getValue();
             bool signed_value = apint_value.isSignBit();
+#endif
 
             switch(size) {
                 case 1:
@@ -113,13 +119,18 @@ LVALUE trunc_value(LVALUE* llvm_value, int size)
             }
         }
         else if(llvm_value->kind == kLVKindConstantFloat || llvm_value->kind == kLVKindConstantDouble) {
+#if LLVM_VERSION_MAJOR >= 4
+            ConstantFP* constant_float_value = (ConstantFP*)llvm_value->value;
+            const APFloat apfloat_value = constant_float_value->getValueAPF();
+#else
             ConstantFP* constant_float_value = dynamic_cast<ConstantFP*>(llvm_value->value);
             const APFloat apfloat_value = constant_float_value->getValueAPF();
+#endif
 
             switch(size) {
                 case 1: {
                     APInt apint_value = apfloat_value.bitcastToAPInt();
-                    ConstantInt* value = ConstantInt::get(TheContext, apint_value);
+                    //ConstantInt* value = ConstantInt::get(TheContext, apint_value);
                     result.value = ConstantInt::get(TheContext, apint_value.sextOrTrunc(1));
                     result.kind = kLVKindConstantInt1;
                     }
@@ -127,7 +138,7 @@ LVALUE trunc_value(LVALUE* llvm_value, int size)
 
                 case 8: {
                     APInt apint_value = apfloat_value.bitcastToAPInt();
-                    ConstantInt* value = ConstantInt::get(TheContext, apint_value);
+                    //ConstantInt* value = ConstantInt::get(TheContext, apint_value);
                     result.value = ConstantInt::get(TheContext, apint_value.sextOrTrunc(8));
                     result.kind = kLVKindConstantInt8;
                     }
@@ -135,7 +146,7 @@ LVALUE trunc_value(LVALUE* llvm_value, int size)
 
                 case 16: {
                     APInt apint_value = apfloat_value.bitcastToAPInt();
-                    ConstantInt* value = ConstantInt::get(TheContext, apint_value);
+                    //ConstantInt* value = ConstantInt::get(TheContext, apint_value);
                     result.value = ConstantInt::get(TheContext, apint_value.sextOrTrunc(16));
                     result.kind = kLVKindConstantInt16;
                     }
@@ -143,7 +154,7 @@ LVALUE trunc_value(LVALUE* llvm_value, int size)
 
                 case 32: {
                     APInt apint_value = apfloat_value.bitcastToAPInt();
-                    ConstantInt* value = ConstantInt::get(TheContext, apint_value);
+                    //ConstantInt* value = ConstantInt::get(TheContext, apint_value);
                     result.value = ConstantInt::get(TheContext, apint_value.sextOrTrunc(32));
                     result.kind = kLVKindConstantInt32;
                     }
@@ -151,7 +162,7 @@ LVALUE trunc_value(LVALUE* llvm_value, int size)
 
                 case 64: {
                     APInt apint_value = apfloat_value.bitcastToAPInt();
-                    ConstantInt* value = ConstantInt::get(TheContext, apint_value);
+                    //ConstantInt* value = ConstantInt::get(TheContext, apint_value);
                     result.value = ConstantInt::get(TheContext, apint_value.sextOrTrunc(64));
                     result.kind = kLVKindConstantInt64;
                     }
@@ -331,13 +342,19 @@ LVALUE trunc_value_to_float_or_double(LVALUE* llvm_value, int size)
         Type::TypeID type_id = llvm_type->getTypeID();
 
         /// Constant Int ///
-        if(llvm_value->kind == kLVKindConstantInt1 || llvm_value->kind == kLVKindConstantInt8 || llvm_value->kind == kLVKindConstantUInt8 || llvm_value->kind == kLVKindConstantInt16 || llvm_value->kind == kLVKindConstantUInt16 || llvm_value->kind == kLVKindConstantInt32 || llvm_value->kind == kLVKindConstantUInt32 || llvm_value->kind == kLVKindConstantInt64 || llvm_value->kind == kLVKindConstantInt64 || llvm_value->kind == kLVKindConstantUInt64) 
+        if(llvm_value->kind == kLVKindConstantInt1 || llvm_value->kind == kLVKindConstantInt8 || llvm_value->kind == kLVKindConstantUInt8 || llvm_value->kind == kLVKindConstantInt16 || llvm_value->kind == kLVKindConstantUInt16 || llvm_value->kind == kLVKindConstantInt32 || llvm_value->kind == kLVKindConstantUInt32 || llvm_value->kind == kLVKindConstantInt64 || llvm_value->kind == kLVKindConstantUInt64) 
         {
-            ConstantInt* constant_int_value = dynamic_cast<ConstantInt*>(llvm_value->value);
+#if LLVM_VERSION_MAJOR >= 4
+            ConstantInt* constant_int_value = (ConstantInt*)(llvm_value->value);
             APInt apint_value = constant_int_value->getValue();
 
-            int bit_width = constant_int_value->getBitWidth();
+            bool signed_value = apint_value.isSignBitSet();
+            //bool signed_value = llvm_value->kind == kLVKindConstantInt1 || llvm_value->kind == kLVKindConstantInt8 || llvm_value->kind == kLVKindConstantInt16 || llvm_value->kind == kLVKindConstantInt32 || llvm_value->kind == kLVKindConstantInt64;
+#else
+            ConstantInt* constant_int_value = dynamic_cast<ConstantInt*>(llvm_value->value);
+            APInt apint_value = constant_int_value->getValue();
             bool signed_value = apint_value.isSignBit();
+#endif
 
             switch(size) {
                 case 32:
@@ -432,18 +449,25 @@ LVALUE trunc_value_to_pointer(LVALUE* llvm_value)
         /// Constant Int ///
         if(llvm_value->kind == kLVKindConstantInt1 || llvm_value->kind == kLVKindConstantInt8 || llvm_value->kind == kLVKindConstantUInt8 || llvm_value->kind == kLVKindConstantInt16 || llvm_value->kind == kLVKindConstantUInt16 || llvm_value->kind == kLVKindConstantInt32 || llvm_value->kind == kLVKindConstantUInt32 || llvm_value->kind == kLVKindConstantInt64 || llvm_value->kind == kLVKindConstantInt64 || llvm_value->kind == kLVKindConstantUInt64) 
         {
+#if LLVM_VERSION_MAJOR >= 4
+            ConstantInt* constant_int_value = (ConstantInt*)(llvm_value->value);
+            APInt apint_value = constant_int_value->getValue();
+#else
             ConstantInt* constant_int_value = dynamic_cast<ConstantInt*>(llvm_value->value);
             APInt apint_value = constant_int_value->getValue();
-
-            int bit_width = constant_int_value->getBitWidth();
-            bool signed_value = apint_value.isSignBit();
+#endif
 
             result.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value->value, PointerType::get(IntegerType::get(TheContext, 8), 0));
             result.kind = kLVKindPointer8;
         }
         else if(llvm_value->kind == kLVKindConstantFloat || llvm_value->kind == kLVKindConstantDouble) {
+#if LLVM_VERSION_MAJOR >= 4
+            ConstantFP* constant_float_value = (ConstantFP*)(llvm_value->value);
+            const APFloat apfloat_value = constant_float_value->getValueAPF();
+#else
             ConstantFP* constant_float_value = dynamic_cast<ConstantFP*>(llvm_value->value);
             const APFloat apfloat_value = constant_float_value->getValueAPF();
+#endif
 
             result.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value->value, PointerType::get(IntegerType::get(TheContext, 8), 0));
             result.kind = kLVKindPointer8;

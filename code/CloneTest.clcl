@@ -39,7 +39,7 @@ klass.appendMethod(
             ls(glob("*.oclcl")).toString().split(/\n/).each {
                 it2 := it.scan(/(.+)\.oclcl/).items(1).subString(2, -1);
 
-println(it2);
+                println(it2);
                 klass := Class(it2);
 
                 if(klass.isInterface().negative() && it2.equals("Clover").negative() && it2.equals("Global").negative() && it2.equals("System").negative() && it2.equals("AndAndOrOrTest").negative() && it2.equals("CloneTest").negative())
@@ -92,6 +92,7 @@ println(it2);
 
                     result.append("println(\"OK\")\n");
                 }
+                println(it2.append("...end"));
             }
             result;
         }

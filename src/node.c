@@ -9742,6 +9742,11 @@ BOOL compile_block_object(unsigned int node, sCompileInfo* info)
 
     info->pinfo->exist_block_object_err = node_block->mUnClosedBlock; // for interpreter completion
 
+    if(!lambda && info->method) {
+        info->method->mFlags |= METHOD_FLAGS_NON_NATIVE_CODE;  // including closure code should be runned in none native code
+    }
+
+
     return TRUE;
 }
 

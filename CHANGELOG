@@ -1,4 +1,14 @@
 
+version 4.2.0
+
+    GCのアルゴリズムの修正。GC中のファイナライザで更にメモリが必要になったらセグメンテーション違反していましたが、修正。
+
+    LLVMがちゃんと対応できてませんでしたが、修正。LLVM3.8とLLVM4.0 laterに対応。
+
+version 4.2.0
+
+    Modification of GC algorithm. Segmentation violated when finalizers in GC needed more memory, but it was fixed. LLVM was not able to respond properly, but it was fixed. Corresponds to LLVM 3.8 and LLVM 4.0 later.
+
 version 4.1.8
     
     クラスのソースファイルのincludeファイルの検索パスのルーチンを作りました。カレントディレクトリだけでなく$PREFIX/share/clover2や~/.clover2にあるファイルも検索されます。cclover2 -core a.clclなどでinclude "MyOwnLibrary.clcl"などすれば基礎ライブラリの改造が出来ます。

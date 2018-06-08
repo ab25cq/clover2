@@ -4,8 +4,6 @@ extern "C"
 {
 BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name)
 {
-    int i;
-
     switch(inst)
     {
         case OP_INVOKE_METHOD: {
@@ -170,7 +168,7 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
             params2.push_back(param7);
 
             Value* param8 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_real_params);
-            params2.push_back(param1);
+            params2.push_back(param8);
 
             Value* result = Builder.CreateCall(fun, params2);
 
@@ -403,8 +401,6 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
 
             int flg_array = *(int*)(*pc);
             (*pc) += sizeof(int);
-
-            char* class_name = CONS_str(constant, offset);
 
             /// load class in runtime ///
             Function* load_class_fun = TheModule->getFunction("get_class_with_load_and_initialize_in_jit");

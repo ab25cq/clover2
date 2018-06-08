@@ -1,4 +1,11 @@
 #include "jit_common.hpp"
+#include <signal.h>
+
+#if LLVM_VERSION_MAJOR >= 4
+#include "llvm/Bitcode/BitcodeWriter.h"
+#else
+#include "llvm/Bitcode/ReaderWriter.h"
+#endif
 
 extern "C"
 {
@@ -45,6 +52,7 @@ static BOOL compile_jit_methods(sCLClass* klass)
     }
 
     if(num_compiled_method > 0) {
+#if LLVM_VERSION_MAJOR >= 4
         char path[PATH_MAX];
         snprintf(path, PATH_MAX, "%s.bc", CLASS_NAME(klass));
 
@@ -57,57 +65,26 @@ static BOOL compile_jit_methods(sCLClass* klass)
         raw_string_ostream err_ostream(err_str);
 
         verifyModule(*TheModule);
+
         llvm::WriteBitcodeToFile(TheModule, output_stream, true);
         output_stream.flush();
+#else
+        char path[PATH_MAX];
+        snprintf(path, PATH_MAX, "%s.bc", CLASS_NAME(klass));
 
-        /// llvm-as ///
-        char command[1024];
-        int result;
+        (void)unlink(path);
 
-        snprintf(command, 1024, "/usr/bin/llvm-dis %s.bc", CLASS_NAME(klass));
-        puts(command);
-        result = system(command);
+        std::error_code ecode;
+        llvm::raw_fd_ostream output_stream(path, ecode, llvm::sys::fs::F_None);
 
-        if(result != 0) {
-            fprintf(stderr, "llvm-dis is faield\n");
-            return FALSE;
-        }
+        std::string err_str;
+        raw_string_ostream err_ostream(err_str);
 
-        snprintf(command, 1024, "/usr/bin/llc -relocation-model=pic %s.bc", CLASS_NAME(klass));
-        puts(command);
-        result = system(command);
+        verifyModule(*TheModule);
 
-        if(result != 0) {
-            fprintf(stderr, "llvm-dis is faield\n");
-            return FALSE;
-        }
-
-        snprintf(command, 1024, "/usr/bin/clang -o %s.o -c %s.s", CLASS_NAME(klass), CLASS_NAME(klass));
-        puts(command);
-        result = system(command);
-
-        if(result != 0) {
-            fprintf(stderr, "clang is faield\n");
-            return FALSE;
-        }
-
-        snprintf(command, 1024, "/usr/bin/gcc -shared -Wl,-soname=lib%s.so.1 -o lib%s.so.1.0.0 %s.o", CLASS_NAME(klass), CLASS_NAME(klass), CLASS_NAME(klass));
-        puts(command);
-        result = system(command);
-
-        if(result != 0) {
-            fprintf(stderr, "clang is faield\n");
-            return FALSE;
-        }
-
-        snprintf(command, 1024, "ln -fs lib%s.so.1.0.0 lib%s.so", CLASS_NAME(klass), CLASS_NAME(klass));
-        puts(command);
-        result = system(command);
-
-        if(result != 0) {
-            fprintf(stderr, "ln -fs is faield\n");
-            return FALSE;
-        }
+        llvm::WriteBitcodeToFile(TheModule, output_stream, true);
+        output_stream.flush();
+#endif
     }
 
     delete TheModule;

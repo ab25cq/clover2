@@ -243,6 +243,11 @@ BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* param
     klass->mMethods[num_methods].mFlags = (native_ ? METHOD_FLAGS_NATIVE : 0) | (static_ ? METHOD_FLAGS_CLASS_METHOD:0);
     klass->mMethods[num_methods].mNameOffset = append_str_to_constant_pool(&klass->mConst, method_name, FALSE);
 
+    if(strcmp(method_name, "initialize") == 0 || strcmp(method_name, "finalize") == 0 || native_)
+    {
+        klass->mMethods[num_methods].mFlags |= METHOD_FLAGS_NON_NATIVE_CODE;
+    }
+
     BOOL method_arg_default_value = FALSE;
 
     int i;

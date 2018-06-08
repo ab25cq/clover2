@@ -1,5 +1,11 @@
 English page is here [>> English page](release_note-en)
 
+version 4.2.0
+
+    GCのアルゴリズムの修正。GC中のファイナライザで更にメモリが必要になったらセグメンテーション違反していましたが、修正。
+
+    LLVMがちゃんと対応できてませんでしたが、修正。LLVM3.8とLLVM4.0 laterに対応。
+
 version 4.1.8
     
     クラスのソースファイルのincludeファイルの検索パスのルーチンを作りました。カレントディレクトリだけでなく$PREFIX/share/clover2や~/.clover2にあるファイルも検索されます。cclover2 -core a.clclなどでinclude "MyOwnLibrary.clcl"などすれば基礎ライブラリの改造が出来ます。

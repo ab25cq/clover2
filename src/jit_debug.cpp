@@ -3,7 +3,7 @@
 extern "C"
 {
 
-char* kLLVMKindStr[] = {
+const char* kLLVMKindStr[] = {
     "kLVKindNone",
     "kLVKindInt1",
     "kLVKindInt8",
@@ -38,14 +38,14 @@ char* kLLVMKindStr[] = {
 
 void show_stack_for_llvm_stack(LVALUE* llvm_stack, LVALUE* llvm_stack_ptr, int var_num)
 {
-    printf("llvm_stack %p\n", llvm_stack);
-    printf("llvm_stack_ptr %p\n", llvm_stack_ptr);
-    printf("llvm_stack_ptr - llvm_stack %d\n", llvm_stack_ptr - llvm_stack);
+    printf("llvm_stack %p\n", (void*)llvm_stack);
+    printf("llvm_stack_ptr %p\n", (void*)llvm_stack_ptr);
+    printf("llvm_stack_ptr - llvm_stack %ld\n", llvm_stack_ptr - llvm_stack);
     printf("var_num %d\n", var_num);
 
     int i;
     for(i=0; i<10; i++) {
-        printf("stack[%d] kind %s %p %d\n", i, kLLVMKindStr[llvm_stack[i].kind], llvm_stack[i].value, llvm_stack[i].value);
+        printf("stack[%d] kind %s %p %p\n", i, kLLVMKindStr[llvm_stack[i].kind], (void*)llvm_stack[i].value, (void*)llvm_stack[i].value);
     }
 }
 
@@ -56,7 +56,7 @@ void call_show_str_in_jit(Value* value)
     std::vector<Value*> params2;
     params2.push_back(value);
 
-    Value* result = Builder.CreateCall(show_str, params2);
+    Builder.CreateCall(show_str, params2);
 }
 
 void call_show_stack_stat(std::map<std::string, Value *> params)
@@ -75,7 +75,7 @@ void call_show_stack_stat(std::map<std::string, Value *> params)
     Value* param2 = stack_value;
     params2.push_back(param2);
 
-    Value* result = Builder.CreateCall(show_address_fun, params2);
+    Builder.CreateCall(show_address_fun, params2);
 }
 
 void show_inst_in_jit(int opecode)
@@ -1155,7 +1155,7 @@ void call_show_inst_in_jit(int opecode)
     Value* param1 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)opecode);
     params2.push_back(param1);
 
-    Value* result = Builder.CreateCall(show_inst, params2);
+    Builder.CreateCall(show_inst, params2);
 
     show_inst_in_jit(opecode);
 }
@@ -1174,7 +1174,7 @@ void show_llvm_value(LVALUE* llvm_value)
         case kLVKindNone: {
             fun = TheModule->getFunction("show_str_in_jit");
 
-            Value* param1 = llvm_create_string("None");
+            Value* param1 = llvm_create_string((char*)"None");
             params2.push_back(param1);
 
             Builder.CreateCall(fun, params2);
@@ -1260,7 +1260,7 @@ void show_llvm_value(LVALUE* llvm_value)
         case kLVKindAddress: {
             fun = TheModule->getFunction("show_str_in_jit");
 
-            Value* param1 = llvm_create_string("Address");
+            Value* param1 = llvm_create_string((char*)"Address");
             params2.push_back(param1);
 
             Builder.CreateCall(fun, params2);
@@ -1292,7 +1292,7 @@ void show_llvm_value(LVALUE* llvm_value)
         case kLVKindPointer8: {
             fun = TheModule->getFunction("show_str_in_jit");
 
-            Value* param1 = llvm_create_string("Pointer8");
+            Value* param1 = llvm_create_string((char*)"Pointer8");
             params2.push_back(param1);
 
             Builder.CreateCall(fun, params2);
@@ -1302,7 +1302,7 @@ void show_llvm_value(LVALUE* llvm_value)
         case kLVKindPointer32: {
             fun = TheModule->getFunction("show_str_in_jit");
 
-            Value* param1 = llvm_create_string("Pointer32");
+            Value* param1 = llvm_create_string((char*)"Pointer32");
             params2.push_back(param1);
 
             Builder.CreateCall(fun, params2);
@@ -1312,7 +1312,7 @@ void show_llvm_value(LVALUE* llvm_value)
         case kLVKindPointer64: {
             fun = TheModule->getFunction("show_str_in_jit");
 
-            Value* param1 = llvm_create_string("Pointer64");
+            Value* param1 = llvm_create_string((char*)"Pointer64");
             params2.push_back(param1);
 
             Builder.CreateCall(fun, params2);
@@ -1322,7 +1322,7 @@ void show_llvm_value(LVALUE* llvm_value)
         case kLVKindPointerDouble: {
             fun = TheModule->getFunction("show_str_in_jit");
 
-            Value* param1 = llvm_create_string("PointerDouble");
+            Value* param1 = llvm_create_string((char*)"PointerDouble");
             params2.push_back(param1);
 
             Builder.CreateCall(fun, params2);

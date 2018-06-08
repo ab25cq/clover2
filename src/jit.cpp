@@ -292,7 +292,7 @@ call_show_inst_in_jit(inst);
                 break;
 
             case OP_GOTO: {
-                int jump_value = *(int*)pc;
+                //int jump_value = *(int*)pc;
                 pc += sizeof(int);
 
                 int label_offset = *(int*)pc;
@@ -482,7 +482,7 @@ call_show_inst_in_jit(inst);
                 Value* llvm_value1 = ConstantInt::get(Type::getInt32Ty(TheContext), 0);
                 Builder.CreateStore(llvm_value1, gSigIntValue);
 
-                call_entry_exception_object_with_class_name2(params, "Exception", "Signal Interrupt");
+                call_entry_exception_object_with_class_name2(params, (char*)"Exception", (char*)"Signal Interrupt");
 
                 Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 0, true));
                 Builder.CreateRet(ret_value);

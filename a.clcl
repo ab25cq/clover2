@@ -1,5 +1,5 @@
 class TestA {
-    def method() throws Exception {
-        1/0;
+    def method() {
+        1+1;
     }
 }

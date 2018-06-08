@@ -218,6 +218,7 @@ typedef struct sCLParamStruct sCLParam;
 #define METHOD_FLAGS_NATIVE 0x01
 #define METHOD_FLAGS_CLASS_METHOD 0x02
 #define METHOD_FLAGS_MODIFIED 0x08
+#define METHOD_FLAGS_NON_NATIVE_CODE 0x10
 
 #define EXCEPTION_MESSAGE_MAX 1024
 #define STACK_TRACE_MAX 32
@@ -2263,7 +2264,7 @@ BOOL System_wprintw(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_getmaxx(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_getmaxy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
-CLObject signal_handler_object[SIGMAX];
+extern CLObject signal_handler_object[SIGMAX];
 
 /// alignment.c ///
 void alignment(unsigned int* size);
@@ -2374,6 +2375,7 @@ BOOL CLParser_initialize(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 extern int gARGC;
 extern char** gARGV;
 extern char* gVersion;
+extern BOOL gRunningCompiler;
 
 extern char gScriptDirPath[PATH_MAX];
 

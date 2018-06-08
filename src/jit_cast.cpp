@@ -7303,7 +7303,7 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             params2.push_back(param7);
 
             Value* param8 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)type_name_offset);
-            params2.push_back(param7);
+            params2.push_back(param8);
 
             std::string constant_value_name("constant");
             Value* param9 = params[constant_value_name];

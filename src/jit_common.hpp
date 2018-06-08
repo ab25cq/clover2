@@ -28,7 +28,9 @@ extern "C"
 #include "llvm/ExecutionEngine/Orc/CompileUtils.h"
 #include "llvm/ExecutionEngine/Orc/IRCompileLayer.h"
 #include "llvm/ExecutionEngine/Orc/LambdaResolver.h"
+#if LLVM_VERSION_MAJOR == 3
 #include "llvm/ExecutionEngine/Orc/ObjectLinkingLayer.h"
+#endif
 #include "llvm/IR/DataLayout.h"
 #include "llvm/IR/Mangler.h"
 #include "llvm/Support/DynamicLibrary.h"
@@ -39,7 +41,9 @@ extern "C"
 #include "llvm/IRReader/IRReader.h"
 #include "llvm/Support/SourceMgr.h"
 #include "llvm/Support/MemoryBuffer.h"
+#if LLVM_VERSION_MAJOR == 3
 #include "llvm/Bitcode/ReaderWriter.h"
+#endif
 //#include "llvm/Bitcode/BitcodeReader.h"
 //#include "llvm/Bitcode/BitcodeWriter.h"
 #include <fstream>

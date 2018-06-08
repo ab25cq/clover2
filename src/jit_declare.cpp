@@ -1159,7 +1159,6 @@ void create_internal_functions2()
     Type* param9_type;
     Type* param10_type;
     Type* param11_type;
-    Type* param12_type;
     FunctionType* function_type;
 
     /// get_regex_dotall ///

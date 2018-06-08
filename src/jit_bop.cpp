@@ -604,7 +604,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             int value_size = 8;
 
-            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, "Exception", "division by zero");
+            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero");
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateSDiv(lvalue->value, rvalue->value, "divtmp", false);
@@ -628,7 +628,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             int value_size = 16;
 
-            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, "Exception", "division by zero");
+            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero");
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateSDiv(lvalue->value, rvalue->value, "divtmp", false);
@@ -652,7 +652,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             int value_size = 32;
 
-            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, "Exception", "division by zero");
+            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero");
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateSDiv(lvalue->value, rvalue->value, "divtmp", false);
@@ -676,7 +676,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             int value_size = 64;
 
-            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, "Exception", "division by zero");
+            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero");
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateSDiv(lvalue->value, rvalue->value, "divtmp", false);
@@ -700,7 +700,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             int value_size = 8;
 
-            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, "Exception", "division by zero");
+            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero");
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateUDiv(lvalue->value, rvalue->value, "divtmp", false);
@@ -724,7 +724,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             int value_size = 16;
 
-            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, "Exception", "division by zero");
+            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero");
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateUDiv(lvalue->value, rvalue->value, "divtmp", false);
@@ -748,7 +748,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             int value_size = 32;
 
-            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, "Exception", "division by zero");
+            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero");
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateUDiv(lvalue->value, rvalue->value, "divtmp", false);
@@ -772,7 +772,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             int value_size = 64;
 
-            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, "Exception", "division by zero");
+            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero");
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateUDiv(lvalue->value, rvalue->value, "divtmp", false);
@@ -796,7 +796,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             int value_size = 8;
 
-            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, "Exception", "division by zero");
+            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero");
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateSRem(lvalue->value, rvalue->value, "remtmp");
@@ -820,7 +820,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             int value_size = 16;
 
-            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, "Exception", "division by zero");
+            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero");
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateSRem(lvalue->value, rvalue->value, "remtmp");
@@ -844,7 +844,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             int value_size = 32;
 
-            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, "Exception", "division by zero");
+            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero");
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateSRem(lvalue->value, rvalue->value, "remtmp");
@@ -868,7 +868,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             int value_size = 64;
 
-            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, "Exception", "division by zero");
+            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero");
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateSRem(lvalue->value, rvalue->value, "remtmp");
@@ -892,7 +892,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             int value_size = 8;
 
-            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, "Exception", "division by zero");
+            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero");
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateURem(lvalue->value, rvalue->value, "remtmp");
@@ -916,7 +916,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             int value_size = 16;
 
-            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, "Exception", "division by zero");
+            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero");
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateURem(lvalue->value, rvalue->value, "remtmp");
@@ -940,7 +940,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             int value_size = 32;
 
-            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, "Exception", "division by zero");
+            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero");
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateURem(lvalue->value, rvalue->value, "remtmp");
@@ -964,7 +964,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             int value_size = 64;
 
-            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, "Exception", "division by zero");
+            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero");
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateURem(lvalue->value, rvalue->value, "remtmp");
@@ -2073,7 +2073,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             BOOL value_is_float = inst == OP_FDIV;
             BOOL value_is_double = inst == OP_DDIV;
 
-            if_value_is_zero_entry_exception_object(rvalue->value, 0, value_is_float, value_is_double, params, *function, current_block, "Exception", "division by zero");
+            if_value_is_zero_entry_exception_object(rvalue->value, 0, value_is_float, value_is_double, params, *function, current_block, (char*)"Exception", (char*)"division by zero");
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateFDiv(lvalue->value, rvalue->value, "fdivtmp");
@@ -2097,7 +2097,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             BOOL value_is_float = inst == OP_FDIV;
             BOOL value_is_double = inst == OP_DDIV;
 
-            if_value_is_zero_entry_exception_object(rvalue->value, 0, value_is_float, value_is_double, params, *function, current_block, "Exception", "division by zero");
+            if_value_is_zero_entry_exception_object(rvalue->value, 0, value_is_float, value_is_double, params, *function, current_block, (char*)"Exception", (char*)"division by zero");
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateFDiv(lvalue->value, rvalue->value, "fdivtmp");

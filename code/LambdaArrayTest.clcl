@@ -6,6 +6,35 @@ class LambdaArrayTest
         a:lambda[](int):int = new lambda[128](int):int();
 
         b := 123;
+        z := closure(key:int):int {
+            b = key;
+
+            return 1;
+        }
+
+        Clover.test("lambda array test", z(234) == 1);
+        Clover.test("lambda array test2", b == 234);
+
+        b = 123;
+        a[1] = closure(key:int):int {
+            b = key;
+
+            return 1;
+        }
+
+        Clover.test("lambda array test3", a[1](234) == 1);
+
+        Clover.test("lambda array test4", b == 234);
+        Clover.test("lambda array test5", a[0].identifyWith(null));
+        Clover.test("lambda array test6", !a[1].identifyWith(null));
+    }
+/*
+    def main(): static {
+        c:lambda[]?(int):int = null;
+
+        a:lambda[](int):int = new lambda[128](int):int();
+
+        b := 123;
         a[1] = closure(key:int):int {
             b = key;
 
@@ -18,4 +47,5 @@ class LambdaArrayTest
         Clover.test("lambda array test3", a[0].identifyWith(null));
         Clover.test("lambda array test4", !a[1].identifyWith(null));
     }
+*/
 }
