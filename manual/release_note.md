@@ -2,6 +2,8 @@ English page is here [>> English page](release_note-en)
 
 version 4.2.1
 
+    JITで||と&&にバグが有ったため修正
+
     JITでb:=123; -b == 0が真になるバグを修正。OP_REVERSEのバグを修正。
 
 version 4.2.0
