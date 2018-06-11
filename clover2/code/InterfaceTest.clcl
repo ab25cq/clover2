@@ -1,0 +1,21 @@
+
+interface ITest {
+    def method(a:int):int;
+}
+
+class InterfaceTestClass {
+    def initialize() {
+    }
+    def method(a:int):int {
+        return a;
+    }
+}
+
+
+class InterfaceTest {
+    def main(): static {
+        a:ITest = new InterfaceTestClass();
+
+        Clover.test("interface test1", a.method(123) == 123);
+    }
+}

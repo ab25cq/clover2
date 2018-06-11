@@ -1,0 +1,539 @@
+include "Command.clcl"
+
+class getopt_long_option
+{
+    name:String;
+    has_arg:int;
+    flag:pointer@int;
+    val:int;
+
+    def initialize() {
+    }
+
+    def initialize(name:String, has_arg:int, flag:pointer@int, val:char) {
+        self.name = name;
+        self.has_arg = has_arg;
+        self.flag = flag;
+        self.val = val.to_int;
+    }
+
+    def clone(): getopt_long_option {
+        result := getopt_long_option();
+
+        if(self.name.identifyWith(null).negative()) {
+            result.name = self.name.clone();
+        }
+        result.has_arg = self.has_arg;
+        result.flag = self.flag;
+        result.val = self.val;
+
+        return result;
+    }
+}
+
+class fd_set {
+    def initialize() {}
+    def allocSize(): static native ulong;
+    def clone():fd_set {
+        result := fd_set();
+        memcpy(result.headOfMemory(), self.headOfMemory(), allocSize());
+
+        return result;
+    }
+}
+
+class timeval {
+    tv_sec: time_t;
+    tv_usec: long;
+
+    def initialize() {}
+
+    def clone(): timeval {
+        result := timeval();
+
+        result.tv_sec = self.tv_sec;
+        result.tv_usec = self.tv_usec;
+
+        return result;
+    }
+}
+
+class System
+{
+    def alarm(seconads: uint): static native uint;
+    def dup(old_fd:int): static native throws Exception;
+    def dup3(old_fd:int, new_fd:int, flags:int): static native throws Exception;
+    def execvpe(path:String, argv:List<String>, envp:List<String>):static native throws Exception;
+    
+    def initialize_system_calls_system():static native;
+
+    def initialize(): static {
+        inherit();
+        initialize_system_calls_system();
+    }
+
+    def getopt(optstring:String, opterr:bool=true): native static Tuple3<Integer, String?, Integer>;
+        # result is Integer --> (result value of getopt) String --> (optarg) Integer --> (optind)
+
+    def getopt_long(optstring:String, longopts:getopt_long_option[], opterr:bool=true): native static Tuple4<Integer, String?, Integer, Integer>;
+        # result is Integer --> (result value of getopt_long) String --> (optarg) Integer --> (optind) Integer --> longindex
+
+    def getopt_long_only(optstring:String, longopts:getopt_long_option[], opterr:bool=true): native static Tuple4<Integer, String?, Integer, Integer>;
+        # result is Integer --> (result value of getopt_long) String --> (optarg) Integer --> (optind) Integer --> longindex
+
+    O_CLOEXEC: static int;
+
+    no_argument:static int;
+    required_argument:static int;
+    optional_argument:static int;
+
+    typedef useconds_t int;
+
+     _IONBF: static int;
+     _IOLBF: static int;
+     _IOFBF: static int;
+
+    SIG_IGN:static pointer@sighandler_t;
+    SIG_DFL:static pointer@sighandler_t;
+
+    SIGHUP:static int;
+    SIGINT:static int;
+    SIGQUIT:static int;
+    SIGILL:static int;
+    SIGTRAP:static int;
+    SIGABRT:static int;
+    SIGBUS:static int;
+    SIGFPE:static int;
+    SIGKILL:static int;
+    SIGUSR1:static int;
+    SIGSEGV:static int;
+    SIGUSR2:static int;
+    SIGPIPE:static int;
+    SIGALRM:static int;
+    SIGTERM:static int;
+    SIGSTKFLT:static int;
+    SIGCHLD:static int;
+    SIGCONT:static int;
+    SIGSTOP:static int;
+    SIGTSTP:static int;
+    SIGTTIN:static int;
+    SIGTTOU:static int;
+    SIGURG:static int;
+    SIGXCPU:static int;
+    SIGXFSZ:static int;
+    SIGVTALRM:static int;
+    SIGPROF:static int;
+    SIGWINCH:static int;
+    SIGIO:static int;
+    SIGPWR:static int;
+    SIGSYS:static int;
+
+    def getppid():static native pid_t;
+    def setsid():static native pid_t throws Exception;
+    def getsid(pid:pid_t):static native pid_t throws Exception;
+    def setpgrp():static native pid_t throws Exception;
+    def getbsize(headerlenp:pointer@int, blocksizep:pointer@long): static native String;
+    def getuid(): static native uid_t;
+    def geteuid(): static native uid_t;
+    def getgid(): static native gid_t;
+    def getugid(): static native gid_t;
+    def isatty(fd:int): static native bool;
+    def umask(mask:mode_t): static native mode_t;
+    def usleep(usec:useconds_t): static native throws Exception;
+    def nanosleep(req:timespec, rem:timespec?): static native throws Exception;
+    def putenv(string:String): static native throws Exception;
+    def secure_getenv(name:String): static native String?;
+    def setvbuf(stream:pointer@FILE, buf:pointer?@char, mode:int, size:size_t): static native throws Exception;
+    def strncat(dest:pointer@char, src:pointer@char, size:size_t): static native pointer@char;
+    def strchr(str:pointer@char, c:byte): static native pointer?@char;
+
+    def signal(signum:int, handler:pointer@sighandler_t): static native pointer@sighandler_t throws Exception;
+    def signal(signum:int, handler:lambda(int)): static native lambda(int) throws Exception;
+
+    def FD_ZERO(fdset:fd_set): static native;
+    def FD_CLR(fd:int, fdset:fd_set): static native;
+    def FD_SET(fd:int, fdset:fd_set): static native;
+    def FD_ISSET(fd:int, fdset:fd_set): static native bool;
+
+    FD_SETSIZE:static int;
+
+    def select(nfds:int, readfds:fd_set?, writefds:fd_set?, errorfds:fd_set?, timeout:timeval): static native int throws Exception;
+
+    SIOCADDRT:static int;
+    SIOCDELRT:static int;
+    SIOCRTMSG:static int;
+
+    SIOCGIFNAME: static int;
+    SIOCSIFLINK: static int;
+    SIOCGIFCONF: static int;
+    SIOCGIFFLAGS: static int;
+    SIOCSIFFLAGS: static int;
+    SIOCGIFADDR: static int;
+    SIOCSIFADDR: static int;
+    SIOCGIFDSTADDR: static int;
+    SIOCSIFDSTADDR: static int;
+    SIOCGIFBRDADDR: static int;
+    SIOCSIFBRDADDR: static int;
+    SIOCGIFNETMASK: static int;
+    SIOCSIFNETMASK: static int;
+    SIOCGIFMETRIC: static int;
+    SIOCSIFMETRIC: static int;
+    SIOCGIFMEM: static int;
+    SIOCSIFMEM: static int;
+    SIOCGIFMTU: static int;
+    SIOCSIFMTU: static int;
+    SIOCSIFNAME: static int;
+    SIOCSIFHWADDR: static int;
+    SIOCGIFENCAP: static int;
+    SIOCSIFENCAP: static int;
+    SIOCGIFHWADDR: static int;
+    SIOCGIFSLAVE: static int;
+    SIOCSIFSLAVE: static int;
+    SIOCADDMULTI: static int;
+    SIOCDELMULTI: static int;
+    SIOCGIFINDEX: static int;
+    SIOGIFINDEX: static int;
+    SIOCSIFPFLAGS: static int;
+    SIOCGIFPFLAGS: static int;
+    SIOCDIFADDR: static int;
+    SIOCSIFHWBROADCAST: static int;
+    SIOCGIFCOUNT: static int;
+
+    SIOCGIFBR: static int;
+    SIOCSIFBR: static int;
+
+    SIOCGIFTXQLEN: static int;
+    SIOCSIFTXQLEN: static int;
+
+    SIOCDARP:static int;
+    SIOCGARP:static int;
+    SIOCSARP:static int;
+
+    SIOCDRARP: static int;
+    SIOCGRARP: static int;
+    SIOCSRARP: static int;
+
+    SIOCGIFMAP: static int;
+    SIOCSIFMAP: static int;
+    SIOCADDDLCI: static int;
+    SIOCDELDLCI: static int;
+    SIOCDEVPRIVATE: static int;
+    SIOCPROTOPRIVATE: static int;
+
+    TIOCM_LE: static int;
+    TIOCM_DTR: static int;
+    TIOCM_RTS: static int;
+    TIOCM_ST: static int;
+    TIOCM_SR: static int;
+    TIOCM_CTS: static int;
+    TIOCM_CAR: static int;
+    TIOCM_RNG: static int;
+    TIOCM_DSR: static int;
+    TIOCM_CD: static int;
+    TIOCM_RI: static int;
+
+    N_TTY: static int;
+    N_SLIP: static int;
+    N_MOUSE: static int;
+    N_PPP: static int;
+    N_STRIP: static int;
+    N_AX25: static int;
+    N_X25: static int;
+    N_6PACK: static int;
+    N_MASC: static int;
+    N_R3964: static int;
+    N_PROFIBUS_FDL: static int;
+    N_IRDA: static int;
+    N_SMSBLOCK: static int;
+    N_HDLC: static int;
+    N_SYNC_PPP: static int;
+    N_HCI: static int;
+
+    TCGETS: static int;
+    TCSETS: static int;
+    TCSETSW: static int;
+    TCSETSF: static int;
+    TCGETA: static int;
+    TCSETA: static int;
+    TCSETAW: static int;
+    TCSETAF: static int;
+    TCSBRK: static int;
+    TCXONC: static int;
+    TCFLSH: static int;
+    TIOCEXCL: static int;
+    TIOCNXCL: static int;
+    TIOCSCTTY: static int;
+    TIOCGPGRP: static int;
+    TIOCSPGRP: static int;
+    TIOCOUTQ: static int;
+    TIOCSTI: static int;
+    TIOCGWINSZ: static int;
+    TIOCSWINSZ: static int;
+    TIOCMGET: static int;
+    TIOCMBIS: static int;
+    TIOCMBIC: static int;
+    TIOCMSET: static int;
+
+    TIOCGSOFTCAR: static int;
+    TIOCSSOFTCAR: static int;
+    FIONREAD: static int;
+    TIOCINQ: static int;
+    TIOCLINUX: static int;
+
+    TIOCCONS: static int;
+    TIOCGSERIAL: static int;
+    TIOCSSERIAL: static int;
+    TIOCPKT: static int;
+    FIONBIO: static int;
+    TIOCNOTTY: static int;
+    TIOCSETD: static int;
+    TIOCGETD: static int;
+    TCSBRKP: static int;
+    TIOCSBRK: static int;
+    TIOCCBRK: static int;
+    TIOCGSID: static int;
+    TIOCGRS485: static int;
+
+    TIOCSRS485: static int;
+    TIOCGPTN: static int;
+
+    TIOCSPTLCK: static int;
+    TIOCGDEV: static int;
+    TCGETX: static int;
+    TCSETX: static int;
+    TCSETXF: static int;
+    TCSETXW: static int;
+    TIOCSIG: static int;
+    TIOCVHANGUP: static int;
+    TIOCGPKT: static int;
+    TIOCGPTLCK: static int;
+    TIOCGEXCL: static int;
+
+    FIONCLEX: static int;
+    FIOCLEX: static int;
+    FIOASYNC: static int;
+    TIOCSERCONFIG: static int;
+    TIOCSERGWILD: static int;
+    TIOCSERSWILD: static int;
+    TIOCGLCKTRMIOS: static int;
+    TIOCSLCKTRMIOS: static int;
+    TIOCSERGSTRUCT: static int;
+    TIOCSERGETLSR : static int;
+    TIOCSERGETMULTI: static int;
+    TIOCSERSETMULTI: static int;
+
+    TIOCMIWAIT: static int;
+    TIOCGICOUNT: static int;
+
+    FIOQSIZE: static int;
+
+    TIOCPKT_DATA: static int;
+    TIOCPKT_FLUSHREAD: static int;
+    TIOCPKT_FLUSHWRITE: static int;
+    TIOCPKT_STOP: static int;
+    TIOCPKT_START: static int;
+    TIOCPKT_NOSTOP: static int;
+    TIOCPKT_DOSTOP: static int;
+    TIOCPKT_IOCTL: static int;
+
+    TIOCSER_TEMT:static int;
+
+    ### curses ###
+    ACS_BLOCK:static int;
+    ACS_BOARD:static int;
+    ACS_BTEE:static int;
+    ACS_BULLET:static int;
+    ACS_CKBOARD:static int;
+    ACS_DARROW:static int;
+    ACS_DEGREE:static int;
+    ACS_DIAMOND:static int;
+    ACS_GEQUAL:static int;
+    ACS_HLINE:static int;
+    ACS_LANTERN:static int;
+    ACS_LARROW:static int;
+    ACS_LEQUAL:static int;
+    ACS_LLCORNER:static int;
+    ACS_LRCORNER:static int;
+    ACS_LTEE:static int;
+    ACS_NEQUAL:static int;
+    ACS_PI:static int;
+    ACS_PLMINUS:static int;
+    ACS_PLUS:static int;
+    ACS_RARROW:static int;
+    ACS_RTEE:static int;
+    ACS_S1:static int;
+    ACS_S3:static int;
+    ACS_S7:static int;
+    ACS_S9:static int;
+    ACS_STERLING:static int;
+    ACS_TTEE:static int;
+    ACS_UARROW:static int;
+    ACS_ULCORNER:static int;
+    ACS_URCORNER:static int;
+    ACS_VLINE:static int;
+
+    A_BLINK: static int;
+    A_BOLD:static int;
+    A_DIM:static int;
+    A_REVERSE:static int;
+    A_STANDOUT:static int;
+    A_UNDERLINE:static int;
+
+    KEY_DOWN: static int;
+    KEY_UP: static int;
+    KEY_LEFT: static int;
+    KEY_RIGHT: static int;
+    KEY_HOME: static int;
+    KEY_BACKSPACE: static int;
+    KEY_DL: static int;
+    KEY_IL: static int;
+    KEY_DC: static int;
+    KEY_IC: static int;
+    KEY_EIC: static int;
+    KEY_CLEAR: static int;
+    KEY_EOS: static int;
+    KEY_EOL: static int;
+    KEY_SF: static int;
+    KEY_SR: static int;
+    KEY_NPAGE: static int;
+    KEY_PPAGE: static int;
+    KEY_STAB: static int;
+    KEY_CTAB: static int;
+    KEY_CATAB: static int;
+    KEY_ENTER: static int;
+    KEY_PRINT: static int;
+    KEY_LL: static int;
+    KEY_A1: static int;
+    KEY_A3: static int;
+    KEY_B2: static int;
+    KEY_C1: static int;
+    KEY_C3: static int;
+    KEY_BTAB: static int;
+    KEY_BEG: static int;
+    KEY_CANCEL: static int;
+    KEY_CLOSE: static int;
+    KEY_COMMAND: static int;
+    KEY_COPY: static int;
+    KEY_CREATE: static int;
+    KEY_END:static int;
+    KEY_EXIT: static int;
+    KEY_FIND: static int;
+    KEY_HELP: static int;
+    KEY_MARK: static int;
+    KEY_MESSAGE: static int;
+    KEY_MOVE: static int;
+    KEY_NEXT: static int;
+    KEY_OPEN: static int;
+    KEY_OPTIONS: static int;
+    KEY_PREVIOUS: static int;
+    KEY_REDO: static int;
+    KEY_REFERENCE: static int;
+    KEY_REFRESH: static int;
+    KEY_REPLACE: static int;
+    KEY_RESTART: static int;
+    KEY_RESUME: static int;
+    KEY_SAVE: static int;
+    KEY_SBEG: static int;
+    KEY_SCANCEL: static int;
+    KEY_SCOMMAND: static int;
+    KEY_SCOPY: static int;
+    KEY_SCREATE: static int;
+    KEY_SDC: static int;
+    KEY_SDL: static int;
+    KEY_SELECT: static int;
+    KEY_SEND: static int;
+    KEY_SEOL: static int;
+    KEY_SEXIT: static int;
+    KEY_SFIND: static int;
+    KEY_SHELP: static int;
+    KEY_SHOME: static int;
+    KEY_SIC: static int;
+    KEY_SLEFT: static int;
+    KEY_SMESSAGE: static int;
+    KEY_SMOVE: static int;
+    KEY_SNEXT: static int;
+    KEY_SOPTIONS: static int;
+    KEY_SPREVIOUS: static int;
+    KEY_SPRINT: static int;
+    KEY_SREDO: static int;
+    KEY_SREPLACE: static int;
+    KEY_SRIGHT: static int;
+    KEY_SRSUME: static int;
+    KEY_SSAVE: static int;
+    KEY_SSUSPEND: static int;
+    KEY_SUNDO: static int;
+    KEY_SUSPEND: static int;
+    KEY_UNDO: static int;
+    KEY_MOUSE: static int;
+    KEY_RESIZE: static int;
+    KEY_EVENT: static int;
+
+    KEY_MAX: static int;
+
+    stdscr: static pointer@WINDOW;
+
+    def ioctl(fd:int, request:int, arg:pointer):static native int throws Exception;
+
+    def initscr(): native static pointer@WINDOW throws Exception;
+    def endwin(): native static throws Exception;
+    def move(y:int, x:int): native static throws Exception;
+    def printw(str:String): native static throws Exception;
+    def printw(format:String, params:Array<Object>): static throws Exception {
+        str := sprintf(format, params);
+        printw(str);
+    }
+    def mvprintw(y:int, x:int, format:String, params:Array<Object>): static throws Exception {
+        maxx := getmaxx();
+        maxy := getmaxy();
+
+        if(y > maxy || x > maxx || x < 0 || y < 0) {
+            throw Exception("x or y is out of Range");
+        }
+
+        move(y, x);
+        printw(format, params);
+    }
+    def refresh(): native static throws Exception;
+    def box(win_ptr:pointer@WINDOW, vetical_char:char, horizonal_char:char): native static throws Exception;
+    def isendwin(): native static bool;
+    def clear(): native static throws Exception;
+    def attron(attribute:int): static native throws Exception;
+    def attroff(attribute:int): static native throws Exception;
+    def attrset(attribute:int): static native throws Exception;
+    def echo(): static native throws Exception;
+    def noecho(): static native throws Exception;
+    def cbreak(): static native throws Exception;
+    def nocbreak(): static native throws Exception;
+    def raw(): static native throws Exception;
+    def noraw(): static native throws Exception;
+    def getch(): static native int throws Exception;
+
+    def newwin(num_of_lines:int, num_of_cols:int, start_y:int, start_x:int): native static pointer@WINDOW throws Exception;
+    def delwin(window_to_delete:pointer@WINDOW): static native throws Exception;
+
+    def mvwin(window_to_move:pointer@WINDOW, new_y:int, new_x:int): static native throws Exception;
+    def wrefresh(window_to_ptr:pointer@WINDOW): static native throws Exception;
+    def wclear(window_to_ptr:pointer@WINDOW): static native throws Exception;
+    def touchwin(window_to_ptr:pointer@WINDOW): static native throws Exception;
+
+    def keypad(window:pointer@WINDOW, keypad_on:bool): static native throws Exception;
+
+    def wmove(window:pointer@WINDWO, y:int, x:int): native static throws Exception;
+    def wprintw(window:pointer@WINDOW, str:String): native static throws Exception;
+    def wprintw(window:pointer@WINDOW, format:String, params:Array<Object>): static throws Exception {
+        str := sprintf(format, params);
+        wprintw(window, str);
+    }
+    def getmaxx(): native static int throws Exception;
+    def getmaxy(): native static int throws Exception;
+}
+
+class String 
+{
+    def printw(format:String): throws Exception {
+        System.printw(format, array { self });
+    }
+    def mvprintw(y:int, x:int, format:String): throws Exception {
+        System.mvprintw(y, x, format, array { self });
+    }
+}

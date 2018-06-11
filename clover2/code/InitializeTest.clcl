@@ -1,0 +1,34 @@
+class InitializeAndFinalizeTest {
+    a:static pointer;
+    b:pointer;
+
+    def initialize() {
+        b = malloc(1);
+    }
+
+    def finalize() {
+        free(b);
+    }
+
+    def clone():InitializeAndFinalizeTest {
+        result := InitializeAndFinalizeTest();
+
+        result.b = malloc(1);
+
+        return result;
+    }
+
+    def initialize():static {
+        a = malloc(1);
+    }
+
+    def finalize():static {
+        free(a);
+    }
+}
+
+class InitializeTest {
+    def main():static {
+        a:= new InitializeAndFinalizeTest();
+    }
+}

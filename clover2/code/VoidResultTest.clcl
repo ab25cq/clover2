@@ -1,0 +1,26 @@
+
+class VoidResultClass
+{
+    def initialize() {
+    }
+    def method() {
+        if(true) {
+            return;
+        }
+        else {
+            return;
+        }
+    }
+    def method2() {
+    }
+}
+
+class VoidResultTest
+{
+    def main():static {
+        obj:VoidResultClass = new VoidResultClass();
+
+        Clover.test("void result test1", obj.method() == null);
+        Clover.test("void result test2", obj.method2() == null);
+    }
+}

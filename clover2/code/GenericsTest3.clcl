@@ -1,0 +1,44 @@
+
+interface IGenericsTest3
+{
+    def method(): int;
+}
+
+class GenericsTest3ClassA 
+{
+    def initialize() {
+    }
+    def method(): int {
+        return 123;
+    }
+}
+
+class GenericsTestClass3 <T:IGenericsTest3, T2:ISortable>
+{
+    def method(value:T, value2:T2): static int {
+        return value.method();
+    }
+    def method2(value:T, value2:T2): static T2? {
+        if(value2.equals("DEF")) {
+            return value2;
+        }
+        else {
+            return null;
+        }
+    }
+}
+
+
+
+class GenericsTest3 
+{
+    def main(): static {
+        test:int = GenericsTestClass3<GenericsTest3ClassA, String>.method(new GenericsTest3ClassA(), "DEF");
+        test2:String = GenericsTestClass3<GenericsTest3ClassA, String>.method2(new GenericsTest3ClassA(), "DEF");
+
+        Clover.test("generics test", test == 123);
+        Clover.test("generics test2", test2.equals("DEF"));
+    }
+}
+
+

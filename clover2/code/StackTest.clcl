@@ -1,0 +1,36 @@
+class StackTest {
+    def method1():static {
+        1+1;
+    }
+
+    a:static pointer;
+    b:pointer;
+
+    def initialize() {
+        b = malloc(1);
+    }
+
+    def finalize() {
+        free(b);
+    }
+
+    def clone():StackTest {
+        result := StackTest();
+
+        result.b = System.malloc(1);
+
+        return result;
+    }
+
+    def initialize():static {
+        a = malloc(1);
+    }
+
+    def finalize():static {
+        free(a);
+    }
+
+    def main(): static {
+        a:= new StackTest();
+    }
+}

@@ -1,0 +1,5 @@
+class Hello2 {
+  def p() : static {
+    println("hello world");
+  }
+}
