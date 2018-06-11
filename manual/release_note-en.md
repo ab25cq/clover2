@@ -1,4 +1,8 @@
 
+version 4.2.1
+
+    Fixed JIT bugs.
+
 version 4.2.0
 
     Modification of GC algorithm. Segmentation violated when finalizers in GC needed more memory, but it was fixed. LLVM was not able to respond properly, but it was fixed. Corresponds to LLVM 3.8 and LLVM 4.0 later.

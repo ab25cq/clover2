@@ -934,18 +934,23 @@ static BOOL compile_and_and(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
+    append_opecode_to_code(info->code, OP_INC_ANDAND_OROR_ARRAY, info->no_output);
+
     append_opecode_to_code(info->code, OP_DUPE, info->no_output);
     info->stack_num++;
 
-    append_opecode_to_code(info->code, OP_RESET_ANDAND_OROR_VALUE, info->no_output);
-
-    append_opecode_to_code(info->code, OP_COND_JUMP, info->no_output);
-    append_int_value_to_code(info->code, sizeof(int)*4, info->no_output);
+    append_opecode_to_code(info->code, OP_STORE_ANDAND_OROR_VALUE_LEFT, info->no_output);
     info->stack_num--;
 
-    append_opecode_to_code(info->code, OP_STORE_ANDAND_OROR_VALUE, info->no_output);
+    append_opecode_to_code(info->code, OP_LDCINT, info->no_output);
+    append_int_value_to_code(info->code, 0, info->no_output);
+    info->stack_num++;
+    append_opecode_to_code(info->code, OP_STORE_ANDAND_OROR_VALUE_RIGHT, info->no_output);
+    info->stack_num--;
 
-    int stack_num_before = info->stack_num;
+    append_opecode_to_code(info->code, OP_COND_JUMP, info->no_output);
+    append_int_value_to_code(info->code, sizeof(int)*3, info->no_output);
+    info->stack_num--;
 
     /// goto the end point ///
     append_opecode_to_code(info->code, OP_GOTO, info->no_output); // if the left expression is false, jump to the end of and and expression
@@ -956,9 +961,6 @@ static BOOL compile_and_and(unsigned int node, sCompileInfo* info)
     create_label_name("label_and_endpoint", label_end_point, LABEL_NAME_MAX, label_num);
 
     append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
-
-    /// right value ///
-    append_opecode_to_code(info->code, OP_STORE_ANDAND_OROR_VALUE2, info->no_output);
 
     /// compile right expression ///
     unsigned int right_node = gNodes[node].mRight;
@@ -984,25 +986,26 @@ static BOOL compile_and_and(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
-    append_opecode_to_code(info->code, OP_RESTORE_ANDAND_OROR_VALUE2, info->no_output);
-    append_int_value_to_code(info->code, -2, info->no_output);
-
-    append_opecode_to_code(info->code, OP_ANDAND, info->no_output);
+    append_opecode_to_code(info->code, OP_STORE_ANDAND_OROR_VALUE_RIGHT, info->no_output);
     info->stack_num--;
 
-    append_opecode_to_code(info->code, OP_STORE_ANDAND_OROR_VALUE2, info->no_output);
-
     /// the end point ///
-    info->stack_num = stack_num_before;
-
     *(int*)(info->code->mCodes + goto_point) = info->code->mLen;
 
     append_opecode_to_code(info->code, OP_LABEL, info->no_output);
     append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
 
-    append_opecode_to_code(info->code, OP_GET_ANDAND_OROR_RESULT, info->no_output);
+    append_opecode_to_code(info->code, OP_GET_ANDAND_OROR_RESULT_LEFT, info->no_output);
+    info->stack_num++;
+    append_opecode_to_code(info->code, OP_GET_ANDAND_OROR_RESULT_RIGHT, info->no_output);
+    info->stack_num++;
+
+    append_opecode_to_code(info->code, OP_ANDAND, info->no_output);
+    info->stack_num--;
 
     info->type = create_node_type_with_class_name("bool");
+
+    append_opecode_to_code(info->code, OP_DEC_ANDAND_OROR_ARRAY, info->no_output);
 
     return TRUE;
 }
@@ -1053,18 +1056,23 @@ static BOOL compile_or_or(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
+    append_opecode_to_code(info->code, OP_INC_ANDAND_OROR_ARRAY, info->no_output);
+
     append_opecode_to_code(info->code, OP_DUPE, info->no_output);
     info->stack_num++;
 
-    append_opecode_to_code(info->code, OP_RESET_ANDAND_OROR_VALUE, info->no_output);
-
-    append_opecode_to_code(info->code, OP_COND_NOT_JUMP, info->no_output);
-    append_int_value_to_code(info->code, sizeof(int)*4, info->no_output);
+    append_opecode_to_code(info->code, OP_STORE_ANDAND_OROR_VALUE_LEFT, info->no_output);
     info->stack_num--;
 
-    append_opecode_to_code(info->code, OP_STORE_ANDAND_OROR_VALUE2, info->no_output);
+    append_opecode_to_code(info->code, OP_LDCINT, info->no_output);
+    append_int_value_to_code(info->code, 1, info->no_output);
+    info->stack_num++;
+    append_opecode_to_code(info->code, OP_STORE_ANDAND_OROR_VALUE_RIGHT, info->no_output);
+    info->stack_num--;
 
-    int stack_num_before = info->stack_num;
+    append_opecode_to_code(info->code, OP_COND_NOT_JUMP, info->no_output);
+    append_int_value_to_code(info->code, sizeof(int)*3, info->no_output);
+    info->stack_num--;
 
     /// goto the end point ///
     append_opecode_to_code(info->code, OP_GOTO, info->no_output); // if the left expression is true, jump to the end of || expression
@@ -1077,8 +1085,6 @@ static BOOL compile_or_or(unsigned int node, sCompileInfo* info)
     append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
 
     /// compile right expression ///
-    append_opecode_to_code(info->code, OP_STORE_ANDAND_OROR_VALUE, info->no_output);
-
     unsigned int right_node = gNodes[node].mRight;
 
     if(!compile(right_node, info)) {
@@ -1102,25 +1108,26 @@ static BOOL compile_or_or(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
-    append_opecode_to_code(info->code, OP_RESTORE_ANDAND_OROR_VALUE, info->no_output);
-    append_int_value_to_code(info->code, -2, info->no_output);
-
-    append_opecode_to_code(info->code, OP_OROR, info->no_output);
+    append_opecode_to_code(info->code, OP_STORE_ANDAND_OROR_VALUE_RIGHT, info->no_output);
     info->stack_num--;
 
-    append_opecode_to_code(info->code, OP_STORE_ANDAND_OROR_VALUE, info->no_output);
-
     /// the end point ///
-    info->stack_num = stack_num_before;
-    
     *(int*)(info->code->mCodes + goto_point) = info->code->mLen;
 
     append_opecode_to_code(info->code, OP_LABEL, info->no_output);
     append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
 
-    append_opecode_to_code(info->code, OP_GET_ANDAND_OROR_RESULT, info->no_output);
+    append_opecode_to_code(info->code, OP_GET_ANDAND_OROR_RESULT_LEFT, info->no_output);
+    info->stack_num++;
+    append_opecode_to_code(info->code, OP_GET_ANDAND_OROR_RESULT_RIGHT, info->no_output);
+    info->stack_num++;
+
+    append_opecode_to_code(info->code, OP_OROR, info->no_output);
+    info->stack_num--;
 
     info->type = create_node_type_with_class_name("bool");
+
+    append_opecode_to_code(info->code, OP_DEC_ANDAND_OROR_ARRAY, info->no_output);
 
     return TRUE;
 }

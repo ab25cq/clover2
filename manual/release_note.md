@@ -1,5 +1,9 @@
 English page is here [>> English page](release_note-en)
 
+version 4.2.1
+
+    JITでb:=123; -b == 0が真になるバグを修正。OP_REVERSEのバグを修正。
+
 version 4.2.0
 
     GCのアルゴリズムの修正。GC中のファイナライザで更にメモリが必要になったらセグメンテーション違反していましたが、修正。

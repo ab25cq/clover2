@@ -14,7 +14,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             *rvalue = trunc_value(rvalue, 8);
 
             LVALUE llvm_value;
-            llvm_value.value = Builder.CreateAdd(lvalue->value, rvalue->value, "baddtmp", true, false);
+            llvm_value.value = Builder.CreateAdd(lvalue->value, rvalue->value, "baddtmp", false, true);
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt8;
@@ -34,7 +34,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             *rvalue = trunc_value(rvalue, 16);
 
             LVALUE llvm_value;
-            llvm_value.value = Builder.CreateAdd(lvalue->value, rvalue->value, "saddtmp", true, false);
+            llvm_value.value = Builder.CreateAdd(lvalue->value, rvalue->value, "saddtmp", false, true);
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt16;
@@ -54,7 +54,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             *rvalue = trunc_value(rvalue, 32);
 
             LVALUE llvm_value;
-            llvm_value.value = Builder.CreateAdd(lvalue->value, rvalue->value, "iaddtmp", true, false);
+            llvm_value.value = Builder.CreateAdd(lvalue->value, rvalue->value, "iaddtmp", false, true);
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt32;
@@ -74,7 +74,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             *rvalue = trunc_value(rvalue, 64);
 
             LVALUE llvm_value;
-            llvm_value.value = Builder.CreateAdd(lvalue->value, rvalue->value, "laddtmp", true, false);
+            llvm_value.value = Builder.CreateAdd(lvalue->value, rvalue->value, "laddtmp", false, true);
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt64;
@@ -94,7 +94,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             *rvalue = trunc_value(rvalue, 8);
 
             LVALUE llvm_value;
-            llvm_value.value  = Builder.CreateAdd(lvalue->value, rvalue->value, "ubaddtmp", false, true);
+            llvm_value.value  = Builder.CreateAdd(lvalue->value, rvalue->value, "ubaddtmp", true, false);
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt8;
@@ -114,7 +114,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             *rvalue = trunc_value(rvalue, 16);
 
             LVALUE llvm_value;
-            llvm_value.value  = Builder.CreateAdd(lvalue->value, rvalue->value, "usaddtmp", false, true);
+            llvm_value.value  = Builder.CreateAdd(lvalue->value, rvalue->value, "usaddtmp", true, false);
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt16;
@@ -134,7 +134,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             *rvalue = trunc_value(rvalue, 32);
 
             LVALUE llvm_value;
-            llvm_value.value  = Builder.CreateAdd(lvalue->value, rvalue->value, "usaddtmp", false, true);
+            llvm_value.value  = Builder.CreateAdd(lvalue->value, rvalue->value, "usaddtmp", true, false);
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt32;
@@ -154,7 +154,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             *rvalue = trunc_value(rvalue, 64);
 
             LVALUE llvm_value;
-            llvm_value.value  = Builder.CreateAdd(lvalue->value, rvalue->value, "usaddtmp", false, true);
+            llvm_value.value  = Builder.CreateAdd(lvalue->value, rvalue->value, "usaddtmp", true, false);
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt64;
@@ -174,7 +174,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             *rvalue = trunc_value(rvalue, 32);
 
             LVALUE llvm_value;
-            llvm_value.value  = Builder.CreateAdd(lvalue->value, rvalue->value, "usaddtmp", false, true);
+            llvm_value.value  = Builder.CreateAdd(lvalue->value, rvalue->value, "usaddtmp", true, false);
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt32;
@@ -216,7 +216,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             *rvalue = trunc_value(rvalue, 8);
 
             LVALUE llvm_value;
-            llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", true, false);
+            llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", false, true);
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt8;
@@ -236,7 +236,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             *rvalue = trunc_value(rvalue, 16);
 
             LVALUE llvm_value;
-            llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", true, false);
+            llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", false, true);
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt16;
@@ -255,8 +255,9 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             *lvalue = trunc_value(lvalue, 32);
             *rvalue = trunc_value(rvalue, 32);
 
+
             LVALUE llvm_value;
-            llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", true, false);
+            llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", false, true);
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt32;
@@ -276,7 +277,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             *rvalue = trunc_value(rvalue, 64);
 
             LVALUE llvm_value;
-            llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", true, false);
+            llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", false, true);
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt64;
@@ -343,7 +344,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             *rvalue = trunc_value(rvalue, 8);
 
             LVALUE llvm_value;
-            llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", false, true);
+            llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", true, false);
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt8;
@@ -363,7 +364,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             *rvalue = trunc_value(rvalue, 16);
 
             LVALUE llvm_value;
-            llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", false, true);
+            llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", true, false);
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt16;
@@ -383,7 +384,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             *rvalue = trunc_value(rvalue, 32);
 
             LVALUE llvm_value;
-            llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", false, true);
+            llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", true, false);
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt32;
@@ -403,7 +404,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             *rvalue = trunc_value(rvalue, 64);
 
             LVALUE llvm_value;
-            llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", false, true);
+            llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", true, false);
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt64;
@@ -423,7 +424,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             *rvalue = trunc_value(rvalue, 32);
 
             LVALUE llvm_value;
-            llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", false, true);
+            llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", true, false);
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt32;
@@ -443,7 +444,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             *rvalue = trunc_value(rvalue, 8);
 
             LVALUE llvm_value;
-            llvm_value.value = Builder.CreateMul(lvalue->value, rvalue->value, "multmp", true, false);
+            llvm_value.value = Builder.CreateMul(lvalue->value, rvalue->value, "multmp", false, true);
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt8;
@@ -463,7 +464,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             *rvalue = trunc_value(rvalue, 16);
 
             LVALUE llvm_value;
-            llvm_value.value = Builder.CreateMul(lvalue->value, rvalue->value, "multmp", true, false);
+            llvm_value.value = Builder.CreateMul(lvalue->value, rvalue->value, "multmp", false, true);
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt16;
@@ -483,7 +484,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             *rvalue = trunc_value(rvalue, 32);
 
             LVALUE llvm_value;
-            llvm_value.value = Builder.CreateMul(lvalue->value, rvalue->value, "multmp", true, false);
+            llvm_value.value = Builder.CreateMul(lvalue->value, rvalue->value, "multmp", false, true);
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt32;
@@ -503,7 +504,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             *rvalue = trunc_value(rvalue, 64);
 
             LVALUE llvm_value;
-            llvm_value.value = Builder.CreateMul(lvalue->value, rvalue->value, "multmp", true, false);
+            llvm_value.value = Builder.CreateMul(lvalue->value, rvalue->value, "multmp", false, true);
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt64;
@@ -523,7 +524,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             *rvalue = trunc_value(rvalue, 8);
 
             LVALUE llvm_value;
-            llvm_value.value = Builder.CreateMul(lvalue->value, rvalue->value, "multmp", false, true);
+            llvm_value.value = Builder.CreateMul(lvalue->value, rvalue->value, "multmp", true, false);
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt8;
@@ -543,7 +544,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             *rvalue = trunc_value(rvalue, 16);
 
             LVALUE llvm_value;
-            llvm_value.value = Builder.CreateMul(lvalue->value, rvalue->value, "multmp", false, true);
+            llvm_value.value = Builder.CreateMul(lvalue->value, rvalue->value, "multmp", true, false);
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt16;
@@ -563,7 +564,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             *rvalue = trunc_value(rvalue, 32);
 
             LVALUE llvm_value;
-            llvm_value.value = Builder.CreateMul(lvalue->value, rvalue->value, "multmp", false, true);
+            llvm_value.value = Builder.CreateMul(lvalue->value, rvalue->value, "multmp", true, false);
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt32;
@@ -583,7 +584,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             *rvalue = trunc_value(rvalue, 64);
 
             LVALUE llvm_value;
-            llvm_value.value = Builder.CreateMul(lvalue->value, rvalue->value, "multmp", false, true);
+            llvm_value.value = Builder.CreateMul(lvalue->value, rvalue->value, "multmp", true, false);
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt64;
@@ -987,7 +988,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             *rvalue = trunc_value(rvalue, 8);
 
             LVALUE llvm_value;
-            llvm_value.value = Builder.CreateShl(lvalue->value, rvalue->value, "lshifttmp", true, false);
+            llvm_value.value = Builder.CreateShl(lvalue->value, rvalue->value, "lshifttmp", false, true);
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt8;
@@ -1007,7 +1008,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             *rvalue = trunc_value(rvalue, 16);
 
             LVALUE llvm_value;
-            llvm_value.value = Builder.CreateShl(lvalue->value, rvalue->value, "lshifttmp", true, false);
+            llvm_value.value = Builder.CreateShl(lvalue->value, rvalue->value, "lshifttmp", false, true);
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt16;
@@ -1027,7 +1028,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             *rvalue = trunc_value(rvalue, 32);
 
             LVALUE llvm_value;
-            llvm_value.value = Builder.CreateShl(lvalue->value, rvalue->value, "lshifttmp", true, false);
+            llvm_value.value = Builder.CreateShl(lvalue->value, rvalue->value, "lshifttmp", false, true);
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt32;
@@ -1047,7 +1048,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             *rvalue = trunc_value(rvalue, 64);
 
             LVALUE llvm_value;
-            llvm_value.value = Builder.CreateShl(lvalue->value, rvalue->value, "lshifttmp", true, false);
+            llvm_value.value = Builder.CreateShl(lvalue->value, rvalue->value, "lshifttmp", false, true);
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt64;
@@ -1067,7 +1068,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             *rvalue = trunc_value(rvalue, 8);
             
             LVALUE llvm_value;
-            llvm_value.value = Builder.CreateShl(lvalue->value, rvalue->value, "lshifttmp", false, true);
+            llvm_value.value = Builder.CreateShl(lvalue->value, rvalue->value, "lshifttmp", true, false);
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt8;
@@ -1087,7 +1088,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             *rvalue = trunc_value(rvalue, 16);
             
             LVALUE llvm_value;
-            llvm_value.value = Builder.CreateShl(lvalue->value, rvalue->value, "lshifttmp", false, true);
+            llvm_value.value = Builder.CreateShl(lvalue->value, rvalue->value, "lshifttmp", true, false);
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt16;
@@ -1107,7 +1108,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             *rvalue = trunc_value(rvalue, 32);
             
             LVALUE llvm_value;
-            llvm_value.value = Builder.CreateShl(lvalue->value, rvalue->value, "lshifttmp", false, true);
+            llvm_value.value = Builder.CreateShl(lvalue->value, rvalue->value, "lshifttmp", true, false);
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt32;
@@ -1127,7 +1128,7 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             *rvalue = trunc_value(rvalue, 64);
             
             LVALUE llvm_value;
-            llvm_value.value = Builder.CreateShl(lvalue->value, rvalue->value, "lshifttmp", false, true);
+            llvm_value.value = Builder.CreateShl(lvalue->value, rvalue->value, "lshifttmp", true, false);
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt64;

@@ -4,6 +4,9 @@
 
 using namespace llvm;
 
+BOOL gAndAndOrOr = FALSE;
+BOOL gConditional = FALSE;
+
 extern "C" 
 {
 struct sCLVALUEAndBoolResult gCLValueAndBoolStructMemory;
@@ -45,6 +48,51 @@ void push_jit_object(CLObject obj)
 char* get_try_catch_label_name(sVMInfo* info)
 {
     return info->try_catch_label_name;
+}
+
+void reset_andand_oror(sVMInfo* info)
+{
+    info->num_andand_oror = 0;
+}
+
+int get_andand_oror_left_value(sVMInfo* info)
+{
+    return info->andand_oror_left_value[info->num_andand_oror-1];
+}
+
+void set_andand_oror_left_value(BOOL flag, sVMInfo* info)
+{
+    info->andand_oror_left_value[info->num_andand_oror-1] = flag;
+}
+
+int get_andand_oror_right_value(sVMInfo* info)
+{
+    return info->andand_oror_right_value[info->num_andand_oror-1];
+}
+
+void set_andand_oror_right_value(BOOL flag, sVMInfo* info)
+{
+    info->andand_oror_right_value[info->num_andand_oror-1] = flag;
+}
+
+void inc_andand_oror_array(sVMInfo* info)
+{
+    info->num_andand_oror++;
+
+    if(info->num_andand_oror >= ANDAND_OROR_MAX) {
+        fprintf(stderr, "overflow and and or or value\n");
+        exit(1);
+    }
+}
+
+void dec_andand_oror_array(sVMInfo* info)
+{
+    info->num_andand_oror--;
+
+    if(info->num_andand_oror < 0) {
+        fprintf(stderr, "invalid and and or or value\n");
+        exit(1);
+    }
 }
 
 void try_function(sVMInfo* info, int catch_label_name_offset, int try_offset, sByteCode* code, sConst* constant)
@@ -579,6 +627,10 @@ static void llvm_load_dynamic_library(sCLClass* klass)
     if(search_for_dl_file(class_name, class_dynamic_library_path, PATH_MAX)) 
     {
         klass->mDynamicLibrary = dlopen(class_dynamic_library_path, RTLD_LAZY);
+
+        if(klass->mDynamicLibrary == NULL) {
+            fprintf(stderr, "%s\n", dlerror());
+        }
     }
 }
 
@@ -600,7 +652,8 @@ BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClas
 {
     int num_jit_objects = gNumJITObjects;
 
-    if(method->mFlags & METHOD_FLAGS_NON_NATIVE_CODE || gRunningCompiler) 
+    if(method->mFlags & METHOD_FLAGS_NON_NATIVE_CODE || gRunningCompiler)
+    //if(method->mFlags & METHOD_FLAGS_NON_NATIVE_CODE)
     {
         BOOL result = vm(code, constant, stack, var_num, klass, info);
 
@@ -619,6 +672,10 @@ BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClas
             create_method_path_for_jit(klass, method, method_path2, METHOD_NAME_MAX + 128);
 
             method->mJITDynamicSym = dlsym(klass->mDynamicLibrary, method_path2);
+
+            if(method->mJITDynamicSym == NULL) {
+                fprintf(stderr, "%s\n", dlerror());
+            }
         }
 
         if(method->mJITDynamicSym) 

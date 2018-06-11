@@ -1,5 +1,0 @@
-class TestA {
-    def method() {
-        1+1;
-    }
-}

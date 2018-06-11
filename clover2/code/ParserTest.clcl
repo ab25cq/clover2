@@ -1,7 +1,0 @@
-class ParserTest {
-    def main():static {
-        parser := new CLParser("code/parser_test.cl");
-
-        parser.parse();
-    }
-}

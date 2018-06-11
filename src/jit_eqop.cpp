@@ -1616,7 +1616,6 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -2);
             LVALUE* rvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
-
             *lvalue = trunc_value(lvalue, 1);
             *rvalue = trunc_value(rvalue, 1);
 

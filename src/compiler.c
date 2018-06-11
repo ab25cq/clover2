@@ -142,10 +142,11 @@ static BOOL class_compiler(char* fname)
 
 int gARGC;
 char** gARGV;
-char* gVersion = "4.2.0";
+char* gVersion = "4.2.1";
 
 char gScriptDirPath[PATH_MAX];
 BOOL gRunningCompiler = TRUE;
+BOOL gCompilingCore = FALSE;
 
 int main(int argc, char** argv)
 {
@@ -169,6 +170,7 @@ int main(int argc, char** argv)
         }
         else if(strcmp(argv[i], "-core") == 0) {
             no_load_fudamental_classes = TRUE;
+            gCompilingCore = TRUE;
         }
         else if(strcmp(argv[i], "-class") == 0) {
             clcl_compile = TRUE;

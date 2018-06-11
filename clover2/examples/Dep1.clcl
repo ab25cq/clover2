@@ -1,8 +1,0 @@
-include "Dep2.clcl"
-
-class Dep1 {
-  def p():static {
-    Dep2.p();
-  }
-}
-

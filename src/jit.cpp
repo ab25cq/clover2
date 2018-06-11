@@ -89,11 +89,6 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
     Value* machine_stack_value[MACHINE_STACK_MAX];
     int num_machine_stack = 0;
 
-    Value* andand_oror_value = NULL;
-    Value* andand_oror_value2 = NULL;
-
-    Value* cond_jump_result_flag = NULL;
-
     /// alloc local variables ///
     int i;
     for(i=0; i<var_num; i++) {
@@ -128,6 +123,17 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
 
         store_llvm_value_to_lvar_with_offset(llvm_stack, i, &llvm_value, FALSE);
     }
+
+/*
+    Function* reset_andand_oror_fun = TheModule->getFunction("reset_andand_oror");
+    std::vector<Value*> params2;
+
+    std::string info_value_name("info");
+    Value* vminfo_value = params[info_value_name];
+    params2.push_back(vminfo_value);
+
+    Builder.CreateCall(reset_andand_oror_fun, params2);
+*/
 
     call_vm_mutex_off();
 
@@ -183,6 +189,10 @@ call_show_inst_in_jit(inst);
                 dec_stack_ptr(&llvm_stack_ptr, 1);
                 break;
 
+            case OP_JIT_POP:
+                dec_stack_ptr(&llvm_stack_ptr, 1);
+                break;
+
             case OP_POP_N:
                 {
                     int value = *(int*)pc;
@@ -196,6 +206,7 @@ call_show_inst_in_jit(inst);
                 LVALUE llvm_value = *get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
                 LVALUE llvm_value2 = *get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
                 
+                dec_stack_ptr(&llvm_stack_ptr, 1);
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value2);
@@ -215,16 +226,6 @@ call_show_inst_in_jit(inst);
                 pc += sizeof(int);
 
                 LVALUE* conditional_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
-
-                IRBuilder<> builder(&function->getEntryBlock(), function->getEntryBlock().begin());
-                cond_jump_result_flag = builder.CreateAlloca(Type::getInt64Ty(TheContext), 0, "COND_JUMP_CONDITIONAL_VALUE");
-                LVALUE value64;
-                value64 = trunc_value(conditional_value, 64);
-
-                Value* zero = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)0);
-                Builder.CreateAlignedStore(zero, cond_jump_result_flag, 8);
-
-                Builder.CreateAlignedStore(value64.value, cond_jump_result_flag, 8);
 
                 BasicBlock* cond_jump_then_block = BasicBlock::Create(TheContext, "cond_jump_then", function);
                 entry_condends[num_cond_jump] = BasicBlock::Create(TheContext, "entry_condend", function);
@@ -257,14 +258,6 @@ call_show_inst_in_jit(inst);
                 pc += sizeof(int);
 
                 LVALUE* conditional_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
-
-                IRBuilder<> builder(&function->getEntryBlock(), function->getEntryBlock().begin());
-                cond_jump_result_flag = builder.CreateAlloca(Type::getInt64Ty(TheContext), 0, "COND_JUMP_CONDITIONAL_VALUE");
-
-                LVALUE value64;
-                value64 = trunc_value(conditional_value, 64);
-
-                Builder.CreateAlignedStore(value64.value, cond_jump_result_flag, 8);
 
                 BasicBlock* cond_not_jump_then_block = BasicBlock::Create(TheContext, "cond_not_jump_then", function);
                 entry_condnotends[num_cond_not_jump] = BasicBlock::Create(TheContext, "entry_condnotend", function);
@@ -600,148 +593,126 @@ call_show_inst_in_jit(inst);
                 }
                 break;
 
-            case OP_RESET_ANDAND_OROR_VALUE:
-                andand_oror_value = NULL;
-                andand_oror_value2 = NULL;
-                break;
+            case OP_INC_ANDAND_OROR_ARRAY: {
+                Function* inc_andand_oror_value_fun = TheModule->getFunction("inc_andand_oror_array");
 
-            case OP_STORE_ANDAND_OROR_VALUE: {
-                LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+                std::vector<Value*> params2;
 
-                LVALUE dupe_value = trunc_value(llvm_value, 64);
+                std::string info_value_name("info");
+                Value* param1 = params[info_value_name];
+                params2.push_back(param1);
 
-                IRBuilder<> builder(&function->getEntryBlock(), function->getEntryBlock().begin());
-                Value* value = builder.CreateAlloca(Type::getInt64Ty(TheContext), 0, "ANDAND_OROR_VALUE");
-
-                andand_oror_value = value;
-             
-                Value* zero = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)0);
-                Builder.CreateAlignedStore(zero, andand_oror_value, 8);
-
-                Builder.CreateAlignedStore(dupe_value.value, andand_oror_value, 8);
+                Builder.CreateCall(inc_andand_oror_value_fun, params2);
                 }
                 break;
 
-            case OP_STORE_ANDAND_OROR_VALUE2: {
-                LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+            case OP_DEC_ANDAND_OROR_ARRAY: {
+                Function* dec_andand_oror_array_fun = TheModule->getFunction("dec_andand_oror_array");
 
-                LVALUE dupe_value = trunc_value(llvm_value, 64);
+                std::vector<Value*> params2;
 
-                IRBuilder<> builder(&function->getEntryBlock(), function->getEntryBlock().begin());
-                Value* value = builder.CreateAlloca(Type::getInt64Ty(TheContext), 0, "ANDAND_OROR_VALUE");
+                std::string info_value_name("info");
+                Value* param1 = params[info_value_name];
+                params2.push_back(param1);
 
-                andand_oror_value2 = value;
-             
-                Value* zero = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)0);
-                Builder.CreateAlignedStore(zero, andand_oror_value2, 8);
-
-                Builder.CreateAlignedStore(dupe_value.value, andand_oror_value2, 8);
+                Builder.CreateCall(dec_andand_oror_array_fun, params2);
                 }
                 break;
 
-            case OP_RESTORE_ANDAND_OROR_VALUE: {
-                int offset = *(int*)pc;
-                pc += sizeof(int);
-
-                LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, offset);
-
-                Value* value;
-                if(andand_oror_value) {
-                    value = andand_oror_value;
-                }
-                else {
-                    fprintf(stderr, "Unexpected Error\n");
-                    exit(2);
-                }
-
-                Value* value2 = Builder.CreateAlignedLoad(value, 8);
-
-                llvm_value->value = value2;
-                llvm_value->kind = kLVKindInt64;
-
-                trunc_variable(llvm_value, 1);
-                }
-                break;
-
-            case OP_RESTORE_ANDAND_OROR_VALUE2: {
-                int offset = *(int*)pc;
-                pc += sizeof(int);
-
-                LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, offset);
-
-                Value* value;
-                if(andand_oror_value2) {
-                    value = andand_oror_value2;
-                }
-                else {
-                    fprintf(stderr, "Unexpected Error\n");
-                    exit(2);
-                }
-
-                Value* value2 = Builder.CreateAlignedLoad(value, 8);
-
-                llvm_value->value = value2;
-                llvm_value->kind = kLVKindInt64;
-
-                trunc_variable(llvm_value, 1);
-                }
-                break;
-
-            case OP_GET_ANDAND_OROR_RESULT: {
-                Value* result_value = gAndAndOrOrValue;
-
-                /// cond jump ///
-                BasicBlock* true_block = BasicBlock::Create(TheContext, "andand_oror_true_block", function);
-                BasicBlock* false_block = BasicBlock::Create(TheContext, "andand_oror_false_block", function);
-                BasicBlock* result_block = BasicBlock::Create(TheContext, "andand_oror_result_block", function);
-
-                Value* conditional_value = Builder.CreateAlignedLoad(cond_jump_result_flag, 8);
-
-                conditional_value = Builder.CreateCast(Instruction::Trunc, conditional_value, IntegerType::get(TheContext, 1));
-
-                Builder.CreateCondBr(conditional_value, true_block, false_block);
-
-                /// true block ///
-                Builder.SetInsertPoint(true_block);
-
-                Value* zero = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)0);
-                Builder.CreateAlignedStore(zero, result_value, 88888888);
-
-                Value* true_block_result = Builder.CreateAlignedLoad(andand_oror_value2, 8);
-
-                Builder.CreateAlignedStore(true_block_result, result_value, 8);
-                Builder.CreateBr(result_block);
-
-                /// false block ///
-                Builder.SetInsertPoint(false_block);
-
-                zero = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)0);
-                Builder.CreateAlignedStore(zero, result_value, 8);
-
-                Value* false_block_result = Builder.CreateAlignedLoad(andand_oror_value, 8);
-
-                Builder.CreateAlignedStore(false_block_result, result_value, 8);
-
-                Builder.CreateBr(result_block);
-
-                /// result block ///
-                Builder.SetInsertPoint(result_block);
-
-                current_block = result_block;
+            case OP_STORE_ANDAND_OROR_VALUE_LEFT: {
+                LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
                 LVALUE llvm_value;
+                llvm_value = trunc_value(value, 32);
 
-                llvm_value.value = Builder.CreateAlignedLoad(result_value, 8);
+                Function* set_andand_oror_left_value_fun = TheModule->getFunction("set_andand_oror_left_value");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = llvm_value.value;
+                params2.push_back(param1);
+
+                std::string info_value_name("info");
+                Value* param2 = params[info_value_name];
+                params2.push_back(param2);
+
+                Builder.CreateCall(set_andand_oror_left_value_fun, params2);
+
+                dec_stack_ptr(&llvm_stack_ptr, 1);
+                }
+                break;
+
+            case OP_STORE_ANDAND_OROR_VALUE_RIGHT: {
+                LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                LVALUE llvm_value;
+                llvm_value = trunc_value(value, 32);
+
+                Function* set_andand_oror_right_value_fun = TheModule->getFunction("set_andand_oror_right_value");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = llvm_value.value;
+                params2.push_back(param1);
+
+                std::string info_value_name("info");
+                Value* param2 = params[info_value_name];
+                params2.push_back(param2);
+
+                Builder.CreateCall(set_andand_oror_right_value_fun, params2);
+
+                dec_stack_ptr(&llvm_stack_ptr, 1);
+                }
+                break;
+
+            case OP_GET_ANDAND_OROR_RESULT_LEFT: {
+                Function* get_andand_oror_left_value_fun = TheModule->getFunction("get_andand_oror_left_value");
+
+                std::vector<Value*> params2;
+
+                std::string info_value_name("info");
+                Value* param1 = params[info_value_name];
+                params2.push_back(param1);
+
+                Value* value = Builder.CreateCall(get_andand_oror_left_value_fun, params2);
+
+                LVALUE llvm_value;
+                llvm_value.value = value;
                 llvm_value.lvar_address_index = -1;
                 llvm_value.lvar_stored = FALSE;
-                llvm_value.kind = kLVKindInt64;
+                llvm_value.kind = kLVKindInt32;
                 llvm_value.parent_var_num = 0;
                 llvm_value.parent_stack = NULL;
                 llvm_value.parent_llvm_stack = NULL;
 
                 trunc_variable(&llvm_value, 1);
 
-                dec_stack_ptr(&llvm_stack_ptr, 1);
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+            case OP_GET_ANDAND_OROR_RESULT_RIGHT: {
+                Function* get_andand_oror_right_value_fun = TheModule->getFunction("get_andand_oror_right_value");
+
+                std::vector<Value*> params2;
+
+                std::string info_value_name("info");
+                Value* param1 = params[info_value_name];
+                params2.push_back(param1);
+
+                Value* value = Builder.CreateCall(get_andand_oror_right_value_fun, params2);
+
+                LVALUE llvm_value;
+                llvm_value.value = value;
+                llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
+                llvm_value.kind = kLVKindInt32;
+                llvm_value.parent_var_num = 0;
+                llvm_value.parent_stack = NULL;
+                llvm_value.parent_llvm_stack = NULL;
+
+                trunc_variable(&llvm_value, 1);
+
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
                 break;

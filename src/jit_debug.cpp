@@ -1165,6 +1165,51 @@ void show_str(char* str)
     call_show_str_in_jit(llvm_create_string(str));
 }
 
+void show_int1_value(Value* value)
+{
+    Function* fun = TheModule->getFunction("show_int8");
+    std::vector<Value*> params2;
+
+    Value* param1 = value;
+    param1 = Builder.CreateCast(Instruction::ZExt, param1, Type::getInt8Ty(TheContext));
+    params2.push_back(param1);
+
+    Builder.CreateCall(fun, params2);
+}
+
+void show_int8_value(Value* value)
+{
+    Function* fun = TheModule->getFunction("show_int8");
+    std::vector<Value*> params2;
+
+    Value* param1 = value;
+    params2.push_back(param1);
+
+    Builder.CreateCall(fun, params2);
+}
+
+void show_int32_value(Value* value)
+{
+    Function* fun = TheModule->getFunction("show_int32");
+    std::vector<Value*> params2;
+
+    Value* param1 = value;
+    params2.push_back(param1);
+
+    Builder.CreateCall(fun, params2);
+}
+
+void show_int64_value(Value* value)
+{
+    Function* fun = TheModule->getFunction("show_int64");
+    std::vector<Value*> params2;
+
+    Value* param1 = value;
+    params2.push_back(param1);
+
+    Builder.CreateCall(fun, params2);
+}
+
 void show_llvm_value(LVALUE* llvm_value)
 {
     Function* fun;

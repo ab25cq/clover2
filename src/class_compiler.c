@@ -1714,10 +1714,12 @@ BOOL compile_class_source(char* fname, char* source)
         }
 
         if(i == PARSE_PHASE_ADD_METHODS_AND_FIELDS) {
-            call_all_class_initializer();
-            if(!call_compile_time_script_method_on_declare()) {
-                fprintf(stderr, "error on compile time script\n");
-                exit(1);
+            if(!gCompilingCore) {
+                call_all_class_initializer();
+                if(!call_compile_time_script_method_on_declare()) {
+                    fprintf(stderr, "error on compile time script\n");
+                    exit(1);
+                }
             }
         }
 
@@ -1728,29 +1730,31 @@ BOOL compile_class_source(char* fname, char* source)
         return FALSE;
     }
 
-    call_all_class_initializer();
+    if(!gCompilingCore) {
+        call_all_class_initializer();
 
-    int var_num = get_var_num(info.lv_table);
+        int var_num = get_var_num(info.lv_table);
 
-    sVMInfo vinfo;
-    memset(&vinfo, 0, sizeof(sVMInfo));
+        sVMInfo vinfo;
+        memset(&vinfo, 0, sizeof(sVMInfo));
 
-    int stack_size = 512;
-    CLVALUE* stack = MCALLOC(1, sizeof(CLVALUE)*stack_size);
+        int stack_size = 512;
+        CLVALUE* stack = MCALLOC(1, sizeof(CLVALUE)*stack_size);
 
-    vinfo.running_class_name = "none";
-    vinfo.running_method_name = "compile_class_source";
+        vinfo.running_class_name = "none";
+        vinfo.running_method_name = "compile_class_source";
 
-    vm_mutex_on();
+        vm_mutex_on();
 
-    if(!vm(&code, &constant, stack, var_num, NULL, &vinfo)) {
-        sByteCode_free(&code);
-        sConst_free(&constant);
-        vm_mutex_off();
-        return FALSE;
+        if(!vm(&code, &constant, stack, var_num, NULL, &vinfo)) {
+            sByteCode_free(&code);
+            sConst_free(&constant);
+            vm_mutex_off();
+            return FALSE;
+        }
+
+        vm_mutex_off();  // see OP_RETURN
     }
-
-    vm_mutex_off();  // see OP_RETURN
 
     sByteCode_free(&code);
     sConst_free(&constant);

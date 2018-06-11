@@ -141,6 +141,10 @@ void show_llvm_stack(LVALUE* llvm_stack, LVALUE* llvm_stack_ptr, int var_num, st
 void show_llvm_stck_on_compile_time(LVALUE* llvm_stack, LVALUE* llvm_stack_ptr, int var_num);
 void show_llvm_value(LVALUE* llvm_value);
 void show_str(char* str);
+void show_int1_value(Value* value);
+void show_int8_value(Value* value);
+void show_int32_value(Value* value);
+void show_int64_value(Value* value);
 
 /// jit_sub.cpp ///
 LVALUE trunc_value(LVALUE* llvm_value, int size);
@@ -187,6 +191,7 @@ void call_vm_mutex_off();
 /// jit declare.cpp ///
 extern GlobalVariable* gSigIntValue;
 extern GlobalVariable* gAndAndOrOrValue;
+extern GlobalVariable* gConditionalValue;
 extern StructType* gCLValueAndBoolStruct;
 extern StructType* gPointerAndBoolStruct;
 

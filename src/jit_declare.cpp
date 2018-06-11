@@ -5,6 +5,7 @@ extern "C"
 
 GlobalVariable* gSigIntValue;
 GlobalVariable* gAndAndOrOrValue;
+GlobalVariable* gConditionalValue;
 StructType* gCLValueAndBoolStruct;
 StructType* gPointerAndBoolStruct;
 
@@ -1071,13 +1072,101 @@ void create_internal_functions()
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "op_is_fun", TheModule);
 
+    /// inc_andand_oror_array ///
+    type_params.clear();
+
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(IntegerType::get(TheContext,64), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "inc_andand_oror_array", TheModule);
+
+    /// dec_andand_oror_array ///
+    type_params.clear();
+
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(IntegerType::get(TheContext,64), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "dec_andand_oror_array", TheModule);
+
+    /// reset_andand_oror ///
+    type_params.clear();
+
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(IntegerType::get(TheContext,64), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "reset_andand_oror", TheModule);
+
+    /// set_andand_oror_right_value ///
+    type_params.clear();
+
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = IntegerType::get(TheContext,32);
+    type_params.push_back(param1_type);
+
+    param2_type = PointerType::get(IntegerType::get(TheContext,64), 0);
+    type_params.push_back(param2_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "set_andand_oror_right_value", TheModule);
+
+    /// get_andand_oror_right_value ///
+    type_params.clear();
+
+    result_type = IntegerType::get(TheContext,32);
+
+    param1_type = PointerType::get(IntegerType::get(TheContext,64), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "get_andand_oror_right_value", TheModule);
+
+    /// set_andand_oror_left_value ///
+    type_params.clear();
+
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = IntegerType::get(TheContext,32);
+    type_params.push_back(param1_type);
+
+    param2_type = PointerType::get(IntegerType::get(TheContext,64), 0);
+    type_params.push_back(param2_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "set_andand_oror_left_value", TheModule);
+
+    /// get_andand_oror_left_value ///
+    type_params.clear();
+
+    result_type = IntegerType::get(TheContext,32);
+
+    param1_type = PointerType::get(IntegerType::get(TheContext,64), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "get_andand_oror_left_value", TheModule);
+
     /// gSigInt ///
     Type* variable_type = IntegerType::get(TheContext, 32);
     gSigIntValue = new GlobalVariable(*TheModule, variable_type, false, GlobalValue::ExternalLinkage, nullptr, "gSigInt");
 
     /// gAndAndOrOrValue ///
     variable_type = IntegerType::get(TheContext, 64);
-    gAndAndOrOrValue = new GlobalVariable(*TheModule, variable_type, false, GlobalValue::ExternalLinkage, nullptr, "gAndAndOrOrValue");
+    gAndAndOrOrValue = new GlobalVariable(*TheModule, variable_type, false, GlobalValue::ExternalLinkage, nullptr, "gAndAndOrOr");
+
+    /// gConditionalValue ///
+    variable_type = IntegerType::get(TheContext, 64);
+    gConditionalValue = new GlobalVariable(*TheModule, variable_type, false, GlobalValue::ExternalLinkage, nullptr, "gConditional");
+
 
     create_internal_functions2();
 }

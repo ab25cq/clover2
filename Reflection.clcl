@@ -174,7 +174,6 @@ class Clover
 
                             is_interface := (Class(class_name).flags & CLASS_FLAGS_INTERFACE).to_bool;
 
-
                             if(!is_array && !is_primitive && !is_interface)
                             {
                                output.append(sprintf("self.%s = %s();\n", array { field.name, class_name }));

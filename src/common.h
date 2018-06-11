@@ -73,6 +73,7 @@
 #define METHOD_DEFAULT_PARAM_MAX 1024
 #define METHOD_BLOCK_PARAM_MAX 16
 #define CLOVER2_NUM_THREAD_MAX 1024
+#define ANDAND_OROR_MAX 256
 
 #define WHEN_BLOCK_MAX 64
 
@@ -251,6 +252,10 @@ struct sVMInfoStruct {
     int num_stack_trace;
 
     BOOL no_mutex_in_vm;
+
+    BOOL andand_oror_left_value[ANDAND_OROR_MAX];
+    BOOL andand_oror_right_value[ANDAND_OROR_MAX];
+    int num_andand_oror;
 };
 
 typedef struct sVMInfoStruct sVMInfo;
@@ -956,6 +961,7 @@ void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
 
 /// vm.c ///
 extern BOOL gSigInt;
+extern BOOL gRunningInitializer;
 
 #define OP_POP 1
 #define OP_POP_N 2
@@ -980,23 +986,22 @@ extern BOOL gSigInt;
 #define OP_RESTORE_VALUE_FROM_MACHINE_STACK 20
 #define OP_POP_FOR_MACHINE_STACK 21
 
-#define OP_RESET_ANDAND_OROR_VALUE 22          // for native code machine, it don't need to Virtual Machine
-#define OP_STORE_ANDAND_OROR_VALUE 23
-#define OP_RESTORE_ANDAND_OROR_VALUE 24
-#define OP_STORE_ANDAND_OROR_VALUE2 25
-#define OP_RESTORE_ANDAND_OROR_VALUE2 26
-#define OP_GET_ANDAND_OROR_RESULT 27
+// for native code machine, it don't need to Virtual Machine
+#define OP_JIT_POP 22
+#define OP_STORE_ANDAND_OROR_VALUE_LEFT 23
+#define OP_STORE_ANDAND_OROR_VALUE_RIGHT 24
+#define OP_GET_ANDAND_OROR_RESULT_LEFT 25
+#define OP_GET_ANDAND_OROR_RESULT_RIGHT 26
+#define OP_INC_ANDAND_OROR_ARRAY 27
+#define OP_DEC_ANDAND_OROR_ARRAY 28
 
-#define OP_NOP 28
+#define OP_NOP 29
 
-#define OP_STORE_VALUE_TO_GLOBAL 29
-#define OP_POP_VALUE_FROM_GLOBAL 30
+#define OP_STORE_VALUE_TO_GLOBAL 30
+#define OP_POP_VALUE_FROM_GLOBAL 31
 
-#define OP_STORE 31
-#define OP_LOAD 32
-
-#define OP_LOAD_ADDRESS 33
-#define OP_SPLIT_TUPLE 34
+#define OP_STORE 32
+#define OP_LOAD 33
 
 #define OP_LDCBYTE 35
 #define OP_LDCUBYTE 36
@@ -1219,6 +1224,9 @@ extern BOOL gSigInt;
 #define OP_IMPLEMENTS 1303
 #define OP_OBJ_ALLOCATED_SIZE 1304
 #define OP_OBJ_HEAD_OF_MEMORY 1305
+
+#define OP_LOAD_ADDRESS 1306
+#define OP_SPLIT_TUPLE 1307
 
 #define OP_ANDAND 2000
 #define OP_OROR 2001
@@ -2376,6 +2384,7 @@ extern int gARGC;
 extern char** gARGV;
 extern char* gVersion;
 extern BOOL gRunningCompiler;
+extern BOOL gCompilingCore;
 
 extern char gScriptDirPath[PATH_MAX];
 

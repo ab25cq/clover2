@@ -30,6 +30,51 @@ void show_stack(CLVALUE* stack, CLVALUE* stack_ptr, CLVALUE* lvar, int var_num)
     }
 }
 
+static void reset_andand_oror(sVMInfo* info)
+{
+    info->num_andand_oror = 0;
+}
+
+static int get_andand_oror_left_value(sVMInfo* info)
+{
+    return info->andand_oror_left_value[info->num_andand_oror-1];
+}
+
+static void set_andand_oror_left_value(BOOL flag, sVMInfo* info)
+{
+    info->andand_oror_left_value[info->num_andand_oror-1] = flag;
+}
+
+static int get_andand_oror_right_value(sVMInfo* info)
+{
+    return info->andand_oror_right_value[info->num_andand_oror-1];
+}
+
+static void set_andand_oror_right_value(BOOL flag, sVMInfo* info)
+{
+    info->andand_oror_right_value[info->num_andand_oror-1] = flag;
+}
+
+static void inc_andand_oror_array(sVMInfo* info)
+{
+    info->num_andand_oror++;
+
+    if(info->num_andand_oror >= ANDAND_OROR_MAX) {
+        fprintf(stderr, "overflow and and or or value\n");
+        exit(1);
+    }
+}
+
+static void dec_andand_oror_array(sVMInfo* info)
+{
+    info->num_andand_oror--;
+
+    if(info->num_andand_oror < 0) {
+        fprintf(stderr, "invalid and and or or value\n");
+        exit(1);
+    }
+}
+
 static void show_inst(unsigned inst)
 {
     switch(inst) {
@@ -52,9 +97,44 @@ static void show_inst(unsigned inst)
         case OP_COND_JUMP :
             puts("OP_COND_JUMP");
             break;
+        
+        case OP_MARK_SOURCE_CODE_POSITION:
+            puts("OP_MARK_SOURCE_CODE_POSITION");
+            break;
+
+        case OP_MARK_SOURCE_CODE_POSITION2:
+            puts("OP_MARK_SOURCE_CODE_POSITION2");
+            break;
 
         case OP_COND_NOT_JUMP :
             puts("OP_COND_NOT_JUMP");
+            break;
+        case OP_JIT_POP:
+            puts("OP_JIT_POP");
+            break;
+
+        case OP_STORE_ANDAND_OROR_VALUE_LEFT:
+            puts("OP_STORE_ANDAND_OROR_VALUE_LEFT");
+            break;
+
+        case OP_STORE_ANDAND_OROR_VALUE_RIGHT:
+            puts("OP_STORE_ANDAND_OROR_VALUE_RIGHT");
+            break;
+
+        case OP_GET_ANDAND_OROR_RESULT_LEFT:
+            puts("OP_GET_ANDAND_OROR_RESULT_LEFT");
+            break;
+
+        case OP_GET_ANDAND_OROR_RESULT_RIGHT:
+            puts("OP_GET_ANDAND_OROR_RESULT_RIGHT");
+            break;
+
+        case OP_INC_ANDAND_OROR_ARRAY:
+            puts("OP_INC_ANDAND_OROR_ARRAY");
+            break;
+
+        case OP_DEC_ANDAND_OROR_ARRAY:
+            puts("OP_DEC_ANDAND_OROR_ARRAY");
             break;
 
         case OP_GOTO :
@@ -702,8 +782,11 @@ static BOOL load_class_with_initialize(char* class_name)
     return TRUE;
 }
 
+BOOL gRunningInitializer = FALSE;
+
 BOOL load_fundamental_classes_on_runtime()
 {
+    gRunningInitializer = TRUE;
     if(!load_class_with_initialize("PcreOVec")) { return FALSE; }
     if(!load_class_with_initialize("System")) { return FALSE; }
     if(!load_class_with_initialize("Global")) { return FALSE; }
@@ -774,6 +857,7 @@ BOOL load_fundamental_classes_on_runtime()
     if(!load_class_with_initialize("Thread")) { return FALSE; }
 
     if(!load_class_with_initialize("Clover")) { return FALSE; }
+    gRunningInitializer = FALSE;
 
     return TRUE;
 }
@@ -1138,6 +1222,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 #else
     register char* pc = code->mCodes;
 #endif
+    //reset_andand_oror(info);
 
     CLVALUE* stack_ptr = stack + var_num;
     CLVALUE* lvar = stack;
@@ -1169,7 +1254,11 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
         unsigned int inst = *(unsigned int*)pc;
         pc+=sizeof(int);
-
+/*
+if(!gRunningCompiler && !gRunningInitializer) {
+show_inst(inst);
+}
+*/
         switch(inst) {
             case OP_NOP:
                 break;
@@ -1296,6 +1385,38 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                 }
                 break;
 
+            case OP_STORE_ANDAND_OROR_VALUE_LEFT:
+                set_andand_oror_left_value((stack_ptr-1)->mBoolValue, info);
+                stack_ptr--;
+                break;
+
+            case OP_STORE_ANDAND_OROR_VALUE_RIGHT:
+                set_andand_oror_right_value((stack_ptr-1)->mBoolValue, info);
+                stack_ptr--;
+                break;
+
+            case OP_INC_ANDAND_OROR_ARRAY: {
+                inc_andand_oror_array(info);
+                }
+                break;
+
+            case OP_DEC_ANDAND_OROR_ARRAY: {
+                dec_andand_oror_array(info);
+                }
+                break;
+
+            case OP_GET_ANDAND_OROR_RESULT_LEFT: {
+                stack_ptr->mIntValue = get_andand_oror_left_value(info);
+                stack_ptr++;
+                }
+                break;
+
+            case OP_GET_ANDAND_OROR_RESULT_RIGHT: {
+                stack_ptr->mIntValue = get_andand_oror_right_value(info);
+                stack_ptr++;
+                }
+                break;
+
             case OP_HEAD_OF_EXPRESSION:
                 gSigInt = FALSE;
                 break;
@@ -1373,18 +1494,6 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
             case OP_RESTORE_VALUE_FROM_MACHINE_STACK: {
                 int size = *(int*)pc;
-                pc += sizeof(int);
-                }
-                break;
-
-            case OP_RESTORE_ANDAND_OROR_VALUE: {
-                int offset = *(int*)pc;
-                pc += sizeof(int);
-                }
-                break;
-
-            case OP_RESTORE_ANDAND_OROR_VALUE2: {
-                int offset = *(int*)pc;
                 pc += sizeof(int);
                 }
                 break;
@@ -13789,6 +13898,11 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
         if(!info->no_mutex_in_vm) {
             vm_mutex_off();
         }
+/*
+if(!gRunningCompiler && !gRunningInitializer) {
+show_stack(stack, stack_ptr, lvar, var_num);
+}
+*/
     }
 
 
