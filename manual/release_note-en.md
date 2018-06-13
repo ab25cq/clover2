@@ -1,4 +1,10 @@
 
+version 4.2.2
+
+    Added JIT runtime to dynamic library (libclover2.so)
+
+    Turn on running JIT method on Compile Time Scripting.
+
 version 4.2.1
 
     Fixed JIT bugs.

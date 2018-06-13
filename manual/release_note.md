@@ -1,5 +1,11 @@
 English page is here [>> English page](release_note-en)
 
+version 4.2.2
+
+    JITのランタイムをライブラリに追加しました。(libclover2.so)
+
+    Compile 時のリフレクションでJITを有効にしました。
+
 version 4.2.1
 
     JITで||と&&にバグが有ったため修正

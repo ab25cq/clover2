@@ -55,8 +55,8 @@ iclover2: config.h src/interpreter.o $(COMMON_OBJS) $(OBJS) $(COMPILER_OBJS) $(J
 SortableArray.oclcl: Fundamental.clcl String.clcl Container.clcl CLParser.clcl Range.clcl Command.clcl File.clcl MyOwnLibrary.clcl CGI.clcl Reflection.clcl Socket.clcl SystemCalls.clcl Thread.clcl
 	PWD=`pwd`; ./cclover2 -core MyOwnLibrary.clcl
 
-libclover2.so.1.0.0: $(COMMON_OBJ) $(COMPILER_OBJS) $(OBJS)
-	clang -shared -o libclover2.so.1.0.0 $(COMMON_OBJS) $(COMPILER_OBJS) $(OBJS:src/class_clover_runtime.o=) $(CFLAGS) $(LIBS)
+libclover2.so.1.0.0: $(COMMON_OBJ) $(COMPILER_OBJS) $(OBJS) $(JIT_RUNTIME_OBJS)
+	clang -shared -o libclover2.so.1.0.0 $(COMMON_OBJS) $(COMPILER_OBJS) $(OBJS:src/class_clover_runtime.o=) $(CFLAGS) $(LIBS) $(JIT_RUNTIME_OBJS)
 	ln -s -f libclover2.so.1.0.0 libclover2.so.1
 	ln -s -f libclover2.so.1.0.0 libclover2.so
 

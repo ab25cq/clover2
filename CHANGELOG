@@ -1,4 +1,16 @@
 
+version 4.2.2
+
+    JITのランタイムをライブラリに追加しました。(libclover2.so)
+
+    Compile 時のリフレクションでJITを有効にしました。
+
+version 4.2.2
+
+    Added JIT runtime to dynamic library (libclover2.so)
+
+    Turn on running JIT method on Compile Time Scripting.
+
 version 4.2.1
 
     JITで||と&&にバグが有ったため修正
