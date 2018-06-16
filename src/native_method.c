@@ -356,6 +356,19 @@ static sNativeMethod gNativeMethods[] = {
     { "System.wprintw(pointer,String)", "System_wprintw", System_wprintw },
     { "System.getmaxx()", "System_getmaxx", System_getmaxx },
     { "System.getmaxy()", "System_getmaxy", System_getmaxy },
+    { "System.isalpha(char)", "System_isalpha", System_isalpha },
+    { "System.isalnum(char)", "System_isalnum", System_isalnum },
+    { "System.iscntrl(char)", "System_iscntrl", System_iscntrl },
+    { "System.isdigit(char)", "System_isdigit", System_isdigit },
+    { "System.isgraph(char)", "System_isgraph", System_isgraph },
+    { "System.islower(char)", "System_islower", System_islower },
+    { "System.isprint(char)", "System_isprint", System_isprint },
+    { "System.ispunct(char)", "System_ispunct", System_ispunct },
+    { "System.ispace(char)", "System_isspace", System_isspace },
+    { "System.isupper(char)", "System_isupper", System_isupper },
+    { "System.isxdigit(char)", "System_isxdigit", System_isxdigit },
+    { "System.isascii(char)", "System_isascii", System_isascii },
+    { "System.isblank(char)", "System_isblank", System_isblank },
 
     { "", "", 0 }  // sentinel
 };

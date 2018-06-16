@@ -7571,3 +7571,211 @@ BOOL System_getmaxy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 }
 
 #endif
+
+BOOL System_isalpha(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* c = lvar;
+
+    /// Clover to C ///
+    wchar_t c_value = c->mCharValue;
+
+    /// go ///
+    int result = isalpha((char)c_value);
+
+    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_isalnum(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* c = lvar;
+
+    /// Clover to C ///
+    wchar_t c_value = c->mCharValue;
+
+    /// go ///
+    int result = isalnum((char)c_value);
+
+    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_iscntrl(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* c = lvar;
+
+    /// Clover to C ///
+    wchar_t c_value = c->mCharValue;
+
+    /// go ///
+    int result = iscntrl((char)c_value);
+
+    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_isdigit(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* c = lvar;
+
+    /// Clover to C ///
+    wchar_t c_value = c->mCharValue;
+
+    /// go ///
+    int result = isdigit((char)c_value);
+
+    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_isgraph(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* c = lvar;
+
+    /// Clover to C ///
+    wchar_t c_value = c->mCharValue;
+
+    /// go ///
+    int result = isgraph((char)c_value);
+
+    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_islower(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* c = lvar;
+
+    /// Clover to C ///
+    wchar_t c_value = c->mCharValue;
+
+    /// go ///
+    int result = islower((char)c_value);
+
+    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_isprint(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* c = lvar;
+
+    /// Clover to C ///
+    wchar_t c_value = c->mCharValue;
+
+    /// go ///
+    int result = isprint((char)c_value);
+
+    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_ispunct(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* c = lvar;
+
+    /// Clover to C ///
+    wchar_t c_value = c->mCharValue;
+
+    /// go ///
+    int result = ispunct((char)c_value);
+
+    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_isspace(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* c = lvar;
+
+    /// Clover to C ///
+    wchar_t c_value = c->mCharValue;
+
+    /// go ///
+    int result = isspace((char)c_value);
+
+    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_isupper(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* c = lvar;
+
+    /// Clover to C ///
+    wchar_t c_value = c->mCharValue;
+
+    /// go ///
+    int result = isupper((char)c_value);
+
+    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_isxdigit(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* c = lvar;
+
+    /// Clover to C ///
+    wchar_t c_value = c->mCharValue;
+
+    /// go ///
+    int result = isxdigit((char)c_value);
+
+    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_isascii(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* c = lvar;
+
+    /// Clover to C ///
+    wchar_t c_value = c->mCharValue;
+
+    /// go ///
+    int result = isascii((char)c_value);
+
+    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_isblank(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* c = lvar;
+
+    /// Clover to C ///
+    wchar_t c_value = c->mCharValue;
+
+    /// go ///
+    int result = isblank((char)c_value);
+
+    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}

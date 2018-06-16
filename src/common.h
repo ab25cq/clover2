@@ -2271,6 +2271,19 @@ BOOL System_wmove(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_wprintw(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_getmaxx(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_getmaxy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_isblank(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_isascii(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_isxdigit(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_isupper(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_isspace(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_ispunct(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_isprint(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_islower(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_isgraph(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_isdigit(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_iscntrl(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_isalnum(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_isalpha(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 extern CLObject signal_handler_object[SIGMAX];
 

@@ -55,6 +55,19 @@ class System
     def initialize(): static {
         initialize_string_system();
     }
+    def isalpha(c:char): native static bool;
+    def isalnum(c:char): native static bool;
+    def iscntrl(c:char): native static bool;
+    def isdigit(c:char): native static bool;
+    def isgraph(c:char): native static bool;
+    def islower(c:char): native static bool;
+    def isprint(c:char): native static bool;
+    def ispunct(c:char): native static bool;
+    def isspace(c:char): native static bool;
+    def isupper(c:char): native static bool;
+    def isxdigit(c:char): native static bool;
+    def isascii(c:char): native static bool;
+    def isblank(c:char): native static bool;
 }
 
 class Clover
@@ -1252,3 +1265,45 @@ class Bool
     include MPrintOutObject;
 }
 
+class Char
+{
+    def isalpha(): bool {
+        return System.isalpha(self);
+    }
+    def isalnum(): bool {
+        return System.isalnum(self);
+    }
+    def iscntrl(): bool {
+        return System.iscntrl(self);
+    }
+    def isdigit(): bool {
+        return System.isdigit(self);
+    }
+    def isgraph(): bool {
+        return System.isgraph(self);
+    }
+    def islower(): bool {
+        return System.islower(self);
+    }
+    def isprint(): bool {
+        return System.isprint(self);
+    }
+    def ispunct(): bool {
+        return System.ispunct(self);
+    }
+    def isspace(): bool {
+        return System.isspace(self);
+    }
+    def isupper(): bool {
+        return System.isupper(self);
+    }
+    def isxdigit(): bool {
+        return System.isxdigit(self);
+    }
+    def isascii(): bool {
+        return System.isascii(self);
+    }
+    def isblank(): bool {
+        return System.isblank(self);
+    }
+}
