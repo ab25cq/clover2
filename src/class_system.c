@@ -6984,7 +6984,7 @@ BOOL System_refresh(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int result = refresh();
 
     if(result == ERR) {
-        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "endwin(3) is error.");
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "refresh(3) is error.");
         return FALSE;
     }
 
@@ -7006,7 +7006,7 @@ BOOL System_box(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int result = box(win_ptr_value, vetical_char_value, horizonal_char_value);
 
     if(result == ERR) {
-        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "endwin(3) is error.");
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "box(3) is error.");
         return FALSE;
     }
 
@@ -7174,7 +7174,7 @@ BOOL System_getch(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int result = getch();
 
     if(result == ERR) {
-        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "noecho(3) is error.");
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "getch(3) is error.");
         return FALSE;
     }
 
@@ -7340,7 +7340,7 @@ BOOL System_wmove(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int result = wmove(window_value, y_value, x_value);
 
     if(result == ERR) {
-        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "keypad(3) is error.");
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "wmove(3) is error.");
         return FALSE;
     }
 
@@ -7364,7 +7364,7 @@ BOOL System_wprintw(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int result = wprintw(window_value, str_value);
 
     if(result == ERR) {
-        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "printw(3) is error.");
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "wprintw(3) is error.");
         MFREE(str_value);
         return FALSE;
     }

@@ -101,6 +101,9 @@ class String
     def printf(format:String): {
         Global.printf(format, array { self });
     }
+    def sprintf(format:String): String {
+        return Global.sprintf(format, array { self });
+    }
 
     def insert(index:int, str:String):  String {
         if(index < 0) {
@@ -1172,6 +1175,9 @@ module MPrintOutObject
 {
     def printf(format:String) {
         Global.printf(format, array { self });
+    }
+    def sprintf(format:String):String {
+        return Global.sprintf(format, array { self });
     }
     def print() {
         Global.print(self.toString());
