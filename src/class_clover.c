@@ -790,7 +790,7 @@ BOOL Clover_isTypedefedClass(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     MFREE(class_name_value);
     MFREE(class_name_value2);
 
-    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)->mBoolValue = result != 0;
     (*stack_ptr)++;
 
     return TRUE;

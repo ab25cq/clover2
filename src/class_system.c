@@ -2493,7 +2493,7 @@ BOOL System_WIFEXITED(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     BOOL result = WIFEXITED(status_value);
 
-    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)->mBoolValue = result != 0;
     (*stack_ptr)++;
 
     return TRUE;
@@ -2523,7 +2523,7 @@ BOOL System_WIFSIGNALED(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     BOOL result = WIFSIGNALED(status_value);
 
-    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)->mBoolValue = result != 0;
     (*stack_ptr)++;
 
     return TRUE;
@@ -2568,7 +2568,7 @@ BOOL System_WIFSTOPPED(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     BOOL result = WIFSTOPPED(status_value);
 
-    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)->mBoolValue = result != 0;
     (*stack_ptr)++;
 
     return TRUE;
@@ -2598,7 +2598,7 @@ BOOL System_WIFCONTINUED(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     BOOL result = WIFCONTINUED(status_value);
 
-    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)->mBoolValue = result != 0;
     (*stack_ptr)++;
 
     return TRUE;
@@ -5822,7 +5822,7 @@ BOOL System_isatty(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     /// go ///
     int result = isatty(fd_value);
 
-    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)->mBoolValue = result != 0;
     (*stack_ptr)++;
 
     return TRUE;
@@ -6814,7 +6814,7 @@ BOOL System_FD_ISSET(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     /// go ///
     int result = FD_ISSET(fd_value, (fd_set*)&CLOBJECT(fdset->mObjectValue)->mHeadOfMemory);
 
-    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)->mBoolValue = result != 0;
     (*stack_ptr)++;
 
     return TRUE;
@@ -7017,7 +7017,7 @@ BOOL System_isendwin(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     int result = isendwin();
 
-    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)->mBoolValue = result != 0;
     (*stack_ptr)++;
 
     return TRUE;
@@ -7580,10 +7580,12 @@ BOOL System_isalpha(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     wchar_t c_value = c->mCharValue;
 
     /// go ///
+printf("%d\n", (char)c_value);
     int result = isalpha((char)c_value);
 
-    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)->mBoolValue = result != 0;
     (*stack_ptr)++;
+printf("%d\n", result);
 
     return TRUE;
 }
@@ -7598,7 +7600,7 @@ BOOL System_isalnum(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     /// go ///
     int result = isalnum((char)c_value);
 
-    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)->mBoolValue = result != 0;
     (*stack_ptr)++;
 
     return TRUE;
@@ -7614,7 +7616,7 @@ BOOL System_iscntrl(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     /// go ///
     int result = iscntrl((char)c_value);
 
-    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)->mBoolValue = result != 0;
     (*stack_ptr)++;
 
     return TRUE;
@@ -7630,7 +7632,7 @@ BOOL System_isdigit(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     /// go ///
     int result = isdigit((char)c_value);
 
-    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)->mBoolValue = result != 0;
     (*stack_ptr)++;
 
     return TRUE;
@@ -7646,7 +7648,7 @@ BOOL System_isgraph(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     /// go ///
     int result = isgraph((char)c_value);
 
-    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)->mBoolValue = result != 0;
     (*stack_ptr)++;
 
     return TRUE;
@@ -7662,7 +7664,7 @@ BOOL System_islower(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     /// go ///
     int result = islower((char)c_value);
 
-    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)->mBoolValue = result != 0;
     (*stack_ptr)++;
 
     return TRUE;
@@ -7678,7 +7680,7 @@ BOOL System_isprint(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     /// go ///
     int result = isprint((char)c_value);
 
-    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)->mBoolValue = result != 0;
     (*stack_ptr)++;
 
     return TRUE;
@@ -7694,7 +7696,7 @@ BOOL System_ispunct(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     /// go ///
     int result = ispunct((char)c_value);
 
-    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)->mBoolValue = result != 0;
     (*stack_ptr)++;
 
     return TRUE;
@@ -7710,7 +7712,7 @@ BOOL System_isspace(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     /// go ///
     int result = isspace((char)c_value);
 
-    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)->mBoolValue = result != 0;
     (*stack_ptr)++;
 
     return TRUE;
@@ -7726,7 +7728,7 @@ BOOL System_isupper(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     /// go ///
     int result = isupper((char)c_value);
 
-    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)->mBoolValue = result != 0;
     (*stack_ptr)++;
 
     return TRUE;
@@ -7742,7 +7744,7 @@ BOOL System_isxdigit(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     /// go ///
     int result = isxdigit((char)c_value);
 
-    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)->mBoolValue = result != 0;
     (*stack_ptr)++;
 
     return TRUE;
@@ -7758,7 +7760,7 @@ BOOL System_isascii(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     /// go ///
     int result = isascii((char)c_value);
 
-    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)->mBoolValue = result != 0;
     (*stack_ptr)++;
 
     return TRUE;
@@ -7774,7 +7776,7 @@ BOOL System_isblank(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     /// go ///
     int result = isblank((char)c_value);
 
-    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)->mBoolValue = result != 0;
     (*stack_ptr)++;
 
     return TRUE;

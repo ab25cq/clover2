@@ -9580,8 +9580,6 @@ show_inst(inst);
                 
             case OP_CHAR_TO_POINTER_CAST:
                 {
-                    
-
                     char* value = (char*)(stack_ptr-1)->mCharValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
@@ -9925,8 +9923,6 @@ show_inst(inst);
 
             case OP_CCHAR_TO_CHAR_CAST:
                 {
-                    
-
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     sCLObject* obj_data = CLOBJECT(obj);
