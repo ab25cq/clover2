@@ -364,7 +364,7 @@ static sNativeMethod gNativeMethods[] = {
     { "System.islower(char)", "System_islower", System_islower },
     { "System.isprint(char)", "System_isprint", System_isprint },
     { "System.ispunct(char)", "System_ispunct", System_ispunct },
-    { "System.ispace(char)", "System_isspace", System_isspace },
+    { "System.isspace(char)", "System_isspace", System_isspace },
     { "System.isupper(char)", "System_isupper", System_isupper },
     { "System.isxdigit(char)", "System_isxdigit", System_isxdigit },
     { "System.isascii(char)", "System_isascii", System_isascii },
