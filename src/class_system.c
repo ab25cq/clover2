@@ -7580,12 +7580,10 @@ BOOL System_isalpha(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     wchar_t c_value = c->mCharValue;
 
     /// go ///
-printf("%d\n", (char)c_value);
     int result = isalpha((char)c_value);
 
     (*stack_ptr)->mBoolValue = result != 0;
     (*stack_ptr)++;
-printf("%d\n", result);
 
     return TRUE;
 }
