@@ -1,0 +1,10 @@
+class UserThrowTest
+{
+    def method() {
+        throw Exception("AAA");
+    }
+    
+    def method2() {
+        method();
+    }
+}

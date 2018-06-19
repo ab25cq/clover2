@@ -1798,7 +1798,7 @@ sCLClass* get_class_with_load_and_initialize(char* class_name);
 void class_final_on_runtime();
 BOOL call_finalize_method_on_free_object(sCLClass* klass, CLObject self);
 BOOL call_alloc_size_method(sCLClass* klass, unsigned long* result);
-void callOnException(CLObject message, BOOL in_try);
+void callOnException(CLObject message, BOOL in_try, sVMInfo* info);
 BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info);
 BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_params, CLVALUE** stack_ptr, sVMInfo* info, BOOL llvm_flag);
 BOOL class_init_on_runtime();

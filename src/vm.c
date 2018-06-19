@@ -930,52 +930,58 @@ static BOOL finalize_class(sCLClass* klass)
     return TRUE;
 }
 
-void callOnException(CLObject message, BOOL in_try)
+void callOnException(CLObject message, BOOL in_try, sVMInfo* info)
 {
-    sCLClass* clover_class = get_class("Clover");
+    static BOOL in_calling_on_exception = FALSE;
+    if(!in_calling_on_exception) {
+        in_calling_on_exception = TRUE;
 
-    if(clover_class) {
-        int method_index = -1;
+        sCLClass* clover_class = get_class("Clover");
 
-        int i;
-        for(i=clover_class->mNumMethods-1; i>=0; i--) {
-            sCLMethod* method = clover_class->mMethods + i;
+        if(clover_class) {
+            int method_index = -1;
 
-            if(method->mNumParams == 2) {
-                sCLParam* param1 = method->mParams + 0;
-                sCLParam* param2 = method->mParams + 1;
+            int i;
+            for(i=clover_class->mNumMethods-1; i>=0; i--) {
+                sCLMethod* method = clover_class->mMethods + i;
 
-                sCLType* param1_type = param1->mType;
-                sCLType* param2_type = param2->mType;
+                if(method->mNumParams == 2) {
+                    sCLParam* param1 = method->mParams + 0;
+                    sCLParam* param2 = method->mParams + 1;
 
-                if(strcmp(METHOD_NAME2(clover_class, method), "onException") == 0 && (method->mFlags & METHOD_FLAGS_CLASS_METHOD) && strcmp(CONS_str(&clover_class->mConst, param1_type->mClassNameOffset), "String") == 0 && strcmp(CONS_str(&clover_class->mConst, param2_type->mClassNameOffset), "bool") == 0)
-                {
-                    method_index = i;
-                    break;
+                    sCLType* param1_type = param1->mType;
+                    sCLType* param2_type = param2->mType;
+
+                    if(strcmp(METHOD_NAME2(clover_class, method), "onException") == 0 && (method->mFlags & METHOD_FLAGS_CLASS_METHOD) && strcmp(CONS_str(&clover_class->mConst, param1_type->mClassNameOffset), "String") == 0 && strcmp(CONS_str(&clover_class->mConst, param2_type->mClassNameOffset), "bool") == 0)
+                    {
+                        method_index = i;
+                        break;
+                    }
                 }
             }
+
+            if(method_index >= 0) {
+                sCLMethod* method = clover_class->mMethods + method_index;
+
+                const int stack_size = 512;
+                CLVALUE* stack = MCALLOC(1, sizeof(CLVALUE)*stack_size);
+                CLVALUE* stack_ptr = stack;
+
+                stack_ptr->mObjectValue = message;
+                stack_ptr++;
+
+                stack_ptr->mBoolValue = in_try;
+                stack_ptr++;
+
+                sVMInfo info;
+                memset(&info, 0, sizeof(sVMInfo));
+                
+                (void)invoke_method(clover_class, method, stack, 0, &stack_ptr, &info);
+
+                MFREE(stack);
+            }
         }
-
-        if(method_index >= 0) {
-            sCLMethod* method = clover_class->mMethods + method_index;
-
-            const int stack_size = 512;
-            CLVALUE* stack = MCALLOC(1, sizeof(CLVALUE)*stack_size);
-            CLVALUE* stack_ptr = stack;
-
-            stack_ptr->mObjectValue = message;
-            stack_ptr++;
-
-            stack_ptr->mBoolValue = in_try;
-            stack_ptr++;
-
-            sVMInfo info;
-            memset(&info, 0, sizeof(sVMInfo));
-            
-            (void)invoke_method(clover_class, method, stack, 0, &stack_ptr, &info);
-
-            MFREE(stack);
-        }
+        in_calling_on_exception = FALSE;
     }
 }
 

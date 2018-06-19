@@ -45,7 +45,7 @@ void entry_exception_object_with_class_name(CLVALUE** stack_ptr, CLVALUE* stack,
     sCLObject* object_data = CLOBJECT(object);
     object_data->mFields[0].mObjectValue = str;
 
-    callOnException(str, info->try_offset != 0);
+    callOnException(str, info->try_offset != 0, info);
 }
 
 void entry_exception_object_with_class_name2(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, char* class_name, char* msg)
@@ -86,7 +86,7 @@ void entry_exception_object_with_class_name2(CLVALUE** stack_ptr, CLVALUE* stack
     sCLObject* object_data = CLOBJECT(object);
     object_data->mFields[0].mObjectValue = str;
 
-    callOnException(str, info->try_offset != 0);
+    callOnException(str, info->try_offset != 0, info);
 }
 
 void entry_exception_object(CLObject exception, sVMInfo* info)
@@ -113,8 +113,13 @@ void entry_exception_object(CLObject exception, sVMInfo* info)
         snprintf(info->exception_message, EXCEPTION_MESSAGE_MAX, "%s %d: %s\n", info->sname, info->sline, str);
     }
 
+    CLObject new_message = create_string_object(info->exception_message);
+
+    object_data = CLOBJECT(exception);
+    object_data->mFields[0].mObjectValue = new_message;
+
     MFREE(str);
 
-    callOnException(message, info->try_offset != 0);
+    callOnException(new_message, info->try_offset != 0, info);
 }
 
