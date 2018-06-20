@@ -1043,6 +1043,7 @@ BOOL call_alloc_size_method(sCLClass* klass, unsigned long* result)
 
 void class_final_on_runtime()
 {
+    vm_mutex_off();
     vm_mutex_on();
     sClassTable* p = gHeadClassTable;
 

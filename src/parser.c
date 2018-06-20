@@ -176,69 +176,6 @@ void skip_spaces(sParserInfo* info)
     }
 }
 
-static BOOL parse_word_and_slash(char* buf, int buf_size, sParserInfo* info, BOOL print_out_err_msg, BOOL no_skip_lf)
-{
-    buf[0] = 0;
-
-    char* p2 = buf;
-
-    if(*info->p == '.' && *(info->p +1) == '/') {
-        *p2++ = *info->p;
-        info->p++;
-        *p2++ = *info->p;
-        info->p++;
-    }
-    else if(*info->p == '.' && *(info->p +1) == '.' && *(info->p + 2) == '/') 
-    {
-        *p2++ = *info->p;
-        info->p++;
-        *p2++ = *info->p;
-        info->p++;
-        *p2++ = *info->p;
-        info->p++;
-    }
-
-    if(isalpha(*info->p) || *info->p == '_') {
-        while(isalnum(*info->p) || *info->p == '_') {
-            if(p2 - buf < buf_size-1) {
-                *p2++ = *info->p;
-                info->p++;
-            }
-            else {
-                parser_err_msg(info, "length of word is too long");
-                return FALSE;
-            }
-        }
-    }
-
-    *p2 = 0;
-    if(no_skip_lf) {
-        skip_spaces(info);
-    }
-    else {
-        skip_spaces_and_lf(info);
-    }
-
-    if(*info->p == 0 && buf[0] == 0) {
-        if(print_out_err_msg) {
-            parser_err_msg(info, "require word(alphabet or number). this is the end of source");
-        }
-        return FALSE;
-    }
-
-    if(buf[0] == 0) {
-        if(print_out_err_msg) {
-            parser_err_msg(info, "require word(alphabet or _ or number). this is (%c)", *info->p);
-            info->err_num++;
-        }
-
-        if(*info->p == '\n') info->sline++;
-
-        info->p++;
-    }
-
-    return TRUE;
-}
 
 BOOL parse_word(char* buf, int buf_size, sParserInfo* info, BOOL print_out_err_msg, BOOL no_skip_lf)
 {
@@ -3765,19 +3702,32 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             return FALSE;
         }
     }
-    /// Head of alphabets or _ ./configure or ../configure is inside for shell mode
-    else if(isalpha(*info->p) || (*info->p == '.' && *(info->p+1) == '/') || (*info->p == '.' && *(info->p+1) == '.' && *(info->p+2) == '/') || (*info->p == '_'))
+    /// Head of alphabets or _ ./configure is inside for shell mode
+    else if(isalpha(*info->p) || (*info->p == '.' && *(info->p+1) == '/') || (*info->p == '_'))
     {
         char buf[VAR_NAME_MAX];
 
         char* p_before = info->p;
         int sline_before = info->sline;
 
-        /// name ///
-        if(!parse_word_and_slash(buf, VAR_NAME_MAX, info, TRUE, TRUE)) {
-            return FALSE;
+        if(*info->p == '.' || *(info->p+1) == '/') {
+            info->p += 2;
+            buf[0] = '.';
+            buf[1] = '/';
+
+            /// name ///
+            if(!parse_word(buf + 2, VAR_NAME_MAX -2, info, TRUE, TRUE)) {
+                return FALSE;
+            }
+            skip_spaces_and_lf(info);
         }
-        skip_spaces_and_lf(info);
+        else {
+            /// name ///
+            if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, TRUE)) {
+                return FALSE;
+            }
+            skip_spaces_and_lf(info);
+        }
 
         BOOL including_slash = strstr(buf, "/") != NULL;
         if(strcmp(buf, "if") == 0) {
@@ -4106,6 +4056,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 }
             }
             else {
+                info->sline = sline_before;
                 parser_err_msg(info, "%s is undeclared.(1)", buf);
                 info->err_num++;
             }
@@ -4161,12 +4112,15 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 *node = sNodeTree_create_assign_field(buf, node3, *node, info);
             }
             else {
+                info->sline = sline_before;
                 parser_err_msg(info, "%s is undeclared.(2)", buf);
                 info->err_num++;
             }
         }
         else {
             sCLClass* klass;
+
+            int sline_before = info->sline;
 
             if(strcmp(buf, "SELF") == 0) {
                 klass = info->klass;
@@ -4230,6 +4184,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                         num_method_chains++;
 
                         if(num_method_chains >= METHOD_CHAIN_MAX) {
+                            info->sline = sline_before;
                             parser_err_msg(info, "overflow method chain");
                             return FALSE;
                         }
@@ -4258,6 +4213,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                             }
 
                             if(right_node == 0) {
+                                info->sline = sline_before;
                                 parser_err_msg(info, "Require right value");
                                 info->err_num++;
 
@@ -4281,6 +4237,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     }
                 }
                 else {
+                    info->sline = sline_before;
                     parser_err_msg(info, "require . or ( or [ after class name");
                     info->err_num++;
                 }
@@ -4342,6 +4299,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     }
 
                     if(right_node == 0) {
+                        info->sline = sline_before;
                         parser_err_msg(info, "Require right value");
                         info->err_num++;
 
@@ -4375,6 +4333,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 num_method_chains++;
 
                 if(num_method_chains >= METHOD_CHAIN_MAX) {
+                    info->sline = sline_before;
                     parser_err_msg(info, "overflow method chain");
                     return FALSE;
                 }
@@ -4400,6 +4359,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 max_method_chains_node[num_method_chains] = *node;
                 num_method_chains++;
                 if(num_method_chains >= METHOD_CHAIN_MAX) {
+                    info->sline = sline_before;
                     parser_err_msg(info, "overflow method chain");
                     return FALSE;
                 }
@@ -4431,6 +4391,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     }
 
                     if(right_node == 0) {
+                        info->sline = sline_before;
                         parser_err_msg(info, "Require right value");
                         info->err_num++;
 
@@ -4465,6 +4426,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 max_method_chains_node[num_method_chains] = *node;
                 num_method_chains++;
                 if(num_method_chains >= METHOD_CHAIN_MAX) {
+                    info->sline = sline_before;
                     parser_err_msg(info, "overflow method chain");
                     return FALSE;
                 }
@@ -4490,6 +4452,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 max_method_chains_node[num_method_chains] = *node;
                 num_method_chains++;
                 if(num_method_chains >= METHOD_CHAIN_MAX) {
+                    info->sline = sline_before;
                     parser_err_msg(info, "overflow method chain");
                     return FALSE;
                 }
@@ -4521,6 +4484,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 num_method_chains++;
 
                 if(num_method_chains >= METHOD_CHAIN_MAX) {
+                    info->sline = sline_before;
                     parser_err_msg(info, "overflow method chain");
                     return FALSE;
                 }
@@ -4549,6 +4513,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 num_method_chains++;
 
                 if(num_method_chains >= METHOD_CHAIN_MAX) {
+                    info->sline = sline_before;
                     parser_err_msg(info, "overflow method chain");
                     return FALSE;
                 }
@@ -4578,6 +4543,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                         num_method_chains++;
 
                         if(num_method_chains >= METHOD_CHAIN_MAX) {
+                            info->sline = sline_before;
                             parser_err_msg(info, "overflow method chain");
                             return FALSE;
                         }
@@ -4608,6 +4574,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                         num_method_chains++;
 
                         if(num_method_chains >= METHOD_CHAIN_MAX) {
+                            info->sline = sline_before;
                             parser_err_msg(info, "overflow method chain");
                             return FALSE;
                         }
@@ -4624,6 +4591,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                         break;
                     }
                     else {
+                        info->sline = sline_before;
                         parser_err_msg(info, "unexpected character (%c) 1", *info->p);
                         info->p++;
                         break;
@@ -4638,6 +4606,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 *node = sNodeTree_create_load_variable(buf, info);
             }
             else {
+                info->sline = sline_before;
                 parser_err_msg(info, "%s is undeclared(3)", buf);
                 info->err_num++;
             }
