@@ -1,5 +1,5 @@
 class TestA {
-    def method() {
+    def method() throw {
         for(i:=0; i<100; i++) {
             a;
         }

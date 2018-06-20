@@ -1719,7 +1719,9 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
         }
     }
 
-    (*result_type)->mNullable = FALSE;
+    if(*result_type != NULL) {
+        (*result_type)->mNullable = FALSE;
+    }
 
     if(strcmp(type_name, "lambda") == 0) {
         if(*info->p == '[' && *(info->p+1) == ']') {
@@ -1844,7 +1846,10 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
         (*result_type)->mArray = TRUE;
     }
 
-    (*result_type)->mNumGenericsTypes = generics_num;
+
+    if(*result_type != NULL) {
+        (*result_type)->mNumGenericsTypes = generics_num;
+    }
 
     /// nullable ///
     if(*info->p == '?') {
