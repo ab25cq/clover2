@@ -113,13 +113,16 @@ void entry_exception_object(CLObject exception, sVMInfo* info)
         snprintf(info->exception_message, EXCEPTION_MESSAGE_MAX, "%s %d: %s\n", info->sname, info->sline, str);
     }
 
-    CLObject new_message = create_string_object(info->exception_message);
-
-    object_data = CLOBJECT(exception);
-    object_data->mFields[0].mObjectValue = new_message;
-
     MFREE(str);
 
+    CLObject new_message = create_string_object(info->exception_message);
+
+    CLVALUE cvalue;
+    cvalue.mObjectValue = new_message;
+    push_value_to_global_stack(cvalue);
+
     callOnException(new_message, info->try_offset != 0, info);
+
+    pop_global_stack();
 }
 

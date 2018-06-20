@@ -18,6 +18,7 @@ class TryTest {
             b:=234;
             Clover.test("Try test1-1", b == 234);
 
+            e.message.println();
             Clover.test("Try test1-2", e.message.equals("ERROR"));
         }
 
