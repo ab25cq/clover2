@@ -1,0 +1,20 @@
+class ResultTest2 {
+    def method():int {
+        if(1.to_bool) {
+            3
+        }
+        else {
+            2
+        }
+    }
+    def method2():String {
+        "AAA";
+    }
+
+    def main():static {
+        a := ResultTest2();
+
+        Clover.test("Result Test", a.method() == 3);
+        Clover.test("Result Test2", a.method2().equals("AAA"));
+    }
+}

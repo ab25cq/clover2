@@ -525,6 +525,7 @@ test: parser
 	PWD=`pwd` ./cclover2 code/MethodInternalTest.clcl
 	PWD=`pwd` ./cclover2 code/WhenTest.clcl
 	PWD=`pwd` ./cclover2 code/ResultTest.clcl
+	PWD=`pwd` ./cclover2 code/ResultTest2.clcl
 	PWD=`pwd` ./cclover2 code/NumberTest2.clcl
 	PWD=`pwd` ./cclover2 code/TypeDataTest.clcl
 	PWD=`pwd` ./cclover2 code/PatternMatchingTest.clcl
@@ -544,6 +545,7 @@ test: parser
 	PWD=`pwd` ./cclover2 code/SignalTest.clcl
 	PWD=`pwd` ./cclover2 code/HereDocument.clcl
 	PWD=`pwd` ./cclover2 code/LambdaArrayTest.clcl
+	PWD=`pwd` ./cclover2 code/OmitBlockParamTest.clcl
 
 	PWD=`pwd` ./cclover2 code/CharTest.clcl
 	if locale -a | grep ja_JP.utf8; then export LANG="ja_JP_utf8"; export LC_ALL="ja_JP.utf8"; PWD=`pwd` ./clover2 code/char.cl; else export LANG="C.UTF-8"; export LC_ALL="C.UTF-8"; PWD=`pwd` ./clover2 code/char.cl; fi
@@ -568,8 +570,8 @@ test: parser
 	PWD=`pwd` ./clover2 code/parser.cl
 	PWD=`pwd` ./clover2 code/reflection.cl
 	PWD=`pwd` ./clover2 code/MultiLineString.cl
-	PWD=`pwd` ./clover2 code/main.cl
 	PWD=`pwd` ./clover2 code/try.cl
+	PWD=`pwd` ./clover2 code/main.cl
 
 
 #	PWD=`pwd` ./clover2 code/thread.cl

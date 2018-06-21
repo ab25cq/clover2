@@ -9621,11 +9621,11 @@ BOOL compile_block_object(unsigned int node, sCompileInfo* info)
 {
     /// rename variables ///
     int num_params = gNodes[node].uValue.sBlockObject.mNumParams;
-    sParserParam* params[PARAMS_MAX];
+    sParserParam params[PARAMS_MAX];
 
     int i;
     for(i=0; i<num_params; i++) {
-        params[i] = gNodes[node].uValue.sBlockObject.mParams + i;
+        params[i] = gNodes[node].uValue.sBlockObject.mParams[i]; // copy struct for gNodes realloc
     }
 
     sNodeType* result_type = gNodes[node].uValue.sBlockObject.mResultType;
@@ -9735,8 +9735,9 @@ BOOL compile_block_object(unsigned int node, sCompileInfo* info)
         else {
             node_block_type->mResultType = result_type;
         }
+
         for(i=0; i<num_params; i++) {
-            node_block_type->mParams[i] = params[i]->mType;
+            node_block_type->mParams[i] = params[i].mType;
         }
 
         node_block_type->mLambda = lambda;

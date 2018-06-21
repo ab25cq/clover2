@@ -1,0 +1,20 @@
+
+class OmitBlockParamTest
+{
+    def method():SortableList<String> {
+        a := SortableList<String>();
+        slist { 1,2,3 }.each {
+            slist { 2,3,4 }.each { 
+                a.add(it.toString());
+            }
+        }
+
+        return a;
+    }
+
+    def main():static {
+        a := OmitBlockParamTest();
+
+        Clover.test("test", a.method().equals(slist { "2","3","4","2","3","4","2","3","4" }));
+    }
+}

@@ -188,3 +188,7 @@ println("HereDocument");
 HereDocument.main();
 println("LambdaArrayTest");
 LambdaArrayTest.main();
+println("Result Test2");
+ResultTest2.main();
+println("Omit Block Param Test");
+OmitBlockParamTest.main();

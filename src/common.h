@@ -457,7 +457,7 @@ struct sNodeBlockTypeStruct {
     sNodeType* mParams[PARAMS_MAX];
     int mNumParams;
 
-    struct sNodeTypeStruct* mResultType;
+    sNodeType* mResultType;
 
     BOOL mLambda;
 };
