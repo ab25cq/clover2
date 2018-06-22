@@ -1,4 +1,8 @@
 
+version 4.2.3
+
+    Fixed some bugs.
+
 version 4.2.2
 
     Added JIT runtime to dynamic library (libclover2.so)

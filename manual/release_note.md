@@ -1,5 +1,9 @@
 English page is here [>> English page](release_note-en)
 
+version 4.2.3
+
+    いくつかのバグを修正しました。
+
 version 4.2.2
 
     JITのランタイムをライブラリに追加しました。(libclover2.so)

@@ -1,4 +1,8 @@
 
+clover2 (4.2.3-1) unstable; urgency=medium
+
+    * Fixed some bugs.
+
 clover2 (4.2.2-1) unstable; urgency=medium
 
     * Added JIT runtime to dynamic library (libclover2.so). Turn on running JIT method on Compile Time Scripting.

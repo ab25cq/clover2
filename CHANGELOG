@@ -1,4 +1,12 @@
 
+version 4.2.3
+
+    いくつかのバグを直しました。
+
+version 4.2.3
+
+    Fixed some bugs
+
 version 4.2.2
 
     JITのランタイムをライブラリに追加しました。(libclover2.so)
