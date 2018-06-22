@@ -2505,6 +2505,11 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
         return FALSE;
     }
 
+    if(type_identify_with_class_name(info->type, "Bool")) {
+        append_opecode_to_code(info->code, OP_CBOOL_TO_INT_CAST, info->no_output);
+        info->type = create_node_type_with_class_name("bool");
+    }
+
     if(!type_identify_with_class_name(info->type, "bool")) {
         compile_err_msg(info, "This conditional type is not bool");
         info->err_num++;
@@ -2569,6 +2574,11 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
 
             if(!compile(elif_expression_node, info)) {
                 return FALSE;
+            }
+
+            if(type_identify_with_class_name(info->type, "Bool")) {
+                append_opecode_to_code(info->code, OP_CBOOL_TO_INT_CAST, info->no_output);
+                info->type = create_node_type_with_class_name("bool");
             }
 
             if(!type_identify_with_class_name(info->type, "bool")) {
