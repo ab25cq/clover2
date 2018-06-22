@@ -57,6 +57,12 @@ class TupleTest {
 
         Clover.test("tuple test9", j == 2.3 && k == 3.0);
 
+        l := ("AAA", 1);
+
+        (m,n) := l;
+
+        Clover.test("tuple test10", m.equals("AAA") && n == 1);
+
 /*
         l := new TupleData(0, 0.0);
         (l.a, l.b, k) = (1, 2.0, 2.1);

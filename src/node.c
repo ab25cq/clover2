@@ -9406,6 +9406,22 @@ static BOOL compile_multiple_asignment(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
+    sCLClass* right_value_class = right_value_type->mClass;
+
+    char* class_name = CLASS_NAME(right_value_class);
+
+    char class_name2[256];
+    snprintf(class_name2, 256, "Tuple%d", right_value_type->mNumGenericsTypes);
+
+    if(strcmp(class_name, class_name2) != 0) {
+        compile_err_msg(info, "right type is invalid. type error");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
     /// Determine type for multiple assignment varialbles or check type ///
     int i;
     for(i=0; i<num_left_elements; i++) {

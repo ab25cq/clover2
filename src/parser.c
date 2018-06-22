@@ -4795,11 +4795,6 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     return FALSE;
                 }
 
-                if(gNodes[node2].mNodeType != kNodeTypeTupleValue) {
-                    parser_err_msg(info, "require tuple value for right value of :=");
-                    info->err_num++;
-                }
-
                 /// the varialbe declaration ///
                 int i;
                 for(i=0; i<num_elements; i++) {
