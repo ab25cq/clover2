@@ -3402,6 +3402,11 @@ static BOOL compile_while_expression(unsigned int node, sCompileInfo* info)
         return FALSE;
     }
 
+    if(type_identify_with_class_name(info->type, "Bool")) {
+        append_opecode_to_code(info->code, OP_CBOOL_TO_INT_CAST, info->no_output);
+        info->type = create_node_type_with_class_name("bool");
+    }
+
     if(!type_identify_with_class_name(info->type, "bool")) {
         compile_err_msg(info, "This conditional type is not bool");
         info->err_num++;
@@ -3517,6 +3522,11 @@ static BOOL compile_for_expression(unsigned int node, sCompileInfo* info)
     append_str_to_constant_pool_and_code(info->constant, info->code, start_point_label_name, info->no_output);
     if(!compile(expression_node2, info)) {
         return FALSE;
+    }
+
+    if(type_identify_with_class_name(info->type, "Bool")) {
+        append_opecode_to_code(info->code, OP_CBOOL_TO_INT_CAST, info->no_output);
+        info->type = create_node_type_with_class_name("bool");
     }
 
     if(!type_identify_with_class_name(info->type, "bool")) {
