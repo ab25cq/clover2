@@ -1719,6 +1719,10 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
         }
     }
 
+    if(*result_type == NULL) {
+        *result_type = alloc_node_type();
+    }
+
     if(*result_type != NULL) {
         (*result_type)->mNullable = FALSE;
     }
@@ -4494,6 +4498,13 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     return FALSE;
                 }
             }
+            /// the local variable declaration for the multiple_assignments ///
+            else if(info->multiple_assignment) 
+            {
+                skip_spaces_and_lf(info);
+
+                *node = sNodeTree_create_load_variable(buf, info);
+            }
             /// shell mode ///
             else if(including_slash || (get_variable_index(info->lv_table, buf) == -1 && is_command_name(buf) && *info->p != '('))
             {
@@ -4602,13 +4613,6 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                         break;
                     }
                 }
-            }
-            /// the local variable declaration for the multiple_assignments ///
-            else if(info->multiple_assignment) 
-            {
-                skip_spaces_and_lf(info);
-
-                *node = sNodeTree_create_load_variable(buf, info);
             }
             else {
                 info->sline = sline_before;

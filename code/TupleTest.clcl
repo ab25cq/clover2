@@ -14,6 +14,30 @@ class TupleData {
 
 
 class TupleTest {
+    def getTuple(a:String, b:int): static Tuple2<String,Integer> {
+        return (a, b);
+    }
+    def getTuple2(a:String, b:int): Tuple2<String,Bool> {
+        return (a, false);
+    }
+
+    def getLineInsideScreenSize(a:String, b:bool): Tuple2<String,Bool> {
+        return ("AAA", b);
+    }
+
+    def test1() {
+        (bbb,ccc) := getTuple2("AAA", 123);
+
+        if(true) {
+            println("AAA");
+        }
+
+        Clover.test("tuple test13", bbb.equals("AAA") && !ccc);
+
+        (line, aaa) := getLineInsideScreenSize("AAA", false);
+
+        Clover.test("tuple test14", line.equals("AAA") && aaa == false);
+    }
     def main():static {
         a:Tuple2<Integer, Bool> = new Tuple2<Integer, Bool>(1.toInteger, true.toBool);
 
@@ -62,6 +86,22 @@ class TupleTest {
         (m,n) := l;
 
         Clover.test("tuple test10", m.equals("AAA") && n == 1);
+
+        (o,p) := getTuple("AAA", 123);
+
+        Clover.test("tuple test11", o.equals("AAA") && p == 123);
+
+        aaa := TupleTest();
+
+        (bbb,ccc) := aaa.getTuple2("AAA", 123);
+
+        if(true) {
+            println("AAA");
+        }
+
+        Clover.test("tuple test12", bbb.equals("AAA") && !ccc);
+
+        aaa.test1();
 
 /*
         l := new TupleData(0, 0.0);
