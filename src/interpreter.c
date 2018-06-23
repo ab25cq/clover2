@@ -653,6 +653,10 @@ static char* get_one_expression(char* source)
         }
     }
 
+    while(*head == ' ') {
+        head++;
+    }
+
     return head;
 }
 
@@ -1268,6 +1272,20 @@ static int my_complete_internal(int count, int key)
         }
     }
 
+    /// is current_directory_command_name? ///
+    BOOL current_directory_command_name = FALSE;
+
+    exp = get_one_expression(line);
+    p = exp;
+
+    while(*p == ' ') {
+        p++;
+    }
+
+    if(*p == '.' && *(p+1) == '/') {
+        current_directory_command_name = TRUE;
+    }
+
     /// Is Command line ? ///
     BOOL inputing_command_line = FALSE;
     p = exp;
@@ -1496,6 +1514,15 @@ static int my_complete_internal(int count, int key)
         rl_completion_entry_function = on_complete;
 
         file_completion_command_line(exp);
+
+        gInputingCommandPath = TRUE;
+        rl_completer_word_break_characters = "\t ";
+    }
+    /// current directory command name ///
+    else if(current_directory_command_name) {
+        rl_completion_entry_function = on_complete;
+
+        file_completion(exp);
 
         gInputingCommandPath = TRUE;
         rl_completer_word_break_characters = "\t ";
