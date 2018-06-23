@@ -1272,20 +1272,6 @@ static int my_complete_internal(int count, int key)
         }
     }
 
-    /// is current_directory_command_name? ///
-    BOOL current_directory_command_name = FALSE;
-
-    exp = get_one_expression(line);
-    p = exp;
-
-    while(*p == ' ') {
-        p++;
-    }
-
-    if(*p == '.' && *(p+1) == '/') {
-        current_directory_command_name = TRUE;
-    }
-
     /// Is Command line ? ///
     BOOL inputing_command_line = FALSE;
     p = exp;
@@ -1484,6 +1470,38 @@ static int my_complete_internal(int count, int key)
         }
         else {
             break;
+        }
+    }
+
+    /// is current_directory_command_name? ///
+    BOOL current_directory_command_name = FALSE;
+
+    exp = get_one_expression(line);
+    p = exp;
+
+    while(*p == ' ') {
+        p++;
+    }
+
+    if(*p == '.' && *(p+1) == '/') {
+        current_directory_command_name = TRUE;
+
+        while(isalnum(*p) || *p == '.' || *p == '/') {
+            p++;
+        }
+
+        if(*p == ' ' || *p == '\t' || *p == '\n') {
+            while(*p == ' ' || *p == '\t' || *p =='\n') {
+                p++;
+            }
+
+            exp = p;
+
+            current_directory_command_name = FALSE;
+            class_name_completion = FALSE;
+            inputing_command_line = FALSE;
+            current_directory_command_name = FALSE;
+            expression_is_void = FALSE;
         }
     }
 
