@@ -17,16 +17,16 @@ while(true) {
     }
 
     when(result.value1.getValue().to_char) {
-        case 'a': {
+        case('a') {
             println("option a --add");
         }
-        case 'b': {
+        case('b') {
             println("option b --break");
         }
-        case 'c': {
+        case('c') {
             println("option c --clear \{result.value2}");
         }
-        case 'd': {
+        case('d') {
             println("option d --delete \{result.value2}");
         }
     }

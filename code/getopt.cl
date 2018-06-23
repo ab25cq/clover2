@@ -10,13 +10,13 @@ while(true) {
     }
 
     when(result.value1.getValue().to_char) {
-        case 'a': {
+        case ('a') {
             println("option a");
         }
-        case 'b': {
+        case ('b') {
             println("option b");
         }
-        case 'c': {
+        case ('c') {
             println("option c \{result.value2}");
         }
     }

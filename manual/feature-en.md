@@ -1082,10 +1082,10 @@ There is also a return value for when.
 ```
     > vim a.cl
     a:int = when("ABC") {
-       case "ABC": {
+       case ("ABC") {
            1;
        }
-       case "DEF", "GHI": {
+       case ("DEF", "GHI") {
            2;
        }
        else {
@@ -1254,7 +1254,7 @@ There is also pattern matching. Use it as follows.
     e := new Array<String>();
 
     f := when(e.className()) {
-        match /.+<String>/: {
+        match (/.+<String>/) {
             123;
         }
         else {

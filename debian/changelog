@@ -1,4 +1,8 @@
 
+clover2 (4.2.4-1) unstable; urgency=medium
+
+    * Chaged when expression.
+
 clover2 (4.2.3-1) unstable; urgency=medium
 
     * Fixed some bugs.

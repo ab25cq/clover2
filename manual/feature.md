@@ -1042,13 +1042,13 @@ setterとgetterがフィールドを定義すると自動的に定義される�
 
     a := 123;
     when(a) {
-       case 1: {
+       case (1) {
            println("1");
        }
-       case 2,3: {
+       case (2,3) {
            println("2,3");
        }
-       case 123: {
+       case (123) {
            prinntln("123");
        }
        else {
@@ -1058,10 +1058,10 @@ setterとgetterがフィールドを定義すると自動的に定義される�
 
     a := "ABC";
     when(a) {
-       case "ABC": {
+       case ("ABC") {
            println("ABC");
        }
-       case "DEF","GHI": {
+       case ("DEF","GHI") {
            println("DEF or GHI");
        }
        else {
@@ -1075,10 +1075,10 @@ whenには戻り値もあります。
 
     > vim a.cl
     a:int = when("ABC") {
-       case "ABC": {
+       case ("ABC") {
            1;
        }
-       case "DEF","GHI": {
+       case ("DEF","GHI") {
            2;
        }
        else {
@@ -1093,10 +1093,10 @@ whenの戻り値の方が違う場合Anonymous型が返されます。castして
 
     > vim a.cl
     a := when("ABC") {
-       case "ABC": {
+       case ("ABC") {
            1;
        }
-       case "DEF","GHI": {
+       case ("DEF","GHI") {
            "ABC
        }
        else {
@@ -1199,7 +1199,7 @@ wildcardは以下のように使います。wildcardはどんな値にもマッ�
      e:Anonymous = new PatternMatchingTest(111, "ABC");
 
      f:String = when(e) {
-         case new PatternMatchingTest(111, "ABC"): {
+         case (new PatternMatchingTest(111, "ABC")) {
               "ABC";
          }
          else {
@@ -1212,10 +1212,10 @@ wildcardは以下のように使います。wildcardはどんな値にもマッ�
      g:Anonymous = new PatternMatchingTest(222, "DEF");
 
      f = when(g) {
-         case new PatternMatchingTest(111, "DEF"): {
+         case (new PatternMatchingTest(111, "DEF")) {
              "ABC"
          }
-         case new PatternMatchingTest(222, wildcard): {
+         case (new PatternMatchingTest(222, wildcard)) {
              "DEF";
          }
          else {
@@ -1228,7 +1228,7 @@ wildcardは以下のように使います。wildcardはどんな値にもマッ�
       i:Anonymous = new PatternMatchingTest2(123, "ABC");
 
       j:String = when(i) {
-           case new PatternMatchingTest2(wildcard, wildcard): {
+           case (new PatternMatchingTest2(wildcard, wildcard)) {
                 "ABC";
            }
            else {
@@ -1246,7 +1246,7 @@ wildcardは以下のように使います。wildcardはどんな値にもマッ�
     e := new Array<String>();
 
     f := when(e.className()) {
-        match /.+<String>/: {
+        match (/.+<String>/) {
             123;
         }
         else {

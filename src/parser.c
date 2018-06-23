@@ -1179,7 +1179,7 @@ static BOOL when_expression(unsigned int* node, sParserInfo* info)
 {
     expect_next_character_with_one_forward("(", info);
 
-    /// 式１ ///
+    /// expression1 ///
     unsigned int expression_node = 0;
     if(!expression(&expression_node, info)) {
         return FALSE;
@@ -1208,7 +1208,7 @@ static BOOL when_expression(unsigned int* node, sParserInfo* info)
     memset(when_types2, 0, sizeof(sNodeType*)*WHEN_BLOCK_MAX);
     memset(when_match, 0, sizeof(BOOL*)*WHEN_BLOCK_MAX);
 
-    /// 値 ///
+    /// value1 ///
     while(1) {
         if(*info->p == '}') {
             info->p++;
@@ -1298,6 +1298,8 @@ static BOOL when_expression(unsigned int* node, sParserInfo* info)
             info->p+=5;
             skip_spaces_and_lf(info);
 
+            expect_next_character_with_one_forward("(", info);
+
             int num_value = 0;
 
             while(1) {
@@ -1331,7 +1333,7 @@ static BOOL when_expression(unsigned int* node, sParserInfo* info)
                     info->p++;
                     skip_spaces_and_lf(info);
                 }
-                else if(*info->p == ':') {
+                else if(*info->p == ')') {
                     info->p++;
                     skip_spaces_and_lf(info);
                     break;
@@ -1358,6 +1360,8 @@ static BOOL when_expression(unsigned int* node, sParserInfo* info)
             info->p+=4;
             skip_spaces_and_lf(info);
 
+            expect_next_character_with_one_forward("(", info);
+
             int num_value = 0;
 
             while(1) {
@@ -1391,7 +1395,7 @@ static BOOL when_expression(unsigned int* node, sParserInfo* info)
                     info->p++;
                     skip_spaces_and_lf(info);
                 }
-                else if(*info->p == ':') {
+                else if(*info->p == ')') {
                     info->p++;
                     skip_spaces_and_lf(info);
                     break;

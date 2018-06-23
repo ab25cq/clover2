@@ -263,19 +263,19 @@ class CLParser
                     p++;
 
                     when(p->byte.to_char) {
-                        case 'n': {
+                        case('n') {
                             p++;
                             str.append("\n");
                         }
-                        case 'r': {
+                        case('r') {
                             p++;
                             str.append("\r");
                         }
-                        case '0': {
+                        case('0') {
                             p++;
                             str.append("\0");
                         }
-                        case '{': {
+                        case('{') {
                             expression();
 
                             if(p->byte == '}') {
@@ -285,15 +285,15 @@ class CLParser
                                 throw new Exception("require }");
                             }
                         }
-                        case 't': {
+                        case('t') {
                             p++;
                             str.append("\t");
                         }
-                        case 'a': {
+                        case('a') {
                             p++;
                             str.append("\a");
                         }
-                        case '\\': {
+                        case('\\') {
                             p++;
                             str.append("\\");
                         }
