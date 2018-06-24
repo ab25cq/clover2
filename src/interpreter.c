@@ -1476,26 +1476,26 @@ static int my_complete_internal(int count, int key)
     /// is current_directory_command_name? ///
     BOOL current_directory_command_name = FALSE;
 
-    exp = get_one_expression(line);
-    p = exp;
+    //exp = get_one_expression(line);
+    char* p2 = exp;
 
-    while(*p == ' ') {
-        p++;
+    while(*p2 == ' ') {
+        p2++;
     }
 
-    if(*p == '.' && *(p+1) == '/') {
+    if(*p2 == '.' && *(p2+1) == '/') {
         current_directory_command_name = TRUE;
 
-        while(isalnum(*p) || *p == '.' || *p == '/') {
-            p++;
+        while(isalnum(*p2) || *p2 == '.' || *p2 == '/') {
+            p2++;
         }
 
-        if(*p == ' ' || *p == '\t' || *p == '\n') {
-            while(*p == ' ' || *p == '\t' || *p =='\n') {
-                p++;
+        if(*p2 == ' ' || *p2 == '\t' || *p2 == '\n') {
+            while(*p2 == ' ' || *p2 == '\t' || *p2 =='\n') {
+                p2++;
             }
 
-            exp = p;
+            exp = p2;
 
             current_directory_command_name = FALSE;
             class_name_completion = FALSE;

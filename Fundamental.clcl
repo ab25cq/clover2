@@ -124,6 +124,12 @@ class String
         return self.len;
     }
 
+    def add(str:String): String {
+        result := self.clone();
+        result.append(str);
+        return result;
+    }
+
     def append(str: String):  String {
         len:int = str.length();
 

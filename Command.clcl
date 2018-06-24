@@ -365,7 +365,7 @@ dynamic_class Command
     controllingTerminalPrograms: static EqualableList<String>;
 
     def initialize() : static {
-        Command.controllingTerminalPrograms = equalable_list { "git", "man", "make", "ls", "bash", "zsh", "yash", "vim", "less", "top", "htop", "lv", "htop", "emacs", "nano", "vi", "fd", "mc", "./configure" };
+        Command.controllingTerminalPrograms = equalable_list { "git", "man", "make", "ls", "bash", "zsh", "yash", "vim", "less", "top", "htop", "lv", "htop", "emacs", "nano", "vi", "fd", "mc", "./configure", "grep", "fgrep", "egrep" };
     }
 
     def initialize() {
@@ -397,156 +397,93 @@ dynamic_class Command
         self.resultCode = value.resultCode;
     }
 
+    def flatternParams(params:Array<Object>):static List<String> {
+        params2 := List<String>();
+
+        params.each {
+            if(it.className().equals("String")) {
+                params2.add(it.toAnonymous().cast("String"));
+            }
+            elif(it.className().match(/^List</)) {
+                list_:List<Anonymous> = it.toAnonymous();
+
+                list_.each {
+                    if(it.className().equals("String")) {
+                        params2.add(it.toAnonymous().cast("String"));
+                    }
+                }
+            }
+            elif(it.className().match(/^EqualableList</)) {
+                list_:EqualableList<Anonymous> = it.toAnonymous();
+
+                list_.each {
+                    if(it.className().equals("String")) {
+                        params2.add(it.toAnonymous().cast("String"));
+                    }
+                }
+            }
+            elif(it.className().match(/^SortableList</)) {
+                list_:SortableList<Anonymous> = it.toAnonymous();
+
+                list_.each {
+                    if(it.className().equals("String")) {
+                        params2.add(it.toAnonymous().cast("String"));
+                    }
+                }
+            }
+            elif(it.className().match(/^Array</)) {
+                array_:Array<Anonymous> = it.toAnonymous();
+
+                array_.each {
+                    if(it.className().equals("String")) {
+                        params2.add(it.toAnonymous().cast("String"));
+                    }
+                }
+            }
+            elif(it.className().match(/^EqualableArray</)) {
+                array_:EqualableArray<Anonymous> = it.toAnonymous();
+
+                array_.each {
+                    if(it.className().equals("String")) {
+                        params2.add(it.toAnonymous().cast("String"));
+                    }
+                }
+            }
+            elif(it.className().match(/^SortableArray</)) {
+                array_:SortableArray<Anonymous> = it.toAnonymous();
+
+                array_.each {
+                    if(it.className().equals("String")) {
+                        params2.add(it.toAnonymous().cast("String"));
+                    }
+                }
+            }
+        }
+
+        return params2;
+    }
+
     def callingMethod(method_name:String, params:Array<Object>, num_method_chains:int, max_method_chains:int) : static Command throws Exception 
     {
-        params2 := List<String>();
         controlling_terminal_flag := false;
         no_controlling_terminal_flag := false;
         getting_stderr_flag := false;
         
-        params.each(closure(item:Object) {
-            if(item.className().equals("String")) {
-                str:String = item.toAnonymous();
-                if(str.equals("--controlling-terminal")) {
-                    controlling_terminal_flag = true;
-                }
-                elif(str.equals("--no-controlling-terminal")) {
-                    no_controlling_terminal_flag = true;
-                }
-                elif(str.equals("--getting-stderr")) {
-                    getting_stderr_flag = true;
-                }
-                else {
-                    params2.add(str);
-                }
-            }
-            elif(item.className().equals("List")) {
-                list_:List<Object> = item.toAnonymous();
+        params2 := flatternParams(params);
 
-                list_.each(closure(item2:Object) {
-                    if(item2.className().equals("String")) {
-                        str:String = item2.toAnonymous();
-                        if(str.equals("--controlling-terminal")) {
-                            controlling_terminal_flag = true;
-                        }
-                        elif(str.equals("--no-controlling-terminal")) {
-                            no_controlling_terminal_flag = true;
-                        }
-                        elif(str.equals("--getting-stderr")) {
-                            getting_stderr_flag = true;
-                        }
-                        else {
-                            params2.add(str);
-                        }
-                    }
-                });
+        params2.each {
+            if(it.equals("--controlling-terminal")) {
+                controlling_terminal_flag = true;
             }
-            elif(item.className().equals("EqualableList")) {
-                list_:EqualableList<IEqualable> = item.toAnonymous();
+            elif(it.equals("--no-controlling-terminal")) {
+                no_controlling_terminal_flag = true;
+            }
+            elif(it.equals("--getting-stderr")) {
+                getting_stderr_flag = true;
+            }
+        }
 
-                list_.each(closure(item2:IEqualable) {
-                    if(item2.className().equals("String")) {
-                        str:String = item2.toAnonymous();
-                        if(str.equals("--controlling-terminal")) {
-                            controlling_terminal_flag = true;
-                        }
-                        elif(str.equals("--no-controlling-terminal")) {
-                            no_controlling_terminal_flag = true;
-                        }
-                        elif(str.equals("--getting-stderr")) {
-                            getting_stderr_flag = true;
-                        }
-                        else {
-                            params2.add(str);
-                        }
-                    }
-                });
-            }
-            elif(item.className().equals("SortableList<String>")) {
-                list_:SortableList<ISortable> = item.toAnonymous();
-
-                list_.each(closure(item2:ISortable) {
-                    if(item2.className().equals("String")) {
-                        str:String = item2.toAnonymous();
-                        if(str.equals("--controlling-terminal")) {
-                            controlling_terminal_flag = true;
-                        }
-                        elif(str.equals("--no-controlling-terminal")) {
-                            no_controlling_terminal_flag = true;
-                        }
-                        elif(str.equals("--getting-stderr")) {
-                            getting_stderr_flag = true;
-                        }
-                        else {
-                            params2.add(str);
-                        }
-                    }
-                });
-            }
-            elif(item.className().equals("Array")) {
-                array_:Array<Object> = item.toAnonymous();
-
-                array_.each(closure(item2:Object) {
-                    if(item2.className().equals("String")) {
-                        str:String = item2.toAnonymous();
-                        if(str.equals("--controlling-terminal")) {
-                            controlling_terminal_flag = true;
-                        }
-                        elif(str.equals("--no-controlling-terminal")) {
-                            no_controlling_terminal_flag = true;
-                        }
-                        elif(str.equals("--getting-stderr")) {
-                            getting_stderr_flag = true;
-                        }
-                        else {
-                            params2.add(str);
-                        }
-                    }
-                });
-            }
-            elif(item.className().equals("EqualableArray")) {
-                array_:EqualableArray<IEqualable> = item.toAnonymous();
-
-                array_.each(closure(item2:IEqualable) {
-                    if(item2.className().equals("String")) {
-                        str:String = item2.toAnonymous();
-                        if(str.equals("--controlling-terminal")) {
-                            controlling_terminal_flag = true;
-                        }
-                        elif(str.equals("--no-controlling-terminal")) {
-                            no_controlling_terminal_flag = true;
-                        }
-                        elif(str.equals("--getting-stderr")) {
-                            getting_stderr_flag = true;
-                        }
-                        else {
-                            params2.add(str);
-                        }
-                    }
-                });
-            }
-            elif(item.className().equals("SortableArray")) {
-                array_:SortableArray<ISortable> = item.toAnonymous();
-
-                array_.each(closure(item2:ISortable) {
-                    if(item2.className().equals("String")) {
-                        str:String = item2.toAnonymous();
-                        if(str.equals("--controlling-terminal")) {
-                            controlling_terminal_flag = true;
-                        }
-                        elif(str.equals("--no-controlling-terminal")) {
-                            no_controlling_terminal_flag = true;
-                        }
-                        elif(str.equals("--getting-stderr")) {
-                            getting_stderr_flag = true;
-                        }
-                        else {
-                            params2.add(str);
-                        }
-                    }
-                });
-            }
-        });
+        params2 = params2.select { !it.equals("--controlling-terminal") && !it.equals("--no-controlling-terminal") && !it.equals("--getting-stderr"); }
 
         if(getting_stderr_flag) {
             str:String? = null;
@@ -564,154 +501,11 @@ dynamic_class Command
 
     def callingMethod(method_name:String, params:Array<Object>, num_method_chains:int, max_method_chains:int) : Command throws Exception 
     {
-        params2 := List<String>();
         controlling_terminal_flag := false;
         no_controlling_terminal_flag := false;
         getting_stderr_flag := false;
         
-        params.each(closure(item:Object) {
-            if(item.className().equals("String")) {
-                str:String = item.toAnonymous();
-                if(str.equals("--controlling-terminal")) {
-                    controlling_terminal_flag = true;
-                }
-                elif(str.equals("--getting-stderr")) {
-                    getting_stderr_flag = true;
-                }
-                elif(str.equals("--no-controlling-terminal")) {
-                    no_controlling_terminal_flag = true;
-                }
-                else {
-                    params2.add(str);
-                }
-            }
-            elif(item.className().equals("List")) {
-                list_:List<Object> = item.toAnonymous();
-
-                list_.each(closure(item2:Object) {
-                    if(item2.className().equals("String")) {
-                        str:String = item2.toAnonymous();
-                        if(str.equals("--controlling-terminal")) {
-                            controlling_terminal_flag = true;
-                        }
-                        elif(str.equals("--getting-stderr")) {
-                            getting_stderr_flag = true;
-                        }
-                        elif(str.equals("--no-controlling-terminal")) {
-                            no_controlling_terminal_flag = true;
-                        }
-                        else {
-                            params2.add(str);
-                        }
-                    }
-                });
-            }
-            elif(item.className().equals("EqualableList")) {
-                list_:EqualableList<IEqualable> = item.toAnonymous();
-
-                list_.each(closure(item2:IEqualable) {
-                    if(item2.className().equals("String")) {
-                        str:String = item2.toAnonymous();
-                        if(str.equals("--controlling-terminal")) {
-                            controlling_terminal_flag = true;
-                        }
-                        elif(str.equals("--no-controlling-terminal")) {
-                            no_controlling_terminal_flag = true;
-                        }
-                        elif(str.equals("--getting-stderr")) {
-                            getting_stderr_flag = true;
-                        }
-                        else {
-                            params2.add(str);
-                        }
-                    }
-                });
-            }
-            elif(item.className().equals("SortableList<String>")) {
-                list_:SortableList<ISortable> = item.toAnonymous();
-
-                list_.each(closure(item2:ISortable) {
-                    if(item2.className().equals("String")) {
-                        str:String = item2.toAnonymous();
-                        if(str.equals("--controlling-terminal")) {
-                            controlling_terminal_flag = true;
-                        }
-                        elif(str.equals("--no-controlling-terminal")) {
-                            no_controlling_terminal_flag = true;
-                        }
-                        elif(str.equals("--getting-stderr")) {
-                            getting_stderr_flag = true;
-                        }
-                        else {
-                            params2.add(str);
-                        }
-                    }
-                });
-            }
-            elif(item.className().equals("Array")) {
-                array_:Array<Object> = item.toAnonymous();
-
-                array_.each(closure(item2:Object) {
-                    if(item2.className().equals("String")) {
-                        str:String = item2.toAnonymous();
-                        if(str.equals("--controlling-terminal")) {
-                            controlling_terminal_flag = true;
-                        }
-                        elif(str.equals("--no-controlling-terminal")) {
-                            no_controlling_terminal_flag = true;
-                        }
-                        elif(str.equals("--getting-stderr")) {
-                            getting_stderr_flag = true;
-                        }
-                        else {
-                            params2.add(str);
-                        }
-                    }
-                });
-            }
-            elif(item.className().equals("EqualableArray")) {
-                array_:EqualableArray<IEqualable> = item.toAnonymous();
-
-                array_.each(closure(item2:IEqualable) {
-                    if(item2.className().equals("String")) {
-                        str:String = item2.toAnonymous();
-                        if(str.equals("--controlling-terminal")) {
-                            controlling_terminal_flag = true;
-                        }
-                        elif(str.equals("--no-controlling-terminal")) {
-                            no_controlling_terminal_flag = true;
-                        }
-                        elif(str.equals("--getting-stderr")) {
-                            getting_stderr_flag = true;
-                        }
-                        else {
-                            params2.add(str);
-                        }
-                    }
-                });
-            }
-            elif(item.className().equals("SortableArray")) {
-                array_:SortableArray<ISortable> = item.toAnonymous();
-
-                array_.each(closure(item2:ISortable) {
-                    if(item2.className().equals("String")) {
-                        str:String = item2.toAnonymous();
-                        if(str.equals("--controlling-terminal")) {
-                            controlling_terminal_flag = true;
-                        }
-                        elif(str.equals("--no-controlling-terminal")) {
-                            no_controlling_terminal_flag = true;
-                        }
-                        elif(str.equals("--getting-stderr")) {
-                            getting_stderr_flag = true;
-                        }
-                        else {
-                            params2.add(str);
-                        }
-                    }
-                });
-            }
-        });
+        params2 := flatternParams(params);
 
         if(getting_stderr_flag) {
             return Command.executeCommandWithGettingStderr(method_name, params2, self.data);
@@ -813,12 +607,23 @@ dynamic_class Command
         if(Directory.isGlobString(arg)) {
             dir:String = dirname(arg);
             if(dir.equals(".")) {
-                pattern:String = arg;
-                return Directory.glob(dir, pattern, 0);
+                pattern := "";
+                if(arg.subString(0, 2).equals("./")) {
+                    pattern = arg.subString(2, -1);
+                }
+                else {
+                    pattern = arg;
+                }
+
+                return Directory.glob(dir, pattern, 0).map { it.subString(2,-1); }.select { !it.equals(".") && !it.equals("..") };
+            }
+            elif(dir.equals("/")) {
+                pattern:String = arg.subString(1, -1);
+                return Directory.glob(dir, pattern, 0).select { !it.equals("/.") && !it.equals("/.."); }
             }
             else {
                 pattern:String = arg.subString(dir.length()+1, -1);
-                return Directory.glob(dir, pattern, 0);
+                return Directory.glob(dir, pattern, 0).select { !it.equals(dir.add("/.")) && !it.equals(dir.add("/..")) };
             }
         }
         else {

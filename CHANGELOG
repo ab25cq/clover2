@@ -1,4 +1,12 @@
 
+version 4.2.5
+
+    Commandクラスのバグを修正。
+
+version 4.2.5
+    
+    Fixed bug of Command Class.
+
 version 4.2.4
 
     whenの仕様が変わってます
