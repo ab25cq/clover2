@@ -2065,8 +2065,31 @@ static BOOL inputing_block_or_paren()
     int block_nest = 0;
     int paren_nest = 0;
 
+    BOOL squort = FALSE;
+    BOOL dquort = FALSE;
+
     while(*p) {
-        if(*p == '{') {
+        if(*p == '\'') {
+            p++;
+
+            squort = !squort;
+        }
+        else if(*p == '"') {
+            p++;
+
+            dquort = !dquort;
+        }
+        else if(*p == '\\') {
+            p++;
+
+            if(*p) {
+                p++;
+            }
+        }
+        else if(dquort || squort) {
+            p++;
+        }
+        else if(*p == '{') {
             p++;
 
             block_nest++;
