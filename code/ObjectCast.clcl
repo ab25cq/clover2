@@ -1,0 +1,75 @@
+class ObjectCast {
+    def main():static {
+        a:Object = slist { "AAA", "BBB", "CCC" };
+
+        b:SortableList<String> = a.toAnonymous().cast("SortableList<String>");
+
+        Clover.test("Object cast test", b.equals(slist { "AAA", "BBB", "CCC" }));
+
+        params:Array<Object> = array { slist { "AAA", "BBB", "CCC"}, "AAA" };
+
+        params2 := EqualableList<String>();
+
+        params.each {
+            if(it.className().equals("String")) {
+                params2.add(it.toAnonymous().cast("String"));
+            }
+            elif(it.className().match(/^List</)) {
+                list_:List<Anonymous> = it.toAnonymous();
+
+                list_.each {
+                    if(it.className().equals("String")) {
+                        params2.add(it.toAnonymous().cast("String"));
+                    }
+                }
+            }
+            elif(it.className().match(/^EqualableList</)) {
+                list_:EqualableList<Anonymous> = it.toAnonymous();
+
+                list_.each {
+                    if(it.className().equals("String")) {
+                        params2.add(it.toAnonymous().cast("String"));
+                    }
+                }
+            }
+            elif(it.className().match(/^SortableList</)) {
+                list_:SortableList<Anonymous> = it.toAnonymous();
+
+                list_.each {
+                    if(it.className().equals("String")) {
+                        params2.add(it.toAnonymous().cast("String"));
+                    }
+                }
+            }
+            elif(it.className().match(/^Array</)) {
+                array_:Array<Anonymous> = it.toAnonymous();
+
+                array_.each {
+                    if(it.className().equals("String")) {
+                        params2.add(it.toAnonymous().cast("String"));
+                    }
+                }
+            }
+            elif(it.className().match(/^EqualableArray</)) {
+                array_:EqualableArray<Anonymous> = it.toAnonymous();
+
+                array_.each {
+                    if(it.className().equals("String")) {
+                        params2.add(it.toAnonymous().cast("String"));
+                    }
+                }
+            }
+            elif(it.className().match(/^SortableArray</)) {
+                array_:SortableArray<Anonymous> = it.toAnonymous();
+
+                array_.each {
+                    if(it.className().equals("String")) {
+                        params2.add(it.toAnonymous().cast("String"));
+                    }
+                }
+            }
+        }
+
+        Clover.test("Object cast test", params2.equals(elist { "AAA", "BBB", "CCC", "AAA" }));
+    }
+}

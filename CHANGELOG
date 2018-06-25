@@ -3,9 +3,13 @@ version 4.2.5
 
     Commandクラスのバグを修正。
 
+    JITのバグを修正。
+
 version 4.2.5
     
     Fixed bug of Command Class.
+
+    Fixed bug of JIT
 
 version 4.2.4
 

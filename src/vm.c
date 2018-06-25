@@ -601,6 +601,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
     }
     else {
         int real_param_num = method->mNumParams + (method->mFlags & METHOD_FLAGS_CLASS_METHOD ? 0:1);
+
         CLVALUE* lvar = *stack_ptr - real_param_num;
 
         sByteCode code;

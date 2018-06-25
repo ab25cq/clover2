@@ -172,6 +172,11 @@ extern sCLStack* gHeadStack;
 extern CLVALUE* gGlobalStack;
 extern CLVALUE* gGlobalStackPtr;
 
+void is_ok_stack_list();
+void is_ok_stack_list2();
+void is_ok_stack_list3();
+void is_ok_stack_list5();
+
 /// klass.c ///
 #define CLASS_FLAGS_PRIMITIVE 0x01
 #define CLASS_FLAGS_INTERFACE 0x02

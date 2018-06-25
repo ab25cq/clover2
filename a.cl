@@ -1,1 +1,2 @@
-"List<".match(/^List</).toString().println();
+ls(Directory.glob("*"))
+

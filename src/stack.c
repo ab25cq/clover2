@@ -73,6 +73,42 @@ void stack_final()
     MFREE(gGlobalStack);
 }
 
+void is_ok_stack_list()
+{
+    sCLStack* it = gHeadStack;
+
+    while(it) {
+        it = it->mNextStack;
+    }
+}
+
+void is_ok_stack_list2()
+{
+    sCLStack* it = gHeadStack;
+
+    while(it) {
+        it = it->mNextStack;
+    }
+}
+
+void is_ok_stack_list3()
+{
+    sCLStack* it = gHeadStack;
+
+    while(it) {
+        it = it->mNextStack;
+    }
+}
+
+void is_ok_stack_list5()
+{
+    sCLStack* it = gHeadStack;
+
+    while(it) {
+        it = it->mNextStack;
+    }
+}
+
 sCLStack* append_stack_to_stack_list(CLVALUE* stack_mem, CLVALUE** stack_ptr)
 {
     sCLStack* stack = MCALLOC(1, sizeof(sCLStack));

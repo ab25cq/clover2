@@ -468,7 +468,7 @@ dynamic_class Command
         controlling_terminal_flag := false;
         no_controlling_terminal_flag := false;
         getting_stderr_flag := false;
-        
+
         params2 := flatternParams(params);
 
         params2.each {
@@ -506,6 +506,20 @@ dynamic_class Command
         getting_stderr_flag := false;
         
         params2 := flatternParams(params);
+
+        params2.each {
+            if(it.equals("--controlling-terminal")) {
+                controlling_terminal_flag = true;
+            }
+            elif(it.equals("--no-controlling-terminal")) {
+                no_controlling_terminal_flag = true;
+            }
+            elif(it.equals("--getting-stderr")) {
+                getting_stderr_flag = true;
+            }
+        }
+
+        params2 = params2.select { !it.equals("--controlling-terminal") && !it.equals("--no-controlling-terminal") && !it.equals("--getting-stderr"); }
 
         if(getting_stderr_flag) {
             return Command.executeCommandWithGettingStderr(method_name, params2, self.data);
@@ -627,7 +641,7 @@ dynamic_class Command
             }
         }
         else {
-            return sortable_list { arg };
+            return slist { arg };
         }
     }
 

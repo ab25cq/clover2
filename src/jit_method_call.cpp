@@ -388,7 +388,7 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
             (void)Builder.CreateCall(fun2, params3);
 
             /// delete result from vm stack ///
-            inc_vm_stack_ptr(params, *current_block, -1);
+            inc_vm_stack_ptr(params, *current_block, -num_params-1-1);
             }
             break;
 
