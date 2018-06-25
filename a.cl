@@ -1,2 +1,1 @@
-ls(Directory.glob("*"))
-
+ls -al | less

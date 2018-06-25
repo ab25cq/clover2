@@ -1,4 +1,8 @@
 
+clover2 (4.2.5-1) unstable; urgency=medium
+
+    * Fixed bug of Command Class. Fixed bug of JIT. Fixed bug of Shell mode.
+
 clover2 (4.2.4-1) unstable; urgency=medium
 
     * Chaged when expression.

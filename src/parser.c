@@ -460,7 +460,7 @@ static BOOL parse_method_params(int* num_params, unsigned int* params, sParserIn
     return TRUE;
 }
 
-static BOOL parse_command_method_params(int* num_params, unsigned int* params, sParserInfo* info)
+static BOOL parse_command_method_params(int* num_params, unsigned int* params, sParserInfo* info, BOOL class_method, char* method_name)
 {
     *num_params = 0;
 
@@ -575,6 +575,33 @@ static BOOL parse_command_method_params(int* num_params, unsigned int* params, s
                 || *info->p == '|' || *info->p == '&') 
             {
                 break;
+            }
+        }
+    }
+
+    if(class_method) {
+        sCLClass* command_class = get_class("Command");
+
+        if(!class_method_name_existance(command_class, method_name)) {
+            params[*num_params] = sNodeTree_create_string_value(MANAGED MSTRDUP("--controlling-terminal"), NULL, NULL, 0, info);
+            (*num_params)++;
+
+            if(*num_params >= PARAMS_MAX) {
+                parser_err_msg(info, "overflow parametor number for method call");
+                return FALSE;
+            }
+        }
+    }
+    else {
+        sCLClass* command_class = get_class("Command");
+
+        if(!none_class_method_name_existance(command_class, method_name)) {
+            params[*num_params] = sNodeTree_create_string_value(MANAGED MSTRDUP("--controlling-terminal"), NULL, NULL, 0, info);
+            (*num_params)++;
+
+            if(*num_params >= PARAMS_MAX) {
+                parser_err_msg(info, "overflow parametor number for method call");
+                return FALSE;
             }
         }
     }
@@ -4515,7 +4542,9 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 unsigned int params[PARAMS_MAX];
                 int num_params = 0;
 
-                if(!parse_command_method_params(&num_params, params, info)) {
+                char* method_name = buf;
+
+                if(!parse_command_method_params(&num_params, params, info, TRUE, method_name)) {
                     return FALSE;
                 }
 
@@ -4553,7 +4582,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                         unsigned int params[PARAMS_MAX];
                         int num_params = 0;
 
-                        if(!parse_command_method_params(&num_params, params, info)) {
+                        if(!parse_command_method_params(&num_params, params, info, FALSE, method_name)) {
                             return FALSE;
                         }
 

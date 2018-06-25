@@ -1,5 +1,13 @@
 English page is here [>> English page](release_note-en)
 
+version 4.2.5
+
+    Commandクラスのバグを修正。
+
+    JITのバグを修正。
+
+    シェルモードのバグを修正。
+
 version 4.2.4
 
     whenの仕様が変わってます

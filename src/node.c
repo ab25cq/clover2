@@ -3782,11 +3782,12 @@ unsigned int sNodeTree_create_class_method_call(sNodeType* klass, char* method_n
     gNodes[node].uValue.sClassMethodCall.mClass = klass;
     xstrncpy(gNodes[node].uValue.sClassMethodCall.mMethodName, method_name, METHOD_NAME_MAX);
     gNodes[node].uValue.sClassMethodCall.mNumParams = num_params;
+
     int i;
     for(i=0; i<num_params; i++) {
         gNodes[node].uValue.sClassMethodCall.mParams[i] = params[i];
     }
-
+    
     gNodes[node].mNodeType = kNodeTypeClassMethodCall;
 
     gNodes[node].mSName = info->sname;
@@ -4029,7 +4030,7 @@ static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)
     int num_params = gNodes[node].uValue.sClassMethodCall.mNumParams;
     char method_name[METHOD_NAME_MAX];
     xstrncpy(method_name, gNodes[node].uValue.sClassMethodCall.mMethodName, METHOD_NAME_MAX);
-
+    
     sNodeType* generics_types;
     if(info->pinfo->klass && klass == info->pinfo->klass) {
         generics_types = get_generics_type_of_inner_class(info->pinfo);

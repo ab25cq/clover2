@@ -1,4 +1,12 @@
 
+version 4.2.5
+    
+    Fixed bug of Command Class.
+
+    Fixed bug of JIT
+
+    Fixed bug of Shell mode.
+
 version 4.2.4
 
     changed when expression
