@@ -35,8 +35,8 @@ class HashTest {
 
         Clover.test("hash test10", hash.equals(hash { "DEF":2, "ABC":1 }));
 
-        hash2:Hash<String, Integer> = ["ABC":1, "BBB":2];
+        hash2:Hash<String, Integer> = ["ABC"=>1, "BBB"=>2];
 
-        Clover.test("hash test11", hash2.equals(["ABC":1, "BBB":2]));
+        Clover.test("hash test11", hash2.equals(["ABC"=>1, "BBB"=>2]));
     }
 }

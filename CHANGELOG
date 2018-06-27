@@ -1,4 +1,12 @@
 
+version 4.2.6
+
+    Hashクラスの値の簡易表記が変わりました。a:Hash<String, Integer> = ["AAA"=>2, "BBB"=>3].
+
+version 4.2.6
+
+    The simplified representation of the value of the Hash class has changed. a:Hash<String, Integer> = ["AAA"=>2, "BBB"=>3].
+
 version 4.2.5
 
     Commandクラスのバグを修正。
@@ -14,6 +22,8 @@ version 4.2.5
     Fixed bug of JIT
 
     Fixed bug of Shell mode.
+
+    Hashクラスの値の簡易表記が変わりました。a:Hash<String, Integer> = ["AAA"=>2, "BBB"=>3].
 
 version 4.2.4
 

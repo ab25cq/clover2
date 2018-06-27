@@ -2678,8 +2678,8 @@ static BOOL parse_array_value_or_hash_value(unsigned int* node, sParserInfo* inf
                 return FALSE;
             }
 
-            if(*info->p == ':') {
-                info->p++;
+            if(*info->p == '=' && *(info->p+1) == '>') {
+                info->p+=2;
                 skip_spaces_and_lf(info);
 
                 hash_keys[num_elements] = node;
