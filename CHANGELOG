@@ -3,9 +3,17 @@ version 4.2.6
 
     Hashクラスの値の簡易表記が変わりました。a:Hash<String, Integer> = ["AAA"=>2, "BBB"=>3].
 
+    コンパイラの使用メモリを減らしました。(1Gは必要だと思います)
+
+    ppc64, i386でコンパイル、テストしました。
+
 version 4.2.6
 
     The simplified representation of the value of the Hash class has changed. a:Hash<String, Integer> = ["AAA"=>2, "BBB"=>3].
+
+    Reduce the memory clover2 compiler used
+
+    test in the ppc64, i386
 
 version 4.2.5
 

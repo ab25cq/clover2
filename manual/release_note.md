@@ -1,5 +1,13 @@
 English page is here [>> English page](release_note-en)
 
+version 4.2.6
+
+    Hashクラスの値の簡易表記が変わりました。a:Hash<String, Integer> = ["AAA"=>2, "BBB"=>3].
+
+    コンパイラの使用メモリを減らしました。(1Gは必要だと思います)
+
+    ppc64, i386でコンパイル、テストしました。
+
 version 4.2.5
 
     Commandクラスのバグを修正。

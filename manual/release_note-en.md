@@ -1,4 +1,12 @@
 
+version 4.2.6
+
+    The simplified representation of the value of the Hash class has changed. a:Hash<String, Integer> = ["AAA"=>2, "BBB"=>3].
+
+    Reduce the memory clover2 compiler used
+
+    test in the ppc64, i386
+
 version 4.2.5
     
     Fixed bug of Command Class.
