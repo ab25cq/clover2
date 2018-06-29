@@ -44,7 +44,8 @@ class TryTest {
             catch(e:Exception) {
                 System.println("OK");
                 g:= "AAA";
-                Clover.test("Try test7", e.message.equals("ERROR") && g.equals("AAA"));
+                e.message.len;
+                #Clover.test("Try test7", e.message.equals("ERROR") && g.equals("AAA"));
             }
 
             Clover.test("Try test8", e.message.equals("ERROR"));

@@ -210,7 +210,7 @@ static sNativeMethod gNativeMethods[] = {
     { "System.dlsym(pointer,String)", "System_dlsym", System_dlsym },
     { "System.system(String)", "System_system", System_system },
     { "System.getenv(String)", "System_getenv", System_getenv },
-    { "System.secure_getenv(String)", "System_secure_getenv", System_secure_getenv },
+//    { "System.secure_getenv(String)", "System_secure_getenv", System_secure_getenv },
     { "System.setenv(String,String,int)", "System_setenv", System_setenv },
     { "System.unsetenv(String)", "System_unsetenv", System_unsetenv },
     { "System.put_fun_to_hash_for_native_method(String,String,pointer)", "System_put_fun_to_hash_for_native_method", System_put_fun_to_hash_for_native_method },

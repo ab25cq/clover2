@@ -1347,11 +1347,12 @@ show_inst(inst);
 
             case OP_THROW: {
                 *stack = *(stack_ptr-1);
-                remove_stack_to_stack_list(stack_id);
 
                 CLObject exception = stack->mObjectValue;
 
                 entry_exception_object(exception, info);
+
+                remove_stack_to_stack_list(stack_id);
                 }
                 return FALSE;
 

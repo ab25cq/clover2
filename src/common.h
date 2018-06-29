@@ -2209,7 +2209,7 @@ BOOL System_umask(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_usleep(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_nanosleep(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_putenv(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
-BOOL System_secure_getenv(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+//BOOL System_secure_getenv(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_setvbuf(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_strncat(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_strchr(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
