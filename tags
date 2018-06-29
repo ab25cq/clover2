@@ -13,7 +13,7 @@ BREAK_NUM_MAX	src/common.h	53;"	d
 BUFFER_H	src/clover2-buffer.h	2;"	d
 BYTE_CODE_INIT_SIZE	src/code.c	3;"	d	file:
 CC	Makefile	/^CC=clang$/;"	m
-CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -fPIC -rdynamic -DPREFIX="\\"${DESTDIR}\/\\"" -I\/usr\/local\/include -L \/usr\/local\/lib -I \/usr\/include\/i386-linux-gnu\/\/ -L \/usr\/lib\/i386-linux-gnu\/ -DENABLE_INTERPRETER -Qunused-arguments$/;"	m
+CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -fPIC -rdynamic -DPREFIX="\\"${DESTDIR}\/\\"" -I\/usr\/local\/include -L \/usr\/local\/lib -DENABLE_INTERPRETER -Qunused-arguments$/;"	m
 CHECKML_BEGIN	src/clover2-debug.h	13;"	d
 CHECKML_END	src/clover2-debug.h	14;"	d
 CLASS_FLAGS_ALLOCATED	src/common.h	179;"	d
@@ -45,7 +45,7 @@ COMMON_OBJS	Makefile	/^COMMON_OBJS=src\/buffer.o src\/debug.o src\/xfunc.o src\/
 COMPILER_OBJS	Makefile	/^COMPILER_OBJS=src\/parser.o src\/node_type.o src\/node.o src\/cast.o src\/vtable.o src\/script_ctime.o src\/node_block.o src\/node_block_type.o src\/class_compiler.o src\/klass_compile_time.o src\/method_compiler.o src\/module.o src\/class_clover_compile_time.o$/;"	m
 CONS_str	src/common.h	135;"	d
 CXX	Makefile	/^CXX=clang++$/;"	m
-CXXFLAGS	Makefile	/^CXXFLAGS=`llvm-config --cxxflags --ldflags --system-libs --libs all` -lffi -O3 -I . -DPREFIX="\\"${DESTDIR}\/\\"" -Qunused-arguments$/;"	m
+CXXFLAGS	Makefile	/^CXXFLAGS=`llvm-config-3.8 --cxxflags --ldflags --system-libs --libs all` -lffi -O3 -I . -DPREFIX="\\"${DESTDIR}\/\\"" -Qunused-arguments$/;"	m
 Clover_appendClass	src/class_clover_compile_time.c	/^BOOL Clover_appendClass(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 Clover_appendClass	src/class_clover_runtime.c	/^BOOL Clover_appendClass(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 Clover_appendClassField	src/class_clover_compile_time.c	/^BOOL Clover_appendClassField(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
@@ -109,7 +109,7 @@ LAST_INITIALIZE_FIELD_NUM_ON_SOCKET	src/class_system.c	6035;"	d	file:
 LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM	src/class_system.c	1500;"	d	file:
 LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS	src/class_system.c	5586;"	d	file:
 LAST_INITIALIZE_FIELD_NUM_ON_THREAD_SYSTEM	src/class_system.c	723;"	d	file:
-LIBS	Makefile	/^LIBS= -lutil -lpthread -lncursesw -lreadline -ldl -lm -lpcre -lrt$/;"	m
+LIBS	Makefile	/^LIBS= -lutil -lpthread -lreadline -ldl -lm -lpcre -lrt$/;"	m
 LIST_VALUE_ELEMENT_MAX	src/common.h	63;"	d
 LLVMValue	src/common.h	/^    void* LLVMValue;$/;"	m	union:CLVALUEUnion
 LOCAL_VARIABLE_MAX	src/common.h	485;"	d
@@ -1327,25 +1327,17 @@ arrange_alignment	src/code.c	/^static void arrange_alignment(sByteCode* code)$/;
 arrange_alignment	src/constant.c	/^static void arrange_alignment(sConst* self)$/;"	f	file:
 arrange_stack	src/node.c	/^void arrange_stack(sCompileInfo* cinfo)$/;"	f
 array_mark_fun	src/array.c	/^void array_mark_fun(CLObject self, unsigned char* mark_flg)$/;"	f
-as_fn_append	config.status	/^  as_fn_append ()$/;"	f
 as_fn_append	configure	/^  as_fn_append ()$/;"	f
-as_fn_arith	config.status	/^  as_fn_arith ()$/;"	f
 as_fn_arith	configure	/^  as_fn_arith ()$/;"	f
-as_fn_error	config.status	/^as_fn_error ()$/;"	f
 as_fn_error	configure	/^as_fn_error ()$/;"	f
-as_fn_executable_p	config.status	/^as_fn_executable_p ()$/;"	f
 as_fn_executable_p	configure	/^as_fn_executable_p ()$/;"	f
-as_fn_exit	config.status	/^as_fn_exit ()$/;"	f
 as_fn_exit	configure	/^as_fn_exit ()$/;"	f
 as_fn_failure	configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
-as_fn_mkdir_p	config.status	/^as_fn_mkdir_p ()$/;"	f
 as_fn_mkdir_p	configure	/^as_fn_mkdir_p ()$/;"	f
 as_fn_ret_failure	configure	/^as_fn_ret_failure () { return 1; }$/;"	f
 as_fn_ret_success	configure	/^as_fn_ret_success () { return 0; }$/;"	f
-as_fn_set_status	config.status	/^as_fn_set_status ()$/;"	f
 as_fn_set_status	configure	/^as_fn_set_status ()$/;"	f
 as_fn_success	configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
-as_fn_unset	config.status	/^as_fn_unset ()$/;"	f
 as_fn_unset	configure	/^as_fn_unset ()$/;"	f
 assign_operator	src/parser.c	/^static BOOL assign_operator(unsigned int* node, sParserInfo* info)$/;"	f	file:
 binary_operator	src/node.c	/^static BOOL binary_operator(sNodeType* left_type, sNodeType* right_type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, int float_operand, int double_operand, int pointer_operand, int null_operand, int char_operand, int bool_operand, int regex_operand, char* op_string, sCompileInfo* info)$/;"	f	file:
