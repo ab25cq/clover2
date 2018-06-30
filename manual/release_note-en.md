@@ -1,4 +1,8 @@
 
+version 4.2.7
+
+    Fixed bug of String.insert.
+
 version 4.2.6
 
     The simplified representation of the value of the Hash class has changed. a:Hash<String, Integer> = ["AAA"=>2, "BBB"=>3].

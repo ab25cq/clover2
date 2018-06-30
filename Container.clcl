@@ -1167,8 +1167,6 @@ class SortableList<T:ISortable>
                 left++;
             }
 
-#Global.println("pivot \{list.items(left).compare(pivot).toBool}");
-
             while((list.items(left).compare(pivot) <= 0) && (left < right)) {
                 left++;
             }

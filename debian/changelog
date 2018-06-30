@@ -1,4 +1,8 @@
 
+clover2 (4.2.7-1) unstable; urgency=medium
+
+    * Fixed bug of String.insert.
+
 clover2 (4.2.6-1) unstable; urgency=medium
 
     * The simplified representation of the value of the Hash class has

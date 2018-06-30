@@ -28,5 +28,10 @@ class StringTest {
         Clover.test("String test13", "ABC".insert(-2, "111").equals("AB111C"));
         Clover.test("String test14", "ABC".insert(5, "111").equals("ABC111"));
         Clover.test("String test15", "ABC".insert(-5, "111").equals("111ABC"));
+
+        str := "ABC".insert(1, "c").insert(1, "c");
+
+        Clover.test("String test16", str.equals("AccBC"));
+        
     }
 }

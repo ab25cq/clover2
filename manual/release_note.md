@@ -1,5 +1,9 @@
 English page is here [>> English page](release_note-en)
 
+version 4.2.7
+
+    String.inesrtのバグを修正しました。
+
 version 4.2.6
 
     Hashクラスの値の簡易表記が変わりました。a:Hash<String, Integer> = ["AAA"=>2, "BBB"=>3].
