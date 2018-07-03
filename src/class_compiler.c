@@ -233,48 +233,99 @@ static BOOL parse_class_on_alloc_classes_phase(sParserInfo* info, sCompileInfo* 
     return TRUE;
 }
 
-static BOOL parse_throws(sParserInfo* info, BOOL* throw_existance)
+static BOOL parse_word_with_dot(char* buf, int buf_size, sParserInfo* info)
 {
-    /// throws ///
-    char* p_saved = info->p;
-    int sline_saved = info->sline;
+    buf[0] = 0;
 
-    char buf[32];
-    
-    if(!parse_word(buf, 32, info, FALSE, FALSE)) {
-        return FALSE;
-    }
+    char* p2 = buf;
 
-    if(strcmp(buf, "throws") == 0) {
-        *throw_existance = TRUE;
-
-        while(1) {
-            if(isalpha(*info->p)) {
-                sNodeType* exception;
-
-                if(!parse_type(&exception, info)) {
-                    return FALSE;
-                }
-            }
-            else if(*info->p == ',') {
+    if(isalpha(*info->p) || *info->p == '_') {
+        while(isalnum(*info->p) || *info->p == '_' || *info->p == '.') {
+            if(p2 - buf < buf_size-1) {
+                *p2++ = *info->p;
                 info->p++;
-                skip_spaces_and_lf(info);
             }
             else {
-                break;
+                parser_err_msg(info, "length of word is too long");
+                return FALSE;
             }
         }
     }
-    else {
-        *throw_existance = FALSE;
-        info->p = p_saved;
-        info->sline = sline_saved;
+
+    *p2 = 0;
+    skip_spaces_and_lf(info);
+
+    if(*info->p == 0 && buf[0] == 0) {
+        parser_err_msg(info, "require word(alphabet or number). this is the end of source");
+        return FALSE;
+    }
+
+    if(buf[0] == 0) {
+        parser_err_msg(info, "require word(alphabet or _ or number). this is (%c)", *info->p);
+        info->err_num++;
+
+        if(*info->p == '\n') info->sline++;
+
+        info->p++;
     }
 
     return TRUE;
 }
 
-BOOL parse_method_name_and_params(char* method_name, int method_name_max, sParserParam* params, int* num_params, sNodeType** result_type, BOOL* native_, BOOL* static_, sParserInfo* info)
+static BOOL parse_throws_and_clibrary(sParserInfo* info, BOOL* throw_existance, char* clibrary_path, size_t clibrary_path_size)
+{
+    *throw_existance = FALSE;
+    clibrary_path[0] = '\0';
+
+    while(1) {
+        char* p_saved = info->p;
+        int sline_saved = info->sline;
+
+        char buf[32];
+        
+        if(!parse_word(buf, 32, info, FALSE, FALSE)) {
+            return FALSE;
+        }
+
+        if(strcmp(buf, "throws") == 0) {
+            *throw_existance = TRUE;
+
+            while(1) {
+                if(isalpha(*info->p)) {
+                    sNodeType* exception;
+
+                    if(!parse_type(&exception, info)) {
+                        return FALSE;
+                    }
+                }
+                else if(*info->p == ',') {
+                    info->p++;
+                    skip_spaces_and_lf(info);
+                }
+                else {
+                    break;
+                }
+            }
+        }
+        else if(strcmp(buf, "from") == 0) {
+            char buf2[PATH_MAX];
+            if(!parse_word_with_dot(buf2, PATH_MAX, info)) {
+                return FALSE;
+            }
+
+            xstrncpy(clibrary_path, buf2, clibrary_path_size);
+        }
+        else {
+            info->p = p_saved;
+            info->sline = sline_saved;
+            break;
+        }
+    }
+
+    return TRUE;
+}
+
+BOOL parse_method_name_and_params(char* method_name, int method_name_max, sParserParam* params, int* num_params, sNodeType** result_type, BOOL* native_, BOOL* static_, sParserInfo* info, char* clibrary_path, size_t clibrary_path_size)
 {
     /// method generics ///
     if(*info->p == '<') {
@@ -333,7 +384,7 @@ BOOL parse_method_name_and_params(char* method_name, int method_name_max, sParse
         /// throw or result type ///
         if(isalpha(*info->p)) {
             BOOL throw_existance = FALSE;
-            if(!parse_throws(info, &throw_existance)) {
+            if(!parse_throws_and_clibrary(info, &throw_existance, clibrary_path, clibrary_path_size)) {
                 return FALSE;
             }
 
@@ -357,15 +408,17 @@ BOOL parse_method_name_and_params(char* method_name, int method_name_max, sParse
 
     /// throw ///
     BOOL throw_existance = FALSE;
-    if(!parse_throws(info, &throw_existance)) {
+    if(!parse_throws_and_clibrary(info, &throw_existance, clibrary_path, clibrary_path_size)) {
         return FALSE;
     }
 
     return TRUE;
 }
 
-static BOOL parse_field_attributes_and_type(BOOL* private_, BOOL* protected_, BOOL* static_, BOOL* delegate_, sNodeType** result_type, sParserInfo* info, sCompileInfo* cinfo)
+static BOOL parse_field_attributes_and_type(BOOL* private_, BOOL* protected_, BOOL* static_, BOOL* delegate_, sNodeType** result_type, sParserInfo* info, sCompileInfo* cinfo, char* header_path, int header_path_size)
 {
+    header_path[0] = '\0';
+
     /// atributes ///
     while(1) {
         char* p_saved = info->p;
@@ -399,6 +452,15 @@ static BOOL parse_field_attributes_and_type(BOOL* private_, BOOL* protected_, BO
     /// parse result type ///
     if(!parse_type(result_type, info)) {
         return FALSE;
+    }
+
+    if(*info->p == 'f' && *(info->p+1) == 'r' && *(info->p+2) == 'o' && *(info->p+3) == 'm') {
+        info->p += 4;
+        skip_spaces_and_lf(info);
+
+        if(!parse_word_with_dot(header_path, header_path_size, info)) {
+            return FALSE;
+        }
     }
 
     return TRUE;
@@ -460,7 +522,7 @@ static BOOL field_delegation(sParserInfo* info, sCompileInfo* cinfo, sCLClass* k
                 }
 
                 sCLMethod* appended_method = NULL;
-                if(!add_method_to_class(klass, method_name, parser_params, num_params, result_type, native_, static_, &method_generics_info, &appended_method)) 
+                if(!add_method_to_class(klass, method_name, parser_params, num_params, result_type, native_, static_, &method_generics_info, &appended_method, "")) 
                 {
                     return FALSE;
                 }
@@ -492,7 +554,7 @@ static BOOL setter_and_getter(sParserInfo* info, sCompileInfo* cinfo, sCLClass* 
         BOOL static_ = FALSE;
 
         sCLMethod* appended_method = NULL;
-        if(!add_method_to_class(klass, method_name, parser_params, num_params, result_type, native_, static_, NULL, &appended_method))
+        if(!add_method_to_class(klass, method_name, parser_params, num_params, result_type, native_, static_, NULL, &appended_method, ""))
         {
             return FALSE;
         }
@@ -517,7 +579,7 @@ static BOOL setter_and_getter(sParserInfo* info, sCompileInfo* cinfo, sCLClass* 
             BOOL static_ = FALSE;
 
             sCLMethod* appended_method = NULL;
-            if(!add_method_to_class(klass, method_name, parser_params, num_params, result_type, native_, static_, NULL, &appended_method))
+            if(!add_method_to_class(klass, method_name, parser_params, num_params, result_type, native_, static_, NULL, &appended_method, ""))
             {
                 return FALSE;
             }
@@ -595,21 +657,22 @@ static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOO
         sNodeType* result_type = NULL;
         BOOL native_ = FALSE;
         BOOL static_ = FALSE;
+        char clibrary_path[PATH_MAX];
 
-        if(!parse_method_name_and_params(method_name, METHOD_NAME_MAX, params, &num_params, &result_type, &native_, &static_, info)) 
+        if(!parse_method_name_and_params(method_name, METHOD_NAME_MAX, params, &num_params, &result_type, &native_, &static_, info, clibrary_path, PATH_MAX)) 
         {
             return FALSE;
         }
 
         if(info->err_num == 0 && (info->klass->mFlags & CLASS_FLAGS_ALLOCATED)) {
             sCLMethod* appended_method = NULL;
-            if(!add_method_to_class(info->klass, method_name, params, num_params, result_type, native_, static_, &info->method_generics_info, &appended_method)) 
+            if(!add_method_to_class(info->klass, method_name, params, num_params, result_type, native_, static_, &info->method_generics_info, &appended_method, clibrary_path)) 
             {
                 return FALSE;
             }
         }
 
-        if(native_ || interface) {
+        if(native_ || interface || strcmp(clibrary_path, "") != 0) {
             if(*info->p == ';') {
                 info->p++;
                 skip_spaces_and_lf(info);
@@ -664,7 +727,10 @@ static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOO
             BOOL protected_ = FALSE;
             sNodeType* field_type = create_node_type_with_class_name("int");
 
-            if(!add_class_field_to_class(info->klass, element_name, private_, protected_, field_type, num_enum++)) 
+            char header_path[PATH_MAX];
+            header_path[0] = '\0';
+
+            if(!add_class_field_to_class(info->klass, element_name, private_, protected_, field_type, num_enum++, header_path)) 
             {
                 return FALSE;
             }
@@ -692,20 +758,26 @@ static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOO
         BOOL static_ = FALSE;
         BOOL delegate_ = FALSE;
         sNodeType* result_type = NULL;
+        char header_path[PATH_MAX];
 
         expect_next_character_with_one_forward(":", info);
 
-        if(!parse_field_attributes_and_type(&private_, &protected_, &static_, &delegate_, &result_type, info, cinfo)) {
+        if(!parse_field_attributes_and_type(&private_, &protected_, &static_, &delegate_, &result_type, info, cinfo, header_path, PATH_MAX)) {
             return FALSE;
         }
 
         if(info->err_num == 0 && (info->klass->mFlags & CLASS_FLAGS_ALLOCATED)) {
             if(static_) {
-                if(!add_class_field_to_class(info->klass, buf, private_, protected_, result_type, -1)) {
+                if(!add_class_field_to_class(info->klass, buf, private_, protected_, result_type, -1, header_path)) {
                     return FALSE;
                 }
             }
             else {
+                if(header_path[0] != '\0') {
+                    parser_err_msg(info, "Require class field for \"from\" keyword");
+                    info->err_num++;
+                }
+
                 if(!add_field_to_class(info->klass, buf, private_, protected_, result_type)) {
                     return FALSE;
                 }
@@ -1064,8 +1136,9 @@ BOOL parse_methods_and_fields_on_compile_time(sParserInfo* info, sCompileInfo* c
         sNodeType* result_type = NULL;
         BOOL native_ = FALSE;
         BOOL static_ = FALSE;
+        char clibrary_path[PATH_MAX];
 
-        if(!parse_method_name_and_params(method_name, METHOD_NAME_MAX, params, &num_params, &result_type, &native_, &static_, info)) 
+        if(!parse_method_name_and_params(method_name, METHOD_NAME_MAX, params, &num_params, &result_type, &native_, &static_, info, clibrary_path, PATH_MAX)) 
         {
             return FALSE;
         }
@@ -1074,7 +1147,7 @@ BOOL parse_methods_and_fields_on_compile_time(sParserInfo* info, sCompileInfo* c
         info->klass->mMethodIndexOnCompileTime++;
 
         if(info->klass->mFlags & CLASS_FLAGS_ALLOCATED) {
-            if(native_ || interface) {
+            if(native_ || interface || strcmp(clibrary_path, "") != 0) {
                 if(*info->p == ';') {
                     info->p++;
                     skip_spaces_and_lf(info);
@@ -1103,7 +1176,7 @@ BOOL parse_methods_and_fields_on_compile_time(sParserInfo* info, sCompileInfo* c
             }
         }
         else {
-            if(native_ || interface) {
+            if(native_ || interface || strcmp(clibrary_path, "") != 0) {
                 if(*info->p == ';') {
                     info->p++;
                     skip_spaces_and_lf(info);
@@ -1167,10 +1240,11 @@ BOOL parse_methods_and_fields_on_compile_time(sParserInfo* info, sCompileInfo* c
         BOOL static_ = FALSE;
         BOOL delegate_ = FALSE;
         sNodeType* result_type = NULL;
+        char header_path[PATH_MAX];
 
         expect_next_character_with_one_forward(":", info);
 
-        if(!parse_field_attributes_and_type(&private_, &protected_, &static_, &delegate_, &result_type, info, cinfo)) {
+        if(!parse_field_attributes_and_type(&private_, &protected_, &static_, &delegate_, &result_type, info, cinfo, header_path, PATH_MAX)) {
             return FALSE;
         }
 

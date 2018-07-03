@@ -415,6 +415,23 @@ static BOOL read_methods_from_file(int fd, sCLMethod** methods, int* num_methods
 
             method->mGenericsParamTypeOffsets[j] = n;
         }
+
+        if(!read_int_from_file(fd, &n)) {
+            return FALSE;
+        }
+
+        method->mCLibraryOffset = n;
+
+        if(method->mCLibraryOffset != 0) {
+            char* dynamic_library_name = CONS_str(&klass->mConst, method->mCLibraryOffset);
+
+            void* dynamic_library = dlopen(dynamic_library_name, RTLD_LAZY);
+
+            if(dynamic_library) {
+                char* method_name = CONS_str(&klass->mConst, method->mNameOffset);
+                method->mCFunctionPointer = dlsym(dynamic_library, method_name);
+            }
+        }
     }
 
     return TRUE;

@@ -592,6 +592,14 @@ When a user class becomes an object of an operator, it is unboxed and becomes a 
 ```
 .
 
+Buffer class is unboxng'ed to pointer class. So you can run below.
+
+```
+    str := strdup(b"ABC");
+    strcmp(str, b"ABC") == 0;
+    free(str);
+```
+
 ## Representation of Numbers in Wrapper Class
 ```
     a: Integer = 5I;
@@ -1457,6 +1465,76 @@ Self abbreviation for fields of the same class
 ```
 It is like the above. Although the namespace of the local variable and the field batters, since the local variable takes precedence in the search algorithm, please add self to the field when it is ambiguous. With this algorithm, it was judged that there is no particular problem even if self is omitted. It is compatible with past codes.
 
+## Bridge to C Language
+
+    ```
+    ExtensionTest.c
+
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <string.h>
+
+    int getValue(int x, int y) 
+    {
+        return x + y;
+    }
+
+    long getValue2(long x, long y)
+    {
+        return x + y;
+    }
+
+    char* getStr(char* x, char* y) 
+    {
+        size_t len = strlen(x) + strlen(y) + 1;
+
+        char* result = calloc(1, len);
+
+        strcpy(result, x);
+        strcat(result, y);
+
+        return result;
+    }
+
+    ExtensionTest.h
+
+    #define ABC 123
+
+    ExtensionClassTest.clcl
+
+    class ExtensionClassTest
+    {
+        ABC: static int from ExtensionTest.h
+
+        def getValue(x:int, y:int): int from libExtensionTest.so;
+        def getValue2(x:long, y:long): long from libExtensionTest.so;
+        def getStr(x:pointer, y:pointer): pointer@alloc from libExtensionTest.so;
+
+        def main():static {
+            Clover.test("Extension Test1", getValue(1, 2) == 3);
+            Clover.test("Extension Test2", getValue2(1l, 2l) == 3l);
+
+            str := getStr(b"ABC", b"DEF");
+
+            Clover.test("Extension Test3", strcmp(str, b"ABCDEF") == 0);
+
+            free(str);
+
+            Clover.test("Extension Test4", ABC == 123);
+        }
+    }
+
+    CLibrary.clcl
+
+    include "SystemCalls.clcl"
+
+    class System
+    {
+        def strcmp(x:pointer, y:pointer): int from libc.so.6
+    }
+    ```
+
+Structures are not supported. Use C language functions that use structures from the native method.
 
 ----
 

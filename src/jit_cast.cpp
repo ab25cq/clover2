@@ -2224,6 +2224,32 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             }
             break;
 
+        case OP_BUFFER_TO_POINTER_CAST:
+            {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_buffer_to_pointer_cast");
+
+            std::vector<Value*> params2;
+
+            Value* param1 = value->value;
+            params2.push_back(param1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindPointer64;
+            llvm_value.parent_var_num = value->parent_var_num;
+            llvm_value.parent_stack = value->parent_stack;
+            llvm_value.parent_llvm_stack = value->parent_llvm_stack;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
         case OP_POINTER_TO_CPOINTER_CAST: {
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 

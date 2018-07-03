@@ -1,4 +1,10 @@
 
+version 4.5.0
+
+    I put a bridge for C. Functions and constants can be imported.
+
+    Buffer class is unboxing to pointer class
+
 version 4.2.7
 
     Fixed bug of String.insert.

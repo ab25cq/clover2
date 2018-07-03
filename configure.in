@@ -234,6 +234,9 @@ AC_HAVE_LIBRARY(pcre, [ LIBS="$LIBS -lpcre"; ], [ eixt ])
 
 AC_HAVE_LIBRARY(rt, [ LIBS="$LIBS -lrt"; ], [])
 
+AC_CHECK_HEADER(avcall.h, [AC_DEFINE(HAVE_AVCALL_H,1)], [ exit ])
+AC_HAVE_LIBRARY(avcall, [ LIBS="$LIBS -lavcall"; ], [ exit ])
+
 AC_SUBST(LIBS)
 
 if which clang > /dev/null

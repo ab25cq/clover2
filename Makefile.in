@@ -37,7 +37,7 @@ JIT=@JIT@
 ##########################################################
 # main
 ##########################################################
-all: cclover2 clover2 $(INTERPRETER) SortableArray.oclcl libclover2.so.1.0.0 jitcompile
+all: cclover2 clover2 $(INTERPRETER) SortableArray.oclcl libclover2.so.1.0.0 jit-compile
 	if which ctags > /dev/null; then if test $(OS) = DARWIN; then ctags src/*.c > /dev/null 2>&1; else ctags -R; fi; fi
 
 cclover2: config.h src/compiler.o $(COMMON_OBJS) $(COMPILER_OBJS) $(OBJS) $(JIT_OBJS) $(JIT_RUNTIME_OBJS)
@@ -68,7 +68,7 @@ $(OBJ): src/*.h Makefile configure
 #########################################################
 # JIT compile
 #########################################################
-jitcompile: 
+jit-compile: 
 	if test -e Clover.bc; then ./bclover2 Clover.bc; fi
 	if test -e PcreOVec.bc; then ./bclover2 PcreOVec.bc; fi
 	if test -e System.bc; then ./bclover2 System.bc; fi
@@ -553,6 +553,8 @@ test: parser
 
 	if test `uname` != Darwin; then gcc -shared -Wl,-soname=libExtTest.so.1 -o libExtTest.so.1.0.0 -I src/ -I . -I/usr/local/include -fPIC ext/hello.c; ln -fs libExtTest.so.1.0.0 libExtTest.so; PWD=`pwd` ./cclover2 ext.clcl && PWD=`pwd` ./clover2 ext.cl; fi
 
+	if test `uname` != Darwin; then gcc -shared -Wl,-soname=libExtensionTest.so.1 -o libExtensionTest.so.1.0.0 -fPIC ExtensionTest.c; ln -fs libExtensionTest.so.1.0.0 libExtensionTest.so; PWD=`pwd` ./cclover2 ExtensionClassTest.clcl && PWD=`pwd` ./clover2 ExtensionClassTest.cl; fi
+
 	PWD=`pwd` ./cclover2 code/getopt.cl && ./clover2 code/getopt.cl -a -b -c aaa xxxx gggg
 	PWD=`pwd` ./cclover2 code/getopt_long.cl && ./clover2 code/getopt_long.cl -a --break --clear aaa --delete=ggg xxx yyy zzz
 	PWD=`pwd` ./cclover2 code/getopt_long_only.cl && ./clover2 code/getopt_long_only.cl -add --break --clear aaa --delete=ggg xxx yyy zzz
@@ -566,6 +568,7 @@ test: parser
 	PWD=`pwd` ./cclover2 code/CloneTest.clcl
 	PWD=`pwd` ./cclover2 code/thread.cl
 	PWD=`pwd` ./cclover2 code/SocketTest.clcl
+	PWD=`pwd` ./cclover2 code/PointerTest3.clcl
 
 
 	PWD=`pwd` ./clover2 code/parser.cl

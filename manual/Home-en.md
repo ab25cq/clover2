@@ -151,6 +151,8 @@ In ubuntu, Debian
 ```
 Is required. $
 
+You need libffcall1-dev afterwards.
+
 ## Compile
 
 Please get the source code first.

@@ -17,7 +17,6 @@
 * [ソースコード](usage#ソースコード)
 * [オープンクラスとincludeとmixin-layersスタイルコーディング](usage#オープンクラスとincludeとmixin-layersスタイルコーディング)
 * [クラスファイルの登録](usage#クラスファイルの登録)
-* [クラスの自動コンパイル機能](usage#クラスの自動コンパイル機能)
 * [クラスの循環参照](usage#クラスの循環参照)
 
 #### [主な機能](feature) [→ feature English Page](feature-en)
@@ -61,6 +60,8 @@
     * [return文の省略](feature#return文の省略)
     * [メソッドのデフォルト引数](feature#メソッドのデフォルト引数)
     * [同一クラスのメソッドとフィールドのself省略](feature#同一クラスのメソッドとフィールドのself省略)
+
+* [C言語へのブリッジ](feature#C言語へのブリッジ)
 
 #### [型推論](typing) [→ typing English Page](typing-en)
 

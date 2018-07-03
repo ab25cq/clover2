@@ -227,7 +227,7 @@ void set_method_index_to_class(sCLClass* klass)
     }
 }
 
-BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_, sGenericsParamInfo* ginfo, sCLMethod** appended_method)
+BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_, sGenericsParamInfo* ginfo, sCLMethod** appended_method, char* clibrary_path)
 {
     if(klass->mNumMethods == klass->mSizeMethods) {
         int new_size = klass->mSizeMethods * 2;
@@ -240,8 +240,15 @@ BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* param
 
     *appended_method = klass->mMethods + num_methods;
 
-    klass->mMethods[num_methods].mFlags = (native_ ? METHOD_FLAGS_NATIVE : 0) | (static_ ? METHOD_FLAGS_CLASS_METHOD:0);
+    klass->mMethods[num_methods].mFlags = (native_ ? METHOD_FLAGS_NATIVE : 0) | ((static_||native_||strcmp(clibrary_path, "") != 0) ? METHOD_FLAGS_CLASS_METHOD:0) | (strcmp(clibrary_path, "") != 0 ? METHOD_FLAGS_C_FUNCTION:0);
     klass->mMethods[num_methods].mNameOffset = append_str_to_constant_pool(&klass->mConst, method_name, FALSE);
+
+    if(strcmp(clibrary_path, "") != 0) {
+        klass->mMethods[num_methods].mCLibraryOffset = append_str_to_constant_pool(&klass->mConst, clibrary_path, FALSE);
+    }
+    else {
+        klass->mMethods[num_methods].mCLibraryOffset = 0;
+    }
 
     if(strcmp(method_name, "initialize") == 0 || strcmp(method_name, "finalize") == 0 || native_)
     {
@@ -339,7 +346,33 @@ BOOL add_typedef_to_class(sCLClass* klass, char* class_name1, char* class_name2)
 }
 
 
-BOOL add_class_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type, int initialize_value)
+#include <stdio.h>
+
+#define BIG_ENOUGH  1024*2*2
+
+static int get_value_from_header(char* header_path, char* field_name)
+{
+    char buffer[BIG_ENOUGH];
+
+    char command_line[PATH_MAX + 128];
+    snprintf(command_line, PATH_MAX +128, "cc -E -dM -x c %s", header_path);
+    FILE *fp = popen(command_line, "r");
+    while(fgets(buffer, sizeof(buffer), fp) != NULL) {
+        char identifier[BIG_ENOUGH];
+        int value;
+        if(sscanf(buffer, "#define %s %d", identifier, &value) == 2) {
+            if(strcmp(identifier, field_name) == 0) {
+                fclose(fp);
+                return value;
+            }
+        }
+    }
+    fclose(fp);
+
+    return -1;
+}
+
+BOOL add_class_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type, int initialize_value, char* header_path)
 {
     if(klass->mNumClassFields == klass->mSizeClassFields) {
         int new_size = klass->mSizeClassFields * 2;
@@ -353,7 +386,12 @@ BOOL add_class_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL p
     klass->mClassFields[num_fields].mFlags = (private_ ? FIELD_FLAGS_PRIVATE : 0) | (protected_ ? FIELD_FLAGS_PROTECTED:0);
     klass->mClassFields[num_fields].mNameOffset = append_str_to_constant_pool(&klass->mConst, name, FALSE);
 
-    klass->mClassFields[num_fields].mInitializeValue = initialize_value;
+    if(header_path[0] != '\0') {
+        klass->mClassFields[num_fields].mInitializeValue = get_value_from_header(header_path, name);
+    }
+    else {
+        klass->mClassFields[num_fields].mInitializeValue = initialize_value;
+    }
 
     node_type_to_cl_type(result_type, ALLOC &klass->mClassFields[num_fields].mResultType, klass);
 
@@ -853,6 +891,8 @@ static void append_methods_to_buffer(sBuf* buf, sCLMethod* methods, sCLClass* kl
             int n = method->mGenericsParamTypeOffsets[j];
             sBuf_append_int(buf, n);
         }
+
+        sBuf_append_int(buf, method->mCLibraryOffset);
     }
 }
 

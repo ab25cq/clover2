@@ -1,5 +1,11 @@
 English page is here [>> English page](release_note-en)
 
+version 4.5.0
+
+    Cに対するブリッジを入れました。関数と定数が取り込めます。
+
+    Bufferクラスはpointerクラスにunboxingされます。
+
 version 4.2.7
 
     String.inesrtのバグを修正しました。

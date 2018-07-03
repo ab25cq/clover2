@@ -1190,6 +1190,21 @@ struct sPointerAndBoolResult* run_load_class_field_address(CLVALUE** stack_ptr, 
     return result;
 }
 
+void* run_buffer_to_pointer_cast(CLObject object)
+{
+    sCLObject* object_data = CLOBJECT(object);
+
+    char* pointer_value = object_data->mFields[0].mPointerValue;
+
+    CLVALUE cl_value;
+    cl_value.mObjectValue = object;
+    push_value_to_global_stack(cl_value);
+
+    gBufferToPointerCastCount++;
+
+    return (void*)pointer_value;
+}
+
 CLObject run_int_to_string_cast(int n)
 {
     char buf[32];

@@ -1,0 +1,8 @@
+class PointerTest3
+{
+    def main(): static {
+        b:pointer = b"ABCDEF";
+
+        Clover.test("Pointer Test3", b->byte == 'A' && (b+1)->byte == 'B' && (b+2)->byte == 'C' && (b+3)->byte =='D');
+    }
+}

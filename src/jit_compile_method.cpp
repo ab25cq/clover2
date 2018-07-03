@@ -34,7 +34,7 @@ static BOOL compile_jit_methods(sCLClass* klass)
         for(i=0; i<klass->mNumMethods; i++) {
             sCLMethod* method = klass->mMethods + i;
 
-            if(strcmp(METHOD_NAME2(klass, method), "initialize") != 0 && strcmp(METHOD_NAME2(klass, method), "finalize") != 0 && !(method->mFlags & METHOD_FLAGS_NATIVE)) 
+            if(strcmp(METHOD_NAME2(klass, method), "initialize") != 0 && strcmp(METHOD_NAME2(klass, method), "finalize") != 0 && !(method->mFlags & METHOD_FLAGS_NATIVE) && !(method->mFlags & METHOD_FLAGS_C_FUNCTION))
             {
                 char method_path2[METHOD_NAME_MAX + 128];
                 create_method_path_for_jit(klass, method, method_path2, METHOD_NAME_MAX + 128);

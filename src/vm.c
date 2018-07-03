@@ -1,4 +1,5 @@
 #include "common.h"
+#include <avcall.h>
 
 BOOL gSigInt = FALSE;
 
@@ -509,6 +510,8 @@ static void show_inst(unsigned inst)
 
 BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info)
 {
+    gBufferToPointerCastCount = 0;
+
     //int num_global_stack = gGlobalStackPtr - gGlobalStack;
 
     sCLClass* running_class = info->running_class;
@@ -546,7 +549,268 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
         }
     }
 
-    if(method->mFlags & METHOD_FLAGS_NATIVE) 
+    if(method->mFlags & METHOD_FLAGS_C_FUNCTION) {
+        CLVALUE* lvar = *stack_ptr - method->mNumParams;
+
+        if(method->mCFunctionPointer == NULL) {
+            entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "C Function method not found");
+            info->running_class = running_class;
+            info->running_method = running_method;
+            info->running_class_name = running_class_name;
+            info->running_method_name = running_method_name;
+            //gGlobalStackPtr = gGlobalStack + num_global_stack;
+            int l;
+            for(l=0; l<gBufferToPointerCastCount; l++) {
+                pop_global_stack();
+            }
+            return FALSE;
+        }
+
+        void* func = method->mCFunctionPointer;
+
+        sCLClass* void_class = get_class("Null");
+        sCLClass* int_class = get_class("int");
+        sCLClass* uint_class = get_class("uint");
+        sCLClass* byte_class = get_class("byte");
+        sCLClass* ubyte_class = get_class("ubyte");
+        sCLClass* short_class = get_class("short");
+        sCLClass* ushort_class = get_class("ushort");
+        sCLClass* long_class = get_class("long");
+        sCLClass* ulong_class = get_class("ulong");
+        sCLClass* float_class = get_class("float");
+        sCLClass* double_class = get_class("double");
+        sCLClass* pointer_class = get_class("pointer");
+        sCLClass* bool_class = get_class("bool");
+        sCLClass* char_class = get_class("char");
+        sCLClass* lambda_class = get_class("lambda");
+
+        int int_result_value = 0;
+        unsigned int uint_result_value = 0;
+        char byte_result_value = 0;
+        unsigned char ubyte_result_value = 0;
+        short short_result_value = 0;
+        unsigned short ushort_result_value = 0;
+        long long_result_value = 0;
+        unsigned long ulong_result_value = 0;
+        void* pointer_result_value = 0;
+        float float_result_value = 0.0f;
+        double double_result_value = 0.0;
+
+        sCLClass* result_class = get_class_from_cl_type(method->mResultType, klass);
+
+        av_alist alist;
+
+        if(result_class == int_class || result_class == bool_class) {
+            av_start_int(alist, func, &int_result_value);
+        }
+        else if(result_class == uint_class || result_class == char_class) {
+            av_start_uint(alist, func, &uint_result_value);
+        }
+        else if(result_class == byte_class) {
+            av_start_char(alist, func, &byte_result_value);
+        }
+        else if(result_class == ubyte_class) {
+            av_start_uchar(alist, func, &ubyte_result_value);
+        }
+        else if(result_class == short_class) {
+            av_start_short(alist, func, &short_result_value);
+        }
+        else if(result_class == ushort_class) {
+            av_start_ushort(alist, func, &ushort_result_value);
+        }
+        else if(result_class == long_class) {
+            av_start_long(alist, func, &long_result_value);
+        }
+        else if(result_class == ulong_class) {
+            av_start_ulong(alist, func, &ulong_result_value);
+        }
+        else if(result_class == float_class) {
+            av_start_float(alist, func, &float_result_value);
+        }
+        else if(result_class == double_class) {
+            av_start_double(alist, func, &double_result_value);
+        }
+        else if(result_class == pointer_class) {
+            av_start_ptr(alist, func, void*, &pointer_result_value);
+        }
+        else if(result_class == void_class) {
+            av_start_void(alist, func);
+        }
+        else {
+        //else if(result_class == lambda_class) {
+            entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "C Function is not supported lambda or struct class");
+            info->running_class = running_class;
+            info->running_method = running_method;
+            info->running_class_name = running_class_name;
+            info->running_method_name = running_method_name;
+            //gGlobalStackPtr = gGlobalStack + num_global_stack;
+            int l;
+            for(l=0; l<gBufferToPointerCastCount; l++) {
+                pop_global_stack();
+            }
+
+            return FALSE;
+        }
+
+        int i;
+        for(i=0; i<method->mNumParams; i++) {
+            sCLParam* param_type = method->mParams + i;
+            sCLClass* param_class = get_class_from_cl_type(param_type->mType, klass);
+
+            CLVALUE* param = lvar + i;
+
+            if(param_class == int_class || param_class == bool_class) {
+                av_int(alist, param->mIntValue);
+            }
+            else if(param_class == uint_class || param_class == char_class) {
+                av_uint(alist, param->mUIntValue);
+            }
+            else if(param_class == byte_class) {
+                av_char(alist, param->mByteValue);
+            }
+            else if(param_class == ubyte_class) {
+                av_uchar(alist, param->mUByteValue);
+            }
+            else if(param_class == short_class) {
+                av_short(alist, param->mShortValue);
+            }
+            else if(param_class == ushort_class) {
+                av_short(alist, param->mUShortValue);
+            }
+            else if(param_class == long_class) {
+                av_long(alist, param->mLongValue);
+            }
+            else if(param_class == ulong_class) {
+                av_ulong(alist, param->mULongValue);
+            }
+            else if(param_class == float_class) {
+                av_float(alist, param->mFloatValue);
+            }
+            else if(param_class == double_class) {
+                av_double(alist, param->mDoubleValue);
+            }
+            else if(param_class == pointer_class) {
+                av_ptr(alist, void*, param->mPointerValue);
+            }
+            else {
+            //else if(param_class == lambda_class) {
+                entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "C Function is not supported lambda or struct class");
+                info->running_class = running_class;
+                info->running_method = running_method;
+                info->running_class_name = running_class_name;
+                info->running_method_name = running_method_name;
+                //gGlobalStackPtr = gGlobalStack + num_global_stack;
+                int l;
+                for(l=0; l<gBufferToPointerCastCount; l++) {
+                    pop_global_stack();
+                }
+
+                return FALSE;
+            }
+        }
+
+        if(result_class == int_class || result_class == bool_class) {
+            av_call(alist);
+            CLVALUE result = *(*stack_ptr - 1);
+            *stack_ptr = lvar;
+            (*stack_ptr)->mIntValue = int_result_value;
+            (*stack_ptr)++;
+        }
+        else if(result_class == uint_class || result_class == char_class) {
+            av_call(alist);
+            CLVALUE result = *(*stack_ptr - 1);
+            *stack_ptr = lvar;
+            (*stack_ptr)->mUIntValue = uint_result_value;
+            (*stack_ptr)++;
+        }
+        else if(result_class == byte_class) {
+            av_call(alist);
+            CLVALUE result = *(*stack_ptr - 1);
+            *stack_ptr = lvar;
+            (*stack_ptr)->mByteValue = byte_result_value;
+            (*stack_ptr)++;
+        }
+        else if(result_class == ubyte_class) {
+            av_call(alist);
+            CLVALUE result = *(*stack_ptr - 1);
+            *stack_ptr = lvar;
+            (*stack_ptr)->mUByteValue = ubyte_result_value;
+            (*stack_ptr)++;
+        }
+        else if(result_class == short_class) {
+            av_call(alist);
+            CLVALUE result = *(*stack_ptr - 1);
+            *stack_ptr = lvar;
+            (*stack_ptr)->mShortValue = short_result_value;
+            (*stack_ptr)++;
+        }
+        else if(result_class == ushort_class) {
+            av_call(alist);
+            CLVALUE result = *(*stack_ptr - 1);
+            *stack_ptr = lvar;
+            (*stack_ptr)->mUShortValue = ushort_result_value;
+            (*stack_ptr)++;
+        }
+        else if(result_class == long_class) {
+            av_call(alist);
+            CLVALUE result = *(*stack_ptr - 1);
+            *stack_ptr = lvar;
+            (*stack_ptr)->mLongValue = long_result_value;
+            (*stack_ptr)++;
+        }
+        else if(result_class == ulong_class) {
+            av_call(alist);
+            CLVALUE result = *(*stack_ptr - 1);
+            *stack_ptr = lvar;
+            (*stack_ptr)->mULongValue = ulong_result_value;
+            (*stack_ptr)++;
+        }
+        else if(result_class == pointer_class) {
+            av_call(alist);
+            CLVALUE result = *(*stack_ptr - 1);
+            *stack_ptr = lvar;
+            (*stack_ptr)->mPointerValue = pointer_result_value;
+            (*stack_ptr)++;
+        }
+        else if(result_class == float_class) {
+            av_call(alist);
+            CLVALUE result = *(*stack_ptr - 1);
+            *stack_ptr = lvar;
+            (*stack_ptr)->mFloatValue = float_result_value;
+            (*stack_ptr)++;
+        }
+        else if(result_class == double_class) {
+            av_call(alist);
+            CLVALUE result = *(*stack_ptr - 1);
+            *stack_ptr = lvar;
+            (*stack_ptr)->mDoubleValue = double_result_value;
+            (*stack_ptr)++;
+        }
+        else if(result_class == get_class("Null")) {
+            av_call(alist);
+
+            *stack_ptr = lvar;
+            (*stack_ptr)->mLongValue = 0;    // zero clear for jit
+            (*stack_ptr)->mIntValue = 0;
+            (*stack_ptr)++;
+        }
+        else { //if(result_class == get_class("lambda")) {
+            entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "C Function is not supported lambda or struct class");
+
+            info->running_class = running_class;
+            info->running_method = running_method;
+            info->running_class_name = running_class_name;
+            info->running_method_name = running_method_name;
+            //gGlobalStackPtr = gGlobalStack + num_global_stack;
+            int l;
+            for(l=0; l<gBufferToPointerCastCount; l++) {
+                pop_global_stack();
+            }
+
+            return FALSE;
+        }
+    }
+    else if(method->mFlags & METHOD_FLAGS_NATIVE) 
     {
         CLVALUE* lvar = *stack_ptr - method->mNumParams;
 
@@ -563,6 +827,10 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
                 info->running_class_name = running_class_name;
                 info->running_method_name = running_method_name;
                 //gGlobalStackPtr = gGlobalStack + num_global_stack;
+                int l;
+                for(l=0; l<gBufferToPointerCastCount; l++) {
+                    pop_global_stack();
+                }
                 return FALSE;
             }
 
@@ -583,6 +851,10 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             info->running_class_name = running_class_name;
             info->running_method_name = running_method_name;
             //gGlobalStackPtr = gGlobalStack + num_global_stack;
+            int l;
+            for(l=0; l<gBufferToPointerCastCount; l++) {
+                pop_global_stack();
+            }
             return FALSE;
         }
 
@@ -628,6 +900,10 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             info->running_class = running_class;
             info->running_method = running_method;
             //gGlobalStackPtr = gGlobalStack + num_global_stack;
+            int l;
+            for(l=0; l<gBufferToPointerCastCount; l++) {
+                pop_global_stack();
+            }
             return FALSE;
         }
 #else
@@ -642,6 +918,10 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             info->running_class = running_class;
             info->running_method = running_method;
             //gGlobalStackPtr = gGlobalStack + num_global_stack;
+            int l;
+            for(l=0; l<gBufferToPointerCastCount; l++) {
+                pop_global_stack();
+            }
             return FALSE;
         }
 #endif
@@ -665,6 +945,10 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
     info->running_method_name = running_method_name;
 
     //gGlobalStackPtr = gGlobalStack + num_global_stack;
+    int l;
+    for(l=0; l<gBufferToPointerCastCount; l++) {
+        pop_global_stack();
+    }
 
     return TRUE;
 }
@@ -1223,6 +1507,8 @@ static BOOL string_expression(char* str, sBuf* buf, int* string_expression_offse
     return TRUE;
 }
 
+int gBufferToPointerCastCount = 0;
+
 BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sVMInfo* info)
 {
 #ifdef ENABLE_JIT
@@ -1231,6 +1517,8 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
     register char* pc = code->mCodes;
 #endif
     //reset_andand_oror(info);
+
+    int l = 0;
 
     CLVALUE* stack_ptr = stack + var_num;
     CLVALUE* lvar = stack;
@@ -9595,6 +9883,24 @@ show_inst(inst);
                     (stack_ptr-1)->mPointerValue = value;
 
                     
+                }
+                break;
+
+            case OP_BUFFER_TO_POINTER_CAST:
+                {
+                    CLObject object = (stack_ptr-1)->mObjectValue;
+                    sCLObject* object_data = CLOBJECT(object);
+
+                    char* pointer_value = object_data->mFields[0].mPointerValue;
+
+                    CLVALUE cl_value;
+                    cl_value.mObjectValue = object;
+                    push_value_to_global_stack(cl_value);
+
+                    gBufferToPointerCastCount++;
+
+                    (stack_ptr-1)->mLongValue = 0;
+                    (stack_ptr-1)->mPointerValue = pointer_value;
                 }
                 break;
 

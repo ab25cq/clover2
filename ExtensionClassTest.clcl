@@ -1,0 +1,22 @@
+
+class ExtensionClassTest
+{
+    ABC: static int from ExtensionTest.h
+
+    def getValue(x:int, y:int): int from libExtensionTest.so;
+    def getValue2(x:long, y:long): long from libExtensionTest.so;
+    def getStr(x:pointer, y:pointer): pointer@alloc from libExtensionTest.so;
+
+    def main():static {
+        Clover.test("Extension Test1", getValue(1, 2) == 3);
+        Clover.test("Extension Test2", getValue2(1l, 2l) == 3l);
+
+        str := getStr(b"ABC", b"DEF");
+
+        Clover.test("Extension Test3", strcmp(str, b"ABCDEF") == 0);
+
+        free(str);
+
+        Clover.test("Extension Test4", ABC == 123);
+    }
+}

@@ -194,3 +194,8 @@ println("Omit Block Param Test");
 OmitBlockParamTest.main();
 println("ObjectCast");
 ObjectCast.main();
+println("ExtensionClassTest");
+ExtensionClassTest.main();
+println("PointerTest3");
+PointerTest3.main();
+

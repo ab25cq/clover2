@@ -22,7 +22,7 @@ The following pages have explanations of main classes and methods.
 * [Thread](thread-en)
 
 Please refer to the source code for further information.
-Layers are stacked in the order of Fundamental.clcl→Reflection.clcl→Thread.clcl→String.clcl→Container.clcl→Range.clcl→File.clcl→Command.clcl→SystemCalls.clcl→CGI.clcl→Socket.clcl→MyOwnLibrary.clcl included in the source. By looking through in turn, your understanding will deepen.
+Layers are stacked in the order of Fundamental.clcl→Reflection.clcl→Thread.clcl→String.clcl→Container.clcl→Range.clcl→File.clcl→Command.clcl→SystemCalls.clcl→CLibrary.clcl→CGI.clcl→Socket.clcl→MyOwnLibrary.clcl included in the source. By looking through in turn, your understanding will deepen.
 
 ----
 

@@ -220,6 +220,7 @@ typedef struct sCLParamStruct sCLParam;
 #define METHOD_FLAGS_CLASS_METHOD 0x02
 #define METHOD_FLAGS_MODIFIED 0x08
 #define METHOD_FLAGS_NON_NATIVE_CODE 0x10
+#define METHOD_FLAGS_C_FUNCTION 0x20
 
 #define EXCEPTION_MESSAGE_MAX 1024
 #define STACK_TRACE_MAX 32
@@ -284,6 +285,9 @@ struct sCLMethodStruct {
 
     int mNumGenerics;
     int mGenericsParamTypeOffsets[GENERICS_TYPES_MAX];
+
+    int mCLibraryOffset;
+    void* mCFunctionPointer;    // this requires runtime
 };
 
 typedef struct sCLMethodStruct sCLMethod;
@@ -299,7 +303,7 @@ struct sCLFieldStruct {
     sCLType* mResultType;
     CLVALUE mValue;
 
-    int mInitializeValue; // -1は初期化なし。enum型のためにある。
+    int mInitializeValue; // -1 is none initialized value. This is for enum or C bridge.
 
     int mDelegatedMethodIndex[METHOD_NUM_MAX];  // compile time variable
     int mNumDelegatedMethod;
@@ -962,6 +966,7 @@ void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
 /// vm.c ///
 extern BOOL gSigInt;
 extern BOOL gRunningInitializer;
+extern int gBufferToPointerCastCount;
 
 #define OP_POP 1
 #define OP_POP_N 2
@@ -1542,6 +1547,7 @@ extern BOOL gRunningInitializer;
 #define OP_LONG_TO_POINTER_CAST 7326
 #define OP_ULONG_TO_POINTER_CAST 7327
 #define OP_CHAR_TO_POINTER_CAST 7328
+#define OP_BUFFER_TO_POINTER_CAST 7329
 
 #define OP_BYTE_TO_CHAR_CAST 7330
 #define OP_UBYTE_TO_CHAR_CAST 7331
@@ -1820,7 +1826,7 @@ BOOL call_all_class_initializer();
 #define PARSE_PHASE_MAX 8
 
 BOOL compile_class_source(char* fname, char* source);
-BOOL parse_method_name_and_params(char* method_name, int method_name_max, sParserParam* params, int* num_params, sNodeType** result_type, BOOL* native_, BOOL* static_, sParserInfo* info);
+BOOL parse_method_name_and_params(char* method_name, int method_name_max, sParserParam* params, int* num_params, sNodeType** result_type, BOOL* native_, BOOL* static_, sParserInfo* info, char* clibrary_path, size_t clibrary_path_size);
 
 /// cycle.c ///
 void set_dependency_compile();
@@ -1829,9 +1835,9 @@ BOOL dependency_compile(char* cwd, char* class_name, char* class_file_name, size
 void dependency_final();
 
 /// klass_compile_time.c ///
-BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_, sGenericsParamInfo* ginfo, sCLMethod** appended_method);
+BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_, sGenericsParamInfo* ginfo, sCLMethod** appended_method, char* clibrary_path);
 BOOL add_typedef_to_class(sCLClass* klass, char* class_name1, char* class_name2);
-BOOL add_class_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type, int initialize_value);
+BOOL add_class_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type, int initialize_value, char* header_path);
 void add_code_to_method(sCLMethod* method, sByteCode* code, int var_num);
 BOOL write_all_modified_classes();
 int search_for_method(sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, int start_point, sNodeType* left_generics_type, sNodeType* right_generics_type, sNodeType* right_method_generics, sNodeType** result_type, BOOL lazy_lambda_compile, BOOL lazy_labda_compile2, sNodeType** method_generics_types);

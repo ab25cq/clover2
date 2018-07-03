@@ -1622,6 +1622,11 @@ void cast_right_type_to_pointer(sNodeType** right_type, sCompileInfo* info)
         append_opecode_to_code(info->code, OP_INT_TO_POINTER_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("pointer");
     }
+    else if(type_identify_with_class_name(*right_type, "Buffer"))
+    {
+        append_opecode_to_code(info->code, OP_BUFFER_TO_POINTER_CAST, info->no_output);
+        *right_type = create_node_type_with_class_name("pointer");
+    }
 }
 
 void cast_right_type_to_bool(sNodeType** right_type, sCompileInfo* info)
@@ -2942,12 +2947,10 @@ void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, 
         {
             cast_right_type_to_double(right_type, info);
         }
-/*
         else if(type_identify_with_class_name(left_type, "pointer"))
         {
             cast_right_type_to_pointer(right_type, info);
         }
-*/
         else if(type_identify_with_class_name(left_type, "char"))
         {
             cast_right_type_to_char(right_type, info);

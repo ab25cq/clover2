@@ -406,14 +406,14 @@ BOOL substitution_posibility_with_class_name(sNodeType* left, char* right_class_
     return substitution_posibility(left, create_node_type_with_class_name(right_class_name), NULL , NULL, NULL, NULL);
 }
 
-BOOL no_cast_types_for_binary_operator(sNodeType* left_type, sNodeType* right_type)
-{
-    return type_identify_with_class_name(left_type, "pointer") && type_identify_with_class_name(right_type, "ulong");
-}
-
 static BOOL is_numeric_type(sNodeType* type_)
 {
     return type_identify_with_class_name(type_, "int") || type_identify_with_class_name(type_, "uint") || type_identify_with_class_name(type_, "byte") || type_identify_with_class_name(type_, "ubyte") || type_identify_with_class_name(type_, "short") || type_identify_with_class_name(type_, "ushort") || type_identify_with_class_name(type_, "long") || type_identify_with_class_name(type_, "ulong") || type_identify_with_class_name(type_, "float") || type_identify_with_class_name(type_, "double") || type_identify_with_class_name(type_, "Integer") || type_identify_with_class_name(type_, "UInteger") || type_identify_with_class_name(type_, "Byte") || type_identify_with_class_name(type_, "UByte") || type_identify_with_class_name(type_, "Short") || type_identify_with_class_name(type_, "UShort") || type_identify_with_class_name(type_, "Long") || type_identify_with_class_name(type_, "ULong") || type_identify_with_class_name(type_, "Float") || type_identify_with_class_name(type_, "Double");
+}
+
+BOOL no_cast_types_for_binary_operator(sNodeType* left_type, sNodeType* right_type)
+{
+    return type_identify_with_class_name(left_type, "pointer") && is_numeric_type(right_type);
 }
 
 static BOOL is_numeric_type_without_float(sNodeType* type_)
@@ -719,6 +719,10 @@ BOOL cast_posibility(sNodeType* left_type, sNodeType* right_type)
         return TRUE;
     }
     else if(unboxing_posibility(left_type, right_type)) {
+        return TRUE;
+    }
+    else if(type_identify_with_class_name(left_type, "pointer") && type_identify_with_class_name(right_type, "Buffer"))
+    {
         return TRUE;
     }
 

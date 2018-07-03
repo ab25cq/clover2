@@ -1,4 +1,8 @@
 
+clover2 (4.5.0-1) unstable; urgency=medium
+
+    * I put a bridge for C. Functions and constants can be imported. Buffer class is unboxing to pointer class
+
 clover2 (4.2.7-1) unstable; urgency=medium
 
     * Fixed bug of String.insert.

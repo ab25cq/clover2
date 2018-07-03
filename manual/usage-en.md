@@ -18,11 +18,12 @@ In the class version
             println("HELLO WORLD");
         }
     }
+    > cclover2 HelloWorld.clcl
     > vim HelloWorld.cl
     HelloWorld.fun();
     > clover2 HelloWorld.cl
 ```
-is. HelloWorld.clcl is automatically compiled as class name and file name are the same without compiling.
+is. 
 
 ## Source code
 
@@ -114,7 +115,7 @@ Class A now has fields1 and 2 in fields and methods have setField1 and setField2
 ```
 A field has been added in d.clcl and the method has been overwritten. The overwritten show takes precedence for the method in d.clcl when searching for a method call. Because inherit(); is called in the show, the field c.clcl's show() is called and both fields are displayed. If there are arguments in the overridden method, give inherit an argument. <br>
 
-If you want to add methods and fields to built-in classes such as String and Hash, they are included in the Clover2 source file. Include MyOwnLibrary.clcl. In MyOwnLibrary.clcl, these layers are necessary because layers are stacked in the order of Fundamental.clcl → Reflection.clcl → Thread.clcl → String.clcl → Container.clcl → Range.clcl → File.clcl → Command.clcl → SystemCalls.clcl → CGI.clcl → MyOwnLibrary.clcl.
+If you want to add methods and fields to built-in classes such as String and Hash, they are included in the Clover2 source file. Include MyOwnLibrary.clcl. In MyOwnLibrary.clcl, these layers are necessary because layers are stacked in the order of Fundamental.clcl → Reflection.clcl → Thread.clcl → String.clcl → Container.clcl → Range.clcl → File.clcl → Command.clcl → SystemCalls.clcl → CLibrary.clcl → CGI.clcl → MyOwnLibrary.clcl.
 One point of caution is that in this case you will need the option -core at compile time.
 For example, if the name of the source file that extended String and Hash is MyOwnLibrary2.clcl
 
@@ -129,24 +130,6 @@ The open class of Clover2 is realized simply by compiling the class included in 
 ## Registering class files
 
 The search path of the class file is the current directory and $HOME/.clover2. If you want to reference classes from any directory, please copy the oclcl file to $HOME/.clover2. If you have JIT enabled, you will also need to copy a dynamic library. Copy lib[class name].so, lib[class name].so.1.0.0 to $HOME/.clover2. Although it moves even if it does not exist, JIT does not become effective and it moves. Please register a $LIBRARY_PATH like to .bashrc: export LD_LIBRARY_PATH=~/.clover2:$LD_LIBRARY_PATH for searching of dynamic libraries later.
-
-## Automatic class compilation function
-```
-    > vim Hello.clcl
-    class Hello {
-        def hello () {
-            println ("HELLO WORLD");
-        }
-    }
-    > vim hello.cl
-    Hello.hello ();
-    > clover2 hello.cl
-    HELLO WORLD
-```
-If you specify the source file name for the clover2 command, it will be automatically compiled before it is executed.
-The dependent class also recursively performs dependency analysis, so it all compiles automatically.
-In clover2, file names and class names will work differently, but it will be convenient to keep the same class name and file name.
-However, even in version 3.5.3, it is still unstable, so just to be sure, it may be better to write cclover2 hello.clcl in Makefile etc. This is because it may not compile even if you modify the file with the editor. I'll fix it around here as well. Excuse me.
 
 ## Cyclic reference of class
 ```

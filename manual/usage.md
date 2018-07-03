@@ -18,11 +18,12 @@ English page is here [>> English page](usage-en)
             println("HELLO WORLD");
         }
     }
+    > cclover2 HelloWorld.clcl
     > vim HelloWorld.cl
     HelloWorld.fun();
     > clover2 HelloWorld.cl
 
-です。HelloWorld.clclはコンパイルしなくてもクラス名とファイル名が同じなので自動的にコンパイルされます。
+です。
 
 ## ソースコード
 
@@ -114,7 +115,7 @@ Clover2はオープンクラスなのでクラスの定義後フィールドや�
 
 d.clclでフィールドが追加されてメソッドが上書きされています。上書きされたshowはメソッドコールのメソッド検索時にd.clclのものが優先されます。showの中でinherit();が呼ばれているため、元のc.clclのshow()が呼び出されてフィールドは両方のものが表示されます。上書されるメソッドに引数がある場合はinheritに引数をつけてください。<br>
 
-組み込みクラスのStringやHashなどにメソッドやフィールドを追加したい場合はClover2のソースファイルに含まれる。MyOwnLibrary.clclをincludeしてください。このMyOwnLibrary.clclにはFundamental.clcl→Reflection.clcl→Tread.clcl→String.clc→Container.clcl→Range.clcl→File.clcl→Command.clcl→SystemCalls.clcl→CGI.clcl→MyOwnLibrary.clclの順でレイヤーが重ねられているため、これらのソースファイルも必要です。
+組み込みクラスのStringやHashなどにメソッドやフィールドを追加したい場合はClover2のソースファイルに含まれる。MyOwnLibrary.clclをincludeしてください。このMyOwnLibrary.clclにはFundamental.clcl→Reflection.clcl→Tread.clcl→String.clc→Container.clcl→Range.clcl→File.clcl→Command.clcl→SystemCalls.clcl→CLibrary.clcl→CGI.clcl→MyOwnLibrary.clclの順でレイヤーが重ねられているため、これらのソースファイルも必要です。
 一つ注意点はこの場合コンパイル時に-coreというオプションが必要になることです。
 例えば、StringやHashを機能拡張したソースファイルの名前がMyOwnLibrary2.clclだとすると
 
@@ -129,24 +130,6 @@ Clover2のオープンクラスは単にincudeしたファイルに含まれる�
 ## クラスファイルの登録
 
 クラスファイルの検索パスはカレントディレクトリと$HOME/.clover2となります。どのディレクトリからでもクラスを参照したい場合はoclclファイルを$HOME/.clover2にコピーしてください。あとJITを有効にしている場合はダイナミックライブラリのコピーも必要になります。lib[クラス名].so, lib[クラス名].so.1.0.0を$HOME/.clover2にコピーしてください。無くても動いてしまいますがJITが有効にならずに動いてしまいます。あとはダイナミックライブラリの検索のためにexport LD_LIBRARY_PATH=~/.clover2:$LIBRARY_PATHを.bashrcなどに登録してください。
-
-## クラスの自動コンパイル機能
-
-    > vim Hello.clcl
-    class Hello {
-        def hello() {
-            println("HELLO WORLD");
-        }
-    }
-    > vim hello.cl
-    Hello.hello();
-    > clover2 hello.cl
-    HELLO WORLD
-
-clover2コマンドにソースファイル名を指定すると、自動的にコンパイルしてから実行されます。
-依存しているクラスも依存解析を再帰的に行うので、すべて自動的にコンパイルされます。
-clover2ではファイル名とクラス名は別でも動作しますが、クラス名とファイル名を同じにしておくと便利でしょう。
-ただし、version 3.5.3でも、まだ不安定で、念のためにMakefileなどにはcclover2 hello.clclと書いておいた方がいいかもしれません。エディッタでファイルを修正してもコンパイルされないことがあるためです。この辺り、また修正していきます。すみません。
 
 ## クラスの循環参照
 
