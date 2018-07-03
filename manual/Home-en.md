@@ -95,6 +95,18 @@ Method names, external command names, file names are also supplemented. Just lik
     );
 ```
 
+    11. Threads are supported.
+
+    12. FFI to C Language
+
+    class System
+    {
+        R_OK: static int from unistd.h
+        def strcmp(x:pointer, y:pointer): int from libc.so.6
+    }
+
+    You can use C language libraries without creating extension libraries etc.
+
 # Sample code
 
 ```

@@ -88,6 +88,16 @@ version 4.5.0
 
     11. Threadをサポートします。
 
+    12. C言語へのFFIがあります。
+
+    class System
+    {
+        R_OK: static int from unistd.h
+        def strcmp(x:pointer, y:pointer): int from libc.so.6
+    }
+
+    などと拡張ライブラリを作成せずにC言語のライブラリを使うことができます。
+
 詳しく以下を見てください。https://github.com/ab25cq/clover2/wiki
 (もしくはrepositoryに含まれるmanualディレクトリ以下のドキュメントを見てください)
 
@@ -203,6 +213,16 @@ FEATURES
     );
 
     11. Threads are supported.
+
+    12. FFI to C Language
+
+    class System
+    {
+        R_OK: static int from unistd.h
+        def strcmp(x:pointer, y:pointer): int from libc.so.6
+    }
+
+    You can use C language libraries without creating extension libraries etc.
 
 See clover2 wiki on github (Japanese and English) https://github.com/ab25cq/clover2/wiki
 
