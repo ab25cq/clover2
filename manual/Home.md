@@ -102,11 +102,11 @@ Clover2を使い始めようとするあなたへ。この言語はJavaやC#と�
 
 12. C言語へのFFIがあります。
 
-class System
-{
-    R_OK: static int from unistd.h
-    def strcmp(x:pointer, y:pointer): int from libc.so.6
-}
+    class System
+    {
+        R_OK: static int from unistd.h
+        def strcmp(x:pointer, y:pointer): int from libc.so.6
+    }
 
 などと拡張ライブラリを作成せずにC言語のライブラリを使うことができます。
 
