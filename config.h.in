@@ -6,6 +6,7 @@
 #undef HAVE_READLINE_H
 #undef HAVE_NCURSESW_H
 #undef HAVE_BSD_H
+#undef HAVE_AVCALL_H
 #undef __CYGWIN__
 #undef __SUNOS__
 #undef __DARWIN__

@@ -32,7 +32,7 @@ JIT_RUNTIME_OBJS=@JIT_RUNTIME_OBJS@
 COMMON_OBJS=@COMMON_OBJS@
 INTERPRETER=@INTERPRETER@
 JIT=@JIT@
-
+CFFI=@CFFI@
 
 ##########################################################
 # main

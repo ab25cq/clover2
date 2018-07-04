@@ -148,7 +148,9 @@ It is GPL2. Since readline is GPL 2, clover 2 using it is also GPL 2.
 # Install
 
 ## Dependent library
-It is necessary to install the development version of the library dependent on compilation. math, iconv, pcre3, readline, libz, libncursesw There are six libraries required. With Fedora, the library name -devel becomes the development version. Debian type (ubuntu etc.) should be library name -dev. Please search and search for details. In addition, ctags is necessary for the control pile. Please also install ctags. Incidentally, math is a function for mathematics, iconv is multilingualization, pcre is regular expression, readline is the interface of inpreter, and libz is a library for decompressing compressed files. If you want to enable native code compilation with --with-jit to configure option LLVM is required. It is 3.8 and 5.0 in my environment. Then you need GNU make to gcc, clang, make to the compiler
+It is necessary to install the development version of the library dependent on compilation. math, iconv, pcre3, readline, libz, libncursesw There are six libraries required. With Fedora, the library name -devel becomes the development version. Debian type (ubuntu etc.) should be library name -dev. Please search and search for details. In addition, ctags is necessary for the control pile. Please also install ctags. Incidentally, math is a function for mathematics, iconv is multilingualization, pcre is regular expression, readline is the interface of inpreter, and libz is a library for decompressing compressed files. If you want to enable native code compilation with --with-jit to configure option LLVM is required. It is 3.8 and 5.0 in my environment. Then you need GNU make to gcc, clang, make to the compiler.
+
+If you want to use C-Language FFI, please add --with-c-ffi option to configure. In this case, you need libffcall1-dev library.
 
 In ubuntu, Debian
 ```
@@ -164,7 +166,7 @@ In ubuntu, Debian
 ```
 Is required. $
 
-You need libffcall1-dev afterwards.
+You need libffcall1-dev, if you append --with-c-ffi to configure option.
 
 ## Compile
 

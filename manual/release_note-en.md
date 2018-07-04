@@ -1,4 +1,8 @@
 
+version 4.5.1
+
+    I make c-ffi optional. If you want to use it, please add --with-c-ffi to configure option.
+
 version 4.5.0
 
     I put a bridge for C. Functions and constants can be imported.

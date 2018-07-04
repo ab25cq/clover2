@@ -24,6 +24,7 @@ AC_ARG_WITH(log,                [  --with-log                create log ], [ LOG
 AC_ARG_WITH(optimize,           [  --with-optimize           with optimize(-O in CFLAGS) ], [ ENABLE_OPTIMIZE=1 ], [ ENABLE_OPTIMIZE=0 ])
 AC_ARG_WITH(interpreter,        [  --with-interpreter        with interpreter ], [ ENABLE_INTERPRETER=1 ], [ ENABLE_INTERPRETER=0])
 AC_ARG_WITH(jit,                [  --with-jit                with jit ], [ ENABLE_JIT=1 ], [ ENABLE_JIT=0])
+AC_ARG_WITH(c-ffi,              [  --with-c-ffi              with c ffi ], [ ENABLE_CFFI=1 ], [ ENABLE_CFFI=0])
 
 ##############################################################
 # check cpu type
@@ -234,8 +235,16 @@ AC_HAVE_LIBRARY(pcre, [ LIBS="$LIBS -lpcre"; ], [ eixt ])
 
 AC_HAVE_LIBRARY(rt, [ LIBS="$LIBS -lrt"; ], [])
 
-AC_CHECK_HEADER(avcall.h, [AC_DEFINE(HAVE_AVCALL_H,1)], [ exit ])
-AC_HAVE_LIBRARY(avcall, [ LIBS="$LIBS -lavcall"; ], [ exit ])
+if test "$ENABLE_CFFI" = 1
+then
+    CFFI=1
+    AC_CHECK_HEADER(avcall.h, [AC_DEFINE(HAVE_AVCALL_H,1)], [ exit ])
+    AC_HAVE_LIBRARY(avcall, [ LIBS="$LIBS -lavcall"; ], [ exit ])
+else
+    CFFI=0
+fi
+
+AC_SUBST(CFFI)
 
 AC_SUBST(LIBS)
 

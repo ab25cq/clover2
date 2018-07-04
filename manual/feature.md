@@ -1444,6 +1444,8 @@ a()は123を返します。
 
 ## C言語へのブリッジ
 
+使う場合はconfigureに--with-c-ffiオプションをつけてコンパイルしてください。
+
     ExtensionTest.c
 
     #include <stdio.h>

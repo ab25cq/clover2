@@ -8,15 +8,19 @@ class ExtensionClassTest
     def getStr(x:pointer, y:pointer): pointer@alloc from libExtensionTest.so;
 
     def main():static {
-        Clover.test("Extension Test1", getValue(1, 2) == 3);
-        Clover.test("Extension Test2", getValue2(1l, 2l) == 3l);
+        try {
+            Clover.test("Extension Test1", getValue(1, 2) == 3);
+            Clover.test("Extension Test2", getValue2(1l, 2l) == 3l);
 
-        str := getStr(b"ABC", b"DEF");
+            str := getStr(b"ABC", b"DEF");
 
-        Clover.test("Extension Test3", strcmp(str, b"ABCDEF") == 0);
+            Clover.test("Extension Test3", strcmp(str, b"ABCDEF") == 0);
 
-        free(str);
+            free(str);
 
-        Clover.test("Extension Test4", ABC == 123);
+            Clover.test("Extension Test4", ABC == 123);
+        } catch(e:Exception) {
+            println("no support c function in this configure option. no test");
+        }
     }
 }

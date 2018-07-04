@@ -630,6 +630,7 @@ CXXFLAGS
 JIT
 CXX
 DESTDIR
+CFFI
 OS
 INTERPRETER
 EGREP
@@ -692,6 +693,7 @@ with_log
 with_optimize
 with_interpreter
 with_jit
+with_c_ffi
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1324,6 +1326,7 @@ Optional Packages:
   --with-optimize           with optimize(-O in CFLAGS)
   --with-interpreter        with interpreter
   --with-jit                with jit
+  --with-c-ffi              with c ffi
 
 Some influential environment variables:
   CC          C compiler command
@@ -3635,6 +3638,14 @@ else
 fi
 
 
+# Check whether --with-c-ffi was given.
+if test "${with_c_ffi+set}" = set; then :
+  withval=$with_c_ffi;  ENABLE_CFFI=1
+else
+   ENABLE_CFFI=0
+fi
+
+
 ##############################################################
 # check cpu type
 ##############################################################
@@ -4219,7 +4230,10 @@ fi
 ac_cv_lib_rt=ac_cv_lib_rt_main
 
 
-ac_fn_c_check_header_mongrel "$LINENO" "avcall.h" "ac_cv_header_avcall_h" "$ac_includes_default"
+if test "$ENABLE_CFFI" = 1
+then
+    CFFI=1
+    ac_fn_c_check_header_mongrel "$LINENO" "avcall.h" "ac_cv_header_avcall_h" "$ac_includes_default"
 if test "x$ac_cv_header_avcall_h" = xyes; then :
   $as_echo "#define HAVE_AVCALL_H 1" >>confdefs.h
 
@@ -4228,7 +4242,7 @@ else
 fi
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lavcall" >&5
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lavcall" >&5
 $as_echo_n "checking for main in -lavcall... " >&6; }
 if ${ac_cv_lib_avcall_main+:} false; then :
   $as_echo_n "(cached) " >&6
@@ -4264,6 +4278,11 @@ else
    exit
 fi
 ac_cv_lib_avcall=ac_cv_lib_avcall_main
+
+else
+    CFFI=0
+fi
+
 
 
 

@@ -1467,6 +1467,8 @@ It is like the above. Although the namespace of the local variable and the field
 
 ## Bridge to C Language
 
+If you want to this function, please compile with --with-c-ffi configure option.
+
     ```
     ExtensionTest.c
 

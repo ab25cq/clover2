@@ -1,5 +1,7 @@
 #include "common.h"
+#ifdef HAVE_AVCALL_H
 #include <avcall.h>
+#endif
 
 BOOL gSigInt = FALSE;
 
@@ -548,8 +550,8 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             info->num_stack_trace++;
         }
     }
-
     if(method->mFlags & METHOD_FLAGS_C_FUNCTION) {
+#ifdef HAVE_AVCALL_H
         CLVALUE* lvar = *stack_ptr - method->mNumParams;
 
         if(method->mCFunctionPointer == NULL) {
@@ -637,7 +639,6 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             av_start_void(alist, func);
         }
         else {
-        //else if(result_class == lambda_class) {
             entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "C Function is not supported lambda or struct class");
             info->running_class = running_class;
             info->running_method = running_method;
@@ -693,7 +694,6 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
                 av_ptr(alist, void*, param->mPointerValue);
             }
             else {
-            //else if(param_class == lambda_class) {
                 entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "C Function is not supported lambda or struct class");
                 info->running_class = running_class;
                 info->running_method = running_method;
@@ -794,7 +794,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             (*stack_ptr)->mIntValue = 0;
             (*stack_ptr)++;
         }
-        else { //if(result_class == get_class("lambda")) {
+        else {
             entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "C Function is not supported lambda or struct class");
 
             info->running_class = running_class;
@@ -809,6 +809,20 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
 
             return FALSE;
         }
+#else
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "C Function is not supported. Please add --with-c-ffi to configure option.");
+        info->running_class = running_class;
+        info->running_method = running_method;
+        info->running_class_name = running_class_name;
+        info->running_method_name = running_method_name;
+        //gGlobalStackPtr = gGlobalStack + num_global_stack;
+        int l;
+        for(l=0; l<gBufferToPointerCastCount; l++) {
+            pop_global_stack();
+        }
+
+        return FALSE;
+#endif
     }
     else if(method->mFlags & METHOD_FLAGS_NATIVE) 
     {
