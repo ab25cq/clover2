@@ -1,5 +1,9 @@
 English page is here [>> English page](release_note-en)
 
+version 4.5.3
+
+    バグフィックス。安定したと思います。
+
 version 4.5.2
 
     バグフィックス。
