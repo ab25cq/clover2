@@ -52,7 +52,7 @@ clover2: config.h src/main.o $(COMMON_OBJS) $(OBJS) $(JIT_RUNTIME_OBJS)
 iclover2: config.h src/interpreter.o $(COMMON_OBJS) $(OBJS) $(COMPILER_OBJS) $(JIT_RUNTIME_OBJS)
 	if test $(JIT) = 1; then $(CXX) -o iclover2 src/interpreter.o $(COMMON_OBJS) $(OBJS:src/class_clover_runtime.o=) $(COMPILER_OBJS) $(JIT_RUNTIME_OBJS) $(CFLAGS) $(LIBS) $(CXXFLAGS); else $(CC) -o iclover2 src/interpreter.o $(COMMON_OBJS) $(OBJS:src/class_clover_runtime.o=) $(COMPILER_OBJS) $(CFLAGS) $(LIBS); fi
 
-SortableArray.oclcl: Fundamental.clcl String.clcl Container.clcl CLParser.clcl Range.clcl Command.clcl File.clcl MyOwnLibrary.clcl CGI.clcl Reflection.clcl Socket.clcl SystemCalls.clcl Thread.clcl
+SortableArray.oclcl: Fundamental.clcl String.clcl Container.clcl CLParser.clcl Range.clcl Command.clcl File.clcl MyOwnLibrary.clcl CGI.clcl Reflection.clcl Socket.clcl SystemCalls.clcl Thread.clcl CLibrary.clcl
 	PWD=`pwd`; ./cclover2 -core MyOwnLibrary.clcl
 
 libclover2.so.1.0.0: $(COMMON_OBJ) $(COMPILER_OBJS) $(OBJS) $(JIT_RUNTIME_OBJS)
@@ -147,6 +147,7 @@ install:
 	mkdir -p $(DESTDIR)/share/clover2
 
 	$(INSTALL) -m 644 ./CGI.clcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 ./CLibrary.clcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 ./Command.clcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 ./Container.clcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 ./File.clcl $(DESTDIR)/share/clover2
