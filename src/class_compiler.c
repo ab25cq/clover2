@@ -523,8 +523,11 @@ static BOOL field_delegation(sParserInfo* info, sCompileInfo* cinfo, sCLClass* k
                     xstrncpy(method_generics_info.mParamNames[j], "dummy", VAR_NAME_MAX); // no use in add_method_to_class
                 }
 
+                char clibrary_path[PATH_MAX];
+                clibrary_path[0] = '\0';
+
                 sCLMethod* appended_method = NULL;
-                if(!add_method_to_class(klass, method_name, parser_params, num_params, result_type, native_, static_, &method_generics_info, &appended_method, "")) 
+                if(!add_method_to_class(klass, method_name, parser_params, num_params, result_type, native_, static_, &method_generics_info, &appended_method, clibrary_path)) 
                 {
                     return FALSE;
                 }
@@ -555,8 +558,11 @@ static BOOL setter_and_getter(sParserInfo* info, sCompileInfo* cinfo, sCLClass* 
         BOOL native_ = FALSE;
         BOOL static_ = FALSE;
 
+        char clibrary_path[PATH_MAX];
+        clibrary_path[0] = '\0';
+
         sCLMethod* appended_method = NULL;
-        if(!add_method_to_class(klass, method_name, parser_params, num_params, result_type, native_, static_, NULL, &appended_method, ""))
+        if(!add_method_to_class(klass, method_name, parser_params, num_params, result_type, native_, static_, NULL, &appended_method, clibrary_path))
         {
             return FALSE;
         }
@@ -580,8 +586,11 @@ static BOOL setter_and_getter(sParserInfo* info, sCompileInfo* cinfo, sCLClass* 
             BOOL native_ = FALSE;
             BOOL static_ = FALSE;
 
+            char clibrary_path[PATH_MAX];
+            clibrary_path[0] = '\0';
+
             sCLMethod* appended_method = NULL;
-            if(!add_method_to_class(klass, method_name, parser_params, num_params, result_type, native_, static_, NULL, &appended_method, ""))
+            if(!add_method_to_class(klass, method_name, parser_params, num_params, result_type, native_, static_, NULL, &appended_method, clibrary_path))
             {
                 return FALSE;
             }

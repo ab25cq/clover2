@@ -615,6 +615,11 @@ BOOL create_virtual_method_table(sCLClass* klass)
 {
     memset(klass->mVirtualMethodTable, 0, sizeof(sCLMethod*)*METHOD_NUM_MAX);
 
+    if(klass->mNumMethods >= METHOD_NUM_MAX) {
+        fprintf(stderr, "overflow method number\n");
+        return FALSE;
+    }
+
     int i;
     for(i=0; i<klass->mNumMethods; i++) {
         sCLMethod* method = klass->mMethods + i;
@@ -793,6 +798,11 @@ sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_clas
     klass->mMethodGenericsParamClassNum = method_generics_param_class_num;
 
     klass->mNumGenerics = generics_number;
+
+    if(generics_number >= GENERICS_TYPES_MAX) {
+        fprintf(stderr, "overflow generics number\n");
+        exit(1);
+    }
 
     sConst_init(&klass->mConst);
 

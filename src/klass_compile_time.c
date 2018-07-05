@@ -250,6 +250,11 @@ BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* param
         klass->mMethods[num_methods].mCLibraryOffset = 0;
     }
 
+    if(num_params >= PARAMS_MAX) {
+        fprintf(stderr, "overflow param number\n");
+        return FALSE;
+    }
+
     if(strcmp(method_name, "initialize") == 0 || strcmp(method_name, "finalize") == 0 || native_)
     {
         klass->mMethods[num_methods].mFlags |= METHOD_FLAGS_NON_NATIVE_CODE;
@@ -296,6 +301,11 @@ BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* param
     klass->mMethods[num_methods].mMethodIndex = num_methods;
 
     if(ginfo) {
+        if(ginfo->mNumParams >= GENERICS_TYPES_MAX) {
+            fprintf(stderr, "overflow generics types number\n");
+            return FALSE;
+        }
+
         klass->mMethods[num_methods].mNumGenerics = ginfo->mNumParams;
         for(i=0; i<ginfo->mNumParams; i++) {
             char* interface_name = CLASS_NAME(ginfo->mInterface[i]);
@@ -330,6 +340,7 @@ BOOL add_typedef_to_class(sCLClass* klass, char* class_name1, char* class_name2)
     klass->mNumTypedef++;
 
     if(klass->mNumTypedef >= TYPEDEF_MAX) {
+        fprintf(stderr, "overflow typedef max\n");
         return FALSE;
     }
 
