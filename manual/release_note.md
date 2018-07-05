@@ -1,5 +1,9 @@
 English page is here [>> English page](release_note-en)
 
+version 4.5.2
+
+    バグフィックス。
+
 version 4.5.1
 
     C-FFIはオプショナルになりました。使う場合はconfigureに--with-c-ffiを付けてください。

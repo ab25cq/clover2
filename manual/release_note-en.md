@@ -1,4 +1,8 @@
 
+version 4.5.2
+
+    Fixed bug.
+
 version 4.5.1
 
     I make c-ffi optional. If you want to use it, please add --with-c-ffi to configure option.

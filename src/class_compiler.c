@@ -454,7 +454,9 @@ static BOOL parse_field_attributes_and_type(BOOL* private_, BOOL* protected_, BO
         return FALSE;
     }
 
-    if(*info->p == 'f' && *(info->p+1) == 'r' && *(info->p+2) == 'o' && *(info->p+3) == 'm') {
+    char* source_end = info->source + strlen(info->source);
+
+    if(info->p < source_end -5 && strstr(info->p, "from") == info->p) {
         info->p += 4;
         skip_spaces_and_lf(info);
 

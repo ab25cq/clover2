@@ -75,7 +75,6 @@ interface CLNodeTree
 class CLNodeTreeBase
 {
     kind:int;
-
     left:CLNodeTree;
     right:CLNodeTree;
     middle:CLNodeTree;

@@ -1,4 +1,8 @@
 
+clover2 (4.5.2-1) unstable; urgency=medium
+
+    * Fixed bug.
+
 clover2 (4.5.1-1) unstable; urgency=medium
 
     * I make c-ffi optional. If you want to use it, please add --with-c-ffi to configure option.
