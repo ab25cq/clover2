@@ -1,4 +1,8 @@
 
+version 4.5.7
+
+    Fix important memory bugs.
+
 version 4.5.6
 
     append String.delete method to Clover2 Library.

@@ -1,4 +1,8 @@
-English page is here [>> English page](release_note-en)
+English page is here [>> English page](changelog-en)
+
+version 4.5.7
+
+    メモリのバグがありました。修正。重要なバグでした。
 
 version 4.5.6
 

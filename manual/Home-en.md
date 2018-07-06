@@ -213,9 +213,9 @@ In Debian you can install by package. You can create packages with make_deb.sh. 
 Packaging is done, so we are looking for a Debian developer who can register the package.
 Someone please do m(_ _)m
 
-## release_note
+## changelog
 
-* [release_note](release_note-en)
+* [changelog](changelog-en)
 
 ----
 

@@ -17,11 +17,10 @@ static void create_global_stack_and_append_it_to_stack_list()
 void push_value_to_global_stack(CLVALUE value)
 {
     int num_global_stack = gGlobalStackPtr - gGlobalStack;
-    if(num_global_stack >= gSizeGlobalStack) {
+    if(num_global_stack >= gSizeGlobalStack-1) {
         CLVALUE* global_stack = gGlobalStack;
-        int new_size = num_global_stack * 2;
+        int new_size = (gSizeGlobalStack + num_global_stack) * 2;
         gGlobalStack = MREALLOC(gGlobalStack, sizeof(CLVALUE)*new_size);
-        memset(gGlobalStack + num_global_stack, 0 , new_size - num_global_stack);
 
         gGlobalStackPtr = gGlobalStack + num_global_stack;
 
@@ -35,7 +34,6 @@ void push_value_to_global_stack(CLVALUE value)
 
             it = it->mNextStack;
         }
-
     }
 
     *gGlobalStackPtr = value;
