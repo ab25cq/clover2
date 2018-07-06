@@ -34,7 +34,7 @@ class Range<T:ISortable>
     }
 
     def toString(): String {
-        return "\{self.head}..\{self.tail}";
+        return "Range";
     }
 
     def compare(range:Range<T>): int {
@@ -87,6 +87,9 @@ class String
 {
     def subString(range:Range<Integer>):  String {
         return self.subString(range.head.value, range.tail.value);
+    }
+    def delete(range:Range<Integer>): String {
+        return self.delete(range.head.value, range.tail.value-range.head.value);
     }
 }
 

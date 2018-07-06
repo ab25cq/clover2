@@ -1,4 +1,20 @@
 
+version 4.5.6
+
+    String.deleteメソッドを追加しました。
+
+    Rangeのバグを修正しました。
+
+    シェルモードのバグを修正しました。
+
+version 4.5.6
+
+    append String.delete method to Clover2 Library.
+
+    Fixed Range class bug.
+
+    Fixed shell mode bug.
+
 version 4.5.5
 
     バグフィックス。

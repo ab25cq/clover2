@@ -170,6 +170,48 @@ class String
         return insert(index, c.toString());
     }
 
+    def delete(index:int): String {
+        if(index < 0) {
+            index += len + 1;
+        }
+        if(index < 0) {
+            index = 0;
+        }
+        if(index > len) {
+            index = len;
+        }
+
+        for(i := index; i<len-1; i++) {
+            buffer[i] = buffer[i+1];
+        }
+        buffer[i] = '\0';
+
+        len --;
+
+        return self;
+    }
+
+    def delete(index:int, len2:int): String {
+        if(index < 0) {
+            index += len + 1;
+        }
+        if(index < 0) {
+            index = 0;
+        }
+        if(index > len) {
+            index = len;
+        }
+
+        for(i:= index; i<len-len2; i++) {
+            buffer[i] = buffer[i+len2];
+        }
+        buffer[i] = '\0';
+
+        len -= len2;
+
+        return self;
+    }
+
     def subString(start:int, end:int):  String {
         if(start < 0) {
             start += self.len;

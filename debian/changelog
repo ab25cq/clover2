@@ -1,4 +1,8 @@
 
+clover2 (4.5.6-1) unstable; urgency=medium
+
+    * append String.delete method to Clover2 Library. Fixed Range class bug. Fixed shell mode bug.
+
 clover2 (4.5.5-1) unstable; urgency=medium
 
     * Fixed bug.

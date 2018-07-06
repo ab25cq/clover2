@@ -1,5 +1,13 @@
 English page is here [>> English page](release_note-en)
 
+version 4.5.6
+
+    String.deleteメソッドを追加しました。
+
+    Rangeのバグを修正しました。
+
+    シェルモードのバグを修正しました。
+
 version 4.5.5
 
     バグフィックス。安定したと思います。
