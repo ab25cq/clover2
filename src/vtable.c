@@ -44,7 +44,7 @@ sVarTable* clone_var_table(sVarTable* lv_table)
 
     while(1) {
         if(p->mName[0] != 0) {
-            (void)add_variable_to_table(result, p->mName, p->mType);
+            (void)add_variable_to_table(result, p->mName, p->mType, p->mReadOnly);
         }
 
         p++;
@@ -102,7 +102,7 @@ void restore_var_table(sVarTable* left, sVarTable* right)
 // local variable table
 //////////////////////////////////////////////////
 // result: (true) success (false) overflow the table or a variable which has the same name exists
-BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_)
+BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_, BOOL readonly)
 {
     int hash_value;
     sVar* p;
@@ -120,6 +120,7 @@ BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_)
             else {
                 p->mType = NULL;
             }
+            p->mReadOnly = readonly;
 
             if(table->mVarNum >= LOCAL_VARIABLE_MAX) {
                 return FALSE;
@@ -140,6 +141,8 @@ BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_)
                     else {
                         p->mType = NULL;
                     }
+
+                    p->mReadOnly = readonly;
 
                     if(table->mVarNum >= LOCAL_VARIABLE_MAX) {
                         return FALSE;

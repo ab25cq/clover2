@@ -1,4 +1,8 @@
 
+clover2 (4.5.4-1) unstable; urgency=medium
+
+    * Added "var", "val" keyword for local variable assignment. You can declare readonly varialbe with "val" keyword.
+
 clover2 (4.5.3-1) unstable; urgency=medium
 
     * Fixed bug. Maybe stable version.

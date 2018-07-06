@@ -5,16 +5,16 @@ class getopt_long_option
     name:String;
     has_arg:int;
     flag:pointer@int;
-    val:int;
+    val_:int;
 
     def initialize() {
     }
 
-    def initialize(name:String, has_arg:int, flag:pointer@int, val:char) {
+    def initialize(name:String, has_arg:int, flag:pointer@int, val_:char) {
         self.name = name;
         self.has_arg = has_arg;
         self.flag = flag;
-        self.val = val.to_int;
+        self.val_ = val_.to_int;
     }
 
     def clone(): getopt_long_option {
@@ -25,7 +25,7 @@ class getopt_long_option
         }
         result.has_arg = self.has_arg;
         result.flag = self.flag;
-        result.val = self.val;
+        result.val_ = self.val_;
 
         return result;
     }

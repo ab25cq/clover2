@@ -4521,7 +4521,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
 
                         block_params[i].mType = block_param3;
 
-                        if(!add_variable_to_table(new_table, block_params[i].mName, block_params[i].mType)) 
+                        if(!add_variable_to_table(new_table, block_params[i].mName, block_params[i].mType, FALSE)) 
                         {
                             return FALSE;
                         }

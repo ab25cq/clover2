@@ -1538,6 +1538,16 @@ If you want to this function, please compile with --with-c-ffi configure option.
 
 Structures are not supported. Use C language functions that use structures from the native method.
 
+## loval-variable
+
+var a := 123;
+a = 245;
+
+val b := 123;
+b = 234;   # error
+
+Although it is added later, the variable is var variable name = value. readonly is val variable name = value.
+
 ----
 
 [<< previous usage](usage-en) [>> next type inference](typing-en)

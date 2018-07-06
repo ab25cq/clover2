@@ -482,6 +482,8 @@ struct sVarStruct {
     sNodeType* mType;
 
     int mBlockLevel;
+
+    BOOL mReadOnly;
 };
 
 typedef struct sVarStruct sVar;
@@ -516,7 +518,7 @@ int get_variable_index(sVarTable* table, char* name);
 void check_already_added_variable(sVarTable* table, char* name, struct sParserInfoStruct* info);
 
 // result: (true) success (false) overflow the table or a variable which has the same name exists
-BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_);
+BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_, BOOL readonly);
 
 // result: (null) not found (sVar*) found
 sVar* get_variable_from_table(sVarTable* table, char* name);

@@ -1,5 +1,9 @@
 English page is here [>> English page](release_note-en)
 
+version 4.5.4
+
+    変数宣言にvar, valを入れました。raedonlyの変数はvalにて宣言できます。
+
 version 4.5.3
 
     バグフィックス。安定したと思います。

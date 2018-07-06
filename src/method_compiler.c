@@ -18,7 +18,7 @@ BOOL compile_method(sCLMethod* method, sParserParam* params, int num_params, sPa
             node_type->mGenericsTypes[i] = create_node_type_with_class_name(class_name);
         }
 
-        if(!add_variable_to_table(info->lv_table, "self", node_type)) {
+        if(!add_variable_to_table(info->lv_table, "self", node_type, TRUE)) {
             parser_err_msg(info, "overflow the table or a variable which has the same name exists");
             return FALSE;
         }
@@ -28,7 +28,7 @@ BOOL compile_method(sCLMethod* method, sParserParam* params, int num_params, sPa
     int i;
     for(i=0; i<num_params; i++) {
         sParserParam* param = params + i;
-        if(!add_variable_to_table(info->lv_table, param->mName, param->mType)) {
+        if(!add_variable_to_table(info->lv_table, param->mName, param->mType, FALSE)) {
             parser_err_msg(info, "overflow the table or a variable which has the same name exists");
             return FALSE;
         }

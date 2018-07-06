@@ -1,4 +1,12 @@
 
+version 4.5.4
+
+    変数宣言にvar, valを入れました。raedonlyの変数はvalにて宣言できます。
+
+version 4.5.4
+    
+    Added "var", "val" keyword for local variable assignment. You can declare readonly varialbe with "val" keyword.
+
 version 4.5.3
 
     バグフィックス。安定したと思います。

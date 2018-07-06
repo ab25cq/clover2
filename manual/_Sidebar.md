@@ -61,7 +61,8 @@
     * [メソッドのデフォルト引数](feature#メソッドのデフォルト引数)
     * [同一クラスのメソッドとフィールドのself省略](feature#同一クラスのメソッドとフィールドのself省略)
 
-* [C言語へのブリッジ](feature#C言語へのブリッジ)
+* [C-FFI](feature#C-FFI)
+* [local-variable](feature#local-variable)
 
 #### [型推論](typing) [→ typing English Page](typing-en)
 

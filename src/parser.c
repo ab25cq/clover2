@@ -1640,7 +1640,7 @@ BOOL parse_params_and_entry_to_lvtable(struct sParserParamStruct* params, int* n
     for(i=0; i<*num_params; i++) {
         sParserParam* param = params + i;
 
-        if(!add_variable_to_table(*new_table, param->mName, param->mType)) {
+        if(!add_variable_to_table(*new_table, param->mName, param->mType, FALSE)) {
             return FALSE;
         }
     }
@@ -2591,6 +2591,67 @@ static BOOL parse_block_object(unsigned int* node, sParserInfo* info, BOOL lambd
     return TRUE;
 }
 
+static BOOL parse_var(unsigned int* node, sParserInfo* info, BOOL readonly)
+{
+    /// function name ///
+    char buf[VAR_NAME_MAX];
+
+    if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
+        return FALSE;
+    }
+
+    expect_next_character_with_one_forward(":", info);
+
+    sNodeType* node_type;
+    if(*info->p != '=') {
+        if(!parse_type(&node_type, info)) {
+            return FALSE;
+        }
+
+        if(node_type->mClass == NULL) {
+            *node = 0;
+            return TRUE;
+        }
+        if(node_type) {
+            check_already_added_variable(info->lv_table, buf, info);
+            add_variable_to_table(info->lv_table, buf, node_type, readonly);
+        }
+    }
+    else {
+        node_type = NULL;
+        check_already_added_variable(info->lv_table, buf, info);
+        add_variable_to_table(info->lv_table, buf, node_type, readonly);
+    }
+
+    /// assign the value to a variable ///
+    if(*info->p == '=' && *(info->p+1) != '=') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        unsigned int right_node = 0;
+
+        if(!expression(&right_node, info)) {
+            return FALSE;
+        }
+
+        if(right_node == 0) {
+            parser_err_msg(info, "Require right value");
+            info->err_num++;
+
+            *node = 0;
+        }
+        else {
+            *node = sNodeTree_create_store_variable(buf, node_type, right_node, info->klass, info);
+        }
+    }
+    else {
+        parser_err_msg(info, "A variable should be initialized");
+        info->err_num++;
+    }
+
+    return TRUE;
+}
+
 static BOOL parse_function(unsigned int* node, sParserInfo* info, BOOL lambda)
 {
     /// function name ///
@@ -2604,7 +2665,7 @@ static BOOL parse_function(unsigned int* node, sParserInfo* info, BOOL lambda)
 
     sNodeType* node_type = NULL;
     check_already_added_variable(info->lv_table, fun_name, info);
-    add_variable_to_table(info->lv_table, fun_name, node_type);
+    add_variable_to_table(info->lv_table, fun_name, node_type, FALSE);
 
     /// params ///
     sParserParam params[PARAMS_MAX];
@@ -3871,6 +3932,20 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
         }
+        else if(strcmp(buf, "var") == 0) {
+            skip_spaces_and_lf(info);
+
+            if(!parse_var(node, info, FALSE)) {
+                return FALSE;
+            }
+        }
+        else if(strcmp(buf, "val") == 0) {
+            skip_spaces_and_lf(info);
+
+            if(!parse_var(node, info, TRUE)) {
+                return FALSE;
+            }
+        }
         else if(strcmp(buf, "def") == 0) {
             skip_spaces_and_lf(info);
 
@@ -3984,13 +4059,13 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 }
                 if(node_type) {
                     check_already_added_variable(info->lv_table, buf, info);
-                    add_variable_to_table(info->lv_table, buf, node_type);
+                    add_variable_to_table(info->lv_table, buf, node_type, FALSE);
                 }
             }
             else {
                 node_type = NULL;
                 check_already_added_variable(info->lv_table, buf, info);
-                add_variable_to_table(info->lv_table, buf, node_type);
+                add_variable_to_table(info->lv_table, buf, node_type, FALSE);
 
             }
 
@@ -4042,7 +4117,17 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     *node = 0;
                 }
                 else {
-                    *node = sNodeTree_create_store_variable(buf, NULL, right_node, info->klass, info);
+                    sVar* var = get_variable_from_table(info->lv_table, buf);
+
+                    if(var->mReadOnly) {
+                        parser_err_msg(info, "This is readonly variable.");
+                        info->err_num++;
+
+                        *node = 0;
+                    }
+                    else {
+                        *node = sNodeTree_create_store_variable(buf, NULL, right_node, info->klass, info);
+                    }
                 }
             }
             /// the field in the same class
@@ -4845,7 +4930,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     char* var_name = gNodes[node].uValue.mVarName;
 
                     check_already_added_variable(info->lv_table, var_name, info);
-                    add_variable_to_table(info->lv_table, var_name, NULL);
+                    add_variable_to_table(info->lv_table, var_name, NULL, FALSE);
                 }
 
                 *node = sNodeTree_create_multiple_asignment(num_elements, tuple_element, node2, info);
