@@ -5743,7 +5743,6 @@ show_inst(inst);
                     sCLObject* object_pointer = CLOBJECT(array);
 
                     if(element_num < 0 || element_num >= object_pointer->mArrayNum) {
-                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "element index is invalid");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
