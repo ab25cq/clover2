@@ -764,6 +764,12 @@ static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOO
     }
     /// variable ///
     else {
+        if(strcmp(buf, "var") == 0) {
+            if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
+                return FALSE;
+            }
+        }
+
         BOOL private_ = FALSE;
         BOOL protected_ = FALSE;
         BOOL static_ = FALSE;
@@ -1246,6 +1252,12 @@ BOOL parse_methods_and_fields_on_compile_time(sParserInfo* info, sCompileInfo* c
     }
     /// variable ///
     else {
+        if(strcmp(buf, "var") == 0) {
+            if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
+                return FALSE;
+            }
+        }
+
         BOOL private_ = FALSE;
         BOOL protected_ = FALSE;
         BOOL static_ = FALSE;
