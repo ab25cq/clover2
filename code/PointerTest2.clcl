@@ -1,23 +1,23 @@
 class PointerClassB
 {
-    var:int;
+    var_:int;
 
-    def initialize(var:int) {
-        self.var = var;
+    def initialize(var_:int) {
+        self.var_ = var_;
     }
 }
 
 class PointerClassA
 {
     classVar: static int;
-    var:int;
+    var_:int;
 
     def initialize(): static {
         PointerClassA.classVar = 123;
     }
 
     def initialize() {
-        self.var = 123;
+        self.var_ = 123;
     }
 
     def input_var(object:pointer):static {
@@ -37,9 +37,9 @@ class PointerTest2 {
 
         c:PointerClassA = new PointerClassA();
 
-        Clover.test("pointer test2", PointerClassA.classVar == 123 && c.var == 123);
+        Clover.test("pointer test2", PointerClassA.classVar == 123 && c.var_ == 123);
 
-        d:pointer = &c.var;
+        d:pointer = &c.var_;
 
         d->int = 234;
 
@@ -47,22 +47,22 @@ class PointerTest2 {
 
         e->int = 234;
 
-        Clover.test("pointer test2", PointerClassA.classVar == 234 && c.var == 234);
+        Clover.test("pointer test2", PointerClassA.classVar == 234 && c.var_ == 234);
 
         f:PointerClassB = new PointerClassB(123);
 
-        Clover.test("pointer test3", f.var == 123);
+        Clover.test("pointer test3", f.var_ == 123);
 
         PointerClassA.input_var(&f);
 
-        Clover.test("pointer test4", f.var == 234);
+        Clover.test("pointer test4", f.var_ == 234);
 
         g:pointer = &f;
 
-        Clover.test("pointer test5", g->PointerClassB.var == 234 && (&f)->PointerClassB.var == 234);
+        Clover.test("pointer test5", g->PointerClassB.var_ == 234 && (&f)->PointerClassB.var_ == 234);
 
-        (&f)->PointerClassB.var = 345;
+        (&f)->PointerClassB.var_ = 345;
 
-        Clover.test("pointer test6", f.var == 345);
+        Clover.test("pointer test6", f.var_ == 345);
     }
 }
