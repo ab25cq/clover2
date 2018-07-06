@@ -1,4 +1,12 @@
 
+version 4.5.5
+
+    バグフィックス。
+
+version 4.5.5
+    
+    Fixed Bug
+
 version 4.5.4
 
     変数宣言にvar, valを入れました。raedonlyの変数はvalにて宣言できます。

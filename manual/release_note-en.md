@@ -1,4 +1,8 @@
 
+version 4.5.5
+
+    Fixed bug.Maybe stable version.
+
 version 4.5.4
     
     Added "var", "val" keyword for local variable assignment. You can declare readonly varialbe with "val" keyword.
