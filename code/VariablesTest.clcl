@@ -26,5 +26,10 @@ class VariablesTest
         }
 
         Clover.test("variable test4", a == 123 && c == 345 && d == 567);
+
+
+        var x := 123;
+
+        Clover.test("variable test5", x == 123);
     }
 }
