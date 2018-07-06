@@ -1339,6 +1339,87 @@ Javaのように例外は型付けされているわけじゃないです。e.me
     HELLOWORLD
     ");
 
+## C言語へのFFI
+
+使う場合はconfigureに--with-c-ffiオプションをつけてコンパイルしてください。
+
+    ExtensionTest.c
+
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <string.h>
+
+    int getValue(int x, int y) 
+    {
+        return x + y;
+    }
+
+    long getValue2(long x, long y)
+    {
+        return x + y;
+    }
+
+    char* getStr(char* x, char* y) 
+    {
+        size_t len = strlen(x) + strlen(y) + 1;
+
+        char* result = calloc(1, len);
+
+        strcpy(result, x);
+        strcat(result, y);
+
+        return result;
+    }
+
+    ExtensionTest.h
+
+    #define ABC 123
+
+    ExtensionClassTest.clcl
+
+    class ExtensionClassTest
+    {
+        ABC: static int from ExtensionTest.h
+
+        def getValue(x:int, y:int): int from libExtensionTest.so;
+        def getValue2(x:long, y:long): long from libExtensionTest.so;
+        def getStr(x:pointer, y:pointer): pointer@alloc from libExtensionTest.so;
+
+        def main():static {
+            Clover.test("Extension Test1", getValue(1, 2) == 3);
+            Clover.test("Extension Test2", getValue2(1l, 2l) == 3l);
+
+            str := getStr(b"ABC", b"DEF");
+
+            Clover.test("Extension Test3", strcmp(str, b"ABCDEF") == 0);
+
+            free(str);
+
+            Clover.test("Extension Test4", ABC == 123);
+        }
+    }
+
+    CLibrary.clcl
+
+    include "SystemCalls.clcl"
+
+    class System
+    {
+        def strcmp(x:pointer, y:pointer): int from libc.so.6
+    }
+
+構造体はサポートしません。構造体を使うC言語の関数はnative methodから使ってください。
+
+## ローカル変数の宣言
+
+var a := 123;
+a = 245;
+
+val b := 123;
+b = 234;   # error
+
+後からの追加ですが、変数はvar 変数名=値。readonlyはval 変数名=値です。
+
 ## 糖衣構文
 
 ### lambdaクラスの糖衣構文
@@ -1441,87 +1522,6 @@ a()は123を返します。
     internal field test...OK
 
 上記のような感じです。ローカル変数とフィールドとの名前空間がバッティングしますが検索のアルゴリズムはローカル変数が優先されるので、曖昧な時はフィールドにselfを付けてください。このアルゴリズムで、selfは省略しても特に問題ないと判断しました。今までのコードとも互換性があります。
-
-## C-FFI
-
-使う場合はconfigureに--with-c-ffiオプションをつけてコンパイルしてください。
-
-    ExtensionTest.c
-
-    #include <stdio.h>
-    #include <stdlib.h>
-    #include <string.h>
-
-    int getValue(int x, int y) 
-    {
-        return x + y;
-    }
-
-    long getValue2(long x, long y)
-    {
-        return x + y;
-    }
-
-    char* getStr(char* x, char* y) 
-    {
-        size_t len = strlen(x) + strlen(y) + 1;
-
-        char* result = calloc(1, len);
-
-        strcpy(result, x);
-        strcat(result, y);
-
-        return result;
-    }
-
-    ExtensionTest.h
-
-    #define ABC 123
-
-    ExtensionClassTest.clcl
-
-    class ExtensionClassTest
-    {
-        ABC: static int from ExtensionTest.h
-
-        def getValue(x:int, y:int): int from libExtensionTest.so;
-        def getValue2(x:long, y:long): long from libExtensionTest.so;
-        def getStr(x:pointer, y:pointer): pointer@alloc from libExtensionTest.so;
-
-        def main():static {
-            Clover.test("Extension Test1", getValue(1, 2) == 3);
-            Clover.test("Extension Test2", getValue2(1l, 2l) == 3l);
-
-            str := getStr(b"ABC", b"DEF");
-
-            Clover.test("Extension Test3", strcmp(str, b"ABCDEF") == 0);
-
-            free(str);
-
-            Clover.test("Extension Test4", ABC == 123);
-        }
-    }
-
-    CLibrary.clcl
-
-    include "SystemCalls.clcl"
-
-    class System
-    {
-        def strcmp(x:pointer, y:pointer): int from libc.so.6
-    }
-
-構造体はサポートしません。構造体を使うC言語の関数はnative methodから使ってください。
-
-## loval-variable
-
-var a := 123;
-a = 245;
-
-val b := 123;
-b = 234;   # error
-
-後からの追加ですが、変数はvar 変数名=値。readonlyはval 変数名=値です。
 
 ----
 

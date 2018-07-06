@@ -54,15 +54,14 @@
 * [例外処理](feature#例外処理)
 * [多重代入](feature#多重代入)
 * [代入時の自動キャスト](feature#代入時の自動キャスト)
+* [C言語へのFFI](feature#C言語へのFFI)
+* [ローカル変数の宣言](feature#ローカル変数の宣言)
 * [糖衣構文](feature#糖衣構文)
     * [文字列への式の埋め込み](feature#文字列への式の埋め込み)
     * [lambdaクラスの糖衣構文](feature#lambdaクラスの糖衣構文)
     * [return文の省略](feature#return文の省略)
     * [メソッドのデフォルト引数](feature#メソッドのデフォルト引数)
     * [同一クラスのメソッドとフィールドのself省略](feature#同一クラスのメソッドとフィールドのself省略)
-
-* [C-FFI](feature#C-FFI)
-* [local-variable](feature#local-variable)
 
 #### [型推論](typing) [→ typing English Page](typing-en)
 
