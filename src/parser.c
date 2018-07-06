@@ -4119,7 +4119,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 else {
                     sVar* var = get_variable_from_table(info->lv_table, buf);
 
-                    if(var->mReadOnly) {
+                    if(var && var->mReadOnly) {
                         parser_err_msg(info, "This is readonly variable.");
                         info->err_num++;
 
