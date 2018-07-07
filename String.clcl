@@ -181,12 +181,14 @@ class String
             index = len;
         }
 
-        for(i := index; i<len-1; i++) {
-            buffer[i] = buffer[i+1];
-        }
-        buffer[i] = '\0';
+        if(index >= 0 && index < len) {
+            for(i := index; i<len-1; i++) {
+                buffer[i] = buffer[i+1];
+            }
+            buffer[i] = '\0';
 
-        len --;
+            len --;
+        }
 
         return self;
     }
