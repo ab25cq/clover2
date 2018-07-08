@@ -89,7 +89,7 @@ class String
         return self.subString(range.head.value, range.tail.value);
     }
     def delete(range:Range<Integer>): String {
-        return self.delete(range.head.value, range.tail.value-range.head.value);
+        return self.delete(range.head.value, range.tail.value);
     }
 }
 

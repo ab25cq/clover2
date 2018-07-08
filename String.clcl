@@ -177,8 +177,8 @@ class String
         if(index < 0) {
             index = 0;
         }
-        if(index > len) {
-            index = len;
+        if(index >= len) {
+            index = len-1;
         }
 
         if(index >= 0 && index < len) {
@@ -193,23 +193,29 @@ class String
         return self;
     }
 
-    def delete(index:int, len2:int): String {
+    def delete(index:int, index2:int): String {
         if(index < 0) {
             index += len + 1;
         }
         if(index < 0) {
             index = 0;
         }
-        if(index > len) {
-            index = len;
+
+        if(index2 < 0) {
+            index2 += len + 1;
+        }
+        if(index2 < 0) {
+            index2 = 0;
         }
 
-        for(i:= index; i<len-len2; i++) {
-            buffer[i] = buffer[i+len2];
-        }
-        buffer[i] = '\0';
+        if(index < index2 && index < len && index2 <= len) {
+            for(i:= index; i<len-(index2-index); i++) {
+                buffer[i] = buffer[i+index2-index];
+            }
+            buffer[i] = '\0';
 
-        len -= len2;
+            len -= index2-index;
+        }
 
         return self;
     }

@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 4.5.9
+
+    String.deleteの仕様が変わっています。
+
 version 4.5.8
 
     lsやmakeなどがClover.controllingTerminalProgramsから外されました。lsを端末制御したい場合はシェルモードでlsと書き、端末制御したく無い場合はls()と書いてください。

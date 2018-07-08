@@ -99,7 +99,8 @@ class StringTest3 {
         Clover.test("String expression test2", "ABC\{a}  DEF".equals("ABC1  DEF"));
 
         Clover.test("String test-a1", "012".delete(1).equals("02"));
-        Clover.test("String test-a2", "012345".delete(1,2).equals("0345"));
+        Clover.test("String test-a2", "012345".delete(1,3).equals("0345"));
         Clover.test("String test-a3", "012345".delete(1..3).equals("0345"));
+        Clover.test("String test-a4", "012345".delete(2..-1).equals("01"));
     }
 }
