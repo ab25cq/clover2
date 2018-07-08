@@ -1,4 +1,12 @@
 
+version 4.5.8
+
+    lsやmakeなどがClover.controllingTerminalProgramsから外されました。lsを端末制御したい場合はシェルモードでlsと書き、端末制御したく無い場合はls()と書いてください。
+
+version 4.5.8
+
+    ls, make etc. have been removed from Clover.controllingTerminalPrograms. If you want to control ls, write ls in shell mode and ls () if you do not want terminal control.
+
 version 4.5.7
 
     メモリのバグがありました。修正。重要なバグでした。

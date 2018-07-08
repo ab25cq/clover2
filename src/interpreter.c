@@ -2157,6 +2157,7 @@ static void set_signal_for_interpreter()
 
     sigemptyset(&signal_set);
     sigaddset(&signal_set, SIGTTOU);
+    sigaddset(&signal_set, SIGTTIN);
     sigaddset(&signal_set, SIGPIPE);
 
     sigprocmask(SIG_BLOCK, &signal_set, NULL);
@@ -2446,7 +2447,7 @@ static void compiler_final()
 
 int gARGC;
 char** gARGV;
-char* gVersion = "4.5.7";
+char* gVersion = "4.5.8";
 
 char gScriptDirPath[PATH_MAX];
 BOOL gRunningCompiler = FALSE;

@@ -1,4 +1,8 @@
 
+version 4.5.8
+
+    ls, make etc. have been removed from Clover.controllingTerminalPrograms. If you want to control ls, write ls in shell mode and ls () if you do not want terminal control.
+
 version 4.5.7
 
     Fix important memory bugs.

@@ -36,6 +36,7 @@ static void set_signal()
 
     sigemptyset(&signal_set);
     sigaddset(&signal_set, SIGTTOU);
+    sigaddset(&signal_set, SIGTTIN);
     sigaddset(&signal_set, SIGPIPE);
 
     sigprocmask(SIG_BLOCK, &signal_set, NULL);
@@ -43,7 +44,7 @@ static void set_signal()
 
 int gARGC;
 char** gARGV;
-char* gVersion = "4.5.7";
+char* gVersion = "4.5.8";
 BOOL gCompilingCore = FALSE;
 
 char gScriptDirPath[PATH_MAX];

@@ -110,11 +110,7 @@ You can add as. If you want to force terminal control, you can add it with an ar
 ```
 If you run it and so on, make can get the return value with toBool () while controlling the terminal.
 
-Conversely, if you do not want to control the terminal, you can do so by adding an argument "-no-contolling-terminal". For example
-```
-    > list { ls("-no-controlling-terminal"), hostname(), pwd()}. each { it.less() }
-```
-Etc. If ls is left as it is, terminal control will be done, so you can not get output with less of it.less ().
+Conversely, if you do not want to control the terminal, you can do so by adding an argument "-no-contolling-terminal". 
 
 Error output is not passed to the next method by default, but it is possible by attaching the argument "-getting-stderr". For example
 ```
@@ -188,5 +184,7 @@ You can execute commands by path only in the current directory and parent direct
 In that case run bash, zsh or yash and run it on the shell or System.system ("/usr/bin/bash") etc.
 
 Shell mode is only a bonus. The shell should use a proper shell after all. It is a function I personally make for use instead of shell.
+
+However, one important point is that when written in shell mode, the last program is terminal controlled. That is, `ls` is terminal-controlled, but `ls()` is not terminal-controlled. Take care of that point and write code.
 
 [<< Previous library reference](libraries-en) [>> extension library](extension-en)

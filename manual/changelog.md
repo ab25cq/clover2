@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 4.5.8
+
+    lsやmakeなどがClover.controllingTerminalProgramsから外されました。lsを端末制御したい場合はシェルモードでlsと書き、端末制御したく無い場合はls()と書いてください。
+
 version 4.5.7
 
     メモリのバグがありました。修正。重要なバグでした。

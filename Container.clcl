@@ -39,12 +39,17 @@ module MArray
         return self.items.length;
     }
 
-    def items(index:int):T throws Exception {
+    def items(index:int):T? {
         if(index < 0) {
             index += self.items.length;
         }
 
-        return self.items[index];
+        if(index >= 0 && index < self.items.length) {
+            return self.items[index];
+        }
+        else {
+            return null;
+        }
     }
 
     def each(block_:lambda(T)) {
