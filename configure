@@ -694,6 +694,7 @@ with_optimize
 with_interpreter
 with_jit
 with_c_ffi
+with_thread
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1327,6 +1328,7 @@ Optional Packages:
   --with-interpreter        with interpreter
   --with-jit                with jit
   --with-c-ffi              with c ffi
+  --with-thread             with thread
 
 Some influential environment variables:
   CC          C compiler command
@@ -3646,6 +3648,14 @@ else
 fi
 
 
+# Check whether --with-thread was given.
+if test "${with_thread+set}" = set; then :
+  withval=$with_thread;  ENABLE_THREAD=1
+else
+   ENABLE_THREAD=0
+fi
+
+
 ##############################################################
 # check cpu type
 ##############################################################
@@ -3845,8 +3855,12 @@ fi
 
 if test $ENABLE_OPTIMIZE = 1
 then
-    CFLAGS="$CFLAGS"         # no optimization for thread.
-    #CFLAGS="$CFLAGS -O3"
+    if test $ENABLE_THREAD = 1
+    then
+        CFLAGS="$CFLAGS"         # no optimization for thread.
+    else
+        CFLAGS="$CFLAGS -O3"
+    fi
 fi
 
 if test $ENABLE_INTERPRETER = 1
@@ -3877,7 +3891,15 @@ CC=gcc
 
 INSTALL="/usr/bin/install -c"
 
-ac_fn_c_check_header_mongrel "$LINENO" "pthread.h" "ac_cv_header_pthread_h" "$ac_includes_default"
+if test $ENABLE_THREAD = 1
+then
+    if test $ENABLE_JIT = 0
+    then
+        echo "If you want to support thread, you need --with-jit option to configure.(Performance problem)"
+        exit 1
+    fi
+
+    ac_fn_c_check_header_mongrel "$LINENO" "pthread.h" "ac_cv_header_pthread_h" "$ac_includes_default"
 if test "x$ac_cv_header_pthread_h" = xyes; then :
   $as_echo "#define HAVE_PTHREAD_H 1" >>confdefs.h
 
@@ -3886,7 +3908,7 @@ else
 fi
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lpthread" >&5
+    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lpthread" >&5
 $as_echo_n "checking for main in -lpthread... " >&6; }
 if ${ac_cv_lib_pthread_main+:} false; then :
   $as_echo_n "(cached) " >&6
@@ -3923,6 +3945,7 @@ else
 fi
 ac_cv_lib_pthread=ac_cv_lib_pthread_main
 
+fi
 
 ac_fn_c_check_header_mongrel "$LINENO" "ncurses.h" "ac_cv_header_ncurses_h" "$ac_includes_default"
 if test "x$ac_cv_header_ncurses_h" = xyes; then :

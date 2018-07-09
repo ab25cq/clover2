@@ -42,7 +42,7 @@ klass.appendMethod(
                 println(it2);
                 klass := Class(it2);
 
-                if(klass.isInterface().negative() && it2.equals("Clover").negative() && it2.equals("Global").negative() && it2.equals("System").negative() && it2.equals("AndAndOrOrTest").negative() && it2.equals("CloneTest").negative())
+                if(klass.isInterface().negative() && it2.equals("Clover").negative() && it2.equals("Global").negative() && it2.equals("System").negative() && it2.equals("AndAndOrOrTest").negative() && it2.equals("CloneTest").negative() && it2.equals("Mutex").negative() && it2.equals("pthread_cond_t").negative() && it2.equals("pthread_mutex_t").negative())
                 {
                     result.append("print(\"class \{it2} clone test...\");\n");
 

@@ -1,7 +1,11 @@
 
+clover2 (4.6.4-1) unstable; urgency=medium
+
+    * Added --with-tread option to configure. If compile without --with-thread, optimizatioin is enabled.
+
 clover2 (4.6.3-1) unstable; urgency=medium
 
-    Fix bug of structure variable initialization.
+    * Fix bug of structure variable initialization.
 
 clover2 (4.6.2-1) unstable; urgency=medium
 

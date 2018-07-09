@@ -14,7 +14,9 @@
 #include <fnmatch.h>
 #include <signal.h>
 #include <getopt.h>
+#ifdef HAVE_PTHREAD_H
 #include <pthread.h>
+#endif
 #include <sys/syscall.h>
 #ifdef HAVE_BSD_H
 #include <bsd/stdlib.h>
@@ -376,6 +378,7 @@ BOOL System_sleep(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
 BOOL System_pthread_mutex_init(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
+#ifdef HAVE_PTHREAD_H
     CLVALUE* mutex = lvar;
     CLVALUE* attr = lvar + 1;
 
@@ -392,10 +395,16 @@ BOOL System_pthread_mutex_init(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info
     int result = pthread_mutex_init(mutex_value, attr_value);
 
     return TRUE;
+#else
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Thread is not supported. Please add --with-thread to configure option");
+
+    return FALSE;
+#endif
 }
 
 BOOL System_pthread_mutex_lock(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
+#ifdef HAVE_PTHREAD_H
     CLVALUE* mutex = lvar;
 
     if(mutex->mObjectValue == 0) {
@@ -418,10 +427,16 @@ BOOL System_pthread_mutex_lock(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info
     (*stack_ptr)++;
 
     return TRUE;
+#else
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Thread is not supported. Please add --with-thread to configure option");
+
+    return FALSE;
+#endif
 }
 
 BOOL System_pthread_mutex_unlock(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
+#ifdef HAVE_PTHREAD_H
     CLVALUE* mutex = lvar;
 
     if(mutex->mObjectValue == 0) {
@@ -444,10 +459,16 @@ BOOL System_pthread_mutex_unlock(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* in
     (*stack_ptr)++;
 
     return TRUE;
+#else
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Thread is not supported. Please add --with-thread to configure option");
+
+    return FALSE;
+#endif
 }
 
 BOOL System_pthread_mutex_destroy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
+#ifdef HAVE_PTHREAD_H
     CLVALUE* mutex = lvar;
 
     if(mutex->mObjectValue == 0) {
@@ -470,10 +491,16 @@ BOOL System_pthread_mutex_destroy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* i
     (*stack_ptr)++;
 
     return TRUE;
+#else
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Thread is not supported. Please add --with-thread to configure option");
+
+    return FALSE;
+#endif
 }
 
 BOOL System_pthread_mutex_trylock(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
+#ifdef HAVE_PTHREAD_H
     CLVALUE* mutex = lvar;
 
     if(mutex->mObjectValue == 0) {
@@ -491,10 +518,16 @@ BOOL System_pthread_mutex_trylock(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* i
     (*stack_ptr)++;
 
     return TRUE;
+#else
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Thread is not supported. Please add --with-thread to configure option");
+
+    return FALSE;
+#endif
 }
 
 BOOL System_pthread_mutexattr_init(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
+#ifdef HAVE_PTHREAD_H
     CLVALUE* attr = lvar;
 
     /// Clover to C Value ///
@@ -504,10 +537,16 @@ BOOL System_pthread_mutexattr_init(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* 
     (void)pthread_mutexattr_init(attr_value);
 
     return TRUE;
+#else
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Thread is not supported. Please add --with-thread to configure option");
+
+    return FALSE;
+#endif
 }
 
 BOOL System_pthread_mutexattr_settype(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
+#ifdef HAVE_PTHREAD_H
     CLVALUE* attr = lvar;
     CLVALUE* kind = lvar + 1;
 
@@ -524,10 +563,16 @@ BOOL System_pthread_mutexattr_settype(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInf
     }
 
     return TRUE;
+#else
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Thread is not supported. Please add --with-thread to configure option");
+
+    return FALSE;
+#endif
 }
 
 BOOL System_pthread_mutexattr_destroy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
+#ifdef HAVE_PTHREAD_H
     CLVALUE* attr = lvar;
 
     /// Clover to C Value ///
@@ -537,10 +582,16 @@ BOOL System_pthread_mutexattr_destroy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInf
     (void)pthread_mutexattr_destroy(attr_value);
 
     return TRUE;
+#else
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Thread is not supported. Please add --with-thread to configure option");
+
+    return FALSE;
+#endif
 }
 
 BOOL System_pthread_mutexattr_gettype(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
+#ifdef HAVE_PTHREAD_H
     CLVALUE* attr = lvar;
     CLVALUE* kind = lvar + 1;
 
@@ -552,10 +603,16 @@ BOOL System_pthread_mutexattr_gettype(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInf
     (void)pthread_mutexattr_gettype(attr_value, kind_value);
 
     return TRUE;
+#else
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Thread is not supported. Please add --with-thread to configure option");
+
+    return FALSE;
+#endif
 }
 
 BOOL System_pthread_cond_init(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
+#ifdef HAVE_PTHREAD_H
     CLVALUE* cond = lvar;
     CLVALUE* cond_attr = lvar + 1;
 
@@ -572,10 +629,16 @@ BOOL System_pthread_cond_init(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     (void)pthread_cond_init(cond_value, cond_attr_value);
 
     return TRUE;
+#else
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Thread is not supported. Please add --with-thread to configure option");
+
+    return FALSE;
+#endif
 }
 
 BOOL System_pthread_cond_signal(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
+#ifdef HAVE_PTHREAD_H
     CLVALUE* cond = lvar;
 
     if(cond->mObjectValue == 0) {
@@ -590,10 +653,16 @@ BOOL System_pthread_cond_signal(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* inf
     (void)pthread_cond_signal(cond_value);
 
     return TRUE;
+#else
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Thread is not supported. Please add --with-thread to configure option");
+
+    return FALSE;
+#endif
 }
 
 BOOL System_pthread_cond_broadcast(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
+#ifdef HAVE_PTHREAD_H
     CLVALUE* cond = lvar;
 
     if(cond->mObjectValue == 0) {
@@ -608,10 +677,16 @@ BOOL System_pthread_cond_broadcast(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* 
     (void)pthread_cond_broadcast(cond_value);
 
     return TRUE;
+#else
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Thread is not supported. Please add --with-thread to configure option");
+
+    return FALSE;
+#endif
 }
 
 BOOL System_pthread_cond_wait(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
+#ifdef HAVE_PTHREAD_H
     CLVALUE* cond = lvar;
     CLVALUE* mutex = lvar + 1;
 
@@ -633,10 +708,16 @@ BOOL System_pthread_cond_wait(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     (void)pthread_cond_wait(cond_value, mutex_value);
 
     return TRUE;
+#else
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Thread is not supported. Please add --with-thread to configure option");
+
+    return FALSE;
+#endif
 }
 
 BOOL System_pthread_cond_timedwait(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
+#ifdef HAVE_PTHREAD_H
     CLVALUE* cond = lvar;
     CLVALUE* mutex = lvar + 1;
     CLVALUE* abtime = lvar + 2;
@@ -678,10 +759,16 @@ BOOL System_pthread_cond_timedwait(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* 
     (*stack_ptr)++;
 
     return TRUE;
+#else
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Thread is not supported. Please add --with-thread to configure option");
+
+    return FALSE;
+#endif
 }
 
 BOOL System_pthread_cond_destroy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
+#ifdef HAVE_PTHREAD_H
     CLVALUE* cond = lvar;
 
     if(cond->mObjectValue == 0) {
@@ -704,10 +791,16 @@ BOOL System_pthread_cond_destroy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* in
     (*stack_ptr)++;
 
     return TRUE;
+#else
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Thread is not supported. Please add --with-thread to configure option");
+
+    return FALSE;
+#endif
 }
 
 BOOL System_initialize_thread_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
+#ifdef HAVE_PTHREAD_H
     sCLClass* system = get_class("System");
 
     system->mClassFields[0].mValue.mIntValue = EINVAL;
@@ -720,6 +813,7 @@ BOOL System_initialize_thread_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo
     system->mClassFields[7].mValue.mUIntValue = PTHREAD_MUTEX_RECURSIVE;
     system->mClassFields[8].mValue.mUIntValue = PTHREAD_MUTEX_ERRORCHECK;
 
+#endif
 #define LAST_INITIALIZE_FIELD_NUM_ON_THREAD_SYSTEM 9
 
     return TRUE;

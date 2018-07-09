@@ -1,4 +1,8 @@
 
+version 4.6.4
+
+    Added --with-tread option to configure. If compile without --with-thread, optimizatioin is enabled.
+
 version 4.6.3
 
     Fix bug of structure variable initialization.

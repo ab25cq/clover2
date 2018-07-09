@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 4.6.4
+
+    --with-threadオプションをconfigurenに追加。もし--with-threadをつけないと最適化が有効になります。threadは使えませんが、、、。
+
 version 4.6.3
 
     構造体の初期化の問題を修正。

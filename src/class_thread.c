@@ -1,16 +1,19 @@
 #include "common.h"
+#ifdef HAVE_PTHREAD_H
 #include <pthread.h>
+#endif
 #include <sys/types.h>
 #include <unistd.h>
 #include <sys/syscall.h>
 
-
+#ifdef HAVE_PTHREAD_H
 static pthread_mutex_t gVMMutex;
 static pthread_cond_t gStartVMCond = PTHREAD_COND_INITIALIZER;
 
 int gNumThread = 0;
 
 #define MUTEX_DEBUG_INFO_MAX 1024*2*2
+#endif
 
 pid_t gettid()
 {
@@ -19,27 +22,35 @@ pid_t gettid()
 
 void thread_init()
 {
+#ifdef HAVE_PTHREAD_H
     pthread_mutexattr_t attr;
 
     pthread_mutexattr_init(&attr);
 //    pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
 
     pthread_mutex_init(&gVMMutex, &attr);
+#endif
 }
 
 void thread_final()
 {
+#ifdef HAVE_PTHREAD_H
     pthread_mutex_destroy(&gVMMutex);
+#endif
 }
 
 void vm_mutex_on()
 {
+#ifdef HAVE_PTHREAD_H
     pthread_mutex_lock(&gVMMutex);
+#endif
 }
 
 void vm_mutex_off()
 {
+#ifdef HAVE_PTHREAD_H
     pthread_mutex_unlock(&gVMMutex);
+#endif
 }
 
 void new_vm_mutex()
@@ -59,6 +70,7 @@ struct sThreadFuncArg {
 
 void* thread_func(void* param)
 {
+#ifdef HAVE_PTHREAD_H
     vm_mutex_on();
     gNumThread++;
 
@@ -153,12 +165,14 @@ void* thread_func(void* param)
     vm_mutex_off();
 
     gNumThread--;
+#endif
 
     return NULL;
 }
 
 BOOL Thread_initialize_thread(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
+#ifdef HAVE_PTHREAD_H
     CLVALUE* thread = lvar;
     CLVALUE* block = lvar + 1;
 
@@ -203,10 +217,16 @@ BOOL Thread_initialize_thread(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     object_data2->mFields[0].mULongValue = thread_id;
 
     return TRUE;
+#else
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Thread is not supported. Please add --with-thread to configure option");
+
+    return FALSE;
+#endif
 }
 
 BOOL Thread_pthread_join(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
+#ifdef HAVE_PTHREAD_H
     CLVALUE* thread_id = lvar;
 
     /// Clover to C ///
@@ -226,20 +246,37 @@ BOOL Thread_pthread_join(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     vm_mutex_on();
 
     return TRUE;
+#else
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Thread is not supported. Please add --with-thread to configure option");
+
+    return FALSE;
+#endif
 }
 
 BOOL pthread_mutex_t_allocSize(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
+#ifdef HAVE_PTHREAD_H
     (*stack_ptr)->mULongValue = sizeof(pthread_mutex_t);
     (*stack_ptr)++;
 
     return TRUE;
+#else
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Thread is not supported. Please add --with-thread to configure option");
+
+    return FALSE;
+#endif
 }
 
 BOOL pthread_cond_t_allocSize(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
+#ifdef HAVE_PTHREAD_H
     (*stack_ptr)->mULongValue = sizeof(pthread_cond_t);
     (*stack_ptr)++;
 
     return TRUE;
+#else
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Thread is not supported. Please add --with-thread to configure option");
+
+    return FALSE;
+#endif
 }
