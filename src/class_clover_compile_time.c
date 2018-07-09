@@ -136,7 +136,6 @@ BOOL Clover_declareMethod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int result = -1;
 
     sParserInfo pinfo;
-
     memset(&pinfo, 0, sizeof(sParserInfo));
 
     pinfo.p = code_value;
@@ -150,6 +149,7 @@ BOOL Clover_declareMethod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     pinfo.err_num = 0;
 
     sGenericsParamInfo ginfo;
+    memset(&ginfo, 0, sizeof(sGenericsParamInfo));
     ginfo.mNumParams = klass2->mNumGenerics;
 
     int i;
@@ -190,6 +190,8 @@ BOOL Clover_declareMethod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
         char method_name[METHOD_NAME_MAX];
         sParserParam params[PARAMS_MAX];
+        memset(params, 0, sizeof(sParserParam)*PARAMS_MAX);
+
         int num_params = 0;
         sNodeType* result_type = NULL;
         BOOL native_ = FALSE;
@@ -294,6 +296,7 @@ BOOL Clover_appendMethod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     memset(&cinfo, 0, sizeof(sCompileInfo));
 
     sGenericsParamInfo ginfo;
+    memset(&ginfo, 0, sizeof(sGenericsParamInfo));
     ginfo.mNumParams = klass2->mNumGenerics;
 
     int i;
@@ -342,6 +345,8 @@ BOOL Clover_appendMethod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
         char method_name[METHOD_NAME_MAX];
         sParserParam params[PARAMS_MAX];
+        memset(params, 0, sizeof(sParserParam)*PARAMS_MAX);
+
         int num_params = 0;
         sNodeType* result_type = NULL;
         BOOL native_ = FALSE;
@@ -453,6 +458,7 @@ BOOL Clover_appendMethod2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     memset(&cinfo, 0, sizeof(sCompileInfo));
 
     sGenericsParamInfo ginfo;
+    memset(&ginfo, 0, sizeof(sGenericsParamInfo));
     ginfo.mNumParams = klass2->mNumGenerics;
 
     int i;
@@ -501,6 +507,8 @@ BOOL Clover_appendMethod2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
         char method_name[METHOD_NAME_MAX];
         sParserParam params[PARAMS_MAX];
+        memset(params, 0, sizeof(sParserParam)*PARAMS_MAX);
+
         int num_params = 0;
         sNodeType* result_type = NULL;
         BOOL native_ = FALSE;

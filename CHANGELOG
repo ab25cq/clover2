@@ -1,4 +1,12 @@
 
+version 4.6.3
+
+    構造体の初期化の問題を修正。
+
+version 4.6.3
+
+    Fix bug of structure variable initialization.
+
 version 4.6.2
 
     メソッドの引数に関するバグがあったため修正。

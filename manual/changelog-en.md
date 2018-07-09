@@ -1,4 +1,8 @@
 
+version 4.6.3
+
+    Fix bug of structure variable initialization.
+
 version 4.6.2
 
     Fixed bug of method arguments.

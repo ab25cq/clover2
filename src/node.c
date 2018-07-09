@@ -201,6 +201,7 @@ BOOL compile_params_method_default_value(sCLClass* klass, char* method_name, int
 
                     if(source[0] != '\0') {
                         sParserInfo info2;
+                        memset(&info2, 0, sizeof(sParserInfo));
 
                         info2.p = source;
                         info2.source = source;
@@ -4578,6 +4579,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                     sVarTable* new_table = init_block_vtable(old_table);
 
                     sParserParam block_params[PARAMS_MAX];
+                    memset(block_params, 0, sizeof(sParserParam)*PARAMS_MAX);
 
                     if(num_block_params >= METHOD_BLOCK_PARAM_MAX) {
                         compile_err_msg(info, "overflow method block parametor max");
@@ -4628,6 +4630,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
 
                     /// parse_params ///
                     sParserInfo info2;
+                    memset(&info2, 0, sizeof(sParserInfo));
 
                     info2.p = node_block->mSource.mBuf;
                     info2.source = node_block->mSource.mBuf;
@@ -9758,6 +9761,7 @@ BOOL compile_block_object(unsigned int node, sCompileInfo* info)
     /// rename variables ///
     int num_params = gNodes[node].uValue.sBlockObject.mNumParams;
     sParserParam params[PARAMS_MAX];
+    memset(params, 0, sizeof(sParserParam));
 
     int i;
     for(i=0; i<num_params; i++) {

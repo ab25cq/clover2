@@ -1042,7 +1042,7 @@ static BOOL initialize_class(sCLClass* klass, BOOL compile_time)
             CLVALUE* stack_ptr = stack;
 
             sVMInfo info;
-            memset(&info, 0, sizeof(info));
+            memset(&info, 0, sizeof(sVMInfo));
 
             if(!invoke_method(klass, &initialize_method, stack, 0, &stack_ptr, &info)) {
                 MFREE(stack);

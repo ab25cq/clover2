@@ -166,6 +166,8 @@ static BOOL parse_class_name_and_attributes(char* class_name, int class_name_siz
 
     /// generics ///
     sGenericsParamInfo ginfo;
+    memset(&ginfo, 0, sizeof(sGenericsParamInfo));
+
     if(!parse_generics_params(&ginfo, info)) 
     {
         return FALSE;
@@ -330,6 +332,8 @@ BOOL parse_method_name_and_params(char* method_name, int method_name_max, sParse
     /// method generics ///
     if(*info->p == '<') {
         sGenericsParamInfo ginfo;
+        memset(&ginfo, 0, sizeof(sGenericsParamInfo));
+
         if(!parse_generics_params(&ginfo, info)) 
         {
             return FALSE;
@@ -510,6 +514,7 @@ static BOOL field_delegation(sParserInfo* info, sCompileInfo* cinfo, sCLClass* k
                 BOOL static_ = FALSE;
 
                 sGenericsParamInfo method_generics_info;
+                memset(&method_generics_info, 0, sizeof(sGenericsParamInfo));
 
                 method_generics_info.mNumParams = method->mNumGenerics;
                 for(j=0; j<method_generics_info.mNumParams; j++) {
@@ -1024,6 +1029,7 @@ static BOOL field_delegation_on_compile_time(sParserInfo* info, sCompileInfo* ci
             int num_params = method->mNumParams;
 
             sGenericsParamInfo method_generics_info;
+            memset(&method_generics_info, 0, sizeof(sGenericsParamInfo));
 
             method_generics_info.mNumParams = method->mNumGenerics;
             for(j=0; j<method_generics_info.mNumParams; j++) {
@@ -1768,7 +1774,6 @@ BOOL compile_class_source(char* fname, char* source)
     info.included_source = FALSE;
 
     sCompileInfo cinfo;
-    
     memset(&cinfo, 0, sizeof(sCompileInfo));
 
     sByteCode code;

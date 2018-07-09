@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 4.6.3
+
+    構造体の初期化の問題を修正。
+
 version 4.6.2
 
     メソッドの引数に関するバグがあったため修正。

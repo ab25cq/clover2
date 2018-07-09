@@ -6686,7 +6686,7 @@ void signal_user_handler(int signum)
     if(block != 0) {
         sVMInfo info;
 
-        memset(&info, 0, sizeof(info));
+        memset(&info, 0, sizeof(sVMInfo));
 
         info.running_class_name = "signal";
         info.running_method_name = "signal_user_handler";

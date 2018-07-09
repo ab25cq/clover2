@@ -164,7 +164,6 @@ static BOOL write_code_and_constant_to_file(sByteCode* code, sConst* constant, i
 BOOL compile_script(char* fname, char* source)
 {
     sParserInfo info;
-
     memset(&info, 0, sizeof(sParserInfo));
 
     info.p = source;
@@ -175,7 +174,6 @@ BOOL compile_script(char* fname, char* source)
     info.parse_phase = 0;
 
     sCompileInfo cinfo;
-    
     memset(&cinfo, 0, sizeof(sCompileInfo));
 
     sByteCode code;

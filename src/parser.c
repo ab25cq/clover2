@@ -308,6 +308,7 @@ BOOL expect_next_character(char* characters, sParserInfo* info)
 static BOOL parse_simple_lambda_params(unsigned int* node, sParserInfo* info, BOOL lambda)
 {
     sParserParam params[PARAMS_MAX];
+    memset(params, 0, sizeof(sParserParam)*PARAMS_MAX);
     int num_params = 0;
 
     /// parse_params ///
@@ -1660,6 +1661,7 @@ static BOOL try_expression(unsigned int* node, sParserInfo* info)
 
     sNodeBlock* catch_node_block = NULL;
     sParserParam params[PARAMS_MAX];
+    memset(params, 0, sizeof(sParserParam)*PARAMS_MAX);
     int num_params = 0;
     params[0].mName[0] = '\0';
 
@@ -2548,6 +2550,7 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info, int* nu
 static BOOL parse_block_object(unsigned int* node, sParserInfo* info, BOOL lambda)
 {
     sParserParam params[PARAMS_MAX];
+    memset(params, 0, sizeof(sParserParam)*PARAMS_MAX);
     int num_params = 0;
 
     /// parse_params ///
@@ -2669,6 +2672,7 @@ static BOOL parse_function(unsigned int* node, sParserInfo* info, BOOL lambda)
 
     /// params ///
     sParserParam params[PARAMS_MAX];
+    memset(params, 0, sizeof(sParserParam)*PARAMS_MAX);
     int num_params = 0;
 
     /// parse_params ///
