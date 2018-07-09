@@ -1619,7 +1619,7 @@ void vm_lvar_to_llvm_lvar(LVALUE* llvm_stack,std::map<std::string, Value*>& para
     }
 }
 
-void finish_method_call(Value* result, std::map<std::string, Value *> params, BasicBlock** current_block, Function* function, char** try_catch_label_name, sByteCode* code, int real_param_num, int var_num, LVALUE* llvm_stack, LVALUE* llvm_stack_ptr)
+void finish_method_call(Value* result, std::map<std::string, Value *> params, BasicBlock** current_block, Function* function, char** try_catch_label_name)
 {
     // if result is FALSE ret 0
     Value* comp = Builder.CreateICmpNE(result, ConstantInt::get(TheContext, llvm::APInt(32, 1, true)), "ifcond");

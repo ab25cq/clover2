@@ -1,4 +1,12 @@
 
+version 4.6.0
+
+    JITでblock中に例外が起こった場合、catch出来ないバグを修正。List.eachなどでbreakできるようになりました。
+
+version 4.6.0
+    
+    Fixed a bug that can not be caught when an exception occurs in block in JIT. You can now break with List.each and so on.
+
 version 4.5.9
 
     String.deleteの仕様が変わっています。

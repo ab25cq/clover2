@@ -165,6 +165,189 @@ int get_var_size(sNodeType* var_type)
     return size;
 }
 
+/// method param default value ///
+BOOL compile_params_method_default_value(sCLClass* klass, char* method_name, int* num_params, unsigned int params[PARAMS_MAX], sNodeType* param_types[PARAMS_MAX], sNodeType* generics_types, sCompileInfo* info, int size_method_indexes, int method_indexes[], int num_methods)
+{
+    int i;
+    for(i=0; i<num_methods; i++) {
+        sCLMethod* method = klass->mMethods + method_indexes[i];
+
+        if(method->mNumParams > *num_params) {
+            int j;
+            for(j=0; j<*num_params; j++) {
+                sNodeType* param;
+                sNodeType* solved_param;
+
+                param = create_node_type_from_cl_type(method->mParams[j].mType, klass);
+
+                if(!solve_generics_types_for_node_type(param, ALLOC &solved_param, generics_types, TRUE, FALSE)) 
+                {
+                    return FALSE;
+                }
+
+                if(!substitution_posibility(solved_param, param_types[j], NULL, NULL, NULL, NULL))
+                {
+                    break;
+                }
+            }
+
+            /// 対象のメソッドが見つかった（全部のsubstitution_posibilityが通っている)
+            if(j == *num_params) {
+                int k;
+                for(k=*num_params; k < method->mNumParams; k++) {
+                    sCLParam* param = method->mParams + k;
+
+                    char* source = CONS_str(&klass->mConst, param->mDefaultValueOffset);
+
+                    if(source[0] != '\0') {
+                        sParserInfo info2;
+
+                        info2.p = source;
+                        info2.source = source;
+
+                        info2.sname = info->pinfo->sname;
+                        info2.sline = info->pinfo->sline;
+                        info2.err_num = info->pinfo->err_num;
+                        info2.lv_table = NULL;
+                        info2.parse_phase = info->pinfo->parse_phase;
+                        info2.klass = info->pinfo->klass;
+                        info2.generics_info = info->pinfo->generics_info;
+                        info2.method_generics_info = info->pinfo->method_generics_info;
+                        info2.cinfo = info;
+                        info2.included_source = FALSE;
+                        info2.get_type_for_interpreter = info->pinfo->get_type_for_interpreter;
+                        info2.next_command_is_to_bool = FALSE;
+                        info2.exist_block_object_err = info->pinfo->exist_block_object_err;
+
+                        unsigned int node = 0;
+                        if(!expression(&node, &info2)) {
+                            return FALSE;
+                        }
+
+                        if(!compile(node, info)) {
+                            return FALSE;
+                        }
+
+                        param_types[k] = info->type;
+
+                        (*num_params)++;
+                    }
+                }
+                break;
+            }
+        }
+    }
+
+    return TRUE;
+}
+
+static BOOL compile_params(sCLClass* klass, char* method_name, int* num_params, unsigned int params[PARAMS_MAX], sNodeType* param_types[PARAMS_MAX], sNodeType* generics_types, sCompileInfo* info, BOOL lazy_lambda_compile, BOOL* exist_lazy_lamda_compile, BOOL class_method)
+{
+    /// preparing for argument boxing ///
+    int size_method_indexes = 128;
+    int method_indexes[size_method_indexes];
+    int num_methods = 0;
+    if(!search_for_methods_from_method_name(method_indexes, size_method_indexes, &num_methods, klass, method_name, klass->mNumMethods-1, class_method))
+    {
+        compile_err_msg(info, "overflow number of the same name methods");
+        return FALSE;
+    }
+
+    int i;
+    for(i=0; i<*num_params; i++) {
+        int node2 = params[i];
+
+        enum eNodeType node2_type = gNodes[node2].mNodeType;
+
+        /// If the last argument is a block, do lazy lambda compiling ///
+        if(lazy_lambda_compile && i == *num_params-1 && node2_type == kNodeTypeBlockObject) {
+            *exist_lazy_lamda_compile = TRUE;
+        }
+        /// The other is compiling normaly ///
+        else {
+            if(!compile(node2, info)) {
+                return FALSE;
+            }
+
+            param_types[i] = info->type;
+
+            /// 引数をboxingすればメソッドが見つかるならboxingしないといけない ///
+            int j;
+            for(j=0; j<num_methods; j++) {
+                sCLMethod* method = klass->mMethods + method_indexes[j];
+
+                if(*num_params == method->mNumParams 
+                    && i < method->mNumParams) 
+                {
+                    sNodeType* param;
+                    sNodeType* solved_param;
+
+                    param = create_node_type_from_cl_type(method->mParams[i].mType, klass);
+
+                    if(!solve_generics_types_for_node_type(param, ALLOC &solved_param, generics_types, TRUE, FALSE)) 
+                    {
+                        return FALSE;
+                    }
+
+                    /// メソッド側の引数の型がインターフェースならboxingする。
+                    if(solved_param->mClass->mFlags & CLASS_FLAGS_INTERFACE) {
+                        boxing_to_lapper_class(&param_types[i], info);
+                    }
+                    /// メソッド側の引数がユーザークラスで引数がプリミティブ型ならboxingする。
+                    else {
+                        if(boxing_posibility(solved_param, param_types[i])) {
+                            cast_right_type_to_left_type(solved_param, &param_types[i], info);
+                        }
+
+                        /// Nullを代入しているなら戻り値の引数の型はメソッド側の型にする。Null型ではメソッドサーチが通らないため
+                        if(substitution_posibility_with_class_name(solved_param, "Null")) {
+                            if(type_identify_with_class_name(param_types[i], "Null")) {
+                                param_types[i] = solved_param;
+                            }
+                        }
+                    }
+                }
+            }
+
+            /// 引数をunboxingすればメソッドが見つかるならunboxingしないといけない ///
+            for(j=0; j<num_methods; j++) {
+                sCLMethod* method = klass->mMethods + method_indexes[j];
+
+                if(*num_params == method->mNumParams 
+                    && i < method->mNumParams) 
+                {
+                    sNodeType* param;
+                    sNodeType* solved_param;
+
+                    param = create_node_type_from_cl_type(method->mParams[i].mType, klass);
+
+                    if(!solve_generics_types_for_node_type(param, ALLOC &solved_param, generics_types, TRUE, FALSE)) 
+                    {
+                        return FALSE;
+                    }
+
+                    if(unboxing_posibility(solved_param, param_types[i])) {
+                        cast_right_type_to_left_type(solved_param, &param_types[i], info);
+                    }
+                    else if(cast_posibility(solved_param, param_types[i])) {
+                        cast_right_type_to_left_type(solved_param, &param_types[i], info);
+                    }
+                }
+            }
+        }
+    }
+
+    /// method default value ///
+    if(!*exist_lazy_lamda_compile) {
+        if(!compile_params_method_default_value(klass, method_name, num_params, params, param_types, generics_types, info, size_method_indexes, method_indexes, num_methods))
+        {
+            return FALSE;
+        }
+    }
+
+    return TRUE;
+}
+
 #define LABEL_NAME_MAX 512
 
 static void create_label_name(char* prefix, char* result, size_t result_size, int num)
@@ -3629,26 +3812,124 @@ unsigned int sNodeTree_break_expression(sParserInfo* info)
 
 static BOOL compile_break_expression(unsigned int node, sCompileInfo* info)
 {
-    append_opecode_to_code(info->code, OP_GOTO, info->no_output);
     if(info->num_break_points == NULL) {
-        compile_err_msg(info, "call break in the out of loop");
-        return FALSE;
+        if(info->in_block) {
+            if(info->method == NULL) {
+                compile_err_msg(info, "Throw expressioin should be in a method definition");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+
+            /// compile expression ///
+            sNodeType* node_type = create_node_type_with_class_name("Exception");
+            sCLClass* klass = node_type->mClass;
+
+            append_opecode_to_code(info->code, OP_NEW, info->no_output);
+            append_class_name_to_constant_pool_and_code(info, klass);
+            append_type_name_to_constant_pool_and_code(info, node_type);
+            append_int_value_to_code(info->code, 0, info->no_output);
+
+            info->stack_num++;
+
+            int num_params = 1;
+            unsigned int params[PARAMS_MAX];
+            char* message = MSTRDUP("break");
+            params[0] = sNodeTree_create_string_value(MANAGED message, NULL, NULL, 0, info->pinfo);
+
+            sNodeType* param_types[PARAMS_MAX];
+            char* method_name = "initialize";
+
+            info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
+
+            BOOL exist_lazy_lamda_compile = FALSE;
+            if(!compile_params(klass, method_name, &num_params, params, param_types, NULL, info, FALSE, &exist_lazy_lamda_compile, FALSE)) {
+                return FALSE;
+            }
+
+            if(!info->pinfo->exist_block_object_err) { // for interpreter completion
+                sNodeType* result_type;
+                sNodeType* result_method_generics_types = NULL;
+                int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, FALSE, &result_method_generics_types);
+
+                if(method_index == -1) {
+                    compile_err_msg(info, "method not found(6)");
+                    info->err_num++;
+
+                    err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
+
+                    info->type = create_node_type_with_class_name("int"); // dummy
+
+                    return TRUE;
+                }
+
+                append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+                append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+                append_int_value_to_code(info->code, info->sline, info->no_output);
+
+                append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
+                append_class_name_to_constant_pool_and_code(info, klass);
+                append_int_value_to_code(info->code, method_index, info->no_output);
+
+                int size = get_var_size(result_type);
+                append_int_value_to_code(info->code, size, info->no_output);
+
+                info->stack_num-=num_params+1;
+                info->stack_num++;
+
+                info->type = node_type;
+            }
+
+            sNodeType* exception_type = info->type;
+
+            if(!is_exception_type(exception_type))
+            {
+                compile_err_msg(info, "Invalid type of exception value");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+
+            if(info->stack_num != 1) {
+                compile_err_msg(info, "Invalid stack num in the throw expression");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int"); // dummy
+
+                return TRUE;
+            }
+
+            append_opecode_to_code(info->code, OP_THROW, info->no_output);
+            info->stack_num = 0;  // no pop
+            info->type = create_node_type_with_class_name("Null");
+        }
+        else {
+            compile_err_msg(info, "call break in the out of loop");
+            return FALSE;
+        }
     }
-    info->break_points[*info->num_break_points] = info->code->mLen;
-    (*info->num_break_points)++;
+    else {
+        append_opecode_to_code(info->code, OP_GOTO, info->no_output);
+        info->break_points[*info->num_break_points] = info->code->mLen;
+        (*info->num_break_points)++;
 
-    if(*info->num_break_points >= BREAK_NUM_MAX) {
-        compile_err_msg(info, "overflow break number");
-        return FALSE;
+        if(*info->num_break_points >= BREAK_NUM_MAX) {
+            compile_err_msg(info, "overflow break number");
+            return FALSE;
+        }
+
+        append_int_value_to_code(info->code, 0, info->no_output);
+        append_str_to_constant_pool_and_code(info->constant, info->code, info->break_point_label_name, info->no_output);
+
+        append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
+        info->stack_num++;
+
+        info->type = create_node_type_with_class_name("Null");
     }
-
-    append_int_value_to_code(info->code, 0, info->no_output);
-    append_str_to_constant_pool_and_code(info->constant, info->code, info->break_point_label_name, info->no_output);
-
-    append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
-    info->stack_num++;
-
-    info->type = create_node_type_with_class_name("Null");
     
     return TRUE;
 }
@@ -3838,188 +4119,6 @@ static sNodeType* get_methocs_generics_type(sParserInfo* info)
     return result;
 }
 
-/// メソッドのデフォルト引数 ///
-BOOL compile_params_method_default_value(sCLClass* klass, char* method_name, int* num_params, unsigned int params[PARAMS_MAX], sNodeType* param_types[PARAMS_MAX], sNodeType* generics_types, sCompileInfo* info, int size_method_indexes, int method_indexes[], int num_methods)
-{
-    int i;
-    for(i=0; i<num_methods; i++) {
-        sCLMethod* method = klass->mMethods + method_indexes[i];
-
-        if(method->mNumParams > *num_params) {
-            int j;
-            for(j=0; j<*num_params; j++) {
-                sNodeType* param;
-                sNodeType* solved_param;
-
-                param = create_node_type_from_cl_type(method->mParams[j].mType, klass);
-
-                if(!solve_generics_types_for_node_type(param, ALLOC &solved_param, generics_types, TRUE, FALSE)) 
-                {
-                    return FALSE;
-                }
-
-                if(!substitution_posibility(solved_param, param_types[j], NULL, NULL, NULL, NULL))
-                {
-                    break;
-                }
-            }
-
-            /// 対象のメソッドが見つかった（全部のsubstitution_posibilityが通っている)
-            if(j == *num_params) {
-                int k;
-                for(k=*num_params; k < method->mNumParams; k++) {
-                    sCLParam* param = method->mParams + k;
-
-                    char* source = CONS_str(&klass->mConst, param->mDefaultValueOffset);
-
-                    if(source[0] != '\0') {
-                        sParserInfo info2;
-
-                        info2.p = source;
-                        info2.source = source;
-
-                        info2.sname = info->pinfo->sname;
-                        info2.sline = info->pinfo->sline;
-                        info2.err_num = info->pinfo->err_num;
-                        info2.lv_table = NULL;
-                        info2.parse_phase = info->pinfo->parse_phase;
-                        info2.klass = info->pinfo->klass;
-                        info2.generics_info = info->pinfo->generics_info;
-                        info2.method_generics_info = info->pinfo->method_generics_info;
-                        info2.cinfo = info;
-                        info2.included_source = FALSE;
-                        info2.get_type_for_interpreter = info->pinfo->get_type_for_interpreter;
-                        info2.next_command_is_to_bool = FALSE;
-                        info2.exist_block_object_err = info->pinfo->exist_block_object_err;
-
-                        unsigned int node = 0;
-                        if(!expression(&node, &info2)) {
-                            return FALSE;
-                        }
-
-                        if(!compile(node, info)) {
-                            return FALSE;
-                        }
-
-                        param_types[k] = info->type;
-
-                        (*num_params)++;
-                    }
-                }
-                break;
-            }
-        }
-    }
-
-    return TRUE;
-}
-
-static BOOL compile_params(sCLClass* klass, char* method_name, int* num_params, unsigned int params[PARAMS_MAX], sNodeType* param_types[PARAMS_MAX], sNodeType* generics_types, sCompileInfo* info, BOOL lazy_lambda_compile, BOOL* exist_lazy_lamda_compile, BOOL class_method)
-{
-    /// preparing for argument boxing ///
-    int size_method_indexes = 128;
-    int method_indexes[size_method_indexes];
-    int num_methods = 0;
-    if(!search_for_methods_from_method_name(method_indexes, size_method_indexes, &num_methods, klass, method_name, klass->mNumMethods-1, class_method))
-    {
-        compile_err_msg(info, "overflow number of the same name methods");
-        return FALSE;
-    }
-
-    int i;
-    for(i=0; i<*num_params; i++) {
-        int node2 = params[i];
-
-        enum eNodeType node2_type = gNodes[node2].mNodeType;
-
-        /// If the last argument is a block, do lazy lambda compiling ///
-        if(lazy_lambda_compile && i == *num_params-1 && node2_type == kNodeTypeBlockObject) {
-            *exist_lazy_lamda_compile = TRUE;
-        }
-        /// The other is compiling normaly ///
-        else {
-            if(!compile(node2, info)) {
-                return FALSE;
-            }
-
-            param_types[i] = info->type;
-
-            /// 引数をboxingすればメソッドが見つかるならboxingしないといけない ///
-            int j;
-            for(j=0; j<num_methods; j++) {
-                sCLMethod* method = klass->mMethods + method_indexes[j];
-
-                if(*num_params == method->mNumParams 
-                    && i < method->mNumParams) 
-                {
-                    sNodeType* param;
-                    sNodeType* solved_param;
-
-                    param = create_node_type_from_cl_type(method->mParams[i].mType, klass);
-
-                    if(!solve_generics_types_for_node_type(param, ALLOC &solved_param, generics_types, TRUE, FALSE)) 
-                    {
-                        return FALSE;
-                    }
-
-                    /// メソッド側の引数の型がインターフェースならboxingする。
-                    if(solved_param->mClass->mFlags & CLASS_FLAGS_INTERFACE) {
-                        boxing_to_lapper_class(&param_types[i], info);
-                    }
-                    /// メソッド側の引数がユーザークラスで引数がプリミティブ型ならboxingする。
-                    else {
-                        if(boxing_posibility(solved_param, param_types[i])) {
-                            cast_right_type_to_left_type(solved_param, &param_types[i], info);
-                        }
-
-                        /// Nullを代入しているなら戻り値の引数の型はメソッド側の型にする。Null型ではメソッドサーチが通らないため
-                        if(substitution_posibility_with_class_name(solved_param, "Null")) {
-                            if(type_identify_with_class_name(param_types[i], "Null")) {
-                                param_types[i] = solved_param;
-                            }
-                        }
-                    }
-                }
-            }
-
-            /// 引数をunboxingすればメソッドが見つかるならunboxingしないといけない ///
-            for(j=0; j<num_methods; j++) {
-                sCLMethod* method = klass->mMethods + method_indexes[j];
-
-                if(*num_params == method->mNumParams 
-                    && i < method->mNumParams) 
-                {
-                    sNodeType* param;
-                    sNodeType* solved_param;
-
-                    param = create_node_type_from_cl_type(method->mParams[i].mType, klass);
-
-                    if(!solve_generics_types_for_node_type(param, ALLOC &solved_param, generics_types, TRUE, FALSE)) 
-                    {
-                        return FALSE;
-                    }
-
-                    if(unboxing_posibility(solved_param, param_types[i])) {
-                        cast_right_type_to_left_type(solved_param, &param_types[i], info);
-                    }
-                    else if(cast_posibility(solved_param, param_types[i])) {
-                        cast_right_type_to_left_type(solved_param, &param_types[i], info);
-                    }
-                }
-            }
-        }
-    }
-
-    /// method default value ///
-    if(!*exist_lazy_lamda_compile) {
-        if(!compile_params_method_default_value(klass, method_name, num_params, params, param_types, generics_types, info, size_method_indexes, method_indexes, num_methods))
-        {
-            return FALSE;
-        }
-    }
-
-    return TRUE;
-}
 
 static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)
 {

@@ -602,7 +602,13 @@ class Integer : unboxing int
 
     def times(block_:lambda()) {
         for(i:int = 0; i<self.value; i++) {
-            block_();
+            try {
+                block_();
+            } catch(e:Exception) {
+                if(e.message.equals("break")) {
+                    break;
+                }
+            }
         }
     }
 }

@@ -1,5 +1,5 @@
-val a := 1;
-
-a = 2;
-
-a.toString().println();
+slist{1,2,3}.each {
+    if(it == 2) {
+        break;
+    }
+}

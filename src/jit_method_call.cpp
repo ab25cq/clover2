@@ -82,7 +82,7 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
 
             Value* result = Builder.CreateCall(fun, params2);
 
-            finish_method_call(result, params, current_block, *function, try_catch_label_name, code, real_param_num, var_num, llvm_stack, *llvm_stack_ptr);
+            finish_method_call(result, params, current_block, *function, try_catch_label_name);
             
             /// VM stack to llvm stack ///
             vm_lvar_to_llvm_lvar(llvm_stack, params, *current_block, var_num);
@@ -172,7 +172,7 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
 
             Value* result = Builder.CreateCall(fun, params2);
 
-            finish_method_call(result, params, current_block, *function, try_catch_label_name, code, num_real_params-1, var_num, llvm_stack, *llvm_stack_ptr);
+            finish_method_call(result, params, current_block, *function, try_catch_label_name);
             
             /// VM stack to llvm stack ///
             vm_lvar_to_llvm_lvar(llvm_stack, params, *current_block, var_num);
@@ -283,7 +283,7 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
 
             Value* result = Builder.CreateCall(fun, params2);
 
-            finish_method_call(result, params, current_block, *function, try_catch_label_name, code, num_real_params-1, var_num, llvm_stack, *llvm_stack_ptr);
+            finish_method_call(result, params, current_block, *function, try_catch_label_name);
 
             /// VM stack to llvm stack ///
             vm_lvar_to_llvm_lvar(llvm_stack, params, *current_block, var_num);
@@ -359,7 +359,7 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
 
             Value* result = Builder.CreateCall(fun, params2);
 
-            if_value_is_zero_ret_zero(result, params, *function, current_block);
+            finish_method_call(result, params, current_block, *function, try_catch_label_name);
 
             /// parent vm stack for parent llvm stack ///
             parent_vm_stack_to_parent_llvm_stack(parent_stack, parent_llvm_stack, *current_block, parent_var_num);

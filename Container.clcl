@@ -54,7 +54,13 @@ module MArray
 
     def each(block_:lambda(T)) {
         for(i:int = 0; i<self.items.length; i++) {
-            block_(self.items[i]);
+            try {
+                block_(self.items[i]);
+            } catch(e:Exception) {
+                if(e.message.equals("break")) {
+                    break;
+                }
+            }
         }
     }
 }
@@ -638,7 +644,13 @@ module MList
         it:ListItem<T>? = self.head;
 
         while(!it.identifyWith(null)) {
-            block_(it.item);
+            try {
+                block_(it.item);
+            } catch(e:Exception) {
+                if(e.message.equals("break")) {
+                    break;
+                }
+            }
             it = it.next;
         }
 
@@ -649,7 +661,13 @@ module MList
         it:ListItem<T>? = self.tail;
 
         while(!it.identifyWith(null)) {
-            block_(it.item);
+            try {
+                block_(it.item);
+            } catch(e:Exception) {
+                if(e.message.equals("break")) {
+                    break;
+                }
+            }
             it = it.prev;
         }
 
@@ -688,9 +706,9 @@ module MList
     }
 
     def append(list:SELF<T>):SELF<T> {
-        list.each(closure(item:T) {
+        list.each { |item:T| 
             self.add(item);
-        });
+        }
 
         return self;
     }
@@ -711,8 +729,14 @@ module MList
         it :ListItem<T>? = self.head;
 
         while(!it.identifyWith(null)) {
-            if(block_(it.item)) {
-                new_list.add(it.item);
+            try {
+                if(block_(it.item)) {
+                    new_list.add(it.item);
+                }
+            } catch(e:Exception) {
+                if(e.message.equals("break")) {
+                    break;
+                }
             }
             it = it.next;
         }
@@ -1039,7 +1063,13 @@ class List <T:Object>
         it:ListItem<T>? = self.head;
 
         while(!it.identifyWith(null)) {
-            result.add(trans(it.item));
+            try {
+                result.add(trans(it.item));
+            } catch(e:Exception) {
+                if(e.message.equals("break")) {
+                    break;
+                }
+            }
 
             it = it.next;
         }
@@ -1095,7 +1125,13 @@ class EqualableList<T:IEqualable>
         it:ListItem<T>? = self.head;
 
         while(!it.identifyWith(null)) {
-            result.add(trans(it.item));
+            try {
+                result.add(trans(it.item));
+            } catch(e:Exception) {
+                if(e.message.equals("break")) {
+                    break;
+                }
+            }
 
             it = it.next;
         }
@@ -1147,7 +1183,13 @@ class SortableList<T:ISortable>
         it:ListItem<T>? = self.head;
 
         while(!it.identifyWith(null)) {
-            result.add(trans(it.item));
+            try {
+                result.add(trans(it.item));
+            } catch(e:Exception) {
+                if(e.message.equals("break")) {
+                    break;
+                }
+            }
 
             it = it.next;
         }
@@ -1502,7 +1544,13 @@ class Hash <T:IHashKey, T2:IEqualable>
     def each(block_:lambda(T,T2)):Hash<T,T2> {
         for(i:uint =0; i<self.tableSize; i++) {
             if(!self.table[i].identifyWith(null)) {
-                block_(self.table[i].key, self.table[i].item);
+                try {
+                    block_(self.table[i].key, self.table[i].item);
+                } catch(e:Exception) {
+                    if(e.message.equals("break")) {
+                        break;
+                    }
+                }
             }
         }
 

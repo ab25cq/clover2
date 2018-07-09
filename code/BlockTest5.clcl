@@ -1,5 +1,14 @@
 class BlockTest5
 {
+    def method() {
+        c := 0;
+        slist{1,2,3}.each {
+            c = it;
+            if(it == 2) {
+                throw Exception("Exception1");
+            }
+        }
+    }
     def main(): static {
         a:= 1;
         b:= 2;
@@ -9,5 +18,24 @@ class BlockTest5
         }
 
         Clover.test("lambda param test", a == 1 && b == 2);
+
+        c := 0;
+
+        slist{1,2,3}.each {
+            c = it;
+            if(it == 2) {
+                break;
+            }
+        }
+
+        Clover.test("block test", c == 2);
+
+        d := BlockTest5();
+
+        try {
+            d.method();
+        } catch(e:Exception) {
+            Clover.test("block test2", e.message.equals("Exception1"));
+        }
     }
 }
