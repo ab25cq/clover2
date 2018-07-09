@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 4.6.2
+
+    メソッドの引数に関するバグがあったため修正。
+
 version 4.6.1
 
     each内でbreakするとバグがあったため、修正。

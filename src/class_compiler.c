@@ -493,6 +493,8 @@ static BOOL field_delegation(sParserInfo* info, sCompileInfo* cinfo, sCLClass* k
                 }
 
                 sParserParam parser_params[PARAMS_MAX];
+                memset(parser_params, 0, sizeof(sParserParam)*PARAMS_MAX);
+
                 for(j=0; j<method->mNumParams; j++) {
                     char param_name[VAR_NAME_MAX];
                     snprintf(param_name, VAR_NAME_MAX, "param%d", j);
@@ -529,6 +531,7 @@ static BOOL field_delegation(sParserInfo* info, sCompileInfo* cinfo, sCLClass* k
                 sCLMethod* appended_method = NULL;
                 if(!add_method_to_class(klass, method_name, parser_params, num_params, result_type, native_, static_, &method_generics_info, &appended_method, clibrary_path)) 
                 {
+                    parser_err_msg(info, "add_method_to_class failed");
                     return FALSE;
                 }
 
@@ -552,6 +555,7 @@ static BOOL setter_and_getter(sParserInfo* info, sCompileInfo* cinfo, sCLClass* 
 
         sParserParam parser_params[PARAMS_MAX];
         int num_params = 0;
+        memset(parser_params, 0, sizeof(sParserParam)*PARAMS_MAX);
 
         sNodeType* result_type = field_type;
 
@@ -564,6 +568,7 @@ static BOOL setter_and_getter(sParserInfo* info, sCompileInfo* cinfo, sCLClass* 
         sCLMethod* appended_method = NULL;
         if(!add_method_to_class(klass, method_name, parser_params, num_params, result_type, native_, static_, NULL, &appended_method, clibrary_path))
         {
+            parser_err_msg(info, "add_method_to_class failed");
             return FALSE;
         }
 
@@ -575,6 +580,8 @@ static BOOL setter_and_getter(sParserInfo* info, sCompileInfo* cinfo, sCLClass* 
             char* method_name = field_name;
 
             sParserParam parser_params[PARAMS_MAX];
+            memset(parser_params, 0, sizeof(sParserParam)*PARAMS_MAX);
+
             int num_params = 1;
 
             xstrncpy(parser_params[0].mName, "value", VAR_NAME_MAX);
@@ -592,6 +599,7 @@ static BOOL setter_and_getter(sParserInfo* info, sCompileInfo* cinfo, sCLClass* 
             sCLMethod* appended_method = NULL;
             if(!add_method_to_class(klass, method_name, parser_params, num_params, result_type, native_, static_, NULL, &appended_method, clibrary_path))
             {
+                parser_err_msg(info, "add_method_to_class failed");
                 return FALSE;
             }
 
@@ -664,6 +672,8 @@ static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOO
     else if(strcmp(buf, "def") == 0) {
         char method_name[METHOD_NAME_MAX];
         sParserParam params[PARAMS_MAX];
+        memset(params, 0, sizeof(sParserParam)*PARAMS_MAX);
+
         int num_params = 0;
         sNodeType* result_type = NULL;
         BOOL native_ = FALSE;
@@ -679,6 +689,7 @@ static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOO
             sCLMethod* appended_method = NULL;
             if(!add_method_to_class(info->klass, method_name, params, num_params, result_type, native_, static_, &info->method_generics_info, &appended_method, clibrary_path)) 
             {
+                parser_err_msg(info, "add_method_to_class failed");
                 return FALSE;
             }
         }
@@ -884,6 +895,7 @@ static BOOL setter_and_getter_on_compile_time(sParserInfo* info, sCompileInfo* c
         char* method_name = field_name;
 
         sParserParam parser_params[PARAMS_MAX];
+        memset(parser_params, 0, sizeof(parser_params));
         int num_params = 0;
 
         sNodeType* result_type = field_type;
@@ -932,6 +944,7 @@ static BOOL setter_and_getter_on_compile_time(sParserInfo* info, sCompileInfo* c
             char* method_name = field_name;
 
             sParserParam parser_params[PARAMS_MAX];
+            memset(parser_params, 0, sizeof(parser_params));
             int num_params = 1;
 
             xstrncpy(parser_params[0].mName, "value", VAR_NAME_MAX);
@@ -1027,6 +1040,8 @@ static BOOL field_delegation_on_compile_time(sParserInfo* info, sCompileInfo* ci
             }
 
             sParserParam parser_params[PARAMS_MAX];
+            memset(parser_params, 0, sizeof(sParserParam)*PARAMS_MAX);
+
             for(j=0; j<num_params; j++) {
                 char param_name[VAR_NAME_MAX];
                 snprintf(param_name, VAR_NAME_MAX, "param%d", j);
@@ -1148,7 +1163,10 @@ BOOL parse_methods_and_fields_on_compile_time(sParserInfo* info, sCompileInfo* c
     /// function ///
     else if(strcmp(buf, "def") == 0) {
         char method_name[METHOD_NAME_MAX];
+
         sParserParam params[PARAMS_MAX];
+        memset(params, 0, sizeof(sParserParam)*PARAMS_MAX);
+
         int num_params = 0;
         sNodeType* result_type = NULL;
         BOOL native_ = FALSE;

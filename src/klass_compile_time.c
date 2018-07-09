@@ -266,7 +266,7 @@ BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* param
     for(i=0; i<num_params; i++) {
         sParserParam* param = params + i;
 
-        /// メソッドパラメータのデフォルトの値があった場合、その後にも無いといけない
+        /// If method parametor default value exists, it must continue to exist
         if(param->mDefaultValue[0] != '\0') {
             method_arg_default_value = TRUE;
         }

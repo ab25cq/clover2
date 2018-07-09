@@ -1,4 +1,8 @@
 
+version 4.6.2
+
+    Fixed bug of method arguments.
+
 version 4.6.1
     
     Fixed a bug in break at method block.

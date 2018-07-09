@@ -1,4 +1,8 @@
 
+clover2 (4.6.2-1) unstable; urgency=medium
+
+    * Fixed bug of method arguments.
+
 clover2 (4.6.1-1) unstable; urgency=medium
     
     * Fixed a bug in break at method block.

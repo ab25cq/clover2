@@ -1547,7 +1547,7 @@ static BOOL parse_param(sParserParam* param, sParserInfo* info)
         return FALSE;
     }
 
-    /// デフォルト引数を得る。デフォルト引数が必要ない場合でもパースは出来てしまうのは内緒 ///
+    /// get default argment. ///
     if(*info->p == '=') {
         info->p++;
         skip_spaces_and_lf(info);
