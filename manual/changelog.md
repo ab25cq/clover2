@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 4.6.1
+
+    each内でbreakするとバグがあったため、修正。
+
 version 4.6.0
 
     JITでblock中に例外が起こった場合、catch出来ないバグを修正。List.eachなどでbreakできるようになりました。

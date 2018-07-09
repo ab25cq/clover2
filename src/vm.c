@@ -1543,6 +1543,10 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
         vm_mutex_off();
     }
 
+    int try_offset_before = 0;
+    char* try_pc_before = NULL;
+    sByteCode* try_code_before = NULL;
+
     while(1) {
         if(!info->no_mutex_in_vm) {
             vm_mutex_on();
@@ -1659,10 +1663,14 @@ show_inst(inst);
                 return FALSE;
 
             case OP_TRY: {
+                try_offset_before = info->try_offset;
+                try_code_before = info->try_code;
+
                 info->try_offset = *(int*)pc;
                 pc += sizeof(int);
 
 #ifdef ENABLE_JIT
+                try_pc_before = info->try_pc;
                 info->try_pc = &pc;
 #endif
 
@@ -1678,10 +1686,10 @@ show_inst(inst);
 
             case OP_TRY_END:
 #ifdef ENABLE_JIT
-                info->try_pc = 0;
+                info->try_pc = try_pc_before;
 #endif
-                info->try_code = NULL;
-                info->try_offset = 0;
+                info->try_code = try_code_before;
+                info->try_offset = try_offset_before;
                 break;
 
             case OP_CATCH_POP:

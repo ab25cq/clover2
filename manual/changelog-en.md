@@ -1,4 +1,8 @@
 
+version 4.6.1
+    
+    Fixed a bug in break at method block.
+
 version 4.6.0
     
     Fixed a bug that can not be caught when an exception occurs in block in JIT. You can now break with List.each and so on.
