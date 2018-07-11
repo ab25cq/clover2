@@ -1539,13 +1539,13 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
     sCLStack* stack_id = append_stack_to_stack_list(stack, &stack_ptr);
 
+    int try_offset_before = 0;
+    char** try_pc_before = NULL;
+    sByteCode* try_code_before = NULL;
+
     if(!info->no_mutex_in_vm) {
         vm_mutex_off();
     }
-
-    int try_offset_before = 0;
-    char* try_pc_before = NULL;
-    sByteCode* try_code_before = NULL;
 
     while(1) {
         if(!info->no_mutex_in_vm) {

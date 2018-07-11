@@ -175,7 +175,8 @@ if test $ENABLE_OPTIMIZE = 1
 then
     if test $ENABLE_THREAD = 1
     then
-        CFLAGS="$CFLAGS"         # no optimization for thread.
+        echo "Enable thread with optimization is not supported"
+        exit 1;
     else
         CFLAGS="$CFLAGS -O3"
     fi
@@ -211,12 +212,6 @@ INSTALL="/usr/bin/install -c"
 
 if test $ENABLE_THREAD = 1
 then
-    if test $ENABLE_JIT = 0
-    then
-        echo "If you want to support thread, you need --with-jit option to configure.(Performance problem)"
-        exit 1
-    fi
-
     AC_CHECK_HEADER(pthread.h, [AC_DEFINE(HAVE_PTHREAD_H, 1)], [ exit ])
     AC_HAVE_LIBRARY(pthread, [ LIBS="$LIBS -lpthread"; ], [ exit ])
 fi

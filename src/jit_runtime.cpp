@@ -119,6 +119,8 @@ struct sCLVALUEAndBoolResult* get_field_from_object(CLVALUE** stack_ptr, CLVALUE
         return result;
     }
 
+//printf("obj %d running_class %s running_method_name %s\n", obj, info->running_class_name, info->running_method_name);
+
     sCLObject* object_pointer = CLOBJECT(obj);
     sCLClass* klass = object_pointer->mClass;
 
@@ -1662,6 +1664,20 @@ void split_tuple(CLVALUE** stack_ptr, sVMInfo* info, CLObject tuple, int num_ele
     for(i=0; i<num_elements; i++) {
         **stack_ptr = object_data->mFields[i];
         (*stack_ptr)++;
+    }
+}
+
+void vm_mutex_on_in_jit(sVMInfo* info)
+{
+    if(!info->no_mutex_in_vm) {
+        vm_mutex_on();
+    }
+}
+
+void vm_mutex_off_in_jit(sVMInfo* info)
+{
+    if(!info->no_mutex_in_vm) {
+        vm_mutex_off();
     }
 }
 

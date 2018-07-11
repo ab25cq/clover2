@@ -1,7 +1,16 @@
 
+version 4.6.5
+
+    Added --with-thread option to configuren. --with-optimize can not be attached at the same time. If you add -with-thread we recommend --with-jit as well.
+
+    Fixed bug of jit with thread
+
 version 4.6.4
 
     Added --with-tread option to configure. If compile without --with-thread, optimizatioin is enabled.
+version 4.usec4
+
+    --with-threadオプションをconfigurenに追加。もし--with-threadをつけないと最適化が有効になります。threadは使えませんが、、、。
 
 version 4.6.3
 

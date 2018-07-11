@@ -2421,5 +2421,7 @@ pid_t gettid();
 BOOL pthread_mutex_t_allocSize(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL pthread_cond_t_allocSize(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
+extern BOOL gVMMutexFlg;
+
 #endif
 

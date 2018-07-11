@@ -1,5 +1,11 @@
 English page is here [>> English page](changelog-en)
 
+version 4.6.5
+
+    --with-threadオプションをconfigurenに追加。--with-optimizeとは同時は付けられません。もし、--with-threadを付ける場合は--with-jitも付けることをお勧めします。
+
+    JITでのThraedにバグがありました。修正。
+
 version 4.6.4
 
     --with-threadオプションをconfigurenに追加。もし--with-threadをつけないと最適化が有効になります。threadは使えませんが、、、。

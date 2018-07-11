@@ -195,7 +195,7 @@ If you have administrator privileges
 ```
 Please. cclover2 and clover2 are registered in /usr/local/bin. If you need an interpreter add the `--with-interpreter` option to `./configure`. An interpreter is entered with the executable file name iclover2. However, the execution code is delicately delayed. (Since the judgment of Signal Interprrupt is embedded in the code). Range of honest error I guess. If you need to compile Method's native code, add the `--with-jit` option to `./configure`. If the behavior is unstable with --with-jit, please remove --with-jit and try it. --with-jit is stable in version 3.5. If you still have a bug, please remove --with-jit and try using it. If segmentation violation occurs with `--with-optimize` depending on the environment, try `--with-optimize` and execute it. Although processing speed will be considerably slow, segmentation violation may not be done.
 
-`--with-thread` makes Thread effective. In that case you need the `--with-jit` option. It is due to performance problems. With --with-thread and without JIT, optimization will not be effective, so it will not be used at speed.
+`--with-thread` makes Thread effective. In that case you can't append `--with-optimize` option. With --with-thread and --with-optimize options, errors occurs.
 
 If you want to install files in a specific directory
 

@@ -12,7 +12,6 @@ static pthread_cond_t gStartVMCond = PTHREAD_COND_INITIALIZER;
 
 int gNumThread = 0;
 
-#define MUTEX_DEBUG_INFO_MAX 1024*2*2
 #endif
 
 pid_t gettid()
@@ -39,16 +38,21 @@ void thread_final()
 #endif
 }
 
+BOOL gVMMutexFlg = FALSE;
+
+
 void vm_mutex_on()
 {
 #ifdef HAVE_PTHREAD_H
     pthread_mutex_lock(&gVMMutex);
+    gVMMutexFlg = TRUE;
 #endif
 }
 
 void vm_mutex_off()
 {
 #ifdef HAVE_PTHREAD_H
+    gVMMutexFlg = FALSE;
     pthread_mutex_unlock(&gVMMutex);
 #endif
 }
@@ -72,7 +76,6 @@ void* thread_func(void* param)
 {
 #ifdef HAVE_PTHREAD_H
     vm_mutex_on();
-    gNumThread++;
 
     struct sThreadFuncArg* arg = param;
 
@@ -163,8 +166,6 @@ void* thread_func(void* param)
     MFREE(code);
 
     vm_mutex_off();
-
-    gNumThread--;
 #endif
 
     return NULL;
@@ -175,6 +176,8 @@ BOOL Thread_initialize_thread(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 #ifdef HAVE_PTHREAD_H
     CLVALUE* thread = lvar;
     CLVALUE* block = lvar + 1;
+
+    //gNumThread++;
 
     /// Clover to C ///
     CLObject thread_object = thread->mObjectValue;
@@ -244,6 +247,7 @@ BOOL Thread_pthread_join(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     }
 
     vm_mutex_on();
+    //gNumThread--;
 
     return TRUE;
 #else
