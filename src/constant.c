@@ -36,7 +36,7 @@ static void arrange_alignment(sConst* self)
     alignment((unsigned int*)&self->mLen);
 }
 
-int sConst_append(sConst* self, void* data, size_t size, BOOL no_output)
+int sConst_append(sConst* self, void* data, int size, BOOL no_output)
 {
     if(!no_output) {
         arrange_alignment(self);
@@ -88,7 +88,7 @@ int append_double_value_to_constant_pool(sConst* constant, double n, BOOL no_out
 
 int append_str_to_constant_pool(sConst* constant, char* str, BOOL no_output)
 {
-    size_t len = strlen(str);
+    int len = strlen(str);
     int result = sConst_append(constant, str, len+1, no_output);
 
     return result;

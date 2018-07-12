@@ -1,4 +1,8 @@
 
+clover2 (4.6.6-1) unstable; urgency=medium
+
+    * Fixed memory bug. Test on i686. I have not testted on ppc64 yet.
+
 clover2 (4.6.5-1) unstable; urgency=medium
 
     * Added --with-thread option to configuren. --with-optimize can not be attached at the same time. If you add -with-thread we recommend --with-jit as well. Fixed bug of jit with thread

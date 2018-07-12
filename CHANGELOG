@@ -1,4 +1,12 @@
 
+version 4.6.6
+
+    メモリのバグを修正。i686で動作確認。ppc64はまだです。
+
+version 4.6.6
+
+    Fixed memory bug. Test on i686. I have not testted on ppc64 yet.
+
 version 4.6.5
 
     --with-threadオプションをconfigurenに追加。--with-optimizeとは同時は付けられません。もし、--with-threadを付ける場合は--with-jitも付けることをお勧めします。

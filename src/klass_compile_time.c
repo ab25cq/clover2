@@ -227,7 +227,7 @@ void set_method_index_to_class(sCLClass* klass)
     }
 }
 
-BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_, sGenericsParamInfo* ginfo, sCLMethod** appended_method, char* clibrary_path)
+BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_, sGenericsParamInfo* ginfo, sCLMethod** appended_method, char* clibrary_path, sParserInfo* info)
 {
     if(klass->mNumMethods == klass->mSizeMethods) {
         int new_size = klass->mSizeMethods * 2;
@@ -261,6 +261,11 @@ BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* param
     }
 
     BOOL method_arg_default_value = FALSE;
+
+    if(num_params >= PARAMS_MAX) {
+        fprintf(stderr, "overflow param number\n");
+        return FALSE;
+    }
 
     int i;
     for(i=0; i<num_params; i++) {

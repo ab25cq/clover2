@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 4.6.6
+
+    メモリのバグを修正。i686で動作確認。ppc64はまだです。
+
 version 4.6.5
 
     --with-threadオプションをconfigurenに追加。--with-optimizeとは同時は付けられません。もし、--with-threadを付ける場合は--with-jitも付けることをお勧めします。

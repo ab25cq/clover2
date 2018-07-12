@@ -1,4 +1,8 @@
 
+version 4.6.6
+
+    Fixed memory bug. Test on i686. I have not testted on ppc64 yet.
+
 version 4.6.5
 
     Added --with-thread option to configuren. --with-optimize can not be attached at the same time. If you add -with-thread we recommend --with-jit as well.

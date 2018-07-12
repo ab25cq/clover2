@@ -1596,7 +1596,7 @@ BOOL parse_params(sParserParam* params, int* num_params, sParserInfo* info, int 
 
         (*num_params)++;
 
-        if(*num_params > PARAMS_MAX) {
+        if(*num_params >= PARAMS_MAX) {
             parser_err_msg(info, "overflow params number");
             return FALSE;
         }

@@ -55,7 +55,7 @@
 #define METHOD_VAR_NUM_MAX 64
 #define GENERICS_TYPES_MAX 32
 #define CLASS_VERSION_MAX 128
-#define METHOD_PATH_MAX 256
+#define METHOD_PATH_MAX METHOD_NAME_MAX+32+CLASS_NAME_MAX+PARAMS_MAX*CLASS_NAME_MAX
 #define METHOD_NUM_MAX 256
 #define CL_MODULE_HASH_SIZE 256
 #define CL_MODULE_NAME_MAX CLASS_NAME_MAX
@@ -139,7 +139,7 @@ void sConst_init_with_size(sConst* self, int size);
 void sConst_free(sConst* self);
 void sConst_clone(sConst* self, sConst* constant);
 
-int sConst_append(sConst* self, void* data, size_t size, BOOL no_output);
+int sConst_append(sConst* self, void* data, int size, BOOL no_output);
 int append_int_value_to_constant_pool(sConst* constant, int n, BOOL no_output);
 int append_float_value_to_constant_pool(sConst* constant, float n, BOOL no_output);
 int append_double_value_to_constant_pool(sConst* constant, double n, BOOL no_output);
@@ -1837,7 +1837,7 @@ BOOL dependency_compile(char* cwd, char* class_name, char* class_file_name, size
 void dependency_final();
 
 /// klass_compile_time.c ///
-BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_, sGenericsParamInfo* ginfo, sCLMethod** appended_method, char* clibrary_path);
+BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_, sGenericsParamInfo* ginfo, sCLMethod** appended_method, char* clibrary_path, sParserInfo* info);
 BOOL add_typedef_to_class(sCLClass* klass, char* class_name1, char* class_name2);
 BOOL add_class_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type, int initialize_value, char* header_path);
 void add_code_to_method(sCLMethod* method, sByteCode* code, int var_num);
