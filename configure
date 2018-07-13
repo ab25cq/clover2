@@ -631,6 +631,7 @@ JIT
 CXX
 DESTDIR
 CFFI
+ENABLE_THREAD
 OS
 INTERPRETER
 EGREP
@@ -3939,6 +3940,7 @@ else
    exit
 fi
 ac_cv_lib_pthread=ac_cv_lib_pthread_main
+
 
 fi
 

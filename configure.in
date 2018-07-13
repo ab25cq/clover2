@@ -214,6 +214,7 @@ if test $ENABLE_THREAD = 1
 then
     AC_CHECK_HEADER(pthread.h, [AC_DEFINE(HAVE_PTHREAD_H, 1)], [ exit ])
     AC_HAVE_LIBRARY(pthread, [ LIBS="$LIBS -lpthread"; ], [ exit ])
+    AC_SUBST(ENABLE_THREAD)
 fi
 
 AC_CHECK_HEADER(ncurses.h, [AC_DEFINE(HAVE_NCURSESW_H, 1)], [])

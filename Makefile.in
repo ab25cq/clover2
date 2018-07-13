@@ -33,6 +33,7 @@ COMMON_OBJS=@COMMON_OBJS@
 INTERPRETER=@INTERPRETER@
 JIT=@JIT@
 CFFI=@CFFI@
+ENABLE_THREAD=@ENABLE_THREAD@
 
 ##########################################################
 # main
@@ -579,7 +580,7 @@ test: parser
 	PWD=`pwd` ./clover2 code/main.cl
 
 
-#	PWD=`pwd` ./clover2 code/thread.cl
+	if test $(ENABLE_THREAD) = 1; then PWD=`pwd` ./clover2 code/thread.cl; fi
 #	PWD=`pwd` ./clover2 code/SocketTestServer.cl &
 #	sleep 2
 #	PWD=`pwd` ./clover2 code/SocketTest.cl
