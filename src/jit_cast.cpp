@@ -2100,7 +2100,7 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
         case OP_FLOAT_TO_CDOUBLE_CAST: {
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
-            value->value = Builder.CreateCast(Instruction::FPExt, value->value, Type::getDoubleTy(TheContext), "fvalue");
+            value->value = Builder.CreateCast(Instruction::UIToFP, value->value, Type::getDoubleTy(TheContext), "fvalue");
 
             Function* fun = TheModule->getFunction("create_double");
 
@@ -2139,6 +2139,8 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
 
         case OP_DOUBLE_TO_CDOUBLE_CAST: {
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getDoubleTy(TheContext));
 
             Function* fun = TheModule->getFunction("create_double");
 

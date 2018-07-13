@@ -835,6 +835,14 @@ call_show_inst_in_jit(inst);
                 int num_elements = *(int*)pc;
                 pc += sizeof(int);
 
+                int size[GENERICS_TYPES_MAX];
+
+                int i;
+                for(i = 0; i<num_elements; i++) {
+                    size[i] = *(int*)pc;
+                    pc += sizeof(int);
+                }
+
                 LVALUE* tuple = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
                 Function* split_tuple_fun = TheModule->getFunction("split_tuple");
@@ -860,10 +868,10 @@ call_show_inst_in_jit(inst);
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
-                int i;
                 for(i=0; i<num_elements; i++) {
                     LVALUE llvm_value = get_vm_stack_ptr_value_from_index_with_aligned(params, current_block, -num_elements+i, 8);
-                    trunc_variable(&llvm_value, 4);
+
+                    trunc_variable(&llvm_value, size[i]);
 
                     push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }

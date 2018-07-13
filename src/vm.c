@@ -1854,12 +1854,19 @@ show_inst(inst);
                 int num_elements = *(int*)pc;
                 pc += sizeof(int);
 
+                int size[GENERICS_TYPES_MAX];
+
+                int i;
+                for(i = 0; i<num_elements; i++) {
+                    size[i] = *(int*)pc;
+                    pc += sizeof(int);
+                }
+
                 CLObject tuple = (stack_ptr-1)->mObjectValue;
                 stack_ptr--;
 
                 sCLObject* object_data = CLOBJECT(tuple);
 
-                int i;
                 for(i=0; i<num_elements; i++) {
                     *stack_ptr = object_data->mFields[i];
                     stack_ptr++;

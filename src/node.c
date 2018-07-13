@@ -9586,18 +9586,42 @@ static BOOL compile_multiple_asignment(unsigned int node, sCompileInfo* info)
                 }
             }
         }
-/*
-        else if(gNodes[left_element_node].mNodeType == kNodeTypeLoadField) {
-        }
-        else if(gNodes[left_element_node].mNodeType == kNodeTypeLoadClassField) {
-        }
-*/
     }
 
     append_opecode_to_code(info->code, OP_SPLIT_TUPLE, info->no_output);
     append_int_value_to_code(info->code, right_value_type->mNumGenericsTypes, info->no_output);
     info->stack_num --;
     info->stack_num += right_value_type->mNumGenericsTypes;
+
+    for(i=0; i<right_value_type->mNumGenericsTypes; i++) {
+        unsigned int left_element_node = left_element_nodes[right_value_type->mNumGenericsTypes-i-1];
+
+        sNodeType* right_element_type = right_value_type->mGenericsTypes[i];
+
+        char* var_name = gNodes[left_element_node].uValue.mVarName;
+        
+        sVar* left_element_var = get_variable_from_table(info->lv_table, var_name);
+            
+        sNodeType* left_element_type = left_element_var->mType;
+
+        sCLClass* left_class = left_element_type->mClass;
+        
+        sNodeType* node_type = right_value_type->mGenericsTypes[i];
+        if(left_class->mFlags & CLASS_FLAGS_PRIMITIVE) {
+            if(unboxig_posibility(node_type->mClass)) {
+                BOOL no_output_before = info->no_output;
+                info->no_output = TRUE;
+                if(!unboxing_to_primitive_type(&node_type, info)) {
+                    info->no_output = no_output_before;
+                    return FALSE;
+                }
+                info->no_output = no_output_before;
+            }
+        }
+
+        int size = get_var_size(node_type);
+        append_int_value_to_code(info->code, size, info->no_output);
+    }
 
     for(i=0; i<right_value_type->mNumGenericsTypes; i++) {
         unsigned int left_element_node = left_element_nodes[right_value_type->mNumGenericsTypes-i-1];
