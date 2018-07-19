@@ -3,8 +3,8 @@ CLASS_NAME=${1%.*}
 echo "bitcompile $CLASS_NAME"
 if test ! -e $CLASS_NAME.s || test $CLASS_NAME.bc -nt $CLASS_NAME.s
 then
-    /usr/bin/llvm-dis-6.0 $CLASS_NAME.bc
-    /usr/bin/llc-6.0 -relocation-model=pic $CLASS_NAME.bc
+    /usr/bin/llvm-dis-5.0 $CLASS_NAME.bc
+    /usr/bin/llc-5.0 -relocation-model=pic $CLASS_NAME.bc
     /usr/bin/clang -o $CLASS_NAME.o -c $CLASS_NAME.s
     /usr/bin/gcc -shared -Wl,-soname=lib$CLASS_NAME.so.1 -o lib$CLASS_NAME.so.1.0.0 $CLASS_NAME.o
     ln -fs lib$CLASS_NAME.so.1.0.0 lib$CLASS_NAME.so
