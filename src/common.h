@@ -1805,7 +1805,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 sCLClass* get_class_with_load_and_initialize(char* class_name);
 void class_final_on_runtime();
 BOOL call_finalize_method_on_free_object(sCLClass* klass, CLObject self);
-BOOL call_alloc_size_method(sCLClass* klass, unsigned long* result);
+BOOL call_alloc_size_method(sCLClass* klass, unsigned long long* result);
 void callOnException(CLObject message, BOOL in_try, sVMInfo* info);
 BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info);
 BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_params, CLVALUE** stack_ptr, sVMInfo* info, BOOL llvm_flag);
@@ -1898,7 +1898,7 @@ typedef struct sCLHeapMemStruct sCLHeapMem;
 void heap_init(int heap_size, int size_hadles);
 void heap_final();
 
-CLObject alloc_heap_mem(int size, sCLClass* klass, int array_num);
+CLObject alloc_heap_mem(unsigned int size, sCLClass* klass, int array_num);
 sCLHeapMem* get_object_pointer(CLObject obj);
 void show_heap(sVMInfo* info);
 void mark_object(CLObject obj, unsigned char* mark_flg);

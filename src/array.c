@@ -38,7 +38,7 @@ static unsigned int object_size(sCLClass* klass, int array_num)
 
 CLObject create_array_object(sCLClass* klass, int array_num)
 {
-    int size = object_size(klass, array_num);
+    unsigned int size = object_size(klass, array_num);
 
     CLObject obj = alloc_heap_mem(size, klass, array_num);
 

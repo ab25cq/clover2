@@ -1,4 +1,8 @@
 
+clover2 (4.6.7-1) unstable; urgency=medium
+
+    * Now Clvoer2 can have runned on sparc64, maybe other Bigendian Platform.
+
 clover2 (4.6.6-1) unstable; urgency=medium
 
     * Fixed memory bug. Test on i686. I have not testted on ppc64 yet.

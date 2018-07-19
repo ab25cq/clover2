@@ -252,6 +252,9 @@ static void compaction(unsigned char* mark_flg)
                 
                 /// copy object to new heap
                 void* src = gCLHeap.mCurrentMem + gCLHeap.mHandles[i].mOffset;
+
+                alignment(&gCLHeap.mMemLen);
+
                 void* dst = gCLHeap.mSleepMem + gCLHeap.mMemLen;
 
                 memcpy(dst, src, obj_size);
@@ -309,10 +312,13 @@ static void gc()
     MFREE(mark_flg);
 }
 
-CLObject alloc_heap_mem(int size, sCLClass* klass, int array_num)
+CLObject alloc_heap_mem(unsigned int size, sCLClass* klass, int array_num)
 {
     int handle;
     CLObject obj;
+
+    alignment(&size);
+    alignment(&gCLHeap.mMemLen);
 
     if(gCLHeap.mMemLen + size >= gCLHeap.mMemSize) {
         /// create new space of object ///
@@ -377,11 +383,15 @@ CLObject alloc_heap_mem(int size, sCLClass* klass, int array_num)
         handle = gCLHeap.mNumHandles;
         gCLHeap.mNumHandles++;
     }
+
+    alignment(&gCLHeap.mMemLen);
     
     obj = handle + FIRST_OBJ;
 
     gCLHeap.mHandles[handle].mOffset = gCLHeap.mMemLen;
     gCLHeap.mMemLen += size;
+
+    alignment(&gCLHeap.mMemLen);
 
     sCLHeapMem* object_ptr = get_object_pointer(obj);
 

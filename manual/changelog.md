@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 4.6.7
+
+    Now Clvoer2 can have runned on sparc64, maybe other Bigendian Platform.
+
 version 4.6.6
 
     メモリのバグを修正。i686で動作確認。ppc64はまだです。

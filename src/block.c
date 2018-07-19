@@ -33,7 +33,7 @@ void free_block(CLObject self)
 
 CLObject create_block_object(sByteCode* codes, sConst* constant, CLVALUE* parent_stack, int parent_var_num, int block_var_num, sCLStack* stack_id, BOOL lambda)
 {
-    int size = object_size();
+    unsigned int size = object_size();
 
     sCLClass* klass = get_class("lambda");
 

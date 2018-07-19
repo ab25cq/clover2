@@ -26,13 +26,13 @@ BOOL free_object(CLObject self)
     return TRUE;
 }
 
-static unsigned long object_size(sCLClass* klass)
+static unsigned long long object_size(sCLClass* klass)
 {
-    unsigned long size;
+    unsigned long long size;
 
     if(klass->mAllocSizeMethodIndex != -1) {
         size = 0;
-        (void)call_alloc_size_method(klass, (unsigned long*)&size);
+        (void)call_alloc_size_method(klass, &size);
 
         size += sizeof(sCLObject) - sizeof(CLVALUE) * DUMMY_ARRAY_SIZE;
     }
@@ -40,7 +40,11 @@ static unsigned long object_size(sCLClass* klass)
         size = sizeof(sCLObject) - sizeof(CLVALUE) * DUMMY_ARRAY_SIZE;
         size += (unsigned int)sizeof(CLVALUE) * klass->mNumFields;
 
-        alignment((unsigned int*)&size);
+        unsigned int size2 = size;
+
+        alignment((unsigned int*)&size2);
+
+        size = size2;
     }
 
     return size;
@@ -48,7 +52,9 @@ static unsigned long object_size(sCLClass* klass)
 
 CLObject create_object(sCLClass* klass, char* type)
 {
-    int size = object_size(klass);
+    unsigned int size = (unsigned int)object_size(klass);
+
+    alignment(&size);
 
     CLObject obj = alloc_heap_mem(size, klass, -1);
 

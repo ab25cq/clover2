@@ -5,13 +5,13 @@ class AllocSizeClass
     }
 
     def allocSize():static ulong {
-        return 123;
+        return 128;
     }
 
     def main():static {
         a := AllocSizeClass();
 
-        Clover.test("alloc size class", a.allocatedSize() == (123 + Clover.CLOVER2_OBJECT_HEADER_SIZE));
+        Clover.test("alloc size class", a.allocatedSize() == (128 + Clover.CLOVER2_OBJECT_HEADER_SIZE));
 
         memcpy(a.headOfMemory(), B"ABC\0".buffer, 4);
 

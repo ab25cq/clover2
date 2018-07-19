@@ -4151,7 +4151,7 @@ BOOL System_fclose(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* stream = lvar;
 
-    if(stream->mObjectValue == 0) {
+    if(stream->mPointerValue == 0) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
         return FALSE;
     }
@@ -4224,7 +4224,7 @@ BOOL System_fread(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
         return FALSE;
     }
-    if(stream->mObjectValue == 0) {
+    if(stream->mPointerValue == 0) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
         return FALSE;
     }
@@ -4264,7 +4264,7 @@ BOOL System_feof(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* stream = lvar;
 
     /// Clover to c value ///
-    if(stream->mObjectValue == 0) {
+    if(stream->mPointerValue == 0) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
         return FALSE;
     }
@@ -4285,7 +4285,7 @@ BOOL System_fgetc(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* stream = lvar;
 
     /// Clover to c value ///
-    if(stream->mObjectValue == 0) {
+    if(stream->mPointerValue == 0) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
         return FALSE;
     }
@@ -4318,7 +4318,7 @@ BOOL System_fgets(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
         return FALSE;
     }
-    if(stream->mObjectValue == 0) {
+    if(stream->mPointerValue == 0) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
         return FALSE;
     }
@@ -4388,7 +4388,7 @@ BOOL System_ungetc(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* stream = lvar + 1;
 
     /// Clover to c value ///
-    if(stream->mObjectValue == 0) {
+    if(stream->mPointerValue == 0) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
         return FALSE;
     }
@@ -4794,7 +4794,9 @@ BOOL System_initialize_system_calls_system(CLVALUE** stack_ptr, CLVALUE* lvar, s
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+21].mValue.mIntValue = SIGPIPE;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+22].mValue.mIntValue = SIGALRM;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+23].mValue.mIntValue = SIGTERM;
+#ifdef SIGSTKFLT
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+24].mValue.mIntValue = SIGSTKFLT;
+#endif
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+25].mValue.mIntValue = SIGCHLD;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+26].mValue.mIntValue = SIGCONT;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+27].mValue.mIntValue = SIGSTOP;
@@ -5178,12 +5180,16 @@ BOOL System_initialize_system_calls_system(CLVALUE** stack_ptr, CLVALUE* lvar, s
 #ifdef TIOCGSID
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+162].mValue.mIntValue = TIOCGSID;
 #endif
+/*
 #ifdef TIOCGRS485
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+163].mValue.mIntValue = TIOCGRS485;
 #endif
+*/
+/*
 #ifdef TIOCSRS485
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+164].mValue.mIntValue = TIOCSRS485;
 #endif
+*/
 #ifdef TIOCGPTN
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+165].mValue.mIntValue = TIOCGPTN;
 #endif
@@ -5820,7 +5826,7 @@ BOOL System_fileno(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* stream = lvar;
 
     /// Clover to c value ///
-    if(stream->mObjectValue == 0) {
+    if(stream->mPointerValue == 0) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
         return FALSE;
     }

@@ -1313,7 +1313,7 @@ BOOL call_finalize_method_on_free_object(sCLClass* klass, CLObject self)
     return TRUE;
 }
 
-BOOL call_alloc_size_method(sCLClass* klass, unsigned long* result)
+BOOL call_alloc_size_method(sCLClass* klass, unsigned long long* result)
 {
     if(klass->mAllocSizeMethodIndex != -1) {
         sCLMethod alloc_size_method = klass->mMethods[klass->mAllocSizeMethodIndex]; // struct copy for realloc
@@ -5828,8 +5828,10 @@ show_inst(inst);
                     CLVALUE value = *(stack_ptr-1);
 
                     CLVALUE* pointer = (CLVALUE*)address.mPointerValue;
+#ifndef __BIG_ENDIAN__
 
                     pointer->mLongValue = 0;              // zero clear for jit
+#endif
                     pointer->mIntValue = value.mIntValue;
 
                     stack_ptr-=2;
@@ -5844,7 +5846,12 @@ show_inst(inst);
                     CLVALUE address = *(stack_ptr-2);
                     CLVALUE value = *(stack_ptr-1);
 
-                    *(unsigned int*)address.mPointerValue = value.mUIntValue;
+                    CLVALUE* pointer = (CLVALUE*)address.mPointerValue;
+#ifndef __BIG_ENDIAN__
+
+                    pointer->mLongValue = 0;              // zero clear for jit
+#endif
+                    pointer->mUIntValue = value.mUIntValue;
 
                     stack_ptr-=2;
 
@@ -5858,7 +5865,12 @@ show_inst(inst);
                     CLVALUE address = *(stack_ptr-2);
                     CLVALUE value = *(stack_ptr-1);
 
-                    *(char*)address.mPointerValue = value.mByteValue;
+                    CLVALUE* pointer = (CLVALUE*)address.mPointerValue;
+#ifndef __BIG_ENDIAN__
+
+                    pointer->mLongValue = 0;              // zero clear for jit
+#endif
+                    pointer->mByteValue = value.mByteValue;
 
                     stack_ptr-=2;
 
@@ -5872,7 +5884,12 @@ show_inst(inst);
                     CLVALUE address = *(stack_ptr-2);
                     CLVALUE value = *(stack_ptr-1);
 
-                    *(unsigned char*)address.mPointerValue = value.mUByteValue;
+                    CLVALUE* pointer = (CLVALUE*)address.mPointerValue;
+#ifndef __BIG_ENDIAN__
+
+                    pointer->mLongValue = 0;              // zero clear for jit
+#endif
+                    pointer->mUByteValue = value.mUByteValue;
 
                     stack_ptr-=2;
 
@@ -5886,7 +5903,12 @@ show_inst(inst);
                     CLVALUE address = *(stack_ptr-2);
                     CLVALUE value = *(stack_ptr-1);
 
-                    *(short*)address.mPointerValue = value.mShortValue;
+                    CLVALUE* pointer = (CLVALUE*)address.mPointerValue;
+#ifndef __BIG_ENDIAN__
+
+                    pointer->mLongValue = 0;              // zero clear for jit
+#endif
+                    pointer->mShortValue = value.mShortValue;
 
                     stack_ptr-=2;
 
@@ -5900,7 +5922,12 @@ show_inst(inst);
                     CLVALUE address = *(stack_ptr-2);
                     CLVALUE value = *(stack_ptr-1);
 
-                    *(unsigned short*)address.mPointerValue = value.mUShortValue;
+                    CLVALUE* pointer = (CLVALUE*)address.mPointerValue;
+#ifndef __BIG_ENDIAN__
+
+                    pointer->mLongValue = 0;              // zero clear for jit
+#endif
+                    pointer->mUShortValue = value.mUShortValue;
 
                     stack_ptr-=2;
 
@@ -5914,7 +5941,12 @@ show_inst(inst);
                     CLVALUE address = *(stack_ptr-2);
                     CLVALUE value = *(stack_ptr-1);
 
-                    *(clint64*)address.mPointerValue = value.mLongValue;
+                    CLVALUE* pointer = (CLVALUE*)address.mPointerValue;
+#ifndef __BIG_ENDIAN__
+
+                    pointer->mLongValue = 0;              // zero clear for jit
+#endif
+                    pointer->mLongValue = value.mLongValue;
 
                     stack_ptr-=2;
 
@@ -5928,7 +5960,12 @@ show_inst(inst);
                     CLVALUE address = *(stack_ptr-2);
                     CLVALUE value = *(stack_ptr-1);
 
-                    *(unsigned clint64*)address.mPointerValue = value.mULongValue;
+                    CLVALUE* pointer = (CLVALUE*)address.mPointerValue;
+#ifndef __BIG_ENDIAN__
+
+                    pointer->mLongValue = 0;              // zero clear for jit
+#endif
+                    pointer->mULongValue = value.mULongValue;
 
                     stack_ptr-=2;
 
@@ -5942,7 +5979,13 @@ show_inst(inst);
                     CLVALUE address = *(stack_ptr-2);
                     CLVALUE value = *(stack_ptr-1);
 
-                    *(float*)address.mPointerValue = value.mFloatValue;
+                    CLVALUE* pointer = (CLVALUE*)address.mPointerValue;
+#ifndef __BIG_ENDIAN__
+
+                    pointer->mLongValue = 0;              // zero clear for jit
+#endif
+                    pointer->mFloatValue = value.mFloatValue;
+
 
                     stack_ptr-=2;
 
@@ -5958,7 +6001,12 @@ show_inst(inst);
                     CLVALUE address = *(stack_ptr-2);
                     CLVALUE value = *(stack_ptr-1);
 
-                    *(double*)address.mPointerValue = value.mDoubleValue;
+                    CLVALUE* pointer = (CLVALUE*)address.mPointerValue;
+#ifndef __BIG_ENDIAN__
+
+                    pointer->mLongValue = 0;              // zero clear for jit
+#endif
+                    pointer->mDoubleValue = value.mDoubleValue;
 
                     stack_ptr-=2;
 
@@ -5976,7 +6024,12 @@ show_inst(inst);
                     CLVALUE address = *(stack_ptr-2);
                     CLVALUE value = *(stack_ptr-1);
 
-                    *(char**)address.mPointerValue = value.mPointerValue;
+                    CLVALUE* pointer = (CLVALUE*)address.mPointerValue;
+#ifndef __BIG_ENDIAN__
+
+                    pointer->mLongValue = 0;              // zero clear for jit
+#endif
+                    pointer->mPointerValue = value.mPointerValue;
 
                     stack_ptr-=2;
 
@@ -5994,7 +6047,12 @@ show_inst(inst);
                     CLVALUE address = *(stack_ptr-2);
                     CLVALUE value = *(stack_ptr-1);
 
-                    *(wchar_t*)address.mPointerValue = value.mCharValue;
+                    CLVALUE* pointer = (CLVALUE*)address.mPointerValue;
+#ifndef __BIG_ENDIAN__
+
+                    pointer->mLongValue = 0;              // zero clear for jit
+#endif
+                    pointer->mCharValue = value.mCharValue;
 
                     stack_ptr-=2;
 
@@ -6012,7 +6070,12 @@ show_inst(inst);
                     CLVALUE address = *(stack_ptr-2);
                     CLVALUE value = *(stack_ptr-1);
 
-                    *(BOOL*)address.mPointerValue = value.mBoolValue;
+                    CLVALUE* pointer = (CLVALUE*)address.mPointerValue;
+#ifndef __BIG_ENDIAN__
+
+                    pointer->mLongValue = 0;              // zero clear for jit
+#endif
+                    pointer->mBoolValue = value.mBoolValue;
 
                     stack_ptr-=2;
 
@@ -6025,12 +6088,15 @@ show_inst(inst);
 
             case OP_STORE_VALUE_TO_OBJECT_ADDRESS:
                 {
-                    
-
                     CLVALUE address = *(stack_ptr-2);
                     CLVALUE value = *(stack_ptr-1);
 
-                    *(CLObject*)address.mPointerValue = value.mObjectValue;
+                    CLVALUE* pointer = (CLVALUE*)address.mPointerValue;
+#ifndef __BIG_ENDIAN__
+
+                    pointer->mLongValue = 0;              // zero clear for jit
+#endif
+                    pointer->mObjectValue = value.mObjectValue;
 
                     stack_ptr-=2;
 
@@ -6043,8 +6109,6 @@ show_inst(inst);
 
             case OP_LOAD_VALUE_FROM_INT_ADDRESS:
                 {
-                    
-
                     CLVALUE address = *(stack_ptr-1);
                     stack_ptr--;
 
@@ -7073,8 +7137,6 @@ show_inst(inst);
 
             case OP_LONG_TO_INT_CAST:
                 {
-                    
-
                     int value = (int)(stack_ptr-1)->mLongValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
@@ -7086,8 +7148,6 @@ show_inst(inst);
 
             case OP_ULONG_TO_INT_CAST:
                 {
-                    
-
                     int value = (int)(stack_ptr-1)->mULongValue;
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit

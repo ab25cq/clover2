@@ -51,11 +51,13 @@ void cast_right_type_to_byte(sNodeType** right_type, sCompileInfo* info)
     else if(type_identify_with_class_name(*right_type, "float"))
     {
         append_opecode_to_code(info->code, OP_FLOAT_TO_BYTE_CAST, info->no_output);
+
         *right_type = create_node_type_with_class_name("byte");
     }
     else if(type_identify_with_class_name(*right_type, "double"))
     {
         append_opecode_to_code(info->code, OP_DOUBLE_TO_BYTE_CAST, info->no_output);
+
         *right_type = create_node_type_with_class_name("byte");
     }
     else if(type_identify_with_class_name(*right_type, "pointer"))
@@ -70,7 +72,8 @@ void cast_right_type_to_byte(sNodeType** right_type, sCompileInfo* info)
     }
     else if(type_identify_with_class_name(*right_type, "bool"))
     {
-        //append_opecode_to_code(info->code, OP_INT_TO_BYTE_CAST, info->no_output);
+        append_opecode_to_code(info->code, OP_INT_TO_BYTE_CAST, info->no_output);
+
         *right_type = create_node_type_with_class_name("byte");
     }
     else if(type_identify_with_class_name(*right_type, "Byte"))
@@ -214,7 +217,7 @@ void cast_right_type_to_short(sNodeType** right_type, sCompileInfo* info)
     }
     else if(type_identify_with_class_name(*right_type, "bool"))
     {
-        //append_opecode_to_code(info->code, OP_INT_TO_SHORT_CAST, info->no_output);
+        append_opecode_to_code(info->code, OP_INT_TO_SHORT_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("short");
     }
     else if(type_identify_with_class_name(*right_type, "Byte"))
@@ -1667,13 +1670,13 @@ void cast_right_type_to_bool(sNodeType** right_type, sCompileInfo* info)
     }
     else if(type_identify_with_class_name(*right_type, "long"))
     {
-        //append_opecode_to_code(info->code, OP_LONG_TO_INT_CAST, info->no_output);
+        append_opecode_to_code(info->code, OP_LONG_TO_INT_CAST, info->no_output);
 
         *right_type = create_node_type_with_class_name("bool");
     }
     else if(type_identify_with_class_name(*right_type, "ulong")) 
     {
-        //append_opecode_to_code(info->code, OP_ULONG_TO_INT_CAST, info->no_output);
+        append_opecode_to_code(info->code, OP_ULONG_TO_INT_CAST, info->no_output);
 
         *right_type = create_node_type_with_class_name("bool");
     }

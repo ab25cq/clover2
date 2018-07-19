@@ -22,7 +22,7 @@ void regex_free_fun(CLObject obj)
 
 CLObject create_regex_object(char* regex, BOOL global, BOOL ignore_case, BOOL multiline, BOOL extended, BOOL dotall, BOOL anchored, BOOL dollar_endonly, BOOL ungreedy)
 {
-    int size = object_size();
+    unsigned int size = object_size();
 
     sCLClass* klass = get_class("regex");
 
