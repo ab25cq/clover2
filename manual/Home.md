@@ -138,8 +138,7 @@ Clover2を使い始めようとするあなたへ。この言語はJavaやC#と�
 
 # 動作環境
 
-x86, PowerPC(32bit, 64bit)上のLinuxで動作確認をしています。他のCPUでも動くと思います。(little endian, bigendian, 32bit, 64bitで動くので)
-一応version 3.1.2からOSXでも動きます。OSXはreadlineがeditlineなので、REPLを動かすにはbrewなどでreadlineを入れる必要があると思います。（未確認)
+x86_64, i686, aarch64, armv7hl, ppc64le, sparc64, ppc64le, ppc上のLinuxで動作確認をしています。一応version 3.1.2からOSXでも動きます。OSXはreadlineがeditlineなので、REPLを動かすにはbrewなどでreadlineを入れる必要があると思います。（未確認)
 あとはコンパイラにはclangを使っています。
 
 # ライセンス
@@ -185,7 +184,7 @@ C言語のFFIが必要な場合はlibffcall1-devが必要になります。
 
 として
 
-    ./configure --prefix=$HOME --with-optimize
+    ./configure --prefix=$HOME --with-optimize --with-interpreter
     make
     make install
     make test
@@ -193,7 +192,7 @@ C言語のFFIが必要な場合はlibffcall1-devが必要になります。
 としてください。~/bin/にcclover2やclover2が登録されます。
 もし管理者権限をお持ちならば
 
-    ./configure --with-optimize
+    ./configure --with-optimize --with-interpreter
     make
     sudo make install
     make test

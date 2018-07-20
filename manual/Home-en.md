@@ -137,8 +137,7 @@ You can use C language libraries without creating extension libraries etc.
 ```
 
 # Operating environment $
-I am checking the operation on Linux on x86, PowerPC (32bit, 64bit). I think that it will work with other CPUs. (Because it runs with little endian, bigendian, 32 bit, 64 bit)
-Once OSX also moves from version 3.1.2. Since readline is editline in OSX, in order to run REPL, I think that it is necessary to put readline in brew etc. (unconfirmed)
+I am checking the operation on Linux on x86_64, i686, aarch64, armv7hl, ppc64le, sparc64, ppc64le, ppc. Once OSX also moves from version 3.1.2. Since readline is editline in OSX, in order to run REPL, I think that it is necessary to put readline in brew etc. (unconfirmed)
 After that I use clang for the compiler.
 
 # License
@@ -180,7 +179,7 @@ You can get it at.
 ```
 As
 ```
-    ./configure --prefix=$HOME --with-optimize
+    ./configure --prefix=$HOME --with-optimize --with-interpreter
     make
     make install
     make test
@@ -188,7 +187,7 @@ As
 Please. cclover2 and clover2 are registered in ~/bin/.
 If you have administrator privileges
 ```
-    ./configure --with-optimize
+    ./configure --with-optimize --with-interpreter
     make
     sudo make install
     make test
