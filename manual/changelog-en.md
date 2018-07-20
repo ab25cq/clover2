@@ -1,4 +1,8 @@
 
+verson 4.6.8
+
+    --with-jit and --with-thread is stable on amd64
+
 version 4.6.7
 
     Now Clvoer2 can have runned on sparc64, maybe other Bigendian Platform.

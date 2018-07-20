@@ -257,6 +257,8 @@ struct sVMInfoStruct {
     BOOL andand_oror_left_value[ANDAND_OROR_MAX];
     BOOL andand_oror_right_value[ANDAND_OROR_MAX];
     int num_andand_oror;
+
+    BOOL running_thread;
 };
 
 typedef struct sVMInfoStruct sVMInfo;

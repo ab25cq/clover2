@@ -103,6 +103,7 @@ void* thread_func(void* param)
 
     new_info = *info; // struct copy
 
+    new_info.running_thread = TRUE;
     new_info.running_class_name = "Thread";
     new_info.running_method_name = "thread_func";
 

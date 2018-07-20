@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 4.6.8
+
+    amd64では--with-jitと--with-threadが安定しました。
+
 version 4.6.7
 
     Now Clvoer2 can have runned on sparc64, maybe other Bigendian Platform.

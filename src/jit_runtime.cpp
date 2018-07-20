@@ -654,7 +654,7 @@ BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClas
 {
     int num_jit_objects = gNumJITObjects;
 
-    if(method->mFlags & METHOD_FLAGS_NON_NATIVE_CODE)
+    if(method->mFlags & METHOD_FLAGS_NON_NATIVE_CODE || info->running_thread)
     {
         BOOL result = vm(code, constant, stack, var_num, klass, info);
 

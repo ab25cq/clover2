@@ -1,4 +1,8 @@
 
+clover2 (4.6.8-1) unstable; urgency=medium
+
+    * --with-jit and --with-thread is stable on amd64
+
 clover2 (4.6.7-1) unstable; urgency=medium
 
     * Now Clvoer2 can have runned on sparc64, maybe other Bigendian Platform.
