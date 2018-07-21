@@ -239,10 +239,10 @@ BOOL Thread_pthread_join(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     vm_mutex_off();
 
     /// go ///
-    int retval_value = 0;
-    int result = pthread_join(thread_id_value, (void**)&retval_value);
+    void* retval_value = 0;
+    int result = pthread_join(thread_id_value, &retval_value);
 
-    if(result != 0 || retval_value == 1) {
+    if(result != 0 || retval_value == (void*)1) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "pthread_join failed");
         return FALSE;
     }
