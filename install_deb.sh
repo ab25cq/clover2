@@ -1,21 +1,21 @@
 #!/bin/bash
 
-if test -e ../clover2_4.6.8-1_i386.deb
+if test -e ../clover2_4.6.9-1_i386.deb
 then
     if dpkg -l | egrep ^clover2
     then
         sudo apt-get remove clover2
     fi
 
-    sudo dpkg -i ../clover2_4.6.8-1_i386.deb
+    sudo dpkg -i ../clover2_4.6.9-1_i386.deb
 fi
 
-if test -e ../clover2_4.6.8-1_amd64.deb
+if test -e ../clover2_4.6.9-1_amd64.deb
 then
     if dpkg -l | egrep ^clover2
     then
         sudo apt-get remove clover2
     fi
 
-    sudo dpkg -i ../clover2_4.6.8-1_amd64.deb
+    sudo dpkg -i ../clover2_4.6.9-1_amd64.deb
 fi

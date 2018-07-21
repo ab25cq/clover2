@@ -1,4 +1,8 @@
 
+clover2 (4.6.9-1) unstable; urgency=medium
+
+    * Fixed bug of thread
+
 clover2 (4.6.8-1) unstable; urgency=medium
 
     * --with-jit and --with-thread is stable on amd64

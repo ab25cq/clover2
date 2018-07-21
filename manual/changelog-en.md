@@ -1,4 +1,8 @@
 
+version 4.6.9
+
+    Fixed bug of thread
+
 verson 4.6.8
 
     --with-jit and --with-thread is stable on amd64

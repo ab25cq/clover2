@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 4.6.9
+
+    THraedのバグを修正しました。
+
 version 4.6.8
 
     amd64では--with-jitと--with-threadが安定しました。
