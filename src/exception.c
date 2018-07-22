@@ -30,22 +30,25 @@ void entry_exception_object_with_class_name(CLVALUE** stack_ptr, CLVALUE* stack,
 
     sCLClass* klass = get_class(class_name);
 
+    CLObject object = 0;
     if(klass == NULL) {
-        fprintf(stderr, "unexpected error. abort on entry_exception_object_with_class_name. The class name is %s.\n", class_name);
-        exit(2);
+        (*stack_ptr) = stack + var_num;
+        (*stack_ptr)->mObjectValue = 0;
+        (*stack_ptr)++;
     }
+    else {
+        CLObject object = create_object(klass, class_name);
+        (*stack_ptr) = stack + var_num;
+        (*stack_ptr)->mObjectValue = object;
+        (*stack_ptr)++;
 
-    CLObject object = create_object(klass, class_name);
-    (*stack_ptr) = stack + var_num;
-    (*stack_ptr)->mObjectValue = object;
-    (*stack_ptr)++;
+        CLObject str = create_string_object(info->exception_message);
 
-    CLObject str = create_string_object(info->exception_message);
+        sCLObject* object_data = CLOBJECT(object);
+        object_data->mFields[0].mObjectValue = str;
 
-    sCLObject* object_data = CLOBJECT(object);
-    object_data->mFields[0].mObjectValue = str;
-
-    callOnException(str, info->try_offset != 0, info);
+        callOnException(str, info->try_offset != 0, info);
+    }
 }
 
 void entry_exception_object_with_class_name2(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, char* class_name, char* msg)
@@ -72,21 +75,23 @@ void entry_exception_object_with_class_name2(CLVALUE** stack_ptr, CLVALUE* stack
     sCLClass* klass = get_class(class_name);
 
     if(klass == NULL) {
-        fprintf(stderr, "unexpected error. abort on entry_exception_object_with_class_name. The class name is %s.\n", class_name);
-        exit(2);
+        (*stack_ptr) = stack + var_num;
+        (*stack_ptr)->mObjectValue = 0;
+        (*stack_ptr)++;
     }
+    else {
+        CLObject object = create_object(klass, class_name);
+        (*stack_ptr) = stack + var_num;
+        (*stack_ptr)->mObjectValue = object;
+        (*stack_ptr)++;
 
-    CLObject object = create_object(klass, class_name);
-    (*stack_ptr) = stack + var_num;
-    (*stack_ptr)->mObjectValue = object;
-    (*stack_ptr)++;
+        CLObject str = create_string_object(info->exception_message);
 
-    CLObject str = create_string_object(info->exception_message);
+        sCLObject* object_data = CLOBJECT(object);
+        object_data->mFields[0].mObjectValue = str;
 
-    sCLObject* object_data = CLOBJECT(object);
-    object_data->mFields[0].mObjectValue = str;
-
-    callOnException(str, info->try_offset != 0, info);
+        callOnException(str, info->try_offset != 0, info);
+    }
 }
 
 void entry_exception_object(CLObject exception, sVMInfo* info)

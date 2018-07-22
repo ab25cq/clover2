@@ -131,178 +131,187 @@ class Clover
         n := 0;
         initializeMethodDefinedClasses.each {
             method_index := initializeMethodDefinedClassMethodIndexes.items(n);
-            it.appendMethod(method_index, 
-                """
-                def initialize() {
-                    \{
-                        output := "";
-                        for(i:=0; i<it.numFields; i++) {
-                            field := it.getField(i);
-
-                            class_name:String? = null;
-                            if(field.resultType.match(/^GenericsParametorClass\d+$/)) {
-                                generics_param_num := field.resultType.scan(/^GenericsParametorClass(\d+)/).items(0).to_int();
-                                
-                                class_name = it.genericsParamTypes[generics_param_num];
-                            }
-                            else {
-                                class_name = field.resultType;
-                            }
-
-                            if(class_name.length() > 1 && class_name.chars(-1) == '?') {
-                                class_name = class_name.subString(0,-2);
-                            }
-
-                            is_array := false;
-                            if(class_name.length() > 2 && class_name.chars(-2) == '[' && class_name.chars(-1) == ']') 
-                            {
-                                class_name = class_name.subString(0, -3);
-                                is_array = true;
-                            }
-
-                            if(class_name.match(/.+<.+>/)) {
-                                class_name = class_name.scan(/(.+)<.+>/).items(1);
-                            }
-
-                            if(class_name.match(/lambda$|lambda\(\)|lambda\(.*/)) {
-                                class_name = "lambda"
-                            }
-
-                            klass := Class(class_name);
-
-                            is_primitive := isPrimitiveClass(class_name);
-
-                            is_interface := (Class(class_name).flags & CLASS_FLAGS_INTERFACE).to_bool;
-
-                            if(!is_array && !is_primitive && !is_interface)
-                            {
-                               output.append(sprintf("self.%s = %s();\n", array { field.name, class_name }));
-                            }
-                        }
-                        output;
-                    }
-                }
-                """
-            );
-            n++;
-        }
-
-        n = 0;
-        cloneMethodDefinedClasses.each {
-            method_index := cloneMethodDefinedClassMethodIndexes.items(n);
-
-            class_name := it.className.clone();
-
-            if(it.genericsParamNames.length > 0) {
-                class_name.append("<");
-                for(i:=0; i<it.genericsParamNames.length; i++) {
-                    class_name.append(it.genericsParamNames[i]);
-
-                    if(i != it.genericsParamNames.length-1) {
-                        class_name.append(",");
-                    }
-                }
-                class_name.append(">");
-            }
-
-            code := """
-                    def clone(): \{class_name}
-                    {
-                        result := \{class_name}();
-                        
+            try {
+                it.appendMethod(method_index, 
+                    """
+                    def initialize() {
                         \{
                             output := "";
                             for(i:=0; i<it.numFields; i++) {
                                 field := it.getField(i);
 
-                                class_name := field.resultType.clone();
+                                class_name:String? = null;
+                                if(field.resultType.match(/^GenericsParametorClass\d+$/)) {
+                                    generics_param_num := field.resultType.scan(/^GenericsParametorClass(\d+)/).items(0).to_int();
+                                    
+                                    class_name = it.genericsParamTypes[generics_param_num];
+                                }
+                                else {
+                                    class_name = field.resultType;
+                                }
 
-                                if(class_name.match(/\?/)) {
-                                    class_name = class_name.sub(/\?/, "");
+                                if(class_name.length() > 1 && class_name.chars(-1) == '?') {
+                                    class_name = class_name.subString(0,-2);
                                 }
 
                                 is_array := false;
-                                class_name_for_array := "";
-                                if(class_name.match(/^lambda\[\].*$/)) {
-                                    class_name_for_array = class_name.clone();
-                                    class_name = "lambda"
-                                    is_array = true;
-                                }
-                                elif(class_name.match(/^lambda$|^lambda\(\)|^lambda\(.*/)) {
-                                    class_name = "lambda"
-                                    is_array = false;
-                                }
-                                elif(class_name.match(/^.+<.+>\[\]$/)) {
-                                    class_name_for_array = class_name.scan(/(.+<.+>)\[\]/).items(1).clone();
-                                    class_name = class_name.scan(/(.+)<.+>\[\]/).items(1);
-                                    is_array = true;
-                                }
-                                elif(class_name.match(/^.+<.+>$/)) {
-                                    class_name = class_name.scan(/(.+)<.+>/).items(1);
-                                    is_array = false;
-                                }
-                                elif(class_name.length() > 2 && class_name.chars(-2) == '[' && class_name.chars(-1) == ']') 
+                                if(class_name.length() > 2 && class_name.chars(-2) == '[' && class_name.chars(-1) == ']') 
                                 {
                                     class_name = class_name.subString(0, -3);
-                                    class_name_for_array = class_name.clone();
                                     is_array = true;
+                                }
+
+                                if(class_name.match(/.+<.+>/)) {
+                                    class_name = class_name.scan(/(.+)<.+>/).items(1);
+                                }
+
+                                if(class_name.match(/lambda$|lambda\(\)|lambda\(.*/)) {
+                                    class_name = "lambda"
                                 }
 
                                 klass := Class(class_name);
 
                                 is_primitive := isPrimitiveClass(class_name);
-                                is_interface := (klass.flags & CLASS_FLAGS_INTERFACE).to_bool;
-                                clone_method_existance := !klass.getMethod("clone", 0, false).identifyWith(null);
-                                
-                                if(is_array && class_name.equals("lambda")) {
-                                    class_name2 := class_name_for_array.scan(/lambda\[\](.*)$/).items(1);
 
-                                    output.append(sprintf("if(!self.%s.identifyWith(null)) {", array { field.name }));
-                                    output.append(sprintf("result.%s = new lambda[self.%s.length]%s();\n", array { field.name, field.name, class_name2 }));
+                                is_interface := (Class(class_name).flags & CLASS_FLAGS_INTERFACE).to_bool;
 
-                                    if(is_primitive || !clone_method_existance)
-                                    {
-                                        output.append(sprintf("for(i:=0; i<self.%s.length; i++) { result.%s[i] = self.%s[i]; }", array { field.name, field.name, field.name }));
-                                    }
-                                    else {
-                                        output.append(sprintf("for(i:=0; i<self.%s.length; i++) { if(!self.%s[i].identifyWith(null)) { result.%s[i] = self.%s[i].toAnonymous().clone(); } }", array { field.name, field.name, field.name, field.name }));
-                                    }
-
-                                    output.append("}");
-                                }
-                                elif(is_array) {
-                                    output.append(sprintf("if(!self.%s.identifyWith(null)) {", array { field.name }));
-                                    output.append(sprintf("result.%s = %s[self.%s.length]();\n", array { field.name, class_name_for_array, field.name}));
-
-                                    if(is_primitive || !clone_method_existance)
-                                    {
-                                        output.append(sprintf("for(i:=0; i<self.%s.length; i++) { result.%s[i] = self.%s[i]; }", array { field.name, field.name, field.name }));
-                                    }
-                                    else {
-                                        output.append(sprintf("for(i:=0; i<self.%s.length; i++) { if(!self.%s[i].identifyWith(null)) { result.%s[i] = self.%s[i].toAnonymous().clone(); } }", array { field.name, field.name, field.name, field.name }));
-                                    }
-
-                                    output.append("}");
-                                }
-                                elif(is_primitive || !clone_method_existance)
+                                if(!is_array && !is_primitive && !is_interface)
                                 {
-                                    output.append(sprintf("result.%s = self.%s;\n", array { field.name, field.name }));
-                                }
-                                else {
-                                    output.append(sprintf("if(!self.%s.identifyWith(null)) {", array { field.name }));
-                                    output.append(sprintf("result.%s = self.%s.toAnonymous().clone();\n", array { field.name, field.name }));
-                                    output.append("}");
+                                   output.append(sprintf("self.%s = %s();\n", array { field.name, class_name }));
                                 }
                             }
-
                             output;
                         }
-
-                        return result;
                     }
-                    """;
+                    """
+                );
+            } catch(e:Exception) {
+                println("Exception on compile time. \{it.className()}.initialize() can't be defined");
+            }
+            n++;
+        }
 
-            it.appendMethod(method_index, code);
+        n = 0;
+        cloneMethodDefinedClasses.each {
+            class_name := it.className.clone();
+
+            try {
+                method_index := cloneMethodDefinedClassMethodIndexes.items(n);
+
+                if(it.genericsParamNames.length > 0) {
+                    class_name.append("<");
+                    for(i:=0; i<it.genericsParamNames.length; i++) {
+                        class_name.append(it.genericsParamNames[i]);
+
+                        if(i != it.genericsParamNames.length-1) {
+                            class_name.append(",");
+                        }
+                    }
+                    class_name.append(">");
+                }
+
+                code := """
+                        def clone(): \{class_name}
+                        {
+                            result := \{class_name}();
+                            
+                            \{
+                                output := "";
+                                for(i:=0; i<it.numFields; i++) {
+                                    field := it.getField(i);
+
+                                    class_name := field.resultType.clone();
+
+                                    if(class_name.match(/\?/)) {
+                                        class_name = class_name.sub(/\?/, "");
+                                    }
+
+                                    is_array := false;
+                                    class_name_for_array := "";
+                                    if(class_name.match(/^lambda\[\].*$/)) {
+                                        class_name_for_array = class_name.clone();
+                                        class_name = "lambda"
+                                        is_array = true;
+                                    }
+                                    elif(class_name.match(/^lambda$|^lambda\(\)|^lambda\(.*/)) {
+                                        class_name = "lambda"
+                                        is_array = false;
+                                    }
+                                    elif(class_name.match(/^.+<.+>\[\]$/)) {
+                                        class_name_for_array = class_name.scan(/(.+<.+>)\[\]/).items(1).clone();
+                                        class_name = class_name.scan(/(.+)<.+>\[\]/).items(1);
+                                        is_array = true;
+                                    }
+                                    elif(class_name.match(/^.+<.+>$/)) {
+                                        class_name = class_name.scan(/(.+)<.+>/).items(1);
+                                        is_array = false;
+                                    }
+                                    elif(class_name.length() > 2 && class_name.chars(-2) == '[' && class_name.chars(-1) == ']') 
+                                    {
+                                        class_name = class_name.subString(0, -3);
+                                        class_name_for_array = class_name.clone();
+                                        is_array = true;
+                                    }
+
+                                    klass := Class(class_name);
+
+                                    is_primitive := isPrimitiveClass(class_name);
+                                    is_interface := (klass.flags & CLASS_FLAGS_INTERFACE).to_bool;
+                                    clone_method_existance := !klass.getMethod("clone", 0, false).identifyWith(null);
+                                    
+                                    if(is_array && class_name.equals("lambda")) {
+                                        class_name2 := class_name_for_array.scan(/lambda\[\](.*)$/).items(1);
+
+                                        output.append(sprintf("if(!self.%s.identifyWith(null)) {", array { field.name }));
+                                        output.append(sprintf("result.%s = new lambda[self.%s.length]%s();\n", array { field.name, field.name, class_name2 }));
+
+                                        if(is_primitive || !clone_method_existance)
+                                        {
+                                            output.append(sprintf("for(i:=0; i<self.%s.length; i++) { result.%s[i] = self.%s[i]; }", array { field.name, field.name, field.name }));
+                                        }
+                                        else {
+                                            output.append(sprintf("for(i:=0; i<self.%s.length; i++) { if(!self.%s[i].identifyWith(null)) { result.%s[i] = self.%s[i].toAnonymous().clone(); } }", array { field.name, field.name, field.name, field.name }));
+                                        }
+
+                                        output.append("}");
+                                    }
+                                    elif(is_array) {
+                                        output.append(sprintf("if(!self.%s.identifyWith(null)) {", array { field.name }));
+                                        output.append(sprintf("result.%s = %s[self.%s.length]();\n", array { field.name, class_name_for_array, field.name}));
+
+                                        if(is_primitive || !clone_method_existance)
+                                        {
+                                            output.append(sprintf("for(i:=0; i<self.%s.length; i++) { result.%s[i] = self.%s[i]; }", array { field.name, field.name, field.name }));
+                                        }
+                                        else {
+                                            output.append(sprintf("for(i:=0; i<self.%s.length; i++) { if(!self.%s[i].identifyWith(null)) { result.%s[i] = self.%s[i].toAnonymous().clone(); } }", array { field.name, field.name, field.name, field.name }));
+                                        }
+
+                                        output.append("}");
+                                    }
+                                    elif(is_primitive || !clone_method_existance)
+                                    {
+                                        output.append(sprintf("result.%s = self.%s;\n", array { field.name, field.name }));
+                                    }
+                                    else {
+                                        output.append(sprintf("if(!self.%s.identifyWith(null)) {", array { field.name }));
+                                        output.append(sprintf("result.%s = self.%s.toAnonymous().clone();\n", array { field.name, field.name }));
+                                        output.append("}");
+                                    }
+                                }
+
+                                output;
+                            }
+
+                            return result;
+                        }
+                        """;
+
+                it.appendMethod(method_index, code);
+            }
+            catch(e:Exception) {
+                println("Exception on compile time. \{class_name}.clone() can't be defined");
+            }
 
             n++;
         }

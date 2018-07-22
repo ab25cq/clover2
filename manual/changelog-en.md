@@ -1,4 +1,8 @@
 
+version 4.7.1
+
+    Fixed a bug that could not define a field with generic class nested within class.
+
 version 4.7.0
 
     Append memory safe pointer(Buffer class) to Clover2. See manual

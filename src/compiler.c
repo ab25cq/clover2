@@ -142,7 +142,7 @@ static BOOL class_compiler(char* fname)
 
 int gARGC;
 char** gARGV;
-char* gVersion = "4.7.0";
+char* gVersion = "4.7.1";
 
 char gScriptDirPath[PATH_MAX];
 BOOL gRunningCompiler = TRUE;
@@ -212,16 +212,16 @@ int main(int argc, char** argv)
     if(clcl_compile) {
         if(!class_compiler(sname)) {
             fprintf(stderr, "cclover2 can't compile %s\n", argv[i]);
-            compiler_final();
             clover2_final();
+            compiler_final();
             return 1;
         }
     }
     else {
         if(!compiler(sname)) {
             fprintf(stderr, "cclover2 can't compile %s\n", argv[i]);
-            compiler_final();
             clover2_final();
+            compiler_final();
             return 1;
         }
     }

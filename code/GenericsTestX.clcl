@@ -1,0 +1,8 @@
+class GenericsTestX
+{
+    field:EqualableList<EqualableList<String>>;
+
+    def initialize() {
+#        field := EqualableList<EqualableList<String>>();
+    }
+}

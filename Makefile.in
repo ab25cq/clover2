@@ -455,6 +455,7 @@ test: parser
 	PWD=`pwd` ./cclover2 code/OperatorTest.clcl
 	PWD=`pwd` ./cclover2 code/GenericsTest2.clcl;
 	PWD=`pwd` ./cclover2 code/GenericsTest3.clcl
+	PWD=`pwd` ./cclover2 code/GenericsTestX.clcl;
 	PWD=`pwd` ./cclover2 code/BlockVarTest.clcl
 	PWD=`pwd` ./cclover2 code/UserObjectTest.clcl
 	PWD=`pwd` ./cclover2 code/PointerTest.clcl

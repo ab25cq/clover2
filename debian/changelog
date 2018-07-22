@@ -1,7 +1,11 @@
 
+clover2 (4.7.1-1) unstable; urgency=medium
+
+    * Fixed a bug that could not define a field with generic class nested within class.
+
 clover2 (4.7.0-1) unstable; urgency=medium
 
-    Append memory safe pointer(Buffer class) to Clover2. See manual
+    * Append memory safe pointer(Buffer class) to Clover2. See manual
 
 clover2 (4.6.9-1) unstable; urgency=medium
 
