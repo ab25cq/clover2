@@ -106,6 +106,12 @@ Method names, external command names, file names are also supplemented. Just lik
     }
 ```
 
+13. Memory safe pointer
+
+```
+    p := b"ABC"; p++; Clover.test("Memory safe pointer test", p->byte == 'B'); try { p +=100 } catch(e:Exception) { println("Out of range");  }
+```
+
 You can use C language libraries without creating extension libraries etc.
 
 # Sample code
