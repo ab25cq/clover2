@@ -4944,7 +4944,7 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
         case OP_CPOINTER_TO_BYTE_CAST: {
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
-            Function* fun = TheModule->getFunction("un_cpointer_to_pointer_cast");
+            Function* fun = TheModule->getFunction("run_cpointer_to_pointer_cast");
 
             std::vector<Value*> params2;
 
@@ -4977,7 +4977,7 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
         case OP_CPOINTER_TO_SHORT_CAST: {
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
-            Function* fun = TheModule->getFunction("un_cpointer_to_pointer_cast");
+            Function* fun = TheModule->getFunction("run_cpointer_to_pointer_cast");
 
             std::vector<Value*> params2;
 
@@ -5010,7 +5010,7 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
         case OP_CPOINTER_TO_INT_CAST : {
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
-            Function* fun = TheModule->getFunction("un_cpointer_to_pointer_cast");
+            Function* fun = TheModule->getFunction("run_cpointer_to_pointer_cast");
 
             std::vector<Value*> params2;
 
@@ -5043,7 +5043,7 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
         case OP_CPOINTER_TO_LONG_CAST :  {
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
-            Function* fun = TheModule->getFunction("un_cpointer_to_pointer_cast");
+            Function* fun = TheModule->getFunction("run_cpointer_to_pointer_cast");
 
             std::vector<Value*> params2;
 
@@ -5076,7 +5076,7 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
         case OP_CPOINTER_TO_UBYTE_CAST : {
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
-            Function* fun = TheModule->getFunction("un_cpointer_to_pointer_cast");
+            Function* fun = TheModule->getFunction("run_cpointer_to_pointer_cast");
 
             std::vector<Value*> params2;
 
@@ -5109,7 +5109,7 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
         case OP_CPOINTER_TO_USHORT_CAST : {
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
-            Function* fun = TheModule->getFunction("un_cpointer_to_pointer_cast");
+            Function* fun = TheModule->getFunction("run_cpointer_to_pointer_cast");
 
             std::vector<Value*> params2;
 
@@ -5142,7 +5142,7 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
         case OP_CPOINTER_TO_UINT_CAST : {
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
-            Function* fun = TheModule->getFunction("un_cpointer_to_pointer_cast");
+            Function* fun = TheModule->getFunction("run_cpointer_to_pointer_cast");
 
             std::vector<Value*> params2;
 
@@ -5175,7 +5175,7 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
         case OP_CPOINTER_TO_ULONG_CAST : {
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
-            Function* fun = TheModule->getFunction("un_cpointer_to_pointer_cast");
+            Function* fun = TheModule->getFunction("run_cpointer_to_pointer_cast");
 
             std::vector<Value*> params2;
 
@@ -5208,7 +5208,7 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
         case OP_CPOINTER_TO_CHAR_CAST: {
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
-            Function* fun = TheModule->getFunction("un_cpointer_to_pointer_cast");
+            Function* fun = TheModule->getFunction("run_cpointer_to_pointer_cast");
 
             std::vector<Value*> params2;
 

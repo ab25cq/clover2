@@ -340,6 +340,10 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_
     {
         return TRUE;
     }
+    else if(type_identify_with_class_name(left3, "Buffer") && type_identify_with_class_name(right3, "pointer"))
+    {
+        return TRUE;
+    }
     else if(type_identify_with_class_name(right3, "WildCard") 
         && !(left_class->mFlags & CLASS_FLAGS_PRIMITIVE)) 
     {
@@ -413,7 +417,8 @@ static BOOL is_numeric_type(sNodeType* type_)
 
 BOOL no_cast_types_for_binary_operator(sNodeType* left_type, sNodeType* right_type)
 {
-    return type_identify_with_class_name(left_type, "pointer") && is_numeric_type(right_type);
+    return (type_identify_with_class_name(left_type, "pointer") && is_numeric_type(right_type))
+        || (type_identify_with_class_name(left_type, "Buffer") && is_numeric_type(right_type));
 }
 
 static BOOL is_numeric_type_without_float(sNodeType* type_)
@@ -423,18 +428,17 @@ static BOOL is_numeric_type_without_float(sNodeType* type_)
 
 BOOL operand_posibility(sNodeType* left, sNodeType* right, char* op_string)
 {
-    if(type_identify_with_class_name(left, "pointer"))
+    if(type_identify_with_class_name(left, "pointer") || type_identify_with_class_name(left, "Buffer"))
     {
         if(strcmp(op_string, "+") == 0) {
             return is_numeric_type(right);
         }
         else if(strcmp(op_string, "-") == 0) {
-            return is_numeric_type(right)
-                        || type_identify_with_class_name(right, "pointer");
+            return is_numeric_type(right) || type_identify_with_class_name(right, "pointer") || type_identify_with_class_name(right, "Buffer");
         }
         else if(strcmp(op_string, "==") == 0 || strcmp(op_string, "!=") == 0) {
-            return type_identify_with_class_name(right, "Null")
-                        || type_identify_with_class_name(right, "pointer");
+            return type_identify_with_class_name(right, "Null") 
+                || type_identify_with_class_name(right, "pointer") || type_identify_with_class_name(right, "Buffer");
         }
         else {
             return left->mClass == right->mClass;
@@ -722,6 +726,10 @@ BOOL cast_posibility(sNodeType* left_type, sNodeType* right_type)
         return TRUE;
     }
     else if(type_identify_with_class_name(left_type, "pointer") && type_identify_with_class_name(right_type, "Buffer"))
+    {
+        return TRUE;
+    }
+    else if(is_numeric_type_without_float(left_type) && type_identify_with_class_name(right_type, "char")) 
     {
         return TRUE;
     }

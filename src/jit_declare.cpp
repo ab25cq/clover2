@@ -678,6 +678,35 @@ void create_internal_functions()
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "store_field", TheModule);
 
+    /// store_field_of_buffer ///
+    type_params.clear();
+    
+    result_type = IntegerType::get(TheContext, 32);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    param2_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param2_type);
+
+    param3_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param3_type);
+
+    param4_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param4_type);
+
+    param5_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param5_type);
+
+    param6_type = IntegerType::get(TheContext, 64);
+    type_params.push_back(param6_type);
+
+    param7_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param7_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "store_field_of_buffer", TheModule);
+
     /// load_class_field ///
     type_params.clear();
     
@@ -767,6 +796,38 @@ void create_internal_functions()
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "store_class_field", TheModule);
+
+    /// store_class_field_of_buffer ///
+    type_params.clear();
+    
+    result_type = IntegerType::get(TheContext, 32);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    param2_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param2_type);
+
+    param3_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param3_type);
+
+    param4_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param4_type);
+
+    param5_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param5_type);
+
+    param6_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param6_type);
+
+    param7_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param7_type);
+
+    param8_type = IntegerType::get(TheContext, 64);
+    type_params.push_back(param8_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "store_class_field_of_buffer", TheModule);
 
     /// load_element ///
     type_params.clear();
@@ -948,6 +1009,35 @@ void create_internal_functions()
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_store_element", TheModule);
 
+    /// run_store_element_of_buffer ///
+    type_params.clear();
+    
+    result_type = IntegerType::get(TheContext, 32);
+
+    param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param1_type);
+
+    param2_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param2_type);
+
+    param3_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param3_type);
+
+    param4_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param4_type);
+
+    param5_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param5_type);
+
+    param6_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param6_type);
+
+    param7_type = IntegerType::get(TheContext, 64);
+    type_params.push_back(param7_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_store_element_of_buffer", TheModule);
+
     /// get_array_length ///
     type_params.clear();
     
@@ -1041,6 +1131,32 @@ void create_internal_functions()
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "mark_source_position", TheModule);
+
+    /// run_store_to_buffer ///
+    type_params.clear();
+
+    result_type = IntegerType::get(TheContext, 32);
+
+    param1_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param1_type);
+
+    param2_type = PointerType::get(IntegerType::get(TheContext,64), 0);
+    type_params.push_back(param2_type);
+
+    param3_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
+    type_params.push_back(param3_type);
+
+    param4_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param4_type);
+
+    param5_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param5_type);
+
+    param6_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param6_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_store_to_buffer", TheModule);
 
     /// op_is_fun ///
     type_params.clear();

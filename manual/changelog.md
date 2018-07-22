@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 4.7.0
+
+    メモリーセーフなポインタを入れました。詳しくはマニュアルを見てください。
+
 version 4.6.9
 
     THraedのバグを修正しました。

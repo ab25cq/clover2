@@ -667,6 +667,53 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
             }
             break;
 
+        case OP_STORE_FIELD_OF_BUFFER: {
+            int field_index = *(int*)(*pc);
+            (*pc) += sizeof(int);
+
+            LVALUE* obj = get_stack_ptr_value_from_index(*llvm_stack_ptr, -2);
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("store_field_of_buffer");
+
+            std::vector<Value*> params2;
+
+            std::string stack_ptr_address_name("stack_ptr_address");
+            Value* param1 = params[stack_ptr_address_name];
+            params2.push_back(param1);
+
+            std::string stack_value_name("stack");
+            Value* param2 = params[stack_value_name];
+            params2.push_back(param2);
+
+            std::string var_num_value_name("var_num");
+            Value* param3 = params[var_num_value_name];
+            params2.push_back(param3);
+
+            std::string info_value_name("info");
+            Value* param4 = params[info_value_name];
+            params2.push_back(param4);
+
+            LVALUE obj2 = trunc_value(obj, 32);
+
+            Value* param5 = obj2.value;
+            params2.push_back(param5);
+
+            LVALUE value2;
+            value2 = trunc_value(value, 64);
+
+            Value* param6 = value2.value;
+            params2.push_back(param6);
+
+            Value* param7 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)field_index);
+            params2.push_back(param7);
+
+            Value* result = Builder.CreateCall(fun, params2);
+
+            if_value_is_zero_ret_zero(result, params, *function, current_block);
+            }
+            break;
+
         case OP_LOAD_CLASS_FIELD: {
             int offset = *(int*)(*pc);
             (*pc) += sizeof(int);
@@ -800,6 +847,57 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
             LVALUE* llvm_value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
             Function* fun = TheModule->getFunction("store_class_field");
+
+            std::vector<Value*> params2;
+
+            std::string stack_ptr_address_name("stack_ptr_address");
+            Value* param1 = params[stack_ptr_address_name];
+            params2.push_back(param1);
+
+            std::string stack_value_name("stack");
+            Value* param2 = params[stack_value_name];
+            params2.push_back(param2);
+
+            std::string var_num_value_name("var_num");
+            Value* param3 = params[var_num_value_name];
+            params2.push_back(param3);
+
+            std::string info_value_name("info");
+            Value* param4 = params[info_value_name];
+            params2.push_back(param4);
+
+            Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)field_index);
+            params2.push_back(param5);
+
+            Value* param6 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)offset);
+            params2.push_back(param6);
+
+            std::string constant_value_name("constant");
+            Value* param7 = params[constant_value_name];
+            params2.push_back(param7);
+
+            LVALUE value2;
+            value2 = trunc_value(llvm_value, 64);
+
+            Value* param8 = value2.value;
+            params2.push_back(param8);
+
+            Value* result = Builder.CreateCall(fun, params2);
+
+            if_value_is_zero_ret_zero(result, params, *function, current_block);
+            }
+            break;
+
+        case OP_STORE_CLASS_FIELD_OF_BUFFER: {
+            int offset = *(int*)(*pc);
+            (*pc) += sizeof(int);
+
+            int field_index = *(int*)(*pc);
+            (*pc) += sizeof(int);
+
+            LVALUE* llvm_value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("store_class_field_of_buffer");
 
             std::vector<Value*> params2;
 

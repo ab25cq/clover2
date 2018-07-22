@@ -140,6 +140,7 @@ jit-compile:
 	if test -e sockaddr_in.bc; then ./bclover2 sockaddr_in.bc; fi
 	if test -e sockaddr_un.bc; then ./bclover2 sockaddr_un.bc; fi
 	if test -e timeval.bc; then ./bclover2 timeval.bc; fi
+	if test -e Buffer.bc; then ./bclover2 Buffer.bc; fi
 
 #########################################################
 # install

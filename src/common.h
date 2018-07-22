@@ -603,7 +603,7 @@ sNodeBlock* sNodeBlock_clone(sNodeBlock* block);
 BOOL parse_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* new_table, BOOL block_object, BOOL string_expression);
 
 /// node.c ///
-enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeCByteValue, kNodeTypeUByteValue, kNodeTypeCUByteValue, kNodeTypeShortValue, kNodeTypeCShortValue, kNodeTypeUShortValue, kNodeTypeCUShortValue, kNodeTypeIntValue, kNodeTypeCIntValue, kNodeTypeUIntValue, kNodeTypeCUIntValue, kNodeTypeLongValue, kNodeTypeCLongValue, kNodeTypeULongValue, kNodeTypeCULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeWildCard, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand, kNodeTypeIncrementWithValueOperand, kNodeTypeDecrementWithValueOperand, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand, kNodeTypeLoadArrayElement, kNodeTypeStoreArrayElement, kNodeTypeChar, kNodeTypeString, kNodeTypeBuffer, kNodeTypeThrow, kNodeTypeTry, kNodeTypeBlockObject, kNodeTypeFunction, kNodeTypeBlockCall, kNodeTypeNormalBlock, kNodeTypeArrayValue, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeHashValue, kNodeTypeRegex, kNodeTypeListValue, kNodeTypeSortableListValue, kNodeTypeEqualableListValue, kNodeTypeTupleValue, kNodeTypeCArrayValue, kNodeTypeEqualableCArrayValue, kNodeTypeSortableCArrayValue, kNodeTypeImplements, kNodeTypeGetAddress, kNodeTypeInheritCall, kNodeTypeFloatValue, kNodeTypeCFloatValue, kNodeTypeDoubleValue, kNodeTypeCDoubleValue, kNodeTypePath, kNodeTypeWhen, kNodeTypeRange, kNodeTypeMultipleAsignment };
+enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeCByteValue, kNodeTypeUByteValue, kNodeTypeCUByteValue, kNodeTypeShortValue, kNodeTypeCShortValue, kNodeTypeUShortValue, kNodeTypeCUShortValue, kNodeTypeIntValue, kNodeTypeCIntValue, kNodeTypeUIntValue, kNodeTypeCUIntValue, kNodeTypeLongValue, kNodeTypeCLongValue, kNodeTypeULongValue, kNodeTypeCULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeWildCard, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand, kNodeTypeLoadArrayElement, kNodeTypeStoreArrayElement, kNodeTypeChar, kNodeTypeString, kNodeTypeBuffer, kNodeTypeThrow, kNodeTypeTry, kNodeTypeBlockObject, kNodeTypeFunction, kNodeTypeBlockCall, kNodeTypeNormalBlock, kNodeTypeArrayValue, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeHashValue, kNodeTypeRegex, kNodeTypeListValue, kNodeTypeSortableListValue, kNodeTypeEqualableListValue, kNodeTypeTupleValue, kNodeTypeCArrayValue, kNodeTypeEqualableCArrayValue, kNodeTypeSortableCArrayValue, kNodeTypeImplements, kNodeTypeGetAddress, kNodeTypeInheritCall, kNodeTypeFloatValue, kNodeTypeCFloatValue, kNodeTypeDoubleValue, kNodeTypeCDoubleValue, kNodeTypePath, kNodeTypeWhen, kNodeTypeRange, kNodeTypeMultipleAsignment };
 
 enum eOperand { kOpAdd, kOpSub , kOpComplement, kOpLogicalDenial, kOpMult, kOpDiv, kOpMod, kOpLeftShift, kOpRightShift, kOpComparisonEqual, kOpComparisonNotEqual,kOpComparisonGreaterEqual, kOpComparisonLesserEqual, kOpComparisonGreater, kOpComparisonLesser, kOpAnd, kOpXor, kOpOr, kOpMinus };
 
@@ -881,10 +881,6 @@ unsigned int sNodeTree_create_class_fields(sCLClass* klass, char* name, sParserI
 unsigned int sNodeTree_create_assign_class_field(sCLClass* klass, char* name , unsigned int right_node, sParserInfo* info);
 unsigned int sNodeTree_create_store_value_to_pointer(unsigned int left_node, sNodeType* node_type, unsigned int right_node, sParserInfo* info);
 unsigned int sNodeTree_create_load_value_from_pointer(unsigned int left_node, sNodeType* node_type, sParserInfo* info);
-BOOL sNodeTree_create_decrement_operand(unsigned int left_node, sParserInfo* info);
-BOOL sNodeTree_create_increment_operand(unsigned int left_node, sParserInfo* info);
-BOOL sNodeTree_create_increment_operand_with_value(unsigned int left_node, unsigned int value, sParserInfo* info);
-BOOL sNodeTree_create_decrement_operand_with_value(unsigned int left_node, unsigned int value, sParserInfo* info);
 BOOL sNodeTree_create_monadic_decrement_operand(unsigned int right_node, sParserInfo* info);
 BOOL sNodeTree_create_monadic_increment_operand(unsigned int right_node, sParserInfo* info);
 unsigned int sNodeTree_create_load_array_element(unsigned int array, unsigned int index_node, sParserInfo* info);
@@ -920,6 +916,8 @@ unsigned int sNodeTree_create_double_value(double value, unsigned int left, unsi
 unsigned int sNodeTree_create_cdouble_value(double value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
 unsigned int sNodeTree_create_path_value(MANAGED char* value, int len, sNodeBlock** string_expressions, int* string_expression_offsets, int num_string_expression, sParserInfo* info);
 unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED sNodeBlock* node_block, BOOL lambda, sParserInfo* info);
+BOOL sNodeTree_create_increment_operand(unsigned int left_node, sParserInfo* info);
+BOOL sNodeTree_create_decrement_operand(unsigned int left_node, sParserInfo* info);
 
 void arrange_stack(sCompileInfo* cinfo);
 
@@ -1011,6 +1009,8 @@ extern int gBufferToPointerCastCount;
 
 #define OP_STORE 32
 #define OP_LOAD 33
+
+#define OP_STORE_TO_BUFFER 34
 
 #define OP_LDCBYTE 35
 #define OP_LDCUBYTE 36
@@ -1250,11 +1250,14 @@ extern int gBufferToPointerCastCount;
 #define OP_LOAD_FIELD 4001
 #define OP_LOAD_FIELD_ADDRESS 4002
 #define OP_STORE_FIELD 4003
-#define OP_LOAD_CLASS_FIELD 4004
-#define OP_LOAD_CLASS_FIELD_ADDRESS 4005
-#define OP_STORE_CLASS_FIELD 4006
-#define OP_LOAD_ELEMENT 4007
-#define OP_STORE_ELEMENT 4008
+#define OP_STORE_FIELD_OF_BUFFER 4004
+#define OP_LOAD_CLASS_FIELD 4005
+#define OP_LOAD_CLASS_FIELD_ADDRESS 4006
+#define OP_STORE_CLASS_FIELD 4007
+#define OP_STORE_CLASS_FIELD_OF_BUFFER 4008
+#define OP_LOAD_ELEMENT 4009
+#define OP_STORE_ELEMENT 4010
+#define OP_STORE_ELEMENT_OF_BUFFER 4011
 
 #define OP_STORE_VALUE_TO_INT_ADDRESS 5000
 #define OP_STORE_VALUE_TO_UINT_ADDRESS 5001

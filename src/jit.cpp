@@ -815,6 +815,47 @@ call_show_inst_in_jit(inst);
                 }
                 break;
 
+            case OP_STORE_TO_BUFFER: {
+                int index = *(int*)pc;
+                pc += sizeof(int);
+
+                LVALUE llvm_value;
+                get_llvm_value_from_lvar_with_offset(&llvm_value, llvm_stack, index);
+
+                LVALUE* llvm_value2 = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                Function* fun = TheModule->getFunction("run_store_to_buffer");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = llvm_value.value;
+                params2.push_back(param1);
+
+                Value* param2 = llvm_value2->value;
+                params2.push_back(param2);
+
+                std::string stack_ptr_address_name("stack_ptr_address");
+                Value* param3 = params[stack_ptr_address_name];
+                params2.push_back(param3);
+
+                std::string stack_value_name("stack");
+                Value* param4 = params[stack_value_name];
+                params2.push_back(param4);
+
+                std::string var_num_value_name("var_num");
+                Value* param5 = params[var_num_value_name];
+                params2.push_back(param5);
+
+                std::string info_value_name("info");
+                Value* param6 = params[info_value_name];
+                params2.push_back(param6);
+
+                Value* result = Builder.CreateCall(fun, params2);
+
+                if_value_is_zero_ret_zero(result, params, function, &current_block);
+                }
+                break;
+
             case OP_LOAD: {
                 int index = *(int*)pc;
                 pc += sizeof(int);

@@ -368,6 +368,42 @@ BOOL store_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info
     return TRUE;
 }
 
+BOOL store_field_of_buffer(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, CLObject obj, CLVALUE value, int field_index)
+{
+    if(obj == 0) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"Null pointer exception(5)");
+        return FALSE;
+    }
+
+    sCLObject* object_pointer = CLOBJECT(obj);
+    sCLClass* klass = object_pointer->mClass;
+
+    if(klass == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"class not found(39)");
+        return FALSE;
+    }
+
+    if(field_index < 0 || field_index >= klass->mNumFields) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"field index is invalid(2)");
+        return FALSE;
+    }
+
+    CLObject object2 = object_pointer->mFields[field_index].mObjectValue;
+
+    sCLObject* object_data2 = CLOBJECT(object2);
+
+    char* pointer = value.mPointerValue;
+
+    if(pointer < object_data2->mFields[0].mPointerValue || pointer >= object_data2->mFields[0].mPointerValue + object_data2->mFields[2].mULongValue) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"Out of range on memory safe pointer");
+        return FALSE;
+    }
+
+    object_data2->mFields[3].mPointerValue = value.mPointerValue;
+
+    return TRUE;
+}
+
 struct sCLVALUEAndBoolResult* load_class_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index, int offset, sConst* constant)
 {
     struct sCLVALUEAndBoolResult* result = &gCLValueAndBoolStructMemory;
@@ -420,6 +456,40 @@ BOOL store_class_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo
     return TRUE;
 }
 
+BOOL store_class_field_of_buffer(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index, int offset, sConst* constant, CLVALUE value)
+{
+    char* class_name = CONS_str(constant, offset);
+
+    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+
+    if(klass == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"class not found(41)");
+        return FALSE;
+    }
+
+    if(field_index < 0 || field_index >= klass->mNumClassFields) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"field index is invalid(4)");
+        return FALSE;
+    }
+
+    sCLField* field = klass->mClassFields + field_index;
+
+    CLObject object = field->mValue.mObjectValue;
+
+    sCLObject* object_data = CLOBJECT(object);
+
+    char* pointer = value.mPointerValue;
+
+    if(pointer < object_data->mFields[0].mPointerValue || pointer >= object_data->mFields[0].mPointerValue + object_data->mFields[2].mULongValue) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"Out of range on memory safe pointer");
+        return FALSE;
+    }
+
+    object_data->mFields[3].mPointerValue = value.mPointerValue;
+
+    return TRUE;
+}
+
 BOOL run_store_element(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, CLObject array, int element_num, CLVALUE value)
 {
     if(array == 0) {
@@ -435,6 +505,35 @@ BOOL run_store_element(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo
     }
 
     object_pointer->mFields[element_num] = value;
+
+    return TRUE;
+}
+
+BOOL run_store_element_of_buffer(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, CLObject array, int element_num, CLVALUE value)
+{
+    if(array == 0) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"Null pointer exception(8)");
+        return FALSE;
+    }
+
+    sCLObject* object_pointer = CLOBJECT(array);
+
+    if(element_num < 0 || element_num >= object_pointer->mArrayNum) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"element index is invalid(1)");
+        return FALSE;
+    }
+
+    CLObject object = object_pointer->mFields[element_num].mObjectValue;
+    sCLObject* object_data = CLOBJECT(object);
+
+    char* pointer = value.mPointerValue;
+
+    if(pointer < object_data->mFields[0].mPointerValue || pointer >= object_data->mFields[0].mPointerValue + object_data->mFields[2].mULongValue) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"Out of range on memory safe pointer");
+        return FALSE;
+    }
+
+    object_data->mFields[3].mPointerValue = value.mPointerValue;
 
     return TRUE;
 }
@@ -1196,7 +1295,7 @@ void* run_buffer_to_pointer_cast(CLObject object)
 {
     sCLObject* object_data = CLOBJECT(object);
 
-    char* pointer_value = object_data->mFields[0].mPointerValue;
+    char* pointer_value = object_data->mFields[3].mPointerValue;
 
     CLVALUE cl_value;
     cl_value.mObjectValue = object;
@@ -1679,6 +1778,20 @@ void vm_mutex_off_in_jit(sVMInfo* info)
     if(!info->no_mutex_in_vm) {
         vm_mutex_off();
     }
+}
+
+BOOL run_store_to_buffer(CLObject object, void* pointer, CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info)
+{
+    sCLObject* object_data = CLOBJECT(object);
+
+    if(pointer < object_data->mFields[0].mPointerValue || pointer >= object_data->mFields[0].mPointerValue + object_data->mFields[2].mULongValue) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"Out of range on memory safe pointer");
+        return FALSE;
+    }
+
+    object_data->mFields[3].mPointerValue = (char*)pointer;
+
+    return TRUE;
 }
 
 }

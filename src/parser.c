@@ -2142,7 +2142,23 @@ static BOOL is_assign_operator(sParserInfo* info)
 
 static BOOL assign_operator(unsigned int* node, sParserInfo* info)
 {
-    if(*info->p == '+' && *(info->p+1) == '=') {
+    if(*info->p == '+' && *(info->p+1) == '+') {
+        info->p += 2;
+        skip_spaces_and_lf(info);
+
+        unsigned int right = sNodeTree_create_int_value(1, 0, 0, 0, info);
+
+        *node = sNodeTree_create_operand(kOpAdd, *node, right, 0, info);
+    }
+    else if(*info->p == '-' && *(info->p+1) == '-') {
+        info->p += 2;
+        skip_spaces_and_lf(info);
+
+        unsigned int right = sNodeTree_create_int_value(1, 0, 0, 0, info);
+
+        *node = sNodeTree_create_operand(kOpSub, *node, right, 0, info);
+    }
+    else if(*info->p == '+' && *(info->p+1) == '=') {
         info->p += 2;
         skip_spaces_and_lf(info);
 
@@ -2172,7 +2188,7 @@ static BOOL assign_operator(unsigned int* node, sParserInfo* info)
             info->err_num++;
         }
 
-        *node = sNodeTree_create_operand(kOpSub, *node, right, 0, info);
+        *node = sNodeTree_create_operand(kOpSub, *node, right, 0, info);;
     }
     else if(*info->p == '*' && *(info->p+1) == '=') {
         info->p += 2;
@@ -4219,6 +4235,10 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 }
 
                 *node = sNodeTree_create_assign_class_field(info->klass, buf, *node, info);
+
+                unsigned int right = sNodeTree_create_int_value(1, 0, 0, 0, info);
+
+                *node = sNodeTree_create_operand(kOpSub, *node, right, 0, info);
             }
             /// the field in the same class
             else if(info->klass && field_name_existance(info->klass, buf))
@@ -4239,6 +4259,10 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 }
 
                 *node = sNodeTree_create_assign_field(buf, node3, *node, info);
+
+                unsigned int right = sNodeTree_create_int_value(1, 0, 0, 0, info);
+
+                *node = sNodeTree_create_operand(kOpSub, *node, right, 0, info);
             }
             else {
                 info->sline = sline_before;

@@ -1,6 +1,6 @@
 # clover2 computer language
 
-version 4.6.9
+version 4.7.0
 
 サポートしている機能
 
@@ -97,6 +97,10 @@ version 4.6.9
     }
 
     などと拡張ライブラリを作成せずにC言語のライブラリを使うことができます。
+
+    13. メモリーセーフなポインタがあります。
+
+    p := b"ABC"; p++; Clover.test("Memory safe pointer test", p->byte == 'B'); try { p +=100 } catch(e:Exception) { println("Out of range");  }
 
 詳しく以下を見てください。https://github.com/ab25cq/clover2/wiki
 (もしくはrepositoryに含まれるmanualディレクトリ以下のドキュメントを見てください)
@@ -223,6 +227,10 @@ FEATURES
     }
 
     You can use C language libraries without creating extension libraries etc.
+
+    13. Memory safe pointer
+
+    p := b"ABC"; p++; Clover.test("Memory safe pointer test", p->byte == 'B'); try { p +=100 } catch(e:Exception) { println("Out of range");  }
 
 See clover2 wiki on github (Japanese and English) https://github.com/ab25cq/clover2/wiki
 

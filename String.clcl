@@ -1077,21 +1077,29 @@ class Buffer
     len:size_t;
     size:size_t;
 
+    p:pointer;
+
     def initialize() {
         self.size = 64;
         self.buffer = malloc(self.size);
         self.len = 0;
+
+        self.p = self.buffer;
     }
     def initialize(buf:pointer, size:size_t) {
         self.size = size;
         self.buffer = malloc(self.size);
         memcpy(self.buffer, buf, size);
         self.len = self.size;
+
+        self.p = self.buffer;
     }
     def initialize(size:size_t) {
         self.size = size;
         self.buffer = malloc(self.size);
         self.len = 0;
+
+        self.p = self.buffer;
     }
     def finalize() {
         free(self.buffer);
@@ -1101,9 +1109,13 @@ class Buffer
         len: size_t = buf.len;
 
         if(self.len + len >= self.size) {
+            offset := self.p - self.buffer;
+
             new_size:size_t = (self.len+len+1) * 2;
             self.buffer = realloc(self.buffer, new_size);
             self.size = new_size;
+
+            self.p = self.buffer + offset;
         }
 
         memcpy(self.buffer + self.len, buf.buffer, len);
@@ -1114,9 +1126,13 @@ class Buffer
         len: size_t = 1.to_ulong;
 
         if(self.len + len >= self.size) {
+            offset := self.p - self.buffer;
+
             new_size:size_t = (self.len+len+1) * 2;
             self.buffer = realloc(self.buffer, new_size);
             self.size = new_size;
+
+            self.p = self.buffer + offset;
         }
 
         (self.buffer + self.len)->byte = data;

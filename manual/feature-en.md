@@ -1362,6 +1362,43 @@ Tabs can not be used for indentation. It is only space. If you do not need inden
     ");
 ```
 
+## Memory-safe pointer
+
+The Buffer class is a class that stores binary data, but it can also be used as a memory-safe pointer
+
+```
+    a := b"ABC";
+    a++;
+    Clover.test("Memory safe pointer test", a->byte == 'B');
+
+    try {
+        a+=100;
+    } catch(e:Exception) {
+        println("Out of range on memory safe pointer");
+    }
+```
+
+Tests are passed on. An exception occurs when the pointer points out of range as a + = 100, and so on.
+Automatic casting to the pointer class is done when necessary as unboxing. When casting, it becomes the address of the pointer that is pointing instead of the starting address.
+
+```
+    a := b"ABCDEFGHI";
+
+    a+=2;
+
+    Clover.test("Memory safe pointer test2", memcmp(a, b"CD", 2) == 0);
+```
+
+```
+    e := b"ABC";
+
+    e++;
+    e->byte = '1';
+    e--;
+
+    Clover.test("Memory safe pointer test3", memcmp(e, B"A1C", 3) == 0);
+```
+
 # Sugar coating syntax
 
 ### sugar-coating syntax of the lambda class

@@ -1826,6 +1826,35 @@ show_inst(inst);
                 }
                 break;
 
+            case OP_STORE_TO_BUFFER:
+                {
+                    int index = *(int*)pc;
+                    pc += sizeof(int);
+
+                    CLObject obj = lvar[index].mObjectValue;
+                    sCLObject* object_data = CLOBJECT(obj);
+
+                    char* p = (stack_ptr-1)->mPointerValue;
+
+                    if(p < object_data->mFields[0].mPointerValue || p >= object_data->mFields[0].mPointerValue + object_data->mFields[2].mULongValue) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Out of range on memory safe pointer");
+
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
+                    object_data->mFields[3].mPointerValue = (stack_ptr-1)->mPointerValue;
+                }
+                break;
+
             case OP_LOAD:
                 {
                     int index = *(int*)pc;
@@ -5579,6 +5608,88 @@ show_inst(inst);
                 }
                 break;
 
+            case OP_STORE_FIELD_OF_BUFFER:
+                {
+                    int field_index = *(int*)pc;
+                    pc += sizeof(int);
+
+                    CLObject obj = (stack_ptr -2)->mObjectValue;
+                    CLVALUE value = *(stack_ptr-1);
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(5)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
+                    sCLObject* object_pointer = CLOBJECT(obj);
+                    sCLClass* klass = object_pointer->mClass;
+
+                    if(klass == NULL) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(6)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
+                    if(field_index < 0 || field_index >= klass->mNumFields) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "field index is invalid(3). Field index is %d", field_index);
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
+                    CLObject obj2 = object_pointer->mFields[field_index].mObjectValue;
+
+                    sCLObject* object_data = CLOBJECT(obj2);
+
+                    char* p = value.mPointerValue;
+
+                    if(p < object_data->mFields[0].mPointerValue || p >= object_data->mFields[0].mPointerValue + object_data->mFields[2].mULongValue) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Out of range on memory safe pointer");
+
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
+                    object_data->mFields[3].mPointerValue = value.mPointerValue;
+
+                    stack_ptr-=2;
+                    *stack_ptr = value;
+                    stack_ptr++;
+                }
+                break;
+
             case OP_LOAD_CLASS_FIELD:
                 {
                     int offset = *(int*)pc;
@@ -5731,6 +5842,77 @@ show_inst(inst);
                 }
                 break;
 
+            case OP_STORE_CLASS_FIELD_OF_BUFFER:
+                {
+                    int offset = *(int*)pc;
+                    pc += sizeof(int);
+
+                    int field_index = *(int*)pc;
+                    pc += sizeof(int);
+
+                    char* class_name = CONS_str(constant, offset);
+
+                    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+
+                    if(klass == NULL) {
+                        
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(9)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
+                    if(field_index < 0 || field_index >= klass->mNumClassFields) {
+                        
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "field index is invalid(6). Field index is %d", field_index);
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
+                    CLVALUE value = *(stack_ptr-1);
+
+                    sCLField* field = klass->mClassFields + field_index;
+
+                    CLObject object = field->mValue.mObjectValue;
+
+                    sCLObject* object_data = CLOBJECT(object);
+
+                    char* p = value.mPointerValue;
+
+                    if(p < object_data->mFields[0].mPointerValue || p >= object_data->mFields[0].mPointerValue + object_data->mFields[2].mULongValue) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Out of range on memory safe pointer");
+
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
+                    object_data->mFields[3].mPointerValue = value.mPointerValue;
+                }
+                break;
+
             case OP_LOAD_ELEMENT:
                 {
                     int tmp = *(int*)pc;
@@ -5816,6 +5998,72 @@ show_inst(inst);
                     }
 
                     object_pointer->mFields[element_num] = value;
+                    stack_ptr-=3;
+                    *stack_ptr = value;
+                    stack_ptr++;
+                }
+                break;
+
+            case OP_STORE_ELEMENT_OF_BUFFER:
+                {
+                    CLObject array = (stack_ptr -3)->mObjectValue;
+                    int element_num = (stack_ptr -2)->mIntValue;
+                    CLVALUE value = *(stack_ptr-1);
+
+                    if(array == 0) {
+                        
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(8)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
+                    sCLObject* object_pointer = CLOBJECT(array);
+
+                    if(element_num < 0 || element_num >= object_pointer->mArrayNum) {
+                        
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "element index is invalid");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
+
+                    CLObject object = object_pointer->mFields[element_num].mObjectValue;
+                    sCLObject* object_data = CLOBJECT(object);
+
+                    char* p = value.mPointerValue;
+
+                    if(p < object_data->mFields[0].mPointerValue || p >= object_data->mFields[0].mPointerValue + object_data->mFields[2].mULongValue) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Out of range on memory safe pointer");
+
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+                    object_data->mFields[3].mPointerValue = value.mPointerValue;
+
                     stack_ptr-=3;
                     *stack_ptr = value;
                     stack_ptr++;
@@ -10005,9 +10253,10 @@ show_inst(inst);
             case OP_BUFFER_TO_POINTER_CAST:
                 {
                     CLObject object = (stack_ptr-1)->mObjectValue;
+
                     sCLObject* object_data = CLOBJECT(object);
 
-                    char* pointer_value = object_data->mFields[0].mPointerValue;
+                    char* pointer_value = object_data->mFields[3].mPointerValue;
 
                     CLVALUE cl_value;
                     cl_value.mObjectValue = object;

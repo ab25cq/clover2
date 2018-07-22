@@ -1420,6 +1420,46 @@ b = 234;   # error
 
 後からの追加ですが、変数はvar 変数名=値。readonlyはval 変数名=値です。
 
+## メモリーセーフなポインタ
+
+Bufferクラスはバイナリデータを格納するクラスですが、メモリーセーフなポインタとしても使えます。
+
+```
+    a := b"ABC";
+    a++;
+    Clover.test("Memory safe pointer test", a->byte == 'B');
+
+    try {
+        a+=100;
+    } catch(e:Exception) {
+        println("Out of range on memory safe pointer");
+    }
+```
+
+はテストが通ります。a+=100などとしてポインタが範囲外を指したとき例外が起こります。
+
+またunboxingのように必要な時にpointerクラスへの自動キャストが行われます。キャストされるときは先頭アドレスではなく指しているポインタのアドレスとなります。
+
+以下は通ります。
+
+```
+    a := b"ABCDEFGHI";
+
+    a+=2;
+
+    Clover.test("Memory safe pointer test2", memcmp(a, b"CD", 2) == 0);
+```
+
+```
+    e := b"ABC";
+
+    e++;
+    e->byte = '1';
+    e--;
+
+    Clover.test("Memory safe pointer test3", memcmp(e, B"A1C", 3) == 0);
+```
+
 ## 糖衣構文
 
 ### lambdaクラスの糖衣構文

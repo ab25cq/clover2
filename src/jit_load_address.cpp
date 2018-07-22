@@ -406,6 +406,56 @@ BOOL compile_to_native_code5(sByteCode* code, sConst* constant, sCLClass* klass,
             }
             break;
 
+        case OP_STORE_ELEMENT_OF_BUFFER: {
+            LVALUE* array = get_stack_ptr_value_from_index(*llvm_stack_ptr, -3);
+            LVALUE* element_num = get_stack_ptr_value_from_index(*llvm_stack_ptr, -2);
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_store_element_of_buffer");
+
+            std::vector<Value*> params2;
+
+            std::string stack_ptr_address_name("stack_ptr_address");
+            Value* param1 = params[stack_ptr_address_name];
+            params2.push_back(param1);
+
+            std::string stack_value_name("stack");
+            Value* param2 = params[stack_value_name];
+            params2.push_back(param2);
+
+            std::string var_num_value_name("var_num");
+            Value* param3 = params[var_num_value_name];
+            params2.push_back(param3);
+
+            std::string info_value_name("info");
+            Value* param4 = params[info_value_name];
+            params2.push_back(param4);
+
+            LVALUE array2 = trunc_value(array, 32);
+
+            Value* param5 = array2.value;
+            params2.push_back(param5);
+
+            LVALUE element_num2 = trunc_value(element_num, 32);
+            Value* param6 = element_num2.value;
+            params2.push_back(param6);
+
+            LVALUE value2 = trunc_value(value, 64);
+            Value* param7 = value2.value;
+            params2.push_back(param7);
+
+            Value* result = Builder.CreateCall(fun, params2);
+
+            if_value_is_zero_ret_zero(result, params, *function, current_block);
+
+            LVALUE llvm_value = *value;
+
+            dec_stack_ptr(llvm_stack_ptr, 3);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
         case OP_STORE_VALUE_TO_LONG_ADDRESS:
         case OP_STORE_VALUE_TO_ULONG_ADDRESS: {
             LVALUE* address = get_stack_ptr_value_from_index(*llvm_stack_ptr, -2);

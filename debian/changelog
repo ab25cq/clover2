@@ -1,4 +1,8 @@
 
+clover2 (4.7.0-1) unstable; urgency=medium
+
+    Append memory safe pointer(Buffer class) to Clover2. See manual
+
 clover2 (4.6.9-1) unstable; urgency=medium
 
     * Fixed bug of thread

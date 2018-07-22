@@ -1,4 +1,8 @@
 
+version 4.7.0
+
+    Append memory safe pointer(Buffer class) to Clover2. See manual
+
 version 4.6.9
 
     Fixed bug of thread
