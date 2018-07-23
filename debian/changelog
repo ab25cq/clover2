@@ -1,4 +1,8 @@
 
+clover2 (4.7.2-1) unstable; urgency=medium
+
+    * Fixed make test bug
+
 clover2 (4.7.1-1) unstable; urgency=medium
 
     * Fixed a bug that could not define a field with generic class nested within class.

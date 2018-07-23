@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 4.7.2
+
+    テストがおちていました。修正。 
+
 version 4.7.1
 
     クラスの中で入れ子になるジェネリクスのクラスを持つフィールドを定義できないバグを修正。
