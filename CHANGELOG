@@ -1,4 +1,12 @@
 
+version 4.7.3
+
+    List.delete(int,int)を追加。
+
+version 4.7.3
+
+    Added List.detete(int,int).
+
 version 4.7.2
 
     テストがおちていました。修正。 

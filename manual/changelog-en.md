@@ -1,4 +1,8 @@
 
+version 4.7.3
+
+    Added List.detete(int,int).
+
 version 4.7.2
 
     Fixed make test bug

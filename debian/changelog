@@ -1,6 +1,10 @@
 
 clover2 (4.7.2-1) unstable; urgency=medium
 
+    * Added List.detete(int,int).
+
+clover2 (4.7.2-1) unstable; urgency=medium
+
     * Fixed make test bug
 
 clover2 (4.7.1-1) unstable; urgency=medium

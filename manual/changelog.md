@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 4.7.3
+
+    List.delete(int,int)を追加。
+
 version 4.7.2
 
     テストがおちていました。修正。 
