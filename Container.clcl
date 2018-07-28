@@ -588,27 +588,6 @@ module MList
         return self;
     }
 
-    def delete(start:int, end:int):SELF<T> {
-        if(start < 0) {
-            start += self.number;
-        }
-        if(end < 0) {
-            end += self.number + 1;
-        }
-        if(start < 0) {
-            start = 0;
-        }
-        if(end > self.number) {
-            end = self.number;
-        }
-
-        for(i:int=start; i<end; i++) {
-            deleteAt(start);
-        }
-
-        return self;
-    }
-
     def deleteAt(index:int):SELF<T> {
         it:ListItem<T>? = self.head;
         it2:ListItem<T>? = self.head;

@@ -1,4 +1,8 @@
 
+version 4.7.4
+
+    Removed List.detete(int,int).
+
 version 4.7.3
 
     Added List.detete(int,int).
