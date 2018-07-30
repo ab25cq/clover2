@@ -298,6 +298,10 @@ nullは空を表す値で、Nullクラスのインスタンスです。nullは�
     b:String? = null;   # nullは代入できる。bは空だということでnullを代入している。
                         # ただし、bはnullが入っているかどうか注意してコーディングしないといけない
 
+あとからの追加ですがnullが入っているかの判定には==と!=演算子が使えます。
+
+    a:String? = null; assert(a == null);
+
 ## プリミティブクラス
 
     byte: 8bit符号付き数値型
@@ -1459,6 +1463,19 @@ Bufferクラスはバイナリデータを格納するクラスですが、メ�
 
     Clover.test("Memory safe pointer test3", memcmp(e, B"A1C", 3) == 0);
 ```
+
+## Null Pointer 演算子
+
+nullの判定コードはコーディングしていると頻出します。そのため以下のような簡略化する演算子がClover2にはあります。
+
+```
+    str:String? = null;
+
+    str?.match(/./)
+```
+
+上のコードはnullが入った変数にmatchを呼び出していますがnullが入っている場合でも例外が起きません。match文が実行されないだけです。
+
 
 ## 糖衣構文
 

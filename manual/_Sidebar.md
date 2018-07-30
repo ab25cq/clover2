@@ -57,6 +57,7 @@
 * [C言語へのFFI](feature#C言語へのFFI)
 * [ローカル変数の宣言](feature#ローカル変数の宣言)
 * [メモリーセーフなポインタ](feature#メモリーセーフなポインタ)
+* [Null Pointer 演算子](feature#Null Pointer 演算子)
 * [糖衣構文](feature#糖衣構文)
     * [文字列への式の埋め込み](feature#文字列への式の埋め込み)
     * [lambdaクラスの糖衣構文](feature#lambdaクラスの糖衣構文)

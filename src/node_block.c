@@ -171,6 +171,54 @@ BOOL parse_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* ne
     return TRUE;
 }
 
+BOOL parse_question_operator_block(unsigned int object_node, int num_method_chains, ALLOC sNodeBlock** node_block, sParserInfo* info)
+{
+    *node_block = ALLOC sNodeBlock_alloc(FALSE);
+
+    sVarTable* old_vtable = info->lv_table;
+    info->lv_table = init_block_vtable(old_vtable);
+
+    (*node_block)->mSName = info->sname;
+    (*node_block)->mSLine = info->sline;
+
+    char* source_head = info->p;
+
+    unsigned int node2 = object_node;
+
+    while(*info->p == '.') {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        char buf[METHOD_NAME_MAX];
+
+        if(!parse_word(buf, METHOD_NAME_MAX, info, TRUE, FALSE)) {
+            return FALSE;
+        }
+        skip_spaces_and_lf(info);
+
+        unsigned int params[PARAMS_MAX];
+        int num_params = 0;
+
+        if(!parse_method_params(&num_params, params, info)) {
+            return FALSE;
+        }
+
+        node2 = sNodeTree_create_method_call(node2, buf, params, num_params, num_method_chains, info);
+    }
+
+    append_node_to_node_block(*node_block, node2);
+
+    char* source_end = info->p;
+
+    sBuf_append(&(*node_block)->mSource, source_head, source_end - source_head);
+    sBuf_append_char(&(*node_block)->mSource, '\0');
+
+    (*node_block)->mLVTable = info->lv_table;
+    info->lv_table = old_vtable;
+
+    return TRUE;
+}
+
 BOOL compile_block(sNodeBlock* block, sCompileInfo* info)
 {
     sVarTable* old_table = info->lv_table;

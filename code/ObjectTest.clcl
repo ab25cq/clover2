@@ -22,5 +22,21 @@ class ObjectTest {
         }
 
         Clover.test("Object test", string_num == 2 && int_num == 1);
+
+        b :String? = null;
+
+        Clover.test("Object test2", b == null);
+
+        print("Object test3...");
+
+        b?.match(/./).negative().if { b = "ABC" };
+
+        Clover.test("Object test4", b == null);
+
+        Clover.test("Object test5", b?.match(/./).negative() == false);
+
+        b = "ABC";
+
+        Clover.test("Object test6", b?.match(/./));
     }
 }

@@ -1,4 +1,26 @@
 
+version 4.7.5
+    
+    Class.getMethods(); を加えました。
+    String.rindexOf();を加えました。
+    Clover.primitiveClassToBoxingClass(name:String);を加えました。
+    Clover.boxingClassToPrimitiveClass(name:String);を加えました。
+    Bool.if(lambda):Anoymous?を加えました。
+    Bool.ifWithException(lambda):Anoymous?を加えました。
+    ? post operator. --> str:String? = null; str?.match(/./). はNull Pointer Exceptionにはなりません。 str := "ABC"; str?.match(/./). これは動きます。
+    ==と!= 演算子をユーザーオブジェクトに入れました。str:String? = null; assert(str == null). これは動きます。
+
+version 4.7.5
+    
+    Added Class.getMethods();
+    Added String.rindexOf();
+    Added Clover.primitiveClassToBoxingClass(name:String);
+    Added Clover.boxingClassToPrimitiveClass(name:String);
+    Added Bool.if(lambda):Anoymous?
+    Added Bool.ifWithException(lambda):Anoymous?
+    Added ? post operator. --> str:String? = null; str?.match(/./). It doesn't throw Exception. str := "ABC"; str?.match(/./). It's works.
+    Added == and != operator for User Object. str:String? = null; assert(str == null). It works.
+
 version 4.7.4
 
     List.delete(int,int)を削除。

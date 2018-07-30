@@ -580,6 +580,7 @@ void expect_next_character_with_one_forward(char* characters, sParserInfo* info)
 BOOL parse_word(char* buf, int buf_size, sParserInfo* info, BOOL print_out_err_msg, BOOL no_skip_lf);
 BOOL parse_type(sNodeType** result_type, sParserInfo* info);
 BOOL parse_class_type(sCLClass** klass, sParserInfo* info);
+BOOL parse_method_params(int* num_params, unsigned int* params, sParserInfo* info);
 
 /// node_block.c ///
 struct sNodeBlockStruct
@@ -601,6 +602,7 @@ typedef struct sNodeBlockStruct sNodeBlock;
 void sNodeBlock_free(sNodeBlock* block);
 sNodeBlock* sNodeBlock_clone(sNodeBlock* block);
 BOOL parse_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* new_table, BOOL block_object, BOOL string_expression);
+BOOL parse_question_operator_block(unsigned int object_node, int num_method_chains, ALLOC sNodeBlock** node_block, sParserInfo* info);
 
 /// node.c ///
 enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeCByteValue, kNodeTypeUByteValue, kNodeTypeCUByteValue, kNodeTypeShortValue, kNodeTypeCShortValue, kNodeTypeUShortValue, kNodeTypeCUShortValue, kNodeTypeIntValue, kNodeTypeCIntValue, kNodeTypeUIntValue, kNodeTypeCUIntValue, kNodeTypeLongValue, kNodeTypeCLongValue, kNodeTypeULongValue, kNodeTypeCULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeWildCard, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeIncrementOperand, kNodeTypeDecrementOperand, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand, kNodeTypeLoadArrayElement, kNodeTypeStoreArrayElement, kNodeTypeChar, kNodeTypeString, kNodeTypeBuffer, kNodeTypeThrow, kNodeTypeTry, kNodeTypeBlockObject, kNodeTypeFunction, kNodeTypeBlockCall, kNodeTypeNormalBlock, kNodeTypeArrayValue, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeHashValue, kNodeTypeRegex, kNodeTypeListValue, kNodeTypeSortableListValue, kNodeTypeEqualableListValue, kNodeTypeTupleValue, kNodeTypeCArrayValue, kNodeTypeEqualableCArrayValue, kNodeTypeSortableCArrayValue, kNodeTypeImplements, kNodeTypeGetAddress, kNodeTypeInheritCall, kNodeTypeFloatValue, kNodeTypeCFloatValue, kNodeTypeDoubleValue, kNodeTypeCDoubleValue, kNodeTypePath, kNodeTypeWhen, kNodeTypeRange, kNodeTypeMultipleAsignment };
@@ -727,6 +729,8 @@ struct sNodeTreeStruct
             BOOL mOmitResultType;
             BOOL mOmitParams;
             sVarTable* mOldTable;
+            BOOL mQuestionOperator;
+            sNodeType* mQuestionOperatorResultType;
         } sBlockObject;
 
         struct {
@@ -891,7 +895,7 @@ unsigned int sNodeTree_create_string_value(MANAGED char* value, sNodeBlock** str
 unsigned int sNodeTree_create_buffer_value(MANAGED char* value, int len, sNodeBlock** string_expressions, int* string_expression_offsets, int num_string_expression, sParserInfo* info);
 unsigned int sNodeTree_try_expression(MANAGED sNodeBlock* try_node_block, MANAGED sNodeBlock* catch_node_block, char* exception_var_name, sParserInfo* info);
 
-unsigned int sNodeTree_create_block_object(sParserParam* params, int num_params, sNodeType* result_type, MANAGED sNodeBlock* node_block, BOOL lambda, sParserInfo* info, BOOL omit_result_type, BOOL omit_params, sVarTable* old_table);
+unsigned int sNodeTree_create_block_object(sParserParam* params, int num_params, sNodeType* result_type, MANAGED sNodeBlock* node_block, BOOL lambda, sParserInfo* info, BOOL omit_result_type, BOOL omit_params, sVarTable* old_table, BOOL question_operator_block);
 unsigned int sNodeTree_create_block_call(unsigned int block, int num_params, unsigned int params[], sParserInfo* info);
 unsigned int sNodeTree_conditional_expression(unsigned int expression_node, unsigned int true_expression_node, unsigned int false_expression_node, sParserInfo* info);
 unsigned int sNodeTree_create_normal_block(MANAGED sNodeBlock* node_block, sParserInfo* info);
@@ -1228,14 +1232,15 @@ extern int gBufferToPointerCastCount;
 #define OP_REGNOTEQ 1221
 
 #define OP_OBJ_IDENTIFY 1300
-#define OP_CLASSNAME 1301
-#define OP_IS 1302
-#define OP_IMPLEMENTS 1303
-#define OP_OBJ_ALLOCATED_SIZE 1304
-#define OP_OBJ_HEAD_OF_MEMORY 1305
+#define OP_OBJ_IDENTIFY_NOT 1301
+#define OP_CLASSNAME 1302
+#define OP_IS 1303
+#define OP_IMPLEMENTS 1304
+#define OP_OBJ_ALLOCATED_SIZE 1305
+#define OP_OBJ_HEAD_OF_MEMORY 1306
 
-#define OP_LOAD_ADDRESS 1306
-#define OP_SPLIT_TUPLE 1307
+#define OP_LOAD_ADDRESS 1307
+#define OP_SPLIT_TUPLE 1308
 
 #define OP_ANDAND 2000
 #define OP_OROR 2001

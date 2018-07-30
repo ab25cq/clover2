@@ -134,8 +134,6 @@ println("NullTest");
 NullTest.main2();
 println("DependencyTest");
 DependencyTest.main();
-println("ObjectTest");
-ObjectTest.main();
 println("DefaultMethodArgTest");
 DefaultMethodArgTest.main();
 println("EnumTest");
@@ -198,4 +196,8 @@ println("ExtensionClassTest");
 ExtensionClassTest.main();
 println("PointerTest3");
 PointerTest3.main();
+println("BoolTest");
+BoolTest.main();
+println("ObjectTest");
+ObjectTest.main();
 

@@ -1,0 +1,15 @@
+class BoolTest
+{
+    def main():static {
+        var a := 1;
+
+        true.if { a = 2 }
+
+        Clover.test("Bool test", a == 2);
+
+        false.if { a = 3 }
+
+        Clover.test("Bool test", a == 2);
+
+    }
+}

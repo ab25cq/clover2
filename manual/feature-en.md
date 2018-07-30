@@ -296,6 +296,14 @@ null is an empty value, an instance of the Null class. null can be assigned to v
     b: String? = null; # null can be substituted. b is empty and null is assigned.
                        # However, you have to code with b carefully to see if it contains null
 ```
+
+You can use the == and! = Operators to judge whether null is included although it is added later.
+
+```
+    str:String? = null; assert(str == null);
+```
+
+
 ## primitive class
 ```
     byte: 8 bit signed numeric type
@@ -1398,6 +1406,18 @@ Automatic casting to the pointer class is done when necessary as unboxing. When 
 
     Clover.test("Memory safe pointer test3", memcmp(e, B"A1C", 3) == 0);
 ```
+
+## Null pointer operator
+
+It often happens that the null decision code is coded. Therefore, Clover 2 has the following simplifying operator.
+
+```
+    str:String? = null;
+
+    str?.match(/./)
+```
+
+The above code calls match on a variable containing null, but no exception occurs even if it contains null. The match statement is not executed.
 
 # Sugar coating syntax
 

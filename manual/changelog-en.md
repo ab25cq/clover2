@@ -1,4 +1,15 @@
 
+version 4.7.5
+    
+    Added Class.getMethods();
+    Added String.rindexOf();
+    Added Clover.primitiveClassToBoxingClass(name:String);
+    Added Clover.boxingClassToPrimitiveClass(name:String);
+    Added Bool.if(lambda):Anoymous?
+    Added Bool.ifWithException(lambda):Anoymous?
+    Added ? post operator. --> str:String? = null; str?.match(/./). It doesn't throw Exception. str := "ABC"; str?.match(/./). It's works.
+    Added == and != operator for User Object. str:String? = null; assert(str == null). It works.
+
 version 4.7.4
 
     Removed List.detete(int,int).

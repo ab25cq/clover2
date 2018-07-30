@@ -572,6 +572,7 @@ test: parser
 	PWD=`pwd` ./cclover2 code/thread.cl
 	PWD=`pwd` ./cclover2 code/SocketTest.clcl
 	PWD=`pwd` ./cclover2 code/PointerTest3.clcl
+	PWD=`pwd` ./cclover2 code/BoolTest.clcl
 
 
 	PWD=`pwd` ./clover2 code/parser.cl

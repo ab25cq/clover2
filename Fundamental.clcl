@@ -995,4 +995,22 @@ class Bool : unboxing bool
     def negative(): bool {
         return !self.value;
     }
+
+    def if(block_:lambda()):Anonymous? {
+        if(self.value) {
+            return block_();
+        }
+
+        return null;
+    }
+
+    def ifWithException(block_:lambda()):Anonymous? throws Exception {
+        if(self.value) {
+            return block_();
+        }
+
+        throw Exception("ifWithException is faield");
+
+        return null;
+    }
 }

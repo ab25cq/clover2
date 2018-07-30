@@ -136,6 +136,27 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             }
             break;
 
+        case OP_OBJ_IDENTIFY_NOT: {
+            LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -2);
+            LVALUE* rvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            *lvalue = trunc_value(lvalue, 32);
+            *rvalue = trunc_value(rvalue, 32);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateICmpNEQ(lvalue->value, rvalue->value, "not_eqtmp");
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt1;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
+
+            dec_stack_ptr(llvm_stack_ptr, 2);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            }
+            break;
+
         case OP_CEQ: {
             LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -2);
             LVALUE* rvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);

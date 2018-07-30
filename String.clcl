@@ -856,6 +856,24 @@ class String
         return result;
     }
 
+    def rindexOf(str:String, count:int=1):int {
+        result := -1;
+        count2 := 0;
+        len2 := str.length();
+
+        for(i:=len; i>=len2; i--) {
+            if(self.subString(i-len2, i).equals(str)) {
+                count2++;
+                if(count2 == count) {
+                    result = i-1;
+                    break;
+                }
+            }
+        }
+
+        return result;
+    }
+
     def indexOf(str:String, count:int): int throws Exception {
         result:int = -1;
         count2:int = 0;

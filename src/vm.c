@@ -4799,6 +4799,20 @@ show_inst(inst);
                 }
                 break;
 
+            case OP_OBJ_IDENTIFY_NOT:
+                {
+                    CLObject left = (stack_ptr-2)->mObjectValue;
+                    CLObject right = (stack_ptr-1)->mObjectValue;
+
+                    BOOL result = left != right;
+
+                    stack_ptr-=2;
+                    stack_ptr->mLongValue = 0; // zero clear for jit
+                    stack_ptr->mBoolValue = result;
+                    stack_ptr++;
+                }
+                break;
+
             case OP_CLASSNAME:
                 {
                     CLObject left = (stack_ptr-1)->mObjectValue;

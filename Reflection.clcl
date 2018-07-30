@@ -33,6 +33,101 @@ class Clover
     def isPrimitiveClass(name:String):static bool {
         return name.equals("int") || isTypedefedClass(name, "int") || name.equals("uint") || isTypedefedClass(name, "uint") || name.equals("byte") || isTypedefedClass(name, "byte") || name.equals("ubyte") || isTypedefedClass(name, "ubyte") || name.equals("short") || isTypedefedClass(name, "short") || name.equals("ushort") || isTypedefedClass(name, "ushort") || name.equals("long") || isTypedefedClass(name, "long") || name.equals("ulong") || isTypedefedClass(name, "ulong") || name.equals("float") || isTypedefedClass(name, "float") || name.equals("double") || isTypedefedClass(name, "double") || name.equals("pointer") || isTypedefedClass(name, "pointer") || name.equals("char") || isTypedefedClass(name, "char") ||  name.equals("bool") || isTypedefedClass(name, "bool") || name.match(/lambda$|lambda\(\)|lambda\(.*/) || isTypedefedClass(name, "lambda") || name.equals("regex")|| isTypedefedClass(name, "regex") ;
     }
+    def primitiveClassToBoxingClass(name:String):static String {
+        when(name) {
+            case ("int") {
+                return "Integer";
+            }
+            case ("uint") {
+                return "UInteger";
+            }
+            case ("byte") {
+                return "Byte";
+            }
+            case ("ubyte") {
+                return "UByte";
+            }
+            case ("short") {
+                return "Short";
+            }
+            case ("ushort") {
+                return "UShort";
+            }
+            case ("long") {
+                return "Long";
+            }
+            case ("ulong") {
+                return "ULong";
+            }
+            case ("float") {
+                return "Float";
+            }
+            case ("double") {
+                return "Double";
+            }
+            case ("pointer") {
+                return "Pointer";
+            }
+            case ("char") {
+                return "Char";
+            }
+            case ("bool") {
+                return "Bool";
+            }
+
+            else {
+                return name;
+            }
+        }
+    }
+    def boxingClassToPrimitiveClass(name:String):static String {
+        when(name) {
+            case ("Integer") {
+                return "int";
+            }
+            case ("UInteger") {
+                return "uint";
+            }
+            case ("Byte") {
+                return "byte";
+            }
+            case ("UByte") {
+                return "ubyte";
+            }
+            case ("Short") {
+                return "short";
+            }
+            case ("UShort") {
+                return "ushort";
+            }
+            case ("Long") {
+                return "long";
+            }
+            case ("ULong") {
+                return "ulong";
+            }
+            case ("Float") {
+                return "float";
+            }
+            case ("Double") {
+                return "double";
+            }
+            case ("Pointer") {
+                return "pointer";
+            }
+            case ("Char") {
+                return "char";
+            }
+            case ("Bool") {
+                return "bool";
+            }
+
+            else {
+                return name;
+            }
+        }
+    }
+
 
     def initialize_reflection(): static native;
 
@@ -426,6 +521,10 @@ class Method
 
         return result;
     }
+
+    def toString():String {
+        return methodNameAndParams;
+    }
 }
 
 class Class
@@ -553,6 +652,13 @@ class Class
         }
 
         return null;
+    }
+    def getMethods():List<Method> {
+        result := List<Method>();
+        for(i:=0; i<numMethods; i++) {
+            result.add(getMethod(i));
+        }
+        return result;
     }
     def createObject(): Anonymous {
         return Clover.createObject(className);

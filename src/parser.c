@@ -364,12 +364,12 @@ static BOOL parse_simple_lambda_params(unsigned int* node, sParserInfo* info, BO
         return FALSE;
     }
 
-    *node = sNodeTree_create_block_object(params, num_params, result_type, MANAGED node_block, lambda, info, omit_result_type, omit_params, old_table);
+    *node = sNodeTree_create_block_object(params, num_params, result_type, MANAGED node_block, lambda, info, omit_result_type, omit_params, old_table, FALSE);
 
     return TRUE;
 }
 
-static BOOL parse_method_params(int* num_params, unsigned int* params, sParserInfo* info)
+BOOL parse_method_params(int* num_params, unsigned int* params, sParserInfo* info)
 {
     *num_params = 0;
 
@@ -2555,6 +2555,34 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info, int* nu
 
             *node = sNodeTree_create_decrement_operand(*node, info);
         }
+        else if(*info->p == '?') {
+            info->p++;
+            skip_spaces_and_lf(info);
+
+            unsigned int object_node = *node;
+
+            unsigned int params[PARAMS_MAX];
+            int num_params = 1;
+
+            params[0] = sNodeTree_null_expression(info);
+
+            *node = sNodeTree_create_method_call(*node, "identifyWith", params, num_params, *num_method_chains, info);
+
+            *node = sNodeTree_create_method_call(*node, "negative", NULL, 0, *num_method_chains, info);
+
+            sNodeBlock* node_block;
+            if(!parse_question_operator_block(object_node, *num_method_chains, ALLOC &node_block, info)) {
+                return FALSE;
+            }
+
+            BOOL lambda = FALSE;
+            sNodeType* result_type = create_node_type_with_class_name("Null");
+
+            num_params = 1;
+            params[0] = sNodeTree_create_block_object(NULL, 0, result_type, MANAGED node_block, lambda, info, FALSE, FALSE, NULL, TRUE);
+
+            *node = sNodeTree_create_method_call(*node, "if", params, num_params, *num_method_chains, info);
+        }
         else {
             break;
         }
@@ -2605,7 +2633,7 @@ static BOOL parse_block_object(unsigned int* node, sParserInfo* info, BOOL lambd
         return FALSE;
     }
 
-    *node = sNodeTree_create_block_object(params, num_params, result_type, MANAGED node_block, lambda, info, omit_result_type, FALSE, NULL);
+    *node = sNodeTree_create_block_object(params, num_params, result_type, MANAGED node_block, lambda, info, omit_result_type, FALSE, NULL, FALSE);
 
     return TRUE;
 }
@@ -5109,7 +5137,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         *node = 0;
     }
 
-    /// 値の後ろに来る式 ///
+    /// post position expression ///
     if(!postposition_operator(node, info, &num_method_chains, max_method_chains_node))
     {
         return FALSE;

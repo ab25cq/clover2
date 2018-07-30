@@ -1,5 +1,16 @@
 English page is here [>> English page](changelog-en)
 
+version 4.7.5
+    
+    Class.getMethods(); を加えました。
+    String.rindexOf();を加えました。
+    Clover.primitiveClassToBoxingClass(name:String);を加えました。
+    Clover.boxingClassToPrimitiveClass(name:String);を加えました。
+    Bool.if(lambda):Anoymous?を加えました。
+    Bool.ifWithException(lambda):Anoymous?を加えました。
+    ? post operator. --> str:String? = null; str?.match(/./). はNull Pointer Exceptionにはなりません。 str := "ABC"; str?.match(/./). これは動きます。
+    ==と!= 演算子をユーザーオブジェクトに入れました。str:String? = null; assert(str == null). これは動きます。
+
 version 4.7.4
 
     List.delete(int,int)を削除。

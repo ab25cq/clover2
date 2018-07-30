@@ -444,6 +444,10 @@ BOOL operand_posibility(sNodeType* left, sNodeType* right, char* op_string)
             return left->mClass == right->mClass;
         }
     }
+    else if(left->mClass && !(left->mClass->mFlags & CLASS_FLAGS_PRIMITIVE) && type_identify_with_class_name(right, "Null") && (strcmp(op_string, "==") == 0 || strcmp(op_string, "!=") == 0))
+    {
+        return TRUE;
+    }
     else {
         return left->mClass == right->mClass;
     }
