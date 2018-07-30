@@ -1464,7 +1464,7 @@ Bufferクラスはバイナリデータを格納するクラスですが、メ�
     Clover.test("Memory safe pointer test3", memcmp(e, B"A1C", 3) == 0);
 ```
 
-## Null Pointer 演算子
+## ナルポインター演算子
 
 nullの判定コードはコーディングしていると頻出します。そのため以下のような簡略化する演算子がClover2にはあります。
 
