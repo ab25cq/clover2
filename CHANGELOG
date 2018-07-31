@@ -1,4 +1,14 @@
 
+version 4.7.6
+
+    Added System.mvprintw(y:int, x:int, str:String);
+    Added map method to Numeric classes
+
+version 4.7.6
+
+    Added System.mvprintw(y:int, x:int, str:String);
+    Added map method to Numeric classes
+
 version 4.7.5
     
     Class.getMethods(); を加えました。

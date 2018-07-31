@@ -1,5 +1,10 @@
 English page is here [>> English page](changelog-en)
 
+version 4.7.6
+
+    System.mvprintw(y:int, x:int, str:String) を加えました。
+    map method to Numeric classesを加えました。
+
 version 4.7.5
     
     Class.getMethods(); を加えました。
