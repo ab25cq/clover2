@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 4.7.9
+
+    List.deleteWithRange, EqualableList.deleteWithRange, SortableList.deleteWithRangeが対象となるオブジェクト自身の状態を変えるようになりました
+
 version 4.7.8
 
     REPLのバグを修正。

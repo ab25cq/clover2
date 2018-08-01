@@ -87,12 +87,12 @@ class String
     }
 
     def setValue(str: String) {
-        len:int = str.length();
-        size:int = len * 2 + 1;
+        len := str.length();
+        size := len * 2 + 1;
 
         self.buffer = char[size]();
 
-        for(i:int = 0; i<len; i++) {
+        for(i := 0; i<len; i++) {
             self.buffer[i] = str.buffer[i];
         }
         self.buffer[i] = '\0';
@@ -138,7 +138,7 @@ class String
     }
 
     def append(str: String):  String {
-        len:int = str.length();
+        len := str.length();
 
         if(self.len+len+1 < self.size) {
             for(i:int=self.len; i<self.len + len; i++) {
@@ -149,8 +149,8 @@ class String
             self.len += len;
         }
         else {
-            new_size:int = (self.len + len + 1) * 2;
-            new_buffer:char[] = char[new_size];
+            new_size := (self.len + len + 1) * 2;
+            new_buffer := char[new_size];
 
             for(i:int = 0; i<self.len; i++) {
                 new_buffer[i] = self.buffer[i];
@@ -169,7 +169,7 @@ class String
     }
 
     def append(c:char):  String {
-        len:int = 1;
+        len := 1;
 
         if(self.len+len+1 < self.size) {
             self.buffer[self.len] = c;
@@ -178,10 +178,10 @@ class String
             self.len += len;
         }
         else {
-            new_size:int = (self.len + len + 1) * 2;
-            new_buffer:char[] = char[new_size];
+            new_size := (self.len + len + 1) * 2;
+            new_buffer := char[new_size];
 
-            for(i:int = 0; i<self.len; i++) {
+            for(i := 0; i<self.len; i++) {
                 new_buffer[i] = self.buffer[i];
             }
             new_buffer[i] = c;
@@ -216,7 +216,7 @@ class String
         }
         else {
             if(self.len == str.length()) {
-                for(i:int = 0; i<self.len; i++) {
+                for(i := 0; i<self.len; i++) {
                     if(self.buffer[i] != str.buffer[i]) {
                         return false;
                     }
@@ -438,7 +438,7 @@ class Byte : unboxing byte
     value:byte;
 
     def initialize() {
-        self.value = 0.to_byte;
+        self.value = 0;
     }
 
     def initialize(value:byte) {
@@ -475,7 +475,7 @@ class UByte : unboxing ubyte
     value:ubyte;
 
     def initialize() {
-        self.value = 0.to_ubyte;
+        self.value = 0;
     }
 
     def initialize(value:ubyte) {
@@ -512,7 +512,7 @@ class Short : unboxing short
     value:short;
 
     def initialize() {
-        self.value = 0.to_short;
+        self.value = 0;
     }
 
     def initialize(value:short) {
@@ -545,6 +545,7 @@ class UShort : unboxing ushort
     include MWrapperClassBase;
     include MObjectBase;
     include MOperand;
+
     def add(right:UShort): UShort {
         return self.to_ushort() + right.to_ushort();
     }
@@ -552,7 +553,7 @@ class UShort : unboxing ushort
     value:ushort;
 
     def initialize() {
-        self.value = 0.to_ushort;
+        self.value = 0;
     }
 
     def initialize(value:ushort) {
@@ -638,7 +639,7 @@ class UInteger : unboxing uint
     value: uint;
 
     def initialize() {
-        self.value = 0.to_uint;
+        self.value = 0;
     }
 
     def initialize(value:uint) {
@@ -675,7 +676,7 @@ class Long : unboxing long
     value:long;
 
     def initialize() {
-        self.value = 0.to_long;
+        self.value = 0;
     }
 
     def initialize(value:long) {
@@ -712,7 +713,7 @@ class ULong : unboxing ulong
     value: ulong;
 
     def initialize() {
-        self.value = 0.to_ulong;
+        self.value = 0;
     }
 
     def initialize(value:ulong) {
@@ -749,7 +750,7 @@ class Float : unboxing float
     value: float;
 
     def initialize() {
-        self.value = 0.to_float;
+        self.value = 0.0f;
     }
 
     def initialize(value:float) {
@@ -782,7 +783,7 @@ class Double : unboxing double
     value: double;
 
     def initialize() {
-        self.value = 0.to_double;
+        self.value = 0.0;
     }
 
     def initialize(value:double) {
@@ -896,7 +897,7 @@ class Char : unboxing char
     }
 
     def multiply(n:int):String {
-        result:String = "";
+        result := "";
 
         for(i:=0; i<n; i++) {
             result.append(self.value);
@@ -911,7 +912,7 @@ class Bool : unboxing bool
     value: bool;
 
     def initialize() {
-        self.value = 0.to_bool;
+        self.value = false;
     }
 
     def initialize(value:bool) {

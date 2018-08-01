@@ -372,7 +372,7 @@ class stat
     }
 
     def userName():String {
-        result:String = "";
+        result := "";
 
         p"/etc/passwd".read().toString().split(/\n/).each(closure(line:String) {
             fields:EqualableList<String> = line.chomp().split(/:/);
@@ -386,7 +386,7 @@ class stat
     }
 
     def groupName():String {
-        result:String = "";
+        result := "";
 
         p"/etc/group".read().toString().split(/\n/).each(closure(line:String) {
             fields:EqualableList<String> = line.chomp().split(/:/);
@@ -478,12 +478,12 @@ class File
         }
         
         if(self.stream != null) {
-            result:Buffer = Buffer(size+1.to_ulong);
+            result := Buffer(size+1);
             fread(result, size, self.stream);
             return result;
         }
         else {
-            result:Buffer = Buffer(size+1.to_ulong);
+            result := Buffer(size+1);
             System.read(self.fd, result, size);
             return result;
         }
@@ -506,7 +506,7 @@ class File
 
     def read(file_name:String): static Buffer throws Exception {
         f:File = File(file_name);
-        result: Buffer = f.read();
+        result := f.read();
         f.close();
 
         return result;
@@ -520,14 +520,14 @@ class File
         if(self.stream != null) {
             size:size_t = self.to_stat().size();
 
-            result:Buffer = Buffer(size+1.to_ulong);
+            result := Buffer(size+1.to_ulong);
             fread(result, size, self.stream);
             return result;
         }
         else {
             size:size_t = self.to_stat().size();
 
-            result:Buffer = Buffer(size+1.to_ulong);
+            result := Buffer(size+1.to_ulong);
             System.read(self.fd, result, size);
             return result;
         }
@@ -556,15 +556,15 @@ class File
 
     def write(file_name:String, buf:Buffer, mode:mode_t): static int throws Exception 
     {
-        f:File = File(file_name, O_CREAT|O_TRUNC|O_WRONLY, mode);
-        result:int = f.write(buf);
+        f := File(file_name, O_CREAT|O_TRUNC|O_WRONLY, mode);
+        result := f.write(buf);
         f.close();
 
         return result;
     }
     def write(file_name:String, buf:Buffer, mode:String): static throws Exception
     {
-        f:File = File(file_name, mode);
+        f := File(file_name, mode);
         f.write(buf);
         f.close();
     }
@@ -638,14 +638,14 @@ class Path
     }
 
     def extname(): Path {
-        index:int = -1;
-        for(i:int =self.path.len-1; i>=0; i--) {
+        index := -1;
+        for(i := self.path.len-1; i>=0; i--) {
             if(self.path.chars(i) == '.') {
                 index = i;
                 break;
             }
         }
-        dirname:Path = self.dirname();
+        dirname := self.dirname();
 
         if(index == -1 || index == 0 || self.path.chars(index-1) == '/' 
             || index < dirname.path.length()) 
@@ -789,7 +789,7 @@ class Directory
     }
 
     def entries(path:String): static SortableList<String> throws Exception {
-        dir:Directory = Directory(path);
+        dir := Directory(path);
         result:SortableList<String> = SortableList<String>();
 
         while(true) {
@@ -816,7 +816,7 @@ class Directory
     }
 
     def glob(path:String, pattern:String, flags:int): static SortableList<String> throws Exception {
-        dir:Directory = Directory(path);
+        dir := Directory(path);
         result:SortableList<String> = SortableList<String>();
 
         while(true) {
@@ -856,12 +856,12 @@ class Directory
 
     def globWithOnePath(path:String, flags:int):static SortableList<String> throws Exception 
     {
-        dir:String = System.dirname(path);
+        dir := System.dirname(path);
         if(dir.equals(".")) {
             return sortable_list { path };
         }
         else {
-            pattern:String = path.subString(dir.length()+1, -1);
+            pattern := path.subString(dir.length()+1, -1);
             return Directory.glob(dir, pattern, flags);
         }
     }
@@ -892,10 +892,10 @@ class Clover
         return time2 - time1;
     }
     def realtime(block_:lambda()):static timespec {
-        ts1:timespec = timespec();
+        ts1 := timespec();
         clock_gettime(CLOCK_MONOTONIC, ts1);
         block_();
-        ts2:timespec = timespec();
+        ts2 := timespec();
         clock_gettime(CLOCK_MONOTONIC, ts2);
 
         return ts2.minus(ts1);

@@ -40,8 +40,8 @@ class Range<T:ISortable>
     }
 
     def compare(range:Range<T>): int {
-        head_cmp:int = self.head.compare(range.head);
-        tail_cmp:int = self.tail.compare(range.tail);
+        head_cmp := self.head.compare(range.head);
+        tail_cmp := self.tail.compare(range.tail);
 
         if(head_cmp == 0 && tail_cmp == 0) {
             return 0;

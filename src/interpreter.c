@@ -2452,7 +2452,7 @@ static void compiler_final()
 
 int gARGC;
 char** gARGV;
-char* gVersion = "4.7.8";
+char* gVersion = "4.7.9";
 
 char gScriptDirPath[PATH_MAX];
 BOOL gRunningCompiler = FALSE;

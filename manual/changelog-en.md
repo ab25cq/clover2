@@ -1,4 +1,8 @@
 
+version 4.7.9
+
+    List.deleteWithRange, EqualableList.deleteWithRange, SortableList.deleteWithRange have changed inner stat.
+
 version 4.7.8
 
     Fixed bug of REPL.

@@ -324,7 +324,7 @@ class Job
         pid2 := waitpid(self.pgrp, &status, WUNTRACED);
 
         if(WIFSTOPPED(status)) {
-            rcode:int = WSTOPSIG(status) +128;
+            rcode := WSTOPSIG(status) +128;
 
             terminfo2 := tcgetattr(0);
 
@@ -594,13 +594,13 @@ dynamic_class Command
         while(true) {
             pipe_data := Buffer(128.to_ulong);
 
-            readed_byte:int = read(child2parent_read_fd, pipe_data, 128.to_ulong);
+            readed_byte := read(child2parent_read_fd, pipe_data, 128.to_ulong);
 
             child_output.append(pipe_data);
 
             pipe_data_err := Buffer(128.to_ulong);
 
-            readed_byte_err:int = read(child2parent_read_fd_err, pipe_data_err, 128.to_ulong);
+            readed_byte_err := read(child2parent_read_fd_err, pipe_data_err, 128.to_ulong);
 
             child_output.append(pipe_data_err);
 
@@ -625,7 +625,7 @@ dynamic_class Command
 
     def expandArg(arg:String):static SortableList<String> {
         if(Directory.isGlobString(arg)) {
-            dir:String = dirname(arg);
+            dir := dirname(arg);
             if(dir.equals(".")) {
                 pattern := "";
                 if(arg.subString(0, 2).equals("./")) {
@@ -638,11 +638,11 @@ dynamic_class Command
                 return Directory.glob(dir, pattern, 0).map { it.subString(2,-1); }.select { !it.equals(".") && !it.equals("..") };
             }
             elif(dir.equals("/")) {
-                pattern:String = arg.subString(1, -1);
+                pattern := arg.subString(1, -1);
                 return Directory.glob(dir, pattern, 0).select { !it.equals("/.") && !it.equals("/.."); }
             }
             else {
-                pattern:String = arg.subString(dir.length()+1, -1);
+                pattern := arg.subString(dir.length()+1, -1);
                 return Directory.glob(dir, pattern, 0).select { !it.equals(dir.add("/.")) && !it.equals(dir.add("/..")) };
             }
         }
@@ -679,7 +679,7 @@ dynamic_class Command
                     execvp(method_name, params);
                 }
             } catch(e:Exception) {
-                buffer:Buffer = e.message.append("\n").toBuffer();
+                buffer := e.message.append("\n").toBuffer();
                 System.write(2, buffer, buffer.len);
                 exit(2);
             }
@@ -690,17 +690,17 @@ dynamic_class Command
         close(child2parent_write_fd);
 
         if(!pipe_data.identifyWith(null)) {
-            buffer:Buffer = pipe_data.toBuffer();
+            buffer := pipe_data.toBuffer();
             System.write(parent2child_write_fd, buffer, buffer.len);
         }
         close(parent2child_write_fd);
 
-        child_output:Buffer = B"";
+        child_output := B"";
         
         while(true) {
-            pipe_data:Buffer = Buffer(128.to_ulong);
+            pipe_data := Buffer(128.to_ulong);
 
-            readed_byte:int = read(child2parent_read_fd, pipe_data, 128.to_ulong);
+            readed_byte := read(child2parent_read_fd, pipe_data, 128.to_ulong);
 
             if(readed_byte == 0) {
                 break;
@@ -738,7 +738,7 @@ dynamic_class Command
                     execvp(method_name, params);
                 }
             } catch(e:Exception) {
-                buffer:Buffer = e.message.append("\n").toBuffer();
+                buffer := e.message.append("\n").toBuffer();
                 System.write(2, buffer, buffer.len);
                 exit(64);
             }
@@ -756,8 +756,8 @@ dynamic_class Command
         }
 
         if(WIFSTOPPED(status)) {
-            rcode:int = WSTOPSIG(status) +128;
-            title:String = method_name;
+            rcode := WSTOPSIG(status) +128;
+            title := method_name;
 
             terminfo := tcgetattr(0);
 
@@ -780,8 +780,8 @@ dynamic_class Command
 
     def executeCommandWithControllingTerminalByPipe(method_name:String, params:List<String>, pipe_data:String): static Command throws Exception
     {
-        parent2child_write_fd:int = 0;
-        parent2child_read_fd:int = 0;
+        parent2child_write_fd := 0;
+        parent2child_read_fd := 0;
 
         pipe(&parent2child_read_fd, &parent2child_write_fd);
 
@@ -804,7 +804,7 @@ dynamic_class Command
                     execvp(method_name, params);
                 }
             } catch(e:Exception) {
-                buffer:Buffer = e.message.append("\n").toBuffer();
+                buffer := e.message.append("\n").toBuffer();
                 System.write(2, buffer, buffer.len);
                 exit(64);
             }
@@ -816,7 +816,7 @@ dynamic_class Command
         close(parent2child_read_fd);
 
         if(!pipe_data.identifyWith(null)) {
-            buffer:Buffer = pipe_data.toBuffer();
+            buffer := pipe_data.toBuffer();
             try {
                 System.write(parent2child_write_fd, buffer, buffer.len);
             } catch(e:Exception) {
@@ -834,12 +834,12 @@ dynamic_class Command
         }
 
         if(WIFSTOPPED(status)) {
-            rcode:int = WSTOPSIG(status) +128;
+            rcode := WSTOPSIG(status) +128;
             title:String = method_name;
 
             terminfo := tcgetattr(0);
 
-            job:Job = Job(title, pid, terminfo);
+            job := Job(title, pid, terminfo);
 
             Clover.jobs.add(job);
 
@@ -923,9 +923,9 @@ dynamic_class Command
     }
 
     def write(path:String, permission:mode_t): Command {
-        f:File = File(path, O_CREAT|O_TRUNC|O_WRONLY, permission);
+        f := File(path, O_CREAT|O_TRUNC|O_WRONLY, permission);
 
-        buf:Buffer = self.data.toBuffer();
+        buf := self.data.toBuffer();
         f.write(buf, buf.len);
 
         f.close();

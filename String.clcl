@@ -96,14 +96,14 @@ class Global
         System.printlnToError(str);
     }
     def printf(str:String, params:Array<Object>): static {
-        str2: String = sprintf(str, params);
+        str2 := sprintf(str, params);
         System.print(str2);
     }
     def printf(str:String): static {
         System.print(str);
     }
     def printfToError(str:String, params:Array<Object>): static {
-        str2: String = sprintf(str, params);
+        str2 := sprintf(str, params);
         System.printToError(str2);
     }
     def sprintf(str:String, params:Array<Object>): static String {
@@ -122,47 +122,47 @@ class String
 
     def insert(index:int, str:String):  String {
         if(index < 0) {
-            index += len + 1;
+            index += self.len + 1;
         }
         if(index < 0) {
             index = 0;
         }
         if(index > len) {
-            index = len;
+            index = self.len;
         }
 
-        len2 := str.length();
+        len := str.length();
 
-        if(len+len2 + 1 < size) {
-            for(i :=len -1; i>=index; i--) {
-                buffer[i+len2] = buffer[i];
+        if(self.len+len + 1 < self.size) {
+            for(i :=self.len -1; i>=index; i--) {
+                self.buffer[i+len] = self.buffer[i];
             }
-            for(i = 0; i<len2; i++) {
-                buffer[index+i] = str.buffer[i];
+            for(i = 0; i<len; i++) {
+                self.buffer[index+i] = str.buffer[i];
             }
-            buffer[len+len2] = '\0';
+            self.buffer[self.len+len] = '\0';
 
-            len += len2;
+            self.len += len;
         }
         else {
-            new_size:int = (len + len2 + 1) * 2 + 1;
+            new_size:int = (self.len + len + 1) * 2 + 1;
             new_buffer:char[] = char[new_size];
 
             for(i := 0; i<index; i++) {
-                new_buffer[i] = buffer[i];
+                new_buffer[i] = self.buffer[i];
             }
-            for(i=index; i<len; i++) {
-                new_buffer[i+len2] = buffer[i];
+            for(i=index; i<self.len; i++) {
+                new_buffer[i+len] = self.buffer[i];
             }
-            for(i=0; i<len2; i++) {
+            for(i=0; i<len; i++) {
                 new_buffer[index+i] = str.buffer[i];
             }
-            new_buffer[len+len2] = '\0';
+            new_buffer[self.len+len] = '\0';
 
-            buffer = new_buffer;
-            size = new_size;
+            self.buffer = new_buffer;
+            self.size = new_size;
 
-            len += len2;
+            self.len += len;
         }
 
         return self;
@@ -174,22 +174,22 @@ class String
 
     def delete(index:int): String {
         if(index < 0) {
-            index += len + 1;
+            index += self.len + 1;
         }
         if(index < 0) {
             index = 0;
         }
-        if(index >= len) {
-            index = len-1;
+        if(index >= self.len) {
+            index = self.len-1;
         }
 
-        if(index >= 0 && index < len) {
-            for(i := index; i<len-1; i++) {
-                buffer[i] = buffer[i+1];
+        if(index >= 0 && index < self.len) {
+            for(i := index; i<self.len-1; i++) {
+                self.buffer[i] = self.buffer[i+1];
             }
-            buffer[i] = '\0';
+            self.buffer[i] = '\0';
 
-            len --;
+            self.len --;
         }
 
         return self;
@@ -197,26 +197,26 @@ class String
 
     def delete(index:int, index2:int): String {
         if(index < 0) {
-            index += len + 1;
+            index += self.len + 1;
         }
         if(index < 0) {
             index = 0;
         }
 
         if(index2 < 0) {
-            index2 += len + 1;
+            index2 += self.len + 1;
         }
         if(index2 < 0) {
             index2 = 0;
         }
 
-        if(index < index2 && index < len && index2 <= len) {
-            for(i:= index; i<len-(index2-index); i++) {
-                buffer[i] = buffer[i+index2-index];
+        if(index < index2 && index < self.len && index2 <= self.len) {
+            for(i:= index; i<self.len-(index2-index); i++) {
+                self.buffer[i] = self.buffer[i+index2-index];
             }
-            buffer[i] = '\0';
+            self.buffer[i] = '\0';
 
-            len -= index2-index;
+            self.len -= index2-index;
         }
 
         return self;
@@ -861,10 +861,10 @@ class String
     def rindexOf(str:String, count:int=1):int {
         result := -1;
         count2 := 0;
-        len2 := str.length();
+        len := str.length();
 
-        for(i:=len; i>=len2; i--) {
-            if(self.subString(i-len2, i).equals(str)) {
+        for(i:=self.len; i>=len; i--) {
+            if(self.subString(i-len, i).equals(str)) {
                 count2++;
                 if(count2 == count) {
                     result = i-1;
@@ -933,7 +933,7 @@ class String
                                     throw Exception("unexpected error at String.indexOf");
                                 }
                                 else {
-                                    p += size.to_ulong;
+                                    p += size;
                                 }
 
                                 utf32_offset++;
@@ -974,19 +974,6 @@ class String
         return self.indexOf(regex_, 1);
     }
 
-    def reverse(): String {
-        result:String = String(self.size);
-
-        for(i:int = 0; i<self.len; i++) {
-            result.buffer[i] = self.buffer[self.len-i-1];
-        }
-        result.buffer[i] = '\0';
-
-        result.len = self.len;
-
-        return result;
-    }
-
     def upperCase(): String {
         for(i:int = 0; i<self.len; i++) {
             self.buffer[i] = self.buffer[i].to_upper;
@@ -1021,6 +1008,19 @@ class String
         for(i:int = 0; i<value; i++) {
             result.append(self);
         }
+
+        return result;
+    }
+
+    def reverse(): String {
+        result:String = String(self.size);
+
+        for(i:int = 0; i<self.len; i++) {
+            result.buffer[i] = self.buffer[self.len-i-1];
+        }
+        result.buffer[i] = '\0';
+
+        result.len = self.len;
 
         return result;
     }

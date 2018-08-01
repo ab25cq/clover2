@@ -53,7 +53,7 @@ module MArray
     }
 
     def each(block_:lambda(T)) {
-        for(i:int = 0; i<self.items.length; i++) {
+        for(i := 0; i<self.items.length; i++) {
             try {
                 block_(self.items[i]);
             } catch(e:Exception) {
@@ -716,6 +716,42 @@ module MList
         return self;
     }
 
+    def deleteWithRange(start:int, end:int):SELF<T> {
+        if(start < 0) {
+            start += self.number;
+        }
+        if(end < 0) {
+            end += self.number + 1;
+        }
+        if(start < 0) {
+            start = 0;
+        }
+        if(end > self.number) {
+            end = self.number;
+        }
+
+        if(start >= end || start >= self.number || end < 0) {
+            return SELF<T>();
+        }
+
+        new_list: SELF<T> = SELF<T>();
+
+        it :ListItem<T>? = self.head;
+        count:int = 0;
+
+        while(!it.identifyWith(null)) {
+            if(count < start || count >= end) {
+                new_list.add(it.item);
+            }
+            count++;
+            it = it.next;
+        }
+
+        self.setValue(new_list);
+
+        return new_list;
+    }
+
     def multiply(n:int):SELF<T> {
         result:SELF<T> = SELF<T>();
 
@@ -782,40 +818,6 @@ module MList
 
         while(!it.identifyWith(null)) {
             if(count >= start && count < end) {
-                new_list.add(it.item);
-            }
-            count++;
-            it = it.next;
-        }
-
-        return new_list;
-    }
-
-    def deleteWithRange(start:int, end:int):SELF<T> {
-        if(start < 0) {
-            start += self.number;
-        }
-        if(end < 0) {
-            end += self.number + 1;
-        }
-        if(start < 0) {
-            start = 0;
-        }
-        if(end > self.number) {
-            end = self.number;
-        }
-
-        if(start >= end || start >= self.number || end < 0) {
-            return SELF<T>();
-        }
-
-        new_list: SELF<T> = SELF<T>();
-
-        it :ListItem<T>? = self.head;
-        count:int = 0;
-
-        while(!it.identifyWith(null)) {
-            if(count < start || count >= end) {
                 new_list.add(it.item);
             }
             count++;
