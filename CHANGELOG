@@ -1,4 +1,12 @@
 
+version 4.7.8
+
+    REPLのバグを修正。
+
+version 4.7.8
+
+    Fixed bug of REPL.
+
 version 4.7.7
 
     モジュールのSELFとGenericsの関係のバグを修正。

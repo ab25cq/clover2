@@ -1,4 +1,8 @@
 
+version 4.7.8
+
+    Fixed bug of REPL.
+
 version 4.7.7
 
     Fixed a bug in relation between module SELF and Generics.

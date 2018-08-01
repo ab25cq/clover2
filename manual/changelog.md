@@ -1,8 +1,12 @@
 English page is here [>> English page](changelog-en)
 
+version 4.7.8
+
+    REPLのバグを修正。
+
 version 4.7.7
 
-    Fixed a bug in relation between module SELF and Generics.
+    モジュールのSELFとGenericsの関係のバグを修正。
 
 version 4.7.6
 

@@ -2067,12 +2067,17 @@ static BOOL inputing_block_or_paren()
 
     BOOL squort = FALSE;
     BOOL dquort = FALSE;
+    BOOL regex = FALSE;
 
     while(*p) {
         if(*p == '\'') {
             p++;
 
             squort = !squort;
+        }
+        else if(*p == '/') {
+            p++;
+            regex = !regex;
         }
         else if(*p == '"') {
             p++;
@@ -2086,7 +2091,7 @@ static BOOL inputing_block_or_paren()
                 p++;
             }
         }
-        else if(dquort || squort) {
+        else if(dquort || squort || regex) {
             p++;
         }
         else if(*p == '{') {
@@ -2447,7 +2452,7 @@ static void compiler_final()
 
 int gARGC;
 char** gARGV;
-char* gVersion = "4.7.7";
+char* gVersion = "4.7.8";
 
 char gScriptDirPath[PATH_MAX];
 BOOL gRunningCompiler = FALSE;
