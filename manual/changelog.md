@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 4.7.7
+
+    Fixed a bug in relation between module SELF and Generics.
+
 version 4.7.6
 
     System.mvprintw(y:int, x:int, str:String) を加えました。

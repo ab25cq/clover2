@@ -236,6 +236,8 @@ class System
 
 class termios
 {
+    include MObjectBase;
+
     c_iflag:tcflag_t;
     c_oflag:tcflag_t;
     c_cflag:tcflag_t;
@@ -268,6 +270,8 @@ class termios
 
 class Job
 {
+    include MObjectBase;
+
     title:String;
     pgrp:pid_t;
     terminfo:termios;
@@ -359,6 +363,8 @@ class Clover
 
 dynamic_class Command
 {
+    include MObjectBase;
+
     data:String;
     resultCode:int;
 

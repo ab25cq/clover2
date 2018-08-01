@@ -2,6 +2,8 @@ include "Thread.clcl"
 
 class PcreOVec
 {
+    include MObjectBase;
+
     start:int[];
     end:int[];
 
@@ -1091,6 +1093,8 @@ class String
 
 class Buffer
 {
+    include MObjectBase;
+
     buffer:pointer;
     len:size_t;
     size:size_t;

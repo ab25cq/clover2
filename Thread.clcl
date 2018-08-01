@@ -111,6 +111,7 @@ class System
 
 class Thread 
 {
+    include MObjectBase;
     typedef pthread_t ulong;
 
     thread_id:pthread_t;
@@ -142,6 +143,7 @@ class Thread
 
 class Mutex 
 {
+    include MObjectBase;
     mutex: pthread_mutex_t;
     attr: pthread_mutexattr_t;
 

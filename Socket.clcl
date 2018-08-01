@@ -2,6 +2,8 @@ include "CGI.clcl"
 
 class sockaddr
 {
+    include MObjectBase;
+
     sa_family: int;
     sa_data: String;
 
@@ -22,6 +24,8 @@ class sockaddr
 
 class sockaddr_un
 {
+    include MObjectBase;
+
     sun_family: int;
     sun_path: String;
 
@@ -42,6 +46,8 @@ class sockaddr_un
 
 class in_addr
 {
+    include MObjectBase;
+
     typedef in_addr_t uint;
 
     s_addr:in_addr_t;
@@ -57,6 +63,8 @@ class in_addr
 
 class sockaddr_in
 {
+    include MObjectBase;
+
     sin_family: int;
     sin_addr: in_addr;
     sin_port: int;
@@ -80,6 +88,8 @@ class sockaddr_in
 
 class servent 
 {
+    include MObjectBase;
+
     s_name:String;
     s_aliases: String[];
     s_port:int;
@@ -110,6 +120,8 @@ class servent
 
 class hostent
 {
+    include MObjectBase;
+
     h_name:String;
     h_aliases:String[];
     h_addrtype:int;

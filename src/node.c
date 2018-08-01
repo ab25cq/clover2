@@ -9921,7 +9921,7 @@ BOOL compile_block_call(unsigned int node, sCompileInfo* info)
     }
 
     if(num_params != var_type->mBlockType->mNumParams) {
-        compile_err_msg(info, "Type error for block call");
+        compile_err_msg(info, "Type error for block call(1)");
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
@@ -9946,13 +9946,13 @@ BOOL compile_block_call(unsigned int node, sCompileInfo* info)
             }
 
             if(!substitution_posibility(left_type, right_type, generics_types, NULL, method_generics_types, method_generics_types)) {
-                compile_err_msg(info, "Type error for block call");
+                compile_err_msg(info, "Type error for block call(2) left type is %s. right type is %s. Generics type number of left type is %d. Genrics type number of right type is %d", CLASS_NAME(left_type->mClass), CLASS_NAME(right_type->mClass), left_type->mNumGenericsTypes, right_type->mNumGenericsTypes);
                 info->err_num++;
             }
         }
         else {
             if(!substitution_posibility(left_type, right_type, NULL, NULL, NULL, NULL)) {
-                compile_err_msg(info, "Type error for block call");
+                compile_err_msg(info, "Type error for block call(3)");
                 info->err_num++;
             }
         }

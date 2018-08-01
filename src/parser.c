@@ -1728,6 +1728,8 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
         return FALSE;
     }
 
+    int generics_num = 0;
+
     int i;
     for(i=0; i<info->method_generics_info.mNumParams; i++) {
         if(strcmp(type_name, info->method_generics_info.mParamNames[i]) == 0) {
@@ -1746,6 +1748,16 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
     if(*result_type == NULL) {
         if(strcmp(type_name, "SELF") == 0) {
             *result_type = create_node_type_with_class_pointer(info->klass);
+
+
+            if(*info->p != '<') {
+                int i;
+                for(i=0; i< info->generics_info.mNumParams; i++) {
+                    (*result_type)->mGenericsTypes[i] = create_node_type_with_class_pointer(info->generics_info.mInterface[i]);
+                }
+
+                generics_num = info->generics_info.mNumParams;
+            }
         }
         else {
             *result_type = create_node_type_with_class_name(type_name);
@@ -1780,8 +1792,6 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
         parser_err_msg(info, "%s is not defined class", type_name);
         info->err_num++;
     }
-
-    int generics_num = 0;
 
     if(strcmp(type_name, "lambda") == 0) {
         sNodeBlockType* node_block_type = alloc_node_block_type();
@@ -1916,6 +1926,7 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
     if(info->err_num == 0) {
         sCLClass* klass = (*result_type)->mClass;
 
+        int i;
         for(i=0; i<generics_num; i++) {
             sCLClass* left_type = get_class_with_load_and_initialize(CONS_str(&klass->mConst, klass->mGenericsParamTypeOffsets[i]));
 
@@ -1962,9 +1973,20 @@ BOOL parse_type_for_new(sNodeType** result_type, unsigned int* array_num, sParse
         }
     }
 
+    int generics_num = 0;
+
     if(*result_type == NULL) {
         if(strcmp(type_name, "SELF") == 0) {
             *result_type = create_node_type_with_class_pointer(info->klass);
+
+            if(*info->p != '<') {
+                int i;
+                for(i=0; i< info->generics_info.mNumParams; i++) {
+                    (*result_type)->mGenericsTypes[i] = create_node_type_with_class_pointer(info->generics_info.mInterface[i]);
+                }
+
+                generics_num = info->generics_info.mNumParams;
+            }
         }
         else {
             *result_type = create_node_type_with_class_name(type_name);
@@ -1978,8 +2000,6 @@ BOOL parse_type_for_new(sNodeType** result_type, unsigned int* array_num, sParse
     }
 
     *array_num = 0;
-
-    int generics_num = 0;
 
     if(type_identify_with_class_name(*result_type, "lambda")) {
         if(*info->p == '[') {

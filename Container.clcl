@@ -157,6 +157,7 @@ module MEqualableArray
 class Array<T:Object>
 {
     include MArray;
+    include MObjectBase;
 
     def clone():Array<T> {
         result := Array<T>();
@@ -227,6 +228,7 @@ class EqualableArray <T:IEqualable>
 {
     include MArray;
     include MEqualableArray;
+    include MObjectBase;
 
     def toArray():Array<T> {
         return Array<T>(self.items.toAnonymous());
@@ -259,6 +261,7 @@ class SortableArray <T:ISortable>
 {
     include MArray;
     include MEqualableArray;
+    include MObjectBase;
 
     def equals(right:SortableArray<T>):bool {
         if(right.is("WildCard")) {
@@ -1346,6 +1349,7 @@ class HashItem <T:IHashKey, T2:IEqualable>
 {
     key:T?;
     item:T2?;
+    include MObjectBase;
 
     def initialize() {
         self.key = null;
@@ -1371,6 +1375,8 @@ class HashItem <T:IHashKey, T2:IEqualable>
 
 class Hash <T:IHashKey, T2:IEqualable>
 {
+    include MObjectBase;
+
     hashSizeDefault: static int;
 
     def initialize():static {
@@ -1581,6 +1587,8 @@ class Hash <T:IHashKey, T2:IEqualable>
 
 class Tuple1 <T:IEqualable>
 {
+    include MObjectBase;
+
     value1: T;
 
     def initialize() {}
@@ -1619,6 +1627,8 @@ class Tuple1 <T:IEqualable>
 
 class Tuple2 <T:IEqualable, T2:IEqualable>
 {
+    include MObjectBase;
+
     value1: T;
     value2: T2;
 
@@ -1662,6 +1672,8 @@ class Tuple2 <T:IEqualable, T2:IEqualable>
 
 class Tuple3 <T:IEqualable, T2:IEqualable, T3:IEqualable>
 {
+    include MObjectBase;
+
     value1: T;
     value2: T2;
     value3: T3;
@@ -1710,6 +1722,8 @@ class Tuple3 <T:IEqualable, T2:IEqualable, T3:IEqualable>
 
 class Tuple4 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable>
 {
+    include MObjectBase;
+
     value1: T;
     value2: T2;
     value3: T3;
@@ -1762,6 +1776,8 @@ class Tuple4 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable>
 
 class Tuple5 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqualable>
 {
+    include MObjectBase;
+
     value1: T;
     value2: T2;
     value3: T3;
@@ -1818,6 +1834,8 @@ class Tuple5 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqu
 
 class Tuple6 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqualable, T6:IEqualable>
 {
+    include MObjectBase;
+
     value1: T;
     value2: T2;
     value3: T3;
@@ -1880,6 +1898,8 @@ class Tuple6 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqu
 
 class Tuple7 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqualable, T6:IEqualable, T7:IEqualable>
 {
+    include MObjectBase;
+
     value1: T;
     value2: T2;
     value3: T3;
@@ -1947,6 +1967,8 @@ class Tuple7 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqu
 
 class Tuple8 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqualable, T6:IEqualable, T7:IEqualable, T8:IEqualable>
 {
+    include MObjectBase;
+
     value1: T;
     value2: T2;
     value3: T3;
@@ -2018,6 +2040,8 @@ class Tuple8 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqu
 
 class Tuple9 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqualable, T6:IEqualable, T7:IEqualable, T8:IEqualable, T9:IEqualable>
 {
+    include MObjectBase;
+
     value1: T;
     value2: T2;
     value3: T3;
@@ -2094,6 +2118,8 @@ class Tuple9 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqu
 
 class Tuple10 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqualable, T6:IEqualable, T7:IEqualable, T8:IEqualable, T9:IEqualable, T10:IEqualable>
 {
+    include MObjectBase;
+
     value1: T;
     value2: T2;
     value3: T3;

@@ -44,7 +44,7 @@ static void set_signal()
 
 int gARGC;
 char** gARGV;
-char* gVersion = "4.7.6";
+char* gVersion = "4.7.7";
 BOOL gCompilingCore = FALSE;
 
 char gScriptDirPath[PATH_MAX];

@@ -168,6 +168,8 @@ class System
 
 class tm
 {
+    include MObjectBase;
+
     tm_sec:int;
     tm_min:int;
     tm_hour:int;
@@ -281,6 +283,8 @@ class tm
 
 class stat
 {
+    include MObjectBase;
+
     st_dev:dev_t;
     st_mode:mode_t;
     st_uid:uid_t;
@@ -405,6 +409,8 @@ class String
 
 class File
 {
+    include MObjectBase;
+
     fd:int;
     fileName:String?;
     stream:pointer?@FILE;
@@ -574,6 +580,8 @@ class File
 
 class Path 
 {
+    include MObjectBase;
+
     path: delegate String;
 
     def initialize() {}
@@ -736,6 +744,8 @@ class Global
 
 class Directory 
 {
+    include MObjectBase;
+
     path:String;
     dir:DIR;
 

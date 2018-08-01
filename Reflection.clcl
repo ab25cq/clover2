@@ -415,6 +415,8 @@ class Clover
 
 class Field
 {
+    include MObjectBase;
+
     flags:long;
     name:String;
     resultType:String;
@@ -447,6 +449,8 @@ class Field
 
 class MethodParam
 {
+    include MObjectBase;
+
     name:String;
     type:String;
 
@@ -468,6 +472,8 @@ class MethodParam
 
 class Method
 {
+    include MObjectBase;
+
     flags:long;
     name:String;
     path:String;
@@ -529,6 +535,8 @@ class Method
 
 class Class
 {
+    include MObjectBase;
+
     className:String;
     flags:long;
     genericsParamTypes:String[];
