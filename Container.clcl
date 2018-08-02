@@ -424,6 +424,16 @@ module MList
         self.number = list.number;
     }
 
+    def clone():SELF<T> {
+        result:SELF<T> = SELF<T>();
+        it :ListItem<T>? = self.head;
+        while(!it.identifyWith(null)) {
+            result.add(it.item);
+            it = it.next;
+        }
+        return result;
+    }
+
     def length():int {
         return self.number;
     }
@@ -749,7 +759,7 @@ module MList
 
         self.setValue(new_list);
 
-        return new_list;
+        return self;
     }
 
     def multiply(n:int):SELF<T> {
@@ -760,6 +770,12 @@ module MList
         }
 
         return result;
+    }
+
+    def multiplyWithSelf(n:int):SELF<T> {
+        result := multiply(n);
+        setValue(result);
+        return self;
     }
 
     def select(block_:lambda(T):bool):SELF<T> {
@@ -783,14 +799,10 @@ module MList
         return new_list;
     }
 
-    def clone():SELF<T> {
-        result:SELF<T> = SELF<T>();
-        it :ListItem<T>? = self.head;
-        while(!it.identifyWith(null)) {
-            result.add(it.item);
-            it = it.next;
-        }
-        return result;
+    def selectWithSelf(block_:lambda(T):bool):SELF<T> {
+        result := select(block_);
+        setValue(result);
+        return self;
     }
 
     def subList(start:int, end:int):SELF<T> {
@@ -825,6 +837,12 @@ module MList
         }
 
         return new_list;
+    }
+
+    def subListWithSelf(start:int, end:int):SELF<T> {
+        result := subList(start, end);
+        self.setValue(result);
+        return self;
     }
 
     def fill(start:int, end:int, item:T):SELF<T> {
@@ -866,6 +884,16 @@ module MList
     def fill(item:T):SELF<T> {
         return self.fill(0,-1,item);
     }
+    def fillWithSelf(start:int, end:int, item:T):SELF<T> {
+        result := fill(start, end, item);
+        setValue(result);
+        return result;
+    }
+    def fillWithSelf(item:T):SELF<T> {
+        result := fill(item);
+        setValue(result);
+        return self;
+    }
 
     def reverse():SELF<T> {
         result:SELF<T> = SELF<T>();
@@ -878,6 +906,12 @@ module MList
         }
 
         return result;
+    }
+
+    def reverseWithSelf():SELF<T> {
+        result := reverse();
+        self.setValue(result);
+        return self;
     }
 
     def shuffle():SELF<T> {
@@ -895,6 +929,11 @@ module MList
         }
 
         return result;
+    }
+    def shuffleWithSelf():SELF<T> {
+        result := shuffle();
+        self.setValue(result);
+        return self;
     }
 }
 

@@ -1,4 +1,14 @@
 
+version 4.8.0
+
+    Added List.multiplyWithSelf(n:Int):SELF<T>;
+    Added List.selectWithSelf(block_:lambda(T):bool):SELF<T>;
+    Added List.subListWithSelf(start:int, end:int):SELF<T>;
+    Added List.fillWithSelf(start:int, end:int, item:T):SELF<T>;
+    Added List.fillWithSelf(item:T):SELF<T>;
+    Added List.reverseWithSelf():SELF<T>;
+    Added List.shuffleWithSelf():SELF<T>;
+
 version 4.7.9
 
     List.deleteWithRange, EqualableList.deleteWithRange, SortableList.deleteWithRange have changed inner stat.
