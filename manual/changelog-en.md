@@ -1,4 +1,8 @@
 
+version 4.8.1
+
+    Fixed a bug that caused a bug in the creation of clone method by reflection and the test did not work with JIT.
+
 version 4.8.0
 
     Added List.multiplyWithSelf(n:Int):SELF<T>;

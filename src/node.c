@@ -5395,7 +5395,14 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
         }
 
         if(!substitution_posibility(result_type2, value_result_type, NULL, NULL, NULL, NULL)) {
-            compile_err_msg(info, "Invalid type of return value(2). Left type is %s. Right type is %s.", CLASS_NAME(result_type2->mClass), CLASS_NAME(value_result_type->mClass));
+            compile_err_msg(info, "Invalid type of return value(2). Left type is %s. Left generics number %d. Right type is %s. right generics number %d.", CLASS_NAME(result_type2->mClass), result_type2->mNumGenericsTypes, CLASS_NAME(value_result_type->mClass), value_result_type->mNumGenericsTypes);
+            int i;
+            for(i=0; i<result_type2->mNumGenericsTypes; i++) {
+                compile_err_msg(info, "Left generics type[%d] is %s. nullable %d", i, CLASS_NAME(result_type2->mGenericsTypes[i]->mClass), result_type2->mGenericsTypes[i]->mNullable);
+            }
+            for(i=0; i<value_result_type->mNumGenericsTypes; i++) {
+                compile_err_msg(info, "Right generics type[%d] is %s nullable %d", i, CLASS_NAME(value_result_type->mGenericsTypes[i]->mClass), value_result_type->mGenericsTypes[i]->mNullable);
+            }
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int"); // dummy

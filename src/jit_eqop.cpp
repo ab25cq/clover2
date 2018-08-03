@@ -144,7 +144,7 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             *rvalue = trunc_value(rvalue, 32);
 
             LVALUE llvm_value;
-            llvm_value.value = Builder.CreateICmpNEQ(lvalue->value, rvalue->value, "not_eqtmp");
+            llvm_value.value = Builder.CreateICmpNE(lvalue->value, rvalue->value, "not_eqtmp");
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt1;

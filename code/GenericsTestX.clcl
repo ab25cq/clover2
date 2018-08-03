@@ -3,6 +3,7 @@ class GenericsTestX
     field:EqualableList<EqualableList<String>>;
 
     def initialize() {
+        a := "AAA";
 #        field := EqualableList<EqualableList<String>>();
     }
 }

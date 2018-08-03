@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 4.8.1
+
+    リフレクションによるcloneメソッドの作成にバグがありJITでテストが動かないバグを修正。
+
 version 4.8.0
 
     Added List.multiplyWithSelf(n:Int):SELF<T>;

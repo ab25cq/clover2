@@ -1,4 +1,8 @@
 
+clover2 (4.8.1-1) unstable; urgency=medium
+
+    * Fixed a bug that caused a bug in the creation of clone method by reflection and the test did not work with JIT.
+
 clover2 (4.8.0-1) unstable; urgency=medium
 
     * Added List.multiplyWithSelf(n:Int):SELF<T>; Added List.selectWithSelf(block_:lambda(T):bool):SELF<T>; Added List.subListWithSelf(start:int, end:int):SELF<T>; Added List.fillWithSelf(start:int, end:int, item:T):SELF<T>; Added List.fillWithSelf(item:T):SELF<T>; Added List.reverseWithSelf():SELF<T>; Added List.shuffleWithSelf():SELF<T>;
