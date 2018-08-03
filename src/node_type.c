@@ -388,9 +388,11 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_
         if(left3->mClass == right3->mClass && left3->mArray == right3->mArray && left3->mNumGenericsTypes == right3->mNumGenericsTypes) {
             int i;
             for(i=0; i<left3->mNumGenericsTypes; i++) {
+/*
                 if(type_identify_with_class_name(right3->mGenericsTypes[i], "Null") && !left3->mNullable) {  // prevent unintended
                     return FALSE;
                 }
+*/
                 if(!substitution_posibility(left3->mGenericsTypes[i], right3->mGenericsTypes[i], left_generics_types, right_generics_types, left_method_generics, right_method_generics))
                 {
                     return FALSE;
