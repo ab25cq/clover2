@@ -1,0 +1,12 @@
+println("BBB");
+
+__BEGIN__
+
+println("AAA");
+
+__END__
+
+
+class ClassXXX
+{
+}

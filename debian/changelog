@@ -1,4 +1,8 @@
 
+clover2 (4.8.2-1) unstable; urgency=medium
+
+    ___ BEGIN___, ___END___ enclosed sources are now executed before compiling, when compiling classes.
+
 clover2 (4.8.1-1) unstable; urgency=medium
 
     * Fixed a bug that caused a bug in the creation of clone method by reflection and the test did not work with JIT.

@@ -1,4 +1,14 @@
 
+version 4.8.2
+
+    __BEGIN___, ___END___で囲ったソースがクラスのコンパイル時、コンパイル前に実行されるようになりました。
+
+version 4.8.2
+
+    ___ BEGIN___, ___END___ enclosed sources are now executed before compiling, when compiling classes.
+
+version 4.8.2
+
 version 4.8.1
 
     リフレクションによるcloneメソッドの作成にバグがありJITでテストが動かないバグを修正。

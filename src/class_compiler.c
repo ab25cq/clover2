@@ -1684,6 +1684,22 @@ static BOOL parse_class_source(sParserInfo* info, sCompileInfo* cinfo)
                 return FALSE;
             }
         }
+        else if(strcmp(buf, "__BEGIN__") == 0) {
+            while(*info->p) {
+                if(*info->p == '_' && *(info->p+1) == '_' && *(info->p+2) == 'E' && *(info->p+3) == 'N' && *(info->p + 4) == 'D' && *(info->p + 5) == '_' && *(info->p + 6) == '_')
+                {
+                    info->p += 7;
+                    break;
+                }
+                else if(*info->p == '\n') {
+                    info->sline++;
+                    info->p++;
+                }
+                else {
+                    info->p++;
+                }
+            }
+        }
         else {
             info->p = p_before;
 
@@ -1763,6 +1779,97 @@ BOOL call_compile_time_script_method_on_declare()
     return TRUE;
 }
 
+static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* stack, int sline)
+{
+    sParserInfo info;
+
+    memset(&info, 0, sizeof(sParserInfo));
+
+    info.p = source;
+    info.source = source;
+    info.sname = fname;
+    info.sline = sline;
+    info.lv_table = lv_table;
+    info.parse_phase = 0;
+    info.get_type_for_interpreter = FALSE;
+
+    sCompileInfo cinfo;
+    
+    memset(&cinfo, 0, sizeof(sCompileInfo));
+
+    sByteCode code;
+    sByteCode_init(&code);
+    cinfo.code = &code;
+
+    sConst constant;
+    sConst_init(&constant);
+    cinfo.constant = &constant;
+
+    cinfo.lv_table = lv_table;
+    cinfo.no_output = FALSE;
+    cinfo.pinfo = &info;
+
+    info.cinfo = &cinfo;
+
+    while(*info.p) {
+        unsigned int node = 0;
+
+        info.next_command_is_to_bool = FALSE;
+        info.exist_block_object_err = FALSE;
+
+        if(!expression(&node, &info)) {
+            return FALSE;
+        }
+
+        cinfo.sname = gNodes[node].mSName;
+        cinfo.sline = gNodes[node].mLine;
+
+        if(info.err_num == 0 && node != 0) {
+            append_opecode_to_code(cinfo.code, OP_HEAD_OF_EXPRESSION, cinfo.no_output);
+
+            append_opecode_to_code(cinfo.code, OP_MARK_SOURCE_CODE_POSITION, cinfo.no_output);
+            append_str_to_constant_pool_and_code(cinfo.constant, cinfo.code, cinfo.sname, cinfo.no_output);
+            append_int_value_to_code(cinfo.code, cinfo.sline, cinfo.no_output);
+
+            if(!compile(node, &cinfo)) {
+                return FALSE;
+            }
+
+            arrange_stack(&cinfo);
+        }
+
+        if(*info.p == ';') {
+            info.p++;
+            skip_spaces_and_lf(&info);
+        }
+    }
+
+    if(info.err_num > 0 || cinfo.err_num > 0) {
+        fprintf(stderr, "Parser error number is %d. Compile error number is %d\n", info.err_num, cinfo.err_num);
+        return FALSE;
+    }
+
+    int var_num = get_var_num(info.lv_table);
+
+    sVMInfo vinfo;
+    memset(&vinfo, 0, sizeof(sVMInfo));
+
+    vinfo.running_class_name = "none";
+    vinfo.running_method_name = "eval_str";
+
+    vm_mutex_on();
+
+    if(!vm(&code, &constant, stack, var_num, NULL, &vinfo)) {
+        vm_mutex_off();
+
+        return FALSE;
+    }
+
+    vm_mutex_off(); // see OP_RETURN
+
+    return TRUE;
+}
+
 BOOL compile_class_source(char* fname, char* source)
 {
     sParserInfo info;
@@ -1815,6 +1922,62 @@ BOOL compile_class_source(char* fname, char* source)
             cinfo.type = result_type;
         }
     }
+
+    sBuf precompile_source;
+    sBuf_init(&precompile_source);
+
+    char* p = source;
+
+    int sline = 1;
+
+    while(*p) {
+        if(*p == '\n') {
+            p++;
+            sline++;
+        }
+        else if(*p == '_' && *(p+1) == '_' && *(p+2) == 'B' && *(p+3) == 'E' && *(p + 4) == 'G' && *(p + 5) == 'I' && *(p + 6) == 'N' && *(p + 7) == '_' && *(p + 8) == '_')
+        {
+            p += 9;
+
+            while(*p) {
+                if(*p == '_' && *(p+1) == '_' && *(p+2) == 'E' && *(p+3) == 'N' && *(p + 4) == 'D' && *(p + 5) == '_' && *(p + 6) == '_')
+                {
+                    p += 7;
+                    break;
+                }
+                else {
+                    sBuf_append_char(&precompile_source, *p);
+                    p++;
+                }
+            }
+
+            break;
+        }
+        else {
+            p++;
+        }
+    }
+
+    sBuf_append_char(&precompile_source, '\0');
+
+    char* source2 = precompile_source.mBuf;
+
+    if(strcmp(source2, "") != 0 && !gCompilingCore) {
+        call_all_class_initializer();
+
+        sVarTable* lv_table = init_var_table();
+        int stack_size = 512;
+        CLVALUE* stack = MCALLOC(1, sizeof(CLVALUE)*stack_size);
+
+        if(!eval_str(source2, fname, lv_table, stack, sline)) {
+            MFREE(stack);
+            MFREE(precompile_source.mBuf);
+            return FALSE;
+        }
+        MFREE(stack);
+    }
+
+    MFREE(precompile_source.mBuf);
 
     int i;
     for(i=PARSE_PHASE_ALLOC_CLASSES; i<PARSE_PHASE_MAX; i++) {

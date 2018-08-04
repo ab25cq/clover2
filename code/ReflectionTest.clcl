@@ -1,4 +1,22 @@
 
+__BEGIN__
+
+Clover.appendClass(
+    """
+    class ReflectionD
+    {
+        field: String;
+
+        def initialize() {
+            field = "ABC";
+        }
+    }
+    """
+);
+
+__END__
+
+
 println("HELLO COMPILE SCRIPT");
 
 class ReflectionA {
@@ -32,6 +50,10 @@ class ReflectionTest
     def main():static {
         a := new ReflectionA();
         Clover.test("refelection test", a.a == 123);
+
+        b := ReflectionD();
+
+        Clover.test("reflection test2", b.field.equals("ABC"));
     }
 }
 
