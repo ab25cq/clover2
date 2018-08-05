@@ -9,7 +9,7 @@ class NullTest {
         Clover.test("null test2", b.identifyWith(null));
     }
     def main2():static {
-        fields:EqualableList<String> = "#####aaaaaa".chomp().split(/:/);
+        fields := "#####aaaaaa".chomp().split(/:/);
 
         print("null pointer exception check...");
         try {

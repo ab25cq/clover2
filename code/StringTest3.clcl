@@ -107,5 +107,8 @@ class StringTest3 {
         Clover.test("String test-a6", "012345012345012345".rindexOf("3", 2) == 9);
         Clover.test("String test-a7", "012345012345012345".rindexOf("0", 3) == 0);
         Clover.test("String test-a8", "012345012345012345".rindexOf("5") == 17);
+
+        Clover.test("String test-a9", "ABC".next().equals("ABD"));
+        Clover.test("String test-a9", "ABC".prev().equals("ABB"));
     }
 }

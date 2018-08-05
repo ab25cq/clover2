@@ -4,5 +4,7 @@ class RangeTest
         Clover.test("Range Test", (1..2).equals(1..2));
         Clover.test("Range Test2", "ABCDEFGHI".subString(1..3).equals("BC"));
         Clover.test("Range Test3", slist{1,2,3,4,5}.subList(1..3).equals(slist{2,3}));
+
+        Clover.test("Range Test4", (1..11).toSortableList().sum() == 55);
     }
 }

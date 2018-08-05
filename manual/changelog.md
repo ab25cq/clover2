@@ -1,5 +1,13 @@
 English page is here [>> English page](changelog-en)
 
+version 4.8.3
+
+    各種基礎クラスにadd,next,prevメソッドを追加。ISortableインターフェスにaddメソッドを追加。IIteratorableインターフェースを追加。RangeクラスのGenerics引数インターフェースはIIteratorableになりました。RangeクラスはIIteratorableインターフェースを満たさないといけません。ソースの変更が必要となります。その代わり"A".."D"などが動きます。SortableListクラスにsumメソッドを追加。RangeクラスにtoList(),toEqualableList(),toSortableList()メソッドを追加。String.clclの主要なメソッドの戻り値や引数がEqualableListからSortableListに変更されています。Stringを使ったコードで引数の戻り値の型をEqualableList<String>に指定していた場合ソースの変更が必要となります。すみません。
+
+version 4.8.2
+
+    __BEGIN___, ___END___で囲ったソースがクラスのコンパイル時、コンパイル前に実行されるようになりました。
+
 version 4.8.1
 
     リフレクションによるcloneメソッドの作成にバグがありJITでテストが動かないバグを修正。

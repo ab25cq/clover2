@@ -20,7 +20,7 @@ class StringTest2 {
         Clover.test("string2 tset7", "ABC".match(/^A/) && "ABC".match(/C$/) && "ABC".match(/B/));
 */
 
-        group_strings3:EqualableList<String> = new EqualableList<String>();
+        group_strings3 := SortableList<String>();
         #Clover.test("string2 test8", "ABC".match(/^A(.)C/, group_strings3) && group_strings3.length() == 1 && group_strings3.items(0).equals("B"));
         Clover.test("string2 test8", "ABC".match(/^A(.)C/, group_strings3) && group_strings3.length() == 1 && group_strings3.items(0).equals("B"));
 

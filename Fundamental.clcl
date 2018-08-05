@@ -120,10 +120,10 @@ class String
         }
 
         if(index >= 0 && index < self.len) {
-            return self.buffer[index];
+            return self.buffer[index].toChar;
         }
         else {
-            throw Exception("Invalid range on String.chars");
+            throw Exception("Out of range in String.char");
         }
     }
 
@@ -408,6 +408,18 @@ module MOperand
     def or(right:SELF): SELF {
         return self | right;
     }
+
+    def next(): SELF {
+        result := self.clone();
+        result.value++;
+        return result;
+    }
+
+    def prev(): SELF {
+        result := self.clone();
+        result.value--;
+        return result;
+    }
 }
 
 module MOperandFloat
@@ -426,6 +438,18 @@ module MOperandFloat
 
     def divide(right:SELF): SELF {
         return self / right;
+    }
+
+    def next(): SELF {
+        result := self.clone();
+        result.value = result.value + 1;
+        return result;
+    }
+
+    def prev(): SELF {
+        result := self.clone();
+        result.value = result.value - 1;
+        return result;
     }
 }
 
@@ -546,9 +570,11 @@ class UShort : unboxing ushort
     include MObjectBase;
     include MOperand;
 
+/*
     def add(right:UShort): UShort {
         return self.to_ushort() + right.to_ushort();
     }
+*/
 
     value:ushort;
 
@@ -903,6 +929,18 @@ class Char : unboxing char
             result.append(self.value);
         }
         
+        return result;
+    }
+
+    def prev():Char {
+        result := self.clone();
+        result.value--;
+        return result;
+    }
+
+    def next():Char {
+        result := self.clone();
+        result.value++;
         return result;
     }
 }

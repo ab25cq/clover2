@@ -431,6 +431,8 @@ sNodeType* create_node_type_with_generics_number(int generics_num);
 sNodeType* create_node_type_with_method_generics_number(int generics_num);
 sNodeType* create_node_type_from_cl_type(sCLType* cl_type, sCLClass* klass);
 sNodeType* create_node_type_with_class_pointer(sCLClass* klass);
+
+struct sParserInfoStruct;
 BOOL is_exception_type(sNodeType* exception_type);
 
 BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_generics_types, sNodeType* right_generics_types, sNodeType* left_method_generics, sNodeType* right_method_generics);
@@ -438,8 +440,7 @@ BOOL cast_posibility(sNodeType* left_type, sNodeType* right_type);
 BOOL substitution_posibility_with_class_name(sNodeType* left, char* right_class_name);
 BOOL operand_posibility_with_class_name(sNodeType* left, char* right_class_name, char* op_string);
 BOOL operand_posibility(sNodeType* left, sNodeType* right, char* op_string);
-BOOL solve_generics_types_for_node_type(sNodeType* node_type, ALLOC sNodeType** result, sNodeType* generics_type, BOOL solve_Self, BOOL solve_method_generics);
-struct sParserInfoStruct;
+BOOL solve_generics_types_for_node_type(sNodeType* node_type, ALLOC sNodeType** result, sNodeType* generics_type, BOOL solve_self, BOOL solve_method_generics);
 void solve_generics_for_variable_to_class(sCLClass* klass, sCLClass** result, struct sParserInfoStruct* info);
 void solve_method_generics_for_variable_to_class(sCLClass* klass, sCLClass** result, struct sParserInfoStruct* info);
 void solve_generics_for_variable(sNodeType* generics_type, sNodeType** generics_type2, struct sParserInfoStruct* info);
@@ -805,7 +806,7 @@ struct sCompileInfoStruct
     sVarTable* lv_table;
     BOOL no_output;
     int err_num;
-    sParserInfo* pinfo;
+    struct sParserInfoStruct* pinfo;
     sNodeType* type;
     int* num_break_points;
     int* break_points;
@@ -1852,7 +1853,7 @@ BOOL add_typedef_to_class(sCLClass* klass, char* class_name1, char* class_name2)
 BOOL add_class_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type, int initialize_value, char* header_path);
 void add_code_to_method(sCLMethod* method, sByteCode* code, int var_num);
 BOOL write_all_modified_classes();
-int search_for_method(sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, int start_point, sNodeType* left_generics_type, sNodeType* right_generics_type, sNodeType* right_method_generics, sNodeType** result_type, BOOL lazy_lambda_compile, BOOL lazy_labda_compile2, sNodeType** method_generics_types);
+int search_for_method(sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, int start_point, sNodeType* left_generics_type, sNodeType* right_generics_type, sNodeType* right_method_generics, sNodeType** result_type, BOOL lazy_lambda_compile, BOOL lazy_labda_compile2, sNodeType** method_generics_types, struct sParserInfoStruct* info);
 BOOL search_for_methods_from_method_name(int method_indexes[], int size_method_indexes, int* num_methods, sCLClass* klass, char* method_name, int start_point, BOOL class_method);
 int search_for_field(sCLClass* klass, char* field_name);
 int search_for_class_field(sCLClass* klass, char* field_name);

@@ -909,6 +909,12 @@ dynamic_class Command
         return self.data.equals(command.data);
     }
 
+    def add(value:Command):Command {
+        result := self.clone();
+        result.data.append(value.data);
+        return result;
+    }
+
     def compare(command:Command): int {
         return self.data.compare(command.data);
     }

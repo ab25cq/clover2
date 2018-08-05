@@ -375,7 +375,7 @@ class stat
         result := "";
 
         p"/etc/passwd".read().toString().split(/\n/).each(closure(line:String) {
-            fields:EqualableList<String> = line.chomp().split(/:/);
+            fields := line.chomp().split(/:/);
             
             if(fields.length() > 2 && fields.items(2).to_int() == self.st_uid) {
                 result = fields.items(0);
@@ -389,7 +389,7 @@ class stat
         result := "";
 
         p"/etc/group".read().toString().split(/\n/).each(closure(line:String) {
-            fields:EqualableList<String> = line.chomp().split(/:/);
+            fields := line.chomp().split(/:/);
 
             if(fields.length() > 2 && fields.items(2).to_int() == self.st_gid) {
                 result = fields.items(0);
@@ -625,6 +625,12 @@ class Path
     }
     def compare(item:Path): int {
         return self.path.compare(item.path);
+    }
+
+    def add(right:Path): Path {
+        result := self.clone();
+        result.path.append(right.path);
+        return result;
     }
 
     def realpath():Path throws Exception {

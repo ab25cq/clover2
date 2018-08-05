@@ -511,7 +511,7 @@ static BOOL search_for_class_file_on_compile_time(char* class_name, char* class_
     return FALSE;
 }
 
-static BOOL check_method_params(sCLMethod* method, sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, sNodeType* left_generics_type, sNodeType* right_generics_type, sNodeType* left_method_generics, sNodeType* right_method_generics, sNodeType* method_generics_types, BOOL lazy_lambda_compile)
+static BOOL check_method_params(sCLMethod* method, sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, sNodeType* left_generics_type, sNodeType* right_generics_type, sNodeType* left_method_generics, sNodeType* right_method_generics, sNodeType* method_generics_types, BOOL lazy_lambda_compile, struct sParserInfoStruct* info)
 {
     if(strcmp(METHOD_NAME2(klass, method), method_name) == 0) 
     {
@@ -566,7 +566,7 @@ static sNodeType* get_method_genercs_from_method(sCLClass* klass, sCLMethod* met
     return result;
 }
 
-int search_for_method(sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, int start_point, sNodeType* left_generics_type, sNodeType* right_generics_type, sNodeType* right_method_generics, sNodeType** result_type, BOOL lazy_lambda_compile, BOOL lazy_lambda_compile2, sNodeType** method_generics_types)
+int search_for_method(sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, int start_point, sNodeType* left_generics_type, sNodeType* right_generics_type, sNodeType* right_method_generics, sNodeType** result_type, BOOL lazy_lambda_compile, BOOL lazy_lambda_compile2, sNodeType** method_generics_types, struct sParserInfoStruct* info)
 {
     int i;
     if(*method_generics_types == NULL) {
@@ -583,7 +583,7 @@ int search_for_method(sCLClass* klass, char* method_name, sNodeType** param_type
                 right_method_generics = *method_generics_types;
             }
 
-            if(check_method_params(method, klass, method_name, param_types, num_params, search_for_class_method, left_generics_type, right_generics_type, left_method_generics, right_method_generics, *method_generics_types, lazy_lambda_compile))
+            if(check_method_params(method, klass, method_name, param_types, num_params, search_for_class_method, left_generics_type, right_generics_type, left_method_generics, right_method_generics, *method_generics_types, lazy_lambda_compile, info))
             {
                 sNodeType* result_type2 = ALLOC create_node_type_from_cl_type(method->mResultType, klass);
 

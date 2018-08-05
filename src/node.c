@@ -1410,7 +1410,7 @@ static BOOL compile_cbyte_value(unsigned int node, sCompileInfo* info)
 
         sNodeType* result_type;
         sNodeType* result_method_generics_types = NULL;
-        int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types);
+        int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types, info->pinfo);
 
         if(method_index == -1) {
             compile_err_msg(info, "method not found(11)");
@@ -1523,7 +1523,7 @@ static BOOL compile_cfloat_value(unsigned int node, sCompileInfo* info)
 
         sNodeType* result_type;
         sNodeType* result_method_generics_types = NULL;
-        int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types);
+        int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types, info->pinfo);
 
         if(method_index == -1) {
             compile_err_msg(info, "method not found(12)");
@@ -1636,7 +1636,7 @@ static BOOL compile_cdouble_value(unsigned int node, sCompileInfo* info)
 
         sNodeType* result_type;
         sNodeType* result_method_generics_types = NULL;
-        int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types);
+        int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types, info->pinfo);
 
         if(method_index == -1) {
             compile_err_msg(info, "method not found(13)");
@@ -1753,7 +1753,7 @@ static BOOL compile_cubyte_value(unsigned int node, sCompileInfo* info)
 
         sNodeType* result_type;
         sNodeType* result_method_generics_types = NULL;
-        int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types);
+        int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types, info->pinfo);
 
         if(method_index == -1) {
             compile_err_msg(info, "method not found(14)");
@@ -1870,7 +1870,7 @@ static BOOL compile_cshort_value(unsigned int node, sCompileInfo* info)
 
         sNodeType* result_type;
         sNodeType* result_method_generics_types = NULL;
-        int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types);
+        int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types, info->pinfo);
 
         if(method_index == -1) {
             compile_err_msg(info, "method not found(15)");
@@ -1987,7 +1987,7 @@ static BOOL compile_cushort_value(unsigned int node, sCompileInfo* info)
 
         sNodeType* result_type;
         sNodeType* result_method_generics_types = NULL;
-        int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types);
+        int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types, info->pinfo);
 
         if(method_index == -1) {
             compile_err_msg(info, "method not found(16)");
@@ -2104,7 +2104,7 @@ static BOOL compile_cint_value(unsigned int node, sCompileInfo* info)
 
         sNodeType* result_type;
         sNodeType* result_method_generics_types = NULL;
-        int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types);
+        int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types, info->pinfo);
 
         if(method_index == -1) {
             compile_err_msg(info, "method not found(17)");
@@ -2221,7 +2221,7 @@ static BOOL compile_cuint_value(unsigned int node, sCompileInfo* info)
 
         sNodeType* result_type;
         sNodeType* result_method_generics_types = NULL;
-        int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types);
+        int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types, info->pinfo);
 
         if(method_index == -1) {
             compile_err_msg(info, "method not found(18)");
@@ -2339,7 +2339,7 @@ static BOOL compile_clong_value(unsigned int node, sCompileInfo* info)
 
         sNodeType* result_type;
         sNodeType* result_method_generics_types = NULL;
-        int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types);
+        int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types, info->pinfo);
 
         if(method_index == -1) {
             compile_err_msg(info, "method not found(19)");
@@ -2456,7 +2456,7 @@ static BOOL compile_culong_value(unsigned int node, sCompileInfo* info)
 
         sNodeType* result_type;
         sNodeType* result_method_generics_types = NULL;
-        int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types);
+        int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types, info->pinfo);
 
         if(method_index == -1) {
             compile_err_msg(info, "method not found(20)");
@@ -3037,7 +3037,7 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
 
             sNodeType* result_type = NULL;
             sNodeType* result_method_generics_types = NULL;
-            int method_index = search_for_method(string_class, "equals", param_types, num_params, FALSE, string_class->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, FALSE, &result_method_generics_types);
+            int method_index = search_for_method(string_class, "equals", param_types, num_params, FALSE, string_class->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, FALSE, &result_method_generics_types, info->pinfo);
 
             if(method_index == -1) {
                 compile_err_msg(info, "method not found(4)");
@@ -3187,7 +3187,7 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
                 param_types[0] = right_type;
 
                 sNodeType* result_method_generics_types = NULL;
-                int method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, FALSE, &result_method_generics_types);
+                int method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, FALSE, &result_method_generics_types, info->pinfo);
 
                 sCLMethod* method = klass->mMethods + method_index2;
 
@@ -3431,7 +3431,7 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
                         param_types[0] = right_type;
 
                         sNodeType* result_method_generics_types = NULL;
-                        int method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, FALSE, &result_method_generics_types);
+                        int method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, FALSE, &result_method_generics_types, info->pinfo);
 
                         sCLMethod* method = klass->mMethods + method_index2;
 
@@ -3870,7 +3870,7 @@ static BOOL compile_break_expression(unsigned int node, sCompileInfo* info)
             if(!info->pinfo->exist_block_object_err) { // for interpreter completion
                 sNodeType* result_type;
                 sNodeType* result_method_generics_types = NULL;
-                int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, FALSE, &result_method_generics_types);
+                int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, FALSE, &result_method_generics_types, info->pinfo);
 
                 if(method_index == -1) {
                     compile_err_msg(info, "method not found(6)");
@@ -4175,7 +4175,7 @@ static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)
 
     sNodeType* result_type;
     sNodeType* result_method_generics_types = NULL;
-    int method_index = search_for_method(klass, method_name, param_types, num_params, TRUE, klass->mNumMethods-1, generics_types, NULL, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types);
+    int method_index = search_for_method(klass, method_name, param_types, num_params, TRUE, klass->mNumMethods-1, generics_types, NULL, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types, info->pinfo);
 
     if(method_index != -1) {
         if(!info->pinfo->exist_block_object_err) { // for interpreter completion
@@ -4353,7 +4353,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
             /// get method ///
             sNodeType* result_type;
             sNodeType* result_method_generics_types = NULL;
-            int method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types, generics_types, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types);
+            int method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types, generics_types, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types, info->pinfo);
 
             /// Searching for the method can be determined by statically ///
             if(method_index2 != -1) {
@@ -4504,7 +4504,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
             /// get method ///
             sNodeType* result_type;
             sNodeType* result_method_generics_types = NULL;
-            int method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types, generics_types, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types);
+            int method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types, generics_types, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types, info->pinfo);
 
             if(method_index2 == -1) {
                 compile_err_msg(info, "method not found(2)");
@@ -4566,7 +4566,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
             /// get method ///
             sNodeType* result_type;
             sNodeType* result_method_generics_types = NULL;
-            int method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types, generics_types, right_method_generics_types, &result_type, exist_lazy_lamda_compile, FALSE, &result_method_generics_types);
+            int method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types, generics_types, right_method_generics_types, &result_type, exist_lazy_lamda_compile, FALSE, &result_method_generics_types, info->pinfo);
 
             /// lazy lambda compile ///
             if(method_index2 != -1 && exist_lazy_lamda_compile) {
@@ -4769,7 +4769,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                     info->omit_block_result_type2 = omit_block_result_type_before;
                     info->return_type2 = return_type2_before;
 
-                    method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types, generics_types, right_method_generics_types, &result_type, FALSE, TRUE, &result_method_generics_types);
+                    method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types, generics_types, right_method_generics_types, &result_type, FALSE, TRUE, &result_method_generics_types, info->pinfo);
                 }
             }
             else {
@@ -4819,7 +4819,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                         return TRUE;
                     }
                     else {
-                        compile_err_msg(info, "method not found(5)");
+                        compile_err_msg(info, "method not found(5) %s.%s", CLASS_NAME(klass), method_name);
                         info->err_num++;
 
                         if(!exist_lazy_lamda_compile) {
@@ -5259,7 +5259,7 @@ static BOOL compile_new_operator(unsigned int node, sCompileInfo* info)
 
             sNodeType* result_type;
             sNodeType* result_method_generics_types = NULL;
-            int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types);
+            int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types, info->pinfo);
 
             if(method_index == -1) {
                 compile_err_msg(info, "method not found(6)");
@@ -8060,7 +8060,7 @@ BOOL compile_string_value(unsigned int node, sCompileInfo* info)
 
             sNodeType* result_type = NULL;
             sNodeType* result_method_generics_types = NULL;
-            int method_index = search_for_method(klass, "toString", NULL, 0, FALSE, klass->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, FALSE, &result_method_generics_types);
+            int method_index = search_for_method(klass, "toString", NULL, 0, FALSE, klass->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, FALSE, &result_method_generics_types, info->pinfo);
 
             if(method_index == -1) {
                 compile_err_msg(info, "String expression requires String object");
@@ -8184,7 +8184,7 @@ BOOL compile_buffer_value(unsigned int node, sCompileInfo* info)
 
             sNodeType* result_type = NULL;
             sNodeType* result_method_generics_types = NULL;
-            int method_index = search_for_method(klass, "toString", NULL, 0, FALSE, klass->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, FALSE, &result_method_generics_types);
+            int method_index = search_for_method(klass, "toString", NULL, 0, FALSE, klass->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, FALSE, &result_method_generics_types, info->pinfo);
 
             if(method_index == -1) {
                 compile_err_msg(info, "String expression requires String object");
@@ -8306,7 +8306,7 @@ BOOL compile_path_value(unsigned int node, sCompileInfo* info)
 
             sNodeType* result_type = NULL;
             sNodeType* result_method_generics_types = NULL;
-            int method_index = search_for_method(klass, "toString", NULL, 0, FALSE, klass->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, FALSE, &result_method_generics_types);
+            int method_index = search_for_method(klass, "toString", NULL, 0, FALSE, klass->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, FALSE, &result_method_generics_types, info->pinfo);
 
             if(method_index == -1) {
                 compile_err_msg(info, "String expression requires String object");
@@ -10072,7 +10072,7 @@ static BOOL compile_regex(unsigned int node, sCompileInfo* info)
 
             sNodeType* result_type = NULL;
             sNodeType* result_method_generics_types = NULL;
-            int method_index = search_for_method(klass, "toString", NULL, 0, FALSE, klass->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, FALSE, &result_method_generics_types);
+            int method_index = search_for_method(klass, "toString", NULL, 0, FALSE, klass->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, FALSE, &result_method_generics_types, info->pinfo);
 
             if(method_index == -1) {
                 compile_err_msg(info, "String expression requires String object");
@@ -10276,7 +10276,7 @@ static BOOL compile_inherit_call(unsigned int node, sCompileInfo* info)
         /// search for the method ///
         sNodeType* result_type;
         sNodeType* result_method_generics_types = NULL;
-        int method_index2 = search_for_method(klass, method_name, param_types, num_params, class_method, method_index-1, generics_types, NULL, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types);
+        int method_index2 = search_for_method(klass, method_name, param_types, num_params, class_method, method_index-1, generics_types, NULL, right_method_generics_types, &result_type, FALSE, FALSE, &result_method_generics_types, info->pinfo);
 
         if(method_index2 == -1) {
             compile_err_msg(info, "method not found(30)");
@@ -10431,7 +10431,7 @@ static BOOL compile_range(unsigned int node, sCompileInfo* info)
 
         sNodeType* result_type;
         sNodeType* result_method_generics_types = NULL;
-        int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, NULL, &result_type, FALSE, FALSE, &result_method_generics_types);
+        int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, NULL, &result_type, FALSE, FALSE, &result_method_generics_types, info->pinfo);
         if(method_index == -1) {
             compile_err_msg(info, "method not found(30)");
             info->err_num++;

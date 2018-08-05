@@ -569,7 +569,7 @@ test: parser
 	PWD=`pwd` ./cclover2 code/MultiLineString.cl
 	PWD=`pwd` ./cclover2 code/ClassFieldAndFieldTest.clcl
 	PWD=`pwd` ./cclover2 code/CloneTest.clcl
-	PWD=`pwd` ./cclover2 code/thread.cl
+	if test $(ENABLE_THREAD) = 1; then PWD=`pwd` ./cclover2 code/thread.cl; fi
 	PWD=`pwd` ./cclover2 code/SocketTest.clcl
 	PWD=`pwd` ./cclover2 code/PointerTest3.clcl
 	PWD=`pwd` ./cclover2 code/BoolTest.clcl

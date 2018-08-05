@@ -1,6 +1,6 @@
 include "Container.clcl"
 
-class Range<T:ISortable>
+class Range<T:IIteratorable>
 {
     include MObjectBase;
 
@@ -52,6 +52,43 @@ class Range<T:ISortable>
         else {
             return 1;
         }
+    }
+
+    def add(right:Range<T>):Range<T> {
+        result := self.clone();
+        result.head = result.head.add(right.head);
+        result.tail = result.tail.add(right.tail);
+        return result;
+    }
+
+    def toSortableList(): SortableList<T> {
+        result := SortableList<T>();
+
+        for(p:=self.head(); p.compare(self.tail) < 0; p = p.next()) {
+            result.add(p);
+        }
+
+        return result;
+    }
+
+    def toList(): List<T> {
+        result := List<T>();
+
+        for(p:=self.head(); p.compare(self.tail) < 0; p = p.next()) {
+            result.add(p);
+        }
+
+        return result;
+    }
+
+    def toEqualableList(): EqualableList<T> {
+        result := EqualableList<T>();
+
+        for(p:=self.head(); p.compare(self.tail) < 0; p = p.next()) {
+            result.add(p);
+        }
+
+        return result;
     }
 }
 

@@ -1760,7 +1760,7 @@ BOOL call_compile_time_script_method_on_declare()
 
     sNodeType* result_type = NULL;
     sNodeType* result_method_generics_types = NULL;
-    int method_index = search_for_method(clover_class, "compileTimeScriptingOnDeclareTime", NULL, 0, TRUE, clover_class->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, FALSE, &result_method_generics_types);
+    int method_index = search_for_method(clover_class, "compileTimeScriptingOnDeclareTime", NULL, 0, TRUE, clover_class->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, FALSE, &result_method_generics_types, NULL);
     sCLMethod* method = clover_class->mMethods + method_index;
     
     const int stack_size = 512;
@@ -1909,7 +1909,7 @@ BOOL compile_class_source(char* fname, char* source)
     if(clover_class) {
         sNodeType* result_type = NULL;
         sNodeType* result_method_generics_types = NULL;
-        int method_index = search_for_method(clover_class, "compileTimeScripting", NULL, 0, TRUE, clover_class->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, FALSE, &result_method_generics_types);
+        int method_index = search_for_method(clover_class, "compileTimeScripting", NULL, 0, TRUE, clover_class->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, FALSE, &result_method_generics_types, NULL);
 
         if(method_index >= 0) {
             append_opecode_to_code(cinfo.code, OP_INVOKE_METHOD, cinfo.no_output);

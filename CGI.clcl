@@ -174,7 +174,7 @@ class String
 {
     def quotedString():String {
         result := "";
-        for(i:int = 0; i<self.length(); i++) {
+        for(i := 0; i<self.length(); i++) {
             c := self.chars(i);
             if((c <= 127) && !((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9'))) {
                 result.append('\\');
@@ -190,7 +190,7 @@ class String
 
     def getPlainTextFromQuotedString(): String {
         result := "";
-        for(i:int = 0; i<self.length(); i++) {
+        for(i := 0; i<self.length(); i++) {
             c := self.chars(i);
             if(c == '\\') {
                 c2 := self.chars(i+1);

@@ -75,5 +75,7 @@ class MethodGenericsTest {
         }
 
         Clover.test("method generics block test", sum == 6);
+
+        slist{1,2,3}.map { it.toString() }.map { it.toCommand() }
     }
 }

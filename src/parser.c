@@ -1979,6 +1979,7 @@ BOOL parse_type_for_new(sNodeType** result_type, unsigned int* array_num, sParse
         if(strcmp(type_name, "SELF") == 0) {
             *result_type = create_node_type_with_class_pointer(info->klass);
 
+/*
             if(*info->p != '<') {
                 int i;
                 for(i=0; i< info->generics_info.mNumParams; i++) {
@@ -1987,6 +1988,7 @@ BOOL parse_type_for_new(sNodeType** result_type, unsigned int* array_num, sParse
 
                 generics_num = info->generics_info.mNumParams;
             }
+*/
         }
         else {
             *result_type = create_node_type_with_class_name(type_name);

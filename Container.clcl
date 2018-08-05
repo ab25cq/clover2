@@ -13,6 +13,18 @@ interface ISortable
     def equals(right:Self): bool;
     def toString(): String;
     def clone(): Self;
+    def add(right:Self):Self;
+}
+
+interface IIteratorable
+{
+    def compare(item:Self): int;
+    def equals(right:Self): bool;
+    def toString(): String;
+    def clone(): Self;
+    def add(right:Self):Self;
+    def next(): Self;
+    def prev(): Self;
 }
 
 interface IHashKey
@@ -235,9 +247,9 @@ class EqualableArray <T:IEqualable>
     }
 
     def toSortableArray():SortableArray<ISortable> throws Exception {
-        result:SortableArray<ISortable>  = SortableArray<ISortable>(self.items.toAnonymous());
+        result := SortableArray<ISortable>(self.items.toAnonymous());
 
-        for(i:int = 0; i<result.items.length; i++) {
+        for(i:= 0; i<result.items.length; i++) {
             if(!(result.items[i] implements ISortable)) {
                 throw Exception("An elements doesn't implement ISortable");
             }
@@ -495,6 +507,31 @@ module MList
         self.number++;
 
         return self;
+    }
+
+    def push(item:T):SELF<T> {
+        if(self.head.identifyWith(null)) {
+            self.head = ListItem<T>(item, null, null);
+            self.tail = self.head;
+        }
+        else {
+            new_item:ListItem<T> = ListItem<T>(item, self.tail, null);
+
+            self.tail.next = new_item;
+            self.tail = new_item;
+        }
+
+        self.number++;
+
+        return self;
+    }
+
+    def add(right:SELF<T>):SELF<T> {
+        result := self.clone();
+        right.each {
+            result.add(it);
+        }
+        return result;
     }
 
     def push(item:T):SELF<T> {
@@ -1108,7 +1145,7 @@ class List <T:Object>
 
         while(!it.identifyWith(null)) {
             try {
-                result.add(trans(it.item));
+                result.push(trans(it.item));
             } catch(e:Exception) {
                 if(e.message.equals("break")) {
                     break;
@@ -1170,7 +1207,7 @@ class EqualableList<T:IEqualable>
 
         while(!it.identifyWith(null)) {
             try {
-                result.add(trans(it.item));
+                result.push(trans(it.item));
             } catch(e:Exception) {
                 if(e.message.equals("break")) {
                     break;
@@ -1228,7 +1265,7 @@ class SortableList<T:ISortable>
 
         while(!it.identifyWith(null)) {
             try {
-                result.add(trans(it.item));
+                result.push(trans(it.item));
             } catch(e:Exception) {
                 if(e.message.equals("break")) {
                     break;
@@ -1381,6 +1418,25 @@ class SortableList<T:ISortable>
         }
 
         result.replace(-1, '}');
+
+        return result;
+    }
+
+    def sum():T throws Exception {
+        if(self.head == null || self.number == 0) {
+            throw Exception("Null pointer exception");
+        }
+
+        result := items(0).clone();
+
+        n := 0;
+
+        self.each {
+            if(n > 0) {
+                result = result.add(it);
+            }
+            n++;
+        }
 
         return result;
     }

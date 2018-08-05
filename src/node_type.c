@@ -110,7 +110,7 @@ static void skip_spaces_for_parse_class_name(char** p)
     }
 }
 
-static sNodeType* parse_class_name(char** p, char** p2, char* buf, sParserInfo* info)
+static sNodeType* parse_class_name(char** p, char** p2, char* buf, struct sParserInfoStruct* info)
 {
     sNodeType* node_type = alloc_node_type();
 
@@ -479,7 +479,7 @@ BOOL class_identify_with_class_name(sCLClass* klass, char* class_name)
     return klass == klass2;
 }
 
-static void solve_Self_types_for_node_type(sNodeType* node_type, ALLOC sNodeType** result, sNodeType* generics_type)
+static void solve_self_for_node_type(sNodeType* node_type, ALLOC sNodeType** result, sNodeType* generics_type)
 {
     if(type_identify_with_class_name(node_type, "Self")) {
         int j;
@@ -503,14 +503,14 @@ static void solve_Self_types_for_node_type(sNodeType* node_type, ALLOC sNodeType
     }
 }
 
-BOOL solve_generics_types_for_node_type(sNodeType* node_type, ALLOC sNodeType** result, sNodeType* generics_type, BOOL solve_Self, BOOL solve_method_generics)
+BOOL solve_generics_types_for_node_type(sNodeType* node_type, ALLOC sNodeType** result, sNodeType* generics_type, BOOL solve_self, BOOL solve_method_generics)
 {
     int i;
     int j;
 
-    sNodeType* node_type2;
-    if(solve_Self) {
-        solve_Self_types_for_node_type(node_type, &node_type2, generics_type);
+    sNodeType* node_type2; 
+    if(solve_self) {
+        solve_self_for_node_type(node_type, &node_type2, generics_type);
     }
     else {
         node_type2 = node_type;
@@ -607,7 +607,7 @@ sNodeType* create_generics_types_from_generics_params(sCLClass* klass)
     return result;
 }
 
-void solve_generics_for_variable_to_class(sCLClass* klass, sCLClass** result, sParserInfo* info)
+void solve_generics_for_variable_to_class(sCLClass* klass, sCLClass** result, struct sParserInfoStruct* info)
 {
     sCLClass* generics_class = info->klass;
     int generics_param_number = klass->mGenericsParamClassNum;
@@ -633,7 +633,7 @@ void solve_method_generics_for_variable_to_class(sCLClass* klass, sCLClass** res
     }
 }
 
-void solve_generics_for_variable(sNodeType* generics_type, sNodeType** generics_type2, sParserInfo* info)
+void solve_generics_for_variable(sNodeType* generics_type, sNodeType** generics_type2, struct sParserInfoStruct* info)
 {
     *generics_type2 = alloc_node_type();
 
