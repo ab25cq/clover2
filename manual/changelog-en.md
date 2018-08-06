@@ -1,4 +1,8 @@
 
+version 4.8.4
+
+    Appended appendable flag to Buffer.initialize. You can make Buffer class without copying memory.
+
 version 4.8.3
 
     Added add, next, prev methods to various basic classes. Added add method to ISortable interface. Added IIteratorable interface. The Generics argument interface of the Range class is now IIteratorable. The Range class must satisfy the IIterato rable interface. Source change is required. Instead, "A" .. "D" etc works. Added sum method to SortableList class. Added toList (), toEqualableList (), toSortableList () method to Range class. The return value and argument of the main method of String.clcl has changed from EqualableList to SortableList. If you used String to specify the argument return type as EqualableList <String> in the code, you will need to change the source. Excuse me.

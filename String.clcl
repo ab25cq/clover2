@@ -1119,20 +1119,29 @@ class Buffer
     len:size_t;
     size:size_t;
 
+    appendable:bool;
+
     p:pointer;
 
     def initialize() {
         self.size = 64;
         self.buffer = malloc(self.size);
         self.len = 0;
+        self.appendable = true;
 
         self.p = self.buffer;
     }
-    def initialize(buf:pointer, size:size_t) {
+    def initialize(buf:pointer, size:size_t, appendable:bool=true) {
         self.size = size;
-        self.buffer = malloc(self.size);
-        memcpy(self.buffer, buf, size);
+        if(appendable) {
+            self.buffer = malloc(self.size);
+            memcpy(self.buffer, buf, size);
+        }
+        else {
+            self.buffer = buf;
+        }
         self.len = self.size;
+        self.appendable = true;
 
         self.p = self.buffer;
     }
@@ -1140,6 +1149,7 @@ class Buffer
         self.size = size;
         self.buffer = malloc(self.size);
         self.len = 0;
+        self.appendable = true;
 
         self.p = self.buffer;
     }
@@ -1147,7 +1157,11 @@ class Buffer
         free(self.buffer);
     }
 
-    def append(buf:Buffer) {
+    def append(buf:Buffer) throws Exception {
+        if(!self.appendable) {
+            throw Exception("This memory is not appendable");
+        }
+
         len: size_t = buf.len;
 
         if(self.len + len >= self.size) {
@@ -1164,7 +1178,11 @@ class Buffer
         self.len += len;
     }
 
-    def append(data:byte) {
+    def append(data:byte) throws Exception {
+        if(!self.appendable) {
+            throw Exception("This memory is not appendable");
+        }
+
         len: size_t = 1.to_ulong;
 
         if(self.len + len >= self.size) {
@@ -1181,7 +1199,7 @@ class Buffer
         self.len += len;
     }
 
-    def append(data: char) {
+    def append(data: char) throws Exception {
         append(data.toString().toBuffer());
     }
 
