@@ -372,6 +372,12 @@ Conversely, if you use an operator for a non-primitive type, it is unboxed and c
     (Numerical)ul 123456ul and so on. Represents a numeric value of ulong type.
 ```
 
+    You can add underscores to numbers for easy viewing
+
+```
+    1_000_000
+```
+
 ## array
 
 An array is a collection of values ​​of objects and primitive types accessible by subscripts. You can handle numerical values ​​etc. at once.
@@ -1597,11 +1603,19 @@ Structures are not supported. Use C language functions that use structures from 
 
 ## loval-variable
 
-var a := 123;
-a = 245;
+```
+    var a := 123;
+    a = 245;
 
-val b := 123;
-b = 234;   # error
+    val b := 123;
+    b = 234;   # error
+
+    var c = 123;
+    c = 245;
+
+    val d = 123;
+    d = 234;   # error
+```
 
 Although it is added later, the variable is var variable name = value. readonly is val variable name = value.
 

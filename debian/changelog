@@ -1,15 +1,19 @@
 
+clover2 (4.8.8-1) unstable; urgency=medium
+
+    * 1_000 == 1000. var a = 1 <==> var a:int = 1 <==> a := 1
+
 clover2 (4.8.7-1) unstable; urgency=medium
 
-    Fixed Buffer class bug.
+    * Fixed Buffer class bug.
 
 clover2 (4.8.6-1) unstable; urgency=medium
 
-    Fixed Buffer.clone bug.
+    * Fixed Buffer.clone bug.
 
 clover2 (4.8.5-1) unstable; urgency=medium
 
-    Appended compare method to SortableList and SortableArray.
+    * Appended compare method to SortableList and SortableArray.
 
 clover2 (4.8.4-1) unstable; urgency=medium
 

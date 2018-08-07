@@ -34,5 +34,9 @@ class NumberTest2 {
 
         k:Integer = 5I;
         Clover.test("Integer test", k.equals(5I));
+
+        var l = 1_000_000;
+
+        Clover.test("Number test", l == 1000000);
     }
 }

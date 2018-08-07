@@ -622,9 +622,14 @@ static BOOL get_number(BOOL minus, unsigned int* node, sParserInfo* info)
     }
 
     if(isdigit(*info->p)) {
-        while(isdigit(*info->p)) {
-            *p2++ = *info->p;
-            info->p++;
+        while(isdigit(*info->p) || *info->p == '_') {
+            if(*info->p ==  '_') {
+                info->p++;
+            }
+            else {
+                *p2++ = *info->p;
+                info->p++;
+            }
 
             if(p2 - buf >= buf_size) {
                 parser_err_msg(info, "overflow node of number");
@@ -643,9 +648,14 @@ static BOOL get_number(BOOL minus, unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
 
-            while(isdigit(*info->p)) {
-                *p2++ = *info->p;
-                info->p++;
+            while(isdigit(*info->p) || *info->p == '_') {
+                if(*info->p ==  '_') {
+                    info->p++;
+                }
+                else {
+                    *p2++ = *info->p;
+                    info->p++;
+                }
 
                 if(p2 - buf >= buf_size) {
                     parser_err_msg(info, "overflow node of number");
@@ -791,10 +801,15 @@ static BOOL get_hex_number(unsigned int* node, sParserInfo* info)
     *p++ = '0';
     *p++ = 'x';
 
-    while((*info->p >= '0' && *info->p <= '9') || (*info->p >= 'a' && *info->p <= 'f') || (*info->p >= 'A' && *info->p <= 'F')) 
+    while((*info->p >= '0' && *info->p <= '9') || (*info->p >= 'a' && *info->p <= 'f') || (*info->p >= 'A' && *info->p <= 'F') || *info->p == '_') 
     {
-        *p++ = *info->p;
-        info->p++;
+        if(*info->p == '_') {
+            info->p++;
+        }
+        else {
+            *p++ = *info->p;
+            info->p++;
+        }
 
         if(p - buf >= buf_size-1) {
             parser_err_msg(info, "overflow node of number");
@@ -911,8 +926,13 @@ static BOOL get_oct_number(unsigned int* node, sParserInfo* info)
 
     *p++ = '0';
 
-    while(*info->p >= '0' && *info->p <= '7') {
-        *p++ = *info->p++;
+    while((*info->p >= '0' && *info->p <= '7') || *info->p == '_') {
+        if(*info->p == '_') {
+            info->p++;
+        }
+        else {
+            *p++ = *info->p++;
+        }
 
         if(p - buf >= buf_size-1) {
             parser_err_msg(info, "overflow node of number");
@@ -2669,7 +2689,9 @@ static BOOL parse_var(unsigned int* node, sParserInfo* info, BOOL readonly)
         return FALSE;
     }
 
-    expect_next_character_with_one_forward(":", info);
+    if(*info->p == ':') {
+        info->p++;
+    }
 
     sNodeType* node_type;
     if(*info->p != '=') {

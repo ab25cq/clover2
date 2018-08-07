@@ -1,4 +1,10 @@
 
+version 4.8.8
+
+    1_000 == 1000
+
+    var a = 1 <==> var a:int = 1 <==> a := 1
+
 version 4.8.7
     
     Fixed Buffer class bug.

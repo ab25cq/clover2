@@ -31,5 +31,13 @@ class VariablesTest
         var x := 123;
 
         Clover.test("variable test5", x == 123);
+
+        var y = 123;
+
+        Clover.test("variable test6", y == 123);
+
+        val z = 123;
+
+        #z = 245;
     }
 }
