@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 4.8.7
+
+    Bufferクラスにバグがありました。修正。
+
 version 4.8.6
 
     Buffer.cloneにバグがありました。修正。

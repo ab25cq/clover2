@@ -1,4 +1,8 @@
 
+clover2 (4.8.7-1) unstable; urgency=medium
+
+    Fixed Buffer class bug.
+
 clover2 (4.8.6-1) unstable; urgency=medium
 
     Fixed Buffer.clone bug.

@@ -1,4 +1,8 @@
 
+version 4.8.7
+    
+    Fixed Buffer class bug.
+
 version 4.8.6
     
     Fixed Buffer.clone bug.

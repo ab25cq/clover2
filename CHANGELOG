@@ -1,4 +1,12 @@
 
+version 4.8.7
+
+    Bufferクラスにバグがありました。修正。
+
+version 4.8.7
+    
+    Fixed Buffer class bug.
+
 version 4.8.6
 
     Buffer.cloneにバグがありました。修正。

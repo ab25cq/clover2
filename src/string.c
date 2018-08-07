@@ -68,6 +68,7 @@ CLObject create_buffer_object(char* buffer, size_t size)
     object_data->mFields[2].mULongValue = size;                  // size
 
     object_data->mFields[3].mPointerValue = object_data->mFields[0].mPointerValue; // p
+    object_data->mFields[4].mBoolValue = TRUE;                  // appedable
 
     return obj;
 }

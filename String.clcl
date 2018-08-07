@@ -1119,9 +1119,9 @@ class Buffer
     len:size_t;
     size:size_t;
 
-    appendable:bool;
-
     p:pointer;
+
+    appendable:bool;
 
     def initialize() {
         self.size = 64;
@@ -1133,19 +1133,19 @@ class Buffer
     }
     def initialize(buf:pointer, size:size_t, appendable:bool=true) {
         if(appendable) {
-            self.buffer = malloc(self.size);
+            self.buffer = malloc(size);
             memcpy(self.buffer, buf, size);
-            self.len = self.size;
+            self.len = size;
             self.size = size;
             self.appendable = true;
             self.p = self.buffer;
         }
         else {
             self.buffer = buf;
-            self.len = self.size;
+            self.len = size;
             self.size = size;
             self.appendable = false;
-            self.p = self.buffer;
+            self.p = buf;
         }
     }
     def initialize(size:size_t) {
@@ -1157,7 +1157,9 @@ class Buffer
         self.p = self.buffer;
     }
     def finalize() {
-        free(self.buffer);
+        if(self.appendable) {
+            free(self.buffer);
+        }
     }
 
     def append(buf:Buffer) throws Exception {
