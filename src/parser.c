@@ -1938,7 +1938,7 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
             sCLClass* right_type3;
             solve_generics_for_variable_to_class(right_type2, &right_type3, info);
 
-            if(!check_implemented_methods_for_interface(left_type, right_type3)) {
+            if(!check_implemented_methods_for_interface(left_type, right_type3, TRUE)) {
                 parser_err_msg(info, "%s is not implemented %s interface" , CLASS_NAME(right_type2), CLASS_NAME(left_type));
                 info->err_num++;
             }
@@ -2139,7 +2139,7 @@ BOOL parse_type_for_new(sNodeType** result_type, unsigned int* array_num, sParse
         sCLClass* right_type3;
         solve_generics_for_variable_to_class(right_type2, &right_type3, info);
 
-        if(!check_implemented_methods_for_interface(left_type, right_type3)) {
+        if(!check_implemented_methods_for_interface(left_type, right_type3, TRUE)) {
             parser_err_msg(info, "%s is not implemented %s interface" , CLASS_NAME(right_type2), CLASS_NAME(left_type));
             info->err_num++;
         }

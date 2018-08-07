@@ -787,7 +787,7 @@ static BOOL check_same_interface_of_two_methods(sCLMethod* method1, sCLClass* kl
     return TRUE;
 }
 
-BOOL check_implemented_methods_for_interface(sCLClass* left_class, sCLClass* right_class)
+BOOL check_implemented_methods_for_interface(sCLClass* left_class, sCLClass* right_class, BOOL output_message)
 {
     sCLClass* anonymous_class = get_class("Anonymous");
     if(right_class == anonymous_class) {
@@ -813,6 +813,9 @@ BOOL check_implemented_methods_for_interface(sCLClass* left_class, sCLClass* rig
             }
 
             if(j!=0 && !found) {
+                if(output_message) {
+                    fprintf(stderr, "method %s %s is not implemted\n", CLASS_NAME(left_class), METHOD_NAME2(left_class, method));
+                }
                 return FALSE;
             }
         }

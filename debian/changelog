@@ -1,4 +1,8 @@
 
+clover2 (4.8.5-1) unstable; urgency=medium
+
+    Appended compare method to SortableList and SortableArray.
+
 clover2 (4.8.4-1) unstable; urgency=medium
 
     * Appended appendable flag to Buffer.initialize. You can make Buffer class without copying memory.

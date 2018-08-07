@@ -357,7 +357,7 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_
             return FALSE;
         }
         else {
-            return check_implemented_methods_for_interface(left_class, right_class);
+            return check_implemented_methods_for_interface(left_class, right_class, FALSE);
         }
     }
     else if(strcmp(CLASS_NAME(left3->mClass), "lambda") == 0) {

@@ -1,4 +1,12 @@
 
+version 4.8.5
+
+    SortableListとSortableArrayにcompareメソッドを追加。
+
+version 4.8.5
+
+    Appended compare method to SortableList and SortableArray.
+
 version 4.8.4
 
     Buffer.initialize にappedableフラグを追加しました。メモリーをコピーしないでBufferクラスが作れます。

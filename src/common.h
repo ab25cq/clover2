@@ -1859,7 +1859,7 @@ int search_for_field(sCLClass* klass, char* field_name);
 int search_for_class_field(sCLClass* klass, char* field_name);
 void add_dependences_with_node_type(sCLClass* klass, sNodeType* node_type);
 BOOL parse_params(sParserParam* params, int* num_params, sParserInfo* info, int chracter_type);
-BOOL check_implemented_methods_for_interface(sCLClass* left_class, sCLClass* right_class);
+BOOL check_implemented_methods_for_interface(sCLClass* left_class, sCLClass* right_class, BOOL output_message);
 BOOL class_method_name_existance(sCLClass* klass, char* method_name);
 BOOL none_class_method_name_existance(sCLClass* klass, char* method_name);
 BOOL class_field_name_existance(sCLClass* klass, char* field_name);

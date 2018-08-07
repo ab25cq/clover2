@@ -377,6 +377,35 @@ class SortableArray <T:ISortable>
 
         return result;
     }
+
+    def compare(right:SortableArray<T>):int {
+        if(self.length() == 0 && right.length() == 0) {
+            return 0;
+        }
+        elif(self.length() == 0) {
+            return -1;
+        }
+        elif(right.length() == 0) {
+            return 1;
+        }
+        else {
+            litem := items(0);
+            ritem := right.items(0);
+
+            if(litem == null && ritem == null) {
+                return 0;
+            }
+            elif(litem == null) {
+                return -1;
+            }
+            elif(ritem == null) {
+                return 1;
+            }
+            else {
+                return litem.compare(ritem);
+            }
+        }
+    }
 }
 
 class ListItem <T:Object>
@@ -1439,6 +1468,35 @@ class SortableList<T:ISortable>
         }
 
         return result;
+    }
+
+    def compare(right:SortableList<T>):int {
+        if(self.length() == 0 && right.length() == 0) {
+            return 0;
+        }
+        elif(self.length() == 0) {
+            return -1;
+        }
+        elif(right.length() == 0) {
+            return 1;
+        }
+        else {
+            litem := items(0);
+            ritem := right.items(0);
+
+            if(litem == null && ritem == null) {
+                return 0;
+            }
+            elif(litem == null) {
+                return -1;
+            }
+            elif(ritem == null) {
+                return 1;
+            }
+            else {
+                return litem.compare(ritem);
+            }
+        }
     }
 }
 

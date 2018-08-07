@@ -17,5 +17,11 @@ class InterfaceTest {
         a:ITest = new InterfaceTestClass();
 
         Clover.test("interface test1", a.method(123) == 123);
+
+
+        b:SortableList<SortableList<String>> = SortableList<SortableList<String>>();
+        c := slist { "AAA", "BBB", "CCC" };
+
+        b.add(c);
     }
 }

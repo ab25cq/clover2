@@ -3295,7 +3295,7 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
                 else {
                     /// check interface ///
                     sCLClass* iequalable = get_class("IEqualable");
-                    if(!check_implemented_methods_for_interface(iequalable, klass)) {
+                    if(!check_implemented_methods_for_interface(iequalable, klass, TRUE)) {
                         compile_err_msg(info, "Require IEqualable implemented for when value classs(%s)", CLASS_NAME(klass));
                         info->err_num++;
                     }
@@ -8697,7 +8697,7 @@ static BOOL compile_equalable_carray_value(unsigned int node, sCompileInfo* info
 
     /// check implemeted interface ///
     sCLClass* iequalable = get_class("IEqualable");
-    if(!check_implemented_methods_for_interface(iequalable, element_type->mClass)) {
+    if(!check_implemented_methods_for_interface(iequalable, element_type->mClass, TRUE)) {
         compile_err_msg(info, "Require IEqualable implemented for array element type(%s).", CLASS_NAME(element_type->mClass));
         info->err_num++;
     }
@@ -8790,7 +8790,7 @@ static BOOL compile_sortable_carray_value(unsigned int node, sCompileInfo* info)
 
     /// check implemeted interface ///
     sCLClass* isortable = get_class("ISortable");
-    if(!check_implemented_methods_for_interface(isortable, element_type->mClass)) {
+    if(!check_implemented_methods_for_interface(isortable, element_type->mClass, TRUE)) {
         compile_err_msg(info, "Require IEqualable implemented for array element type(%s).", CLASS_NAME(element_type->mClass));
         info->err_num++;
     }
@@ -8983,7 +8983,7 @@ BOOL compile_sortable_list_value(unsigned int node, sCompileInfo* info)
 
     /// check implemeted interface ///
     sCLClass* isortable = get_class("ISortable");
-    if(!check_implemented_methods_for_interface(isortable, element_type->mClass)) {
+    if(!check_implemented_methods_for_interface(isortable, element_type->mClass, TRUE)) {
         compile_err_msg(info, "Require ISortable implemented for list element type(%s).", CLASS_NAME(element_type->mClass));
         info->err_num++;
     }
@@ -9069,7 +9069,7 @@ BOOL compile_equalable_list_value(unsigned int node, sCompileInfo* info)
 
     /// check implemeted interface ///
     sCLClass* iequalable = get_class("IEqualable");
-    if(!check_implemented_methods_for_interface(iequalable, element_type->mClass)) {
+    if(!check_implemented_methods_for_interface(iequalable, element_type->mClass, TRUE)) {
         compile_err_msg(info, "Require IEqualable implemented for list element type(%s).", CLASS_NAME(element_type->mClass));
         info->err_num++;
     }

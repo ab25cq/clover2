@@ -1,4 +1,8 @@
 
+version 4.8.5
+
+    Appended compare method to SortableList and SortableArray.
+
 version 4.8.4
 
     Appended appendable flag to Buffer.initialize. You can make Buffer class without copying memory.
