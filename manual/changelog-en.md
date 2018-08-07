@@ -1,4 +1,8 @@
 
+version 4.8.6
+    
+    Fixed Buffer.clone bug.
+
 version 4.8.5
 
     Appended compare method to SortableList and SortableArray.

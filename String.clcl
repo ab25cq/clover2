@@ -1132,18 +1132,21 @@ class Buffer
         self.p = self.buffer;
     }
     def initialize(buf:pointer, size:size_t, appendable:bool=true) {
-        self.size = size;
         if(appendable) {
             self.buffer = malloc(self.size);
             memcpy(self.buffer, buf, size);
+            self.len = self.size;
+            self.size = size;
+            self.appendable = true;
+            self.p = self.buffer;
         }
         else {
             self.buffer = buf;
+            self.len = self.size;
+            self.size = size;
+            self.appendable = false;
+            self.p = self.buffer;
         }
-        self.len = self.size;
-        self.appendable = true;
-
-        self.p = self.buffer;
     }
     def initialize(size:size_t) {
         self.size = size;
@@ -1255,11 +1258,24 @@ class Buffer
     }
 
     def clone():Buffer {
-        result:Buffer = Buffer(self.size);
+        if(appendable) {
+            result := Buffer(self.size);
 
-        memcpy(result.buffer, self.buffer, self.size);
-        result.len = self.len;
-        result.size = self.size;
+            memcpy(result.buffer, self.buffer, self.size);
+            result.len = self.len;
+            result.size = self.size;
+            result.appendable = true;
+            result.p = result.p;
+        }
+        else {
+            result := Buffer(self.buffer, self.size, false) {
+
+            result.buffer = self.buffer;
+            result.len = self.len;
+            result.size = self.size;
+            result.appendable = false;
+            result.p = self.p;
+        }
 
         return result;
     }
