@@ -1266,18 +1266,20 @@ class Buffer
             result.size = self.size;
             result.appendable = true;
             result.p = result.p;
+
+            return result;
         }
         else {
-            result := Buffer(self.buffer, self.size, false) {
+            result := Buffer(self.buffer, self.size, false);
 
             result.buffer = self.buffer;
             result.len = self.len;
             result.size = self.size;
             result.appendable = false;
             result.p = self.p;
-        }
 
-        return result;
+            return result;
+        }
     }
 
     def toString():String throws Exception {
