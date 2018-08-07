@@ -1,4 +1,8 @@
 
+version 4.8.9
+
+    Fixed JIT bug
+
 version 4.8.8
 
     1_000 == 1000

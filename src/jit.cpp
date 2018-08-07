@@ -824,14 +824,20 @@ call_show_inst_in_jit(inst);
 
                 LVALUE* llvm_value2 = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
+                LVALUE llvm_value_32;
+                llvm_value_32 = trunc_value(&llvm_value, 32);
+
+                LVALUE llvm_value2_64;
+                llvm_value2_64 = trunc_value(llvm_value2, 64);
+
                 Function* fun = TheModule->getFunction("run_store_to_buffer");
 
                 std::vector<Value*> params2;
 
-                Value* param1 = llvm_value.value;
+                Value* param1 = llvm_value_32.value;
                 params2.push_back(param1);
 
-                Value* param2 = llvm_value2->value;
+                Value* param2 = llvm_value2_64.value;
                 params2.push_back(param2);
 
                 std::string stack_ptr_address_name("stack_ptr_address");

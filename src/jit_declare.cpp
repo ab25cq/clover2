@@ -1140,7 +1140,7 @@ void create_internal_functions()
     param1_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param1_type);
 
-    param2_type = PointerType::get(IntegerType::get(TheContext,64), 0);
+    param2_type = IntegerType::get(TheContext,64);
     type_params.push_back(param2_type);
 
     param3_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);

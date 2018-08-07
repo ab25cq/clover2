@@ -1,4 +1,8 @@
 
+clover2 (4.8.9-1) unstable; urgency=medium
+
+    * Fixed JIT bug.
+
 clover2 (4.8.8-1) unstable; urgency=medium
 
     * 1_000 == 1000. var a = 1 <==> var a:int = 1 <==> a := 1

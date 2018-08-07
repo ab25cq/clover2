@@ -1,6 +1,6 @@
 # clover2 computer language
 
-version 4.8.8
+version 4.8.9
 
 サポートしている機能
 

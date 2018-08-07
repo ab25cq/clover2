@@ -1780,16 +1780,16 @@ void vm_mutex_off_in_jit(sVMInfo* info)
     }
 }
 
-BOOL run_store_to_buffer(CLObject object, void* pointer, CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info)
+BOOL run_store_to_buffer(CLObject object, CLVALUE pointer, CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info)
 {
     sCLObject* object_data = CLOBJECT(object);
 
-    if(pointer < object_data->mFields[0].mPointerValue || pointer >= object_data->mFields[0].mPointerValue + object_data->mFields[2].mULongValue) {
+    if(pointer.mPointerValue < object_data->mFields[0].mPointerValue || pointer.mPointerValue >= object_data->mFields[0].mPointerValue + object_data->mFields[2].mULongValue) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"Out of range on memory safe pointer");
         return FALSE;
     }
 
-    object_data->mFields[3].mPointerValue = (char*)pointer;
+    object_data->mFields[3] = pointer;
 
     return TRUE;
 }
