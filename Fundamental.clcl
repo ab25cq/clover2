@@ -1058,12 +1058,24 @@ class Bool : unboxing bool
         return !self.value;
     }
 
-    def if(block_:lambda()):Anonymous? {
+    def if(false_value:Anonymous?, block_:lambda():Anonymous?):Anonymous? {
         if(self.value) {
-            return block_();
+            result := false_value;
+            try {
+                result = block_();
+            }
+            catch(e:Exception) {
+                result = false_value
+            }
+
+            return result;
         }
 
-        return null;
+        return false_value;
+    }
+
+    def if(block_:lambda():Anonymous?):Anonymous? { 
+        self.if(null, block_); 
     }
 
     def ifWithException(block_:lambda()):Anonymous? throws Exception {
@@ -1073,6 +1085,6 @@ class Bool : unboxing bool
 
         throw Exception("ifWithException is faield");
 
-        return null;
+        null;
     }
 }

@@ -53,6 +53,8 @@ BOOL compile_method(sCLMethod* method, sParserParam* params, int num_params, sPa
     cinfo2.break_points = NULL;
     cinfo2.method = method;
 
+    sNodeType* last_result_type = NULL;
+
     unsigned int node = 0;
 
     while(1) {
@@ -84,6 +86,8 @@ BOOL compile_method(sCLMethod* method, sParserParam* params, int num_params, sPa
                     sByteCode_free(cinfo2.code);
                     return FALSE;
                 }
+
+                last_result_type = cinfo2.type;
 
                 if(*info->p == ';') {
                     info->p++;
@@ -134,6 +138,21 @@ BOOL compile_method(sCLMethod* method, sParserParam* params, int num_params, sPa
             parser_err_msg(info, "Require return value. Stack num is %d", cinfo2.stack_num);
             cinfo2.err_num++;
         }
+
+        sNodeType* result_type2 = NULL;
+        solve_generics_for_variable(result_type, &result_type2, info);
+
+        if(cast_posibility(result_type2, last_result_type)) {
+            cast_right_type_to_left_type(result_type2, &last_result_type, &cinfo2);
+        }
+
+/*
+        if(!substitution_posibility(result_type2, last_result_type, NULL, NULL, NULL, NULL)) {
+            compile_err_msg(&cinfo2, "Invalid type of return value. Left type is %s. Left generics number %d. Right type is %s. right generics number %d.", CLASS_NAME(result_type2->mClass), result_type2->mNumGenericsTypes, CLASS_NAME(last_result_type->mClass), last_result_type->mNumGenericsTypes);
+
+            return FALSE;
+        }
+*/
 
         append_opecode_to_code(cinfo2.code, OP_RETURN, FALSE);
     }

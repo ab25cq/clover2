@@ -780,6 +780,13 @@ BOOL unboxig_posibility(sCLClass* klass)
     return !(klass->mFlags & CLASS_FLAGS_PRIMITIVE) && klass->mUnboxingClass != NULL;
 }
 
+void boxing_to_lapper_type(sNodeType** type_)
+{
+    if((*type_)->mClass->mBoxingClass) {
+        (*type_)->mClass = (*type_)->mClass->mBoxingClass;
+    }
+}
+
 void boxing_to_lapper_class(sNodeType** type_, struct sCompileInfoStruct* info)
 {
     sCLClass* klass = (*type_)->mClass;

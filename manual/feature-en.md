@@ -1413,7 +1413,7 @@ Automatic casting to the pointer class is done when necessary as unboxing. When 
     Clover.test("Memory safe pointer test3", memcmp(e, B"A1C", 3) == 0);
 ```
 
-## Null pointer operator
+## Exception operator
 
 It often happens that the null decision code is coded. Therefore, Clover 2 has the following simplifying operator.
 
@@ -1424,6 +1424,25 @@ It often happens that the null decision code is coded. Therefore, Clover 2 has t
 ```
 
 The above code calls match on a variable containing null, but no exception occurs even if it contains null. The match statement is not executed.
+
+When using the return value, write as follows.
+
+```
+    str:String? = null;
+
+    assert((str?.match(/./) : false) == false)
+```
+
+false is the return value when str was null. If str does not appear null, the result of str.match (/./) is returned.
+
+It can also be used for exception checking. If ClassA.method (): int throws an exception, you can stop the method chain if there is an exception as follows:
+
+```
+    obj := ClassA();
+    assert((obj?.method().toString() :"AAA").equals("AAA"));
+```
+
+An exception is thrown with obj? .method () and "AAA" is returned.
 
 # Sugar coating syntax
 

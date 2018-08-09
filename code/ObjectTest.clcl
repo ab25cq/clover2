@@ -1,5 +1,10 @@
 
 class ObjectTest {
+    def throwException(): int throws Exception {
+        throw Exception("AAA");
+
+        return 777;
+    }
     def main():static {
         a := new List<Object>();
 
@@ -27,16 +32,26 @@ class ObjectTest {
 
         Clover.test("Object test2", b == null);
 
-        print("Object test3...");
-
         b?.match(/./).negative().if { b = "ABC" };
 
         Clover.test("Object test4", b == null);
 
-        Clover.test("Object test5", b?.match(/./).negative() == false);
+        Clover.test("Object test5", (b?.match(/./).negative() :false) == false);
 
         b = "ABC";
 
-        Clover.test("Object test6", b?.match(/./));
+        Clover.test("Object test6", b?.match(/./) == true);
+
+        c:String? = null;
+
+        Clover.test("Object test7", (c?.length() : 999) == 999);
+
+        d:String? = "ABC";
+
+        Clover.test("Object test8", (d?.length() : 999) == 3);
+
+        e := ObjectTest();
+
+        Clover.test("Object test9", (e?.throwException().toString() : "AAA").equals("AAA"));
     }
 }

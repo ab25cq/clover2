@@ -1,4 +1,14 @@
 
+version 4.9.0
+
+    Fixed method result bug.
+
+    Fixed Generics bug.
+
+    Fixed block object bug
+
+    Added ? and : operator for null checking and exception checking.
+
 version 4.8.9
 
     Fixed JIT bug

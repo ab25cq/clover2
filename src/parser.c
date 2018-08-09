@@ -2617,13 +2617,33 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info, int* nu
                 return FALSE;
             }
 
-            BOOL lambda = FALSE;
-            sNodeType* result_type = create_node_type_with_class_name("Null");
+            if(*info->p == ':') {
+                info->p++;
+                skip_spaces_and_lf(info);
 
-            num_params = 1;
-            params[0] = sNodeTree_create_block_object(NULL, 0, result_type, MANAGED node_block, lambda, info, FALSE, FALSE, NULL, TRUE);
+                num_params = 2;
 
-            *node = sNodeTree_create_method_call(*node, "if", params, num_params, *num_method_chains, info);
+                if(!expression(&params[0], info)) {
+                    return FALSE;
+                }
+
+                BOOL lambda = FALSE;
+                sNodeType* result_type = create_node_type_with_class_name("Anonymous?");
+
+                params[1] = sNodeTree_create_block_object(NULL, 0, result_type, MANAGED node_block, lambda, info, FALSE, FALSE, NULL, TRUE);
+
+                *node = sNodeTree_create_method_call(*node, "if", params, num_params, *num_method_chains, info);
+            }
+            else {
+                num_params = 1;
+
+                BOOL lambda = FALSE;
+                sNodeType* result_type = create_node_type_with_class_name("Anonymous?");
+
+                params[0] = sNodeTree_create_block_object(NULL, 0, result_type, MANAGED node_block, lambda, info, FALSE, FALSE, NULL, TRUE);
+
+                *node = sNodeTree_create_method_call(*node, "if", params, num_params, *num_method_chains, info);
+            }
         }
         else {
             break;

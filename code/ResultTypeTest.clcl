@@ -11,6 +11,10 @@ class ResultTypeTest
         345;
     }
 
+    def get3(): Integer {
+        456;
+    }
+
     def method() {
         d:EqualableList<String> = equalable_list { 1, 2, 3 }.map { it.toString() }
 
@@ -60,5 +64,7 @@ class ResultTypeTest
         e:SortableList<String> = slist{1,2,3}.map { return it.toString(); }
 
         Clover.test("result type test9", slist{1,2,3}.map { return it.toString() }.equals(slist{"1","2","3"}));
+
+        Clover.test("result type test10", a.get3() == 456);
     }
 }

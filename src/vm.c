@@ -1832,6 +1832,21 @@ show_inst(inst);
                     pc += sizeof(int);
 
                     CLObject obj = lvar[index].mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* object_data = CLOBJECT(obj);
 
                     char* p = (stack_ptr-1)->mPointerValue;
@@ -5201,6 +5216,20 @@ show_inst(inst);
 
                         CLObject object = (stack_ptr-num_real_params)->mObjectValue;
 
+                        if(object == 0) {
+                            entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                            if(info->try_code == code && info->try_offset != 0) {
+                                pc = code->mCodes + info->try_offset;
+                                info->try_offset = 0;
+                                info->try_code = NULL;
+                                break;
+                            }
+                            else {
+                                remove_stack_to_stack_list(stack_id);
+                                return FALSE;
+                            }
+                        }
+
                         sCLObject* object_data = CLOBJECT(object);
 
                         sCLClass* klass = object_data->mClass;
@@ -5677,6 +5706,20 @@ show_inst(inst);
 
                     CLObject obj2 = object_pointer->mFields[field_index].mObjectValue;
 
+                    if(obj2 == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* object_data = CLOBJECT(obj2);
 
                     char* p = value.mPointerValue;
@@ -5904,6 +5947,20 @@ show_inst(inst);
 
                     CLObject object = field->mValue.mObjectValue;
 
+                    if(object == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* object_data = CLOBJECT(object);
 
                     char* p = value.mPointerValue;
@@ -6058,6 +6115,20 @@ show_inst(inst);
 
 
                     CLObject object = object_pointer->mFields[element_num].mObjectValue;
+
+                    if(object == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
                     sCLObject* object_data = CLOBJECT(object);
 
                     char* p = value.mPointerValue;
@@ -6775,9 +6846,21 @@ show_inst(inst);
 
             case OP_CBYTE_TO_BYTE_CAST:
                 {
-                    
-
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -6785,8 +6868,6 @@ show_inst(inst);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mByteValue = value;
-
-                    
                 }
                 break;
 
@@ -6795,6 +6876,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -6813,6 +6908,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     char value = (char)obj_data->mFields[0].mShortValue;
@@ -6829,6 +6938,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -6847,6 +6970,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     char value = (char)obj_data->mFields[0].mIntValue;
@@ -6863,6 +7000,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -6881,6 +7032,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     char value = (char)obj_data->mFields[0].mLongValue;
@@ -6897,6 +7062,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -6915,6 +7094,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     char value = (char)obj_data->mFields[0].mFloatValue;
@@ -6931,6 +7124,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -6949,6 +7156,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     char value = (char)obj_data->mFields[0].mPointerValue;
@@ -6966,6 +7187,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     char value = (char)obj_data->mFields[0].mCharValue;
@@ -6982,6 +7217,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -7145,6 +7394,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     short value = (short)obj_data->mFields[0].mByteValue;
@@ -7161,6 +7424,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -7179,6 +7456,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     short value = (short)obj_data->mFields[0].mShortValue;
@@ -7195,6 +7486,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -7213,6 +7518,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     short value = (short)obj_data->mFields[0].mIntValue;
@@ -7229,6 +7548,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -7247,6 +7580,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     short value = (short)obj_data->mFields[0].mLongValue;
@@ -7263,6 +7610,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -7281,6 +7642,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     short value = (short)obj_data->mFields[0].mFloatValue;
@@ -7297,6 +7672,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -7315,6 +7704,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     short value = (short)obj_data->mFields[0].mPointerValue;
@@ -7332,6 +7735,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     short value = (short)obj_data->mFields[0].mCharValue;
@@ -7348,6 +7765,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -7506,6 +7937,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     int value = (int)obj_data->mFields[0].mByteValue;
@@ -7522,6 +7967,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -7540,6 +7999,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     int value = (int)obj_data->mFields[0].mShortValue;
@@ -7557,6 +8030,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     int value = (int)obj_data->mFields[0].mUShortValue;
@@ -7570,9 +8057,21 @@ show_inst(inst);
 
             case OP_INTEGER_TO_INT_CAST:
                 {
-                    
-
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -7580,16 +8079,26 @@ show_inst(inst);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
-
-                    
                 }
                 break;
 
             case OP_UINTEGER_TO_INT_CAST:
                 {
-                    
-
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -7604,9 +8113,21 @@ show_inst(inst);
 
             case OP_CLONG_TO_INT_CAST:
                 {
-                    
-
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -7621,9 +8142,21 @@ show_inst(inst);
 
             case OP_CULONG_TO_INT_CAST:
                 {
-                    
-
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -7631,8 +8164,6 @@ show_inst(inst);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mIntValue = value;
-
-                    
                 }
                 break;
 
@@ -7641,6 +8172,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -7659,6 +8204,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     int value = (int)obj_data->mFields[0].mDoubleValue;
@@ -7675,6 +8234,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -7693,6 +8266,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     int value = (int)obj_data->mFields[0].mCharValue;
@@ -7709,6 +8296,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -7859,6 +8460,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     clint64 value = (clint64)obj_data->mFields[0].mByteValue;
@@ -7874,6 +8489,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -7891,6 +8520,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     clint64 value = (clint64)obj_data->mFields[0].mShortValue;
@@ -7906,6 +8549,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -7923,6 +8580,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     clint64 value = (clint64)obj_data->mFields[0].mIntValue;
@@ -7938,6 +8609,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -7955,6 +8640,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     clint64 value = (clint64)obj_data->mFields[0].mLongValue;
@@ -7970,6 +8669,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -7987,6 +8700,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     clint64 value = (clint64)obj_data->mFields[0].mFloatValue;
@@ -8002,6 +8729,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -8019,6 +8760,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     clint64 value = (clint64)obj_data->mFields[0].mPointerValue;
@@ -8035,6 +8790,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     clint64 value = (clint64)obj_data->mFields[0].mCharValue;
@@ -8050,6 +8819,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -8209,6 +8992,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     unsigned char value = (unsigned char)obj_data->mFields[0].mByteValue;
@@ -8225,6 +9022,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -8243,6 +9054,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     unsigned char value = (unsigned char)obj_data->mFields[0].mShortValue;
@@ -8259,6 +9084,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -8277,6 +9116,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     unsigned char value = (unsigned char)obj_data->mFields[0].mIntValue;
@@ -8293,6 +9146,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -8311,6 +9178,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     unsigned char value = (unsigned char)obj_data->mFields[0].mLongValue;
@@ -8327,6 +9208,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -8345,6 +9240,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     unsigned char value = (unsigned char)obj_data->mFields[0].mFloatValue;
@@ -8361,6 +9270,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -8379,6 +9302,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     unsigned char value = (unsigned char)obj_data->mFields[0].mPointerValue;
@@ -8396,6 +9333,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     unsigned char value = (unsigned char)obj_data->mFields[0].mCharValue;
@@ -8412,6 +9363,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -8573,6 +9538,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     unsigned short value = (unsigned short)obj_data->mFields[0].mByteValue;
@@ -8589,6 +9568,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -8607,6 +9600,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     unsigned short value = (unsigned short)obj_data->mFields[0].mShortValue;
@@ -8623,6 +9630,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -8641,6 +9662,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     unsigned short value = (unsigned short)obj_data->mFields[0].mIntValue;
@@ -8657,6 +9692,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -8675,6 +9724,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     unsigned short value = (unsigned short)obj_data->mFields[0].mLongValue;
@@ -8691,6 +9754,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -8709,6 +9786,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     unsigned short value = (unsigned short)obj_data->mFields[0].mFloatValue;
@@ -8725,6 +9816,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -8743,6 +9848,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     unsigned short value = (unsigned short)obj_data->mFields[0].mPointerValue;
@@ -8760,6 +9879,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     unsigned short value = (unsigned short)obj_data->mFields[0].mCharValue;
@@ -8776,6 +9909,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -8939,6 +10086,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     unsigned int value = (unsigned int)obj_data->mFields[0].mByteValue;
@@ -8955,6 +10116,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -8973,6 +10148,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     unsigned int value = (unsigned int)obj_data->mFields[0].mShortValue;
@@ -8989,6 +10178,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -9007,6 +10210,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     unsigned int value = (unsigned int)obj_data->mFields[0].mIntValue;
@@ -9023,6 +10240,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -9041,6 +10272,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     unsigned int value = (unsigned int)obj_data->mFields[0].mLongValue;
@@ -9057,6 +10302,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -9075,6 +10334,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     unsigned int value = (unsigned int)obj_data->mFields[0].mFloatValue;
@@ -9091,6 +10364,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -9109,6 +10396,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     unsigned int value = (unsigned int)obj_data->mFields[0].mPointerValue;
@@ -9126,6 +10427,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     unsigned int value = (unsigned int)obj_data->mFields[0].mCharValue;
@@ -9142,6 +10457,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -9295,6 +10624,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     unsigned clint64 value = (unsigned clint64)obj_data->mFields[0].mByteValue;
@@ -9310,6 +10653,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -9327,6 +10684,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     unsigned clint64 value = (unsigned clint64)obj_data->mFields[0].mShortValue;
@@ -9342,6 +10713,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -9359,6 +10744,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     unsigned clint64 value = (unsigned clint64)obj_data->mFields[0].mIntValue;
@@ -9374,6 +10773,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -9391,6 +10804,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     unsigned clint64 value = (unsigned clint64)obj_data->mFields[0].mLongValue;
@@ -9406,6 +10833,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -9423,6 +10864,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     unsigned clint64 value = (unsigned clint64)obj_data->mFields[0].mFloatValue;
@@ -9438,6 +10893,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -9455,6 +10924,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     unsigned clint64 value = (unsigned clint64)obj_data->mFields[0].mPointerValue;
@@ -9471,6 +10954,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     unsigned clint64 value = (unsigned clint64)obj_data->mFields[0].mCharValue;
@@ -9486,6 +10983,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -9635,6 +11146,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     float value = (float)obj_data->mFields[0].mByteValue;
@@ -9651,6 +11176,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -9669,6 +11208,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     float value = (float)obj_data->mFields[0].mShortValue;
@@ -9685,6 +11238,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -9703,6 +11270,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     float value = (float)obj_data->mFields[0].mIntValue;
@@ -9719,6 +11300,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -9737,6 +11332,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     float value = (float)obj_data->mFields[0].mLongValue;
@@ -9753,6 +11362,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -9771,6 +11394,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     float value = (float)obj_data->mFields[0].mFloatValue;
@@ -9787,6 +11424,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -9806,6 +11457,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     float value = (float)obj_data->mFields[0].mCharValue;
@@ -9822,6 +11487,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -9963,6 +11642,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     double value = (double)obj_data->mFields[0].mByteValue;
@@ -9978,6 +11671,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -9995,6 +11702,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     double value = (double)obj_data->mFields[0].mShortValue;
@@ -10010,6 +11731,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -10027,6 +11762,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     double value = (double)obj_data->mFields[0].mIntValue;
@@ -10042,6 +11791,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -10059,6 +11822,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     double value = (double)obj_data->mFields[0].mLongValue;
@@ -10074,6 +11851,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -10091,6 +11882,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     double value = (double)obj_data->mFields[0].mFloatValue;
@@ -10106,6 +11911,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -10123,6 +11942,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     double value = (double)obj_data->mFields[0].mCharValue;
@@ -10138,6 +11971,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -10267,6 +12114,20 @@ show_inst(inst);
             case OP_BUFFER_TO_POINTER_CAST:
                 {
                     CLObject object = (stack_ptr-1)->mObjectValue;
+
+                    if(object == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* object_data = CLOBJECT(object);
 
@@ -10434,6 +12295,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     wchar_t value = (wchar_t)obj_data->mFields[0].mByteValue;
@@ -10450,6 +12325,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -10468,6 +12357,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     wchar_t value = (wchar_t)obj_data->mFields[0].mShortValue;
@@ -10484,6 +12387,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -10502,6 +12419,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     wchar_t value = (wchar_t)obj_data->mFields[0].mIntValue;
@@ -10518,6 +12449,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -10536,6 +12481,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     wchar_t value = (wchar_t)obj_data->mFields[0].mLongValue;
@@ -10552,6 +12511,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -10570,6 +12543,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     wchar_t value = (wchar_t)obj_data->mFields[0].mFloatValue;
@@ -10586,6 +12573,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -10604,6 +12605,20 @@ show_inst(inst);
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* obj_data = CLOBJECT(obj);
 
                     wchar_t value = (wchar_t)obj_data->mFields[0].mPointerValue;
@@ -10618,6 +12633,20 @@ show_inst(inst);
             case OP_CCHAR_TO_CHAR_CAST:
                 {
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -10635,6 +12664,20 @@ show_inst(inst);
                     
 
                     CLObject obj = (stack_ptr-1)->mObjectValue;
+
+                    if(obj == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
 
                     sCLObject* obj_data = CLOBJECT(obj);
 

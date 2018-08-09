@@ -449,6 +449,7 @@ BOOL type_identify(sNodeType* left, sNodeType* right);
 BOOL class_identify_with_class_name(sCLClass* klass, char* class_name);
 void print_node_type(sNodeType* node_type);
 BOOL boxing_posibility(sNodeType* left_type, sNodeType* right_type);
+void boxing_to_lapper_type(sNodeType** type_);
 BOOL unboxing_posibility(sNodeType* left_type, sNodeType* right_type);
 BOOL unboxig_posibility(sCLClass* klass);
 sNodeType* create_generics_types_from_generics_params(sCLClass* klass);
@@ -730,8 +731,8 @@ struct sNodeTreeStruct
             BOOL mOmitResultType;
             BOOL mOmitParams;
             sVarTable* mOldTable;
+
             BOOL mQuestionOperator;
-            sNodeType* mQuestionOperatorResultType;
         } sBlockObject;
 
         struct {
@@ -818,13 +819,14 @@ struct sCompileInfoStruct
     sNodeType* block_last_type;
     char* sname;
     int sline;
-    BOOL result_type_boxing;
 
     BOOL omit_block_result_type2;
     sNodeType* return_type2;
 
     char* break_point_label_name;
     BOOL no_pop_next;
+
+    sNodeType* question_operator_result_type;
 };
 
 typedef struct sCompileInfoStruct sCompileInfo;
@@ -896,7 +898,7 @@ unsigned int sNodeTree_create_string_value(MANAGED char* value, sNodeBlock** str
 unsigned int sNodeTree_create_buffer_value(MANAGED char* value, int len, sNodeBlock** string_expressions, int* string_expression_offsets, int num_string_expression, sParserInfo* info);
 unsigned int sNodeTree_try_expression(MANAGED sNodeBlock* try_node_block, MANAGED sNodeBlock* catch_node_block, char* exception_var_name, sParserInfo* info);
 
-unsigned int sNodeTree_create_block_object(sParserParam* params, int num_params, sNodeType* result_type, MANAGED sNodeBlock* node_block, BOOL lambda, sParserInfo* info, BOOL omit_result_type, BOOL omit_params, sVarTable* old_table, BOOL question_operator_block);
+unsigned int sNodeTree_create_block_object(sParserParam* params, int num_params, sNodeType* result_type, MANAGED sNodeBlock* node_block, BOOL lambda, sParserInfo* info, BOOL omit_result_type, BOOL omit_params, sVarTable* old_table, BOOL question_operator);
 unsigned int sNodeTree_create_block_call(unsigned int block, int num_params, unsigned int params[], sParserInfo* info);
 unsigned int sNodeTree_conditional_expression(unsigned int expression_node, unsigned int true_expression_node, unsigned int false_expression_node, sParserInfo* info);
 unsigned int sNodeTree_create_normal_block(MANAGED sNodeBlock* node_block, sParserInfo* info);
@@ -927,7 +929,7 @@ BOOL sNodeTree_create_decrement_operand(unsigned int left_node, sParserInfo* inf
 void arrange_stack(sCompileInfo* cinfo);
 
 /// node_block.c ///
-BOOL compile_block(sNodeBlock* block, sCompileInfo* info);
+BOOL compile_block(sNodeBlock* block, sCompileInfo* info, BOOL result_type_boxing);
 BOOL compile_block_with_result(sNodeBlock* block, sCompileInfo* info);
 
 /// script_ctime.c ///

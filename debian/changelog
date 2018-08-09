@@ -1,4 +1,8 @@
 
+clover2 (4.9.0-1) unstable; urgency=medium
+
+    * Fixed method result bug. Fixed Generics bug. Fixed block object bug. Added ? and : operator for null checking and exception checking.
+
 clover2 (4.8.9-1) unstable; urgency=medium
 
     * Fixed JIT bug.

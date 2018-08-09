@@ -1474,7 +1474,7 @@ Bufferクラスはバイナリデータを格納するクラスですが、メ�
     Clover.test("Memory safe pointer test3", memcmp(e, B"A1C", 3) == 0);
 ```
 
-## ナルポインター演算子
+## 例外演算子
 
 nullの判定コードはコーディングしていると頻出します。そのため以下のような簡略化する演算子がClover2にはあります。
 
@@ -1485,6 +1485,25 @@ nullの判定コードはコーディングしていると頻出します。そ�
 ```
 
 上のコードはnullが入った変数にmatchを呼び出していますがnullが入っている場合でも例外が起きません。match文が実行されないだけです。
+
+戻り値を利用するときは以下のように書きます。
+
+```
+    str:String? = null;
+
+    assert((str?.match(/./) : false) == false)
+```
+
+falseはstrがnullだった時の戻り値です。strがnull出ない場合str.match(/./)の結果が返ります。
+
+例外の検査にも使えます。もしClassA.method():intが例外を投げる場合、以下のように例外があれば、メソッドチェインを止めるようにできます。
+
+```
+    obj := ClassA();
+    assert((obj?.method().toString() :"AAA").equals("AAA"));
+```
+
+obj?.method()で例外が投げられて"AAA"が返ってます。
 
 
 ## 糖衣構文

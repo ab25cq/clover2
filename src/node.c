@@ -3644,7 +3644,7 @@ static BOOL compile_while_expression(unsigned int node, sCompileInfo* info)
     info->break_points = break_points;
 
     sNodeBlock* while_block = gNodes[node].uValue.sWhile.mWhileNodeBlock;
-    if(!compile_block(while_block, info)) {
+    if(!compile_block(while_block, info, FALSE)) {
         return FALSE;
     }
 
@@ -3766,7 +3766,7 @@ static BOOL compile_for_expression(unsigned int node, sCompileInfo* info)
     info->break_points = break_points;
 
     sNodeBlock* for_block = gNodes[node].uValue.sFor.mForNodeBlock;
-    if(!compile_block(for_block, info)) {
+    if(!compile_block(for_block, info, FALSE)) {
         return FALSE;
     }
 
@@ -4550,16 +4550,6 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
             return FALSE;
         }
 
-        unsigned int question_operator_block = -1;
-        if(num_params > 0) {
-            unsigned int last_param = params[num_params-1];
-            if(gNodes[last_param].mNodeType == kNodeTypeBlockObject 
-                && gNodes[last_param].uValue.sBlockObject.mQuestionOperator)
-            {
-                question_operator_block = last_param;
-            }
-        }
-
         if(!info->pinfo->exist_block_object_err) { // for interpreter completion
             sNodeType* right_method_generics_types = get_methocs_generics_type(info->pinfo);
 
@@ -4572,7 +4562,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
             if(method_index2 != -1 && exist_lazy_lamda_compile) {
                 int node2 = params[num_params-1];
 
-                /// determine block type and block params from getted method ///
+                /// determine the block type and the block params from the getted method ///
                 sCLMethod* method2 = klass->mMethods + method_index2;
 
                 unsigned int tmp = clone_node(node2); // prevent realloc bug
@@ -4595,9 +4585,8 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                 }
 
                 BOOL omit_params = node_tree->uValue.sBlockObject.mOmitParams;
-                BOOL result_type_boxing = FALSE;
 
-                if(num_block_params > 0 && omit_params) {
+                if(num_block_params >= 0 && omit_params) {
                     sNodeType* method_generics_types = result_method_generics_types;
                     sNodeType* generics_types = info->type;
 
@@ -4710,18 +4699,11 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                         result_type3 = result_type2;
                     }
 
-                    if(result_type3 && result_type3->mClass 
-                        && !(result_type3->mClass->mFlags & CLASS_FLAGS_PRIMITIVE)) 
-                    {
-                        result_type_boxing = TRUE;
-                    }
                     node2 = sNodeTree_create_block_object(block_params, num_block_params, result_type3, MANAGED node_block, lambda, &info2, omit_result_type, FALSE, old_table, FALSE);
                 }
 
                 sNodeType* block_last_type_before = info->block_last_type;
                 info->block_last_type = NULL;
-                BOOL result_type_boxing_before = info->result_type_boxing;
-                info->result_type_boxing = result_type_boxing;
 
                 BOOL omit_block_result_type_before = info->omit_block_result_type;
                 info->omit_block_result_type2 = omit_block_result_type;
@@ -4732,7 +4714,6 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                 /// compile ///
                 if(!compile(node2, info)) {
                     info->block_last_type = block_last_type_before;
-                    info->result_type_boxing = result_type_boxing_before;
                     info->omit_block_result_type2 = omit_block_result_type_before;
                     info->return_type2 = return_type2_before;
                     return FALSE;
@@ -4765,7 +4746,6 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                     param_types[num_params-1] = info->type;
 
                     info->block_last_type = block_last_type_before;
-                    info->result_type_boxing = result_type_boxing_before;
                     info->omit_block_result_type2 = omit_block_result_type_before;
                     info->return_type2 = return_type2_before;
 
@@ -4850,11 +4830,12 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                 info->stack_num -= num_params + 1;
                 info->stack_num++;
 
-                if(question_operator_block == -1) {
-                    info->type = result_type;
-                }
-                else {
-                    info->type = gNodes[question_operator_block].uValue.sBlockObject.mQuestionOperatorResultType;
+                info->type = result_type;
+
+                if(info->question_operator_result_type)
+                {
+                    info->type = info->question_operator_result_type;
+                    info->question_operator_result_type = NULL;
                 }
             }
         }
@@ -5534,7 +5515,7 @@ static BOOL compile_try_expression(unsigned int node, sCompileInfo* info)
     append_str_to_constant_pool_and_code(info->constant, info->code, label_catch_name, info->no_output);
 
     sNodeBlock* try_node_block = gNodes[node].uValue.sTry.mTryNodeBlock;
-    if(!compile_block(try_node_block, info)) {
+    if(!compile_block(try_node_block, info, FALSE)) {
         return FALSE;
     }
 
@@ -5568,7 +5549,7 @@ static BOOL compile_try_expression(unsigned int node, sCompileInfo* info)
 
         append_opecode_to_code(info->code, OP_CATCH_POP, info->no_output); // for none JIT code
 
-        if(!compile_block(catch_node_block, info)) {
+        if(!compile_block(catch_node_block, info, FALSE)) {
             return FALSE;
         }
 
@@ -9444,7 +9425,7 @@ BOOL compile_hash_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_block_object(sParserParam* params, int num_params, sNodeType* result_type, MANAGED sNodeBlock* node_block, BOOL lambda, sParserInfo* info, BOOL omit_result_type, BOOL omit_params, sVarTable* old_table, BOOL question_operator_block)
+unsigned int sNodeTree_create_block_object(sParserParam* params, int num_params, sNodeType* result_type, MANAGED sNodeBlock* node_block, BOOL lambda, sParserInfo* info, BOOL omit_result_type, BOOL omit_params, sVarTable* old_table, BOOL question_operator)
 {
     unsigned int node = alloc_node();
 
@@ -9471,7 +9452,7 @@ unsigned int sNodeTree_create_block_object(sParserParam* params, int num_params,
     gNodes[node].uValue.sBlockObject.mOmitResultType = omit_result_type;
     gNodes[node].uValue.sBlockObject.mOmitParams = omit_params;
     gNodes[node].uValue.sBlockObject.mOldTable = old_table;
-    gNodes[node].uValue.sBlockObject.mQuestionOperator = question_operator_block;
+    gNodes[node].uValue.sBlockObject.mQuestionOperator = question_operator;
 
     return node;
 }
@@ -9493,7 +9474,7 @@ BOOL compile_block_object(unsigned int node, sCompileInfo* info)
     BOOL omit_result_type = gNodes[node].uValue.sBlockObject.mOmitResultType;
     BOOL lambda = gNodes[node].uValue.sBlockObject.mLambda;
     sVarTable* old_table = gNodes[node].uValue.sBlockObject.mOldTable;
-    BOOL question_operator_block = gNodes[node].uValue.sBlockObject.mQuestionOperator;
+    BOOL question_operator = gNodes[node].uValue.sBlockObject.mQuestionOperator;
 
     /// compile block ///
     sByteCode codes;
@@ -9520,7 +9501,13 @@ BOOL compile_block_object(unsigned int node, sCompileInfo* info)
     BOOL omit_block_result_type_before = info->omit_block_result_type;
     info->omit_block_result_type = omit_result_type;
 
-    if(!compile_block(node_block, info)) {
+    BOOL result_type_boxing = FALSE;
+    if(result_type && result_type->mClass && !(result_type->mClass->mFlags & CLASS_FLAGS_PRIMITIVE))
+    {
+        result_type_boxing = TRUE;
+    }
+
+    if(!compile_block(node_block, info, result_type_boxing)) {
         sByteCode_free(&codes);
         sConst_free(&constant);
         info->code = codes_before;
@@ -9531,11 +9518,12 @@ BOOL compile_block_object(unsigned int node, sCompileInfo* info)
         info->return_type = return_type_before;
         return FALSE;
     }
-    if(question_operator_block) {
-        gNodes[node].uValue.sBlockObject.mQuestionOperatorResultType = info->block_last_type;
+
+    if(question_operator) {
+        info->question_operator_result_type = info->block_last_type;
     }
     else {
-        gNodes[node].uValue.sBlockObject.mQuestionOperatorResultType = NULL;
+        info->question_operator_result_type = NULL;
     }
 
     sNodeType* return_type = info->return_type;
@@ -9724,7 +9712,13 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     sNodeType* block_result_type_before = info->block_result_type;
     info->block_result_type = result_type;
 
-    if(!compile_block(node_block, info)) {
+    BOOL result_type_boxing = FALSE;
+    if(result_type && result_type->mClass && !(result_type->mClass->mFlags & CLASS_FLAGS_PRIMITIVE))
+    {
+        result_type_boxing = TRUE;
+    }
+
+    if(!compile_block(node_block, info, result_type_boxing)) {
         sByteCode_free(&codes);
         sConst_free(&constant);
         info->code = codes_before;
