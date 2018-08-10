@@ -813,15 +813,11 @@ struct sCompileInfoStruct
     int* break_points;
     sCLMethod* method;
     sNodeType* block_result_type;
-    sNodeType* return_type;
     BOOL in_block;
     BOOL omit_block_result_type;
     sNodeType* block_last_type;
     char* sname;
     int sline;
-
-    BOOL omit_block_result_type2;
-    sNodeType* return_type2;
 
     char* break_point_label_name;
     BOOL no_pop_next;
@@ -929,7 +925,7 @@ BOOL sNodeTree_create_decrement_operand(unsigned int left_node, sParserInfo* inf
 void arrange_stack(sCompileInfo* cinfo);
 
 /// node_block.c ///
-BOOL compile_block(sNodeBlock* block, sCompileInfo* info, BOOL result_type_boxing);
+BOOL compile_block(sNodeBlock* block, sCompileInfo* info, BOOL result_type_boxing, sNodeType** block_last_type);
 BOOL compile_block_with_result(sNodeBlock* block, sCompileInfo* info);
 
 /// script_ctime.c ///
@@ -1855,7 +1851,7 @@ BOOL add_typedef_to_class(sCLClass* klass, char* class_name1, char* class_name2)
 BOOL add_class_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type, int initialize_value, char* header_path);
 void add_code_to_method(sCLMethod* method, sByteCode* code, int var_num);
 BOOL write_all_modified_classes();
-int search_for_method(sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, int start_point, sNodeType* left_generics_type, sNodeType* right_generics_type, sNodeType* right_method_generics, sNodeType** result_type, BOOL lazy_lambda_compile, BOOL lazy_labda_compile2, sNodeType** method_generics_types, struct sParserInfoStruct* info);
+int search_for_method(sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, int start_point, sNodeType* left_generics_type, sNodeType* right_generics_type, sNodeType* right_method_generics, sNodeType** result_type, BOOL lazy_lambda_compile, sNodeType** method_generics_types, struct sParserInfoStruct* info);
 BOOL search_for_methods_from_method_name(int method_indexes[], int size_method_indexes, int* num_methods, sCLClass* klass, char* method_name, int start_point, BOOL class_method);
 int search_for_field(sCLClass* klass, char* field_name);
 int search_for_class_field(sCLClass* klass, char* field_name);

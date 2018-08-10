@@ -523,10 +523,11 @@ static BOOL check_method_params(sCLMethod* method, sCLClass* klass, char* method
                 for(j=0; j<num_params; j++ ) {
                     sNodeType* param = create_node_type_from_cl_type(method->mParams[j].mType, klass);
 
-                    if(lazy_lambda_compile && j == num_params-1) {
-                        if(!type_identify_with_class_name(param, "lambda")) {
-                            return FALSE;
-                        }
+                    if(lazy_lambda_compile 
+                        && j == num_params-1 
+                        && type_identify_with_class_name(param, "lambda")) 
+                    {
+                        break;
                     }
                     else {
                         if(!substitution_posibility(param, param_types[j], left_generics_type, right_generics_type, left_method_generics, right_method_generics)) 
@@ -566,7 +567,7 @@ static sNodeType* get_method_genercs_from_method(sCLClass* klass, sCLMethod* met
     return result;
 }
 
-int search_for_method(sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, int start_point, sNodeType* left_generics_type, sNodeType* right_generics_type, sNodeType* right_method_generics, sNodeType** result_type, BOOL lazy_lambda_compile, BOOL lazy_lambda_compile2, sNodeType** method_generics_types, struct sParserInfoStruct* info)
+int search_for_method(sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, int start_point, sNodeType* left_generics_type, sNodeType* right_generics_type, sNodeType* right_method_generics, sNodeType** result_type, BOOL lazy_lambda_compile, sNodeType** method_generics_types, struct sParserInfoStruct* info)
 {
     int i;
     if(*method_generics_types == NULL) {
@@ -578,10 +579,6 @@ int search_for_method(sCLClass* klass, char* method_name, sNodeType** param_type
             sCLMethod* method = klass->mMethods + i;
 
             sNodeType* left_method_generics = get_method_genercs_from_method(klass, method);
-
-            if(lazy_lambda_compile2) {
-                right_method_generics = *method_generics_types;
-            }
 
             if(check_method_params(method, klass, method_name, param_types, num_params, search_for_class_method, left_generics_type, right_generics_type, left_method_generics, right_method_generics, *method_generics_types, lazy_lambda_compile, info))
             {

@@ -2268,7 +2268,7 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
                     /// chomp ///
                     sNodeType* result_type = NULL;
                     sNodeType* result_method_generics_types = NULL;
-                    int method_index = search_for_method(string_class, "chomp", NULL, 0, FALSE, string_class->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, FALSE, &result_method_generics_types, NULL);
+                    int method_index = search_for_method(string_class, "chomp", NULL, 0, FALSE, string_class->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, &result_method_generics_types, NULL);
 
                     if(method_index != -1) {
                         append_opecode_to_code(cinfo.code, OP_INVOKE_METHOD, cinfo.no_output);
@@ -2286,7 +2286,7 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
 
                     /// println ///
                     result_method_generics_types = NULL;
-                    method_index = search_for_method(string_class, "printlnWithoutNullString", NULL, 0, FALSE, string_class->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, FALSE, &result_method_generics_types, NULL);
+                    method_index = search_for_method(string_class, "printlnWithoutNullString", NULL, 0, FALSE, string_class->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, &result_method_generics_types, NULL);
 
                     if(method_index != -1) {
                         append_opecode_to_code(cinfo.code, OP_INVOKE_METHOD, cinfo.no_output);
@@ -2311,7 +2311,7 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
 
                 sNodeType* result_type = NULL;
                 sNodeType* result_method_generics_types = NULL;
-                int method_index = search_for_method(klass, "toString", NULL, 0, FALSE, klass->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, FALSE, &result_method_generics_types, NULL);
+                int method_index = search_for_method(klass, "toString", NULL, 0, FALSE, klass->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, &result_method_generics_types, NULL);
 
                 if(method_index != -1) {
                     append_opecode_to_code(cinfo.code, OP_INVOKE_METHOD, cinfo.no_output);
@@ -2334,7 +2334,7 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
                     /// chomp ///
                     sNodeType* result_type = NULL;
                     sNodeType* result_method_generics_types = NULL;
-                    int method_index = search_for_method(string_class, "chomp", NULL, 0, FALSE, string_class->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, FALSE, &result_method_generics_types, NULL);
+                    int method_index = search_for_method(string_class, "chomp", NULL, 0, FALSE, string_class->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, &result_method_generics_types, NULL);
 
                     if(method_index != -1) {
                         append_opecode_to_code(cinfo.code, OP_INVOKE_METHOD, cinfo.no_output);
@@ -2353,7 +2353,7 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
                     /// println ///
                     result_type = NULL;
                     result_method_generics_types = NULL;
-                    method_index = search_for_method(string_class, "printlnWithoutNullString", NULL, 0, FALSE, string_class->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, FALSE, &result_method_generics_types, NULL);
+                    method_index = search_for_method(string_class, "printlnWithoutNullString", NULL, 0, FALSE, string_class->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, &result_method_generics_types, NULL);
 
                     if(method_index != -1) {
                         append_opecode_to_code(cinfo.code, OP_INVOKE_METHOD, cinfo.no_output);
@@ -2452,7 +2452,7 @@ static void compiler_final()
 
 int gARGC;
 char** gARGV;
-char* gVersion = "4.9.0";
+char* gVersion = "4.9.1";
 
 char gScriptDirPath[PATH_MAX];
 BOOL gRunningCompiler = FALSE;

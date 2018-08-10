@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 4.9.1 
+
+    Refactoring method blocks. Return value of block object by lambda can not be omitted>. (For organizing the source)
+
 version 4.9.0
 
     Fixed method result bug.

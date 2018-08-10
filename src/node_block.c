@@ -219,7 +219,7 @@ BOOL parse_question_operator_block(unsigned int object_node, int num_method_chai
     return TRUE;
 }
 
-BOOL compile_block(sNodeBlock* block, sCompileInfo* info, BOOL result_type_boxing)
+BOOL compile_block(sNodeBlock* block, sCompileInfo* info, BOOL result_type_boxing, sNodeType** block_last_type)
 {
     sVarTable* old_table = info->lv_table;
     info->lv_table = block->mLVTable;
@@ -248,7 +248,7 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, BOOL result_type_boxin
 
         arrange_stack(info);
 
-        info->block_last_type = info->type;
+        *block_last_type = info->type;
 
 #ifdef ENABLE_INTERPRETER
         append_opecode_to_code(info->code, OP_SIGINT, info->no_output);
@@ -265,7 +265,7 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, BOOL result_type_boxin
 
         arrange_stack(info);
 
-        info->block_last_type = info->type;
+        *block_last_type = info->type;
 
 #ifdef ENABLE_INTERPRETER
         append_opecode_to_code(info->code, OP_SIGINT, info->no_output);

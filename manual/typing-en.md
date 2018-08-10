@@ -16,6 +16,8 @@ Type inference to another block object is as follows.
 ```
 Depending on the return type, the return type of the block object is determined. (Return value: int can be omitted)
 
+(From version 4.9.1 I am obliterating the omission of the return value of block object type inference.) I'm sorry.
+
 # Type block inference method
 
 Arguments and return values ​​can be omitted in the method block. The arguments are declared as it, it2, it3, ....
