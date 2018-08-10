@@ -5,30 +5,12 @@
 
 BOOL gSigInt = FALSE;
 
-void show_stack(CLVALUE* stack, CLVALUE* stack_ptr, CLVALUE* lvar, int var_num)
+void show_stack(CLVALUE* stack, CLVALUE* stack_ptr)
 {
-    if(lvar == NULL) {
-        lvar = stack + var_num;
-    }
-
-    if(stack_ptr == lvar+var_num) {
-        puts("stack is empty");
-    }
-
-    if(stack_ptr < stack) {
-        puts("stack is invalid. abort.");
-        exit(3);
-    }
-
     int i;
     for(i=0; i<30; i++) {
         if(stack + i < stack_ptr) {
-            if(stack_ptr == stack + i) {
-                printf("![%d] %d on %p\n", i, stack[i].mIntValue, stack + i);
-            }
-            else {
-                printf("[%d] %d on %p\n", i, stack[i].mIntValue, stack + i);
-            }
+            printf("[%d] %d on %p\n", i, stack[i].mIntValue, stack + i);
         }
     }
 }
@@ -856,7 +838,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
         info->current_var_num = var_num;
 
         if(!method->mNativeMethod(stack_ptr, lvar, info)) {
-            CLVALUE result = *(*stack_ptr - 1); // see OP_TRY
+            CLVALUE result = *(*stack_ptr - 1);
             *stack_ptr = lvar;
             **stack_ptr = result;
             (*stack_ptr)++;
@@ -989,7 +971,7 @@ BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_pa
         memcpy(new_stack, (*stack_ptr)-num_params, sizeof(CLVALUE)*num_params);
 
         if(!vm(&code, &constant, new_stack, new_var_num, klass, info)) {
-            **stack_ptr = *new_stack;
+            **stack_ptr = *(new_stack + new_var_num);
             (*stack_ptr)++;
             return FALSE;
         }
@@ -1015,7 +997,7 @@ BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_pa
             object_data = CLBLOCK(block_object);
             memcpy(object_data->mParentStack, new_stack, sizeof(CLVALUE)*object_data->mParentVarNum);
 
-            **stack_ptr = *new_stack;
+            **stack_ptr = *(new_stack + new_var_num);
             (*stack_ptr)++;
             return FALSE;
         }
@@ -1652,9 +1634,9 @@ show_inst(inst);
                 return TRUE;
 
             case OP_THROW: {
-                *stack = *(stack_ptr-1);
+                *(stack + var_num) = *(stack_ptr-1);
 
-                CLObject exception = stack->mObjectValue;
+                CLObject exception = (stack_ptr-1)->mObjectValue;
 
                 entry_exception_object(exception, info);
 
@@ -5596,6 +5578,7 @@ show_inst(inst);
                     int field_index = *(int*)pc;
                     pc += sizeof(int);
 
+
                     CLObject obj = (stack_ptr -2)->mObjectValue;
                     CLVALUE value = *(stack_ptr-1);
 
@@ -5631,7 +5614,7 @@ show_inst(inst);
                     }
 
                     if(field_index < 0 || field_index >= klass->mNumFields) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "field index is invalid(3). Field index is %d", field_index);
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "field index is invalid(3). Object ID is %d. Field index is %d", obj, field_index);
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -16631,11 +16614,7 @@ show_inst(inst);
         if(!info->no_mutex_in_vm) {
             vm_mutex_off();
         }
-/*
-if(!gRunningCompiler && !gRunningInitializer) {
-show_stack(stack, stack_ptr, lvar, var_num);
-}
-*/
+//show_stack(stack, stack_ptr);
     }
 
 

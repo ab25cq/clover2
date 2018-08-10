@@ -339,8 +339,8 @@ call_show_inst_in_jit(inst);
                 break;
 
             case OP_THROW: {
-                std::string stack_param_name("stack");
-                Value* stack_value = params[stack_param_name];
+                std::string stack_plus_var_num_param_name("stack_plus_var_num");
+                Value* stack_value = params[stack_plus_var_num_param_name];
 
                 LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 

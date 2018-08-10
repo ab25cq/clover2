@@ -1,12 +1,39 @@
 class MethodBlock {
+    var scrollTopY:int;
+    var scrollTopX:int;
+    var cursorX:int;
+    var cursorY:int;
+    var texts:SortableList<String>;
+    var statusLineInSearchMode:String;
+
+    def initialize() {
+        texts = slist { "1","2","3","4","5","6a","7" };
+        statusLineInSearchMode = "a"
+    }
+
+    def method() {
+        var y = scrollTopY+cursorY;
+        var x = 0;
+        texts.subList(scrollTopY+cursorY, -1).each {
+            val match_point = it.indexOf(statusLineInSearchMode);
+            if(match_point != -1) {
+                x = match_point;
+                break;
+            }
+            y++;
+        }
+
+        cursorY = y;
+        cursorX = x;
+    }
+
     def main():static {
-/*
-a:List<String> = equalable_list { 1, 2, 3 }.map() {
-    return it.toString();
-}
+        a:EqualableList<String> = elist { 1, 2, 3 }.map { it.toString(); }
 
-Clover.test("method block test", a.equals(equalable_list { "1", "2", "3" }));
+        Clover.test("method block test", a.equals(equalable_list { "1", "2", "3" }));
 
-*/
+        var b = MethodBlock();
+
+        b.method();
     }
 }

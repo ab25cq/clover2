@@ -1,4 +1,8 @@
 
+clover2 (4.9.2-1) unstable; urgency=medium
+
+    * Bug fixed of ocurring a exception in closure.
+
 clover2 (4.9.1-1) unstable; urgency=medium
 
     * Refactoring method blocks. Return value of block object by lambda can not be omitted>. (For organizing the source)

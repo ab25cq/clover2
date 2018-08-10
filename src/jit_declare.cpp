@@ -1304,6 +1304,8 @@ Function* create_llvm_function(const std::string& name)
     params.push_back(param8_type);
     Type* param9_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
     params.push_back(param9_type);
+    Type* param10_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    params.push_back(param10_type);
 
     Type* result_type = IntegerType::get(TheContext, 32);
     FunctionType* function_type = FunctionType::get(result_type, params, false);
@@ -1329,6 +1331,8 @@ Function* create_llvm_function(const std::string& name)
     args.push_back(code_name);
     std::string global_stack_ptr_address_name("global_stack_ptr_address");
     args.push_back(global_stack_ptr_address_name);
+    std::string stack_plus_var_num_name("stack_plus_var_num");
+    args.push_back(stack_plus_var_num_name);
 
     unsigned index = 0;
     for (auto &arg : function->args()) {

@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 4.9.2
+
+    クロージャー内で例外が起こった場合バグがありました。修正。
+
 version 4.9.1 
 
     Refactoring method blocks. Return value of block object by lambda can not be omitted>. (For organizing the source)

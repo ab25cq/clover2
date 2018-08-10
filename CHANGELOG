@@ -1,4 +1,12 @@
 
+version 4.9.2
+
+    クロージャー内で例外が起こった場合バグがありました。修正。
+
+version 4.9.2
+
+    Bug fixed of occuring a exception in closure.
+
 version 4.9.1
 
     メソッドブロックのリファクタリング。lambdaによるブロックオブジェクトの戻り値は省略できないようになりました。（ソースの整理のため）

@@ -200,4 +200,3 @@ println("BoolTest");
 BoolTest.main();
 println("ObjectTest");
 ObjectTest.main();
-
