@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 4.9.5
+
+    Fixed bug with printw, wprintw.
+
 version 4.9.4
 
     Fixed bug with comment. See code/CommentTest.clcl

@@ -7068,7 +7068,7 @@ BOOL System_printw(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     /// Clover to C ///
     char* str_value = string_object_to_char_array(str->mObjectValue);
 
-    int result = printw(str_value);
+    int result = printw("%s", str_value);
 
     if(result == ERR) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "printw(3) is error. str is (%s)", str_value);
@@ -7463,7 +7463,7 @@ BOOL System_wprintw(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     WINDOW* window_value = (WINDOW*)window->mPointerValue;
     char* str_value = string_object_to_char_array(str->mObjectValue);
 
-    int result = wprintw(window_value, str_value);
+    int result = wprintw(window_value, "%s", str_value);
 
     if(result == ERR) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "wprintw(3) is error.");

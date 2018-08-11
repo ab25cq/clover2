@@ -1,4 +1,8 @@
 
+clover2 (4.9.5-1) unstable; urgency=medium
+
+    * Fixed bug with printw, wprintw.
+
 clover2 (4.9.4-1) unstable; urgency=medium
 
     * Fixed bug with comment. See code/CommentTest.clcl
