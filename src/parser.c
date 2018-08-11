@@ -5128,67 +5128,6 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         *node = 0;
         return TRUE;
     }
-    else if(*info->p == '#') {
-        while(*info->p) {
-            if(*info->p == '\n') {
-                break;
-            }
-
-            info->p++;
-        }
-
-        *node = 0;
-    }
-    else if(*info->p == '#') {
-        while(*info->p) {
-            if(*info->p == '\n') {
-                info->p++;
-                info->sline++;
-                break;
-            }
-
-            info->p++;
-        }
-
-        *node = 0;
-    }
-    else if(*info->p == '/' && *(info->p+1) == '*') {
-        info->p+=2;
-
-        BOOL in_string = FALSE;
-        int nest = 0;
-        while(1) {
-            if(*info->p == '"') {
-                info->p++;
-                in_string = !in_string;
-            }
-            else if(*info->p == 0) {
-                fprintf(stderr, "there is not a comment end until source end\n");
-                return FALSE;
-            }
-            else if(!in_string && *info->p == '/' && *(info->p+1) == '*') {
-                info->p+=2;
-                nest++;
-            }
-            else if(!in_string && *info->p == '*' && *(info->p+1) == '/') {
-                info->p+=2;
-                if(nest == 0) {
-                    break;
-                }
-
-                nest--;
-            }
-            else if(*info->p == '\n') {
-                info->p++;
-                info->sline++;
-            }
-            else {
-                info->p++;
-            }
-        }
-
-        *node = 0;
-    }
     else {
         parser_err_msg(info, "invalid character (character code %d) (%c)", *info->p, *info->p);
 

@@ -1,4 +1,8 @@
 
+version 4.9.4
+
+    Fixed bug with comment. See code/CommentTest.clcl
+
 version 4.9.3
 
     Fixed bug with used '#'

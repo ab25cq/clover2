@@ -506,6 +506,7 @@ test: parser
 	PWD=`pwd` ./cclover2 code/FileTest.clcl
 	PWD=`pwd` ./cclover2 code/DirTest.clcl
 	PWD=`pwd` ./cclover2 code/CommandTest.clcl
+	PWD=`pwd` ./cclover2 code/CommentTest.clcl
 	PWD=`pwd` ./cclover2 code/AnonymousTest.clcl
 	PWD=`pwd` ./cclover2 code/FunTest.clcl
 	PWD=`pwd` ./cclover2 code/TypeInference.clcl

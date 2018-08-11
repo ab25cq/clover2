@@ -1,0 +1,11 @@
+class CommentTest
+{
+    def main(): static {
+        Clover.test("comment test", '#' == '#');
+        Clover.test("comment test2", /\#/ == /\#/);
+        Clover.test("comment test3", "#".equals("#"));
+        Clover.test("comment test4", "/*".equals("/*"));
+        Clover.test("comment test5", "*/".equals("*/"));
+        Clover.test("comment test6", /\/*/ == /\/*/);
+    }
+}

@@ -110,6 +110,8 @@ println("DirTest");
 DirTest.main();
 println("CommandTest");
 CommandTest.main();
+println("CommentTest");
+CommentTest.main();
 println("AnonymousTest");
 AnonymousTest.main();
 println("FunTest");
