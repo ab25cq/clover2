@@ -96,11 +96,13 @@ BOOL delete_comment(sBuf* source, sBuf* source2)
                 }
             }
         }
+/*
         else if(!in_string && !in_char&& *p == '/') {
             in_regex = !in_regex;
             sBuf_append_char(source2, *p);
             p++;
         }
+*/
         else if(!in_regex && !in_string && *p == '\'') {
             in_char = !in_char;
             sBuf_append_char(source2, *p);
