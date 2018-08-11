@@ -1,4 +1,8 @@
 
+version 4.9.3
+
+    Fixed bug with used '#'
+
 version 4.9.2
 
     Bug fixed of occuring a exception in closure.

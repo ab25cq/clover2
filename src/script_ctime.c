@@ -40,14 +40,26 @@ BOOL delete_comment(sBuf* source, sBuf* source2)
     char* p = source->mBuf;
 
     BOOL in_string = FALSE;
+    BOOL in_char = FALSE;
+    BOOL in_regex = FALSE;
 
     while(*p) {
-        if(*p == '"') {
+        if(*p == '/') {
+            in_regex = !in_regex;
+            sBuf_append_char(source2, *p);
+            p++;
+        }
+        else if(*p == '\'') {
+            in_char = !in_char;
+            sBuf_append_char(source2, *p);
+            p++;
+        }
+        else if(*p == '"') {
             in_string = !in_string;
             sBuf_append_char(source2, *p);
             p++;
         }
-        else if(!in_string && *p =='#')
+        else if(!in_regex && !in_char && !in_string && *p =='#')
         {
             p++;
 
@@ -64,7 +76,7 @@ BOOL delete_comment(sBuf* source, sBuf* source2)
                 }
             }
         }
-        else if(!in_string && *p == '/' && *(p+1) == '*') {
+        else if(!in_regex && !in_char && !in_string && *p == '/' && *(p+1) == '*') {
             int nest;
 
             p+=2;

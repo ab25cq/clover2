@@ -1,4 +1,8 @@
 
+clover2 (4.9.3-1) unstable; urgency=medium
+
+    * Fixed bug with used '#'
+
 clover2 (4.9.2-1) unstable; urgency=medium
 
     * Bug fixed of ocurring a exception in closure.

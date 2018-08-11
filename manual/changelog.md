@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 4.9.3
+
+    Fixed bug with used '#'
+
 version 4.9.2
 
     クロージャー内で例外が起こった場合バグがありました。修正。
