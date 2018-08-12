@@ -1,0 +1,3 @@
+language: c
+script: sudo apt update && sudo apt install clang libpcre3-dev ctags -y && sudo ./configure --with-optimize && make && sudo make install && make test
+sudo: required
