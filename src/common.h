@@ -435,9 +435,9 @@ sNodeType* create_node_type_with_class_pointer(sCLClass* klass);
 struct sParserInfoStruct;
 BOOL is_exception_type(sNodeType* exception_type);
 
-BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_generics_types, sNodeType* right_generics_types, sNodeType* left_method_generics, sNodeType* right_method_generics);
+BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_generics_types, sNodeType* right_generics_types, sNodeType* left_method_generics, sNodeType* right_method_generics, BOOL output_message);
 BOOL cast_posibility(sNodeType* left_type, sNodeType* right_type);
-BOOL substitution_posibility_with_class_name(sNodeType* left, char* right_class_name);
+BOOL substitution_posibility_with_class_name(sNodeType* left, char* right_class_name, BOOL output_message);
 BOOL operand_posibility_with_class_name(sNodeType* left, char* right_class_name, char* op_string);
 BOOL operand_posibility(sNodeType* left, sNodeType* right, char* op_string);
 BOOL solve_generics_types_for_node_type(sNodeType* node_type, ALLOC sNodeType** result, sNodeType* generics_type, BOOL solve_self, BOOL solve_method_generics);
@@ -476,7 +476,7 @@ void init_node_block_types();
 void free_node_block_types();
 sNodeBlockType* alloc_node_block_type();
 sNodeBlockType* clone_node_block_type(sNodeBlockType* block);
-BOOL substitution_posibility_for_node_block_type(sNodeBlockType* left_block, sNodeBlockType* right_block, sNodeType* left_generics_types, sNodeType* right_generics_types);
+BOOL substitution_posibility_for_node_block_type(sNodeBlockType* left_block, sNodeBlockType* right_block, sNodeType* left_generics_types, sNodeType* right_generics_types, BOOL output_message);
 void free_block(CLObject self);
 
 /// vtable.c ///

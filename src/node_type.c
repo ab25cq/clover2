@@ -270,7 +270,7 @@ sNodeType* create_node_type_from_cl_type(sCLType* cl_type, sCLClass* klass)
     return node_type;
 }
 
-BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_generics_types, sNodeType* right_generics_types, sNodeType* left_method_generics, sNodeType* right_method_generics)
+BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_generics_types, sNodeType* right_generics_types, sNodeType* left_method_generics, sNodeType* right_method_generics, BOOL output_message)
 {
     sNodeType* left2;
 
@@ -357,7 +357,7 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_
             return FALSE;
         }
         else {
-            return check_implemented_methods_for_interface(left_class, right_class, FALSE);
+            return check_implemented_methods_for_interface(left_class, right_class, output_message);
         }
     }
     else if(strcmp(CLASS_NAME(left3->mClass), "lambda") == 0) {
@@ -371,7 +371,7 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_
             sNodeBlockType* right_block_type = right3->mBlockType;
 
             if(left_block_type && right_block_type) {
-                return substitution_posibility_for_node_block_type(left_block_type, right_block_type, left_generics_types, right_generics_types);
+                return substitution_posibility_for_node_block_type(left_block_type, right_block_type, left_generics_types, right_generics_types, output_message);
             }
             else {
                 return FALSE;
@@ -393,7 +393,7 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_
                     return FALSE;
                 }
 */
-                if(!substitution_posibility(left3->mGenericsTypes[i], right3->mGenericsTypes[i], left_generics_types, right_generics_types, left_method_generics, right_method_generics))
+                if(!substitution_posibility(left3->mGenericsTypes[i], right3->mGenericsTypes[i], left_generics_types, right_generics_types, left_method_generics, right_method_generics, output_message))
                 {
                     return FALSE;
                 }
@@ -407,9 +407,9 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_
     }
 }
 
-BOOL substitution_posibility_with_class_name(sNodeType* left, char* right_class_name)
+BOOL substitution_posibility_with_class_name(sNodeType* left, char* right_class_name, BOOL output_message)
 {
-    return substitution_posibility(left, create_node_type_with_class_name(right_class_name), NULL , NULL, NULL, NULL);
+    return substitution_posibility(left, create_node_type_with_class_name(right_class_name), NULL , NULL, NULL, NULL, output_message);
 }
 
 static BOOL is_numeric_type(sNodeType* type_)
@@ -672,7 +672,7 @@ void solve_generics_for_variable(sNodeType* generics_type, sNodeType** generics_
 
 BOOL is_exception_type(sNodeType* exception_type)
 {
-    return substitution_posibility_with_class_name(exception_type, "Exception");
+    return substitution_posibility_with_class_name(exception_type, "Exception", FALSE);
 }
 
 void print_node_type(sNodeType* node_type)

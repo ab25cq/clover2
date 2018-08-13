@@ -4,6 +4,10 @@ module MObjectBase
     def map(block_:lambda(SELF):Anonymous?): Anonymous? {
         return block_(self);
     }
+
+    def nothing(): SELF {
+        return self;
+    }
 }
 
 class System

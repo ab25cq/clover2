@@ -83,10 +83,10 @@ ALLOC sNodeBlockType* clone_node_block_type(sNodeBlockType* block)
     return self;
 }
 
-BOOL substitution_posibility_for_node_block_type(sNodeBlockType* left_block, sNodeBlockType* right_block, sNodeType* left_generics_types, sNodeType* right_generics_types)
+BOOL substitution_posibility_for_node_block_type(sNodeBlockType* left_block, sNodeBlockType* right_block, sNodeType* left_generics_types, sNodeType* right_generics_types, BOOL output_message)
 {
     /// result type ///
-    if(substitution_posibility(left_block->mResultType, right_block->mResultType, NULL, NULL, NULL, NULL)) {
+    if(substitution_posibility(left_block->mResultType, right_block->mResultType, NULL, NULL, NULL, NULL, output_message)) {
         if(left_block->mNumParams == right_block->mNumParams) {
             int i;
             for(i=0; i<left_block->mNumParams; i++) {
@@ -117,7 +117,7 @@ BOOL substitution_posibility_for_node_block_type(sNodeBlockType* left_block, sNo
                     right_solved_param = right_block->mParams[i];
                 }
 
-                if(!substitution_posibility(left_solved_param, right_solved_param, NULL, NULL, NULL, NULL))
+                if(!substitution_posibility(left_solved_param, right_solved_param, NULL, NULL, NULL, NULL, output_message))
                 {
                     return FALSE;
                 }

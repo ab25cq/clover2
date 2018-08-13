@@ -185,7 +185,7 @@ BOOL compile_params_method_default_value(sCLClass* klass, char* method_name, int
                     return FALSE;
                 }
 
-                if(!substitution_posibility(solved_param, param_types[j], NULL, NULL, NULL, NULL))
+                if(!substitution_posibility(solved_param, param_types[j], NULL, NULL, NULL, NULL, TRUE))
                 {
                     break;
                 }
@@ -301,7 +301,7 @@ static BOOL compile_params(sCLClass* klass, char* method_name, int* num_params, 
                         }
 
                         /// If it is assigned to Null, make the param_types method argument type. 
-                        if(substitution_posibility_with_class_name(solved_param, "Null")) {
+                        if(substitution_posibility_with_class_name(solved_param, "Null", TRUE)) {
                             if(type_identify_with_class_name(param_types[i], "Null")) {
                                 param_types[i] = solved_param;
                             }
@@ -2557,14 +2557,13 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
         cast_right_type_to_left_type(left_type2, &right_type, info);
     }
 
-    if(!substitution_posibility(left_type2, right_type, NULL, NULL, NULL, NULL)) {
+    if(!substitution_posibility(left_type2, right_type, NULL, NULL, NULL, NULL, TRUE)) {
         compile_err_msg(info, "The different type between left type and right type(1). Left type is %s. Right type is %s.", CLASS_NAME(left_type2->mClass), CLASS_NAME(right_type->mClass));
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int"); // dummy
 
         return TRUE;
-
     }
 
     int var_index = get_variable_index(info->lv_table, gNodes[node].uValue.sAssignVariable.mVarName);
@@ -5375,7 +5374,7 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
             cast_right_type_to_left_type(result_type2, &value_result_type, info);
         }
 
-        if(!substitution_posibility(result_type2, value_result_type, NULL, NULL, NULL, NULL)) {
+        if(!substitution_posibility(result_type2, value_result_type, NULL, NULL, NULL, NULL, TRUE)) {
             compile_err_msg(info, "Invalid type of return value(2). Left type is %s. Left generics number %d. Right type is %s. right generics number %d.", CLASS_NAME(result_type2->mClass), result_type2->mNumGenericsTypes, CLASS_NAME(value_result_type->mClass), value_result_type->mNumGenericsTypes);
             int i;
             for(i=0; i<result_type2->mNumGenericsTypes; i++) {
@@ -5920,7 +5919,7 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
         cast_right_type_to_left_type(solved_field_type, &right_type, info);
     }
 
-    if(!substitution_posibility(solved_field_type, right_type, generics_types, NULL, NULL, NULL)) {
+    if(!substitution_posibility(solved_field_type, right_type, generics_types, NULL, NULL, NULL, TRUE)) {
         compile_err_msg(info, "The different type between left type and right type(2). %s and %s", CLASS_NAME(solved_field_type->mClass), CLASS_NAME(right_type->mClass));
         info->err_num++;
 
@@ -6066,7 +6065,7 @@ static BOOL compile_store_class_field(unsigned int node, sCompileInfo* info)
         cast_right_type_to_left_type(field_type, &right_type, info);
     }
 
-    if(!substitution_posibility(field_type, right_type, NULL, NULL, NULL, NULL)) {
+    if(!substitution_posibility(field_type, right_type, NULL, NULL, NULL, NULL, TRUE)) {
         compile_err_msg(info, "The different type between left type and right type(3). Left type is %s. Right type is %s.", CLASS_NAME(field_type->mClass), CLASS_NAME(right_type->mClass));
         info->err_num++;
 
@@ -6153,7 +6152,7 @@ BOOL compile_store_value_to_pointer(unsigned int node, sCompileInfo* info)
     }
 
     if(right_type == NULL 
-        || !substitution_posibility(node_type, right_type, NULL, NULL, NULL, NULL))
+        || !substitution_posibility(node_type, right_type, NULL, NULL, NULL, NULL, TRUE))
     {
         if(right_type == NULL || node_type->mClass == NULL) {
             compile_err_msg(info, "The different type between left type and right type(4). NULL type.");
@@ -7778,7 +7777,7 @@ BOOL compile_load_array_element(unsigned int node, sCompileInfo* info)
 
     cast_right_type_to_left_type(int_type, &middle_type, info);
 
-    if(!substitution_posibility_with_class_name(middle_type, "int")) {
+    if(!substitution_posibility_with_class_name(middle_type, "int", TRUE)) {
         compile_err_msg(info, "Type of index should be number");
         info->err_num++;
 
@@ -7882,7 +7881,7 @@ BOOL compile_store_array_element(unsigned int node, sCompileInfo* info)
 
     cast_right_type_to_left_type(int_type, &middle_type, info);
 
-    if(!substitution_posibility_with_class_name(middle_type, "int")) {
+    if(!substitution_posibility_with_class_name(middle_type, "int", TRUE)) {
         compile_err_msg(info, "Type of index should be number");
         info->err_num++;
 
@@ -7920,7 +7919,7 @@ BOOL compile_store_array_element(unsigned int node, sCompileInfo* info)
         cast_right_type_to_left_type(left_type3, &right_type2, info);
     }
 
-    if(!substitution_posibility(left_type3, right_type2, NULL, NULL, NULL, NULL)) {
+    if(!substitution_posibility(left_type3, right_type2, NULL, NULL, NULL, NULL, TRUE)) {
         compile_err_msg(info, "The different type between left type and right type(7). %s and %s", CLASS_NAME(left_type3->mClass), CLASS_NAME(right_type2->mClass));
         info->err_num++;
 
@@ -9246,7 +9245,7 @@ static BOOL compile_multiple_asignment(unsigned int node, sCompileInfo* info)
                     }
                 }
 
-                if(!substitution_posibility(left_element_type, right_element_type, NULL, NULL, NULL, NULL)) 
+                if(!substitution_posibility(left_element_type, right_element_type, NULL, NULL, NULL, NULL, TRUE)) 
                 {
                     compile_err_msg(info, "right element type is invalid. type error (%s,%s)", CLASS_NAME(left_element_var->mType->mClass), CLASS_NAME(right_element_type->mClass));
                     info->err_num++;
@@ -9775,7 +9774,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
 
     cast_right_type_to_left_type(left_type2, &right_type, info);
 
-    if(!substitution_posibility(left_type2, right_type, NULL, NULL, NULL, NULL)) {
+    if(!substitution_posibility(left_type2, right_type, NULL, NULL, NULL, NULL, TRUE)) {
         compile_err_msg(info, "The different type between left type and right type(8). Left type is %s. Right type is %s.", CLASS_NAME(left_type2->mClass), CLASS_NAME(right_type->mClass));
         info->err_num++;
 
@@ -9930,13 +9929,13 @@ BOOL compile_block_call(unsigned int node, sCompileInfo* info)
                 method_generics_types = NULL;
             }
 
-            if(!substitution_posibility(left_type, right_type, generics_types, NULL, method_generics_types, method_generics_types)) {
+            if(!substitution_posibility(left_type, right_type, generics_types, NULL, method_generics_types, method_generics_types, TRUE)) {
                 compile_err_msg(info, "Type error for block call(2) left type is %s. right type is %s. Generics type number of left type is %d. Genrics type number of right type is %d", CLASS_NAME(left_type->mClass), CLASS_NAME(right_type->mClass), left_type->mNumGenericsTypes, right_type->mNumGenericsTypes);
                 info->err_num++;
             }
         }
         else {
-            if(!substitution_posibility(left_type, right_type, NULL, NULL, NULL, NULL)) {
+            if(!substitution_posibility(left_type, right_type, NULL, NULL, NULL, NULL, TRUE)) {
                 compile_err_msg(info, "Type error for block call(3)");
                 info->err_num++;
             }

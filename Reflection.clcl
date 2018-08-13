@@ -153,6 +153,8 @@ class Clover
         Clover.cloneMethodDefinedClasses = List<Class>();
         Clover.initializeMethodDefinedClassMethodIndexes = List<Integer>();
         Clover.cloneMethodDefinedClassMethodIndexes = List<Integer>();
+        nothingMethodDefinedClasses = List<Class>();
+        nothingMethodDefinedClassMethodIndexes = List<Integer>();
     }
 
     def getAllClassName(): static native String[];
@@ -175,6 +177,8 @@ class Clover
     initializeMethodDefinedClassMethodIndexes:static List<Integer>;
     cloneMethodDefinedClasses:static List<Class>;
     cloneMethodDefinedClassMethodIndexes:static List<Integer>;
+    nothingMethodDefinedClasses:static List<Class>;
+    nothingMethodDefinedClassMethodIndexes:static List<Integer>;
 
     def compileTimeScriptingOnDeclareTime():static {
         getModifiedClass().each {
@@ -185,12 +189,40 @@ class Clover
                 if(it.getMethod("clone", 0, false).identifyWith(null)) {
                     it.declareMethod("def clone(): Self;");
                 }
+                if(it.getMethod("nothing", 0, false).identifyWith(null)) {
+                    it.declareMethod("def nothing(): Self;");
+                }
             }
             else {
                 if(it.getMethod("initialize", 0, false).identifyWith(null)) {
                     method_index := it.declareMethod("def initialize();");
                     initializeMethodDefinedClasses.add(it);
                     initializeMethodDefinedClassMethodIndexes.add(method_index);
+                }
+                if(it.getMethod("nothing", 0, false).identifyWith(null)) {
+                    method_index := it.declareMethod(
+                        """
+                        def nothing(): \{it.className} \{
+                            output := "";
+
+                            if(it.genericsParamNames.length > 0) {
+                                output.append("<");
+                                for(i:=0; i<it.genericsParamNames.length; i++) {
+                                    output.append(it.genericsParamNames[i]);
+
+                                    if(i != it.genericsParamNames.length-1) {
+                                        output.append(",");
+                                    }
+                                }
+                                output.append(">");
+                            }
+
+                            output;
+                            };
+                        """
+                    );
+                    nothingMethodDefinedClasses.add(it);
+                    nothingMethodDefinedClassMethodIndexes.add(method_index);
                 }
                 if(it.getMethod("clone", 0, false).identifyWith(null)) {
                     method_index := it.declareMethod(
@@ -282,6 +314,17 @@ class Clover
                 );
             } catch(e:Exception) {
                 println("Exception on compile time. \{it.className()}.initialize() can't be defined");
+            }
+            n++;
+        }
+
+        n = 0;
+        nothingMethodDefinedClasses.each {
+            method_index := nothingMethodDefinedClassMethodIndexes.items(n);
+            try {
+                it.appendMethod(method_index, "def nothing(): \{it.className} { return self }");
+            } catch(e:Exception) {
+                println("Exception on compile time. \{it.className()}.nothing() can't be defined");
             }
             n++;
         }

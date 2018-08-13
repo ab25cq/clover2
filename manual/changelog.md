@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 4.9.7
+
+    Added nothing():SELF method to all classes
+
 version 4.9.6
 
     Added Hash.map, Hash.selectValues, Hash.keyValues.

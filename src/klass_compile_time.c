@@ -530,7 +530,7 @@ static BOOL check_method_params(sCLMethod* method, sCLClass* klass, char* method
                         break;
                     }
                     else {
-                        if(!substitution_posibility(param, param_types[j], left_generics_type, right_generics_type, left_method_generics, right_method_generics)) 
+                        if(!substitution_posibility(param, param_types[j], left_generics_type, right_generics_type, left_method_generics, right_method_generics, FALSE)) 
                         {
                             return FALSE;
                         }
