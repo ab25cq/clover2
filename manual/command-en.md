@@ -63,3 +63,5 @@ If there is only one method of the Command class, it can be described like a she
 There is no pipe connection. If you want to do something like a pipe please describe it like ordinary Clover 2 syntax such as `ls ("-al","src/main.c ").less()`.
 
 However, pipes, && and || are also added, although they are added later. Please see the shell mode item for details.
+
+In addition, Command.getErrorOutput (): Command, Command.getOutputWithError (): Command is inserted. Error output can be taken as Command type. The former is error output only, the latter is only standard output. Error output is no longer output on the screen as a side effect.

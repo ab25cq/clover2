@@ -366,6 +366,7 @@ dynamic_class Command
     include MObjectBase;
 
     data:String;
+    error:String;
     resultCode:int;
 
     controllingTerminalPrograms: static EqualableList<String>;
@@ -377,6 +378,7 @@ dynamic_class Command
     def initialize() {
         self.data = "";
         self.resultCode = 0;
+        self.error = "";
     }
     def initialize(value:Command) {
         self.setValue(value);
@@ -384,13 +386,22 @@ dynamic_class Command
     def initialize(data:String, result_code:int) {
         self.data = data;
         self.resultCode = result_code;
+        self.error = "";
+    }
+    def initialize(data:String, result_code:int, error:String) {
+        self.data = data;
+        self.resultCode = result_code;
+        self.error = error;
     }
 
     def clone(): Command {
         result := Command();
 
-        if(self.data.identifyWith(null).negative()) {
+        if(self.data != null) {
             result.data = self.data.clone();
+        }
+        if(self.error != null) {
+            result.error = self.error.clone();
         }
 
         result.resultCode = self.resultCode;
@@ -401,6 +412,7 @@ dynamic_class Command
     def setValue(value:Command) {
         self.data = value.data;
         self.resultCode = value.resultCode;
+        self.error = value.error;
     }
 
     def flatternParams(params:Array<Object>):static List<String> {
@@ -539,6 +551,34 @@ dynamic_class Command
         }
     }
 
+    def expandArg(arg:String):static SortableList<String> {
+        if(Directory.isGlobString(arg)) {
+            dir := dirname(arg);
+            if(dir.equals(".")) {
+                pattern := "";
+                if(arg.subString(0, 2).equals("./")) {
+                    pattern = arg.subString(2, -1);
+                }
+                else {
+                    pattern = arg;
+                }
+
+                return Directory.glob(dir, pattern, 0).map { it.subString(2,-1); }.select { !it.equals(".") && !it.equals("..") };
+            }
+            elif(dir.equals("/")) {
+                pattern := arg.subString(1, -1);
+                return Directory.glob(dir, pattern, 0).select { !it.equals("/.") && !it.equals("/.."); }
+            }
+            else {
+                pattern := arg.subString(dir.length()+1, -1);
+                return Directory.glob(dir, pattern, 0).select { !it.equals(dir.add("/.")) && !it.equals(dir.add("/..")) };
+            }
+        }
+        else {
+            return slist { arg };
+        }
+    }
+
     def executeCommandWithGettingStderr(method_name:String, params:List<String>, pipe_data:String?) : static Command throws Exception
     {
         child2parent_write_fd := 0;
@@ -623,53 +663,31 @@ dynamic_class Command
         return Command(child_output.toString(), WEXITSTATUS(status));
     }
 
-    def expandArg(arg:String):static SortableList<String> {
-        if(Directory.isGlobString(arg)) {
-            dir := dirname(arg);
-            if(dir.equals(".")) {
-                pattern := "";
-                if(arg.subString(0, 2).equals("./")) {
-                    pattern = arg.subString(2, -1);
-                }
-                else {
-                    pattern = arg;
-                }
-
-                return Directory.glob(dir, pattern, 0).map { it.subString(2,-1); }.select { !it.equals(".") && !it.equals("..") };
-            }
-            elif(dir.equals("/")) {
-                pattern := arg.subString(1, -1);
-                return Directory.glob(dir, pattern, 0).select { !it.equals("/.") && !it.equals("/.."); }
-            }
-            else {
-                pattern := arg.subString(dir.length()+1, -1);
-                return Directory.glob(dir, pattern, 0).select { !it.equals(dir.add("/.")) && !it.equals(dir.add("/..")) };
-            }
-        }
-        else {
-            return slist { arg };
-        }
-    }
-
     def executeCommand(method_name:String, params:List<String>, pipe_data:String?) : static Command throws Exception
     {
         child2parent_write_fd := 0;
         child2parent_read_fd := 0;
         parent2child_write_fd := 0;
         parent2child_read_fd := 0;
+        child2parent_read_fd_err := 0;
+        child2parent_write_fd_err := 0;
 
         pipe(&child2parent_read_fd, &child2parent_write_fd);
         pipe(&parent2child_read_fd, &parent2child_write_fd);
+        pipe(&child2parent_read_fd_err, &child2parent_write_fd_err);
 
         pid:pid_t = fork(closure() {
             close(parent2child_write_fd);
             close(child2parent_read_fd);
+            close(child2parent_read_fd_err);
 
             dup2(parent2child_read_fd, 0);
             dup2(child2parent_write_fd, 1);
+            dup2(child2parent_write_fd_err, 2);
 
             close(parent2child_read_fd);
             close(child2parent_write_fd);
+            close(child2parent_write_fd_err);
 
             try {
                 if(method_name.chars(0) == '/') {
@@ -688,6 +706,7 @@ dynamic_class Command
 
         close(parent2child_read_fd);
         close(child2parent_write_fd);
+        close(child2parent_write_fd_err);
 
         if(!pipe_data.identifyWith(null)) {
             buffer := pipe_data.toBuffer();
@@ -696,20 +715,25 @@ dynamic_class Command
         close(parent2child_write_fd);
 
         child_output := B"";
+        child_output_error := B"";
         
         while(true) {
             pipe_data := Buffer(128.to_ulong);
-
             readed_byte := read(child2parent_read_fd, pipe_data, 128.to_ulong);
 
-            if(readed_byte == 0) {
+            pipe_data_err := Buffer(128.to_ulong);
+            readed_byte_err := read(child2parent_read_fd_err, pipe_data_err, 128.to_ulong);
+
+            if(readed_byte == 0 && readed_byte_err == 0) {
                 break;
             }
 
             child_output.append(pipe_data);
+            child_output_error.append(pipe_data_err);
         }
 
         close(child2parent_read_fd);
+        close(child2parent_read_fd_err);
 
         status: wait_status = 0;
 
@@ -719,7 +743,7 @@ dynamic_class Command
             throw Exception("Command not found");
         }
 
-        return Command(child_output.toString(), WEXITSTATUS(status));
+        return Command(child_output.toString(), WEXITSTATUS(status), child_output_error.toString());
     }
 
     def executeCommandWithControllingTerminal(method_name:String, params:List<String>) : static Command throws Exception
@@ -926,6 +950,16 @@ dynamic_class Command
     def toBoolAndOutput(): bool {
         self.data.print();
         return self.resultCode == 0;
+    }
+
+    def getErrorOutput(): Command {
+        return Command(self.error.toString(), self.resultCode);
+    }
+
+    def getOutputWithError(): Command {
+        result := self.data.clone();
+        result.append(self.error);
+        return Command(result.toString(), self.resultCode);
     }
 
     def write(path:String, permission:mode_t): Command {
