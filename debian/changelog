@@ -1,4 +1,8 @@
 
+clover2 (4.9.6-1) unstable; urgency=medium
+
+    * Added Hash.map, Hash.selectValues, Hash.keyValues. 
+
 clover2 (4.9.5-1) unstable; urgency=medium
 
     * Fixed bug with printw, wprintw.

@@ -38,5 +38,9 @@ class HashTest {
         hash2:Hash<String, Integer> = ["ABC"=>1, "BBB"=>2];
 
         Clover.test("hash test11", hash2.equals(["ABC"=>1, "BBB"=>2]));
+
+        Clover.test("hash test12", ["ABC"=>1, "DEF"=>1].map { "\{it}=>\{it2}" }.sort().equals(slist{"ABC=>1", "DEF=>1"}));
+        Clover.test("hash test13", ["ABC"=>1, "DEF"=>2, "GHI"=>3].selectKeys { it.equals("ABC") || it.equals("GHI") }.equals(["ABC"=>1, "GHI"=>3]));
+        Clover.test("hash test14", ["ABC"=>1, "DEF"=>2, "GHI"=>3].selectValues { it == 1 || it == 3 }.equals(["ABC"=>1, "GHI"=>3]));
     }
 }

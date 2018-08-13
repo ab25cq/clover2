@@ -1658,7 +1658,7 @@ class Hash <T:IHashKey, T2:IEqualable>
 
         for(i:int= 0; i<itemNumber; i++) {
             if(!table[i].identifyWith(null)) {
-                self.put(table[i].key, table[i].item);
+                self.put(self.table[i].key, self.table[i].item);
             }
         }
     }
@@ -1735,6 +1735,60 @@ class Hash <T:IHashKey, T2:IEqualable>
         }
 
         result.replace(-1, '}');
+
+        return result;
+    }
+
+    def <R:ISortable> map(trans:lambda(T,T2):R): SortableList<R> {
+        result:SortableList<R> = SortableList<R>();
+
+        for(i:uint =0; i<self.tableSize; i++) {
+            if(self.table[i] != null) {
+                try {
+                    result.add(trans(self.table[i].key, self.table[i].item));
+                } catch(e:Exception) {
+                    if(e.message.equals("break")) {
+                        break;
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    def selectKeys(block_:lambda(T):bool):Hash<T,T2> {
+        var result = Hash<T, T2>();
+
+        for(i:uint =0; i<self.tableSize; i++) {
+            if(self.table[i] != null) {
+                try {
+                    block_(self.table[i].key).if { result.put(self.table[i].key, self.table[i].item) }
+                } catch(e:Exception) {
+                    if(e.message.equals("break")) {
+                        break;
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    def selectValues(block_:lambda(T2):bool):Hash<T,T2> {
+        var result = Hash<T, T2>();
+
+        for(i:uint =0; i<self.tableSize; i++) {
+            if(self.table[i] != null) {
+                try {
+                    block_(self.table[i].item).if { result.put(self.table[i].key, self.table[i].item) }
+                } catch(e:Exception) {
+                    if(e.message.equals("break")) {
+                        break;
+                    }
+                }
+            }
+        }
 
         return result;
     }
