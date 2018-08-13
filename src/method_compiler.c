@@ -102,7 +102,7 @@ BOOL compile_method(sCLMethod* method, sParserParam* params, int num_params, sPa
                 else if(gNodes[node].mNodeType != kNodeTypeReturn) {
                     arrange_stack(&cinfo2);
 #ifdef ENABLE_INTERPRETER
-                    append_opecode_to_code(cinfo2.code, OP_SIGINT, cinfo2.no_output);
+                append_opecode_to_code(cinfo2.code, OP_SIGINT, cinfo2.no_output);
 #endif
                 }
             }

@@ -24,7 +24,7 @@ static void clover2_init()
     jit_init_on_runtime();
 #endif
     native_method_init();
-    heap_init(128, 128);
+    heap_init(HEAP_INIT_SIZE, HEAP_HANDLE_INIT_SIZE);
     stack_init();
 }
 

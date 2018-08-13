@@ -46,6 +46,8 @@
 #include "clover2-xfunc.h"
 
 /// limits ///
+#define HEAP_INIT_SIZE 128
+#define HEAP_HANDLE_INIT_SIZE 128
 #define CLASS_NAME_MAX 64
 #define VAR_NAME_MAX 64
 #define METHOD_NAME_MAX VAR_NAME_MAX

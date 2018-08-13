@@ -268,7 +268,7 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, BOOL result_type_boxin
         *block_last_type = info->type;
 
 #ifdef ENABLE_INTERPRETER
-        append_opecode_to_code(info->code, OP_SIGINT, info->no_output);
+        append_opecode_to_code(info->code, OP_SIGINT, info->no_output);;
 #endif
     }
 
