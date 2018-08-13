@@ -2,6 +2,8 @@ include "Fundamental.clcl"
 
 class pthread_mutex_t 
 {
+    include MObjectBase;
+
     def initialize() {}
     def allocSize(): static native size_t;
 
@@ -16,6 +18,8 @@ class pthread_mutex_t
 
 class pthread_cond_t
 {
+    include MObjectBase;
+
     def initialize() {}
     def allocSize(): static native size_t;
 
@@ -30,6 +34,8 @@ class pthread_cond_t
 
 class timespec
 {
+    include MObjectBase;
+
     tv_sec: time_t;
     tv_nsec: long;
 
@@ -66,6 +72,8 @@ class timespec
 
 class System
 {
+    include MObjectBase;
+
     typedef pid_t int;
 
     def gettid():static native pid_t;
@@ -112,6 +120,7 @@ class System
 class Thread 
 {
     include MObjectBase;
+
     typedef pthread_t ulong;
 
     thread_id:pthread_t;
@@ -144,6 +153,7 @@ class Thread
 class Mutex 
 {
     include MObjectBase;
+
     mutex: pthread_mutex_t;
     attr: pthread_mutexattr_t;
 

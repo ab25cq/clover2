@@ -56,6 +56,8 @@ class Global
 
 class String
 {
+    include MObjectBase;
+
     buffer: char[];
     size:int;
     len:int;
@@ -233,12 +235,12 @@ class String
             }
         }
     }
-
-    include MObjectBase;
 }
 
 class Exception
 {
+    include MObjectBase;
+
     message:String;
 
     def initialize() { 
@@ -256,8 +258,6 @@ class Exception
             return Exception(message.clone());
         }
     }
-
-    include MObjectBase;
 }
 
 interface Object
@@ -459,8 +459,8 @@ module MOperandFloat
 
 class Byte : unboxing byte
 {
-    include MWrapperClassBase;
     include MObjectBase;
+    include MWrapperClassBase;
     include MOperand;
 
     value:byte;
@@ -496,8 +496,8 @@ class Byte : unboxing byte
 
 class UByte : unboxing ubyte
 {
-    include MWrapperClassBase;
     include MObjectBase;
+    include MWrapperClassBase;
     include MOperand;
 
     value:ubyte;
@@ -533,8 +533,8 @@ class UByte : unboxing ubyte
 
 class Short : unboxing short
 {
-    include MWrapperClassBase;
     include MObjectBase;
+    include MWrapperClassBase;
     include MOperand;
 
     value:short;
@@ -570,15 +570,9 @@ class Short : unboxing short
 
 class UShort : unboxing ushort
 {
-    include MWrapperClassBase;
     include MObjectBase;
+    include MWrapperClassBase;
     include MOperand;
-
-/*
-    def add(right:UShort): UShort {
-        return self.to_ushort() + right.to_ushort();
-    }
-*/
 
     value:ushort;
 
@@ -613,8 +607,8 @@ class UShort : unboxing ushort
 
 class Integer : unboxing int
 {
-    include MWrapperClassBase;
     include MObjectBase;
+    include MWrapperClassBase;
     include MOperand;
 
     value:int;
@@ -662,8 +656,8 @@ class Integer : unboxing int
 
 class UInteger : unboxing uint
 {
-    include MWrapperClassBase;
     include MObjectBase;
+    include MWrapperClassBase;
     include MOperand;
 
     value: uint;
@@ -699,8 +693,8 @@ class UInteger : unboxing uint
 
 class Long : unboxing long
 {
-    include MWrapperClassBase;
     include MObjectBase;
+    include MWrapperClassBase;
     include MOperand;
 
     value:long;
@@ -736,8 +730,8 @@ class Long : unboxing long
 
 class ULong : unboxing ulong
 {
-    include MWrapperClassBase;
     include MObjectBase;
+    include MWrapperClassBase;
     include MOperand;
 
     value: ulong;
@@ -773,8 +767,8 @@ class ULong : unboxing ulong
 
 class Float : unboxing float
 {
-    include MWrapperClassBase;
     include MObjectBase;
+    include MWrapperClassBase;
     include MOperandFloat;
 
     value: float;
@@ -806,8 +800,8 @@ class Float : unboxing float
 
 class Double : unboxing double
 {
-    include MWrapperClassBase;
     include MObjectBase;
+    include MWrapperClassBase;
     include MOperandFloat;
 
     value: double;
@@ -839,8 +833,8 @@ class Double : unboxing double
 
 class Pointer : unboxing pointer
 {
-    include MWrapperClassBase;
     include MObjectBase;
+    include MWrapperClassBase;
 
     value: pointer;
 
@@ -871,8 +865,8 @@ class Pointer : unboxing pointer
 
 class Char : unboxing char
 {
-    include MWrapperClassBase;
     include MObjectBase;
+    include MWrapperClassBase;
 
     value: char;
 
@@ -951,6 +945,7 @@ class Char : unboxing char
 
 class Bool : unboxing bool
 {
+    include MObjectBase;
     value: bool;
 
     def initialize() {

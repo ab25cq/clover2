@@ -168,8 +168,9 @@ module MEqualableArray
 
 class Array<T:Object>
 {
-    include MArray;
     include MObjectBase;
+
+    include MArray;
 
     def clone():Array<T> {
         result := Array<T>();
@@ -238,9 +239,10 @@ class Array<T:Object>
 
 class EqualableArray <T:IEqualable>
 {
+    include MObjectBase;
+
     include MArray;
     include MEqualableArray;
-    include MObjectBase;
 
     def toArray():Array<T> {
         return Array<T>(self.items.toAnonymous());
@@ -271,9 +273,10 @@ class EqualableArray <T:IEqualable>
 
 class SortableArray <T:ISortable>
 {
+    include MObjectBase;
+
     include MArray;
     include MEqualableArray;
-    include MObjectBase;
 
     def equals(right:SortableArray<T>):bool {
         if(right.is("WildCard")) {
@@ -410,6 +413,8 @@ class SortableArray <T:ISortable>
 
 class ListItem <T:Object>
 {
+    include MObjectBase;
+
     item: T?;
     next: ListItem<T>?;
     prev: ListItem<T>?;
@@ -1165,6 +1170,8 @@ module MEqualableList
 
 class List <T:Object>
 {
+    include MObjectBase;
+
     include MList;
 
     def <R:Object> map(trans:lambda(T):R): SELF<R> {
@@ -1226,6 +1233,8 @@ class List <T:Object>
 
 class EqualableList<T:IEqualable>
 {
+    include MObjectBase;
+
     include MList;
     include MEqualableList;
 
@@ -1270,6 +1279,8 @@ class EqualableList<T:IEqualable>
 
 class SortableList<T:ISortable>
 {
+    include MObjectBase;
+
     include MList;
     include MEqualableList;
 
@@ -1502,6 +1513,8 @@ class SortableList<T:ISortable>
 
 class HashItem <T:IHashKey, T2:IEqualable>
 {
+    include MObjectBase;
+
     key:T?;
     item:T2?;
     include MObjectBase;
