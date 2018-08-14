@@ -1,4 +1,8 @@
 
+version 5.0.0
+
+    Chaged GC algorithm. Maybe Clover2 has been more faster.
+
 version 4.9.8
 
     Added Command.getErrorOutput():Command and Command.getOutputWithError():Command.

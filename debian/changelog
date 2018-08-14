@@ -1,4 +1,8 @@
 
+clover2 (5.0.0-1) unstable; urgency=medium
+
+    * Chaged GC algorithm. Maybe Clover2 has been more faster.
+
 clover2 (4.9.8-1) unstable; urgency=medium
 
     * Added Command.getErrorOutput():Command and Command.getOutputWithError():Command.

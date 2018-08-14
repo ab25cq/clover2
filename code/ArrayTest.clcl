@@ -5,6 +5,8 @@ class ArrayTest {
         a[1] = 100;
         a[2] = 200;
 
+printf("a[1] %d a[0] %d a[2] %d\n", array { a[1], a[0], a[2] });
+
         System.assert(a[1] == 100 && a[0] == 0 && a[2] == 200);
 
         b := 3;

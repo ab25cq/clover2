@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 5.0.0
+
+    GCのアルゴリズムを変えました。少し高速化したかもしれません。
+
 version 4.9.8
 
     Added Command.getErrorOutput():Command and Command.getOutputWithError():Command.
