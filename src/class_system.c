@@ -5678,7 +5678,7 @@ BOOL System_initialize_system_calls_system(CLVALUE** stack_ptr, CLVALUE* lvar, s
 #ifdef KEY_EVENT
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+326].mValue.mIntValue = KEY_EVENT;
 #endif
-#ifdef KEY_EVENT
+#ifdef KEY_MAX
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+327].mValue.mIntValue = KEY_MAX;
 #endif
     //system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+328].mValue.mPointerValue = (char*)stdscr;
