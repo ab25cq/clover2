@@ -75,12 +75,15 @@ BOOL eval_file(char* fname, int stack_size)
     sVMInfo info;
     memset(&info, 0, sizeof(info));
 
+    create_global_stack_and_append_it_to_stack_list(&info);
+
     info.running_class_name = "none";
     info.running_method_name = "eval_file";
 
     vm_mutex_on();
 
     if(!vm(&code, &constant, stack, var_num, NULL, &info)) {
+        free_global_stack(&info);
         fclose(f);
         MFREE(stack);
         MFREE(code_contents);
@@ -90,6 +93,8 @@ BOOL eval_file(char* fname, int stack_size)
         vm_mutex_off();
         return FALSE;
     }
+
+    free_global_stack(&info);
 
     vm_mutex_off(); // see OP_RETURN
 

@@ -1156,7 +1156,7 @@ BOOL System_sprintf(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
         }
     }
 
-    CLObject result = create_string_object(buf.mBuf);
+    CLObject result = create_string_object(buf.mBuf, info);
 
     MFREE(format_string);
     MFREE(buf.mBuf);
@@ -1198,7 +1198,7 @@ BOOL System_mbstowcs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     MASSERT(klass != NULL);
 
-    CLObject object = create_array_object(klass, size_wcs+1);
+    CLObject object = create_array_object(klass, size_wcs+1, info);
     sCLObject* object_data = CLOBJECT(object);
 
     int i;
@@ -1255,7 +1255,7 @@ BOOL System_wcstombs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     MASSERT(klass != NULL);
 
     CLObject object;
-    object = create_array_object(klass, result+1);
+    object = create_array_object(klass, result+1, info);
     sCLObject* object_data2 = CLOBJECT(object);
 
     for(i=0; i<result; i++) {
@@ -1989,7 +1989,7 @@ BOOL System_realpath(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     }
 
     /// result ///
-    CLObject result_object = create_string_object(result_path);
+    CLObject result_object = create_string_object(result_path, info);
 
     (*stack_ptr)->mObjectValue = result_object;
     (*stack_ptr)++;
@@ -2015,7 +2015,7 @@ BOOL System_dirname(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     char* result_path = dirname(path_value);
 
     /// result ///
-    CLObject result_object = create_string_object(result_path);
+    CLObject result_object = create_string_object(result_path, info);
 
     (*stack_ptr)->mObjectValue = result_object;
     (*stack_ptr)++;
@@ -2041,7 +2041,7 @@ BOOL System_basename(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     char* result_path = basename(path_value);
 
     /// result ///
-    CLObject result_object = create_string_object(result_path);
+    CLObject result_object = create_string_object(result_path, info);
 
     (*stack_ptr)->mObjectValue = result_object;
     (*stack_ptr)++;
@@ -2103,7 +2103,7 @@ BOOL System_readdir(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
         (*stack_ptr)++;
     }
     else {
-        (*stack_ptr)->mObjectValue = create_string_object(entry->d_name);
+        (*stack_ptr)->mObjectValue = create_string_object(entry->d_name, info);
         (*stack_ptr)++;
     }
 
@@ -2785,7 +2785,7 @@ BOOL System_tcgetattr(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE cl_value;
     cl_value.mObjectValue = terminfo_object;
 
-    push_value_to_global_stack(cl_value);
+    push_value_to_global_stack(cl_value, info);
 
     /// go ///
     struct termios terminfo_value;
@@ -2793,7 +2793,7 @@ BOOL System_tcgetattr(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     if(result < 0) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "tcgetattr(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
-        pop_global_stack();
+        pop_global_stack(info);
         return FALSE;
     }
 
@@ -2803,7 +2803,7 @@ BOOL System_tcgetattr(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     (*stack_ptr)->mObjectValue = terminfo_object;
     (*stack_ptr)++;
 
-    pop_global_stack();
+    pop_global_stack(info);
 
     return TRUE;
 }
@@ -3436,7 +3436,7 @@ BOOL System_readlink(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     result_path[result] = '\0';
 
-    (*stack_ptr)->mObjectValue = create_string_object(result_path);
+    (*stack_ptr)->mObjectValue = create_string_object(result_path, info);
     (*stack_ptr)++;
 
     MFREE(path_value);
@@ -3766,7 +3766,7 @@ BOOL System_getenv(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
         (*stack_ptr)++;
     }
     else {
-        (*stack_ptr)->mObjectValue = create_string_object(result);
+        (*stack_ptr)->mObjectValue = create_string_object(result, info);
         (*stack_ptr)++;
     }
 
@@ -3796,7 +3796,7 @@ BOOL System_secure_getenv(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
         (*stack_ptr)++;
     }
     else {
-        (*stack_ptr)->mObjectValue = create_string_object(result);
+        (*stack_ptr)->mObjectValue = create_string_object(result, info);
         (*stack_ptr)++;
     }
 
@@ -4421,7 +4421,7 @@ BOOL System_getcwd(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
         return FALSE;
     }
 
-    CLObject obj = create_string_object(buf);
+    CLObject obj = create_string_object(buf, info);
 
     (*stack_ptr)->mObjectValue = obj;
     (*stack_ptr)++;
@@ -4451,27 +4451,27 @@ BOOL System_getopt(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     sCLClass* tuple_class = get_class("Tuple3");
 
     CLVALUE cl_value;
-    CLObject result = create_object(tuple_class, "Tuple3<Integer,String,Integer>");
+    CLObject result = create_object(tuple_class, "Tuple3<Integer,String,Integer>", info);
     cl_value.mObjectValue = result;
-    push_value_to_global_stack(cl_value);
+    push_value_to_global_stack(cl_value, info);
 
-    CLObject result_object = create_integer(result_value);
+    CLObject result_object = create_integer(result_value, info);
     cl_value.mObjectValue = result_object;
-    push_value_to_global_stack(cl_value);
+    push_value_to_global_stack(cl_value, info);
 
     CLObject optarg_object;
     if(optarg) {
-        optarg_object = create_string_object(optarg);
+        optarg_object = create_string_object(optarg, info);
         cl_value.mObjectValue = optarg_object;
-        push_value_to_global_stack(cl_value);
+        push_value_to_global_stack(cl_value, info);
     }
     else {
         optarg_object = 0; // null
     }
 
-    CLObject optind_object = create_integer(optind);
+    CLObject optind_object = create_integer(optind, info);
     cl_value.mObjectValue = optind_object;
-    push_value_to_global_stack(cl_value);
+    push_value_to_global_stack(cl_value, info);
 
     sCLObject* obj_data = CLOBJECT(result);
     obj_data->mFields[0].mIntValue = result_object;             // result
@@ -4481,10 +4481,10 @@ BOOL System_getopt(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     (*stack_ptr)->mObjectValue = result;
     (*stack_ptr)++;
 
-    pop_global_stack();
-    pop_global_stack();
-    if(optarg) { pop_global_stack(); }
-    pop_global_stack();
+    pop_global_stack(info);
+    pop_global_stack(info);
+    if(optarg) { pop_global_stack(info); }
+    pop_global_stack(info);
 
     MFREE(optstring_value);
 
@@ -4541,31 +4541,31 @@ BOOL System_getopt_long(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     sCLClass* tuple_class = get_class("Tuple4");
 
     CLVALUE cl_value;
-    CLObject result = create_object(tuple_class, "Tuple4<Integer,String,Integer,Integer>");
+    CLObject result = create_object(tuple_class, "Tuple4<Integer,String,Integer,Integer>", info);
     cl_value.mObjectValue = result;
-    push_value_to_global_stack(cl_value);
+    push_value_to_global_stack(cl_value, info);
 
-    CLObject result_object = create_integer(result_value);
+    CLObject result_object = create_integer(result_value, info);
     cl_value.mObjectValue = result_object;
-    push_value_to_global_stack(cl_value);
+    push_value_to_global_stack(cl_value, info);
 
     CLObject optarg_object;
     if(optarg) {
-        optarg_object = create_string_object(optarg);
+        optarg_object = create_string_object(optarg, info);
         cl_value.mObjectValue = optarg_object;
-        push_value_to_global_stack(cl_value);
+        push_value_to_global_stack(cl_value, info);
     }
     else {
         optarg_object = 0; // null
     }
 
-    CLObject optind_object = create_integer(optind);
+    CLObject optind_object = create_integer(optind, info);
     cl_value.mObjectValue = optind_object;
-    push_value_to_global_stack(cl_value);
+    push_value_to_global_stack(cl_value, info);
 
-    CLObject longindex_object = create_integer(longindex);
+    CLObject longindex_object = create_integer(longindex, info);
     cl_value.mObjectValue = longindex_object;
-    push_value_to_global_stack(cl_value);
+    push_value_to_global_stack(cl_value, info);
 
     sCLObject* obj_data = CLOBJECT(result);
     obj_data->mFields[0].mObjectValue = result_object;              // result
@@ -4576,11 +4576,11 @@ BOOL System_getopt_long(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     (*stack_ptr)->mObjectValue = result;
     (*stack_ptr)++;
 
-    pop_global_stack();
-    pop_global_stack();
-    if(optarg) { pop_global_stack(); }
-    pop_global_stack();
-    pop_global_stack();
+    pop_global_stack(info);
+    pop_global_stack(info);
+    if(optarg) { pop_global_stack(info); }
+    pop_global_stack(info);
+    pop_global_stack(info);
 
     MFREE(optstring_value);
 
@@ -4643,31 +4643,31 @@ BOOL System_getopt_long_only(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     sCLClass* tuple_class = get_class("Tuple4");
 
     CLVALUE cl_value;
-    CLObject result = create_object(tuple_class, "Tuple4<Integer,String,Integer,Integer>");
+    CLObject result = create_object(tuple_class, "Tuple4<Integer,String,Integer,Integer>", info);
     cl_value.mObjectValue = result;
-    push_value_to_global_stack(cl_value);
+    push_value_to_global_stack(cl_value, info);
 
-    CLObject result_object = create_integer(result_value);
+    CLObject result_object = create_integer(result_value, info);
     cl_value.mObjectValue = result_object;
-    push_value_to_global_stack(cl_value);
+    push_value_to_global_stack(cl_value, info);
 
     CLObject optarg_object;
     if(optarg) {
-        optarg_object = create_string_object(optarg);
+        optarg_object = create_string_object(optarg, info);
         cl_value.mObjectValue = optarg_object;
-        push_value_to_global_stack(cl_value);
+        push_value_to_global_stack(cl_value, info);
     }
     else {
         optarg_object = 0; // null
     }
 
-    CLObject optind_object = create_integer(optind);
+    CLObject optind_object = create_integer(optind, info);
     cl_value.mObjectValue = optind_object;
-    push_value_to_global_stack(cl_value);
+    push_value_to_global_stack(cl_value, info);
 
-    CLObject longindex_object = create_integer(longindex);
+    CLObject longindex_object = create_integer(longindex, info);
     cl_value.mObjectValue = longindex_object;
-    push_value_to_global_stack(cl_value);
+    push_value_to_global_stack(cl_value, info);
 
     sCLObject* obj_data = CLOBJECT(result);
     obj_data->mFields[0].mObjectValue = result_object;              // result
@@ -4678,11 +4678,11 @@ BOOL System_getopt_long_only(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     (*stack_ptr)->mObjectValue = result;
     (*stack_ptr)++;
 
-    pop_global_stack();
-    pop_global_stack();
-    if(optarg) { pop_global_stack(); }
-    pop_global_stack();
-    pop_global_stack();
+    pop_global_stack(info);
+    pop_global_stack(info);
+    if(optarg) { pop_global_stack(info); }
+    pop_global_stack(info);
+    pop_global_stack(info);
 
     MFREE(optstring_value);
 
@@ -5793,7 +5793,7 @@ BOOL System_setlocale(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     MFREE(locale_value);
 
-    CLObject result_object = create_string_object(result);
+    CLObject result_object = create_string_object(result, info);
 
     (*stack_ptr)->mObjectValue = result_object;
     (*stack_ptr)++;
@@ -5865,7 +5865,7 @@ BOOL System_getbsize(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     /// go ///
     char* result = getbsize(headerlenp_value, blocksizep_value);
 
-    CLObject obj = create_string_object(result);
+    CLObject obj = create_string_object(result, info);
 
     (*stack_ptr)->mObjectValue = obj;
     (*stack_ptr)++;
@@ -6293,7 +6293,7 @@ BOOL System_accept(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     sCLObject* object_data = CLOBJECT(addr_object);
     object_data->mFields[0].mIntValue = addr_value.sun_family;
 
-    CLObject path_object = create_string_object(addr_value.sun_path);
+    CLObject path_object = create_string_object(addr_value.sun_path, info);
     object_data = CLOBJECT(addr_object);
     object_data->mFields[1].mObjectValue = path_object;
 
@@ -6413,7 +6413,7 @@ BOOL System_bind2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     return TRUE;
 }
 
-static CLObject create_string_array_from_ppchar_nullterminated(char** array) 
+static CLObject create_string_array_from_ppchar_nullterminated(char** array, sVMInfo* info) 
 {
     CLObject result;
 
@@ -6425,31 +6425,31 @@ static CLObject create_string_array_from_ppchar_nullterminated(char** array)
     }
     sCLClass* string_klass = get_class("String");
 
-    result = create_array_object(string_klass, num_array);
+    result = create_array_object(string_klass, num_array, info);
 
     CLVALUE cl_value;
     cl_value.mObjectValue = result;
-    push_value_to_global_stack(cl_value);
+    push_value_to_global_stack(cl_value, info);
 
     int i;
     for(i=0; i < num_array; i++) {
-        CLObject string_object = create_string_object(array[i]);
+        CLObject string_object = create_string_object(array[i], info);
 
         cl_value.mObjectValue = result;
-        push_value_to_global_stack(cl_value);
+        push_value_to_global_stack(cl_value, info);
 
         sCLObject* object_data = CLOBJECT(result);
         object_data->mFields[i].mObjectValue = string_object;
 
-        pop_global_stack();
+        pop_global_stack(info);
     }
 
-    pop_global_stack();
+    pop_global_stack(info);
 
     return result;
 }
 
-static CLObject create_h_addr_list_array_from_ppchar_nullterminated(char** array) 
+static CLObject create_h_addr_list_array_from_ppchar_nullterminated(char** array, sVMInfo* info) 
 {
     CLObject result;
 
@@ -6461,31 +6461,31 @@ static CLObject create_h_addr_list_array_from_ppchar_nullterminated(char** array
     }
     sCLClass* string_klass = get_class("String");
 
-    result = create_array_object(string_klass, num_array);
+    result = create_array_object(string_klass, num_array, info);
 
     CLVALUE cl_value;
     cl_value.mObjectValue = result;
-    push_value_to_global_stack(cl_value);
+    push_value_to_global_stack(cl_value, info);
 
     int i;
     for(i=0; i < num_array; i++) {
-        CLObject string_object = create_string_object(inet_ntoa(*(struct in_addr *)*(array + i)));
+        CLObject string_object = create_string_object(inet_ntoa(*(struct in_addr *)*(array + i)), info);
 
         cl_value.mObjectValue = result;
-        push_value_to_global_stack(cl_value);
+        push_value_to_global_stack(cl_value, info);
 
         sCLObject* object_data = CLOBJECT(result);
         object_data->mFields[i].mObjectValue = string_object;
 
-        pop_global_stack();
+        pop_global_stack(info);
     }
 
-    pop_global_stack();
+    pop_global_stack(info);
 
     return result;
 }
 
-static CLObject create_hostent_object(struct hostent* entry)
+static CLObject create_hostent_object(struct hostent* entry, sVMInfo* info)
 {
     sCLClass* klass = get_class_with_load_and_initialize("hostent");
 
@@ -6493,34 +6493,34 @@ static CLObject create_hostent_object(struct hostent* entry)
         return 0;
     }
 
-    CLObject result = create_object(klass, "hostent");
+    CLObject result = create_object(klass, "hostent", info);
 
     CLVALUE cl_value;
     cl_value.mObjectValue = result;
-    push_value_to_global_stack(cl_value);
+    push_value_to_global_stack(cl_value, info);
 
-    CLObject h_name_object = create_string_object(entry->h_name);
+    CLObject h_name_object = create_string_object(entry->h_name, info);
 
     cl_value.mObjectValue = h_name_object;
-    push_value_to_global_stack(cl_value);
+    push_value_to_global_stack(cl_value, info);
 
     sCLObject* object_data = CLOBJECT(result);
 
     object_data->mFields[0].mObjectValue = h_name_object;
 
-    pop_global_stack();
+    pop_global_stack(info);
 
-    CLObject h_aliases = create_string_array_from_ppchar_nullterminated(entry->h_aliases);
+    CLObject h_aliases = create_string_array_from_ppchar_nullterminated(entry->h_aliases, info);
 
     object_data = CLOBJECT(result);
     object_data->mFields[1].mObjectValue = h_aliases;
     object_data->mFields[2].mIntValue = entry->h_addrtype;
     object_data->mFields[3].mIntValue = entry->h_length;
 
-    CLObject h_addr_list = create_h_addr_list_array_from_ppchar_nullterminated(entry->h_addr_list);
+    CLObject h_addr_list = create_h_addr_list_array_from_ppchar_nullterminated(entry->h_addr_list, info);
     object_data->mFields[4].mObjectValue = h_addr_list;
 
-    pop_global_stack();
+    pop_global_stack(info);
 
     return result;
 }
@@ -6544,7 +6544,7 @@ BOOL System_gethostbyaddr(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
         return FALSE;
     }
 
-    CLObject obj = create_hostent_object(result);
+    CLObject obj = create_hostent_object(result, info);
 
     if(obj == 0) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "hostent class is not loaded");
@@ -6557,7 +6557,7 @@ BOOL System_gethostbyaddr(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     return TRUE;
 }
 
-static CLObject create_servent_object(struct servent* entry)
+static CLObject create_servent_object(struct servent* entry, sVMInfo* info)
 {
     sCLClass* klass = get_class_with_load_and_initialize("servent");
 
@@ -6565,40 +6565,40 @@ static CLObject create_servent_object(struct servent* entry)
         return 0;
     }
 
-    CLObject result = create_object(klass, "servent");
+    CLObject result = create_object(klass, "servent", info);
 
     CLVALUE cl_value;
     cl_value.mObjectValue = result;
-    push_value_to_global_stack(cl_value);
+    push_value_to_global_stack(cl_value, info);
 
-    CLObject s_name_object = create_string_object(entry->s_name);
+    CLObject s_name_object = create_string_object(entry->s_name, info);
 
     cl_value.mObjectValue = s_name_object;
-    push_value_to_global_stack(cl_value);
+    push_value_to_global_stack(cl_value, info);
 
     sCLObject* object_data = CLOBJECT(result);
 
     object_data->mFields[0].mObjectValue = s_name_object;
 
-    pop_global_stack();
+    pop_global_stack(info);
 
-    CLObject s_aliases = create_string_array_from_ppchar_nullterminated(entry->s_aliases);
+    CLObject s_aliases = create_string_array_from_ppchar_nullterminated(entry->s_aliases, info);
 
     object_data = CLOBJECT(result);
     object_data->mFields[1].mObjectValue = s_aliases;
     object_data->mFields[2].mIntValue = entry->s_port;
 
-    CLObject s_proto = create_string_object(entry->s_proto);
+    CLObject s_proto = create_string_object(entry->s_proto, info);
 
     cl_value.mObjectValue = s_proto;
-    push_value_to_global_stack(cl_value);
+    push_value_to_global_stack(cl_value, info);
 
     object_data = CLOBJECT(result);
     object_data->mFields[3].mObjectValue = s_proto;
 
-    pop_global_stack();
+    pop_global_stack(info);
 
-    pop_global_stack();
+    pop_global_stack(info);
 
     return result;
 }
@@ -6620,7 +6620,7 @@ BOOL System_gethostbyname(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
         return FALSE;
     }
 
-    CLObject obj = create_hostent_object(result);
+    CLObject obj = create_hostent_object(result, info);
 
     if(obj == 0) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "hostent class is not loaded");
@@ -6653,7 +6653,7 @@ BOOL System_getservbyname(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
         return FALSE;
     }
 
-    CLObject obj = create_servent_object(result);
+    CLObject obj = create_servent_object(result, info);
 
     if(obj == 0) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "servent class is not loaded");
@@ -6685,7 +6685,7 @@ BOOL System_getservbyport(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
         return FALSE;
     }
 
-    CLObject obj = create_servent_object(result);
+    CLObject obj = create_servent_object(result, info);
 
     if(obj == 0) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "servent class is not loaded");
@@ -6721,7 +6721,7 @@ BOOL System_inet_ntoa(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
         return FALSE;
     }
 
-    CLObject string_object = create_string_object(result);
+    CLObject string_object = create_string_object(result, info);
 
     (*stack_ptr)->mObjectValue = string_object;
     (*stack_ptr)++;
@@ -6741,7 +6741,7 @@ BOOL System_gethostname(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
         return FALSE;
     }
 
-    CLObject string_object = create_string_object(name);
+    CLObject string_object = create_string_object(name, info);
 
     (*stack_ptr)->mObjectValue = string_object;
     (*stack_ptr)++;
@@ -6788,6 +6788,8 @@ void signal_user_handler(int signum)
 
         memset(&info, 0, sizeof(sVMInfo));
 
+        create_global_stack_and_append_it_to_stack_list(&info);
+
         info.running_class_name = "signal";
         info.running_method_name = "signal_user_handler";
 
@@ -6801,6 +6803,8 @@ void signal_user_handler(int signum)
         stack->mIntValue = signum;
 
         (void)invoke_block(block, stack, var_num, num_params, stack_ptr, &info, FALSE);
+        
+        free_global_stack(&info);
     }
 }
 

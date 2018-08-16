@@ -437,19 +437,16 @@ permission:
 # clean
 ########################################################
 clean:
-	rm -fR clover2 clover2.dSYM cclover2 cclover2.dSYM iclover2 iclover2.dSYM src/*.o config.log config.status *.stackdump autom4te.cache .DS_Store core.* core a.out *.oclcl *.bc *.s *.o *.ocl code/*.ocl code/*.oclcl *.clm a.c src/*.dwo *.ll *.so.1.0.0 *.so *.class src/config.h moveVarDecls.hi moveVarDecls.o moveVarDecls a.lock server_socket *.so.1 ABC bclover2
+	rm -fR clover2 clover2.dSYM cclover2 cclover2.dSYM iclover2 iclover2.dSYM src/*.o config.log config.status *.stackdump autom4te.cache .DS_Store core.* core a.out *.oclcl *.bc *.s *.o *.ocl code/*.ocl code/*.oclcl *.clm a.c src/*.dwo *.ll *.so.1.0.0 *.so *.class src/config.h moveVarDecls.hi moveVarDecls.o moveVarDecls a.lock server_socket *.so.1 ABC
 	(cd examples/; make clean)
 
 distclean: clean
-	rm -fR  config.h Makefile autom4te.cache
-
-parser:
-	PWD=`pwd`; ./cclover2 CLParser.clcl
+	rm -fR  config.h Makefile autom4te.cache bclover2
 
 ########################################################
 # test
 ########################################################
-test: parser
+test: 
 	@echo "Compile to test code..."
 	PWD=`pwd` ./cclover2 code/ListTest.clcl
 	PWD=`pwd` ./cclover2 code/OperatorTest.clcl
@@ -565,7 +562,6 @@ test: parser
 
 	if test $(JIT) = 1; then PWD=`pwd`; ./compile-test-code.sh; fi
 
-	PWD=`pwd` ./cclover2 code/ParserTest.clcl
 	PWD=`pwd` ./cclover2 code/reflection.cl
 	PWD=`pwd` ./cclover2 code/MultiLineString.cl
 	PWD=`pwd` ./cclover2 code/ClassFieldAndFieldTest.clcl
@@ -576,7 +572,6 @@ test: parser
 	PWD=`pwd` ./cclover2 code/BoolTest.clcl
 
 
-	PWD=`pwd` ./clover2 code/parser.cl
 	PWD=`pwd` ./clover2 code/reflection.cl
 	PWD=`pwd` ./clover2 code/MultiLineString.cl
 	PWD=`pwd` ./clover2 code/try.cl

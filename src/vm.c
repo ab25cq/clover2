@@ -494,12 +494,10 @@ static void show_inst(unsigned inst)
 
 BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info)
 {
-    gBufferToPointerCastCount = 0;
-
-    //int num_global_stack = gGlobalStackPtr - gGlobalStack;
-
     sCLClass* running_class = info->running_class;
     sCLMethod* running_method = info->running_method;
+
+    int num_global_strck_ptr = info->mGlobalStackPtr - info->mGlobalStack;
 
     info->running_class = klass;
     info->running_method = method;
@@ -542,11 +540,8 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             info->running_method = running_method;
             info->running_class_name = running_class_name;
             info->running_method_name = running_method_name;
-            //gGlobalStackPtr = gGlobalStack + num_global_stack;
-            int l;
-            for(l=0; l<gBufferToPointerCastCount; l++) {
-                pop_global_stack();
-            }
+
+            info->mGlobalStackPtr = info->mGlobalStack + num_global_strck_ptr;
             return FALSE;
         }
 
@@ -626,12 +621,8 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             info->running_method = running_method;
             info->running_class_name = running_class_name;
             info->running_method_name = running_method_name;
-            //gGlobalStackPtr = gGlobalStack + num_global_stack;
-            int l;
-            for(l=0; l<gBufferToPointerCastCount; l++) {
-                pop_global_stack();
-            }
 
+            info->mGlobalStackPtr = info->mGlobalStack + num_global_strck_ptr;
             return FALSE;
         }
 
@@ -681,12 +672,8 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
                 info->running_method = running_method;
                 info->running_class_name = running_class_name;
                 info->running_method_name = running_method_name;
-                //gGlobalStackPtr = gGlobalStack + num_global_stack;
-                int l;
-                for(l=0; l<gBufferToPointerCastCount; l++) {
-                    pop_global_stack();
-                }
 
+                info->mGlobalStackPtr = info->mGlobalStack + num_global_strck_ptr;
                 return FALSE;
             }
         }
@@ -783,12 +770,8 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             info->running_method = running_method;
             info->running_class_name = running_class_name;
             info->running_method_name = running_method_name;
-            //gGlobalStackPtr = gGlobalStack + num_global_stack;
-            int l;
-            for(l=0; l<gBufferToPointerCastCount; l++) {
-                pop_global_stack();
-            }
 
+            info->mGlobalStackPtr = info->mGlobalStack + num_global_strck_ptr;
             return FALSE;
         }
 #else
@@ -797,12 +780,8 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
         info->running_method = running_method;
         info->running_class_name = running_class_name;
         info->running_method_name = running_method_name;
-        //gGlobalStackPtr = gGlobalStack + num_global_stack;
-        int l;
-        for(l=0; l<gBufferToPointerCastCount; l++) {
-            pop_global_stack();
-        }
 
+        info->mGlobalStackPtr = info->mGlobalStack + num_global_strck_ptr;
         return FALSE;
 #endif
     }
@@ -822,11 +801,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
                 info->running_method = running_method;
                 info->running_class_name = running_class_name;
                 info->running_method_name = running_method_name;
-                //gGlobalStackPtr = gGlobalStack + num_global_stack;
-                int l;
-                for(l=0; l<gBufferToPointerCastCount; l++) {
-                    pop_global_stack();
-                }
+                info->mGlobalStackPtr = info->mGlobalStack + num_global_strck_ptr;
                 return FALSE;
             }
 
@@ -846,11 +821,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             info->running_method = running_method;
             info->running_class_name = running_class_name;
             info->running_method_name = running_method_name;
-            //gGlobalStackPtr = gGlobalStack + num_global_stack;
-            int l;
-            for(l=0; l<gBufferToPointerCastCount; l++) {
-                pop_global_stack();
-            }
+            info->mGlobalStackPtr = info->mGlobalStack + num_global_strck_ptr;
             return FALSE;
         }
 
@@ -895,11 +866,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             info->running_method_name = running_method_name;
             info->running_class = running_class;
             info->running_method = running_method;
-            //gGlobalStackPtr = gGlobalStack + num_global_stack;
-            int l;
-            for(l=0; l<gBufferToPointerCastCount; l++) {
-                pop_global_stack();
-            }
+            info->mGlobalStackPtr = info->mGlobalStack + num_global_strck_ptr;
             return FALSE;
         }
 #else
@@ -913,11 +880,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             info->running_method_name = running_method_name;
             info->running_class = running_class;
             info->running_method = running_method;
-            //gGlobalStackPtr = gGlobalStack + num_global_stack;
-            int l;
-            for(l=0; l<gBufferToPointerCastCount; l++) {
-                pop_global_stack();
-            }
+            info->mGlobalStackPtr = info->mGlobalStack + num_global_strck_ptr;
             return FALSE;
         }
 #endif
@@ -940,11 +903,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
     info->running_class_name = running_class_name;
     info->running_method_name = running_method_name;
 
-    //gGlobalStackPtr = gGlobalStack + num_global_stack;
-    int l;
-    for(l=0; l<gBufferToPointerCastCount; l++) {
-        pop_global_stack();
-    }
+    info->mGlobalStackPtr = info->mGlobalStack + num_global_strck_ptr;
 
     return TRUE;
 }
@@ -1026,10 +985,15 @@ static BOOL initialize_class(sCLClass* klass, BOOL compile_time)
             sVMInfo info;
             memset(&info, 0, sizeof(sVMInfo));
 
+            create_global_stack_and_append_it_to_stack_list(&info);
+
             if(!invoke_method(klass, &initialize_method, stack, 0, &stack_ptr, &info)) {
+                free_global_stack(&info);
                 MFREE(stack);
                 return FALSE;
             }
+
+            free_global_stack(&info);
 
             MFREE(stack);
         }
@@ -1199,11 +1163,16 @@ static BOOL finalize_class(sCLClass* klass)
 
         sVMInfo info;
         memset(&info, 0, sizeof(sVMInfo));
+
+        create_global_stack_and_append_it_to_stack_list(&info);
         
         if(!invoke_method(klass, &finalize_method, stack, 0, &stack_ptr, &info)) {
             MFREE(stack);
+            free_global_stack(&info);
             return FALSE;
         }
+
+        free_global_stack(&info);
 
         MFREE(stack);
     }
@@ -1256,10 +1225,13 @@ void callOnException(CLObject message, BOOL in_try, sVMInfo* info)
 
                 sVMInfo info;
                 memset(&info, 0, sizeof(sVMInfo));
+
+                create_global_stack_and_append_it_to_stack_list(&info);
                 
                 (void)invoke_method(clover_class, method, stack, 0, &stack_ptr, &info);
 
                 MFREE(stack);
+                free_global_stack(&info);
             }
         }
         in_calling_on_exception = FALSE;
@@ -1276,7 +1248,10 @@ BOOL call_finalize_method_on_free_object(sCLClass* klass, CLObject self)
         CLVALUE* stack_ptr = stack;
 
         sVMInfo info;
+
         memset(&info, 0, sizeof(sVMInfo));
+
+        create_global_stack_and_append_it_to_stack_list(&info);
 
         info.no_mutex_in_vm = TRUE;
 
@@ -1285,10 +1260,12 @@ BOOL call_finalize_method_on_free_object(sCLClass* klass, CLObject self)
         stack_ptr++;
 
         if(!invoke_method(klass, &finalize_method, stack, 0, &stack_ptr, &info)) {
+            free_global_stack(&info);
             MFREE(stack);
             return FALSE;
         }
 
+        free_global_stack(&info);
         MFREE(stack);
     }
 
@@ -1305,18 +1282,24 @@ BOOL call_alloc_size_method(sCLClass* klass, unsigned long long* result)
         CLVALUE* stack_ptr = stack;
 
         sVMInfo info;
+
         memset(&info, 0, sizeof(sVMInfo));
+
+        create_global_stack_and_append_it_to_stack_list(&info);
 
         info.no_mutex_in_vm = TRUE;
 
         if(!invoke_method(klass, &alloc_size_method, stack, 0, &stack_ptr, &info)) {
             MFREE(stack);
+            free_global_stack(&info);
             return FALSE;
         }
 
         *result = (stack_ptr-1)->mULongValue;
 
         MFREE(stack);
+
+        free_global_stack(&info);
     }
 
     return TRUE;
@@ -1356,84 +1339,84 @@ sCLClass* get_class_with_load_and_initialize(char* class_name)
 
 #pragma clang diagnostic ignored "-Wint-to-pointer-cast"
 
-void boxing_primitive_value_to_object(CLVALUE object, CLVALUE* result, sCLClass* klass)
+void boxing_primitive_value_to_object(CLVALUE object, CLVALUE* result, sCLClass* klass, sVMInfo* info)
 {
     if(klass->mFlags & CLASS_FLAGS_PRIMITIVE) {
         if(is_this_class_with_class_name(klass, "byte")) {
             char value = object.mByteValue;
-            CLObject obj = create_byte((char)value);
+            CLObject obj = create_byte((char)value, info);
             result->mLongValue = 0;                 // zero clear for jit
             result->mObjectValue = obj;
         }
         else if(is_this_class_with_class_name(klass, "ubyte")) {
             unsigned char value = object.mUByteValue;
-            CLObject obj = create_ubyte((unsigned char)value);
+            CLObject obj = create_ubyte((unsigned char)value, info);
             result->mLongValue = 0;                 // zero clear for jit
             result->mObjectValue = obj;
         }
         else if(is_this_class_with_class_name(klass, "short")) {
             short value = object.mShortValue;
-            CLObject obj = create_short((short)value);
+            CLObject obj = create_short((short)value, info);
             result->mLongValue = 0;                 // zero clear for jit
             result->mObjectValue = obj;
         }
         else if(is_this_class_with_class_name(klass, "ushort")) {
             unsigned short value = object.mUShortValue;
-            CLObject obj = create_ushort((unsigned short)value);
+            CLObject obj = create_ushort((unsigned short)value, info);
             result->mLongValue = 0;                 // zero clear for jit
             result->mObjectValue = obj;
         }
         else if(is_this_class_with_class_name(klass, "int")) {
             int value = object.mIntValue;
-            CLObject obj = create_integer((int)value);
+            CLObject obj = create_integer((int)value, info);
             result->mLongValue = 0;                 // zero clear for jit
             result->mObjectValue = obj;
         }
         else if(is_this_class_with_class_name(klass, "uint")) {
             unsigned int value = object.mUIntValue;
-            CLObject obj = create_uinteger(value);
+            CLObject obj = create_uinteger(value, info);
             result->mLongValue = 0;                 // zero clear for jit
             result->mObjectValue = obj;
         }
         else if(is_this_class_with_class_name(klass, "long")) {
             clint64 value = object.mLongValue;
-            CLObject obj = create_long((clint64)value);
+            CLObject obj = create_long((clint64)value, info);
             result->mLongValue = 0;                 // zero clear for jit
             result->mObjectValue = obj;
         }
         else if(is_this_class_with_class_name(klass, "ulong")) {
             unsigned clint64 value = object.mULongValue;
-            CLObject obj = create_ulong((unsigned clint64)value);
+            CLObject obj = create_ulong((unsigned clint64)value, info);
             result->mLongValue = 0;                 // zero clear for jit
             result->mObjectValue = obj;
         }
         else if(is_this_class_with_class_name(klass, "float")) {
             float value = object.mFloatValue;
-            CLObject obj = create_float((float)value);
+            CLObject obj = create_float((float)value, info);
             result->mLongValue = 0;                 // zero clear for jit
             result->mObjectValue = obj;
         }
         else if(is_this_class_with_class_name(klass, "double")) {
             double value = object.mDoubleValue;
-            CLObject obj = create_double((double)value);
+            CLObject obj = create_double((double)value, info);
             result->mLongValue = 0;                 // zero clear for jit
             result->mObjectValue = obj;
         }
         else if(is_this_class_with_class_name(klass, "pointer")) {
             char* value = object.mPointerValue;
-            CLObject obj = create_pointer((char*)value);
+            CLObject obj = create_pointer((char*)value, info);
             result->mLongValue = 0;                 // zero clear for jit
             result->mObjectValue = obj;
         }
         else if(is_this_class_with_class_name(klass, "char")) {
             wchar_t value = object.mCharValue;
-            CLObject obj = create_char((wchar_t)value);
+            CLObject obj = create_char((wchar_t)value, info);
             result->mLongValue = 0;                 // zero clear for jit
             result->mObjectValue = obj;
         }
         else if(is_this_class_with_class_name(klass, "bool")) {
             BOOL value = object.mBoolValue;
-            CLObject obj = create_bool((BOOL)value);
+            CLObject obj = create_bool((BOOL)value, info);
             result->mLongValue = 0;                 // zero clear for jit
             result->mObjectValue = obj;
         }
@@ -1503,8 +1486,6 @@ static BOOL string_expression(char* str, sBuf* buf, int* string_expression_offse
     return TRUE;
 }
 
-int gBufferToPointerCastCount = 0;
-
 BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sVMInfo* info)
 {
 #ifdef ENABLE_JIT
@@ -1513,7 +1494,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
     register char* pc = code->mCodes;
 #endif
     //reset_andand_oror(info);
-
+    
     int l = 0;
 
     CLVALUE* stack_ptr = stack + var_num;
@@ -1772,7 +1753,7 @@ show_inst(inst);
                 CLVALUE value = *(stack_ptr-1);
                 stack_ptr--;
 
-                push_value_to_global_stack(value);
+                push_value_to_global_stack(value, info);
                 }
                 break;
 
@@ -1780,7 +1761,7 @@ show_inst(inst);
                 int size = *(int*)pc;
                 pc += sizeof(int);
 
-                CLVALUE value = pop_global_stack();
+                CLVALUE value = pop_global_stack(info);
 
                 *stack_ptr = value;
                 stack_ptr++;
@@ -4846,7 +4827,7 @@ show_inst(inst);
                         }
                     }
 
-                    CLObject result = create_string_object(object_data->mType);
+                    CLObject result = create_string_object(object_data->mType, info);
 
                     stack_ptr--;
                     stack_ptr->mLongValue = 0; // zero clear for jit
@@ -5243,17 +5224,17 @@ show_inst(inst);
                             elements[i] = object;
                         }
 
-                        CLObject carray = create_carray_object_with_elements(num_params, elements);
+                        CLObject carray = create_carray_object_with_elements(num_params, elements, info);
 
                         CLVALUE cl_value;
                         cl_value.mLongValue = 0;
                         cl_value.mObjectValue = carray;
-                        push_value_to_global_stack(cl_value);
+                        push_value_to_global_stack(cl_value, info);
 
                         stack_ptr-=num_params;
 
                         stack_ptr->mLongValue = 0;              // zero clear for jit
-                        stack_ptr->mObjectValue = create_string_object(method_name);
+                        stack_ptr->mObjectValue = create_string_object(method_name, info);
                         stack_ptr++;
                         stack_ptr->mLongValue = 0;              // zero clear for jit
                         stack_ptr->mObjectValue = carray;
@@ -5265,7 +5246,7 @@ show_inst(inst);
                         stack_ptr->mIntValue = max_method_chains;
                         stack_ptr++;
 
-                        pop_global_stack();
+                        pop_global_stack(info);
 
                         if(!invoke_method(klass, &method, stack, var_num, &stack_ptr, info)) {
                             if(info->try_code == code && info->try_offset != 0) {
@@ -5327,18 +5308,18 @@ show_inst(inst);
                             elements[i] = object;
                         }
 
-                        CLObject carray = create_carray_object_with_elements(num_params, elements);
+                        CLObject carray = create_carray_object_with_elements(num_params, elements, info);
 
 
                         CLVALUE cl_value;
                         cl_value.mLongValue = 0;
                         cl_value.mObjectValue = carray;
-                        push_value_to_global_stack(cl_value);
+                        push_value_to_global_stack(cl_value, info);
 
                         stack_ptr-=num_params;
 
                         stack_ptr->mLongValue = 0;      // zero clera for jit
-                        stack_ptr->mObjectValue = create_string_object(method_name);
+                        stack_ptr->mObjectValue = create_string_object(method_name, info);
                         stack_ptr++;
                         stack_ptr->mLongValue = 0;              // zero clear for jit
                         stack_ptr->mObjectValue = carray;
@@ -5350,7 +5331,7 @@ show_inst(inst);
                         stack_ptr->mIntValue = max_method_chains;
                         stack_ptr++;
 
-                        pop_global_stack();
+                        pop_global_stack(info);
 
                         if(!invoke_method(klass, &method, stack, var_num, &stack_ptr, info)) {
                             if(info->try_code == code && info->try_offset != 0) {
@@ -5436,13 +5417,13 @@ show_inst(inst);
                         int array_num = (stack_ptr-1)->mIntValue;
                         stack_ptr--;
 
-                        CLObject array = create_array_object(klass, array_num);
+                        CLObject array = create_array_object(klass, array_num, info);
                         stack_ptr->mLongValue = 0;              // zero clear for jit
                         stack_ptr->mObjectValue = array;
                         stack_ptr++;
                     }
                     else {
-                        CLObject obj = create_object(klass, type_name);
+                        CLObject obj = create_object(klass, type_name, info);
                         stack_ptr->mLongValue = 0;              // zero clear for jit
                         stack_ptr->mObjectValue = obj;
                         stack_ptr++;
@@ -12118,9 +12099,7 @@ show_inst(inst);
 
                     CLVALUE cl_value;
                     cl_value.mObjectValue = object;
-                    push_value_to_global_stack(cl_value);
-
-                    gBufferToPointerCastCount++;
+                    push_value_to_global_stack(cl_value, info);
 
                     (stack_ptr-1)->mLongValue = 0;
                     (stack_ptr-1)->mPointerValue = pointer_value;
@@ -12682,7 +12661,7 @@ show_inst(inst);
                     char buf[32];
                     snprintf(buf, 32, "%d", value);
 
-                    CLObject str = create_string_object(buf);
+                    CLObject str = create_string_object(buf, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = str;
@@ -12700,7 +12679,7 @@ show_inst(inst);
                     char buf[32];
                     snprintf(buf, 32, "%d", value);
 
-                    CLObject str = create_string_object(buf);
+                    CLObject str = create_string_object(buf, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = str;
@@ -12718,7 +12697,7 @@ show_inst(inst);
                     char buf[32];
                     snprintf(buf, 32, "%d", value);
 
-                    CLObject str = create_string_object(buf);
+                    CLObject str = create_string_object(buf, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = str;
@@ -12736,7 +12715,7 @@ show_inst(inst);
                     char buf[32];
                     snprintf(buf, 32, "%lld", value);
 
-                    CLObject str = create_string_object(buf);
+                    CLObject str = create_string_object(buf, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = str;
@@ -12754,7 +12733,7 @@ show_inst(inst);
                     char buf[32];
                     snprintf(buf, 32, "%u", value);
 
-                    CLObject str = create_string_object(buf);
+                    CLObject str = create_string_object(buf, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = str;
@@ -12772,7 +12751,7 @@ show_inst(inst);
                     char buf[32];
                     snprintf(buf, 32, "%u", value);
 
-                    CLObject str = create_string_object(buf);
+                    CLObject str = create_string_object(buf, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = str;
@@ -12790,7 +12769,7 @@ show_inst(inst);
                     char buf[32];
                     snprintf(buf, 32, "%u", value);
 
-                    CLObject str = create_string_object(buf);
+                    CLObject str = create_string_object(buf, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = str;
@@ -12808,7 +12787,7 @@ show_inst(inst);
                     char buf[32];
                     snprintf(buf, 32, "%llu", value);
 
-                    CLObject str = create_string_object(buf);
+                    CLObject str = create_string_object(buf, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = str;
@@ -12826,7 +12805,7 @@ show_inst(inst);
                     char buf[32];
                     snprintf(buf, 32, "%f", value);
 
-                    CLObject str = create_string_object(buf);
+                    CLObject str = create_string_object(buf, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = str;
@@ -12844,7 +12823,7 @@ show_inst(inst);
                     char buf[32];
                     snprintf(buf, 32, "%lf", value);
 
-                    CLObject str = create_string_object(buf);
+                    CLObject str = create_string_object(buf, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = str;
@@ -12867,7 +12846,7 @@ show_inst(inst);
                         snprintf(buf, 32, "false");
                     }
 
-                    CLObject str = create_string_object(buf);
+                    CLObject str = create_string_object(buf, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = str;
@@ -12884,7 +12863,7 @@ show_inst(inst);
 
                     sRegexObject* object_data = CLREGEX(regex);
 
-                    CLObject str = create_string_object(object_data->mRegexString);
+                    CLObject str = create_string_object(object_data->mRegexString, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = str;
@@ -12902,7 +12881,7 @@ show_inst(inst);
                     char buf[32];
                     snprintf(buf, 32, "%p", value);
 
-                    CLObject str = create_string_object(buf);
+                    CLObject str = create_string_object(buf, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = str;
@@ -12920,7 +12899,7 @@ show_inst(inst);
                     char buf[32];
                     snprintf(buf, 32, "%lc", value);
 
-                    CLObject str = create_string_object(buf);
+                    CLObject str = create_string_object(buf, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = str;
@@ -12935,7 +12914,7 @@ show_inst(inst);
 
                     char value = (stack_ptr-1)->mByteValue;
 
-                    CLObject obj = create_integer((int)value);
+                    CLObject obj = create_integer((int)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -12950,7 +12929,7 @@ show_inst(inst);
 
                     unsigned char value = (stack_ptr-1)->mUByteValue;
 
-                    CLObject obj = create_integer((int)value);
+                    CLObject obj = create_integer((int)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -12965,7 +12944,7 @@ show_inst(inst);
 
                     short value = (stack_ptr-1)->mShortValue;
 
-                    CLObject obj = create_integer((int)value);
+                    CLObject obj = create_integer((int)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -12980,7 +12959,7 @@ show_inst(inst);
 
                     unsigned short value = (stack_ptr-1)->mUShortValue;
 
-                    CLObject obj = create_integer((int)value);
+                    CLObject obj = create_integer((int)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -12995,7 +12974,7 @@ show_inst(inst);
 
                     int value = (stack_ptr-1)->mIntValue;
 
-                    CLObject obj = create_integer(value);
+                    CLObject obj = create_integer(value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13010,7 +12989,7 @@ show_inst(inst);
 
                     unsigned int value = (stack_ptr-1)->mUIntValue;
 
-                    CLObject obj = create_integer((int)value);
+                    CLObject obj = create_integer((int)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13025,7 +13004,7 @@ show_inst(inst);
 
                     clint64 value = (stack_ptr-1)->mLongValue;
 
-                    CLObject obj = create_integer((int)value);
+                    CLObject obj = create_integer((int)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13040,7 +13019,7 @@ show_inst(inst);
 
                     unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
-                    CLObject obj = create_integer((int)value);
+                    CLObject obj = create_integer((int)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13055,7 +13034,7 @@ show_inst(inst);
 
                     float value = (stack_ptr-1)->mFloatValue;
 
-                    CLObject obj = create_integer((int)value);
+                    CLObject obj = create_integer((int)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13070,7 +13049,7 @@ show_inst(inst);
 
                     double value = (stack_ptr-1)->mDoubleValue;
 
-                    CLObject obj = create_integer((int)value);
+                    CLObject obj = create_integer((int)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13085,7 +13064,7 @@ show_inst(inst);
 
                     wchar_t value = (stack_ptr-1)->mCharValue;
 
-                    CLObject obj = create_integer((int)value);
+                    CLObject obj = create_integer((int)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13100,7 +13079,7 @@ show_inst(inst);
 
                     char* value = (stack_ptr-1)->mPointerValue;
 
-                    CLObject obj = create_integer((int)value);
+                    CLObject obj = create_integer((int)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13115,7 +13094,7 @@ show_inst(inst);
 
                     BOOL value = (stack_ptr-1)->mBoolValue;
 
-                    CLObject obj = create_integer((int)value);
+                    CLObject obj = create_integer((int)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13130,7 +13109,7 @@ show_inst(inst);
 
                     char value = (stack_ptr-1)->mByteValue;
 
-                    CLObject obj = create_uinteger((unsigned int)value);
+                    CLObject obj = create_uinteger((unsigned int)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13145,7 +13124,7 @@ show_inst(inst);
 
                     unsigned char value = (stack_ptr-1)->mUByteValue;
 
-                    CLObject obj = create_uinteger((unsigned int)value);
+                    CLObject obj = create_uinteger((unsigned int)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13160,7 +13139,7 @@ show_inst(inst);
 
                     short value = (stack_ptr-1)->mShortValue;
 
-                    CLObject obj = create_uinteger((unsigned int)value);
+                    CLObject obj = create_uinteger((unsigned int)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13175,7 +13154,7 @@ show_inst(inst);
 
                     unsigned short value = (stack_ptr-1)->mUShortValue;
 
-                    CLObject obj = create_uinteger((unsigned int)value);
+                    CLObject obj = create_uinteger((unsigned int)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13190,7 +13169,7 @@ show_inst(inst);
 
                     int value = (stack_ptr-1)->mIntValue;
 
-                    CLObject obj = create_uinteger((unsigned int)value);
+                    CLObject obj = create_uinteger((unsigned int)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13205,7 +13184,7 @@ show_inst(inst);
 
                     unsigned int value = (stack_ptr-1)->mUIntValue;
 
-                    CLObject obj = create_uinteger(value);
+                    CLObject obj = create_uinteger(value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13220,7 +13199,7 @@ show_inst(inst);
 
                     clint64 value = (stack_ptr-1)->mLongValue;
 
-                    CLObject obj = create_uinteger((unsigned int)value);
+                    CLObject obj = create_uinteger((unsigned int)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13235,7 +13214,7 @@ show_inst(inst);
 
                     unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
-                    CLObject obj = create_uinteger((unsigned int)value);
+                    CLObject obj = create_uinteger((unsigned int)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13250,7 +13229,7 @@ show_inst(inst);
 
                     float value = (stack_ptr-1)->mFloatValue;
 
-                    CLObject obj = create_uinteger((unsigned int)value);
+                    CLObject obj = create_uinteger((unsigned int)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13265,7 +13244,7 @@ show_inst(inst);
 
                     double value = (stack_ptr-1)->mDoubleValue;
 
-                    CLObject obj = create_uinteger((unsigned int)value);
+                    CLObject obj = create_uinteger((unsigned int)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13280,7 +13259,7 @@ show_inst(inst);
 
                     wchar_t value = (stack_ptr-1)->mCharValue;
 
-                    CLObject obj = create_uinteger((unsigned int)value);
+                    CLObject obj = create_uinteger((unsigned int)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13295,7 +13274,7 @@ show_inst(inst);
 
                     char* value = (stack_ptr-1)->mPointerValue;
 
-                    CLObject obj = create_uinteger((unsigned int)value);
+                    CLObject obj = create_uinteger((unsigned int)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13310,7 +13289,7 @@ show_inst(inst);
 
                     BOOL value = (stack_ptr-1)->mBoolValue;
 
-                    CLObject obj = create_uinteger((unsigned int)value);
+                    CLObject obj = create_uinteger((unsigned int)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13325,7 +13304,7 @@ show_inst(inst);
 
                     char value = (stack_ptr-1)->mByteValue;
 
-                    CLObject obj = create_byte((char)value);
+                    CLObject obj = create_byte((char)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13340,7 +13319,7 @@ show_inst(inst);
 
                     unsigned char value = (stack_ptr-1)->mUByteValue;
 
-                    CLObject obj = create_byte((char)value);
+                    CLObject obj = create_byte((char)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13355,7 +13334,7 @@ show_inst(inst);
 
                     short value = (stack_ptr-1)->mShortValue;
 
-                    CLObject obj = create_byte((char)value);
+                    CLObject obj = create_byte((char)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13370,7 +13349,7 @@ show_inst(inst);
 
                     unsigned short value = (stack_ptr-1)->mUShortValue;
 
-                    CLObject obj = create_byte((char)value);
+                    CLObject obj = create_byte((char)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13385,7 +13364,7 @@ show_inst(inst);
 
                     int value = (stack_ptr-1)->mIntValue;
 
-                    CLObject obj = create_byte((char)value);
+                    CLObject obj = create_byte((char)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13400,7 +13379,7 @@ show_inst(inst);
 
                     unsigned int value = (stack_ptr-1)->mUIntValue;
 
-                    CLObject obj = create_byte((char)value);
+                    CLObject obj = create_byte((char)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13415,7 +13394,7 @@ show_inst(inst);
 
                     clint64 value = (stack_ptr-1)->mLongValue;
 
-                    CLObject obj = create_byte((char)value);
+                    CLObject obj = create_byte((char)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13430,7 +13409,7 @@ show_inst(inst);
 
                     unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
-                    CLObject obj = create_byte((char)value);
+                    CLObject obj = create_byte((char)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13445,7 +13424,7 @@ show_inst(inst);
 
                     float value = (stack_ptr-1)->mFloatValue;
 
-                    CLObject obj = create_byte((char)value);
+                    CLObject obj = create_byte((char)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13460,7 +13439,7 @@ show_inst(inst);
 
                     double value = (stack_ptr-1)->mDoubleValue;
 
-                    CLObject obj = create_byte((char)value);
+                    CLObject obj = create_byte((char)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13475,7 +13454,7 @@ show_inst(inst);
 
                     wchar_t value = (stack_ptr-1)->mCharValue;
 
-                    CLObject obj = create_byte((char)value);
+                    CLObject obj = create_byte((char)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13490,7 +13469,7 @@ show_inst(inst);
 
                     char* value = (stack_ptr-1)->mPointerValue;
 
-                    CLObject obj = create_byte((char)value);
+                    CLObject obj = create_byte((char)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13505,7 +13484,7 @@ show_inst(inst);
 
                     BOOL value = (stack_ptr-1)->mBoolValue;
 
-                    CLObject obj = create_byte((char)value);
+                    CLObject obj = create_byte((char)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13520,7 +13499,7 @@ show_inst(inst);
 
                     char value = (stack_ptr-1)->mByteValue;
 
-                    CLObject obj = create_ubyte((unsigned char)value);
+                    CLObject obj = create_ubyte((unsigned char)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13535,7 +13514,7 @@ show_inst(inst);
 
                     unsigned char value = (stack_ptr-1)->mUByteValue;
 
-                    CLObject obj = create_ubyte((unsigned char)value);
+                    CLObject obj = create_ubyte((unsigned char)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13550,7 +13529,7 @@ show_inst(inst);
 
                     short value = (stack_ptr-1)->mShortValue;
 
-                    CLObject obj = create_ubyte((unsigned char)value);
+                    CLObject obj = create_ubyte((unsigned char)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13565,7 +13544,7 @@ show_inst(inst);
 
                     unsigned short value = (stack_ptr-1)->mUShortValue;
 
-                    CLObject obj = create_ubyte((unsigned char)value);
+                    CLObject obj = create_ubyte((unsigned char)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13580,7 +13559,7 @@ show_inst(inst);
 
                     int value = (stack_ptr-1)->mIntValue;
 
-                    CLObject obj = create_ubyte((unsigned char)value);
+                    CLObject obj = create_ubyte((unsigned char)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13595,7 +13574,7 @@ show_inst(inst);
 
                     unsigned int value = (stack_ptr-1)->mUIntValue;
 
-                    CLObject obj = create_ubyte((unsigned char)value);
+                    CLObject obj = create_ubyte((unsigned char)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13610,7 +13589,7 @@ show_inst(inst);
 
                     clint64 value = (stack_ptr-1)->mLongValue;
 
-                    CLObject obj = create_ubyte((unsigned char)value);
+                    CLObject obj = create_ubyte((unsigned char)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13625,7 +13604,7 @@ show_inst(inst);
 
                     unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
-                    CLObject obj = create_ubyte((unsigned char)value);
+                    CLObject obj = create_ubyte((unsigned char)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13640,7 +13619,7 @@ show_inst(inst);
 
                     float value = (stack_ptr-1)->mFloatValue;
 
-                    CLObject obj = create_ubyte((unsigned char)value);
+                    CLObject obj = create_ubyte((unsigned char)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13655,7 +13634,7 @@ show_inst(inst);
 
                     double value = (stack_ptr-1)->mDoubleValue;
 
-                    CLObject obj = create_ubyte((unsigned char)value);
+                    CLObject obj = create_ubyte((unsigned char)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13670,7 +13649,7 @@ show_inst(inst);
 
                     wchar_t value = (stack_ptr-1)->mCharValue;
 
-                    CLObject obj = create_ubyte((unsigned char)value);
+                    CLObject obj = create_ubyte((unsigned char)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13685,7 +13664,7 @@ show_inst(inst);
 
                     char* value = (stack_ptr-1)->mPointerValue;
 
-                    CLObject obj = create_ubyte((unsigned char)value);
+                    CLObject obj = create_ubyte((unsigned char)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13700,7 +13679,7 @@ show_inst(inst);
 
                     BOOL value = (stack_ptr-1)->mBoolValue;
 
-                    CLObject obj = create_ubyte((unsigned char)value);
+                    CLObject obj = create_ubyte((unsigned char)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13715,7 +13694,7 @@ show_inst(inst);
 
                     char value = (stack_ptr-1)->mByteValue;
 
-                    CLObject obj = create_short((short)value);
+                    CLObject obj = create_short((short)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13730,7 +13709,7 @@ show_inst(inst);
 
                     unsigned char value = (stack_ptr-1)->mUByteValue;
 
-                    CLObject obj = create_short((short)value);
+                    CLObject obj = create_short((short)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13745,7 +13724,7 @@ show_inst(inst);
 
                     short value = (stack_ptr-1)->mShortValue;
 
-                    CLObject obj = create_short((short)value);
+                    CLObject obj = create_short((short)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13760,7 +13739,7 @@ show_inst(inst);
 
                     unsigned short value = (stack_ptr-1)->mUShortValue;
 
-                    CLObject obj = create_short((short)value);
+                    CLObject obj = create_short((short)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13775,7 +13754,7 @@ show_inst(inst);
 
                     int value = (stack_ptr-1)->mIntValue;
 
-                    CLObject obj = create_short((short)value);
+                    CLObject obj = create_short((short)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13790,7 +13769,7 @@ show_inst(inst);
 
                     unsigned int value = (stack_ptr-1)->mUIntValue;
 
-                    CLObject obj = create_short((short)value);
+                    CLObject obj = create_short((short)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13805,7 +13784,7 @@ show_inst(inst);
 
                     clint64 value = (stack_ptr-1)->mLongValue;
 
-                    CLObject obj = create_short((short)value);
+                    CLObject obj = create_short((short)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13820,7 +13799,7 @@ show_inst(inst);
 
                     unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
-                    CLObject obj = create_short((short)value);
+                    CLObject obj = create_short((short)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13835,7 +13814,7 @@ show_inst(inst);
 
                     float value = (stack_ptr-1)->mFloatValue;
 
-                    CLObject obj = create_short((short)value);
+                    CLObject obj = create_short((short)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13850,7 +13829,7 @@ show_inst(inst);
 
                     double value = (stack_ptr-1)->mDoubleValue;
 
-                    CLObject obj = create_short((short)value);
+                    CLObject obj = create_short((short)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13865,7 +13844,7 @@ show_inst(inst);
 
                     wchar_t value = (stack_ptr-1)->mCharValue;
 
-                    CLObject obj = create_short((short)value);
+                    CLObject obj = create_short((short)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13880,7 +13859,7 @@ show_inst(inst);
 
                     char* value = (stack_ptr-1)->mPointerValue;
 
-                    CLObject obj = create_short((short)value);
+                    CLObject obj = create_short((short)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13895,7 +13874,7 @@ show_inst(inst);
 
                     BOOL value = (stack_ptr-1)->mBoolValue;
 
-                    CLObject obj = create_short((short)value);
+                    CLObject obj = create_short((short)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13910,7 +13889,7 @@ show_inst(inst);
 
                     char value = (stack_ptr-1)->mByteValue;
 
-                    CLObject obj = create_ushort((unsigned short)value);
+                    CLObject obj = create_ushort((unsigned short)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13925,7 +13904,7 @@ show_inst(inst);
 
                     unsigned char value = (stack_ptr-1)->mUByteValue;
 
-                    CLObject obj = create_ushort((unsigned short)value);
+                    CLObject obj = create_ushort((unsigned short)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13940,7 +13919,7 @@ show_inst(inst);
 
                     short value = (stack_ptr-1)->mShortValue;
 
-                    CLObject obj = create_ushort((unsigned short)value);
+                    CLObject obj = create_ushort((unsigned short)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13955,7 +13934,7 @@ show_inst(inst);
 
                     unsigned short value = (stack_ptr-1)->mUShortValue;
 
-                    CLObject obj = create_ushort((unsigned short)value);
+                    CLObject obj = create_ushort((unsigned short)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13970,7 +13949,7 @@ show_inst(inst);
 
                     int value = (stack_ptr-1)->mIntValue;
 
-                    CLObject obj = create_ushort((unsigned short)value);
+                    CLObject obj = create_ushort((unsigned short)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -13985,7 +13964,7 @@ show_inst(inst);
 
                     unsigned int value = (stack_ptr-1)->mUIntValue;
 
-                    CLObject obj = create_ushort((unsigned short)value);
+                    CLObject obj = create_ushort((unsigned short)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14000,7 +13979,7 @@ show_inst(inst);
 
                     clint64 value = (stack_ptr-1)->mLongValue;
 
-                    CLObject obj = create_ushort((unsigned short)value);
+                    CLObject obj = create_ushort((unsigned short)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14015,7 +13994,7 @@ show_inst(inst);
 
                     unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
-                    CLObject obj = create_ushort((unsigned short)value);
+                    CLObject obj = create_ushort((unsigned short)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14030,7 +14009,7 @@ show_inst(inst);
 
                     float value = (stack_ptr-1)->mFloatValue;
 
-                    CLObject obj = create_ushort((unsigned short)value);
+                    CLObject obj = create_ushort((unsigned short)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14045,7 +14024,7 @@ show_inst(inst);
 
                     double value = (stack_ptr-1)->mDoubleValue;
 
-                    CLObject obj = create_ushort((unsigned short)value);
+                    CLObject obj = create_ushort((unsigned short)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14060,7 +14039,7 @@ show_inst(inst);
 
                     wchar_t value = (stack_ptr-1)->mCharValue;
 
-                    CLObject obj = create_ushort((unsigned short)value);
+                    CLObject obj = create_ushort((unsigned short)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14075,7 +14054,7 @@ show_inst(inst);
 
                     char* value = (stack_ptr-1)->mPointerValue;
 
-                    CLObject obj = create_ushort((unsigned short)value);
+                    CLObject obj = create_ushort((unsigned short)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14090,7 +14069,7 @@ show_inst(inst);
 
                     BOOL value = (stack_ptr-1)->mBoolValue;
 
-                    CLObject obj = create_ushort((unsigned short)value);
+                    CLObject obj = create_ushort((unsigned short)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14105,7 +14084,7 @@ show_inst(inst);
 
                     char value = (stack_ptr-1)->mByteValue;
 
-                    CLObject obj = create_long((clint64)value);
+                    CLObject obj = create_long((clint64)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14120,7 +14099,7 @@ show_inst(inst);
 
                     unsigned char value = (stack_ptr-1)->mUByteValue;
 
-                    CLObject obj = create_long((clint64)value);
+                    CLObject obj = create_long((clint64)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14135,7 +14114,7 @@ show_inst(inst);
 
                     short value = (stack_ptr-1)->mShortValue;
 
-                    CLObject obj = create_long((clint64)value);
+                    CLObject obj = create_long((clint64)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14150,7 +14129,7 @@ show_inst(inst);
 
                     unsigned short value = (stack_ptr-1)->mUShortValue;
 
-                    CLObject obj = create_long((clint64)value);
+                    CLObject obj = create_long((clint64)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14165,7 +14144,7 @@ show_inst(inst);
 
                     int value = (stack_ptr-1)->mIntValue;
 
-                    CLObject obj = create_long((clint64)value);
+                    CLObject obj = create_long((clint64)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14180,7 +14159,7 @@ show_inst(inst);
 
                     unsigned int value = (stack_ptr-1)->mUIntValue;
 
-                    CLObject obj = create_long((clint64)value);
+                    CLObject obj = create_long((clint64)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14195,7 +14174,7 @@ show_inst(inst);
 
                     clint64 value = (stack_ptr-1)->mLongValue;
 
-                    CLObject obj = create_long((clint64)value);
+                    CLObject obj = create_long((clint64)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14210,7 +14189,7 @@ show_inst(inst);
 
                     unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
-                    CLObject obj = create_long((clint64)value);
+                    CLObject obj = create_long((clint64)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14225,7 +14204,7 @@ show_inst(inst);
 
                     float value = (stack_ptr-1)->mFloatValue;
 
-                    CLObject obj = create_long((clint64)value);
+                    CLObject obj = create_long((clint64)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14240,7 +14219,7 @@ show_inst(inst);
 
                     double value = (stack_ptr-1)->mDoubleValue;
 
-                    CLObject obj = create_long((clint64)value);
+                    CLObject obj = create_long((clint64)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14255,7 +14234,7 @@ show_inst(inst);
 
                     wchar_t value = (stack_ptr-1)->mCharValue;
 
-                    CLObject obj = create_long((clint64)value);
+                    CLObject obj = create_long((clint64)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14270,7 +14249,7 @@ show_inst(inst);
 
                     char* value = (stack_ptr-1)->mPointerValue;
 
-                    CLObject obj = create_long((clint64)value);
+                    CLObject obj = create_long((clint64)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14285,7 +14264,7 @@ show_inst(inst);
 
                     BOOL value = (stack_ptr-1)->mBoolValue;
 
-                    CLObject obj = create_long((clint64)value);
+                    CLObject obj = create_long((clint64)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14300,7 +14279,7 @@ show_inst(inst);
 
                     char value = (stack_ptr-1)->mByteValue;
 
-                    CLObject obj = create_ulong((unsigned clint64)value);
+                    CLObject obj = create_ulong((unsigned clint64)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14315,7 +14294,7 @@ show_inst(inst);
 
                     unsigned char value = (stack_ptr-1)->mUByteValue;
 
-                    CLObject obj = create_ulong((unsigned clint64)value);
+                    CLObject obj = create_ulong((unsigned clint64)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14330,7 +14309,7 @@ show_inst(inst);
 
                     short value = (stack_ptr-1)->mShortValue;
 
-                    CLObject obj = create_ulong((unsigned clint64)value);
+                    CLObject obj = create_ulong((unsigned clint64)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14345,7 +14324,7 @@ show_inst(inst);
 
                     unsigned short value = (stack_ptr-1)->mUShortValue;
 
-                    CLObject obj = create_ulong((unsigned clint64)value);
+                    CLObject obj = create_ulong((unsigned clint64)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14360,7 +14339,7 @@ show_inst(inst);
 
                     int value = (stack_ptr-1)->mIntValue;
 
-                    CLObject obj = create_ulong((unsigned clint64)value);
+                    CLObject obj = create_ulong((unsigned clint64)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14375,7 +14354,7 @@ show_inst(inst);
 
                     unsigned int value = (stack_ptr-1)->mUIntValue;
 
-                    CLObject obj = create_ulong((unsigned clint64)value);
+                    CLObject obj = create_ulong((unsigned clint64)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14390,7 +14369,7 @@ show_inst(inst);
 
                     clint64 value = (stack_ptr-1)->mLongValue;
 
-                    CLObject obj = create_ulong((unsigned clint64)value);
+                    CLObject obj = create_ulong((unsigned clint64)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14405,7 +14384,7 @@ show_inst(inst);
 
                     unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
-                    CLObject obj = create_ulong((unsigned clint64)value);
+                    CLObject obj = create_ulong((unsigned clint64)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14420,7 +14399,7 @@ show_inst(inst);
 
                     float value = (stack_ptr-1)->mFloatValue;
 
-                    CLObject obj = create_ulong((unsigned clint64)value);
+                    CLObject obj = create_ulong((unsigned clint64)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14435,7 +14414,7 @@ show_inst(inst);
 
                     double value = (stack_ptr-1)->mDoubleValue;
 
-                    CLObject obj = create_ulong((unsigned clint64)value);
+                    CLObject obj = create_ulong((unsigned clint64)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14450,7 +14429,7 @@ show_inst(inst);
 
                     wchar_t value = (stack_ptr-1)->mCharValue;
 
-                    CLObject obj = create_ulong((unsigned clint64)value);
+                    CLObject obj = create_ulong((unsigned clint64)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14465,7 +14444,7 @@ show_inst(inst);
 
                     char* value = (stack_ptr-1)->mPointerValue;
 
-                    CLObject obj = create_ulong((unsigned clint64)value);
+                    CLObject obj = create_ulong((unsigned clint64)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14480,7 +14459,7 @@ show_inst(inst);
 
                     BOOL value = (stack_ptr-1)->mBoolValue;
 
-                    CLObject obj = create_ulong((unsigned clint64)value);
+                    CLObject obj = create_ulong((unsigned clint64)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14495,7 +14474,7 @@ show_inst(inst);
 
                     char value = (stack_ptr-1)->mByteValue;
 
-                    CLObject obj = create_float((float)value);
+                    CLObject obj = create_float((float)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14510,7 +14489,7 @@ show_inst(inst);
 
                     unsigned char value = (stack_ptr-1)->mUByteValue;
 
-                    CLObject obj = create_float((float)value);
+                    CLObject obj = create_float((float)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14525,7 +14504,7 @@ show_inst(inst);
 
                     short value = (stack_ptr-1)->mShortValue;
 
-                    CLObject obj = create_float((float)value);
+                    CLObject obj = create_float((float)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14540,7 +14519,7 @@ show_inst(inst);
 
                     unsigned short value = (stack_ptr-1)->mUShortValue;
 
-                    CLObject obj = create_float((float)value);
+                    CLObject obj = create_float((float)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14555,7 +14534,7 @@ show_inst(inst);
 
                     int value = (stack_ptr-1)->mIntValue;
 
-                    CLObject obj = create_float((float)value);
+                    CLObject obj = create_float((float)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14570,7 +14549,7 @@ show_inst(inst);
 
                     unsigned int value = (stack_ptr-1)->mUIntValue;
 
-                    CLObject obj = create_float((float)value);
+                    CLObject obj = create_float((float)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14585,7 +14564,7 @@ show_inst(inst);
 
                     clint64 value = (stack_ptr-1)->mLongValue;
 
-                    CLObject obj = create_float((float)value);
+                    CLObject obj = create_float((float)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14600,7 +14579,7 @@ show_inst(inst);
 
                     unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
-                    CLObject obj = create_float((float)value);
+                    CLObject obj = create_float((float)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14615,7 +14594,7 @@ show_inst(inst);
 
                     float value = (stack_ptr-1)->mFloatValue;
 
-                    CLObject obj = create_float((float)value);
+                    CLObject obj = create_float((float)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14630,7 +14609,7 @@ show_inst(inst);
 
                     double value = (stack_ptr-1)->mDoubleValue;
 
-                    CLObject obj = create_float((float)value);
+                    CLObject obj = create_float((float)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14645,7 +14624,7 @@ show_inst(inst);
 
                     wchar_t value = (stack_ptr-1)->mCharValue;
 
-                    CLObject obj = create_float((float)value);
+                    CLObject obj = create_float((float)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14660,7 +14639,7 @@ show_inst(inst);
 
                     BOOL value = (stack_ptr-1)->mBoolValue;
 
-                    CLObject obj = create_float((float)value);
+                    CLObject obj = create_float((float)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14675,7 +14654,7 @@ show_inst(inst);
 
                     char value = (stack_ptr-1)->mByteValue;
 
-                    CLObject obj = create_double((double)value);
+                    CLObject obj = create_double((double)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14690,7 +14669,7 @@ show_inst(inst);
 
                     unsigned char value = (stack_ptr-1)->mUByteValue;
 
-                    CLObject obj = create_double((double)value);
+                    CLObject obj = create_double((double)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14705,7 +14684,7 @@ show_inst(inst);
 
                     short value = (stack_ptr-1)->mShortValue;
 
-                    CLObject obj = create_double((double)value);
+                    CLObject obj = create_double((double)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14720,7 +14699,7 @@ show_inst(inst);
 
                     unsigned short value = (stack_ptr-1)->mUShortValue;
 
-                    CLObject obj = create_double((double)value);
+                    CLObject obj = create_double((double)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14735,7 +14714,7 @@ show_inst(inst);
 
                     int value = (stack_ptr-1)->mIntValue;
 
-                    CLObject obj = create_double((double)value);
+                    CLObject obj = create_double((double)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14750,7 +14729,7 @@ show_inst(inst);
 
                     unsigned int value = (stack_ptr-1)->mUIntValue;
 
-                    CLObject obj = create_double((double)value);
+                    CLObject obj = create_double((double)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14765,7 +14744,7 @@ show_inst(inst);
 
                     clint64 value = (stack_ptr-1)->mLongValue;
 
-                    CLObject obj = create_double((double)value);
+                    CLObject obj = create_double((double)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14780,7 +14759,7 @@ show_inst(inst);
 
                     unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
-                    CLObject obj = create_double((double)value);
+                    CLObject obj = create_double((double)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14795,7 +14774,7 @@ show_inst(inst);
 
                     float value = (stack_ptr-1)->mFloatValue;
 
-                    CLObject obj = create_double((double)value);
+                    CLObject obj = create_double((double)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14810,7 +14789,7 @@ show_inst(inst);
 
                     double value = (stack_ptr-1)->mDoubleValue;
 
-                    CLObject obj = create_double((double)value);
+                    CLObject obj = create_double((double)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14825,7 +14804,7 @@ show_inst(inst);
 
                     wchar_t value = (stack_ptr-1)->mCharValue;
 
-                    CLObject obj = create_double((double)value);
+                    CLObject obj = create_double((double)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14840,7 +14819,7 @@ show_inst(inst);
 
                     BOOL value = (stack_ptr-1)->mBoolValue;
 
-                    CLObject obj = create_double((double)value);
+                    CLObject obj = create_double((double)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14855,7 +14834,7 @@ show_inst(inst);
 
                     char value = (stack_ptr-1)->mByteValue;
 
-                    CLObject obj = create_pointer((char*)value);
+                    CLObject obj = create_pointer((char*)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14870,7 +14849,7 @@ show_inst(inst);
 
                     unsigned char value = (stack_ptr-1)->mUByteValue;
 
-                    CLObject obj = create_pointer((char*)value);
+                    CLObject obj = create_pointer((char*)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14885,7 +14864,7 @@ show_inst(inst);
 
                     short value = (stack_ptr-1)->mShortValue;
 
-                    CLObject obj = create_pointer((char*)value);
+                    CLObject obj = create_pointer((char*)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14900,7 +14879,7 @@ show_inst(inst);
 
                     unsigned short value = (stack_ptr-1)->mUShortValue;
 
-                    CLObject obj = create_pointer((char*)value);
+                    CLObject obj = create_pointer((char*)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14915,7 +14894,7 @@ show_inst(inst);
 
                     int value = (stack_ptr-1)->mIntValue;
 
-                    CLObject obj = create_pointer((char*)value);
+                    CLObject obj = create_pointer((char*)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14930,7 +14909,7 @@ show_inst(inst);
 
                     unsigned int value = (stack_ptr-1)->mUIntValue;
 
-                    CLObject obj = create_pointer((char*)value);
+                    CLObject obj = create_pointer((char*)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14945,7 +14924,7 @@ show_inst(inst);
 
                     clint64 value = (stack_ptr-1)->mLongValue;
 
-                    CLObject obj = create_pointer((char*)value);
+                    CLObject obj = create_pointer((char*)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14960,7 +14939,7 @@ show_inst(inst);
 
                     unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
-                    CLObject obj = create_pointer((char*)value);
+                    CLObject obj = create_pointer((char*)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14976,7 +14955,7 @@ show_inst(inst);
 
                     wchar_t value = (stack_ptr-1)->mCharValue;
 
-                    CLObject obj = create_pointer((char*)value);
+                    CLObject obj = create_pointer((char*)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -14991,7 +14970,7 @@ show_inst(inst);
 
                     char* value = (stack_ptr-1)->mPointerValue;
 
-                    CLObject obj = create_pointer((char*)value);
+                    CLObject obj = create_pointer((char*)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -15006,7 +14985,7 @@ show_inst(inst);
 
                     BOOL value = (stack_ptr-1)->mBoolValue;
 
-                    CLObject obj = create_pointer((char*)value);
+                    CLObject obj = create_pointer((char*)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -15021,7 +15000,7 @@ show_inst(inst);
 
                     char value = (stack_ptr-1)->mByteValue;
 
-                    CLObject obj = create_char((wchar_t)value);
+                    CLObject obj = create_char((wchar_t)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -15036,7 +15015,7 @@ show_inst(inst);
 
                     unsigned char value = (stack_ptr-1)->mUByteValue;
 
-                    CLObject obj = create_char((wchar_t)value);
+                    CLObject obj = create_char((wchar_t)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -15051,7 +15030,7 @@ show_inst(inst);
 
                     short value = (stack_ptr-1)->mShortValue;
 
-                    CLObject obj = create_char((wchar_t)value);
+                    CLObject obj = create_char((wchar_t)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -15066,7 +15045,7 @@ show_inst(inst);
 
                     unsigned short value = (stack_ptr-1)->mUShortValue;
 
-                    CLObject obj = create_char((wchar_t)value);
+                    CLObject obj = create_char((wchar_t)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -15081,7 +15060,7 @@ show_inst(inst);
 
                     int value = (stack_ptr-1)->mIntValue;
 
-                    CLObject obj = create_char((wchar_t)value);
+                    CLObject obj = create_char((wchar_t)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -15096,7 +15075,7 @@ show_inst(inst);
 
                     unsigned int value = (stack_ptr-1)->mUIntValue;
 
-                    CLObject obj = create_char((wchar_t)value);
+                    CLObject obj = create_char((wchar_t)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -15111,7 +15090,7 @@ show_inst(inst);
 
                     clint64 value = (stack_ptr-1)->mLongValue;
 
-                    CLObject obj = create_char((wchar_t)value);
+                    CLObject obj = create_char((wchar_t)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -15126,7 +15105,7 @@ show_inst(inst);
 
                     unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
-                    CLObject obj = create_char((wchar_t)value);
+                    CLObject obj = create_char((wchar_t)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -15141,7 +15120,7 @@ show_inst(inst);
 
                     float value = (stack_ptr-1)->mFloatValue;
 
-                    CLObject obj = create_char((wchar_t)value);
+                    CLObject obj = create_char((wchar_t)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -15156,7 +15135,7 @@ show_inst(inst);
 
                     double value = (stack_ptr-1)->mDoubleValue;
 
-                    CLObject obj = create_char((wchar_t)value);
+                    CLObject obj = create_char((wchar_t)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -15171,7 +15150,7 @@ show_inst(inst);
 
                     wchar_t value = (stack_ptr-1)->mCharValue;
 
-                    CLObject obj = create_char((wchar_t)value);
+                    CLObject obj = create_char((wchar_t)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -15186,7 +15165,7 @@ show_inst(inst);
 
                     char* value = (stack_ptr-1)->mPointerValue;
 
-                    CLObject obj = create_char((wchar_t)value);
+                    CLObject obj = create_char((wchar_t)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -15201,7 +15180,7 @@ show_inst(inst);
 
                     BOOL value = (stack_ptr-1)->mBoolValue;
 
-                    CLObject obj = create_char((wchar_t)value);
+                    CLObject obj = create_char((wchar_t)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -15216,7 +15195,7 @@ show_inst(inst);
 
                     char value = (stack_ptr-1)->mByteValue;
 
-                    CLObject obj = create_bool((BOOL)value);
+                    CLObject obj = create_bool((BOOL)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -15231,7 +15210,7 @@ show_inst(inst);
 
                     unsigned char value = (stack_ptr-1)->mUByteValue;
 
-                    CLObject obj = create_bool((BOOL)value);
+                    CLObject obj = create_bool((BOOL)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -15246,7 +15225,7 @@ show_inst(inst);
 
                     short value = (stack_ptr-1)->mShortValue;
 
-                    CLObject obj = create_bool((BOOL)value);
+                    CLObject obj = create_bool((BOOL)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -15261,7 +15240,7 @@ show_inst(inst);
 
                     unsigned short value = (stack_ptr-1)->mUShortValue;
 
-                    CLObject obj = create_bool((BOOL)value);
+                    CLObject obj = create_bool((BOOL)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -15276,7 +15255,7 @@ show_inst(inst);
 
                     int value = (stack_ptr-1)->mIntValue;
 
-                    CLObject obj = create_bool((BOOL)value);
+                    CLObject obj = create_bool((BOOL)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -15291,7 +15270,7 @@ show_inst(inst);
 
                     unsigned int value = (stack_ptr-1)->mUIntValue;
 
-                    CLObject obj = create_bool((BOOL)value);
+                    CLObject obj = create_bool((BOOL)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -15306,7 +15285,7 @@ show_inst(inst);
 
                     clint64 value = (stack_ptr-1)->mLongValue;
 
-                    CLObject obj = create_bool((BOOL)value);
+                    CLObject obj = create_bool((BOOL)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -15321,7 +15300,7 @@ show_inst(inst);
 
                     unsigned clint64 value = (stack_ptr-1)->mULongValue;
 
-                    CLObject obj = create_bool((BOOL)value);
+                    CLObject obj = create_bool((BOOL)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -15336,7 +15315,7 @@ show_inst(inst);
 
                     float value = (stack_ptr-1)->mFloatValue;
 
-                    CLObject obj = create_bool((BOOL)value);
+                    CLObject obj = create_bool((BOOL)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -15351,7 +15330,7 @@ show_inst(inst);
 
                     double value = (stack_ptr-1)->mDoubleValue;
 
-                    CLObject obj = create_bool((BOOL)value);
+                    CLObject obj = create_bool((BOOL)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -15366,7 +15345,7 @@ show_inst(inst);
 
                     wchar_t value = (stack_ptr-1)->mCharValue;
 
-                    CLObject obj = create_bool((BOOL)value);
+                    CLObject obj = create_bool((BOOL)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -15381,7 +15360,7 @@ show_inst(inst);
 
                     char* value = (stack_ptr-1)->mPointerValue;
 
-                    CLObject obj = create_bool((BOOL)value);
+                    CLObject obj = create_bool((BOOL)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -15396,7 +15375,7 @@ show_inst(inst);
 
                     BOOL value = (stack_ptr-1)->mBoolValue;
 
-                    CLObject obj = create_bool((BOOL)value);
+                    CLObject obj = create_bool((BOOL)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
@@ -15439,7 +15418,7 @@ show_inst(inst);
                 char type_name[OBJECT_TYPE_NAME_MAX];
                 snprintf(type_name, OBJECT_TYPE_NAME_MAX, "Array<%s>", CLASS_NAME(klass));
 
-                CLObject new_array = create_object(klass2, type_name);
+                CLObject new_array = create_object(klass2, type_name, info);
 
                 stack_ptr->mLongValue = 0;       // zero clear for jit
                 stack_ptr->mObjectValue = new_array;   // push object
@@ -15447,10 +15426,10 @@ show_inst(inst);
 
                 CLObject new_primitive_array;
                 if(klass->mFlags & CLASS_FLAGS_PRIMITIVE) {
-                    new_primitive_array = create_array_object(klass->mBoxingClass, array_num);
+                    new_primitive_array = create_array_object(klass->mBoxingClass, array_num, info);
                 }
                 else {
-                    new_primitive_array = create_array_object(klass, array_num);
+                    new_primitive_array = create_array_object(klass, array_num, info);
                 }
 
                 sCLObject* new_array_data = CLOBJECT(new_array);
@@ -15464,7 +15443,7 @@ show_inst(inst);
                     array_data = CLOBJECT(array);           // reget for GC
 
                     CLVALUE element;
-                    boxing_primitive_value_to_object(array_data->mFields[i], &element, klass);
+                    boxing_primitive_value_to_object(array_data->mFields[i], &element, klass, info);
 
                     sCLObject* new_primitive_array_data = CLOBJECT(new_primitive_array);
                     new_primitive_array_data->mFields[i] = element;
@@ -15670,7 +15649,7 @@ show_inst(inst);
                     char* str = CONS_str(constant, offset);
 
                     if(num_string_expression == 0) {
-                        CLObject string_object = create_string_object(str);
+                        CLObject string_object = create_string_object(str, info);
 
                         stack_ptr->mLongValue = 0;              // zero clear for jit
                         stack_ptr->mObjectValue = string_object;
@@ -15708,7 +15687,7 @@ show_inst(inst);
 
                         stack_ptr -= num_string_expression;
 
-                        CLObject string_object = create_string_object(buf.mBuf);
+                        CLObject string_object = create_string_object(buf.mBuf, info);
 
                         stack_ptr->mLongValue = 0;              // zero clear for jit
                         stack_ptr->mObjectValue = string_object;
@@ -15737,7 +15716,7 @@ show_inst(inst);
                     char* str = CONS_str(constant, offset);
 
                     if(num_string_expression == 0) {
-                        CLObject buffer_object = create_buffer_object(str, size);
+                        CLObject buffer_object = create_buffer_object(str, size, info);
 
                         stack_ptr->mLongValue = 0;              // zero clear for jit
                         stack_ptr->mObjectValue = buffer_object;
@@ -15776,7 +15755,7 @@ show_inst(inst);
                         stack_ptr -= num_string_expression;
 
 
-                        CLObject buffer_object = create_buffer_object(buf.mBuf, buf.mLen);
+                        CLObject buffer_object = create_buffer_object(buf.mBuf, buf.mLen, info);
 
                         stack_ptr->mLongValue = 0;              // zero clear for jit
                         stack_ptr->mObjectValue = buffer_object;
@@ -15802,7 +15781,7 @@ show_inst(inst);
                     char* str = CONS_str(constant, offset);
 
                     if(num_string_expression == 0) {
-                        CLObject path_object = create_path_object(str);
+                        CLObject path_object = create_path_object(str, info);
 
                         stack_ptr->mLongValue = 0;              // zero clear for jit
                         stack_ptr->mObjectValue = path_object;
@@ -15840,7 +15819,7 @@ show_inst(inst);
 
                         stack_ptr -= num_string_expression;
 
-                        CLObject path_object = create_path_object(buf.mBuf);
+                        CLObject path_object = create_path_object(buf.mBuf, info);
 
                         stack_ptr->mLongValue = 0;              // zero clear for jit
                         stack_ptr->mObjectValue = path_object;
@@ -15882,7 +15861,7 @@ show_inst(inst);
                         }
                     }
 
-                    CLObject array_object = create_array_object(klass, num_elements);
+                    CLObject array_object = create_array_object(klass, num_elements, info);
                     stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = array_object; // push object
                     stack_ptr++;
@@ -15936,7 +15915,7 @@ show_inst(inst);
 
                     char* type_name = CONS_str(constant, offset2);
 
-                    CLObject array_object = create_carray_object(type_name);
+                    CLObject array_object = create_carray_object(type_name, info);
                     stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = array_object; // push object
                     stack_ptr++;
@@ -16006,7 +15985,7 @@ show_inst(inst);
 
                     char* type_name = CONS_str(constant, offset2);
 
-                    CLObject array_object = create_equalable_carray_object(type_name);
+                    CLObject array_object = create_equalable_carray_object(type_name, info);
                     stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = array_object; // push object
                     stack_ptr++;
@@ -16078,7 +16057,7 @@ show_inst(inst);
 
                     char* type_name = CONS_str(constant, offset2);
 
-                    CLObject array_object = create_sortable_carray_object(type_name);
+                    CLObject array_object = create_sortable_carray_object(type_name, info);
                     stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = array_object; // push object
                     stack_ptr++;
@@ -16150,7 +16129,7 @@ show_inst(inst);
 
                     char* type_name = CONS_str(constant, offset2);
 
-                    CLObject list_object = create_list_object(type_name);
+                    CLObject list_object = create_list_object(type_name, info);
                     stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = list_object; // push object
                     stack_ptr++;
@@ -16219,7 +16198,7 @@ show_inst(inst);
 
                     char* type_name = CONS_str(constant, offset2);
 
-                    CLObject list_object = create_sortable_list_object(type_name);
+                    CLObject list_object = create_sortable_list_object(type_name, info);
                     stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = list_object; // push object
                     stack_ptr++;
@@ -16289,7 +16268,7 @@ show_inst(inst);
 
                     char* type_name = CONS_str(constant, offset2);
 
-                    CLObject list_object = create_equalable_list_object(type_name);
+                    CLObject list_object = create_equalable_list_object(type_name, info);
                     stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = list_object; // push object
                     stack_ptr++;
@@ -16339,7 +16318,7 @@ show_inst(inst);
 
                     char* type_name = CONS_str(constant, offset);
 
-                    CLObject tuple_object = create_tuple_object(num_elements, type_name);
+                    CLObject tuple_object = create_tuple_object(num_elements, type_name, info);
                     stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = tuple_object; // push object
                     stack_ptr++;
@@ -16444,7 +16423,7 @@ show_inst(inst);
 
                     char* type_name = CONS_str(constant, offset3);
 
-                    CLObject hash_object = create_hash_object(type_name);
+                    CLObject hash_object = create_hash_object(type_name, info);
                     stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = hash_object; // push object
                     stack_ptr++;
@@ -16515,7 +16494,7 @@ show_inst(inst);
 
                     CLVALUE* parent_stack = stack;
 
-                    CLObject block_object = create_block_object(&codes2, &constant2, parent_stack, parent_var_num, block_var_num, stack_id, lambda);
+                    CLObject block_object = create_block_object(&codes2, &constant2, parent_stack, parent_var_num, block_var_num, stack_id, lambda, info);
 
                     stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = block_object;
@@ -16558,7 +16537,7 @@ show_inst(inst);
                     char* str = CONS_str(constant, offset);
 
                     if(num_string_expression == 0) {
-                        CLObject regex_object = create_regex_object(str, global, ignore_case, multiline, extended, dotall, anchored, dollar_endonly, ungreedy);
+                        CLObject regex_object = create_regex_object(str, global, ignore_case, multiline, extended, dotall, anchored, dollar_endonly, ungreedy, info);
 
                         stack_ptr->mLongValue = 0;              // zero clear for jit
                         stack_ptr->mObjectValue = regex_object;
@@ -16596,7 +16575,7 @@ show_inst(inst);
 
                         stack_ptr -= num_string_expression;
 
-                        CLObject regex_object = create_regex_object(buf.mBuf, global, ignore_case, multiline, extended, dotall, anchored, dollar_endonly, ungreedy);
+                        CLObject regex_object = create_regex_object(buf.mBuf, global, ignore_case, multiline, extended, dotall, anchored, dollar_endonly, ungreedy, info);
 
                         stack_ptr->mLongValue = 0;              // zero clear for jit
                         stack_ptr->mObjectValue = regex_object;

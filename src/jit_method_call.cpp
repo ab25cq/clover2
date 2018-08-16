@@ -97,19 +97,6 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
 
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
-
             /// delete result from vm stack ///
             inc_vm_stack_ptr(params, *current_block, -1);
             }
@@ -186,19 +173,6 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
             trunc_variable(&llvm_value, size);
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
 
             /// delete result from vm stack ///
             inc_vm_stack_ptr(params, *current_block, -1);
@@ -298,19 +272,6 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
 
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
-
             /// delete result from vm stack ///
             inc_vm_stack_ptr(params, *current_block, -1);
             }
@@ -374,19 +335,6 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
 
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
-
             /// delete result from vm stack ///
             inc_vm_stack_ptr(params, *current_block, -num_params-1-1);
             }
@@ -433,6 +381,10 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
 
                 params2.push_back(array_num_value2.value);
 
+                std::string info_value_name("info");
+                Value* param3 = params[info_value_name];
+                params2.push_back(param3);
+
                 Value* value = Builder.CreateCall(function, params2);
 
                 LVALUE llvm_value;
@@ -446,19 +398,6 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
 
                 dec_stack_ptr(llvm_stack_ptr, 1);
                 push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-                /// push object to jit objects ///
-                Function* fun2 = TheModule->getFunction("push_jit_object");
-
-                std::vector<Value*> params3;
-
-                LVALUE llvm_value2;
-                llvm_value2 = trunc_value(&llvm_value, 32);
-
-                Value* param1 = llvm_value2.value;
-                params3.push_back(param1);
-
-                (void)Builder.CreateCall(fun2, params3);
             }
             else {
                 Function* function = TheModule->getFunction("create_object");
@@ -468,6 +407,10 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
 
                 Value* type_value = llvm_create_string(type_name);
                 params2.push_back(type_value);
+
+                std::string info_value_name("info");
+                Value* param3 = params[info_value_name];
+                params2.push_back(param3);
 
                 Value* value = Builder.CreateCall(function, params2);
 
@@ -481,19 +424,6 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
                 llvm_value.parent_llvm_stack = NULL;
 
                 push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-                /// push object to jit objects ///
-                Function* fun2 = TheModule->getFunction("push_jit_object");
-
-                std::vector<Value*> params3;
-
-                LVALUE llvm_value2;
-                llvm_value2 = trunc_value(&llvm_value, 32);
-
-                Value* param1 = llvm_value2.value;
-                params3.push_back(param1);
-
-                (void)Builder.CreateCall(fun2, params3);
             }
             }
             break;

@@ -50,7 +50,7 @@ static unsigned long long object_size(sCLClass* klass)
     return size;
 }
 
-CLObject create_object(sCLClass* klass, char* type)
+CLObject create_object(sCLClass* klass, char* type, sVMInfo* info)
 {
     unsigned int size = (unsigned int)object_size(klass);
 
@@ -63,7 +63,7 @@ CLObject create_object(sCLClass* klass, char* type)
     object_data->mType = MSTRDUP(type);
 
 #ifdef ENABLE_JIT
-    push_jit_object(obj);
+    push_object_to_global_stack(obj, info);
 #endif
 
     return obj;

@@ -1462,6 +1462,10 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
 
             params2.push_back(llvm_value2.value);
 
+            std::string info_value_name("info");
+            Value* param2 = params[info_value_name];
+            params2.push_back(param2);
+
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateCall(fun, params2);
             llvm_value.lvar_address_index = -1;
@@ -1475,16 +1479,6 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
 
             dec_stack_ptr(llvm_stack_ptr, 1);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value3);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            Value* param1 = llvm_value3.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 

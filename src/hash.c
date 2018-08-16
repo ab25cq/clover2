@@ -1,10 +1,10 @@
 #include "common.h"
 
-CLObject create_hash_object(char* type_name)
+CLObject create_hash_object(char* type_name, sVMInfo* info)
 {
     sCLClass* klass = get_class("Hash");
 
-    CLObject obj = create_object(klass, type_name);
+    CLObject obj = create_object(klass, type_name, info);
 
     return obj;
 }
@@ -19,7 +19,7 @@ BOOL initialize_hash_object(CLObject hash_object, int num_elements, CLObject* ke
     (*stack_ptr)->mObjectValue = hash_object;  // self
     (*stack_ptr)++;
 
-    CLObject keys_array = create_array_object(class_keys, num_elements);
+    CLObject keys_array = create_array_object(class_keys, num_elements, info);
 
     sCLObject* object_data = CLOBJECT(keys_array);
 
@@ -31,7 +31,7 @@ BOOL initialize_hash_object(CLObject hash_object, int num_elements, CLObject* ke
     (*stack_ptr)->mObjectValue = keys_array;
     (*stack_ptr)++;
 
-    CLObject items_array = create_array_object(class_items, num_elements);
+    CLObject items_array = create_array_object(class_items, num_elements, info);
 
     sCLObject* object_data2 = CLOBJECT(items_array);
 

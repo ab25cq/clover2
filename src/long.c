@@ -1,9 +1,9 @@
 #include "common.h"
 
-CLObject create_long(clint64 value)
+CLObject create_long(clint64 value, sVMInfo* info)
 {
     sCLClass* klass = get_class("Long");
-    CLObject obj = create_object(klass, "Long");
+    CLObject obj = create_object(klass, "Long", info);
 
     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -12,10 +12,10 @@ CLObject create_long(clint64 value)
     return obj;
 }
 
-CLObject create_ulong(unsigned clint64 value)
+CLObject create_ulong(unsigned clint64 value, sVMInfo* info)
 {
     sCLClass* klass = get_class("ULong");
-    CLObject obj = create_object(klass, "ULong");
+    CLObject obj = create_object(klass, "ULong", info);
 
     sCLObject* obj_data = CLOBJECT(obj);
 

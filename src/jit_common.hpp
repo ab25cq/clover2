@@ -104,8 +104,6 @@ struct sPointerAndBoolResult {
     char* result1;
     BOOL result2;
 };
-void init_jit_objects();
-void free_jit_objects();
 BOOL jit_compile_all_classes();
 
 extern LLVMContext TheContext;

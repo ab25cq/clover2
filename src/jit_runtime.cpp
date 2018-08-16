@@ -12,36 +12,6 @@ extern "C"
 struct sCLVALUEAndBoolResult gCLValueAndBoolStructMemory;
 struct sPointerAndBoolResult gCLPointerAndBoolStructMemory;
 
-CLObject* gJITObjects;
-int gNumJITObjects;
-int gSizeJITObjects;
-
-void init_jit_objects()
-{
-    gSizeJITObjects = 1024;
-    gJITObjects = (CLObject*)MCALLOC(1, sizeof(CLObject)*gSizeJITObjects);
-    gNumJITObjects = 0;
-}
-
-void free_jit_objects()
-{
-    MFREE(gJITObjects);
-}
-
-void push_jit_object(CLObject obj)
-{
-    if(gNumJITObjects >= gSizeJITObjects) {
-        int new_size = gSizeJITObjects * 2;
-        gJITObjects = (CLObject*)MREALLOC(gJITObjects, sizeof(CLObject)*new_size);
-        memset(gJITObjects + gSizeJITObjects, 0, sizeof(CLObject)*(new_size - gSizeJITObjects));
-
-        gSizeJITObjects = new_size;
-    }
-
-    gJITObjects[gNumJITObjects] = obj;
-    gNumJITObjects++;
-}
-
 //////////////////////////////////////////////////
 // JIT runtime functions
 //////////////////////////////////////////////////
@@ -146,11 +116,11 @@ struct sCLVALUEAndBoolResult* get_field_from_object(CLVALUE** stack_ptr, CLVALUE
     return result;
 }
 
-CLObject get_string_object_of_object_name(CLObject object)
+CLObject get_string_object_of_object_name(CLObject object, sVMInfo* info)
 {
     sCLObject* object_data = CLOBJECT(object);
 
-    CLObject object2 = create_string_object(object_data->mType);
+    CLObject object2 = create_string_object(object_data->mType, info);
 
     return object2;
 }
@@ -246,14 +216,13 @@ BOOL call_invoke_dynamic_method(int offset, int offset2, int num_params, int sta
             elements[i] = object;
         }
 
-        CLObject carray = create_carray_object_with_elements(num_params, elements);
+        CLObject carray = create_carray_object_with_elements(num_params, elements ,info);
 
-        gGlobalStackPtr->mObjectValue = carray;
-        gGlobalStackPtr++;
+        push_object_to_global_stack(carray, info);
 
         (*stack_ptr)-=num_params;
 
-        (*stack_ptr)->mObjectValue = create_string_object(method_name);
+        (*stack_ptr)->mObjectValue = create_string_object(method_name, info);
         (*stack_ptr)++;
         (*stack_ptr)->mObjectValue = carray;
         (*stack_ptr)++;
@@ -262,7 +231,7 @@ BOOL call_invoke_dynamic_method(int offset, int offset2, int num_params, int sta
         (*stack_ptr)->mIntValue = max_method_chains;
         (*stack_ptr)++;
 
-        gGlobalStackPtr--;
+        pop_global_stack(info);
 
         if(!invoke_method(klass, method, stack, var_num, stack_ptr, info)) {
             return FALSE;
@@ -296,14 +265,13 @@ BOOL call_invoke_dynamic_method(int offset, int offset2, int num_params, int sta
             elements[i] = object;
         }
 
-        CLObject carray = create_carray_object_with_elements(num_params, elements);
+        CLObject carray = create_carray_object_with_elements(num_params, elements, info);
 
-        gGlobalStackPtr->mObjectValue = carray;
-        gGlobalStackPtr++;
+        push_object_to_global_stack(carray, info);
 
         (*stack_ptr)-=num_params;
 
-        (*stack_ptr)->mObjectValue = create_string_object(method_name);
+        (*stack_ptr)->mObjectValue = create_string_object(method_name, info);
         (*stack_ptr)++;
         (*stack_ptr)->mObjectValue = carray;
         (*stack_ptr)++;
@@ -312,7 +280,7 @@ BOOL call_invoke_dynamic_method(int offset, int offset2, int num_params, int sta
         (*stack_ptr)->mIntValue = max_method_chains;
         (*stack_ptr)++;
 
-        gGlobalStackPtr--;
+        pop_global_stack(info);
 
         if(!invoke_method(klass, method, stack, var_num, stack_ptr, info)) {
             return FALSE;
@@ -653,7 +621,7 @@ struct sCLVALUEAndBoolResult* run_create_array(CLVALUE** stack_ptr, CLVALUE* sta
         return result;
     }
 
-    CLObject array_object = create_array_object(klass, num_elements);
+    CLObject array_object = create_array_object(klass, num_elements, info);
     (*stack_ptr)->mObjectValue = array_object; // push object
     (*stack_ptr)++;
 
@@ -751,14 +719,11 @@ sCLClass* get_class_with_load_and_initialize_in_jit(sConst* constant, int offset
 
 BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sCLMethod* method, sVMInfo* info, CLVALUE** stack_ptr)
 {
-    int num_jit_objects = gNumJITObjects;
-
     if(method->mFlags & METHOD_FLAGS_NON_NATIVE_CODE || info->running_thread)
     {
         BOOL result = vm(code, constant, stack, var_num, klass, info);
 
         if(!result) {
-            gNumJITObjects = num_jit_objects;
             return FALSE;
         }
     }
@@ -792,13 +757,12 @@ BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClas
             CLVALUE** stack_ptr_address = &stack_ptr;
             fJITMethodType fun2 = (fJITMethodType)method->mJITDynamicSym;
 
-            CLVALUE** global_stack_ptr_address = &gGlobalStackPtr;
+            CLVALUE** global_stack_ptr_address = &info->mGlobalStackPtr;
 
             BOOL result = fun2(stack_ptr, lvar, info, stack, stack_ptr_address, var_num, constant, code, global_stack_ptr_address, stack + var_num);
 
             if(!result) {
                 remove_stack_to_stack_list(stack_id);
-                gNumJITObjects = num_jit_objects;
                 return FALSE;
             }
 
@@ -808,13 +772,10 @@ BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClas
             BOOL result = vm(code, constant, stack, var_num, klass, info);
 
             if(!result) {
-                gNumJITObjects = num_jit_objects;
                 return FALSE;
             }
         }
     }
-
-    gNumJITObjects = num_jit_objects;
 
     return TRUE;
 }
@@ -826,13 +787,10 @@ void jit_init_on_runtime()
 
     gCLPointerAndBoolStructMemory.result1 = NULL;
     gCLPointerAndBoolStructMemory.result2 = FALSE;
-
-    init_jit_objects();
 }
 
 void jit_final_on_runtime()
 {
-    free_jit_objects();
 }
 
 
@@ -862,7 +820,7 @@ struct sCLVALUEAndBoolResult* run_create_carray(CLVALUE** stack_ptr, CLVALUE* st
 
     char* type_name = CONS_str(constant, type_name_offset);
 
-    CLObject array_object = create_carray_object(type_name);
+    CLObject array_object = create_carray_object(type_name, info);
     (*stack_ptr)->mObjectValue = array_object; // push object
     (*stack_ptr)++;
 
@@ -907,7 +865,7 @@ struct sCLVALUEAndBoolResult* run_create_equalable_carray(CLVALUE** stack_ptr, C
 
     char* type_name = CONS_str(constant, type_name_offset);
 
-    CLObject array_object = create_equalable_carray_object(type_name);
+    CLObject array_object = create_equalable_carray_object(type_name, info);
     (*stack_ptr)->mObjectValue = array_object; // push object
     (*stack_ptr)++;
 
@@ -952,7 +910,7 @@ struct sCLVALUEAndBoolResult* run_create_sortable_carray(CLVALUE** stack_ptr, CL
 
     char* type_name = CONS_str(constant, type_name_offset);
 
-    CLObject array_object = create_sortable_carray_object(type_name);
+    CLObject array_object = create_sortable_carray_object(type_name, info);
     (*stack_ptr)->mObjectValue = array_object; // push object
     (*stack_ptr)++;
 
@@ -997,7 +955,7 @@ struct sCLVALUEAndBoolResult* run_create_list(CLVALUE** stack_ptr, CLVALUE* stac
 
     char* type_name = CONS_str(constant, type_name_offset);
 
-    CLObject list_object = create_list_object(type_name);
+    CLObject list_object = create_list_object(type_name, info);
     (*stack_ptr)->mObjectValue = list_object; // push object
     (*stack_ptr)++;
 
@@ -1042,7 +1000,7 @@ struct sCLVALUEAndBoolResult* run_create_sortable_list(CLVALUE** stack_ptr, CLVA
 
     char* type_name = CONS_str(constant, type_name_offset);
 
-    CLObject list_object = create_sortable_list_object(type_name);
+    CLObject list_object = create_sortable_list_object(type_name, info);
     (*stack_ptr)->mObjectValue = list_object; // push object
     (*stack_ptr)++;
 
@@ -1087,7 +1045,7 @@ struct sCLVALUEAndBoolResult* run_create_equalable_list(CLVALUE** stack_ptr, CLV
 
     char* type_name = CONS_str(constant, type_name_offset);
 
-    CLObject list_object = create_equalable_list_object(type_name);
+    CLObject list_object = create_equalable_list_object(type_name, info);
     (*stack_ptr)->mObjectValue = list_object; // push object
     (*stack_ptr)++;
 
@@ -1119,7 +1077,7 @@ struct sCLVALUEAndBoolResult* run_create_tuple(CLVALUE** stack_ptr, CLVALUE* sta
 {
     struct sCLVALUEAndBoolResult* result = &gCLValueAndBoolStructMemory;
 
-    CLObject tuple_object = create_tuple_object(num_elements, type_name);
+    CLObject tuple_object = create_tuple_object(num_elements, type_name, info);
 
     (*stack_ptr)->mObjectValue = tuple_object; // push object
     (*stack_ptr)++;
@@ -1187,7 +1145,7 @@ struct sCLVALUEAndBoolResult* run_create_hash(CLVALUE** stack_ptr, CLVALUE* stac
         items[i] = ((*stack_ptr) - num_elements * 2 + i * 2 + 1)->mObjectValue;
     }
 
-    CLObject hash_object = create_hash_object(type_name);
+    CLObject hash_object = create_hash_object(type_name, info);
     (*stack_ptr)->mObjectValue = hash_object; // push object
     (*stack_ptr)++;
 
@@ -1220,7 +1178,7 @@ CLObject run_create_block_object(CLVALUE** stack_ptr, CLVALUE* stack, sConst* co
 
     CLVALUE* parent_stack = stack;
 
-    CLObject block_object = create_block_object(&codes2, &constant2, parent_stack, parent_var_num, block_var_num, info->stack_id, lambda);
+    CLObject block_object = create_block_object(&codes2, &constant2, parent_stack, parent_var_num, block_var_num, info->stack_id, lambda, info);
 
     return block_object;
 }
@@ -1291,7 +1249,7 @@ struct sPointerAndBoolResult* run_load_class_field_address(CLVALUE** stack_ptr, 
     return result;
 }
 
-void* run_buffer_to_pointer_cast(CLObject object)
+void* run_buffer_to_pointer_cast(CLObject object, sVMInfo* info)
 {
     sCLObject* object_data = CLOBJECT(object);
 
@@ -1299,93 +1257,91 @@ void* run_buffer_to_pointer_cast(CLObject object)
 
     CLVALUE cl_value;
     cl_value.mObjectValue = object;
-    push_value_to_global_stack(cl_value);
-
-    gBufferToPointerCastCount++;
+    push_value_to_global_stack(cl_value, info);
 
     return (void*)pointer_value;
 }
 
-CLObject run_int_to_string_cast(int n)
+CLObject run_int_to_string_cast(int n, sVMInfo* info)
 {
     char buf[32];
     snprintf(buf, 32, "%d", n);
 
-    CLObject str = create_string_object(buf);
+    CLObject str = create_string_object(buf, info);
 
     return str;
 }
 
-CLObject run_long_to_string_cast(clint64 l)
+CLObject run_long_to_string_cast(clint64 l, sVMInfo* info)
 {
     char buf[32];
     snprintf(buf, 32, "%lld", l);
 
-    CLObject str = create_string_object(buf);
+    CLObject str = create_string_object(buf, info);
 
     return str;
 }
 
-CLObject run_uint_to_string_cast(unsigned int n)
+CLObject run_uint_to_string_cast(unsigned int n, sVMInfo* info)
 {
     char buf[32];
     snprintf(buf, 32, "%u", n);
 
-    CLObject str = create_string_object(buf);
+    CLObject str = create_string_object(buf, info);
 
     return str;
 }
 
-CLObject run_ulong_to_string_cast(clint64 l)
+CLObject run_ulong_to_string_cast(clint64 l, sVMInfo* info)
 {
     char buf[32];
     snprintf(buf, 32, "%lld", l);
 
-    CLObject str = create_string_object(buf);
+    CLObject str = create_string_object(buf, info);
 
     return str;
 }
 
-CLObject run_float_to_string_cast(float f)
+CLObject run_float_to_string_cast(float f, sVMInfo* info)
 {
     char buf[32];
     snprintf(buf, 32, "%f", f);
 
-    CLObject str = create_string_object(buf);
+    CLObject str = create_string_object(buf, info);
 
     return str;
 }
 
-CLObject run_double_to_string_cast(double d)
+CLObject run_double_to_string_cast(double d, sVMInfo* info)
 {
     char buf[32];
     snprintf(buf, 32, "%lf", d);
 
-    CLObject str = create_string_object(buf);
+    CLObject str = create_string_object(buf, info);
 
     return str;
 }
 
-CLObject run_char_to_string_cast(wchar_t c)
+CLObject run_char_to_string_cast(wchar_t c, sVMInfo* info)
 {
     char buf[32];
     snprintf(buf, 32, "%lc", c);
 
-    CLObject str = create_string_object(buf);
+    CLObject str = create_string_object(buf, info);
 
     return str;
 }
 
-CLObject run_regex_to_string_cast(CLObject regex)
+CLObject run_regex_to_string_cast(CLObject regex, sVMInfo* info)
 {
     sRegexObject* object_data = CLREGEX(regex);
 
-    CLObject str = create_string_object(object_data->mRegexString);
+    CLObject str = create_string_object(object_data->mRegexString, info);
 
     return str;
 }
 
-CLObject run_bool_to_string_cast(BOOL b)
+CLObject run_bool_to_string_cast(BOOL b, sVMInfo* info)
 {
     char buf[32];
     if(b) {
@@ -1395,17 +1351,17 @@ CLObject run_bool_to_string_cast(BOOL b)
         snprintf(buf, 32, "false");
     }
 
-    CLObject str = create_string_object(buf);
+    CLObject str = create_string_object(buf, info);
 
     return str;
 }
 
-CLObject run_pointer_to_string_cast(char* p)
+CLObject run_pointer_to_string_cast(char* p, sVMInfo* info)
 {
     char buf[32];
     snprintf(buf, 32, "%p", (void*)p);
 
-    CLObject str = create_string_object(buf);
+    CLObject str = create_string_object(buf, info);
 
     return str;
 }
@@ -1556,17 +1512,16 @@ struct sCLVALUEAndBoolResult* run_array_to_carray_cast(CLVALUE** stack_ptr, CLVA
     char type_name[OBJECT_TYPE_NAME_MAX];
     snprintf(type_name, OBJECT_TYPE_NAME_MAX, "Array<%s>", CLASS_NAME(klass));
 
-    CLObject new_array = create_object(klass2, type_name);
+    CLObject new_array = create_object(klass2, type_name, info);
 
-    gGlobalStackPtr->mObjectValue = new_array;
-    gGlobalStackPtr++;
+    push_object_to_global_stack(new_array, info);
 
     CLObject new_primitive_array;
     if(klass->mFlags & CLASS_FLAGS_PRIMITIVE) {
-        new_primitive_array = create_array_object(klass->mBoxingClass, array_num);
+        new_primitive_array = create_array_object(klass->mBoxingClass, array_num, info);
     }
     else {
-        new_primitive_array = create_array_object(klass, array_num);
+        new_primitive_array = create_array_object(klass, array_num, info);
     }
 
     sCLObject* new_array_data = CLOBJECT(new_array);
@@ -1579,13 +1534,13 @@ struct sCLVALUEAndBoolResult* run_array_to_carray_cast(CLVALUE** stack_ptr, CLVA
         array_data = CLOBJECT(array);           // reget for GC
 
         CLVALUE element;
-        boxing_primitive_value_to_object(array_data->mFields[i], &element, klass);
+        boxing_primitive_value_to_object(array_data->mFields[i], &element, klass, info);
 
         sCLObject* new_primitive_array_data = CLOBJECT(new_primitive_array);
         new_primitive_array_data->mFields[i] = element;
     }
 
-    gGlobalStackPtr--;
+    pop_global_stack(info);
 
     result->result1.mObjectValue = new_array;
     result->result2 = TRUE;
@@ -1598,7 +1553,7 @@ void show_method_parametor_address(CLVALUE* stack_ptr, CLVALUE* lvar, sVMInfo* i
     printf("stack_ptr %p lvar %p info %p stack %p stack_ptr_address %p var_num %d constant %p code %p\n", (void*)stack_ptr, (void*)lvar, (void*)info, (void*)stack, (void*)stack_ptr_address, var_num, (void*)constant, (void*)code);
 }
 
-CLObject run_op_string_with_string_expression(char* str, int* string_expression_offsets, int num_string_expression, CLVALUE** stack_ptr)
+CLObject run_op_string_with_string_expression(char* str, int* string_expression_offsets, int num_string_expression, CLVALUE** stack_ptr, sVMInfo* info)
 {
     CLObject string_expression_object[STRING_EXPRESSION_MAX];
 
@@ -1626,14 +1581,14 @@ CLObject run_op_string_with_string_expression(char* str, int* string_expression_
 
     (*stack_ptr) -= num_string_expression;
 
-    CLObject string_object = create_string_object(buf.mBuf);
+    CLObject string_object = create_string_object(buf.mBuf, info);
 
     MFREE(buf.mBuf);
 
     return string_object;
 }
 
-CLObject run_op_buffer_with_string_expression(char* str, int len, int* string_expression_offsets, int num_string_expression, CLVALUE** stack_ptr)
+CLObject run_op_buffer_with_string_expression(char* str, int len, int* string_expression_offsets, int num_string_expression, CLVALUE** stack_ptr, sVMInfo* info)
 {
     CLObject string_expression_object[STRING_EXPRESSION_MAX];
 
@@ -1660,14 +1615,14 @@ CLObject run_op_buffer_with_string_expression(char* str, int len, int* string_ex
 
     (*stack_ptr) -= num_string_expression;
 
-    CLObject buffer_object = create_buffer_object(buf.mBuf, buf.mLen);
+    CLObject buffer_object = create_buffer_object(buf.mBuf, buf.mLen, info);
 
     MFREE(buf.mBuf);
 
     return buffer_object;
 }
 
-CLObject run_op_path_with_string_expression(char* str, int* string_expression_offsets, int num_string_expression, CLVALUE** stack_ptr)
+CLObject run_op_path_with_string_expression(char* str, int* string_expression_offsets, int num_string_expression, CLVALUE** stack_ptr, sVMInfo* info)
 {
     CLObject string_expression_object[STRING_EXPRESSION_MAX];
 
@@ -1694,14 +1649,14 @@ CLObject run_op_path_with_string_expression(char* str, int* string_expression_of
 
     (*stack_ptr) -= num_string_expression;
 
-    CLObject path_object = create_path_object(buf.mBuf);
+    CLObject path_object = create_path_object(buf.mBuf, info);
 
     MFREE(buf.mBuf);
 
     return path_object;
 }
 
-CLObject run_op_regex_with_string_expression(char* str, int* string_expression_offsets, int num_string_expression, CLVALUE** stack_ptr, BOOL global, BOOL ignore_case, BOOL multiline, BOOL extended, BOOL dotall, BOOL anchored, BOOL dollar_endonly, BOOL ungreedy)
+CLObject run_op_regex_with_string_expression(char* str, int* string_expression_offsets, int num_string_expression, CLVALUE** stack_ptr, BOOL global, BOOL ignore_case, BOOL multiline, BOOL extended, BOOL dotall, BOOL anchored, BOOL dollar_endonly, BOOL ungreedy, sVMInfo* info)
 {
     CLObject string_expression_object[STRING_EXPRESSION_MAX];
 
@@ -1728,7 +1683,7 @@ CLObject run_op_regex_with_string_expression(char* str, int* string_expression_o
 
     (*stack_ptr) -= num_string_expression;
 
-    CLObject regex_object = create_regex_object(buf.mBuf, global, ignore_case, multiline, extended, dotall, anchored, dollar_endonly, ungreedy);
+    CLObject regex_object = create_regex_object(buf.mBuf, global, ignore_case, multiline, extended, dotall, anchored, dollar_endonly, ungreedy, info);
 
     MFREE(buf.mBuf);
 

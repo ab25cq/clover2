@@ -31,7 +31,7 @@ void free_block(CLObject self)
     sByteCode_free(&object_data->mCodes);
 }
 
-CLObject create_block_object(sByteCode* codes, sConst* constant, CLVALUE* parent_stack, int parent_var_num, int block_var_num, sCLStack* stack_id, BOOL lambda)
+CLObject create_block_object(sByteCode* codes, sConst* constant, CLVALUE* parent_stack, int parent_var_num, int block_var_num, sCLStack* stack_id, BOOL lambda, sVMInfo* info)
 {
     unsigned int size = object_size();
 
@@ -53,7 +53,7 @@ CLObject create_block_object(sByteCode* codes, sConst* constant, CLVALUE* parent
     object_data->mLambda = lambda;
 
 #ifdef ENABLE_JIT
-    push_jit_object(obj);
+    push_object_to_global_stack(obj, info);
 #endif
 
     return obj;

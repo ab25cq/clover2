@@ -1,33 +1,33 @@
 #include "common.h"
 
-CLObject create_carray_object(char* type_name)
+CLObject create_carray_object(char* type_name, sVMInfo* info)
 {
     sCLClass* klass = get_class("Array");
     MASSERT(klass != NULL);
-    CLObject obj = create_object(klass, type_name);
+    CLObject obj = create_object(klass, type_name, info);
 
     return obj;
 }
 
-CLObject create_equalable_carray_object(char* type_name)
+CLObject create_equalable_carray_object(char* type_name, sVMInfo* info)
 {
     sCLClass* klass = get_class("EqualableArray");
     MASSERT(klass != NULL);
-    CLObject obj = create_object(klass, type_name);
+    CLObject obj = create_object(klass, type_name, info);
 
     return obj;
 }
 
-CLObject create_sortable_carray_object(char* type_name)
+CLObject create_sortable_carray_object(char* type_name, sVMInfo* info)
 {
     sCLClass* klass = get_class("SortableArray");
     MASSERT(klass != NULL);
-    CLObject obj = create_object(klass, type_name);
+    CLObject obj = create_object(klass, type_name, info);
 
     return obj;
 }
 
-CLObject create_carray_object_with_elements(int num_elements, CLObject* elements)
+CLObject create_carray_object_with_elements(int num_elements, CLObject* elements, sVMInfo* info)
 {
     char type_name[OBJECT_TYPE_NAME_MAX];
 
@@ -42,17 +42,17 @@ CLObject create_carray_object_with_elements(int num_elements, CLObject* elements
         snprintf(type_name, OBJECT_TYPE_NAME_MAX, "Array<Null>");
     }
 
-    CLObject obj = create_carray_object(type_name);
+    CLObject obj = create_carray_object(type_name, info);
 
     CLVALUE cl_value;
     cl_value.mLongValue = 0;
     cl_value.mObjectValue = obj;
-    push_value_to_global_stack(cl_value);
+    push_value_to_global_stack(cl_value, info);
 
     sCLClass* object_class = get_class("Object");
     MASSERT(object_class != NULL);
 
-    CLObject array = create_array_object(object_class, num_elements);
+    CLObject array = create_array_object(object_class, num_elements, info);
     sCLObject* obj_data = CLOBJECT(obj);
     obj_data->mFields[0].mObjectValue = array;
 
@@ -63,7 +63,7 @@ CLObject create_carray_object_with_elements(int num_elements, CLObject* elements
         obj_data2->mFields[i].mObjectValue = elements[i];
     }
 
-    pop_global_stack();
+    pop_global_stack(info);
 
     return obj;
 }
@@ -78,7 +78,7 @@ BOOL initialize_carray_object(CLObject array_object, int num_elements, CLObject*
     (*stack_ptr)->mObjectValue = array_object;  // self
     (*stack_ptr)++;
 
-    CLObject items_array = create_array_object(class_items, num_elements);
+    CLObject items_array = create_array_object(class_items, num_elements, info);
 
     sCLObject* object_data2 = CLOBJECT(items_array);
 
@@ -99,7 +99,7 @@ BOOL initialize_carray_object(CLObject array_object, int num_elements, CLObject*
     return TRUE;
 }
 
-CLObject create_equalable_carray_object_with_elements(int num_elements, CLObject* elements)
+CLObject create_equalable_carray_object_with_elements(int num_elements, CLObject* elements, sVMInfo* info)
 {
     char type_name[OBJECT_TYPE_NAME_MAX];
 
@@ -114,17 +114,17 @@ CLObject create_equalable_carray_object_with_elements(int num_elements, CLObject
         snprintf(type_name, OBJECT_TYPE_NAME_MAX, "Array<Null>");
     }
 
-    CLObject obj = create_equalable_carray_object(type_name);
+    CLObject obj = create_equalable_carray_object(type_name, info);
 
     CLVALUE cl_value;
     cl_value.mLongValue = 0;
     cl_value.mObjectValue = obj;
-    push_value_to_global_stack(cl_value);
+    push_value_to_global_stack(cl_value, info);
 
     sCLClass* object_class = get_class("Object");
     MASSERT(object_class != NULL);
 
-    CLObject array = create_array_object(object_class, num_elements);
+    CLObject array = create_array_object(object_class, num_elements, info);
     sCLObject* obj_data = CLOBJECT(obj);
     obj_data->mFields[0].mObjectValue = array;
 
@@ -135,7 +135,7 @@ CLObject create_equalable_carray_object_with_elements(int num_elements, CLObject
         obj_data2->mFields[i].mObjectValue = elements[i];
     }
 
-    pop_global_stack();
+    pop_global_stack(info);
 
     return obj;
 }
@@ -150,7 +150,7 @@ BOOL initialize_equalable_carray_object(CLObject array_object, int num_elements,
     (*stack_ptr)->mObjectValue = array_object;  // self
     (*stack_ptr)++;
 
-    CLObject items_array = create_array_object(class_items, num_elements);
+    CLObject items_array = create_array_object(class_items, num_elements, info);
 
     sCLObject* object_data2 = CLOBJECT(items_array);
 
@@ -171,7 +171,7 @@ BOOL initialize_equalable_carray_object(CLObject array_object, int num_elements,
     return TRUE;
 }
 
-CLObject create_sortable_carray_object_with_elements(int num_elements, CLObject* elements)
+CLObject create_sortable_carray_object_with_elements(int num_elements, CLObject* elements, sVMInfo* info)
 {
     char type_name[OBJECT_TYPE_NAME_MAX];
 
@@ -186,17 +186,17 @@ CLObject create_sortable_carray_object_with_elements(int num_elements, CLObject*
         snprintf(type_name, OBJECT_TYPE_NAME_MAX, "Array<Null>");
     }
 
-    CLObject obj = create_sortable_carray_object(type_name);
+    CLObject obj = create_sortable_carray_object(type_name, info);
 
     CLVALUE cl_value;
     cl_value.mLongValue = 0;
     cl_value.mObjectValue = obj;
-    push_value_to_global_stack(cl_value);
+    push_value_to_global_stack(cl_value, info);
 
     sCLClass* object_class = get_class("Object");
     MASSERT(object_class != NULL);
 
-    CLObject array = create_array_object(object_class, num_elements);
+    CLObject array = create_array_object(object_class, num_elements, info);
     sCLObject* obj_data = CLOBJECT(obj);
     obj_data->mFields[0].mObjectValue = array;
 
@@ -207,7 +207,7 @@ CLObject create_sortable_carray_object_with_elements(int num_elements, CLObject*
         obj_data2->mFields[i].mObjectValue = elements[i];
     }
 
-    pop_global_stack();
+    pop_global_stack(info);
 
     return obj;
 }
@@ -219,10 +219,10 @@ BOOL initialize_sortable_carray_object(CLObject array_object, int num_elements, 
     char* method_name_and_params = "initialize(GenericsParametorClass0[])";
     sCLMethod* method = search_for_method_from_virtual_method_table(klass, method_name_and_params);
 
-    (*stack_ptr)->mObjectValue = array_object;  // self
+    (*stack_ptr)->mObjectValue = array_object;  // sel, infof
     (*stack_ptr)++;
 
-    CLObject items_array = create_array_object(class_items, num_elements);
+    CLObject items_array = create_array_object(class_items, num_elements, info);
 
     sCLObject* object_data2 = CLOBJECT(items_array);
 

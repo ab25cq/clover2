@@ -1,4 +1,8 @@
 
+clover2 (5.0.1-1) unstable; urgency=medium
+
+    * Chaged GC algorithm. Maybe Clover2 has been more faster.
+
 clover2 (5.0.0-1) unstable; urgency=medium
 
     * Chaged GC algorithm. Maybe Clover2 has been more faster.

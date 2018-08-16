@@ -1,10 +1,10 @@
 #include "common.h"
 
-CLObject create_list_object(char* type_name)
+CLObject create_list_object(char* type_name, sVMInfo* info)
 {
     sCLClass* klass = get_class("List");
     MASSERT(klass != NULL);
-    CLObject obj = create_object(klass, type_name);
+    CLObject obj = create_object(klass, type_name, info);
 
     return obj;
 }
@@ -19,7 +19,7 @@ BOOL initialize_list_object(CLObject list_object, int num_elements, CLObject* it
     (*stack_ptr)->mObjectValue = list_object;  // self
     (*stack_ptr)++;
 
-    CLObject items_array = create_array_object(class_items, num_elements);
+    CLObject items_array = create_array_object(class_items, num_elements, info);
 
     sCLObject* object_data2 = CLOBJECT(items_array);
 
@@ -43,11 +43,11 @@ BOOL initialize_list_object(CLObject list_object, int num_elements, CLObject* it
     return TRUE;
 }
 
-CLObject create_sortable_list_object(char* type_name)
+CLObject create_sortable_list_object(char* type_name, sVMInfo* info)
 {
     sCLClass* klass = get_class("SortableList");
     MASSERT(klass != NULL);
-    CLObject obj = create_object(klass, type_name);
+    CLObject obj = create_object(klass, type_name, info);
 
     return obj;
 }
@@ -62,7 +62,7 @@ BOOL initialize_sortable_list_object(CLObject list_object, int num_elements, CLO
     (*stack_ptr)->mObjectValue = list_object;  // self
     (*stack_ptr)++;
 
-    CLObject items_array = create_array_object(class_items, num_elements);
+    CLObject items_array = create_array_object(class_items, num_elements, info);
 
     sCLObject* object_data2 = CLOBJECT(items_array);
 
@@ -86,11 +86,11 @@ BOOL initialize_sortable_list_object(CLObject list_object, int num_elements, CLO
     return TRUE;
 }
 
-CLObject create_equalable_list_object(char* type_name)
+CLObject create_equalable_list_object(char* type_name, sVMInfo* info)
 {
     sCLClass* klass = get_class("EqualableList");
     MASSERT(klass != NULL);
-    CLObject obj = create_object(klass, type_name);
+    CLObject obj = create_object(klass, type_name, info);
 
     return obj;
 }
@@ -105,7 +105,7 @@ BOOL initialize_equalable_list_object(CLObject list_object, int num_elements, CL
     (*stack_ptr)->mObjectValue = list_object;  // self
     (*stack_ptr)++;
 
-    CLObject items_array = create_array_object(class_items, num_elements);
+    CLObject items_array = create_array_object(class_items, num_elements, info);
 
     sCLObject* object_data2 = CLOBJECT(items_array);
 

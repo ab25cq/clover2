@@ -103,6 +103,8 @@ void* thread_func(void* param)
 
     new_info = *info; // struct copy
 
+    create_global_stack_and_append_it_to_stack_list(&new_info);
+
     new_info.running_thread = TRUE;
     new_info.running_class_name = "Thread";
     new_info.running_method_name = "thread_func";
@@ -124,6 +126,8 @@ void* thread_func(void* param)
 
             MFREE(constant);
             MFREE(code);
+            
+            free_global_stack(&new_info);
 
             vm_mutex_off();
 
@@ -150,6 +154,8 @@ void* thread_func(void* param)
 
             MFREE(constant);
             MFREE(code);
+            
+            free_global_stack(&new_info);
 
             vm_mutex_off();
 
@@ -165,6 +171,8 @@ void* thread_func(void* param)
 
     MFREE(constant);
     MFREE(code);
+    
+    free_global_stack(&new_info);
 
     vm_mutex_off();
 #endif

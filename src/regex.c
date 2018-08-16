@@ -20,7 +20,7 @@ void regex_free_fun(CLObject obj)
     MFREE(object_data->mRegexString);
 }
 
-CLObject create_regex_object(char* regex, BOOL global, BOOL ignore_case, BOOL multiline, BOOL extended, BOOL dotall, BOOL anchored, BOOL dollar_endonly, BOOL ungreedy)
+CLObject create_regex_object(char* regex, BOOL global, BOOL ignore_case, BOOL multiline, BOOL extended, BOOL dotall, BOOL anchored, BOOL dollar_endonly, BOOL ungreedy, sVMInfo* info)
 {
     unsigned int size = object_size();
 
@@ -53,7 +53,7 @@ CLObject create_regex_object(char* regex, BOOL global, BOOL ignore_case, BOOL mu
     object_data->mUngreedy = ungreedy;
 
 #ifdef ENABLE_JIT
-    push_jit_object(obj);
+    push_object_to_global_stack(obj, info);
 #endif
 
     return obj;

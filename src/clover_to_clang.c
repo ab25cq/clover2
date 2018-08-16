@@ -269,19 +269,19 @@ BOOL create_termios_object(CLObject* result, CLVALUE** stack_ptr, CLVALUE* lvar,
         return FALSE;
     }
 
-    *result = create_object(termios_class, "termios");
+    *result = create_object(termios_class, "termios", info);
 
     CLVALUE cl_value;
     cl_value.mObjectValue = *result;
-    push_value_to_global_stack(cl_value);
+    push_value_to_global_stack(cl_value, info);
 
     sCLObject* object_data = CLOBJECT(*result);
 
     sCLClass* cc_t_class = get_class("byte");
 
-    object_data->mFields[4].mObjectValue = create_array_object(cc_t_class, 32);
+    object_data->mFields[4].mObjectValue = create_array_object(cc_t_class, 32, info);
 
-    pop_global_stack();
+    pop_global_stack(info);
 
     return TRUE;
 }

@@ -1,9 +1,9 @@
 #include "common.h"
 
-CLObject create_float(float value)
+CLObject create_float(float value, sVMInfo* info)
 {
     sCLClass* klass = get_class("Float");
-    CLObject obj = create_object(klass, "Float");
+    CLObject obj = create_object(klass, "Float", info);
 
     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -12,10 +12,10 @@ CLObject create_float(float value)
     return obj;
 }
 
-CLObject create_double(double value)
+CLObject create_double(double value, sVMInfo* info)
 {
     sCLClass* klass = get_class("Double");
-    CLObject obj = create_object(klass, "Double");
+    CLObject obj = create_object(klass, "Double", info);
 
     sCLObject* obj_data = CLOBJECT(obj);
 

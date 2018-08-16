@@ -705,6 +705,10 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
 
             params2.push_back(value2.value);
 
+            std::string info_value_name("info");
+            Value* param2 = params[info_value_name];
+            params2.push_back(param2);
+
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateCall(fun, params2);
             llvm_value.lvar_address_index = -1;
@@ -717,19 +721,6 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             dec_stack_ptr(llvm_stack_ptr, 1);
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            Value* param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -745,6 +736,10 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
 
             params2.push_back(value2.value);
 
+            std::string info_value_name("info");
+            Value* param2 = params[info_value_name];
+            params2.push_back(param2);
+
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateCall(fun, params2);
             llvm_value.lvar_address_index = -1;
@@ -757,19 +752,6 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             dec_stack_ptr(llvm_stack_ptr, 1);
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            Value* param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -787,6 +769,10 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
 
             params2.push_back(value2.value);
 
+            std::string info_value_name("info");
+            Value* param2 = params[info_value_name];
+            params2.push_back(param2);
+
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateCall(fun, params2);
             llvm_value.lvar_address_index = -1;
@@ -799,19 +785,6 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             dec_stack_ptr(llvm_stack_ptr, 1);
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            Value* param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -827,6 +800,10 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
 
             params2.push_back(value2.value);
 
+            std::string info_value_name("info");
+            Value* param2 = params[info_value_name];
+            params2.push_back(param2);
+
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateCall(fun, params2);
             llvm_value.lvar_address_index = -1;
@@ -839,19 +816,6 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             dec_stack_ptr(llvm_stack_ptr, 1);
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            Value* param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -864,6 +828,10 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
 
             params2.push_back(value->value);
 
+            std::string info_value_name("info");
+            Value* param2 = params[info_value_name];
+            params2.push_back(param2);
+
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateCall(fun, params2);
             llvm_value.lvar_address_index = -1;
@@ -877,18 +845,6 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
 
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            Value* param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -901,6 +857,10 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
 
             params2.push_back(value->value);
 
+            std::string info_value_name("info");
+            Value* param2 = params[info_value_name];
+            params2.push_back(param2);
+
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateCall(fun, params2);
             llvm_value.lvar_address_index = -1;
@@ -913,19 +873,6 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             dec_stack_ptr(llvm_stack_ptr, 1);
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            Value* param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -941,6 +888,10 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
 
             params2.push_back(value2.value);
 
+            std::string info_value_name("info");
+            Value* param2 = params[info_value_name];
+            params2.push_back(param2);
+
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateCall(fun, params2);
             llvm_value.lvar_address_index = -1;
@@ -953,19 +904,6 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             dec_stack_ptr(llvm_stack_ptr, 1);
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            Value* param1 = llvm_value2.value;
-            params3.push_back(param1);
-            
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -981,6 +919,10 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
 
             params2.push_back(value2.value);
 
+            std::string info_value_name("info");
+            Value* param2 = params[info_value_name];
+            params2.push_back(param2);
+
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateCall(fun, params2);
             llvm_value.lvar_address_index = -1;
@@ -993,19 +935,6 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             dec_stack_ptr(llvm_stack_ptr, 1);
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            Value* param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -1021,6 +950,10 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
 
             params2.push_back(value2.value);
 
+            std::string info_value_name("info");
+            Value* param2 = params[info_value_name];
+            params2.push_back(param2);
+
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateCall(fun, params2);
             llvm_value.lvar_address_index = -1;
@@ -1033,19 +966,6 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             dec_stack_ptr(llvm_stack_ptr, 1);
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            Value* param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -1058,6 +978,10 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
 
             params2.push_back(value->value);
 
+            std::string info_value_name("info");
+            Value* param2 = params[info_value_name];
+            params2.push_back(param2);
+
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateCall(fun, params2);
             llvm_value.lvar_address_index = -1;
@@ -1070,19 +994,6 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             dec_stack_ptr(llvm_stack_ptr, 1);
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            Value* param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -1108,6 +1019,10 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* param1 = value2.value;
             params2.push_back(param1);
 
+            std::string info_value_name("info");
+            Value* param2 = params[info_value_name];
+            params2.push_back(param2);
+
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateCall(fun, params2);
             llvm_value.lvar_address_index = -1;
@@ -1120,18 +1035,6 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             dec_stack_ptr(llvm_stack_ptr, 1);
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -1149,6 +1052,10 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* param1 = value->value;
             params2.push_back(param1);
 
+            std::string info_value_name("info");
+            Value* param2 = params[info_value_name];
+            params2.push_back(param2);
+
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateCall(fun, params2);
             llvm_value.lvar_address_index = -1;
@@ -1161,18 +1068,6 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             dec_stack_ptr(llvm_stack_ptr, 1);
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -1199,6 +1094,10 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* param1 = value2.value;
             params2.push_back(param1);
 
+            std::string info_value_name("info");
+            Value* param2 = params[info_value_name];
+            params2.push_back(param2);
+
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateCall(fun, params2);
             llvm_value.lvar_address_index = -1;
@@ -1211,19 +1110,6 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             dec_stack_ptr(llvm_stack_ptr, 1);
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -1241,6 +1127,10 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* param1 = value->value;
             params2.push_back(param1);
 
+            std::string info_value_name("info");
+            Value* param2 = params[info_value_name];
+            params2.push_back(param2);
+
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateCall(fun, params2);
             llvm_value.lvar_address_index = -1;
@@ -1253,19 +1143,6 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             dec_stack_ptr(llvm_stack_ptr, 1);
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -1291,6 +1168,10 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* param1 = value2.value;
             params2.push_back(param1);
 
+            std::string info_value_name("info");
+            Value* param2 = params[info_value_name];
+            params2.push_back(param2);
+
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateCall(fun, params2);
             llvm_value.lvar_address_index = -1;
@@ -1303,19 +1184,6 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             dec_stack_ptr(llvm_stack_ptr, 1);
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -1334,6 +1202,10 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* param1 = value2.value;
             params2.push_back(param1);
 
+            std::string info_value_name("info");
+            Value* param2 = params[info_value_name];
+            params2.push_back(param2);
+
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateCall(fun, params2);
             llvm_value.lvar_address_index = -1;
@@ -1346,19 +1218,6 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             dec_stack_ptr(llvm_stack_ptr, 1);
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -1386,6 +1245,10 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* param1 = value2.value;
             params2.push_back(param1);
 
+            std::string info_value_name("info");
+            Value* param2 = params[info_value_name];
+            params2.push_back(param2);
+
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateCall(fun, params2);
             llvm_value.lvar_address_index = -1;
@@ -1398,20 +1261,6 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             dec_stack_ptr(llvm_stack_ptr, 1);
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -1430,6 +1279,10 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* param1 = value2.value;
             params2.push_back(param1);
 
+            std::string info_value_name("info");
+            Value* param2 = params[info_value_name];
+            params2.push_back(param2);
+
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateCall(fun, params2);
             llvm_value.lvar_address_index = -1;
@@ -1442,20 +1295,6 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             dec_stack_ptr(llvm_stack_ptr, 1);
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -1482,6 +1321,10 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* param1 = value2.value;
             params2.push_back(param1);
 
+            std::string info_value_name("info");
+            Value* param2 = params[info_value_name];
+            params2.push_back(param2);
+
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateCall(fun, params2);
             llvm_value.lvar_address_index = -1;
@@ -1494,19 +1337,6 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             dec_stack_ptr(llvm_stack_ptr, 1);
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -1525,6 +1355,10 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* param1 = value2.value;
             params2.push_back(param1);
 
+            std::string info_value_name("info");
+            Value* param2 = params[info_value_name];
+            params2.push_back(param2);
+
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateCall(fun, params2);
             llvm_value.lvar_address_index = -1;
@@ -1537,19 +1371,6 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             dec_stack_ptr(llvm_stack_ptr, 1);
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -1576,6 +1397,10 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* param1 = value2.value;
             params2.push_back(param1);
 
+            std::string info_value_name("info");
+            Value* param2 = params[info_value_name];
+            params2.push_back(param2);
+
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateCall(fun, params2);
             llvm_value.lvar_address_index = -1;
@@ -1588,19 +1413,6 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             dec_stack_ptr(llvm_stack_ptr, 1);
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -1619,6 +1431,10 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* param1 = value2.value;
             params2.push_back(param1);
 
+            std::string info_value_name("info");
+            Value* param2 = params[info_value_name];
+            params2.push_back(param2);
+
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateCall(fun, params2);
             llvm_value.lvar_address_index = -1;
@@ -1631,19 +1447,6 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             dec_stack_ptr(llvm_stack_ptr, 1);
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -1670,6 +1473,10 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* param1 = value2.value;
             params2.push_back(param1);
 
+            std::string info_value_name("info");
+            Value* param2 = params[info_value_name];
+            params2.push_back(param2);
+
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateCall(fun, params2);
             llvm_value.lvar_address_index = -1;
@@ -1682,19 +1489,6 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             dec_stack_ptr(llvm_stack_ptr, 1);
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -1713,6 +1507,10 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* param1 = value2.value;
             params2.push_back(param1);
 
+            std::string info_value_name("info");
+            Value* param2 = params[info_value_name];
+            params2.push_back(param2);
+
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateCall(fun, params2);
             llvm_value.lvar_address_index = -1;
@@ -1725,19 +1523,6 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             dec_stack_ptr(llvm_stack_ptr, 1);
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -1764,6 +1549,10 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* param1 = value2.value;
             params2.push_back(param1);
 
+            std::string info_value_name("info");
+            Value* param2 = params[info_value_name];
+            params2.push_back(param2);
+
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateCall(fun, params2);
             llvm_value.lvar_address_index = -1;
@@ -1776,19 +1565,6 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             dec_stack_ptr(llvm_stack_ptr, 1);
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -1807,6 +1583,10 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* param1 = value2.value;
             params2.push_back(param1);
 
+            std::string info_value_name("info");
+            Value* param2 = params[info_value_name];
+            params2.push_back(param2);
+
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateCall(fun, params2);
             llvm_value.lvar_address_index = -1;
@@ -1819,19 +1599,6 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             dec_stack_ptr(llvm_stack_ptr, 1);
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -1853,6 +1620,10 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* param1 = value2.value;
             params2.push_back(param1);
 
+            std::string info_value_name("info");
+            Value* param2 = params[info_value_name];
+            params2.push_back(param2);
+
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateCall(fun, params2);
             llvm_value.lvar_address_index = -1;
@@ -1865,19 +1636,6 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             dec_stack_ptr(llvm_stack_ptr, 1);
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -1899,6 +1657,10 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* param1 = value2.value;
             params2.push_back(param1);
 
+            std::string info_value_name("info");
+            Value* param2 = params[info_value_name];
+            params2.push_back(param2);
+
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateCall(fun, params2);
             llvm_value.lvar_address_index = -1;
@@ -1911,19 +1673,6 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             dec_stack_ptr(llvm_stack_ptr, 1);
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -1939,6 +1688,10 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* param1 = value2.value;
             params2.push_back(param1);
 
+            std::string info_value_name("info");
+            Value* param2 = params[info_value_name];
+            params2.push_back(param2);
+
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateCall(fun, params2);
             llvm_value.lvar_address_index = -1;
@@ -1951,19 +1704,6 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             dec_stack_ptr(llvm_stack_ptr, 1);
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -1979,6 +1719,10 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* param1 = value2.value;
             params2.push_back(param1);
 
+            std::string info_value_name("info");
+            Value* param2 = params[info_value_name];
+            params2.push_back(param2);
+
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateCall(fun, params2);
             llvm_value.lvar_address_index = -1;
@@ -1991,19 +1735,6 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             dec_stack_ptr(llvm_stack_ptr, 1);
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -2024,6 +1755,10 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* param1 = value->value;
             params2.push_back(param1);
 
+            std::string info_value_name("info");
+            Value* param2 = params[info_value_name];
+            params2.push_back(param2);
+
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateCall(fun, params2);
             llvm_value.lvar_address_index = -1;
@@ -2036,19 +1771,6 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             dec_stack_ptr(llvm_stack_ptr, 1);
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -2069,6 +1791,10 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* param1 = value->value;
             params2.push_back(param1);
 
+            std::string info_value_name("info");
+            Value* param2 = params[info_value_name];
+            params2.push_back(param2);
+
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateCall(fun, params2);
             llvm_value.lvar_address_index = -1;
@@ -2081,19 +1807,6 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             dec_stack_ptr(llvm_stack_ptr, 1);
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -2109,6 +1822,10 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* param1 = value->value;
             params2.push_back(param1);
 
+            std::string info_value_name("info");
+            Value* param2 = params[info_value_name];
+            params2.push_back(param2);
+
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateCall(fun, params2);
             llvm_value.lvar_address_index = -1;
@@ -2121,19 +1838,6 @@ BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass,
             dec_stack_ptr(llvm_stack_ptr, 1);
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -2149,6 +1853,10 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
             Value* param1 = value->value;
             params2.push_back(param1);
 
+            std::string info_value_name("info");
+            Value* param2 = params[info_value_name];
+            params2.push_back(param2);
+
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateCall(fun, params2);
             llvm_value.lvar_address_index = -1;
@@ -2161,19 +1869,6 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
             dec_stack_ptr(llvm_stack_ptr, 1);
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -2198,6 +1893,10 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
             Value* param1 = value->value;
             params2.push_back(param1);
 
+            std::string info_value_name("info");
+            Value* param2 = params[info_value_name];
+            params2.push_back(param2);
+
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateCall(fun, params2);
             llvm_value.lvar_address_index = -1;
@@ -2210,19 +1909,6 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
             dec_stack_ptr(llvm_stack_ptr, 1);
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -2236,6 +1922,10 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
 
             Value* param1 = value->value;
             params2.push_back(param1);
+
+            std::string info_value_name("info");
+            Value* param4 = params[info_value_name];
+            params2.push_back(param4);
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateCall(fun, params2);
@@ -2262,6 +1952,10 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
             Value* param1 = value->value;
             params2.push_back(param1);
 
+            std::string info_value_name("info");
+            Value* param2 = params[info_value_name];
+            params2.push_back(param2);
+
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateCall(fun, params2);
             llvm_value.lvar_address_index = -1;
@@ -2274,19 +1968,6 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
             dec_stack_ptr(llvm_stack_ptr, 1);
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -2315,6 +1996,10 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
             Value* param1 = value2.value;
             params2.push_back(param1);
 
+            std::string info_value_name("info");
+            Value* param2 = params[info_value_name];
+            params2.push_back(param2);
+
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateCall(fun, params2);
             llvm_value.lvar_address_index = -1;
@@ -2327,19 +2012,6 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
             dec_stack_ptr(llvm_stack_ptr, 1);
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -2366,6 +2038,10 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
             Value* param1 = value2.value;
             params2.push_back(param1);
 
+            std::string info_value_name("info");
+            Value* param2 = params[info_value_name];
+            params2.push_back(param2);
+
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateCall(fun, params2);
             llvm_value.lvar_address_index = -1;
@@ -2378,19 +2054,6 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
             dec_stack_ptr(llvm_stack_ptr, 1);
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -2408,6 +2071,10 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
             Value* param1 = value->value;
             params2.push_back(param1);
 
+            std::string info_value_name("info");
+            Value* param2 = params[info_value_name];
+            params2.push_back(param2);
+
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateCall(fun, params2);
             llvm_value.lvar_address_index = -1;
@@ -2420,19 +2087,6 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
             dec_stack_ptr(llvm_stack_ptr, 1);
 
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -6292,6 +5946,10 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
                 Value* param1 = llvm_create_string(str);
                 params2.push_back(param1);
 
+                std::string info_value_name("info");
+                Value* param2 = params[info_value_name];
+                params2.push_back(param2);
+
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(function, params2);
                 llvm_value.lvar_address_index = -1;
@@ -6302,19 +5960,6 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
                 llvm_value.parent_llvm_stack = NULL;
 
                 push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-                /// push object to jit objects ///
-                Function* fun2 = TheModule->getFunction("push_jit_object");
-
-                std::vector<Value*> params3;
-
-                LVALUE llvm_value2;
-                llvm_value2 = trunc_value(&llvm_value, 32);
-
-                param1 = llvm_value2.value;
-                params3.push_back(param1);
-
-                (void)Builder.CreateCall(fun2, params3);
             }
             else {
                 int string_expression_offsets[STRING_EXPRESSION_MAX];
@@ -6361,6 +6006,10 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
                 Value* param4 = params[stack_ptr_address_name];
                 params2.push_back(param4);
 
+                std::string info_value_name("info");
+                Value* param5 = params[info_value_name];
+                params2.push_back(param5);
+
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(function, params2);
                 llvm_value.lvar_address_index = -1;
@@ -6401,6 +6050,10 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
                 Value* param2 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)size);
                 params2.push_back(param2);
 
+                std::string info_value_name("info");
+                Value* param3 = params[info_value_name];
+                params2.push_back(param3);
+
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(function, params2);
                 llvm_value.lvar_address_index = -1;
@@ -6411,19 +6064,6 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
                 llvm_value.parent_llvm_stack = NULL;
 
                 push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-                /// push object to jit objects ///
-                Function* fun2 = TheModule->getFunction("push_jit_object");
-
-                std::vector<Value*> params3;
-
-                LVALUE llvm_value2;
-                llvm_value2 = trunc_value(&llvm_value, 32);
-
-                param1 = llvm_value2.value;
-                params3.push_back(param1);
-
-                (void)Builder.CreateCall(fun2, params3);
             }
             else {
                 int string_expression_offsets[STRING_EXPRESSION_MAX];
@@ -6473,6 +6113,10 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
                 Value* param5 = params[stack_ptr_address_name];
                 params2.push_back(param5);
 
+                std::string info_value_name("info");
+                Value* param6 = params[info_value_name];
+                params2.push_back(param6);
+
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(function, params2);
                 llvm_value.lvar_address_index = -1;
@@ -6507,6 +6151,10 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
                 Value* param1 = llvm_create_string(str);
                 params2.push_back(param1);
 
+                std::string info_value_name("info");
+                Value* param2 = params[info_value_name];
+                params2.push_back(param2);
+
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(function, params2);
                 llvm_value.lvar_address_index = -1;
@@ -6517,19 +6165,6 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
                 llvm_value.parent_llvm_stack = NULL;
 
                 push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-                /// push object to jit objects ///
-                Function* fun2 = TheModule->getFunction("push_jit_object");
-
-                std::vector<Value*> params3;
-
-                LVALUE llvm_value2;
-                llvm_value2 = trunc_value(&llvm_value, 32);
-
-                param1 = llvm_value2.value;
-                params3.push_back(param1);
-
-                (void)Builder.CreateCall(fun2, params3);
             }
             else {
                 int string_expression_offsets[STRING_EXPRESSION_MAX];
@@ -6576,6 +6211,10 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
                 std::string stack_ptr_address_name("stack_ptr_address");
                 Value* param4 = params[stack_ptr_address_name];
                 params2.push_back(param4);
+
+                std::string info_value_name("info");
+                Value* param5 = params[info_value_name];
+                params2.push_back(param5);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(function, params2);
@@ -6660,19 +6299,6 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
             /// vm stack_ptr to llvm stack ///
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
 
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
-
             /// delete vm stack ///
             inc_vm_stack_ptr(params, *current_block, -num_elements);
             }
@@ -6750,19 +6376,6 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
 
             /// vm stack_ptr to llvm stack ///
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -6838,19 +6451,6 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
 
             /// vm stack_ptr to llvm stack ///
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -6927,18 +6527,6 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
             /// vm stack_ptr to llvm stack ///
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
 
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -7015,18 +6603,6 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
             /// vm stack_ptr to llvm stack ///
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
 
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -7102,19 +6678,6 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
 
             /// vm stack_ptr to llvm stack ///
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -7190,19 +6753,6 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
 
             /// vm stack_ptr to llvm stack ///
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -7266,19 +6816,6 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
 
             /// vm stack_ptr to llvm stack ///
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -7360,19 +6897,6 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
 
             /// vm stack_ptr to llvm stack ///
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -7450,19 +6974,6 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
 
             /// vm stack_ptr to llvm stack ///
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-            /// push object to jit objects ///
-            Function* fun2 = TheModule->getFunction("push_jit_object");
-
-            std::vector<Value*> params3;
-
-            LVALUE llvm_value2;
-            llvm_value2 = trunc_value(&llvm_value, 32);
-
-            param1 = llvm_value2.value;
-            params3.push_back(param1);
-
-            (void)Builder.CreateCall(fun2, params3);
             }
             break;
 
@@ -7522,6 +7033,10 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
                 Value* param9 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)ungreedy);
                 params2.push_back(param9);
 
+                std::string info_value_name("info");
+                Value* param10 = params[info_value_name];
+                params2.push_back(param10);
+
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(function, params2);
                 llvm_value.lvar_address_index = -1;
@@ -7532,19 +7047,6 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
                 llvm_value.parent_llvm_stack = NULL;
 
                 push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-
-                /// push object to jit objects ///
-                Function* fun2 = TheModule->getFunction("push_jit_object");
-
-                std::vector<Value*> params3;
-
-                LVALUE llvm_value2;
-                llvm_value2 = trunc_value(&llvm_value, 32);
-
-                param1 = llvm_value2.value;
-                params3.push_back(param1);
-
-                (void)Builder.CreateCall(fun2, params3);
             }
             else {
                 int string_expression_offsets[STRING_EXPRESSION_MAX];
@@ -7608,6 +7110,10 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
                 params2.push_back(param11);
                 Value* param12 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)ungreedy);
                 params2.push_back(param12);
+
+                std::string info_value_name("info");
+                Value* param13 = params[info_value_name];
+                params2.push_back(param13);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(function, params2);

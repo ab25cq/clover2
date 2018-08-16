@@ -1770,11 +1770,16 @@ BOOL call_compile_time_script_method_on_declare()
     sVMInfo info;
     memset(&info, 0, sizeof(sVMInfo));
 
+    create_global_stack_and_append_it_to_stack_list(&info);
+
     int var_num = 0;
 
     if(!invoke_method(clover_class, method, stack, var_num, &stack_ptr, &info)) {
+        free_global_stack(&info);
         return FALSE;
     }
+
+    free_global_stack(&info);
 
     return TRUE;
 }
@@ -1854,16 +1859,21 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
     sVMInfo vinfo;
     memset(&vinfo, 0, sizeof(sVMInfo));
 
+    create_global_stack_and_append_it_to_stack_list(&vinfo);
+
     vinfo.running_class_name = "none";
     vinfo.running_method_name = "eval_str";
 
     vm_mutex_on();
 
     if(!vm(&code, &constant, stack, var_num, NULL, &vinfo)) {
+        free_global_stack(&vinfo);
         vm_mutex_off();
 
         return FALSE;
     }
+
+    free_global_stack(&vinfo);
 
     vm_mutex_off(); // see OP_RETURN
 
@@ -2025,6 +2035,8 @@ BOOL compile_class_source(char* fname, char* source)
         sVMInfo vinfo;
         memset(&vinfo, 0, sizeof(sVMInfo));
 
+        create_global_stack_and_append_it_to_stack_list(&vinfo);
+
         int stack_size = 512;
         CLVALUE* stack = MCALLOC(1, sizeof(CLVALUE)*stack_size);
 
@@ -2034,11 +2046,14 @@ BOOL compile_class_source(char* fname, char* source)
         vm_mutex_on();
 
         if(!vm(&code, &constant, stack, var_num, NULL, &vinfo)) {
+            free_global_stack(&vinfo);
             sByteCode_free(&code);
             sConst_free(&constant);
             vm_mutex_off();
             return FALSE;
         }
+
+        free_global_stack(&vinfo);
 
         vm_mutex_off();  // see OP_RETURN
     }

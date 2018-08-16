@@ -1,7 +1,7 @@
 #include "common.h"
 #include <wchar.h>
 
-CLObject create_string_object(char* str)
+CLObject create_string_object(char* str, sVMInfo* info)
 {
     /// convert str to wstr ///
     int len = strlen(str);
@@ -16,19 +16,19 @@ CLObject create_string_object(char* str)
     sCLClass* string_class = get_class("String");
     MASSERT(string_class != NULL);
 
-    CLObject obj = create_object(string_class, "String");
+    CLObject obj = create_object(string_class, "String", info);
 
     /// push object ///
     CLVALUE cl_value;
     cl_value.mLongValue = 0;
     cl_value.mObjectValue = obj;
-    push_value_to_global_stack(cl_value);
+    push_value_to_global_stack(cl_value, info);
 
     /// create char array ///
     sCLClass* char_class = get_class("char");
     MASSERT(char_class != NULL);
 
-    CLObject buffer = create_array_object(char_class, wlen+1);
+    CLObject buffer = create_array_object(char_class, wlen+1, info);
     sCLObject* buffer_data = CLOBJECT(buffer);
 
     int i;
@@ -44,20 +44,20 @@ CLObject create_string_object(char* str)
     obj_data->mFields[2].mIntValue = wlen;
 
     /// pop object ///
-    pop_global_stack();
+    pop_global_stack(info);
 
     MFREE(wstr);
 
     return obj;
 }
 
-CLObject create_buffer_object(char* buffer, size_t size)
+CLObject create_buffer_object(char* buffer, size_t size, sVMInfo* info)
 {
     /// create object ///
     sCLClass* buffer_class = get_class("Buffer");
     MASSERT(buffer_class != NULL);
 
-    CLObject obj = create_object(buffer_class, "Buffer");
+    CLObject obj = create_object(buffer_class, "Buffer", info);
 
     sCLObject* object_data = CLOBJECT(obj);
 
@@ -73,26 +73,26 @@ CLObject create_buffer_object(char* buffer, size_t size)
     return obj;
 }
 
-CLObject create_path_object(char* path)
+CLObject create_path_object(char* path, sVMInfo* info)
 {
     /// create object ///
     sCLClass* path_class = get_class("Path");
     MASSERT(path_class != NULL);
 
-    CLObject str_object = create_string_object(path);
+    CLObject str_object = create_string_object(path, info);
 
     CLVALUE cl_value;
     cl_value.mLongValue = 0;
     cl_value.mObjectValue = str_object;
-    push_value_to_global_stack(cl_value);
+    push_value_to_global_stack(cl_value, info);
 
-    CLObject obj = create_object(path_class, "Path");
+    CLObject obj = create_object(path_class, "Path", info);
 
     sCLObject* object_data = CLOBJECT(obj);
 
     object_data->mFields[0].mObjectValue = str_object;
 
-    pop_global_stack();
+    pop_global_stack(info);
 
     return obj;
 }

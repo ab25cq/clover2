@@ -1,9 +1,9 @@
 #include "common.h"
 
-CLObject create_char(wchar_t value)
+CLObject create_char(wchar_t value, sVMInfo* info)
 {
     sCLClass* klass = get_class("Char");
-    CLObject obj = create_object(klass, "Char");
+    CLObject obj = create_object(klass, "Char", info);
 
     sCLObject* obj_data = CLOBJECT(obj);
 

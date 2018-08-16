@@ -1,2 +1,0 @@
-println("ParserTest");
-ParserTest.main();

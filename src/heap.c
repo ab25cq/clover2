@@ -182,16 +182,6 @@ static void mark_sighandlers(unsigned char* mark_flg)
     }
 }
 
-#ifdef ENABLE_JIT
-void mark_jit_objects(unsigned char* mark_flg)
-{
-    int i;
-    for(i=0; i<gNumJITObjects; i++) {
-        mark_object(gJITObjects[i], mark_flg);
-    }
-}
-#endif
-
 static void mark(unsigned char* mark_flg)
 {
     int i;
@@ -215,11 +205,6 @@ static void mark(unsigned char* mark_flg)
 
     /// mark sig handlers ////
     mark_sighandlers(mark_flg);
-
-#ifdef ENABLE_JIT
-    /// mark jit objects ///
-    mark_jit_objects(mark_flg);
-#endif
 }
 
 static void compaction(unsigned char* mark_flg)
@@ -307,7 +292,7 @@ static void delete_all_object()
     free_malloced_memory();
 }
 
-static void gc()
+void gc()
 {
     unsigned char* mark_flg;
 
@@ -320,12 +305,17 @@ static void gc()
     MFREE(mark_flg);
 }
 
+#define GC_TIMING 10000
+
 CLObject alloc_heap_mem(unsigned int size, sCLClass* klass, int array_num)
 {
     int handle;
     CLObject obj;
 
     alignment(&size);
+
+    static int gc_time = 0;
+    gc_time++;
 
     /// get a free handle from linked list ///
     if(gCLHeap.mFreeHandles >= 0) {
@@ -341,7 +331,7 @@ CLObject alloc_heap_mem(unsigned int size, sCLClass* klass, int array_num)
         }
 
         if(handle == -1) {
-            gc();
+            if((gc_time % GC_TIMING) == 0) gc();
 
             if(gCLHeap.mNumHandles == gCLHeap.mSizeHandles) {
                 const int new_offset_size = (gCLHeap.mSizeHandles + 1) * 10;
@@ -369,7 +359,7 @@ CLObject alloc_heap_mem(unsigned int size, sCLClass* klass, int array_num)
     }
     /// no free handle. get new one ///
     else {
-        gc();
+        if((gc_time % GC_TIMING) == 0) gc();
 
         if(gCLHeap.mNumHandles == gCLHeap.mSizeHandles) {
             const int new_offset_size = (gCLHeap.mSizeHandles + 1) * 10;

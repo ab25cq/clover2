@@ -1,9 +1,9 @@
 #include "common.h"
 
-CLObject create_byte(char value)
+CLObject create_byte(char value, sVMInfo* info)
 {
     sCLClass* klass = get_class("Byte");
-    CLObject obj = create_object(klass, "Byte");
+    CLObject obj = create_object(klass, "Byte", info);
 
     sCLObject* obj_data = CLOBJECT(obj);
 
@@ -12,10 +12,10 @@ CLObject create_byte(char value)
     return obj;
 }
 
-CLObject create_ubyte(unsigned char value)
+CLObject create_ubyte(unsigned char value, sVMInfo* info)
 {
     sCLClass* klass = get_class("UByte");
-    CLObject obj = create_object(klass, "UByte");
+    CLObject obj = create_object(klass, "UByte", info);
 
     sCLObject* obj_data = CLOBJECT(obj);
 

@@ -37,12 +37,12 @@ void entry_exception_object_with_class_name(CLVALUE** stack_ptr, CLVALUE* stack,
         (*stack_ptr)++;
     }
     else {
-        CLObject object = create_object(klass, class_name);
+        CLObject object = create_object(klass, class_name, info);
         (*stack_ptr) = stack + var_num;
         (*stack_ptr)->mObjectValue = object;
         (*stack_ptr)++;
 
-        CLObject str = create_string_object(info->exception_message);
+        CLObject str = create_string_object(info->exception_message, info);
 
         sCLObject* object_data = CLOBJECT(object);
         object_data->mFields[0].mObjectValue = str;
@@ -80,12 +80,12 @@ void entry_exception_object_with_class_name2(CLVALUE** stack_ptr, CLVALUE* stack
         (*stack_ptr)++;
     }
     else {
-        CLObject object = create_object(klass, class_name);
+        CLObject object = create_object(klass, class_name, info);
         (*stack_ptr) = stack + var_num;
         (*stack_ptr)->mObjectValue = object;
         (*stack_ptr)++;
 
-        CLObject str = create_string_object(info->exception_message);
+        CLObject str = create_string_object(info->exception_message, info);
 
         sCLObject* object_data = CLOBJECT(object);
         object_data->mFields[0].mObjectValue = str;
@@ -120,14 +120,14 @@ void entry_exception_object(CLObject exception, sVMInfo* info)
 
     MFREE(str);
 
-    CLObject new_message = create_string_object(info->exception_message);
+    CLObject new_message = create_string_object(info->exception_message, info);
 
     CLVALUE cvalue;
     cvalue.mObjectValue = new_message;
-    push_value_to_global_stack(cvalue);
+    push_value_to_global_stack(cvalue, info);
 
     callOnException(new_message, info->try_offset != 0, info);
 
-    pop_global_stack();
+    pop_global_stack(info);
 }
 

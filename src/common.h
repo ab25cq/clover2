@@ -167,12 +167,16 @@ void stack_final();
 sCLStack* append_stack_to_stack_list(CLVALUE* stack_mem, CLVALUE** stack_ptr);
 BOOL remove_stack_to_stack_list(sCLStack* stack);
 BOOL check_variables_existance_on_stack(CLVALUE* stack, CLVALUE* stack_ptr);
-void push_value_to_global_stack(CLVALUE value);
-CLVALUE pop_global_stack();
+
+struct sVMInfoStruct;
+
+void create_global_stack_and_append_it_to_stack_list(struct sVMInfoStruct* info);
+void push_value_to_global_stack(CLVALUE value, struct sVMInfoStruct* info);
+void push_object_to_global_stack(CLObject obj, struct sVMInfoStruct* info);
+void free_global_stack(struct sVMInfoStruct* info);
+CLVALUE pop_global_stack(struct sVMInfoStruct* info);
 
 extern sCLStack* gHeadStack;
-extern CLVALUE* gGlobalStack;
-extern CLVALUE* gGlobalStackPtr;
 
 /// klass.c ///
 #define CLASS_FLAGS_PRIMITIVE 0x01
@@ -228,6 +232,11 @@ typedef struct sCLParamStruct sCLParam;
 #define STACK_TRACE_MAX 32
 
 struct sVMInfoStruct {
+    CLVALUE* mGlobalStack;
+    CLVALUE* mGlobalStackPtr;
+    int mSizeGlobalStack;
+    sCLStack* mGlobalStackID;
+
     char* try_catch_label_name;
 
     CLVALUE* current_stack;
@@ -1821,7 +1830,7 @@ void callOnException(CLObject message, BOOL in_try, sVMInfo* info);
 BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info);
 BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_params, CLVALUE** stack_ptr, sVMInfo* info, BOOL llvm_flag);
 BOOL class_init_on_runtime();
-void boxing_primitive_value_to_object(CLVALUE object, CLVALUE* result, sCLClass* klass);
+void boxing_primitive_value_to_object(CLVALUE object, CLVALUE* result, sCLClass* klass, sVMInfo* info);
 void Self_convertion_of_method_name_and_params(char* method_name_and_params, char* method_name_and_params2, char* class_name);
 void set_free_fun_to_classes();
 BOOL call_all_class_initializer();
@@ -1913,6 +1922,7 @@ sCLHeapMem* get_object_pointer(CLObject obj);
 void show_heap(sVMInfo* info);
 void mark_object(CLObject obj, unsigned char* mark_flg);
 BOOL is_valid_object(CLObject obj);
+void gc();
 
 /// module.c ///
 struct sCLModuleStruct {
@@ -1960,18 +1970,18 @@ typedef struct sCLObjectStruct sCLObject;
 
 #define CLOBJECT(obj) ((sCLObject*)(get_object_pointer((obj))))
 
-CLObject create_object(sCLClass* klass, char* type);
+CLObject create_object(sCLClass* klass, char* type, sVMInfo* info);
 BOOL free_object(CLObject self);
 void object_mark_fun(CLObject self, unsigned char* mark_flg);
 BOOL object_implements_interface(CLObject object, sCLClass* interface);
 
 /// array.c ///
-CLObject create_array_object(sCLClass* klass, int array_num);
+CLObject create_array_object(sCLClass* klass, int array_num, sVMInfo* info);
 void array_mark_fun(CLObject self, unsigned char* mark_flg);
 void free_array(CLObject self);
 
 /// hash.c ///
-CLObject create_hash_object(char* type_name);
+CLObject create_hash_object(char* type_name, sVMInfo* info);
 BOOL initialize_hash_object(CLObject hash_object, int num_elements, CLObject* keys, CLObject* items, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sCLClass* class_keys, sCLClass* class_items);
 
 /// block.c ///
@@ -1994,7 +2004,7 @@ typedef struct sBlockObjectStruct sBlockObject;
 
 #define CLBLOCK(obj) (sBlockObject*)(get_object_pointer((obj)))
 
-CLObject create_block_object(sByteCode* codes, sConst* constant, CLVALUE* parent_stack, int parent_var_num, int block_var_num, sCLStack* stack_id, BOOL lambda);
+CLObject create_block_object(sByteCode* codes, sConst* constant, CLVALUE* parent_stack, int parent_var_num, int block_var_num, sCLStack* stack_id, BOOL lambda, sVMInfo* info);
 void block_mark_fun(CLObject self, unsigned char* mark_flg);
 
 /// regex.c ///
@@ -2020,46 +2030,46 @@ typedef struct sRegexObjectStruct sRegexObject;
 
 #define CLREGEX(obj) (sRegexObject*)(get_object_pointer((obj)))
 
-CLObject create_regex_object(char* regex, BOOL global, BOOL ignore_case, BOOL multiline, BOOL extended, BOOL dotall, BOOL anchored, BOOL dollar_endonly, BOOL ungreedy);
+CLObject create_regex_object(char* regex, BOOL global, BOOL ignore_case, BOOL multiline, BOOL extended, BOOL dotall, BOOL anchored, BOOL dollar_endonly, BOOL ungreedy, sVMInfo* info);
 void regex_free_fun(CLObject obj);
 BOOL regex_equals(CLObject left, CLObject right);
 
 /// string.c ///
-CLObject create_string_object(char* str);
-CLObject create_buffer_object(char* buffer, size_t size);
-CLObject create_path_object(char* path);
+CLObject create_string_object(char* str, sVMInfo* info);
+CLObject create_buffer_object(char* buffer, size_t size, sVMInfo* info);
+CLObject create_path_object(char* path, sVMInfo* info);
 CLObject create_string_from_two_strings(CLObject left, CLObject right);
 int get_length_from_string_object(CLObject str);
 CLVALUE* get_str_array_from_string_object(CLObject str);
 
 /// integer.c ///
-CLObject create_integer(int value);
-CLObject create_uinteger(unsigned int value);
+CLObject create_integer(int value, sVMInfo* info);
+CLObject create_uinteger(unsigned int value, sVMInfo* info);
 
 /// byte.c ///
-CLObject create_byte(char value);
-CLObject create_ubyte(unsigned char value);
+CLObject create_byte(char value, sVMInfo* info);
+CLObject create_ubyte(unsigned char value, sVMInfo* info);
 
 /// short.c ///
-CLObject create_short(short value);
-CLObject create_ushort(unsigned short value);
+CLObject create_short(short value, sVMInfo* info);
+CLObject create_ushort(unsigned short value, sVMInfo* info);
 
 /// long.c ///
-CLObject create_long(clint64 value);
-CLObject create_ulong(unsigned clint64 value);
+CLObject create_long(clint64 value, sVMInfo* info);
+CLObject create_ulong(unsigned clint64 value, sVMInfo* info);
 
 /// float.c ///
-CLObject create_float(float value);
-CLObject create_double(double value);
+CLObject create_float(float value, sVMInfo* info);
+CLObject create_double(double value, sVMInfo* info);
 
 /// pointer.c ///
-CLObject create_pointer(char* value);
+CLObject create_pointer(char* value, sVMInfo* info);
 
 /// char.c ///
-CLObject create_char(wchar_t value);
+CLObject create_char(wchar_t value, sVMInfo* info);
 
 /// bool.c ///
-CLObject create_bool(BOOL value);
+CLObject create_bool(BOOL value, sVMInfo* info);
 
 /// class_system.c ///
 BOOL System_exit(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
@@ -2336,26 +2346,26 @@ void c_termios_to_clover_termios(struct termios* terminfo_value, CLObject termin
 BOOL create_termios_object(CLObject* result, CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 /// list.c ///
-CLObject create_list_object(char* type_name);
+CLObject create_list_object(char* type_name, sVMInfo* info);
 BOOL initialize_list_object(CLObject list_object, int num_elements, CLObject* items, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sCLClass* class_items);
-CLObject create_sortable_list_object(char* type_name);
+CLObject create_sortable_list_object(char* type_name, sVMInfo* info);
 BOOL initialize_sortable_list_object(CLObject list_object, int num_elements, CLObject* items, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sCLClass* class_items);
-CLObject create_equalable_list_object(char* type_name);
+CLObject create_equalable_list_object(char* type_name, sVMInfo* info);
 BOOL initialize_equalable_list_object(CLObject list_object, int num_elements, CLObject* items, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sCLClass* class_items);
 
 /// tuple.c ///
-CLObject create_tuple_object(int num_elements, char* type_name);
+CLObject create_tuple_object(int num_elements, char* type_name, sVMInfo* info);
 BOOL initialize_tuple_object(CLObject tuple_object, int num_elements, CLObject* items, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info);
 
 /// carray.c ///
-CLObject create_carray_object(char* type_name);
-CLObject create_equalable_carray_object(char* type_name);
-CLObject create_sortable_carray_object(char* type_name);
-CLObject create_carray_object_with_elements(int num_elements, CLObject* elements);
+CLObject create_carray_object(char* type_name, sVMInfo* info);
+CLObject create_equalable_carray_object(char* type_name, sVMInfo* info);
+CLObject create_sortable_carray_object(char* type_name, sVMInfo* info);
+CLObject create_carray_object_with_elements(int num_elements, CLObject* elements, sVMInfo* info);
 BOOL initialize_carray_object(CLObject array_object, int num_elements, CLObject* items, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sCLClass* class_items);
-CLObject create_equalable_carray_object_with_elements(int num_elements, CLObject* elements);
+CLObject create_equalable_carray_object_with_elements(int num_elements, CLObject* elements, sVMInfo* info);
 BOOL initialize_equalable_carray_object(CLObject array_object, int num_elements, CLObject* items, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sCLClass* class_items);
-CLObject create_sortable_carray_object_with_elements(int num_elements, CLObject* elements);
+CLObject create_sortable_carray_object_with_elements(int num_elements, CLObject* elements, sVMInfo* info);
 BOOL initialize_sortable_carray_object(CLObject array_object, int num_elements, CLObject* items, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sCLClass* class_items);
 
 /// utf.c ///
@@ -2387,6 +2397,7 @@ BOOL Clover_getAllClassName(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL Clover_createObject(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL Clover_createArray(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL Clover_isTypedefedClass(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL Clover_gc(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 /// jit.cpp ///
 BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sCLMethod* method, sVMInfo* info, CLVALUE** stack_ptr);
@@ -2395,16 +2406,10 @@ void jit_final();
 BOOL compile_jit_method(sCLClass* klass, sCLMethod* method);
 
 #ifdef ENABLE_JIT
-CLObject* gJITObjects;
-int gNumJITObjects;
-int gSizeJITObjects;
-
 /// jit_runtime.cpp ///
 void jit_init_on_runtime();
 void jit_final_on_runtime();
 BOOL load_bc_file(sCLClass* klass);
-
-void push_jit_object(CLObject obj);
 #endif
 
 /// class_parser.c ///

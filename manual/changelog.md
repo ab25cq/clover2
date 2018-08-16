@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 5.0.1
+
+    GCのアルゴリズムを変えました。少し高速化したかもしれません。
+
 version 5.0.0
 
     GCのアルゴリズムを変えました。少し高速化したかもしれません。
