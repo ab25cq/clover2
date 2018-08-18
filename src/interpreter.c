@@ -2395,6 +2395,8 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
     sVMInfo vinfo;
     memset(&vinfo, 0, sizeof(sVMInfo));
 
+    create_global_stack_and_append_it_to_stack_list(&vinfo);
+
     vinfo.running_class_name = "none";
     vinfo.running_method_name = "eval_str";
 
@@ -2452,7 +2454,7 @@ static void compiler_final()
 
 int gARGC;
 char** gARGV;
-char* gVersion = "5.0.1";
+char* gVersion = "5.0.2";
 
 char gScriptDirPath[PATH_MAX];
 BOOL gRunningCompiler = FALSE;

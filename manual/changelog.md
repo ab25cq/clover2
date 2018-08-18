@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 5.0.2
+
+    インタプリタが落ちてました。修正。
+
 version 5.0.1
 
     GCのアルゴリズムを変えました。少し高速化したかもしれません。

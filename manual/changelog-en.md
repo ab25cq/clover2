@@ -1,4 +1,8 @@
 
+version 5.0.2
+
+    Fixed Interpreter bug
+
 version 5.0.1
 
     Chaged GC algorithm. Maybe Clover2 has been more faster.
