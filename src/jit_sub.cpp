@@ -49,7 +49,7 @@ LVALUE trunc_value(LVALUE* llvm_value, int size)
         /// Constant Int ///
         if(llvm_value->kind == kLVKindConstantInt1 || llvm_value->kind == kLVKindConstantInt8 || llvm_value->kind == kLVKindConstantUInt8 || llvm_value->kind == kLVKindConstantInt16 || llvm_value->kind == kLVKindConstantUInt16 || llvm_value->kind == kLVKindConstantInt32 || llvm_value->kind == kLVKindConstantUInt32 || llvm_value->kind == kLVKindConstantInt64 || llvm_value->kind == kLVKindConstantUInt64) 
         {
-#if LLVM_VERSION_MAJOR >= 4
+#if LLVM_VERSION_MAJOR >= 5
             ConstantInt* constant_int_value = (ConstantInt*)llvm_value->value;
             APInt apint_value = constant_int_value->getValue();
 
@@ -119,7 +119,7 @@ LVALUE trunc_value(LVALUE* llvm_value, int size)
             }
         }
         else if(llvm_value->kind == kLVKindConstantFloat || llvm_value->kind == kLVKindConstantDouble) {
-#if LLVM_VERSION_MAJOR >= 4
+#if LLVM_VERSION_MAJOR >= 5
             ConstantFP* constant_float_value = (ConstantFP*)llvm_value->value;
             const APFloat apfloat_value = constant_float_value->getValueAPF();
 #else
@@ -344,7 +344,7 @@ LVALUE trunc_value_to_float_or_double(LVALUE* llvm_value, int size)
         /// Constant Int ///
         if(llvm_value->kind == kLVKindConstantInt1 || llvm_value->kind == kLVKindConstantInt8 || llvm_value->kind == kLVKindConstantUInt8 || llvm_value->kind == kLVKindConstantInt16 || llvm_value->kind == kLVKindConstantUInt16 || llvm_value->kind == kLVKindConstantInt32 || llvm_value->kind == kLVKindConstantUInt32 || llvm_value->kind == kLVKindConstantInt64 || llvm_value->kind == kLVKindConstantUInt64) 
         {
-#if LLVM_VERSION_MAJOR >= 4
+#if LLVM_VERSION_MAJOR >= 5
             ConstantInt* constant_int_value = (ConstantInt*)(llvm_value->value);
             APInt apint_value = constant_int_value->getValue();
 
@@ -449,7 +449,7 @@ LVALUE trunc_value_to_pointer(LVALUE* llvm_value)
         /// Constant Int ///
         if(llvm_value->kind == kLVKindConstantInt1 || llvm_value->kind == kLVKindConstantInt8 || llvm_value->kind == kLVKindConstantUInt8 || llvm_value->kind == kLVKindConstantInt16 || llvm_value->kind == kLVKindConstantUInt16 || llvm_value->kind == kLVKindConstantInt32 || llvm_value->kind == kLVKindConstantUInt32 || llvm_value->kind == kLVKindConstantInt64 || llvm_value->kind == kLVKindConstantInt64 || llvm_value->kind == kLVKindConstantUInt64) 
         {
-#if LLVM_VERSION_MAJOR >= 4
+#if LLVM_VERSION_MAJOR >= 5
             ConstantInt* constant_int_value = (ConstantInt*)(llvm_value->value);
             APInt apint_value = constant_int_value->getValue();
 #else
@@ -524,9 +524,15 @@ void trunc_variable(LVALUE* llvm_value, int size)
                 break;
 
             case 128:
+#if LLVM_VERSION_MAJOR >= 5
                 llvm_value->value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt32Ty(TheContext));
                 llvm_value->value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, Type::getFloatTy(TheContext), "trunc_variable");
                 llvm_value->kind = kLVKindFloat;
+#else
+                llvm_value->value = Builder.CreateCast(Instruction::Trunc, llvm_value->value, Type::getInt32Ty(TheContext));
+                llvm_value->value = Builder.CreateCast(Instruction::UIToFP, llvm_value->value, Type::getFloatTy(TheContext), "trunc_variable");
+                llvm_value->kind = kLVKindFloat;
+#endif
                 break;
 
             case 256:
