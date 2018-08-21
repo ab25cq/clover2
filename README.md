@@ -1,6 +1,6 @@
 # clover2 computer language
 
-version 5.0.2
+version 5.0.3
 
 サポートしている機能
 

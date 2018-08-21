@@ -305,7 +305,7 @@ void gc()
     MFREE(mark_flg);
 }
 
-#define GC_TIMING 10000
+#define GC_TIMING 100
 
 CLObject alloc_heap_mem(unsigned int size, sCLClass* klass, int array_num)
 {

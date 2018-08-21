@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 5.0.3
+
+    Fixed Memory bug
+
 version 5.0.2
 
     インタプリタが落ちてました。修正。

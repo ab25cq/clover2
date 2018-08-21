@@ -1,4 +1,8 @@
 
+version 5.0.3
+
+    Fixed Memory bug
+
 version 5.0.2
 
     Fixed Interpreter bug
