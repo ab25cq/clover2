@@ -672,6 +672,15 @@ module MList
         return self;
     }
 
+    def insert(index:int, list_:SELF<T>):SELF<T> {
+        i := index;
+        list_.each {
+            self.insert(i, it);
+            i++;
+        }
+        return self;
+    }
+
     def deleteAt(index:int):SELF<T> {
         it:ListItem<T>? = self.head;
         it2:ListItem<T>? = self.head;

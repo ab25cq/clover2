@@ -1,4 +1,7 @@
 
+version 5.0.5
+
+    Added List.insert(index:int, list_:List<T>)
 
 version 5.0.4
 
