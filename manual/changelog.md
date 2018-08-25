@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 5.0.4
+
+    &&と||の優先順位にバグがありました。修正。
+
 version 5.0.3
 
     Fixed Memory bug

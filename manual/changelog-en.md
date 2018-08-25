@@ -1,4 +1,9 @@
 
+
+version 5.0.4
+
+    There was a bug in priorities of && and ||. Fix.
+
 version 5.0.3
 
     Fixed Memory bug

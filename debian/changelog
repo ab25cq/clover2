@@ -1,4 +1,8 @@
 
+clover2 (5.0.4-1) unstable; urgency=medium
+
+    * There was a bug in priorities of && and ||. Fix.
+
 clover2 (5.0.3-1) unstable; urgency=medium
 
     * Fixed Memory bug
