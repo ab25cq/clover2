@@ -1,4 +1,8 @@
 
+clover2 (5.0.6-1) unstable; urgency=medium
+
+    Tuning using memory. Fixed memory leaks.
+
 clover2 (5.0.5-1) unstable; urgency=medium
 
     Added List.insert(index:int, list_:List<T>)

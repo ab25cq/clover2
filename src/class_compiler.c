@@ -1776,10 +1776,12 @@ BOOL call_compile_time_script_method_on_declare()
 
     if(!invoke_method(clover_class, method, stack, var_num, &stack_ptr, &info)) {
         free_global_stack(&info);
+        MFREE(stack);
         return FALSE;
     }
 
     free_global_stack(&info);
+    MFREE(stack);
 
     return TRUE;
 }
@@ -2050,10 +2052,12 @@ BOOL compile_class_source(char* fname, char* source)
             sByteCode_free(&code);
             sConst_free(&constant);
             vm_mutex_off();
+            MFREE(stack);
             return FALSE;
         }
 
         free_global_stack(&vinfo);
+        MFREE(stack);
 
         vm_mutex_off();  // see OP_RETURN
     }

@@ -6805,6 +6805,8 @@ void signal_user_handler(int signum)
         (void)invoke_block(block, stack, var_num, num_params, stack_ptr, &info, FALSE);
         
         free_global_stack(&info);
+
+        MFREE(stack);
     }
 }
 

@@ -2,9 +2,9 @@
 
 #define FIRST_OBJ 1234
 
-#define GC_PAGE_SIZE 1024*2*2
+#define GC_PAGE_SIZE 1024*4
 
-#define GC_INIT_PAGE_NUM 4
+#define GC_INIT_PAGE_NUM 1
 
 struct sHeapPage_ {
     void* mMem;
@@ -305,7 +305,7 @@ void gc()
     MFREE(mark_flg);
 }
 
-#define GC_TIMING 100
+#define GC_TIMING 1
 
 CLObject alloc_heap_mem(unsigned int size, sCLClass* klass, int array_num)
 {

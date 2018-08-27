@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 5.0.6
+
+    Tuning using memory. Fixed memory leaks.
+
 version 5.0.5
 
     List.insert(index:int, list_:List<T>)の追加
