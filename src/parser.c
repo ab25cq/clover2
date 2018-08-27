@@ -5700,7 +5700,7 @@ static BOOL expression_and_and(unsigned int* node, sParserInfo* info)
             skip_spaces_and_lf(info);
 
             unsigned int right = 0;
-            if(!expression_and_and(&right, info)) {
+            if(!expression_or(&right, info)) {
                 return FALSE;
             }
 
@@ -5734,7 +5734,7 @@ static BOOL expression_or_or(unsigned int* node, sParserInfo* info)
             skip_spaces_and_lf(info);
 
             unsigned int right = 0;
-            if(!expression_or_or(&right, info)) {
+            if(!expression_and_and(&right, info)) {
                 return FALSE;
             }
 

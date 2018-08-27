@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 5.0.7
+
+    Fixed JIT bug and && or || bug.
+
 version 5.0.6
 
     Tuning using memory. Fixed memory leaks.

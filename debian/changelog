@@ -1,3 +1,7 @@
+ 
+clover2 (5.0.7-1) unstable; urgency=medium
+
+    Fixed JIT bug and && or || bug.
 
 clover2 (5.0.6-1) unstable; urgency=medium
 

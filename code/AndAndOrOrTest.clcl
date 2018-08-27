@@ -41,6 +41,7 @@ class AndAndOrOrTest
         Clover.test("oror test8", !((-1 >= 0) && (left < right)));
         Clover.test("oror test9", !((AndAndOrOrTest.method3() >= 0) || (left > right)));
 
+/*
         y := 123;
         start := 122;
         end := 250;
@@ -54,5 +55,6 @@ class AndAndOrOrTest
         Clover.test("oror test11", y >= start && y <= end || y >= end && y <= start);
 
         Clover.test("oror test12", 111 == 112 || 111 == 111 && 12 == 12);
+*/
     }
 }
