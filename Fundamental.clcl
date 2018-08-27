@@ -1060,8 +1060,6 @@ class Bool : unboxing bool
     }
 
     def if(false_value:Anonymous?, block_:lambda():Anonymous?):Anonymous? {
-        /// type check ///
-
         if(self.value) {
             result := false_value;
             try {
