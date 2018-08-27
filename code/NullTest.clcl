@@ -7,6 +7,14 @@ class NullTest {
         b:Object? = null;
 
         Clover.test("null test2", b.identifyWith(null));
+
+        c:Integer? = null;
+
+        Clover.test("null test3", (c?:1) == 1);
+
+        d:String? = null;
+
+        Clover.test("null test4", (d?:"").equals(""));
     }
     def main2():static {
         fields := "#####aaaaaa".chomp().split(/:/);
