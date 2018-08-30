@@ -30,6 +30,7 @@ class FileTest {
             Clover.test("file test9", p"/bin".to_stat().groupName().equals("root"));
         }
 */
+
         Clover.test("file test10", p"/bin".to_stat().userName().equals("root"));
         Clover.test("file test11", p"a.txt".to_stat().S_ISREG());
 #Clover.test("file test12", p"a.txt".to_stat().mtime().dayOfMonth() == 21 && p"a.txt".to_stat().mtime().month() == 12);

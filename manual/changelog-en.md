@@ -1,4 +1,16 @@
 
+version 5.0.8
+
+    Multiple assignment of fields and class fields can now be performed.
+
+    Fixed a bug in JIT. I think that this time it was stable.
+
+    Chaged class file definition. Please re-compile the source files.
+
+    The clone, initialize, and nothing methods are no longer automatically defined. Please change the source.
+
+    Fixed comment bug.
+
 version 5.0.7
 
     Fixed JIT bug and && or || bug.

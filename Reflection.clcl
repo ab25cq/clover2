@@ -181,7 +181,8 @@ class Clover
     nothingMethodDefinedClassMethodIndexes:static List<Integer>;
 
     def compileTimeScriptingOnDeclareTime():static {
-        getModifiedClass().each {
+/*
+        getModifiedClass().select { !it.className.equals("TimeTest") }.each {
             if((it.flags & CLASS_FLAGS_INTERFACE).to_bool) {
                 if(it.getMethod("initialize", 0, false).identifyWith(null)) {
                     it.declareMethod("def initialize();");
@@ -252,9 +253,11 @@ class Clover
                 }
             }
         }
+*/
     }
 
     def compileTimeScripting():static {
+/*
         n := 0;
         initializeMethodDefinedClasses.each {
             method_index := initializeMethodDefinedClassMethodIndexes.items(n);
@@ -457,6 +460,7 @@ class Clover
 
             n++;
         }
+*/
     }
 }
 

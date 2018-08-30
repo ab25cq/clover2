@@ -53,7 +53,7 @@ clover2: config.h src/main.o $(COMMON_OBJS) $(OBJS) $(JIT_RUNTIME_OBJS)
 iclover2: config.h src/interpreter.o $(COMMON_OBJS) $(OBJS) $(COMPILER_OBJS) $(JIT_RUNTIME_OBJS)
 	if test $(JIT) = 1; then $(CXX) -o iclover2 src/interpreter.o $(COMMON_OBJS) $(OBJS:src/class_clover_runtime.o=) $(COMPILER_OBJS) $(JIT_RUNTIME_OBJS) $(CFLAGS) $(LIBS) $(CXXFLAGS); else $(CC) -o iclover2 src/interpreter.o $(COMMON_OBJS) $(OBJS:src/class_clover_runtime.o=) $(COMPILER_OBJS) $(CFLAGS) $(LIBS); fi
 
-SortableArray.oclcl: Fundamental.clcl String.clcl Container.clcl CLParser.clcl Range.clcl Command.clcl File.clcl MyOwnLibrary.clcl CGI.clcl Reflection.clcl Socket.clcl SystemCalls.clcl Thread.clcl CLibrary.clcl
+SortableArray.oclcl: Fundamental.clcl String.clcl Container.clcl Range.clcl Command.clcl File.clcl MyOwnLibrary.clcl CGI.clcl Reflection.clcl Socket.clcl SystemCalls.clcl Thread.clcl CLibrary.clcl
 	PWD=`pwd`; ./cclover2 -core MyOwnLibrary.clcl
 
 libclover2.so.1.0.0: $(COMMON_OBJ) $(COMPILER_OBJS) $(OBJS) $(JIT_RUNTIME_OBJS)
@@ -565,7 +565,7 @@ test:
 	PWD=`pwd` ./cclover2 code/reflection.cl
 	PWD=`pwd` ./cclover2 code/MultiLineString.cl
 	PWD=`pwd` ./cclover2 code/ClassFieldAndFieldTest.clcl
-	PWD=`pwd` ./cclover2 code/CloneTest.clcl
+#	PWD=`pwd` ./cclover2 code/CloneTest.clcl
 	if test $(ENABLE_THREAD) = 1; then PWD=`pwd` ./cclover2 code/thread.cl; fi
 	PWD=`pwd` ./cclover2 code/SocketTest.clcl
 	PWD=`pwd` ./cclover2 code/PointerTest3.clcl

@@ -182,7 +182,7 @@ static void mark_sighandlers(unsigned char* mark_flg)
     }
 }
 
-static void mark(unsigned char* mark_flg)
+static void mark(unsigned char* mark_flg, sVMInfo* info)
 {
     int i;
     sCLStack* it;
@@ -225,6 +225,7 @@ static void compaction(unsigned char* mark_flg)
             if(!mark_flg[i]) {
                 /// call the destructor ///
                 if(klass) {
+//printf("free object %d\n", obj);
                     if(klass->mFlags & CLASS_FLAGS_NO_FREE_OBJECT) {
                     }
                     else {
@@ -292,13 +293,13 @@ static void delete_all_object()
     free_malloced_memory();
 }
 
-void gc()
+void gc(sVMInfo* info)
 {
     unsigned char* mark_flg;
 
     mark_flg = MCALLOC(1, gCLHeap.mNumHandles);
 
-    mark(mark_flg);
+    mark(mark_flg, info);
 
     compaction(mark_flg);
 
@@ -307,7 +308,7 @@ void gc()
 
 #define GC_TIMING 100
 
-CLObject alloc_heap_mem(unsigned int size, sCLClass* klass, int array_num)
+CLObject alloc_heap_mem(unsigned int size, sCLClass* klass, int array_num, sVMInfo* info)
 {
     int handle;
     CLObject obj;
@@ -331,7 +332,7 @@ CLObject alloc_heap_mem(unsigned int size, sCLClass* klass, int array_num)
         }
 
         if(handle == -1) {
-            if((gc_time % GC_TIMING) == 0) gc();
+            if((gc_time % GC_TIMING) == 0) gc(info);
 
             if(gCLHeap.mNumHandles == gCLHeap.mSizeHandles) {
                 const int new_offset_size = (gCLHeap.mSizeHandles + 1) * 10;
@@ -359,7 +360,7 @@ CLObject alloc_heap_mem(unsigned int size, sCLClass* klass, int array_num)
     }
     /// no free handle. get new one ///
     else {
-        if((gc_time % GC_TIMING) == 0) gc();
+        if((gc_time % GC_TIMING) == 0) gc(info);
 
         if(gCLHeap.mNumHandles == gCLHeap.mSizeHandles) {
             const int new_offset_size = (gCLHeap.mSizeHandles + 1) * 10;

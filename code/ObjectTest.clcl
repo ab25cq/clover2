@@ -1,5 +1,6 @@
 
 class ObjectTest {
+    def initialize() {}
     def throwException(): int throws Exception {
         throw Exception("AAA");
 

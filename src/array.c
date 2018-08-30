@@ -40,7 +40,7 @@ CLObject create_array_object(sCLClass* klass, int array_num, sVMInfo* info)
 {
     unsigned int size = object_size(klass, array_num);
 
-    CLObject obj = alloc_heap_mem(size, klass, array_num);
+    CLObject obj = alloc_heap_mem(size, klass, array_num, info);
 
     sCLObject* object_data = CLOBJECT(obj);
 
@@ -49,9 +49,7 @@ CLObject create_array_object(sCLClass* klass, int array_num, sVMInfo* info)
 
     object_data->mType = MSTRDUP(type);
 
-#ifdef ENABLE_JIT
     push_object_to_global_stack(obj, info);
-#endif
 
     return obj;
 }

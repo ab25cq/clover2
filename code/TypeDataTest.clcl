@@ -5,7 +5,6 @@ class TypeDataTest
 
     def main():static {
         new List<String>().className();
-/*
         Clover.test("type test", new List<String>().className().equals("List<String>"));
         Clover.test("type test2", list { "AAA", "BBB", "CCC" }.className().equals("List<String>"));
         Clover.test("type test3", new SortableList<String>().className().equals("SortableList<String>"));
@@ -21,12 +20,9 @@ class TypeDataTest
         Clover.test("type test13", equalable_array { "AAA", "BBB", "CCC" }.className().equals("EqualableArray<String>"));
         Clover.test("type test14", tuple { "AAA", 1 }.className().equals("Tuple2<String,Integer>"));
         Clover.test("type test15", new Tuple3<String,Integer,Integer>("AAA", 1, 2).className().equals("Tuple3<String,Integer,Integer>"));
-*/
 
-/*
         b:int[] = new int[123]();
 
         Clover.test("type test2", b.className().equals("int[]"));
-*/
     }
 }

@@ -43,23 +43,38 @@ BOOL delete_comment(sBuf* source, sBuf* source2)
     BOOL in_char = FALSE;
 
     while(*p) {
-        if(!in_string && !in_char && *p == '/' && *(p+1) == '*') {
+        if((in_string || in_char) && *p == '\\') {
+            sBuf_append_char(source2, *p);
+            p++;
+            sBuf_append_char(source2, *p);
+            p++;
+        }
+        /// comment1 ///
+        else if(!in_string && !in_char && *p == '/' && *(p+1) == '*') {
             p+=2;
             int nest = 0;
             while(1) {
-                if(*p == '"') {
+                if((in_string || in_char) && *p == '\\') {
+                    p++;
+                    p++;
+                }
+                else if(!in_char && *p == '"') {
                     p++;
                     in_string = !in_string;
+                }
+                else if(!in_string && *p == '\'') {
+                    p++;
+                    in_char = !in_char;
                 }
                 else if(*p == 0) {
                     fprintf(stderr, "there is not a comment end until source end\n");
                     return FALSE;
                 }
-                else if(!in_string && *p == '/' && *(p+1) == '*') {
+                else if(!in_string && !in_char && *p == '/' && *(p+1) == '*') {
                     p+=2;
                     nest++;
                 }
-                else if(!in_string && *p == '*' && *(p+1) == '/') {
+                else if(!in_string && !in_char && *p == '*' && *(p+1) == '/') {
                     p+=2;
                     if(nest == 0) {
                         break;
@@ -76,6 +91,7 @@ BOOL delete_comment(sBuf* source, sBuf* source2)
                 }
             }
         }
+        /// comment2 ///
         else if(!in_char && !in_string && *p == '#') {
             p++;
 

@@ -702,7 +702,7 @@ void create_internal_functions()
     /// store_field ///
     type_params.clear();
     
-    result_type = IntegerType::get(TheContext, 32);
+    result_type = PointerType::get(gCLValueAndBoolStruct, 0);
 
     param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
     type_params.push_back(param1_type);
@@ -731,7 +731,7 @@ void create_internal_functions()
     /// store_field_of_buffer ///
     type_params.clear();
     
-    result_type = IntegerType::get(TheContext, 32);
+    result_type = PointerType::get(gCLValueAndBoolStruct, 0);
 
     param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
     type_params.push_back(param1_type);

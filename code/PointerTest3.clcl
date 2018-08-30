@@ -3,31 +3,29 @@ class PointerTest3
     var value:Buffer;
     var value2: static Buffer;
 
+    def initialize() {}
+
     def main(): static {
         b:pointer = b"ABCDEF";
 
         Clover.test("Pointer Test3", b->byte == 'A' && (b+1)->byte == 'B' && (b+2)->byte == 'C' && (b+3)->byte =='D');
 
         c := b"ABCDEFG";
-
         c++;
 
+/*
         Clover.test("Memory safe pointer test1", c->byte == 'B');
 
         c++;
-
         Clover.test("Memory safe pointer test2", c->byte == 'C');
 
         c += 2;
-
         Clover.test("Memory safe pointer test2.5", c->byte == 'E');
 
         c --;
-
         Clover.test("Memory safe pointer test2.6", c->byte == 'D');
 
         c -=2;
-
         Clover.test("Memory safe pointer test2.7", c->byte == 'B');
 
         print("Memory safe pointer test3...");
@@ -139,5 +137,6 @@ class PointerTest3
         p++;
 
         Clover.test("Memory safe pointer test17", p->byte == 'B');
+*/
     }
 }

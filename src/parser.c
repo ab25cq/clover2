@@ -2170,7 +2170,9 @@ BOOL parse_type_for_new(sNodeType** result_type, unsigned int* array_num, sParse
 
 static BOOL is_assign_operator(sParserInfo* info) 
 {
-    return (*info->p == '+' && *(info->p+1) == '=')
+    return (*info->p == '+' && *(info->p+1) == '+')
+        || (*info->p == '-' && *(info->p+1) == '-')
+        || (*info->p == '+' && *(info->p+1) == '=')
         || (*info->p == '-' && *(info->p+1) == '=')
         || (*info->p == '*' && *(info->p+1) == '=')
         || (*info->p == '/' && *(info->p+1) == '=')
@@ -2182,8 +2184,11 @@ static BOOL is_assign_operator(sParserInfo* info)
         || (*info->p == '|' && *(info->p+1) == '=');
 }
 
-static BOOL assign_operator(unsigned int* node, sParserInfo* info)
+static BOOL assign_operator(unsigned int* node, sParserInfo* info, BOOL* plus_plus, BOOL* minus_minus)
 {
+    *plus_plus = FALSE;
+    *minus_minus = FALSE;
+
     if(*info->p == '+' && *(info->p+1) == '+') {
         info->p += 2;
         skip_spaces_and_lf(info);
@@ -2191,6 +2196,8 @@ static BOOL assign_operator(unsigned int* node, sParserInfo* info)
         unsigned int right = sNodeTree_create_int_value(1, 0, 0, 0, info);
 
         *node = sNodeTree_create_operand(kOpAdd, *node, right, 0, info);
+
+        *plus_plus = TRUE;
     }
     else if(*info->p == '-' && *(info->p+1) == '-') {
         info->p += 2;
@@ -2199,6 +2206,8 @@ static BOOL assign_operator(unsigned int* node, sParserInfo* info)
         unsigned int right = sNodeTree_create_int_value(1, 0, 0, 0, info);
 
         *node = sNodeTree_create_operand(kOpSub, *node, right, 0, info);
+
+        *minus_minus = TRUE;
     }
     else if(*info->p == '+' && *(info->p+1) == '=') {
         info->p += 2;
@@ -2364,6 +2373,20 @@ static BOOL assign_operator(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
+void after_assign_operator(unsigned int* node, sParserInfo* info, BOOL plus_plus, BOOL minus_minus) 
+{
+    if(plus_plus) {
+        unsigned int right = sNodeTree_create_int_value(1, 0, 0, 0, info);
+
+        *node = sNodeTree_create_operand(kOpSub, *node, right, 0, info);
+    }
+    if(minus_minus) {
+        unsigned int right = sNodeTree_create_int_value(1, 0, 0, 0, info);
+
+        *node = sNodeTree_create_operand(kOpAdd, *node, right, 0, info);
+    }
+}
+
 static BOOL postposition_operator(unsigned int* node, sParserInfo* info, int* num_method_chains, unsigned int max_method_chains_node[METHOD_CHAIN_MAX])
 {
     if(*node == 0) {
@@ -2432,11 +2455,15 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info, int* nu
                         *node = sNodeTree_create_fields(buf, node2, info);
 
                         /// go 
-                        if(!assign_operator(node, info)) {
+                        BOOL plus_plus = FALSE;
+                        BOOL minus_minus = FALSE;
+                        if(!assign_operator(node, info, &plus_plus, &minus_minus)) {
                             return FALSE;
                         }
 
                         *node = sNodeTree_create_assign_field(buf, node3, *node, info);
+
+                        after_assign_operator(node, info, plus_plus, minus_minus);
                     }
                     else if(*info->p == '=' && *(info->p +1) != '=') {
                         info->p++;
@@ -2511,11 +2538,15 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info, int* nu
                     *node = sNodeTree_create_load_array_element(*node, index_node, info);
 
                     /// go 
-                    if(!assign_operator(node, info)) {
+                    BOOL plus_plus = FALSE;
+                    BOOL minus_minus = FALSE;
+                    if(!assign_operator(node, info, &plus_plus, &minus_minus)) {
                         return FALSE;
                     }
 
                     *node = sNodeTree_create_store_array_element(node2, index_node2, *node, info);
+
+                    after_assign_operator(node, info, plus_plus, minus_minus);
                 }
                 else if(*info->p == '=' && *(info->p+1) != '=') {
                     info->p++;
@@ -2584,18 +2615,6 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info, int* nu
             else {
                 *node = sNodeTree_create_load_value_from_pointer(*node, node_type, info);
             }
-        }
-        else if(*info->p == '+' && *(info->p+1) == '+') {
-            info->p+=2;
-            skip_spaces_and_lf(info);
-
-            *node = sNodeTree_create_increment_operand(*node, info);
-        }
-        else if(*info->p == '-' && *(info->p+1) == '-') {
-            info->p+=2;
-            skip_spaces_and_lf(info);
-
-            *node = sNodeTree_create_decrement_operand(*node, info);
         }
         else if(*info->p == '?') {
             info->p++;
@@ -4307,11 +4326,15 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 *node = sNodeTree_create_load_variable(buf, info);
 
                 /// go ///
-                if(!assign_operator(node, info)) {
+                BOOL plus_plus = FALSE;
+                BOOL minus_minus = FALSE;
+                if(!assign_operator(node, info, &plus_plus, &minus_minus)) {
                     return FALSE;
                 }
 
                 *node = sNodeTree_create_store_variable(buf, NULL, *node, info->klass, info);
+
+                after_assign_operator(node, info, plus_plus, minus_minus);
             }
             /// the class field name in the same class ///
             else if(info->klass && class_field_name_existance(info->klass, buf)) 
@@ -4322,15 +4345,15 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 *node = sNodeTree_create_class_fields(info->klass, buf, info);
 
                 /// go 
-                if(!assign_operator(node, info)) {
+                BOOL plus_plus = FALSE;
+                BOOL minus_minus = FALSE;
+                if(!assign_operator(node, info, &plus_plus, &minus_minus)) {
                     return FALSE;
                 }
 
                 *node = sNodeTree_create_assign_class_field(info->klass, buf, *node, info);
 
-                unsigned int right = sNodeTree_create_int_value(1, 0, 0, 0, info);
-
-                *node = sNodeTree_create_operand(kOpSub, *node, right, 0, info);
+                after_assign_operator(node, info, plus_plus, minus_minus);
             }
             /// the field in the same class
             else if(info->klass && field_name_existance(info->klass, buf))
@@ -4346,15 +4369,15 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 *node = sNodeTree_create_fields(buf, node2, info);
 
                 /// go 
-                if(!assign_operator(node, info)) {
+                BOOL plus_plus = FALSE;
+                BOOL minus_minus = FALSE;
+                if(!assign_operator(node, info, &plus_plus, &minus_minus)) {
                     return FALSE;
                 }
 
                 *node = sNodeTree_create_assign_field(buf, node3, *node, info);
 
-                unsigned int right = sNodeTree_create_int_value(1, 0, 0, 0, info);
-
-                *node = sNodeTree_create_operand(kOpSub, *node, right, 0, info);
+                after_assign_operator(node, info, plus_plus, minus_minus);
             }
             else {
                 info->sline = sline_before;
@@ -4441,11 +4464,15 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                             *node = sNodeTree_create_class_fields(klass, buf, info);
 
                             /// go 
-                            if(!assign_operator(node, info)) {
+                            BOOL plus_plus = FALSE;
+                            BOOL minus_minus = FALSE;
+                            if(!assign_operator(node, info, &plus_plus, &minus_minus)) {
                                 return FALSE;
                             }
 
                             *node = sNodeTree_create_assign_class_field(klass, buf, *node, info);
+
+                            after_assign_operator(node, info, plus_plus, minus_minus);
                         }
                         else if(*info->p == '=' && *(info->p +1) != '=') {
                             info->p++;
@@ -4527,11 +4554,15 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     *node = sNodeTree_create_class_fields(info->klass, buf, info);
 
                     /// go 
-                    if(!assign_operator(node, info)) {
+                    BOOL plus_plus = FALSE;
+                    BOOL minus_minus = FALSE;
+                    if(!assign_operator(node, info, &plus_plus, &minus_minus)) {
                         return FALSE;
                     }
 
                     *node = sNodeTree_create_assign_class_field(info->klass, buf, *node, info);
+
+                    after_assign_operator(node, info, plus_plus, minus_minus);
                 }
                 else if(*info->p == '=' && *(info->p +1) != '=') {
                     info->p++;
@@ -4619,11 +4650,15 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     *node = sNodeTree_create_class_fields(system_klass, buf, info);
 
                     /// go 
-                    if(!assign_operator(node, info)) {
+                    BOOL plus_plus = FALSE;
+                    BOOL minus_minus = FALSE;
+                    if(!assign_operator(node, info, &plus_plus, &minus_minus)) {
                         return FALSE;
                     }
 
                     *node = sNodeTree_create_assign_class_field(system_klass, buf, *node, info);
+
+                    after_assign_operator(node, info, plus_plus, minus_minus);
                 }
                 else if(*info->p == '=' && *(info->p +1) != '=') {
                     info->p++;
@@ -5082,12 +5117,10 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                             info->err_num++;
                         }
                     }
-/*
                     else if(gNodes[node].mNodeType == kNodeTypeLoadField) {
                     }
                     else if(gNodes[node].mNodeType == kNodeTypeLoadClassField) {
                     }
-*/
                     else {
                         parser_err_msg(info, "require variable name for left value of =");
                         info->err_num++;
@@ -5685,7 +5718,7 @@ static BOOL expression_or(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
-static BOOL expression_and_and(unsigned int* node, sParserInfo* info)
+static BOOL expression_and_and_or_or(unsigned int* node, sParserInfo* info)
 {
     if(!expression_or(node, info)) {
         return FALSE;
@@ -5711,30 +5744,12 @@ static BOOL expression_and_and(unsigned int* node, sParserInfo* info)
 
             *node = sNodeTree_create_and_and(*node, right, info);
         }
-        else {
-            break;
-        }
-    }
-
-    return TRUE;
-}
-
-static BOOL expression_or_or(unsigned int* node, sParserInfo* info)
-{
-    if(!expression_and_and(node, info)) {
-        return FALSE;
-    }
-    if(*node == 0) {
-        return TRUE;
-    }
-
-    while(*info->p) {
-        if(*info->p == '|' && *(info->p+1) == '|') {
+        else if(*info->p == '|' && *(info->p+1) == '|') {
             info->p+=2;
             skip_spaces_and_lf(info);
 
             unsigned int right = 0;
-            if(!expression_and_and(&right, info)) {
+            if(!expression_or(&right, info)) {
                 return FALSE;
             }
 
@@ -5757,7 +5772,7 @@ BOOL expression(unsigned int* node, sParserInfo* info)
 {
     skip_spaces_and_lf(info);
 
-    if(!expression_or_or(node, info)) {
+    if(!expression_and_and_or_or(node, info)) {
         return FALSE;
     }
 

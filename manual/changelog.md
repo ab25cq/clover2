@@ -1,5 +1,17 @@
 English page is here [>> English page](changelog-en)
 
+version 5.0.8
+    
+    フィールドやクラスフィールドの多重代入が行えるようになりました。
+
+    JIT のバグを修正しました。今度こそ、安定したと思います。
+
+    クラスファイルの定義が変わりました。再コンパイルお願いします。
+
+    clone, initialize, nothingメソッドが自動的に定義されなくなりました。ソースの変更お願いします。
+
+    コメントのバグを修正。
+
 version 5.0.7
 
     Fixed JIT bug and && or || bug.

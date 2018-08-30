@@ -1,5 +1,6 @@
 class BlockTest5
 {
+    def initialize() {}
     def method() {
         c := 0;
         slist{1,2,3}.each {

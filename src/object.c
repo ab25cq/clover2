@@ -56,15 +56,13 @@ CLObject create_object(sCLClass* klass, char* type, sVMInfo* info)
 
     alignment(&size);
 
-    CLObject obj = alloc_heap_mem(size, klass, -1);
+    CLObject obj = alloc_heap_mem(size, klass, -1, info);
 
     sCLObject* object_data = CLOBJECT(obj);
 
     object_data->mType = MSTRDUP(type);
 
-#ifdef ENABLE_JIT
     push_object_to_global_stack(obj, info);
-#endif
 
     return obj;
 }

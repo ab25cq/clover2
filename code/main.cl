@@ -181,8 +181,6 @@ println("SignalTest");
 SignalTest.main();
 println("ClassFieldAndFieldTest");
 ClassFieldAndFieldTest.main();
-println("CloneTest");
-CloneTest.main();
 println("CloneTest end");
 println("HereDocument");
 HereDocument.main();

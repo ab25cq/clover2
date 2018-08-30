@@ -3,6 +3,8 @@ class ClassFieldAndFieldTest
     a:int;
     b:static int;
 
+    def initialize() {}
+
     def method() {
         a = 123;
         b = 245;

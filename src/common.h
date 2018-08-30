@@ -930,8 +930,6 @@ unsigned int sNodeTree_create_double_value(double value, unsigned int left, unsi
 unsigned int sNodeTree_create_cdouble_value(double value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
 unsigned int sNodeTree_create_path_value(MANAGED char* value, int len, sNodeBlock** string_expressions, int* string_expression_offsets, int num_string_expression, sParserInfo* info);
 unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int num_params, sNodeType* result_type, MANAGED sNodeBlock* node_block, BOOL lambda, sParserInfo* info);
-BOOL sNodeTree_create_increment_operand(unsigned int left_node, sParserInfo* info);
-BOOL sNodeTree_create_decrement_operand(unsigned int left_node, sParserInfo* info);
 
 void arrange_stack(sCompileInfo* cinfo);
 
@@ -1917,12 +1915,12 @@ typedef struct sCLHeapMemStruct sCLHeapMem;
 void heap_init(int heap_size, int size_hadles);
 void heap_final();
 
-CLObject alloc_heap_mem(unsigned int size, sCLClass* klass, int array_num);
+CLObject alloc_heap_mem(unsigned int size, sCLClass* klass, int array_num, sVMInfo* info);
 sCLHeapMem* get_object_pointer(CLObject obj);
 void show_heap(sVMInfo* info);
 void mark_object(CLObject obj, unsigned char* mark_flg);
 BOOL is_valid_object(CLObject obj);
-void gc();
+void gc(sVMInfo* info);
 
 /// module.c ///
 struct sCLModuleStruct {
@@ -1996,7 +1994,6 @@ struct sBlockObjectStruct
     CLVALUE* mParentStack;
     int mParentVarNum;
     int mBlockVarNum;
-    sCLStack* mStackID;
     BOOL mLambda;
 };
 
@@ -2004,7 +2001,7 @@ typedef struct sBlockObjectStruct sBlockObject;
 
 #define CLBLOCK(obj) (sBlockObject*)(get_object_pointer((obj)))
 
-CLObject create_block_object(sByteCode* codes, sConst* constant, CLVALUE* parent_stack, int parent_var_num, int block_var_num, sCLStack* stack_id, BOOL lambda, sVMInfo* info);
+CLObject create_block_object(sByteCode* codes, sConst* constant, CLVALUE* parent_stack, int parent_var_num, int block_var_num, BOOL lambda, sVMInfo* info);
 void block_mark_fun(CLObject self, unsigned char* mark_flg);
 
 /// regex.c ///

@@ -11,9 +11,8 @@ class TupleData {
     }
 }
 
-
-
 class TupleTest {
+    def initialize() {}
     def getTuple(a:String, b:int): static Tuple2<String,Integer> {
         return (a, b);
     }
@@ -102,15 +101,18 @@ class TupleTest {
 
         aaa.test1();
 
-/*
-        l := new TupleData(0, 0.0);
-        (l.a, l.b, k) = (1, 2.0, 2.1);
+        xxx := TupleData(0, 0.0);
 
-        Clover.test("tuple test10", l.a == 1 && l.b == 2.0 && k == 2.1);
+        (xxx.a, xxx.b, k) = (1, 2.0, 2.1);
 
-        (TupleData.c, TupleData.d) = (1,2);
+xxx.a.toString().println();
+xxx.b.toString().println();
+k.toString().println();
 
-        Clover.test("tuple test11", TupleData.c == 1 && TupleData.d == 2);
-*/
+        Clover.test("tuple test15", xxx.a == 1 && xxx.b == 2.0 && k == 2.1);
+
+        (TupleData.c, TupleData.d, k, bbb) = (1, 2, 2.2, "BBB");
+
+        Clover.test("tuple test16", TupleData.c == 1 && TupleData.d == 2 && k == 2.2 && bbb.equals("BBB"));
     }
 }

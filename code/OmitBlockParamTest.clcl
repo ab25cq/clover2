@@ -1,6 +1,7 @@
 
 class OmitBlockParamTest
 {
+    def initialize() {}
     def method():SortableList<String> {
         a := SortableList<String>();
         slist { 1,2,3 }.each {

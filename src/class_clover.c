@@ -799,7 +799,7 @@ BOOL Clover_isTypedefedClass(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 BOOL Clover_gc(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     vm_mutex_on();
-    gc();
+    gc(info);
     vm_mutex_off();
 
     return TRUE;

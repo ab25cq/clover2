@@ -11,6 +11,8 @@ class ResultTest2 {
         "AAA";
     }
 
+    def initialize() {}
+
     def main():static {
         a := ResultTest2();
 

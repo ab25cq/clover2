@@ -554,6 +554,9 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
             int field_index = *(int*)(*pc);
             (*pc) += sizeof(int);
 
+            int size = *(int*)(*pc);
+            (*pc) += sizeof(int);
+
             LVALUE* obj = get_stack_ptr_value_from_index(*llvm_stack_ptr, -2);
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
@@ -593,12 +596,34 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
 
             Value* result = Builder.CreateCall(fun, params2);
 
-            if_value_is_zero_ret_zero(result, params, *function, current_block);
+            Value* result1 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 0);
+            result1  = Builder.CreateAlignedLoad(result1,  8);
+            Value* result2 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 1);
+            result2  = Builder.CreateAlignedLoad(result2,  4);
+            if_value_is_zero_ret_zero(result2, params, *function, current_block);
+
+            LVALUE llvm_value;
+            llvm_value.value = result1;
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt64;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
+
+            dec_stack_ptr(llvm_stack_ptr, 2);
+
+            trunc_variable(&llvm_value, size);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
             }
             break;
 
         case OP_STORE_FIELD_OF_BUFFER: {
             int field_index = *(int*)(*pc);
+            (*pc) += sizeof(int);
+
+            int size = *(int*)(*pc);
             (*pc) += sizeof(int);
 
             LVALUE* obj = get_stack_ptr_value_from_index(*llvm_stack_ptr, -2);
@@ -640,7 +665,26 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
 
             Value* result = Builder.CreateCall(fun, params2);
 
-            if_value_is_zero_ret_zero(result, params, *function, current_block);
+            Value* result1 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 0);
+            result1  = Builder.CreateAlignedLoad(result1,  8);
+            Value* result2 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 1);
+            result2  = Builder.CreateAlignedLoad(result2,  4);
+            if_value_is_zero_ret_zero(result2, params, *function, current_block);
+
+            LVALUE llvm_value;
+            llvm_value.value = result1;
+            llvm_value.lvar_address_index = -1;
+            llvm_value.lvar_stored = FALSE;
+            llvm_value.kind = kLVKindInt64;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
+
+            dec_stack_ptr(llvm_stack_ptr, 2);
+
+            trunc_variable(&llvm_value, size);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
             }
             break;
 
