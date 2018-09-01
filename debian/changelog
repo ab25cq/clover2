@@ -1,4 +1,8 @@
  
+clover2 (5.0.9-1) unstable; urgency=medium
+
+    * Fixed a bug in JIT. I think that this time it was stable.
+
 clover2 (5.0.8-1) unstable; urgency=medium
 
     * Multiple assignment of fields and class fields can now be performed. Fixed a bug in JIT. I think that this time it was stable. Chaged class file definition. Please re-compile the source files. The clone, initialize, and nothing methods are no longer automatically defined. Please change the source. Fixed comment bug.

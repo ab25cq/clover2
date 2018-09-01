@@ -1,5 +1,9 @@
 #include "jit_common.hpp"
 
+#ifdef HAVE_NCURSESW_H
+#include <ncurses.h>
+#endif
+
 extern "C"
 {
 

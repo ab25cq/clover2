@@ -13,7 +13,6 @@ class PointerTest3
         c := b"ABCDEFG";
         c++;
 
-/*
         Clover.test("Memory safe pointer test1", c->byte == 'B');
 
         c++;
@@ -137,6 +136,5 @@ class PointerTest3
         p++;
 
         Clover.test("Memory safe pointer test17", p->byte == 'B');
-*/
     }
 }

@@ -67,6 +67,10 @@ void dec_andand_oror_array(sVMInfo* info)
 
 void try_function(sVMInfo* info, int catch_label_name_offset, int try_offset, sByteCode* code, sConst* constant)
 {
+    info->try_catch_label_name_before = info->try_catch_label_name;
+    info->try_offset_before = info->try_offset;
+    info->try_code_before = info->try_code;
+
     if(catch_label_name_offset != 0) {
         info->try_catch_label_name = CONS_str(constant, catch_label_name_offset);
     }
@@ -75,6 +79,17 @@ void try_function(sVMInfo* info, int catch_label_name_offset, int try_offset, sB
     }
     info->try_offset = try_offset;
     info->try_code = code;
+}
+
+void try_end_function(sVMInfo* info, int catch_label_name_offset, int try_offset, sByteCode* code, sConst* constant)
+{
+    info->try_catch_label_name = info->try_catch_label_name_before;
+    info->try_offset = info->try_offset_before;
+    info->try_code = info->try_code_before;
+
+    info->try_catch_label_name_before = NULL;
+    info->try_offset_before = 0;
+    info->try_code_before = NULL;
 }
 
 struct sCLVALUEAndBoolResult* get_field_from_object(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, CLObject obj, int field_index)
@@ -1748,16 +1763,17 @@ void vm_mutex_off_in_jit(sVMInfo* info)
     }
 }
 
-BOOL run_store_to_buffer(CLObject object, CLVALUE pointer, CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info)
+BOOL run_store_to_buffer(CLObject object, char* pointer, CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info)
 {
     sCLObject* object_data = CLOBJECT(object);
 
-    if(pointer.mPointerValue < object_data->mFields[0].mPointerValue || pointer.mPointerValue >= object_data->mFields[0].mPointerValue + object_data->mFields[2].mULongValue) {
+    if(pointer < object_data->mFields[0].mPointerValue || pointer >= object_data->mFields[0].mPointerValue + object_data->mFields[2].mULongValue) {
+printf("pointer %p object_data->mFields[0].mPointerValue %p object_data->mFields[2].mULongValue %u\n", pointer, object_data->mFields[0].mPointerValue, object_data->mFields[2].mULongValue);
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"Out of range on memory safe pointer(4)");
         return FALSE;
     }
 
-    object_data->mFields[3] = pointer;
+    object_data->mFields[3].mPointerValue = pointer;
 
     return TRUE;
 }

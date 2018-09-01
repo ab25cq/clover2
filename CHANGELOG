@@ -1,4 +1,12 @@
 
+version 5.0.9
+
+    JIT のバグを修正しました。今度こそ、安定したと思います。
+
+version 5.0.9
+
+    Fixed a bug in JIT. I think that this time it was stable.
+
 version 5.0.8
     
     フィールドやクラスフィールドの多重代入が行えるようになりました。

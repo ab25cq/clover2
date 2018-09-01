@@ -61,13 +61,15 @@ CLObject create_buffer_object(char* buffer, size_t size, sVMInfo* info)
 
     sCLObject* object_data = CLOBJECT(obj);
 
-    object_data->mFields[0].mPointerValue = MCALLOC(1, size);  // bufffer
-    memcpy(object_data->mFields[0].mPointerValue, buffer, size);
+    void* pointer = MCALLOC(1, size);
+
+    object_data->mFields[0].mPointerValue = pointer;  // bufffer
+    memcpy(pointer, buffer, size);
 
     object_data->mFields[1].mULongValue = size;                  // len
     object_data->mFields[2].mULongValue = size;                  // size
 
-    object_data->mFields[3].mPointerValue = object_data->mFields[0].mPointerValue; // p
+    object_data->mFields[3].mPointerValue = pointer;            // p
     object_data->mFields[4].mBoolValue = TRUE;                  // appedable
 
     return obj;

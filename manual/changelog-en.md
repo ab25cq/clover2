@@ -1,4 +1,8 @@
 
+version 5.0.9
+
+    Fixed a bug in JIT. I think that this time it was stable.
+
 version 5.0.8
 
     Multiple assignment of fields and class fields can now be performed.

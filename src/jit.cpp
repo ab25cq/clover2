@@ -411,7 +411,7 @@ call_show_inst_in_jit(inst);
             case OP_TRY_END: {
                 try_catch_label_name = NULL;
 
-                Function* try_fun = TheModule->getFunction("try_function");
+                Function* try_end_fun = TheModule->getFunction("try_end_function");
 
                 std::vector<Value*> params2;
 
@@ -433,7 +433,7 @@ call_show_inst_in_jit(inst);
                 Value* constant_value = params[constant_value_name];
                 params2.push_back(constant_value);
 
-                (void)Builder.CreateCall(try_fun, params2);
+                (void)Builder.CreateCall(try_end_fun, params2);
 
                 }
                 break;
@@ -830,6 +830,8 @@ call_show_inst_in_jit(inst);
                 LVALUE llvm_value2_64;
                 llvm_value2_64 = trunc_value(llvm_value2, 64);
 
+                Value* llvm_value2_pointer = Builder.CreateCast(Instruction::BitCast, llvm_value2->value, PointerType::get(IntegerType::get(TheContext, 8), 0));
+
                 Function* fun = TheModule->getFunction("run_store_to_buffer");
 
                 std::vector<Value*> params2;
@@ -837,7 +839,7 @@ call_show_inst_in_jit(inst);
                 Value* param1 = llvm_value_32.value;
                 params2.push_back(param1);
 
-                Value* param2 = llvm_value2_64.value;
+                Value* param2 = llvm_value2_pointer;
                 params2.push_back(param2);
 
                 std::string stack_ptr_address_name("stack_ptr_address");

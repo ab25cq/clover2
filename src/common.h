@@ -239,6 +239,10 @@ struct sVMInfoStruct {
 
     char* try_catch_label_name;
 
+    char* try_catch_label_name_before;
+    int try_offset_before;
+    sByteCode* try_code_before;
+
     CLVALUE* current_stack;
     int current_var_num;
     char* sname;

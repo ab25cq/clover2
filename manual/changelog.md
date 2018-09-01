@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 5.0.9
+
+    JIT のバグを修正しました。今度こそ、安定したと思います。
+
 version 5.0.8
     
     フィールドやクラスフィールドの多重代入が行えるようになりました。
