@@ -26,12 +26,21 @@ BOOL compile_method(sCLMethod* method, sParserParam* params, int num_params, sPa
 
     /// add params to lv_table ///
     int i;
+    BOOL including_pointer_param = FALSE;
     for(i=0; i<num_params; i++) {
         sParserParam* param = params + i;
         if(!add_variable_to_table(info->lv_table, param->mName, param->mType, FALSE)) {
             parser_err_msg(info, "overflow the table or a variable which has the same name exists");
             return FALSE;
         }
+
+        if(type_identify_with_class_name(param->mType, "pointer")) {
+            including_pointer_param = TRUE;
+        }
+    }
+
+    if(including_pointer_param) {
+        method->mFlags |= METHOD_FLAGS_NON_NATIVE_CODE;
     }
 
     sCompileInfo cinfo2;

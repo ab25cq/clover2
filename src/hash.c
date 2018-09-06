@@ -20,6 +20,7 @@ BOOL initialize_hash_object(CLObject hash_object, int num_elements, CLObject* ke
     (*stack_ptr)++;
 
     CLObject keys_array = create_array_object(class_keys, num_elements, info);
+    inc_refference_count(keys_array);
 
     sCLObject* object_data = CLOBJECT(keys_array);
 
@@ -32,6 +33,7 @@ BOOL initialize_hash_object(CLObject hash_object, int num_elements, CLObject* ke
     (*stack_ptr)++;
 
     CLObject items_array = create_array_object(class_items, num_elements, info);
+    inc_refference_count(items_array);
 
     sCLObject* object_data2 = CLOBJECT(items_array);
 

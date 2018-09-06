@@ -280,6 +280,7 @@ BOOL create_termios_object(CLObject* result, CLVALUE** stack_ptr, CLVALUE* lvar,
     sCLClass* cc_t_class = get_class("byte");
 
     object_data->mFields[4].mObjectValue = create_array_object(cc_t_class, 32, info);
+    inc_refference_count(object_data->mFields[4].mObjectValue);
 
     pop_global_stack(info);
 

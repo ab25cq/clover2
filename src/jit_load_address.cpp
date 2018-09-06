@@ -9,7 +9,29 @@ BOOL compile_to_native_code5(sByteCode* code, sConst* constant, sCLClass* klass,
         case OP_STORE_VALUE_TO_INT_ADDRESS: 
         case OP_STORE_VALUE_TO_UINT_ADDRESS:
         case OP_STORE_VALUE_TO_CHAR_ADDRESS:
-        case OP_STORE_VALUE_TO_BOOL_ADDRESS:
+        case OP_STORE_VALUE_TO_BOOL_ADDRESS: {
+            /// lvar of llvm stack to lvar of vm stack ///
+            lvar_of_llvm_to_lvar_of_vm(params, *current_block, llvm_stack, var_num);
+
+            /// go ///
+            LVALUE* address = get_stack_ptr_value_from_index(*llvm_stack_ptr, -2);
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            address->value = Builder.CreateCast(Instruction::BitCast, address->value, PointerType::get(IntegerType::get(TheContext, 32), 0));
+
+            LVALUE value2 = trunc_value(value, 32);
+
+            Builder.CreateAlignedStore(value2.value, address->value, 4);
+
+            dec_stack_ptr(llvm_stack_ptr, 2);
+
+            push_value_to_stack_ptr(llvm_stack_ptr, &value2);
+
+            /// lvar of vm stack to lvar of llvm stack ///
+            lvar_of_vm_to_lvar_of_llvm(params, *current_block, llvm_stack, var_num);
+            }
+            break;
+
         case OP_STORE_VALUE_TO_OBJECT_ADDRESS: {
             /// lvar of llvm stack to lvar of vm stack ///
             lvar_of_llvm_to_lvar_of_vm(params, *current_block, llvm_stack, var_num);
@@ -30,6 +52,18 @@ BOOL compile_to_native_code5(sByteCode* code, sConst* constant, sCLClass* klass,
 
             /// lvar of vm stack to lvar of llvm stack ///
             lvar_of_vm_to_lvar_of_llvm(params, *current_block, llvm_stack, var_num);
+
+            Function* fun = TheModule->getFunction("inc_refference_count");
+
+            std::vector<Value*> params2;
+
+            LVALUE llvm_value_32;
+            llvm_value_32 = trunc_value(value, 32);
+
+            Value* param1 = llvm_value_32.value;
+            params2.push_back(param1);
+
+            Builder.CreateCall(fun, params2);
             }
             break;
 

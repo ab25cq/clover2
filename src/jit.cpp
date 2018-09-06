@@ -314,6 +314,20 @@ call_show_inst_in_jit(inst);
             case OP_RETURN: {
                 LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
+/*
+                Function* fun = TheModule->getFunction("inc_refference_count");
+
+                std::vector<Value*> params2;
+
+                LVALUE llvm_value_32;
+                llvm_value_32 = trunc_value(llvm_value, 32);
+
+                Value* param1 = llvm_value_32.value;
+                params2.push_back(param1);
+
+                Builder.CreateCall(fun, params2);
+*/
+
                 LVALUE llvm_value2;
                 llvm_value2 = trunc_value(llvm_value, 64);
 
@@ -812,6 +826,18 @@ call_show_inst_in_jit(inst);
                 LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
                 store_llvm_value_to_lvar_with_offset(llvm_stack, index, llvm_value, FALSE);
+
+                Function* fun = TheModule->getFunction("inc_refference_count");
+
+                std::vector<Value*> params2;
+
+                LVALUE llvm_value_32;
+                llvm_value_32 = trunc_value(llvm_value, 32);
+
+                Value* param1 = llvm_value_32.value;
+                params2.push_back(param1);
+
+                Builder.CreateCall(fun, params2);
                 }
                 break;
 

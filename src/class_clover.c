@@ -35,6 +35,7 @@ BOOL Clover_initialize_lang(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     sCLClass* string_class = get_class("String");
 
     CLObject array = create_array_object(string_class, gARGC, info);
+    inc_refference_count(array);
 
     CLVALUE value;
     value.mObjectValue = array;
@@ -43,14 +44,19 @@ BOOL Clover_initialize_lang(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int i;
     for(i=0; i<gARGC; i++) {
         CLObject obj = create_string_object(gARGV[i], info);
+        inc_refference_count(obj);
 
         sCLObject* object_data = CLOBJECT(array);
 
         object_data->mFields[i].mObjectValue = obj;
     }
 
-    clover->mClassFields[1].mValue.mObjectValue = array;
-    clover->mClassFields[2].mValue.mObjectValue = create_string_object(gVersion, info);
+    mark_and_store_class_field(clover, 1, array);
+
+    CLObject string_object = create_string_object(gVersion, info);
+    inc_refference_count(string_object);
+    mark_and_store_class_field(clover, 2, string_object);
+
     clover->mClassFields[3].mValue.mULongValue = sizeof(sCLObject) - sizeof(CLVALUE) * DUMMY_ARRAY_SIZE;
     clover->mClassFields[4].mValue.mULongValue = sizeof(CLVALUE);
 
@@ -114,6 +120,7 @@ BOOL Clover_getField(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     CLVALUE cl_value;
     CLObject result = create_object(field_class, "Field", info);
+    inc_refference_count(result);
 
     cl_value.mObjectValue = result;
     push_value_to_global_stack(cl_value, info);
@@ -125,6 +132,7 @@ BOOL Clover_getField(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     char* field_name = CONS_str(&klass2->mConst, field->mNameOffset);
 
     CLObject field_name_object = create_string_object(field_name, info);
+    inc_refference_count(field_name_object);
 
     cl_value.mObjectValue = field_name_object;
     push_value_to_global_stack(cl_value, info);
@@ -134,6 +142,7 @@ BOOL Clover_getField(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     char* field_result_type = ALLOC cl_type_to_string(cl_type, klass2);
 
     CLObject field_result_type_object = create_string_object(field_result_type, info);
+    inc_refference_count(field_result_type_object);
 
     cl_value.mObjectValue = field_result_type_object;
     push_value_to_global_stack(cl_value, info);
@@ -191,6 +200,7 @@ BOOL Clover_getClassField(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     CLVALUE cl_value;
     CLObject result = create_object(field_class, "Field", info);
+    inc_refference_count(result);
 
     cl_value.mObjectValue = result;
     push_value_to_global_stack(cl_value, info);
@@ -202,6 +212,7 @@ BOOL Clover_getClassField(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     char* field_name = CONS_str(&klass2->mConst, field->mNameOffset);
 
     CLObject field_name_object = create_string_object(field_name, info);
+    inc_refference_count(field_name_object);
 
     cl_value.mObjectValue = field_name_object;
     push_value_to_global_stack(cl_value, info);
@@ -211,6 +222,7 @@ BOOL Clover_getClassField(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     char* field_result_type = ALLOC cl_type_to_string(cl_type, klass2);
 
     CLObject field_result_type_object = create_string_object(field_result_type, info);
+    inc_refference_count(field_result_type_object);
 
     cl_value.mObjectValue = field_result_type_object;
     push_value_to_global_stack(cl_value, info);
@@ -270,6 +282,7 @@ BOOL Clover_getMethod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     CLVALUE cl_value;
     CLObject result = create_object(method_class, "Method", info);
+    inc_refference_count(result);
 
     cl_value.mObjectValue = result;
     push_value_to_global_stack(cl_value, info);
@@ -281,6 +294,7 @@ BOOL Clover_getMethod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     char* method_name = CONS_str(&klass2->mConst, method->mNameOffset);
 
     CLObject method_name_object = create_string_object(method_name, info);
+    inc_refference_count(method_name_object);
 
     cl_value.mObjectValue = method_name_object;
     push_value_to_global_stack(cl_value, info);
@@ -288,6 +302,7 @@ BOOL Clover_getMethod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     char* path_name = CONS_str(&klass2->mConst, method->mPathOffset);
 
     CLObject path_name_object = create_string_object(path_name, info);
+    inc_refference_count(path_name_object);
 
     cl_value.mObjectValue = path_name_object;
     push_value_to_global_stack(cl_value, info);
@@ -295,6 +310,7 @@ BOOL Clover_getMethod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     char* method_name_and_params = CONS_str(&klass2->mConst, method->mMethodNameAndParamsOffset);
 
     CLObject method_name_and_params_object = create_string_object(method_name_and_params, info);
+    inc_refference_count(method_name_and_params_object);
 
     cl_value.mObjectValue = method_name_and_params_object;
     push_value_to_global_stack(cl_value, info);
@@ -304,6 +320,7 @@ BOOL Clover_getMethod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     sCLClass* method_param_class = get_class("MethodParam");
 
     CLObject params_object = create_array_object(method_param_class, method->mNumParams, info);
+    inc_refference_count(params_object);
 
     cl_value.mObjectValue = params_object;
     push_value_to_global_stack(cl_value, info);
@@ -313,12 +330,14 @@ BOOL Clover_getMethod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
         sCLParam* param = method->mParams + i;
 
         CLObject param_object = create_object(method_param_class, "MethodParam", info);
+        inc_refference_count(param_object);
 
         sCLObject* object_data = CLOBJECT(params_object);
         object_data->mFields[i].mObjectValue = param_object;
 
         char* name = CONS_str(&klass2->mConst, param->mNameOffset);
         CLObject name_object = create_string_object(name, info);
+        inc_refference_count(name_object);
 
         sCLObject* object_data2 = CLOBJECT(param_object);
         object_data2->mFields[0].mObjectValue = name_object;
@@ -326,6 +345,7 @@ BOOL Clover_getMethod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
         sCLType* cl_type = param->mType;
         char* type = ALLOC cl_type_to_string(cl_type, klass2);
         CLObject type_name_object = create_string_object(type, info);
+        inc_refference_count(type_name_object);
         MFREE(type);
 
         object_data2 = CLOBJECT(param_object);   // prepend from memory move on GC
@@ -335,6 +355,7 @@ BOOL Clover_getMethod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     sCLType* cl_type = method->mResultType;
     char* type = ALLOC cl_type_to_string(cl_type, klass2);
     CLObject type_name_object = create_string_object(type, info);
+    inc_refference_count(type_name_object);
     MFREE(type);
 
     cl_value.mObjectValue = type_name_object;
@@ -347,6 +368,7 @@ BOOL Clover_getMethod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     MASSERT(string_class != NULL);
 
     CLObject generics_param_types_object = create_array_object(string_class, method->mNumGenerics, info);
+    inc_refference_count(generics_param_types_object);
 
     cl_value.mObjectValue = generics_param_types_object;
     push_value_to_global_stack(cl_value, info);
@@ -354,6 +376,7 @@ BOOL Clover_getMethod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     for(i=0; i<method->mNumGenerics; i++) {
         char* generics_param_class_name = CONS_str(&klass2->mConst, method->mGenericsParamTypeOffsets[i]);
         CLObject generics_param_class_name_object = create_string_object(generics_param_class_name, info);
+        inc_refference_count(generics_param_class_name_object);
 
         sCLObject* object_data3 = CLOBJECT(generics_param_types_object);
         object_data3->mFields[i].mObjectValue = generics_param_class_name_object;
@@ -443,6 +466,7 @@ BOOL Clover_getClassGenericsParamTypes(CLVALUE** stack_ptr, CLVALUE* lvar, sVMIn
     MASSERT(string_class != NULL);
 
     CLObject generics_param_types_object = create_array_object(string_class, klass2->mNumGenerics, info);
+    inc_refference_count(generics_param_types_object);
 
     CLVALUE cl_value;
     cl_value.mObjectValue = generics_param_types_object;
@@ -452,6 +476,7 @@ BOOL Clover_getClassGenericsParamTypes(CLVALUE** stack_ptr, CLVALUE* lvar, sVMIn
     for(i=0; i<klass2->mNumGenerics; i++) {
         char* generics_param_class_name = CONS_str(&klass2->mConst, klass2->mGenericsParamTypeOffsets[i]);
         CLObject generics_param_class_name_object = create_string_object(generics_param_class_name, info);
+        inc_refference_count(generics_param_class_name_object);
 
         sCLObject* object_data3 = CLOBJECT(generics_param_types_object);
         object_data3->mFields[i].mObjectValue = generics_param_class_name_object;
@@ -494,6 +519,7 @@ BOOL Clover_getClassGenericsParamNames(CLVALUE** stack_ptr, CLVALUE* lvar, sVMIn
     MASSERT(string_class != NULL);
 
     CLObject generics_param_names_object = create_array_object(string_class, klass2->mNumGenerics, info);
+    inc_refference_count(generics_param_names_object);
 
     CLVALUE cl_value;
     cl_value.mObjectValue = generics_param_names_object;
@@ -503,6 +529,7 @@ BOOL Clover_getClassGenericsParamNames(CLVALUE** stack_ptr, CLVALUE* lvar, sVMIn
     for(i=0; i<klass2->mNumGenerics; i++) {
         char* generics_param_name = CONS_str(&klass2->mConst, klass2->mGenericsParamNameOffsets[i]);
         CLObject generics_param_name_object = create_string_object(generics_param_name, info);
+        inc_refference_count(generics_param_name_object);
 
         sCLObject* object_data3 = CLOBJECT(generics_param_names_object);
         object_data3->mFields[i].mObjectValue = generics_param_name_object;
@@ -667,6 +694,7 @@ BOOL Clover_getAllClassName(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     sCLClass* string_class = get_class("String");
 
     CLObject object = create_array_object(string_class, num, info);
+    inc_refference_count(object);
 
     CLVALUE cl_value;
     cl_value.mObjectValue = object;
@@ -680,6 +708,7 @@ BOOL Clover_getAllClassName(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
         sCLClass* klass = p->mItem;
 
         CLObject string_object = create_string_object(CLASS_NAME(klass), info);
+        inc_refference_count(string_object);
 
         sCLObject* object_data = CLOBJECT(object);
         object_data->mFields[num].mObjectValue = string_object;
@@ -719,6 +748,7 @@ BOOL Clover_createObject(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     }
 
     CLObject result = create_object(klass, class_name_value, info);
+    inc_refference_count(result);
 
     /// go ///
     (*stack_ptr)->mObjectValue = result;
@@ -753,6 +783,7 @@ BOOL Clover_createArray(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     }
 
     CLObject result = create_array_object(klass, size_value, info);
+    inc_refference_count(result);
 
     /// go ///
     (*stack_ptr)->mObjectValue = result;
@@ -799,7 +830,7 @@ BOOL Clover_isTypedefedClass(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 BOOL Clover_gc(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     vm_mutex_on();
-    gc(info);
+    gc(info, TRUE);
     vm_mutex_off();
 
     return TRUE;

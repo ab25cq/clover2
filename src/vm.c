@@ -544,9 +544,20 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             info->num_stack_trace++;
         }
     }
+
+
+    CLVALUE* lvar = NULL;
+    int num_params = 0;
+
     if(method->mFlags & METHOD_FLAGS_C_FUNCTION) {
 #ifdef HAVE_AVCALL_H
-        CLVALUE* lvar = *stack_ptr - method->mNumParams;
+        lvar = *stack_ptr - method->mNumParams;
+        num_params = method->mNumParams;
+
+        int k;
+        for(k=0; k<num_params; k++) {
+            inc_refference_count(lvar[k].mObjectValue);
+        }
 
         if(method->mCFunctionPointer == NULL) {
             entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "C Function method not found");
@@ -825,7 +836,13 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
     }
     else if(method->mFlags & METHOD_FLAGS_NATIVE) 
     {
-        CLVALUE* lvar = *stack_ptr - method->mNumParams;
+        lvar = *stack_ptr - method->mNumParams;
+        num_params = method->mNumParams;
+
+        int k;
+        for(k=0; k<num_params; k++) {
+            inc_refference_count(lvar[k].mObjectValue);
+        }
 
         if(method->mNativeMethod == NULL) {
             char* path = CONS_str(&klass->mConst, method->mPathOffset);
@@ -881,7 +898,13 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
     else {
         int real_param_num = method->mNumParams + (method->mFlags & METHOD_FLAGS_CLASS_METHOD ? 0:1);
 
-        CLVALUE* lvar = *stack_ptr - real_param_num;
+        lvar = *stack_ptr - real_param_num;
+        num_params = real_param_num;
+
+        int k;
+        for(k=0; k<num_params; k++) {
+            inc_refference_count(lvar[k].mObjectValue);
+        }
 
         sByteCode code;
         sByteCode_clone(&code, &method->mByteCodes);
@@ -945,9 +968,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
     info->running_class_name = running_class_name;
     info->running_method_name = running_method_name;
 
-    info->mGlobalStackPtr = info->mGlobalStack + num_global_strck_ptr;
-
-    push_object_to_global_stack(result_object, info);
+    free_global_stack_objects(info, result_object, num_global_strck_ptr, lvar, num_params);
 
     return TRUE;
 }
@@ -1029,6 +1050,8 @@ static BOOL initialize_class(sCLClass* klass, BOOL compile_time)
 
             sVMInfo info;
             memset(&info, 0, sizeof(sVMInfo));
+
+            info.prohibit_delete_global_stack = TRUE;
 
             create_global_stack_and_append_it_to_stack_list(&info);
 
@@ -1545,6 +1568,8 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
     CLVALUE* stack_ptr = stack + var_num;
     CLVALUE* lvar = stack;
 
+    sCLStack* stack_id = append_stack_to_stack_list(stack, &stack_ptr);
+
     int try_offset_before = 0;
     char** try_pc_before = NULL;
     sByteCode* try_code_before = NULL;
@@ -1654,7 +1679,8 @@ show_inst(inst);
 
             case OP_RETURN:
                 *(stack+var_num) = *(stack_ptr-1);
-                
+
+                remove_stack_to_stack_list(stack_id);
                 return TRUE;
 
             case OP_THROW: {
@@ -1664,7 +1690,7 @@ show_inst(inst);
 
                 entry_exception_object(exception, info);
 
-                
+                remove_stack_to_stack_list(stack_id);
                 }
                 return FALSE;
 
@@ -1779,7 +1805,7 @@ show_inst(inst);
                     gSigInt = FALSE;
 
                     entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Signal Interrupt");
-                    
+                    remove_stack_to_stack_list(stack_id);
                     return FALSE;
                 }
                 break;
@@ -1829,6 +1855,8 @@ show_inst(inst);
                     pc += sizeof(int);
 
                     lvar[index] = *(stack_ptr-1);
+
+                    inc_refference_count(lvar[index].mObjectValue);
                 }
                 break;
 
@@ -1848,7 +1876,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -1867,7 +1895,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -2194,7 +2222,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -2223,7 +2251,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -2364,7 +2392,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -2393,7 +2421,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -2534,7 +2562,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -2563,7 +2591,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -2704,7 +2732,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -2733,7 +2761,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -2874,7 +2902,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -2903,7 +2931,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -3044,7 +3072,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -3073,7 +3101,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -3211,7 +3239,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -3239,7 +3267,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -3371,7 +3399,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -3399,7 +3427,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -3620,7 +3648,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -3688,7 +3716,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -4848,7 +4876,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -4865,7 +4893,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -4894,7 +4922,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -4927,7 +4955,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -4955,7 +4983,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -4988,7 +5016,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -5005,7 +5033,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -5084,7 +5112,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -5098,7 +5126,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -5113,7 +5141,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -5142,7 +5170,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -5171,7 +5199,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -5184,7 +5212,7 @@ show_inst(inst);
                                 break;
                             }
                             else {
-                                
+                                remove_stack_to_stack_list(stack_id);
                                 return FALSE;
                             }
                         }
@@ -5231,7 +5259,7 @@ show_inst(inst);
                                 break;
                             }
                             else {
-                                
+                                remove_stack_to_stack_list(stack_id);
                                 return FALSE;
                             }
                         }
@@ -5251,7 +5279,7 @@ show_inst(inst);
                                 break;
                             }
                             else {
-                                
+                                remove_stack_to_stack_list(stack_id);
                                 return FALSE;
                             }
                         }
@@ -5299,7 +5327,7 @@ show_inst(inst);
                                 break;
                             }
                             else {
-                                
+                                remove_stack_to_stack_list(stack_id);
                                 return FALSE;
                             }
                         }
@@ -5320,7 +5348,7 @@ show_inst(inst);
                                 break;
                             }
                             else {
-                                
+                                remove_stack_to_stack_list(stack_id);
                                 return FALSE;
                             }
                         }
@@ -5335,7 +5363,7 @@ show_inst(inst);
                                 break;
                             }
                             else {
-                                
+                                remove_stack_to_stack_list(stack_id);
                                 return FALSE;
                             }
                         }
@@ -5384,7 +5412,7 @@ show_inst(inst);
                                 break;
                             }
                             else {
-                                
+                                remove_stack_to_stack_list(stack_id);
                                 return FALSE;
                             }
                         }
@@ -5411,7 +5439,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -5449,7 +5477,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -5494,7 +5522,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -5511,7 +5539,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -5525,7 +5553,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -5553,7 +5581,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -5570,7 +5598,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -5585,7 +5613,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -5617,7 +5645,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -5634,7 +5662,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -5648,7 +5676,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -5657,6 +5685,8 @@ show_inst(inst);
                     stack_ptr-=2;
                     *stack_ptr = value;
                     stack_ptr++;
+
+                    inc_refference_count(value.mObjectValue);
                 }
                 break;
 
@@ -5680,7 +5710,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -5697,7 +5727,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -5711,7 +5741,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -5727,7 +5757,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -5746,7 +5776,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -5784,7 +5814,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -5799,7 +5829,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -5833,7 +5863,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -5848,7 +5878,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -5883,7 +5913,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -5898,15 +5928,14 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
 
                     CLVALUE value = *(stack_ptr-1);
 
-                    sCLField* field = klass->mClassFields + field_index;
-                    field->mValue = value;
+                    mark_and_store_class_field(klass, field_index, value.mObjectValue);
                 }
                 break;
 
@@ -5932,7 +5961,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -5947,7 +5976,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -5967,7 +5996,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -5986,12 +6015,14 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
 
                     object_data->mFields[3].mPointerValue = value.mPointerValue;
+
+                    gc(info, TRUE);
                 }
                 break;
 
@@ -6014,7 +6045,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -6022,7 +6053,7 @@ show_inst(inst);
                     sCLObject* object_pointer = CLOBJECT(array);
 
                     if(element_num < 0 || element_num >= object_pointer->mArrayNum) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "element index is invalid");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "element index is invalid(1)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -6030,7 +6061,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -6057,7 +6088,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -6066,7 +6097,7 @@ show_inst(inst);
 
                     if(element_num < 0 || element_num >= object_pointer->mArrayNum) {
                         
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "element index is invalid");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "element index is invalid(2)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -6074,7 +6105,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -6102,7 +6133,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -6111,7 +6142,7 @@ show_inst(inst);
 
                     if(element_num < 0 || element_num >= object_pointer->mArrayNum) {
                         
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "element index is invalid");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "element index is invalid(3)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -6119,7 +6150,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -6136,7 +6167,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -6154,7 +6185,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -6383,8 +6414,6 @@ show_inst(inst);
 
             case OP_STORE_VALUE_TO_POINTER_ADDRESS:
                 {
-                    
-
                     CLVALUE address = *(stack_ptr-2);
                     CLVALUE value = *(stack_ptr-1);
 
@@ -6401,15 +6430,11 @@ show_inst(inst);
 
                     *stack_ptr = value;
                     stack_ptr++;
-
-                    
                 }
                 break;
 
             case OP_STORE_VALUE_TO_CHAR_ADDRESS:
                 {
-                    
-
                     CLVALUE address = *(stack_ptr-2);
                     CLVALUE value = *(stack_ptr-1);
 
@@ -6469,6 +6494,8 @@ show_inst(inst);
 #endif
 */
                     pointer->mObjectValue = value.mObjectValue;
+
+                    inc_refference_count(value.mObjectValue);
 
                     stack_ptr-=2;
 
@@ -6868,7 +6895,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -6897,7 +6924,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -6928,7 +6955,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -6959,7 +6986,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -6990,7 +7017,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -7021,7 +7048,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -7052,7 +7079,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -7083,7 +7110,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -7114,7 +7141,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -7145,7 +7172,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -7176,7 +7203,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -7207,7 +7234,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -7238,7 +7265,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -7414,7 +7441,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -7445,7 +7472,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -7476,7 +7503,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -7507,7 +7534,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -7538,7 +7565,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -7569,7 +7596,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -7600,7 +7627,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -7631,7 +7658,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -7662,7 +7689,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -7693,7 +7720,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -7711,8 +7738,6 @@ show_inst(inst);
 
             case OP_CPOINTER_TO_SHORT_CAST:
                 {
-                    
-
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
@@ -7724,7 +7749,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -7755,7 +7780,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -7786,7 +7811,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -7957,7 +7982,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -7988,7 +8013,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -8019,7 +8044,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -8050,7 +8075,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -8079,7 +8104,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -8106,7 +8131,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -8135,7 +8160,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -8164,7 +8189,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -8193,7 +8218,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -8224,7 +8249,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -8255,7 +8280,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -8286,7 +8311,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -8317,7 +8342,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -8480,7 +8505,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -8510,7 +8535,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -8540,7 +8565,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -8570,7 +8595,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -8600,7 +8625,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -8630,7 +8655,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -8660,7 +8685,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -8690,7 +8715,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -8720,7 +8745,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -8750,7 +8775,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -8780,7 +8805,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -8810,7 +8835,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -8840,7 +8865,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -9012,7 +9037,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -9043,7 +9068,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -9074,7 +9099,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -9105,7 +9130,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -9136,7 +9161,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -9167,7 +9192,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -9198,7 +9223,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -9229,7 +9254,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -9260,7 +9285,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -9291,7 +9316,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -9322,7 +9347,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -9353,7 +9378,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -9384,7 +9409,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -9558,7 +9583,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -9589,7 +9614,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -9620,7 +9645,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -9651,7 +9676,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -9682,7 +9707,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -9713,7 +9738,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -9744,7 +9769,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -9775,7 +9800,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -9806,7 +9831,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -9837,7 +9862,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -9868,7 +9893,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -9899,7 +9924,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -9930,7 +9955,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -10106,7 +10131,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -10137,7 +10162,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -10168,7 +10193,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -10199,7 +10224,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -10230,7 +10255,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -10261,7 +10286,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -10292,7 +10317,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -10323,7 +10348,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -10354,7 +10379,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -10385,7 +10410,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -10416,7 +10441,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -10447,7 +10472,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -10478,7 +10503,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -10644,7 +10669,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -10674,7 +10699,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -10704,7 +10729,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -10734,7 +10759,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -10764,7 +10789,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -10794,7 +10819,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -10824,7 +10849,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -10854,7 +10879,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -10884,7 +10909,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -10914,7 +10939,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -10944,7 +10969,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -10974,7 +10999,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -11004,7 +11029,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -11166,7 +11191,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -11197,7 +11222,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -11228,7 +11253,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -11259,7 +11284,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -11290,7 +11315,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -11321,7 +11346,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -11352,7 +11377,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -11383,7 +11408,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -11414,7 +11439,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -11445,7 +11470,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -11477,7 +11502,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -11508,7 +11533,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -11662,7 +11687,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -11692,7 +11717,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -11722,7 +11747,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -11752,7 +11777,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -11782,7 +11807,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -11812,7 +11837,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -11842,7 +11867,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -11872,7 +11897,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -11902,7 +11927,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -11932,7 +11957,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -11962,7 +11987,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -11992,7 +12017,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -12135,6 +12160,7 @@ show_inst(inst);
                             break;
                         }
                         else {
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -12312,7 +12338,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -12343,7 +12369,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -12374,7 +12400,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -12405,7 +12431,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -12436,7 +12462,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -12467,7 +12493,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -12498,7 +12524,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -12529,7 +12555,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -12560,7 +12586,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -12591,7 +12617,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -12622,7 +12648,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -12651,7 +12677,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -12682,7 +12708,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -15449,7 +15475,7 @@ show_inst(inst);
                         break;
                     }
                     else {
-                        
+                        remove_stack_to_stack_list(stack_id);
                         return FALSE;
                     }
                 }
@@ -15727,6 +15753,7 @@ show_inst(inst);
                             else {
                                 
                                 MFREE(buf.mBuf);
+                                remove_stack_to_stack_list(stack_id);
                                 return FALSE;
                             }
                         }
@@ -15794,6 +15821,7 @@ show_inst(inst);
                             else {
                                 
                                 MFREE(buf.mBuf);
+                                remove_stack_to_stack_list(stack_id);
                                 return FALSE;
                             }
                         }
@@ -15859,6 +15887,7 @@ show_inst(inst);
                             else {
                                 
                                 MFREE(buf.mBuf);
+                                remove_stack_to_stack_list(stack_id);
                                 return FALSE;
                             }
                         }
@@ -15902,7 +15931,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -15954,7 +15983,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -15983,7 +16012,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -16024,7 +16053,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -16053,7 +16082,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -16096,7 +16125,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -16125,7 +16154,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -16168,7 +16197,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -16197,7 +16226,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -16237,7 +16266,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -16266,7 +16295,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -16307,7 +16336,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -16336,7 +16365,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -16386,7 +16415,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -16424,7 +16453,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -16449,7 +16478,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -16483,7 +16512,7 @@ show_inst(inst);
                             break;
                         }
                         else {
-                            
+                            remove_stack_to_stack_list(stack_id);
                             return FALSE;
                         }
                     }
@@ -16615,6 +16644,7 @@ show_inst(inst);
                             else {
                                 
                                 MFREE(buf.mBuf);
+                                remove_stack_to_stack_list(stack_id);
                                 return FALSE;
                             }
                         }
@@ -16647,6 +16677,7 @@ show_inst(inst);
         vm_mutex_on();  // for invoke_method after running vm must be turn mutex on
     }
     
+    remove_stack_to_stack_list(stack_id);
 
     return TRUE;
 }

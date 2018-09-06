@@ -53,6 +53,7 @@ CLObject create_carray_object_with_elements(int num_elements, CLObject* elements
     MASSERT(object_class != NULL);
 
     CLObject array = create_array_object(object_class, num_elements, info);
+    inc_refference_count(array);
     sCLObject* obj_data = CLOBJECT(obj);
     obj_data->mFields[0].mObjectValue = array;
 
@@ -79,6 +80,7 @@ BOOL initialize_carray_object(CLObject array_object, int num_elements, CLObject*
     (*stack_ptr)++;
 
     CLObject items_array = create_array_object(class_items, num_elements, info);
+    inc_refference_count(items_array);
 
     sCLObject* object_data2 = CLOBJECT(items_array);
 
@@ -125,6 +127,7 @@ CLObject create_equalable_carray_object_with_elements(int num_elements, CLObject
     MASSERT(object_class != NULL);
 
     CLObject array = create_array_object(object_class, num_elements, info);
+    inc_refference_count(array);
     sCLObject* obj_data = CLOBJECT(obj);
     obj_data->mFields[0].mObjectValue = array;
 
@@ -151,6 +154,7 @@ BOOL initialize_equalable_carray_object(CLObject array_object, int num_elements,
     (*stack_ptr)++;
 
     CLObject items_array = create_array_object(class_items, num_elements, info);
+    inc_refference_count(items_array);
 
     sCLObject* object_data2 = CLOBJECT(items_array);
 
@@ -197,6 +201,7 @@ CLObject create_sortable_carray_object_with_elements(int num_elements, CLObject*
     MASSERT(object_class != NULL);
 
     CLObject array = create_array_object(object_class, num_elements, info);
+    inc_refference_count(array);
     sCLObject* obj_data = CLOBJECT(obj);
     obj_data->mFields[0].mObjectValue = array;
 
@@ -223,6 +228,7 @@ BOOL initialize_sortable_carray_object(CLObject array_object, int num_elements, 
     (*stack_ptr)++;
 
     CLObject items_array = create_array_object(class_items, num_elements, info);
+    inc_refference_count(items_array);
 
     sCLObject* object_data2 = CLOBJECT(items_array);
 

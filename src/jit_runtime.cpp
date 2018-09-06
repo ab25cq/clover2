@@ -230,7 +230,9 @@ BOOL call_invoke_dynamic_method(int offset, int offset2, int num_params, int sta
 
         CLObject carray = create_carray_object_with_elements(num_params, elements ,info);
 
-        push_object_to_global_stack(carray, info);
+        CLVALUE cl_value;
+        cl_value.mObjectValue = carray;
+        push_value_to_global_stack(cl_value, info);
 
         (*stack_ptr)-=num_params;
 
@@ -279,7 +281,10 @@ BOOL call_invoke_dynamic_method(int offset, int offset2, int num_params, int sta
 
         CLObject carray = create_carray_object_with_elements(num_params, elements, info);
 
-        push_object_to_global_stack(carray, info);
+        CLVALUE cl_value;
+        cl_value.mObjectValue = carray;
+
+        push_value_to_global_stack(cl_value, info);
 
         (*stack_ptr)-=num_params;
 
@@ -352,6 +357,8 @@ struct sCLVALUEAndBoolResult* store_field(CLVALUE** stack_ptr, CLVALUE* stack, i
     }
 
     object_pointer->mFields[field_index] = value;
+
+    inc_refference_count(value.mObjectValue);
 
     result->result1 = value;
     result->result2 = TRUE;
@@ -446,8 +453,7 @@ BOOL store_class_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo
         return FALSE;
     }
 
-    sCLField* field = klass->mClassFields + field_index;
-    field->mValue = value;
+    mark_and_store_class_field(klass, field_index, value.mObjectValue);
 
     return TRUE;
 }
@@ -785,7 +791,7 @@ BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClas
             CLVALUE** stack_ptr_address = &stack_ptr;
             fJITMethodType fun2 = (fJITMethodType)method->mJITDynamicSym;
 
-            CLVALUE** global_stack_ptr_address = &info->mGlobalStackPtr;
+            CLVALUE** global_stack_ptr_address = &info->mTmpGlobalStackPtr;
 
             BOOL result = fun2(stack_ptr, lvar, info, stack, stack_ptr_address, var_num, constant, code, global_stack_ptr_address, stack + var_num);
 
@@ -1283,9 +1289,7 @@ void* run_buffer_to_pointer_cast(CLObject object, sVMInfo* info)
 
     char* pointer_value = object_data->mFields[3].mPointerValue;
 
-    CLVALUE cl_value;
-    cl_value.mObjectValue = object;
-    push_value_to_global_stack(cl_value, info);
+    push_object_to_global_stack(object, info);
 
     return (void*)pointer_value;
 }
@@ -1542,7 +1546,9 @@ struct sCLVALUEAndBoolResult* run_array_to_carray_cast(CLVALUE** stack_ptr, CLVA
 
     CLObject new_array = create_object(klass2, type_name, info);
 
-    push_object_to_global_stack(new_array, info);
+    CLVALUE cl_value;
+    cl_value.mObjectValue = new_array;
+    push_value_to_global_stack(cl_value, info);
 
     CLObject new_primitive_array;
     if(klass->mFlags & CLASS_FLAGS_PRIMITIVE) {

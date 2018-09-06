@@ -7980,6 +7980,10 @@ BOOL compile_get_address(unsigned int node, sCompileInfo* info)
         info->type = create_node_type_with_class_name("int"); // dummy
     }
 
+    if(info->method) {
+        info->method->mFlags |= METHOD_FLAGS_NON_NATIVE_CODE;  // including getting address code should be runned in none native code
+    }
+
     return TRUE;
 }
 
@@ -10393,10 +10397,6 @@ void show_node(unsigned int node)
 
         case kNodeTypeMultipleAsignment:
             puts("multiple asignment");
-            break;
-
-        case kNodeTypeDecrementOperand:
-            puts("kNodeTypeDecrementOperand");
             break;
     }
 }

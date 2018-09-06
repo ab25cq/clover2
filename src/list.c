@@ -20,6 +20,7 @@ BOOL initialize_list_object(CLObject list_object, int num_elements, CLObject* it
     (*stack_ptr)++;
 
     CLObject items_array = create_array_object(class_items, num_elements, info);
+    inc_refference_count(items_array);
 
     sCLObject* object_data2 = CLOBJECT(items_array);
 
@@ -63,6 +64,7 @@ BOOL initialize_sortable_list_object(CLObject list_object, int num_elements, CLO
     (*stack_ptr)++;
 
     CLObject items_array = create_array_object(class_items, num_elements, info);
+    inc_refference_count(items_array);
 
     sCLObject* object_data2 = CLOBJECT(items_array);
 
@@ -106,6 +108,7 @@ BOOL initialize_equalable_list_object(CLObject list_object, int num_elements, CL
     (*stack_ptr)++;
 
     CLObject items_array = create_array_object(class_items, num_elements, info);
+    inc_refference_count(items_array);
 
     sCLObject* object_data2 = CLOBJECT(items_array);
 

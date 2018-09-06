@@ -9,15 +9,51 @@ void create_global_stack_and_append_it_to_stack_list(sVMInfo* info)
     info->mGlobalStackPtr = info->mGlobalStack;
 
     info->mGlobalStackID = append_stack_to_stack_list(info->mGlobalStack, &info->mGlobalStackPtr);
+
+    info->mTmpSizeGlobalStack = GLOBAL_STACK_MAX;
+    info->mTmpGlobalStack = MCALLOC(1, sizeof(CLVALUE)*info->mTmpSizeGlobalStack);
+    info->mTmpGlobalStackPtr = info->mTmpGlobalStack;
+
+    info->mTmpGlobalStackID = append_stack_to_stack_list(info->mTmpGlobalStack, &info->mTmpGlobalStackPtr);
 }
 
 void free_global_stack(sVMInfo* info)
 {
     remove_stack_to_stack_list(info->mGlobalStackID);
     MFREE(info->mGlobalStack);
+
+    remove_stack_to_stack_list(info->mTmpGlobalStackID);
+    MFREE(info->mTmpGlobalStack);
 }
 
 void push_value_to_global_stack(CLVALUE value, sVMInfo* info)
+{
+    int num_global_stack = info->mTmpGlobalStackPtr - info->mTmpGlobalStack;
+    if(num_global_stack >= info->mTmpSizeGlobalStack-1) {
+        int new_size = (info->mTmpSizeGlobalStack + num_global_stack) * 2;
+        info->mTmpGlobalStack = MREALLOC(info->mTmpGlobalStack, sizeof(CLVALUE)*new_size);
+
+        info->mTmpGlobalStackPtr = info->mTmpGlobalStack + num_global_stack;
+
+        sCLStack* it = gHeadStack;
+        while(it) {
+            if(it->mStackID == info->mTmpGlobalStackID->mStackID) {
+                it->mStack = info->mTmpGlobalStack;
+                it->mStackPtr = &info->mTmpGlobalStackPtr;
+                break;
+            }
+
+            it = it->mNextStack;
+        }
+
+        info->mTmpSizeGlobalStack = new_size;
+    }
+
+    *info->mTmpGlobalStackPtr = value;
+    info->mTmpGlobalStackPtr++;
+}
+
+void push_object_to_global_stack(CLObject obj, struct sVMInfoStruct* info)
 {
     int num_global_stack = info->mGlobalStackPtr - info->mGlobalStack;
     if(num_global_stack >= info->mSizeGlobalStack-1) {
@@ -40,27 +76,19 @@ void push_value_to_global_stack(CLVALUE value, sVMInfo* info)
         info->mSizeGlobalStack = new_size;
     }
 
-    *info->mGlobalStackPtr = value;
+    info->mGlobalStackPtr->mObjectValue = obj;
     info->mGlobalStackPtr++;
-}
-
-void push_object_to_global_stack(CLObject obj, struct sVMInfoStruct* info)
-{
-    CLVALUE cl_value;
-    cl_value.mObjectValue = obj;
-
-    push_value_to_global_stack(cl_value, info);
 }
 
 CLVALUE pop_global_stack(sVMInfo* info)
 {
-    if(info->mGlobalStackPtr <= info->mGlobalStack) {
+    if(info->mTmpGlobalStackPtr <= info->mTmpGlobalStack) {
         fprintf(stderr, "Invalid global stack. abort\n");
         exit(2);
     }
 
-    CLVALUE value = *(info->mGlobalStackPtr-1);
-    info->mGlobalStackPtr--;
+    CLVALUE value = *(info->mTmpGlobalStackPtr-1);
+    info->mTmpGlobalStackPtr--;
 
     return value;
 }
@@ -80,7 +108,6 @@ void stack_final()
         it = next;
     }
 }
-
 
 sCLStack* append_stack_to_stack_list(CLVALUE* stack_mem, CLVALUE** stack_ptr)
 {

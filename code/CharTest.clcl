@@ -32,6 +32,8 @@ class CharTest {
 
         Clover.test("sys call test3", wcs[0] == 'あ' && wcs[1] == 'い' && wcs[2] == 'う' && wcs[3] == '\0');
 
+println("4");
+
         Clover.test("char cast test", isalpha('a'));
         Clover.test("char cast test2", 'a'.isalpha());
         Clover.test("char cast test3", '0'.isdigit());
